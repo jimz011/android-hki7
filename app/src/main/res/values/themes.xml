@@ -1,0 +1,25 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.HKI7" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:dialogTheme">@style/Theme.HKI7.Dialog</item>
+        <item name="android:alertDialogTheme">@style/Theme.HKI7.Dialog</item>
+    </style>
+
+    <style name="Theme.HKI7.Dialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@style/HKI7DialogBottomAnimation</item>
+        <item name="android:backgroundDimAmount">0.9</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">shortEdges</item>
+        <item name="android:windowBlurBehindEnabled" tools:targetApi="s">true</item>
+        <item name="android:windowBlurBehindRadius" tools:targetApi="s">32dp</item>
+    </style>
+
+    <style name="HKI7DialogBottomAnimation">
+        <item name="android:windowEnterAnimation">@anim/dialog_slide_in_bottom</item>
+        <item name="android:windowExitAnimation">@anim/dialog_slide_out_bottom</item>
+    </style>
+</resources>
