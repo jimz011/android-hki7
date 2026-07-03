@@ -44,6 +44,7 @@ import kotlinx.serialization.json.jsonPrimitive
 fun EditRemoveBadge(onClick: () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
+            .offset(x = 6.dp, y = (-6).dp)
             .size(20.dp)
             .zIndex(2f)
             .background(Color(0xFF3C3C3E), CircleShape)
@@ -68,6 +69,15 @@ fun mediaPlayerStatus(entity: HAEntity?): String? {
         if (!artist.isNullOrBlank()) "$prefix$title • $artist" else "$prefix$title"
     } else {
         entity.state.replaceFirstChar { it.uppercase() }
+    }
+}
+
+fun mediaPlayerStateIcon(entity: HAEntity?): ImageVector? {
+    entity ?: return null
+    return when (entity.state.lowercase()) {
+        "playing" -> Icons.Default.PlayArrow
+        "paused" -> Icons.Default.Pause
+        else -> Icons.Default.Stop
     }
 }
 

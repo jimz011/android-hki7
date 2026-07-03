@@ -67,6 +67,7 @@ import com.example.hki7.data.HAArea
 import com.example.hki7.data.HAEntity
 import com.example.hki7.ui.components.EditRemoveBadge
 import com.example.hki7.ui.components.mediaPlayerStatus
+import com.example.hki7.ui.components.mediaPlayerStateIcon
 import com.example.hki7.data.HAFloor
 import com.example.hki7.data.HKIAreaConfig
 import com.example.hki7.ui.MainViewModel
@@ -392,12 +393,13 @@ fun AreaCard(
                 }
             }
 
-            val mediaStatus = config.mediaPlayerEntityId
+            val mediaPlayerEntity = config.mediaPlayerEntityId
                 ?.let { id -> allEntities.find { it.entity_id == id } }
-                ?.let { mediaPlayerStatus(it) }
+            val mediaStatus = mediaPlayerStatus(mediaPlayerEntity)
+            val mediaIcon = mediaPlayerStateIcon(mediaPlayerEntity)
             Box(
                 modifier = Modifier.fillMaxSize().padding(16.dp),
-                contentAlignment = Alignment.BottomStart
+                contentAlignment = Alignment.TopStart
             ) {
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -410,13 +412,25 @@ fun AreaCard(
                         Text(config.name ?: area.name, style = MaterialTheme.typography.titleMedium, color = if (imageUrl != null) Color.White else appColors.onSurface, fontWeight = FontWeight.Bold)
                     }
                     if (mediaStatus != null) {
-                        Text(
-                            mediaStatus,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = if (imageUrl != null) Color.White.copy(alpha = 0.85f) else appColors.onMuted,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                        Spacer(Modifier.height(8.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (mediaIcon != null) {
+                                Icon(
+                                    mediaIcon,
+                                    contentDescription = null,
+                                    tint = if (imageUrl != null) Color.White.copy(alpha = 0.85f) else appColors.onMuted,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(Modifier.width(5.dp))
+                            }
+                            Text(
+                                mediaStatus,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = if (imageUrl != null) Color.White.copy(alpha = 0.85f) else appColors.onMuted,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
                 }
             }

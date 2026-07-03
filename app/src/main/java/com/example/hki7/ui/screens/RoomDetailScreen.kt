@@ -149,6 +149,7 @@ import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.EntityCard
 import com.example.hki7.ui.components.EditRemoveBadge
 import com.example.hki7.ui.components.mediaPlayerStatus
+import com.example.hki7.ui.components.mediaPlayerStateIcon
 import com.example.hki7.ui.components.defaultEntityIconSlug
 import com.example.hki7.ui.components.domainIcon
 import com.example.hki7.ui.components.coverDoorColor
@@ -327,6 +328,7 @@ fun RoomDetailScreen(
         areaId = areaId,
         title = areaConfig.name ?: area?.name ?: "Room",
         subtitle = mediaPlayerStatus(mediaPlayerEntity) ?: "Room Details",
+        subtitleIcon = mediaPlayerStateIcon(mediaPlayerEntity),
         backgroundImage = if (!areaConfig.headerColor.isNullOrBlank()) null else areaConfig.wallpaper ?: area?.picture,
         headerColor = areaConfig.headerColor,
         onBack = { navController.popBackStack() }

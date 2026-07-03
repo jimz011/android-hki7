@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -52,6 +53,7 @@ fun HKIPage(
     areaId: String? = null,
     title: String? = null,
     subtitle: String? = null,
+    subtitleIcon: ImageVector? = null,
     showPeople: Boolean = false,
     onPeopleClick: ((HAEntity) -> Unit)? = null,
     backgroundImage: String? = null,
@@ -386,9 +388,9 @@ fun HKIPage(
                                             fontSize = 40.sp,
                                             lineHeight = 44.sp
                                         )
-                                        Text(
+                                        HeaderSubtitle(
                                             text = subtitle ?: (if (title == null) displayName else (if (status == ConnectionStatus.ERROR) "Connection Error" else "All systems normal")),
-                                            style = MaterialTheme.typography.bodyLarge,
+                                            icon = subtitleIcon,
                                             color = headerMutedColor
                                         )
                                     }
@@ -432,9 +434,9 @@ fun HKIPage(
                                             fontSize = 40.sp,
                                             lineHeight = 44.sp
                                         )
-                                        Text(
+                                        HeaderSubtitle(
                                             text = subtitle ?: (if (title == null) displayName else (if (status == ConnectionStatus.ERROR) "Connection Error" else "All systems normal")),
-                                            style = MaterialTheme.typography.bodyLarge,
+                                            icon = subtitleIcon,
                                             color = headerMutedColor
                                         )
                                     }
@@ -924,6 +926,17 @@ fun MenuButton(icon: androidx.compose.ui.graphics.vector.ImageVector, label: Str
         }
         Spacer(Modifier.height(4.dp))
         Text(label, color = appColors.onSurface, style = MaterialTheme.typography.labelSmall)
+    }
+}
+
+@Composable
+private fun HeaderSubtitle(text: String, icon: ImageVector?, color: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        if (icon != null) {
+            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(6.dp))
+        }
+        Text(text = text, style = MaterialTheme.typography.bodyLarge, color = color)
     }
 }
 
