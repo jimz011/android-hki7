@@ -194,11 +194,20 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private val _weatherDisplayType = MutableStateFlow("Weather")
     val weatherDisplayType: StateFlow<String> = _weatherDisplayType
 
+    private val _headerLeftDisplayType = MutableStateFlow("None")
+    val headerLeftDisplayType: StateFlow<String> = _headerLeftDisplayType
+
     private val _use24hFormat = MutableStateFlow(true)
     val use24hFormat: StateFlow<Boolean> = _use24hFormat
 
     private val _weatherExtraEntities = MutableStateFlow<Map<String, String?>>(emptyMap())
     val weatherExtraEntities: StateFlow<Map<String, String?>> = _weatherExtraEntities
+
+    private val _headerAlarmEntityId = MutableStateFlow<String?>(null)
+    val headerAlarmEntityId: StateFlow<String?> = _headerAlarmEntityId
+
+    private val _headerLeftAlarmEntityId = MutableStateFlow<String?>(null)
+    val headerLeftAlarmEntityId: StateFlow<String?> = _headerLeftAlarmEntityId
 
     private var client: HomeAssistantClient? = null
     private var pollJob: Job? = null
@@ -242,7 +251,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     private fun observeWeatherPrefs() {
         viewModelScope.launch { prefs.weatherDisplayType.collect { _weatherDisplayType.value = it } }
+        viewModelScope.launch { prefs.headerLeftDisplayType.collect { _headerLeftDisplayType.value = it } }
         viewModelScope.launch { prefs.use24hFormat.collect { _use24hFormat.value = it } }
+        viewModelScope.launch { prefs.alarmEntityId.collect { _headerAlarmEntityId.value = it } }
+        viewModelScope.launch { prefs.headerLeftAlarmEntityId.collect { _headerLeftAlarmEntityId.value = it } }
         viewModelScope.launch {
             combine(prefs.sunEntityId, prefs.moonEntityId, prefs.aqiEntityId, prefs.seasonEntityId, prefs.rainEntityId) { args: Array<String?> ->
                 mapOf("sun" to args[0], "moon" to args[1], "aqi" to args[2], "season" to args[3], "rain" to args[4])
@@ -814,8 +826,11 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun setWeatherDisplayType(type: String) { viewModelScope.launch { prefs.saveWeatherDisplayType(type) } }
+    fun setHeaderLeftDisplayType(type: String) { viewModelScope.launch { prefs.saveHeaderLeftDisplayType(type) } }
     fun setUse24hFormat(use24h: Boolean) { viewModelScope.launch { prefs.saveUse24hFormat(use24h) } }
     fun setWeatherExtraEntity(role: String, entityId: String?) { viewModelScope.launch { prefs.saveWeatherExtraEntity(role, entityId) } }
+    fun setHeaderAlarmEntity(entityId: String?) { viewModelScope.launch { prefs.saveHeaderAlarmEntity(entityId) } }
+    fun setHeaderLeftAlarmEntity(entityId: String?) { viewModelScope.launch { prefs.saveHeaderLeftAlarmEntity(entityId) } }
 
     fun toggleLock(entityId: String) {
         val currentClient = client ?: return

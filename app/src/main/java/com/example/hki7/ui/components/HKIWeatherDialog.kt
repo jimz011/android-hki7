@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.Brightness2
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.CloudQueue
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Card
@@ -67,7 +68,12 @@ import kotlin.math.sin
 fun HKIWeatherDialog(
     weather: HAEntity,
     viewModel: MainViewModel,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    settingsTitle: String = "Header Pill",
+    displayType: String? = null,
+    alarmEntityId: String? = null,
+    onDisplayTypeSelected: ((String) -> Unit)? = null,
+    onAlarmEntitySelected: ((String?) -> Unit)? = null
 ) {
     val allEntities by viewModel.entities.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
@@ -96,6 +102,11 @@ fun HKIWeatherDialog(
             WeatherConfigView(
                 allEntities = allEntities,
                 viewModel = viewModel,
+                title = settingsTitle,
+                displayType = displayType,
+                alarmEntityId = alarmEntityId,
+                onDisplayTypeSelected = onDisplayTypeSelected,
+                onAlarmEntitySelected = onAlarmEntitySelected,
                 onEntitySelected = { id -> viewModel.saveWeatherEntity(id) }
             )
         } else {
@@ -495,14 +506,20 @@ fun ForecastItem(forecast: HAWeatherForecast) {
 fun WeatherConfigView(
     allEntities: List<HAEntity>,
     viewModel: MainViewModel,
+    title: String = "Header Pill",
+    displayType: String? = null,
+    alarmEntityId: String? = null,
+    onDisplayTypeSelected: ((String) -> Unit)? = null,
+    onAlarmEntitySelected: ((String?) -> Unit)? = null,
     onEntitySelected: (String) -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
-    val currentDisplayType by viewModel.weatherDisplayType.collectAsState()
+    val savedDisplayType by viewModel.weatherDisplayType.collectAsState()
+    val currentDisplayType = displayType ?: savedDisplayType
     val use24h by viewModel.use24hFormat.collectAsState()
     val extraEntities by viewModel.weatherExtraEntities.collectAsState()
     var selectingForRole by remember { mutableStateOf<String?>(null) }
-    val displayTypes = listOf("Weather", "Date", "Time", "DateTime", "None")
+    val displayTypes = listOf("Weather", "Alarm", "Date", "Time", "DateTime", "None")
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 8.dp)) {
         androidx.compose.foundation.lazy.LazyColumn(
@@ -510,12 +527,14 @@ fun WeatherConfigView(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
+                Text(title, style = MaterialTheme.typography.titleMedium, color = appColors.onSurface)
+                Spacer(Modifier.height(4.dp))
                 Text("Display Mode", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
                 Row(modifier = Modifier.padding(vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     displayTypes.forEach { type ->
                         FilterChip(
                             selected = currentDisplayType == type,
-                            onClick = { viewModel.setWeatherDisplayType(type) },
+                            onClick = { (onDisplayTypeSelected ?: viewModel::setWeatherDisplayType)(type) },
                             label = { Text(type, fontSize = 10.sp) },
                             colors = FilterChipDefaults.filterChipColors(
                                 labelColor = appColors.onSurface,
@@ -527,14 +546,14 @@ fun WeatherConfigView(
                 }
             }
 
-            item {
+            if (currentDisplayType in listOf("Time", "DateTime")) item {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Text("24-Hour Format", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted, modifier = Modifier.weight(1f))
                     Switch(checked = use24h, onCheckedChange = { viewModel.setUse24hFormat(it) })
                 }
             }
 
-            item {
+            if (currentDisplayType == "Weather") item {
                 Text("Custom Entities", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
                 Spacer(Modifier.height(8.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -545,6 +564,12 @@ fun WeatherConfigView(
                     WeatherEntityRow("Season", extraEntities["season"]) { selectingForRole = "season" }
                     WeatherEntityRow("Rain", extraEntities["rain"]) { selectingForRole = "rain" }
                 }
+            }
+
+            if (currentDisplayType == "Alarm") item {
+                Text("Custom Entity", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
+                Spacer(Modifier.height(8.dp))
+                WeatherEntityRow("Alarm", alarmEntityId) { selectingForRole = "alarm" }
             }
         }
     }
@@ -557,6 +582,7 @@ fun WeatherConfigView(
             "aqi" -> { e -> e.entity_id.contains("aqi") || e.entity_id.startsWith("sensor.") }
             "season" -> { e -> e.entity_id.contains("season") || e.entity_id.startsWith("sensor.") }
             "rain" -> { e -> e.entity_id.contains("rain") || e.entity_id.contains("precipitation") || e.entity_id.startsWith("sensor.") }
+            "alarm" -> { e -> e.entity_id.startsWith("alarm_control_panel.") }
             else -> { _ -> true }
         }
 
@@ -567,6 +593,8 @@ fun WeatherConfigView(
                 val first = selected.firstOrNull()
                 if (selectingForRole == "weather") {
                     if (first != null) onEntitySelected(first)
+                } else if (selectingForRole == "alarm") {
+                    onAlarmEntitySelected?.invoke(first)
                 } else {
                     viewModel.setWeatherExtraEntity(selectingForRole!!, first)
                 }

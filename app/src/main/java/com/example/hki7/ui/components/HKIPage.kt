@@ -82,6 +82,9 @@ fun HKIPage(
     val prefs = viewModel.prefs
     
     var showWeatherDialog by remember { mutableStateOf(false) }
+    var showLeftPillSettings by remember { mutableStateOf(false) }
+    var showRightPillSettings by remember { mutableStateOf(false) }
+    var headerAlarmDialogEntityId by remember { mutableStateOf<String?>(null) }
     var showRoomConfig by remember { mutableStateOf(false) }
     var showPageConfig by remember { mutableStateOf(false) }
     var previewHeaderColor by remember { mutableStateOf<String?>(null) }
@@ -267,23 +270,34 @@ fun HKIPage(
                                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = headerTextColor, modifier = Modifier.size(18.dp))
                                 }
                             } else {
-                                Surface(
-                                    modifier = Modifier.height(36.dp),
-                                    color = pillColor,
-                                    shape = RoundedCornerShape(18.dp)
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(horizontal = 12.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(Icons.Default.Security, contentDescription = null, tint = headerTextColor, modifier = Modifier.size(16.dp))
-                                        Spacer(Modifier.width(8.dp))
-                                        Text("Front door locked", color = headerTextColor, style = MaterialTheme.typography.labelSmall)
+                                val leftDisplayType by viewModel.headerLeftDisplayType.collectAsState()
+                                val leftAlarmEntityId by viewModel.headerLeftAlarmEntityId.collectAsState()
+                                val leftAlarmEntity = allEntities.find { it.entity_id == leftAlarmEntityId }
+                                    ?: allEntities.firstOrNull { it.entity_id.startsWith("alarm_control_panel.") }
+                                val use24h by viewModel.use24hFormat.collectAsState()
+                                HeaderStatusPill(
+                                    displayType = leftDisplayType,
+                                    weather = weather,
+                                    alarm = leftAlarmEntity,
+                                    use24hFormat = use24h,
+                                    isEditMode = isEditMode,
+                                    pillColor = pillColor,
+                                    textColor = headerTextColor,
+                                    editSurfaceColor = appColors.surface.copy(alpha = 0.7f),
+                                    onSettingsClick = { showLeftPillSettings = true },
+                                    onClick = {
+                                        when (leftDisplayType) {
+                                            "Weather" -> showWeatherDialog = true
+                                            "Alarm" -> leftAlarmEntity?.let { headerAlarmDialogEntityId = it.entity_id }
+                                        }
                                     }
-                                }
+                                )
                             }
 
                             val weatherDisplayType by viewModel.weatherDisplayType.collectAsState()
+                            val rightAlarmEntityId by viewModel.headerAlarmEntityId.collectAsState()
+                            val rightAlarmEntity = allEntities.find { it.entity_id == rightAlarmEntityId }
+                                ?: allEntities.firstOrNull { it.entity_id.startsWith("alarm_control_panel.") }
                             val showPill = weatherDisplayType != "None"
                             Box(
                                 modifier = if (!showPill && isEditMode) Modifier.size(36.dp) else Modifier,
@@ -294,7 +308,14 @@ fun HKIPage(
                                         modifier = Modifier
                                             .height(36.dp)
                                             .clip(RoundedCornerShape(18.dp))
-                                            .clickable { if (!isEditMode) showWeatherDialog = true },
+                                            .clickable {
+                                                if (!isEditMode) {
+                                                    when (weatherDisplayType) {
+                                                        "Weather" -> showWeatherDialog = true
+                                                        "Alarm" -> rightAlarmEntity?.let { headerAlarmDialogEntityId = it.entity_id }
+                                                    }
+                                                }
+                                            },
                                         color = pillColor,
                                         shape = RoundedCornerShape(18.dp)
                                     ) {
@@ -310,15 +331,17 @@ fun HKIPage(
                                                 "Date" -> now.format(DateTimeFormatter.ofPattern("EEE, MMM d"))
                                                 "Time" -> now.format(DateTimeFormatter.ofPattern(timePattern))
                                                 "DateTime" -> now.format(DateTimeFormatter.ofPattern("EEE d, $timePattern"))
+                                                "Alarm" -> rightAlarmEntity?.state?.replace("_", " ")?.replaceFirstChar { it.uppercase() } ?: "Alarm"
                                                 else -> "${weather?.state?.let { formatWeatherState(it) } ?: "Cloudy"} ${weather?.temperature?.toInt() ?: 12}°C"
                                             }
 
-                                            if (weatherDisplayType == "Weather" || weatherDisplayType == "DateTime") {
+                                            if (weatherDisplayType == "Weather" || weatherDisplayType == "DateTime" || weatherDisplayType == "Alarm") {
                                                 Icon(
-                                                    imageVector = when(weather?.state?.lowercase()) {
-                                                        "cloudy" -> Icons.Default.Cloud
-                                                        "rainy" -> Icons.Default.CloudQueue
-                                                        "sunny" -> Icons.Default.WbSunny
+                                                    imageVector = when {
+                                                        weatherDisplayType == "Alarm" -> Icons.Default.Security
+                                                        weather?.state?.lowercase() == "cloudy" -> Icons.Default.Cloud
+                                                        weather?.state?.lowercase() == "rainy" -> Icons.Default.CloudQueue
+                                                        weather?.state?.lowercase() == "sunny" -> Icons.Default.WbSunny
                                                         else -> Icons.Default.Cloud
                                                     },
                                                     contentDescription = null,
@@ -344,7 +367,7 @@ fun HKIPage(
                                     Surface(
                                         modifier = overlayModifier
                                             .clip(RoundedCornerShape(18.dp))
-                                            .clickable { showWeatherDialog = true },
+                                            .clickable { showRightPillSettings = true },
                                         color = appColors.surface.copy(alpha = 0.7f)
                                     ) {
                                         Box(contentAlignment = Alignment.Center) {
@@ -518,6 +541,46 @@ fun HKIPage(
                 onDismiss = { showWeatherDialog = false },
                 viewModel = viewModel
             )
+        }
+
+        if (showLeftPillSettings && weather != null) {
+            val leftDisplayType by viewModel.headerLeftDisplayType.collectAsState()
+            val leftAlarmEntityId by viewModel.headerLeftAlarmEntityId.collectAsState()
+            HKIWeatherDialog(
+                weather = weather!!,
+                onDismiss = { showLeftPillSettings = false },
+                viewModel = viewModel,
+                settingsTitle = "Left Header Pill",
+                displayType = leftDisplayType,
+                alarmEntityId = leftAlarmEntityId,
+                onDisplayTypeSelected = { viewModel.setHeaderLeftDisplayType(it) },
+                onAlarmEntitySelected = { viewModel.setHeaderLeftAlarmEntity(it) }
+            )
+        }
+
+        if (showRightPillSettings && weather != null) {
+            val rightDisplayType by viewModel.weatherDisplayType.collectAsState()
+            val rightAlarmEntityId by viewModel.headerAlarmEntityId.collectAsState()
+            HKIWeatherDialog(
+                weather = weather!!,
+                onDismiss = { showRightPillSettings = false },
+                viewModel = viewModel,
+                settingsTitle = "Right Header Pill",
+                displayType = rightDisplayType,
+                alarmEntityId = rightAlarmEntityId,
+                onDisplayTypeSelected = { viewModel.setWeatherDisplayType(it) },
+                onAlarmEntitySelected = { viewModel.setHeaderAlarmEntity(it) }
+            )
+        }
+
+        headerAlarmDialogEntityId?.let { entityId ->
+            allEntities.find { it.entity_id == entityId }?.let { entity ->
+                HKIAlarmDialog(
+                    entity = entity,
+                    viewModel = viewModel,
+                    onDismiss = { headerAlarmDialogEntityId = null }
+                )
+            }
         }
         
         if (showSettings) {
@@ -926,6 +989,76 @@ fun MenuButton(icon: androidx.compose.ui.graphics.vector.ImageVector, label: Str
         }
         Spacer(Modifier.height(4.dp))
         Text(label, color = appColors.onSurface, style = MaterialTheme.typography.labelSmall)
+    }
+}
+
+@Composable
+private fun HeaderStatusPill(
+    displayType: String,
+    weather: HAEntity?,
+    alarm: HAEntity?,
+    use24hFormat: Boolean,
+    isEditMode: Boolean,
+    pillColor: Color,
+    textColor: Color,
+    editSurfaceColor: Color,
+    onSettingsClick: () -> Unit,
+    onClick: () -> Unit
+) {
+    val showPill = displayType != "None"
+    Box(
+        modifier = if (!showPill && isEditMode) Modifier.size(36.dp) else Modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        if (showPill) {
+            val now = LocalDateTime.now()
+            val timePattern = if (use24hFormat) "HH:mm" else "hh:mm a"
+            val displayText = when (displayType) {
+                "Date" -> now.format(DateTimeFormatter.ofPattern("EEE, MMM d"))
+                "Time" -> now.format(DateTimeFormatter.ofPattern(timePattern))
+                "DateTime" -> now.format(DateTimeFormatter.ofPattern("EEE d, $timePattern"))
+                "Alarm" -> alarm?.state?.replace("_", " ")?.replaceFirstChar { it.uppercase() } ?: "Alarm"
+                else -> "${weather?.state?.let { formatWeatherState(it) } ?: "Cloudy"} ${weather?.temperature?.toInt() ?: 12}°C"
+            }
+            Surface(
+                modifier = Modifier
+                    .height(36.dp)
+                    .clip(RoundedCornerShape(18.dp))
+                    .clickable { if (!isEditMode) onClick() },
+                color = pillColor,
+                shape = RoundedCornerShape(18.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val icon = when (displayType) {
+                        "Alarm" -> Icons.Default.Security
+                        "Weather", "DateTime" -> weatherIcon(weather?.state.orEmpty())
+                        else -> null
+                    }
+                    if (icon != null) {
+                        Icon(icon, contentDescription = null, tint = textColor, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    Text(displayText, color = textColor, style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        }
+
+        if (isEditMode) {
+            val overlayModifier = if (showPill) Modifier.matchParentSize() else Modifier.fillMaxSize()
+            Surface(
+                modifier = overlayModifier
+                    .clip(RoundedCornerShape(18.dp))
+                    .clickable { onSettingsClick() },
+                color = editSurfaceColor
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.Settings, null, tint = textColor, modifier = Modifier.size(16.dp))
+                }
+            }
+        }
     }
 }
 

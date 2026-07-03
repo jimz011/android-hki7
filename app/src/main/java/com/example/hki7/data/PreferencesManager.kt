@@ -30,12 +30,15 @@ class PreferencesManager(private val context: Context) {
     private val pageConfigsKey = stringPreferencesKey("page_configs")
     private val dashboardModeKey = stringPreferencesKey("dashboard_mode")
     private val weatherDisplayKey = stringPreferencesKey("weather_display_type")
+    private val headerLeftDisplayKey = stringPreferencesKey("header_left_display_type")
     private val use24hFormatKey = booleanPreferencesKey("use_24h_format")
     private val sunEntityKey = stringPreferencesKey("sun_entity_id")
     private val moonEntityKey = stringPreferencesKey("moon_entity_id")
     private val aqiEntityKey = stringPreferencesKey("aqi_entity_id")
     private val seasonEntityKey = stringPreferencesKey("season_entity_id")
     private val rainEntityKey = stringPreferencesKey("rain_entity_id")
+    private val alarmEntityKey = stringPreferencesKey("header_alarm_entity_id")
+    private val headerLeftAlarmEntityKey = stringPreferencesKey("header_left_alarm_entity_id")
     private val mobileDeviceNameKey = stringPreferencesKey("mobile_device_name")
     private val themeColorKey = stringPreferencesKey("theme_color")
     private val themeModeKey = stringPreferencesKey("theme_mode")
@@ -86,6 +89,7 @@ class PreferencesManager(private val context: Context) {
     }
 
     val weatherDisplayType: Flow<String> = context.dataStore.data.map { it[weatherDisplayKey] ?: "Weather" }
+    val headerLeftDisplayType: Flow<String> = context.dataStore.data.map { it[headerLeftDisplayKey] ?: "None" }
     val use24hFormat: Flow<Boolean> = context.dataStore.data.map { it[use24hFormatKey] ?: true }
 
     val sunEntityId: Flow<String?> = context.dataStore.data.map { it[sunEntityKey] ?: "sun.sun" }
@@ -93,6 +97,8 @@ class PreferencesManager(private val context: Context) {
     val aqiEntityId: Flow<String?> = context.dataStore.data.map { it[aqiEntityKey] }
     val seasonEntityId: Flow<String?> = context.dataStore.data.map { it[seasonEntityKey] ?: "sensor.season" }
     val rainEntityId: Flow<String?> = context.dataStore.data.map { it[rainEntityKey] }
+    val alarmEntityId: Flow<String?> = context.dataStore.data.map { it[alarmEntityKey] }
+    val headerLeftAlarmEntityId: Flow<String?> = context.dataStore.data.map { it[headerLeftAlarmEntityKey] }
     val mobileDeviceName: Flow<String?> = context.dataStore.data.map { it[mobileDeviceNameKey] }
     val themeColor: Flow<String> = context.dataStore.data.map { it[themeColorKey] ?: "system" }
     val themeMode: Flow<String> = context.dataStore.data.map { it[themeModeKey] ?: "system" }
@@ -184,7 +190,14 @@ class PreferencesManager(private val context: Context) {
         }
     }
     suspend fun saveWeatherDisplayType(type: String) { context.dataStore.edit { it[weatherDisplayKey] = type } }
+    suspend fun saveHeaderLeftDisplayType(type: String) { context.dataStore.edit { it[headerLeftDisplayKey] = type } }
     suspend fun saveUse24hFormat(use24h: Boolean) { context.dataStore.edit { it[use24hFormatKey] = use24h } }
+    suspend fun saveHeaderAlarmEntity(entityId: String?) {
+        context.dataStore.edit { if (entityId == null) it.remove(alarmEntityKey) else it[alarmEntityKey] = entityId }
+    }
+    suspend fun saveHeaderLeftAlarmEntity(entityId: String?) {
+        context.dataStore.edit { if (entityId == null) it.remove(headerLeftAlarmEntityKey) else it[headerLeftAlarmEntityKey] = entityId }
+    }
 
     suspend fun saveWeatherExtraEntity(role: String, entityId: String?) {
         context.dataStore.edit { preferences ->
