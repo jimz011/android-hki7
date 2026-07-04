@@ -194,8 +194,6 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
         if (selectedAction == null) {
             AlarmModeList(
                 actions = actions,
-                pendingSeconds = pendingSeconds,
-                onPendingSecondsSelected = { viewModel.setAlarmPendingSeconds(it) },
                 onActionClick = { action ->
                     selectedAction = action
                     codeBuffer = ""
@@ -231,6 +229,14 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
             Spacer(Modifier.height(24.dp))
         }
 
+        if (selectedAction!!.first.startsWith("alarm_arm_")) {
+            PendingTimerSelector(
+                pendingSeconds = pendingSeconds,
+                onPendingSecondsSelected = { viewModel.setAlarmPendingSeconds(it) }
+            )
+            Spacer(Modifier.height(18.dp))
+        }
+
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
             OutlinedButton(onClick = { selectedAction = null; codeBuffer = ""; errorMessage = null }, modifier = Modifier.weight(1f)) {
                 Text("Back")
@@ -249,17 +255,9 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
 @Composable
 private fun AlarmModeList(
     actions: List<Pair<String, String>>,
-    pendingSeconds: Int,
-    onPendingSecondsSelected: (Int) -> Unit,
     onActionClick: (Pair<String, String>) -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
-    val presetSeconds = listOf(0, 5, 10, 30)
-    var showCustom by remember { mutableStateOf(false) }
-    val customSelected = showCustom || pendingSeconds !in presetSeconds
-    var customInput by remember(pendingSeconds) {
-        mutableStateOf(if (pendingSeconds > 0 && pendingSeconds !in presetSeconds) pendingSeconds.toString() else "")
-    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -268,45 +266,6 @@ private fun AlarmModeList(
     ) {
         Text("Modes", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
         Text("Select a mode to continue", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
-        Spacer(Modifier.height(6.dp))
-
-        Text("Pending timer", color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-        ) {
-            listOf(0 to "None", 5 to "5s", 10 to "10s", 30 to "30s").forEach { (seconds, label) ->
-                FilterChip(
-                    selected = !customSelected && pendingSeconds == seconds,
-                    onClick = {
-                        showCustom = false
-                        onPendingSecondsSelected(seconds)
-                    },
-                    label = { Text(label) }
-                )
-            }
-            FilterChip(
-                selected = customSelected,
-                onClick = { showCustom = true },
-                label = { Text("Custom") }
-            )
-        }
-        if (customSelected) {
-            OutlinedTextField(
-                value = customInput,
-                onValueChange = { value ->
-                    val digits = value.filter(Char::isDigit).take(5)
-                    customInput = digits
-                    digits.toIntOrNull()?.takeIf { it > 0 }?.let(onPendingSecondsSelected)
-                },
-                label = { Text("Custom seconds") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
         Spacer(Modifier.height(6.dp))
 
         if (actions.isEmpty()) {
@@ -344,6 +303,60 @@ private fun AlarmModeList(
                     Icon(Icons.Default.ChevronRight, contentDescription = null, tint = appColors.onMuted)
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun PendingTimerSelector(
+    pendingSeconds: Int,
+    onPendingSecondsSelected: (Int) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    val presetSeconds = listOf(0, 5, 10, 30)
+    var showCustom by remember { mutableStateOf(false) }
+    val customSelected = showCustom || pendingSeconds !in presetSeconds
+    var customInput by remember(pendingSeconds) {
+        mutableStateOf(if (pendingSeconds > 0 && pendingSeconds !in presetSeconds) pendingSeconds.toString() else "")
+    }
+
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text("Pending timer", color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+        ) {
+            listOf(0 to "None", 5 to "5s", 10 to "10s", 30 to "30s").forEach { (seconds, label) ->
+                FilterChip(
+                    selected = !customSelected && pendingSeconds == seconds,
+                    onClick = {
+                        showCustom = false
+                        onPendingSecondsSelected(seconds)
+                    },
+                    label = { Text(label) }
+                )
+            }
+            FilterChip(
+                selected = customSelected,
+                onClick = { showCustom = true },
+                label = { Text("Custom") }
+            )
+        }
+        if (customSelected) {
+            OutlinedTextField(
+                value = customInput,
+                onValueChange = { value ->
+                    val digits = value.filter(Char::isDigit).take(5)
+                    customInput = digits
+                    digits.toIntOrNull()?.takeIf { it > 0 }?.let(onPendingSecondsSelected)
+                },
+                label = { Text("Custom seconds") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
