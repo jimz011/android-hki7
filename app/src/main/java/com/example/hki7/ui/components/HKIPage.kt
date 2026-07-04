@@ -45,6 +45,7 @@ import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.ConnectionStatus
 import com.example.hki7.ui.screens.SettingsDialog
 import com.example.hki7.ui.theme.LocalHKIAppColors
+import com.example.hki7.ui.components.alarmStateColor
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -349,7 +350,7 @@ fun HKIPage(
                                                         else -> Icons.Default.Cloud
                                                     },
                                                     contentDescription = null,
-                                                    tint = headerTextColor,
+                                                    tint = if (weatherDisplayType == "Alarm") alarmStateColor(rightAlarmEntity?.state.orEmpty()) else headerTextColor,
                                                     modifier = Modifier.size(18.dp)
                                                 )
                                                 if (displayStr.isNotEmpty()) Spacer(Modifier.width(8.dp))
@@ -1044,7 +1045,8 @@ private fun HeaderStatusPill(
                         else -> null
                     }
                     if (icon != null) {
-                        Icon(icon, contentDescription = null, tint = textColor, modifier = Modifier.size(18.dp))
+                        val iconTint = if (displayType == "Alarm") alarmStateColor(alarm?.state.orEmpty()) else textColor
+                        Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
                     }
                     Text(displayText, color = textColor, style = MaterialTheme.typography.bodyMedium)
