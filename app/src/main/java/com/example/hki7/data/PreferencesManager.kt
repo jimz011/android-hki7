@@ -32,6 +32,7 @@ class PreferencesManager(private val context: Context) {
     private val weatherDisplayKey = stringPreferencesKey("weather_display_type")
     private val headerLeftDisplayKey = stringPreferencesKey("header_left_display_type")
     private val use24hFormatKey = booleanPreferencesKey("use_24h_format")
+    private val useFullDayNameKey = booleanPreferencesKey("use_full_day_name")
     private val sunEntityKey = stringPreferencesKey("sun_entity_id")
     private val moonEntityKey = stringPreferencesKey("moon_entity_id")
     private val aqiEntityKey = stringPreferencesKey("aqi_entity_id")
@@ -91,6 +92,7 @@ class PreferencesManager(private val context: Context) {
     val weatherDisplayType: Flow<String> = context.dataStore.data.map { it[weatherDisplayKey] ?: "Weather" }
     val headerLeftDisplayType: Flow<String> = context.dataStore.data.map { it[headerLeftDisplayKey] ?: "None" }
     val use24hFormat: Flow<Boolean> = context.dataStore.data.map { it[use24hFormatKey] ?: true }
+    val useFullDayName: Flow<Boolean> = context.dataStore.data.map { it[useFullDayNameKey] ?: false }
 
     val sunEntityId: Flow<String?> = context.dataStore.data.map { it[sunEntityKey] ?: "sun.sun" }
     val moonEntityId: Flow<String?> = context.dataStore.data.map { it[moonEntityKey] ?: "sensor.moon" }
@@ -192,6 +194,7 @@ class PreferencesManager(private val context: Context) {
     suspend fun saveWeatherDisplayType(type: String) { context.dataStore.edit { it[weatherDisplayKey] = type } }
     suspend fun saveHeaderLeftDisplayType(type: String) { context.dataStore.edit { it[headerLeftDisplayKey] = type } }
     suspend fun saveUse24hFormat(use24h: Boolean) { context.dataStore.edit { it[use24hFormatKey] = use24h } }
+    suspend fun saveUseFullDayName(useFullDayName: Boolean) { context.dataStore.edit { it[useFullDayNameKey] = useFullDayName } }
     suspend fun saveHeaderAlarmEntity(entityId: String?) {
         context.dataStore.edit { if (entityId == null) it.remove(alarmEntityKey) else it[alarmEntityKey] = entityId }
     }

@@ -24,9 +24,9 @@ import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.theme.LocalHKIAppColors
 
 fun alarmStateColor(state: String): Color = when (state.lowercase()) {
-    "disarmed" -> Color(0xFF4CAF50)
-    "armed_home", "armed_away", "armed_night", "armed_vacation", "armed_custom_bypass" -> Color(0xFFFF8C00)
-    "pending", "arming", "disarming" -> Color(0xFFFFC107)
+    "disarmed" -> Color(0xFFE53935)
+    "armed_home", "armed_away", "armed_night", "armed_vacation", "armed_custom_bypass" -> Color(0xFF4CAF50)
+    "pending", "arming", "disarming" -> Color(0xFFFF8C00)
     "triggered" -> Color(0xFFE53935)
     else -> Color(0xFF9E9E9E)
 }
@@ -79,6 +79,7 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
     val accent = alarmStateColor(state)
     var codeBuffer by remember(entity.entity_id) { mutableStateOf("") }
     var errorMessage by remember(entity.entity_id) { mutableStateOf<String?>(null) }
+    var selectedAction by remember(entity.entity_id, entity.state) { mutableStateOf<Pair<String, String>?>(null) }
     var shakeTrigger by remember { mutableIntStateOf(0) }
     val shakeOffset = remember { Animatable(0f) }
     LaunchedEffect(shakeTrigger) {
@@ -96,8 +97,9 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
             codeBuffer = ""
             if (success) {
                 errorMessage = null
+                selectedAction = null
             } else {
-                errorMessage = "Incorrect code"
+                errorMessage = "Command failed. Check the code and try again."
                 shakeTrigger++
             }
         }
@@ -106,12 +108,18 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
     val armModes = remember(entity.supportedFeatures) {
         buildList {
             val f = entity.supportedFeatures
-            if (f and 1 != 0) add("alarm_arm_home" to "Home")
-            if (f and 2 != 0) add("alarm_arm_away" to "Away")
-            if (f and 4 != 0) add("alarm_arm_night" to "Night")
-            if (f and 16 != 0) add("alarm_arm_custom_bypass" to "Custom")
-            if (f and 32 != 0) add("alarm_arm_vacation" to "Vacation")
-        }.ifEmpty { listOf("alarm_arm_home" to "Home", "alarm_arm_away" to "Away") }
+            if (f and 1 != 0) add("alarm_arm_home" to "Arm Home")
+            if (f and 2 != 0) add("alarm_arm_away" to "Arm Away")
+            if (f and 4 != 0) add("alarm_arm_night" to "Arm Night")
+            if (f and 16 != 0) add("alarm_arm_custom_bypass" to "Arm Custom")
+            if (f and 32 != 0) add("alarm_arm_vacation" to "Arm Vacation")
+        }
+    }
+    val actions = remember(state, armModes) {
+        buildList {
+            if (state != "disarmed") add("alarm_disarm" to "Disarm")
+            if (state == "disarmed") addAll(armModes)
+        }
     }
 
     Column(
@@ -127,6 +135,30 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
             }
         }
         Spacer(Modifier.height(20.dp))
+
+        if (selectedAction == null) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                if (actions.isEmpty()) {
+                    Text("No supported alarm modes reported by this entity", color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
+                } else {
+                    actions.forEach { action ->
+                        Button(
+                            onClick = {
+                                selectedAction = action
+                                codeBuffer = ""
+                                errorMessage = null
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = alarmStateColor(if (action.first == "alarm_disarm") "disarmed" else "armed_home")),
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text(action.second) }
+                    }
+                }
+            }
+            return@Column
+        }
+
+        Text(selectedAction!!.second, color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(14.dp))
 
         if (needsCode) {
             Box(Modifier.height(24.dp), contentAlignment = Alignment.Center) {
@@ -150,23 +182,16 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
             Spacer(Modifier.height(24.dp))
         }
 
-        if (state != "disarmed") {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(onClick = { selectedAction = null; codeBuffer = ""; errorMessage = null }, modifier = Modifier.weight(1f)) {
+                Text("Back")
+            }
             Button(
-                onClick = { submit("alarm_disarm") },
+                onClick = { submit(selectedAction!!.first) },
                 colors = ButtonDefaults.buttonColors(containerColor = accent),
-                modifier = Modifier.fillMaxWidth()
-            ) { Text("Disarm") }
-        } else {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+                modifier = Modifier.weight(1f)
             ) {
-                armModes.forEach { (service, label) ->
-                    Button(
-                        onClick = { submit(service) },
-                        colors = ButtonDefaults.buttonColors(containerColor = accent)
-                    ) { Text(label) }
-                }
+                Text(if (needsCode) "Confirm" else selectedAction!!.second)
             }
         }
     }

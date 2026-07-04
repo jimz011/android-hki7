@@ -859,7 +859,7 @@ private fun badgeStateColors(badge: HKIBadge, entities: List<HAEntity>, allEntit
         "humidifier" ->
             if (state == "on") BadgeColors(activeBg, activeFg, HumidifierCyan) else BadgeColors(offBg, offFg, offFg)
         "alarm_control_panel" ->
-            if (state == "disarmed") BadgeColors(offBg, offFg, offFg) else BadgeColors(activeBg, activeFg, alarmStateColor(state))
+            if (state == "disarmed") BadgeColors(offBg, offFg, alarmStateColor(state)) else BadgeColors(activeBg, activeFg, alarmStateColor(state))
         "binary_sensor" ->
             if (state == "on") defaultActive else BadgeColors(offBg, offFg, offFg)
         "person" ->

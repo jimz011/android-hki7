@@ -22,8 +22,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.Brightness2
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.CloudQueue
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.filled.WbSunny
@@ -80,6 +82,7 @@ fun HKIWeatherDialog(
     val use24h by viewModel.use24hFormat.collectAsState()
     val extraEntities by viewModel.weatherExtraEntities.collectAsState()
     val fetchedForecast by viewModel.weatherForecast.collectAsState()
+    val currentDisplayType = if (isEditMode) displayType ?: "Weather" else "Weather"
 
     val sun = allEntities.find { it.entity_id == extraEntities["sun"] } ?: allEntities.find { it.entity_id == "sun.sun" }
     val moon = allEntities.find { it.entity_id == extraEntities["moon"] } ?: allEntities.find { it.entity_id == "sensor.moon" }
@@ -95,7 +98,8 @@ fun HKIWeatherDialog(
         entity = weather,
         onDismiss = onDismiss,
         viewModel = viewModel,
-        icon = weatherIcon(weather.state),
+        icon = headerDisplayIcon(currentDisplayType, weather.state),
+        titleOverride = if (isEditMode) settingsTitle else "Weather",
         statusText = if (isEditMode) "SETTINGS" else "${formatWeatherState(weather.state)} - ${season?.state ?: "Season"}"
     ) {
         if (isEditMode) {
@@ -517,6 +521,7 @@ fun WeatherConfigView(
     val savedDisplayType by viewModel.weatherDisplayType.collectAsState()
     val currentDisplayType = displayType ?: savedDisplayType
     val use24h by viewModel.use24hFormat.collectAsState()
+    val useFullDayName by viewModel.useFullDayName.collectAsState()
     val extraEntities by viewModel.weatherExtraEntities.collectAsState()
     var selectingForRole by remember { mutableStateOf<String?>(null) }
     val displayTypes = listOf("Weather", "Alarm", "Date", "Time", "DateTime", "None")
@@ -553,7 +558,14 @@ fun WeatherConfigView(
                 }
             }
 
-            if (currentDisplayType == "Weather") item {
+            if (currentDisplayType in listOf("Date", "DateTime")) item {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    Text("Full Day Name", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted, modifier = Modifier.weight(1f))
+                    Switch(checked = useFullDayName, onCheckedChange = { viewModel.setUseFullDayName(it) })
+                }
+            }
+
+            if (currentDisplayType in listOf("Weather", "DateTime")) item {
                 Text("Custom Entities", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
                 Spacer(Modifier.height(8.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -602,6 +614,14 @@ fun WeatherConfigView(
             }
         )
     }
+}
+
+private fun headerDisplayIcon(displayType: String, weatherState: String): ImageVector = when (displayType) {
+    "Alarm" -> Icons.Default.Security
+    "Date" -> Icons.Default.CalendarMonth
+    "Time" -> Icons.Default.Schedule
+    "DateTime" -> weatherIcon(weatherState)
+    else -> weatherIcon(weatherState)
 }
 
 @Composable

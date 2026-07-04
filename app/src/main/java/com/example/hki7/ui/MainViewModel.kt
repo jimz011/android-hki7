@@ -200,6 +200,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private val _use24hFormat = MutableStateFlow(true)
     val use24hFormat: StateFlow<Boolean> = _use24hFormat
 
+    private val _useFullDayName = MutableStateFlow(false)
+    val useFullDayName: StateFlow<Boolean> = _useFullDayName
+
     private val _weatherExtraEntities = MutableStateFlow<Map<String, String?>>(emptyMap())
     val weatherExtraEntities: StateFlow<Map<String, String?>> = _weatherExtraEntities
 
@@ -253,6 +256,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         viewModelScope.launch { prefs.weatherDisplayType.collect { _weatherDisplayType.value = it } }
         viewModelScope.launch { prefs.headerLeftDisplayType.collect { _headerLeftDisplayType.value = it } }
         viewModelScope.launch { prefs.use24hFormat.collect { _use24hFormat.value = it } }
+        viewModelScope.launch { prefs.useFullDayName.collect { _useFullDayName.value = it } }
         viewModelScope.launch { prefs.alarmEntityId.collect { _headerAlarmEntityId.value = it } }
         viewModelScope.launch { prefs.headerLeftAlarmEntityId.collect { _headerLeftAlarmEntityId.value = it } }
         viewModelScope.launch {
@@ -828,6 +832,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     fun setWeatherDisplayType(type: String) { viewModelScope.launch { prefs.saveWeatherDisplayType(type) } }
     fun setHeaderLeftDisplayType(type: String) { viewModelScope.launch { prefs.saveHeaderLeftDisplayType(type) } }
     fun setUse24hFormat(use24h: Boolean) { viewModelScope.launch { prefs.saveUse24hFormat(use24h) } }
+    fun setUseFullDayName(useFullDayName: Boolean) { viewModelScope.launch { prefs.saveUseFullDayName(useFullDayName) } }
     fun setWeatherExtraEntity(role: String, entityId: String?) { viewModelScope.launch { prefs.saveWeatherExtraEntity(role, entityId) } }
     fun setHeaderAlarmEntity(entityId: String?) { viewModelScope.launch { prefs.saveHeaderAlarmEntity(entityId) } }
     fun setHeaderLeftAlarmEntity(entityId: String?) { viewModelScope.launch { prefs.saveHeaderLeftAlarmEntity(entityId) } }

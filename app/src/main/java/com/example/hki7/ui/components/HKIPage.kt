@@ -275,11 +275,13 @@ fun HKIPage(
                                 val leftAlarmEntity = allEntities.find { it.entity_id == leftAlarmEntityId }
                                     ?: allEntities.firstOrNull { it.entity_id.startsWith("alarm_control_panel.") }
                                 val use24h by viewModel.use24hFormat.collectAsState()
+                                val useFullDayName by viewModel.useFullDayName.collectAsState()
                                 HeaderStatusPill(
                                     displayType = leftDisplayType,
                                     weather = weather,
                                     alarm = leftAlarmEntity,
                                     use24hFormat = use24h,
+                                    useFullDayName = useFullDayName,
                                     isEditMode = isEditMode,
                                     pillColor = pillColor,
                                     textColor = headerTextColor,
@@ -287,7 +289,7 @@ fun HKIPage(
                                     onSettingsClick = { showLeftPillSettings = true },
                                     onClick = {
                                         when (leftDisplayType) {
-                                            "Weather" -> showWeatherDialog = true
+                                            "Weather", "DateTime" -> showWeatherDialog = true
                                             "Alarm" -> leftAlarmEntity?.let { headerAlarmDialogEntityId = it.entity_id }
                                         }
                                     }
@@ -311,7 +313,7 @@ fun HKIPage(
                                             .clickable {
                                                 if (!isEditMode) {
                                                     when (weatherDisplayType) {
-                                                        "Weather" -> showWeatherDialog = true
+                                                        "Weather", "DateTime" -> showWeatherDialog = true
                                                         "Alarm" -> rightAlarmEntity?.let { headerAlarmDialogEntityId = it.entity_id }
                                                     }
                                                 }
@@ -325,12 +327,14 @@ fun HKIPage(
                                         ) {
                                             val now = LocalDateTime.now()
                                             val use24h by viewModel.use24hFormat.collectAsState()
+                                            val useFullDayName by viewModel.useFullDayName.collectAsState()
                                             val timePattern = if (use24h) "HH:mm" else "hh:mm a"
+                                            val dayPattern = if (useFullDayName) "EEEE" else "EEE"
                                             
                                             val displayStr = when(weatherDisplayType) {
-                                                "Date" -> now.format(DateTimeFormatter.ofPattern("EEE, MMM d"))
+                                                "Date" -> now.format(DateTimeFormatter.ofPattern("$dayPattern, MMM d"))
                                                 "Time" -> now.format(DateTimeFormatter.ofPattern(timePattern))
-                                                "DateTime" -> now.format(DateTimeFormatter.ofPattern("EEE d, $timePattern"))
+                                                "DateTime" -> now.format(DateTimeFormatter.ofPattern("$dayPattern d, $timePattern"))
                                                 "Alarm" -> rightAlarmEntity?.state?.replace("_", " ")?.replaceFirstChar { it.uppercase() } ?: "Alarm"
                                                 else -> "${weather?.state?.let { formatWeatherState(it) } ?: "Cloudy"} ${weather?.temperature?.toInt() ?: 12}°C"
                                             }
@@ -998,6 +1002,7 @@ private fun HeaderStatusPill(
     weather: HAEntity?,
     alarm: HAEntity?,
     use24hFormat: Boolean,
+    useFullDayName: Boolean,
     isEditMode: Boolean,
     pillColor: Color,
     textColor: Color,
@@ -1013,10 +1018,11 @@ private fun HeaderStatusPill(
         if (showPill) {
             val now = LocalDateTime.now()
             val timePattern = if (use24hFormat) "HH:mm" else "hh:mm a"
+            val dayPattern = if (useFullDayName) "EEEE" else "EEE"
             val displayText = when (displayType) {
-                "Date" -> now.format(DateTimeFormatter.ofPattern("EEE, MMM d"))
+                "Date" -> now.format(DateTimeFormatter.ofPattern("$dayPattern, MMM d"))
                 "Time" -> now.format(DateTimeFormatter.ofPattern(timePattern))
-                "DateTime" -> now.format(DateTimeFormatter.ofPattern("EEE d, $timePattern"))
+                "DateTime" -> now.format(DateTimeFormatter.ofPattern("$dayPattern d, $timePattern"))
                 "Alarm" -> alarm?.state?.replace("_", " ")?.replaceFirstChar { it.uppercase() } ?: "Alarm"
                 else -> "${weather?.state?.let { formatWeatherState(it) } ?: "Cloudy"} ${weather?.temperature?.toInt() ?: 12}°C"
             }
