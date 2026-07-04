@@ -273,6 +273,7 @@ fun WeatherWidgetSettingsDialog(
     var style by remember(widget) { mutableStateOf(widget.style) }
     var imageUrl by remember(widget) { mutableStateOf(widget.imageUrl ?: "") }
     var title by remember(widget) { mutableStateOf(widget.title ?: "") }
+    var width by remember(widget) { mutableStateOf(widget.width) }
     var showEntityPicker by remember { mutableStateOf(false) }
 
     val weatherEntities = remember(allEntities) { allEntities.filter { it.entity_id.startsWith("weather.") } }
@@ -300,6 +301,7 @@ fun WeatherWidgetSettingsDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+                WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 Text("Weather entity", style = MaterialTheme.typography.labelLarge)
                 val entityName = entityId?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -342,6 +344,7 @@ fun WeatherWidgetSettingsDialog(
                 onSave(
                     widget.copy(
                         entityId = entityId,
+                        width = width,
                         style = style,
                         imageUrl = imageUrl.ifBlank { null },
                         title = title.ifBlank { null }

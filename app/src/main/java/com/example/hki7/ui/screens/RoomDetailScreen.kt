@@ -21,6 +21,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -35,6 +36,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -142,6 +145,7 @@ import com.example.hki7.data.HAServiceCall
 import com.example.hki7.data.HKIButtonStack
 import com.example.hki7.data.HKIButtonConfig
 import com.example.hki7.data.HKIAreaConfig
+import com.example.hki7.data.HKIRoomWidget
 import com.example.hki7.data.HKISubtitleWidget
 import com.example.hki7.data.HKIWeatherWidget
 import com.example.hki7.ui.MainViewModel
@@ -333,20 +337,31 @@ fun RoomDetailScreen(
         headerColor = areaConfig.headerColor,
         onBack = { navController.popBackStack() }
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+        BoxWithConstraints(modifier = Modifier.fillMaxSize().padding(padding)) {
+        val widgetGridColumns = when {
+            maxWidth >= 1000.dp -> 3
+            maxWidth >= 600.dp -> 2
+            else -> 1
+        }
+        fun widgetSpan(widget: HKIRoomWidget): Int =
+            if (widgetGridColumns == 1 || widget.width != "half") widgetGridColumns else 1
         Column(modifier = Modifier.fillMaxSize()) {
             key(isEditMode, uiRevision) {
                 if (!isEditMode) {
-                    LazyColumn(
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(widgetGridColumns),
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 96.dp),
-                        verticalArrangement = Arrangement.spacedBy(14.dp)
+                        verticalArrangement = Arrangement.spacedBy(14.dp),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
                         items(
-                            items = areaWidgets,
-                            key = { it.id },
-                            contentType = { it::class.simpleName ?: "widget" }
-                        ) { widget ->
+                            count = areaWidgets.size,
+                            key = { index -> areaWidgets[index].id },
+                            contentType = { index -> areaWidgets[index]::class.simpleName ?: "widget" },
+                            span = { index -> GridItemSpan(widgetSpan(areaWidgets[index])) }
+                        ) { index ->
+                            val widget = areaWidgets[index]
                             when (widget) {
                                 is HKIButtonStack -> {
                                     ButtonStackItem(
@@ -413,9 +428,11 @@ fun RoomDetailScreen(
                     canReorder = true,
                     onReorder = { from, to -> viewModel.moveWidgetInArea(areaId, from, to) },
                     key = { it.id },
-                    columns = GridCells.Fixed(1),
+                    columns = GridCells.Fixed(widgetGridColumns),
+                    span = { widgetSpan(it) },
                     contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 156.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
                     axis = ReorderAxis.Vertical,
                     state = widgetGridState,
                     modifier = Modifier.weight(1f)
@@ -1598,6 +1615,7 @@ fun StackSettingsDialog(
 ) {
     var title by remember(stack) { mutableStateOf(stack.title ?: "") }
     var iconName by remember(stack) { mutableStateOf(stack.icon ?: "Lightbulb") }
+    var width by remember(stack) { mutableStateOf(stack.width) }
     var columns by remember(stack) { mutableIntStateOf(stack.columns.coerceIn(1, 3)) }
     var showBadge by remember(stack) { mutableStateOf(stack.showBadge) }
     var isSquare by remember(stack) { mutableStateOf(stack.isSquare) }
@@ -1623,6 +1641,7 @@ fun StackSettingsDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("Stack Title") }, singleLine = true)
+                WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 Text("Icon", style = MaterialTheme.typography.labelLarge)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -1688,6 +1707,7 @@ fun StackSettingsDialog(
                     onUpdate(
                         stack.copy(
                             title = title.ifBlank { null },
+                            width = width,
                             icon = iconName.takeUnless { it == "None" },
                             columns = columns.coerceIn(1, 3),
                             showBadge = if (stack.stackType == "camera") false else showBadge,
@@ -1703,6 +1723,20 @@ fun StackSettingsDialog(
         },
         dismissButton = { Button(onClick = onDismiss) { Text("Cancel") } }
     )
+}
+
+@Composable
+fun WidgetWidthSelector(width: String, onWidthChange: (String) -> Unit) {
+    Text("Widget width", style = MaterialTheme.typography.labelLarge)
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf("full" to "Full", "half" to "Half").forEach { (value, label) ->
+            FilterChip(
+                selected = width == value,
+                onClick = { onWidthChange(value) },
+                label = { Text(label) }
+            )
+        }
+    }
 }
 
 @Composable
@@ -2630,7 +2664,7 @@ fun GroupMembersContent(
             when (currentTab) {
                 "Bright" -> items(lightEntities.size) { index ->
                     val entity = lightEntities[index]
-                    GroupLightControlRow(label = labelFor(entity), icon = null, iconTint = tintFor(entity)) {
+                    GroupLightControlRow(label = labelFor(entity), icon = defaultEntityIconSlug(entity), iconTint = tintFor(entity)) {
                         HorizontalLightBar(
                             entity = entity,
                             viewModel = viewModel,
@@ -2642,7 +2676,7 @@ fun GroupMembersContent(
                     val list = lightEntities.filter { it.supportsColorTemp }
                     items(list.size) { index ->
                         val entity = list[index]
-                        GroupLightControlRow(label = labelFor(entity), icon = null, iconTint = tintFor(entity)) {
+                        GroupLightControlRow(label = labelFor(entity), icon = defaultEntityIconSlug(entity), iconTint = tintFor(entity)) {
                             HorizontalColorTempBar(
                                 entity = entity,
                                 viewModel = viewModel,
@@ -2655,7 +2689,7 @@ fun GroupMembersContent(
                     val list = lightEntities.filter { it.supportsColor }
                     items(list.size) { index ->
                         val entity = list[index]
-                        GroupLightControlRow(label = labelFor(entity), icon = null, iconTint = tintFor(entity)) {
+                        GroupLightControlRow(label = labelFor(entity), icon = defaultEntityIconSlug(entity), iconTint = tintFor(entity)) {
                             HorizontalHueBar(
                                 entity = entity,
                                 viewModel = viewModel,
@@ -2678,12 +2712,7 @@ fun GroupMembersContent(
                                 .padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                domainIcon(entity),
-                                contentDescription = null,
-                                tint = tintFor(entity),
-                                modifier = Modifier.size(24.dp)
-                            )
+                            MdiIcon(defaultEntityIconSlug(entity), contentDescription = null, tint = tintFor(entity), size = 24.dp)
                             Spacer(Modifier.width(12.dp))
                             Column(Modifier.weight(1f)) {
                                 val rowTextColor = appColors.onSurface
@@ -2897,7 +2926,7 @@ fun GroupEntityDialog(
                         when (currentTab) {
                             "Bright" -> items(lightEntities.size) { index ->
                                 val entity = lightEntities[index]
-                                GroupLightControlRow(label = labelFor(entity), icon = stack.buttonConfigs[entity.entity_id]?.icon, iconTint = tintFor(entity)) {
+                                GroupLightControlRow(label = labelFor(entity), icon = stack.buttonConfigs[entity.entity_id]?.icon ?: defaultEntityIconSlug(entity), iconTint = tintFor(entity)) {
                                     HorizontalLightBar(
                                         entity = entity,
                                         viewModel = viewModel,
@@ -2909,7 +2938,7 @@ fun GroupEntityDialog(
                                 val list = lightEntities.filter { it.supportsColorTemp }
                                 items(list.size) { index ->
                                     val entity = list[index]
-                                    GroupLightControlRow(label = labelFor(entity), icon = stack.buttonConfigs[entity.entity_id]?.icon, iconTint = tintFor(entity)) {
+                                    GroupLightControlRow(label = labelFor(entity), icon = stack.buttonConfigs[entity.entity_id]?.icon ?: defaultEntityIconSlug(entity), iconTint = tintFor(entity)) {
                                         HorizontalColorTempBar(
                                             entity = entity,
                                             viewModel = viewModel,
@@ -2922,7 +2951,7 @@ fun GroupEntityDialog(
                                 val list = lightEntities.filter { it.supportsColor }
                                 items(list.size) { index ->
                                     val entity = list[index]
-                                    GroupLightControlRow(label = labelFor(entity), icon = stack.buttonConfigs[entity.entity_id]?.icon, iconTint = tintFor(entity)) {
+                                    GroupLightControlRow(label = labelFor(entity), icon = stack.buttonConfigs[entity.entity_id]?.icon ?: defaultEntityIconSlug(entity), iconTint = tintFor(entity)) {
                                         HorizontalHueBar(
                                             entity = entity,
                                             viewModel = viewModel,
@@ -2945,16 +2974,7 @@ fun GroupEntityDialog(
                                     "person"  -> s == "home"
                                     else      -> s == "on"
                                 }
-                                val itemIcon = when (dom) {
-                                    "light"                   -> Icons.Default.Lightbulb
-                                    "climate"                 -> Icons.Default.Thermostat
-                                    "switch", "input_boolean" -> Icons.Default.PowerSettingsNew
-                                    "cover"                   -> Icons.Default.Window
-                                    "lock"                    -> if (isItemActive) Icons.Default.LockOpen else Icons.Default.Lock
-                                    "fan"                     -> Icons.Default.Air
-                                    "camera"                  -> Icons.Default.CameraAlt
-                                    else                      -> Icons.Default.Power
-                                }
+                                val itemIcon = config?.icon ?: defaultEntityIconSlug(entity)
                                 val itemIconColor = when {
                                     dom == "light" && isItemActive -> lightStateColor(entity) ?: MaterialTheme.colorScheme.primary
                                     dom == "climate" -> hvacColor(
@@ -2991,7 +3011,7 @@ fun GroupEntityDialog(
                                             .padding(16.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Icon(itemIcon, contentDescription = null, tint = itemIconColor, modifier = Modifier.size(24.dp))
+                                        MdiIcon(itemIcon, contentDescription = null, tint = itemIconColor, size = 24.dp)
                                         Spacer(Modifier.width(12.dp))
                                         Column(Modifier.weight(1f)) {
                                             val rowTextColor = appColors.onSurface
@@ -3294,6 +3314,7 @@ fun HeaderTextSettingsDialog(
 ) {
     var text by remember(widget) { mutableStateOf(widget.text) }
     var iconName by remember(widget) { mutableStateOf(widget.icon ?: "") }
+    var width by remember(widget) { mutableStateOf(widget.width) }
     var showIconPickerHeader by remember { mutableStateOf(false) }
 
     if (showIconPickerHeader) {
@@ -3316,6 +3337,7 @@ fun HeaderTextSettingsDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+                WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Icon", style = MaterialTheme.typography.labelLarge)
                     if (iconName.isNotEmpty()) MdiIcon(iconName, size = 20.dp)
@@ -3326,7 +3348,7 @@ fun HeaderTextSettingsDialog(
         },
         confirmButton = {
             Button(onClick = {
-                onSave(widget.copy(text = text.ifBlank { "Header Text" }, icon = iconName.ifEmpty { null }))
+                onSave(widget.copy(text = text.ifBlank { "Header Text" }, width = width, icon = iconName.ifEmpty { null }))
             }) { Text("Save") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }

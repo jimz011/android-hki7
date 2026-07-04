@@ -415,12 +415,14 @@ data class HKIEnergyConfig(
 @Serializable
 sealed class HKIRoomWidget {
     abstract val id: String
+    abstract val width: String
 }
 
 @Serializable
 @SerialName("button_stack")
 data class HKIButtonStack(
     override val id: String,
+    override val width: String = "full",
     val title: String? = null,
     val icon: String? = null,
     val entityIds: List<String> = emptyList(),
@@ -465,6 +467,7 @@ data class HKIButtonConfig(
 @SerialName("subtitle")
 data class HKISubtitleWidget(
     override val id: String,
+    override val width: String = "full",
     val text: String,
     val icon: String? = null
 ) : HKIRoomWidget()
@@ -473,6 +476,7 @@ data class HKISubtitleWidget(
 @SerialName("weather")
 data class HKIWeatherWidget(
     override val id: String,
+    override val width: String = "full",
     val entityId: String? = null,   // null = use the app's default weather entity
     val style: String = "current",  // "current" | "forecast" | "hourly" | "wind" | "rainmap"
     val imageUrl: String? = null,   // rainmap style: external radar/rain map image URL

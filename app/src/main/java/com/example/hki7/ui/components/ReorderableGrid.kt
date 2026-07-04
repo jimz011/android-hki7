@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -37,6 +38,7 @@ fun <T> ReorderableGrid(
     axis: ReorderAxis = ReorderAxis.Grid,
     state: LazyGridState = rememberLazyGridState(),
     autoScrollState: ScrollState? = null,
+    span: (T) -> Int = { 1 },
     itemContent: @Composable (T, Boolean) -> Unit
 ) {
     val gridState = state
@@ -228,7 +230,11 @@ fun <T> ReorderableGrid(
         horizontalArrangement = horizontalArrangement,
         userScrollEnabled = !isNested
     ) {
-        items(currentList.size, key = { index -> key(currentList[index]) }) { index ->
+        items(
+            count = currentList.size,
+            key = { index -> key(currentList[index]) },
+            span = { index -> GridItemSpan(span(currentList[index]).coerceIn(1, maxLineSpan)) }
+        ) { index ->
             val item = currentList[index]
             val isDragging = draggedIndex == index
             
