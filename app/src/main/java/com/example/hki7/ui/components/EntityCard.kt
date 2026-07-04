@@ -318,7 +318,7 @@ fun defaultEntityIconSlug(
         "input_datetime" -> "calendar-clock"
         "input_number", "number" -> "counter"
         "input_select", "select" -> "format-list-bulleted"
-        "light" -> if (state == "on") "lightbulb-on" else "lightbulb"
+        "light" -> lightIconSlug(entity, state)
         "lock" -> when {
             lockDoorOpen                       -> "door-open"
             state == "locked"                  -> "lock"
@@ -389,6 +389,40 @@ private fun sensorDeviceClassIconSlug(deviceClass: String?): String = when (devi
     "weight" -> "scale-bathroom"
     "wind_speed" -> "weather-windy"
     else -> "eye"
+}
+
+private fun lightIconSlug(entity: HAEntity, state: String): String {
+    val name = listOfNotNull(entity.friendlyName, entity.entity_id.substringAfter("."))
+        .joinToString(" ")
+        .lowercase()
+        .replace('_', ' ')
+        .replace('-', ' ')
+
+    if (entity.childEntityIds.isNotEmpty() || " group" in name || " all " in " $name ") return "lightbulb-group"
+
+    return when {
+        "strip" in name || "led" in name || "wled" in name -> "led-strip-variant"
+        "string" in name || "christmas" in name || "fairy" in name -> "string-lights"
+        "ceiling" in name || "plafond" in name -> "ceiling-light"
+        "recessed" in name || "downlight" in name || "down light" in name -> "light-recessed"
+        "track" in name -> "track-light"
+        "spot" in name -> "spotlight"
+        "flood" in name -> "light-flood-down"
+        "chandelier" in name -> "chandelier"
+        "sconce" in name -> "wall-sconce"
+        "wall" in name -> "wall-sconce-flat"
+        "vanity" in name || "mirror" in name -> "vanity-light"
+        "floor lamp" in name || "standing lamp" in name -> "floor-lamp"
+        "desk" in name || "table" in name -> "desk-lamp"
+        "lamp" in name -> "lamp"
+        "outdoor" in name || "outside" in name || "porch" in name || "garden" in name -> "outdoor-lamp"
+        "coach" in name -> "coach-lamp"
+        "dome" in name -> "dome-light"
+        "bulkhead" in name -> "bulkhead-light"
+        "lava" in name -> "lava-lamp"
+        state == "on" -> "lightbulb-on"
+        else -> "lightbulb"
+    }
 }
 
 private fun binarySensorDeviceClassIconSlug(deviceClass: String?, state: String): String {
