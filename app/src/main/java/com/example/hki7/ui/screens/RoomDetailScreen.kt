@@ -339,8 +339,8 @@ fun RoomDetailScreen(
     ) { padding ->
         BoxWithConstraints(modifier = Modifier.fillMaxSize().padding(padding)) {
         val widgetGridColumns = when {
-            maxWidth >= 1000.dp -> 3
-            maxWidth >= 600.dp -> 2
+            maxWidth >= 900.dp -> 3
+            maxWidth >= 480.dp -> 2
             else -> 1
         }
         fun widgetSpan(widget: HKIRoomWidget): Int =
@@ -1729,7 +1729,7 @@ fun StackSettingsDialog(
 fun WidgetWidthSelector(width: String, onWidthChange: (String) -> Unit) {
     Text("Widget width", style = MaterialTheme.typography.labelLarge)
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf("full" to "Full", "half" to "Half").forEach { (value, label) ->
+        listOf("full" to "Full row", "half" to "Half row").forEach { (value, label) ->
             FilterChip(
                 selected = width == value,
                 onClick = { onWidthChange(value) },
