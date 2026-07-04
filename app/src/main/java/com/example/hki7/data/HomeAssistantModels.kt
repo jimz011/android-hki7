@@ -32,6 +32,9 @@ data class HAEntity(
     val entityPicture: String?
         get() = attributes?.get("entity_picture")?.jsonPrimitive?.contentOrNull
 
+    val icon: String?
+        get() = attributes?.get("icon")?.jsonPrimitive?.contentOrNull
+
     val mediaTitle: String?
         get() = attributes?.get("media_title")?.jsonPrimitive?.contentOrNull
 

@@ -180,8 +180,8 @@ fun EntityCard(
                 isUnavailable               -> appColors.onMuted
                 else                        -> primary
             }
-            // User icon overrides; otherwise fall back to the state-aware default (lock/cover),
-            // then to the Material domain icon for everything else.
+            // User icon overrides; otherwise fall back to HA-provided/custom defaults and
+            // device-class defaults that mirror Home Assistant's icon choices.
             val defaultSlug = defaultEntityIconSlug(
                 entity,
                 lockDoorOpen = isLockDoorOpen,
@@ -193,17 +193,7 @@ fun EntityCard(
                 MdiIcon(name = effectiveSlug, tint = iconTint, modifier = spinModifier)
             } else {
                 Icon(
-                    imageVector = when (domain) {
-                        "climate" -> Icons.Default.Thermostat
-                        "switch", "input_boolean" -> Icons.Default.PowerSettingsNew
-                        "sensor" -> Icons.Default.Sensors
-                        "binary_sensor" -> Icons.Default.Security
-                        "camera" -> Icons.Default.CameraAlt
-                        "fan" -> Icons.Default.Air
-                        "humidifier" -> Icons.Default.WaterDrop
-                        "alarm_control_panel" -> Icons.Default.Security
-                        else -> Icons.Default.Lightbulb
-                    },
+                    imageVector = Icons.Default.DeviceUnknown,
                     contentDescription = null,
                     tint = iconTint,
                     modifier = spinModifier
@@ -314,13 +304,43 @@ fun defaultEntityIconSlug(
     lockDoorOpen: Boolean = false,
 ): String? {
     val state = entity.state.lowercase()
+    entity.icon?.takeIf { it.isNotBlank() }?.let { return it.removePrefix("mdi:") }
     return when (entity.entity_id.substringBefore(".")) {
+        "alarm_control_panel" -> "shield-home"
+        "automation" -> "robot"
+        "button", "input_button" -> "gesture-tap-button"
+        "camera" -> "cctv"
+        "climate" -> "thermostat"
+        "device_tracker" -> "map-marker"
+        "fan" -> "fan"
+        "humidifier" -> "air-humidifier"
+        "input_boolean" -> if (state == "on") "toggle-switch-variant" else "toggle-switch-variant-off"
+        "input_datetime" -> "calendar-clock"
+        "input_number", "number" -> "counter"
+        "input_select", "select" -> "format-list-bulleted"
+        "light" -> if (state == "on") "lightbulb-on" else "lightbulb"
         "lock" -> when {
             lockDoorOpen                       -> "door-open"
             state == "locked"                  -> "lock"
             state == "unavailable" || state == "unknown" -> "lock"
             else                               -> "lock-open-alert"
         }
+        "media_player" -> "speaker"
+        "person" -> "account"
+        "remote" -> "remote"
+        "scene" -> "palette"
+        "script" -> "script-text"
+        "sensor" -> sensorDeviceClassIconSlug(entity.deviceClass)
+        "binary_sensor" -> binarySensorDeviceClassIconSlug(entity.deviceClass, state)
+        "sun" -> if (state == "below_horizon") "weather-night" else "weather-sunny"
+        "switch" -> when (entity.deviceClass) {
+            "outlet" -> "power-plug"
+            "switch" -> if (state == "on") "toggle-switch-variant" else "toggle-switch-variant-off"
+            else -> "power-socket"
+        }
+        "update" -> "package-up"
+        "vacuum" -> "robot-vacuum"
+        "weather" -> "weather-partly-cloudy"
         "cover" -> {
             val closed = state == "closed"
             when (entity.deviceClass) {
@@ -334,7 +354,69 @@ fun defaultEntityIconSlug(
                 else      -> if (closed) "roller-shade-closed" else "roller-shade"
             }
         }
-        else -> null
+        else -> "power"
+    }
+}
+
+private fun sensorDeviceClassIconSlug(deviceClass: String?): String = when (deviceClass) {
+    "apparent_power", "energy", "power", "reactive_power" -> "lightning-bolt"
+    "aqi" -> "air-filter"
+    "atmospheric_pressure", "pressure" -> "gauge"
+    "battery" -> "battery"
+    "carbon_dioxide" -> "molecule-co2"
+    "carbon_monoxide" -> "molecule-co"
+    "current" -> "current-ac"
+    "data_rate" -> "speedometer"
+    "data_size" -> "database"
+    "date" -> "calendar"
+    "distance" -> "arrow-expand-horizontal"
+    "duration" -> "timer"
+    "enum" -> "format-list-bulleted"
+    "frequency", "voltage" -> "sine-wave"
+    "gas" -> "meter-gas"
+    "humidity" -> "water-percent"
+    "illuminance" -> "brightness-5"
+    "monetary" -> "cash"
+    "nitrogen_dioxide", "nitrogen_monoxide", "nitrous_oxide", "ozone",
+    "pm1", "pm10", "pm25", "sulphur_dioxide", "volatile_organic_compounds" -> "molecule"
+    "power_factor" -> "angle-acute"
+    "signal_strength" -> "wifi"
+    "sound_pressure" -> "volume-high"
+    "speed" -> "speedometer"
+    "temperature" -> "thermometer"
+    "timestamp" -> "clock"
+    "volume", "volume_storage", "water" -> "water"
+    "weight" -> "scale-bathroom"
+    "wind_speed" -> "weather-windy"
+    else -> "eye"
+}
+
+private fun binarySensorDeviceClassIconSlug(deviceClass: String?, state: String): String {
+    val active = state == "on"
+    return when (deviceClass) {
+        "battery" -> if (active) "battery-outline" else "battery"
+        "battery_charging" -> if (active) "battery-charging" else "battery"
+        "carbon_monoxide", "smoke" -> "smoke-detector"
+        "cold" -> "snowflake"
+        "connectivity" -> if (active) "check-network" else "close-network"
+        "door", "opening" -> if (active) "door-open" else "door-closed"
+        "garage_door" -> if (active) "garage-open" else "garage"
+        "gas" -> "gas-cylinder"
+        "heat" -> "fire"
+        "light" -> "brightness-5"
+        "lock" -> if (active) "lock-open" else "lock"
+        "moisture" -> "water-alert"
+        "motion" -> "motion-sensor"
+        "moving", "running" -> "run"
+        "occupancy" -> "home-account"
+        "plug", "power" -> "power-plug"
+        "presence" -> "account"
+        "problem", "safety", "tamper" -> if (active) "alert-circle" else "shield-check"
+        "sound" -> "volume-high"
+        "update" -> "package-up"
+        "vibration" -> "vibrate"
+        "window" -> if (active) "window-open" else "window-closed"
+        else -> if (active) "checkbox-marked-circle" else "checkbox-blank-circle-outline"
     }
 }
 

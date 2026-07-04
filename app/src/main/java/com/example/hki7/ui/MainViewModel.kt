@@ -1548,7 +1548,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 cameraEntityIds = cameraIds,
                 blindEntityIds = blindIds,
                 lockIcon = current.lockIcon ?: "Door",
-                climateIcon = current.climateIcon ?: "Thermometer",
+                climateIcon = current.climateIcon ?: "thermostat",
                 cameraIcon = current.cameraIcon ?: "CameraAlt",
                 blindIcon = current.blindIcon ?: "Blinds"
             )
