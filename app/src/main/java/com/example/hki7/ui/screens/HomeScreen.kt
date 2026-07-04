@@ -1,13 +1,15 @@
-@file:Suppress("KotlinConstantConditions")
+@file:Suppress("KotlinConstantConditions", "UnusedBoxWithConstraintsScope")
 
 package com.example.hki7.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -19,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HKIButtonConfig
 import com.example.hki7.data.HKIButtonStack
+import com.example.hki7.data.HKIRoomWidget
 import com.example.hki7.data.HKISubtitleWidget
 import com.example.hki7.data.HKIWeatherWidget
 import com.example.hki7.ui.MainViewModel
@@ -48,22 +51,8 @@ fun HAHomeScreen(viewModel: MainViewModel) {
     val accessToken by viewModel.accessToken.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
     val homeWidgets = widgets[HOME_WIDGET_AREA].orEmpty()
-    val widgetListState = rememberLazyListState()
     val widgetGridState = rememberLazyGridState()
-    // Keep list and grid scroll positions in sync when toggling edit mode.
-    LaunchedEffect(isEditMode) {
-        if (isEditMode) {
-            widgetGridState.scrollToItem(
-                widgetListState.firstVisibleItemIndex,
-                widgetListState.firstVisibleItemScrollOffset
-            )
-        } else {
-            widgetListState.scrollToItem(
-                widgetGridState.firstVisibleItemIndex,
-                widgetGridState.firstVisibleItemScrollOffset
-            )
-        }
-    }
+    val widgetStaggeredState = rememberLazyStaggeredGridState()
     var showAddWidget by remember { mutableStateOf(false) }
     var addingToStackId by remember { mutableStateOf<String?>(null) }
     var cameraAddMode by remember { mutableStateOf<String?>(null) }
@@ -137,21 +126,38 @@ fun HAHomeScreen(viewModel: MainViewModel) {
         pageKey = "home",
         pageSettingsTitle = "Home Settings"
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+        BoxWithConstraints(modifier = Modifier.fillMaxSize().padding(padding)) {
+            // Number of full-width columns. Scales up on larger screens (fold/tablet)
+            // so widgets tile into several columns instead of one wide stack.
+            val widgetColumnCount = when {
+                maxWidth >= 900.dp -> 3
+                maxWidth >= 600.dp -> 2
+                else -> 1
+            }
+            // Number of masonry lanes: two per column so a "half" widget takes one lane
+            // (button-stack left, camera-stack right) while a "full" widget spans the whole row.
+            val widgetGridColumns = widgetColumnCount * 2
+            fun widgetSpan(widget: HKIRoomWidget): Int =
+                if (widget.width == "half") 1 else widgetGridColumns
+            fun widgetStaggeredSpan(widget: HKIRoomWidget): StaggeredGridItemSpan =
+                if (widget.width == "half") StaggeredGridItemSpan.SingleLane else StaggeredGridItemSpan.FullLine
             Column(modifier = Modifier.fillMaxSize()) {
                 if (homeWidgets.isEmpty() && !isEditMode) {
                     EmptyEditHint(Modifier.weight(1f))
                 } else if (!isEditMode) {
-                    LazyColumn(
-                        state = widgetListState,
+                    LazyVerticalStaggeredGrid(
+                        columns = StaggeredGridCells.Fixed(widgetGridColumns),
+                        state = widgetStaggeredState,
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 96.dp),
-                        verticalArrangement = Arrangement.spacedBy(14.dp)
+                        verticalItemSpacing = 14.dp,
+                        horizontalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
                         items(
                             items = homeWidgets,
                             key = { it.id },
-                            contentType = { it::class.simpleName ?: "widget" }
+                            contentType = { it::class.simpleName ?: "widget" },
+                            span = { widgetStaggeredSpan(it) }
                         ) { widget ->
                             when (widget) {
                                 is HKIButtonStack -> ButtonStackItem(
@@ -213,9 +219,11 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                         canReorder = true,
                         onReorder = { from, to -> viewModel.moveWidgetInArea(HOME_WIDGET_AREA, from, to) },
                         key = { it.id },
-                        columns = GridCells.Fixed(1),
+                        columns = GridCells.Fixed(widgetGridColumns),
+                        span = { widgetSpan(it) },
                         contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 156.dp),
                         verticalArrangement = Arrangement.spacedBy(14.dp),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
                         axis = ReorderAxis.Vertical,
                         state = widgetGridState,
                         modifier = Modifier.weight(1f)

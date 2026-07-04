@@ -36,9 +36,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -338,30 +340,36 @@ fun RoomDetailScreen(
         onBack = { navController.popBackStack() }
     ) { padding ->
         BoxWithConstraints(modifier = Modifier.fillMaxSize().padding(padding)) {
-        val widgetGridColumns = when {
+        // Number of full-width columns. Scales up on larger screens (fold/tablet)
+        // so widgets tile into several columns instead of one wide stack.
+        val widgetColumnCount = when {
             maxWidth >= 900.dp -> 3
-            maxWidth >= 480.dp -> 2
+            maxWidth >= 600.dp -> 2
             else -> 1
         }
+        // Number of masonry lanes: two per column so a "half" widget takes one lane
+        // (button-stack left, camera-stack right) while a "full" widget spans the whole row.
+        val widgetGridColumns = widgetColumnCount * 2
         fun widgetSpan(widget: HKIRoomWidget): Int =
-            if (widgetGridColumns == 1 || widget.width != "half") widgetGridColumns else 1
+            if (widget.width == "half") 1 else widgetGridColumns
+        fun widgetStaggeredSpan(widget: HKIRoomWidget): StaggeredGridItemSpan =
+            if (widget.width == "half") StaggeredGridItemSpan.SingleLane else StaggeredGridItemSpan.FullLine
         Column(modifier = Modifier.fillMaxSize()) {
             key(isEditMode, uiRevision) {
                 if (!isEditMode) {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(widgetGridColumns),
+                    LazyVerticalStaggeredGrid(
+                        columns = StaggeredGridCells.Fixed(widgetGridColumns),
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 96.dp),
-                        verticalArrangement = Arrangement.spacedBy(14.dp),
+                        verticalItemSpacing = 14.dp,
                         horizontalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
                         items(
-                            count = areaWidgets.size,
-                            key = { index -> areaWidgets[index].id },
-                            contentType = { index -> areaWidgets[index]::class.simpleName ?: "widget" },
-                            span = { index -> GridItemSpan(widgetSpan(areaWidgets[index])) }
-                        ) { index ->
-                            val widget = areaWidgets[index]
+                            items = areaWidgets,
+                            key = { it.id },
+                            contentType = { it::class.simpleName ?: "widget" },
+                            span = { widgetStaggeredSpan(it) }
+                        ) { widget ->
                             when (widget) {
                                 is HKIButtonStack -> {
                                     ButtonStackItem(
