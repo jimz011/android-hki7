@@ -21,7 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import com.example.hki7.data.HAEntity
 import com.example.hki7.ui.MainViewModel
@@ -120,7 +122,7 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
                 if (service == "alarm_disarm") {
                     pendingRemainingSeconds = 0
                     pendingCancelCode = null
-                } else if (service.startsWith("alarm_arm_")) {
+                } else if (service.startsWith("alarm_arm_") && pendingSeconds > 0) {
                     pendingRemainingSeconds = pendingSeconds
                     pendingCancelCode = submittedCode
                 }
@@ -252,6 +254,12 @@ private fun AlarmModeList(
     onActionClick: (Pair<String, String>) -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
+    val presetSeconds = listOf(0, 5, 10, 30)
+    var showCustom by remember { mutableStateOf(false) }
+    val customSelected = showCustom || pendingSeconds !in presetSeconds
+    var customInput by remember(pendingSeconds) {
+        mutableStateOf(if (pendingSeconds > 0 && pendingSeconds !in presetSeconds) pendingSeconds.toString() else "")
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -269,13 +277,35 @@ private fun AlarmModeList(
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState())
         ) {
-            listOf(5, 10, 15, 20, 30, 60).forEach { seconds ->
+            listOf(0 to "None", 5 to "5s", 10 to "10s", 30 to "30s").forEach { (seconds, label) ->
                 FilterChip(
-                    selected = pendingSeconds == seconds,
-                    onClick = { onPendingSecondsSelected(seconds) },
-                    label = { Text("${seconds}s") }
+                    selected = !customSelected && pendingSeconds == seconds,
+                    onClick = {
+                        showCustom = false
+                        onPendingSecondsSelected(seconds)
+                    },
+                    label = { Text(label) }
                 )
             }
+            FilterChip(
+                selected = customSelected,
+                onClick = { showCustom = true },
+                label = { Text("Custom") }
+            )
+        }
+        if (customSelected) {
+            OutlinedTextField(
+                value = customInput,
+                onValueChange = { value ->
+                    val digits = value.filter(Char::isDigit).take(5)
+                    customInput = digits
+                    digits.toIntOrNull()?.takeIf { it > 0 }?.let(onPendingSecondsSelected)
+                },
+                label = { Text("Custom seconds") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
         }
         Spacer(Modifier.height(6.dp))
 

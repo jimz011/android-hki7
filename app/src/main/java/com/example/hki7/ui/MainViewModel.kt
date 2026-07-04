@@ -212,7 +212,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private val _headerLeftAlarmEntityId = MutableStateFlow<String?>(null)
     val headerLeftAlarmEntityId: StateFlow<String?> = _headerLeftAlarmEntityId
 
-    private val _alarmPendingSeconds = MutableStateFlow(15)
+    private val _alarmPendingSeconds = MutableStateFlow(0)
     val alarmPendingSeconds: StateFlow<Int> = _alarmPendingSeconds
 
     private var client: HomeAssistantClient? = null

@@ -102,7 +102,7 @@ class PreferencesManager(private val context: Context) {
     val rainEntityId: Flow<String?> = context.dataStore.data.map { it[rainEntityKey] }
     val alarmEntityId: Flow<String?> = context.dataStore.data.map { it[alarmEntityKey] }
     val headerLeftAlarmEntityId: Flow<String?> = context.dataStore.data.map { it[headerLeftAlarmEntityKey] }
-    val alarmPendingSeconds: Flow<Int> = context.dataStore.data.map { it[alarmPendingSecondsKey] ?: 15 }
+    val alarmPendingSeconds: Flow<Int> = context.dataStore.data.map { it[alarmPendingSecondsKey] ?: 0 }
     val mobileDeviceName: Flow<String?> = context.dataStore.data.map { it[mobileDeviceNameKey] }
     val themeColor: Flow<String> = context.dataStore.data.map { it[themeColorKey] ?: "system" }
     val themeMode: Flow<String> = context.dataStore.data.map { it[themeModeKey] ?: "system" }
