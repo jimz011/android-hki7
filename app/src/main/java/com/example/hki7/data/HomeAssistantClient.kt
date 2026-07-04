@@ -409,20 +409,26 @@ class HomeAssistantClient(
     suspend fun toggleEntity(entityId: String) {
         val domain = entityId.split(".").first()
         withAuthHandling {
-            client.post("$baseUrl/api/services/$domain/toggle") {
+            val response: HttpResponse = client.post("$baseUrl/api/services/$domain/toggle") {
                 header(HttpHeaders.Authorization, "Bearer $accessToken")
                 header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                 setBody(HAServiceCall(entity_id = entityId))
+            }
+            if (!response.status.isSuccess()) {
+                throw Exception("Service call failed: ${response.status.value} ${response.bodyAsText().take(200)}")
             }
         }
     }
 
     suspend fun callService(domain: String, service: String, serviceCall: HAServiceCall) {
         withAuthHandling {
-            client.post("$baseUrl/api/services/$domain/$service") {
+            val response: HttpResponse = client.post("$baseUrl/api/services/$domain/$service") {
                 header(HttpHeaders.Authorization, "Bearer $accessToken")
                 header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                 setBody(serviceCall)
+            }
+            if (!response.status.isSuccess()) {
+                throw Exception("Service call failed: ${response.status.value} ${response.bodyAsText().take(200)}")
             }
         }
     }

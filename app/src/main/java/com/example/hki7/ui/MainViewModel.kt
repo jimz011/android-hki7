@@ -1094,13 +1094,24 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val currentClient = client ?: return
         viewModelScope.launch {
             try {
+                val beforeState = _entities.value.find { it.entity_id == entityId }?.state?.lowercase()
                 currentClient.callService(
                     "alarm_control_panel",
                     service,
                     HAServiceCall(entity_id = entityId, code = code?.takeIf { it.isNotBlank() })
                 )
                 refreshAfterServiceCall()
-                onResult(true)
+                val afterState = _entities.value.find { it.entity_id == entityId }?.state?.lowercase()
+                val stateAccepted = when (service) {
+                    "alarm_disarm" -> afterState == "disarmed"
+                    "alarm_arm_home" -> afterState in setOf("armed_home", "arming", "pending")
+                    "alarm_arm_away" -> afterState in setOf("armed_away", "arming", "pending")
+                    "alarm_arm_night" -> afterState in setOf("armed_night", "arming", "pending")
+                    "alarm_arm_custom_bypass" -> afterState in setOf("armed_custom_bypass", "arming", "pending")
+                    "alarm_arm_vacation" -> afterState in setOf("armed_vacation", "arming", "pending")
+                    else -> afterState != beforeState
+                }
+                onResult(stateAccepted)
             } catch (e: Exception) {
                 addLog("Alarm command failed: ${e.message}")
                 onResult(false)

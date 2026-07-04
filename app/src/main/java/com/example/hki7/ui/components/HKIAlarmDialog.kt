@@ -4,12 +4,15 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Backspace
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -137,23 +140,14 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
         Spacer(Modifier.height(20.dp))
 
         if (selectedAction == null) {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                if (actions.isEmpty()) {
-                    Text("No supported alarm modes reported by this entity", color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
-                } else {
-                    actions.forEach { action ->
-                        Button(
-                            onClick = {
-                                selectedAction = action
-                                codeBuffer = ""
-                                errorMessage = null
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = alarmStateColor(if (action.first == "alarm_disarm") "disarmed" else "armed_home")),
-                            modifier = Modifier.fillMaxWidth()
-                        ) { Text(action.second) }
-                    }
+            AlarmModeList(
+                actions = actions,
+                onActionClick = { action ->
+                    selectedAction = action
+                    codeBuffer = ""
+                    errorMessage = null
                 }
-            }
+            )
             return@Column
         }
 
@@ -192,6 +186,61 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
                 modifier = Modifier.weight(1f)
             ) {
                 Text(if (needsCode) "Confirm" else selectedAction!!.second)
+            }
+        }
+    }
+}
+
+@Composable
+private fun AlarmModeList(
+    actions: List<Pair<String, String>>,
+    onActionClick: (Pair<String, String>) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text("Modes", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+        Text("Select a mode to continue", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+        Spacer(Modifier.height(6.dp))
+
+        if (actions.isEmpty()) {
+            Text("No supported alarm modes reported by this entity", color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
+            return@Column
+        }
+
+        actions.forEach { action ->
+            val actionColor = alarmStateColor(if (action.first == "alarm_disarm") "disarmed" else "armed_home")
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onActionClick(action) },
+                shape = RoundedCornerShape(18.dp),
+                color = appColors.surface,
+                border = BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.16f))
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.Security,
+                        contentDescription = null,
+                        tint = actionColor,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = action.second,
+                        color = appColors.onSurface,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(Icons.Default.ChevronRight, contentDescription = null, tint = appColors.onMuted)
+                }
             }
         }
     }
