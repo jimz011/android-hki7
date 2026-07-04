@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.example.hki7.data.HAEntity
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.theme.LocalHKIAppColors
+import com.example.hki7.ui.utils.MdiIcon
 import kotlinx.coroutines.delay
 
 fun alarmStateColor(state: String): Color = when (state.lowercase()) {
@@ -63,6 +64,7 @@ fun HKIAlarmDialog(
     spinIcon: Boolean = false
 ) {
     val accent = alarmStateColor(entity.state)
+    val resolvedIconName = iconName?.takeUnless { it.isBlank() } ?: defaultEntityIconSlug(entity)
     HKIDialog(
         entity = entity,
         onDismiss = onDismiss,
@@ -70,7 +72,7 @@ fun HKIAlarmDialog(
         icon = Icons.Default.Security,
         iconTint = accent,
         titleOverride = titleOverride,
-        iconName = iconName,
+        iconName = resolvedIconName,
         spinIcon = spinIcon,
         statusText = alarmStateLabel(entity.state)
     ) {
@@ -288,11 +290,11 @@ private fun AlarmModeList(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        Icons.Default.Security,
+                    MdiIcon(
+                        name = "shield-home",
                         contentDescription = null,
                         tint = actionColor,
-                        modifier = Modifier.size(22.dp)
+                        size = 22.dp
                     )
                     Spacer(Modifier.width(12.dp))
                     Text(
@@ -388,11 +390,11 @@ private fun AlarmPendingPanel(
             modifier = Modifier.padding(18.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                Icons.Default.Security,
+            MdiIcon(
+                name = "shield-home",
                 contentDescription = null,
                 tint = alarmStateColor("pending"),
-                modifier = Modifier.size(32.dp)
+                size = 32.dp
             )
             Spacer(Modifier.height(10.dp))
             Text("Alarm pending", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
