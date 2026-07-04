@@ -46,6 +46,7 @@ import com.example.hki7.ui.ConnectionStatus
 import com.example.hki7.ui.screens.SettingsDialog
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.components.alarmStateColor
+import com.example.hki7.ui.utils.MdiIcon
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -341,18 +342,26 @@ fun HKIPage(
                                             }
 
                                             if (weatherDisplayType == "Weather" || weatherDisplayType == "DateTime" || weatherDisplayType == "Alarm") {
-                                                Icon(
-                                                    imageVector = when {
-                                                        weatherDisplayType == "Alarm" -> Icons.Default.Security
-                                                        weather?.state?.lowercase() == "cloudy" -> Icons.Default.Cloud
-                                                        weather?.state?.lowercase() == "rainy" -> Icons.Default.CloudQueue
-                                                        weather?.state?.lowercase() == "sunny" -> Icons.Default.WbSunny
-                                                        else -> Icons.Default.Cloud
-                                                    },
-                                                    contentDescription = null,
-                                                    tint = if (weatherDisplayType == "Alarm") alarmStateColor(rightAlarmEntity?.state.orEmpty()) else headerTextColor,
-                                                    modifier = Modifier.size(18.dp)
-                                                )
+                                                if (weatherDisplayType == "Alarm") {
+                                                    MdiIcon(
+                                                        name = rightAlarmEntity?.let { defaultEntityIconSlug(it) } ?: "shield-home",
+                                                        contentDescription = null,
+                                                        tint = alarmStateColor(rightAlarmEntity?.state.orEmpty()),
+                                                        size = 18.dp
+                                                    )
+                                                } else {
+                                                    Icon(
+                                                        imageVector = when (weather?.state?.lowercase()) {
+                                                            "cloudy" -> Icons.Default.Cloud
+                                                            "rainy" -> Icons.Default.CloudQueue
+                                                            "sunny" -> Icons.Default.WbSunny
+                                                            else -> Icons.Default.Cloud
+                                                        },
+                                                        contentDescription = null,
+                                                        tint = headerTextColor,
+                                                        modifier = Modifier.size(18.dp)
+                                                    )
+                                                }
                                                 if (displayStr.isNotEmpty()) Spacer(Modifier.width(8.dp))
                                             }
                                             
@@ -1039,15 +1048,23 @@ private fun HeaderStatusPill(
                     modifier = Modifier.padding(horizontal = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val icon = when (displayType) {
-                        "Alarm" -> Icons.Default.Security
-                        "Weather", "DateTime" -> weatherIcon(weather?.state.orEmpty())
-                        else -> null
-                    }
-                    if (icon != null) {
-                        val iconTint = if (displayType == "Alarm") alarmStateColor(alarm?.state.orEmpty()) else textColor
-                        Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(18.dp))
+                    if (displayType == "Alarm") {
+                        MdiIcon(
+                            name = alarm?.let { defaultEntityIconSlug(it) } ?: "shield-home",
+                            contentDescription = null,
+                            tint = alarmStateColor(alarm?.state.orEmpty()),
+                            size = 18.dp
+                        )
                         Spacer(Modifier.width(8.dp))
+                    } else {
+                        val icon = when (displayType) {
+                            "Weather", "DateTime" -> weatherIcon(weather?.state.orEmpty())
+                            else -> null
+                        }
+                        if (icon != null) {
+                            Icon(icon, contentDescription = null, tint = textColor, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                        }
                     }
                     Text(displayText, color = textColor, style = MaterialTheme.typography.bodyMedium)
                 }
