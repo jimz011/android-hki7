@@ -40,6 +40,7 @@ class PreferencesManager(private val context: Context) {
     private val rainEntityKey = stringPreferencesKey("rain_entity_id")
     private val alarmEntityKey = stringPreferencesKey("header_alarm_entity_id")
     private val headerLeftAlarmEntityKey = stringPreferencesKey("header_left_alarm_entity_id")
+    private val alarmPendingSecondsKey = intPreferencesKey("alarm_pending_seconds")
     private val mobileDeviceNameKey = stringPreferencesKey("mobile_device_name")
     private val themeColorKey = stringPreferencesKey("theme_color")
     private val themeModeKey = stringPreferencesKey("theme_mode")
@@ -101,6 +102,7 @@ class PreferencesManager(private val context: Context) {
     val rainEntityId: Flow<String?> = context.dataStore.data.map { it[rainEntityKey] }
     val alarmEntityId: Flow<String?> = context.dataStore.data.map { it[alarmEntityKey] }
     val headerLeftAlarmEntityId: Flow<String?> = context.dataStore.data.map { it[headerLeftAlarmEntityKey] }
+    val alarmPendingSeconds: Flow<Int> = context.dataStore.data.map { it[alarmPendingSecondsKey] ?: 15 }
     val mobileDeviceName: Flow<String?> = context.dataStore.data.map { it[mobileDeviceNameKey] }
     val themeColor: Flow<String> = context.dataStore.data.map { it[themeColorKey] ?: "system" }
     val themeMode: Flow<String> = context.dataStore.data.map { it[themeModeKey] ?: "system" }
@@ -200,6 +202,9 @@ class PreferencesManager(private val context: Context) {
     }
     suspend fun saveHeaderLeftAlarmEntity(entityId: String?) {
         context.dataStore.edit { if (entityId == null) it.remove(headerLeftAlarmEntityKey) else it[headerLeftAlarmEntityKey] = entityId }
+    }
+    suspend fun saveAlarmPendingSeconds(seconds: Int) {
+        context.dataStore.edit { it[alarmPendingSecondsKey] = seconds }
     }
 
     suspend fun saveWeatherExtraEntity(role: String, entityId: String?) {

@@ -4,6 +4,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.example.hki7.data.HAEntity
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.theme.LocalHKIAppColors
+import kotlinx.coroutines.delay
 
 fun alarmStateColor(state: String): Color = when (state.lowercase()) {
     "disarmed" -> Color(0xFFE53935)
@@ -82,27 +84,66 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
     val accent = alarmStateColor(state)
     var codeBuffer by remember(entity.entity_id) { mutableStateOf("") }
     var errorMessage by remember(entity.entity_id) { mutableStateOf<String?>(null) }
+    var successMessage by remember(entity.entity_id) { mutableStateOf<String?>(null) }
     var selectedAction by remember(entity.entity_id, entity.state) { mutableStateOf<Pair<String, String>?>(null) }
+    var pendingRemainingSeconds by remember(entity.entity_id) { mutableIntStateOf(0) }
+    var pendingCancelCode by remember(entity.entity_id) { mutableStateOf<String?>(null) }
     var shakeTrigger by remember { mutableIntStateOf(0) }
     val shakeOffset = remember { Animatable(0f) }
+    val pendingSeconds by viewModel.alarmPendingSeconds.collectAsState()
     LaunchedEffect(shakeTrigger) {
         if (shakeTrigger == 0) return@LaunchedEffect
         listOf(0f, -14f, 14f, -10f, 10f, -6f, 6f, 0f).forEach { target ->
             shakeOffset.animateTo(target, animationSpec = tween(45))
         }
     }
+    LaunchedEffect(pendingRemainingSeconds) {
+        if (pendingRemainingSeconds <= 0) return@LaunchedEffect
+        delay(1000)
+        pendingRemainingSeconds = (pendingRemainingSeconds - 1).coerceAtLeast(0)
+    }
 
     val needsCode = entity.alarmCodeFormat != null
+    val isPending = state in setOf("pending", "arming")
     val isBusy = state in setOf("pending", "arming", "disarming", "triggered")
 
     fun submit(service: String) {
-        viewModel.setAlarmState(entity.entity_id, service, codeBuffer.takeIf { needsCode }) { success ->
+        val submittedCode = codeBuffer.takeIf { needsCode }
+        viewModel.setAlarmState(entity.entity_id, service, submittedCode) { success ->
             codeBuffer = ""
             if (success) {
                 errorMessage = null
+                successMessage = when (service) {
+                    "alarm_disarm" -> "Alarm disarmed"
+                    else -> "${selectedAction?.second ?: "Alarm command"} accepted"
+                }
+                if (service == "alarm_disarm") {
+                    pendingRemainingSeconds = 0
+                    pendingCancelCode = null
+                } else if (service.startsWith("alarm_arm_")) {
+                    pendingRemainingSeconds = pendingSeconds
+                    pendingCancelCode = submittedCode
+                }
                 selectedAction = null
             } else {
+                successMessage = null
                 errorMessage = "Command failed. Check the code and try again."
+                shakeTrigger++
+            }
+        }
+    }
+
+    fun cancelPending() {
+        viewModel.setAlarmState(entity.entity_id, "alarm_disarm", pendingCancelCode) { success ->
+            if (success) {
+                pendingRemainingSeconds = 0
+                pendingCancelCode = null
+                selectedAction = null
+                errorMessage = null
+                successMessage = "Arming cancelled"
+            } else {
+                successMessage = null
+                errorMessage = "Cancel failed. Check the code and try again."
                 shakeTrigger++
             }
         }
@@ -134,18 +175,30 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
         Box(Modifier.height(20.dp), contentAlignment = Alignment.Center) {
             when {
                 errorMessage != null -> Text(errorMessage!!, color = Color(0xFFEF5350), style = MaterialTheme.typography.bodyMedium)
+                successMessage != null -> Text(successMessage!!, color = Color(0xFF4CAF50), style = MaterialTheme.typography.bodyMedium)
                 isBusy -> Text("Please wait…", color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
             }
         }
         Spacer(Modifier.height(20.dp))
 
+        if (isPending || pendingRemainingSeconds > 0) {
+            AlarmPendingPanel(
+                remainingSeconds = pendingRemainingSeconds.takeIf { it > 0 },
+                onCancel = { cancelPending() }
+            )
+            return@Column
+        }
+
         if (selectedAction == null) {
             AlarmModeList(
                 actions = actions,
+                pendingSeconds = pendingSeconds,
+                onPendingSecondsSelected = { viewModel.setAlarmPendingSeconds(it) },
                 onActionClick = { action ->
                     selectedAction = action
                     codeBuffer = ""
                     errorMessage = null
+                    successMessage = null
                 }
             )
             return@Column
@@ -194,6 +247,8 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
 @Composable
 private fun AlarmModeList(
     actions: List<Pair<String, String>>,
+    pendingSeconds: Int,
+    onPendingSecondsSelected: (Int) -> Unit,
     onActionClick: (Pair<String, String>) -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
@@ -205,6 +260,23 @@ private fun AlarmModeList(
     ) {
         Text("Modes", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
         Text("Select a mode to continue", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+        Spacer(Modifier.height(6.dp))
+
+        Text("Pending timer", color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+        ) {
+            listOf(5, 10, 15, 20, 30, 60).forEach { seconds ->
+                FilterChip(
+                    selected = pendingSeconds == seconds,
+                    onClick = { onPendingSecondsSelected(seconds) },
+                    label = { Text("${seconds}s") }
+                )
+            }
+        }
         Spacer(Modifier.height(6.dp))
 
         if (actions.isEmpty()) {
@@ -241,6 +313,43 @@ private fun AlarmModeList(
                     )
                     Icon(Icons.Default.ChevronRight, contentDescription = null, tint = appColors.onMuted)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AlarmPendingPanel(
+    remainingSeconds: Int?,
+    onCancel: () -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        color = appColors.surface,
+        border = BorderStroke(1.dp, alarmStateColor("pending").copy(alpha = 0.55f))
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                Icons.Default.Security,
+                contentDescription = null,
+                tint = alarmStateColor("pending"),
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(Modifier.height(10.dp))
+            Text("Alarm pending", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+            Text(
+                remainingSeconds?.let { "Arming in $it seconds" } ?: "Waiting for Home Assistant",
+                color = appColors.onMuted,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(Modifier.height(16.dp))
+            OutlinedButton(onClick = onCancel, modifier = Modifier.fillMaxWidth()) {
+                Text("Cancel arming")
             }
         }
     }

@@ -212,6 +212,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private val _headerLeftAlarmEntityId = MutableStateFlow<String?>(null)
     val headerLeftAlarmEntityId: StateFlow<String?> = _headerLeftAlarmEntityId
 
+    private val _alarmPendingSeconds = MutableStateFlow(15)
+    val alarmPendingSeconds: StateFlow<Int> = _alarmPendingSeconds
+
     private var client: HomeAssistantClient? = null
     private var pollJob: Job? = null
     private var realtimeJob: Job? = null
@@ -259,6 +262,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         viewModelScope.launch { prefs.useFullDayName.collect { _useFullDayName.value = it } }
         viewModelScope.launch { prefs.alarmEntityId.collect { _headerAlarmEntityId.value = it } }
         viewModelScope.launch { prefs.headerLeftAlarmEntityId.collect { _headerLeftAlarmEntityId.value = it } }
+        viewModelScope.launch { prefs.alarmPendingSeconds.collect { _alarmPendingSeconds.value = it } }
         viewModelScope.launch {
             combine(prefs.sunEntityId, prefs.moonEntityId, prefs.aqiEntityId, prefs.seasonEntityId, prefs.rainEntityId) { args: Array<String?> ->
                 mapOf("sun" to args[0], "moon" to args[1], "aqi" to args[2], "season" to args[3], "rain" to args[4])
@@ -836,6 +840,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     fun setWeatherExtraEntity(role: String, entityId: String?) { viewModelScope.launch { prefs.saveWeatherExtraEntity(role, entityId) } }
     fun setHeaderAlarmEntity(entityId: String?) { viewModelScope.launch { prefs.saveHeaderAlarmEntity(entityId) } }
     fun setHeaderLeftAlarmEntity(entityId: String?) { viewModelScope.launch { prefs.saveHeaderLeftAlarmEntity(entityId) } }
+    fun setAlarmPendingSeconds(seconds: Int) { viewModelScope.launch { prefs.saveAlarmPendingSeconds(seconds) } }
 
     fun toggleLock(entityId: String) {
         val currentClient = client ?: return
