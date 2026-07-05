@@ -21,16 +21,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import androidx.compose.foundation.lazy.grid.GridCells
 import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HAWeatherForecast
+import com.example.hki7.data.HKIButtonConfig
+import com.example.hki7.data.HKIButtonStack
 import com.example.hki7.data.HKIWeatherWidget
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.EditRemoveBadge
+import com.example.hki7.ui.components.ReorderableGrid
 import com.example.hki7.ui.components.ForecastCard
 import com.example.hki7.ui.components.WeatherMainCard
 import com.example.hki7.ui.components.formatWeatherState
 import com.example.hki7.ui.components.weatherIcon
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
+import com.example.hki7.ui.components.MdiIconPickerDialog
+import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 import kotlinx.serialization.json.doubleOrNull
@@ -63,18 +69,28 @@ fun WeatherRoomWidget(
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            if (isEditMode) {
+            // Optional icon + name header, mirroring the button stacks: only shown when a
+            // title/icon is set (or while editing, where the settings control lives).
+            val showHeaderLabel = !widget.title.isNullOrBlank() || !widget.icon.isNullOrBlank() || isEditMode
+            if (showHeaderLabel) {
                 Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                    MdiIcon("weather-partly-cloudy", tint = Color.Gray, size = 16.dp)
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        widget.title ?: weatherWidgetStyles.find { it.first == widget.style }?.second ?: "Weather",
-                        color = Color.Gray,
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.weight(1f)
-                    )
-                    IconButton(onClick = onSettings, modifier = Modifier.size(24.dp)) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                        if (!widget.icon.isNullOrBlank()) {
+                            MdiIcon(widget.icon, tint = Color.Gray, size = 16.dp)
+                            Spacer(Modifier.width(8.dp))
+                        }
+                        if (!widget.title.isNullOrBlank()) {
+                            Text(
+                                widget.title,
+                                color = Color.Gray,
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        }
+                    }
+                    if (isEditMode) {
+                        IconButton(onClick = onSettings, modifier = Modifier.size(24.dp)) {
+                            Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                        }
                     }
                 }
                 Spacer(Modifier.height(12.dp))
@@ -82,7 +98,7 @@ fun WeatherRoomWidget(
 
             if (weatherEntity == null) {
                 Surface(
-                    shape = RoundedCornerShape(24.dp),
+                    shape = RoundedCornerShape(widget.cornerRadius.dp),
                     color = appColors.elevated.copy(alpha = 0.78f),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -94,15 +110,15 @@ fun WeatherRoomWidget(
                 when (widget.style) {
                     "forecast" -> {
                         val forecasts = rememberEntityForecast(weatherEntity, viewModel, "daily")
-                        ForecastCard(forecasts)
+                        ForecastCard(forecasts, widget.cornerRadius)
                     }
                     "hourly" -> {
                         val forecasts = rememberEntityForecast(weatherEntity, viewModel, "hourly")
-                        HourlyForecastCard(forecasts)
+                        HourlyForecastCard(forecasts, widget.cornerRadius)
                     }
-                    "wind" -> WindCompassCard(weatherEntity)
-                    "rainmap" -> RainMapCard(widget.imageUrl)
-                    else -> WeatherMainCard(weatherEntity)
+                    "wind" -> WindCompassCard(weatherEntity, widget.cornerRadius)
+                    "rainmap" -> RainMapCard(widget.imageUrl, widget.cornerRadius)
+                    else -> WeatherMainCard(weatherEntity, widget.cornerRadius)
                 }
             }
         }
@@ -129,11 +145,11 @@ private fun rememberEntityForecast(weatherEntity: HAEntity, viewModel: MainViewM
 }
 
 @Composable
-fun HourlyForecastCard(forecasts: List<HAWeatherForecast>) {
+fun HourlyForecastCard(forecasts: List<HAWeatherForecast>, cornerRadius: Int = 24) {
     val appColors = LocalHKIAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(cornerRadius.dp),
         colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.78f))
     ) {
         Column(Modifier.padding(16.dp)) {
@@ -173,7 +189,7 @@ private fun HourlyForecastItem(forecast: HAWeatherForecast) {
 }
 
 @Composable
-fun WindCompassCard(weather: HAEntity) {
+fun WindCompassCard(weather: HAEntity, cornerRadius: Int = 24) {
     val appColors = LocalHKIAppColors.current
     val bearing = weather.attributes?.get("wind_bearing")?.jsonPrimitive?.doubleOrNull ?: 0.0
     val speed = weather.windSpeed
@@ -182,7 +198,7 @@ fun WindCompassCard(weather: HAEntity) {
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(cornerRadius.dp),
         colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.78f))
     ) {
         Column(Modifier.padding(20.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -231,11 +247,11 @@ private fun bearingToCompassLabel(bearing: Double): String {
 }
 
 @Composable
-fun RainMapCard(imageUrl: String?) {
+fun RainMapCard(imageUrl: String?, cornerRadius: Int = 24) {
     val appColors = LocalHKIAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(cornerRadius.dp),
         colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.78f))
     ) {
         Column(Modifier.padding(16.dp)) {
@@ -274,7 +290,10 @@ fun WeatherWidgetSettingsDialog(
     var imageUrl by remember(widget) { mutableStateOf(widget.imageUrl ?: "") }
     var title by remember(widget) { mutableStateOf(widget.title ?: "") }
     var width by remember(widget) { mutableStateOf(widget.width) }
+    var iconName by remember(widget) { mutableStateOf(widget.icon ?: "") }
+    var cornerRadius by remember(widget) { mutableIntStateOf(widget.cornerRadius) }
     var showEntityPicker by remember { mutableStateOf(false) }
+    var showIconPicker by remember { mutableStateOf(false) }
 
     val weatherEntities = remember(allEntities) { allEntities.filter { it.entity_id.startsWith("weather.") } }
 
@@ -286,6 +305,14 @@ fun WeatherWidgetSettingsDialog(
             preselectedIds = setOfNotNull(entityId),
             onDismiss = { showEntityPicker = false },
             onEntitiesSelected = { ids -> entityId = ids.firstOrNull(); showEntityPicker = false }
+        )
+    }
+
+    if (showIconPicker) {
+        MdiIconPickerDialog(
+            current = iconName,
+            onDismiss = { showIconPicker = false },
+            onSelect = { iconName = it; showIconPicker = false }
         )
     }
 
@@ -302,6 +329,18 @@ fun WeatherWidgetSettingsDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
                 WidgetWidthSelector(width = width, onWidthChange = { width = it })
+                Text("Icon", style = MaterialTheme.typography.labelLarge)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (iconName.isNotEmpty()) MdiIcon(iconName, size = 20.dp)
+                    TextButton(onClick = { showIconPicker = true }) { Text(if (iconName.isEmpty()) "Choose" else "Change") }
+                    if (iconName.isNotEmpty()) TextButton(onClick = { iconName = "" }) { Text("None") }
+                }
+                Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = cornerRadius == 8, onClick = { cornerRadius = 8 }, label = { Text("Sharp") })
+                    FilterChip(selected = cornerRadius == 20, onClick = { cornerRadius = 20 }, label = { Text("Modern") })
+                    FilterChip(selected = cornerRadius == 28, onClick = { cornerRadius = 28 }, label = { Text("Round") })
+                }
                 Text("Weather entity", style = MaterialTheme.typography.labelLarge)
                 val entityName = entityId?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -347,7 +386,197 @@ fun WeatherWidgetSettingsDialog(
                         width = width,
                         style = style,
                         imageUrl = imageUrl.ifBlank { null },
-                        title = title.ifBlank { null }
+                        title = title.ifBlank { null },
+                        icon = iconName.ifBlank { null },
+                        cornerRadius = cornerRadius
+                    )
+                )
+            }) { Text("Save") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+    )
+}
+
+/**
+ * Renders the cards of a weather stack (stackType == "weather"). Each item is stored as a
+ * synthetic id in [HKIButtonStack.entityIds] with its style/entity/image in buttonConfigs.
+ */
+@Composable
+fun WeatherStackContent(
+    stack: HKIButtonStack,
+    allEntities: List<HAEntity>,
+    viewModel: MainViewModel,
+    isEditMode: Boolean,
+    onItemSettings: (String) -> Unit,
+    onRemoveItem: (String) -> Unit,
+    onReorder: (Int, Int) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    if (stack.entityIds.isEmpty()) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(stack.cornerRadius.dp),
+            color = appColors.subtleSurface
+        ) {
+            Box(Modifier.padding(20.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Text(
+                    if (isEditMode) "Tap + to add a weather card" else "No weather cards",
+                    color = appColors.onMuted,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+        return
+    }
+    val columns = stack.columns.coerceIn(1, 3)
+    if (isEditMode) {
+        ReorderableGrid(
+            items = stack.entityIds,
+            canReorder = true,
+            onReorder = onReorder,
+            key = { it },
+            columns = GridCells.Fixed(columns),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            isNested = true,
+            modifier = Modifier.heightIn(max = 4000.dp).fillMaxWidth()
+        ) { itemId, _ ->
+            Box {
+                WeatherStackCard(stack.buttonConfigs[itemId], allEntities, viewModel, stack.cornerRadius)
+                IconButton(
+                    onClick = { onItemSettings(itemId) },
+                    modifier = Modifier.align(Alignment.Center).size(24.dp)
+                ) {
+                    Icon(Icons.Default.Settings, contentDescription = "Weather card settings", tint = appColors.onSurface, modifier = Modifier.size(16.dp))
+                }
+                EditRemoveBadge(
+                    onClick = { onRemoveItem(itemId) },
+                    modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
+                )
+            }
+        }
+    } else {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            stack.entityIds.chunked(columns).forEach { row ->
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                    row.forEach { itemId ->
+                        Box(modifier = Modifier.weight(1f)) {
+                            WeatherStackCard(stack.buttonConfigs[itemId], allEntities, viewModel, stack.cornerRadius)
+                        }
+                    }
+                    repeat((columns - row.size).coerceAtLeast(0)) { Spacer(Modifier.weight(1f)) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun WeatherStackCard(
+    config: HKIButtonConfig?,
+    allEntities: List<HAEntity>,
+    viewModel: MainViewModel,
+    cornerRadius: Int
+) {
+    val appColors = LocalHKIAppColors.current
+    val style = config?.weatherStyle ?: "current"
+    val weatherEntity = allEntities.find { it.entity_id == config?.weatherEntityId }
+        ?: allEntities.find { it.entity_id.startsWith("weather.") }
+    if (weatherEntity == null && style != "rainmap") {
+        Surface(
+            shape = RoundedCornerShape(cornerRadius.dp),
+            color = appColors.elevated.copy(alpha = 0.78f),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Box(Modifier.padding(24.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Text("No weather entity available", color = appColors.onMuted)
+            }
+        }
+        return
+    }
+    when (style) {
+        "forecast" -> ForecastCard(rememberEntityForecast(weatherEntity!!, viewModel, "daily"), cornerRadius)
+        "hourly" -> HourlyForecastCard(rememberEntityForecast(weatherEntity!!, viewModel, "hourly"), cornerRadius)
+        "wind" -> WindCompassCard(weatherEntity!!, cornerRadius)
+        "rainmap" -> RainMapCard(config?.weatherImageUrl, cornerRadius)
+        else -> WeatherMainCard(weatherEntity!!, cornerRadius)
+    }
+}
+
+/** Add/edit dialog for a single weather card inside a weather stack. No name/icon — the stack owns those. */
+@Composable
+fun WeatherItemDialog(
+    initial: HKIButtonConfig?,
+    allEntities: List<HAEntity>,
+    onDismiss: () -> Unit,
+    onSave: (HKIButtonConfig) -> Unit
+) {
+    var style by remember(initial) { mutableStateOf(initial?.weatherStyle ?: "current") }
+    var entityId by remember(initial) { mutableStateOf(initial?.weatherEntityId) }
+    var imageUrl by remember(initial) { mutableStateOf(initial?.weatherImageUrl ?: "") }
+    var showEntityPicker by remember { mutableStateOf(false) }
+    val weatherEntities = remember(allEntities) { allEntities.filter { it.entity_id.startsWith("weather.") } }
+
+    if (showEntityPicker) {
+        AdvancedEntitySearchDialog(
+            allEntities = weatherEntities,
+            title = "Select Weather Entity",
+            singleSelect = true,
+            preselectedIds = setOfNotNull(entityId),
+            onDismiss = { showEntityPicker = false },
+            onEntitiesSelected = { ids -> entityId = ids.firstOrNull(); showEntityPicker = false }
+        )
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Weather Card") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("Weather entity", style = MaterialTheme.typography.labelLarge)
+                val entityName = entityId?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            entityName ?: "Default weather entity",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (entityName != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    TextButton(onClick = { showEntityPicker = true }) { Text("Change") }
+                    if (entityId != null) { TextButton(onClick = { entityId = null }) { Text("Clear") } }
+                }
+                Text("Style", style = MaterialTheme.typography.labelLarge)
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    weatherWidgetStyles.forEach { (value, label) ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            RadioButton(selected = style == value, onClick = { style = value })
+                            Text(label, style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                }
+                if (style == "rainmap") {
+                    OutlinedTextField(
+                        value = imageUrl,
+                        onValueChange = { imageUrl = it },
+                        label = { Text("Rain map image URL") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                onSave(
+                    (initial ?: HKIButtonConfig()).copy(
+                        weatherStyle = style,
+                        weatherEntityId = entityId,
+                        weatherImageUrl = imageUrl.ifBlank { null }
                     )
                 )
             }) { Text("Save") }

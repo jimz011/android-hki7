@@ -4,12 +4,9 @@ package com.example.hki7.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
-import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -52,7 +49,6 @@ fun HAHomeScreen(viewModel: MainViewModel) {
     val isEditMode by viewModel.isEditMode.collectAsState()
     val homeWidgets = widgets[HOME_WIDGET_AREA].orEmpty()
     val widgetGridState = rememberLazyGridState()
-    val widgetStaggeredState = rememberLazyStaggeredGridState()
     var showAddWidget by remember { mutableStateOf(false) }
     var addingToStackId by remember { mutableStateOf<String?>(null) }
     var cameraAddMode by remember { mutableStateOf<String?>(null) }
@@ -134,35 +130,34 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                 maxWidth >= 600.dp -> 2
                 else -> 1
             }
-            // Number of masonry lanes: two per column so a "half" widget takes one lane
-            // (button-stack left, camera-stack right) while a "full" widget spans the whole row.
+            // Two grid cells per column so a "half" widget occupies half a column and a
+            // "full" widget spans one full column (e.g. 2 full-width widgets across a fold).
             val widgetGridColumns = widgetColumnCount * 2
             fun widgetSpan(widget: HKIRoomWidget): Int =
-                if (widget.width == "half") 1 else widgetGridColumns
-            fun widgetStaggeredSpan(widget: HKIRoomWidget): StaggeredGridItemSpan =
-                if (widget.width == "half") StaggeredGridItemSpan.SingleLane else StaggeredGridItemSpan.FullLine
+                if (widget.width == "half") 1 else 2
             Column(modifier = Modifier.fillMaxSize()) {
                 if (homeWidgets.isEmpty() && !isEditMode) {
                     EmptyEditHint(Modifier.weight(1f))
                 } else if (!isEditMode) {
-                    LazyVerticalStaggeredGrid(
-                        columns = StaggeredGridCells.Fixed(widgetGridColumns),
-                        state = widgetStaggeredState,
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(widgetGridColumns),
+                        state = widgetGridState,
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 96.dp),
-                        verticalItemSpacing = 14.dp,
+                        verticalArrangement = Arrangement.spacedBy(14.dp),
                         horizontalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
                         items(
-                            items = homeWidgets,
-                            key = { it.id },
-                            contentType = { it::class.simpleName ?: "widget" },
-                            span = { widgetStaggeredSpan(it) }
-                        ) { widget ->
-                            when (widget) {
+                            count = homeWidgets.size,
+                            key = { index -> homeWidgets[index].id },
+                            contentType = { index -> homeWidgets[index]::class.simpleName ?: "widget" },
+                            span = { index -> GridItemSpan(widgetSpan(homeWidgets[index])) }
+                        ) { index ->
+                            when (val widget = homeWidgets[index]) {
                                 is HKIButtonStack -> ButtonStackItem(
                                 stack = widget,
                                 allEntities = entities,
+                                viewModel = viewModel,
                                 currentUrl = currentUrl,
                                 isEditMode = false,
                                 onEntityClick = {
@@ -232,6 +227,7 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                             is HKIButtonStack -> ButtonStackItem(
                             stack = widget,
                             allEntities = entities,
+                            viewModel = viewModel,
                             currentUrl = currentUrl,
                             isEditMode = isEditMode,
                             onEntityClick = {
@@ -342,7 +338,7 @@ fun HAHomeScreen(viewModel: MainViewModel) {
             onAddCameraStack = { (title, icon) -> viewModel.addCameraStackToArea(HOME_WIDGET_AREA, title, icon); showAddWidget = false },
             onAddVacuumStack = { (title, icon) -> viewModel.addVacuumStackToArea(HOME_WIDGET_AREA, title, icon); showAddWidget = false },
             onAddSubtitle = { text, icon -> viewModel.addSubtitleToArea(HOME_WIDGET_AREA, text, icon); showAddWidget = false },
-            onAddWeather = { entityId, style -> viewModel.addWeatherToArea(HOME_WIDGET_AREA, entityId, style); showAddWidget = false },
+            onAddWeatherStack = { (title, icon) -> viewModel.addWeatherStackToArea(HOME_WIDGET_AREA, title, icon); showAddWidget = false },
             allEntities = entities
         )
     }
@@ -369,6 +365,24 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                 },
                 dismissButton = {
                     TextButton(onClick = { cameraAddMode = "custom" }) { Text("Custom URL") }
+                }
+            )
+            "weather" -> WeatherItemDialog(
+                initial = null,
+                allEntities = entities,
+                onDismiss = { addingToStackId = null },
+                onSave = { config ->
+                    targetStack?.let { stack ->
+                        val itemId = "weather_${System.currentTimeMillis()}"
+                        viewModel.updateWidget(
+                            HOME_WIDGET_AREA,
+                            stack.copy(
+                                entityIds = stack.entityIds + itemId,
+                                buttonConfigs = stack.buttonConfigs + (itemId to config)
+                            )
+                        )
+                    }
+                    addingToStackId = null
                 }
             )
             else -> AdvancedEntitySearchDialog(
@@ -494,22 +508,38 @@ fun HAHomeScreen(viewModel: MainViewModel) {
     }
 
     selectedButtonSettings?.let { (stack, entityId) ->
-        ButtonConfigDialog(
-            entity = entities.find { it.entity_id == entityId },
-            config = stack.buttonConfigs[entityId] ?: HKIButtonConfig(),
-            isCameraItem = stack.stackType == "camera",
-            isVacuumItem = stack.stackType == "vacuum" || entityId.startsWith("vacuum."),
-            allEntities = entities,
-            onDismiss = { selectedButtonSettings = null },
-            onSave = { config ->
-                val latestStack = homeWidgets.find { it.id == stack.id } as? HKIButtonStack ?: stack
-                viewModel.updateWidget(
-                    HOME_WIDGET_AREA,
-                    latestStack.copy(buttonConfigs = latestStack.buttonConfigs + (entityId to config))
-                )
-                selectedButtonSettings = null
-            }
-        )
+        if (stack.stackType == "weather") {
+            WeatherItemDialog(
+                initial = stack.buttonConfigs[entityId],
+                allEntities = entities,
+                onDismiss = { selectedButtonSettings = null },
+                onSave = { config ->
+                    val latestStack = homeWidgets.find { it.id == stack.id } as? HKIButtonStack ?: stack
+                    viewModel.updateWidget(
+                        HOME_WIDGET_AREA,
+                        latestStack.copy(buttonConfigs = latestStack.buttonConfigs + (entityId to config))
+                    )
+                    selectedButtonSettings = null
+                }
+            )
+        } else {
+            ButtonConfigDialog(
+                entity = entities.find { it.entity_id == entityId },
+                config = stack.buttonConfigs[entityId] ?: HKIButtonConfig(),
+                isCameraItem = stack.stackType == "camera",
+                isVacuumItem = stack.stackType == "vacuum" || entityId.startsWith("vacuum."),
+                allEntities = entities,
+                onDismiss = { selectedButtonSettings = null },
+                onSave = { config ->
+                    val latestStack = homeWidgets.find { it.id == stack.id } as? HKIButtonStack ?: stack
+                    viewModel.updateWidget(
+                        HOME_WIDGET_AREA,
+                        latestStack.copy(buttonConfigs = latestStack.buttonConfigs + (entityId to config))
+                    )
+                    selectedButtonSettings = null
+                }
+            )
+        }
     }
 
     selectedGenericEntity?.let { entity ->

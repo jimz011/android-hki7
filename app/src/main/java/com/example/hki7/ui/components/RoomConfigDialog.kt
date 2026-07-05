@@ -329,6 +329,21 @@ private fun RoomSettingsChoice(icon: androidx.compose.ui.graphics.vector.ImageVe
     }
 }
 
+/** Shared Full/Half size selector used by widget and room-card settings so they stay consistent. */
+@Composable
+fun WidgetWidthSelector(width: String, onWidthChange: (String) -> Unit) {
+    Text("Widget width", style = MaterialTheme.typography.labelLarge)
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf("full" to "Full row", "half" to "Half row").forEach { (value, label) ->
+            FilterChip(
+                selected = width == value,
+                onClick = { onWidthChange(value) },
+                label = { Text(label) }
+            )
+        }
+    }
+}
+
 private fun hexToRgb(value: String?): List<Int>? {
     val hex = value?.removePrefix("#")?.takeIf { it.length == 6 } ?: return null
     return runCatching {

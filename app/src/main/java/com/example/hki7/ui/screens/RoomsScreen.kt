@@ -1,3 +1,5 @@
+@file:Suppress("UnusedBoxWithConstraintsScope")
+
 package com.example.hki7.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
@@ -6,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -76,6 +79,7 @@ import com.example.hki7.ui.components.HKIPage
 import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.components.ReorderableGrid
 import com.example.hki7.ui.components.RoomConfigDialog
+import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 import kotlin.math.max
@@ -109,11 +113,17 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
         pageKey = "rooms",
         pageSettingsTitle = "Rooms Settings"
     ) { padding ->
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
         ) {
+            // Widen every floor's room grid on larger screens (fold/tablet).
+            val columnBonus = when {
+                maxWidth >= 900.dp -> 2
+                maxWidth >= 600.dp -> 1
+                else -> 0
+            }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -126,33 +136,46 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                     ),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                groupedFloors.forEach { section ->
-                    FloorSection(
-                        floor = section.floor,
-                        areas = section.areas,
-                        configs = configs,
-                        allEntities = allEntities,
-                        baseUrl = currentUrl,
-                        isEditMode = isEditMode,
-                        dashboardMode = dashboardMode,
-                        scrollState = roomsScrollState,
-                        isCollapsed = section.key in collapsedFloorIds,
-                        onToggleCollapsed = { viewModel.toggleFloorCollapsed(section.key) },
-                        onDeleteFloor = { section.floor?.let { viewModel.deleteFloor(it.floor_id) } },
-                        onSettingsFloor = { section.floor?.let { editingFloor = it } },
-                        onMoveArea = { from, to ->
-                            val fromId = section.areas.getOrNull(from)?.area_id ?: return@FloorSection
-                            val toId = section.areas.getOrNull(to)?.area_id ?: return@FloorSection
-                            val allFrom = areas.indexOfFirst { it.area_id == fromId }
-                            val allTo = areas.indexOfFirst { it.area_id == toId }
-                            if (allFrom >= 0 && allTo >= 0) viewModel.moveArea(allFrom, allTo)
-                        },
-                        onDeleteArea = { viewModel.deleteArea(it) },
-                        onSettingsArea = { editingAreaId = it },
-                        onClickArea = { areaId ->
-                            if (!isEditMode) navController.navigate(Screen.RoomDetail.createRoute(areaId))
+                packFloorRows(groupedFloors).forEach { floorRow ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        floorRow.forEach { section ->
+                            val units = if (section.floor?.width == "half") 1f else 2f
+                            FloorSection(
+                                floor = section.floor,
+                                areas = section.areas,
+                                configs = configs,
+                                allEntities = allEntities,
+                                baseUrl = currentUrl,
+                                isEditMode = isEditMode,
+                                dashboardMode = dashboardMode,
+                                columnBonus = columnBonus,
+                                scrollState = roomsScrollState,
+                                isCollapsed = section.key in collapsedFloorIds,
+                                onToggleCollapsed = { viewModel.toggleFloorCollapsed(section.key) },
+                                onDeleteFloor = { section.floor?.let { viewModel.deleteFloor(it.floor_id) } },
+                                onSettingsFloor = { section.floor?.let { editingFloor = it } },
+                                onMoveArea = { from, to ->
+                                    val fromId = section.areas.getOrNull(from)?.area_id ?: return@FloorSection
+                                    val toId = section.areas.getOrNull(to)?.area_id ?: return@FloorSection
+                                    val allFrom = areas.indexOfFirst { it.area_id == fromId }
+                                    val allTo = areas.indexOfFirst { it.area_id == toId }
+                                    if (allFrom >= 0 && allTo >= 0) viewModel.moveArea(allFrom, allTo)
+                                },
+                                onDeleteArea = { viewModel.deleteArea(it) },
+                                onSettingsArea = { editingAreaId = it },
+                                onClickArea = { areaId ->
+                                    if (!isEditMode) navController.navigate(Screen.RoomDetail.createRoute(areaId))
+                                },
+                                modifier = Modifier.weight(units)
+                            )
                         }
-                    )
+                        val usedUnits = floorRow.sumOf { if (it.floor?.width == "half") 1 else 2 }
+                        if (usedUnits < 2) Spacer(Modifier.weight((2 - usedUnits).toFloat()))
+                    }
                 }
             }
 
@@ -238,6 +261,26 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
 
 private data class FloorSectionData(val key: String, val floor: HAFloor?, val areas: List<HAArea>)
 
+// Packs floor sections into rows: a "full" floor takes a whole row, while "half" floors pair up
+// two per row (like full/half-row widgets), so the whole section resizes — not the cards inside.
+private fun packFloorRows(sections: List<FloorSectionData>): List<List<FloorSectionData>> {
+    val rows = mutableListOf<List<FloorSectionData>>()
+    var current = mutableListOf<FloorSectionData>()
+    var used = 0
+    for (section in sections) {
+        val units = if (section.floor?.width == "half") 1 else 2
+        if (used + units > 2 && current.isNotEmpty()) {
+            rows.add(current.toList())
+            current = mutableListOf()
+            used = 0
+        }
+        current.add(section)
+        used += units
+    }
+    if (current.isNotEmpty()) rows.add(current.toList())
+    return rows
+}
+
 private fun buildFloorSections(
     areas: List<HAArea>,
     floors: List<HAFloor>,
@@ -262,6 +305,7 @@ private fun FloorSection(
     baseUrl: String,
     isEditMode: Boolean,
     dashboardMode: String,
+    columnBonus: Int,
     scrollState: ScrollState,
     isCollapsed: Boolean,
     onToggleCollapsed: () -> Unit,
@@ -270,10 +314,11 @@ private fun FloorSection(
     onMoveArea: (Int, Int) -> Unit,
     onDeleteArea: (String) -> Unit,
     onSettingsArea: (String) -> Unit,
-    onClickArea: (String) -> Unit
+    onClickArea: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val appColors = LocalHKIAppColors.current
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp).clickable { onToggleCollapsed() },
             verticalAlignment = Alignment.CenterVertically
@@ -305,16 +350,19 @@ private fun FloorSection(
         if (!isCollapsed) {
             Spacer(Modifier.height(12.dp))
 
-            val columns = floor?.columns?.coerceIn(1, 3) ?: 2
+            // Card columns come from the floor config; widen on larger screens (fold/tablet).
+            // Half-width floors skip the widen bonus since the whole section is already narrow.
+            val bonus = if (floor?.width == "half") 0 else columnBonus
+            val gridColumns = (floor?.columns?.coerceIn(1, 3) ?: 2) + bonus
             val cardHeight = if (floor?.compactTiles == true) 112 else 160
             val rowHeight = if (floor?.isSquare == true) 180 else cardHeight + 12
-            val rows = max(1, (areas.size + columns - 1) / columns)
+            val rows = max(1, (areas.size + gridColumns - 1) / gridColumns)
             ReorderableGrid(
                 items = areas,
                 canReorder = isEditMode,
                 onReorder = onMoveArea,
                 key = { it.area_id },
-                columns = GridCells.Fixed(columns),
+                columns = GridCells.Fixed(gridColumns),
                 contentPadding = PaddingValues(0.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -573,6 +621,7 @@ private fun FloorSettingsDialog(
     var iconName by remember { mutableStateOf(floor.icon ?: "") }
     var showIconPickerFloor by remember { mutableStateOf(false) }
     var columns by remember { mutableStateOf(floor.columns.coerceIn(1, 3)) }
+    var cardWidth by remember { mutableStateOf(floor.width) }
     var isSquare by remember { mutableStateOf(floor.isSquare) }
     var cornerRadius by remember { mutableStateOf(floor.cornerRadius) }
     var compactTiles by remember { mutableStateOf(floor.compactTiles) }
@@ -609,6 +658,7 @@ private fun FloorSettingsDialog(
                         FilterChip(selected = columns == count, onClick = { columns = count }, label = { Text("$count") })
                     }
                 }
+                WidgetWidthSelector(width = cardWidth, onWidthChange = { cardWidth = it })
                 Text("Shape", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
@@ -635,6 +685,7 @@ private fun FloorSettingsDialog(
                             name = name.trim(),
                             icon = iconName.ifEmpty { null },
                             columns = columns,
+                            width = cardWidth,
                             isSquare = isSquare,
                             cornerRadius = cornerRadius,
                             compactTiles = compactTiles

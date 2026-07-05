@@ -1327,6 +1327,29 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         viewModelScope.launch { prefs.saveAreaWidgets(currentMapping) }
     }
 
+    fun addWeatherStackToArea(areaId: String, title: String? = "Weather", icon: String? = null) {
+        takeSnapshot()
+        bumpWidgetUi()
+        val currentMapping = _areaWidgetsMapping.value.toMutableMap()
+        val currentList = currentMapping[areaId]?.toMutableList() ?: mutableListOf()
+        currentList.add(
+            HKIButtonStack(
+                id = UUID.randomUUID().toString(),
+                title = title,
+                icon = icon,
+                entityIds = emptyList(),
+                columns = 1,
+                isSquare = false,
+                showBadge = false,
+                cornerRadius = 24,
+                stackType = "weather"
+            )
+        )
+        currentMapping[areaId] = currentList
+        _areaWidgetsMapping.value = currentMapping
+        viewModelScope.launch { prefs.saveAreaWidgets(currentMapping) }
+    }
+
     fun performButtonAction(areaId: String, stackId: String, entityId: String, trigger: String): String {
         val stack = _areaWidgetsMapping.value[areaId]?.filterIsInstance<HKIButtonStack>()?.firstOrNull { it.id == stackId }
         val config = stack?.buttonConfigs?.get(entityId)

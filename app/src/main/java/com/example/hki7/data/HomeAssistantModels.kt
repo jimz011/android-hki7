@@ -198,7 +198,8 @@ data class HAFloor(
     val columns: Int = 2,
     val isSquare: Boolean = false,
     val cornerRadius: Int = 24,
-    val compactTiles: Boolean = false
+    val compactTiles: Boolean = false,
+    val width: String = "full"   // "full" | "half" — size of every room card on this floor
 )
 
 @Serializable
@@ -431,6 +432,7 @@ data class HKIButtonStack(
     val isSquare: Boolean = true,
     val cornerRadius: Int = 28,
     val isHidden: Boolean = false,
+    val collapsible: Boolean = true,
     val defaultCollapsed: Boolean = false,
     val isCollapsed: Boolean? = null,
     val stackType: String = "buttons",
@@ -460,7 +462,11 @@ data class HKIButtonConfig(
     val vacuumImageUrl: String? = null,
     // Climate buttons: optional separate temp/humidity sensors, graphed in the entity's Activity tab.
     val climateTempSensorEntityId: String? = null,
-    val climateHumiditySensorEntityId: String? = null
+    val climateHumiditySensorEntityId: String? = null,
+    // Weather stack items: each item is a weather card with its own style/entity/image.
+    val weatherStyle: String? = null,           // "current" | "forecast" | "hourly" | "wind" | "rainmap"
+    val weatherEntityId: String? = null,        // null = app's default weather entity
+    val weatherImageUrl: String? = null          // rainmap style: external radar/rain map image URL
 )
 
 @Serializable
@@ -480,5 +486,7 @@ data class HKIWeatherWidget(
     val entityId: String? = null,   // null = use the app's default weather entity
     val style: String = "current",  // "current" | "forecast" | "hourly" | "wind" | "rainmap"
     val imageUrl: String? = null,   // rainmap style: external radar/rain map image URL
-    val title: String? = null
+    val title: String? = null,
+    val icon: String? = null,
+    val cornerRadius: Int = 28
 ) : HKIRoomWidget()

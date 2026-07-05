@@ -155,10 +155,10 @@ fun formatWeatherState(state: String): String {
 }
 
 @Composable
-fun WeatherMainCard(weather: HAEntity) {
+fun WeatherMainCard(weather: HAEntity, cornerRadius: Int = 24) {
     val appColors = LocalHKIAppColors.current
     Card(
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(cornerRadius.dp),
         colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.78f))
     ) {
         Row(
@@ -186,11 +186,11 @@ fun WeatherMainCard(weather: HAEntity) {
 }
 
 @Composable
-fun ForecastCard(forecasts: List<HAWeatherForecast>?) {
+fun ForecastCard(forecasts: List<HAWeatherForecast>?, cornerRadius: Int = 24) {
     val appColors = LocalHKIAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(cornerRadius.dp),
         colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.78f))
     ) {
         Column(Modifier.padding(16.dp)) {
