@@ -1,4 +1,4 @@
-@file:Suppress("UnusedBoxWithConstraintsScope", "SpellCheckingInspection")
+@file:Suppress("UnusedBoxWithConstraintsScope", "SpellCheckingInspection", "GrazieInspection")
 
 package com.example.hki7.ui.components
 
@@ -50,7 +50,6 @@ import com.example.hki7.ui.screens.AggregatedCoverDialog
 import com.example.hki7.ui.screens.VacuumStackDialog
 import com.example.hki7.ui.screens.UniversalStackDialog
 import com.example.hki7.ui.theme.LocalHKIAppColors
-import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.utils.MdiIcon
 import java.util.UUID
 import kotlin.math.abs
@@ -513,6 +512,8 @@ private fun BadgeDraggableRow(
     var dragDeltaX  by remember { mutableFloatStateOf(0f) }
     val itemBounds  = remember { mutableStateMapOf<Int, Rect>() }
     val autoScrollScope = rememberCoroutineScope()
+    // One id→entity map per entity-list update instead of a linear scan per badge entity.
+    val entityById = remember(allEntities) { allEntities.associateBy { it.entity_id } }
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -565,7 +566,7 @@ private fun BadgeDraggableRow(
         } else Modifier)
     ) {
         localList.forEachIndexed { idx, badge ->
-            val entities = badge.effectiveEntityIds.mapNotNull { id -> allEntities.find { it.entity_id == id } }
+            val entities = badge.effectiveEntityIds.mapNotNull { id -> entityById[id] }
             val isDragging = isEditMode && idx == dragIndex
             Box(
                 modifier = Modifier
@@ -743,7 +744,7 @@ private fun BadgeItem(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Domain-aware badge state colours  (mirrors EntityCard / button-stack logic)
+// Domain-aware badge state colors  (mirrors EntityCard / button-stack logic)
 // ─────────────────────────────────────────────────────────────────────────────
 
 private data class BadgeColors(

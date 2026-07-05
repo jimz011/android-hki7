@@ -45,12 +45,18 @@ fun AdvancedEntitySearchDialog(
         listOf("All") + allEntities.map { it.entity_id.split(".").first() }.distinct().sorted()
     }
 
-    val filteredEntities = allEntities.filter { entity ->
-        val matchesSearch = entity.friendlyName?.contains(searchQuery, ignoreCase = true) == true || 
-                            entity.entity_id.contains(searchQuery, ignoreCase = true)
-        val matchesDomain = selectedDomain == "All" || entity.entity_id.startsWith("$selectedDomain.")
-        matchesSearch && matchesDomain
-    }.sortedWith(compareByDescending<HAEntity> { selectedIds.contains(it.entity_id) }.thenBy { it.friendlyName ?: it.entity_id })
+    // derivedStateOf: only re-filter/re-sort when the query, domain, or selection actually
+    // changes, not on every recomposition of the dialog.
+    val filteredEntities by remember(allEntities) {
+        derivedStateOf {
+            allEntities.filter { entity ->
+                val matchesSearch = entity.friendlyName?.contains(searchQuery, ignoreCase = true) == true ||
+                                    entity.entity_id.contains(searchQuery, ignoreCase = true)
+                val matchesDomain = selectedDomain == "All" || entity.entity_id.startsWith("$selectedDomain.")
+                matchesSearch && matchesDomain
+            }.sortedWith(compareByDescending<HAEntity> { selectedIds.contains(it.entity_id) }.thenBy { it.friendlyName ?: it.entity_id })
+        }
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -132,7 +138,7 @@ fun AdvancedEntitySearchDialog(
                 Spacer(Modifier.height(16.dp))
 
                 LazyColumn(modifier = Modifier.weight(1f)) {
-                    items(filteredEntities) { entity ->
+                    items(filteredEntities, key = { it.entity_id }) { entity ->
                         val isChecked = selectedIds.contains(entity.entity_id)
                         ListItem(
                             modifier = Modifier.clickable {

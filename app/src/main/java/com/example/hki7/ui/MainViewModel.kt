@@ -1350,6 +1350,46 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         viewModelScope.launch { prefs.saveAreaWidgets(currentMapping) }
     }
 
+    fun addSwipingStackToArea(areaId: String) {
+        takeSnapshot()
+        bumpWidgetUi()
+        val currentMapping = _areaWidgetsMapping.value.toMutableMap()
+        val currentList = currentMapping[areaId]?.toMutableList() ?: mutableListOf()
+        currentList.add(HKISwipingStack(id = UUID.randomUUID().toString()))
+        currentMapping[areaId] = currentList
+        _areaWidgetsMapping.value = currentMapping
+        viewModelScope.launch { prefs.saveAreaWidgets(currentMapping) }
+    }
+
+    fun addEmptyStackToArea(areaId: String) {
+        takeSnapshot()
+        bumpWidgetUi()
+        val currentMapping = _areaWidgetsMapping.value.toMutableMap()
+        val currentList = currentMapping[areaId]?.toMutableList() ?: mutableListOf()
+        currentList.add(HKIEmptyStack(id = UUID.randomUUID().toString()))
+        currentMapping[areaId] = currentList
+        _areaWidgetsMapping.value = currentMapping
+        viewModelScope.launch { prefs.saveAreaWidgets(currentMapping) }
+    }
+
+    fun addSingleEntityWidgetToArea(areaId: String, type: String, entityId: String) {
+        takeSnapshot()
+        bumpWidgetUi()
+        val currentMapping = _areaWidgetsMapping.value.toMutableMap()
+        val currentList = currentMapping[areaId]?.toMutableList() ?: mutableListOf()
+        currentList.add(
+            HKISingleEntityWidget(
+                id = UUID.randomUUID().toString(),
+                entityId = entityId,
+                kind = type,
+                isSquare = type != "camera"
+            )
+        )
+        currentMapping[areaId] = currentList
+        _areaWidgetsMapping.value = currentMapping
+        viewModelScope.launch { prefs.saveAreaWidgets(currentMapping) }
+    }
+
     fun performButtonAction(areaId: String, stackId: String, entityId: String, trigger: String): String {
         val stack = _areaWidgetsMapping.value[areaId]?.filterIsInstance<HKIButtonStack>()?.firstOrNull { it.id == stackId }
         val config = stack?.buttonConfigs?.get(entityId)

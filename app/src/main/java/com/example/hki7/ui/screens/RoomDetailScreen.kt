@@ -3,19 +3,24 @@
     "KotlinConstantConditions",
     "MoveLambdaOutsideParentheses",
     "CascadeIf",
-    "SpellCheckingInspection"
+    "SpellCheckingInspection",
+    "UnusedBoxWithConstraintsScope",
+    "GrazieInspection"
 )
 
 package com.example.hki7.ui.screens
 
+import android.annotation.SuppressLint
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Switch
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -40,8 +45,6 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
@@ -49,48 +52,30 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.ShortText
 import androidx.compose.material.icons.automirrored.filled.ViewQuilt
-import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.AutoMode
-import androidx.compose.material.icons.filled.Blender
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Cloud
-import androidx.compose.material.icons.filled.CoffeeMaker
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DoorFront
-import androidx.compose.material.icons.filled.DryCleaning
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Iron
-import androidx.compose.material.icons.filled.Kitchen
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.LocalLaundryService
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
-import androidx.compose.material.icons.filled.Microwave
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.Nightlight
 import androidx.compose.material.icons.filled.Power
 import androidx.compose.material.icons.filled.PowerSettingsNew
-import androidx.compose.material.icons.filled.Room
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Thermostat
-import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.Window
 import androidx.compose.material3.CircularProgressIndicator
@@ -121,13 +106,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -143,10 +126,14 @@ import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HAServiceCall
 import com.example.hki7.data.HKIButtonStack
 import com.example.hki7.data.HKIButtonConfig
+import com.example.hki7.data.HKIEmptyStack
 import com.example.hki7.data.HKIAreaConfig
 import com.example.hki7.data.HKIRoomWidget
+import com.example.hki7.data.HKISingleEntityWidget
+import com.example.hki7.data.HKISwipingStack
 import com.example.hki7.data.HKISubtitleWidget
 import com.example.hki7.data.HKIWeatherWidget
+import androidx.compose.animation.core.tween
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
@@ -155,9 +142,6 @@ import com.example.hki7.ui.components.EditRemoveBadge
 import com.example.hki7.ui.components.mediaPlayerStatus
 import com.example.hki7.ui.components.mediaPlayerStateIcon
 import com.example.hki7.ui.components.defaultEntityIconSlug
-import com.example.hki7.ui.components.domainIcon
-import com.example.hki7.ui.components.coverDoorColor
-import com.example.hki7.ui.components.isCoverDoorLike
 import com.example.hki7.ui.components.coverAccentColor
 import com.example.hki7.ui.components.HKIDialog
 import com.example.hki7.ui.components.HKIPage
@@ -201,9 +185,54 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.coroutines.delay
 import java.util.Locale
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import java.util.UUID
+import kotlin.math.absoluteValue
 import kotlin.time.Duration.Companion.seconds
+
+data class WidgetStyleOverride(
+    val isSquare: Boolean,
+    val cornerRadius: Int
+)
+
+val swipingStackAnimationTypes = listOf(
+    "swipe" to "Swipe",
+    "fade" to "Fade",
+    "zoom" to "Zoom",
+    "slide_fade" to "Slide + fade",
+    "cube" to "Cube",
+    "instant" to "Instant"
+)
+
+fun HKIRoomWidget.withStackChildStyle(isSquare: Boolean, cornerRadius: Int): HKIRoomWidget = when (this) {
+    is HKIButtonStack -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
+    is HKISingleEntityWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
+    is HKIWeatherWidget -> copy(cornerRadius = cornerRadius)
+    is HKIEmptyStack -> copy(
+        isSquare = isSquare,
+        cornerRadius = cornerRadius,
+        widgets = widgets.map { it.withStackChildStyle(isSquare, cornerRadius) }
+    )
+    is HKISwipingStack -> copy(
+        isSquare = isSquare,
+        cornerRadius = cornerRadius,
+        widgets = widgets.map { it.withStackChildStyle(isSquare, cornerRadius) }
+    )
+    else -> this
+}
+
+fun HKISwipingStack.withChangedChildStyle(updated: HKISwipingStack): HKISwipingStack {
+    val styleChanged = isSquare != updated.isSquare || cornerRadius != updated.cornerRadius
+    return if (styleChanged) updated.copy(
+        widgets = updated.widgets.map { it.withStackChildStyle(updated.isSquare, updated.cornerRadius) }
+    ) else updated
+}
+
+fun HKIEmptyStack.withChangedChildStyle(updated: HKIEmptyStack): HKIEmptyStack {
+    val styleChanged = isSquare != updated.isSquare || cornerRadius != updated.cornerRadius
+    return if (styleChanged) updated.copy(
+        widgets = updated.widgets.map { it.withStackChildStyle(updated.isSquare, updated.cornerRadius) }
+    ) else updated
+}
 
 @Composable
 fun RoomDetailScreen(
@@ -240,12 +269,15 @@ fun RoomDetailScreen(
     var showGroupLightDialog by remember { mutableStateOf(false) }
     var selectedGroupLightStackId by remember { mutableStateOf<String?>(null) }
     var selectedButtonSettings by remember { mutableStateOf<Pair<HKIButtonStack, String>?>(null) }
+    var selectedSingleWidgetSettings by remember { mutableStateOf<Pair<String?, HKISingleEntityWidget>?>(null) }
     var addingToStackId by remember { mutableStateOf<String?>(null) }
     var cameraAddMode by remember { mutableStateOf<String?>(null) } // "entity", "custom", or null
     var customCameraUrl by remember { mutableStateOf("") }
     var selectedCameraId by remember { mutableStateOf<String?>(null) }
     var selectedCameraStack by remember { mutableStateOf<HKIButtonStack?>(null) }
     var editingStack by remember { mutableStateOf<HKIButtonStack?>(null) }
+    var editingSwipingStack by remember { mutableStateOf<HKISwipingStack?>(null) }
+    var editingEmptyStack by remember { mutableStateOf<HKIEmptyStack?>(null) }
     var editingSubtitle by remember { mutableStateOf<HKISubtitleWidget?>(null) }
     var editingWeather by remember { mutableStateOf<HKIWeatherWidget?>(null) }
     var selectedGenericEntity by remember { mutableStateOf<HAEntity?>(null) }
@@ -264,8 +296,186 @@ fun RoomDetailScreen(
     var selectedPersonEntity by remember { mutableStateOf<HAEntity?>(null) }
     var showPersonDialog by remember { mutableStateOf(false) }
     var showAddWidgetDialog by remember { mutableStateOf(false) }
+    var addingToSwipingStackId by remember { mutableStateOf<String?>(null) }
+    var addingToNestedStack by remember { mutableStateOf<Pair<String, String>?>(null) }
+    var pendingSingleWidgetKind by remember { mutableStateOf<String?>(null) }
+    var pendingSingleWidgetContainerId by remember { mutableStateOf<String?>(null) }
+    var pendingWeatherWidgetContainerId by remember { mutableStateOf<String?>(null) }
+    var pendingWeatherWidgetEntityId by remember { mutableStateOf<String?>(null) }
+    var choosingWeatherWidgetStyle by remember { mutableStateOf(false) }
+    var selectedChildStackSettings by remember { mutableStateOf<Pair<String, HKIButtonStack>?>(null) }
+    var selectedChildButtonSettings by remember { mutableStateOf<Triple<String, HKIButtonStack, String>?>(null) }
+    var editingChildEmptyStack by remember { mutableStateOf<Pair<String, HKIEmptyStack>?>(null) }
+    var editingChildSubtitle by remember { mutableStateOf<Pair<String, HKISubtitleWidget>?>(null) }
+    var editingChildWeather by remember { mutableStateOf<Pair<String, HKIWeatherWidget>?>(null) }
     var showAutoWidgetInfo by remember { mutableStateOf(false) }
     var showAutoDeleteStackInfo by remember { mutableStateOf(false) }
+    fun newButtonStack(title: String?, icon: String?) = HKIButtonStack(
+        id = UUID.randomUUID().toString(),
+        title = title,
+        icon = icon,
+        columns = 3,
+        isSquare = true
+    )
+    fun newCameraStack(title: String?, icon: String?) = HKIButtonStack(
+        id = UUID.randomUUID().toString(),
+        title = title,
+        icon = icon,
+        columns = 2,
+        isSquare = true,
+        stackType = "camera"
+    )
+    fun newVacuumStack(title: String?, icon: String?) = HKIButtonStack(
+        id = UUID.randomUUID().toString(),
+        title = title,
+        icon = icon,
+        columns = 2,
+        isSquare = true,
+        stackType = "vacuum"
+    )
+    fun newWeatherStack(title: String?, icon: String?) = HKIButtonStack(
+        id = UUID.randomUUID().toString(),
+        title = title,
+        icon = icon,
+        columns = 1,
+        isSquare = false,
+        showBadge = false,
+        cornerRadius = 24,
+        stackType = "weather"
+    )
+    fun newEmptyStack() = HKIEmptyStack(id = UUID.randomUUID().toString())
+    fun newSingleEntityWidget(kind: String, entityId: String) = HKISingleEntityWidget(
+        id = UUID.randomUUID().toString(),
+        entityId = entityId,
+        kind = kind,
+        isSquare = kind != "camera"
+    )
+    fun addChildToSwipingStack(stackId: String, child: HKIRoomWidget) {
+        val swipe = areaWidgets.filterIsInstance<HKISwipingStack>().find { it.id == stackId }
+        val empty = areaWidgets.filterIsInstance<HKIEmptyStack>().find { it.id == stackId }
+        when {
+            swipe != null -> viewModel.updateWidget(areaId, swipe.copy(widgets = swipe.widgets + child))
+            empty != null -> viewModel.updateWidget(areaId, empty.copy(widgets = empty.widgets + child))
+        }
+    }
+    fun updateChildInSwipingStack(stackId: String, child: HKIRoomWidget) {
+        val swipe = areaWidgets.filterIsInstance<HKISwipingStack>().find { it.id == stackId }
+        val empty = areaWidgets.filterIsInstance<HKIEmptyStack>().find { it.id == stackId }
+        when {
+            swipe != null -> viewModel.updateWidget(areaId, swipe.copy(widgets = swipe.widgets.map { if (it.id == child.id) child else it }))
+            empty != null -> viewModel.updateWidget(areaId, empty.copy(widgets = empty.widgets.map { if (it.id == child.id) child else it }))
+        }
+    }
+    fun deleteChildFromSwipingStack(stackId: String, childId: String) {
+        val swipe = areaWidgets.filterIsInstance<HKISwipingStack>().find { it.id == stackId }
+        val empty = areaWidgets.filterIsInstance<HKIEmptyStack>().find { it.id == stackId }
+        when {
+            swipe != null -> viewModel.updateWidget(areaId, swipe.copy(widgets = swipe.widgets.filterNot { it.id == childId }))
+            empty != null -> viewModel.updateWidget(areaId, empty.copy(widgets = empty.widgets.filterNot { it.id == childId }))
+        }
+    }
+    var openEntityFromSwipingChild: (String, HKIButtonStack) -> Unit = { _, _ -> }
+    var openEntityFromSingleWidget: (String, String) -> Unit = { _, _ -> }
+    @Composable
+    fun RenderSwipingChild(
+        parent: HKISwipingStack,
+        child: HKIRoomWidget,
+        modifier: Modifier = Modifier,
+        styleOverride: WidgetStyleOverride? = null
+    ) {
+        Box(modifier) {
+        when (child) {
+            is HKIButtonStack -> ButtonStackItem(
+                stack = styleOverride?.let { child.copy(isSquare = it.isSquare, cornerRadius = it.cornerRadius, width = "full") } ?: child,
+                allEntities = allEntities,
+                viewModel = viewModel,
+                currentUrl = currentUrl,
+                accessToken = accessToken,
+                isEditMode = isEditMode,
+                onEntityClick = { entityId ->
+                    if (!isEditMode) {
+                        val action = viewModel.performButtonAction(areaId, child.id, entityId, "tap")
+                        if (action == "more_info") openEntityFromSwipingChild(entityId, child)
+                    }
+                },
+                onEntityDoubleClick = { entityId ->
+                    if (!isEditMode) {
+                        val action = viewModel.performButtonAction(areaId, child.id, entityId, "double")
+                        if (action == "more_info") openEntityFromSwipingChild(entityId, child)
+                    }
+                },
+                onEntityLongClick = { entityId ->
+                    if (!isEditMode) {
+                        val action = viewModel.performButtonAction(areaId, child.id, entityId, "hold")
+                        if (action == "more_info") openEntityFromSwipingChild(entityId, child)
+                    }
+                },
+                onSettingsClick = { selectedChildStackSettings = parent.id to child },
+                onToggleCollapsed = { updateChildInSwipingStack(parent.id, child.copy(isCollapsed = !(child.isCollapsed ?: child.defaultCollapsed))) },
+                onDeleteClick = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onHideClick = { updateChildInSwipingStack(parent.id, child.copy(isHidden = !child.isHidden)) },
+                onAddClick = { addingToNestedStack = parent.id to child.id },
+                onButtonSettings = { entityId -> selectedChildButtonSettings = Triple(parent.id, child, entityId) },
+                onRemoveEntity = { entityId -> updateChildInSwipingStack(parent.id, child.copy(entityIds = child.entityIds - entityId)) },
+                onCameraClick = { entityId -> selectedCameraId = entityId; selectedCameraStack = child },
+                onBadgeClick = {},
+                onReorderEntities = { from, to ->
+                    updateChildInSwipingStack(
+                        parent.id,
+                        child.copy(entityIds = child.entityIds.toMutableList().apply { add(to, removeAt(from)) })
+                    )
+                }
+            )
+            is HKISubtitleWidget -> {
+                SubtitleWidget(
+                    child.copy(width = "full"),
+                    isEditMode,
+                    onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                    onSettings = { editingChildSubtitle = parent.id to child }
+                )
+            }
+            is HKIWeatherWidget -> WeatherRoomWidget(
+                widget = styleOverride?.let { child.copy(width = "full", cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                allEntities = allEntities,
+                viewModel = viewModel,
+                isEditMode = isEditMode,
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingChildWeather = parent.id to child }
+            )
+            is HKISingleEntityWidget -> SingleEntityWidgetItem(
+                widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                allEntities = allEntities,
+                currentUrl = currentUrl,
+                accessToken = accessToken,
+                isEditMode = isEditMode,
+                onEntityClick = { entityId -> openEntityFromSingleWidget(entityId, child.kind) },
+                onEntityDoubleClick = { entityId -> openEntityFromSingleWidget(entityId, child.kind) },
+                onEntityLongClick = { entityId -> openEntityFromSingleWidget(entityId, child.kind) },
+                onDeleteClick = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onHideClick = { updateChildInSwipingStack(parent.id, child.copy(isHidden = !child.isHidden)) },
+                onSettingsClick = { selectedSingleWidgetSettings = parent.id to child }
+            )
+            is HKISwipingStack -> EmptyStackHint()
+            is HKIEmptyStack -> EmptyStackItem(
+                stack = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                isEditMode = isEditMode,
+                onSettingsClick = { editingChildEmptyStack = parent.id to child },
+                onToggleCollapsed = { updateChildInSwipingStack(parent.id, child.copy(isCollapsed = !(child.isCollapsed ?: child.defaultCollapsed))) },
+                onDeleteClick = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onHideClick = { updateChildInSwipingStack(parent.id, child.copy(isHidden = !child.isHidden)) },
+                onAddClick = { addingToSwipingStackId = child.id },
+                content = { grandChild, childModifier ->
+                    RenderSwipingChild(
+                        parent,
+                        grandChild,
+                        childModifier,
+                        null
+                    )
+                }
+            )
+        }
+        }
+    }
     fun openEntityDialog(entityId: String, stack: HKIButtonStack? = null) {
         val entity = allEntities.find { it.entity_id == entityId } ?: return
         when {
@@ -326,6 +536,10 @@ fun RoomDetailScreen(
         }
     }
 
+    openEntityFromSwipingChild = { entityId, stack -> openEntityDialog(entityId, stack) }
+    openEntityFromSingleWidget = { entityId, kind ->
+        if (kind == "camera") selectedCameraId = entityId else openEntityDialog(entityId, null)
+    }
     val mediaPlayerEntity = areaConfig.mediaPlayerEntityId?.let { id -> allEntities.find { it.entity_id == id } }
     HKIPage(
         viewModel = viewModel,
@@ -424,6 +638,51 @@ fun RoomDetailScreen(
                                     isEditMode = false,
                                     onDelete = {},
                                     onSettings = {}
+                                )
+                                is HKISingleEntityWidget -> SingleEntityWidgetItem(
+                                    widget = widget,
+                                    allEntities = allEntities,
+                                    currentUrl = currentUrl,
+                                    accessToken = accessToken,
+                                    isEditMode = false,
+                                    onEntityClick = { entityId -> openEntityFromSingleWidget(entityId, widget.kind) },
+                                    onEntityDoubleClick = { entityId -> openEntityFromSingleWidget(entityId, widget.kind) },
+                                    onEntityLongClick = { entityId -> openEntityFromSingleWidget(entityId, widget.kind) },
+                                    onDeleteClick = {},
+                                    onHideClick = {},
+                                    onSettingsClick = {}
+                                )
+                                is HKISwipingStack -> SwipingStackItem(
+                                    stack = widget,
+                                    isEditMode = false,
+                                    onSettingsClick = {},
+                                    onToggleCollapsed = {
+                                        viewModel.updateWidget(
+                                            areaId,
+                                            widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))
+                                        )
+                                    },
+                                    onDeleteClick = {},
+                                    onHideClick = {},
+                                    onAddClick = {},
+                                    content = { child -> RenderSwipingChild(widget, child) }
+                                )
+                                is HKIEmptyStack -> EmptyStackItem(
+                                    stack = widget,
+                                    isEditMode = false,
+                                    onSettingsClick = {},
+                                    onToggleCollapsed = { viewModel.updateWidget(areaId, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
+                                    onDeleteClick = {},
+                                    onHideClick = {},
+                                    onAddClick = {},
+                                    content = { child, childModifier ->
+                                        RenderSwipingChild(
+                                            HKISwipingStack(id = widget.id, widgets = widget.widgets),
+                                            child,
+                                            childModifier,
+                                            null
+                                        )
+                                    }
                                 )
                             }
                         }
@@ -526,6 +785,57 @@ fun RoomDetailScreen(
                                 onSettings = { editingWeather = widget }
                             )
                         }
+                        is HKISingleEntityWidget -> SingleEntityWidgetItem(
+                            widget = widget,
+                            allEntities = allEntities,
+                            currentUrl = currentUrl,
+                            accessToken = accessToken,
+                            isEditMode = isEditMode,
+                            onEntityClick = { entityId -> openEntityFromSingleWidget(entityId, widget.kind) },
+                            onEntityDoubleClick = { entityId -> openEntityFromSingleWidget(entityId, widget.kind) },
+                            onEntityLongClick = { entityId -> openEntityFromSingleWidget(entityId, widget.kind) },
+                            onDeleteClick = { viewModel.deleteWidget(areaId, widget.id) },
+                            onHideClick = { viewModel.updateWidget(areaId, widget.copy(isHidden = !widget.isHidden)) },
+                            onSettingsClick = { selectedSingleWidgetSettings = null to widget }
+                        )
+                        is HKISwipingStack -> SwipingStackItem(
+                            stack = widget,
+                            isEditMode = isEditMode,
+                            onSettingsClick = { editingSwipingStack = widget },
+                            onToggleCollapsed = {
+                                viewModel.updateWidget(
+                                    areaId,
+                                    widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))
+                                )
+                            },
+                            onDeleteClick = {
+                                if (dashboardMode == "auto") showAutoDeleteStackInfo = true
+                                else viewModel.deleteWidget(areaId, widget.id)
+                            },
+                            onHideClick = { viewModel.updateWidget(areaId, widget.copy(isHidden = !widget.isHidden)) },
+                            onAddClick = { addingToSwipingStackId = widget.id },
+                            content = { child -> RenderSwipingChild(widget, child) }
+                        )
+                        is HKIEmptyStack -> EmptyStackItem(
+                            stack = widget,
+                            isEditMode = isEditMode,
+                            onSettingsClick = { editingEmptyStack = widget },
+                            onToggleCollapsed = { viewModel.updateWidget(areaId, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
+                            onDeleteClick = {
+                                if (dashboardMode == "auto") showAutoDeleteStackInfo = true
+                                else viewModel.deleteWidget(areaId, widget.id)
+                            },
+                            onHideClick = { viewModel.updateWidget(areaId, widget.copy(isHidden = !widget.isHidden)) },
+                            onAddClick = { addingToSwipingStackId = widget.id },
+                            content = { child, childModifier ->
+                                RenderSwipingChild(
+                                    HKISwipingStack(id = widget.id, widgets = widget.widgets),
+                                    child,
+                                    childModifier,
+                                    null
+                                )
+                            }
+                        )
                     }
                 }
                 }
@@ -593,8 +903,232 @@ fun RoomDetailScreen(
                 viewModel.addWeatherStackToArea(areaId, title, icon)
                 showAddWidgetDialog = false
             },
+            onAddSwipingStack = {
+                viewModel.addSwipingStackToArea(areaId)
+                showAddWidgetDialog = false
+            },
+            onAddEmptyStack = {
+                viewModel.addEmptyStackToArea(areaId)
+                showAddWidgetDialog = false
+            },
+            onAddButtonWidget = {
+                pendingSingleWidgetKind = "button"
+                pendingSingleWidgetContainerId = null
+                showAddWidgetDialog = false
+            },
+            onAddCameraWidget = {
+                pendingSingleWidgetKind = "camera"
+                pendingSingleWidgetContainerId = null
+                showAddWidgetDialog = false
+            },
+            onAddVacuumWidget = {
+                pendingSingleWidgetKind = "vacuum"
+                pendingSingleWidgetContainerId = null
+                showAddWidgetDialog = false
+            },
+            onAddWeatherWidget = {
+                pendingWeatherWidgetContainerId = "__top__"
+                showAddWidgetDialog = false
+            },
             allEntities = allEntities
         )
+    }
+
+    addingToSwipingStackId?.let { stackId ->
+        AddRoomWidgetDialog(
+            onDismiss = { addingToSwipingStackId = null },
+            onAddStack = { title, icon ->
+                addChildToSwipingStack(stackId, newButtonStack(title, icon))
+                addingToSwipingStackId = null
+            },
+            onAddCameraStack = { (title, icon) ->
+                addChildToSwipingStack(stackId, newCameraStack(title, icon))
+                addingToSwipingStackId = null
+            },
+            onAddVacuumStack = { (title, icon) ->
+                addChildToSwipingStack(stackId, newVacuumStack(title, icon))
+                addingToSwipingStackId = null
+            },
+            onAddSubtitle = { text, icon ->
+                addChildToSwipingStack(stackId, HKISubtitleWidget(id = UUID.randomUUID().toString(), text = text, icon = icon))
+                addingToSwipingStackId = null
+            },
+            onAddWeatherStack = { (title, icon) ->
+                addChildToSwipingStack(stackId, newWeatherStack(title, icon))
+                addingToSwipingStackId = null
+            },
+            onAddEmptyStack = {
+                addChildToSwipingStack(stackId, newEmptyStack())
+                addingToSwipingStackId = null
+            },
+            onAddButtonWidget = {
+                pendingSingleWidgetKind = "button"
+                pendingSingleWidgetContainerId = stackId
+                addingToSwipingStackId = null
+            },
+            onAddCameraWidget = {
+                pendingSingleWidgetKind = "camera"
+                pendingSingleWidgetContainerId = stackId
+                addingToSwipingStackId = null
+            },
+            onAddVacuumWidget = {
+                pendingSingleWidgetKind = "vacuum"
+                pendingSingleWidgetContainerId = stackId
+                addingToSwipingStackId = null
+            },
+            onAddWeatherWidget = {
+                pendingWeatherWidgetContainerId = stackId
+                addingToSwipingStackId = null
+            },
+            allEntities = allEntities
+        )
+    }
+
+    pendingSingleWidgetKind?.let { kind ->
+        val candidates = when (kind) {
+            "camera" -> allEntities.filter { it.entity_id.substringBefore(".").equals("camera", ignoreCase = true) }
+            "vacuum" -> allEntities.filter { it.entity_id.startsWith("vacuum.") }
+            else -> allEntities
+        }
+        AdvancedEntitySearchDialog(
+            allEntities = candidates,
+            title = when (kind) {
+                "camera" -> "Select Camera"
+                "vacuum" -> "Select Vacuum"
+                else -> "Select Entity"
+            },
+            singleSelect = true,
+            preselectedIds = emptySet(),
+            onDismiss = {
+                pendingSingleWidgetKind = null
+                pendingSingleWidgetContainerId = null
+            },
+            onEntitiesSelected = { entityIds ->
+                val entityId = entityIds.firstOrNull()
+                if (entityId != null) {
+                    val containerId = pendingSingleWidgetContainerId
+                    if (containerId == null) {
+                        viewModel.addSingleEntityWidgetToArea(areaId, kind, entityId)
+                    } else {
+                        addChildToSwipingStack(containerId, newSingleEntityWidget(kind, entityId))
+                    }
+                }
+                pendingSingleWidgetKind = null
+                pendingSingleWidgetContainerId = null
+            }
+        )
+    }
+
+    if (pendingWeatherWidgetContainerId != null && pendingWeatherWidgetEntityId == null) {
+        val weatherEntities = allEntities.filter { it.entity_id.startsWith("weather.") }
+        AdvancedEntitySearchDialog(
+            allEntities = weatherEntities.ifEmpty { allEntities },
+            title = "Select Weather",
+            singleSelect = true,
+            preselectedIds = emptySet(),
+            onDismiss = {
+                if (!choosingWeatherWidgetStyle) {
+                    pendingWeatherWidgetContainerId = null
+                    pendingWeatherWidgetEntityId = null
+                }
+            },
+            onEntitiesSelected = { entityIds ->
+                val entityId = entityIds.firstOrNull()
+                if (entityId != null) {
+                    pendingWeatherWidgetEntityId = entityId
+                    choosingWeatherWidgetStyle = true
+                }
+            }
+        )
+    }
+
+    if (choosingWeatherWidgetStyle && pendingWeatherWidgetContainerId != null && pendingWeatherWidgetEntityId != null) {
+        AlertDialog(
+            onDismissRequest = {
+                choosingWeatherWidgetStyle = false
+                pendingWeatherWidgetContainerId = null
+                pendingWeatherWidgetEntityId = null
+            },
+            title = { Text("Weather Type") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    weatherWidgetStyles.sortedBy { it.second }.forEach { (style, label) ->
+                        WidgetChoice(
+                            icon = Icons.Default.WbSunny,
+                            title = label,
+                            subtitle = "",
+                            onClick = {
+                                val target = pendingWeatherWidgetContainerId
+                                val entityId = pendingWeatherWidgetEntityId
+                                if (target != null && entityId != null) {
+                                    if (target == "__top__") {
+                                        viewModel.addWeatherToArea(areaId, entityId, style)
+                                    } else {
+                                        addChildToSwipingStack(target, HKIWeatherWidget(id = UUID.randomUUID().toString(), entityId = entityId, style = style))
+                                    }
+                                }
+                                choosingWeatherWidgetStyle = false
+                                pendingWeatherWidgetContainerId = null
+                                pendingWeatherWidgetEntityId = null
+                            }
+                        )
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = {
+                    choosingWeatherWidgetStyle = false
+                    pendingWeatherWidgetContainerId = null
+                    pendingWeatherWidgetEntityId = null
+                }) { Text("Cancel") }
+            }
+        )
+    }
+
+    addingToNestedStack?.let { (swipingStackId, childStackId) ->
+        val parent = areaWidgets.filterIsInstance<HKISwipingStack>().find { it.id == swipingStackId }
+        val targetStack = parent?.widgets?.filterIsInstance<HKIButtonStack>()?.find { it.id == childStackId }
+        when (targetStack?.stackType) {
+            "camera", "single_camera" -> AdvancedEntitySearchDialog(
+                allEntities = allEntities.filter { it.entity_id.substringBefore(".").equals("camera", ignoreCase = true) },
+                preselectedIds = targetStack.entityIds.toSet(),
+                onDismiss = { addingToNestedStack = null },
+                onEntitiesSelected = { entityIds ->
+                    val updatedIds = if (targetStack.stackType == "single_camera") entityIds.take(1) else (targetStack.entityIds + entityIds).distinct()
+                    updateChildInSwipingStack(swipingStackId, targetStack.copy(entityIds = updatedIds))
+                    addingToNestedStack = null
+                }
+            )
+            "weather" -> WeatherItemDialog(
+                initial = null,
+                allEntities = allEntities,
+                onDismiss = { addingToNestedStack = null },
+                onSave = { config ->
+                    val itemId = "weather_${System.currentTimeMillis()}"
+                    updateChildInSwipingStack(
+                        swipingStackId,
+                        targetStack.copy(
+                            entityIds = targetStack.entityIds + itemId,
+                            buttonConfigs = targetStack.buttonConfigs + (itemId to config)
+                        )
+                    )
+                    addingToNestedStack = null
+                }
+            )
+            else -> AdvancedEntitySearchDialog(
+                allEntities = if (targetStack?.stackType in listOf("vacuum", "single_vacuum")) allEntities.filter { it.entity_id.startsWith("vacuum.") } else allEntities,
+                preselectedIds = targetStack?.entityIds?.toSet().orEmpty(),
+                onDismiss = { addingToNestedStack = null },
+                onEntitiesSelected = { entityIds ->
+                    targetStack?.let { stack ->
+                        val updatedIds = if (stack.stackType in listOf("single_button", "single_vacuum")) entityIds.take(1) else (stack.entityIds + entityIds).distinct()
+                        updateChildInSwipingStack(swipingStackId, stack.copy(entityIds = updatedIds))
+                    }
+                    addingToNestedStack = null
+                }
+            )
+        }
     }
 
     if (addingToStackId != null && cameraAddMode == null) {
@@ -610,6 +1144,26 @@ fun RoomDetailScreen(
                 },
                 dismissButton = {
                     TextButton(onClick = { cameraAddMode = "custom" }) { Text("Custom URL") }
+                }
+            )
+        } else if (targetStack?.stackType == "single_camera") {
+            AdvancedEntitySearchDialog(
+                allEntities = allEntities.filter { it.entity_id.substringBefore(".").equals("camera", ignoreCase = true) },
+                preselectedIds = targetStack.entityIds.take(1).toSet(),
+                onDismiss = { addingToStackId = null },
+                onEntitiesSelected = { entityIds ->
+                    viewModel.updateWidget(areaId, targetStack.copy(entityIds = entityIds.take(1)))
+                    addingToStackId = null
+                }
+            )
+        } else if (targetStack?.stackType == "single_vacuum") {
+            AdvancedEntitySearchDialog(
+                allEntities = allEntities.filter { it.entity_id.startsWith("vacuum.") },
+                preselectedIds = targetStack.entityIds.take(1).toSet(),
+                onDismiss = { addingToStackId = null },
+                onEntitiesSelected = { entityIds ->
+                    viewModel.updateWidget(areaId, targetStack.copy(entityIds = entityIds.take(1)))
+                    addingToStackId = null
                 }
             )
         } else if (targetStack?.stackType == "weather") {
@@ -640,7 +1194,7 @@ fun RoomDetailScreen(
                     targetStack?.let { stack ->
                         viewModel.updateWidget(
                             areaId,
-                            stack.copy(entityIds = (stack.entityIds + entityIds).distinct())
+                            stack.copy(entityIds = if (stack.stackType == "single_button") entityIds.take(1) else (stack.entityIds + entityIds).distinct())
                         )
                     }
                     addingToStackId = null
@@ -729,6 +1283,73 @@ fun RoomDetailScreen(
         )
     }
 
+    editingSwipingStack?.let { stack ->
+        SwipingStackSettingsDialog(
+            stack = stack,
+            onDismiss = { editingSwipingStack = null },
+            onUpdate = { updated ->
+                viewModel.updateWidget(areaId, stack.withChangedChildStyle(updated))
+                editingSwipingStack = null
+            }
+        )
+    }
+
+    editingEmptyStack?.let { stack ->
+        EmptyStackSettingsDialog(
+            stack = stack,
+            onDismiss = { editingEmptyStack = null },
+            onUpdate = { updated ->
+                viewModel.updateWidget(areaId, stack.withChangedChildStyle(updated))
+                editingEmptyStack = null
+            }
+        )
+    }
+
+    selectedChildStackSettings?.let { (containerId, stack) ->
+        StackSettingsDialog(
+            stack = stack,
+            onDismiss = { selectedChildStackSettings = null },
+            onUpdate = { updated ->
+                updateChildInSwipingStack(containerId, updated)
+                selectedChildStackSettings = null
+            }
+        )
+    }
+
+    editingChildEmptyStack?.let { (containerId, stack) ->
+        EmptyStackSettingsDialog(
+            stack = stack,
+            onDismiss = { editingChildEmptyStack = null },
+            onUpdate = { updated ->
+                updateChildInSwipingStack(containerId, stack.withChangedChildStyle(updated))
+                editingChildEmptyStack = null
+            }
+        )
+    }
+
+    editingChildSubtitle?.let { (containerId, widget) ->
+        HeaderTextSettingsDialog(
+            widget = widget,
+            onDismiss = { editingChildSubtitle = null },
+            onSave = { updated ->
+                updateChildInSwipingStack(containerId, updated)
+                editingChildSubtitle = null
+            }
+        )
+    }
+
+    editingChildWeather?.let { (containerId, widget) ->
+        WeatherWidgetSettingsDialog(
+            widget = widget,
+            allEntities = allEntities,
+            onDismiss = { editingChildWeather = null },
+            onSave = { updated ->
+                updateChildInSwipingStack(containerId, updated)
+                editingChildWeather = null
+            }
+        )
+    }
+
     editingSubtitle?.let { widget ->
         HeaderTextSettingsDialog(
             widget = widget,
@@ -750,6 +1371,62 @@ fun RoomDetailScreen(
                 editingWeather = null
             }
         )
+    }
+
+    selectedSingleWidgetSettings?.let { (containerId, widget) ->
+        val entity = allEntities.find { it.entity_id == widget.entityId }
+        ButtonConfigDialog(
+            entity = entity,
+            config = widget.config,
+            isCameraItem = widget.kind == "camera",
+            isVacuumItem = widget.kind == "vacuum" || widget.entityId.startsWith("vacuum."),
+            allEntities = allEntities,
+            onDismiss = { selectedSingleWidgetSettings = null },
+            onSave = { config ->
+                val updated = widget.copy(config = config)
+                if (containerId == null) {
+                    val latest = areaWidgets.filterIsInstance<HKISingleEntityWidget>().find { it.id == widget.id } ?: widget
+                    viewModel.updateWidget(areaId, latest.copy(config = config))
+                } else {
+                    updateChildInSwipingStack(containerId, updated)
+                }
+                selectedSingleWidgetSettings = null
+            }
+        )
+    }
+
+    selectedChildButtonSettings?.let { (containerId, stack, entityId) ->
+        val entity = allEntities.find { it.entity_id == entityId }
+        if (stack.stackType == "weather") {
+            WeatherItemDialog(
+                initial = stack.buttonConfigs[entityId],
+                allEntities = allEntities,
+                onDismiss = { selectedChildButtonSettings = null },
+                onSave = { config ->
+                    updateChildInSwipingStack(
+                        containerId,
+                        stack.copy(buttonConfigs = stack.buttonConfigs + (entityId to config))
+                    )
+                    selectedChildButtonSettings = null
+                }
+            )
+        } else {
+            ButtonConfigDialog(
+                entity = entity,
+                config = stack.buttonConfigs[entityId] ?: HKIButtonConfig(),
+                isCameraItem = stack.stackType == "camera",
+                isVacuumItem = stack.stackType == "vacuum" || entityId.startsWith("vacuum."),
+                allEntities = allEntities,
+                onDismiss = { selectedChildButtonSettings = null },
+                onSave = { config ->
+                    updateChildInSwipingStack(
+                        containerId,
+                        stack.copy(buttonConfigs = stack.buttonConfigs + (entityId to config))
+                    )
+                    selectedChildButtonSettings = null
+                }
+            )
+        }
     }
 
     selectedButtonSettings?.let { (stack, entityId) ->
@@ -988,6 +1665,12 @@ fun AddRoomWidgetDialog(
     onAddSubtitle: (String, String?) -> Unit,
     onAddVacuumStack: (Pair<String?, String?>) -> Unit = {},
     onAddWeatherStack: (Pair<String?, String?>) -> Unit = {},
+    onAddSwipingStack: (() -> Unit)? = null,
+    onAddEmptyStack: (() -> Unit)? = null,
+    onAddButtonWidget: (() -> Unit)? = null,
+    onAddCameraWidget: (() -> Unit)? = null,
+    onAddVacuumWidget: (() -> Unit)? = null,
+    onAddWeatherWidget: (() -> Unit)? = null,
     allEntities: List<HAEntity> = emptyList()
 ) {
     val appColors = LocalHKIAppColors.current
@@ -1002,21 +1685,22 @@ fun AddRoomWidgetDialog(
     var weatherTitle by remember { mutableStateOf("Weather") }
     var weatherIcon by remember { mutableStateOf("weather-partly-cloudy") }
     var configureWidget by remember { mutableStateOf<String?>(null) }
+    var widgetGroup by remember { mutableStateOf<String?>(null) }
     var showIconPicker by remember { mutableStateOf(false) }
 
     if (showIconPicker) {
         val currentForPicker = when (configureWidget) {
-            "button" -> stackIcon; "camera" -> cameraIcon
-            "vacuum" -> vacuumIcon; "weather" -> weatherIcon; else -> headerIcon
+            "button", "button_stack" -> stackIcon; "camera", "camera_stack" -> cameraIcon
+            "vacuum", "vacuum_stack" -> vacuumIcon; "weather", "weather_stack" -> weatherIcon; else -> headerIcon
         }.takeUnless { it == "None" } ?: ""
         MdiIconPickerDialog(
             current = currentForPicker,
             onDismiss = { showIconPicker = false },
             onSelect = { slug ->
-                val name = if (slug.isEmpty()) "None" else slug
+                val name = slug.ifEmpty { "None" }
                 when (configureWidget) {
-                    "button" -> stackIcon = name; "camera" -> cameraIcon = name
-                    "vacuum" -> vacuumIcon = name; "weather" -> weatherIcon = name; else -> headerIcon = name
+                    "button", "button_stack" -> stackIcon = name; "camera", "camera_stack" -> cameraIcon = name
+                    "vacuum", "vacuum_stack" -> vacuumIcon = name; "weather", "weather_stack" -> weatherIcon = name; else -> headerIcon = name
                 }
                 showIconPicker = false
             }
@@ -1037,24 +1721,18 @@ fun AddRoomWidgetDialog(
                     Text("Add Widget", color = appColors.onSurface, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
                     IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, null, tint = appColors.onSurface) }
                 }
-                if (configureWidget == null) {
+                if (configureWidget == null && widgetGroup == null) {
                     WidgetChoice(
-                        icon = Icons.AutoMirrored.Filled.ViewQuilt,
-                        title = "Button Stack",
-                        subtitle = "Group entities into configurable controls",
-                        onClick = { configureWidget = "button" }
+                        icon = Icons.Default.Lightbulb,
+                        title = "Button",
+                        subtitle = "A single configurable entity control",
+                        onClick = { onAddButtonWidget?.invoke() ?: run { stackTitle = ""; stackIcon = "None"; configureWidget = "button" } }
                     )
                     WidgetChoice(
                         icon = Icons.Default.CameraAlt,
-                        title = "Camera Stack",
-                        subtitle = "Show live camera tiles or a custom stream URL",
-                        onClick = { configureWidget = "camera" }
-                    )
-                    WidgetChoice(
-                        icon = Icons.Default.CleaningServices,
-                        title = "Vacuum Stack",
-                        subtitle = "Control robot vacuums with map and battery",
-                        onClick = { configureWidget = "vacuum" }
+                        title = "Camera",
+                        subtitle = "A single live camera tile or stream URL",
+                        onClick = { onAddCameraWidget?.invoke() ?: run { cameraTitle = ""; cameraIcon = "None"; configureWidget = "camera" } }
                     )
                     WidgetChoice(
                         icon = Icons.AutoMirrored.Filled.ShortText,
@@ -1063,18 +1741,61 @@ fun AddRoomWidgetDialog(
                         onClick = { configureWidget = "header" }
                     )
                     WidgetChoice(
-                        icon = Icons.Default.WbSunny,
-                        title = "Weather Stack",
-                        subtitle = "Group weather cards: conditions, forecast, wind, or rain map",
-                        onClick = { configureWidget = "weather" }
+                        icon = Icons.AutoMirrored.Filled.ViewQuilt,
+                        title = "Stacks",
+                        subtitle = "Button, camera, vacuum, weather, swipe, and empty stacks",
+                        onClick = { widgetGroup = "stacks" }
                     )
+                    WidgetChoice(
+                        icon = Icons.Default.CleaningServices,
+                        title = "Vacuum",
+                        subtitle = "A single robot vacuum control",
+                        onClick = { onAddVacuumWidget?.invoke() ?: run { vacuumTitle = ""; vacuumIcon = "None"; configureWidget = "vacuum" } }
+                    )
+                    WidgetChoice(
+                        icon = Icons.Default.WbSunny,
+                        title = "Weather",
+                        subtitle = "A single weather card",
+                        onClick = { onAddWeatherWidget?.invoke() ?: run { weatherTitle = ""; weatherIcon = "None"; configureWidget = "weather" } }
+                    )
+                } else if (widgetGroup == "stacks" && configureWidget == null) {
+                    if (onAddEmptyStack != null) {
+                        WidgetChoice(
+                            icon = Icons.AutoMirrored.Filled.ViewQuilt,
+                            title = "Empty Stack",
+                            subtitle = "Place widgets inside a configurable stack",
+                            onClick = {
+                                onAddEmptyStack()
+                                onDismiss()
+                            }
+                        )
+                    }
+                    Text("Predefined Stacks", color = appColors.onMuted, style = MaterialTheme.typography.labelLarge)
+                    WidgetChoice(Icons.AutoMirrored.Filled.ViewQuilt, "Button Stack", "Group entities into configurable controls") { stackTitle = "Buttons"; stackIcon = "Lightbulb"; configureWidget = "button_stack" }
+                    WidgetChoice(Icons.Default.CameraAlt, "Camera Stack", "Show live camera tiles or a custom stream URL") { cameraTitle = "Cameras"; cameraIcon = "CameraAlt"; configureWidget = "camera_stack" }
+                    if (onAddSwipingStack != null) {
+                        WidgetChoice(
+                            icon = Icons.AutoMirrored.Filled.ViewQuilt,
+                            title = "Swiping Stack",
+                            subtitle = "Swipe horizontally through nested widgets",
+                            onClick = {
+                                onAddSwipingStack()
+                                onDismiss()
+                            }
+                        )
+                    }
+                    WidgetChoice(Icons.Default.CleaningServices, "Vacuum Stack", "Control robot vacuums with map and battery") { vacuumTitle = "Vacuum"; vacuumIcon = "CleaningServices"; configureWidget = "vacuum_stack" }
+                    WidgetChoice(Icons.Default.WbSunny, "Weather Stack", "Group weather cards: conditions, forecast, wind, or rain map") { weatherTitle = "Weather"; weatherIcon = "weather-partly-cloudy"; configureWidget = "weather_stack" }
+                    OutlinedButton(onClick = { widgetGroup = null }, modifier = Modifier.fillMaxWidth()) {
+                        Text("Back")
+                    }
                 } else {
                     Text(
                         when (configureWidget) {
-                            "button" -> "Button Stack"
-                            "camera" -> "Camera Stack"
-                            "vacuum" -> "Vacuum Stack"
-                            "weather" -> "Weather Stack"
+                            "button", "button_stack" -> if (configureWidget == "button") "Button" else "Button Stack"
+                            "camera", "camera_stack" -> if (configureWidget == "camera") "Camera" else "Camera Stack"
+                            "vacuum", "vacuum_stack" -> if (configureWidget == "vacuum") "Vacuum" else "Vacuum Stack"
+                            "weather", "weather_stack" -> if (configureWidget == "weather") "Weather" else "Weather Stack"
                             else -> "Header Text"
                         },
                         color = appColors.onSurface,
@@ -1082,18 +1803,18 @@ fun AddRoomWidgetDialog(
                     )
                     OutlinedTextField(
                         value = when (configureWidget) {
-                            "button" -> stackTitle
-                            "camera" -> cameraTitle
-                            "vacuum" -> vacuumTitle
-                            "weather" -> weatherTitle
+                            "button", "button_stack" -> stackTitle
+                            "camera", "camera_stack" -> cameraTitle
+                            "vacuum", "vacuum_stack" -> vacuumTitle
+                            "weather", "weather_stack" -> weatherTitle
                             else -> headerText
                         },
                         onValueChange = {
                             when (configureWidget) {
-                                "button" -> stackTitle = it
-                                "camera" -> cameraTitle = it
-                                "vacuum" -> vacuumTitle = it
-                                "weather" -> weatherTitle = it
+                                "button", "button_stack" -> stackTitle = it
+                                "camera", "camera_stack" -> cameraTitle = it
+                                "vacuum", "vacuum_stack" -> vacuumTitle = it
+                                "weather", "weather_stack" -> weatherTitle = it
                                 else -> headerText = it
                             }
                         },
@@ -1112,8 +1833,8 @@ fun AddRoomWidgetDialog(
                     )
                     Text("Icon", color = appColors.onMuted, style = MaterialTheme.typography.labelLarge)
                     val currentWidgetIcon = when (configureWidget) {
-                        "button" -> stackIcon; "camera" -> cameraIcon
-                        "vacuum" -> vacuumIcon; "weather" -> weatherIcon; else -> headerIcon
+                        "button", "button_stack" -> stackIcon; "camera", "camera_stack" -> cameraIcon
+                        "vacuum", "vacuum_stack" -> vacuumIcon; "weather", "weather_stack" -> weatherIcon; else -> headerIcon
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -1137,13 +1858,13 @@ fun AddRoomWidgetDialog(
                         }
                         Button(
                             onClick = {
-                                if (configureWidget == "button") {
+                                if (configureWidget == "button" || configureWidget == "button_stack") {
                                     onAddStack(stackTitle.ifBlank { null }, stackIcon.takeUnless { it == "None" })
-                                } else if (configureWidget == "camera") {
+                                } else if (configureWidget == "camera" || configureWidget == "camera_stack") {
                                     onAddCameraStack(cameraTitle.ifBlank { null } to cameraIcon.takeUnless { it == "None" })
-                                } else if (configureWidget == "vacuum") {
+                                } else if (configureWidget == "vacuum" || configureWidget == "vacuum_stack") {
                                     onAddVacuumStack(vacuumTitle.ifBlank { null } to vacuumIcon.takeUnless { it == "None" })
-                                } else if (configureWidget == "weather") {
+                                } else if (configureWidget == "weather" || configureWidget == "weather_stack") {
                                     onAddWeatherStack(weatherTitle.ifBlank { null } to weatherIcon.takeUnless { it == "None" })
                                 } else {
                                     onAddSubtitle(headerText.ifBlank { "Header Text" }, headerIcon.takeUnless { it == "None" })
@@ -1161,7 +1882,7 @@ fun AddRoomWidgetDialog(
 }
 
 @Composable
-private fun WidgetChoice(icon: ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
+fun WidgetChoice(icon: ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
     val appColors = LocalHKIAppColors.current
     Surface(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
@@ -1173,7 +1894,9 @@ private fun WidgetChoice(icon: ImageVector, title: String, subtitle: String, onC
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
                 Text(title, color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
-                Text(subtitle, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                if (subtitle.isNotBlank()) {
+                    Text(subtitle, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                }
             }
             Icon(Icons.AutoMirrored.Filled.ArrowForward, null, tint = appColors.onMuted)
         }
@@ -1193,7 +1916,7 @@ fun ButtonConfigDialog(
     var name by remember(config) { mutableStateOf(config.name ?: entity?.friendlyName ?: entity?.entity_id ?: "") }
     var label by remember(config) { mutableStateOf(config.label ?: "") }
     var cameraUrl by remember(config) { mutableStateOf(config.cameraUrl ?: "") }
-    var refreshInterval by remember(config) { mutableStateOf(config.cameraRefreshInterval) }
+    var refreshInterval by remember(config) { mutableIntStateOf(config.cameraRefreshInterval) }
     var iconName by remember(config) { mutableStateOf(config.icon ?: "None") }
     var spinIcon by remember(config) { mutableStateOf(config.spinIcon) }
     var tapAction by remember(config) { mutableStateOf(config.tapAction) }
@@ -1216,7 +1939,7 @@ fun ButtonConfigDialog(
             current = iconName.takeUnless { it == "None" } ?: "",
             onDismiss = { showIconPickerBtn = false },
             onSelect = { slug ->
-                iconName = if (slug.isEmpty()) "None" else slug
+                iconName = slug.ifEmpty { "None" }
                 showIconPickerBtn = false
             }
         )
@@ -1630,7 +2353,7 @@ fun StackSettingsDialog(
             current = iconName.takeUnless { it == "None" } ?: "",
             onDismiss = { showIconPickerStack = false },
             onSelect = { slug ->
-                iconName = if (slug.isEmpty()) "None" else slug
+                iconName = slug.ifEmpty { "None" }
                 showIconPickerStack = false
             }
         )
@@ -1665,7 +2388,7 @@ fun StackSettingsDialog(
                         FilterChip(selected = columns == count, onClick = { columns = count }, label = { Text("$count") })
                     }
                 }
-                if (stack.stackType !in listOf("camera", "weather")) {
+                if (stack.stackType != "weather") {
                     Text("Shape", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
@@ -1718,7 +2441,7 @@ fun StackSettingsDialog(
                             icon = iconName.takeUnless { it == "None" },
                             columns = columns.coerceIn(1, 3),
                             showBadge = if (stack.stackType in listOf("camera", "weather")) false else showBadge,
-                            isSquare = if (stack.stackType in listOf("camera", "weather")) false else isSquare,
+                            isSquare = if (stack.stackType == "weather") false else isSquare,
                             cornerRadius = cornerRadius,
                             collapsible = collapsible,
                             defaultCollapsed = defaultCollapsed,
@@ -1776,13 +2499,11 @@ fun ButtonStackItem(
     }
     val canCollapse = stack.collapsible
     val isCollapsed = canCollapse && (stack.isCollapsed ?: stack.defaultCollapsed)
-    val hasLightEntities = remember(entities) { entities.any { it.entity_id.startsWith("light.") } }
-
     Column(modifier = Modifier.fillMaxWidth()) {
         val hasLabel = !stack.title.isNullOrBlank() || !stack.icon.isNullOrBlank()
-        // Show the collapse chevron whenever the stack can collapse and there is a header to
-        // hang it on — including edit mode (so large stacks can be folded away while reordering)
-        // and whenever it is currently collapsed (so it can always be expanded again).
+        // Show the collapse chevron when the stack can collapse and has a header anchor.
+        // Also show it in edit mode so large stacks can be folded away while reordering.
+        // If collapsed, keep the chevron visible so it can always be expanded.
         val showChevron = canCollapse && (hasLabel || isEditMode || isCollapsed)
         val showHeaderLabel = hasLabel || isEditMode || isCollapsed || (stack.showBadge && activeCount > 0)
         if (showHeaderLabel) {
@@ -1858,8 +2579,60 @@ fun ButtonStackItem(
         }
 
         if (!isCollapsed) {
+            if (stack.stackType in listOf("single_button", "single_camera", "single_vacuum")) {
+                val entity = entities.firstOrNull()
+                if (entity == null) {
+                    EmptyStackHint(isEditMode = isEditMode, onAdd = onAddClick)
+                    return@Column
+                }
+                val cfg = buttonConfigs[entity.entity_id]
+                when (stack.stackType) {
+                    "single_camera" -> {
+                        CameraStackContent(
+                            stack = stack.copy(columns = 1),
+                            entities = listOf(entity),
+                            currentUrl = currentUrl,
+                            accessToken = accessToken,
+                            isEditMode = isEditMode,
+                            onEntityClick = onCameraClick,
+                            onButtonSettings = onButtonSettings,
+                            onRemoveEntity = onRemoveEntity,
+                            onReorderEntities = onReorderEntities
+                        )
+                    }
+                    "single_vacuum" -> {
+                        VacuumEntityCard(
+                            entity = entity,
+                            config = cfg,
+                            allEntities = allEntities,
+                            currentUrl = currentUrl,
+                            isSquare = stack.isSquare,
+                            cornerRadius = stack.cornerRadius,
+                            aspectRatio = stack.cameraAspectRatio,
+                            onClick = { onEntityClick(entity.entity_id) }
+                        )
+                    }
+                    else -> {
+                        val doorOpen = cfg?.doorEntityId?.let { id -> allEntities.find { it.entity_id == id }?.state == "on" } == true
+                        EntityCard(
+                            entity = entity,
+                            displayName = cfg?.name,
+                            label = cfg?.label,
+                            iconName = cfg?.icon,
+                            spinIcon = cfg?.spinIcon == true,
+                            onClick = { onEntityClick(entity.entity_id) },
+                            onLongClick = { onEntityLongClick(entity.entity_id) },
+                            onDoubleClick = { onEntityDoubleClick(entity.entity_id) },
+                            isSquare = stack.isSquare,
+                            cornerRadius = stack.cornerRadius,
+                            doorOpen = doorOpen
+                        )
+                    }
+                }
+                return@Column
+            }
             if (stack.stackType !in listOf("camera", "vacuum", "weather") && entities.isEmpty()) {
-                EmptyStackHint()
+                EmptyStackHint(isEditMode = isEditMode, onAdd = onAddClick)
                 return@Column
             }
             if (stack.stackType == "weather") {
@@ -1982,10 +2755,537 @@ fun ButtonStackItem(
 }
 
 @Composable
-internal fun EmptyStackHint() {
+fun SingleEntityWidgetItem(
+    widget: HKISingleEntityWidget,
+    allEntities: List<HAEntity>,
+    currentUrl: String,
+    accessToken: String? = null,
+    isEditMode: Boolean,
+    onEntityClick: (String) -> Unit,
+    onEntityDoubleClick: (String) -> Unit,
+    onEntityLongClick: (String) -> Unit,
+    onDeleteClick: () -> Unit,
+    onHideClick: () -> Unit,
+    onSettingsClick: () -> Unit = {}
+) {
+    val appColors = LocalHKIAppColors.current
+    if (widget.isHidden && !isEditMode) return
+    val entity = allEntities.find { it.entity_id == widget.entityId }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        if (entity == null) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(widget.cornerRadius.dp),
+                color = appColors.subtleSurface,
+                border = BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.16f))
+            ) {
+                Text(
+                    "Entity unavailable",
+                    color = appColors.onMuted,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(18.dp)
+                )
+            }
+            return@Column
+        }
+
+        Box {
+            when (widget.kind) {
+                "camera" -> {
+                    val stack = HKIButtonStack(
+                        id = widget.id,
+                        entityIds = listOf(widget.entityId),
+                        columns = 1,
+                        isSquare = widget.isSquare,
+                        cornerRadius = widget.cornerRadius,
+                        stackType = "camera",
+                        cameraAspectRatio = widget.cameraAspectRatio,
+                        buttonConfigs = mapOf(widget.entityId to widget.config)
+                    )
+                    CameraStackContent(
+                        stack = stack,
+                        entities = listOf(entity),
+                        currentUrl = currentUrl,
+                        accessToken = accessToken,
+                        isEditMode = false,
+                        onEntityClick = { onEntityClick(widget.entityId) },
+                        onButtonSettings = {},
+                        onRemoveEntity = {},
+                        onReorderEntities = { _, _ -> }
+                    )
+                }
+                "vacuum" -> VacuumEntityCard(
+                    entity = entity,
+                    config = widget.config,
+                    allEntities = allEntities,
+                    currentUrl = currentUrl,
+                    isSquare = widget.isSquare,
+                    cornerRadius = widget.cornerRadius,
+                    aspectRatio = widget.cameraAspectRatio,
+                    onClick = { onEntityClick(widget.entityId) }
+                )
+                else -> {
+                    val doorOpen = widget.config.doorEntityId?.let { id -> allEntities.find { it.entity_id == id }?.state == "on" } == true
+                    EntityCard(
+                        entity = entity,
+                        displayName = widget.config.name,
+                        label = widget.config.label,
+                        iconName = widget.config.icon,
+                        spinIcon = widget.config.spinIcon,
+                        onClick = { onEntityClick(widget.entityId) },
+                        onLongClick = { onEntityLongClick(widget.entityId) },
+                        onDoubleClick = { onEntityDoubleClick(widget.entityId) },
+                        isSquare = widget.isSquare,
+                        cornerRadius = widget.cornerRadius,
+                        doorOpen = doorOpen,
+                        interactionsEnabled = !isEditMode
+                    )
+                }
+            }
+            if (isEditMode) {
+                IconButton(
+                    onClick = onSettingsClick,
+                    modifier = Modifier.align(Alignment.Center).size(24.dp)
+                ) {
+                    Icon(Icons.Default.Settings, contentDescription = "Settings", tint = appColors.onSurface, modifier = Modifier.size(16.dp))
+                }
+                EditRemoveBadge(
+                    onClick = onDeleteClick,
+                    modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun SwipingStackItem(
+    stack: HKISwipingStack,
+    isEditMode: Boolean,
+    onSettingsClick: () -> Unit,
+    onToggleCollapsed: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onHideClick: () -> Unit,
+    onAddClick: () -> Unit,
+    content: @Composable (HKIRoomWidget) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    if (stack.isHidden && !isEditMode) return
+    val canCollapse = stack.collapsible
+    val isCollapsed = canCollapse && (stack.isCollapsed ?: stack.defaultCollapsed)
+    val pagerState = rememberPagerState(pageCount = { stack.widgets.size.coerceAtLeast(1) })
+    val animationType = stack.animation.takeIf { type -> swipingStackAnimationTypes.any { it.first == type } } ?: "swipe"
+    val duration = when (animationType) {
+        "instant" -> 0
+        "fade" -> 500
+        "zoom" -> 550
+        "slide_fade" -> 500
+        "cube" -> 650
+        else -> 450
+    }
+
+    LaunchedEffect(stack.autoplay, stack.autoplayIntervalSeconds, animationType, stack.widgets.size, isEditMode) {
+        if (!stack.autoplay || isEditMode || stack.widgets.size < 2) return@LaunchedEffect
+        while (true) {
+            delay(stack.autoplayIntervalSeconds.coerceIn(1, 120).seconds)
+            val nextPage = (pagerState.currentPage + 1) % stack.widgets.size
+            if (animationType == "instant") pagerState.scrollToPage(nextPage)
+            else pagerState.animateScrollToPage(nextPage, animationSpec = tween(durationMillis = duration))
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        if (isEditMode || isCollapsed || stack.isHidden) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(enabled = canCollapse) { onToggleCollapsed() },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Swiping Stack", color = Color.Gray, style = MaterialTheme.typography.labelMedium)
+                    if (canCollapse) {
+                        Spacer(Modifier.width(6.dp))
+                        Icon(
+                            if (isCollapsed) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
+                            contentDescription = if (isCollapsed) "Expand stack" else "Collapse stack",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    if (stack.isHidden) {
+                        Spacer(Modifier.width(8.dp))
+                        Text("Hidden", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+                if (isEditMode) {
+                    IconButton(onClick = onDeleteClick, modifier = Modifier.size(24.dp)) {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    IconButton(onClick = onHideClick, modifier = Modifier.size(24.dp)) {
+                        Icon(
+                            if (stack.isHidden) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = if (stack.isHidden) "Unhide stack" else "Hide stack",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    IconButton(onClick = onSettingsClick, modifier = Modifier.size(24.dp)) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    IconButton(onClick = onAddClick, modifier = Modifier.size(24.dp)) {
+                        Icon(Icons.Default.Add, contentDescription = "Add widget", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    }
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+        }
+
+        if (!isCollapsed) {
+            if (stack.widgets.isEmpty()) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(enabled = isEditMode) { onAddClick() },
+                    shape = RoundedCornerShape(stack.cornerRadius.dp),
+                    color = appColors.subtleSurface,
+                    border = BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.16f))
+                ) {
+                    Row(modifier = Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Add, contentDescription = null, tint = appColors.onMuted, modifier = Modifier.size(22.dp))
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            "Tap here or use the + button while edit mode is active to add widgets to this stack.",
+                            color = appColors.onMuted,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            } else {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxWidth(),
+                        pageSpacing = 12.dp
+                    ) { page ->
+                        val rawOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                        val pageOffset = rawOffset.absoluteValue.coerceIn(0f, 1f)
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .graphicsLayer {
+                                    when (animationType) {
+                                        "fade" -> {
+                                            alpha = 1f - (pageOffset * 0.65f)
+                                        }
+                                        "zoom" -> {
+                                            val scale = 0.86f + ((1f - pageOffset) * 0.14f)
+                                            alpha = 1f - (pageOffset * 0.45f)
+                                            scaleX = scale
+                                            scaleY = scale
+                                        }
+                                        "slide_fade" -> {
+                                            alpha = 1f - (pageOffset * 0.55f)
+                                            translationX = rawOffset * size.width * 0.08f
+                                        }
+                                        "cube" -> {
+                                            alpha = 1f - (pageOffset * 0.25f)
+                                            rotationY = rawOffset * -55f
+                                            cameraDistance = 18f
+                                        }
+                                    }
+                                }
+                        ) {
+                            content(stack.widgets[page])
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SwipingStackSettingsDialog(
+    stack: HKISwipingStack,
+    onDismiss: () -> Unit,
+    onUpdate: (HKISwipingStack) -> Unit
+) {
+    var width by remember(stack) { mutableStateOf(stack.width) }
+    var isSquare by remember(stack) { mutableStateOf(stack.isSquare) }
+    var cornerRadius by remember(stack) { mutableIntStateOf(stack.cornerRadius) }
+    var collapsible by remember(stack) { mutableStateOf(stack.collapsible) }
+    var defaultCollapsed by remember(stack) { mutableStateOf(stack.defaultCollapsed) }
+    var autoplay by remember(stack) { mutableStateOf(stack.autoplay) }
+    var intervalText by remember(stack) { mutableStateOf(stack.autoplayIntervalSeconds.toString()) }
+    var animation by remember(stack) {
+        mutableStateOf(stack.animation.takeIf { type -> swipingStackAnimationTypes.any { it.first == type } } ?: "swipe")
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Swiping Stack Settings") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                WidgetWidthSelector(width = width, onWidthChange = { width = it })
+                Text("Shape", style = MaterialTheme.typography.labelLarge)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
+                    FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text("Square") })
+                }
+                Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = cornerRadius == 8, onClick = { cornerRadius = 8 }, label = { Text("Sharp") })
+                    FilterChip(selected = cornerRadius == 20, onClick = { cornerRadius = 20 }, label = { Text("Modern") })
+                    FilterChip(selected = cornerRadius == 28, onClick = { cornerRadius = 28 }, label = { Text("Round") })
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = collapsible, onCheckedChange = { collapsible = it })
+                    Text("Collapsible")
+                }
+                if (collapsible) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(checked = defaultCollapsed, onCheckedChange = { defaultCollapsed = it })
+                        Text("Collapsed by default")
+                    }
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = autoplay, onCheckedChange = { autoplay = it })
+                    Text("Autoplay")
+                }
+                OutlinedTextField(
+                    value = intervalText,
+                    onValueChange = { intervalText = it.filter(Char::isDigit).take(3) },
+                    label = { Text("Interval seconds") },
+                    singleLine = true
+                )
+                Text("Animation", style = MaterialTheme.typography.labelLarge)
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    swipingStackAnimationTypes.forEach { (value, label) ->
+                        FilterChip(
+                            selected = animation == value,
+                            onClick = { animation = value },
+                            label = { Text(label) }
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                onUpdate(
+                    stack.copy(
+                        width = width,
+                        isSquare = isSquare,
+                        cornerRadius = cornerRadius,
+                        collapsible = collapsible,
+                        defaultCollapsed = defaultCollapsed,
+                        isCollapsed = defaultCollapsed,
+                        autoplay = autoplay,
+                        autoplayIntervalSeconds = intervalText.toIntOrNull()?.coerceIn(1, 120) ?: 5,
+                        animation = animation
+                    )
+                )
+            }) { Text("Save") }
+        },
+        dismissButton = { Button(onClick = onDismiss) { Text("Cancel") } }
+    )
+}
+
+@Composable
+fun EmptyStackItem(
+    stack: HKIEmptyStack,
+    isEditMode: Boolean,
+    onSettingsClick: () -> Unit,
+    onToggleCollapsed: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onHideClick: () -> Unit,
+    onAddClick: () -> Unit,
+    content: @Composable (HKIRoomWidget, Modifier) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    if (stack.isHidden && !isEditMode) return
+    val isCollapsed = stack.collapsible && (stack.isCollapsed ?: stack.defaultCollapsed)
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable(enabled = stack.collapsible) { onToggleCollapsed() },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Empty Stack", color = Color.Gray, style = MaterialTheme.typography.labelMedium)
+                if (stack.collapsible) {
+                    Spacer(Modifier.width(6.dp))
+                    Icon(
+                        if (isCollapsed) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
+                        contentDescription = if (isCollapsed) "Expand stack" else "Collapse stack",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+                if (stack.isHidden) {
+                    Spacer(Modifier.width(8.dp))
+                    Text("Hidden", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
+                }
+            }
+            if (isEditMode) {
+                IconButton(onClick = onDeleteClick, modifier = Modifier.size(24.dp)) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                }
+                Spacer(Modifier.width(8.dp))
+                IconButton(onClick = onHideClick, modifier = Modifier.size(24.dp)) {
+                    Icon(
+                        if (stack.isHidden) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        contentDescription = if (stack.isHidden) "Unhide stack" else "Hide stack",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+                Spacer(Modifier.width(8.dp))
+                IconButton(onClick = onSettingsClick, modifier = Modifier.size(24.dp)) {
+                    Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                }
+                Spacer(Modifier.width(8.dp))
+                IconButton(onClick = onAddClick, modifier = Modifier.size(24.dp)) {
+                    Icon(Icons.Default.Add, contentDescription = "Add widget", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                }
+            }
+        }
+        Spacer(Modifier.height(12.dp))
+        if (!isCollapsed) {
+            if (stack.widgets.isEmpty()) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(enabled = isEditMode) { onAddClick() },
+                    shape = RoundedCornerShape(stack.cornerRadius.dp),
+                    color = appColors.subtleSurface,
+                    border = BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.16f))
+                ) {
+                    Row(modifier = Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Add, contentDescription = null, tint = appColors.onMuted, modifier = Modifier.size(22.dp))
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            "Tap here or use the + button while edit mode is active to add widgets to this stack.",
+                            color = appColors.onMuted,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            } else {
+                val columns = stack.columns.coerceIn(1, 3)
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    stack.widgets.chunked(columns).forEach { row ->
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            row.forEach { child ->
+                                content(child, Modifier.weight(1f))
+                            }
+                            repeat((columns - row.size).coerceAtLeast(0)) {
+                                Spacer(Modifier.weight(1f))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EmptyStackSettingsDialog(
+    stack: HKIEmptyStack,
+    onDismiss: () -> Unit,
+    onUpdate: (HKIEmptyStack) -> Unit
+) {
+    var width by remember(stack) { mutableStateOf(stack.width) }
+    var columns by remember(stack) { mutableIntStateOf(stack.columns.coerceIn(1, 3)) }
+    var showBadge by remember(stack) { mutableStateOf(stack.showBadge) }
+    var isSquare by remember(stack) { mutableStateOf(stack.isSquare) }
+    var cornerRadius by remember(stack) { mutableIntStateOf(stack.cornerRadius) }
+    var collapsible by remember(stack) { mutableStateOf(stack.collapsible) }
+    var defaultCollapsed by remember(stack) { mutableStateOf(stack.defaultCollapsed) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Empty Stack Settings") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                WidgetWidthSelector(width = width, onWidthChange = { width = it })
+                Text("Columns", style = MaterialTheme.typography.labelLarge)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    (1..3).forEach { count ->
+                        FilterChip(selected = columns == count, onClick = { columns = count }, label = { Text("$count") })
+                    }
+                }
+                Text("Shape", style = MaterialTheme.typography.labelLarge)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
+                    FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text("Square") })
+                }
+                Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = cornerRadius == 8, onClick = { cornerRadius = 8 }, label = { Text("Sharp") })
+                    FilterChip(selected = cornerRadius == 20, onClick = { cornerRadius = 20 }, label = { Text("Modern") })
+                    FilterChip(selected = cornerRadius == 28, onClick = { cornerRadius = 28 }, label = { Text("Round") })
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = showBadge, onCheckedChange = { showBadge = it })
+                    Text("Show activity badge")
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = collapsible, onCheckedChange = { collapsible = it })
+                    Text("Collapsible")
+                }
+                if (collapsible) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(checked = defaultCollapsed, onCheckedChange = { defaultCollapsed = it })
+                        Text("Collapsed by default")
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                onUpdate(
+                    stack.copy(
+                        width = width,
+                        columns = columns.coerceIn(1, 3),
+                        showBadge = showBadge,
+                        isSquare = isSquare,
+                        cornerRadius = cornerRadius,
+                        collapsible = collapsible,
+                        defaultCollapsed = defaultCollapsed,
+                        isCollapsed = defaultCollapsed
+                    )
+                )
+            }) { Text("Save") }
+        },
+        dismissButton = { Button(onClick = onDismiss) { Text("Cancel") } }
+    )
+}
+
+@Composable
+internal fun EmptyStackHint(
+    isEditMode: Boolean = false,
+    onAdd: (() -> Unit)? = null
+) {
     val appColors = LocalHKIAppColors.current
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = isEditMode && onAdd != null) { onAdd?.invoke() },
         shape = RoundedCornerShape(22.dp),
         color = appColors.subtleSurface,
         border = BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.16f))
@@ -1994,7 +3294,7 @@ internal fun EmptyStackHint() {
             Icon(Icons.Default.Add, contentDescription = null, tint = appColors.onMuted, modifier = Modifier.size(22.dp))
             Spacer(Modifier.width(12.dp))
             Text(
-                "Click the + button while edit mode is active to add entities to this stack.",
+                "Tap here or use the + button while edit mode is active to add entities to this stack.",
                 color = appColors.onMuted,
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -2050,8 +3350,9 @@ private fun CameraStackContent(
     }
 
     if (cameraSources.isEmpty()) {
+        val aspectRatio = if (stack.isSquare) 1f else stack.cameraAspectRatio
         Surface(
-            modifier = Modifier.fillMaxWidth().aspectRatio(stack.cameraAspectRatio),
+            modifier = Modifier.fillMaxWidth().aspectRatio(aspectRatio),
             shape = RoundedCornerShape(stack.cornerRadius.dp),
             color = Color.Black
         ) {
@@ -2118,6 +3419,7 @@ private data class CameraSourceItem(
 )
 
 @Composable
+@SuppressLint("SetJavaScriptEnabled")
 private fun CameraStackCard(
     source: CameraSourceItem,
     stack: HKIButtonStack,
@@ -2144,10 +3446,11 @@ private fun CameraStackCard(
         buildCameraRefreshModel(source.imageUrl, source.refreshIntervalSeconds, refreshTick)
     }
     var lastSuccessfulModel by remember(source.id) { mutableStateOf(model) }
+    val aspectRatio = if (stack.isSquare) 1f else stack.cameraAspectRatio
 
     Surface(
         modifier = modifier
-            .aspectRatio(stack.cameraAspectRatio)
+            .aspectRatio(aspectRatio)
             .clickable(enabled = !isEditMode) { onEntityClick(source.id) },
         shape = RoundedCornerShape(stack.cornerRadius.dp),
         color = Color.Black
@@ -2244,48 +3547,10 @@ private fun CameraStackCard(
     }
 }
 
-@Composable
-fun ClimateControlDialog(
-    entity: HAEntity,
-    viewModel: MainViewModel,
-    onDismiss: () -> Unit
-) {
-    var showClimateModes by remember(entity.entity_id) { mutableStateOf(false) }
-    val currentTemp = entity.attributes?.get("current_temperature")?.jsonPrimitive?.doubleOrNull ?: entity.temperature ?: 0.0
-    val mode = entity.state
-    val tabs = listOf(
-        Triple("cool", Icons.Default.AcUnit, "Cool"),
-        Triple("heat", Icons.Default.WbSunny, "Heat"),
-        Triple("auto", Icons.Default.AutoMode, "Auto"),
-        Triple("off", Icons.Default.PowerSettingsNew, "Off")
-    ).map { (modeValue, icon, label) ->
-        Triple(label, icon, { viewModel.setHvacMode(entity.entity_id, modeValue) })
-    }
-
-    HKIDialog(
-        entity = entity,
-        onDismiss = onDismiss,
-        viewModel = viewModel,
-        icon = Icons.Default.Thermostat,
-        iconTint = hvacColor(
-            entity.attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
-                ?: entity.attributes?.get("hvac_mode")?.jsonPrimitive?.contentOrNull
-                ?: entity.state
-        ),
-        statusText = "${currentTemp}\u00B0C - ${mode.uppercase()}",
-        tabs = tabs,
-        currentTab = mode.replaceFirstChar { it.uppercase() }
-    ) {
-        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            ClimateControlContent(entity, viewModel, showModes = showClimateModes, onToggleModes = { showClimateModes = it })
-        }
-    }
-}
-
 /**
- * The temperature slider and the fan/swing modes list share this single top-anchored,
- * full-height layout so the modes toggle button always lands in the same spot regardless of
- * which one is showing \u2014 the middle region absorbs any size difference via [Modifier.weight].
+ * The temperature slider and fan/swing modes list share one top-anchored layout.
+ * This keeps the modes toggle button in the same spot across views.
+ * The middle region absorbs size differences via Modifier.weight.
  */
 @Composable
 private fun ClimateControlContent(entity: HAEntity, viewModel: MainViewModel, showModes: Boolean, onToggleModes: (Boolean) -> Unit) {
@@ -2337,25 +3602,6 @@ private fun hvacModeGradient(mode: String): Brush {
 }
 
 @Composable
-fun LockControlDialog(
-    entity: HAEntity,
-    viewModel: MainViewModel,
-    onDismiss: () -> Unit
-) {
-    HKIDialog(
-        entity = entity,
-        onDismiss = onDismiss,
-        viewModel = viewModel,
-        icon = if (entity.state == "locked") Icons.Default.Lock else Icons.Default.LockOpen,
-        statusText = if (entity.state == "locked") "LOCKED - SECURE" else "UNLOCKED - OPEN"
-    ) {
-        Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-            LockControlContent(entity, viewModel)
-        }
-    }
-}
-
-@Composable
 private fun LockControlContent(entity: HAEntity, viewModel: MainViewModel) {
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
@@ -2373,53 +3619,6 @@ private fun LockControlContent(entity: HAEntity, viewModel: MainViewModel) {
         }
         Spacer(Modifier.height(16.dp))
         Text("LOCK", color = Color.White.copy(alpha = 0.5f), style = MaterialTheme.typography.labelSmall)
-    }
-}
-
-@Composable
-fun BlindControlDialog(
-    entity: HAEntity,
-    viewModel: MainViewModel,
-    onDismiss: () -> Unit
-) {
-    val currentPosition = entity.attributes?.get("current_position")?.jsonPrimitive?.intOrNull ?: 0
-    var selectedAction by remember(entity.entity_id) {
-        mutableStateOf(
-            when (entity.state) {
-                "opening", "open" -> "Open"
-                "closing", "closed" -> "Close"
-                else -> "Stop"
-            }
-        )
-    }
-
-    val tabs = listOf(
-        Triple("Open", Icons.Default.ArrowUpward, {
-            selectedAction = "Open"
-            viewModel.controlCover(entity.entity_id, "open_cover")
-        }),
-        Triple("Stop", Icons.Default.Stop, {
-            selectedAction = "Stop"
-            viewModel.controlCover(entity.entity_id, "stop_cover")
-        }),
-        Triple("Close", Icons.Default.ArrowDownward, {
-            selectedAction = "Close"
-            viewModel.controlCover(entity.entity_id, "close_cover")
-        })
-    )
-
-    HKIDialog(
-        entity = entity,
-        onDismiss = onDismiss,
-        viewModel = viewModel,
-        icon = Icons.Default.Window,
-        statusText = "${currentPosition}% - ${entity.state.uppercase()}",
-        tabs = tabs,
-        currentTab = selectedAction
-    ) {
-        Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-            BlindControlContent(entity, viewModel)
-        }
     }
 }
 
@@ -2542,30 +3741,6 @@ fun AggregatedCoverDialog(
 }
 
 @Composable
-fun CameraViewDialog(
-    entity: HAEntity,
-    viewModel: MainViewModel,
-    onDismiss: () -> Unit
-) {
-    val currentUrl by viewModel.currentUrl.collectAsState()
-    val streamUrl = entity.attributes?.get("entity_picture")?.jsonPrimitive?.contentOrNull?.let {
-        if (it.startsWith("http")) it else "$currentUrl$it"
-    }
-
-    HKIDialog(
-        entity = entity,
-        onDismiss = onDismiss,
-        viewModel = viewModel,
-        icon = Icons.Default.CameraAlt,
-        statusText = entity.state.uppercase()
-    ) {
-        Box(modifier = Modifier.weight(1f).fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
-            CameraFrame(streamUrl)
-        }
-    }
-}
-
-@Composable
 private fun CameraContent(entity: HAEntity, viewModel: MainViewModel) {
     val currentUrl by viewModel.currentUrl.collectAsState()
     val streamUrl = entity.attributes?.get("entity_picture")?.jsonPrimitive?.contentOrNull?.let {
@@ -2592,45 +3767,6 @@ private fun CameraFrame(streamUrl: String?) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text("No Stream Available", color = Color.Gray)
             }
-        }
-    }
-}
-
-@Composable
-fun StatBadge(icon: ImageVector?, onClick: () -> Unit = {}) {
-    Surface(
-        modifier = Modifier.size(36.dp).clickable { onClick() },
-        shape = CircleShape,
-        color = Color(0xFF1C1C1E).copy(alpha = 0.8f),
-        border = BorderStroke(1.dp, Color.Gray.copy(alpha = 0.3f))
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            if (icon != null) {
-                Icon(icon, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(18.dp))
-            }
-        }
-    }
-}
-
-@Composable
-fun TemperatureBadge(temp: String, climate: HAEntity, onClick: () -> Unit = {}) {
-    val appColors = LocalHKIAppColors.current
-    val mode = climate.attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
-        ?: climate.attributes?.get("hvac_mode")?.jsonPrimitive?.contentOrNull
-        ?: climate.state
-    val isOff = mode.equals("off", ignoreCase = true) || climate.state.equals("off", ignoreCase = true)
-    val activeColor = hvacColor(mode)
-    val backgroundColor = if (isOff) appColors.elevated else MaterialTheme.colorScheme.primary
-    val foregroundColor = if (isOff) appColors.onMuted else MaterialTheme.colorScheme.onPrimary
-    Surface(
-        shape = RoundedCornerShape(18.dp),
-        color = backgroundColor,
-        modifier = Modifier.height(36.dp).clickable { onClick() }
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 12.dp)) {
-            Icon(Icons.Default.Thermostat, contentDescription = null, tint = activeColor, modifier = Modifier.size(16.dp))
-            Spacer(Modifier.width(4.dp))
-            Text(temp, color = foregroundColor, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -2854,8 +3990,7 @@ fun GroupEntityDialog(
         if (displayEntities.isEmpty()) onDismiss()
     }
     fun turnOff(entity: HAEntity) {
-        val dom = entity.entity_id.substringBefore(".")
-        when (dom) {
+        when (val dom = entity.entity_id.substringBefore(".")) {
             "climate" -> viewModel.setHvacMode(entity.entity_id, "off")
             "cover"   -> viewModel.callService("cover", "close_cover", HAServiceCall(entity_id = entity.entity_id))
             else      -> viewModel.callService(dom, "turn_off", HAServiceCall(entity_id = entity.entity_id))
@@ -2988,22 +4123,23 @@ fun GroupEntityDialog(
                                     else      -> s == "on"
                                 }
                                 val itemIcon = config?.icon ?: defaultEntityIconSlug(entity)
-                                val itemIconColor = when {
-                                    dom == "light" && isItemActive -> lightStateColor(entity) ?: MaterialTheme.colorScheme.primary
-                                    dom == "climate" -> hvacColor(
+                                val itemIconColor = when (dom) {
+                                    "light" -> if (isItemActive) lightStateColor(entity) ?: MaterialTheme.colorScheme.primary else appColors.onMuted
+                                    "climate" -> hvacColor(
                                         entity.attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
                                             ?: entity.attributes?.get("hvac_mode")?.jsonPrimitive?.contentOrNull
                                             ?: entity.state
                                     )
-                                    isItemActive -> MaterialTheme.colorScheme.primary
-                                    else -> appColors.onMuted
+                                    else -> if (isItemActive) MaterialTheme.colorScheme.primary else appColors.onMuted
                                 }
-                                val stateLabel = when {
-                                    dom == "light" && isItemActive -> {
+                                val stateLabel = when (dom) {
+                                    "light" -> if (isItemActive) {
                                         val bp = ((entity.brightness ?: 0) / 255f * 100).toInt()
                                         if (entity.supportsBrightness) "On - ${bp}%" else "On"
+                                    } else {
+                                        entity.state.split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
                                     }
-                                    dom == "climate" -> {
+                                    "climate" -> {
                                         val mode = (entity.attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
                                             ?: entity.attributes?.get("hvac_mode")?.jsonPrimitive?.contentOrNull
                                             ?: entity.state)
@@ -3067,10 +4203,6 @@ fun GroupEntityDialog(
             }
         }
     }
-}
-
-private fun isToggleableDomain(domain: String): Boolean {
-    return domain in listOf("light", "switch", "input_boolean", "fan")
 }
 
 @Composable
@@ -3170,7 +4302,7 @@ private fun SensorGraphContent(entity: HAEntity, viewModel: MainViewModel, value
     val lineColor = if (isBinary) Color(0xFFBE73CC) else Color(0xFF4A90E2)
     val appColors = LocalHKIAppColors.current
 
-    var selectedHours by remember { mutableStateOf(24) }
+    var selectedHours by remember { mutableIntStateOf(24) }
     var loadedHours by remember { mutableStateOf<Int?>(null) }
     LaunchedEffect(entity.entity_id, selectedHours) {
         loadedHours = null

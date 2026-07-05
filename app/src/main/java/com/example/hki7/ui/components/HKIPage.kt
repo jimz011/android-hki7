@@ -1,4 +1,4 @@
-@file:Suppress("MoveLambdaOutsideParentheses")
+@file:Suppress("MoveLambdaOutsideParentheses", "UnusedBoxWithConstraintsScope", "SpellCheckingInspection")
 
 package com.example.hki7.ui.components
 
@@ -45,7 +45,6 @@ import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.ConnectionStatus
 import com.example.hki7.ui.screens.SettingsDialog
 import com.example.hki7.ui.theme.LocalHKIAppColors
-import com.example.hki7.ui.components.alarmStateColor
 import com.example.hki7.ui.utils.MdiIcon
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -96,9 +95,6 @@ fun HKIPage(
     val maxPull = 450f 
     val pullOffsetDp = (pullOffset / 3f).dp
     val menuVisible = pullOffset > 120f
-    val grayscaleFilter = remember {
-        ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
-    }
     val headerColorSource = previewHeaderColor ?: headerColor ?: pageConfig.headerColor
     val headerColorValue = parseHexColor(headerColorSource)
     val effectiveBackground = if (!headerColorSource.isNullOrBlank()) null else backgroundImage ?: pageConfig.wallpaper
@@ -969,7 +965,7 @@ fun PageSettingsDialog(
 }
 
 @Composable
-private fun SettingsMenuChoice(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
+private fun SettingsMenuChoice(icon: ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
     val appColors = LocalHKIAppColors.current
     Surface(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
@@ -989,7 +985,7 @@ private fun SettingsMenuChoice(icon: androidx.compose.ui.graphics.vector.ImageVe
 }
 
 @Composable
-fun MenuButton(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, enabled: Boolean = true, onClick: () -> Unit) {
+fun MenuButton(icon: ImageVector, label: String, enabled: Boolean = true, onClick: () -> Unit) {
     val appColors = LocalHKIAppColors.current
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable(enabled = enabled) { onClick() }) {
         Surface(

@@ -191,35 +191,6 @@ fun ColorWheel(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Natural sort for light/entity lists
-// Handles "Spot 1" < "Spot 2" < "Spot 10" correctly.
-// ─────────────────────────────────────────────────────────────────────────────
-
-private val NATURAL_CHUNK_REGEX = Regex("(\\d+|\\D+)")
-
-fun naturalSortedEntities(entities: List<HAEntity>): List<HAEntity> =
-    entities.sortedWith { a, b ->
-        naturalCompare(
-            a.friendlyName ?: a.entity_id,
-            b.friendlyName ?: b.entity_id
-        )
-    }
-
-private fun naturalCompare(a: String, b: String): Int {
-    val aChunks = NATURAL_CHUNK_REGEX.findAll(a).map { it.value }.toList()
-    val bChunks = NATURAL_CHUNK_REGEX.findAll(b).map { it.value }.toList()
-    val len = minOf(aChunks.size, bChunks.size)
-    for (i in 0 until len) {
-        val cmp = if (aChunks[i][0].isDigit() && bChunks[i][0].isDigit())
-            (aChunks[i].toIntOrNull() ?: 0).compareTo(bChunks[i].toIntOrNull() ?: 0)
-        else
-            aChunks[i].compareTo(bChunks[i], ignoreCase = true)
-        if (cmp != 0) return cmp
-    }
-    return aChunks.size.compareTo(bChunks.size)
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Horizontal brightness bar — drag or tap to set position; row handles toggle.
 // Fill width = brightness; white handlebar marks current position.
 // ─────────────────────────────────────────────────────────────────────────────

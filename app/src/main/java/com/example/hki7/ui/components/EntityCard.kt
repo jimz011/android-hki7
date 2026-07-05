@@ -1,3 +1,5 @@
+@file:Suppress("SpellCheckingInspection", "GrazieInspection")
+
 package com.example.hki7.ui.components
 
 import androidx.compose.animation.core.LinearEasing
@@ -101,6 +103,7 @@ fun EntityCard(
     entity: HAEntity,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
+    modifier: Modifier = Modifier,
     onDoubleClick: () -> Unit = onLongClick,
     displayName: String? = null,
     label: String? = null,
@@ -109,8 +112,7 @@ fun EntityCard(
     isSquare: Boolean = false,
     cornerRadius: Int = 28,
     interactionsEnabled: Boolean = true,
-    doorOpen: Boolean = false,
-    modifier: Modifier = Modifier
+    doorOpen: Boolean = false
 ) {
     val appColors = LocalHKIAppColors.current
     val isActive = entity.state == "on"
@@ -454,8 +456,10 @@ private fun binarySensorDeviceClassIconSlug(deviceClass: String?, state: String)
     }
 }
 
+private val DOOR_LIKE_COVER_CLASSES = setOf("garage", "door", "gate")
+
 /** Covers whose device_class reads as a door-like opening (green closed / red open / orange moving). */
-fun isCoverDoorLike(entity: HAEntity): Boolean = entity.deviceClass in setOf("garage", "door", "gate")
+fun isCoverDoorLike(entity: HAEntity): Boolean = entity.deviceClass in DOOR_LIKE_COVER_CLASSES
 
 fun hvacColor(mode: String?): Color {
     return when (mode?.lowercase()) {

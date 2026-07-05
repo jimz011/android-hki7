@@ -3,7 +3,6 @@
 package com.example.hki7.ui.screens
 
 import androidx.compose.foundation.*
-import androidx.compose.ui.zIndex
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
@@ -501,101 +500,4 @@ private fun parseVacuumRooms(vacuum: HAEntity?): Map<Int, String> {
     return attr.entries.mapNotNull { (k, v) ->
         k.toIntOrNull()?.let { id -> id to (v.jsonPrimitive.contentOrNull ?: "Room $id") }
     }.toMap()
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Per-entity vacuum button config section (used inside ButtonConfigDialog)
-// ─────────────────────────────────────────────────────────────────────────────
-
-@Composable
-fun VacuumButtonConfigSection(
-    allEntities: List<HAEntity>,
-    config: HKIButtonConfig,
-    onUpdate: (HKIButtonConfig) -> Unit
-) {
-    val appColors    = LocalHKIAppColors.current
-    var displayMode    by remember(config) { mutableStateOf(config.vacuumDisplayMode) }
-    var mapEntityId    by remember(config) { mutableStateOf(config.vacuumMapEntityId ?: "") }
-    var battEntityId   by remember(config) { mutableStateOf(config.vacuumBatteryEntityId ?: "") }
-    var externalUrl    by remember(config) { mutableStateOf(config.vacuumImageUrl ?: "") }
-    var showMapPicker  by remember { mutableStateOf(false) }
-    var showBattPicker by remember { mutableStateOf(false) }
-
-    if (showMapPicker) {
-        AdvancedEntitySearchDialog(
-            allEntities = allEntities.filter { it.entity_id.startsWith("camera.") },
-            title = "Select Map Camera", singleSelect = true,
-            preselectedIds = setOfNotNull(mapEntityId.takeIf { it.isNotBlank() }),
-            onDismiss = { showMapPicker = false },
-            onEntitiesSelected = { ids ->
-                mapEntityId = ids.firstOrNull() ?: ""
-                onUpdate(config.copy(vacuumMapEntityId = mapEntityId.ifBlank { null }))
-                showMapPicker = false
-            }
-        )
-    }
-
-    if (showBattPicker) {
-        AdvancedEntitySearchDialog(
-            allEntities = allEntities.filter { it.entity_id.startsWith("sensor.") },
-            title = "Select Battery Sensor", singleSelect = true,
-            preselectedIds = setOfNotNull(battEntityId.takeIf { it.isNotBlank() }),
-            onDismiss = { showBattPicker = false },
-            onEntitiesSelected = { ids ->
-                battEntityId = ids.firstOrNull() ?: ""
-                onUpdate(config.copy(vacuumBatteryEntityId = battEntityId.ifBlank { null }))
-                showBattPicker = false
-            }
-        )
-    }
-
-    fun save() = onUpdate(config.copy(
-        vacuumDisplayMode      = displayMode,
-        vacuumMapEntityId      = mapEntityId.ifBlank { null },
-        vacuumBatteryEntityId  = battEntityId.ifBlank { null },
-        vacuumImageUrl         = if (displayMode == "external") externalUrl.ifBlank { null } else null
-    ))
-
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        // Display mode
-        Text("Button image", style = MaterialTheme.typography.labelLarge)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf("static" to "Robot icon", "camera" to "Map camera", "external" to "External URL").forEach { (value, label) ->
-                FilterChip(
-                    selected = displayMode == value,
-                    onClick = { displayMode = value; save() },
-                    label = { Text(label) }
-                )
-            }
-        }
-
-        // External URL field
-        if (displayMode == "external") {
-            OutlinedTextField(
-                value = externalUrl,
-                onValueChange = { externalUrl = it; save() },
-                label = { Text("Image URL") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        // Map camera entity (always shown - used in dialog)
-        Text("Map camera (for dialog)", style = MaterialTheme.typography.labelLarge)
-        val mapName = mapEntityId.takeIf { it.isNotBlank() }?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Column(Modifier.weight(1f)) { Text(mapName ?: "Not set", style = MaterialTheme.typography.bodySmall, color = if (mapName != null) MaterialTheme.colorScheme.primary else appColors.onMuted) }
-            TextButton(onClick = { showMapPicker = true }) { Text("Change") }
-            if (mapEntityId.isNotBlank()) { TextButton(onClick = { mapEntityId = ""; save() }) { Text("Clear") } }
-        }
-
-        // Battery entity (optional separate sensor)
-        Text("Battery sensor (optional)", style = MaterialTheme.typography.labelLarge)
-        val battName = battEntityId.takeIf { it.isNotBlank() }?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Column(Modifier.weight(1f)) { Text(battName ?: "Built-in", style = MaterialTheme.typography.bodySmall, color = if (battName != null) MaterialTheme.colorScheme.primary else appColors.onMuted) }
-            TextButton(onClick = { showBattPicker = true }) { Text("Change") }
-            if (battEntityId.isNotBlank()) { TextButton(onClick = { battEntityId = ""; save() }) { Text("Clear") } }
-        }
-    }
 }

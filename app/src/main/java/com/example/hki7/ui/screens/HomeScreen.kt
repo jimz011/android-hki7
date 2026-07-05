@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,7 +19,10 @@ import androidx.compose.ui.unit.dp
 import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HKIButtonConfig
 import com.example.hki7.data.HKIButtonStack
+import com.example.hki7.data.HKIEmptyStack
 import com.example.hki7.data.HKIRoomWidget
+import com.example.hki7.data.HKISingleEntityWidget
+import com.example.hki7.data.HKISwipingStack
 import com.example.hki7.data.HKISubtitleWidget
 import com.example.hki7.data.HKIWeatherWidget
 import com.example.hki7.ui.MainViewModel
@@ -36,6 +40,7 @@ import com.example.hki7.ui.components.ReorderAxis
 import com.example.hki7.ui.components.PersonDetailDialog
 import com.example.hki7.ui.components.resolveEntityCameraUrl
 import com.example.hki7.ui.components.resolveCameraUrl
+import java.util.UUID
 
 private const val HOME_WIDGET_AREA = "__home__"
 
@@ -54,9 +59,24 @@ fun HAHomeScreen(viewModel: MainViewModel) {
     var cameraAddMode by remember { mutableStateOf<String?>(null) }
     var customCameraUrl by remember { mutableStateOf("") }
     var editingStack by remember { mutableStateOf<HKIButtonStack?>(null) }
+    var editingSwipingStack by remember { mutableStateOf<HKISwipingStack?>(null) }
+    var editingEmptyStack by remember { mutableStateOf<HKIEmptyStack?>(null) }
     var editingSubtitle by remember { mutableStateOf<HKISubtitleWidget?>(null) }
     var editingWeather by remember { mutableStateOf<HKIWeatherWidget?>(null) }
+    var addingToSwipingStackId by remember { mutableStateOf<String?>(null) }
+    var addingToNestedStack by remember { mutableStateOf<Pair<String, String>?>(null) }
+    var pendingSingleWidgetKind by remember { mutableStateOf<String?>(null) }
+    var pendingSingleWidgetContainerId by remember { mutableStateOf<String?>(null) }
+    var pendingWeatherWidgetContainerId by remember { mutableStateOf<String?>(null) }
+    var pendingWeatherWidgetEntityId by remember { mutableStateOf<String?>(null) }
+    var choosingWeatherWidgetStyle by remember { mutableStateOf(false) }
     var selectedButtonSettings by remember { mutableStateOf<Pair<HKIButtonStack, String>?>(null) }
+    var selectedSingleWidgetSettings by remember { mutableStateOf<Pair<String?, HKISingleEntityWidget>?>(null) }
+    var selectedChildStackSettings by remember { mutableStateOf<Pair<String, HKIButtonStack>?>(null) }
+    var selectedChildButtonSettings by remember { mutableStateOf<Triple<String, HKIButtonStack, String>?>(null) }
+    var editingChildEmptyStack by remember { mutableStateOf<Pair<String, HKIEmptyStack>?>(null) }
+    var editingChildSubtitle by remember { mutableStateOf<Pair<String, HKISubtitleWidget>?>(null) }
+    var editingChildWeather by remember { mutableStateOf<Pair<String, HKIWeatherWidget>?>(null) }
     var selectedGenericEntity by remember { mutableStateOf<HAEntity?>(null) }
     var selectedLightEntity by remember { mutableStateOf<HAEntity?>(null) }
     var selectedCameraId by remember { mutableStateOf<String?>(null) }
@@ -72,6 +92,37 @@ fun HAHomeScreen(viewModel: MainViewModel) {
     var selectedHumidifierConfig by remember { mutableStateOf<HKIButtonConfig?>(null) }
     var selectedAlarmEntity by remember { mutableStateOf<HAEntity?>(null) }
     var selectedAlarmConfig by remember { mutableStateOf<HKIButtonConfig?>(null) }
+
+    fun newButtonStack(title: String?, icon: String?) = HKIButtonStack(id = UUID.randomUUID().toString(), title = title, icon = icon, columns = 3, isSquare = true)
+    fun newCameraStack(title: String?, icon: String?) = HKIButtonStack(id = UUID.randomUUID().toString(), title = title, icon = icon, columns = 2, isSquare = true, stackType = "camera")
+    fun newVacuumStack(title: String?, icon: String?) = HKIButtonStack(id = UUID.randomUUID().toString(), title = title, icon = icon, columns = 2, isSquare = true, stackType = "vacuum")
+    fun newWeatherStack(title: String?, icon: String?) = HKIButtonStack(id = UUID.randomUUID().toString(), title = title, icon = icon, columns = 1, isSquare = false, showBadge = false, cornerRadius = 24, stackType = "weather")
+    fun newEmptyStack() = HKIEmptyStack(id = UUID.randomUUID().toString())
+    fun newSingleEntityWidget(kind: String, entityId: String) = HKISingleEntityWidget(id = UUID.randomUUID().toString(), entityId = entityId, kind = kind, isSquare = kind != "camera")
+    fun addChildToSwipingStack(stackId: String, child: HKIRoomWidget) {
+        val swipe = homeWidgets.filterIsInstance<HKISwipingStack>().find { it.id == stackId }
+        val empty = homeWidgets.filterIsInstance<HKIEmptyStack>().find { it.id == stackId }
+        when {
+            swipe != null -> viewModel.updateWidget(HOME_WIDGET_AREA, swipe.copy(widgets = swipe.widgets + child))
+            empty != null -> viewModel.updateWidget(HOME_WIDGET_AREA, empty.copy(widgets = empty.widgets + child))
+        }
+    }
+    fun updateChildInSwipingStack(stackId: String, child: HKIRoomWidget) {
+        val swipe = homeWidgets.filterIsInstance<HKISwipingStack>().find { it.id == stackId }
+        val empty = homeWidgets.filterIsInstance<HKIEmptyStack>().find { it.id == stackId }
+        when {
+            swipe != null -> viewModel.updateWidget(HOME_WIDGET_AREA, swipe.copy(widgets = swipe.widgets.map { if (it.id == child.id) child else it }))
+            empty != null -> viewModel.updateWidget(HOME_WIDGET_AREA, empty.copy(widgets = empty.widgets.map { if (it.id == child.id) child else it }))
+        }
+    }
+    fun deleteChildFromSwipingStack(stackId: String, childId: String) {
+        val swipe = homeWidgets.filterIsInstance<HKISwipingStack>().find { it.id == stackId }
+        val empty = homeWidgets.filterIsInstance<HKIEmptyStack>().find { it.id == stackId }
+        when {
+            swipe != null -> viewModel.updateWidget(HOME_WIDGET_AREA, swipe.copy(widgets = swipe.widgets.filterNot { it.id == childId }))
+            empty != null -> viewModel.updateWidget(HOME_WIDGET_AREA, empty.copy(widgets = empty.widgets.filterNot { it.id == childId }))
+        }
+    }
 
     fun openStackDialog(stack: HKIButtonStack, entityId: String) {
         // Stacks no longer aggregate: open just the tapped entity (aggregation lives in the badge bar).
@@ -110,6 +161,97 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                 entity.entity_id.startsWith("camera.") -> { selectedCameraId = entityId; selectedCameraStack = null }
                 else -> selectedGenericEntity = entity
             }
+        }
+    }
+
+    @Composable
+    fun RenderSwipingChild(
+        parent: HKISwipingStack,
+        child: HKIRoomWidget,
+        modifier: Modifier = Modifier,
+        styleOverride: WidgetStyleOverride? = null
+    ) {
+        Box(modifier) {
+        when (child) {
+            is HKIButtonStack -> ButtonStackItem(
+                stack = styleOverride?.let { child.copy(isSquare = it.isSquare, cornerRadius = it.cornerRadius, width = "full") } ?: child,
+                allEntities = entities,
+                viewModel = viewModel,
+                currentUrl = currentUrl,
+                accessToken = accessToken,
+                isEditMode = isEditMode,
+                onEntityClick = { entityId ->
+                    if (!isEditMode) {
+                        val action = viewModel.performButtonAction(HOME_WIDGET_AREA, child.id, entityId, "tap")
+                        if (action == "more_info") openEntityDialog(entityId, child)
+                    }
+                },
+                onEntityDoubleClick = { entityId ->
+                    if (!isEditMode) {
+                        val action = viewModel.performButtonAction(HOME_WIDGET_AREA, child.id, entityId, "double")
+                        if (action == "more_info") openEntityDialog(entityId, child)
+                    }
+                },
+                onEntityLongClick = { entityId ->
+                    if (!isEditMode) {
+                        val action = viewModel.performButtonAction(HOME_WIDGET_AREA, child.id, entityId, "hold")
+                        if (action == "more_info") openEntityDialog(entityId, child)
+                    }
+                },
+                onBadgeClick = {},
+                onSettingsClick = { selectedChildStackSettings = parent.id to child },
+                onToggleCollapsed = { updateChildInSwipingStack(parent.id, child.copy(isCollapsed = !(child.isCollapsed ?: child.defaultCollapsed))) },
+                onDeleteClick = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onHideClick = { updateChildInSwipingStack(parent.id, child.copy(isHidden = !child.isHidden)) },
+                onAddClick = { addingToNestedStack = parent.id to child.id },
+                onButtonSettings = { entityId -> selectedChildButtonSettings = Triple(parent.id, child, entityId) },
+                onRemoveEntity = { entityId -> updateChildInSwipingStack(parent.id, child.copy(entityIds = child.entityIds - entityId)) },
+                onCameraClick = { entityId -> selectedCameraId = entityId; selectedCameraStack = child },
+                onReorderEntities = { from, to ->
+                    updateChildInSwipingStack(parent.id, child.copy(entityIds = child.entityIds.toMutableList().apply { add(to, removeAt(from)) }))
+                }
+            )
+            is HKISubtitleWidget -> SubtitleWidget(child.copy(width = "full"), isEditMode, onDelete = { deleteChildFromSwipingStack(parent.id, child.id) }, onSettings = { editingChildSubtitle = parent.id to child })
+            is HKIWeatherWidget -> WeatherRoomWidget(
+                widget = styleOverride?.let { child.copy(width = "full", cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                allEntities = entities,
+                viewModel = viewModel,
+                isEditMode = isEditMode,
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingChildWeather = parent.id to child }
+            )
+            is HKISingleEntityWidget -> SingleEntityWidgetItem(
+                widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                allEntities = entities,
+                currentUrl = currentUrl,
+                accessToken = accessToken,
+                isEditMode = isEditMode,
+                onEntityClick = { entityId -> if (child.kind == "camera") selectedCameraId = entityId else openEntityDialog(entityId, null) },
+                onEntityDoubleClick = { entityId -> if (child.kind == "camera") selectedCameraId = entityId else openEntityDialog(entityId, null) },
+                onEntityLongClick = { entityId -> if (child.kind == "camera") selectedCameraId = entityId else openEntityDialog(entityId, null) },
+                onDeleteClick = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onHideClick = { updateChildInSwipingStack(parent.id, child.copy(isHidden = !child.isHidden)) },
+                onSettingsClick = { selectedSingleWidgetSettings = parent.id to child }
+            )
+            is HKISwipingStack -> EmptyStackHint()
+            is HKIEmptyStack -> EmptyStackItem(
+                stack = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                isEditMode = isEditMode,
+                onSettingsClick = { editingChildEmptyStack = parent.id to child },
+                onToggleCollapsed = { updateChildInSwipingStack(parent.id, child.copy(isCollapsed = !(child.isCollapsed ?: child.defaultCollapsed))) },
+                onDeleteClick = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onHideClick = { updateChildInSwipingStack(parent.id, child.copy(isHidden = !child.isHidden)) },
+                onAddClick = { addingToSwipingStackId = child.id },
+                content = { grandChild, childModifier ->
+                    RenderSwipingChild(
+                        parent,
+                        grandChild,
+                        childModifier,
+                        null
+                    )
+                }
+            )
+        }
         }
     }
 
@@ -205,6 +347,46 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                                     onDelete = {},
                                     onSettings = {}
                                 )
+                                is HKISingleEntityWidget -> SingleEntityWidgetItem(
+                                    widget = widget,
+                                    allEntities = entities,
+                                    currentUrl = currentUrl,
+                                    accessToken = accessToken,
+                                    isEditMode = false,
+                                    onEntityClick = { entityId -> if (widget.kind == "camera") selectedCameraId = entityId else openEntityDialog(entityId, null) },
+                                    onEntityDoubleClick = { entityId -> if (widget.kind == "camera") selectedCameraId = entityId else openEntityDialog(entityId, null) },
+                                    onEntityLongClick = { entityId -> if (widget.kind == "camera") selectedCameraId = entityId else openEntityDialog(entityId, null) },
+                                    onDeleteClick = {},
+                                    onHideClick = {},
+                                    onSettingsClick = {}
+                                )
+                                is HKISwipingStack -> SwipingStackItem(
+                                    stack = widget,
+                                    isEditMode = false,
+                                    onSettingsClick = {},
+                                    onToggleCollapsed = { viewModel.updateWidget(HOME_WIDGET_AREA, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
+                                    onDeleteClick = {},
+                                    onHideClick = {},
+                                    onAddClick = {},
+                                    content = { child -> RenderSwipingChild(widget, child) }
+                                )
+                                is HKIEmptyStack -> EmptyStackItem(
+                                    stack = widget,
+                                    isEditMode = false,
+                                    onSettingsClick = {},
+                                    onToggleCollapsed = { viewModel.updateWidget(HOME_WIDGET_AREA, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
+                                    onDeleteClick = {},
+                                    onHideClick = {},
+                                    onAddClick = {},
+                                    content = { child, childModifier ->
+                                        RenderSwipingChild(
+                                            HKISwipingStack(id = widget.id, widgets = widget.widgets),
+                                            child,
+                                            childModifier,
+                                            null
+                                        )
+                                    }
+                                )
                             }
                         }
                     }
@@ -284,6 +466,46 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                                 onDelete = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
                                 onSettings = { editingWeather = widget }
                             )
+                            is HKISingleEntityWidget -> SingleEntityWidgetItem(
+                                widget = widget,
+                                allEntities = entities,
+                                currentUrl = currentUrl,
+                                accessToken = accessToken,
+                                isEditMode = isEditMode,
+                                onEntityClick = { entityId -> if (widget.kind == "camera") selectedCameraId = entityId else openEntityDialog(entityId, null) },
+                                onEntityDoubleClick = { entityId -> if (widget.kind == "camera") selectedCameraId = entityId else openEntityDialog(entityId, null) },
+                                onEntityLongClick = { entityId -> if (widget.kind == "camera") selectedCameraId = entityId else openEntityDialog(entityId, null) },
+                                onDeleteClick = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
+                                onHideClick = { viewModel.updateWidget(HOME_WIDGET_AREA, widget.copy(isHidden = !widget.isHidden)) },
+                                onSettingsClick = { selectedSingleWidgetSettings = null to widget }
+                            )
+                            is HKISwipingStack -> SwipingStackItem(
+                                stack = widget,
+                                isEditMode = isEditMode,
+                                onSettingsClick = { editingSwipingStack = widget },
+                                onToggleCollapsed = { viewModel.updateWidget(HOME_WIDGET_AREA, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
+                                onDeleteClick = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
+                                onHideClick = { viewModel.updateWidget(HOME_WIDGET_AREA, widget.copy(isHidden = !widget.isHidden)) },
+                                onAddClick = { addingToSwipingStackId = widget.id },
+                                content = { child -> RenderSwipingChild(widget, child) }
+                            )
+                            is HKIEmptyStack -> EmptyStackItem(
+                                stack = widget,
+                                isEditMode = isEditMode,
+                                onSettingsClick = { editingEmptyStack = widget },
+                                onToggleCollapsed = { viewModel.updateWidget(HOME_WIDGET_AREA, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
+                                onDeleteClick = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
+                                onHideClick = { viewModel.updateWidget(HOME_WIDGET_AREA, widget.copy(isHidden = !widget.isHidden)) },
+                                onAddClick = { addingToSwipingStackId = widget.id },
+                                content = { child, childModifier ->
+                                    RenderSwipingChild(
+                                        HKISwipingStack(id = widget.id, widgets = widget.widgets),
+                                        child,
+                                        childModifier,
+                                        null
+                                    )
+                                }
+                            )
                         }
                     }
                 }
@@ -339,8 +561,172 @@ fun HAHomeScreen(viewModel: MainViewModel) {
             onAddVacuumStack = { (title, icon) -> viewModel.addVacuumStackToArea(HOME_WIDGET_AREA, title, icon); showAddWidget = false },
             onAddSubtitle = { text, icon -> viewModel.addSubtitleToArea(HOME_WIDGET_AREA, text, icon); showAddWidget = false },
             onAddWeatherStack = { (title, icon) -> viewModel.addWeatherStackToArea(HOME_WIDGET_AREA, title, icon); showAddWidget = false },
+            onAddSwipingStack = { viewModel.addSwipingStackToArea(HOME_WIDGET_AREA); showAddWidget = false },
+            onAddEmptyStack = { viewModel.addEmptyStackToArea(HOME_WIDGET_AREA); showAddWidget = false },
+            onAddButtonWidget = { pendingSingleWidgetKind = "button"; pendingSingleWidgetContainerId = null; showAddWidget = false },
+            onAddCameraWidget = { pendingSingleWidgetKind = "camera"; pendingSingleWidgetContainerId = null; showAddWidget = false },
+            onAddVacuumWidget = { pendingSingleWidgetKind = "vacuum"; pendingSingleWidgetContainerId = null; showAddWidget = false },
+            onAddWeatherWidget = { pendingWeatherWidgetContainerId = "__top__"; showAddWidget = false },
             allEntities = entities
         )
+    }
+
+    addingToSwipingStackId?.let { stackId ->
+        AddRoomWidgetDialog(
+            onDismiss = { addingToSwipingStackId = null },
+            onAddStack = { title, icon -> addChildToSwipingStack(stackId, newButtonStack(title, icon)); addingToSwipingStackId = null },
+            onAddCameraStack = { (title, icon) -> addChildToSwipingStack(stackId, newCameraStack(title, icon)); addingToSwipingStackId = null },
+            onAddVacuumStack = { (title, icon) -> addChildToSwipingStack(stackId, newVacuumStack(title, icon)); addingToSwipingStackId = null },
+            onAddSubtitle = { text, icon -> addChildToSwipingStack(stackId, HKISubtitleWidget(id = UUID.randomUUID().toString(), text = text, icon = icon)); addingToSwipingStackId = null },
+            onAddWeatherStack = { (title, icon) -> addChildToSwipingStack(stackId, newWeatherStack(title, icon)); addingToSwipingStackId = null },
+            onAddEmptyStack = { addChildToSwipingStack(stackId, newEmptyStack()); addingToSwipingStackId = null },
+            onAddButtonWidget = { pendingSingleWidgetKind = "button"; pendingSingleWidgetContainerId = stackId; addingToSwipingStackId = null },
+            onAddCameraWidget = { pendingSingleWidgetKind = "camera"; pendingSingleWidgetContainerId = stackId; addingToSwipingStackId = null },
+            onAddVacuumWidget = { pendingSingleWidgetKind = "vacuum"; pendingSingleWidgetContainerId = stackId; addingToSwipingStackId = null },
+            onAddWeatherWidget = { pendingWeatherWidgetContainerId = stackId; addingToSwipingStackId = null },
+            allEntities = entities
+        )
+    }
+
+    pendingSingleWidgetKind?.let { kind ->
+        val candidates = when (kind) {
+            "camera" -> entities.filter { it.entity_id.substringBefore(".").equals("camera", ignoreCase = true) }
+            "vacuum" -> entities.filter { it.entity_id.startsWith("vacuum.") }
+            else -> entities
+        }
+        AdvancedEntitySearchDialog(
+            allEntities = candidates,
+            title = when (kind) {
+                "camera" -> "Select Camera"
+                "vacuum" -> "Select Vacuum"
+                else -> "Select Entity"
+            },
+            singleSelect = true,
+            preselectedIds = emptySet(),
+            onDismiss = {
+                pendingSingleWidgetKind = null
+                pendingSingleWidgetContainerId = null
+            },
+            onEntitiesSelected = { entityIds ->
+                val entityId = entityIds.firstOrNull()
+                if (entityId != null) {
+                    val containerId = pendingSingleWidgetContainerId
+                    if (containerId == null) {
+                        viewModel.addSingleEntityWidgetToArea(HOME_WIDGET_AREA, kind, entityId)
+                    } else {
+                        addChildToSwipingStack(containerId, newSingleEntityWidget(kind, entityId))
+                    }
+                }
+                pendingSingleWidgetKind = null
+                pendingSingleWidgetContainerId = null
+            }
+        )
+    }
+
+    if (pendingWeatherWidgetContainerId != null && pendingWeatherWidgetEntityId == null) {
+        val weatherEntities = entities.filter { it.entity_id.startsWith("weather.") }
+        AdvancedEntitySearchDialog(
+            allEntities = weatherEntities.ifEmpty { entities },
+            title = "Select Weather",
+            singleSelect = true,
+            preselectedIds = emptySet(),
+            onDismiss = {
+                if (!choosingWeatherWidgetStyle) {
+                    pendingWeatherWidgetContainerId = null
+                    pendingWeatherWidgetEntityId = null
+                }
+            },
+            onEntitiesSelected = { entityIds ->
+                val entityId = entityIds.firstOrNull()
+                if (entityId != null) {
+                    pendingWeatherWidgetEntityId = entityId
+                    choosingWeatherWidgetStyle = true
+                }
+            }
+        )
+    }
+
+    if (choosingWeatherWidgetStyle && pendingWeatherWidgetContainerId != null && pendingWeatherWidgetEntityId != null) {
+        AlertDialog(
+            onDismissRequest = {
+                choosingWeatherWidgetStyle = false
+                pendingWeatherWidgetContainerId = null
+                pendingWeatherWidgetEntityId = null
+            },
+            title = { Text("Weather Type") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    weatherWidgetStyles.sortedBy { it.second }.forEach { (style, label) ->
+                        WidgetChoice(
+                            icon = Icons.Default.WbSunny,
+                            title = label,
+                            subtitle = "",
+                            onClick = {
+                                val target = pendingWeatherWidgetContainerId
+                                val entityId = pendingWeatherWidgetEntityId
+                                if (target != null && entityId != null) {
+                                    if (target == "__top__") {
+                                        viewModel.addWeatherToArea(HOME_WIDGET_AREA, entityId, style)
+                                    } else {
+                                        addChildToSwipingStack(target, HKIWeatherWidget(id = UUID.randomUUID().toString(), entityId = entityId, style = style))
+                                    }
+                                }
+                                choosingWeatherWidgetStyle = false
+                                pendingWeatherWidgetContainerId = null
+                                pendingWeatherWidgetEntityId = null
+                            }
+                        )
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = {
+                    choosingWeatherWidgetStyle = false
+                    pendingWeatherWidgetContainerId = null
+                    pendingWeatherWidgetEntityId = null
+                }) { Text("Cancel") }
+            }
+        )
+    }
+
+    addingToNestedStack?.let { (swipingStackId, childStackId) ->
+        val parent = homeWidgets.filterIsInstance<HKISwipingStack>().find { it.id == swipingStackId }
+        val targetStack = parent?.widgets?.filterIsInstance<HKIButtonStack>()?.find { it.id == childStackId }
+        when (targetStack?.stackType) {
+            "weather" -> WeatherItemDialog(
+                initial = null,
+                allEntities = entities,
+                onDismiss = { addingToNestedStack = null },
+                onSave = { config ->
+                    val itemId = "weather_${System.currentTimeMillis()}"
+                    updateChildInSwipingStack(
+                        swipingStackId,
+                        targetStack.copy(
+                            entityIds = targetStack.entityIds + itemId,
+                            buttonConfigs = targetStack.buttonConfigs + (itemId to config)
+                        )
+                    )
+                    addingToNestedStack = null
+                }
+            )
+            else -> AdvancedEntitySearchDialog(
+                allEntities = when (targetStack?.stackType) {
+                    "vacuum", "single_vacuum" -> entities.filter { it.entity_id.startsWith("vacuum.") }
+                    "camera", "single_camera" -> entities.filter { it.entity_id.substringBefore(".").equals("camera", ignoreCase = true) }
+                    else -> entities
+                },
+                preselectedIds = targetStack?.entityIds?.toSet().orEmpty(),
+                onDismiss = { addingToNestedStack = null },
+                onEntitiesSelected = { entityIds ->
+                    targetStack?.let { stack ->
+                        val updatedIds = if (stack.stackType in listOf("single_button", "single_camera", "single_vacuum")) entityIds.take(1) else (stack.entityIds + entityIds).distinct()
+                        updateChildInSwipingStack(swipingStackId, stack.copy(entityIds = updatedIds))
+                    }
+                    addingToNestedStack = null
+                }
+            )
+        }
     }
 
     if (addingToStackId != null && cameraAddMode == null) {
@@ -353,6 +739,26 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                 onDismiss = { addingToStackId = null },
                 onEntitiesSelected = { ids ->
                     viewModel.updateWidget(HOME_WIDGET_AREA, targetStack.copy(entityIds = (targetStack.entityIds + ids).distinct()))
+                    addingToStackId = null
+                }
+            )
+            "single_vacuum" -> AdvancedEntitySearchDialog(
+                allEntities = entities.filter { it.entity_id.startsWith("vacuum.") },
+                title = "Select Vacuum",
+                preselectedIds = targetStack.entityIds.take(1).toSet(),
+                onDismiss = { addingToStackId = null },
+                onEntitiesSelected = { ids ->
+                    viewModel.updateWidget(HOME_WIDGET_AREA, targetStack.copy(entityIds = ids.take(1)))
+                    addingToStackId = null
+                }
+            )
+            "single_camera" -> AdvancedEntitySearchDialog(
+                allEntities = entities.filter { it.entity_id.substringBefore(".").equals("camera", ignoreCase = true) },
+                title = "Select Camera",
+                preselectedIds = targetStack.entityIds.take(1).toSet(),
+                onDismiss = { addingToStackId = null },
+                onEntitiesSelected = { ids ->
+                    viewModel.updateWidget(HOME_WIDGET_AREA, targetStack.copy(entityIds = ids.take(1)))
                     addingToStackId = null
                 }
             )
@@ -372,7 +778,7 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                 allEntities = entities,
                 onDismiss = { addingToStackId = null },
                 onSave = { config ->
-                    targetStack?.let { stack ->
+                    targetStack.let { stack ->
                         val itemId = "weather_${System.currentTimeMillis()}"
                         viewModel.updateWidget(
                             HOME_WIDGET_AREA,
@@ -393,7 +799,7 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                     targetStack?.let { stack ->
                         viewModel.updateWidget(
                             HOME_WIDGET_AREA,
-                            stack.copy(entityIds = (stack.entityIds + entityIds).distinct())
+                            stack.copy(entityIds = if (stack.stackType == "single_button") entityIds.take(1) else (stack.entityIds + entityIds).distinct())
                         )
                     }
                     addingToStackId = null
@@ -484,6 +890,73 @@ fun HAHomeScreen(viewModel: MainViewModel) {
         )
     }
 
+    editingSwipingStack?.let { stack ->
+        SwipingStackSettingsDialog(
+            stack = stack,
+            onDismiss = { editingSwipingStack = null },
+            onUpdate = {
+                viewModel.updateWidget(HOME_WIDGET_AREA, stack.withChangedChildStyle(it))
+                editingSwipingStack = null
+            }
+        )
+    }
+
+    editingEmptyStack?.let { stack ->
+        EmptyStackSettingsDialog(
+            stack = stack,
+            onDismiss = { editingEmptyStack = null },
+            onUpdate = {
+                viewModel.updateWidget(HOME_WIDGET_AREA, stack.withChangedChildStyle(it))
+                editingEmptyStack = null
+            }
+        )
+    }
+
+    selectedChildStackSettings?.let { (containerId, stack) ->
+        StackSettingsDialog(
+            stack = stack,
+            onDismiss = { selectedChildStackSettings = null },
+            onUpdate = {
+                updateChildInSwipingStack(containerId, it)
+                selectedChildStackSettings = null
+            }
+        )
+    }
+
+    editingChildEmptyStack?.let { (containerId, stack) ->
+        EmptyStackSettingsDialog(
+            stack = stack,
+            onDismiss = { editingChildEmptyStack = null },
+            onUpdate = {
+                updateChildInSwipingStack(containerId, stack.withChangedChildStyle(it))
+                editingChildEmptyStack = null
+            }
+        )
+    }
+
+    editingChildSubtitle?.let { (containerId, widget) ->
+        HeaderTextSettingsDialog(
+            widget = widget,
+            onDismiss = { editingChildSubtitle = null },
+            onSave = {
+                updateChildInSwipingStack(containerId, it)
+                editingChildSubtitle = null
+            }
+        )
+    }
+
+    editingChildWeather?.let { (containerId, widget) ->
+        WeatherWidgetSettingsDialog(
+            widget = widget,
+            allEntities = entities,
+            onDismiss = { editingChildWeather = null },
+            onSave = {
+                updateChildInSwipingStack(containerId, it)
+                editingChildWeather = null
+            }
+        )
+    }
+
     editingSubtitle?.let { widget ->
         HeaderTextSettingsDialog(
             widget = widget,
@@ -505,6 +978,53 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                 editingWeather = null
             }
         )
+    }
+
+    selectedSingleWidgetSettings?.let { (containerId, widget) ->
+        ButtonConfigDialog(
+            entity = entities.find { it.entity_id == widget.entityId },
+            config = widget.config,
+            isCameraItem = widget.kind == "camera",
+            isVacuumItem = widget.kind == "vacuum" || widget.entityId.startsWith("vacuum."),
+            allEntities = entities,
+            onDismiss = { selectedSingleWidgetSettings = null },
+            onSave = { config ->
+                if (containerId == null) {
+                    val latest = homeWidgets.filterIsInstance<HKISingleEntityWidget>().find { it.id == widget.id } ?: widget
+                    viewModel.updateWidget(HOME_WIDGET_AREA, latest.copy(config = config))
+                } else {
+                    updateChildInSwipingStack(containerId, widget.copy(config = config))
+                }
+                selectedSingleWidgetSettings = null
+            }
+        )
+    }
+
+    selectedChildButtonSettings?.let { (containerId, stack, entityId) ->
+        if (stack.stackType == "weather") {
+            WeatherItemDialog(
+                initial = stack.buttonConfigs[entityId],
+                allEntities = entities,
+                onDismiss = { selectedChildButtonSettings = null },
+                onSave = { config ->
+                    updateChildInSwipingStack(containerId, stack.copy(buttonConfigs = stack.buttonConfigs + (entityId to config)))
+                    selectedChildButtonSettings = null
+                }
+            )
+        } else {
+            ButtonConfigDialog(
+                entity = entities.find { it.entity_id == entityId },
+                config = stack.buttonConfigs[entityId] ?: HKIButtonConfig(),
+                isCameraItem = stack.stackType == "camera",
+                isVacuumItem = stack.stackType == "vacuum" || entityId.startsWith("vacuum."),
+                allEntities = entities,
+                onDismiss = { selectedChildButtonSettings = null },
+                onSave = { config ->
+                    updateChildInSwipingStack(containerId, stack.copy(buttonConfigs = stack.buttonConfigs + (entityId to config)))
+                    selectedChildButtonSettings = null
+                }
+            )
+        }
     }
 
     selectedButtonSettings?.let { (stack, entityId) ->

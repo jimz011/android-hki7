@@ -254,11 +254,11 @@ private fun LightEffectsContent(
 
 @Composable
 fun VerticalMasterSwitch(
+    modifier: Modifier = Modifier,
     isOn: Boolean,
     onToggle: () -> Unit,
     accentColor: Color? = null,
-    doorOpen: Boolean = false,
-    modifier: Modifier = Modifier.height(VerticalControlHeight)
+    doorOpen: Boolean = false
 ) {
     val accent = accentColor ?: MaterialTheme.colorScheme.primary
     val appColors = LocalHKIAppColors.current
@@ -275,6 +275,7 @@ fun VerticalMasterSwitch(
     // Swap knob to elevated so it's distinguishable from the surface background in all modes.
     Box(
         modifier = modifier
+            .height(VerticalControlHeight)
             .width(100.dp)
             .clip(RoundedCornerShape(32.dp))
             .background(appColors.surface)

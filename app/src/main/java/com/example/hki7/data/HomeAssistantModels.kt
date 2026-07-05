@@ -281,12 +281,6 @@ data class HALogbookEntry(
     val domain: String? = null
 )
 
-@Serializable
-data class HAStateUpdate(
-    val state: String,
-    val attributes: JsonObject = buildJsonObject { }
-)
-
 /** A single entity change streamed from the websocket `state_changed` subscription.
  *  [newState] is null when the entity was removed. */
 data class HAStateChange(
@@ -410,7 +404,14 @@ data class HKIEnergyConfig(
     val gridImportEntityId: String? = null,
     val gridExportEntityId: String? = null,
     val energyCostEntityId: String? = null,
-    val batteryEntityId: String? = null
+    val batteryEntityId: String? = null,
+    val solarForecastEntityId: String? = null,
+    val gasEntityId: String? = null,
+    val gasCostEntityId: String? = null,
+    val waterEntityId: String? = null,
+    val waterCostEntityId: String? = null,
+    /** Power sensors the user tracks as individual devices (shown under Top consumers). */
+    val deviceEntityIds: List<String> = emptyList()
 )
 
 @Serializable
@@ -439,6 +440,54 @@ data class HKIButtonStack(
     val cameraUrls: List<String> = emptyList(),
     val cameraAspectRatio: Float = 16f / 9f,
     val buttonConfigs: Map<String, HKIButtonConfig> = emptyMap()
+) : HKIRoomWidget()
+
+@Serializable
+@SerialName("swiping_stack")
+data class HKISwipingStack(
+    override val id: String,
+    override val width: String = "full",
+    val widgets: List<HKIRoomWidget> = emptyList(),
+    val isHidden: Boolean = false,
+    val isSquare: Boolean = false,
+    val cornerRadius: Int = 28,
+    val collapsible: Boolean = true,
+    val defaultCollapsed: Boolean = false,
+    val isCollapsed: Boolean? = null,
+    val autoplay: Boolean = false,
+    val autoplayIntervalSeconds: Int = 5,
+    val animationDurationMs: Int = 450,
+    val animation: String = "swipe"
+) : HKIRoomWidget()
+
+@Serializable
+@SerialName("empty_stack")
+data class HKIEmptyStack(
+    override val id: String,
+    override val width: String = "full",
+    val widgets: List<HKIRoomWidget> = emptyList(),
+    val columns: Int = 2,
+    val showBadge: Boolean = true,
+    val isSquare: Boolean = true,
+    val cornerRadius: Int = 28,
+    val isHidden: Boolean = false,
+    val collapsible: Boolean = true,
+    val defaultCollapsed: Boolean = false,
+    val isCollapsed: Boolean? = null
+) : HKIRoomWidget()
+
+@Serializable
+@SerialName("single_entity")
+data class HKISingleEntityWidget(
+    override val id: String,
+    override val width: String = "full",
+    val entityId: String,
+    val kind: String = "button",       // "button" | "camera" | "vacuum"
+    val isSquare: Boolean = kind != "camera",
+    val cornerRadius: Int = 28,
+    val isHidden: Boolean = false,
+    val cameraAspectRatio: Float = 16f / 9f,
+    val config: HKIButtonConfig = HKIButtonConfig()
 ) : HKIRoomWidget()
 
 @Serializable

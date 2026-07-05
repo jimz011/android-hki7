@@ -69,9 +69,8 @@ fun WeatherRoomWidget(
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Optional icon + name header, mirroring the button stacks: only shown when a
-            // title/icon is set (or while editing, where the settings control lives).
-            val showHeaderLabel = !widget.title.isNullOrBlank() || !widget.icon.isNullOrBlank() || isEditMode
+            // Optional icon + name header, mirroring the button stacks.
+            val showHeaderLabel = !widget.title.isNullOrBlank() || !widget.icon.isNullOrBlank()
             if (showHeaderLabel) {
                 Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                     Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
@@ -85,11 +84,6 @@ fun WeatherRoomWidget(
                                 color = Color.Gray,
                                 style = MaterialTheme.typography.labelMedium
                             )
-                        }
-                    }
-                    if (isEditMode) {
-                        IconButton(onClick = onSettings, modifier = Modifier.size(24.dp)) {
-                            Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.Gray, modifier = Modifier.size(16.dp))
                         }
                     }
                 }
@@ -124,10 +118,15 @@ fun WeatherRoomWidget(
         }
 
         if (isEditMode) {
-            // Sits on the content card's top-right, just below the edit header row.
+            IconButton(
+                onClick = onSettings,
+                modifier = Modifier.align(Alignment.Center).size(24.dp)
+            ) {
+                Icon(Icons.Default.Settings, contentDescription = "Settings", tint = appColors.onSurface, modifier = Modifier.size(16.dp))
+            }
             EditRemoveBadge(
                 onClick = onDelete,
-                modifier = Modifier.align(Alignment.TopEnd).padding(top = 42.dp, end = 6.dp)
+                modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
             )
         }
     }
