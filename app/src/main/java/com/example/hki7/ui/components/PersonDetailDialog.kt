@@ -26,8 +26,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil3.compose.AsyncImage
+import coil3.network.NetworkHeaders
+import coil3.network.httpHeaders
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.example.hki7.data.HAEntity
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.theme.LocalHKIAppColors
@@ -281,7 +284,7 @@ private fun OpenStreetMapPreview(lat: Double, lon: Double, imageUrl: String?) {
                     AsyncImage(
                         model = ImageRequest.Builder(context)
                             .data("https://tile.openstreetmap.org/$zoom/$wrappedX/$tileY.png")
-                            .addHeader("User-Agent", "HKI7 Android")
+                            .httpHeaders(NetworkHeaders.Builder().add("User-Agent", "HKI7 Android").build())
                             .crossfade(true)
                             .build(),
                         contentDescription = null,

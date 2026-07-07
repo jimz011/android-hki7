@@ -27,6 +27,15 @@ android {
     }
 }
 
+configurations.all {
+    resolutionStrategy {
+        // Newer libraries constrain kotlin-stdlib to 2.4.0, whose metadata AGP's built-in
+        // Kotlin compiler (2.2.x, reads metadata <= 2.3.0) cannot parse. 2.3.0 is API-compatible
+        // for everything on this classpath. Drop this once AGP's embedded Kotlin reaches 2.4.
+        force("org.jetbrains.kotlin:kotlin-stdlib:2.3.0")
+    }
+}
+
 dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
@@ -40,6 +49,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.play.services.location)

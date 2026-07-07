@@ -61,7 +61,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.core.view.WindowCompat
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.example.hki7.data.HAEntity
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.theme.LocalHKIAppColors
@@ -91,7 +91,13 @@ fun HKIDialog(
     val dialogNavigationBarColor = MaterialTheme.colorScheme.primary.copy(alpha = 230 / 255f).toArgb()
     var showHistory by remember { mutableStateOf(false) }
     var showGroup by remember { mutableStateOf(false) }
+    var showDevice by remember { mutableStateOf(false) }
     var dialogVisible by remember { mutableStateOf(false) }
+
+    // Device-first dialogs: resolve the entity's HA device so we can offer the device view
+    // (battery level, extra sensors, sibling controls). Registries are cached in the view model.
+    LaunchedEffect(Unit) { viewModel.fetchRegistries() }
+    val deviceId = rememberEntityDeviceId(entity, viewModel)
 
     LaunchedEffect(Unit) {
         dialogVisible = true
@@ -197,9 +203,30 @@ fun HKIDialog(
                                     }
                                 }
 
+                                if (deviceId != null) {
+                                    IconButton(
+                                        onClick = { showDevice = !showDevice; if (showDevice) { showHistory = false; showGroup = false } },
+                                        modifier = Modifier
+                                            .background(
+                                                if (showDevice) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
+                                                else appColors.elevated.copy(alpha = 0.85f),
+                                                CircleShape
+                                            )
+                                            .size(48.dp)
+                                    ) {
+                                        MdiIcon(
+                                            "devices",
+                                            contentDescription = "Device details",
+                                            tint = appColors.onSurface,
+                                            size = 24.dp
+                                        )
+                                    }
+                                    Spacer(Modifier.width(8.dp))
+                                }
+
                                 if (groupContent != null) {
                                     IconButton(
-                                        onClick = { showGroup = !showGroup; if (showGroup) showHistory = false },
+                                        onClick = { showGroup = !showGroup; if (showGroup) { showHistory = false; showDevice = false } },
                                         modifier = Modifier
                                             .background(
                                                 if (showGroup) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
@@ -220,7 +247,7 @@ fun HKIDialog(
 
                                 if (showHistoryButton) {
                                     IconButton(
-                                        onClick = { showHistory = !showHistory; if (showHistory) showGroup = false },
+                                        onClick = { showHistory = !showHistory; if (showHistory) { showGroup = false; showDevice = false } },
                                         modifier = Modifier
                                             .background(
                                                 if (showHistory) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
@@ -260,10 +287,12 @@ fun HKIDialog(
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxWidth()
-                                    .padding(bottom = if (tabs.isNotEmpty() && !showHistory && !showGroup) 88.dp + dialogBottomControlsLift else 0.dp)
+                                    .padding(bottom = if (tabs.isNotEmpty() && !showHistory && !showGroup && !showDevice) 88.dp + dialogBottomControlsLift else 0.dp)
                             ) {
                                 if (showHistory) {
                                     HistoryView(entity = entity, viewModel = viewModel, extraGraphEntityIds = extraGraphEntityIds)
+                                } else if (showDevice && deviceId != null) {
+                                    DeviceEntitiesView(deviceId = deviceId, sourceEntity = entity, viewModel = viewModel)
                                 } else if (showGroup && groupContent != null) {
                                     groupContent()
                                 } else {
@@ -274,7 +303,7 @@ fun HKIDialog(
                             }
                         }
 
-                        if (tabs.isNotEmpty() && !showHistory && !showGroup) {
+                        if (tabs.isNotEmpty() && !showHistory && !showGroup && !showDevice) {
                             val denseTabs = tabs.size > 5
                             HKIBottomBar(
                                 modifier = Modifier

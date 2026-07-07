@@ -61,23 +61,58 @@ fun HKIAlarmDialog(
     onDismiss: () -> Unit,
     titleOverride: String? = null,
     iconName: String? = null,
-    spinIcon: Boolean = false
+    spinIcon: Boolean = false,
+    /** When more than one alarm is given, the dialog becomes a pager to swipe between them. */
+    entities: List<HAEntity> = emptyList()
 ) {
-    val accent = alarmStateColor(entity.state)
-    val resolvedIconName = iconName?.takeUnless { it.isBlank() } ?: defaultEntityIconSlug(entity)
+    val alarms = entities.ifEmpty { listOf(entity) }
+    val pagerState = androidx.compose.foundation.pager.rememberPagerState(
+        initialPage = alarms.indexOfFirst { it.entity_id == entity.entity_id }.coerceAtLeast(0),
+        pageCount = { alarms.size }
+    )
+    val current = alarms.getOrElse(pagerState.currentPage) { entity }
+    val accent = alarmStateColor(current.state)
+    val resolvedIconName = iconName?.takeUnless { it.isBlank() } ?: defaultEntityIconSlug(current)
     HKIDialog(
-        entity = entity,
+        entity = current,
         onDismiss = onDismiss,
         viewModel = viewModel,
         icon = Icons.Default.Security,
         iconTint = accent,
-        titleOverride = titleOverride,
+        titleOverride = if (alarms.size > 1) null else titleOverride,
         iconName = resolvedIconName,
         spinIcon = spinIcon,
-        statusText = alarmStateLabel(entity.state)
+        statusText = alarmStateLabel(current.state)
     ) {
-        Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-            AlarmKeypadContent(entity, viewModel)
+        if (alarms.size == 1) {
+            Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                AlarmKeypadContent(current, viewModel)
+            }
+        } else {
+            androidx.compose.foundation.pager.HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.weight(1f).fillMaxWidth()
+            ) { page ->
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    AlarmKeypadContent(alarms[page], viewModel)
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally)
+            ) {
+                alarms.forEachIndexed { i, a ->
+                    Box(
+                        Modifier
+                            .size(if (i == pagerState.currentPage) 8.dp else 6.dp)
+                            .clip(CircleShape)
+                            .background(
+                                if (i == pagerState.currentPage) alarmStateColor(a.state)
+                                else LocalHKIAppColors.current.onMuted.copy(alpha = 0.4f)
+                            )
+                    )
+                }
+            }
         }
     }
 }

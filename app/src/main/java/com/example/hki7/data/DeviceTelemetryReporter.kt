@@ -80,6 +80,23 @@ class DeviceTelemetryReporter(
         if (location == null) log("Telemetry: no location available (GPS/last-known both null)")
         val address = location?.let { geocodeThrottled(it) }
 
+        // Upgrade pre-existing registrations (made before push support) so HA creates the
+        // notify.mobile_app_<device> service. Once per process; harmless when already set.
+        if (!pushChannelEnsured) {
+            val ok = post(client, webhookUrl, buildJsonObject {
+                put("type", "update_registration")
+                put("data", buildJsonObject {
+                    put("app_version", BuildConfig.VERSION_NAME)
+                    put("device_name", deviceName)
+                    put("manufacturer", Build.MANUFACTURER)
+                    put("model", Build.MODEL)
+                    put("os_version", Build.VERSION.RELEASE)
+                    put("app_data", buildJsonObject { put("push_websocket_channel", true) })
+                })
+            }, "update_registration (push channel)", log)
+            if (ok) pushChannelEnsured = true
+        }
+
         // Register sensors once per webhook (they persist in HA); plain state updates suffice after.
         if (prefs.mobileAppSensorsWebhookId.first() != webhookId) {
             val registered = registerSensors(client, webhookUrl, slug, deviceName, batteryLevel, charging, address, location, log)
@@ -167,7 +184,8 @@ class DeviceTelemetryReporter(
             put("os_name", "Android")
             put("os_version", Build.VERSION.RELEASE)
             put("supports_encryption", false)
-            put("app_data", buildJsonObject { })
+            // Advertise the websocket push channel so HA creates notify.mobile_app_<device>.
+            put("app_data", buildJsonObject { put("push_websocket_channel", true) })
         }
         val registration = runCatching { client.registerMobileApp(body) }.getOrElse {
             log("mobile_app registration failed: ${it.message}")
@@ -373,5 +391,6 @@ class DeviceTelemetryReporter(
 
         private val registrationMutex = Mutex()
         private val json = Json { ignoreUnknownKeys = true }
+        @Volatile private var pushChannelEnsured = false
     }
 }

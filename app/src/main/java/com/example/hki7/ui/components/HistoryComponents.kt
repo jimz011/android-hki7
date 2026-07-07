@@ -304,7 +304,7 @@ fun ActorAvatar(actorName: String?, modifier: Modifier = Modifier, size: Dp = 28
         contentAlignment = Alignment.Center
     ) {
         if (!pictureUrl.isNullOrBlank()) {
-            coil.compose.AsyncImage(
+            coil3.compose.AsyncImage(
                 model = pictureUrl,
                 contentDescription = null,
                 contentScale = androidx.compose.ui.layout.ContentScale.Crop,

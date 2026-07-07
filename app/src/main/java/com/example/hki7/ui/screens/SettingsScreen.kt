@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhoneAndroid
@@ -74,6 +75,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import com.example.hki7.BuildConfig
 import com.example.hki7.data.PreferencesManager
+import com.example.hki7.data.PushForegroundService
 import com.example.hki7.ui.ConnectionStatus
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.ColorWheel
@@ -81,7 +83,7 @@ import com.example.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.coroutines.launch
 
 private enum class SettingsSection {
-    MENU, CONNECTION, PROFILE, LOCATION, THEME, DASHBOARD, ACCOUNT
+    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, THEME, DASHBOARD, ACCOUNT
 }
 
 @Composable
@@ -146,6 +148,7 @@ fun SettingsDialog(
                             SettingsChoice(Icons.Default.SettingsEthernet, "Connection", connectionText(status)) { section = SettingsSection.CONNECTION }
                             SettingsChoice(Icons.Default.Person, "Profile", displayName) { section = SettingsSection.PROFILE }
                             SettingsChoice(Icons.Default.MyLocation, "Location", "Device tracker and geocoded location") { section = SettingsSection.LOCATION }
+                            SettingsChoice(Icons.Default.Notifications, "Notifications", "Push delivery and history") { section = SettingsSection.NOTIFICATIONS }
                             SettingsChoice(Icons.Default.Palette, "Theme", "Colors and light/dark mode") { section = SettingsSection.THEME }
                             SettingsChoice(Icons.Default.Dashboard, "Dashboard", dashboardMode.replaceFirstChar { it.uppercase() }) { section = SettingsSection.DASHBOARD }
                             SettingsChoice(Icons.AutoMirrored.Filled.Logout, "Account", "Logout and reset") { section = SettingsSection.ACCOUNT }
@@ -300,6 +303,51 @@ fun SettingsDialog(
                                     checked = highAccuracy,
                                     onCheckedChange = { scope.launch { prefs.saveHighAccuracyLocation(it) } }
                                 )
+                            }
+                        }
+                        SettingsSection.NOTIFICATIONS -> {
+                            val backgroundPush by prefs.backgroundPushEnabled.collectAsState(initial = false)
+                            SettingsPanel {
+                                Text(
+                                    "Notifications are delivered over the app's live connection whenever it is open — send them from Home Assistant with the notify service for this device. Swipe in from the left edge to see the history.",
+                                    color = appColors.onMuted,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                SettingsToggle(
+                                    title = "Background notifications",
+                                    subtitle = "Keeps a persistent connection to Home Assistant while the app is closed (like the official app's persistent connection — uses more battery).",
+                                    checked = backgroundPush,
+                                    onCheckedChange = { enabled ->
+                                        scope.launch {
+                                            prefs.saveBackgroundPushEnabled(enabled)
+                                            if (enabled) PushForegroundService.start(context)
+                                            else PushForegroundService.stop(context)
+                                        }
+                                    }
+                                )
+                                if (backgroundPush) {
+                                    // Android requires a visible notification for the connection
+                                    // service, but the user may turn off just that channel — the
+                                    // service keeps running with the notification fully hidden.
+                                    Button(
+                                        onClick = {
+                                            val intent = android.content.Intent(android.provider.Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
+                                                putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.packageName)
+                                                putExtra(android.provider.Settings.EXTRA_CHANNEL_ID, PushForegroundService.CHANNEL_ID)
+                                            }
+                                            runCatching { context.startActivity(intent) }
+                                        },
+                                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                                        shape = RoundedCornerShape(16.dp)
+                                    ) {
+                                        Text("Hide Connection Notification")
+                                    }
+                                    Text(
+                                        "Turn the \"Notification connection\" channel off on the next screen — the connection keeps working, only its notification disappears.",
+                                        color = appColors.onMuted,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
                             }
                         }
                         SettingsSection.THEME -> {

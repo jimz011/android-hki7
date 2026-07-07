@@ -64,7 +64,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.hki7.data.HAArea
 import com.example.hki7.data.HAEntity
@@ -658,7 +658,7 @@ private fun FloorSettingsDialog(
                         FilterChip(selected = columns == count, onClick = { columns = count }, label = { Text("$count") })
                     }
                 }
-                WidgetWidthSelector(width = cardWidth, onWidthChange = { cardWidth = it })
+                WidgetWidthSelector(width = cardWidth, onWidthChange = { cardWidth = it }, includeThird = false)
                 Text("Shape", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })

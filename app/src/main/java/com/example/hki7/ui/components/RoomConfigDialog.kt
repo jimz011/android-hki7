@@ -329,12 +329,18 @@ private fun RoomSettingsChoice(icon: androidx.compose.ui.graphics.vector.ImageVe
     }
 }
 
-/** Shared Full/Half size selector used by widget and room-card settings so they stay consistent. */
+/** Shared Full/Half/Third size selector used by widget and room-card settings so they stay
+ *  consistent. Room cards don't support thirds (their row packing is full/half only). */
 @Composable
-fun WidgetWidthSelector(width: String, onWidthChange: (String) -> Unit) {
+fun WidgetWidthSelector(width: String, onWidthChange: (String) -> Unit, includeThird: Boolean = true) {
     Text("Widget width", style = MaterialTheme.typography.labelLarge)
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf("full" to "Full row", "half" to "Half row").forEach { (value, label) ->
+        val options = buildList {
+            add("full" to "Full")
+            add("half" to "Half")
+            if (includeThird) add("third" to "Third")
+        }
+        options.forEach { (value, label) ->
             FilterChip(
                 selected = width == value,
                 onClick = { onWidthChange(value) },

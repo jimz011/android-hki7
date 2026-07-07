@@ -50,9 +50,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.viewinterop.AndroidView
-import coil.compose.AsyncImage
-import coil.compose.SubcomposeAsyncImage
-import coil.compose.SubcomposeAsyncImageContent
+import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.aspectRatio

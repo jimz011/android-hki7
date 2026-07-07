@@ -28,7 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HKIButtonConfig
 import com.example.hki7.ui.MainViewModel

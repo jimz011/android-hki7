@@ -11,7 +11,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Redo
@@ -23,7 +25,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import kotlinx.coroutines.launch
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -46,6 +52,7 @@ import com.example.hki7.data.PreferencesManager
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.Screen
 import com.example.hki7.ui.components.HKIBottomBar
+import com.example.hki7.ui.components.NotificationPanel
 import com.example.hki7.ui.screens.*
 import com.example.hki7.ui.theme.HKI7Theme
 import com.example.hki7.ui.theme.LocalHKIAppColors
@@ -208,18 +215,89 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+    val notificationPermissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { }
+
     LaunchedEffect(Unit) {
         val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
         val hasLocation = permissions.any {
             ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
         }
         if (hasLocation) viewModel.startLocationReporting(context) else permissionLauncher.launch(permissions)
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
         // No battery-optimization exemption prompt: presence is event-driven (geofences) and the
         // periodic refresh runs under WorkManager, both of which work while the app is Dozed. Letting
         // the OS power-manage us normally is the point — it's how the official app sips battery.
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    // Left-edge swipe opens the notification panel (history of notify.mobile_app_* messages).
+    // The drawer's own gestures stay off while closed so the panel is completely hidden; opening
+    // is driven by our edge detector below, which works alongside the system back gesture: the
+    // upper-left edge strip is excluded from the back gesture (Android honors up to 200dp of
+    // exclusion per edge), so a swipe starting there opens the panel instead of navigating back.
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val drawerScope = rememberCoroutineScope()
+    androidx.activity.compose.BackHandler(enabled = drawerState.isOpen) {
+        drawerScope.launch { drawerState.close() }
+    }
+    val density = LocalDensity.current
+    val edgeStripWidthPx = with(density) { 28.dp.toPx() }
+    val edgeStripTopPx = with(density) { 56.dp.toPx() }
+    val edgeStripHeightPx = with(density) { 200.dp.toPx() }
+    androidx.compose.runtime.CompositionLocalProvider(
+        com.example.hki7.ui.components.LocalOpenNotifications provides { drawerScope.launch { drawerState.open() } }
+    ) {
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        gesturesEnabled = drawerState.isOpen && !isEditMode,
+        drawerContent = {
+            // Keep the default sheet width: this Material3 version slides the closed drawer out
+            // by a fixed 360dp, so a wider sheet would leave its right edge permanently visible
+            // on screen (and swallow touches on the left edge).
+            ModalDrawerSheet(
+                drawerContainerColor = appColors.background,
+                drawerContentColor = appColors.onSurface
+            ) {
+                NotificationPanel(viewModel)
+            }
+        }
+    ) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .systemGestureExclusion {
+                // Carve the upper-left edge out of the system back gesture (Pixel-style gesture
+                // nav) so swipes starting there reach the app and open the notification panel.
+                Rect(0f, edgeStripTopPx, edgeStripWidthPx, edgeStripTopPx + edgeStripHeightPx)
+            }
+            .pointerInput(isEditMode) {
+                if (isEditMode) return@pointerInput
+                // Runs on the content root AFTER children, so it only sees horizontal drags no
+                // child consumed — taps, scrolling, and sliders are unaffected.
+                var armed = false
+                var dragged = 0f
+                detectHorizontalDragGestures(
+                    onDragStart = { offset ->
+                        armed = offset.x <= edgeStripWidthPx && offset.y < size.height * 0.55f
+                        dragged = 0f
+                    },
+                    onDragEnd = { armed = false },
+                    onDragCancel = { armed = false },
+                    onHorizontalDrag = { _, amount ->
+                        if (armed) {
+                            dragged += amount
+                            if (dragged > 24.dp.toPx()) {
+                                armed = false
+                                drawerScope.launch { drawerState.open() }
+                            }
+                        }
+                    }
+                )
+            }
+    ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             containerColor = Color.Transparent,
@@ -306,6 +384,8 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                     }
             }
         }
+    }
+    }
     }
 }
 

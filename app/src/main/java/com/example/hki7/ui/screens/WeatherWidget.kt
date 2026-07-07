@@ -20,7 +20,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import androidx.compose.foundation.lazy.grid.GridCells
 import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HAWeatherForecast

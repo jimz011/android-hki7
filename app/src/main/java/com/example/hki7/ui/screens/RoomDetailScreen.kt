@@ -58,6 +58,7 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CleaningServices
+import androidx.compose.material.icons.filled.ElectricBolt
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
@@ -119,9 +120,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
-import coil.compose.SubcomposeAsyncImage
-import coil.compose.SubcomposeAsyncImageContent
+import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HAServiceCall
 import com.example.hki7.data.HKIButtonStack
@@ -129,6 +130,8 @@ import com.example.hki7.data.HKIButtonConfig
 import com.example.hki7.data.HKIEmptyStack
 import com.example.hki7.data.HKIAreaConfig
 import com.example.hki7.data.HKIRoomWidget
+import com.example.hki7.data.HKIEnergyCardWidget
+import com.example.hki7.data.HKIEnergyStack
 import com.example.hki7.data.HKISingleEntityWidget
 import com.example.hki7.data.HKISwipingStack
 import com.example.hki7.data.HKISubtitleWidget
@@ -270,6 +273,10 @@ fun RoomDetailScreen(
     var selectedGroupLightStackId by remember { mutableStateOf<String?>(null) }
     var selectedButtonSettings by remember { mutableStateOf<Pair<HKIButtonStack, String>?>(null) }
     var selectedSingleWidgetSettings by remember { mutableStateOf<Pair<String?, HKISingleEntityWidget>?>(null) }
+    var editingEnergyCard by remember { mutableStateOf<Pair<String?, HKIEnergyCardWidget>?>(null) }
+    var editingEnergyStack by remember { mutableStateOf<Pair<String?, HKIEnergyStack>?>(null) }
+    var showEnergyCardPicker by remember { mutableStateOf(false) }
+    var showEnergyStackPicker by remember { mutableStateOf(false) }
     var addingToStackId by remember { mutableStateOf<String?>(null) }
     var cameraAddMode by remember { mutableStateOf<String?>(null) } // "entity", "custom", or null
     var customCameraUrl by remember { mutableStateOf("") }
@@ -456,6 +463,21 @@ fun RoomDetailScreen(
                 onSettingsClick = { selectedSingleWidgetSettings = parent.id to child }
             )
             is HKISwipingStack -> EmptyStackHint()
+            is HKIEnergyCardWidget -> EnergyCardWidgetItem(
+                widget = child.copy(width = "full"),
+                viewModel = viewModel,
+                isEditMode = isEditMode,
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingEnergyCard = parent.id to child }
+            )
+            is HKIEnergyStack -> EnergyStackWidgetItem(
+                stack = child.copy(width = "full"),
+                viewModel = viewModel,
+                isEditMode = isEditMode,
+                onToggleCollapsed = { updateChildInSwipingStack(parent.id, child.copy(isCollapsed = !(child.isCollapsed ?: child.defaultCollapsed))) },
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingEnergyStack = parent.id to child }
+            )
             is HKIEmptyStack -> EmptyStackItem(
                 stack = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
                 isEditMode = isEditMode,
@@ -559,11 +581,13 @@ fun RoomDetailScreen(
             maxWidth >= 600.dp -> 2
             else -> 1
         }
-        // Two grid cells per column so a "half" widget occupies half a column and a
-        // "full" widget spans one full column (e.g. 2 full-width widgets across a fold).
-        val widgetGridColumns = widgetColumnCount * 2
-        fun widgetSpan(widget: HKIRoomWidget): Int =
-            if (widget.width == "half") 1 else 2
+        // Six grid cells per column so widgets can span a full column (6), half (3), or third (2).
+        val widgetGridColumns = widgetColumnCount * 6
+        fun widgetSpan(widget: HKIRoomWidget): Int = when (widget.width) {
+            "third" -> 2
+            "half" -> 3
+            else -> 6
+        }
         Column(modifier = Modifier.fillMaxSize()) {
             key(isEditMode, uiRevision) {
                 if (!isEditMode) {
@@ -683,6 +707,15 @@ fun RoomDetailScreen(
                                             null
                                         )
                                     }
+                                )
+                                is HKIEnergyCardWidget -> EnergyCardWidgetItem(
+                                    widget = widget, viewModel = viewModel, isEditMode = false,
+                                    onDelete = {}, onSettings = {}
+                                )
+                                is HKIEnergyStack -> EnergyStackWidgetItem(
+                                    stack = widget, viewModel = viewModel, isEditMode = false,
+                                    onToggleCollapsed = { viewModel.updateWidget(areaId, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
+                                    onDelete = {}, onSettings = {}
                                 )
                             }
                         }
@@ -836,6 +869,17 @@ fun RoomDetailScreen(
                                 )
                             }
                         )
+                        is HKIEnergyCardWidget -> EnergyCardWidgetItem(
+                            widget = widget, viewModel = viewModel, isEditMode = isEditMode,
+                            onDelete = { viewModel.deleteWidget(areaId, widget.id) },
+                            onSettings = { editingEnergyCard = null to widget }
+                        )
+                        is HKIEnergyStack -> EnergyStackWidgetItem(
+                            stack = widget, viewModel = viewModel, isEditMode = isEditMode,
+                            onToggleCollapsed = { viewModel.updateWidget(areaId, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
+                            onDelete = { viewModel.deleteWidget(areaId, widget.id) },
+                            onSettings = { editingEnergyStack = null to widget }
+                        )
                     }
                 }
                 }
@@ -930,8 +974,47 @@ fun RoomDetailScreen(
                 pendingWeatherWidgetContainerId = "__top__"
                 showAddWidgetDialog = false
             },
+            onAddEnergyCard = { showEnergyCardPicker = true; showAddWidgetDialog = false },
+            onAddEnergyStack = { showEnergyStackPicker = true; showAddWidgetDialog = false },
             allEntities = allEntities
         )
+    }
+
+    if (showEnergyCardPicker) {
+        EnergyCardPickerDialog(
+            multiSelect = true, title = "Add Energy Cards",
+            onDismiss = { showEnergyCardPicker = false },
+            onSelected = { keys ->
+                keys.forEach {
+                    viewModel.addWidgetToArea(areaId, HKIEnergyCardWidget(id = UUID.randomUUID().toString(), cardKey = it))
+                }
+                showEnergyCardPicker = false
+            }
+        )
+    }
+    if (showEnergyStackPicker) {
+        EnergyCardPickerDialog(
+            multiSelect = true, title = "Energy Stack Cards",
+            onDismiss = { showEnergyStackPicker = false },
+            onSelected = { keys ->
+                viewModel.addWidgetToArea(areaId, HKIEnergyStack(id = UUID.randomUUID().toString(), cardKeys = keys))
+                showEnergyStackPicker = false
+            }
+        )
+    }
+    editingEnergyCard?.let { (containerId, w) ->
+        EnergyCardWidgetSettingsDialog(w, onDismiss = { editingEnergyCard = null }) { updated ->
+            if (containerId == null) viewModel.updateWidget(areaId, updated)
+            else updateChildInSwipingStack(containerId, updated)
+            editingEnergyCard = null
+        }
+    }
+    editingEnergyStack?.let { (containerId, s) ->
+        EnergyStackSettingsDialog(s, onDismiss = { editingEnergyStack = null }) { updated ->
+            if (containerId == null) viewModel.updateWidget(areaId, updated)
+            else updateChildInSwipingStack(containerId, updated)
+            editingEnergyStack = null
+        }
     }
 
     addingToSwipingStackId?.let { stackId ->
@@ -1382,6 +1465,22 @@ fun RoomDetailScreen(
             isVacuumItem = widget.kind == "vacuum" || widget.entityId.startsWith("vacuum."),
             allEntities = allEntities,
             onDismiss = { selectedSingleWidgetSettings = null },
+            widgetAppearance = WidgetAppearance(widget.isSquare, widget.cornerRadius, widget.width),
+            onSaveWithAppearance = { config, a ->
+                if (containerId == null) {
+                    val latest = areaWidgets.filterIsInstance<HKISingleEntityWidget>().find { it.id == widget.id } ?: widget
+                    viewModel.updateWidget(
+                        areaId,
+                        latest.copy(config = config, isSquare = a.isSquare, cornerRadius = a.cornerRadius, width = a.width)
+                    )
+                } else {
+                    updateChildInSwipingStack(
+                        containerId,
+                        widget.copy(config = config, isSquare = a.isSquare, cornerRadius = a.cornerRadius, width = a.width)
+                    )
+                }
+                selectedSingleWidgetSettings = null
+            },
             onSave = { config ->
                 val updated = widget.copy(config = config)
                 if (containerId == null) {
@@ -1671,6 +1770,8 @@ fun AddRoomWidgetDialog(
     onAddCameraWidget: (() -> Unit)? = null,
     onAddVacuumWidget: (() -> Unit)? = null,
     onAddWeatherWidget: (() -> Unit)? = null,
+    onAddEnergyCard: (() -> Unit)? = null,
+    onAddEnergyStack: (() -> Unit)? = null,
     allEntities: List<HAEntity> = emptyList()
 ) {
     val appColors = LocalHKIAppColors.current
@@ -1758,6 +1859,14 @@ fun AddRoomWidgetDialog(
                         subtitle = "A single weather card",
                         onClick = { onAddWeatherWidget?.invoke() ?: run { weatherTitle = ""; weatherIcon = "None"; configureWidget = "weather" } }
                     )
+                    if (onAddEnergyCard != null) {
+                        WidgetChoice(
+                            icon = Icons.Default.ElectricBolt,
+                            title = "Energy Card",
+                            subtitle = "Any card from the Energy view",
+                            onClick = { onAddEnergyCard(); onDismiss() }
+                        )
+                    }
                 } else if (widgetGroup == "stacks" && configureWidget == null) {
                     if (onAddEmptyStack != null) {
                         WidgetChoice(
@@ -1786,6 +1895,14 @@ fun AddRoomWidgetDialog(
                     }
                     WidgetChoice(Icons.Default.CleaningServices, "Vacuum Stack", "Control robot vacuums with map and battery") { vacuumTitle = "Vacuum"; vacuumIcon = "CleaningServices"; configureWidget = "vacuum_stack" }
                     WidgetChoice(Icons.Default.WbSunny, "Weather Stack", "Group weather cards: conditions, forecast, wind, or rain map") { weatherTitle = "Weather"; weatherIcon = "weather-partly-cloudy"; configureWidget = "weather_stack" }
+                    if (onAddEnergyStack != null) {
+                        WidgetChoice(
+                            icon = Icons.Default.ElectricBolt,
+                            title = "Energy Stack",
+                            subtitle = "Group energy cards: usage, solar, gas, water, ...",
+                            onClick = { onAddEnergyStack(); onDismiss() }
+                        )
+                    }
                     OutlinedButton(onClick = { widgetGroup = null }, modifier = Modifier.fillMaxWidth()) {
                         Text("Back")
                     }
@@ -1903,6 +2020,9 @@ fun WidgetChoice(icon: ImageVector, title: String, subtitle: String, onClick: ()
     }
 }
 
+/** Shape/size of a standalone (non-stacked) widget, edited from its button settings dialog. */
+data class WidgetAppearance(val isSquare: Boolean, val cornerRadius: Int, val width: String)
+
 @Composable
 fun ButtonConfigDialog(
     entity: HAEntity?,
@@ -1911,8 +2031,15 @@ fun ButtonConfigDialog(
     isVacuumItem: Boolean = false,
     allEntities: List<HAEntity> = emptyList(),
     onDismiss: () -> Unit,
+    // Standalone widgets only: shape/roundness/width are edited here since there is no stack
+    // to inherit them from. When set, Save reports through onSaveWithAppearance instead.
+    widgetAppearance: WidgetAppearance? = null,
+    onSaveWithAppearance: ((HKIButtonConfig, WidgetAppearance) -> Unit)? = null,
     onSave: (HKIButtonConfig) -> Unit
 ) {
+    var appearIsSquare by remember(widgetAppearance) { mutableStateOf(widgetAppearance?.isSquare ?: true) }
+    var appearRadius by remember(widgetAppearance) { mutableIntStateOf(widgetAppearance?.cornerRadius ?: 28) }
+    var appearWidth by remember(widgetAppearance) { mutableStateOf(widgetAppearance?.width ?: "half") }
     var name by remember(config) { mutableStateOf(config.name ?: entity?.friendlyName ?: entity?.entity_id ?: "") }
     var label by remember(config) { mutableStateOf(config.label ?: "") }
     var cameraUrl by remember(config) { mutableStateOf(config.cameraUrl ?: "") }
@@ -2088,11 +2215,33 @@ fun ButtonConfigDialog(
                     ActionChips("Double", doubleAction, actions) { doubleAction = it }
                     ActionChips("Hold", holdAction, actions) { holdAction = it }
                 }
+                if (widgetAppearance != null) {
+                    Text("Shape", style = MaterialTheme.typography.labelLarge)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(selected = !appearIsSquare, onClick = { appearIsSquare = false }, label = { Text("Standard") })
+                        FilterChip(selected = appearIsSquare, onClick = { appearIsSquare = true }, label = { Text("Square") })
+                    }
+                    Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(selected = appearRadius == 8, onClick = { appearRadius = 8 }, label = { Text("Sharp") })
+                        FilterChip(selected = appearRadius == 20, onClick = { appearRadius = 20 }, label = { Text("Modern") })
+                        FilterChip(selected = appearRadius == 28, onClick = { appearRadius = 28 }, label = { Text("Round") })
+                    }
+                    WidgetWidthSelector(width = appearWidth, onWidthChange = { appearWidth = it })
+                }
             }
         },
         confirmButton = {
             Button(onClick = {
-                onSave(
+                val save: (HKIButtonConfig) -> Unit = { newConfig ->
+                    if (widgetAppearance != null && onSaveWithAppearance != null) {
+                        onSaveWithAppearance(
+                            newConfig,
+                            WidgetAppearance(appearIsSquare, appearRadius, appearWidth)
+                        )
+                    } else onSave(newConfig)
+                }
+                save(
                     config.copy(
                         name = name.ifBlank { null },
                         label = if (isVacuumItem) config.label else label.ifBlank { null },

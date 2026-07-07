@@ -38,6 +38,7 @@ class PreferencesManager(private val context: Context) {
     private val aqiEntityKey = stringPreferencesKey("aqi_entity_id")
     private val seasonEntityKey = stringPreferencesKey("season_entity_id")
     private val rainEntityKey = stringPreferencesKey("rain_entity_id")
+    private val weatherDeviceKey = stringPreferencesKey("weather_device_id")
     private val alarmEntityKey = stringPreferencesKey("header_alarm_entity_id")
     private val headerLeftAlarmEntityKey = stringPreferencesKey("header_left_alarm_entity_id")
     private val alarmPendingSecondsKey = intPreferencesKey("alarm_pending_seconds")
@@ -55,6 +56,8 @@ class PreferencesManager(private val context: Context) {
     private val internalUrlKey = stringPreferencesKey("internal_url")
     private val homeSsidsKey = stringPreferencesKey("home_ssids")
     private val highAccuracyLocationKey = booleanPreferencesKey("high_accuracy_location")
+    private val notificationHistoryKey = stringPreferencesKey("notification_history")
+    private val backgroundPushKey = booleanPreferencesKey("background_push_enabled")
 
     val serverUrl: Flow<String?> = context.dataStore.data.map { it[serverUrlKey] }
     val accessToken: Flow<String?> = context.dataStore.data.map { it[accessTokenKey] }
@@ -100,8 +103,14 @@ class PreferencesManager(private val context: Context) {
     val aqiEntityId: Flow<String?> = context.dataStore.data.map { it[aqiEntityKey] }
     val seasonEntityId: Flow<String?> = context.dataStore.data.map { it[seasonEntityKey] ?: "sensor.season" }
     val rainEntityId: Flow<String?> = context.dataStore.data.map { it[rainEntityKey] }
-    val alarmEntityId: Flow<String?> = context.dataStore.data.map { it[alarmEntityKey] }
-    val headerLeftAlarmEntityId: Flow<String?> = context.dataStore.data.map { it[headerLeftAlarmEntityKey] }
+    /** HA device the weather page's role entities were auto-filled from (device-first setup). */
+    val weatherDeviceId: Flow<String?> = context.dataStore.data.map { it[weatherDeviceKey] }
+    val alarmEntityIds: Flow<List<String>> = context.dataStore.data.map { p ->
+        p[alarmEntityKey]?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
+    }
+    val headerLeftAlarmEntityIds: Flow<List<String>> = context.dataStore.data.map { p ->
+        p[headerLeftAlarmEntityKey]?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
+    }
     val alarmPendingSeconds: Flow<Int> = context.dataStore.data.map { it[alarmPendingSecondsKey] ?: 0 }
     val mobileDeviceName: Flow<String?> = context.dataStore.data.map { it[mobileDeviceNameKey] }
     val themeColor: Flow<String> = context.dataStore.data.map { it[themeColorKey] ?: "system" }
@@ -127,6 +136,15 @@ class PreferencesManager(private val context: Context) {
     }
     // When true, location updates much more frequently (every few seconds) at the cost of battery.
     val highAccuracyLocation: Flow<Boolean> = context.dataStore.data.map { it[highAccuracyLocationKey] ?: false }
+
+    // Notification history delivered via the websocket push channel (newest first, capped).
+    val notificationHistory: Flow<List<HKINotification>> = context.dataStore.data.map { preferences ->
+        val jsonStr = preferences[notificationHistoryKey] ?: "[]"
+        try { appJson.decodeFromString<List<HKINotification>>(jsonStr) } catch (e: Exception) { emptyList() }
+    }
+    // When true, a foreground service keeps the push websocket alive while the app is closed
+    // (the official app's "persistent connection"; uses more battery).
+    val backgroundPushEnabled: Flow<Boolean> = context.dataStore.data.map { it[backgroundPushKey] ?: false }
 
     suspend fun saveConnectionDetails(url: String, token: String, refresh: String? = null, expiresInSeconds: Int? = null) {
         context.dataStore.edit { preferences ->
@@ -166,6 +184,10 @@ class PreferencesManager(private val context: Context) {
     }
 
     suspend fun saveHighAccuracyLocation(enabled: Boolean) { context.dataStore.edit { it[highAccuracyLocationKey] = enabled } }
+    suspend fun saveBackgroundPushEnabled(enabled: Boolean) { context.dataStore.edit { it[backgroundPushKey] = enabled } }
+    suspend fun saveNotificationHistory(history: List<HKINotification>) {
+        context.dataStore.edit { it[notificationHistoryKey] = appJson.encodeToString(history) }
+    }
 
     suspend fun saveMobileAppDeviceId(id: String) { context.dataStore.edit { it[mobileAppDeviceIdKey] = id } }
     suspend fun saveMobileAppSensorsRegistered(webhookId: String) {
@@ -197,11 +219,17 @@ class PreferencesManager(private val context: Context) {
     suspend fun saveHeaderLeftDisplayType(type: String) { context.dataStore.edit { it[headerLeftDisplayKey] = type } }
     suspend fun saveUse24hFormat(use24h: Boolean) { context.dataStore.edit { it[use24hFormatKey] = use24h } }
     suspend fun saveUseFullDayName(useFullDayName: Boolean) { context.dataStore.edit { it[useFullDayNameKey] = useFullDayName } }
-    suspend fun saveHeaderAlarmEntity(entityId: String?) {
-        context.dataStore.edit { if (entityId == null) it.remove(alarmEntityKey) else it[alarmEntityKey] = entityId }
+    // Multiple alarms per pill, stored comma-joined in the legacy single-id key so an existing
+    // single selection keeps working unchanged.
+    suspend fun saveHeaderAlarmEntities(entityIds: List<String>) {
+        context.dataStore.edit {
+            if (entityIds.isEmpty()) it.remove(alarmEntityKey) else it[alarmEntityKey] = entityIds.joinToString(",")
+        }
     }
-    suspend fun saveHeaderLeftAlarmEntity(entityId: String?) {
-        context.dataStore.edit { if (entityId == null) it.remove(headerLeftAlarmEntityKey) else it[headerLeftAlarmEntityKey] = entityId }
+    suspend fun saveHeaderLeftAlarmEntities(entityIds: List<String>) {
+        context.dataStore.edit {
+            if (entityIds.isEmpty()) it.remove(headerLeftAlarmEntityKey) else it[headerLeftAlarmEntityKey] = entityIds.joinToString(",")
+        }
     }
     suspend fun saveAlarmPendingSeconds(seconds: Int) {
         context.dataStore.edit { it[alarmPendingSecondsKey] = seconds }
@@ -215,6 +243,7 @@ class PreferencesManager(private val context: Context) {
                 "aqi" -> aqiEntityKey
                 "season" -> seasonEntityKey
                 "rain" -> rainEntityKey
+                "device" -> weatherDeviceKey
                 else -> return@edit
             }
             if (entityId == null) preferences.remove(key) else preferences[key] = entityId

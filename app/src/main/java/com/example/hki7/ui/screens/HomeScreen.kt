@@ -21,6 +21,8 @@ import com.example.hki7.data.HKIButtonConfig
 import com.example.hki7.data.HKIButtonStack
 import com.example.hki7.data.HKIEmptyStack
 import com.example.hki7.data.HKIRoomWidget
+import com.example.hki7.data.HKIEnergyCardWidget
+import com.example.hki7.data.HKIEnergyStack
 import com.example.hki7.data.HKISingleEntityWidget
 import com.example.hki7.data.HKISwipingStack
 import com.example.hki7.data.HKISubtitleWidget
@@ -72,6 +74,10 @@ fun HAHomeScreen(viewModel: MainViewModel) {
     var choosingWeatherWidgetStyle by remember { mutableStateOf(false) }
     var selectedButtonSettings by remember { mutableStateOf<Pair<HKIButtonStack, String>?>(null) }
     var selectedSingleWidgetSettings by remember { mutableStateOf<Pair<String?, HKISingleEntityWidget>?>(null) }
+    var editingEnergyCard by remember { mutableStateOf<Pair<String?, HKIEnergyCardWidget>?>(null) }
+    var editingEnergyStack by remember { mutableStateOf<Pair<String?, HKIEnergyStack>?>(null) }
+    var showEnergyCardPicker by remember { mutableStateOf(false) }
+    var showEnergyStackPicker by remember { mutableStateOf(false) }
     var selectedChildStackSettings by remember { mutableStateOf<Pair<String, HKIButtonStack>?>(null) }
     var selectedChildButtonSettings by remember { mutableStateOf<Triple<String, HKIButtonStack, String>?>(null) }
     var editingChildEmptyStack by remember { mutableStateOf<Pair<String, HKIEmptyStack>?>(null) }
@@ -234,6 +240,21 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                 onSettingsClick = { selectedSingleWidgetSettings = parent.id to child }
             )
             is HKISwipingStack -> EmptyStackHint()
+            is HKIEnergyCardWidget -> EnergyCardWidgetItem(
+                widget = child.copy(width = "full"),
+                viewModel = viewModel,
+                isEditMode = isEditMode,
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingEnergyCard = parent.id to child }
+            )
+            is HKIEnergyStack -> EnergyStackWidgetItem(
+                stack = child.copy(width = "full"),
+                viewModel = viewModel,
+                isEditMode = isEditMode,
+                onToggleCollapsed = { updateChildInSwipingStack(parent.id, child.copy(isCollapsed = !(child.isCollapsed ?: child.defaultCollapsed))) },
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingEnergyStack = parent.id to child }
+            )
             is HKIEmptyStack -> EmptyStackItem(
                 stack = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
                 isEditMode = isEditMode,
@@ -272,11 +293,13 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                 maxWidth >= 600.dp -> 2
                 else -> 1
             }
-            // Two grid cells per column so a "half" widget occupies half a column and a
-            // "full" widget spans one full column (e.g. 2 full-width widgets across a fold).
-            val widgetGridColumns = widgetColumnCount * 2
-            fun widgetSpan(widget: HKIRoomWidget): Int =
-                if (widget.width == "half") 1 else 2
+            // Six grid cells per column so widgets can span a full column (6), half (3), or third (2).
+            val widgetGridColumns = widgetColumnCount * 6
+            fun widgetSpan(widget: HKIRoomWidget): Int = when (widget.width) {
+                "third" -> 2
+                "half" -> 3
+                else -> 6
+            }
             Column(modifier = Modifier.fillMaxSize()) {
                 if (homeWidgets.isEmpty() && !isEditMode) {
                     EmptyEditHint(Modifier.weight(1f))
@@ -386,6 +409,15 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                                             null
                                         )
                                     }
+                                )
+                                is HKIEnergyCardWidget -> EnergyCardWidgetItem(
+                                    widget = widget, viewModel = viewModel, isEditMode = false,
+                                    onDelete = {}, onSettings = {}
+                                )
+                                is HKIEnergyStack -> EnergyStackWidgetItem(
+                                    stack = widget, viewModel = viewModel, isEditMode = false,
+                                    onToggleCollapsed = { viewModel.updateWidget(HOME_WIDGET_AREA, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
+                                    onDelete = {}, onSettings = {}
                                 )
                             }
                         }
@@ -506,6 +538,17 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                                     )
                                 }
                             )
+                            is HKIEnergyCardWidget -> EnergyCardWidgetItem(
+                                widget = widget, viewModel = viewModel, isEditMode = isEditMode,
+                                onDelete = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
+                                onSettings = { editingEnergyCard = null to widget }
+                            )
+                            is HKIEnergyStack -> EnergyStackWidgetItem(
+                                stack = widget, viewModel = viewModel, isEditMode = isEditMode,
+                                onToggleCollapsed = { viewModel.updateWidget(HOME_WIDGET_AREA, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
+                                onDelete = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
+                                onSettings = { editingEnergyStack = null to widget }
+                            )
                         }
                     }
                 }
@@ -567,6 +610,8 @@ fun HAHomeScreen(viewModel: MainViewModel) {
             onAddCameraWidget = { pendingSingleWidgetKind = "camera"; pendingSingleWidgetContainerId = null; showAddWidget = false },
             onAddVacuumWidget = { pendingSingleWidgetKind = "vacuum"; pendingSingleWidgetContainerId = null; showAddWidget = false },
             onAddWeatherWidget = { pendingWeatherWidgetContainerId = "__top__"; showAddWidget = false },
+            onAddEnergyCard = { showEnergyCardPicker = true; showAddWidget = false },
+            onAddEnergyStack = { showEnergyStackPicker = true; showAddWidget = false },
             allEntities = entities
         )
     }
@@ -988,6 +1033,22 @@ fun HAHomeScreen(viewModel: MainViewModel) {
             isVacuumItem = widget.kind == "vacuum" || widget.entityId.startsWith("vacuum."),
             allEntities = entities,
             onDismiss = { selectedSingleWidgetSettings = null },
+            widgetAppearance = com.example.hki7.ui.screens.WidgetAppearance(widget.isSquare, widget.cornerRadius, widget.width),
+            onSaveWithAppearance = { config, a ->
+                if (containerId == null) {
+                    val latest = homeWidgets.filterIsInstance<HKISingleEntityWidget>().find { it.id == widget.id } ?: widget
+                    viewModel.updateWidget(
+                        HOME_WIDGET_AREA,
+                        latest.copy(config = config, isSquare = a.isSquare, cornerRadius = a.cornerRadius, width = a.width)
+                    )
+                } else {
+                    updateChildInSwipingStack(
+                        containerId,
+                        widget.copy(config = config, isSquare = a.isSquare, cornerRadius = a.cornerRadius, width = a.width)
+                    )
+                }
+                selectedSingleWidgetSettings = null
+            },
             onSave = { config ->
                 if (containerId == null) {
                     val latest = homeWidgets.filterIsInstance<HKISingleEntityWidget>().find { it.id == widget.id } ?: widget
@@ -1098,6 +1159,43 @@ fun HAHomeScreen(viewModel: MainViewModel) {
             spinIcon = selectedHumidifierConfig?.spinIcon == true,
             onDismiss = { selectedHumidifierEntity = null; selectedHumidifierConfig = null }
         )
+    }
+
+    if (showEnergyCardPicker) {
+        EnergyCardPickerDialog(
+            multiSelect = true, title = "Add Energy Cards",
+            onDismiss = { showEnergyCardPicker = false },
+            onSelected = { keys ->
+                keys.forEach {
+                    viewModel.addWidgetToArea(HOME_WIDGET_AREA, HKIEnergyCardWidget(id = UUID.randomUUID().toString(), cardKey = it))
+                }
+                showEnergyCardPicker = false
+            }
+        )
+    }
+    if (showEnergyStackPicker) {
+        EnergyCardPickerDialog(
+            multiSelect = true, title = "Energy Stack Cards",
+            onDismiss = { showEnergyStackPicker = false },
+            onSelected = { keys ->
+                viewModel.addWidgetToArea(HOME_WIDGET_AREA, HKIEnergyStack(id = UUID.randomUUID().toString(), cardKeys = keys))
+                showEnergyStackPicker = false
+            }
+        )
+    }
+    editingEnergyCard?.let { (containerId, w) ->
+        EnergyCardWidgetSettingsDialog(w, onDismiss = { editingEnergyCard = null }) { updated ->
+            if (containerId == null) viewModel.updateWidget(HOME_WIDGET_AREA, updated)
+            else updateChildInSwipingStack(containerId, updated)
+            editingEnergyCard = null
+        }
+    }
+    editingEnergyStack?.let { (containerId, s) ->
+        EnergyStackSettingsDialog(s, onDismiss = { editingEnergyStack = null }) { updated ->
+            if (containerId == null) viewModel.updateWidget(HOME_WIDGET_AREA, updated)
+            else updateChildInSwipingStack(containerId, updated)
+            editingEnergyStack = null
+        }
     }
 
     selectedAlarmEntity?.let { entity ->

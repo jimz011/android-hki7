@@ -3,6 +3,10 @@ package com.example.hki7.data
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 /**
  * Re-arms background presence after a reboot. Geofences don't survive a reboot, so we re-register
@@ -18,6 +22,20 @@ class BootReceiver : BroadcastReceiver() {
             "android.intent.action.QUICKBOOT_POWERON" -> {
                 LocationWork.schedule(context)
                 LocationWork.syncNow(context)
+                // Fused-location requests don't survive a reboot either; re-arm right away so
+                // geofence detection is responsive before the first worker run.
+                BackgroundLocationReceiver.register(context)
+                // Bring the persistent notification connection back up if the user opted in.
+                val result = goAsync()
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        if (PreferencesManager(context).backgroundPushEnabled.first()) {
+                            PushForegroundService.start(context)
+                        }
+                    } finally {
+                        result.finish()
+                    }
+                }
             }
         }
     }

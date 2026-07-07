@@ -36,7 +36,7 @@ import androidx.compose.ui.zIndex
 import androidx.core.graphics.toColorInt
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HKIAreaConfig
 import com.example.hki7.data.HKIBadgeBarConfig
@@ -46,6 +46,15 @@ import com.example.hki7.ui.ConnectionStatus
 import com.example.hki7.ui.screens.SettingsDialog
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
+
+/** Lower = more urgent; the pill shows the most urgent of the selected alarms. */
+private fun alarmDisplayPriority(state: String): Int = when (state.lowercase()) {
+    "triggered" -> 0
+    "pending", "arming", "disarming" -> 1
+    "armed_home", "armed_away", "armed_night", "armed_vacation", "armed_custom_bypass" -> 2
+    "disarmed" -> 3
+    else -> 4
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -63,6 +72,9 @@ fun HKIPage(
     pageSettingsTitle: String? = null,
     extraPageSettingsSection: Pair<String, @Composable ColumnScope.() -> Unit>? = null,
     onBack: (() -> Unit)? = null,
+    showBadgeBar: Boolean = true,
+    /** Pinned bar between the header and the scrolling content (e.g. the energy time filter). */
+    headerBar: (@Composable () -> Unit)? = null,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val weather by viewModel.weather.collectAsState()
@@ -85,7 +97,7 @@ fun HKIPage(
     var showWeatherDialog by remember { mutableStateOf(false) }
     var showLeftPillSettings by remember { mutableStateOf(false) }
     var showRightPillSettings by remember { mutableStateOf(false) }
-    var headerAlarmDialogEntityId by remember { mutableStateOf<String?>(null) }
+    var headerAlarmDialogEntityIds by remember { mutableStateOf<List<String>?>(null) }
     var showRoomConfig by remember { mutableStateOf(false) }
     var showPageConfig by remember { mutableStateOf(false) }
     var previewHeaderColor by remember { mutableStateOf<String?>(null) }
@@ -269,11 +281,15 @@ fun HKIPage(
                                 }
                             } else {
                                 val leftDisplayType by viewModel.headerLeftDisplayType.collectAsState()
-                                val leftAlarmEntityId by viewModel.headerLeftAlarmEntityId.collectAsState()
-                                val leftAlarmEntity = allEntities.find { it.entity_id == leftAlarmEntityId }
-                                    ?: allEntities.firstOrNull { it.entity_id.startsWith("alarm_control_panel.") }
+                                val leftAlarmIds by viewModel.headerLeftAlarmEntityIds.collectAsState()
+                                val leftAlarmEntities = leftAlarmIds.mapNotNull { id -> allEntities.find { it.entity_id == id } }
+                                    .ifEmpty { listOfNotNull(allEntities.firstOrNull { it.entity_id.startsWith("alarm_control_panel.") }) }
+                                // Show the most urgent alarm on the pill; tapping opens all of them.
+                                val leftAlarmEntity = leftAlarmEntities.minByOrNull { alarmDisplayPriority(it.state) }
                                 val use24h by viewModel.use24hFormat.collectAsState()
                                 val useFullDayName by viewModel.useFullDayName.collectAsState()
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                NotificationBellButton(viewModel, pillColor = pillColor, iconTint = headerTextColor)
                                 HeaderStatusPill(
                                     displayType = leftDisplayType,
                                     weather = weather,
@@ -288,16 +304,19 @@ fun HKIPage(
                                     onClick = {
                                         when (leftDisplayType) {
                                             "Weather", "DateTime" -> showWeatherDialog = true
-                                            "Alarm" -> leftAlarmEntity?.let { headerAlarmDialogEntityId = it.entity_id }
+                                            "Alarm" -> if (leftAlarmEntities.isNotEmpty())
+                                                headerAlarmDialogEntityIds = leftAlarmEntities.map { it.entity_id }
                                         }
                                     }
                                 )
+                                }
                             }
 
                             val weatherDisplayType by viewModel.weatherDisplayType.collectAsState()
-                            val rightAlarmEntityId by viewModel.headerAlarmEntityId.collectAsState()
-                            val rightAlarmEntity = allEntities.find { it.entity_id == rightAlarmEntityId }
-                                ?: allEntities.firstOrNull { it.entity_id.startsWith("alarm_control_panel.") }
+                            val rightAlarmIds by viewModel.headerAlarmEntityIds.collectAsState()
+                            val rightAlarmEntities = rightAlarmIds.mapNotNull { id -> allEntities.find { it.entity_id == id } }
+                                .ifEmpty { listOfNotNull(allEntities.firstOrNull { it.entity_id.startsWith("alarm_control_panel.") }) }
+                            val rightAlarmEntity = rightAlarmEntities.minByOrNull { alarmDisplayPriority(it.state) }
                             val showPill = weatherDisplayType != "None"
                             Box(
                                 modifier = if (!showPill && isEditMode) Modifier.size(36.dp) else Modifier,
@@ -312,7 +331,8 @@ fun HKIPage(
                                                 if (!isEditMode) {
                                                     when (weatherDisplayType) {
                                                         "Weather", "DateTime" -> showWeatherDialog = true
-                                                        "Alarm" -> rightAlarmEntity?.let { headerAlarmDialogEntityId = it.entity_id }
+                                                        "Alarm" -> if (rightAlarmEntities.isNotEmpty())
+                                                            headerAlarmDialogEntityIds = rightAlarmEntities.map { it.entity_id }
                                                     }
                                                 }
                                             },
@@ -521,7 +541,7 @@ fun HKIPage(
                 }
             }
             
-            HKIBadgeBar(
+            if (showBadgeBar) HKIBadgeBar(
                 badgeBarConfig = badgeBarConfig,
                 allEntities    = allEntities,
                 isEditMode     = isEditMode,
@@ -537,6 +557,8 @@ fun HKIPage(
                     }
                 }
             )
+
+            headerBar?.invoke()
 
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 content(PaddingValues())
@@ -555,40 +577,42 @@ fun HKIPage(
 
         if (showLeftPillSettings && weather != null) {
             val leftDisplayType by viewModel.headerLeftDisplayType.collectAsState()
-            val leftAlarmEntityId by viewModel.headerLeftAlarmEntityId.collectAsState()
+            val leftAlarmEntityIds by viewModel.headerLeftAlarmEntityIds.collectAsState()
             HKIWeatherDialog(
                 weather = weather!!,
                 onDismiss = { showLeftPillSettings = false },
                 viewModel = viewModel,
                 settingsTitle = "Left Header Pill",
                 displayType = leftDisplayType,
-                alarmEntityId = leftAlarmEntityId,
+                alarmEntityIds = leftAlarmEntityIds,
                 onDisplayTypeSelected = { viewModel.setHeaderLeftDisplayType(it) },
-                onAlarmEntitySelected = { viewModel.setHeaderLeftAlarmEntity(it) }
+                onAlarmEntitiesSelected = { viewModel.setHeaderLeftAlarmEntities(it) }
             )
         }
 
         if (showRightPillSettings && weather != null) {
             val rightDisplayType by viewModel.weatherDisplayType.collectAsState()
-            val rightAlarmEntityId by viewModel.headerAlarmEntityId.collectAsState()
+            val rightAlarmEntityIds by viewModel.headerAlarmEntityIds.collectAsState()
             HKIWeatherDialog(
                 weather = weather!!,
                 onDismiss = { showRightPillSettings = false },
                 viewModel = viewModel,
                 settingsTitle = "Right Header Pill",
                 displayType = rightDisplayType,
-                alarmEntityId = rightAlarmEntityId,
+                alarmEntityIds = rightAlarmEntityIds,
                 onDisplayTypeSelected = { viewModel.setWeatherDisplayType(it) },
-                onAlarmEntitySelected = { viewModel.setHeaderAlarmEntity(it) }
+                onAlarmEntitiesSelected = { viewModel.setHeaderAlarmEntities(it) }
             )
         }
 
-        headerAlarmDialogEntityId?.let { entityId ->
-            allEntities.find { it.entity_id == entityId }?.let { entity ->
+        headerAlarmDialogEntityIds?.let { ids ->
+            val alarmEntities = ids.mapNotNull { id -> allEntities.find { it.entity_id == id } }
+            if (alarmEntities.isNotEmpty()) {
                 HKIAlarmDialog(
-                    entity = entity,
+                    entity = alarmEntities.first(),
+                    entities = alarmEntities,
                     viewModel = viewModel,
-                    onDismiss = { headerAlarmDialogEntityId = null }
+                    onDismiss = { headerAlarmDialogEntityIds = null }
                 )
             }
         }

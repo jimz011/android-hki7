@@ -206,7 +206,11 @@ data class HAFloor(
 data class HAEntityRegistryEntry(
     val entity_id: String,
     val area_id: String? = null,
-    val device_id: String? = null
+    val device_id: String? = null,
+    /** "config" | "diagnostic" | null (= primary control/sensor). */
+    val entity_category: String? = null,
+    val disabled_by: String? = null,
+    val hidden_by: String? = null
 )
 
 @Serializable
@@ -214,7 +218,12 @@ data class HADeviceRegistryEntry(
     val id: String,
     val area_id: String? = null,
     val name: String? = null,
-    val name_by_user: String? = null
+    val name_by_user: String? = null,
+    /** Parent hub device (e.g. inverters report their Envoy here). */
+    val via_device_id: String? = null,
+    val manufacturer: String? = null,
+    val model: String? = null,
+    val sw_version: String? = null
 )
 
 @Serializable
@@ -240,7 +249,11 @@ data class HAServiceCall(
     val direction: String? = null,
     val humidity: Int? = null,
     val mode: String? = null,
-    val code: String? = null
+    val code: String? = null,
+    /** select/input_select.select_option */
+    val option: String? = null,
+    /** number/input_number/text/input_text.set_value (HA coerces numeric strings). */
+    val value: String? = null
 )
 
 @Serializable
@@ -281,11 +294,31 @@ data class HALogbookEntry(
     val domain: String? = null
 )
 
+/** One point from the recorder statistics API (per-hour or per-day aggregate). */
+data class HAStatPoint(
+    val startMs: Long,
+    val mean: Float?,
+    val change: Float?
+)
+
 /** A single entity change streamed from the websocket `state_changed` subscription.
  *  [newState] is null when the entity was removed. */
 data class HAStateChange(
     val entityId: String,
     val newState: HAEntity?
+)
+
+/** One entry in the on-device notification history (delivered via the websocket push channel).
+ *  Non-archived entries are purged 48h after arrival; archived entries are kept forever. */
+@Serializable
+data class HKINotification(
+    val id: String,
+    val title: String? = null,
+    val message: String,
+    val timestamp: Long,
+    val tag: String? = null,
+    val read: Boolean = false,
+    val archived: Boolean = false
 )
 
 /** Response from HA's `/api/mobile_app/registrations`. */
@@ -411,7 +444,36 @@ data class HKIEnergyConfig(
     val waterEntityId: String? = null,
     val waterCostEntityId: String? = null,
     /** Power sensors the user tracks as individual devices (shown under Top consumers). */
-    val deviceEntityIds: List<String> = emptyList()
+    val deviceEntityIds: List<String> = emptyList(),
+    // HA-style electricity sensors (P1 meter): per-phase power and tariff-split energy counters.
+    val powerPhase1EntityId: String? = null,
+    val powerPhase2EntityId: String? = null,
+    val powerPhase3EntityId: String? = null,
+    // Per-phase current (A) and voltage (V), shown on the Electricity tab.
+    val currentPhase1EntityId: String? = null,
+    val currentPhase2EntityId: String? = null,
+    val currentPhase3EntityId: String? = null,
+    val voltagePhase1EntityId: String? = null,
+    val voltagePhase2EntityId: String? = null,
+    val voltagePhase3EntityId: String? = null,
+    // Live flow rates for the Gas/Water tiles (falls back to today's total when unset).
+    val gasCurrentEntityId: String? = null,
+    val waterCurrentEntityId: String? = null,
+    val gridImportTariff1EntityId: String? = null,
+    val gridImportTariff2EntityId: String? = null,
+    val gridExportTariff1EntityId: String? = null,
+    val gridExportTariff2EntityId: String? = null,
+    // Extended solar sensors + multi-entity forecast (like HA's energy dashboard).
+    val solarLast7DaysEntityId: String? = null,
+    val solarLifetimeEntityId: String? = null,
+    val solarForecastEntityIds: List<String> = emptyList(),
+    /** HA device whose entities (per-inverter sensors) are listed on the Solar page. */
+    val solarDeviceId: String? = null,
+    // Source devices per category: picking one auto-fills the matching entity fields.
+    val electricityDeviceId: String? = null,
+    val batteryDeviceId: String? = null,
+    val gasDeviceId: String? = null,
+    val waterDeviceId: String? = null
 )
 
 @Serializable
@@ -525,6 +587,36 @@ data class HKISubtitleWidget(
     override val width: String = "full",
     val text: String,
     val icon: String? = null
+) : HKIRoomWidget()
+
+/** One card from the Energy view, embeddable on any page. cardKey selects the card (see
+ *  energyCardCatalog in EnergyScreen). Data always reflects "today". */
+@Serializable
+@SerialName("energy_card")
+data class HKIEnergyCardWidget(
+    override val id: String,
+    override val width: String = "full",
+    val cardKey: String = "house",
+    val title: String? = null,
+    val icon: String? = null,
+    val cornerRadius: Int = 28,
+    val isHidden: Boolean = false
+) : HKIRoomWidget()
+
+/** A stack of energy cards, collapsible like the other stacks. */
+@Serializable
+@SerialName("energy_stack")
+data class HKIEnergyStack(
+    override val id: String,
+    override val width: String = "full",
+    val title: String? = null,
+    val icon: String? = null,
+    val cardKeys: List<String> = emptyList(),
+    val cornerRadius: Int = 28,
+    val isHidden: Boolean = false,
+    val collapsible: Boolean = true,
+    val defaultCollapsed: Boolean = false,
+    val isCollapsed: Boolean? = null
 ) : HKIRoomWidget()
 
 @Serializable

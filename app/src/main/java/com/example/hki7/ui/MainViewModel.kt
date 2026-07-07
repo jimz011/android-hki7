@@ -41,6 +41,9 @@ private const val DASHBOARD_REFRESH_INTERVAL_MS = 5 * 60 * 1000L
  *  run rarely to self-heal any silently-missed events — not every minute. */
 private const val STATE_RESEED_INTERVAL_MS = 15 * 60 * 1000L
 
+/** How long a fetched weather forecast is served from cache before re-fetching. */
+private const val WEATHER_FORECAST_TTL_MS = 10 * 60 * 1000L
+
 
 class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : ViewModel() {
     private val networkMonitor = appCtx?.let { NetworkMonitor(it) }
@@ -93,13 +96,23 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     // keyed "$entityId:$type" (type = "daily" | "hourly").
     private val _weatherForecastCache = MutableStateFlow<Map<String, List<HAWeatherForecast>>>(emptyMap())
     val weatherForecastCache: StateFlow<Map<String, List<HAWeatherForecast>>> = _weatherForecastCache
+    private val weatherForecastFetchedAt = mutableMapOf<String, Long>()
 
-    fun fetchWeatherForecastFor(entityId: String, type: String) {
+    fun fetchWeatherForecastFor(entityId: String, type: String, force: Boolean = false) {
         val currentClient = client ?: return
+        // Widgets and the weather dialog call this on every (re)composition; forecasts change
+        // slowly, so serve the cache for a while instead of hitting HA on each open (the fetch
+        // round-trip was what made the weather dialog feel sluggish).
+        val key = "$entityId:$type"
+        val fetchedAt = weatherForecastFetchedAt[key]
+        val fresh = fetchedAt != null && System.currentTimeMillis() - fetchedAt < WEATHER_FORECAST_TTL_MS
+        if (fresh && !force && _weatherForecastCache.value.containsKey(key)) return
+        weatherForecastFetchedAt[key] = System.currentTimeMillis()
         viewModelScope.launch {
             val result = runCatching { currentClient.getWeatherForecast(entityId, type) }.getOrDefault(emptyList())
+            if (result.isEmpty()) weatherForecastFetchedAt.remove(key)
             val current = _weatherForecastCache.value.toMutableMap()
-            current["$entityId:$type"] = result
+            current[key] = result
             _weatherForecastCache.value = current
         }
     }
@@ -122,6 +135,47 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private val _historyMapping = MutableStateFlow<Map<String, List<HAHistoryEntry>>>(emptyMap())
     val historyMapping: StateFlow<Map<String, List<HAHistoryEntry>>> = _historyMapping
 
+    // Entity/device registries, fetched on demand (used by the energy view's inverter device picker).
+    private val _entityRegistry = MutableStateFlow<List<HAEntityRegistryEntry>>(emptyList())
+    val entityRegistry: StateFlow<List<HAEntityRegistryEntry>> = _entityRegistry
+    private val _deviceRegistry = MutableStateFlow<List<HADeviceRegistryEntry>>(emptyList())
+    val deviceRegistry: StateFlow<List<HADeviceRegistryEntry>> = _deviceRegistry
+
+    // Energy statistics (recorder aggregates), keyed "entityId|period" so ranges don't mix.
+    private val _energyStats = MutableStateFlow<Map<String, List<HAStatPoint>>>(emptyMap())
+    val energyStats: StateFlow<Map<String, List<HAStatPoint>>> = _energyStats
+
+    fun fetchEnergyStatistics(
+        ids: List<String>, startMillis: Long, period: String, keySuffix: String,
+        endMillis: Long? = null
+    ) {
+        val currentClient = client ?: return
+        if (ids.isEmpty()) return
+        viewModelScope.launch {
+            runCatching {
+                val stats = currentClient.getStatistics(ids, startMillis, period, endMillis)
+                _energyStats.value = _energyStats.value + stats.mapKeys { (id, _) -> "$id|$keySuffix" }
+            }.onFailure { addLog("Statistics fetch failed: ${it.message}") }
+        }
+    }
+
+    private var registriesLoaded = false
+    fun fetchRegistries(force: Boolean = false) {
+        val currentClient = client ?: return
+        // Registries barely change at runtime; dialogs call this on open, so serve the cache.
+        if (registriesLoaded && !force) return
+        registriesLoaded = true
+        viewModelScope.launch {
+            runCatching {
+                _entityRegistry.value = currentClient.getEntityRegistry()
+                _deviceRegistry.value = currentClient.getDeviceRegistry()
+            }.onFailure {
+                registriesLoaded = false
+                addLog("Registry fetch failed: ${it.message}")
+            }
+        }
+    }
+
     private val _isEditMode = MutableStateFlow(false)
     val isEditMode: StateFlow<Boolean> = _isEditMode
 
@@ -133,6 +187,44 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     private val _forcedLogoutReason = MutableStateFlow<String?>(null)
     val forcedLogoutReason: StateFlow<String?> = _forcedLogoutReason
+
+    // Notification history (persisted; written by the push channel and the foreground service).
+    // Non-archived entries expire after 48h (purged on read here and on every append).
+    val notifications: StateFlow<List<com.example.hki7.data.HKINotification>> =
+        prefs.notificationHistory
+            .map { list ->
+                val cutoff = System.currentTimeMillis() - PushNotificationHandler.RETENTION_MS
+                list.filter { it.archived || it.timestamp >= cutoff }
+            }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    private fun updateNotifications(transform: (List<com.example.hki7.data.HKINotification>) -> List<com.example.hki7.data.HKINotification>) {
+        viewModelScope.launch {
+            prefs.saveNotificationHistory(transform(prefs.notificationHistory.first()))
+        }
+    }
+
+    fun deleteNotification(id: String) = updateNotifications { list -> list.filterNot { it.id == id } }
+
+    /** Clears all non-archived notifications; the archive is untouched. */
+    fun clearNotifications() = updateNotifications { list -> list.filter { it.archived } }
+
+    fun setNotificationRead(id: String, read: Boolean) =
+        updateNotifications { list -> list.map { if (it.id == id) it.copy(read = read) else it } }
+
+    fun markAllNotificationsRead() =
+        updateNotifications { list -> list.map { if (it.archived) it else it.copy(read = true) } }
+
+    fun markAllNotificationsUnread() =
+        updateNotifications { list -> list.map { if (it.archived) it else it.copy(read = false) } }
+
+    fun clearArchivedNotifications() = updateNotifications { list -> list.filterNot { it.archived } }
+
+    fun archiveNotification(id: String) =
+        updateNotifications { list -> list.map { if (it.id == id) it.copy(archived = true, read = true) else it } }
+
+    fun unarchiveNotification(id: String) =
+        updateNotifications { list -> list.map { if (it.id == id) it.copy(archived = false) else it } }
 
     private val undoStack = mutableListOf<Snapshot>()
     private val redoStack = mutableListOf<Snapshot>()
@@ -206,11 +298,11 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private val _weatherExtraEntities = MutableStateFlow<Map<String, String?>>(emptyMap())
     val weatherExtraEntities: StateFlow<Map<String, String?>> = _weatherExtraEntities
 
-    private val _headerAlarmEntityId = MutableStateFlow<String?>(null)
-    val headerAlarmEntityId: StateFlow<String?> = _headerAlarmEntityId
+    private val _headerAlarmEntityIds = MutableStateFlow<List<String>>(emptyList())
+    val headerAlarmEntityIds: StateFlow<List<String>> = _headerAlarmEntityIds
 
-    private val _headerLeftAlarmEntityId = MutableStateFlow<String?>(null)
-    val headerLeftAlarmEntityId: StateFlow<String?> = _headerLeftAlarmEntityId
+    private val _headerLeftAlarmEntityIds = MutableStateFlow<List<String>>(emptyList())
+    val headerLeftAlarmEntityIds: StateFlow<List<String>> = _headerLeftAlarmEntityIds
 
     private val _alarmPendingSeconds = MutableStateFlow(0)
     val alarmPendingSeconds: StateFlow<Int> = _alarmPendingSeconds
@@ -218,6 +310,8 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private var client: HomeAssistantClient? = null
     private var pollJob: Job? = null
     private var realtimeJob: Job? = null
+    private var pushJob: Job? = null
+    private val pushHandler by lazy { appContext?.let { PushNotificationHandler(it, prefs) } }
     private val realtimeBuffer = java.util.concurrent.ConcurrentHashMap<String, HAStateChange>()
     private var refreshJob: Job? = null
     private var tokenRefreshJob: Job? = null
@@ -260,12 +354,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         viewModelScope.launch { prefs.headerLeftDisplayType.collect { _headerLeftDisplayType.value = it } }
         viewModelScope.launch { prefs.use24hFormat.collect { _use24hFormat.value = it } }
         viewModelScope.launch { prefs.useFullDayName.collect { _useFullDayName.value = it } }
-        viewModelScope.launch { prefs.alarmEntityId.collect { _headerAlarmEntityId.value = it } }
-        viewModelScope.launch { prefs.headerLeftAlarmEntityId.collect { _headerLeftAlarmEntityId.value = it } }
+        viewModelScope.launch { prefs.alarmEntityIds.collect { _headerAlarmEntityIds.value = it } }
+        viewModelScope.launch { prefs.headerLeftAlarmEntityIds.collect { _headerLeftAlarmEntityIds.value = it } }
         viewModelScope.launch { prefs.alarmPendingSeconds.collect { _alarmPendingSeconds.value = it } }
         viewModelScope.launch {
-            combine(prefs.sunEntityId, prefs.moonEntityId, prefs.aqiEntityId, prefs.seasonEntityId, prefs.rainEntityId) { args: Array<String?> ->
-                mapOf("sun" to args[0], "moon" to args[1], "aqi" to args[2], "season" to args[3], "rain" to args[4])
+            combine(prefs.sunEntityId, prefs.moonEntityId, prefs.aqiEntityId, prefs.seasonEntityId, prefs.rainEntityId, prefs.weatherDeviceId) { args: Array<String?> ->
+                mapOf("sun" to args[0], "moon" to args[1], "aqi" to args[2], "season" to args[3], "rain" to args[4], "device" to args[5])
             }.collect { _weatherExtraEntities.value = it }
         }
     }
@@ -358,6 +452,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                         appContext?.let {
                             LocationForegroundService.stop(it)
                             LocationWork.cancel(it)
+                            com.example.hki7.data.BackgroundLocationReceiver.unregister(it)
                         }
                         client = null
                         activeConnectionKey = null
@@ -403,13 +498,41 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private fun startSync() {
         startPolling()
         startRealtimeSync()
+        startPushChannel()
     }
 
     private fun stopSync() {
         stopPolling()
         stopRealtimeSync()
+        stopPushChannel()
         client?.closeSession()
     }
+
+    /** Subscribes to the mobile_app websocket push channel while the app is visible, so calls to
+     *  notify.mobile_app_<device> arrive instantly. When the background-notifications toggle is on,
+     *  [PushForegroundService] owns the subscription instead (it also covers the foreground). */
+    private fun startPushChannel() {
+        pushJob?.cancel()
+        val handler = pushHandler ?: return
+        pushJob = viewModelScope.launch(Dispatchers.IO) {
+            while (currentCoroutineContext().isActive) {
+                if (prefs.backgroundPushEnabled.first()) { delay(30.seconds); continue }
+                val webhookId = prefs.mobileAppWebhookId.first()
+                val currentClient = client
+                if (webhookId.isNullOrBlank() || currentClient == null) { delay(10.seconds); continue }
+                try {
+                    currentClient.subscribePushNotifications(webhookId).collect { event ->
+                        runCatching { handler.handle(event) }
+                    }
+                } catch (e: Exception) {
+                    if (e.message != "AUTH_EXPIRED") addLog("Push channel interrupted: ${e.message}")
+                }
+                delay(5.seconds) // backoff before resubscribing
+            }
+        }
+    }
+
+    private fun stopPushChannel() { pushJob?.cancel(); pushJob = null }
 
     /** Live updates come from the websocket subscription; this REST loop is now only a slow safety
      *  re-seed (in case events are missed) plus the periodic dashboard/registry rebuild. */
@@ -838,8 +961,8 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     fun setUse24hFormat(use24h: Boolean) { viewModelScope.launch { prefs.saveUse24hFormat(use24h) } }
     fun setUseFullDayName(useFullDayName: Boolean) { viewModelScope.launch { prefs.saveUseFullDayName(useFullDayName) } }
     fun setWeatherExtraEntity(role: String, entityId: String?) { viewModelScope.launch { prefs.saveWeatherExtraEntity(role, entityId) } }
-    fun setHeaderAlarmEntity(entityId: String?) { viewModelScope.launch { prefs.saveHeaderAlarmEntity(entityId) } }
-    fun setHeaderLeftAlarmEntity(entityId: String?) { viewModelScope.launch { prefs.saveHeaderLeftAlarmEntity(entityId) } }
+    fun setHeaderAlarmEntities(entityIds: List<String>) { viewModelScope.launch { prefs.saveHeaderAlarmEntities(entityIds) } }
+    fun setHeaderLeftAlarmEntities(entityIds: List<String>) { viewModelScope.launch { prefs.saveHeaderLeftAlarmEntities(entityIds) } }
     fun setAlarmPendingSeconds(seconds: Int) { viewModelScope.launch { prefs.saveAlarmPendingSeconds(seconds) } }
 
     fun toggleLock(entityId: String) {
@@ -1200,6 +1323,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         // reportDeviceTelemetry here) avoids two concurrent first-time registrations becoming duplicates.
         LocationWork.schedule(ctx)
         LocationWork.syncNow(ctx)
+        // Official-app-style passive background location: keeps the fused provider warm so
+        // geofence transitions fire promptly, and reports the throttled background fixes to HA.
+        com.example.hki7.data.BackgroundLocationReceiver.register(ctx)
         observeHighAccuracyService(ctx)
     }
 
@@ -1481,6 +1607,18 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 refreshEntities(isSilent = true)
             }
         }
+    }
+
+    /** Appends any prebuilt widget (used by the energy card/stack widgets). */
+    fun addWidgetToArea(areaId: String, widget: HKIRoomWidget) {
+        takeSnapshot()
+        bumpWidgetUi()
+        val currentMapping = _areaWidgetsMapping.value.toMutableMap()
+        val currentList = currentMapping[areaId]?.toMutableList() ?: mutableListOf()
+        currentList.add(widget)
+        currentMapping[areaId] = currentList
+        _areaWidgetsMapping.value = currentMapping
+        viewModelScope.launch { prefs.saveAreaWidgets(currentMapping) }
     }
 
     fun addSubtitleToArea(areaId: String, text: String, icon: String? = null) {

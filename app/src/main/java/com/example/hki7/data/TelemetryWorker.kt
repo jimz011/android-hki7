@@ -28,10 +28,14 @@ class TelemetryWorker(appContext: Context, params: WorkerParameters) :
         if (prefs.serverUrl.first().isNullOrBlank()) {
             // Logged out: stop waking up until the app re-arms us on next login.
             LocationWork.cancel(applicationContext)
+            BackgroundLocationReceiver.unregister(applicationContext)
             return Result.success()
         }
         runCatching { reportTelemetryNow(applicationContext, prefs) }
         runCatching { GeofenceManager(applicationContext).sync(prefs) }
+        // Re-arm the passive background location request (lost on force-stop/app update); it keeps
+        // the fused provider sampling so geofence transitions are detected promptly.
+        runCatching { BackgroundLocationReceiver.register(applicationContext) }
         return Result.success()
     }
 }

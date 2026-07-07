@@ -48,9 +48,12 @@ import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.put
 import java.time.Duration
 import java.time.Instant
@@ -367,6 +370,80 @@ class HomeAssistantClient(
                     put("subscription", id)
                 }.toString())
             }
+        }
+    }
+
+    /** Long-term statistics (recorder): pre-aggregated per-hour/per-day mean and change values —
+     *  the same source HA's own energy dashboard uses. Tiny payloads compared to raw history,
+     *  which for a per-second P1 meter can run into millions of rows over a month. */
+    suspend fun getStatistics(
+        statisticIds: List<String>,
+        startMillis: Long,
+        period: String,   // "hour" | "day" | "month"
+        endMillis: Long? = null
+    ): Map<String, List<HAStatPoint>> {
+        return withWebSocket {
+            val args = buildMap {
+                put("start_time", JsonPrimitive(java.time.Instant.ofEpochMilli(startMillis).toString()))
+                endMillis?.let { put("end_time", JsonPrimitive(java.time.Instant.ofEpochMilli(it).toString())) }
+                put("period", JsonPrimitive(period))
+                put("statistic_ids", JsonArray(statisticIds.map { JsonPrimitive(it) }))
+                put("types", JsonArray(listOf("mean", "change").map { JsonPrimitive(it) }))
+            }
+            val response = sendCommand("recorder/statistics_during_period", args)
+            val result = response["result"] as? JsonObject ?: return@withWebSocket emptyMap()
+            result.mapValues { (_, points) ->
+                (points as? JsonArray)?.mapNotNull { el ->
+                    val obj = el as? JsonObject ?: return@mapNotNull null
+                    // "start" is epoch millis on current HA; older cores sent ISO strings.
+                    val start = obj["start"]?.jsonPrimitive?.longOrNull
+                        ?: obj["start"]?.jsonPrimitive?.contentOrNull?.let { parseHaInstant(it)?.toEpochMilli() }
+                        ?: return@mapNotNull null
+                    HAStatPoint(
+                        startMs = start,
+                        mean = obj["mean"]?.jsonPrimitive?.doubleOrNull?.toFloat(),
+                        change = obj["change"]?.jsonPrimitive?.doubleOrNull?.toFloat()
+                    )
+                } ?: emptyList()
+            }
+        }
+    }
+
+    /** Streams push notifications from HA's mobile_app websocket push channel — the official app's
+     *  "local push" transport. HA delivers anything sent to `notify.mobile_app_<device>` here while
+     *  the subscription is up, and we confirm each delivery so HA knows it arrived. The flow
+     *  completes when the socket drops; re-collect to reconnect. */
+    fun subscribePushNotifications(webhookId: String): Flow<JsonObject> = flow {
+        ensureConnected()
+        val id = messageId++
+        val channel = Channel<JsonObject>(Channel.UNLIMITED)
+        responseChannels[id] = channel
+        try {
+            val activeSession = session ?: throw Exception("WS connection failed")
+            activeSession.send(buildJsonObject {
+                put("id", id)
+                put("type", "mobile_app/push_notification_channel")
+                put("webhook_id", webhookId)
+                put("support_confirm", true)
+            }.toString())
+
+            for (message in channel) {
+                if (message["type"]?.jsonPrimitive?.contentOrNull != "event") continue
+                val event = message["event"]?.jsonObject ?: continue
+                event["hass_confirm_id"]?.jsonPrimitive?.contentOrNull?.let { confirmId ->
+                    runCatching {
+                        session?.send(buildJsonObject {
+                            put("id", messageId++)
+                            put("type", "mobile_app/push_notification_confirm")
+                            put("webhook_id", webhookId)
+                            put("confirm_id", confirmId)
+                        }.toString())
+                    }
+                }
+                emit(event)
+            }
+        } finally {
+            responseChannels.remove(id)
         }
     }
 

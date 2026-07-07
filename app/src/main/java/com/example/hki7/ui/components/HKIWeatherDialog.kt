@@ -38,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -73,26 +74,42 @@ fun HKIWeatherDialog(
     onDismiss: () -> Unit,
     settingsTitle: String = "Header Pill",
     displayType: String? = null,
-    alarmEntityId: String? = null,
+    alarmEntityIds: List<String> = emptyList(),
     onDisplayTypeSelected: ((String) -> Unit)? = null,
-    onAlarmEntitySelected: ((String?) -> Unit)? = null
+    onAlarmEntitiesSelected: ((List<String>) -> Unit)? = null
 ) {
     val allEntities by viewModel.entities.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
     val use24h by viewModel.use24hFormat.collectAsState()
     val extraEntities by viewModel.weatherExtraEntities.collectAsState()
     val fetchedForecast by viewModel.weatherForecast.collectAsState()
+    val forecastCache by viewModel.weatherForecastCache.collectAsState()
     val currentDisplayType = if (isEditMode) displayType ?: "Weather" else "Weather"
 
-    val sun = allEntities.find { it.entity_id == extraEntities["sun"] } ?: allEntities.find { it.entity_id == "sun.sun" }
-    val moon = allEntities.find { it.entity_id == extraEntities["moon"] } ?: allEntities.find { it.entity_id == "sensor.moon" }
-    val aqi = allEntities.find { it.entity_id == extraEntities["aqi"] } ?: allEntities.find { it.entity_id.contains("aqi", ignoreCase = true) }
-    val season = allEntities.find { it.entity_id == extraEntities["season"] } ?: allEntities.find { it.entity_id == "sensor.season" }
-    val rain = allEntities.find { it.entity_id == extraEntities["rain"] }
-        ?: allEntities.find {
-            it.entity_id.contains("rain", ignoreCase = true) ||
-                it.entity_id.contains("precipitation", ignoreCase = true)
-        }
+    // Modern HA no longer puts forecasts in the entity attributes; fetch (TTL-cached) on open.
+    LaunchedEffect(weather.entity_id) { viewModel.fetchWeatherForecastFor(weather.entity_id, "daily") }
+    val dialogForecast = weather.forecast.takeUnless { it.isNullOrEmpty() }
+        ?: forecastCache["${weather.entity_id}:daily"].takeUnless { it.isNullOrEmpty() }
+        ?: fetchedForecast
+
+    // One id->entity map + role resolution per state batch; the previous five full-list scans on
+    // every websocket update were a big part of why this dialog felt sluggish.
+    val roleEntities = remember(allEntities, extraEntities) {
+        val byId = allEntities.associateBy { it.entity_id }
+        fun pick(role: String, fallback: (HAEntity) -> Boolean): HAEntity? =
+            extraEntities[role]?.let { byId[it] } ?: allEntities.find(fallback)
+        listOf(
+            pick("sun") { it.entity_id == "sun.sun" },
+            pick("moon") { it.entity_id == "sensor.moon" },
+            pick("aqi") { it.entity_id.contains("aqi", ignoreCase = true) },
+            pick("season") { it.entity_id == "sensor.season" },
+            pick("rain") {
+                it.entity_id.contains("rain", ignoreCase = true) ||
+                    it.entity_id.contains("precipitation", ignoreCase = true)
+            }
+        )
+    }
+    val (sun, moon, aqi, season, rain) = roleEntities
 
     HKIDialog(
         entity = weather,
@@ -108,9 +125,9 @@ fun HKIWeatherDialog(
                 viewModel = viewModel,
                 title = settingsTitle,
                 displayType = displayType,
-                alarmEntityId = alarmEntityId,
+                alarmEntityIds = alarmEntityIds,
                 onDisplayTypeSelected = onDisplayTypeSelected,
-                onAlarmEntitySelected = onAlarmEntitySelected,
+                onAlarmEntitiesSelected = onAlarmEntitiesSelected,
                 onEntitySelected = { id -> viewModel.saveWeatherEntity(id) }
             )
         } else {
@@ -122,7 +139,7 @@ fun HKIWeatherDialog(
                 modifier = Modifier.weight(1f)
             ) {
                 item(span = { GridItemSpan(2) }) { WeatherMainCard(weather) }
-                item(span = { GridItemSpan(2) }) { ForecastCard(weather.forecast.takeUnless { it.isNullOrEmpty() } ?: fetchedForecast) }
+                item(span = { GridItemSpan(2) }) { ForecastCard(dialogForecast) }
                 item { SunCard(sun, use24h) }
                 item { MoonCard(moon) }
                 item { AqiCard(aqi) }
@@ -512,9 +529,9 @@ fun WeatherConfigView(
     viewModel: MainViewModel,
     title: String = "Header Pill",
     displayType: String? = null,
-    alarmEntityId: String? = null,
+    alarmEntityIds: List<String> = emptyList(),
     onDisplayTypeSelected: ((String) -> Unit)? = null,
-    onAlarmEntitySelected: ((String?) -> Unit)? = null,
+    onAlarmEntitiesSelected: ((List<String>) -> Unit)? = null,
     onEntitySelected: (String) -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
@@ -524,6 +541,10 @@ fun WeatherConfigView(
     val useFullDayName by viewModel.useFullDayName.collectAsState()
     val extraEntities by viewModel.weatherExtraEntities.collectAsState()
     var selectingForRole by remember { mutableStateOf<String?>(null) }
+    var showDevicePicker by remember { mutableStateOf(false) }
+    val entityRegistry by viewModel.entityRegistry.collectAsState()
+    val deviceRegistry by viewModel.deviceRegistry.collectAsState()
+    LaunchedEffect(Unit) { viewModel.fetchRegistries() }
     val displayTypes = listOf("Weather", "Alarm", "Date", "Time", "DateTime", "None")
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 8.dp)) {
@@ -569,6 +590,12 @@ fun WeatherConfigView(
                 Text("Custom Entities", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
                 Spacer(Modifier.height(8.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    // Device-first setup: picking a weather station auto-fills the role entities
+                    // below; each row stays individually adjustable (entity fallback).
+                    val deviceName = extraEntities["device"]?.let { id ->
+                        deviceRegistry.find { it.id == id }?.let { it.name_by_user ?: it.name } ?: id
+                    }
+                    WeatherEntityRow("Source device", deviceName ?: "Pick to auto-fill") { showDevicePicker = true }
                     WeatherEntityRow("Weather", allEntities.find { it.entity_id.startsWith("weather.") }?.entity_id) { selectingForRole = "weather" }
                     WeatherEntityRow("Sun", extraEntities["sun"]) { selectingForRole = "sun" }
                     WeatherEntityRow("Moon", extraEntities["moon"]) { selectingForRole = "moon" }
@@ -579,11 +606,41 @@ fun WeatherConfigView(
             }
 
             if (currentDisplayType == "Alarm") item {
-                Text("Custom Entity", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
+                Text("Custom Entities", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
                 Spacer(Modifier.height(8.dp))
-                WeatherEntityRow("Alarm", alarmEntityId) { selectingForRole = "alarm" }
+                WeatherEntityRow(
+                    "Alarms",
+                    alarmEntityIds.takeIf { it.isNotEmpty() }?.joinToString { it.substringAfter(".") }
+                ) { selectingForRole = "alarm" }
             }
         }
+    }
+
+    if (showDevicePicker) {
+        DevicePickerDialog(
+            devices = deviceRegistry,
+            currentId = extraEntities["device"],
+            onDismiss = { showDevicePicker = false },
+            onSelected = { deviceId ->
+                viewModel.setWeatherExtraEntity("device", deviceId)
+                if (deviceId != null) {
+                    // Auto-fill the roles from the device's entities (weather station, rain
+                    // gauge, air quality). Sun/moon/season are HA-wide, not device-bound.
+                    val ids = entityRegistry.filter { it.device_id == deviceId }.map { it.entity_id }.toSet()
+                    val dev = allEntities.filter { it.entity_id in ids }
+                    fun unit(e: HAEntity) =
+                        e.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull ?: ""
+                    fun name(e: HAEntity) = (e.friendlyName ?: e.entity_id).lowercase()
+                    dev.find { it.entity_id.startsWith("weather.") }?.let { onEntitySelected(it.entity_id) }
+                    (dev.find { it.deviceClass == "precipitation" || it.deviceClass == "precipitation_intensity" }
+                        ?: dev.find { unit(it).contains("mm") && name(it).contains("rain") })
+                        ?.let { viewModel.setWeatherExtraEntity("rain", it.entity_id) }
+                    (dev.find { it.deviceClass == "aqi" } ?: dev.find { name(it).contains("air quality") || name(it).contains("aqi") })
+                        ?.let { viewModel.setWeatherExtraEntity("aqi", it.entity_id) }
+                }
+                showDevicePicker = false
+            }
+        )
     }
 
     if (selectingForRole != null) {
@@ -600,15 +657,15 @@ fun WeatherConfigView(
 
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter(filter),
+            singleSelect = selectingForRole != "alarm",
+            preselectedIds = if (selectingForRole == "alarm") alarmEntityIds.toSet() else emptySet(),
             onDismiss = { selectingForRole = null },
             onEntitiesSelected = { selected ->
                 val first = selected.firstOrNull()
-                if (selectingForRole == "weather") {
-                    if (first != null) onEntitySelected(first)
-                } else if (selectingForRole == "alarm") {
-                    onAlarmEntitySelected?.invoke(first)
-                } else {
-                    viewModel.setWeatherExtraEntity(selectingForRole!!, first)
+                when (selectingForRole) {
+                    "weather" -> if (first != null) onEntitySelected(first)
+                    "alarm" -> onAlarmEntitiesSelected?.invoke(selected)
+                    else -> viewModel.setWeatherExtraEntity(selectingForRole!!, first)
                 }
                 selectingForRole = null
             }
