@@ -69,9 +69,12 @@ fun AdvancedEntitySearchDialog(
             Column(modifier = Modifier.padding(16.dp)) {
                 // Header with Multi-Select Action
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onDismiss) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = appColors.onSurface)
+                    TextButton(onClick = onDismiss) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("Back")
                     }
+                    Spacer(Modifier.width(4.dp))
                     Text(title, style = MaterialTheme.typography.titleLarge, color = appColors.onSurface, modifier = Modifier.weight(1f))
                     
                     if (!singleSelect && selectedIds.isNotEmpty()) {

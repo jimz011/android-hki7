@@ -124,7 +124,12 @@ fun PersonSettingsView(
 
     Column(modifier = Modifier.padding(24.dp).heightIn(max = 500.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = appColors.onSurface) }
+            TextButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("Back")
+            }
+            Spacer(Modifier.width(8.dp))
             Text("Person Settings", style = MaterialTheme.typography.titleMedium, color = appColors.onSurface)
         }
         

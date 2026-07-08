@@ -44,6 +44,9 @@ private const val STATE_RESEED_INTERVAL_MS = 15 * 60 * 1000L
 /** How long a fetched weather forecast is served from cache before re-fetching. */
 private const val WEATHER_FORECAST_TTL_MS = 10 * 60 * 1000L
 
+/** Calendar widgets refresh often enough to feel current without refetching on every recomposition. */
+private const val CALENDAR_EVENTS_TTL_MS = 2 * 60 * 1000L
+
 
 class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : ViewModel() {
     private val networkMonitor = appCtx?.let { NetworkMonitor(it) }
@@ -98,6 +101,13 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     val weatherForecastCache: StateFlow<Map<String, List<HAWeatherForecast>>> = _weatherForecastCache
     private val weatherForecastFetchedAt = mutableMapOf<String, Long>()
 
+    private val _calendarEvents = MutableStateFlow<Map<String, List<HACalendarEvent>>>(emptyMap())
+    val calendarEvents: StateFlow<Map<String, List<HACalendarEvent>>> = _calendarEvents
+    private val calendarEventsFetchedAt = mutableMapOf<String, Long>()
+
+    fun calendarEventsCacheKey(entityIds: List<String>, startMillis: Long, endMillis: Long): String =
+        "${entityIds.distinct().sorted().joinToString(",")}|$startMillis|$endMillis"
+
     fun fetchWeatherForecastFor(entityId: String, type: String, force: Boolean = false) {
         val currentClient = client ?: return
         // Widgets and the weather dialog call this on every (re)composition; forecasts change
@@ -114,6 +124,34 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             val current = _weatherForecastCache.value.toMutableMap()
             current[key] = result
             _weatherForecastCache.value = current
+        }
+    }
+
+    fun fetchCalendarEvents(
+        entityIds: List<String>,
+        startMillis: Long,
+        endMillis: Long,
+        force: Boolean = false
+    ) {
+        val currentClient = client ?: return
+        val ids = entityIds.distinct().filter { it.startsWith("calendar.") }
+        if (ids.isEmpty()) return
+        val key = calendarEventsCacheKey(ids, startMillis, endMillis)
+        val fetchedAt = calendarEventsFetchedAt[key]
+        val fresh = fetchedAt != null && System.currentTimeMillis() - fetchedAt < CALENDAR_EVENTS_TTL_MS
+        if (fresh && !force && _calendarEvents.value.containsKey(key)) return
+        calendarEventsFetchedAt[key] = System.currentTimeMillis()
+        viewModelScope.launch {
+            runCatching {
+                currentClient.getCalendarEvents(ids, startMillis, endMillis)
+                    .values
+                    .flatten()
+            }.onSuccess { events ->
+                _calendarEvents.value = _calendarEvents.value + (key to events)
+            }.onFailure {
+                calendarEventsFetchedAt.remove(key)
+                addLog("Calendar fetch failed: ${it.message}")
+            }
         }
     }
 
@@ -1018,6 +1056,11 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     fun updateEnergyConfig(pageKey: String, config: com.example.hki7.data.HKIEnergyConfig) {
         val current = _pageConfigsMapping.value[pageKey] ?: com.example.hki7.data.HKIPageConfig()
         updatePageConfig(pageKey, current.copy(energyConfig = config))
+    }
+
+    fun updateClimateConfig(pageKey: String, config: com.example.hki7.data.HKIClimateConfig) {
+        val current = _pageConfigsMapping.value[pageKey] ?: com.example.hki7.data.HKIPageConfig()
+        updatePageConfig(pageKey, current.copy(climateConfig = config))
     }
 
     fun updateVacuumConfig(pageKey: String, entityId: String?, mapEntityId: String?) {

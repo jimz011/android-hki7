@@ -14,6 +14,7 @@ suspend fun reportTelemetryNow(
     prefs: PreferencesManager,
     providedLocation: Location? = null,
     freshLocation: Boolean = false,
+    locationOnly: Boolean = false,
     log: (String) -> Unit = {}
 ) {
     val external = prefs.serverUrl.first()?.takeIf { it.isNotBlank() } ?: return
@@ -25,5 +26,5 @@ suspend fun reportTelemetryNow(
     val deviceName = prefs.mobileDeviceName.first()
     val client = HomeAssistantClient(active, token)
     DeviceTelemetryReporter(context.applicationContext, prefs)
-        .report(client, external, active, deviceName, providedLocation = providedLocation, freshLocation = freshLocation, log = log)
+        .report(client, external, active, deviceName, providedLocation = providedLocation, freshLocation = freshLocation, locationOnly = locationOnly, log = log)
 }

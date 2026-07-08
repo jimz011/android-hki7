@@ -40,7 +40,9 @@ class BackgroundLocationReceiver : BroadcastReceiver() {
             try {
                 withTimeoutOrNull(REPORT_TIMEOUT_MS) {
                     runCatching {
-                        reportTelemetryNow(appContext, PreferencesManager(appContext), providedLocation = location)
+                        // Official-app behavior: a delivered fix posts update_location only;
+                        // sensors (battery/geocode) refresh on the periodic sensor cycle.
+                        reportTelemetryNow(appContext, PreferencesManager(appContext), providedLocation = location, locationOnly = true)
                     }
                 }
             } finally {

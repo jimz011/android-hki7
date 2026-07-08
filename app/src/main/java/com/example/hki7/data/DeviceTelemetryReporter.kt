@@ -52,6 +52,10 @@ class DeviceTelemetryReporter(
      * @param registrationUrl stable primary URL used as the registration identity (so switching
      *   between internal/external URLs does not re-register and create duplicate trackers).
      * @param webhookBaseUrl the URL to actually post telemetry to right now (internal on home Wi-Fi).
+     * @param locationOnly official-app behavior for per-fix triggers (background location broadcasts,
+     *   zone transitions, High Accuracy stream): post update_location only. Sensors — battery,
+     *   charging, geocoded address — refresh solely on the periodic sensor cycle and explicit
+     *   sensor events, never per fix.
      */
     suspend fun report(
         client: HomeAssistantClient,
@@ -60,6 +64,7 @@ class DeviceTelemetryReporter(
         configuredDeviceName: String? = null,
         providedLocation: Location? = null,
         freshLocation: Boolean = false,
+        locationOnly: Boolean = false,
         log: (String) -> Unit = {}
     ) {
         if (webhookBaseUrl.isBlank()) {
@@ -75,9 +80,15 @@ class DeviceTelemetryReporter(
             ?: "${webhookBaseUrl.removeSuffix("/")}/api/webhook/$webhookId"
 
         val batteryLevel = batteryLevel()
-        val charging = isCharging()
         val location = providedLocation ?: currentLocation(freshLocation)
         if (location == null) log("Telemetry: no location available (GPS/last-known both null)")
+
+        if (locationOnly) {
+            if (location != null) sendLocationUpdate(client, webhookUrl, location, batteryLevel, log)
+            return
+        }
+
+        val charging = isCharging()
         val address = location?.let { geocodeThrottled(it) }
 
         // Upgrade pre-existing registrations (made before push support) so HA creates the
@@ -117,11 +128,14 @@ class DeviceTelemetryReporter(
                 put("type", "binary_sensor")
                 put("state", charging)
             })
-            if (location != null) {
+            // Only when an address actually resolved — the official app never writes raw
+            // coordinates here, and skipping the entry keeps HA's recorder free of churn from
+            // GPS jitter (an omitted sensor simply keeps its previous state).
+            if (address != null) {
                 add(buildJsonObject {
                     put("unique_id", "${slug}_geocoded_location")
                     put("type", "sensor")
-                    put("state", (address ?: "${location.latitude}, ${location.longitude}").take(255))
+                    put("state", address.take(255))
                     put("icon", "mdi:map-marker")
                 })
             }
@@ -144,18 +158,47 @@ class DeviceTelemetryReporter(
             }
         }
 
-        if (location != null) {
-            post(client, webhookUrl, buildJsonObject {
-                put("type", "update_location")
-                put("data", buildJsonObject {
-                    putJsonArray("gps") { add(location.latitude); add(location.longitude) }
-                    put("gps_accuracy", location.accuracy.toInt())
-                    put("battery", batteryLevel)
-                    if (location.hasSpeed()) put("speed", location.speed.toInt())
-                    if (location.hasAltitude()) put("altitude", location.altitude.toInt())
-                    if (location.hasBearing()) put("course", location.bearing.toInt())
-                })
-            }, "update_location", log)
+        if (location != null) sendLocationUpdate(client, webhookUrl, location, batteryLevel, log)
+    }
+
+    /**
+     * Posts update_location with the official app's gates:
+     *  - fixes with accuracy worse than [MIN_ACCURACY_M] are disregarded entirely (a stationary
+     *    device flip-flopping between Wi-Fi and cell fixes would otherwise wander in HA);
+     *  - fixes not newer than the last one sent are skipped (fused's cached fix gets redelivered);
+     *  - an identical repeat of the last sent coordinates isn't re-posted.
+     */
+    private suspend fun sendLocationUpdate(
+        client: HomeAssistantClient,
+        webhookUrl: String,
+        location: Location,
+        batteryLevel: Int,
+        log: (String) -> Unit
+    ) {
+        if (!location.hasAccuracy() || location.accuracy > MIN_ACCURACY_M) {
+            log("Location accuracy ${location.accuracy.toInt()}m exceeds ${MIN_ACCURACY_M}m, disregarding")
+            return
+        }
+        if (location.time <= lastSentLocationTime) return
+        if (location.latitude == lastSentLat && location.longitude == lastSentLon) {
+            lastSentLocationTime = location.time
+            return
+        }
+        val sent = post(client, webhookUrl, buildJsonObject {
+            put("type", "update_location")
+            put("data", buildJsonObject {
+                putJsonArray("gps") { add(location.latitude); add(location.longitude) }
+                put("gps_accuracy", location.accuracy.toInt())
+                put("battery", batteryLevel)
+                if (location.hasSpeed()) put("speed", location.speed.toInt())
+                if (location.hasAltitude()) put("altitude", location.altitude.toInt())
+                if (location.hasBearing()) put("course", location.bearing.toInt())
+            })
+        }, "update_location", log)
+        if (sent) {
+            lastSentLocationTime = location.time
+            lastSentLat = location.latitude
+            lastSentLon = location.longitude
         }
     }
 
@@ -248,7 +291,7 @@ class DeviceTelemetryReporter(
             put("data", buildJsonObject {
                 put("unique_id", "${slug}_geocoded_location")
                 put("name", "$deviceName Geocoded Location")
-                put("state", (address ?: location?.let { "${it.latitude}, ${it.longitude}" } ?: "unknown").take(255))
+                put("state", (address ?: "unknown").take(255))
                 put("type", "sensor")
                 put("icon", "mdi:map-marker")
             })
@@ -292,25 +335,52 @@ class DeviceTelemetryReporter(
     }
 
     /**
-     * Reverse-geocodes only when we've moved meaningfully since the last lookup, reusing the cached
-     * address otherwise. On API 33+ the Geocoder hits the network, so doing it on every report (the
-     * heartbeat fires while stationary) was needless radio wakeups — the official app throttles too.
+     * Reverse-geocodes with the official app's geocode-sensor gates. On API 33+ the Geocoder hits
+     * the network, so every avoided lookup is an avoided radio wakeup:
+     *  - fixes with accuracy worse than [MIN_ACCURACY_M] never geocode (a cell-tower fix can sit
+     *    hundreds of meters off and would defeat the movement check below on every report);
+     *  - within [GEOCODE_MIN_MOVE_M] of the last resolved address the cache is reused — and the
+     *    cache is persisted, so a recycled process doesn't re-query for a device that hasn't moved;
+     *  - actual Geocoder calls are spaced at least [GEOCODE_MIN_INTERVAL_MS] apart (the official
+     *    app only refreshes this sensor on its ~15-minute sensor cycle), which also stops a failing
+     *    Geocoder from being retried on every report.
      */
     private suspend fun geocodeThrottled(location: Location): String? {
+        loadGeocodeCache()
+        if (!location.hasAccuracy() || location.accuracy > MIN_ACCURACY_M) return lastGeocodeAddress
+
         val lat = lastGeocodeLat
         val lon = lastGeocodeLon
-        if (lat != null && lon != null) {
+        if (lat != null && lon != null && lastGeocodeAddress != null) {
             val moved = FloatArray(1)
             Location.distanceBetween(lat, lon, location.latitude, location.longitude, moved)
             if (moved[0] < GEOCODE_MIN_MOVE_M) return lastGeocodeAddress
         }
+
+        val now = System.currentTimeMillis()
+        val lastAttempt = lastGeocodeAttemptMs
+        if (lastAttempt != null && now - lastAttempt < GEOCODE_MIN_INTERVAL_MS) return lastGeocodeAddress
+        lastGeocodeAttemptMs = now
+
         val resolved = geocode(location)
         if (resolved != null) {
             lastGeocodeLat = location.latitude
             lastGeocodeLon = location.longitude
             lastGeocodeAddress = resolved
+            prefs.saveGeocodedAddress(resolved, location.latitude, location.longitude)
         }
-        return resolved
+        return resolved ?: lastGeocodeAddress
+    }
+
+    /** Seeds the in-memory geocode cache from the persisted copy once per process. */
+    private suspend fun loadGeocodeCache() {
+        if (geocodeCacheLoaded) return
+        geocodeCacheLoaded = true
+        if (lastGeocodeAddress == null) {
+            lastGeocodeAddress = prefs.geocodedAddress.first()
+            lastGeocodeLat = prefs.geocodedLat.first()
+            lastGeocodeLon = prefs.geocodedLon.first()
+        }
     }
 
     /** Resolves a street address from coordinates using the async Geocoder (works on API 33+). */
@@ -338,9 +408,10 @@ class DeviceTelemetryReporter(
     }
 
     /**
-     * Gets a location for a report. For periodic/stationary reports ([fresh] = false) it prefers the
-     * Fused Location Provider's cached fix (free, no radio). On a zone transition ([fresh] = true) it
-     * skips the (possibly stale) cache and requests an accurate current fix, so HA records the right
+     * Gets a location for a report. Periodic/sensor reports ([fresh] = false) NEVER wake the radio:
+     * like the official app they use only the Fused Location Provider's cached fix (kept reasonably
+     * fresh by the standing background request in [BackgroundLocationReceiver]). Only a zone
+     * transition ([fresh] = true) requests an accurate on-the-spot fix, so HA records the right
      * zone at the right moment — the cached fix is the main reason zone-change times were off.
      */
     @SuppressLint("MissingPermission")
@@ -348,22 +419,19 @@ class DeviceTelemetryReporter(
         if (!hasLocationPermission()) return null
         val fused = LocationServices.getFusedLocationProviderClient(context)
 
-        if (!fresh) {
-            withTimeoutOrNull(3.seconds) { fused.lastLocation.awaitOrNull() }?.let { return it }
-        }
-
-        // A zone transition wants accuracy; the periodic report stays on balanced power.
-        val priority = if (fresh) Priority.PRIORITY_HIGH_ACCURACY else Priority.PRIORITY_BALANCED_POWER_ACCURACY
-        val cts = CancellationTokenSource()
-        val freshFix = try {
-            withTimeoutOrNull(15.seconds) {
-                fused.getCurrentLocation(priority, cts.token).awaitOrNull()
+        if (fresh) {
+            val cts = CancellationTokenSource()
+            val freshFix = try {
+                withTimeoutOrNull(15.seconds) {
+                    fused.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cts.token).awaitOrNull()
+                }
+            } finally {
+                cts.cancel()
             }
-        } finally {
-            cts.cancel()
+            if (freshFix != null) return freshFix
         }
-        if (freshFix != null) return freshFix
 
+        withTimeoutOrNull(3.seconds) { fused.lastLocation.awaitOrNull() }?.let { return it }
         val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return lastKnownLocation(manager)
     }
@@ -382,12 +450,26 @@ class DeviceTelemetryReporter(
     }
 
     companion object {
-        // Cache the last reverse-geocode (process lifetime) so reports within this radius reuse it
-        // instead of waking the radio for a fresh lookup.
+        // Official app's DEFAULT_MINIMUM_ACCURACY: fixes worse than this are disregarded for both
+        // location updates and reverse-geocoding.
+        private const val MIN_ACCURACY_M = 200f
+
+        // Cache the last reverse-geocode so reports within this radius reuse it instead of waking
+        // the radio for a fresh lookup. Backed by prefs so it survives process death.
         private const val GEOCODE_MIN_MOVE_M = 100f
+        // Floor between actual Geocoder queries — the official app refreshes this sensor only on
+        // its ~15-minute sensor cycle. Also keeps a failing Geocoder from retrying every report.
+        private const val GEOCODE_MIN_INTERVAL_MS = 15 * 60_000L
         @Volatile private var lastGeocodeLat: Double? = null
         @Volatile private var lastGeocodeLon: Double? = null
         @Volatile private var lastGeocodeAddress: String? = null
+        @Volatile private var lastGeocodeAttemptMs: Long? = null
+        @Volatile private var geocodeCacheLoaded = false
+
+        // Last update_location actually sent (process lifetime), for the stale/duplicate gates.
+        @Volatile private var lastSentLocationTime = 0L
+        @Volatile private var lastSentLat: Double? = null
+        @Volatile private var lastSentLon: Double? = null
 
         private val registrationMutex = Mutex()
         private val json = Json { ignoreUnknownKeys = true }

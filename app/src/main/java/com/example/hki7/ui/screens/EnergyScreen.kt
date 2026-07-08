@@ -58,6 +58,7 @@ private val ImportRed   = Color(0xFFEF5350)
 private val BattPurple  = Color(0xFF7E57C2)
 private val GasPink     = Color(0xFFEC407A)
 private val WaterBlue   = Color(0xFF29B6F6)
+private val DodgerBlue  = Color(0xFF1E90FF)
 private val WindowWarm  = Color(0xFFFFDF9E)
 
 /** Chart time ranges, HA-style: hourly buckets for a day, daily for week/month, monthly for year. */
@@ -175,6 +176,24 @@ private fun energyWindow(range: EnergyRange, offset: Int): EnergyWindow {
     }
 }
 
+private fun energyOffsetForDate(range: EnergyRange, selectedDate: LocalDate): Int {
+    val today = LocalDate.now(ZoneId.systemDefault())
+    return when (range) {
+        EnergyRange.DAY -> java.time.temporal.ChronoUnit.DAYS.between(today, selectedDate).toInt()
+        EnergyRange.WEEK -> {
+            val thisWeek = today.with(java.time.DayOfWeek.MONDAY)
+            val selectedWeek = selectedDate.with(java.time.DayOfWeek.MONDAY)
+            java.time.temporal.ChronoUnit.WEEKS.between(thisWeek, selectedWeek).toInt()
+        }
+        EnergyRange.MONTH -> java.time.temporal.ChronoUnit.MONTHS.between(
+            today.withDayOfMonth(1),
+            selectedDate.withDayOfMonth(1)
+        ).toInt()
+        EnergyRange.YEAR -> selectedDate.year - today.year
+    }.coerceAtMost(0)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EnergyScreen(viewModel: MainViewModel) {
     val entities       by viewModel.entities.collectAsState()
@@ -211,6 +230,13 @@ fun EnergyScreen(viewModel: MainViewModel) {
         val num = if (v >= 100f) "%.0f".format(v) else "%.1f".format(v)
         return listOf(num, unit).filter { it.isNotBlank() }.joinToString(" ")
     }
+    fun entityCarbonDisplay(id: String?): String? {
+        if (id.isNullOrBlank()) return null
+        val e = entityById[id] ?: return null
+        val v = e.state.toFloatOrNull() ?: return null
+        val unit = e.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull ?: ""
+        return formatCarbonIntensity(v, unit)
+    }
 
     val solarW   = entityWatts(energyConfig.solarPowerEntityId) ?: 0f
     val gridW    = entityWatts(energyConfig.gridPowerEntityId) ?: 0f
@@ -220,6 +246,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
     val importKwh  = entityFloat(energyConfig.gridImportEntityId) ?: 0f
     val exportKwh  = entityFloat(energyConfig.gridExportEntityId) ?: 0f
     val costVal    = entityFloat(energyConfig.energyCostEntityId) ?: 0f
+    val carbonFootprintDisplay = entityCarbonDisplay(energyConfig.gridCarbonFootprintEntityId)
     val batteryPct = energyConfig.batteryEntityId?.let { entityById[it] }?.state?.toIntOrNull()
     val hasBattery = !energyConfig.batteryEntityId.isNullOrBlank()
 
@@ -260,6 +287,37 @@ fun EnergyScreen(viewModel: MainViewModel) {
     var rangeOffset by rememberSaveable { mutableStateOf(0) }
     val range = EnergyRange.valueOf(rangeName)
     val window = remember(range, rangeOffset) { energyWindow(range, rangeOffset) }
+    var showDatePicker by rememberSaveable { mutableStateOf(false) }
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = window.startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        )
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        val selectedDate = java.time.Instant.ofEpochMilli(millis)
+                            .atZone(java.time.ZoneOffset.UTC)
+                            .toLocalDate()
+                        rangeOffset = energyOffsetForDate(range, selectedDate)
+                    }
+                    showDatePicker = false
+                }) { Text("Done") }
+            },
+            dismissButton = {
+                Row {
+                    TextButton(onClick = {
+                        rangeOffset = 0
+                        showDatePicker = false
+                    }) { Text("Today") }
+                    TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
 
     // Chart data comes from HA's recorder statistics: pre-aggregated hourly/daily mean+change
     // values, the same source the official energy dashboard uses. Raw history for a per-second
@@ -324,8 +382,18 @@ fun EnergyScreen(viewModel: MainViewModel) {
     fun todayTotal(id: String?): Float =
         id?.let { energyStats["$it|TODAY"] }
             ?.sumOf { (it.change ?: 0f).coerceAtLeast(0f).toDouble() }?.toFloat() ?: 0f
+    fun todayRecentUsage(id: String?, hours: Int = 2): Boolean {
+        val now = todayWindow.nowIndex() ?: return false
+        val from = (now - hours + 1).coerceAtLeast(0)
+        return id?.let { energyStats["$it|TODAY"] }
+            ?.any { p ->
+                val i = todayWindow.bucketOf(p.startMs)
+                i in from..now && (p.change ?: 0f) > 0.0001f
+            } == true
+    }
     val gasToday = todayTotal(gasId)
     val waterTodayL = todayTotal(waterId) * waterFactor
+    val gasUsedRecently = todayRecentUsage(gasId) || (entityFloat(energyConfig.gasCurrentEntityId) ?: 0f) > 0.001f
 
     val homeSeries  = remember(energyStats, chartPowerId, window) { statMeans(chartPowerId) }
     val solarSeries = remember(energyStats, solarPowerId, window) { statMeans(solarPowerId) }
@@ -430,12 +498,13 @@ fun EnergyScreen(viewModel: MainViewModel) {
             viewModel.fetchEnergyStatistics(consumerIds, window.startMs, window.statPeriod(), window.key(), window.endMs)
     }
 
-    val energySettingsSection: Pair<String, @Composable ColumnScope.() -> Unit> = "Energy Sensors" to {
+    val energySettingsSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> = "Energy Sensors" to { setBack ->
         EnergySensorSection(
             viewModel = viewModel,
             energyConfig = energyConfig,
             allEntities = entities,
-            onSave = { newCfg -> viewModel.updateEnergyConfig(ENERGY_PAGE_KEY, newCfg) }
+            onSave = { newCfg -> viewModel.updateEnergyConfig(ENERGY_PAGE_KEY, newCfg) },
+            setBack = setBack
         )
     }
 
@@ -487,7 +556,11 @@ fun EnergyScreen(viewModel: MainViewModel) {
                         style = MaterialTheme.typography.titleSmall,
                         color = appColors.onSurface, fontWeight = FontWeight.SemiBold,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.widthIn(min = 148.dp)
+                        modifier = Modifier
+                            .widthIn(min = 148.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { showDatePicker = true }
+                            .padding(horizontal = 8.dp, vertical = 6.dp)
                     )
                     IconButton(onClick = { rangeOffset++ }, enabled = rangeOffset < 0, modifier = Modifier.size(36.dp)) {
                         Icon(
@@ -512,7 +585,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
                         solarW = solarW, gridW = gridW, homeW = homeW,
                         batteryW = batteryW, batteryPct = batteryPct, hasBattery = hasBattery,
                         hasSolar = hasSolar, hasGas = gasId != null, hasWater = waterId != null,
-                        gasFlowing = (entityFloat(energyConfig.gasCurrentEntityId) ?: 0f) > 0.001f,
+                        gasFlowing = gasUsedRecently,
                         waterFlowing = (entityFloat(energyConfig.waterCurrentEntityId) ?: 0f) > 0.001f,
                         modifier = Modifier.fillMaxWidth().height(300.dp)
                     )
@@ -588,6 +661,14 @@ fun EnergyScreen(viewModel: MainViewModel) {
                                     TotalStat(Icons.Default.ArrowUpward, ExportGreen, "%.1f kWh".format(exportPeriod), "Exported")
                                 }
                                 TextButton(onClick = { page = "electricity" }) { Text("Details") }
+                            }
+                            carbonFootprintDisplay?.let {
+                                Spacer(Modifier.height(12.dp))
+                                HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
+                                Spacer(Modifier.height(10.dp))
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                                    TotalStat(Icons.Default.Cloud, ExportGreen, it, "Carbon footprint")
+                                }
                             }
                             Spacer(Modifier.height(14.dp))
                             if (hasUsageChart) {
@@ -893,6 +974,9 @@ fun EnergyScreen(viewModel: MainViewModel) {
                                     formatW(abs(gridW)), gridStatus
                                 )
                                 TotalStat(Icons.Default.Home, MaterialTheme.colorScheme.primary, formatW(homeW), "Home")
+                                carbonFootprintDisplay?.let {
+                                    TotalStat(Icons.Default.Cloud, ExportGreen, it, "Carbon footprint")
+                                }
                             }
                             val phaseRows = (0..2).mapNotNull { i ->
                                 val p = entityDisplay(phaseIds[i])
@@ -1155,6 +1239,8 @@ private fun EnergyHouseScene(
         fun roof(u: Float, v: Float) = fcT + lAx * u + (apex - fcT) * v
         // Point on a wall face: base + f along axis, then g up the wall
         fun onFace(base: Offset, axis: Offset, f: Float, up: Float) = base + axis * f + Offset(0f, -up)
+        val waterWallPt = onFace(fc, lAx, 0.32f, h * 0.032f)
+        val gasMeterBase = fc + rAx * 0.24f + Offset(0f, -h * 0.004f)
 
         // ── ambience ────────────────────────────────────────────────────────
         drawCircle(
@@ -1266,21 +1352,27 @@ private fun EnergyHouseScene(
         // ── water faucet on the long face (drips while water flows) ─────────
         if (hasWater) {
             val pipe = if (isDark) Color(0xFF7B8894) else Color(0xFF7E8C99)
-            val wallPt = onFace(fc, lAx, 0.42f, h * 0.070f)
-            drawLine(pipe, wallPt + Offset(0f, -h * 0.030f), wallPt, 2.5.dp.toPx(), cap = StrokeCap.Round)
-            val spoutEnd = wallPt + Offset(-5.dp.toPx(), 2.dp.toPx())
-            drawLine(pipe, wallPt, spoutEnd, 2.5.dp.toPx(), cap = StrokeCap.Round)
-            drawCircle(WaterBlue.copy(alpha = 0.9f), 2.dp.toPx(), wallPt + Offset(0f, -h * 0.034f))
+            val wallPt = waterWallPt
+            val stroke = 2.4.dp.toPx()
+            val bodyEnd = wallPt + Offset(-7.dp.toPx(), -1.dp.toPx())
+            val spoutEnd = bodyEnd + Offset(-4.dp.toPx(), 7.dp.toPx())
+            drawCircle(pipe.copy(alpha = 0.35f), 4.2.dp.toPx(), wallPt)
+            drawCircle(pipe, 2.5.dp.toPx(), wallPt)
+            drawLine(pipe, wallPt, bodyEnd, stroke, cap = StrokeCap.Round)
+            drawLine(pipe, bodyEnd, spoutEnd, stroke, cap = StrokeCap.Round)
+            drawLine(pipe, wallPt + Offset(-3.dp.toPx(), -5.dp.toPx()), wallPt + Offset(3.dp.toPx(), -5.dp.toPx()), 1.7.dp.toPx(), cap = StrokeCap.Round)
+            drawLine(pipe, wallPt + Offset(0f, -7.dp.toPx()), wallPt + Offset(0f, -3.dp.toPx()), 1.7.dp.toPx(), cap = StrokeCap.Round)
+            drawCircle(DodgerBlue.copy(alpha = 0.9f), 1.8.dp.toPx(), spoutEnd + Offset(0f, 1.dp.toPx()))
             if (waterFlowing) {
                 for (i in 0..2) {
                     val t = (flowPhase * 1.6f + i / 3f) % 1f
                     drawCircle(
-                        WaterBlue.copy(alpha = (1f - t) * 0.9f), 1.8.dp.toPx(),
+                        DodgerBlue.copy(alpha = (1f - t) * 0.9f), 1.8.dp.toPx(),
                         Offset(spoutEnd.x, spoutEnd.y + t * h * 0.055f)
                     )
                 }
                 drawOval(
-                    WaterBlue.copy(alpha = 0.22f + 0.14f * glowPulse),
+                    DodgerBlue.copy(alpha = 0.22f + 0.14f * glowPulse),
                     topLeft = Offset(spoutEnd.x - 4.dp.toPx(), spoutEnd.y + h * 0.052f),
                     size = Size(8.dp.toPx(), 3.dp.toPx())
                 )
@@ -1289,7 +1381,7 @@ private fun EnergyHouseScene(
 
         // ── gas meter with pilot flame on the gable face ────────────────────
         if (hasGas) {
-            val gbase = fc + rAx * 0.24f + Offset(0f, -h * 0.004f)
+            val gbase = gasMeterBase
             val gbw = w * 0.030f; val gbh = h * 0.042f
             drawRoundRect(
                 if (isDark) Color(0xFF39424E) else Color(0xFFB9C6D2),
@@ -1299,9 +1391,9 @@ private fun EnergyHouseScene(
             val flameC = Offset(gbase.x, gbase.y - gbh - 5.dp.toPx())
             if (gasFlowing) {
                 val fh = 6.dp.toPx() * (0.8f + 0.4f * glowPulse)
-                drawCircle(Color(0xFFFF9800).copy(alpha = 0.25f * glowPulse), fh * 1.3f, flameC)
-                drawCircle(Color(0xFFFF9800).copy(alpha = 0.9f), fh * 0.55f, flameC)
-                drawCircle(Color(0xFFFFD54F), fh * 0.30f, flameC + Offset(0f, fh * 0.15f))
+                drawCircle(ImportRed.copy(alpha = 0.25f * glowPulse), fh * 1.4f, flameC)
+                drawCircle(ImportRed.copy(alpha = 0.9f), fh * 0.60f, flameC)
+                drawCircle(Color(0xFFFFCDD2), fh * 0.28f, flameC + Offset(0f, fh * 0.15f))
             } else {
                 drawCircle(if (isDark) Color(0xFF55606B) else Color(0xFF90A0AE), 2.dp.toPx(), flameC)
             }
@@ -1962,6 +2054,22 @@ private fun UtilityCard(
 
 private fun formatW(w: Float) = when { w < 1f -> "0 W"; w < 1000f -> "${w.toInt()} W"; else -> "${"%.1f".format(w / 1000f)} kW" }
 
+private fun formatCarbonIntensity(value: Float, rawUnit: String): String {
+    val unit = when {
+        rawUnit.contains("kWh", ignoreCase = true) -> rawUnit
+        rawUnit.contains("kg", ignoreCase = true) -> "kg CO2/kWh"
+        rawUnit.contains("t", ignoreCase = true) -> "t CO2/kWh"
+        else -> "g CO2/kWh"
+    }
+    val magnitude = abs(value)
+    val num = when {
+        magnitude >= 100f -> "%.0f".format(value)
+        magnitude >= 10f -> "%.1f".format(value)
+        else -> "%.2f".format(value)
+    }
+    return "$num $unit"
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Device auto-mapping: pick a device, read its entities, fill the sensor roles
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1987,6 +2095,15 @@ private fun autoMapDeviceEntities(
     val isCurrent = { e: HAEntity -> e.deviceClass == "current" || unit(e) == "A" }
     val isVoltage = { e: HAEntity -> e.deviceClass == "voltage" || unit(e) == "V" }
     fun phaseMatch(e: HAEntity, n: Int) = name(e).contains("phase $n") || name(e).contains(" l$n")
+    fun isCarbon(e: HAEntity): Boolean {
+        val u = unit(e).lowercase()
+        val n = name(e)
+        return n.contains("carbon") || n.contains("co2") || n.contains("co₂") ||
+            u.contains("co2") || u.contains("co₂")
+    }
+    fun pickCarbon(): String? =
+        pick { isCarbon(it) && unit(it).contains("kWh", ignoreCase = true) }
+            ?: pick { isCarbon(it) }
 
     return when (category) {
         "electricity" -> cfg.copy(
@@ -2007,6 +2124,10 @@ private fun autoMapDeviceEntities(
             gridExportEntityId = pick { isEnergy(it) && name(it).contains("export") && !name(it).contains("tariff") } ?: cfg.gridExportEntityId,
             gridExportTariff1EntityId = pick { isEnergy(it) && name(it).contains("export") && name(it).contains("tariff 1") } ?: cfg.gridExportTariff1EntityId,
             gridExportTariff2EntityId = pick { isEnergy(it) && name(it).contains("export") && name(it).contains("tariff 2") } ?: cfg.gridExportTariff2EntityId
+        )
+        "carbon" -> cfg.copy(
+            carbonDeviceId = deviceId,
+            gridCarbonFootprintEntityId = pickCarbon()
         )
         "solar" -> cfg.copy(
             solarDeviceId = deviceId,
@@ -2051,7 +2172,8 @@ private fun ColumnScope.EnergySensorSection(
     viewModel: MainViewModel,
     energyConfig: HKIEnergyConfig,
     allEntities: List<HAEntity>,
-    onSave: (HKIEnergyConfig) -> Unit
+    onSave: (HKIEnergyConfig) -> Unit,
+    setBack: ((() -> Unit)?) -> Unit = {}
 ) {
     val appColors = LocalHKIAppColors.current
     val sensors = remember(allEntities) { allEntities.filter { it.entity_id.startsWith("sensor.") } }
@@ -2063,6 +2185,7 @@ private fun ColumnScope.EnergySensorSection(
     var category by remember { mutableStateOf<String?>(null) }
     var pickingField by remember { mutableStateOf<String?>(null) }
     var pickingDeviceFor by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(category) { setBack(if (category != null) { { category = null } } else null) }
 
     fun fieldValue(field: String?): String? = when (field) {
         "grid_power"     -> cfg.gridPowerEntityId
@@ -2083,6 +2206,7 @@ private fun ColumnScope.EnergySensorSection(
         "export_t1"      -> cfg.gridExportTariff1EntityId
         "export_t2"      -> cfg.gridExportTariff2EntityId
         "cost"           -> cfg.energyCostEntityId
+        "carbon"         -> cfg.gridCarbonFootprintEntityId
         "solar_power"    -> cfg.solarPowerEntityId
         "solar_kwh"      -> cfg.solarEnergyEntityId
         "solar_7d"       -> cfg.solarLast7DaysEntityId
@@ -2118,6 +2242,7 @@ private fun ColumnScope.EnergySensorSection(
             "export_t1"      -> cfg.copy(gridExportTariff1EntityId = id)
             "export_t2"      -> cfg.copy(gridExportTariff2EntityId = id)
             "cost"           -> cfg.copy(energyCostEntityId = id)
+            "carbon"         -> cfg.copy(gridCarbonFootprintEntityId = id)
             "solar_power"    -> cfg.copy(solarPowerEntityId = id)
             "solar_kwh"      -> cfg.copy(solarEnergyEntityId = id)
             "solar_7d"       -> cfg.copy(solarLast7DaysEntityId = id)
@@ -2154,6 +2279,7 @@ private fun ColumnScope.EnergySensorSection(
                 "electricity" -> cfg.electricityDeviceId
                 "solar"       -> cfg.solarDeviceId
                 "battery"     -> cfg.batteryDeviceId
+                "carbon"      -> cfg.carbonDeviceId
                 "gas"         -> cfg.gasDeviceId
                 "water"       -> cfg.waterDeviceId
                 else -> null
@@ -2167,6 +2293,7 @@ private fun ColumnScope.EnergySensorSection(
                             "electricity" -> cfg.copy(electricityDeviceId = null)
                             "solar"       -> cfg.copy(solarDeviceId = null)
                             "battery"     -> cfg.copy(batteryDeviceId = null)
+                            "carbon"      -> cfg.copy(carbonDeviceId = null, gridCarbonFootprintEntityId = null)
                             "gas"         -> cfg.copy(gasDeviceId = null)
                             "water"       -> cfg.copy(waterDeviceId = null)
                             else -> cfg
@@ -2193,6 +2320,14 @@ private fun ColumnScope.EnergySensorSection(
             Column(Modifier.weight(1f)) {
                 Text(label, style = MaterialTheme.typography.labelMedium, color = appColors.onSurface)
                 Text(name ?: "Not set", style = MaterialTheme.typography.bodySmall, color = if (name != null) MaterialTheme.colorScheme.primary else appColors.onMuted)
+            }
+            if (entityId?.isNotBlank() == true) {
+                IconButton(
+                    onClick = { applyField(field, null) },
+                    modifier = Modifier.size(30.dp)
+                ) {
+                    Icon(Icons.Default.Close, "Remove", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+                }
             }
             Icon(Icons.Default.ChevronRight, null, tint = appColors.onMuted, modifier = Modifier.size(18.dp))
         }
@@ -2254,16 +2389,11 @@ private fun ColumnScope.EnergySensorSection(
         categoryButton("electricity", "Electricity", "Grid power, phases, import/export, tariffs, cost", Icons.Default.ElectricBolt, ElecBlue)
         categoryButton("solar", "Solar", "Production, forecast, and inverter device", Icons.Default.WbSunny, SolarAmber)
         categoryButton("battery", "Battery", "Charge level and battery power", Icons.Default.BatteryChargingFull, BattPurple)
+        categoryButton("carbon", "Carbon", "Grid carbon footprint device", Icons.Default.Cloud, ExportGreen)
         categoryButton("gas", "Gas", "Usage and cost", Icons.Default.LocalFireDepartment, GasPink)
         categoryButton("water", "Water", "Usage and cost", Icons.Default.WaterDrop, WaterBlue)
         categoryButton("devices", "Devices", "Individual devices under Top consumers", Icons.Default.Power, ExportGreen)
         return
-    }
-
-    TextButton(onClick = { category = null }) {
-        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
-        Spacer(Modifier.width(6.dp))
-        Text("All categories")
     }
 
     when (category) {
@@ -2331,6 +2461,31 @@ private fun ColumnScope.EnergySensorSection(
             deviceRow("battery", cfg.batteryDeviceId)
             sensorRow("battery_pct", "Battery level (%)")
             sensorRow("battery_power", "Battery power (W, + = charging)")
+        }
+        "carbon" -> {
+            deviceRow("carbon", cfg.carbonDeviceId)
+            val carbonEntity = cfg.gridCarbonFootprintEntityId
+                ?.let { id -> allEntities.find { it.entity_id == id } }
+            val carbonValue = carbonEntity?.state?.toFloatOrNull()?.let { value ->
+                val unit = carbonEntity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull ?: ""
+                formatCarbonIntensity(value, unit)
+            }
+            Column(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
+                Text("Detected carbon intensity", style = MaterialTheme.typography.labelMedium, color = appColors.onSurface)
+                Text(
+                    when {
+                        carbonEntity != null && carbonValue != null ->
+                            "${carbonEntity.friendlyName ?: carbonEntity.entity_id} - $carbonValue"
+                        cfg.carbonDeviceId != null -> "No carbon intensity sensor found on this device"
+                        else -> "Pick a carbon footprint device"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (carbonEntity != null) MaterialTheme.colorScheme.primary else appColors.onMuted,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
         }
         "gas" -> {
             deviceRow("gas", cfg.gasDeviceId)
@@ -2507,6 +2662,7 @@ fun EnergyCardWidgetView(
         "battery" -> listOfNotNull(batteryPowerId)
         "gas" -> listOfNotNull(gasId)
         "water" -> listOfNotNull(waterId)
+        "house" -> listOfNotNull(gasId)
         "device_energy" -> topConsumers.map { it.first.entity_id }
         else -> emptyList()
     }
@@ -2539,6 +2695,14 @@ fun EnergyCardWidgetView(
     val tooltipLabels = remember(window) { window.tooltipLabels() }
     val axisLabels = remember(window, tooltipLabels) { window.axisLabels(tooltipLabels) }
     val nowIndex = window.nowIndex()
+    fun recentUsage(id: String?, hours: Int = 2): Boolean {
+        val now = nowIndex ?: return false
+        val from = (now - hours + 1).coerceAtLeast(0)
+        return points(id)?.any { p ->
+            val i = window.bucketOf(p.startMs)
+            i in from..now && (p.change ?: 0f) > 0.0001f
+        } == true
+    }
 
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -2550,7 +2714,7 @@ fun EnergyCardWidgetView(
                 solarW = solarW, gridW = gridW, homeW = homeW,
                 batteryW = batteryW, batteryPct = batteryPct, hasBattery = hasBattery,
                 hasSolar = hasSolar, hasGas = gasId != null, hasWater = waterId != null,
-                gasFlowing = (byId.numOf(cfg.gasCurrentEntityId) ?: 0f) > 0.001f,
+                gasFlowing = recentUsage(gasId) || (byId.numOf(cfg.gasCurrentEntityId) ?: 0f) > 0.001f,
                 waterFlowing = (byId.numOf(cfg.waterCurrentEntityId) ?: 0f) > 0.001f,
                 modifier = Modifier.fillMaxWidth().height(260.dp).padding(vertical = 8.dp)
             )
@@ -2854,6 +3018,54 @@ fun EnergyStackWidgetItem(
     }
 }
 
+/** Scrollable list over the energy card catalog, shared by the standalone picker dialog and by
+ *  any embedded picker step (e.g. inside AddRoomWidgetDialog) that wants the same list without a
+ *  second nested Dialog / mismatched open-close animation. */
+@Composable
+fun EnergyCardPickerList(
+    multiSelect: Boolean,
+    selected: List<String>,
+    onToggle: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val appColors = LocalHKIAppColors.current
+    LazyColumn(modifier.heightIn(max = 420.dp)) {
+        energyCardCatalog.groupBy { it.category }.forEach { (category, specs) ->
+            item {
+                Text(category, style = MaterialTheme.typography.labelLarge,
+                    color = appColors.onMuted,
+                    modifier = Modifier.padding(top = 10.dp, bottom = 4.dp))
+            }
+            items(specs.size) { i ->
+                val spec = specs[i]
+                val isSel = spec.key in selected
+                Surface(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .clip(RoundedCornerShape(22.dp))
+                        .clickable { onToggle(spec.key) },
+                    shape = RoundedCornerShape(22.dp),
+                    color = appColors.subtleSurface,
+                    border = if (isSel) BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.28f)) else null
+                ) {
+                    Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        com.example.hki7.ui.utils.MdiIcon(
+                            spec.mdiIcon, contentDescription = null,
+                            tint = appColors.onSurface, size = 28.dp
+                        )
+                        Spacer(Modifier.width(14.dp))
+                        Text(spec.label, color = appColors.onSurface,
+                            style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.weight(1f))
+                        if (isSel) Icon(Icons.Default.Check, contentDescription = null,
+                            tint = appColors.onMuted, modifier = Modifier.size(18.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+
 /** Categorized picker over the energy card catalog. */
 @Composable
 fun EnergyCardPickerDialog(
@@ -2863,65 +3075,31 @@ fun EnergyCardPickerDialog(
     onDismiss: () -> Unit,
     onSelected: (List<String>) -> Unit
 ) {
-    val appColors = LocalHKIAppColors.current
     var selected by remember { mutableStateOf(preselected.toList()) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
-            LazyColumn(Modifier.heightIn(max = 420.dp)) {
-                energyCardCatalog.groupBy { it.category }.forEach { (category, specs) ->
-                    item {
-                        Text(category, style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(top = 10.dp, bottom = 4.dp))
-                    }
-                    items(specs.size) { i ->
-                        val spec = specs[i]
-                        val isSel = spec.key in selected
-                        // Tile look, mirroring the Add Widget choices.
-                        Surface(
-                            modifier = Modifier.fillMaxWidth()
-                                .padding(vertical = 4.dp)
-                                .clip(RoundedCornerShape(18.dp))
-                                .clickable {
-                                    selected = when {
-                                        multiSelect && isSel -> selected - spec.key
-                                        multiSelect -> selected + spec.key
-                                        else -> listOf(spec.key)
-                                    }
-                                },
-                            shape = RoundedCornerShape(18.dp),
-                            color = if (isSel) MaterialTheme.colorScheme.primary.copy(alpha = 0.18f) else appColors.subtleSurface,
-                            border = if (isSel) BorderStroke(1.dp, MaterialTheme.colorScheme.primary) else null
-                        ) {
-                            Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Box(
-                                    Modifier.size(34.dp).background(
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                                        RoundedCornerShape(10.dp)
-                                    ),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    com.example.hki7.ui.utils.MdiIcon(
-                                        spec.mdiIcon, contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary, size = 18.dp
-                                    )
-                                }
-                                Spacer(Modifier.width(12.dp))
-                                Text(spec.label, color = appColors.onSurface,
-                                    style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold,
-                                    modifier = Modifier.weight(1f))
-                                if (isSel) Icon(Icons.Default.Check, contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
-                            }
+            Column {
+                TextButton(onClick = onDismiss) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Back")
+                }
+                EnergyCardPickerList(
+                    multiSelect = multiSelect,
+                    selected = selected,
+                    onToggle = { key ->
+                        selected = when {
+                            multiSelect && key in selected -> selected - key
+                            multiSelect -> selected + key
+                            else -> listOf(key)
                         }
                     }
-                }
+                )
             }
         },
-        confirmButton = { TextButton(onClick = { onSelected(selected) }) { Text("Done") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        confirmButton = { TextButton(onClick = { onSelected(selected) }) { Text("Done") } }
     )
 }
 
@@ -2932,7 +3110,7 @@ fun EnergyCardWidgetSettingsDialog(
     onSave: (HKIEnergyCardWidget) -> Unit
 ) {
     var title by remember { mutableStateOf(widget.title ?: "") }
-    var width by remember { mutableStateOf(widget.width) }
+    var width by remember { mutableStateOf(if (widget.width == "third") "half" else widget.width) }
     var radius by remember { mutableStateOf(widget.cornerRadius) }
     var cardKey by remember { mutableStateOf(widget.cardKey) }
     var showPicker by remember { mutableStateOf(false) }
@@ -2959,7 +3137,7 @@ fun EnergyCardWidgetSettingsDialog(
                 }
                 OutlinedTextField(value = title, onValueChange = { title = it },
                     label = { Text("Title (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                com.example.hki7.ui.components.WidgetWidthSelector(width = width, onWidthChange = { width = it })
+                com.example.hki7.ui.components.WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
                 Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(selected = radius == 8, onClick = { radius = 8 }, label = { Text("Sharp") })
@@ -2984,7 +3162,7 @@ fun EnergyStackSettingsDialog(
     onSave: (HKIEnergyStack) -> Unit
 ) {
     var title by remember { mutableStateOf(stack.title ?: "") }
-    var width by remember { mutableStateOf(stack.width) }
+    var width by remember { mutableStateOf(if (stack.width == "third") "half" else stack.width) }
     var radius by remember { mutableStateOf(stack.cornerRadius) }
     var cardKeys by remember { mutableStateOf(stack.cardKeys) }
     var collapsible by remember { mutableStateOf(stack.collapsible) }
@@ -3019,7 +3197,7 @@ fun EnergyStackSettingsDialog(
                     Text("Collapsible", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
                     Switch(checked = collapsible, onCheckedChange = { collapsible = it })
                 }
-                com.example.hki7.ui.components.WidgetWidthSelector(width = width, onWidthChange = { width = it })
+                com.example.hki7.ui.components.WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
                 Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(selected = radius == 8, onClick = { radius = 8 }, label = { Text("Sharp") })

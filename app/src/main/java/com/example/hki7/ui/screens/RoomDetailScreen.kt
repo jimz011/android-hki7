@@ -19,6 +19,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Switch
@@ -49,6 +50,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.ShortText
 import androidx.compose.material.icons.automirrored.filled.ViewQuilt
@@ -57,6 +59,7 @@ import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.ElectricBolt
 import androidx.compose.material.icons.filled.Close
@@ -113,6 +116,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -127,6 +132,7 @@ import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HAServiceCall
 import com.example.hki7.data.HKIButtonStack
 import com.example.hki7.data.HKIButtonConfig
+import com.example.hki7.data.HKICalendarWidget
 import com.example.hki7.data.HKIEmptyStack
 import com.example.hki7.data.HKIAreaConfig
 import com.example.hki7.data.HKIRoomWidget
@@ -206,10 +212,15 @@ val swipingStackAnimationTypes = listOf(
     "instant" to "Instant"
 )
 
+private const val BUTTON_LOCK_DOUBLE_TAP = "double_tap"
+private const val BUTTON_LOCK_PIN = "pin"
+private const val DEFAULT_BUTTON_RELOCK_SECONDS = 30
+
 fun HKIRoomWidget.withStackChildStyle(isSquare: Boolean, cornerRadius: Int): HKIRoomWidget = when (this) {
     is HKIButtonStack -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKISingleEntityWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKIWeatherWidget -> copy(cornerRadius = cornerRadius)
+    is HKICalendarWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKIEmptyStack -> copy(
         isSquare = isSquare,
         cornerRadius = cornerRadius,
@@ -275,8 +286,8 @@ fun RoomDetailScreen(
     var selectedSingleWidgetSettings by remember { mutableStateOf<Pair<String?, HKISingleEntityWidget>?>(null) }
     var editingEnergyCard by remember { mutableStateOf<Pair<String?, HKIEnergyCardWidget>?>(null) }
     var editingEnergyStack by remember { mutableStateOf<Pair<String?, HKIEnergyStack>?>(null) }
-    var showEnergyCardPicker by remember { mutableStateOf(false) }
-    var showEnergyStackPicker by remember { mutableStateOf(false) }
+    var editingCalendarWidget by remember { mutableStateOf<Pair<String?, HKICalendarWidget>?>(null) }
+    var pendingCalendarWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var addingToStackId by remember { mutableStateOf<String?>(null) }
     var cameraAddMode by remember { mutableStateOf<String?>(null) } // "entity", "custom", or null
     var customCameraUrl by remember { mutableStateOf("") }
@@ -356,6 +367,11 @@ fun RoomDetailScreen(
         entityId = entityId,
         kind = kind,
         isSquare = kind != "camera"
+    )
+    fun newCalendarWidget(entityIds: List<String>) = HKICalendarWidget(
+        id = UUID.randomUUID().toString(),
+        entityIds = entityIds,
+        width = "full"
     )
     fun addChildToSwipingStack(stackId: String, child: HKIRoomWidget) {
         val swipe = areaWidgets.filterIsInstance<HKISwipingStack>().find { it.id == stackId }
@@ -448,6 +464,14 @@ fun RoomDetailScreen(
                 isEditMode = isEditMode,
                 onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
                 onSettings = { editingChildWeather = parent.id to child }
+            )
+            is HKICalendarWidget -> CalendarWidgetItem(
+                widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                allEntities = allEntities,
+                viewModel = viewModel,
+                isEditMode = isEditMode,
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingCalendarWidget = parent.id to child }
             )
             is HKISingleEntityWidget -> SingleEntityWidgetItem(
                 widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
@@ -663,6 +687,14 @@ fun RoomDetailScreen(
                                     onDelete = {},
                                     onSettings = {}
                                 )
+                                is HKICalendarWidget -> CalendarWidgetItem(
+                                    widget = widget,
+                                    allEntities = allEntities,
+                                    viewModel = viewModel,
+                                    isEditMode = false,
+                                    onDelete = {},
+                                    onSettings = {}
+                                )
                                 is HKISingleEntityWidget -> SingleEntityWidgetItem(
                                     widget = widget,
                                     allEntities = allEntities,
@@ -816,6 +848,16 @@ fun RoomDetailScreen(
                                 isEditMode = isEditMode,
                                 onDelete = { viewModel.deleteWidget(areaId, widget.id) },
                                 onSettings = { editingWeather = widget }
+                            )
+                        }
+                        is HKICalendarWidget -> {
+                            CalendarWidgetItem(
+                                widget = widget,
+                                allEntities = allEntities,
+                                viewModel = viewModel,
+                                isEditMode = isEditMode,
+                                onDelete = { viewModel.deleteWidget(areaId, widget.id) },
+                                onSettings = { editingCalendarWidget = null to widget }
                             )
                         }
                         is HKISingleEntityWidget -> SingleEntityWidgetItem(
@@ -974,34 +1016,16 @@ fun RoomDetailScreen(
                 pendingWeatherWidgetContainerId = "__top__"
                 showAddWidgetDialog = false
             },
-            onAddEnergyCard = { showEnergyCardPicker = true; showAddWidgetDialog = false },
-            onAddEnergyStack = { showEnergyStackPicker = true; showAddWidgetDialog = false },
+            onAddCalendarWidget = {
+                pendingCalendarWidgetContainerId = "__top__"
+                showAddWidgetDialog = false
+            },
+            onAddEnergyCard = { keys -> keys.forEach { viewModel.addWidgetToArea(areaId, HKIEnergyCardWidget(id = UUID.randomUUID().toString(), cardKey = it)) } },
+            onAddEnergyStack = { keys -> viewModel.addWidgetToArea(areaId, HKIEnergyStack(id = UUID.randomUUID().toString(), cardKeys = keys)) },
             allEntities = allEntities
         )
     }
 
-    if (showEnergyCardPicker) {
-        EnergyCardPickerDialog(
-            multiSelect = true, title = "Add Energy Cards",
-            onDismiss = { showEnergyCardPicker = false },
-            onSelected = { keys ->
-                keys.forEach {
-                    viewModel.addWidgetToArea(areaId, HKIEnergyCardWidget(id = UUID.randomUUID().toString(), cardKey = it))
-                }
-                showEnergyCardPicker = false
-            }
-        )
-    }
-    if (showEnergyStackPicker) {
-        EnergyCardPickerDialog(
-            multiSelect = true, title = "Energy Stack Cards",
-            onDismiss = { showEnergyStackPicker = false },
-            onSelected = { keys ->
-                viewModel.addWidgetToArea(areaId, HKIEnergyStack(id = UUID.randomUUID().toString(), cardKeys = keys))
-                showEnergyStackPicker = false
-            }
-        )
-    }
     editingEnergyCard?.let { (containerId, w) ->
         EnergyCardWidgetSettingsDialog(w, onDismiss = { editingEnergyCard = null }) { updated ->
             if (containerId == null) viewModel.updateWidget(areaId, updated)
@@ -1015,6 +1039,37 @@ fun RoomDetailScreen(
             else updateChildInSwipingStack(containerId, updated)
             editingEnergyStack = null
         }
+    }
+    editingCalendarWidget?.let { (containerId, widget) ->
+        CalendarWidgetSettingsDialog(
+            widget = widget,
+            allEntities = allEntities,
+            onDismiss = { editingCalendarWidget = null },
+            onSave = { updated ->
+                if (containerId == null) viewModel.updateWidget(areaId, updated)
+                else updateChildInSwipingStack(containerId, updated)
+                editingCalendarWidget = null
+            }
+        )
+    }
+
+    pendingCalendarWidgetContainerId?.let { target ->
+        CalendarEntityPickerDialog(
+            allEntities = allEntities,
+            onDismiss = {
+                pendingCalendarWidgetContainerId = null
+                if (target == "__top__") showAddWidgetDialog = true else addingToSwipingStackId = target
+            },
+            onSelected = { ids ->
+                val widget = newCalendarWidget(ids)
+                if (target == "__top__") {
+                    viewModel.addWidgetToArea(areaId, widget)
+                } else {
+                    addChildToSwipingStack(target, widget)
+                }
+                pendingCalendarWidgetContainerId = null
+            }
+        )
     }
 
     addingToSwipingStackId?.let { stackId ->
@@ -1063,6 +1118,12 @@ fun RoomDetailScreen(
                 pendingWeatherWidgetContainerId = stackId
                 addingToSwipingStackId = null
             },
+            onAddCalendarWidget = {
+                pendingCalendarWidgetContainerId = stackId
+                addingToSwipingStackId = null
+            },
+            onAddEnergyCard = { keys -> keys.forEach { addChildToSwipingStack(stackId, HKIEnergyCardWidget(id = UUID.randomUUID().toString(), cardKey = it)) } },
+            onAddEnergyStack = { keys -> addChildToSwipingStack(stackId, HKIEnergyStack(id = UUID.randomUUID().toString(), cardKeys = keys)) },
             allEntities = allEntities
         )
     }
@@ -1083,8 +1144,10 @@ fun RoomDetailScreen(
             singleSelect = true,
             preselectedIds = emptySet(),
             onDismiss = {
+                val containerId = pendingSingleWidgetContainerId
                 pendingSingleWidgetKind = null
                 pendingSingleWidgetContainerId = null
+                if (containerId == null) showAddWidgetDialog = true else addingToSwipingStackId = containerId
             },
             onEntitiesSelected = { entityIds ->
                 val entityId = entityIds.firstOrNull()
@@ -1111,8 +1174,10 @@ fun RoomDetailScreen(
             preselectedIds = emptySet(),
             onDismiss = {
                 if (!choosingWeatherWidgetStyle) {
+                    val containerId = pendingWeatherWidgetContainerId
                     pendingWeatherWidgetContainerId = null
                     pendingWeatherWidgetEntityId = null
+                    if (containerId == "__top__") showAddWidgetDialog = true else if (containerId != null) addingToSwipingStackId = containerId
                 }
             },
             onEntitiesSelected = { entityIds ->
@@ -1129,7 +1194,6 @@ fun RoomDetailScreen(
         AlertDialog(
             onDismissRequest = {
                 choosingWeatherWidgetStyle = false
-                pendingWeatherWidgetContainerId = null
                 pendingWeatherWidgetEntityId = null
             },
             title = { Text("Weather Type") },
@@ -1160,11 +1224,10 @@ fun RoomDetailScreen(
             },
             confirmButton = {},
             dismissButton = {
-                TextButton(onClick = {
+                OutlinedButton(onClick = {
                     choosingWeatherWidgetStyle = false
-                    pendingWeatherWidgetContainerId = null
                     pendingWeatherWidgetEntityId = null
-                }) { Text("Cancel") }
+                }) { Text("Back") }
             }
         )
     }
@@ -1298,7 +1361,7 @@ fun RoomDetailScreen(
         AdvancedEntitySearchDialog(
             allEntities = (cameraEntities + fallbackStackCameraEntities).distinctBy { it.entity_id },
             preselectedIds = targetStack?.entityIds?.toSet().orEmpty(),
-            onDismiss = { addingToStackId = null; cameraAddMode = null },
+            onDismiss = { cameraAddMode = null },
             onEntitiesSelected = { entityIds ->
                 targetStack?.let { stack ->
                     viewModel.updateWidget(
@@ -1313,7 +1376,7 @@ fun RoomDetailScreen(
     } else if (addingToStackId != null && cameraAddMode == "custom") {
         val targetStack = areaWidgets.find { it.id == addingToStackId } as? HKIButtonStack
         AlertDialog(
-            onDismissRequest = { addingToStackId = null; cameraAddMode = null },
+            onDismissRequest = { cameraAddMode = null; customCameraUrl = "" },
             title = { Text("Add Custom Camera URL") },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -1351,7 +1414,7 @@ fun RoomDetailScreen(
                     customCameraUrl = ""
                 }) { Text("Add") }
             },
-            dismissButton = { TextButton(onClick = { addingToStackId = null; cameraAddMode = null; customCameraUrl = "" }) { Text("Cancel") } }
+            dismissButton = { OutlinedButton(onClick = { cameraAddMode = null; customCameraUrl = "" }) { Text("Back") } }
         )
     }
 
@@ -1770,8 +1833,9 @@ fun AddRoomWidgetDialog(
     onAddCameraWidget: (() -> Unit)? = null,
     onAddVacuumWidget: (() -> Unit)? = null,
     onAddWeatherWidget: (() -> Unit)? = null,
-    onAddEnergyCard: (() -> Unit)? = null,
-    onAddEnergyStack: (() -> Unit)? = null,
+    onAddCalendarWidget: (() -> Unit)? = null,
+    onAddEnergyCard: ((List<String>) -> Unit)? = null,
+    onAddEnergyStack: ((List<String>) -> Unit)? = null,
     allEntities: List<HAEntity> = emptyList()
 ) {
     val appColors = LocalHKIAppColors.current
@@ -1779,6 +1843,7 @@ fun AddRoomWidgetDialog(
     var stackIcon by remember { mutableStateOf("Lightbulb") }
     var cameraTitle by remember { mutableStateOf("Cameras") }
     var cameraIcon by remember { mutableStateOf("CameraAlt") }
+    var energyPickerSelection by remember { mutableStateOf<List<String>>(emptyList()) }
     var vacuumTitle by remember { mutableStateOf("Vacuum") }
     var vacuumIcon by remember { mutableStateOf("CleaningServices") }
     var headerText by remember { mutableStateOf("Header Text") }
@@ -1829,12 +1894,28 @@ fun AddRoomWidgetDialog(
                         subtitle = "A single configurable entity control",
                         onClick = { onAddButtonWidget?.invoke() ?: run { stackTitle = ""; stackIcon = "None"; configureWidget = "button" } }
                     )
+                    if (onAddCalendarWidget != null) {
+                        WidgetChoice(
+                            icon = Icons.Default.CalendarMonth,
+                            title = "Calendar",
+                            subtitle = "Agenda, week, and month views from HA calendars",
+                            onClick = { onAddCalendarWidget(); onDismiss() }
+                        )
+                    }
                     WidgetChoice(
                         icon = Icons.Default.CameraAlt,
                         title = "Camera",
                         subtitle = "A single live camera tile or stream URL",
                         onClick = { onAddCameraWidget?.invoke() ?: run { cameraTitle = ""; cameraIcon = "None"; configureWidget = "camera" } }
                     )
+                    if (onAddEnergyCard != null) {
+                        WidgetChoice(
+                            icon = Icons.Default.ElectricBolt,
+                            title = "Energy Card",
+                            subtitle = "Any card from the Energy view",
+                            onClick = { energyPickerSelection = emptyList(); widgetGroup = "energy_card" }
+                        )
+                    }
                     WidgetChoice(
                         icon = Icons.AutoMirrored.Filled.ShortText,
                         title = "Header Text",
@@ -1844,7 +1925,7 @@ fun AddRoomWidgetDialog(
                     WidgetChoice(
                         icon = Icons.AutoMirrored.Filled.ViewQuilt,
                         title = "Stacks",
-                        subtitle = "Button, camera, vacuum, weather, swipe, and empty stacks",
+                        subtitle = "Button, camera, vacuum, weather, energy, swipe, and empty stacks",
                         onClick = { widgetGroup = "stacks" }
                     )
                     WidgetChoice(
@@ -1859,15 +1940,12 @@ fun AddRoomWidgetDialog(
                         subtitle = "A single weather card",
                         onClick = { onAddWeatherWidget?.invoke() ?: run { weatherTitle = ""; weatherIcon = "None"; configureWidget = "weather" } }
                     )
-                    if (onAddEnergyCard != null) {
-                        WidgetChoice(
-                            icon = Icons.Default.ElectricBolt,
-                            title = "Energy Card",
-                            subtitle = "Any card from the Energy view",
-                            onClick = { onAddEnergyCard(); onDismiss() }
-                        )
-                    }
                 } else if (widgetGroup == "stacks" && configureWidget == null) {
+                    TextButton(onClick = { widgetGroup = null }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("Back")
+                    }
                     if (onAddEmptyStack != null) {
                         WidgetChoice(
                             icon = Icons.AutoMirrored.Filled.ViewQuilt,
@@ -1882,6 +1960,14 @@ fun AddRoomWidgetDialog(
                     Text("Predefined Stacks", color = appColors.onMuted, style = MaterialTheme.typography.labelLarge)
                     WidgetChoice(Icons.AutoMirrored.Filled.ViewQuilt, "Button Stack", "Group entities into configurable controls") { stackTitle = "Buttons"; stackIcon = "Lightbulb"; configureWidget = "button_stack" }
                     WidgetChoice(Icons.Default.CameraAlt, "Camera Stack", "Show live camera tiles or a custom stream URL") { cameraTitle = "Cameras"; cameraIcon = "CameraAlt"; configureWidget = "camera_stack" }
+                    if (onAddEnergyStack != null) {
+                        WidgetChoice(
+                            icon = Icons.AutoMirrored.Filled.ViewQuilt,
+                            title = "Energy Stack",
+                            subtitle = "Group energy cards: usage, solar, gas, water, ...",
+                            onClick = { energyPickerSelection = emptyList(); widgetGroup = "energy_stack" }
+                        )
+                    }
                     if (onAddSwipingStack != null) {
                         WidgetChoice(
                             icon = Icons.AutoMirrored.Filled.ViewQuilt,
@@ -1895,18 +1981,52 @@ fun AddRoomWidgetDialog(
                     }
                     WidgetChoice(Icons.Default.CleaningServices, "Vacuum Stack", "Control robot vacuums with map and battery") { vacuumTitle = "Vacuum"; vacuumIcon = "CleaningServices"; configureWidget = "vacuum_stack" }
                     WidgetChoice(Icons.Default.WbSunny, "Weather Stack", "Group weather cards: conditions, forecast, wind, or rain map") { weatherTitle = "Weather"; weatherIcon = "weather-partly-cloudy"; configureWidget = "weather_stack" }
-                    if (onAddEnergyStack != null) {
-                        WidgetChoice(
-                            icon = Icons.Default.ElectricBolt,
-                            title = "Energy Stack",
-                            subtitle = "Group energy cards: usage, solar, gas, water, ...",
-                            onClick = { onAddEnergyStack(); onDismiss() }
-                        )
-                    }
-                    OutlinedButton(onClick = { widgetGroup = null }, modifier = Modifier.fillMaxWidth()) {
+                } else if (widgetGroup == "energy_card" && configureWidget == null) {
+                    TextButton(onClick = { widgetGroup = null }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
                         Text("Back")
                     }
+                    Text("Energy Cards", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                    EnergyCardPickerList(
+                        multiSelect = true,
+                        selected = energyPickerSelection,
+                        onToggle = { key ->
+                            energyPickerSelection = if (key in energyPickerSelection) energyPickerSelection - key else energyPickerSelection + key
+                        }
+                    )
+                    Button(
+                        onClick = { onAddEnergyCard?.invoke(energyPickerSelection); onDismiss() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Add")
+                    }
+                } else if (widgetGroup == "energy_stack" && configureWidget == null) {
+                    TextButton(onClick = { widgetGroup = "stacks" }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("Back")
+                    }
+                    Text("Energy Stack Cards", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                    EnergyCardPickerList(
+                        multiSelect = true,
+                        selected = energyPickerSelection,
+                        onToggle = { key ->
+                            energyPickerSelection = if (key in energyPickerSelection) energyPickerSelection - key else energyPickerSelection + key
+                        }
+                    )
+                    Button(
+                        onClick = { onAddEnergyStack?.invoke(energyPickerSelection); onDismiss() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Add")
+                    }
                 } else {
+                    TextButton(onClick = { configureWidget = null }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("Back")
+                    }
                     Text(
                         when (configureWidget) {
                             "button", "button_stack" -> if (configureWidget == "button") "Button" else "Button Stack"
@@ -1969,28 +2089,23 @@ fun AddRoomWidgetDialog(
                         )
                         TextButton(onClick = { showIconPicker = true }) { Text("Change") }
                     }
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                        OutlinedButton(onClick = { configureWidget = null }, modifier = Modifier.weight(1f)) {
-                            Text("Back")
-                        }
-                        Button(
-                            onClick = {
-                                if (configureWidget == "button" || configureWidget == "button_stack") {
-                                    onAddStack(stackTitle.ifBlank { null }, stackIcon.takeUnless { it == "None" })
-                                } else if (configureWidget == "camera" || configureWidget == "camera_stack") {
-                                    onAddCameraStack(cameraTitle.ifBlank { null } to cameraIcon.takeUnless { it == "None" })
-                                } else if (configureWidget == "vacuum" || configureWidget == "vacuum_stack") {
-                                    onAddVacuumStack(vacuumTitle.ifBlank { null } to vacuumIcon.takeUnless { it == "None" })
-                                } else if (configureWidget == "weather" || configureWidget == "weather_stack") {
-                                    onAddWeatherStack(weatherTitle.ifBlank { null } to weatherIcon.takeUnless { it == "None" })
-                                } else {
-                                    onAddSubtitle(headerText.ifBlank { "Header Text" }, headerIcon.takeUnless { it == "None" })
-                                }
-                            },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Add")
-                        }
+                    Button(
+                        onClick = {
+                            if (configureWidget == "button" || configureWidget == "button_stack") {
+                                onAddStack(stackTitle.ifBlank { null }, stackIcon.takeUnless { it == "None" })
+                            } else if (configureWidget == "camera" || configureWidget == "camera_stack") {
+                                onAddCameraStack(cameraTitle.ifBlank { null } to cameraIcon.takeUnless { it == "None" })
+                            } else if (configureWidget == "vacuum" || configureWidget == "vacuum_stack") {
+                                onAddVacuumStack(vacuumTitle.ifBlank { null } to vacuumIcon.takeUnless { it == "None" })
+                            } else if (configureWidget == "weather" || configureWidget == "weather_stack") {
+                                onAddWeatherStack(weatherTitle.ifBlank { null } to weatherIcon.takeUnless { it == "None" })
+                            } else {
+                                onAddSubtitle(headerText.ifBlank { "Header Text" }, headerIcon.takeUnless { it == "None" })
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Add")
                     }
                 }
             }
@@ -2049,6 +2164,14 @@ fun ButtonConfigDialog(
     var tapAction by remember(config) { mutableStateOf(config.tapAction) }
     var doubleAction by remember(config) { mutableStateOf(config.doubleTapAction) }
     var holdAction by remember(config) { mutableStateOf(config.holdAction) }
+    var lockEnabled by remember(config) { mutableStateOf(config.lockEnabled) }
+    var lockUnlockMode by remember(config) {
+        mutableStateOf(config.lockUnlockMode.takeIf { it == BUTTON_LOCK_PIN || it == BUTTON_LOCK_DOUBLE_TAP } ?: BUTTON_LOCK_DOUBLE_TAP)
+    }
+    var lockPin by remember(config) { mutableStateOf(config.lockPin ?: "") }
+    var lockRelockSecondsText by remember(config) {
+        mutableStateOf(config.lockRelockSeconds.coerceAtLeast(5).toString())
+    }
     // Lock door sensor
     val isLockEntity = entity?.entity_id?.startsWith("lock.") == true
     var doorEntityId by remember(config) { mutableStateOf(config.doorEntityId) }
@@ -2081,6 +2204,9 @@ fun ButtonConfigDialog(
     var showBattPicker by remember { mutableStateOf(false) }
     val actions = listOf("toggle", "more_info", "none")
     val refreshOptions = listOf("Live" to 0, "5s" to 5, "10s" to 10, "15s" to 15, "30s" to 30)
+    val lockRelockSeconds = lockRelockSecondsText.toIntOrNull()?.coerceIn(5, 86400) ?: DEFAULT_BUTTON_RELOCK_SECONDS
+    val showButtonLockSettings = !isCameraItem && !isVacuumItem
+    val lockPinMissing = showButtonLockSettings && lockEnabled && lockUnlockMode == BUTTON_LOCK_PIN && lockPin.isBlank()
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -2215,6 +2341,62 @@ fun ButtonConfigDialog(
                     ActionChips("Double", doubleAction, actions) { doubleAction = it }
                     ActionChips("Hold", holdAction, actions) { holdAction = it }
                 }
+                if (showButtonLockSettings) {
+                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Column(Modifier.weight(1f)) {
+                            Text("Button lock", style = MaterialTheme.typography.labelLarge)
+                        }
+                        Switch(checked = lockEnabled, onCheckedChange = { lockEnabled = it })
+                    }
+                    if (lockEnabled) {
+                        Text("Unlock method", style = MaterialTheme.typography.labelLarge)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            FilterChip(
+                                selected = lockUnlockMode == BUTTON_LOCK_DOUBLE_TAP,
+                                onClick = { lockUnlockMode = BUTTON_LOCK_DOUBLE_TAP },
+                                label = { Text("Double tap") }
+                            )
+                            FilterChip(
+                                selected = lockUnlockMode == BUTTON_LOCK_PIN,
+                                onClick = { lockUnlockMode = BUTTON_LOCK_PIN },
+                                label = { Text("PIN") }
+                            )
+                        }
+                        if (lockUnlockMode == BUTTON_LOCK_PIN) {
+                            OutlinedTextField(
+                                value = lockPin,
+                                onValueChange = { lockPin = it.filter { c -> c.isDigit() }.take(12) },
+                                label = { Text("PIN") },
+                                singleLine = true,
+                                isError = lockPinMissing,
+                                visualTransformation = PasswordVisualTransformation(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            if (lockPinMissing) {
+                                Text("Enter a PIN", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                        Text("Relock after", style = MaterialTheme.typography.labelLarge)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf(15 to "15s", 30 to "30s", 60 to "1m", 300 to "5m").forEach { (seconds, label) ->
+                                FilterChip(
+                                    selected = lockRelockSeconds == seconds,
+                                    onClick = { lockRelockSecondsText = seconds.toString() },
+                                    label = { Text(label) }
+                                )
+                            }
+                        }
+                        OutlinedTextField(
+                            value = lockRelockSecondsText,
+                            onValueChange = { lockRelockSecondsText = it.filter { c -> c.isDigit() }.take(5) },
+                            label = { Text("Seconds") },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
                 if (widgetAppearance != null) {
                     Text("Shape", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -2232,37 +2414,44 @@ fun ButtonConfigDialog(
             }
         },
         confirmButton = {
-            Button(onClick = {
-                val save: (HKIButtonConfig) -> Unit = { newConfig ->
-                    if (widgetAppearance != null && onSaveWithAppearance != null) {
-                        onSaveWithAppearance(
-                            newConfig,
-                            WidgetAppearance(appearIsSquare, appearRadius, appearWidth)
+            Button(
+                enabled = !lockPinMissing,
+                onClick = {
+                    val save: (HKIButtonConfig) -> Unit = { newConfig ->
+                        if (widgetAppearance != null && onSaveWithAppearance != null) {
+                            onSaveWithAppearance(
+                                newConfig,
+                                WidgetAppearance(appearIsSquare, appearRadius, appearWidth)
+                            )
+                        } else onSave(newConfig)
+                    }
+                    save(
+                        config.copy(
+                            name = name.ifBlank { null },
+                            label = if (isVacuumItem) config.label else label.ifBlank { null },
+                            icon = if (isCameraItem || isVacuumItem) config.icon else iconName.takeUnless { it == "None" },
+                            spinIcon = if (isCameraItem || isVacuumItem) config.spinIcon else spinIcon,
+                            cameraUrl = if (isCameraItem && config.isCustomUrl) cameraUrl.ifBlank { null } else config.cameraUrl,
+                            cameraRefreshInterval = if (isCameraItem) refreshInterval else config.cameraRefreshInterval,
+                            isCustomUrl = config.isCustomUrl,
+                            tapAction = tapAction,
+                            doubleTapAction = doubleAction,
+                            holdAction = holdAction,
+                            lockEnabled = if (showButtonLockSettings) lockEnabled else config.lockEnabled,
+                            lockUnlockMode = if (showButtonLockSettings) lockUnlockMode else config.lockUnlockMode,
+                            lockPin = if (showButtonLockSettings) lockPin.ifBlank { null } else config.lockPin,
+                            lockRelockSeconds = if (showButtonLockSettings) lockRelockSeconds else config.lockRelockSeconds,
+                            doorEntityId = if (isLockEntity) doorEntityId else config.doorEntityId,
+                            vacuumDisplayMode = if (isVacuumItem) vacuumDisplayMode else config.vacuumDisplayMode,
+                            vacuumMapEntityId = if (isVacuumItem) vacuumMapEntityId else config.vacuumMapEntityId,
+                            vacuumBatteryEntityId = if (isVacuumItem) vacuumBatteryEntityId else config.vacuumBatteryEntityId,
+                            vacuumImageUrl = if (isVacuumItem && vacuumDisplayMode == "external") vacuumImageUrl.ifBlank { null } else if (isVacuumItem) null else config.vacuumImageUrl,
+                            climateTempSensorEntityId = if (isClimateEntity) climateTempSensorEntityId else config.climateTempSensorEntityId,
+                            climateHumiditySensorEntityId = if (isClimateEntity) climateHumiditySensorEntityId else config.climateHumiditySensorEntityId
                         )
-                    } else onSave(newConfig)
-                }
-                save(
-                    config.copy(
-                        name = name.ifBlank { null },
-                        label = if (isVacuumItem) config.label else label.ifBlank { null },
-                        icon = if (isCameraItem || isVacuumItem) config.icon else iconName.takeUnless { it == "None" },
-                        spinIcon = if (isCameraItem || isVacuumItem) config.spinIcon else spinIcon,
-                        cameraUrl = if (isCameraItem && config.isCustomUrl) cameraUrl.ifBlank { null } else config.cameraUrl,
-                        cameraRefreshInterval = if (isCameraItem) refreshInterval else config.cameraRefreshInterval,
-                        isCustomUrl = config.isCustomUrl,
-                        tapAction = tapAction,
-                        doubleTapAction = doubleAction,
-                        holdAction = holdAction,
-                        doorEntityId = if (isLockEntity) doorEntityId else config.doorEntityId,
-                        vacuumDisplayMode = if (isVacuumItem) vacuumDisplayMode else config.vacuumDisplayMode,
-                        vacuumMapEntityId = if (isVacuumItem) vacuumMapEntityId else config.vacuumMapEntityId,
-                        vacuumBatteryEntityId = if (isVacuumItem) vacuumBatteryEntityId else config.vacuumBatteryEntityId,
-                        vacuumImageUrl = if (isVacuumItem && vacuumDisplayMode == "external") vacuumImageUrl.ifBlank { null } else if (isVacuumItem) null else config.vacuumImageUrl,
-                        climateTempSensorEntityId = if (isClimateEntity) climateTempSensorEntityId else config.climateTempSensorEntityId,
-                        climateHumiditySensorEntityId = if (isClimateEntity) climateHumiditySensorEntityId else config.climateHumiditySensorEntityId
                     )
-                )
-            }) { Text("Save") }
+                }
+            ) { Text("Save") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
@@ -2605,6 +2794,88 @@ fun StackSettingsDialog(
     )
 }
 
+private fun normalizedButtonLockMode(config: HKIButtonConfig): String =
+    if (config.lockUnlockMode == BUTTON_LOCK_PIN) BUTTON_LOCK_PIN else BUTTON_LOCK_DOUBLE_TAP
+
+private fun isButtonCurrentlyLocked(
+    config: HKIButtonConfig?,
+    nowMillis: Long,
+    unlockedUntilMillis: Long?
+): Boolean = config?.lockEnabled == true && (unlockedUntilMillis ?: 0L) <= nowMillis
+
+private fun buttonRelockMillis(config: HKIButtonConfig): Long =
+    config.lockRelockSeconds.coerceIn(5, 86400) * 1000L
+
+@Composable
+private fun ButtonLockBadge(
+    config: HKIButtonConfig?,
+    locked: Boolean,
+    modifier: Modifier = Modifier
+) {
+    if (config?.lockEnabled != true) return
+    Surface(
+        modifier = modifier.size(24.dp),
+        shape = CircleShape,
+        color = if (locked) Color.Black.copy(alpha = 0.58f) else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.94f)
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Icon(
+                imageVector = if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
+                contentDescription = if (locked) "Locked" else "Unlocked",
+                tint = if (locked) Color.White else MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.size(13.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ButtonUnlockPinDialog(
+    config: HKIButtonConfig,
+    onDismiss: () -> Unit,
+    onUnlock: () -> Unit
+) {
+    var pin by remember(config) { mutableStateOf("") }
+    var hasError by remember(config) { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Unlock button") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = pin,
+                    onValueChange = {
+                        pin = it.filter { c -> c.isDigit() }.take(12)
+                        hasError = false
+                    },
+                    label = { Text("PIN") },
+                    singleLine = true,
+                    isError = hasError,
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                if (hasError) {
+                    Text("Incorrect PIN", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (pin == config.lockPin.orEmpty()) {
+                        onUnlock()
+                    } else {
+                        hasError = true
+                    }
+                }
+            ) { Text("Unlock") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+    )
+}
+
 @Composable
 fun ButtonStackItem(
     stack: HKIButtonStack,
@@ -2632,6 +2903,44 @@ fun ButtonStackItem(
     val entityById = remember(allEntities) { allEntities.associateBy { it.entity_id } }
     val entities = remember(stack.entityIds, entityById) { stack.entityIds.mapNotNull(entityById::get) }
     val buttonConfigs = stack.buttonConfigs
+    var unlockedUntilByEntity by remember(stack.id) { mutableStateOf<Map<String, Long>>(emptyMap()) }
+    var lockNow by remember(stack.id) { mutableStateOf(System.currentTimeMillis()) }
+    var pendingPinUnlock by remember(stack.id) { mutableStateOf<Pair<String, HKIButtonConfig>?>(null) }
+
+    LaunchedEffect(unlockedUntilByEntity) {
+        while (unlockedUntilByEntity.values.any { it > System.currentTimeMillis() }) {
+            delay(1000)
+            lockNow = System.currentTimeMillis()
+        }
+        lockNow = System.currentTimeMillis()
+    }
+
+    fun unlockButton(entityId: String, config: HKIButtonConfig) {
+        unlockedUntilByEntity = unlockedUntilByEntity + (entityId to (System.currentTimeMillis() + buttonRelockMillis(config)))
+        lockNow = System.currentTimeMillis()
+    }
+
+    fun handleButtonInteraction(entityId: String, config: HKIButtonConfig?, trigger: String, action: () -> Unit) {
+        if (config?.lockEnabled != true || !isButtonCurrentlyLocked(config, System.currentTimeMillis(), unlockedUntilByEntity[entityId])) {
+            action()
+            return
+        }
+        when (normalizedButtonLockMode(config)) {
+            BUTTON_LOCK_PIN -> pendingPinUnlock = entityId to config
+            else -> if (trigger == "double") unlockButton(entityId, config)
+        }
+    }
+
+    pendingPinUnlock?.let { (entityId, config) ->
+        ButtonUnlockPinDialog(
+            config = config,
+            onDismiss = { pendingPinUnlock = null },
+            onUnlock = {
+                unlockButton(entityId, config)
+                pendingPinUnlock = null
+            }
+        )
+    }
     // Domain-aware "active" so the activity badge works for locks/covers/etc, not just lights.
     val activeCount = remember(entities) {
         entities.count { e ->
@@ -2763,19 +3072,27 @@ fun ButtonStackItem(
                     }
                     else -> {
                         val doorOpen = cfg?.doorEntityId?.let { id -> allEntities.find { it.entity_id == id }?.state == "on" } == true
-                        EntityCard(
-                            entity = entity,
-                            displayName = cfg?.name,
-                            label = cfg?.label,
-                            iconName = cfg?.icon,
-                            spinIcon = cfg?.spinIcon == true,
-                            onClick = { onEntityClick(entity.entity_id) },
-                            onLongClick = { onEntityLongClick(entity.entity_id) },
-                            onDoubleClick = { onEntityDoubleClick(entity.entity_id) },
-                            isSquare = stack.isSquare,
-                            cornerRadius = stack.cornerRadius,
-                            doorOpen = doorOpen
-                        )
+                        val isLocked = isButtonCurrentlyLocked(cfg, lockNow, unlockedUntilByEntity[entity.entity_id])
+                        Box {
+                            EntityCard(
+                                entity = entity,
+                                displayName = cfg?.name,
+                                label = cfg?.label,
+                                iconName = cfg?.icon,
+                                spinIcon = cfg?.spinIcon == true,
+                                onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
+                                onLongClick = { handleButtonInteraction(entity.entity_id, cfg, "hold") { onEntityLongClick(entity.entity_id) } },
+                                onDoubleClick = { handleButtonInteraction(entity.entity_id, cfg, "double") { onEntityDoubleClick(entity.entity_id) } },
+                                isSquare = stack.isSquare,
+                                cornerRadius = stack.cornerRadius,
+                                doorOpen = doorOpen
+                            )
+                            ButtonLockBadge(
+                                config = cfg,
+                                locked = isLocked,
+                                modifier = Modifier.align(Alignment.TopEnd).padding(top = 8.dp, end = 8.dp)
+                            )
+                        }
                     }
                 }
                 return@Column
@@ -2836,20 +3153,27 @@ fun ButtonStackItem(
                             rowEntities.forEach { entity ->
                                 val cfg = buttonConfigs[entity.entity_id]
                                 val doorOpen = cfg?.doorEntityId?.let { id -> allEntities.find { it.entity_id == id }?.state == "on" } == true
-                                EntityCard(
-                                    entity = entity,
-                                    displayName = cfg?.name,
-                                    label = cfg?.label,
-                                    iconName = cfg?.icon,
-                                    spinIcon = cfg?.spinIcon == true,
-                                    onClick = { onEntityClick(entity.entity_id) },
-                                    onLongClick = { onEntityLongClick(entity.entity_id) },
-                                    onDoubleClick = { onEntityDoubleClick(entity.entity_id) },
-                                    isSquare = stack.isSquare,
-                                    cornerRadius = stack.cornerRadius,
-                                    doorOpen = doorOpen,
-                                    modifier = Modifier.weight(1f)
-                                )
+                                val isLocked = isButtonCurrentlyLocked(cfg, lockNow, unlockedUntilByEntity[entity.entity_id])
+                                Box(modifier = Modifier.weight(1f)) {
+                                    EntityCard(
+                                        entity = entity,
+                                        displayName = cfg?.name,
+                                        label = cfg?.label,
+                                        iconName = cfg?.icon,
+                                        spinIcon = cfg?.spinIcon == true,
+                                        onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
+                                        onLongClick = { handleButtonInteraction(entity.entity_id, cfg, "hold") { onEntityLongClick(entity.entity_id) } },
+                                        onDoubleClick = { handleButtonInteraction(entity.entity_id, cfg, "double") { onEntityDoubleClick(entity.entity_id) } },
+                                        isSquare = stack.isSquare,
+                                        cornerRadius = stack.cornerRadius,
+                                        doorOpen = doorOpen
+                                    )
+                                    ButtonLockBadge(
+                                        config = cfg,
+                                        locked = isLocked,
+                                        modifier = Modifier.align(Alignment.TopEnd).padding(top = 8.dp, end = 8.dp)
+                                    )
+                                }
                             }
                             repeat((columns - rowEntities.size).coerceAtLeast(0)) {
                                 Spacer(Modifier.weight(1f))
@@ -2975,21 +3299,68 @@ fun SingleEntityWidgetItem(
                     onClick = { onEntityClick(widget.entityId) }
                 )
                 else -> {
+                    var unlockedUntilMillis by remember(widget.id, widget.entityId) { mutableStateOf(0L) }
+                    var lockNowMillis by remember(widget.id, widget.entityId) { mutableStateOf(System.currentTimeMillis()) }
+                    var showPinUnlock by remember(widget.id, widget.entityId) { mutableStateOf(false) }
+
+                    LaunchedEffect(unlockedUntilMillis) {
+                        while (unlockedUntilMillis > System.currentTimeMillis()) {
+                            delay(1000)
+                            lockNowMillis = System.currentTimeMillis()
+                        }
+                        lockNowMillis = System.currentTimeMillis()
+                    }
+
+                    fun unlockButton() {
+                        unlockedUntilMillis = System.currentTimeMillis() + buttonRelockMillis(widget.config)
+                        lockNowMillis = System.currentTimeMillis()
+                    }
+
+                    fun handleSingleButtonInteraction(trigger: String, action: () -> Unit) {
+                        if (!widget.config.lockEnabled || !isButtonCurrentlyLocked(widget.config, System.currentTimeMillis(), unlockedUntilMillis)) {
+                            action()
+                            return
+                        }
+                        when (normalizedButtonLockMode(widget.config)) {
+                            BUTTON_LOCK_PIN -> showPinUnlock = true
+                            else -> if (trigger == "double") unlockButton()
+                        }
+                    }
+
+                    if (showPinUnlock) {
+                        ButtonUnlockPinDialog(
+                            config = widget.config,
+                            onDismiss = { showPinUnlock = false },
+                            onUnlock = {
+                                unlockButton()
+                                showPinUnlock = false
+                            }
+                        )
+                    }
+
                     val doorOpen = widget.config.doorEntityId?.let { id -> allEntities.find { it.entity_id == id }?.state == "on" } == true
+                    val isLocked = isButtonCurrentlyLocked(widget.config, lockNowMillis, unlockedUntilMillis)
                     EntityCard(
                         entity = entity,
                         displayName = widget.config.name,
                         label = widget.config.label,
                         iconName = widget.config.icon,
                         spinIcon = widget.config.spinIcon,
-                        onClick = { onEntityClick(widget.entityId) },
-                        onLongClick = { onEntityLongClick(widget.entityId) },
-                        onDoubleClick = { onEntityDoubleClick(widget.entityId) },
+                        onClick = { handleSingleButtonInteraction("tap") { onEntityClick(widget.entityId) } },
+                        onLongClick = { handleSingleButtonInteraction("hold") { onEntityLongClick(widget.entityId) } },
+                        onDoubleClick = { handleSingleButtonInteraction("double") { onEntityDoubleClick(widget.entityId) } },
                         isSquare = widget.isSquare,
                         cornerRadius = widget.cornerRadius,
                         doorOpen = doorOpen,
                         interactionsEnabled = !isEditMode
                     )
+                    if (!isEditMode) {
+                        ButtonLockBadge(
+                            config = widget.config,
+                            locked = isLocked,
+                            modifier = Modifier.align(Alignment.TopEnd).padding(top = 8.dp, end = 8.dp)
+                        )
+                    }
                 }
             }
             if (isEditMode) {

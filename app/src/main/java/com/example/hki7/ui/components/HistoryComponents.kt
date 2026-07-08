@@ -89,6 +89,9 @@ fun sensorGradientColors(deviceClass: String?): List<Color>? = when (deviceClass
     "carbon_dioxide" -> listOf(Color(0xFFEF5350), Color(0xFF66BB6A))           // high CO2 red -> low green
     "atmospheric_pressure", "pressure" -> listOf(Color(0xFF7E57C2), Color(0xFF5C6BC0))
     "power", "energy" -> listOf(Color(0xFFFF7043), Color(0xFFFFC107))
+    "carbon_monoxide", "pm1", "pm25", "pm10", "aqi",
+    "volatile_organic_compounds", "volatile_organic_compounds_parts",
+    "nitrogen_dioxide" -> listOf(Color(0xFFEF5350), Color(0xFF66BB6A))          // polluted red -> clean green
     else -> null
 }
 

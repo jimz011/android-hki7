@@ -161,6 +161,26 @@ class HomeAssistantClient(
         }
     }
 
+    suspend fun getCalendarEvents(
+        entityIds: List<String>,
+        startMillis: Long,
+        endMillis: Long
+    ): Map<String, List<HACalendarEvent>> {
+        val start = Instant.ofEpochMilli(startMillis).atOffset(ZoneOffset.UTC)
+        val end = Instant.ofEpochMilli(endMillis).atOffset(ZoneOffset.UTC)
+        return entityIds.distinct().associateWith { entityId ->
+            val responseText: String = withAuthHandling {
+                client.get("$baseUrl/api/calendars/$entityId") {
+                    header(HttpHeaders.Authorization, "Bearer $accessToken")
+                    parameter("start", start.toString())
+                    parameter("end", end.toString())
+                }.body()
+            }
+            json.decodeFromString(ListSerializer(HACalendarEvent.serializer()), responseText)
+                .map { it.copy(entityId = entityId) }
+        }
+    }
+
     suspend fun getEntityHistory(entityId: String, hours: Long = 24): List<HAHistoryEntry> {
         val end = OffsetDateTime.now(ZoneOffset.UTC)
         val start = end.minusHours(hours.coerceAtLeast(1))

@@ -136,6 +136,7 @@ fun EntityCard(
     val primary = MaterialTheme.colorScheme.primary
     val activeContent = if (primary.luminance() < 0.45f) Color.White else Color(0xFF111111)
     val primaryContent = if (primary.luminance() < 0.45f) Color.White else Color(0xFF111111)
+    val unavailableStateColor = if (primary.isRedShade()) primary else Color(0xFFEF5350)
 
     Card(
         modifier = modifier
@@ -235,7 +236,7 @@ fun EntityCard(
                         isCoverNotClosed -> primaryContent.copy(alpha = 0.75f)
                         isLockDoorOpen  -> primaryContent.copy(alpha = 0.75f)
                         isLockUnlocked  -> primaryContent.copy(alpha = 0.75f)
-                        isUnavailable   -> primary
+                        isUnavailable   -> unavailableStateColor
                         isActive || isClimateNotOff -> activeContent.copy(alpha = 0.68f)
                         else            -> appColors.onMuted
                     },
@@ -246,6 +247,9 @@ fun EntityCard(
         }
     }
 }
+
+private fun Color.isRedShade(): Boolean =
+    red > green * 1.25f && red > blue * 1.25f
 
 fun lightStateColor(entity: HAEntity): Color? {
     entity.rgbColor

@@ -191,7 +191,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         }
     })
     
-    val screens = listOf(Screen.Home, Screen.Rooms, Screen.Security, Screen.Energy)
+    val screens = listOf(Screen.Home, Screen.Rooms, Screen.Security, Screen.Energy, Screen.Climate)
         val isEditMode by viewModel.isEditMode.collectAsState()
         val canUndo by viewModel.canUndo.collectAsState()
         val canRedo by viewModel.canRedo.collectAsState()
@@ -316,6 +316,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                 composable(Screen.Rooms.route)    { RoomsScreen(viewModel, navController) }
                 composable(Screen.Security.route) { SecurityScreen(viewModel) }
                 composable(Screen.Energy.route)   { EnergyScreen(viewModel) }
+                composable(Screen.Climate.route)  { ClimateScreen(viewModel) }
                 composable(
                     route = Screen.RoomDetail.route,
                     arguments = listOf(navArgument("areaId") { type = NavType.StringType })
@@ -326,7 +327,15 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             }
         }
 
-        HKIBottomBar(modifier = Modifier.align(Alignment.BottomCenter), horizontalPadding = 32.dp) {
+        // When the bar is too narrow for every tab (small screens / many tabs), fall back to
+        // fixed-width tabs in a horizontally scrollable row instead of squeezing weight()-tabs.
+        val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+        val navBarScrollable = !isEditMode && (configuration.screenWidthDp - 64) < screens.size * 64
+        HKIBottomBar(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            horizontalPadding = 32.dp,
+            scrollable = navBarScrollable
+        ) {
             if (isEditMode) {
                 EditNavButton(Icons.AutoMirrored.Filled.Undo, "Undo", enabled = canUndo) { viewModel.undo() }
                 EditNavButton(Icons.AutoMirrored.Filled.Redo, "Redo", enabled = canRedo) { viewModel.redo() }
@@ -340,7 +349,10 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
 
                         Column(
                             modifier = Modifier
-                                .weight(1f)
+                                .then(
+                                    // weight() needs a bounded row; scrollable rows use fixed-width tabs.
+                                    if (navBarScrollable) Modifier.width(68.dp) else Modifier.weight(1f)
+                                )
                                 .fillMaxHeight()
                                 .clickable {
                                     if (screen == Screen.Rooms || screen == Screen.Security) {

@@ -105,7 +105,9 @@ class LocationForegroundService : Service() {
     }
 
     private suspend fun reportOnce(location: Location?) {
-        reportTelemetryNow(applicationContext, prefs, providedLocation = location)
+        // Each streamed fix posts update_location only (official-app behavior); the full sensor
+        // report would otherwise run — geocode included — every few seconds.
+        reportTelemetryNow(applicationContext, prefs, providedLocation = location, locationOnly = true)
     }
 
     override fun onDestroy() {

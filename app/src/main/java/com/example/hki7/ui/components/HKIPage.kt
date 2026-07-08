@@ -2,6 +2,8 @@
 
 package com.example.hki7.ui.components
 
+import android.app.Activity
+import android.os.Build
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,14 +28,17 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.core.graphics.toColorInt
+import androidx.core.view.WindowCompat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import coil3.compose.AsyncImage
@@ -70,7 +75,7 @@ fun HKIPage(
     headerColor: String? = null,
     pageKey: String? = null,
     pageSettingsTitle: String? = null,
-    extraPageSettingsSection: Pair<String, @Composable ColumnScope.() -> Unit>? = null,
+    extraPageSettingsSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit>? = null,
     onBack: (() -> Unit)? = null,
     showBadgeBar: Boolean = true,
     /** Pinned bar between the header and the scrolling content (e.g. the energy time filter). */
@@ -116,6 +121,29 @@ fun HKIPage(
     val headerMutedColor = headerContentColor?.copy(alpha = 0.75f) ?: if (hasHeaderMedia) Color.White.copy(alpha = 0.8f) else appColors.onMuted
     val pillColor = headerContentColor?.copy(alpha = 0.16f) ?: if (hasHeaderMedia) Color.Black.copy(alpha = 0.3f) else appColors.surface.copy(alpha = 0.78f)
     val headerHeight = 236.dp
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as? Activity)?.window ?: return@SideEffect
+            val statusBarColor = when {
+                effectiveBackground != null -> Color.Transparent
+                headerColorValue != null -> headerColorValue
+                else -> appColors.background
+            }
+            val useDarkStatusBarIcons = when {
+                effectiveBackground != null -> false
+                headerColorValue != null -> headerColorValue.luminance() > 0.5f
+                else -> appColors.background.luminance() > 0.5f
+            }
+            @Suppress("DEPRECATION")
+            window.statusBarColor = statusBarColor.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = useDarkStatusBarIcons
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                @Suppress("DEPRECATION")
+                window.isStatusBarContrastEnforced = false
+            }
+        }
+    }
     val visiblePeople = remember(people, pageConfig) {
         val sorted = when (pageConfig.peopleSort) {
             "custom" -> people.sortedWith(
@@ -184,6 +212,8 @@ fun HKIPage(
         }
 
         // Long-Pull Menu - Shifted down 20px
+        val menuButtonSurfaceColor = if (hasHeaderMedia) Color.Black.copy(alpha = 0.34f) else appColors.subtleSurface
+        val menuButtonContentColor = if (hasHeaderMedia) headerTextColor else appColors.onSurface
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -195,27 +225,27 @@ fun HKIPage(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            MenuButton(Icons.Default.Refresh, "Refresh", enabled = menuVisible) { 
+            MenuButton(Icons.Default.Refresh, "Refresh", enabled = menuVisible, surfaceColor = menuButtonSurfaceColor, contentColor = menuButtonContentColor) { 
                 viewModel.refreshEntities()
                 pullOffset = 0f
             }
-            MenuButton(if (isEditMode) Icons.Default.CheckCircle else Icons.Default.Edit, if (isEditMode) "Done" else "Edit", enabled = menuVisible) { 
+            MenuButton(if (isEditMode) Icons.Default.CheckCircle else Icons.Default.Edit, if (isEditMode) "Done" else "Edit", enabled = menuVisible, surfaceColor = menuButtonSurfaceColor, contentColor = menuButtonContentColor) { 
                 viewModel.toggleEditMode()
                 pullOffset = 0f
             }
             if (pageKey != null && pageSettingsTitle != null) {
-                MenuButton(Icons.Default.Tune, pageSettingsTitle, enabled = menuVisible) {
+                MenuButton(Icons.Default.Tune, pageSettingsTitle, enabled = menuVisible, surfaceColor = menuButtonSurfaceColor, contentColor = menuButtonContentColor) {
                     showPageConfig = true
                     pullOffset = 0f
                 }
             }
             if (title != null && title != viewModel.greeting && areaId != null) {
-                MenuButton(Icons.Default.Tune, "Room Config", enabled = menuVisible) {
+                MenuButton(Icons.Default.Tune, "Room Config", enabled = menuVisible, surfaceColor = menuButtonSurfaceColor, contentColor = menuButtonContentColor) {
                     showRoomConfig = true
                     pullOffset = 0f
                 }
             }
-            MenuButton(Icons.Default.Settings, "Settings", enabled = menuVisible) {
+            MenuButton(Icons.Default.Settings, "Settings", enabled = menuVisible, surfaceColor = menuButtonSurfaceColor, contentColor = menuButtonContentColor) {
                 showSettings = true
                 pullOffset = 0f
             }
@@ -722,7 +752,7 @@ fun PageSettingsDialog(
     config: HKIPageConfig,
     people: List<HAEntity>,
     showPeopleSettings: Boolean,
-    extraSection: Pair<String, @Composable ColumnScope.() -> Unit>? = null,
+    extraSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit>? = null,
     onHeaderColorPreview: (String?) -> Unit = {},
     onBadgeBarPreview: (HKIBadgeBarConfig?) -> Unit = {},
     onDismiss: () -> Unit,
@@ -741,6 +771,7 @@ fun PageSettingsDialog(
     var badgeLeftOverflow by remember(config) { mutableStateOf(config.badgeBar?.leftOverflow ?: false) }
     var badgeRightOverflow by remember(config) { mutableStateOf(config.badgeBar?.rightOverflow ?: false) }
     var section by remember { mutableStateOf("menu") }
+    var extraSectionInnerBack by remember { mutableStateOf<(() -> Unit)?>(null) }
     var customOrder by remember(config, people) {
         mutableStateOf(
             (config.customPeopleOrder + people.map { it.entity_id })
@@ -767,7 +798,14 @@ fun PageSettingsDialog(
                         SettingsMenuChoice(Icons.Default.Tune, extraSection.first, "Configure") { section = "extra" }
                     }
                 } else {
-                    TextButton(onClick = { section = "menu" }) {
+                    // A single Back button: if the extra section owns an inner navigation
+                    // step, it goes back one level within that section first; otherwise it
+                    // returns to the settings menu. Never shows two Back buttons at once.
+                    val innerBack = extraSectionInnerBack
+                    TextButton(onClick = {
+                        if (section == "extra" && innerBack != null) innerBack()
+                        else { section = "menu"; extraSectionInnerBack = null }
+                    }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
                         Text("Back")
@@ -852,7 +890,7 @@ fun PageSettingsDialog(
                         }
                     }
                     if (people.isNotEmpty()) {
-                        Text("Hidden persons", style = MaterialTheme.typography.labelLarge)
+                        Text("Visible persons", style = MaterialTheme.typography.labelLarge)
                         people.forEach { person ->
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Checkbox(
@@ -884,7 +922,7 @@ fun PageSettingsDialog(
                     }
                 }
                 if (section == "extra" && extraSection != null) {
-                    extraSection.second(this)
+                    extraSection.second(this) { extraSectionInnerBack = it }
                 }
                 if (section == "badgebar") {
                     Row(
@@ -1009,20 +1047,29 @@ private fun SettingsMenuChoice(icon: ImageVector, title: String, subtitle: Strin
 }
 
 @Composable
-fun MenuButton(icon: ImageVector, label: String, enabled: Boolean = true, onClick: () -> Unit) {
+fun MenuButton(
+    icon: ImageVector,
+    label: String,
+    enabled: Boolean = true,
+    surfaceColor: Color? = null,
+    contentColor: Color? = null,
+    onClick: () -> Unit
+) {
     val appColors = LocalHKIAppColors.current
+    val resolvedSurface = surfaceColor ?: appColors.subtleSurface
+    val resolvedContent = contentColor ?: appColors.onSurface
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable(enabled = enabled) { onClick() }) {
         Surface(
             modifier = Modifier.size(48.dp),
             shape = CircleShape,
-            color = appColors.subtleSurface
+            color = resolvedSurface
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(icon, contentDescription = label, tint = appColors.onSurface)
+                Icon(icon, contentDescription = label, tint = resolvedContent)
             }
         }
         Spacer(Modifier.height(4.dp))
-        Text(label, color = appColors.onSurface, style = MaterialTheme.typography.labelSmall)
+        Text(label, color = resolvedContent, style = MaterialTheme.typography.labelSmall)
     }
 }
 

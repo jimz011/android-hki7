@@ -33,7 +33,9 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             try {
                 withTimeoutOrNull(REPORT_TIMEOUT_MS) {
                     // Force an accurate current fix so the zone change lands at the right place/time.
-                    runCatching { reportTelemetryNow(appContext, PreferencesManager(appContext), freshLocation = true) }
+                    // Location only, like the official app: presence needs update_location; sensors
+                    // refresh on their own cycle.
+                    runCatching { reportTelemetryNow(appContext, PreferencesManager(appContext), freshLocation = true, locationOnly = true) }
                 }
             } finally {
                 pending.finish()

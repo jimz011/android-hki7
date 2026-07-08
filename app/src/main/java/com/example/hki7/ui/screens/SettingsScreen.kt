@@ -556,7 +556,11 @@ private fun SettingsHeader(title: String, canGoBack: Boolean, onBack: () -> Unit
     val appColors = LocalHKIAppColors.current
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         if (canGoBack) {
-            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = appColors.onSurface) }
+            TextButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("Back")
+            }
         }
         Text(title, style = MaterialTheme.typography.headlineSmall, color = appColors.onSurface, modifier = Modifier.weight(1f))
         IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, null, tint = appColors.onSurface) }

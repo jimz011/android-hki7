@@ -53,6 +53,9 @@ class PreferencesManager(private val context: Context) {
     private val mobileAppRegisteredUrlKey = stringPreferencesKey("mobile_app_registered_url")
     private val mobileAppDeviceIdKey = stringPreferencesKey("mobile_app_device_id")
     private val mobileAppSensorsWebhookIdKey = stringPreferencesKey("mobile_app_sensors_webhook")
+    private val geocodedAddressKey = stringPreferencesKey("geocoded_address")
+    private val geocodedLatKey = doublePreferencesKey("geocoded_lat")
+    private val geocodedLonKey = doublePreferencesKey("geocoded_lon")
     private val internalUrlKey = stringPreferencesKey("internal_url")
     private val homeSsidsKey = stringPreferencesKey("home_ssids")
     private val highAccuracyLocationKey = booleanPreferencesKey("high_accuracy_location")
@@ -128,6 +131,11 @@ class PreferencesManager(private val context: Context) {
     // The webhook id for which the mobile_app sensors have already been registered (so we register
     // them once, not on every report). A new webhook id (re-registration) forces a re-register.
     val mobileAppSensorsWebhookId: Flow<String?> = context.dataStore.data.map { it[mobileAppSensorsWebhookIdKey] }
+    // Last successful reverse-geocode (address + the fix it was resolved for), persisted so a fresh
+    // process reuses it instead of re-querying the Geocoder for a device that hasn't moved.
+    val geocodedAddress: Flow<String?> = context.dataStore.data.map { it[geocodedAddressKey] }
+    val geocodedLat: Flow<Double?> = context.dataStore.data.map { it[geocodedLatKey] }
+    val geocodedLon: Flow<Double?> = context.dataStore.data.map { it[geocodedLonKey] }
 
     // Local HA URL used when connected to one of the configured home Wi-Fi SSIDs; otherwise serverUrl.
     val internalUrl: Flow<String?> = context.dataStore.data.map { it[internalUrlKey]?.takeIf { url -> url.isNotBlank() } }
@@ -190,6 +198,13 @@ class PreferencesManager(private val context: Context) {
     }
 
     suspend fun saveMobileAppDeviceId(id: String) { context.dataStore.edit { it[mobileAppDeviceIdKey] = id } }
+    suspend fun saveGeocodedAddress(address: String, lat: Double, lon: Double) {
+        context.dataStore.edit {
+            it[geocodedAddressKey] = address
+            it[geocodedLatKey] = lat
+            it[geocodedLonKey] = lon
+        }
+    }
     suspend fun saveMobileAppSensorsRegistered(webhookId: String) {
         context.dataStore.edit { it[mobileAppSensorsWebhookIdKey] = webhookId }
     }

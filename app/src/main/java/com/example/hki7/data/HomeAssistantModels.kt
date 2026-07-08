@@ -169,6 +169,22 @@ data class HAWeatherForecast(
     val precipitation: Double? = null
 )
 
+@Serializable
+data class HACalendarDateTime(
+    val date: String? = null,
+    val dateTime: String? = null
+)
+
+@Serializable
+data class HACalendarEvent(
+    val summary: String? = null,
+    val start: HACalendarDateTime? = null,
+    val end: HACalendarDateTime? = null,
+    val description: String? = null,
+    val location: String? = null,
+    val entityId: String = ""
+)
+
 fun JsonElement.asHAWeatherForecast(): HAWeatherForecast {
     val obj = this.jsonObject
     return HAWeatherForecast(
@@ -422,8 +438,25 @@ data class HKIPageConfig(
     val hiddenPeople: List<String> = emptyList(),
     val badgeBar: HKIBadgeBarConfig? = null,
     val energyConfig: HKIEnergyConfig? = null,
+    val climateConfig: HKIClimateConfig? = null,
     val vacuumEntityId: String? = null,
     val vacuumMapEntityId: String? = null
+)
+
+/** Entity bindings for the Climate page. Sensors/devices are auto-discovered by domain and
+ *  device_class; this config holds the user's manual additions and removals on top of that. */
+@Serializable
+data class HKIClimateConfig(
+    /** Extra sensors added manually, keyed by group ("temperature", "humidity", "pressure", "co2", "air"). */
+    val extraSensorIds: Map<String, List<String>> = emptyMap(),
+    /** Extra thermostat/AC entities beyond the auto-discovered climate.* domain. */
+    val extraClimateIds: List<String> = emptyList(),
+    /** Fan entities treated as air purifiers (fans carry no device_class, so the user selects them). */
+    val purifierEntityIds: List<String> = emptyList(),
+    /** Extra humidifier/dehumidifier entities beyond the auto-discovered humidifier.* domain. */
+    val extraHumidifierIds: List<String> = emptyList(),
+    /** Entities removed via edit mode; excluded from cards, tiles, graphs and averages. */
+    val hiddenEntityIds: List<String> = emptyList()
 )
 
 /** Entity bindings for the Energy dashboard's power-flow visualization. All optional. */
@@ -437,6 +470,7 @@ data class HKIEnergyConfig(
     val gridImportEntityId: String? = null,
     val gridExportEntityId: String? = null,
     val energyCostEntityId: String? = null,
+    val gridCarbonFootprintEntityId: String? = null,
     val batteryEntityId: String? = null,
     val solarForecastEntityId: String? = null,
     val gasEntityId: String? = null,
@@ -472,6 +506,7 @@ data class HKIEnergyConfig(
     // Source devices per category: picking one auto-fills the matching entity fields.
     val electricityDeviceId: String? = null,
     val batteryDeviceId: String? = null,
+    val carbonDeviceId: String? = null,
     val gasDeviceId: String? = null,
     val waterDeviceId: String? = null
 )
@@ -564,6 +599,10 @@ data class HKIButtonConfig(
     val tapAction: String = "toggle",
     val doubleTapAction: String = "more_info",
     val holdAction: String = "more_info",
+    val lockEnabled: Boolean = false,
+    val lockUnlockMode: String = "double_tap", // "double_tap" | "pin"
+    val lockPin: String? = null,
+    val lockRelockSeconds: Int = 30,
     // Lock buttons: an optional door/contact sensor whose open state turns the lock card red.
     val doorEntityId: String? = null,
     // Vacuum buttons: how the button renders and which map/battery entities to pull from.
@@ -630,4 +669,18 @@ data class HKIWeatherWidget(
     val title: String? = null,
     val icon: String? = null,
     val cornerRadius: Int = 28
+) : HKIRoomWidget()
+
+@Serializable
+@SerialName("calendar")
+data class HKICalendarWidget(
+    override val id: String,
+    override val width: String = "full",
+    val entityIds: List<String> = emptyList(),
+    val view: String = "agenda",       // "agenda" | "week" | "month"
+    val isSquare: Boolean = false,
+    val title: String? = null,
+    val icon: String? = "calendar-month",
+    val cornerRadius: Int = 28,
+    val isHidden: Boolean = false
 ) : HKIRoomWidget()
