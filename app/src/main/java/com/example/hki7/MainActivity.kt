@@ -36,7 +36,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -50,8 +50,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.hki7.data.PreferencesManager
 import com.example.hki7.ui.MainViewModel
+import com.example.hki7.ui.NavBarConfig
 import com.example.hki7.ui.Screen
 import com.example.hki7.ui.components.HKIBottomBar
+import com.example.hki7.ui.utils.MdiIcon
 import com.example.hki7.ui.components.NotificationPanel
 import com.example.hki7.ui.screens.*
 import com.example.hki7.ui.theme.HKI7Theme
@@ -191,7 +193,9 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         }
     })
     
-    val screens = listOf(Screen.Home, Screen.Rooms, Screen.Security, Screen.Energy, Screen.Climate)
+    val navBarOrder by prefs.navBarOrder.collectAsState(initial = emptyList())
+    val navBarHidden by prefs.navBarHidden.collectAsState(initial = emptyList())
+    val screens = remember(navBarOrder, navBarHidden) { NavBarConfig.visibleTabs(navBarOrder, navBarHidden) }
         val isEditMode by viewModel.isEditMode.collectAsState()
         val canUndo by viewModel.canUndo.collectAsState()
         val canRedo by viewModel.canRedo.collectAsState()
@@ -302,21 +306,22 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             modifier = Modifier.fillMaxSize(),
             containerColor = Color.Transparent,
             contentWindowInsets = WindowInsets(0, 0, 0, 0)
-        ) {
+        ) { contentPadding ->
             NavHost(
                 navController,
                 startDestination = Screen.Home.route,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().padding(contentPadding),
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None },
                 popEnterTransition = { EnterTransition.None },
                 popExitTransition = { ExitTransition.None }
             ) {
-                composable(Screen.Home.route)     { HAHomeScreen(viewModel) }
+                composable(Screen.Home.route)     { HAHomeScreen(viewModel, navController) }
                 composable(Screen.Rooms.route)    { RoomsScreen(viewModel, navController) }
                 composable(Screen.Security.route) { SecurityScreen(viewModel) }
                 composable(Screen.Energy.route)   { EnergyScreen(viewModel) }
                 composable(Screen.Climate.route)  { ClimateScreen(viewModel) }
+                composable(Screen.Battery.route)  { BatteryScreen(viewModel, navController) }
                 composable(
                     route = Screen.RoomDetail.route,
                     arguments = listOf(navArgument("areaId") { type = NavType.StringType })
@@ -344,7 +349,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
 
-                    screens.forEach { screen ->
+                screens.forEach { screen ->
                         val isSelected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
 
                         Column(
@@ -355,7 +360,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                                 )
                                 .fillMaxHeight()
                                 .clickable {
-                                    if (screen == Screen.Rooms || screen == Screen.Security) {
+                                    if (screen == Screen.Home || screen == Screen.Rooms || screen == Screen.Security) {
                                         navController.navigate(screen.route) {
                                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                                             launchSingleTop = true
@@ -379,12 +384,21 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                                     .background(if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.18f) else Color.Transparent),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(
-                                    imageVector = screen.icon,
-                                    contentDescription = null,
-                                    tint = if (isSelected) MaterialTheme.colorScheme.primary else appColors.onMuted,
-                                    modifier = Modifier.size(24.dp)
-                                )
+                                val iconTint = if (isSelected) MaterialTheme.colorScheme.primary else appColors.onMuted
+                                if (screen.mdiIcon != null) {
+                                    MdiIcon(
+                                        name = screen.mdiIcon,
+                                        tint = iconTint,
+                                        size = 24.dp
+                                    )
+                                } else {
+                                    Icon(
+                                        imageVector = screen.icon,
+                                        contentDescription = null,
+                                        tint = iconTint,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
                             }
                             Text(
                                 text = screen.title,

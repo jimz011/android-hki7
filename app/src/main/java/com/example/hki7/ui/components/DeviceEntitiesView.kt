@@ -70,7 +70,12 @@ fun DeviceEntitiesView(
     val appColors = LocalHKIAppColors.current
     val entityRegistry by viewModel.entityRegistry.collectAsState()
     val deviceRegistry by viewModel.deviceRegistry.collectAsState()
-    val allEntities by viewModel.entities.collectAsState()
+    val deviceEntityIds = remember(entityRegistry, deviceId, sourceEntity.entity_id) {
+        entityRegistry.filter { it.device_id == deviceId && it.entity_id != sourceEntity.entity_id }
+            .map { it.entity_id }
+    }
+    val deviceEntityFlow = remember(viewModel, deviceEntityIds) { viewModel.entitiesFor(deviceEntityIds) }
+    val allEntities by deviceEntityFlow.collectAsState()
 
     val device = deviceRegistry.find { it.id == deviceId }
     val deviceName = device?.let { it.name_by_user ?: it.name }
@@ -95,8 +100,10 @@ fun DeviceEntitiesView(
         )
     }
 
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
     LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp)
+        modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp).fadingEdges(listState),
+        state = listState
     ) {
         item {
             Column(Modifier.padding(bottom = 12.dp)) {

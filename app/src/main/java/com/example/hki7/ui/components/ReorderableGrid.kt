@@ -145,8 +145,10 @@ fun <T> ReorderableGrid(
                             )
                         }
                         if (dragPosition != null) {
-                            gridCoords?.let { coords ->
-                                dragWindowY = coords.localToWindow(dragPosition).y
+                            if (autoScrollState != null) {
+                                gridCoords?.let { coords ->
+                                    dragWindowY = coords.localToWindow(dragPosition).y
+                                }
                             }
                             val targetIndex = swapTargetFor(dragPosition, currentIndex, amount)
                             if (targetIndex != null && targetIndex != currentIndex) {
@@ -224,7 +226,9 @@ fun <T> ReorderableGrid(
     LazyVerticalGrid(
         columns = columns,
         state = gridState,
-        modifier = modifier.then(pointerModifier).onGloballyPositioned { gridCoords = it },
+        modifier = modifier
+            .then(pointerModifier)
+            .then(if (autoScrollState != null) Modifier.onGloballyPositioned { gridCoords = it } else Modifier),
         contentPadding = contentPadding,
         verticalArrangement = verticalArrangement,
         horizontalArrangement = horizontalArrangement,

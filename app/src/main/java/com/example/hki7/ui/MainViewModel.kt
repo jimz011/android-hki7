@@ -68,6 +68,67 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private val _entities = MutableStateFlow<List<HAEntity>>(emptyList())
     val entities: StateFlow<List<HAEntity>> = _entities
 
+    // Keyed mirror used by UI selectors. Screens/widgets should observe the smallest set of
+    // entity ids they render instead of collecting [entities], which invalidates them for every
+    // Home Assistant state_changed event.
+    private val _entitiesById = MutableStateFlow<Map<String, HAEntity>>(emptyMap())
+    val entitiesById: StateFlow<Map<String, HAEntity>> = _entitiesById
+    private val entityStateFlows = java.util.concurrent.ConcurrentHashMap<String, MutableStateFlow<HAEntity?>>()
+    private val matchingEntitySelectors = java.util.concurrent.ConcurrentHashMap<String, StateFlow<List<HAEntity>>>()
+
+    private fun entityState(entityId: String): StateFlow<HAEntity?> =
+        entityStateFlows.computeIfAbsent(entityId) {
+            MutableStateFlow(_entitiesById.value[entityId])
+        }
+
+    fun entitiesFor(entityIds: Collection<String>): StateFlow<List<HAEntity>> {
+        val ids = entityIds.distinct()
+        if (ids.isEmpty()) return MutableStateFlow(emptyList())
+        return combine(ids.map(::entityState)) { states -> states.filterNotNull() }
+            .distinctUntilChanged()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), entitiesForNow(ids))
+    }
+
+    fun entitiesMatching(predicate: (HAEntity) -> Boolean): StateFlow<List<HAEntity>> =
+        _entitiesById
+            .map { byId -> byId.values.filter(predicate) }
+            .distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5_000),
+                _entitiesById.value.values.filter(predicate)
+            )
+
+    /** Shares broad/domain selectors used by multiple widgets so the global entity map is filtered
+     * once per update rather than once per widget instance. The key must uniquely describe the
+     * predicate and any values it captures. */
+    fun entitiesMatching(selectorKey: String, predicate: (HAEntity) -> Boolean): StateFlow<List<HAEntity>> =
+        matchingEntitySelectors.computeIfAbsent(selectorKey) { entitiesMatching(predicate) }
+
+    /** A full live entity list for pickers/dialogs, or a frozen current snapshot for dashboard
+     * containers whose children own narrower entity subscriptions. */
+    fun entityList(live: Boolean): StateFlow<List<HAEntity>> =
+        if (live) entities else MutableStateFlow(_entities.value)
+
+    fun entitiesForNow(entityIds: Collection<String>): List<HAEntity> {
+        val byId = _entitiesById.value
+        return entityIds.distinct().mapNotNull(byId::get)
+    }
+
+    private fun publishEntities(value: List<HAEntity>) {
+        val previousById = _entitiesById.value
+        val nextById = value.associateBy { it.entity_id }
+        _entities.value = value
+        _entitiesById.value = nextById
+        // Only selectors for entities whose value actually changed are notified. This avoids every
+        // button/widget selector waking up for every unrelated Home Assistant event.
+        entityStateFlows.forEach { (entityId, stateFlow) ->
+            val next = nextById[entityId]
+            if (previousById[entityId] != next) stateFlow.value = next
+        }
+    }
+
     private val _areas = MutableStateFlow<List<HAArea>>(emptyList())
     val areas: StateFlow<List<HAArea>> = _areas
 
@@ -101,9 +162,35 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     val weatherForecastCache: StateFlow<Map<String, List<HAWeatherForecast>>> = _weatherForecastCache
     private val weatherForecastFetchedAt = mutableMapOf<String, Long>()
 
+    fun weatherForecastFor(cacheKey: String): StateFlow<List<HAWeatherForecast>> =
+        _weatherForecastCache
+            .map { it[cacheKey].orEmpty() }
+            .distinctUntilChanged()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5_000),
+                weatherForecastForNow(cacheKey)
+            )
+
+    fun weatherForecastForNow(cacheKey: String): List<HAWeatherForecast> =
+        _weatherForecastCache.value[cacheKey].orEmpty()
+
     private val _calendarEvents = MutableStateFlow<Map<String, List<HACalendarEvent>>>(emptyMap())
     val calendarEvents: StateFlow<Map<String, List<HACalendarEvent>>> = _calendarEvents
     private val calendarEventsFetchedAt = mutableMapOf<String, Long>()
+
+    fun calendarEventsFor(cacheKey: String): StateFlow<List<HACalendarEvent>> =
+        _calendarEvents
+            .map { it[cacheKey].orEmpty() }
+            .distinctUntilChanged()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5_000),
+                calendarEventsForNow(cacheKey)
+            )
+
+    fun calendarEventsForNow(cacheKey: String): List<HACalendarEvent> =
+        _calendarEvents.value[cacheKey].orEmpty()
 
     fun calendarEventsCacheKey(entityIds: List<String>, startMillis: Long, endMillis: Long): String =
         "${entityIds.distinct().sorted().joinToString(",")}|$startMillis|$endMillis"
@@ -118,7 +205,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val fresh = fetchedAt != null && System.currentTimeMillis() - fetchedAt < WEATHER_FORECAST_TTL_MS
         if (fresh && !force && _weatherForecastCache.value.containsKey(key)) return
         weatherForecastFetchedAt[key] = System.currentTimeMillis()
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val result = runCatching { currentClient.getWeatherForecast(entityId, type) }.getOrDefault(emptyList())
             if (result.isEmpty()) weatherForecastFetchedAt.remove(key)
             val current = _weatherForecastCache.value.toMutableMap()
@@ -141,7 +228,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val fresh = fetchedAt != null && System.currentTimeMillis() - fetchedAt < CALENDAR_EVENTS_TTL_MS
         if (fresh && !force && _calendarEvents.value.containsKey(key)) return
         calendarEventsFetchedAt[key] = System.currentTimeMillis()
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             runCatching {
                 currentClient.getCalendarEvents(ids, startMillis, endMillis)
                     .values
@@ -275,11 +362,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val widgets: Map<String, List<HKIRoomWidget>>,
         val areaOrder: List<String>,
         val areaConfigs: Map<String, HKIAreaConfig>,
+        val pageConfigs: Map<String, HKIPageConfig>,
         val floors: List<HAFloor>
     )
 
     private fun takeSnapshot() {
-        undoStack.add(Snapshot(_areaWidgetsMapping.value, _areas.value.map { it.area_id }, _areaConfigsMapping.value, _floors.value))
+        undoStack.add(Snapshot(_areaWidgetsMapping.value, _areas.value.map { it.area_id }, _areaConfigsMapping.value, _pageConfigsMapping.value, _floors.value))
         redoStack.clear()
         if (undoStack.size > 20) undoStack.removeAt(0)
         updateHistoryState()
@@ -287,7 +375,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     fun undo() {
         if (undoStack.isNotEmpty()) {
-            val currentSnapshot = Snapshot(_areaWidgetsMapping.value, _areas.value.map { it.area_id }, _areaConfigsMapping.value, _floors.value)
+            val currentSnapshot = Snapshot(_areaWidgetsMapping.value, _areas.value.map { it.area_id }, _areaConfigsMapping.value, _pageConfigsMapping.value, _floors.value)
             redoStack.add(currentSnapshot)
             restoreSnapshot(undoStack.removeAt(undoStack.size - 1))
             updateHistoryState()
@@ -296,7 +384,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     fun redo() {
         if (redoStack.isNotEmpty()) {
-            val currentSnapshot = Snapshot(_areaWidgetsMapping.value, _areas.value.map { it.area_id }, _areaConfigsMapping.value, _floors.value)
+            val currentSnapshot = Snapshot(_areaWidgetsMapping.value, _areas.value.map { it.area_id }, _areaConfigsMapping.value, _pageConfigsMapping.value, _floors.value)
             undoStack.add(currentSnapshot)
             restoreSnapshot(redoStack.removeAt(redoStack.size - 1))
             updateHistoryState()
@@ -311,11 +399,18 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private fun restoreSnapshot(snapshot: Snapshot) {
         _areaWidgetsMapping.value = snapshot.widgets
         _areaConfigsMapping.value = snapshot.areaConfigs
+        _pageConfigsMapping.value = snapshot.pageConfigs
         _floors.value = snapshot.floors
         sortAreas(snapshot.areaOrder)
+        // Force UI that caches an optimistic local order (ReorderableGrid) to rebuild against the
+        // restored state. Without this an undo/redo made while editing a reorderable list (e.g. the
+        // Climate tabs) isn't reflected until edit mode is toggled off. Discrete user action, so the
+        // resulting rebuild/scroll-reset is acceptable here (unlike per-edit, which we never bump).
+        _uiRevision.value += 1
         viewModelScope.launch {
             prefs.saveAreaWidgets(snapshot.widgets)
             prefs.saveAreaConfigs(snapshot.areaConfigs)
+            prefs.savePageConfigs(snapshot.pageConfigs)
             prefs.saveAreaOrder(snapshot.areaOrder)
             prefs.saveFloors(snapshot.floors)
         }
@@ -495,7 +590,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                         client = null
                         activeConnectionKey = null
                         _status.value = ConnectionStatus.IDLE
-                        _entities.value = emptyList()
+                        publishEntities(emptyList())
                         pendingEntityStates.clear()
                         pendingBrightness.clear()
                         pendingCoverPosition.clear()
@@ -656,13 +751,15 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             if (change.newState == null) {
                 if (ordered.remove(change.entityId) != null) changed = true
             } else {
-                ordered[change.entityId] = change.newState
-                changed = true
+                if (ordered[change.entityId] != change.newState) {
+                    ordered[change.entityId] = change.newState
+                    changed = true
+                }
             }
         }
         if (!changed) return
         val merged = applyPendingEntityStates(ordered.values.toList())
-        _entities.value = merged
+        publishEntities(merged)
         if (snapshot.keys.any { it.startsWith("person.") }) {
             _people.value = merged.filter { it.entity_id.startsWith("person.") }
         }
@@ -706,7 +803,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             try {
                 val allEntities = withTimeout(10.seconds) { currentClient.getEntities() }
                 val displayEntities = applyPendingEntityStates(allEntities)
-                _entities.value = displayEntities
+                publishEntities(displayEntities)
                 _people.value = displayEntities.filter { it.entity_id.startsWith("person.") }
 
                 val weatherId = prefs.weatherEntityId.first() ?: "weather.home"
@@ -896,7 +993,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     private fun optimisticallyToggleEntity(entityId: String) {
         val now = SystemClock.elapsedRealtime()
-        _entities.value = _entities.value.map { entity ->
+        publishEntities(_entities.value.map { entity ->
             if (entity.entity_id != entityId) {
                 entity
             } else {
@@ -910,7 +1007,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     state = desiredState
                 )
             }
-        }
+        })
     }
 
     private fun applyPendingEntityStates(entities: List<HAEntity>): List<HAEntity> {
@@ -964,7 +1061,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val now = SystemClock.elapsedRealtime()
         pendingBrightness[entityId] = PendingBrightness(haBrightness, now + 8_000, now)
         // update UI optimistically
-        _entities.value = applyPendingEntityStates(_entities.value)
+        publishEntities(applyPendingEntityStates(_entities.value))
         callLightService(entityId, "turn_on", HAServiceCall(entity_id = entityId, brightness = haBrightness))
     }
 
@@ -972,7 +1069,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val haBrightness = (brightness * 255).toInt().coerceIn(0, 255)
         val now = SystemClock.elapsedRealtime()
         pendingBrightness[entityId] = PendingBrightness(haBrightness, now + 8_000, now)
-        _entities.value = applyPendingEntityStates(_entities.value)
+        publishEntities(applyPendingEntityStates(_entities.value))
     }
 
     fun setColorTemp(entityId: String, kelvin: Int) {
@@ -1063,6 +1160,37 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         updatePageConfig(pageKey, current.copy(climateConfig = config))
     }
 
+    fun hideClimateEntity(pageKey: String, entityId: String) {
+        val current = _pageConfigsMapping.value[pageKey] ?: com.example.hki7.data.HKIPageConfig()
+        val climateConfig = current.climateConfig ?: com.example.hki7.data.HKIClimateConfig()
+        updatePageConfig(
+            pageKey,
+            current.copy(
+                climateConfig = climateConfig.copy(
+                    hiddenEntityIds = (climateConfig.hiddenEntityIds + entityId).distinct()
+                )
+            )
+        )
+    }
+
+    fun updateBatteryConfig(pageKey: String, config: com.example.hki7.data.HKIBatteryConfig) {
+        val current = _pageConfigsMapping.value[pageKey] ?: com.example.hki7.data.HKIPageConfig()
+        updatePageConfig(pageKey, current.copy(batteryConfig = config))
+    }
+
+    fun hideBatteryEntity(pageKey: String, entityId: String) {
+        val current = _pageConfigsMapping.value[pageKey] ?: com.example.hki7.data.HKIPageConfig()
+        val batteryConfig = current.batteryConfig ?: com.example.hki7.data.HKIBatteryConfig()
+        updatePageConfig(
+            pageKey,
+            current.copy(
+                batteryConfig = batteryConfig.copy(
+                    hiddenEntityIds = (batteryConfig.hiddenEntityIds + entityId).distinct()
+                )
+            )
+        )
+    }
+
     fun updateVacuumConfig(pageKey: String, entityId: String?, mapEntityId: String?) {
         val current = _pageConfigsMapping.value[pageKey] ?: com.example.hki7.data.HKIPageConfig()
         updatePageConfig(pageKey, current.copy(vacuumEntityId = entityId, vacuumMapEntityId = mapEntityId))
@@ -1084,7 +1212,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val pos = position.coerceIn(0, 100)
         val now = SystemClock.elapsedRealtime()
         pendingCoverPosition[entityId] = PendingCoverPosition(pos, now + 8_000, now)
-        _entities.value = applyPendingEntityStates(_entities.value)
+        publishEntities(applyPendingEntityStates(_entities.value))
     }
 
     fun setCoverPosition(entityId: String, position: Int) {
@@ -1093,7 +1221,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val now = SystemClock.elapsedRealtime()
         // hold the target optimistically while the blind physically moves (mirrors light brightness)
         pendingCoverPosition[entityId] = PendingCoverPosition(pos, now + 8_000, now)
-        _entities.value = applyPendingEntityStates(_entities.value)
+        publishEntities(applyPendingEntityStates(_entities.value))
         viewModelScope.launch {
             try {
                 currentClient.callService("cover", "set_cover_position", HAServiceCall(entity_id = entityId, position = pos))
@@ -1168,7 +1296,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val pos = tilt.coerceIn(0, 100)
         val now = SystemClock.elapsedRealtime()
         pendingCoverTilt[entityId] = PendingCoverPosition(pos, now + 8_000, now)
-        _entities.value = applyPendingEntityStates(_entities.value)
+        publishEntities(applyPendingEntityStates(_entities.value))
     }
 
     fun setCoverTiltPosition(entityId: String, tilt: Int) {
@@ -1176,7 +1304,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val pos = tilt.coerceIn(0, 100)
         val now = SystemClock.elapsedRealtime()
         pendingCoverTilt[entityId] = PendingCoverPosition(pos, now + 8_000, now)
-        _entities.value = applyPendingEntityStates(_entities.value)
+        publishEntities(applyPendingEntityStates(_entities.value))
         viewModelScope.launch {
             try {
                 currentClient.callService("cover", "set_cover_tilt_position", HAServiceCall(entity_id = entityId, tilt_position = pos))
@@ -1738,6 +1866,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun updatePageConfig(pageKey: String, config: HKIPageConfig) {
+        takeSnapshot()
         val updated = _pageConfigsMapping.value.toMutableMap()
         updated[pageKey] = config
         _pageConfigsMapping.value = updated

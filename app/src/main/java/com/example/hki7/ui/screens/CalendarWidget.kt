@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
@@ -53,6 +55,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -63,6 +66,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.example.hki7.data.HACalendarEvent
 import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HKICalendarWidget
@@ -73,6 +77,8 @@ import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -112,7 +118,6 @@ private data class CalendarWindow(
 @Composable
 fun CalendarWidgetItem(
     widget: HKICalendarWidget,
-    allEntities: List<HAEntity>,
     viewModel: MainViewModel,
     isEditMode: Boolean,
     onDelete: () -> Unit,
@@ -120,13 +125,61 @@ fun CalendarWidgetItem(
 ) {
     if (widget.isHidden && !isEditMode) return
     val appColors = LocalHKIAppColors.current
+    var showFullDialog by remember(widget.id) { mutableStateOf(false) }
+    val compact = widget.width == "half"
     Box(modifier = Modifier.fillMaxWidth()) {
-        CalendarWidgetCard(
-            widget = widget,
-            allEntities = allEntities,
-            viewModel = viewModel,
-            interactionsEnabled = !isEditMode
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(enabled = compact && !isEditMode) { showFullDialog = true }
+        ) {
+            CalendarWidgetCard(
+                widget = widget,
+                viewModel = viewModel,
+                interactionsEnabled = !isEditMode && !compact
+            )
+        }
+        if (showFullDialog) {
+            Dialog(onDismissRequest = { showFullDialog = false }) {
+                Card(
+                    modifier = Modifier.fillMaxWidth().height(540.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    // Opaque so the header strip and the (semi-transparent) calendar card below it
+                    // composite to one uniform tone instead of showing a two-tone seam.
+                    colors = CardDefaults.cardColors(containerColor = appColors.elevated)
+                ) {
+                    Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(start = 24.dp, top = 20.dp, end = 20.dp),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(
+                                onClick = { showFullDialog = false },
+                                modifier = Modifier
+                                    .background(appColors.elevated.copy(alpha = 0.85f), CircleShape)
+                                    .size(48.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = "Close",
+                                    tint = appColors.onSurface,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
+                        Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                            CalendarWidgetCard(
+                                widget = widget.copy(width = "full", isSquare = false),
+                                viewModel = viewModel,
+                                interactionsEnabled = true,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
+                }
+            }
+        }
         if (isEditMode) {
             IconButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center).size(24.dp)) {
                 Icon(
@@ -147,13 +200,20 @@ fun CalendarWidgetItem(
 @Composable
 private fun CalendarWidgetCard(
     widget: HKICalendarWidget,
-    allEntities: List<HAEntity>,
     viewModel: MainViewModel,
-    interactionsEnabled: Boolean
+    interactionsEnabled: Boolean,
+    modifier: Modifier = Modifier
 ) {
     val appColors = LocalHKIAppColors.current
     val zone = ZoneId.systemDefault()
-    val calendarEntities = remember(allEntities) { allEntities.filter { it.entity_id.startsWith("calendar.") } }
+    val calendarEntityFlow = remember(viewModel, widget.entityIds) {
+        if (widget.entityIds.isEmpty()) {
+            viewModel.entitiesMatching("domain:calendar") { it.entity_id.startsWith("calendar.") }
+        } else {
+            viewModel.entitiesFor(widget.entityIds)
+        }
+    }
+    val calendarEntities by calendarEntityFlow.collectAsState()
     val entityIds = remember(widget.entityIds, calendarEntities) {
         widget.entityIds.filter { id -> calendarEntities.any { it.entity_id == id } }
             .ifEmpty { calendarEntities.map { it.entity_id } }
@@ -171,22 +231,47 @@ private fun CalendarWidgetCard(
     val window = remember(activeView, selectedDate) { calendarWindow(activeView, selectedDate) }
     val startMillis = window.startMillis(zone)
     val endMillis = window.endMillis(zone)
-    val eventsByKey by viewModel.calendarEvents.collectAsState()
     val cacheKey = remember(entityIds, startMillis, endMillis) {
         viewModel.calendarEventsCacheKey(entityIds, startMillis, endMillis)
     }
+    val eventFlow = remember(viewModel, cacheKey) { viewModel.calendarEventsFor(cacheKey) }
+    val cachedEvents by eventFlow.collectAsState()
     LaunchedEffect(entityIds, startMillis, endMillis) {
         viewModel.fetchCalendarEvents(entityIds, startMillis, endMillis)
     }
-    val events = remember(eventsByKey[cacheKey], entityIds) {
-        eventsByKey[cacheKey].orEmpty()
-            .filter { it.entityId in entityIds }
-            .sortedWith(compareBy<HACalendarEvent> { it.startDateTime(zone) ?: ZonedDateTime.now(zone) }.thenBy { it.summary.orEmpty() })
+    val events by produceState(
+        initialValue = emptyList<HACalendarEvent>(),
+        cachedEvents,
+        entityIds,
+        zone
+    ) {
+        value = withContext(Dispatchers.Default) {
+            val allowedIds = entityIds.toHashSet()
+            val fallbackStart = ZonedDateTime.now(zone)
+            cachedEvents.asSequence()
+                .filter { it.entityId in allowedIds }
+                .map { event -> event to (event.startDateTime(zone) ?: fallbackStart) }
+                .sortedWith(compareBy<Pair<HACalendarEvent, ZonedDateTime>> { it.second }.thenBy { it.first.summary.orEmpty() })
+                .map { it.first }
+                .toList()
+        }
+    }
+    if (widget.width == "half") {
+        CompactCalendarWidgetCard(
+            widget = widget,
+            activeView = activeView,
+            selectedDate = selectedDate,
+            window = window,
+            events = events,
+            colorsByEntity = colorsByEntity,
+            zone = zone
+        )
+        return
     }
     val cardHeight = calendarHeight(activeView)
 
     Card(
-        modifier = Modifier.fillMaxWidth().then(
+        modifier = modifier.fillMaxWidth().then(
             if (widget.isSquare) Modifier.aspectRatio(1f) else Modifier.defaultMinSize(minHeight = cardHeight)
         ),
         shape = RoundedCornerShape(widget.cornerRadius.dp),
@@ -254,6 +339,275 @@ private fun CalendarWidgetCard(
                 showDatePicker = false
             }
         )
+    }
+}
+
+@Composable
+private fun CompactCalendarWidgetCard(
+    widget: HKICalendarWidget,
+    activeView: String,
+    selectedDate: LocalDate,
+    window: CalendarWindow,
+    events: List<HACalendarEvent>,
+    colorsByEntity: Map<String, Color>,
+    zone: ZoneId
+) {
+    val appColors = LocalHKIAppColors.current
+    val visibleEvents = remember(events, selectedDate, zone) {
+        events.filter { it.occursOn(selectedDate, zone) }.take(2)
+    }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (widget.isSquare) Modifier.aspectRatio(1f) else Modifier.height(146.dp)),
+        shape = RoundedCornerShape(widget.cornerRadius.dp),
+        colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.9f))
+    ) {
+        when (normalizeCalendarView(activeView)) {
+            "month" -> CompactMonthCalendar(
+                selectedDate = selectedDate,
+                window = window,
+                events = events,
+                colorsByEntity = colorsByEntity,
+                zone = zone
+            )
+            "week" -> CompactWeekCalendar(
+                selectedDate = selectedDate,
+                events = events,
+                colorsByEntity = colorsByEntity,
+                zone = zone
+            )
+            else -> Column(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            selectedDate.format(DateTimeFormatter.ofPattern("EEEE")),
+                            color = appColors.onSurface,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            selectedDate.dayOfMonth.toString(),
+                            color = appColors.onSurface,
+                            style = MaterialTheme.typography.displaySmall,
+                            fontWeight = FontWeight.Light,
+                            maxLines = 1
+                        )
+                    }
+                    MdiIcon(widget.icon ?: "calendar-month", tint = appColors.onMuted.copy(alpha = 0.22f), size = 34.dp)
+                }
+                Spacer(Modifier.weight(1f))
+                if (visibleEvents.isEmpty()) {
+                    Text(
+                        "No events",
+                        color = appColors.onMuted,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                } else {
+                    visibleEvents.forEach { event ->
+                        CompactCalendarEventPill(
+                            event = event,
+                            color = colorsByEntity[event.entityId] ?: MaterialTheme.colorScheme.primary,
+                            zone = zone
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CompactWeekCalendar(
+    selectedDate: LocalDate,
+    events: List<HACalendarEvent>,
+    colorsByEntity: Map<String, Color>,
+    zone: ZoneId
+) {
+    val appColors = LocalHKIAppColors.current
+    val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY))
+    val days = (0 until 7).map { weekStart.plusDays(it.toLong()) }
+    val selectedEvents = events.filter { it.occursOn(selectedDate, zone) }.take(2)
+    Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(
+                selectedDate.format(DateTimeFormatter.ofPattern("EEEE")),
+                color = appColors.onSurface,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                selectedDate.dayOfMonth.toString(),
+                color = appColors.onSurface,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Light
+            )
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+            days.forEach { day ->
+                val selected = day == selectedDate
+                val hasEvents = events.any { it.occursOn(day, zone) }
+                Surface(
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(11.dp),
+                    color = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
+                )
+                {
+                    Column(
+                        modifier = Modifier.padding(vertical = 5.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            day.format(DateTimeFormatter.ofPattern("E")).take(1),
+                            color = if (selected) MaterialTheme.colorScheme.onPrimary else appColors.onMuted,
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                        Text(
+                            day.dayOfMonth.toString(),
+                            color = if (selected) MaterialTheme.colorScheme.onPrimary else appColors.onSurface,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Box(
+                            Modifier
+                                .size(4.dp)
+                                .background(
+                                    if (hasEvents) {
+                                        if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary
+                                    } else Color.Transparent,
+                                    CircleShape
+                                )
+                        )
+                    }
+                }
+            }
+        }
+        Spacer(Modifier.weight(1f))
+        if (selectedEvents.isEmpty()) {
+            Text("No events", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall, maxLines = 1)
+        } else {
+            selectedEvents.forEach { event ->
+                CompactCalendarEventPill(event, colorsByEntity[event.entityId] ?: MaterialTheme.colorScheme.primary, zone)
+            }
+        }
+    }
+}
+
+@Composable
+private fun CompactMonthCalendar(
+    selectedDate: LocalDate,
+    window: CalendarWindow,
+    events: List<HACalendarEvent>,
+    colorsByEntity: Map<String, Color>,
+    zone: ZoneId
+) {
+    val appColors = LocalHKIAppColors.current
+    val today = LocalDate.now(zone)
+    val days = generateSequence(window.displayStartDate) { it.plusDays(1) }
+        .take(ChronoUnit.DAYS.between(window.displayStartDate, window.displayEndDateExclusive).toInt())
+        .toList()
+    Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        Text(
+            selectedDate.format(DateTimeFormatter.ofPattern("MMMM")).uppercase(),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1
+        )
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+            listOf("M", "T", "W", "T", "F", "S", "S").forEach { label ->
+                Text(label, modifier = Modifier.weight(1f), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center)
+            }
+        }
+        days.chunked(7).forEach { week ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                week.forEach { day ->
+                    val selected = day == selectedDate
+                    val inMonth = day.month == selectedDate.month
+                    val dayEvents = events.filter { it.occursOn(day, zone) }
+                    Surface(
+                        modifier = Modifier.weight(1f).height(22.dp),
+                        shape = CircleShape,
+                        color = when {
+                            selected -> MaterialTheme.colorScheme.primary
+                            day == today -> MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
+                            else -> Color.Transparent
+                        }
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                day.dayOfMonth.toString(),
+                                color = when {
+                                    selected -> MaterialTheme.colorScheme.onPrimary
+                                    inMonth -> appColors.onSurface
+                                    else -> appColors.onMuted.copy(alpha = 0.35f)
+                                },
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = if (selected || day == today) FontWeight.Bold else FontWeight.Normal,
+                                textAlign = TextAlign.Center
+                            )
+                            if (dayEvents.isNotEmpty()) {
+                                Row(
+                                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 2.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(1.dp)
+                                ) {
+                                    dayEvents.take(2).forEach { event ->
+                                        Box(
+                                            Modifier.size(2.dp).background(
+                                                if (selected) MaterialTheme.colorScheme.onPrimary else colorsByEntity[event.entityId] ?: MaterialTheme.colorScheme.primary,
+                                                CircleShape
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CompactCalendarEventPill(
+    event: HACalendarEvent,
+    color: Color,
+    zone: ZoneId
+) {
+    val appColors = LocalHKIAppColors.current
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        color = color.copy(alpha = 0.2f)
+    ) {
+        Column(Modifier.padding(horizontal = 10.dp, vertical = 7.dp)) {
+            Text(
+                event.summary?.takeIf { it.isNotBlank() } ?: "Untitled event",
+                color = appColors.onSurface,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                eventTimeLabel(event, zone),
+                color = appColors.onMuted,
+                style = MaterialTheme.typography.labelSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 

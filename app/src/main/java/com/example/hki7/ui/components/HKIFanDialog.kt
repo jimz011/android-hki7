@@ -175,10 +175,12 @@ private fun PresetsButton(entity: HAEntity, onClick: () -> Unit, selected: Boole
 @Composable
 private fun FanPresetList(entity: HAEntity, viewModel: MainViewModel) {
     val appColors = LocalHKIAppColors.current
+    val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+            .fadingEdges(scrollState)
+            .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         if (entity.fanPercentage != null) {

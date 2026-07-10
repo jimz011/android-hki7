@@ -202,11 +202,13 @@ private fun LightEffectsContent(
     onEffectClick: (String) -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
+    val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 32.dp)
-            .verticalScroll(rememberScrollState()),
+            .fadingEdges(scrollState)
+            .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text("Effects", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)

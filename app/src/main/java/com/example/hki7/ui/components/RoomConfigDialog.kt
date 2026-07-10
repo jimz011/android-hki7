@@ -81,8 +81,9 @@ fun RoomConfigDialog(
         },
         title = { Text(if (section == "menu") "Room Configuration" else section.replaceFirstChar { it.uppercase() }) },
         text = {
+            val scrollState = rememberScrollState()
             Column(
-                modifier = Modifier.heightIn(max = 560.dp).verticalScroll(rememberScrollState()),
+                modifier = Modifier.heightIn(max = 560.dp).fadingEdges(scrollState).verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 if (section == "menu") {

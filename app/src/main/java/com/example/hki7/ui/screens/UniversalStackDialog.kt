@@ -277,7 +277,8 @@ private fun UniversalLightContent(entity: HAEntity, viewModel: MainViewModel, cu
         }
         "Effects" -> {
             val appColors2 = LocalHKIAppColors.current
-            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            val effectsScroll = rememberScrollState()
+            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp).fadingEdges(effectsScroll).verticalScroll(effectsScroll), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 entity.effectList.forEach { effect ->
                     Surface(modifier = Modifier.fillMaxWidth().clickable { viewModel.setLightEffect(entity.entity_id, effect) }, shape = RoundedCornerShape(18.dp), color = if (effect == entity.effect) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f) else appColors2.subtleSurface) {
                         Text(effect, modifier = Modifier.padding(16.dp), color = appColors2.onSurface)

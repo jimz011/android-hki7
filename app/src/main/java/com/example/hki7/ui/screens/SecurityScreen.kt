@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,7 +35,10 @@ import kotlinx.serialization.json.jsonPrimitive
 
 @Composable
 fun SecurityScreen(viewModel: MainViewModel) {
-    val entities by viewModel.entities.collectAsState()
+    val cameraFlow = remember(viewModel) {
+        viewModel.entitiesMatching("domain:camera") { it.entity_id.startsWith("camera.") }
+    }
+    val entities by cameraFlow.collectAsState()
     val currentUrl by viewModel.currentUrl.collectAsState()
     val appColors = LocalHKIAppColors.current
     val cameras = entities.filter { it.entity_id.startsWith("camera.") }

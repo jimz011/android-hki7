@@ -58,6 +58,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.BatteryAlert
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CleaningServices
@@ -73,10 +74,12 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Power
 import androidx.compose.material.icons.filled.PowerSettingsNew
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -103,6 +106,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -110,6 +114,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -119,6 +124,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -132,6 +138,7 @@ import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HAServiceCall
 import com.example.hki7.data.HKIButtonStack
 import com.example.hki7.data.HKIButtonConfig
+import com.example.hki7.data.HKIBatteryCardWidget
 import com.example.hki7.data.HKICalendarWidget
 import com.example.hki7.data.HKIEmptyStack
 import com.example.hki7.data.HKIAreaConfig
@@ -144,10 +151,12 @@ import com.example.hki7.data.HKISubtitleWidget
 import com.example.hki7.data.HKIWeatherWidget
 import androidx.compose.animation.core.tween
 import com.example.hki7.ui.MainViewModel
+import com.example.hki7.ui.Screen
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.EntityCard
 import com.example.hki7.ui.components.EditRemoveBadge
+import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.mediaPlayerStatus
 import com.example.hki7.ui.components.mediaPlayerStateIcon
 import com.example.hki7.ui.components.defaultEntityIconSlug
@@ -221,6 +230,7 @@ fun HKIRoomWidget.withStackChildStyle(isSquare: Boolean, cornerRadius: Int): HKI
     is HKISingleEntityWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKIWeatherWidget -> copy(cornerRadius = cornerRadius)
     is HKICalendarWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
+    is HKIBatteryCardWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKIEmptyStack -> copy(
         isSquare = isSquare,
         cornerRadius = cornerRadius,
@@ -256,9 +266,10 @@ fun RoomDetailScreen(
 ) {
     val areas by viewModel.areas.collectAsState()
     val area = areas.find { it.area_id == areaId }
-    val allEntities by viewModel.entities.collectAsState()
     val currentUrl by viewModel.currentUrl.collectAsState()
     val accessToken by viewModel.accessToken.collectAsState()
+    val entityRegistry by viewModel.entityRegistry.collectAsState()
+    val deviceRegistry by viewModel.deviceRegistry.collectAsState()
     val areaWidgetsMapping by viewModel.areaWidgetsMapping.collectAsState()
     val areaConfigsMapping by viewModel.areaConfigsMapping.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
@@ -287,6 +298,7 @@ fun RoomDetailScreen(
     var editingEnergyCard by remember { mutableStateOf<Pair<String?, HKIEnergyCardWidget>?>(null) }
     var editingEnergyStack by remember { mutableStateOf<Pair<String?, HKIEnergyStack>?>(null) }
     var editingCalendarWidget by remember { mutableStateOf<Pair<String?, HKICalendarWidget>?>(null) }
+    var editingBatteryWidget by remember { mutableStateOf<Pair<String?, HKIBatteryCardWidget>?>(null) }
     var pendingCalendarWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var addingToStackId by remember { mutableStateOf<String?>(null) }
     var cameraAddMode by remember { mutableStateOf<String?>(null) } // "entity", "custom", or null
@@ -322,12 +334,22 @@ fun RoomDetailScreen(
     var pendingWeatherWidgetEntityId by remember { mutableStateOf<String?>(null) }
     var choosingWeatherWidgetStyle by remember { mutableStateOf(false) }
     var selectedChildStackSettings by remember { mutableStateOf<Pair<String, HKIButtonStack>?>(null) }
+    var orderingStack by remember { mutableStateOf<Pair<String?, HKIButtonStack>?>(null) }
     var selectedChildButtonSettings by remember { mutableStateOf<Triple<String, HKIButtonStack, String>?>(null) }
     var editingChildEmptyStack by remember { mutableStateOf<Pair<String, HKIEmptyStack>?>(null) }
     var editingChildSubtitle by remember { mutableStateOf<Pair<String, HKISubtitleWidget>?>(null) }
     var editingChildWeather by remember { mutableStateOf<Pair<String, HKIWeatherWidget>?>(null) }
     var showAutoWidgetInfo by remember { mutableStateOf(false) }
     var showAutoDeleteStackInfo by remember { mutableStateOf(false) }
+    val needsLiveEntityList = isEditMode || selectedClimateEntity != null || selectedLockEntity != null ||
+        selectedBlindEntity != null || selectedCameraEntity != null || selectedLightEntity != null ||
+        selectedCameraId != null || selectedGenericEntity != null || selectedVacuumEntityId != null ||
+        selectedFanEntity != null || selectedHumidifierEntity != null || selectedAlarmEntity != null ||
+        selectedPersonEntity != null
+    // Runtime widgets subscribe to their own dependency sets. The complete list stays live only for
+    // edit-time pickers and open detail dialogs that intentionally span multiple entities.
+    val entityListFlow = remember(viewModel, needsLiveEntityList) { viewModel.entityList(needsLiveEntityList) }
+    val allEntities by entityListFlow.collectAsState()
     fun newButtonStack(title: String?, icon: String?) = HKIButtonStack(
         id = UUID.randomUUID().toString(),
         title = title,
@@ -410,7 +432,6 @@ fun RoomDetailScreen(
         when (child) {
             is HKIButtonStack -> ButtonStackItem(
                 stack = styleOverride?.let { child.copy(isSquare = it.isSquare, cornerRadius = it.cornerRadius, width = "full") } ?: child,
-                allEntities = allEntities,
                 viewModel = viewModel,
                 currentUrl = currentUrl,
                 accessToken = accessToken,
@@ -438,6 +459,7 @@ fun RoomDetailScreen(
                 onDeleteClick = { deleteChildFromSwipingStack(parent.id, child.id) },
                 onHideClick = { updateChildInSwipingStack(parent.id, child.copy(isHidden = !child.isHidden)) },
                 onAddClick = { addingToNestedStack = parent.id to child.id },
+                onManageOrder = { orderingStack = parent.id to child },
                 onButtonSettings = { entityId -> selectedChildButtonSettings = Triple(parent.id, child, entityId) },
                 onRemoveEntity = { entityId -> updateChildInSwipingStack(parent.id, child.copy(entityIds = child.entityIds - entityId)) },
                 onCameraClick = { entityId -> selectedCameraId = entityId; selectedCameraStack = child },
@@ -459,7 +481,6 @@ fun RoomDetailScreen(
             }
             is HKIWeatherWidget -> WeatherRoomWidget(
                 widget = styleOverride?.let { child.copy(width = "full", cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
-                allEntities = allEntities,
                 viewModel = viewModel,
                 isEditMode = isEditMode,
                 onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
@@ -467,7 +488,6 @@ fun RoomDetailScreen(
             )
             is HKICalendarWidget -> CalendarWidgetItem(
                 widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
-                allEntities = allEntities,
                 viewModel = viewModel,
                 isEditMode = isEditMode,
                 onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
@@ -475,7 +495,7 @@ fun RoomDetailScreen(
             )
             is HKISingleEntityWidget -> SingleEntityWidgetItem(
                 widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
-                allEntities = allEntities,
+                viewModel = viewModel,
                 currentUrl = currentUrl,
                 accessToken = accessToken,
                 isEditMode = isEditMode,
@@ -493,6 +513,16 @@ fun RoomDetailScreen(
                 isEditMode = isEditMode,
                 onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
                 onSettings = { editingEnergyCard = parent.id to child }
+            )
+            is HKIBatteryCardWidget -> BatteryCardWidgetItem(
+                widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                viewModel = viewModel,
+                registry = entityRegistry,
+                devices = deviceRegistry,
+                isEditMode = isEditMode,
+                onOpen = { navController.navigate(Screen.Battery.route) },
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingBatteryWidget = parent.id to child }
             )
             is HKIEnergyStack -> EnergyStackWidgetItem(
                 stack = child.copy(width = "full"),
@@ -633,7 +663,6 @@ fun RoomDetailScreen(
                                 is HKIButtonStack -> {
                                     ButtonStackItem(
                                         stack = widget,
-                                        allEntities = allEntities,
                                         viewModel = viewModel,
                                         currentUrl = currentUrl,
                                         accessToken = accessToken,
@@ -681,7 +710,6 @@ fun RoomDetailScreen(
                             )
                                 is HKIWeatherWidget -> WeatherRoomWidget(
                                     widget = widget,
-                                    allEntities = allEntities,
                                     viewModel = viewModel,
                                     isEditMode = false,
                                     onDelete = {},
@@ -689,7 +717,6 @@ fun RoomDetailScreen(
                                 )
                                 is HKICalendarWidget -> CalendarWidgetItem(
                                     widget = widget,
-                                    allEntities = allEntities,
                                     viewModel = viewModel,
                                     isEditMode = false,
                                     onDelete = {},
@@ -697,7 +724,7 @@ fun RoomDetailScreen(
                                 )
                                 is HKISingleEntityWidget -> SingleEntityWidgetItem(
                                     widget = widget,
-                                    allEntities = allEntities,
+                                    viewModel = viewModel,
                                     currentUrl = currentUrl,
                                     accessToken = accessToken,
                                     isEditMode = false,
@@ -744,6 +771,16 @@ fun RoomDetailScreen(
                                     widget = widget, viewModel = viewModel, isEditMode = false,
                                     onDelete = {}, onSettings = {}
                                 )
+                                is HKIBatteryCardWidget -> BatteryCardWidgetItem(
+                                    widget = widget,
+                                    viewModel = viewModel,
+                                    registry = entityRegistry,
+                                    devices = deviceRegistry,
+                                    isEditMode = false,
+                                    onOpen = { navController.navigate(Screen.Battery.route) },
+                                    onDelete = {},
+                                    onSettings = {}
+                                )
                                 is HKIEnergyStack -> EnergyStackWidgetItem(
                                     stack = widget, viewModel = viewModel, isEditMode = false,
                                     onToggleCollapsed = { viewModel.updateWidget(areaId, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
@@ -771,7 +808,6 @@ fun RoomDetailScreen(
                         is HKIButtonStack -> {
                             ButtonStackItem(
                                 stack = widget,
-                                allEntities = allEntities,
                                 viewModel = viewModel,
                                 currentUrl = currentUrl,
                                 accessToken = accessToken,
@@ -807,6 +843,7 @@ fun RoomDetailScreen(
                                 },
                                 onHideClick = { viewModel.updateWidget(areaId, widget.copy(isHidden = !widget.isHidden)) },
                                 onAddClick = { addingToStackId = widget.id },
+                                onManageOrder = { orderingStack = null to widget },
                                 onButtonSettings = { entityId -> selectedButtonSettings = widget to entityId },
                                 onRemoveEntity = { entityId ->
                                     viewModel.updateWidget(
@@ -843,7 +880,6 @@ fun RoomDetailScreen(
                         is HKIWeatherWidget -> {
                             WeatherRoomWidget(
                                 widget = widget,
-                                allEntities = allEntities,
                                 viewModel = viewModel,
                                 isEditMode = isEditMode,
                                 onDelete = { viewModel.deleteWidget(areaId, widget.id) },
@@ -853,7 +889,6 @@ fun RoomDetailScreen(
                         is HKICalendarWidget -> {
                             CalendarWidgetItem(
                                 widget = widget,
-                                allEntities = allEntities,
                                 viewModel = viewModel,
                                 isEditMode = isEditMode,
                                 onDelete = { viewModel.deleteWidget(areaId, widget.id) },
@@ -862,7 +897,7 @@ fun RoomDetailScreen(
                         }
                         is HKISingleEntityWidget -> SingleEntityWidgetItem(
                             widget = widget,
-                            allEntities = allEntities,
+                            viewModel = viewModel,
                             currentUrl = currentUrl,
                             accessToken = accessToken,
                             isEditMode = isEditMode,
@@ -915,6 +950,16 @@ fun RoomDetailScreen(
                             widget = widget, viewModel = viewModel, isEditMode = isEditMode,
                             onDelete = { viewModel.deleteWidget(areaId, widget.id) },
                             onSettings = { editingEnergyCard = null to widget }
+                        )
+                        is HKIBatteryCardWidget -> BatteryCardWidgetItem(
+                            widget = widget,
+                            viewModel = viewModel,
+                            registry = entityRegistry,
+                            devices = deviceRegistry,
+                            isEditMode = isEditMode,
+                            onOpen = { navController.navigate(Screen.Battery.route) },
+                            onDelete = { viewModel.deleteWidget(areaId, widget.id) },
+                            onSettings = { editingBatteryWidget = null to widget }
                         )
                         is HKIEnergyStack -> EnergyStackWidgetItem(
                             stack = widget, viewModel = viewModel, isEditMode = isEditMode,
@@ -1022,6 +1067,10 @@ fun RoomDetailScreen(
             },
             onAddEnergyCard = { keys -> keys.forEach { viewModel.addWidgetToArea(areaId, HKIEnergyCardWidget(id = UUID.randomUUID().toString(), cardKey = it)) } },
             onAddEnergyStack = { keys -> viewModel.addWidgetToArea(areaId, HKIEnergyStack(id = UUID.randomUUID().toString(), cardKeys = keys)) },
+            onAddBatteryCard = { useNotes ->
+                viewModel.addWidgetToArea(areaId, HKIBatteryCardWidget(id = UUID.randomUUID().toString(), useBatteryNotes = useNotes))
+                showAddWidgetDialog = false
+            },
             allEntities = allEntities
         )
     }
@@ -1049,6 +1098,17 @@ fun RoomDetailScreen(
                 if (containerId == null) viewModel.updateWidget(areaId, updated)
                 else updateChildInSwipingStack(containerId, updated)
                 editingCalendarWidget = null
+            }
+        )
+    }
+    editingBatteryWidget?.let { (containerId, widget) ->
+        BatteryCardWidgetSettingsDialog(
+            widget = widget,
+            onDismiss = { editingBatteryWidget = null },
+            onSave = { updated ->
+                if (containerId == null) viewModel.updateWidget(areaId, updated)
+                else updateChildInSwipingStack(containerId, updated)
+                editingBatteryWidget = null
             }
         )
     }
@@ -1124,6 +1184,10 @@ fun RoomDetailScreen(
             },
             onAddEnergyCard = { keys -> keys.forEach { addChildToSwipingStack(stackId, HKIEnergyCardWidget(id = UUID.randomUUID().toString(), cardKey = it)) } },
             onAddEnergyStack = { keys -> addChildToSwipingStack(stackId, HKIEnergyStack(id = UUID.randomUUID().toString(), cardKeys = keys)) },
+            onAddBatteryCard = { useNotes ->
+                addChildToSwipingStack(stackId, HKIBatteryCardWidget(id = UUID.randomUUID().toString(), useBatteryNotes = useNotes))
+                addingToSwipingStackId = null
+            },
             allEntities = allEntities
         )
     }
@@ -1458,6 +1522,23 @@ fun RoomDetailScreen(
             onUpdate = { updated ->
                 updateChildInSwipingStack(containerId, updated)
                 selectedChildStackSettings = null
+            }
+        )
+    }
+
+    orderingStack?.let { (containerId, stack) ->
+        StackOrderDialog(
+            stack = stack,
+            allEntities = allEntities,
+            onDismiss = { orderingStack = null },
+            onSave = { orderedIds ->
+                if (containerId == null) {
+                    val latest = areaWidgets.filterIsInstance<HKIButtonStack>().find { it.id == stack.id } ?: stack
+                    viewModel.updateWidget(areaId, latest.copy(entityIds = orderedIds))
+                } else {
+                    updateChildInSwipingStack(containerId, stack.copy(entityIds = orderedIds))
+                }
+                orderingStack = null
             }
         )
     }
@@ -1819,6 +1900,20 @@ fun RoomDetailScreen(
     }
 }
 
+/** One entry in the Add-Widget picker; [keywords] add extra terms that the search field matches on. */
+private data class PickerWidget(
+    val icon: ImageVector,
+    val title: String,
+    val subtitle: String,
+    val keywords: String,
+    val onSelect: () -> Unit
+) {
+    fun matches(query: String): Boolean =
+        title.contains(query, ignoreCase = true) ||
+            subtitle.contains(query, ignoreCase = true) ||
+            keywords.contains(query, ignoreCase = true)
+}
+
 @Composable
 fun AddRoomWidgetDialog(
     onDismiss: () -> Unit,
@@ -1836,6 +1931,7 @@ fun AddRoomWidgetDialog(
     onAddCalendarWidget: (() -> Unit)? = null,
     onAddEnergyCard: ((List<String>) -> Unit)? = null,
     onAddEnergyStack: ((List<String>) -> Unit)? = null,
+    onAddBatteryCard: ((Boolean) -> Unit)? = null,
     allEntities: List<HAEntity> = emptyList()
 ) {
     val appColors = LocalHKIAppColors.current
@@ -1850,9 +1946,33 @@ fun AddRoomWidgetDialog(
     var headerIcon by remember { mutableStateOf("None") }
     var weatherTitle by remember { mutableStateOf("Weather") }
     var weatherIcon by remember { mutableStateOf("weather-partly-cloudy") }
+    var batteryNotesInstalled by remember { mutableStateOf(false) }
     var configureWidget by remember { mutableStateOf<String?>(null) }
     var widgetGroup by remember { mutableStateOf<String?>(null) }
     var showIconPicker by remember { mutableStateOf(false) }
+    var search by remember { mutableStateOf("") }
+
+    // Single source of truth for the picker: the default view groups these, the search field
+    // flattens them. Keywords add synonyms that aren't in the visible title/description.
+    val topWidgets = buildList {
+        add(PickerWidget(Icons.Default.Lightbulb, "Button", "A single configurable entity control", "toggle switch control single entity light") { onAddButtonWidget?.invoke() ?: run { stackTitle = ""; stackIcon = "None"; configureWidget = "button" } })
+        if (onAddCalendarWidget != null) add(PickerWidget(Icons.Default.CalendarMonth, "Calendar", "Agenda, week, and month views from HA calendars", "events schedule date agenda month week appointments") { onAddCalendarWidget.invoke(); onDismiss() })
+        add(PickerWidget(Icons.Default.CameraAlt, "Camera", "A single live camera tile or stream URL", "video stream live cctv feed") { onAddCameraWidget?.invoke() ?: run { cameraTitle = ""; cameraIcon = "None"; configureWidget = "camera" } })
+        if (onAddEnergyCard != null) add(PickerWidget(Icons.Default.ElectricBolt, "Energy Card", "Any card from the Energy view", "power usage solar gas water consumption electricity") { energyPickerSelection = emptyList(); widgetGroup = "energy_card" })
+        if (onAddBatteryCard != null) add(PickerWidget(Icons.Default.BatteryAlert, "Battery Levels", "Low batteries, or Battery+ only with type details", "battery notes charge level power") { widgetGroup = "battery_card" })
+        add(PickerWidget(Icons.AutoMirrored.Filled.ShortText, "Header Text", "Add a section heading", "title subtitle label heading text divider") { configureWidget = "header" })
+        add(PickerWidget(Icons.Default.CleaningServices, "Vacuum", "A single robot vacuum control", "robot cleaner mop hoover") { onAddVacuumWidget?.invoke() ?: run { vacuumTitle = ""; vacuumIcon = "None"; configureWidget = "vacuum" } })
+        add(PickerWidget(Icons.Default.WbSunny, "Weather", "A single weather card", "forecast temperature conditions rain sun") { onAddWeatherWidget?.invoke() ?: run { weatherTitle = ""; weatherIcon = "None"; configureWidget = "weather" } })
+    }
+    val stackWidgets = buildList {
+        if (onAddEmptyStack != null) add(PickerWidget(Icons.AutoMirrored.Filled.ViewQuilt, "Empty Stack", "Place widgets inside a configurable stack", "container group blank custom") { onAddEmptyStack.invoke(); onDismiss() })
+        add(PickerWidget(Icons.AutoMirrored.Filled.ViewQuilt, "Button Stack", "Group entities into configurable controls", "buttons group entities controls") { stackTitle = "Buttons"; stackIcon = "Lightbulb"; configureWidget = "button_stack" })
+        add(PickerWidget(Icons.Default.CameraAlt, "Camera Stack", "Show live camera tiles or a custom stream URL", "cameras group video stream") { cameraTitle = "Cameras"; cameraIcon = "CameraAlt"; configureWidget = "camera_stack" })
+        if (onAddEnergyStack != null) add(PickerWidget(Icons.AutoMirrored.Filled.ViewQuilt, "Energy Stack", "Group energy cards: usage, solar, gas, water, ...", "power group solar gas water usage") { energyPickerSelection = emptyList(); widgetGroup = "energy_stack" })
+        if (onAddSwipingStack != null) add(PickerWidget(Icons.AutoMirrored.Filled.ViewQuilt, "Swiping Stack", "Swipe horizontally through nested widgets", "carousel swipe pager horizontal nested") { onAddSwipingStack.invoke(); onDismiss() })
+        add(PickerWidget(Icons.Default.CleaningServices, "Vacuum Stack", "Control robot vacuums with map and battery", "robot cleaner group map") { vacuumTitle = "Vacuum"; vacuumIcon = "CleaningServices"; configureWidget = "vacuum_stack" })
+        add(PickerWidget(Icons.Default.WbSunny, "Weather Stack", "Group weather cards: conditions, forecast, wind, or rain map", "forecast group wind rain conditions") { weatherTitle = "Weather"; weatherIcon = "weather-partly-cloudy"; configureWidget = "weather_stack" })
+    }
 
     if (showIconPicker) {
         val currentForPicker = when (configureWidget) {
@@ -1879,8 +1999,13 @@ fun AddRoomWidgetDialog(
             shape = RoundedCornerShape(32.dp),
             colors = CardDefaults.cardColors(containerColor = appColors.surface)
         ) {
+            val widgetPickerScroll = rememberScrollState()
             Column(
-                modifier = Modifier.padding(24.dp),
+                modifier = Modifier
+                    .heightIn(max = 560.dp)
+                    .padding(24.dp)
+                    .fadingEdges(widgetPickerScroll)
+                    .verticalScroll(widgetPickerScroll),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -1888,99 +2013,64 @@ fun AddRoomWidgetDialog(
                     IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, null, tint = appColors.onSurface) }
                 }
                 if (configureWidget == null && widgetGroup == null) {
-                    WidgetChoice(
-                        icon = Icons.Default.Lightbulb,
-                        title = "Button",
-                        subtitle = "A single configurable entity control",
-                        onClick = { onAddButtonWidget?.invoke() ?: run { stackTitle = ""; stackIcon = "None"; configureWidget = "button" } }
-                    )
-                    if (onAddCalendarWidget != null) {
-                        WidgetChoice(
-                            icon = Icons.Default.CalendarMonth,
-                            title = "Calendar",
-                            subtitle = "Agenda, week, and month views from HA calendars",
-                            onClick = { onAddCalendarWidget(); onDismiss() }
+                    OutlinedTextField(
+                        value = search,
+                        onValueChange = { search = it },
+                        placeholder = { Text("Search widgets") },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = appColors.onMuted) },
+                        trailingIcon = {
+                            if (search.isNotEmpty()) {
+                                IconButton(onClick = { search = "" }) {
+                                    Icon(Icons.Default.Close, contentDescription = "Clear search", tint = appColors.onMuted)
+                                }
+                            }
+                        },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = appColors.onSurface,
+                            unfocusedTextColor = appColors.onSurface,
+                            focusedLabelColor = appColors.onSurface.copy(alpha = 0.8f),
+                            unfocusedLabelColor = appColors.onMuted,
+                            cursorColor = MaterialTheme.colorScheme.primary,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = appColors.onMuted
                         )
+                    )
+                    val query = search.trim()
+                    if (query.isEmpty()) {
+                        topWidgets.forEach { w -> WidgetChoice(w.icon, w.title, w.subtitle, w.onSelect) }
+                        if (stackWidgets.isNotEmpty()) {
+                            WidgetChoice(
+                                icon = Icons.AutoMirrored.Filled.ViewQuilt,
+                                title = "Stacks",
+                                subtitle = "Button, camera, vacuum, weather, energy, swipe, and empty stacks",
+                                onClick = { widgetGroup = "stacks" }
+                            )
+                        }
+                    } else {
+                        val results = (topWidgets + stackWidgets).filter { it.matches(query) }
+                        if (results.isEmpty()) {
+                            Text(
+                                "No widgets match \"$query\"",
+                                color = appColors.onMuted,
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)
+                            )
+                        } else {
+                            results.forEach { w -> WidgetChoice(w.icon, w.title, w.subtitle, w.onSelect) }
+                        }
                     }
-                    WidgetChoice(
-                        icon = Icons.Default.CameraAlt,
-                        title = "Camera",
-                        subtitle = "A single live camera tile or stream URL",
-                        onClick = { onAddCameraWidget?.invoke() ?: run { cameraTitle = ""; cameraIcon = "None"; configureWidget = "camera" } }
-                    )
-                    if (onAddEnergyCard != null) {
-                        WidgetChoice(
-                            icon = Icons.Default.ElectricBolt,
-                            title = "Energy Card",
-                            subtitle = "Any card from the Energy view",
-                            onClick = { energyPickerSelection = emptyList(); widgetGroup = "energy_card" }
-                        )
-                    }
-                    WidgetChoice(
-                        icon = Icons.AutoMirrored.Filled.ShortText,
-                        title = "Header Text",
-                        subtitle = "Add a section heading",
-                        onClick = { configureWidget = "header" }
-                    )
-                    WidgetChoice(
-                        icon = Icons.AutoMirrored.Filled.ViewQuilt,
-                        title = "Stacks",
-                        subtitle = "Button, camera, vacuum, weather, energy, swipe, and empty stacks",
-                        onClick = { widgetGroup = "stacks" }
-                    )
-                    WidgetChoice(
-                        icon = Icons.Default.CleaningServices,
-                        title = "Vacuum",
-                        subtitle = "A single robot vacuum control",
-                        onClick = { onAddVacuumWidget?.invoke() ?: run { vacuumTitle = ""; vacuumIcon = "None"; configureWidget = "vacuum" } }
-                    )
-                    WidgetChoice(
-                        icon = Icons.Default.WbSunny,
-                        title = "Weather",
-                        subtitle = "A single weather card",
-                        onClick = { onAddWeatherWidget?.invoke() ?: run { weatherTitle = ""; weatherIcon = "None"; configureWidget = "weather" } }
-                    )
                 } else if (widgetGroup == "stacks" && configureWidget == null) {
                     TextButton(onClick = { widgetGroup = null }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
                         Text("Back")
                     }
-                    if (onAddEmptyStack != null) {
-                        WidgetChoice(
-                            icon = Icons.AutoMirrored.Filled.ViewQuilt,
-                            title = "Empty Stack",
-                            subtitle = "Place widgets inside a configurable stack",
-                            onClick = {
-                                onAddEmptyStack()
-                                onDismiss()
-                            }
-                        )
-                    }
+                    val (emptyStacks, predefinedStacks) = stackWidgets.partition { it.title == "Empty Stack" }
+                    emptyStacks.forEach { w -> WidgetChoice(w.icon, w.title, w.subtitle, w.onSelect) }
                     Text("Predefined Stacks", color = appColors.onMuted, style = MaterialTheme.typography.labelLarge)
-                    WidgetChoice(Icons.AutoMirrored.Filled.ViewQuilt, "Button Stack", "Group entities into configurable controls") { stackTitle = "Buttons"; stackIcon = "Lightbulb"; configureWidget = "button_stack" }
-                    WidgetChoice(Icons.Default.CameraAlt, "Camera Stack", "Show live camera tiles or a custom stream URL") { cameraTitle = "Cameras"; cameraIcon = "CameraAlt"; configureWidget = "camera_stack" }
-                    if (onAddEnergyStack != null) {
-                        WidgetChoice(
-                            icon = Icons.AutoMirrored.Filled.ViewQuilt,
-                            title = "Energy Stack",
-                            subtitle = "Group energy cards: usage, solar, gas, water, ...",
-                            onClick = { energyPickerSelection = emptyList(); widgetGroup = "energy_stack" }
-                        )
-                    }
-                    if (onAddSwipingStack != null) {
-                        WidgetChoice(
-                            icon = Icons.AutoMirrored.Filled.ViewQuilt,
-                            title = "Swiping Stack",
-                            subtitle = "Swipe horizontally through nested widgets",
-                            onClick = {
-                                onAddSwipingStack()
-                                onDismiss()
-                            }
-                        )
-                    }
-                    WidgetChoice(Icons.Default.CleaningServices, "Vacuum Stack", "Control robot vacuums with map and battery") { vacuumTitle = "Vacuum"; vacuumIcon = "CleaningServices"; configureWidget = "vacuum_stack" }
-                    WidgetChoice(Icons.Default.WbSunny, "Weather Stack", "Group weather cards: conditions, forecast, wind, or rain map") { weatherTitle = "Weather"; weatherIcon = "weather-partly-cloudy"; configureWidget = "weather_stack" }
+                    predefinedStacks.forEach { w -> WidgetChoice(w.icon, w.title, w.subtitle, w.onSelect) }
                 } else if (widgetGroup == "energy_card" && configureWidget == null) {
                     TextButton(onClick = { widgetGroup = null }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
@@ -2017,6 +2107,26 @@ fun AddRoomWidgetDialog(
                     )
                     Button(
                         onClick = { onAddEnergyStack?.invoke(energyPickerSelection); onDismiss() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Add")
+                    }
+                } else if (widgetGroup == "battery_card" && configureWidget == null) {
+                    TextButton(onClick = { widgetGroup = null }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("Back")
+                    }
+                    Text("Battery Levels", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text("Battery+ / Battery Notes only", color = appColors.onSurface)
+                            Text("Only show Battery+ entities and include battery type details", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                        }
+                        Switch(checked = batteryNotesInstalled, onCheckedChange = { batteryNotesInstalled = it })
+                    }
+                    Button(
+                        onClick = { onAddBatteryCard?.invoke(batteryNotesInstalled); onDismiss() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Add")
@@ -2877,9 +2987,136 @@ private fun ButtonUnlockPinDialog(
 }
 
 @Composable
-fun ButtonStackItem(
+fun StackOrderDialog(
     stack: HKIButtonStack,
     allEntities: List<HAEntity>,
+    onDismiss: () -> Unit,
+    onSave: (List<String>) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    val entityById = remember(allEntities) { allEntities.associateBy { it.entity_id } }
+    var orderedIds by remember(stack.id, stack.entityIds) { mutableStateOf(stack.entityIds) }
+    val listHeight = ((orderedIds.size * 72).coerceIn(96, 420)).dp
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Manage order") },
+        text = {
+            if (orderedIds.isEmpty()) {
+                Text("This stack has no items.", color = appColors.onMuted)
+            } else {
+                ReorderableGrid(
+                    items = orderedIds,
+                    canReorder = true,
+                    onReorder = { from, to ->
+                        orderedIds = orderedIds.toMutableList().apply {
+                            add(to.coerceIn(0, size - 1), removeAt(from))
+                        }
+                    },
+                    key = { it },
+                    columns = GridCells.Fixed(1),
+                    axis = ReorderAxis.Vertical,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(listHeight)
+                ) { entityId, isDragging ->
+                    StackOrderRow(
+                        entityId = entityId,
+                        entity = entityById[entityId],
+                        config = stack.buttonConfigs[entityId],
+                        isDragging = isDragging
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onSave(orderedIds) }) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+private fun StackOrderRow(
+    entityId: String,
+    entity: HAEntity?,
+    config: HKIButtonConfig?,
+    isDragging: Boolean
+) {
+    val appColors = LocalHKIAppColors.current
+    val label = config?.name?.takeIf { it.isNotBlank() }
+        ?: entity?.friendlyName
+        ?: if (config?.isCustomUrl == true) "Custom Camera" else entityId
+    val secondary = buildList {
+        add(entity?.entity_id ?: entityId)
+        config?.label?.takeIf { it.isNotBlank() }?.let { add(it) }
+        entity?.state?.takeIf { it.isNotBlank() && it != "unknown" && it != "unavailable" }?.let { add(it) }
+    }.joinToString(" - ")
+    val iconName = config?.icon?.takeIf { it.isNotBlank() } ?: entity?.let { defaultEntityIconSlug(it) }
+
+    Surface(
+        shape = RoundedCornerShape(18.dp),
+        color = if (isDragging) MaterialTheme.colorScheme.primary.copy(alpha = 0.14f) else appColors.subtleSurface,
+        border = BorderStroke(1.dp, appColors.onMuted.copy(alpha = if (isDragging) 0.28f else 0.12f))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 64.dp)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(
+                Icons.Default.SwapVert,
+                contentDescription = null,
+                tint = appColors.onMuted,
+                modifier = Modifier.size(20.dp)
+            )
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
+                modifier = Modifier.size(36.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    if (iconName != null) {
+                        MdiIcon(iconName, contentDescription = null, tint = MaterialTheme.colorScheme.primary, size = 20.dp)
+                    } else {
+                        Icon(Icons.Default.Sensors, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                    }
+                }
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    label,
+                    color = appColors.onSurface,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    secondary,
+                    color = appColors.onMuted,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ButtonStackItem(
+    stack: HKIButtonStack,
     viewModel: MainViewModel,
     currentUrl: String = "",
     accessToken: String? = null,
@@ -2896,20 +3133,38 @@ fun ButtonStackItem(
     onRemoveEntity: (String) -> Unit,
     onCameraClick: (String) -> Unit = {},
     onBadgeClick: () -> Unit = {},
-    onReorderEntities: (Int, Int) -> Unit
+    onReorderEntities: (Int, Int) -> Unit,
+    onManageOrder: () -> Unit = {}
 ) {
     val appColors = LocalHKIAppColors.current
     if (stack.isHidden && !isEditMode) return
+    val dependencyIds = remember(stack.entityIds, stack.buttonConfigs) {
+        buildSet {
+            addAll(stack.entityIds)
+            stack.buttonConfigs.values.forEach { config ->
+                listOfNotNull(
+                    config.doorEntityId,
+                    config.vacuumMapEntityId,
+                    config.vacuumBatteryEntityId,
+                    config.climateTempSensorEntityId,
+                    config.climateHumiditySensorEntityId,
+                    config.weatherEntityId
+                ).forEach(::add)
+            }
+        }.toList()
+    }
+    val dependencyFlow = remember(viewModel, dependencyIds) { viewModel.entitiesFor(dependencyIds) }
+    val allEntities by dependencyFlow.collectAsState()
     val entityById = remember(allEntities) { allEntities.associateBy { it.entity_id } }
     val entities = remember(stack.entityIds, entityById) { stack.entityIds.mapNotNull(entityById::get) }
     val buttonConfigs = stack.buttonConfigs
     var unlockedUntilByEntity by remember(stack.id) { mutableStateOf<Map<String, Long>>(emptyMap()) }
-    var lockNow by remember(stack.id) { mutableStateOf(System.currentTimeMillis()) }
+    var lockNow by remember(stack.id) { mutableLongStateOf(System.currentTimeMillis()) }
     var pendingPinUnlock by remember(stack.id) { mutableStateOf<Pair<String, HKIButtonConfig>?>(null) }
 
     LaunchedEffect(unlockedUntilByEntity) {
         while (unlockedUntilByEntity.values.any { it > System.currentTimeMillis() }) {
-            delay(1000)
+            delay(1.seconds)
             lockNow = System.currentTimeMillis()
         }
         lockNow = System.currentTimeMillis()
@@ -3013,6 +3268,19 @@ fun ButtonStackItem(
                     Spacer(Modifier.width(8.dp))
                     IconButton(onClick = onSettingsClick, modifier = Modifier.size(24.dp)) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    IconButton(
+                        onClick = onManageOrder,
+                        enabled = stack.entityIds.size > 1,
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.SwapVert,
+                            contentDescription = "Manage order",
+                            tint = Color.Gray.copy(alpha = if (stack.entityIds.size > 1) 1f else 0.38f),
+                            modifier = Modifier.size(16.dp)
+                        )
                     }
                     Spacer(Modifier.width(8.dp))
                     IconButton(onClick = onAddClick, modifier = Modifier.size(24.dp)) {
@@ -3183,43 +3451,45 @@ fun ButtonStackItem(
                 }
             } else {
                 val columns = stack.columns.coerceIn(1, 3)
-                ReorderableGrid(
-                    items = entities,
-                    canReorder = true,
-                    onReorder = { from, to -> onReorderEntities(from, to) },
-                    key = { it.entity_id },
-                    columns = GridCells.Fixed(columns),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    isNested = true,
-                    modifier = Modifier.heightIn(max = 2000.dp).fillMaxWidth()
-                ) { entity, _ ->
-                    Box {
-                        EntityCard(
-                            entity = entity,
-                            displayName = buttonConfigs[entity.entity_id]?.name,
-                            label = buttonConfigs[entity.entity_id]?.label,
-                            iconName = buttonConfigs[entity.entity_id]?.icon,
-                            spinIcon = buttonConfigs[entity.entity_id]?.spinIcon == true,
-                            onClick = { onEntityClick(entity.entity_id) },
-                            onLongClick = { onEntityLongClick(entity.entity_id) },
-                            onDoubleClick = { onEntityDoubleClick(entity.entity_id) },
-                            isSquare = stack.isSquare,
-                            cornerRadius = stack.cornerRadius,
-                            interactionsEnabled = false
-                        )
-                        IconButton(
-                            onClick = { onButtonSettings(entity.entity_id) },
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .size(24.dp)
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    entities.chunked(columns).forEach { rowEntities ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Icon(Icons.Default.Settings, contentDescription = "Button settings", tint = appColors.onSurface, modifier = Modifier.size(16.dp))
+                            rowEntities.forEach { entity ->
+                                Box(modifier = Modifier.weight(1f)) {
+                                    EntityCard(
+                                        entity = entity,
+                                        displayName = buttonConfigs[entity.entity_id]?.name,
+                                        label = buttonConfigs[entity.entity_id]?.label,
+                                        iconName = buttonConfigs[entity.entity_id]?.icon,
+                                        spinIcon = buttonConfigs[entity.entity_id]?.spinIcon == true,
+                                        onClick = { onEntityClick(entity.entity_id) },
+                                        onLongClick = { onEntityLongClick(entity.entity_id) },
+                                        onDoubleClick = { onEntityDoubleClick(entity.entity_id) },
+                                        isSquare = stack.isSquare,
+                                        cornerRadius = stack.cornerRadius,
+                                        interactionsEnabled = false
+                                    )
+                                    IconButton(
+                                        onClick = { onButtonSettings(entity.entity_id) },
+                                        modifier = Modifier
+                                            .align(Alignment.Center)
+                                            .size(24.dp)
+                                    ) {
+                                        Icon(Icons.Default.Settings, contentDescription = "Button settings", tint = appColors.onSurface, modifier = Modifier.size(16.dp))
+                                    }
+                                    EditRemoveBadge(
+                                        onClick = { onRemoveEntity(entity.entity_id) },
+                                        modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
+                                    )
+                                }
+                            }
+                            repeat((columns - rowEntities.size).coerceAtLeast(0)) {
+                                Spacer(Modifier.weight(1f))
+                            }
                         }
-                        EditRemoveBadge(
-                            onClick = { onRemoveEntity(entity.entity_id) },
-                            modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
-                        )
                     }
                 }
             }
@@ -3230,7 +3500,7 @@ fun ButtonStackItem(
 @Composable
 fun SingleEntityWidgetItem(
     widget: HKISingleEntityWidget,
-    allEntities: List<HAEntity>,
+    viewModel: MainViewModel,
     currentUrl: String,
     accessToken: String? = null,
     isEditMode: Boolean,
@@ -3243,6 +3513,19 @@ fun SingleEntityWidgetItem(
 ) {
     val appColors = LocalHKIAppColors.current
     if (widget.isHidden && !isEditMode) return
+    val dependencyIds = remember(widget.entityId, widget.config) {
+        listOfNotNull(
+            widget.entityId,
+            widget.config.doorEntityId,
+            widget.config.vacuumMapEntityId,
+            widget.config.vacuumBatteryEntityId,
+            widget.config.climateTempSensorEntityId,
+            widget.config.climateHumiditySensorEntityId,
+            widget.config.weatherEntityId
+        ).distinct()
+    }
+    val dependencyFlow = remember(viewModel, dependencyIds) { viewModel.entitiesFor(dependencyIds) }
+    val allEntities by dependencyFlow.collectAsState()
     val entity = allEntities.find { it.entity_id == widget.entityId }
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -3299,13 +3582,13 @@ fun SingleEntityWidgetItem(
                     onClick = { onEntityClick(widget.entityId) }
                 )
                 else -> {
-                    var unlockedUntilMillis by remember(widget.id, widget.entityId) { mutableStateOf(0L) }
-                    var lockNowMillis by remember(widget.id, widget.entityId) { mutableStateOf(System.currentTimeMillis()) }
+                    var unlockedUntilMillis by remember(widget.id, widget.entityId) { mutableLongStateOf(0L) }
+                    var lockNowMillis by remember(widget.id, widget.entityId) { mutableLongStateOf(System.currentTimeMillis()) }
                     var showPinUnlock by remember(widget.id, widget.entityId) { mutableStateOf(false) }
 
                     LaunchedEffect(unlockedUntilMillis) {
                         while (unlockedUntilMillis > System.currentTimeMillis()) {
-                            delay(1000)
+                            delay(1.seconds)
                             lockNowMillis = System.currentTimeMillis()
                         }
                         lockNowMillis = System.currentTimeMillis()
@@ -3496,12 +3779,12 @@ fun SwipingStackItem(
                         modifier = Modifier.fillMaxWidth(),
                         pageSpacing = 12.dp
                     ) { page ->
-                        val rawOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
-                        val pageOffset = rawOffset.absoluteValue.coerceIn(0f, 1f)
                         Box(
                             Modifier
                                 .fillMaxWidth()
                                 .graphicsLayer {
+                                    val rawOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                                    val pageOffset = rawOffset.absoluteValue.coerceIn(0f, 1f)
                                     when (animationType) {
                                         "fade" -> {
                                             alpha = 1f - (pageOffset * 0.65f)
@@ -3884,26 +4167,25 @@ private fun CameraStackContent(
     }
 
     if (isEditMode) {
-        ReorderableGrid(
-            items = cameraSources,
-            canReorder = true,
-            onReorder = onReorderEntities,
-            key = { it.id },
-            columns = GridCells.Fixed(stack.columns.coerceIn(1, 3)),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            isNested = true,
-            modifier = Modifier.heightIn(max = 2000.dp).fillMaxWidth()
-        ) { source, _ ->
-            CameraStackCard(
-                source = source,
-                stack = stack,
-                accessToken = accessToken,
-                isEditMode = isEditMode,
-                onEntityClick = onEntityClick,
-                onButtonSettings = onButtonSettings,
-                onRemoveEntity = onRemoveEntity
-            )
+        val columns = stack.columns.coerceIn(1, 3)
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            cameraSources.chunked(columns).forEach { row ->
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                    row.forEach { source ->
+                        CameraStackCard(
+                            source = source,
+                            stack = stack,
+                            accessToken = accessToken,
+                            isEditMode = isEditMode,
+                            onEntityClick = onEntityClick,
+                            onButtonSettings = onButtonSettings,
+                            onRemoveEntity = onRemoveEntity,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    repeat((columns - row.size).coerceAtLeast(0)) { Spacer(Modifier.weight(1f)) }
+                }
+            }
         }
     } else {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -4075,6 +4357,7 @@ private fun CameraStackCard(
 @Composable
 private fun ClimateControlContent(entity: HAEntity, viewModel: MainViewModel, showModes: Boolean, onToggleModes: (Boolean) -> Unit) {
     val appColors = LocalHKIAppColors.current
+    val locale = LocalConfiguration.current.locales[0]
     val minTemp = entity.attributes?.get("min_temp")?.jsonPrimitive?.doubleOrNull ?: 15.0
     val maxTemp = entity.attributes?.get("max_temp")?.jsonPrimitive?.doubleOrNull ?: 30.0
     val targetTemp = entity.attributes?.get("temperature")?.jsonPrimitive?.doubleOrNull ?: 21.0
@@ -4092,7 +4375,7 @@ private fun ClimateControlContent(entity: HAEntity, viewModel: MainViewModel, sh
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = if (showModes) "Modes" else String.format(Locale.getDefault(), "%.1f\u00B0", localTarget),
+            text = if (showModes) "Modes" else String.format(locale, "%.1f\u00B0", localTarget),
             color = appColors.onSurface,
             style = if (showModes) MaterialTheme.typography.displayMedium else MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Normal
@@ -4323,11 +4606,14 @@ fun GroupMembersContent(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
+        val coverListState = androidx.compose.foundation.lazy.rememberLazyListState()
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 24.dp)
-                .padding(bottom = if (tabs.size > 1) 88.dp else 0.dp),
+                .padding(bottom = if (tabs.size > 1) 88.dp else 0.dp)
+                .fadingEdges(coverListState),
+            state = coverListState,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             when (currentTab) {
@@ -4583,12 +4869,15 @@ fun GroupEntityDialog(
                         Text("Turn off all")
                     }
                     Spacer(Modifier.height(16.dp))
+                    val groupListState = androidx.compose.foundation.lazy.rememberLazyListState()
                     LazyColumn(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp)
-                            .padding(bottom = if (tabs.size > 1) 88.dp else 0.dp),
+                            .padding(bottom = if (tabs.size > 1) 88.dp else 0.dp)
+                            .fadingEdges(groupListState),
+                        state = groupListState,
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         when (currentTab) {

@@ -53,7 +53,8 @@ fun DevicePickerDialog(
                     singleLine = true, modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(8.dp))
-                LazyColumn(Modifier.heightIn(max = 340.dp)) {
+                val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+                LazyColumn(Modifier.heightIn(max = 340.dp).fadingEdges(listState), state = listState) {
                     if (currentId != null) {
                         item {
                             TextButton(onClick = { onSelected(null) }) { Text("Clear selection") }

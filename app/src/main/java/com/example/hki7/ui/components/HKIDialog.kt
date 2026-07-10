@@ -350,7 +350,12 @@ fun HKIDialog(
 fun HistoryView(entity: HAEntity, viewModel: MainViewModel, extraGraphEntityIds: List<String> = emptyList()) {
     val appColors = LocalHKIAppColors.current
     val historyMapping by viewModel.historyMapping.collectAsState()
-    val allEntities by viewModel.entities.collectAsState()
+    val historyEntityFlow = remember(viewModel, extraGraphEntityIds) {
+        viewModel.entitiesMatching {
+            it.entity_id.startsWith("person.") || it.entity_id in extraGraphEntityIds
+        }
+    }
+    val allEntities by historyEntityFlow.collectAsState()
     val currentUrl by viewModel.currentUrl.collectAsState()
     val entries = historyMapping[entity.entity_id] ?: emptyList()
     var selectedHours by remember { mutableIntStateOf(24) }

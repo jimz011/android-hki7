@@ -51,10 +51,12 @@ fun ClimateModesButton(entity: HAEntity, onClick: () -> Unit, selected: Boolean 
  */
 @Composable
 fun ClimateModesList(entity: HAEntity, viewModel: MainViewModel) {
+    val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+            .fadingEdges(scrollState)
+            .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         if (entity.fanModes.isNotEmpty()) {

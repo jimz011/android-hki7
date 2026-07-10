@@ -32,7 +32,10 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
@@ -40,6 +43,8 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.SettingsEthernet
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -78,12 +83,29 @@ import com.example.hki7.data.PreferencesManager
 import com.example.hki7.data.PushForegroundService
 import com.example.hki7.ui.ConnectionStatus
 import com.example.hki7.ui.MainViewModel
+import com.example.hki7.ui.NavBarConfig
+import com.example.hki7.ui.Screen
 import com.example.hki7.ui.components.ColorWheel
+import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.theme.LocalHKIAppColors
+import com.example.hki7.ui.utils.MdiIcon
 import kotlinx.coroutines.launch
 
 private enum class SettingsSection {
-    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, THEME, DASHBOARD, ACCOUNT
+    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, THEME, NAV_BAR, DASHBOARD, ACCOUNT
+}
+
+private fun sectionTitle(section: SettingsSection): String = when (section) {
+    SettingsSection.MENU -> "Settings"
+    SettingsSection.NAV_BAR -> "Navigation Bar"
+    SettingsSection.APPEARANCE -> "Appearance"
+    else -> section.name.lowercase().replaceFirstChar { it.uppercase() }
+}
+
+// Sub-sections nested under Appearance return there on back; everything else returns to the menu.
+private fun parentSection(section: SettingsSection): SettingsSection = when (section) {
+    SettingsSection.THEME, SettingsSection.NAV_BAR -> SettingsSection.APPEARANCE
+    else -> SettingsSection.MENU
 }
 
 @Composable
@@ -131,16 +153,18 @@ fun SettingsDialog(
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 SettingsHeader(
-                    title = if (section == SettingsSection.MENU) "Settings" else section.name.lowercase().replaceFirstChar { it.uppercase() },
+                    title = sectionTitle(section),
                     canGoBack = section != SettingsSection.MENU,
-                    onBack = { section = SettingsSection.MENU },
+                    onBack = { section = parentSection(section) },
                     onDismiss = onDismiss
                 )
 
+                val contentScroll = rememberScrollState()
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .verticalScroll(rememberScrollState()),
+                        .fadingEdges(contentScroll)
+                        .verticalScroll(contentScroll),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     when (section) {
@@ -149,7 +173,7 @@ fun SettingsDialog(
                             SettingsChoice(Icons.Default.Person, "Profile", displayName) { section = SettingsSection.PROFILE }
                             SettingsChoice(Icons.Default.MyLocation, "Location", "Device tracker and geocoded location") { section = SettingsSection.LOCATION }
                             SettingsChoice(Icons.Default.Notifications, "Notifications", "Push delivery and history") { section = SettingsSection.NOTIFICATIONS }
-                            SettingsChoice(Icons.Default.Palette, "Theme", "Colors and light/dark mode") { section = SettingsSection.THEME }
+                            SettingsChoice(Icons.Default.Palette, "Appearance", "Theme and navigation bar") { section = SettingsSection.APPEARANCE }
                             SettingsChoice(Icons.Default.Dashboard, "Dashboard", dashboardMode.replaceFirstChar { it.uppercase() }) { section = SettingsSection.DASHBOARD }
                             SettingsChoice(Icons.AutoMirrored.Filled.Logout, "Account", "Logout and reset") { section = SettingsSection.ACCOUNT }
                         }
@@ -346,6 +370,63 @@ fun SettingsDialog(
                                         "Turn the \"Notification connection\" channel off on the next screen — the connection keeps working, only its notification disappears.",
                                         color = appColors.onMuted,
                                         style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
+                        }
+                        SettingsSection.APPEARANCE -> {
+                            SettingsChoice(Icons.Default.Palette, "Theme", "Colors and light/dark mode") { section = SettingsSection.THEME }
+                            SettingsChoice(Icons.Default.Menu, "Navigation Bar", "Reorder and hide tabs") { section = SettingsSection.NAV_BAR }
+                        }
+                        SettingsSection.NAV_BAR -> {
+                            val navBarOrder by prefs.navBarOrder.collectAsState(initial = emptyList())
+                            val navBarHidden by prefs.navBarHidden.collectAsState(initial = emptyList())
+                            val configurable = remember(navBarOrder) { NavBarConfig.orderedConfigurable(navBarOrder) }
+                            val hiddenSet = navBarHidden.toSet()
+                            SettingsPanel {
+                                Text(
+                                    "Home and Rooms are always shown. Reorder the other tabs with the arrows and toggle each on or off.",
+                                    color = appColors.onMuted,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                NavBarConfig.fixed.forEach { screen ->
+                                    NavTabRow(
+                                        screen = screen,
+                                        fixed = true,
+                                        visible = true,
+                                        canMoveUp = false,
+                                        canMoveDown = false,
+                                        onToggleVisible = {},
+                                        onMoveUp = {},
+                                        onMoveDown = {}
+                                    )
+                                }
+                                configurable.forEachIndexed { index, screen ->
+                                    NavTabRow(
+                                        screen = screen,
+                                        fixed = false,
+                                        visible = screen.route !in hiddenSet,
+                                        canMoveUp = index > 0,
+                                        canMoveDown = index < configurable.lastIndex,
+                                        onToggleVisible = {
+                                            val newHidden = if (screen.route in hiddenSet) navBarHidden - screen.route
+                                                            else navBarHidden + screen.route
+                                            scope.launch { prefs.saveNavBarHidden(newHidden) }
+                                        },
+                                        onMoveUp = {
+                                            val routes = configurable.map { it.route }.toMutableList()
+                                            if (index > 0) {
+                                                routes.add(index - 1, routes.removeAt(index))
+                                                scope.launch { prefs.saveNavBarOrder(routes) }
+                                            }
+                                        },
+                                        onMoveDown = {
+                                            val routes = configurable.map { it.route }.toMutableList()
+                                            if (index < routes.lastIndex) {
+                                                routes.add(index + 1, routes.removeAt(index))
+                                                scope.launch { prefs.saveNavBarOrder(routes) }
+                                            }
+                                        }
                                     )
                                 }
                             }
@@ -581,6 +662,75 @@ private fun SettingsChoice(icon: ImageVector, title: String, subtitle: String, o
             Column(Modifier.weight(1f)) {
                 Text(title, color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
                 Text(subtitle, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+}
+
+@Composable
+private fun NavTabRow(
+    screen: Screen,
+    fixed: Boolean,
+    visible: Boolean,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
+    onToggleVisible: () -> Unit,
+    onMoveUp: () -> Unit,
+    onMoveDown: () -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        color = appColors.subtleSurface
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(start = 14.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(Modifier.size(28.dp), contentAlignment = Alignment.Center) {
+                if (screen.mdiIcon != null) {
+                    MdiIcon(name = screen.mdiIcon, tint = appColors.onSurface, size = 24.dp)
+                } else {
+                    Icon(screen.icon, null, tint = appColors.onSurface, modifier = Modifier.size(24.dp))
+                }
+            }
+            Spacer(Modifier.width(14.dp))
+            Text(
+                screen.title,
+                color = appColors.onSurface,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f)
+            )
+            if (fixed) {
+                Icon(
+                    Icons.Default.Lock,
+                    contentDescription = "Fixed tab",
+                    tint = appColors.onMuted,
+                    modifier = Modifier.size(20.dp).padding(end = 12.dp)
+                )
+            } else {
+                IconButton(onClick = onMoveUp, enabled = canMoveUp) {
+                    Icon(
+                        Icons.Default.KeyboardArrowUp,
+                        contentDescription = "Move up",
+                        tint = if (canMoveUp) appColors.onSurface else appColors.onMuted.copy(alpha = 0.4f)
+                    )
+                }
+                IconButton(onClick = onMoveDown, enabled = canMoveDown) {
+                    Icon(
+                        Icons.Default.KeyboardArrowDown,
+                        contentDescription = "Move down",
+                        tint = if (canMoveDown) appColors.onSurface else appColors.onMuted.copy(alpha = 0.4f)
+                    )
+                }
+                IconButton(onClick = onToggleVisible) {
+                    Icon(
+                        if (visible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        contentDescription = if (visible) "Hide tab" else "Show tab",
+                        tint = if (visible) MaterialTheme.colorScheme.primary else appColors.onMuted
+                    )
+                }
             }
         }
     }

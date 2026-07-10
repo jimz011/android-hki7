@@ -404,8 +404,8 @@ class HomeAssistantClient(
     ): Map<String, List<HAStatPoint>> {
         return withWebSocket {
             val args = buildMap {
-                put("start_time", JsonPrimitive(java.time.Instant.ofEpochMilli(startMillis).toString()))
-                endMillis?.let { put("end_time", JsonPrimitive(java.time.Instant.ofEpochMilli(it).toString())) }
+                put("start_time", JsonPrimitive(Instant.ofEpochMilli(startMillis).toString()))
+                endMillis?.let { put("end_time", JsonPrimitive(Instant.ofEpochMilli(it).toString())) }
                 put("period", JsonPrimitive(period))
                 put("statistic_ids", JsonArray(statisticIds.map { JsonPrimitive(it) }))
                 put("types", JsonArray(listOf("mean", "change").map { JsonPrimitive(it) }))

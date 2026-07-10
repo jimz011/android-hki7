@@ -50,24 +50,28 @@ fun PersonDetailDialog(
     onDismiss: () -> Unit
 ) {
     val currentUrl by viewModel.currentUrl.collectAsState()
-    val allEntities by viewModel.entities.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
-    val imageUrl = person.entityPicture?.let { if (it.startsWith("http")) it else "$currentUrl$it" }
-    
     var showSettings by remember { mutableStateOf(false) }
+    val personEntityFlow = remember(viewModel, person.entity_id, showSettings, isEditMode) {
+        if (showSettings || isEditMode) viewModel.entitiesMatching { true }
+        else viewModel.entitiesFor(listOf(person.entity_id))
+    }
+    val allEntities by personEntityFlow.collectAsState()
+    val livePerson = allEntities.find { it.entity_id == person.entity_id } ?: person
+    val imageUrl = livePerson.entityPicture?.let { if (it.startsWith("http")) it else "$currentUrl$it" }
 
     HKIDialog(
-        entity = person,
+        entity = livePerson,
         onDismiss = onDismiss,
         viewModel = viewModel,
         icon = Icons.Default.Person,
         headerImageUrl = imageUrl,
-        statusText = person.state.uppercase()
+        statusText = livePerson.state.uppercase()
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             if (showSettings || isEditMode) {
                 PersonSettingsView(
-                    person = person,
+                    person = livePerson,
                     viewModel = viewModel,
                     allEntities = allEntities,
                     onBack = { if (isEditMode) onDismiss() else showSettings = false }
@@ -83,8 +87,8 @@ fun PersonDetailDialog(
                     color = Color.Black
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        val lat = person.attributes?.get("latitude")?.jsonPrimitive?.doubleOrNull
-                        val lon = person.attributes?.get("longitude")?.jsonPrimitive?.doubleOrNull
+                        val lat = livePerson.attributes?.get("latitude")?.jsonPrimitive?.doubleOrNull
+                        val lon = livePerson.attributes?.get("longitude")?.jsonPrimitive?.doubleOrNull
                         
                         if (lat != null && lon != null) {
                             OpenStreetMapPreview(lat = lat, lon = lon, imageUrl = imageUrl)

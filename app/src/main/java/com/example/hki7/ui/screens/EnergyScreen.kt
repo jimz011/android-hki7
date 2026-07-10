@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -39,6 +40,8 @@ import com.example.hki7.data.HKIPageConfig
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.HKIPage
+import com.example.hki7.ui.components.ReorderAxis
+import com.example.hki7.ui.components.ReorderableGrid
 import com.example.hki7.ui.components.parseHistoryMillis
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.serialization.json.contentOrNull
@@ -196,7 +199,10 @@ private fun energyOffsetForDate(range: EnergyRange, selectedDate: LocalDate): In
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EnergyScreen(viewModel: MainViewModel) {
-    val entities       by viewModel.entities.collectAsState()
+    val energyEntityFlow = remember(viewModel) {
+        viewModel.entitiesMatching("domain:sensor") { it.entity_id.startsWith("sensor.") }
+    }
+    val entities by energyEntityFlow.collectAsState()
     val pageConfigsMap by viewModel.pageConfigsMapping.collectAsState()
     val historyMap     by viewModel.historyMapping.collectAsState()
     val energyConfig: HKIEnergyConfig =
@@ -2523,26 +2529,43 @@ private fun ColumnScope.EnergySensorSection(
                 "Power sensors tracked as individual devices under Top consumers.",
                 style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
             )
-            cfg.deviceEntityIds.forEach { id ->
-                val name = allEntities.find { it.entity_id == id }?.friendlyName ?: id
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(name, style = MaterialTheme.typography.labelMedium, color = appColors.onSurface,
-                        maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-                    IconButton(
-                        onClick = {
-                            cfg = cfg.copy(deviceEntityIds = cfg.deviceEntityIds - id)
-                            onSave(cfg)
-                        },
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Icon(Icons.Default.Close, "Remove", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+            if (cfg.deviceEntityIds.isNotEmpty()) {
+                ReorderableGrid(
+                    items = cfg.deviceEntityIds,
+                    canReorder = true,
+                    onReorder = { from, to ->
+                        val ids = cfg.deviceEntityIds.toMutableList().apply { add(to, removeAt(from)) }
+                        cfg = cfg.copy(deviceEntityIds = ids)
+                        onSave(cfg)
+                    },
+                    key = { it },
+                    columns = GridCells.Fixed(1),
+                    axis = ReorderAxis.Vertical,
+                    modifier = Modifier.fillMaxWidth().heightIn(max = 420.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) { id, _ ->
+                    val name = allEntities.find { it.entity_id == id }?.friendlyName ?: id
+                    Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(name, style = MaterialTheme.typography.labelMedium, color = appColors.onSurface,
+                                maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                            IconButton(
+                                onClick = {
+                                    cfg = cfg.copy(deviceEntityIds = cfg.deviceEntityIds - id)
+                                    onSave(cfg)
+                                },
+                                modifier = Modifier.size(28.dp)
+                            ) {
+                                Icon(Icons.Default.Close, "Remove", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+                            }
+                        }
+                        HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
                     }
                 }
-                HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
             }
             TextButton(onClick = { showDevicePicker = true }) {
                 Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp))
@@ -2599,15 +2622,23 @@ fun EnergyCardWidgetView(
     cardKey: String,
     viewModel: MainViewModel,
     cornerRadius: Int = 28,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    rangeName: String = EnergyRange.DAY.name,
+    rangeOffset: Int = 0,
+    onNavigate: ((String) -> Unit)? = null
 ) {
     val appColors = LocalHKIAppColors.current
-    val entities by viewModel.entities.collectAsState()
     val pageConfigsMap by viewModel.pageConfigsMapping.collectAsState()
     val cfg = (pageConfigsMap[ENERGY_PAGE_KEY] ?: HKIPageConfig()).energyConfig ?: HKIEnergyConfig()
+    val energyEntityFlow = remember(viewModel) {
+        viewModel.entitiesMatching("domain:sensor") { it.entity_id.startsWith("sensor.") }
+    }
+    val entities by energyEntityFlow.collectAsState()
     val energyStats by viewModel.energyStats.collectAsState()
     val byId = remember(entities) { entities.associateBy { it.entity_id } }
-    val window = remember { energyWindow(EnergyRange.DAY, 0) }
+    val range = remember(rangeName) { runCatching { EnergyRange.valueOf(rangeName) }.getOrDefault(EnergyRange.DAY) }
+    val window = remember(range, rangeOffset) { energyWindow(range, rangeOffset) }
+    val periodLabel = window.periodLabel()
 
     val solarW = byId.wattsOf(cfg.solarPowerEntityId) ?: 0f
     val gridW = byId.wattsOf(cfg.gridPowerEntityId) ?: 0f
@@ -2724,19 +2755,22 @@ fun EnergyCardWidgetView(
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
                     EnergyLiveTile(Icons.Default.ElectricBolt, ElecBlue, "Electricity",
-                        "${formatW(abs(gridW))} · $gridStatus", Modifier.weight(1f))
+                        "${formatW(abs(gridW))} · $gridStatus", Modifier.weight(1f),
+                        onClick = onNavigate?.let { navigate -> { navigate("electricity") } })
                     EnergyLiveTile(Icons.Default.Home, MaterialTheme.colorScheme.primary, "Home",
                         "${formatW(homeW)} · ${if (homeW > 10f) "Consuming" else "Idle"}", Modifier.weight(1f))
                 }
                 if (hasSolar || hasBattery) {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
                         if (hasSolar) EnergyLiveTile(Icons.Default.WbSunny, SolarAmber, "Solar",
-                            "${formatW(solarW.coerceAtLeast(0f))} · ${if (solarW > 10f) "Producing" else "Idle"}", Modifier.weight(1f))
+                            "${formatW(solarW.coerceAtLeast(0f))} · ${if (solarW > 10f) "Producing" else "Idle"}", Modifier.weight(1f),
+                            onClick = onNavigate?.let { navigate -> { navigate("solar") } })
                         if (hasBattery) EnergyLiveTile(
                             if (batteryW > 10f) Icons.Default.BatteryChargingFull else Icons.Default.BatteryStd,
                             BattPurple, "Battery",
                             listOfNotNull(batteryPct?.let { "$it%" }, formatW(abs(batteryW))).joinToString(" · "),
-                            Modifier.weight(1f))
+                            Modifier.weight(1f),
+                            onClick = onNavigate?.let { navigate -> { navigate("battery") } })
                         if (!hasSolar || !hasBattery) Spacer(Modifier.weight(1f))
                     }
                 }
@@ -2747,7 +2781,7 @@ fun EnergyCardWidgetView(
                 val producedPeriod = total(solarEnergyId)
                 val usedPeriod = (importPeriod + producedPeriod - exportPeriod).coerceAtLeast(0f)
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                    TotalStat(Icons.Default.ArrowDownward, ElecBlue, "%.1f kWh".format(usedPeriod), "Used today")
+                    TotalStat(Icons.Default.ArrowDownward, ElecBlue, "%.1f kWh".format(usedPeriod), "Used $periodLabel")
                     TotalStat(Icons.Default.ArrowDownward, ImportRed, "%.1f kWh".format(importPeriod), "Imported")
                     TotalStat(Icons.Default.ArrowUpward, ExportGreen, "%.1f kWh".format(exportPeriod), "Exported")
                 }
@@ -2811,7 +2845,7 @@ fun EnergyCardWidgetView(
                 val selfUsed = (produced - total(exportId)).coerceIn(0f, produced)
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                     TotalStat(Icons.Default.Bolt, SolarAmber, formatW(solarW.coerceAtLeast(0f)), "Now")
-                    TotalStat(Icons.Default.WbSunny, SolarAmber, "%.1f kWh".format(produced), "Produced today")
+                    TotalStat(Icons.Default.WbSunny, SolarAmber, "%.1f kWh".format(produced), "Produced $periodLabel")
                     TotalStat(Icons.Default.Home, ExportGreen, "%.1f kWh".format(selfUsed), "Self-used")
                 }
                 Spacer(Modifier.height(14.dp))
@@ -2843,7 +2877,7 @@ fun EnergyCardWidgetView(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                     byId.displayOf(cfg.gasCurrentEntityId)?.let { TotalStat(Icons.Default.Speed, GasPink, it, "Now") }
                     TotalStat(Icons.Default.LocalFireDepartment, GasPink,
-                        "%.1f %s".format(total(gasId), gasUnit), "Used today")
+                        "%.1f %s".format(total(gasId), gasUnit), "Used $periodLabel")
                     byId.numOf(cfg.gasCostEntityId)?.let {
                         TotalStat(Icons.Default.LocalFireDepartment, GasPink, "€ ${"%.2f".format(it)}", "Cost")
                     }
@@ -2860,7 +2894,7 @@ fun EnergyCardWidgetView(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                     byId.displayOf(cfg.waterCurrentEntityId)?.let { TotalStat(Icons.Default.Speed, WaterBlue, it, "Now") }
                     TotalStat(Icons.Default.WaterDrop, WaterBlue,
-                        (if (used >= 100f) "%.0f %s" else "%.1f %s").format(used, unit), "Used today")
+                        (if (used >= 100f) "%.0f %s" else "%.1f %s").format(used, unit), "Used $periodLabel")
                     byId.numOf(cfg.waterCostEntityId)?.let {
                         TotalStat(Icons.Default.WaterDrop, WaterBlue, "€ ${"%.2f".format(it)}", "Cost")
                     }

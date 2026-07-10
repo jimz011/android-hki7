@@ -3,7 +3,6 @@
 package com.example.hki7.ui.components
 
 import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -93,7 +92,10 @@ fun HKIPage(
     val pageConfig = pageKey?.let { pageConfigs[it] } ?: HKIPageConfig()
     val areaConfigs by viewModel.areaConfigsMapping.collectAsState()
     val areaConfig = areaId?.let { areaConfigs[it] }
-    val allEntities by viewModel.entities.collectAsState()
+    val alarmEntityFlow = remember(viewModel) {
+        viewModel.entitiesMatching("domain:alarm_control_panel") { it.entity_id.startsWith("alarm_control_panel.") }
+    }
+    val allEntities by alarmEntityFlow.collectAsState()
     var previewBadgeBarConfig by remember { mutableStateOf<HKIBadgeBarConfig?>(null) }
     val savedBadgeBarConfig = areaConfig?.badgeBar ?: pageConfig.badgeBar
     val badgeBarConfig: HKIBadgeBarConfig = previewBadgeBarConfig ?: savedBadgeBarConfig ?: HKIBadgeBarConfig()
@@ -138,10 +140,8 @@ fun HKIPage(
             @Suppress("DEPRECATION")
             window.statusBarColor = statusBarColor.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = useDarkStatusBarIcons
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                @Suppress("DEPRECATION")
-                window.isStatusBarContrastEnforced = false
-            }
+            @Suppress("DEPRECATION")
+            window.isStatusBarContrastEnforced = false
         }
     }
     val visiblePeople = remember(people, pageConfig) {
@@ -573,7 +573,6 @@ fun HKIPage(
             
             if (showBadgeBar) HKIBadgeBar(
                 badgeBarConfig = badgeBarConfig,
-                allEntities    = allEntities,
                 isEditMode     = isEditMode,
                 viewModel      = viewModel,
                 onConfigChange = { newBarConfig ->
@@ -784,8 +783,9 @@ fun PageSettingsDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (section == "menu") title else if (section == "extra") extraSection?.first ?: title else section.replaceFirstChar { it.uppercase() }) },
         text = {
+            val settingsScrollState = rememberScrollState()
             Column(
-                modifier = Modifier.heightIn(max = 460.dp).verticalScroll(rememberScrollState()),
+                modifier = Modifier.heightIn(max = 460.dp).fadingEdges(settingsScrollState).verticalScroll(settingsScrollState),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 if (section == "menu") {

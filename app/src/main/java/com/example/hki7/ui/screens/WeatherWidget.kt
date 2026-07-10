@@ -57,15 +57,18 @@ val weatherWidgetStyles = listOf(
 @Composable
 fun WeatherRoomWidget(
     widget: HKIWeatherWidget,
-    allEntities: List<HAEntity>,
     viewModel: MainViewModel,
     isEditMode: Boolean,
     onDelete: () -> Unit,
     onSettings: () -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
-    val weatherEntity = allEntities.find { it.entity_id == widget.entityId }
-        ?: allEntities.find { it.entity_id.startsWith("weather.") }
+    val defaultWeatherEntity by viewModel.weather.collectAsState()
+    val specificFlow = remember(viewModel, widget.entityId) {
+        viewModel.entitiesFor(listOfNotNull(widget.entityId))
+    }
+    val specificEntities by specificFlow.collectAsState()
+    val weatherEntity = widget.entityId?.let { specificEntities.firstOrNull() } ?: defaultWeatherEntity
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -134,11 +137,13 @@ fun WeatherRoomWidget(
 
 @Composable
 private fun rememberEntityForecast(weatherEntity: HAEntity, viewModel: MainViewModel, type: String): List<HAWeatherForecast> {
-    val cache by viewModel.weatherForecastCache.collectAsState()
+    val cacheKey = "${weatherEntity.entity_id}:$type"
+    val cacheFlow = remember(viewModel, cacheKey) { viewModel.weatherForecastFor(cacheKey) }
+    val cachedForecast by cacheFlow.collectAsState()
     LaunchedEffect(weatherEntity.entity_id, type) {
         viewModel.fetchWeatherForecastFor(weatherEntity.entity_id, type)
     }
-    return cache["${weatherEntity.entity_id}:$type"]
+    return cachedForecast.takeUnless { it.isEmpty() }
         ?: weatherEntity.forecast.takeUnless { type != "daily" || it.isNullOrEmpty() }
         ?: emptyList()
 }
@@ -429,29 +434,26 @@ fun WeatherStackContent(
     }
     val columns = stack.columns.coerceIn(1, 3)
     if (isEditMode) {
-        ReorderableGrid(
-            items = stack.entityIds,
-            canReorder = true,
-            onReorder = onReorder,
-            key = { it },
-            columns = GridCells.Fixed(columns),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            isNested = true,
-            modifier = Modifier.heightIn(max = 4000.dp).fillMaxWidth()
-        ) { itemId, _ ->
-            Box {
-                WeatherStackCard(stack.buttonConfigs[itemId], allEntities, viewModel, stack.cornerRadius)
-                IconButton(
-                    onClick = { onItemSettings(itemId) },
-                    modifier = Modifier.align(Alignment.Center).size(24.dp)
-                ) {
-                    Icon(Icons.Default.Settings, contentDescription = "Weather card settings", tint = appColors.onSurface, modifier = Modifier.size(16.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            stack.entityIds.chunked(columns).forEach { row ->
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                    row.forEach { itemId ->
+                        Box(modifier = Modifier.weight(1f)) {
+                            WeatherStackCard(stack.buttonConfigs[itemId], allEntities, viewModel, stack.cornerRadius)
+                            IconButton(
+                                onClick = { onItemSettings(itemId) },
+                                modifier = Modifier.align(Alignment.Center).size(24.dp)
+                            ) {
+                                Icon(Icons.Default.Settings, contentDescription = "Weather card settings", tint = appColors.onSurface, modifier = Modifier.size(16.dp))
+                            }
+                            EditRemoveBadge(
+                                onClick = { onRemoveItem(itemId) },
+                                modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
+                            )
+                        }
+                    }
+                    repeat((columns - row.size).coerceAtLeast(0)) { Spacer(Modifier.weight(1f)) }
                 }
-                EditRemoveBadge(
-                    onClick = { onRemoveItem(itemId) },
-                    modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
-                )
             }
         }
     } else {

@@ -140,7 +140,8 @@ fun AdvancedEntitySearchDialog(
 
                 Spacer(Modifier.height(16.dp))
 
-                LazyColumn(modifier = Modifier.weight(1f)) {
+                val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+                LazyColumn(modifier = Modifier.weight(1f).fadingEdges(listState), state = listState) {
                     items(filteredEntities, key = { it.entity_id }) { entity ->
                         val isChecked = selectedIds.contains(entity.entity_id)
                         ListItem(

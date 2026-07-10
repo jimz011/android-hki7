@@ -107,7 +107,6 @@ private fun representativeBadgeEntity(entities: List<HAEntity>): HAEntity? {
 @Composable
 fun HKIBadgeBar(
     badgeBarConfig: HKIBadgeBarConfig?,
-    allEntities: List<HAEntity>,
     isEditMode: Boolean,
     viewModel: MainViewModel,
     onConfigChange: (HKIBadgeBarConfig?) -> Unit,
@@ -116,6 +115,23 @@ fun HKIBadgeBar(
     val config = badgeBarConfig ?: HKIBadgeBarConfig()
     val badges = config.badges
     val alignment = config.alignment
+    val dependencyIds = remember(badges) {
+        buildSet {
+            badges.forEach { badge ->
+                addAll(badge.effectiveEntityIds)
+                badge.doorEntityId?.let(::add)
+                addAll(badge.doorEntityIds.values)
+                addAll(badge.vacuumMapEntityIds.values)
+                addAll(badge.vacuumBatteryEntityIds.values)
+            }
+        }.toList()
+    }
+    // Edit mode needs the complete list for entity pickers. Normal rendering observes only the
+    // entities represented by these badges and their secondary sensors.
+    val entityFlow = remember(viewModel, dependencyIds, isEditMode) {
+        if (isEditMode) viewModel.entitiesMatching { true } else viewModel.entitiesFor(dependencyIds)
+    }
+    val allEntities by entityFlow.collectAsState()
 
     // ── dialog state ──────────────────────────────────────────────────────────
     var dialogRole    by remember { mutableStateOf<String?>(null) }

@@ -167,10 +167,12 @@ private fun ModesButton(visible: Boolean, onClick: () -> Unit, selected: Boolean
 @Composable
 private fun HumidifierModesList(entity: HAEntity, viewModel: MainViewModel) {
     val appColors = LocalHKIAppColors.current
+    val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+            .fadingEdges(scrollState)
+            .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         entity.humidifierAvailableModes.forEach { mode ->

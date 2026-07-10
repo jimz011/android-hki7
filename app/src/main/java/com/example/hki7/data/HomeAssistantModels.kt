@@ -223,6 +223,7 @@ data class HAEntityRegistryEntry(
     val entity_id: String,
     val area_id: String? = null,
     val device_id: String? = null,
+    val platform: String? = null,
     /** "config" | "diagnostic" | null (= primary control/sensor). */
     val entity_category: String? = null,
     val disabled_by: String? = null,
@@ -439,8 +440,18 @@ data class HKIPageConfig(
     val badgeBar: HKIBadgeBarConfig? = null,
     val energyConfig: HKIEnergyConfig? = null,
     val climateConfig: HKIClimateConfig? = null,
+    val batteryConfig: HKIBatteryConfig? = null,
     val vacuumEntityId: String? = null,
     val vacuumMapEntityId: String? = null
+)
+
+@Serializable
+data class HKIBatteryConfig(
+    val useBatteryNotes: Boolean = false,
+    val hiddenEntityIds: List<String> = emptyList(),
+    val extraEntityIds: List<String> = emptyList(),
+    val extraDeviceIds: List<String> = emptyList(),
+    val entityOrder: List<String> = emptyList()
 )
 
 /** Entity bindings for the Climate page. Sensors/devices are auto-discovered by domain and
@@ -456,7 +467,9 @@ data class HKIClimateConfig(
     /** Extra humidifier/dehumidifier entities beyond the auto-discovered humidifier.* domain. */
     val extraHumidifierIds: List<String> = emptyList(),
     /** Entities removed via edit mode; excluded from cards, tiles, graphs and averages. */
-    val hiddenEntityIds: List<String> = emptyList()
+    val hiddenEntityIds: List<String> = emptyList(),
+    /** Optional user order for climate devices/sensors on detail pages. */
+    val entityOrder: List<String> = emptyList()
 )
 
 /** Entity bindings for the Energy dashboard's power-flow visualization. All optional. */
@@ -477,6 +490,8 @@ data class HKIEnergyConfig(
     val gasCostEntityId: String? = null,
     val waterEntityId: String? = null,
     val waterCostEntityId: String? = null,
+    /** Optional user order for the cards on the main Energy page. */
+    val cardOrder: List<String> = emptyList(),
     /** Power sensors the user tracks as individual devices (shown under Top consumers). */
     val deviceEntityIds: List<String> = emptyList(),
     // HA-style electricity sensors (P1 meter): per-phase power and tariff-split energy counters.
@@ -681,6 +696,20 @@ data class HKICalendarWidget(
     val isSquare: Boolean = false,
     val title: String? = null,
     val icon: String? = "calendar-month",
+    val cornerRadius: Int = 28,
+    val isHidden: Boolean = false
+) : HKIRoomWidget()
+
+@Serializable
+@SerialName("battery_card")
+data class HKIBatteryCardWidget(
+    override val id: String,
+    override val width: String = "full",
+    val title: String? = "Battery Levels",
+    val icon: String? = "battery-alert",
+    val lowThreshold: Int = 30,
+    val useBatteryNotes: Boolean = false,
+    val isSquare: Boolean = false,
     val cornerRadius: Int = 28,
     val isHidden: Boolean = false
 ) : HKIRoomWidget()

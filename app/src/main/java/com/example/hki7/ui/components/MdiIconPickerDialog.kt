@@ -191,12 +191,14 @@ fun MdiIconPickerDialog(
                 Spacer(Modifier.height(8.dp))
 
                 // ── Icon grid ─────────────────────────────────────────────────
+                val gridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(5),
+                    state = gridState,
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).fadingEdges(gridState)
                 ) {
                     items(filtered.size, key = { filtered[it] }) { i ->
                         val slug = filtered[i]

@@ -61,6 +61,8 @@ class PreferencesManager(private val context: Context) {
     private val highAccuracyLocationKey = booleanPreferencesKey("high_accuracy_location")
     private val notificationHistoryKey = stringPreferencesKey("notification_history")
     private val backgroundPushKey = booleanPreferencesKey("background_push_enabled")
+    private val navBarOrderKey = stringPreferencesKey("nav_bar_order")
+    private val navBarHiddenKey = stringPreferencesKey("nav_bar_hidden")
 
     val serverUrl: Flow<String?> = context.dataStore.data.map { it[serverUrlKey] }
     val accessToken: Flow<String?> = context.dataStore.data.map { it[accessTokenKey] }
@@ -154,6 +156,15 @@ class PreferencesManager(private val context: Context) {
     // (the official app's "persistent connection"; uses more battery).
     val backgroundPushEnabled: Flow<Boolean> = context.dataStore.data.map { it[backgroundPushKey] ?: false }
 
+    // Bottom navigation bar layout. Order lists the reorderable (non-fixed) tab routes; hidden lists
+    // the routes the user turned off. Empty means "use defaults" (see NavBarConfig).
+    val navBarOrder: Flow<List<String>> = context.dataStore.data.map {
+        it[navBarOrderKey]?.split(",")?.filter { r -> r.isNotBlank() } ?: emptyList()
+    }
+    val navBarHidden: Flow<List<String>> = context.dataStore.data.map {
+        it[navBarHiddenKey]?.split(",")?.filter { r -> r.isNotBlank() } ?: emptyList()
+    }
+
     suspend fun saveConnectionDetails(url: String, token: String, refresh: String? = null, expiresInSeconds: Int? = null) {
         context.dataStore.edit { preferences ->
             preferences[serverUrlKey] = url
@@ -192,6 +203,18 @@ class PreferencesManager(private val context: Context) {
     }
 
     suspend fun saveHighAccuracyLocation(enabled: Boolean) { context.dataStore.edit { it[highAccuracyLocationKey] = enabled } }
+    suspend fun saveNavBarOrder(order: List<String>) {
+        context.dataStore.edit {
+            val cleaned = order.filter { r -> r.isNotBlank() }
+            if (cleaned.isEmpty()) it.remove(navBarOrderKey) else it[navBarOrderKey] = cleaned.joinToString(",")
+        }
+    }
+    suspend fun saveNavBarHidden(hidden: List<String>) {
+        context.dataStore.edit {
+            val cleaned = hidden.filter { r -> r.isNotBlank() }
+            if (cleaned.isEmpty()) it.remove(navBarHiddenKey) else it[navBarHiddenKey] = cleaned.joinToString(",")
+        }
+    }
     suspend fun saveBackgroundPushEnabled(enabled: Boolean) { context.dataStore.edit { it[backgroundPushKey] = enabled } }
     suspend fun saveNotificationHistory(history: List<HKINotification>) {
         context.dataStore.edit { it[notificationHistoryKey] = appJson.encodeToString(history) }

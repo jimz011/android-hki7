@@ -46,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -63,7 +64,6 @@ import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlin.math.PI
 import kotlin.math.sin
 
@@ -78,18 +78,40 @@ fun HKIWeatherDialog(
     onDisplayTypeSelected: ((String) -> Unit)? = null,
     onAlarmEntitiesSelected: ((List<String>) -> Unit)? = null
 ) {
-    val allEntities by viewModel.entities.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
     val use24h by viewModel.use24hFormat.collectAsState()
     val extraEntities by viewModel.weatherExtraEntities.collectAsState()
     val fetchedForecast by viewModel.weatherForecast.collectAsState()
-    val forecastCache by viewModel.weatherForecastCache.collectAsState()
+    val roleEntityIds = remember(weather.entity_id, extraEntities, alarmEntityIds) {
+        buildSet {
+            add(weather.entity_id)
+            addAll(extraEntities.values.filterNotNull())
+            addAll(alarmEntityIds)
+        }
+    }
+    val weatherDialogEntityFlow = remember(viewModel, roleEntityIds, isEditMode) {
+        if (isEditMode) {
+            viewModel.entitiesMatching { true }
+        } else {
+            viewModel.entitiesMatching { entity ->
+                entity.entity_id in roleEntityIds || entity.entity_id == "sun.sun" ||
+                    entity.entity_id == "sensor.moon" || entity.entity_id == "sensor.season" ||
+                    entity.entity_id.contains("aqi", ignoreCase = true) ||
+                    entity.entity_id.contains("rain", ignoreCase = true) ||
+                    entity.entity_id.contains("precipitation", ignoreCase = true)
+            }
+        }
+    }
+    val allEntities by weatherDialogEntityFlow.collectAsState()
+    val forecastCacheKey = "${weather.entity_id}:daily"
+    val forecastFlow = remember(viewModel, forecastCacheKey) { viewModel.weatherForecastFor(forecastCacheKey) }
+    val cachedForecast by forecastFlow.collectAsState()
     val currentDisplayType = if (isEditMode) displayType ?: "Weather" else "Weather"
 
     // Modern HA no longer puts forecasts in the entity attributes; fetch (TTL-cached) on open.
     LaunchedEffect(weather.entity_id) { viewModel.fetchWeatherForecastFor(weather.entity_id, "daily") }
     val dialogForecast = weather.forecast.takeUnless { it.isNullOrEmpty() }
-        ?: forecastCache["${weather.entity_id}:daily"].takeUnless { it.isNullOrEmpty() }
+        ?: cachedForecast.takeUnless { it.isEmpty() }
         ?: fetchedForecast
 
     // One id->entity map + role resolution per state batch; the previous five full-list scans on
@@ -131,12 +153,14 @@ fun HKIWeatherDialog(
                 onEntitySelected = { id -> viewModel.saveWeatherEntity(id) }
             )
         } else {
+            val weatherGridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
+                state = weatherGridState,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 24.dp),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).fadingEdges(weatherGridState)
             ) {
                 item(span = { GridItemSpan(2) }) { WeatherMainCard(weather) }
                 item(span = { GridItemSpan(2) }) { ForecastCard(dialogForecast) }
@@ -502,9 +526,10 @@ fun StatLine(label: String, value: String, icon: ImageVector) {
 @Composable
 fun ForecastItem(forecast: HAWeatherForecast) {
     val appColors = LocalHKIAppColors.current
+    val locale = LocalConfiguration.current.locales[0]
     val date = try {
         val dt = LocalDateTime.parse(forecast.datetime, DateTimeFormatter.ISO_DATE_TIME)
-        dt.format(DateTimeFormatter.ofPattern("EEE", Locale.getDefault()))
+        dt.format(DateTimeFormatter.ofPattern("EEE", locale))
     } catch (_: Exception) {
         forecast.datetime.take(3)
     }
@@ -548,8 +573,10 @@ fun WeatherConfigView(
     val displayTypes = listOf("Weather", "Alarm", "Date", "Time", "DateTime", "None")
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 8.dp)) {
+        val settingsListState = androidx.compose.foundation.lazy.rememberLazyListState()
         androidx.compose.foundation.lazy.LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().fadingEdges(settingsListState),
+            state = settingsListState,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
@@ -590,7 +617,7 @@ fun WeatherConfigView(
                 Text("Custom Entities", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
                 Spacer(Modifier.height(8.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    // Device-first setup: picking a weather station auto-fills the role entities
+                    // Device-first setup: picking a weather station automatically fills the role entities
                     // below; each row stays individually adjustable (entity fallback).
                     val deviceName = extraEntities["device"]?.let { id ->
                         deviceRegistry.find { it.id == id }?.let { it.name_by_user ?: it.name } ?: id
@@ -624,7 +651,7 @@ fun WeatherConfigView(
             onSelected = { deviceId ->
                 viewModel.setWeatherExtraEntity("device", deviceId)
                 if (deviceId != null) {
-                    // Auto-fill the roles from the device's entities (weather station, rain
+                    // Autofill the roles from the device's entities (weather station, rain
                     // gauge, air quality). Sun/moon/season are HA-wide, not device-bound.
                     val ids = entityRegistry.filter { it.device_id == deviceId }.map { it.entity_id }.toSet()
                     val dev = allEntities.filter { it.entity_id in ids }

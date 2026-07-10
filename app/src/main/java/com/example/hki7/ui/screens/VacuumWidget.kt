@@ -64,38 +64,33 @@ fun VacuumStackContent(
     val columns = stack.columns.coerceIn(1, 3)
 
     if (isEditMode) {
-        ReorderableGrid(
-            items = entities,
-            canReorder = true,
-            onReorder = onReorderEntities,
-            key = { it.entity_id },
-            columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(columns),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            isNested = true,
-            modifier = Modifier.heightIn(max = 2000.dp).fillMaxWidth()
-        ) { entity, _ ->
-            Box {
-                VacuumEntityCard(
-                    entity = entity,
-                    config = stack.buttonConfigs[entity.entity_id],
-                    allEntities = allEntities,
-                    currentUrl = currentUrl,
-                    isSquare = stack.isSquare,
-                    cornerRadius = stack.cornerRadius,
-                    aspectRatio = stack.cameraAspectRatio,
-                    onClick = {}
-                )
-                // Settings cog at center
-                IconButton(onClick = { onButtonSettings(entity.entity_id) },
-                    modifier = Modifier.align(Alignment.Center).size(24.dp)) {
-                    Icon(Icons.Default.Settings, "Settings", tint = Color.White, modifier = Modifier.size(16.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            entities.chunked(columns).forEach { row ->
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                    row.forEach { entity ->
+                        Box(modifier = Modifier.weight(1f)) {
+                            VacuumEntityCard(
+                                entity = entity,
+                                config = stack.buttonConfigs[entity.entity_id],
+                                allEntities = allEntities,
+                                currentUrl = currentUrl,
+                                isSquare = stack.isSquare,
+                                cornerRadius = stack.cornerRadius,
+                                aspectRatio = stack.cameraAspectRatio,
+                                onClick = {}
+                            )
+                            IconButton(onClick = { onButtonSettings(entity.entity_id) },
+                                modifier = Modifier.align(Alignment.Center).size(24.dp)) {
+                                Icon(Icons.Default.Settings, "Settings", tint = Color.White, modifier = Modifier.size(16.dp))
+                            }
+                            EditRemoveBadge(
+                                onClick = { onRemoveEntity(entity.entity_id) },
+                                modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
+                            )
+                        }
+                    }
+                    repeat((columns - row.size).coerceAtLeast(0)) { Spacer(Modifier.weight(1f)) }
                 }
-                // Badge-style X button overflowing top-right
-                EditRemoveBadge(
-                    onClick = { onRemoveEntity(entity.entity_id) },
-                    modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
-                )
             }
         }
     } else {

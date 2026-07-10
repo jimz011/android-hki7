@@ -110,7 +110,7 @@ class DeviceTelemetryReporter(
 
         // Register sensors once per webhook (they persist in HA); plain state updates suffice after.
         if (prefs.mobileAppSensorsWebhookId.first() != webhookId) {
-            val registered = registerSensors(client, webhookUrl, slug, deviceName, batteryLevel, charging, address, location, log)
+            val registered = registerSensors(client, webhookUrl, slug, deviceName, batteryLevel, charging, address, log)
             if (registered) prefs.saveMobileAppSensorsRegistered(webhookId)
         }
 
@@ -152,7 +152,7 @@ class DeviceTelemetryReporter(
             // Without re-registering here the entity stays frozen at its initial registered value.
             sensorsNeedReRegistration(updateBody) -> {
                 log("HA doesn't recognize the sensors — re-registering and retrying")
-                registerSensors(client, webhookUrl, slug, deviceName, batteryLevel, charging, address, location, log)
+                registerSensors(client, webhookUrl, slug, deviceName, batteryLevel, charging, address, log)
                 prefs.saveMobileAppSensorsRegistered(webhookId)
                 runCatching { client.postWebhook(webhookUrl, updatePayload) }
             }
@@ -259,7 +259,6 @@ class DeviceTelemetryReporter(
         batteryLevel: Int,
         charging: Boolean,
         address: String?,
-        location: Location?,
         log: (String) -> Unit
     ): Boolean {
         val batteryOk = post(client, webhookUrl, buildJsonObject {

@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -32,6 +34,8 @@ import com.example.hki7.ui.components.EditRemoveBadge
 import com.example.hki7.ui.components.EntitySensorGraphCard
 import com.example.hki7.ui.components.HKIPage
 import com.example.hki7.ui.components.HistoryRangeChips
+import com.example.hki7.ui.components.ReorderAxis
+import com.example.hki7.ui.components.ReorderableGrid
 import com.example.hki7.ui.components.hvacColor
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.serialization.json.contentOrNull
@@ -86,21 +90,50 @@ private fun formatValue(v: Float): String =
     if (kotlin.math.abs(v) >= 100f) "%.0f".format(Locale.getDefault(), v)
     else "%.1f".format(Locale.getDefault(), v)
 
+private fun List<HAEntity>.applyClimateOrder(order: List<String>): List<HAEntity> =
+    if (order.isEmpty()) this else sortedWith(
+        compareBy<HAEntity> {
+            val idx = order.indexOf(it.entity_id)
+            if (idx == -1) Int.MAX_VALUE else idx
+        }.thenBy { it.friendlyName ?: it.entity_id }
+    )
+
 @Composable
 fun ClimateScreen(viewModel: MainViewModel) {
-    val entities by viewModel.entities.collectAsState()
     val pageConfigsMap by viewModel.pageConfigsMapping.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
+    // Bumped by undo/redo; keying the page content on it rebuilds the reorderable lists so a
+    // restored order shows immediately instead of only after leaving edit mode.
+    val uiRevision by viewModel.uiRevision.collectAsState()
     val appColors = LocalHKIAppColors.current
     val climateConfig: HKIClimateConfig =
         (pageConfigsMap[CLIMATE_PAGE_KEY] ?: HKIPageConfig()).climateConfig ?: HKIClimateConfig()
+    val climateDependencyIds = remember(climateConfig) {
+        buildSet {
+            addAll(climateConfig.extraClimateIds)
+            addAll(climateConfig.extraHumidifierIds)
+            addAll(climateConfig.purifierEntityIds)
+            climateConfig.extraSensorIds.values.forEach(::addAll)
+        }
+    }
+    val climateEntityFlow = remember(viewModel, climateDependencyIds) {
+        viewModel.entitiesMatching { entity ->
+            val domain = entity.entity_id.substringBefore('.')
+            domain == "climate" || domain == "humidifier" || domain == "fan" || domain == "sensor" || entity.entity_id in climateDependencyIds
+        }
+    }
+    val entities by climateEntityFlow.collectAsState()
     val hidden = remember(climateConfig) { climateConfig.hiddenEntityIds.toSet() }
     val entityById = remember(entities) { entities.associateBy { it.entity_id } }
 
     fun hideEntity(id: String) {
+        viewModel.hideClimateEntity(CLIMATE_PAGE_KEY, id)
+    }
+    fun reorderClimateEntities(visible: List<HAEntity>, from: Int, to: Int) {
+        val visibleIds = visible.map { it.entity_id }.toMutableList().apply { add(to, removeAt(from)) }
         viewModel.updateClimateConfig(
             CLIMATE_PAGE_KEY,
-            climateConfig.copy(hiddenEntityIds = (climateConfig.hiddenEntityIds + id).distinct())
+            climateConfig.copy(entityOrder = visibleIds + climateConfig.entityOrder.filterNot { it in visibleIds })
         )
     }
 
@@ -111,6 +144,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
             .distinctBy { it.entity_id }
             .filter { it.entity_id !in hidden }
             .sortedBy { it.friendlyName ?: it.entity_id }
+            .applyClimateOrder(climateConfig.entityOrder)
     }
     // Humidifiers/dehumidifiers: humidifier.* domain plus manual additions.
     val humidifierEntities = remember(entities, climateConfig) {
@@ -119,12 +153,23 @@ fun ClimateScreen(viewModel: MainViewModel) {
             .distinctBy { it.entity_id }
             .filter { it.entity_id !in hidden }
             .sortedBy { it.friendlyName ?: it.entity_id }
+            .applyClimateOrder(climateConfig.entityOrder)
+    }
+    // Native fan.* entities are imported automatically. Air purifiers remain an optional
+    // user-curated subset with their own tab.
+    val fanEntities = remember(entities, climateConfig) {
+        entities.filter { it.entity_id.startsWith("fan.") }
+            .distinctBy { it.entity_id }
+            .filter { it.entity_id !in hidden }
+            .sortedBy { it.friendlyName ?: it.entity_id }
+            .applyClimateOrder(climateConfig.entityOrder)
     }
     // Air purifiers: fans carry no device_class, so these come from Climate Settings.
     val purifierEntities = remember(entities, climateConfig) {
         climateConfig.purifierEntityIds.mapNotNull { entityById[it] }
             .filter { it.entity_id !in hidden }
             .sortedBy { it.friendlyName ?: it.entity_id }
+            .applyClimateOrder(climateConfig.entityOrder)
     }
     // Sensors per group: auto-discovered by device_class plus manual additions, minus removed.
     val groupSensors: Map<String, List<HAEntity>> = remember(entities, climateConfig) {
@@ -139,6 +184,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
                 .distinctBy { it.entity_id }
                 .filter { it.entity_id !in hidden }
                 .sortedBy { it.friendlyName ?: it.entity_id }
+                .applyClimateOrder(climateConfig.entityOrder)
         }
     }
 
@@ -158,11 +204,11 @@ fun ClimateScreen(viewModel: MainViewModel) {
         }
 
     val pageTitle = when (page) {
-        "purifiers" -> "Air purifiers"; "humidifiers" -> "Humidifiers"
+        "fans" -> "Fans"; "purifiers" -> "Air purifiers"; "humidifiers" -> "Humidifiers"
         else -> activeGroup?.title ?: "Climate"
     }
     val pageSubtitle = when (page) {
-        "purifiers" -> "Air cleaning devices"; "humidifiers" -> "Humidity control devices"
+        "fans" -> "Air circulation devices"; "purifiers" -> "Air cleaning devices"; "humidifiers" -> "Humidity control devices"
         else -> activeGroup?.subtitle ?: "Indoor comfort"
     }
     HKIPage(
@@ -175,6 +221,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
         showBadgeBar = false,
         onBack = if (page != "climate") ({ page = "climate" }) else null
     ) { padding ->
+        key(uiRevision) {
         when {
             activeGroup != null -> ClimateSensorDetailPage(
                 group = activeGroup,
@@ -182,14 +229,27 @@ fun ClimateScreen(viewModel: MainViewModel) {
                 viewModel = viewModel,
                 isEditMode = isEditMode,
                 onRemove = ::hideEntity,
+                onReorder = { from, to -> reorderClimateEntities(groupSensors[activeGroup.key].orEmpty(), from, to) },
                 padding = padding
             )
-            page == "purifiers" || page == "humidifiers" -> ClimateDeviceListPage(
-                isPurifiers = page == "purifiers",
-                devices = if (page == "purifiers") purifierEntities else humidifierEntities,
+            page == "fans" || page == "purifiers" || page == "humidifiers" -> ClimateDeviceListPage(
+                deviceType = page,
+                devices = when (page) {
+                    "fans" -> fanEntities
+                    "purifiers" -> purifierEntities
+                    else -> humidifierEntities
+                },
                 viewModel = viewModel,
                 isEditMode = isEditMode,
                 onRemove = ::hideEntity,
+                onReorder = { from, to ->
+                    val visible = when (page) {
+                        "fans" -> fanEntities
+                        "purifiers" -> purifierEntities
+                        else -> humidifierEntities
+                    }
+                    reorderClimateEntities(visible, from, to)
+                },
                 padding = padding
             )
             else -> LazyColumn(
@@ -223,6 +283,12 @@ fun ClimateScreen(viewModel: MainViewModel) {
                                 if (avg != null) append(" · avg ${formatValue(avg)}${if (unit.isNotBlank()) " $unit" else ""}")
                             }
                             add(TileSpec(group.icon, group.color, group.title, status, group.key))
+                        }
+                        if (fanEntities.isNotEmpty()) {
+                            val on = fanEntities.count { it.state == "on" }
+                            add(TileSpec(Icons.Default.Air, CoolBlue, "Fans",
+                                "${fanEntities.size} device${if (fanEntities.size == 1) "" else "s"} · $on on",
+                                "fans"))
                         }
                         if (purifierEntities.isNotEmpty()) {
                             val on = purifierEntities.count { it.state == "on" }
@@ -287,6 +353,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
                     }
                 }
             }
+        }
         }
     }
 }
@@ -385,6 +452,7 @@ private fun hvacModeLabel(mode: String): String = when (mode) {
 @Composable
 private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel) {
     val appColors = LocalHKIAppColors.current
+    val locale = LocalConfiguration.current.locales[0]
     val hvacAction = entity.attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
     val actionColor = hvacColor(hvacAction ?: entity.state)
     val currentTemp = entity.attributes?.get("current_temperature")?.jsonPrimitive?.doubleOrNull
@@ -433,7 +501,7 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel) {
                 if (currentTemp != null) {
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
-                            "%.1f°".format(Locale.getDefault(), currentTemp),
+                            "%.1f°".format(locale, currentTemp),
                             style = MaterialTheme.typography.headlineSmall,
                             color = appColors.onSurface, fontWeight = FontWeight.Bold
                         )
@@ -460,7 +528,7 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel) {
                     ) {
                         Row(verticalAlignment = Alignment.Top) {
                             Text(
-                                "%.1f".format(Locale.getDefault(), localTarget),
+                                "%.1f".format(locale, localTarget),
                                 style = MaterialTheme.typography.displaySmall,
                                 color = actionColor, fontWeight = FontWeight.Bold
                             )
@@ -627,14 +695,34 @@ private fun ClimateChipGroup(
 
 @Composable
 private fun ClimateDeviceListPage(
-    isPurifiers: Boolean,
+    deviceType: String,
     devices: List<HAEntity>,
     viewModel: MainViewModel,
     isEditMode: Boolean,
     onRemove: (String) -> Unit,
+    onReorder: (Int, Int) -> Unit,
     padding: PaddingValues
 ) {
     val appColors = LocalHKIAppColors.current
+    if (isEditMode && devices.isNotEmpty()) {
+        ReorderableGrid(
+            items = devices,
+            canReorder = true,
+            onReorder = onReorder,
+            key = { it.entity_id },
+            columns = GridCells.Fixed(1),
+            axis = ReorderAxis.Vertical,
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(start = 16.dp, top = 10.dp, end = 16.dp, bottom = 96.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) { entity, _ ->
+            Box {
+                if (deviceType == "humidifiers") HumidifierCard(entity, viewModel) else FanCard(entity, viewModel)
+                EditRemoveBadge(onClick = { onRemove(entity.entity_id) }, modifier = Modifier.align(Alignment.TopEnd))
+            }
+        }
+        return
+    }
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(padding),
         contentPadding = PaddingValues(top = 10.dp, bottom = 96.dp)
@@ -646,10 +734,11 @@ private fun ClimateDeviceListPage(
                     shape = RoundedCornerShape(20.dp), color = appColors.elevated
                 ) {
                     Text(
-                        if (isPurifiers)
-                            "No air purifiers configured. Add fan entities under Climate Settings → Climate Entities → Air purifiers."
-                        else
-                            "No humidifiers found. Humidifier entities from Home Assistant appear here automatically; extras can be added in Climate Settings.",
+                        when (deviceType) {
+                            "fans" -> "No fans found. Fan entities from Home Assistant appear here automatically."
+                            "purifiers" -> "No air purifiers configured. Add fan entities under Climate Settings → Climate Entities → Air purifiers."
+                            else -> "No humidifiers found. Humidifier entities from Home Assistant appear here automatically; extras can be added in Climate Settings."
+                        },
                         style = MaterialTheme.typography.bodySmall, color = appColors.onMuted,
                         modifier = Modifier.padding(16.dp)
                     )
@@ -659,7 +748,7 @@ private fun ClimateDeviceListPage(
             items(count = devices.size, key = { devices[it].entity_id }) { idx ->
                 val entity = devices[idx]
                 Box(Modifier.padding(horizontal = 16.dp, vertical = 5.dp)) {
-                    if (isPurifiers) PurifierCard(entity, viewModel) else HumidifierCard(entity, viewModel)
+                    if (deviceType == "humidifiers") HumidifierCard(entity, viewModel) else FanCard(entity, viewModel)
                     if (isEditMode) {
                         EditRemoveBadge(
                             onClick = { onRemove(entity.entity_id) },
@@ -673,7 +762,7 @@ private fun ClimateDeviceListPage(
 }
 
 @Composable
-private fun PurifierCard(entity: HAEntity, viewModel: MainViewModel) {
+private fun FanCard(entity: HAEntity, viewModel: MainViewModel) {
     val appColors = LocalHKIAppColors.current
     val isOn = entity.state == "on"
     val color = if (isOn) AirGreen else appColors.onMuted
@@ -833,6 +922,7 @@ private fun ClimateSensorDetailPage(
     viewModel: MainViewModel,
     isEditMode: Boolean,
     onRemove: (String) -> Unit,
+    onReorder: (Int, Int) -> Unit,
     padding: PaddingValues
 ) {
     val appColors = LocalHKIAppColors.current
@@ -845,6 +935,37 @@ private fun ClimateSensorDetailPage(
 
     val values = sensors.mapNotNull { it.numericState() }
     val unit = sensors.firstOrNull()?.unit() ?: ""
+
+    if (isEditMode && sensors.isNotEmpty()) {
+        ReorderableGrid(
+            items = sensors,
+            canReorder = true,
+            onReorder = onReorder,
+            key = { it.entity_id },
+            columns = GridCells.Fixed(1),
+            axis = ReorderAxis.Vertical,
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(start = 16.dp, top = 10.dp, end = 16.dp, bottom = 96.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) { sensor, _ ->
+            Box {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp), color = appColors.elevated
+                ) {
+                    EntitySensorGraphCard(
+                        sensorEntity = sensor,
+                        viewModel = viewModel,
+                        selectedHours = selectedHours,
+                        lineColor = group.color,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+                EditRemoveBadge(onClick = { onRemove(sensor.entity_id) }, modifier = Modifier.align(Alignment.TopEnd))
+            }
+        }
+        return
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(padding),

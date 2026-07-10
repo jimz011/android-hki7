@@ -89,7 +89,6 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
     val areas by viewModel.areas.collectAsState()
     val floors by viewModel.floors.collectAsState()
     val configs by viewModel.areaConfigsMapping.collectAsState()
-    val allEntities by viewModel.entities.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
     val currentUrl by viewModel.currentUrl.collectAsState()
     val dashboardMode by viewModel.dashboardMode.collectAsState()
@@ -148,7 +147,7 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                                 floor = section.floor,
                                 areas = section.areas,
                                 configs = configs,
-                                allEntities = allEntities,
+                                viewModel = viewModel,
                                 baseUrl = currentUrl,
                                 isEditMode = isEditMode,
                                 dashboardMode = dashboardMode,
@@ -301,7 +300,7 @@ private fun FloorSection(
     floor: HAFloor?,
     areas: List<HAArea>,
     configs: Map<String, HKIAreaConfig>,
-    allEntities: List<HAEntity>,
+    viewModel: MainViewModel,
     baseUrl: String,
     isEditMode: Boolean,
     dashboardMode: String,
@@ -373,7 +372,7 @@ private fun FloorSection(
                 AreaCard(
                     area = area,
                     config = configs[area.area_id] ?: HKIAreaConfig(),
-                    allEntities = allEntities,
+                    viewModel = viewModel,
                     baseUrl = baseUrl,
                     isEditMode = isEditMode,
                     canDelete = dashboardMode != "auto",
@@ -394,7 +393,7 @@ private fun FloorSection(
 fun AreaCard(
     area: HAArea,
     config: HKIAreaConfig,
-    allEntities: List<HAEntity> = emptyList(),
+    viewModel: MainViewModel,
     baseUrl: String,
     isEditMode: Boolean,
     canDelete: Boolean,
@@ -441,8 +440,10 @@ fun AreaCard(
                 }
             }
 
-            val mediaPlayerEntity = config.mediaPlayerEntityId
-                ?.let { id -> allEntities.find { it.entity_id == id } }
+            val mediaEntityIds = remember(config.mediaPlayerEntityId) { listOfNotNull(config.mediaPlayerEntityId) }
+            val mediaEntityFlow = remember(viewModel, mediaEntityIds) { viewModel.entitiesFor(mediaEntityIds) }
+            val mediaEntities by mediaEntityFlow.collectAsState()
+            val mediaPlayerEntity = mediaEntities.firstOrNull()
             val mediaStatus = mediaPlayerStatus(mediaPlayerEntity)
             val mediaIcon = mediaPlayerStateIcon(mediaPlayerEntity)
             Box(

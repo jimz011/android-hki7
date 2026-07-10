@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HKIButtonConfig
 import com.example.hki7.data.HKIButtonStack
+import com.example.hki7.data.HKIBatteryCardWidget
 import com.example.hki7.data.HKICalendarWidget
 import com.example.hki7.data.HKIEmptyStack
 import com.example.hki7.data.HKIRoomWidget
@@ -29,6 +30,7 @@ import com.example.hki7.data.HKISwipingStack
 import com.example.hki7.data.HKISubtitleWidget
 import com.example.hki7.data.HKIWeatherWidget
 import com.example.hki7.ui.MainViewModel
+import com.example.hki7.ui.Screen
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.HKIPage
 import com.example.hki7.ui.components.HKICameraDialog
@@ -43,17 +45,19 @@ import com.example.hki7.ui.components.ReorderAxis
 import com.example.hki7.ui.components.PersonDetailDialog
 import com.example.hki7.ui.components.resolveEntityCameraUrl
 import com.example.hki7.ui.components.resolveCameraUrl
+import androidx.navigation.NavController
 import java.util.UUID
 
 private const val HOME_WIDGET_AREA = "__home__"
 
 @Composable
-fun HAHomeScreen(viewModel: MainViewModel) {
+fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
     var selectedPerson by remember { mutableStateOf<HAEntity?>(null) }
     val widgets by viewModel.areaWidgetsMapping.collectAsState()
-    val entities by viewModel.entities.collectAsState()
     val currentUrl by viewModel.currentUrl.collectAsState()
     val accessToken by viewModel.accessToken.collectAsState()
+    val entityRegistry by viewModel.entityRegistry.collectAsState()
+    val deviceRegistry by viewModel.deviceRegistry.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
     val homeWidgets = widgets[HOME_WIDGET_AREA].orEmpty()
     val widgetGridState = rememberLazyGridState()
@@ -78,8 +82,10 @@ fun HAHomeScreen(viewModel: MainViewModel) {
     var editingEnergyCard by remember { mutableStateOf<Pair<String?, HKIEnergyCardWidget>?>(null) }
     var editingEnergyStack by remember { mutableStateOf<Pair<String?, HKIEnergyStack>?>(null) }
     var editingCalendarWidget by remember { mutableStateOf<Pair<String?, HKICalendarWidget>?>(null) }
+    var editingBatteryWidget by remember { mutableStateOf<Pair<String?, HKIBatteryCardWidget>?>(null) }
     var pendingCalendarWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var selectedChildStackSettings by remember { mutableStateOf<Pair<String, HKIButtonStack>?>(null) }
+    var orderingStack by remember { mutableStateOf<Pair<String?, HKIButtonStack>?>(null) }
     var selectedChildButtonSettings by remember { mutableStateOf<Triple<String, HKIButtonStack, String>?>(null) }
     var editingChildEmptyStack by remember { mutableStateOf<Pair<String, HKIEmptyStack>?>(null) }
     var editingChildSubtitle by remember { mutableStateOf<Pair<String, HKISubtitleWidget>?>(null) }
@@ -99,6 +105,14 @@ fun HAHomeScreen(viewModel: MainViewModel) {
     var selectedHumidifierConfig by remember { mutableStateOf<HKIButtonConfig?>(null) }
     var selectedAlarmEntity by remember { mutableStateOf<HAEntity?>(null) }
     var selectedAlarmConfig by remember { mutableStateOf<HKIButtonConfig?>(null) }
+
+    val needsLiveEntityList = isEditMode || selectedPerson != null || selectedGenericEntity != null ||
+        selectedLightEntity != null || selectedCameraId != null || selectedStackEntities.isNotEmpty() ||
+        selectedFanEntity != null || selectedHumidifierEntity != null || selectedAlarmEntity != null
+    // Entity pickers and open dialogs need a live complete list. During normal dashboard rendering,
+    // shared widgets own entity-scoped subscriptions and this screen observes no global entity flow.
+    val entityListFlow = remember(viewModel, needsLiveEntityList) { viewModel.entityList(needsLiveEntityList) }
+    val entities by entityListFlow.collectAsState()
 
     fun newButtonStack(title: String?, icon: String?) = HKIButtonStack(id = UUID.randomUUID().toString(), title = title, icon = icon, columns = 3, isSquare = true)
     fun newCameraStack(title: String?, icon: String?) = HKIButtonStack(id = UUID.randomUUID().toString(), title = title, icon = icon, columns = 2, isSquare = true, stackType = "camera")
@@ -183,7 +197,6 @@ fun HAHomeScreen(viewModel: MainViewModel) {
         when (child) {
             is HKIButtonStack -> ButtonStackItem(
                 stack = styleOverride?.let { child.copy(isSquare = it.isSquare, cornerRadius = it.cornerRadius, width = "full") } ?: child,
-                allEntities = entities,
                 viewModel = viewModel,
                 currentUrl = currentUrl,
                 accessToken = accessToken,
@@ -212,6 +225,7 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                 onDeleteClick = { deleteChildFromSwipingStack(parent.id, child.id) },
                 onHideClick = { updateChildInSwipingStack(parent.id, child.copy(isHidden = !child.isHidden)) },
                 onAddClick = { addingToNestedStack = parent.id to child.id },
+                onManageOrder = { orderingStack = parent.id to child },
                 onButtonSettings = { entityId -> selectedChildButtonSettings = Triple(parent.id, child, entityId) },
                 onRemoveEntity = { entityId -> updateChildInSwipingStack(parent.id, child.copy(entityIds = child.entityIds - entityId)) },
                 onCameraClick = { entityId -> selectedCameraId = entityId; selectedCameraStack = child },
@@ -222,7 +236,6 @@ fun HAHomeScreen(viewModel: MainViewModel) {
             is HKISubtitleWidget -> SubtitleWidget(child.copy(width = "full"), isEditMode, onDelete = { deleteChildFromSwipingStack(parent.id, child.id) }, onSettings = { editingChildSubtitle = parent.id to child })
             is HKIWeatherWidget -> WeatherRoomWidget(
                 widget = styleOverride?.let { child.copy(width = "full", cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
-                allEntities = entities,
                 viewModel = viewModel,
                 isEditMode = isEditMode,
                 onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
@@ -230,15 +243,24 @@ fun HAHomeScreen(viewModel: MainViewModel) {
             )
             is HKICalendarWidget -> CalendarWidgetItem(
                 widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
-                allEntities = entities,
                 viewModel = viewModel,
                 isEditMode = isEditMode,
                 onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
                 onSettings = { editingCalendarWidget = parent.id to child }
             )
+            is HKIBatteryCardWidget -> BatteryCardWidgetItem(
+                widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                viewModel = viewModel,
+                registry = entityRegistry,
+                devices = deviceRegistry,
+                isEditMode = isEditMode,
+                onOpen = { navController.navigate(Screen.Battery.route) },
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingBatteryWidget = parent.id to child }
+            )
             is HKISingleEntityWidget -> SingleEntityWidgetItem(
                 widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
-                allEntities = entities,
+                viewModel = viewModel,
                 currentUrl = currentUrl,
                 accessToken = accessToken,
                 isEditMode = isEditMode,
@@ -331,7 +353,6 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                             when (val widget = homeWidgets[index]) {
                                 is HKIButtonStack -> ButtonStackItem(
                                 stack = widget,
-                                allEntities = entities,
                                 viewModel = viewModel,
                                 currentUrl = currentUrl,
                                 isEditMode = false,
@@ -374,7 +395,6 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                                 is HKISubtitleWidget -> SubtitleWidget(widget, false, onDelete = {}, onSettings = {})
                                 is HKIWeatherWidget -> WeatherRoomWidget(
                                     widget = widget,
-                                    allEntities = entities,
                                     viewModel = viewModel,
                                     isEditMode = false,
                                     onDelete = {},
@@ -382,7 +402,6 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                                 )
                                 is HKICalendarWidget -> CalendarWidgetItem(
                                     widget = widget,
-                                    allEntities = entities,
                                     viewModel = viewModel,
                                     isEditMode = false,
                                     onDelete = {},
@@ -390,7 +409,7 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                                 )
                                 is HKISingleEntityWidget -> SingleEntityWidgetItem(
                                     widget = widget,
-                                    allEntities = entities,
+                                    viewModel = viewModel,
                                     currentUrl = currentUrl,
                                     accessToken = accessToken,
                                     isEditMode = false,
@@ -432,6 +451,16 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                                     widget = widget, viewModel = viewModel, isEditMode = false,
                                     onDelete = {}, onSettings = {}
                                 )
+                                is HKIBatteryCardWidget -> BatteryCardWidgetItem(
+                                    widget = widget,
+                                    viewModel = viewModel,
+                                    registry = entityRegistry,
+                                    devices = deviceRegistry,
+                                    isEditMode = false,
+                                    onOpen = { navController.navigate(Screen.Battery.route) },
+                                    onDelete = {},
+                                    onSettings = {}
+                                )
                                 is HKIEnergyStack -> EnergyStackWidgetItem(
                                     stack = widget, viewModel = viewModel, isEditMode = false,
                                     onToggleCollapsed = { viewModel.updateWidget(HOME_WIDGET_AREA, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
@@ -458,7 +487,6 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                         when (widget) {
                             is HKIButtonStack -> ButtonStackItem(
                             stack = widget,
-                            allEntities = entities,
                             viewModel = viewModel,
                             currentUrl = currentUrl,
                             isEditMode = isEditMode,
@@ -492,6 +520,7 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                             onDeleteClick = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
                             onHideClick = { viewModel.updateWidget(HOME_WIDGET_AREA, widget.copy(isHidden = !widget.isHidden)) },
                             onAddClick = { addingToStackId = widget.id },
+                            onManageOrder = { orderingStack = null to widget },
                             onButtonSettings = { entityId -> selectedButtonSettings = widget to entityId },
                             onRemoveEntity = { entityId -> viewModel.updateWidget(HOME_WIDGET_AREA, widget.copy(entityIds = widget.entityIds - entityId)) },
                             onCameraClick = { entityId ->
@@ -510,7 +539,6 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                             )
                             is HKIWeatherWidget -> WeatherRoomWidget(
                                 widget = widget,
-                                allEntities = entities,
                                 viewModel = viewModel,
                                 isEditMode = isEditMode,
                                 onDelete = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
@@ -518,7 +546,6 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                             )
                             is HKICalendarWidget -> CalendarWidgetItem(
                                 widget = widget,
-                                allEntities = entities,
                                 viewModel = viewModel,
                                 isEditMode = isEditMode,
                                 onDelete = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
@@ -526,7 +553,7 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                             )
                             is HKISingleEntityWidget -> SingleEntityWidgetItem(
                                 widget = widget,
-                                allEntities = entities,
+                                viewModel = viewModel,
                                 currentUrl = currentUrl,
                                 accessToken = accessToken,
                                 isEditMode = isEditMode,
@@ -568,6 +595,16 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                                 widget = widget, viewModel = viewModel, isEditMode = isEditMode,
                                 onDelete = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
                                 onSettings = { editingEnergyCard = null to widget }
+                            )
+                            is HKIBatteryCardWidget -> BatteryCardWidgetItem(
+                                widget = widget,
+                                viewModel = viewModel,
+                                registry = entityRegistry,
+                                devices = deviceRegistry,
+                                isEditMode = isEditMode,
+                                onOpen = { navController.navigate(Screen.Battery.route) },
+                                onDelete = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
+                                onSettings = { editingBatteryWidget = null to widget }
                             )
                             is HKIEnergyStack -> EnergyStackWidgetItem(
                                 stack = widget, viewModel = viewModel, isEditMode = isEditMode,
@@ -639,6 +676,10 @@ fun HAHomeScreen(viewModel: MainViewModel) {
             onAddCalendarWidget = { pendingCalendarWidgetContainerId = "__top__"; showAddWidget = false },
             onAddEnergyCard = { keys -> keys.forEach { viewModel.addWidgetToArea(HOME_WIDGET_AREA, HKIEnergyCardWidget(id = UUID.randomUUID().toString(), cardKey = it)) } },
             onAddEnergyStack = { keys -> viewModel.addWidgetToArea(HOME_WIDGET_AREA, HKIEnergyStack(id = UUID.randomUUID().toString(), cardKeys = keys)) },
+            onAddBatteryCard = { useNotes ->
+                viewModel.addWidgetToArea(HOME_WIDGET_AREA, HKIBatteryCardWidget(id = UUID.randomUUID().toString(), useBatteryNotes = useNotes))
+                showAddWidget = false
+            },
             allEntities = entities
         )
     }
@@ -659,6 +700,10 @@ fun HAHomeScreen(viewModel: MainViewModel) {
             onAddCalendarWidget = { pendingCalendarWidgetContainerId = stackId; addingToSwipingStackId = null },
             onAddEnergyCard = { keys -> keys.forEach { addChildToSwipingStack(stackId, HKIEnergyCardWidget(id = UUID.randomUUID().toString(), cardKey = it)) } },
             onAddEnergyStack = { keys -> addChildToSwipingStack(stackId, HKIEnergyStack(id = UUID.randomUUID().toString(), cardKeys = keys)) },
+            onAddBatteryCard = { useNotes ->
+                addChildToSwipingStack(stackId, HKIBatteryCardWidget(id = UUID.randomUUID().toString(), useBatteryNotes = useNotes))
+                addingToSwipingStackId = null
+            },
             allEntities = entities
         )
     }
@@ -1000,6 +1045,23 @@ fun HAHomeScreen(viewModel: MainViewModel) {
         )
     }
 
+    orderingStack?.let { (containerId, stack) ->
+        StackOrderDialog(
+            stack = stack,
+            allEntities = entities,
+            onDismiss = { orderingStack = null },
+            onSave = { orderedIds ->
+                if (containerId == null) {
+                    val latest = homeWidgets.filterIsInstance<HKIButtonStack>().find { it.id == stack.id } ?: stack
+                    viewModel.updateWidget(HOME_WIDGET_AREA, latest.copy(entityIds = orderedIds))
+                } else {
+                    updateChildInSwipingStack(containerId, stack.copy(entityIds = orderedIds))
+                }
+                orderingStack = null
+            }
+        )
+    }
+
     editingChildEmptyStack?.let { (containerId, stack) ->
         EmptyStackSettingsDialog(
             stack = stack,
@@ -1065,7 +1127,7 @@ fun HAHomeScreen(viewModel: MainViewModel) {
             isVacuumItem = widget.kind == "vacuum" || widget.entityId.startsWith("vacuum."),
             allEntities = entities,
             onDismiss = { selectedSingleWidgetSettings = null },
-            widgetAppearance = com.example.hki7.ui.screens.WidgetAppearance(widget.isSquare, widget.cornerRadius, widget.width),
+            widgetAppearance = WidgetAppearance(widget.isSquare, widget.cornerRadius, widget.width),
             onSaveWithAppearance = { config, a ->
                 if (containerId == null) {
                     val latest = homeWidgets.filterIsInstance<HKISingleEntityWidget>().find { it.id == widget.id } ?: widget
@@ -1216,6 +1278,17 @@ fun HAHomeScreen(viewModel: MainViewModel) {
                 if (containerId == null) viewModel.updateWidget(HOME_WIDGET_AREA, updated)
                 else updateChildInSwipingStack(containerId, updated)
                 editingCalendarWidget = null
+            }
+        )
+    }
+    editingBatteryWidget?.let { (containerId, widget) ->
+        BatteryCardWidgetSettingsDialog(
+            widget = widget,
+            onDismiss = { editingBatteryWidget = null },
+            onSave = { updated ->
+                if (containerId == null) viewModel.updateWidget(HOME_WIDGET_AREA, updated)
+                else updateChildInSwipingStack(containerId, updated)
+                editingBatteryWidget = null
             }
         )
     }

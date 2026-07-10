@@ -296,10 +296,12 @@ private fun AlarmModeList(
     onActionClick: (Pair<String, String>) -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
+    val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState()),
+            .fadingEdges(scrollState)
+            .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text("Modes", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
