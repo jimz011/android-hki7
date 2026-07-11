@@ -64,8 +64,9 @@ fun WeatherRoomWidget(
 ) {
     val appColors = LocalHKIAppColors.current
     val defaultWeatherEntity by viewModel.weather.collectAsState()
-    val specificFlow = remember(viewModel, widget.entityId) {
-        viewModel.entitiesFor(listOfNotNull(widget.entityId))
+    val specificFlow = remember(viewModel, widget.entityId, isEditMode) {
+        val ids = listOfNotNull(widget.entityId)
+        if (isEditMode) viewModel.entitySnapshotFor(ids) else viewModel.entitiesFor(ids)
     }
     val specificEntities by specificFlow.collectAsState()
     val weatherEntity = widget.entityId?.let { specificEntities.firstOrNull() } ?: defaultWeatherEntity

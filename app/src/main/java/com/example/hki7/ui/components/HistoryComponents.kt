@@ -166,7 +166,8 @@ fun EntitySensorGraphCard(
     viewModel: MainViewModel,
     selectedHours: Int,
     lineColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    titleOverride: String? = null
 ) {
     val appColors = LocalHKIAppColors.current
     val historyMapping by viewModel.historyMapping.collectAsState()
@@ -190,7 +191,7 @@ fun EntitySensorGraphCard(
             Box(Modifier.size(10.dp).background(lineColor, CircleShape))
             Spacer(Modifier.width(8.dp))
             Text(
-                sensorEntity.friendlyName ?: sensorEntity.entity_id,
+                titleOverride ?: sensorEntity.friendlyName ?: sensorEntity.entity_id,
                 color = appColors.onSurface,
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.SemiBold,

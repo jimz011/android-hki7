@@ -8,6 +8,8 @@ import android.content.Context
 import com.example.hki7.data.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -115,6 +117,14 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val byId = _entitiesById.value
         return entityIds.distinct().mapNotNull(byId::get)
     }
+
+    /** A non-updating dependency snapshot for edit-mode previews. Recreated when edit mode opens,
+     * while the underlying socket remains connected and current for the eventual return to runtime. */
+    fun entitySnapshotFor(entityIds: Collection<String>): StateFlow<List<HAEntity>> =
+        MutableStateFlow(entitiesForNow(entityIds))
+
+    fun entitySnapshotMatching(predicate: (HAEntity) -> Boolean): StateFlow<List<HAEntity>> =
+        MutableStateFlow(_entitiesById.value.values.filter(predicate))
 
     private fun publishEntities(value: List<HAEntity>) {
         val previousById = _entitiesById.value
@@ -694,6 +704,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private fun startRealtimeSync() {
         realtimeJob?.cancel()
         realtimeJob = viewModelScope.launch(Dispatchers.Default) {
+            var hasAttemptedSubscription = false
             while (currentCoroutineContext().isActive) {
                 val currentClient = client
                 if (currentClient == null) {
@@ -701,8 +712,13 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     continue
                 }
                 try {
-                    // Catch up on anything missed while disconnected, then stream live changes.
-                    refreshEntities(isSilent = true, includeDashboardRefresh = false)
+                    // The polling job owns the initial/foreground seed. Only re-seed here after an
+                    // actual socket interruption; otherwise startup downloads and parses all states twice.
+                    if (hasAttemptedSubscription) {
+                        refreshEntities(isSilent = true, includeDashboardRefresh = false)
+                        refreshJob?.join()
+                    }
+                    hasAttemptedSubscription = true
                     // Event-driven flush: idle until a change arrives (no 8x/sec wakeups), then debounce
                     // ~120ms to coalesce a burst into a single UI update. CONFLATED so a flurry of
                     // events collapses to one pending signal.
@@ -821,11 +837,19 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                         ?: runCatching { withTimeout(10.seconds) { currentClient.getWeatherForecast(weather.entity_id) } }.getOrDefault(emptyList())
                 }.orEmpty()
                 if (includeDashboardRefresh && _dashboardMode.value == "auto") {
-                    val allAreas = withTimeout(10.seconds) { currentClient.getAreas() }
-                    val allFloors = withTimeout(10.seconds) { currentClient.getFloors() }
-                    val entityRegistry = withTimeout(10.seconds) { currentClient.getEntityRegistry() }
-                    val deviceRegistry = withTimeout(10.seconds) { currentClient.getDeviceRegistry() }
+                    val (allAreas, allFloors, entityRegistry, deviceRegistry) = coroutineScope {
+                        val areas = async { withTimeout(10.seconds) { currentClient.getAreas() } }
+                        val floors = async { withTimeout(10.seconds) { currentClient.getFloors() } }
+                        val entitiesRegistry = async { withTimeout(10.seconds) { currentClient.getEntityRegistry() } }
+                        val devicesRegistry = async { withTimeout(10.seconds) { currentClient.getDeviceRegistry() } }
+                        DashboardRegistrySnapshot(
+                            areas.await(), floors.await(), entitiesRegistry.await(), devicesRegistry.await()
+                        )
+                    }
                     val savedOrder = prefs.areaOrder.first()
+                    _entityRegistry.value = entityRegistry
+                    _deviceRegistry.value = deviceRegistry
+                    registriesLoaded = true
                     _areas.value = if (savedOrder.isNotEmpty()) {
                         allAreas.sortedBy { a -> savedOrder.indexOf(a.area_id).let { if (it == -1) Int.MAX_VALUE else it } }
                     } else allAreas
@@ -865,6 +889,13 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             }
         }
     }
+
+    private data class DashboardRegistrySnapshot(
+        val areas: List<HAArea>,
+        val floors: List<HAFloor>,
+        val entities: List<HAEntityRegistryEntry>,
+        val devices: List<HADeviceRegistryEntry>
+    )
 
     private suspend fun rebuildClientFromPrefs(): HomeAssistantClient? {
         val url = resolveBaseUrl(
@@ -1168,6 +1199,24 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             current.copy(
                 climateConfig = climateConfig.copy(
                     hiddenEntityIds = (climateConfig.hiddenEntityIds + entityId).distinct()
+                )
+            )
+        )
+    }
+
+    fun updateSecurityConfig(pageKey: String, config: com.example.hki7.data.HKISecurityConfig) {
+        val current = _pageConfigsMapping.value[pageKey] ?: com.example.hki7.data.HKIPageConfig()
+        updatePageConfig(pageKey, current.copy(securityConfig = config))
+    }
+
+    fun hideSecurityEntity(pageKey: String, entityId: String) {
+        val current = _pageConfigsMapping.value[pageKey] ?: com.example.hki7.data.HKIPageConfig()
+        val securityConfig = current.securityConfig ?: com.example.hki7.data.HKISecurityConfig()
+        updatePageConfig(
+            pageKey,
+            current.copy(
+                securityConfig = securityConfig.copy(
+                    hiddenEntityIds = (securityConfig.hiddenEntityIds + entityId).distinct()
                 )
             )
         )
@@ -1899,9 +1948,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     ?: entity.attributes?.get("area_id")?.jsonPrimitive?.contentOrNull
             )
         }
+        val entitiesByArea = entities.groupBy { areaByEntity[it.entity_id] }
 
         areas.forEach { area ->
-            val areaEntities = entities.filter { entity -> areaByEntity[entity.entity_id] == area.area_id }
+            val areaEntities = entitiesByArea[area.area_id].orEmpty()
             val lockIds = areaEntities.filter { it.entity_id.startsWith("lock.") }.map { it.entity_id }
             val climateIds = areaEntities.filter { it.entity_id.startsWith("climate.") }.map { it.entity_id }
             val cameraIds = areaEntities.filter { it.entity_id.startsWith("camera.") }.map { it.entity_id }

@@ -87,6 +87,9 @@ fun HKIDialog(
     currentTab: String? = null,
     content: @Composable ColumnScope.(Boolean) -> Unit
 ) {
+    val editMode by viewModel.isEditMode.collectAsState()
+    LaunchedEffect(editMode) { if (editMode) onDismiss() }
+    if (editMode) return
     val appColors = LocalHKIAppColors.current
     val dialogNavigationBarColor = MaterialTheme.colorScheme.primary.copy(alpha = 230 / 255f).toArgb()
     var showHistory by remember { mutableStateOf(false) }

@@ -106,13 +106,21 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
     var selectedAlarmEntity by remember { mutableStateOf<HAEntity?>(null) }
     var selectedAlarmConfig by remember { mutableStateOf<HKIButtonConfig?>(null) }
 
-    val needsLiveEntityList = isEditMode || selectedPerson != null || selectedGenericEntity != null ||
-        selectedLightEntity != null || selectedCameraId != null || selectedStackEntities.isNotEmpty() ||
-        selectedFanEntity != null || selectedHumidifierEntity != null || selectedAlarmEntity != null
-    // Entity pickers and open dialogs need a live complete list. During normal dashboard rendering,
-    // shared widgets own entity-scoped subscriptions and this screen observes no global entity flow.
-    val entityListFlow = remember(viewModel, needsLiveEntityList) { viewModel.entityList(needsLiveEntityList) }
-    val entities by entityListFlow.collectAsState()
+    // Home has its own stack editor (separate from RoomDetailScreen). Its old conditional snapshot
+    // was created before HA finished loading and was never replaced when a picker opened.
+    val liveEntities by viewModel.entities.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.fetchRegistries()
+        if (viewModel.entities.value.isEmpty()) viewModel.refreshEntities(isSilent = true, includeDashboardRefresh = false)
+    }
+    val entities = remember(liveEntities, entityRegistry) {
+        val liveById = liveEntities.associateBy { it.entity_id }
+        (liveEntities + entityRegistry.asSequence()
+            .filterNot { it.entity_id in liveById }
+            .map { HAEntity(entity_id = it.entity_id, state = "unavailable") }
+            .toList())
+            .distinctBy { it.entity_id }
+    }
 
     fun newButtonStack(title: String?, icon: String?) = HKIButtonStack(id = UUID.randomUUID().toString(), title = title, icon = icon, columns = 3, isSquare = true)
     fun newCameraStack(title: String?, icon: String?) = HKIButtonStack(id = UUID.randomUUID().toString(), title = title, icon = icon, columns = 2, isSquare = true, stackType = "camera")
@@ -724,10 +732,12 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
             singleSelect = true,
             preselectedIds = emptySet(),
             onDismiss = {
-                val containerId = pendingSingleWidgetContainerId
-                pendingSingleWidgetKind = null
-                pendingSingleWidgetContainerId = null
-                if (containerId == null) showAddWidget = true else addingToSwipingStackId = containerId
+                if (pendingSingleWidgetKind != null) {
+                    val containerId = pendingSingleWidgetContainerId
+                    pendingSingleWidgetKind = null
+                    pendingSingleWidgetContainerId = null
+                    if (containerId == null) showAddWidget = true else addingToSwipingStackId = containerId
+                }
             },
             onEntitiesSelected = { entityIds ->
                 val entityId = entityIds.firstOrNull()
@@ -813,8 +823,9 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
     }
 
     addingToNestedStack?.let { (swipingStackId, childStackId) ->
-        val parent = homeWidgets.filterIsInstance<HKISwipingStack>().find { it.id == swipingStackId }
-        val targetStack = parent?.widgets?.filterIsInstance<HKIButtonStack>()?.find { it.id == childStackId }
+        val parentWidgets = homeWidgets.filterIsInstance<HKISwipingStack>().find { it.id == swipingStackId }?.widgets
+            ?: homeWidgets.filterIsInstance<HKIEmptyStack>().find { it.id == swipingStackId }?.widgets
+        val targetStack = parentWidgets?.filterIsInstance<HKIButtonStack>()?.find { it.id == childStackId }
         when (targetStack?.stackType) {
             "weather" -> WeatherItemDialog(
                 initial = null,
@@ -1349,6 +1360,8 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
             liveWebUrl = liveWebUrl,
             authToken = accessToken,
             statusText = "Live",
+            entity = entity,
+            viewModel = viewModel,
             onDismiss = {
                 selectedCameraId = null
                 selectedCameraStack = null

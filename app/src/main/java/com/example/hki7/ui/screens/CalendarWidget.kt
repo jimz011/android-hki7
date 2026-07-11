@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -73,6 +75,7 @@ import com.example.hki7.data.HKICalendarWidget
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.EditRemoveBadge
+import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.theme.LocalHKIAppColors
@@ -136,6 +139,7 @@ fun CalendarWidgetItem(
             CalendarWidgetCard(
                 widget = widget,
                 viewModel = viewModel,
+                freezeUpdates = isEditMode,
                 interactionsEnabled = !isEditMode && !compact
             )
         }
@@ -201,16 +205,18 @@ fun CalendarWidgetItem(
 private fun CalendarWidgetCard(
     widget: HKICalendarWidget,
     viewModel: MainViewModel,
+    freezeUpdates: Boolean = false,
     interactionsEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
     val appColors = LocalHKIAppColors.current
     val zone = ZoneId.systemDefault()
-    val calendarEntityFlow = remember(viewModel, widget.entityIds) {
+    val calendarEntityFlow = remember(viewModel, widget.entityIds, freezeUpdates) {
         if (widget.entityIds.isEmpty()) {
-            viewModel.entitiesMatching("domain:calendar") { it.entity_id.startsWith("calendar.") }
+            if (freezeUpdates) viewModel.entitySnapshotMatching { it.entity_id.startsWith("calendar.") }
+            else viewModel.entitiesMatching("domain:calendar") { it.entity_id.startsWith("calendar.") }
         } else {
-            viewModel.entitiesFor(widget.entityIds)
+            if (freezeUpdates) viewModel.entitySnapshotFor(widget.entityIds) else viewModel.entitiesFor(widget.entityIds)
         }
     }
     val calendarEntities by calendarEntityFlow.collectAsState()
@@ -772,8 +778,12 @@ private fun AgendaCalendarView(
         CalendarEmptyState("No events in the next days")
         return
     }
+    val listState = rememberLazyListState()
     LazyColumn(
-        modifier = Modifier.heightIn(max = 330.dp),
+        modifier = Modifier
+            .heightIn(max = 330.dp)
+            .fadingEdges(listState),
+        state = listState,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         visibleEvents.groupBy { it.startDate(zone) ?: startDate }.forEach { (date, dayEvents) ->
@@ -1027,11 +1037,18 @@ fun CalendarWidgetSettingsDialog(
         )
     }
 
+    val settingsScroll = rememberScrollState()
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Calendar Widget") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(
+                modifier = Modifier
+                    .heightIn(max = 520.dp)
+                    .fadingEdges(settingsScroll)
+                    .verticalScroll(settingsScroll),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },

@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.example.hki7.data.HAEntity
+import com.example.hki7.data.HAServiceCall
 import com.example.hki7.data.HKIButtonConfig
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.*
@@ -402,7 +403,10 @@ private fun UniversalClimateContent(entity: HAEntity, viewModel: MainViewModel, 
 @Composable
 private fun UniversalVacuumContent(entity: HAEntity, config: HKIButtonConfig?, allEntities: List<HAEntity>, currentUrl: String, viewModel: MainViewModel) {
     val appColors = LocalHKIAppColors.current
-    val mapCameraEntity = config?.vacuumMapEntityId?.let { id -> allEntities.find { it.entity_id == id } }
+    val entityRegistry by viewModel.entityRegistry.collectAsState()
+    LaunchedEffect(Unit) { viewModel.fetchRegistries() }
+    val resolved = remember(config, allEntities, entityRegistry) { resolveVacuumEntities(config, allEntities, entityRegistry) }
+    val mapCameraEntity = resolved.map
     var tick by remember { mutableIntStateOf(0) }
     val isCleaning = entity.state == "cleaning"
     LaunchedEffect(isCleaning) { while (true) { delay(if (isCleaning) 3000L else 10000L); tick++ } }
@@ -440,6 +444,38 @@ private fun UniversalVacuumContent(entity: HAEntity, config: HKIButtonConfig?, a
                     FilterChip(selected = speed == fanSpeed, onClick = { viewModel.vacuumSetFanSpeed(entity.entity_id, speed) }, label = { Text(speed.replaceFirstChar { it.uppercase() }, fontSize = 11.sp) })
                 }
             }
+        }
+        resolved.water?.let { water ->
+            val options = (water.attributes?.get("options") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
+            if (options.isNotEmpty()) LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                items(options) { option ->
+                    FilterChip(selected = water.state == option, onClick = {
+                        viewModel.callService(water.entity_id.substringBefore('.'), "select_option", HAServiceCall(water.entity_id, option = option))
+                    }, label = { Text(option.replaceFirstChar { it.uppercase() }, fontSize = 11.sp) })
+                }
+            }
+        }
+        val rooms = remember(entity) {
+            ((entity.attributes?.get("rooms") as? JsonObject)?.entries.orEmpty()).mapNotNull { (id, name) ->
+                id.toIntOrNull()?.let { it to (name.jsonPrimitive.contentOrNull ?: "Room $id") }
+            }
+        }
+        if (rooms.isNotEmpty()) {
+            val selected = remember(entity.entity_id) { mutableStateListOf<Int>() }
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                items(rooms) { (id, name) ->
+                    FilterChip(selected = id in selected, onClick = { if (id in selected) selected.remove(id) else selected.add(id) }, label = { Text(name, fontSize = 11.sp) })
+                }
+                if (selected.isNotEmpty()) item {
+                    Button(onClick = { viewModel.vacuumCleanSegments(entity.entity_id, selected.toList()); selected.clear() }) { Text("Clean rooms") }
+                }
+            }
+        }
+        resolved.emptyBin?.let { empty ->
+            TextButton(onClick = {
+                val domain = empty.entity_id.substringBefore('.')
+                viewModel.callService(domain, if (domain == "button") "press" else "turn_on", HAServiceCall(empty.entity_id))
+            }) { Text("Empty bin") }
         }
     }
 }

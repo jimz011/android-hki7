@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,6 +57,35 @@ fun EditRemoveBadge(onClick: () -> Unit, modifier: Modifier = Modifier) {
     ) {
         Icon(Icons.Default.Close, contentDescription = "Remove", tint = Color.White, modifier = Modifier.size(12.dp))
     }
+}
+
+/** Standard edit-mode cog placed on cards, matching the other configurable widgets. */
+@Composable
+fun EditSettingsButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    IconButton(onClick = onClick, modifier = modifier.size(28.dp).zIndex(2f)) {
+        Icon(Icons.Default.Settings, contentDescription = "Card settings", tint = LocalHKIAppColors.current.onSurface,
+            modifier = Modifier.size(18.dp))
+    }
+}
+
+@Composable
+fun RenameCardDialog(currentName: String, defaultName: String, onDismiss: () -> Unit, onSave: (String?) -> Unit) {
+    var value by androidx.compose.runtime.remember(currentName) { androidx.compose.runtime.mutableStateOf(currentName) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Card settings") },
+        text = {
+            OutlinedTextField(value = value, onValueChange = { value = it }, singleLine = true,
+                label = { Text("Name") }, placeholder = { Text(defaultName) })
+        },
+        confirmButton = { TextButton(onClick = { onSave(value.trim().takeIf { it.isNotEmpty() }) }) { Text("Save") } },
+        dismissButton = {
+            Row {
+                TextButton(onClick = { onSave(null) }) { Text("Reset") }
+                TextButton(onClick = onDismiss) { Text("Cancel") }
+            }
+        }
+    )
 }
 
 /**

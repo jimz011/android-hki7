@@ -28,9 +28,12 @@ import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HAServiceCall
 import com.example.hki7.data.HKIClimateConfig
 import com.example.hki7.data.HKIPageConfig
+import com.example.hki7.data.withDisplayName
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.EditRemoveBadge
+import com.example.hki7.ui.components.EditSettingsButton
+import com.example.hki7.ui.components.RenameCardDialog
 import com.example.hki7.ui.components.EntitySensorGraphCard
 import com.example.hki7.ui.components.HKIPage
 import com.example.hki7.ui.components.HistoryRangeChips
@@ -122,12 +125,27 @@ fun ClimateScreen(viewModel: MainViewModel) {
             domain == "climate" || domain == "humidifier" || domain == "fan" || domain == "sensor" || entity.entity_id in climateDependencyIds
         }
     }
-    val entities by climateEntityFlow.collectAsState()
+    val rawEntities by climateEntityFlow.collectAsState()
+    val entities = remember(rawEntities, climateConfig.customNames) {
+        rawEntities.map { it.withDisplayName(climateConfig.customNames[it.entity_id]) }
+    }
     val hidden = remember(climateConfig) { climateConfig.hiddenEntityIds.toSet() }
     val entityById = remember(entities) { entities.associateBy { it.entity_id } }
 
     fun hideEntity(id: String) {
         viewModel.hideClimateEntity(CLIMATE_PAGE_KEY, id)
+    }
+    var renameEntity by remember { mutableStateOf<HAEntity?>(null) }
+    renameEntity?.let { entity ->
+        RenameCardDialog(
+            currentName = climateConfig.customNames[entity.entity_id].orEmpty(),
+            defaultName = entity.friendlyName ?: entity.entity_id,
+            onDismiss = { renameEntity = null }
+        ) { name ->
+            val names = if (name == null) climateConfig.customNames - entity.entity_id else climateConfig.customNames + (entity.entity_id to name)
+            viewModel.updateClimateConfig(CLIMATE_PAGE_KEY, climateConfig.copy(customNames = names))
+            renameEntity = null
+        }
     }
     fun reorderClimateEntities(visible: List<HAEntity>, from: Int, to: Int) {
         val visibleIds = visible.map { it.entity_id }.toMutableList().apply { add(to, removeAt(from)) }
@@ -229,6 +247,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
                 viewModel = viewModel,
                 isEditMode = isEditMode,
                 onRemove = ::hideEntity,
+                onRename = { renameEntity = it },
                 onReorder = { from, to -> reorderClimateEntities(groupSensors[activeGroup.key].orEmpty(), from, to) },
                 padding = padding
             )
@@ -242,6 +261,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
                 viewModel = viewModel,
                 isEditMode = isEditMode,
                 onRemove = ::hideEntity,
+                onRename = { renameEntity = it },
                 onReorder = { from, to ->
                     val visible = when (page) {
                         "fans" -> fanEntities
@@ -344,6 +364,10 @@ fun ClimateScreen(viewModel: MainViewModel) {
                         Box(Modifier.padding(horizontal = 16.dp, vertical = 5.dp)) {
                             ClimateDeviceCard(entity, viewModel)
                             if (isEditMode) {
+                                EditSettingsButton(
+                                    onClick = { renameEntity = entity },
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
                                 EditRemoveBadge(
                                     onClick = { hideEntity(entity.entity_id) },
                                     modifier = Modifier.align(Alignment.TopEnd)
@@ -700,6 +724,7 @@ private fun ClimateDeviceListPage(
     viewModel: MainViewModel,
     isEditMode: Boolean,
     onRemove: (String) -> Unit,
+    onRename: (HAEntity) -> Unit,
     onReorder: (Int, Int) -> Unit,
     padding: PaddingValues
 ) {
@@ -718,6 +743,7 @@ private fun ClimateDeviceListPage(
         ) { entity, _ ->
             Box {
                 if (deviceType == "humidifiers") HumidifierCard(entity, viewModel) else FanCard(entity, viewModel)
+                EditSettingsButton(onClick = { onRename(entity) }, modifier = Modifier.align(Alignment.Center))
                 EditRemoveBadge(onClick = { onRemove(entity.entity_id) }, modifier = Modifier.align(Alignment.TopEnd))
             }
         }
@@ -750,6 +776,7 @@ private fun ClimateDeviceListPage(
                 Box(Modifier.padding(horizontal = 16.dp, vertical = 5.dp)) {
                     if (deviceType == "humidifiers") HumidifierCard(entity, viewModel) else FanCard(entity, viewModel)
                     if (isEditMode) {
+                        EditSettingsButton(onClick = { onRename(entity) }, modifier = Modifier.align(Alignment.Center))
                         EditRemoveBadge(
                             onClick = { onRemove(entity.entity_id) },
                             modifier = Modifier.align(Alignment.TopEnd)
@@ -922,6 +949,7 @@ private fun ClimateSensorDetailPage(
     viewModel: MainViewModel,
     isEditMode: Boolean,
     onRemove: (String) -> Unit,
+    onRename: (HAEntity) -> Unit,
     onReorder: (Int, Int) -> Unit,
     padding: PaddingValues
 ) {
@@ -961,6 +989,7 @@ private fun ClimateSensorDetailPage(
                         modifier = Modifier.padding(16.dp)
                     )
                 }
+                EditSettingsButton(onClick = { onRename(sensor) }, modifier = Modifier.align(Alignment.Center))
                 EditRemoveBadge(onClick = { onRemove(sensor.entity_id) }, modifier = Modifier.align(Alignment.TopEnd))
             }
         }
@@ -1044,6 +1073,7 @@ private fun ClimateSensorDetailPage(
                         )
                     }
                     if (isEditMode) {
+                        EditSettingsButton(onClick = { onRename(sensor) }, modifier = Modifier.align(Alignment.Center))
                         EditRemoveBadge(
                             onClick = { onRemove(sensor.entity_id) },
                             modifier = Modifier.align(Alignment.TopEnd)

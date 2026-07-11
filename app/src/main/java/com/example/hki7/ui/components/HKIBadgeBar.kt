@@ -123,13 +123,16 @@ fun HKIBadgeBar(
                 addAll(badge.doorEntityIds.values)
                 addAll(badge.vacuumMapEntityIds.values)
                 addAll(badge.vacuumBatteryEntityIds.values)
+                addAll(badge.vacuumWaterEntityIds.values)
+                addAll(badge.vacuumEmptyBinEntityIds.values)
             }
         }.toList()
     }
-    // Edit mode needs the complete list for entity pickers. Normal rendering observes only the
-    // entities represented by these badges and their secondary sensors.
+    // The always-visible badge bar only observes entities it renders. Entity pickers obtain their
+    // own full snapshot when opened, so edit mode does not need to invalidate every badge for every
+    // Home Assistant state change.
     val entityFlow = remember(viewModel, dependencyIds, isEditMode) {
-        if (isEditMode) viewModel.entitiesMatching { true } else viewModel.entitiesFor(dependencyIds)
+        if (isEditMode) viewModel.entitySnapshotFor(dependencyIds) else viewModel.entitiesFor(dependencyIds)
     }
     val allEntities by entityFlow.collectAsState()
 
@@ -142,6 +145,9 @@ fun HKIBadgeBar(
     var showEntityPicker by remember { mutableStateOf(false) }
     var editingBadge     by remember { mutableStateOf<HKIBadge?>(null) }
     var pendingAddSide   by remember { mutableStateOf("right") }
+    val needsEntityCatalog = showEntityPicker || editingBadge != null
+    val entityCatalogFlow = remember(viewModel, needsEntityCatalog) { viewModel.entityList(live = needsEntityCatalog) }
+    val entityCatalog by entityCatalogFlow.collectAsState()
 
     fun addBadge(side: String = "right") {
         pendingAddSide = side
@@ -342,7 +348,7 @@ fun HKIBadgeBar(
     // ── entity picker ─────────────────────────────────────────────────────────
     if (showEntityPicker) {
         AdvancedEntitySearchDialog(
-            allEntities = allEntities,
+            allEntities = entityCatalog,
             onDismiss = { showEntityPicker = false },
             onEntitiesSelected = { selectedIds ->
                 val defaultSide = if (alignment == "split") pendingAddSide else "right"
@@ -359,7 +365,8 @@ fun HKIBadgeBar(
     editingBadge?.let { badge ->
         BadgeSettingsDialog(
             badge = badge,
-            allEntities = allEntities,
+            allEntities = entityCatalog,
+            viewModel = viewModel,
             showSidePicker = alignment == "split",
             onDismiss = { editingBadge = null },
             onSave = { updated ->
@@ -455,8 +462,11 @@ fun HKIBadgeBar(
                     e.entity_id to HKIButtonConfig(
                         icon = badge?.customIcon,
                         spinIcon = badge?.spinIcon == true,
+                        vacuumDeviceId = badge?.vacuumDeviceIds?.get(e.entity_id),
                         vacuumMapEntityId = badge?.vacuumMapEntityIds?.get(e.entity_id),
-                        vacuumBatteryEntityId = badge?.vacuumBatteryEntityIds?.get(e.entity_id)
+                        vacuumBatteryEntityId = badge?.vacuumBatteryEntityIds?.get(e.entity_id),
+                        vacuumWaterEntityId = badge?.vacuumWaterEntityIds?.get(e.entity_id),
+                        vacuumEmptyBinEntityId = badge?.vacuumEmptyBinEntityIds?.get(e.entity_id)
                     )
                 }
                 VacuumStackDialog(
@@ -474,6 +484,8 @@ fun HKIBadgeBar(
                     liveWebUrl = streamUrl,
                     authToken = accessToken,
                     statusText = "Live",
+                    entity = de,
+                    viewModel = viewModel,
                     onDismiss = dismiss
                 )
             }
@@ -983,6 +995,7 @@ fun AddBadgePill(
 fun BadgeSettingsDialog(
     badge: HKIBadge,
     allEntities: List<HAEntity>,
+    viewModel: MainViewModel,
     showSidePicker: Boolean = false,
     onDismiss: () -> Unit,
     onSave: (HKIBadge) -> Unit,
@@ -1004,11 +1017,19 @@ fun BadgeSettingsDialog(
     var doorEntityIds by remember { mutableStateOf(badge.doorEntityIds) }
     var vacuumMapIds  by remember { mutableStateOf(badge.vacuumMapEntityIds) }
     var vacuumBattIds by remember { mutableStateOf(badge.vacuumBatteryEntityIds) }
+    var vacuumDeviceIds by remember { mutableStateOf(badge.vacuumDeviceIds) }
+    var vacuumWaterIds by remember { mutableStateOf(badge.vacuumWaterEntityIds) }
+    var vacuumEmptyIds by remember { mutableStateOf(badge.vacuumEmptyBinEntityIds) }
     var showEntityPicker by remember { mutableStateOf(false) }
     var showIconPickerBadge by remember { mutableStateOf(false) }
     var doorPickerForLock by remember { mutableStateOf<String?>(null) }
     var vacuumMapPickerFor by remember { mutableStateOf<String?>(null) }
     var vacuumBattPickerFor by remember { mutableStateOf<String?>(null) }
+    var vacuumDevicePickerFor by remember { mutableStateOf<String?>(null) }
+    var vacuumWaterPickerFor by remember { mutableStateOf<String?>(null) }
+    var vacuumEmptyPickerFor by remember { mutableStateOf<String?>(null) }
+    val devices by viewModel.deviceRegistry.collectAsState()
+    LaunchedEffect(Unit) { viewModel.fetchRegistries() }
 
     val lockIds   = editingEntityIds.filter { it.startsWith("lock.") }
     val vacuumIds = editingEntityIds.filter { it.startsWith("vacuum.") }
@@ -1074,8 +1095,21 @@ fun BadgeSettingsDialog(
                     vacuumIds.forEach { vId ->
                         Text(nameOf(vId), style = MaterialTheme.typography.bodySmall, color = appColors.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            val deviceName = vacuumDeviceIds[vId]?.let { id -> devices.find { it.id == id }?.let { it.name_by_user ?: it.name } ?: id }
+                            Text("Device: ${deviceName ?: "Auto / none"}", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            TextButton(onClick = { vacuumDevicePickerFor = vId }) { Text("Device") }
+                        }
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Text("Map: ${vacuumMapIds[vId]?.let { nameOf(it) } ?: "None"}", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
                             TextButton(onClick = { vacuumMapPickerFor = vId }) { Text("Map") }
+                        }
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Text("Water: ${vacuumWaterIds[vId]?.let { nameOf(it) } ?: "Auto"}", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            TextButton(onClick = { vacuumWaterPickerFor = vId }) { Text("Water") }
+                        }
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Text("Empty bin: ${vacuumEmptyIds[vId]?.let { nameOf(it) } ?: "Auto"}", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            TextButton(onClick = { vacuumEmptyPickerFor = vId }) { Text("Set") }
                         }
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Text("Battery: ${vacuumBattIds[vId]?.let { nameOf(it) } ?: "Built-in"}", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -1174,7 +1208,10 @@ fun BadgeSettingsDialog(
                     doorEntityId = null,
                     doorEntityIds = doorEntityIds.filterKeys { it in lockIds },
                     vacuumMapEntityIds = vacuumMapIds.filterKeys { it in vacuumIds },
-                    vacuumBatteryEntityIds = vacuumBattIds.filterKeys { it in vacuumIds }
+                    vacuumBatteryEntityIds = vacuumBattIds.filterKeys { it in vacuumIds },
+                    vacuumDeviceIds = vacuumDeviceIds.filterKeys { it in vacuumIds },
+                    vacuumWaterEntityIds = vacuumWaterIds.filterKeys { it in vacuumIds },
+                    vacuumEmptyBinEntityIds = vacuumEmptyIds.filterKeys { it in vacuumIds }
                 ))
             }) { Text("Save") }
         },
@@ -1242,6 +1279,27 @@ fun BadgeSettingsDialog(
                 vacuumBattIds = if (sel != null) vacuumBattIds + (vId to sel) else vacuumBattIds - vId
                 vacuumBattPickerFor = null
             }
+        )
+    }
+    vacuumDevicePickerFor?.let { vId ->
+        DevicePickerDialog(
+            devices = devices, currentId = vacuumDeviceIds[vId],
+            onDismiss = { vacuumDevicePickerFor = null },
+            onSelected = { id -> vacuumDeviceIds = if (id != null) vacuumDeviceIds + (vId to id) else vacuumDeviceIds - vId; vacuumDevicePickerFor = null }
+        )
+    }
+    vacuumWaterPickerFor?.let { vId ->
+        AdvancedEntitySearchDialog(
+            allEntities = allEntities.filter { it.entity_id.startsWith("select.") || it.entity_id.startsWith("input_select.") },
+            title = "Select Water Level", singleSelect = true, preselectedIds = setOfNotNull(vacuumWaterIds[vId]),
+            onDismiss = { vacuumWaterPickerFor = null }, onEntitiesSelected = { ids -> vacuumWaterIds = ids.firstOrNull()?.let { vacuumWaterIds + (vId to it) } ?: (vacuumWaterIds - vId); vacuumWaterPickerFor = null }
+        )
+    }
+    vacuumEmptyPickerFor?.let { vId ->
+        AdvancedEntitySearchDialog(
+            allEntities = allEntities.filter { it.entity_id.startsWith("button.") || it.entity_id.startsWith("switch.") },
+            title = "Select Empty Bin Control", singleSelect = true, preselectedIds = setOfNotNull(vacuumEmptyIds[vId]),
+            onDismiss = { vacuumEmptyPickerFor = null }, onEntitiesSelected = { ids -> vacuumEmptyIds = ids.firstOrNull()?.let { vacuumEmptyIds + (vId to it) } ?: (vacuumEmptyIds - vId); vacuumEmptyPickerFor = null }
         )
     }
 }

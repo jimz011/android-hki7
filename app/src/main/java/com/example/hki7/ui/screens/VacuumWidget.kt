@@ -257,8 +257,10 @@ fun VacuumStackDialog(
 
     val entity = entities.getOrElse(page) { entities.first() }
     val config = buttonConfigs[entity.entity_id]
-
-    val mapCameraEntity = config?.vacuumMapEntityId?.let { id -> allEntities.find { it.entity_id == id } }
+    val entityRegistry by viewModel.entityRegistry.collectAsState()
+    LaunchedEffect(Unit) { viewModel.fetchRegistries() }
+    val resolved = remember(config, allEntities, entityRegistry) { resolveVacuumEntities(config, allEntities, entityRegistry) }
+    val mapCameraEntity = resolved.map
     val isCleaning = entity.state == "cleaning"
 
     // Refresh map periodically
@@ -272,7 +274,8 @@ fun VacuumStackDialog(
     val rawMapUrl = mapCameraEntity?.let { resolveEntityCameraUrl(it, currentUrl, preferLive = false) }
     val mapUrl    = rawMapUrl?.let { buildCameraRefreshModel(it, 5, refreshTick) }
 
-    val batteryLevel = entity.attributes?.get("battery_level")?.jsonPrimitive?.intOrNull ?: 0
+    val batteryLevel = resolved.battery?.state?.toFloatOrNull()?.toInt()
+        ?: entity.attributes?.get("battery_level")?.jsonPrimitive?.intOrNull
     val fanSpeed     = entity.attributes?.get("fan_speed")?.jsonPrimitive?.contentOrNull ?: ""
     val fanSpeedList = (entity.attributes?.get("fan_speed_list") as? JsonArray)
         ?.mapNotNull { it.jsonPrimitive.contentOrNull } ?: emptyList()
@@ -355,7 +358,7 @@ fun VacuumStackDialog(
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     Icon(Icons.Default.BatteryFull, null, tint = appColors.onMuted, modifier = Modifier.size(16.dp))
-                    Text("$batteryLevel%", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+                    Text(batteryLevel?.let { "$it%" } ?: "--", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
                 }
             }
 
@@ -388,9 +391,35 @@ fun VacuumStackDialog(
                 }
             }
 
+            resolved.water?.let { water ->
+                val options = (water.attributes?.get("options") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
+                if (options.isNotEmpty()) {
+                    LazyRow(modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        items(options) { option ->
+                            FilterChip(
+                                selected = water.state == option,
+                                onClick = { viewModel.callService(water.entity_id.substringBefore('.'), "select_option", com.example.hki7.data.HAServiceCall(water.entity_id, option = option)) },
+                                label = { Text(option.replaceFirstChar { it.uppercase() }, fontSize = 11.sp) }
+                            )
+                        }
+                    }
+                }
+            }
+
             // Rooms
             if (rooms.isNotEmpty()) {
                 VacuumRoomsInDialog(rooms, entity, viewModel)
+            }
+
+            resolved.emptyBin?.let { empty ->
+                TextButton(onClick = {
+                    val domain = empty.entity_id.substringBefore('.')
+                    viewModel.callService(domain, if (domain == "button") "press" else "turn_on", com.example.hki7.data.HAServiceCall(empty.entity_id))
+                }) {
+                    Icon(Icons.Default.DeleteSweep, null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Empty bin")
+                }
             }
 
             // Page dots for multi-vacuum

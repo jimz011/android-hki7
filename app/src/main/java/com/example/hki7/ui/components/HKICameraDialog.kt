@@ -5,6 +5,7 @@ package com.example.hki7.ui.components
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.view.MotionEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -54,9 +55,13 @@ import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import com.example.hki7.ui.theme.LocalHKIAppColors
+import com.example.hki7.data.HAEntity
+import com.example.hki7.ui.MainViewModel
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.platform.LocalView
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
 
@@ -68,6 +73,8 @@ fun HKICameraDialog(
     liveWebUrl: String? = null,
     authToken: String? = null,
     statusText: String? = null,
+    entity: HAEntity? = null,
+    viewModel: MainViewModel? = null,
     onDismiss: () -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
@@ -87,6 +94,38 @@ fun HKICameraDialog(
     val resolvedModel = remember(imageUrl, refreshTick, refreshIntervalSeconds) {
         buildCameraRefreshModel(imageUrl, refreshIntervalSeconds, refreshTick)
     }
+    if (entity != null && viewModel != null) {
+        HKIDialog(
+            entity = entity,
+            viewModel = viewModel,
+            onDismiss = onDismiss,
+            icon = Icons.Default.CameraAlt,
+            titleOverride = title,
+            statusText = statusText ?: if (imageUrl.isNullOrBlank()) "No stream available" else "Live",
+            showHistoryButton = true
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize().padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f),
+                    shape = RoundedCornerShape(24.dp),
+                    color = Color.Black
+                ) {
+                    CameraViewer(
+                        imageUrl = resolvedModel,
+                        liveWebUrl = liveWebUrl,
+                        authToken = authToken,
+                        title = title,
+                        onWebViewChanged = { streamWebView = it }
+                    )
+                }
+            }
+        }
+        return
+    }
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
@@ -147,49 +186,7 @@ fun HKICameraDialog(
                                 shape = RoundedCornerShape(24.dp),
                                 color = Color.Black
                             ) {
-                                if (!liveWebUrl.isNullOrBlank()) {
-                                    AndroidView(
-                                        modifier = Modifier.fillMaxSize(),
-                                        factory = { context ->
-                                            WebView(context).apply {
-                                                settings.javaScriptEnabled = true
-                                                settings.domStorageEnabled = true
-                                                settings.cacheMode = WebSettings.LOAD_DEFAULT
-                                                settings.mediaPlaybackRequiresUserGesture = false
-                                                settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                                                @Suppress("DEPRECATION")
-                                                settings.setSupportZoom(true)
-                                                settings.builtInZoomControls = true
-                                                settings.displayZoomControls = false
-                                                webViewClient = WebViewClient()
-                                                val headers = if (!authToken.isNullOrBlank()) {
-                                                    mapOf("Authorization" to "Bearer $authToken")
-                                                } else {
-                                                    emptyMap()
-                                                }
-                                                loadUrl(liveWebUrl, headers)
-                                                streamWebView = this
-                                            }
-                                        },
-                                        update = { webView ->
-                                            if (webView.url != liveWebUrl) {
-                                                val headers = if (!authToken.isNullOrBlank()) {
-                                                    mapOf("Authorization" to "Bearer $authToken")
-                                                } else {
-                                                    emptyMap()
-                                                }
-                                                webView.loadUrl(liveWebUrl, headers)
-                                            }
-                                        },
-                                        // Stop decoding/streaming when the dialog is dismissed.
-                                        onRelease = { webView ->
-                                            streamWebView = null
-                                            webView.teardownStream()
-                                        }
-                                    )
-                                } else {
-                                    ZoomableCameraImage(imageUrl = resolvedModel, contentDescription = title)
-                                }
+                                CameraViewer(resolvedModel, liveWebUrl, authToken, title) { streamWebView = it }
                             }
                         }
                     }
@@ -200,7 +197,58 @@ fun HKICameraDialog(
 }
 
 @Composable
-private fun ZoomableCameraImage(imageUrl: String?, contentDescription: String) {
+private fun CameraViewer(
+    imageUrl: String?,
+    liveWebUrl: String?,
+    authToken: String?,
+    title: String,
+    onWebViewChanged: (WebView?) -> Unit
+) {
+    if (!liveWebUrl.isNullOrBlank()) {
+        AndroidView(
+            modifier = Modifier.fillMaxSize(),
+            factory = { context ->
+                WebView(context).apply {
+                    settings.javaScriptEnabled = true
+                    settings.domStorageEnabled = true
+                    settings.cacheMode = WebSettings.LOAD_DEFAULT
+                    settings.mediaPlaybackRequiresUserGesture = false
+                    settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                    settings.useWideViewPort = true
+                    settings.loadWithOverviewMode = true
+                    settings.setSupportZoom(true)
+                    settings.builtInZoomControls = true
+                    settings.displayZoomControls = false
+                    setBackgroundColor(android.graphics.Color.BLACK)
+                    setOnTouchListener { view, event ->
+                        when (event.actionMasked) {
+                            MotionEvent.ACTION_POINTER_DOWN -> view.parent?.requestDisallowInterceptTouchEvent(true)
+                            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> view.parent?.requestDisallowInterceptTouchEvent(false)
+                        }
+                        false
+                    }
+                    webViewClient = WebViewClient()
+                    loadUrl(liveWebUrl, cameraHeaders(authToken))
+                    onWebViewChanged(this)
+                }
+            },
+            update = { if (it.url != liveWebUrl) it.loadUrl(liveWebUrl, cameraHeaders(authToken)) },
+            onRelease = {
+                onWebViewChanged(null)
+                it.teardownStream()
+            }
+        )
+    } else {
+        ZoomableCameraImage(imageUrl, title)
+    }
+}
+
+private fun cameraHeaders(authToken: String?): Map<String, String> =
+    if (authToken.isNullOrBlank()) emptyMap() else mapOf("Authorization" to "Bearer $authToken")
+
+@Composable
+fun ZoomableCameraImage(imageUrl: String?, contentDescription: String) {
+    val hostView = LocalView.current
     var scale by remember(imageUrl) { mutableFloatStateOf(1f) }
     var offsetX by remember(imageUrl) { mutableFloatStateOf(0f) }
     var offsetY by remember(imageUrl) { mutableFloatStateOf(0f) }
@@ -209,11 +257,23 @@ private fun ZoomableCameraImage(imageUrl: String?, contentDescription: String) {
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .pointerInteropFilter { event ->
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_POINTER_DOWN -> hostView.parent?.requestDisallowInterceptTouchEvent(true)
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> hostView.parent?.requestDisallowInterceptTouchEvent(false)
+                }
+                false
+            }
             .pointerInput(imageUrl) {
                 detectTransformGestures { _, pan, zoom, _ ->
                     scale = (scale * zoom).coerceIn(1f, 4f)
-                    offsetX += pan.x
-                    offsetY += pan.y
+                    if (scale == 1f) {
+                        offsetX = 0f
+                        offsetY = 0f
+                    } else {
+                        offsetX += pan.x
+                        offsetY += pan.y
+                    }
                 }
             },
         contentAlignment = Alignment.Center

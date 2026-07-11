@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,11 +38,15 @@ import com.example.hki7.data.HKIEnergyCardWidget
 import com.example.hki7.data.HKIEnergyConfig
 import com.example.hki7.data.HKIEnergyStack
 import com.example.hki7.data.HKIPageConfig
+import com.example.hki7.data.withDisplayName
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
+import com.example.hki7.ui.components.EditSettingsButton
+import com.example.hki7.ui.components.RenameCardDialog
 import com.example.hki7.ui.components.HKIPage
 import com.example.hki7.ui.components.ReorderAxis
 import com.example.hki7.ui.components.ReorderableGrid
+import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.parseHistoryMillis
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.serialization.json.contentOrNull
@@ -202,11 +207,24 @@ fun EnergyScreen(viewModel: MainViewModel) {
     val energyEntityFlow = remember(viewModel) {
         viewModel.entitiesMatching("domain:sensor") { it.entity_id.startsWith("sensor.") }
     }
-    val entities by energyEntityFlow.collectAsState()
+    val rawEntities by energyEntityFlow.collectAsState()
     val pageConfigsMap by viewModel.pageConfigsMapping.collectAsState()
     val historyMap     by viewModel.historyMapping.collectAsState()
     val energyConfig: HKIEnergyConfig =
         (pageConfigsMap[ENERGY_PAGE_KEY] ?: HKIPageConfig()).energyConfig ?: HKIEnergyConfig()
+    val isEditMode by viewModel.isEditMode.collectAsState()
+    var renameEntity by remember { mutableStateOf<HAEntity?>(null) }
+    renameEntity?.let { entity ->
+        RenameCardDialog(energyConfig.customNames[entity.entity_id].orEmpty(), entity.friendlyName ?: entity.entity_id,
+            onDismiss = { renameEntity = null }) { name ->
+            val names = if (name == null) energyConfig.customNames - entity.entity_id else energyConfig.customNames + (entity.entity_id to name)
+            viewModel.updateEnergyConfig(ENERGY_PAGE_KEY, energyConfig.copy(customNames = names))
+            renameEntity = null
+        }
+    }
+    val entities = remember(rawEntities, energyConfig.customNames) {
+        rawEntities.map { it.withDisplayName(energyConfig.customNames[it.entity_id]) }
+    }
 
     // One id->entity map per state update; the previous per-lookup linear scans made every
     // websocket batch O(sensors x lookups) and visibly janked the page.
@@ -763,7 +781,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
                                         rank = idx + 1,
                                         name = entity.friendlyName ?: entity.entity_id,
                                         watts = watts,
-                                        shareOfHome = if (homeW > 1f) (watts / homeW * 100).toInt().coerceAtMost(100) else null
+                                        shareOfHome = if (homeW > 1f) (watts / homeW * 100).toInt().coerceAtMost(100) else null,
+                                        onSettings = if (isEditMode) ({ renameEntity = entity }) else null
                                     )
                                     if (idx < topConsumers.lastIndex)
                                         HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.06f), modifier = Modifier.padding(horizontal = 16.dp))
@@ -796,6 +815,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
                                                 maxLines = 1, overflow = TextOverflow.Ellipsis,
                                                 modifier = Modifier.weight(1f, fill = false)
                                             )
+                                            if (isEditMode) EditSettingsButton(onClick = { renameEntity = entity })
                                             Spacer(Modifier.width(8.dp))
                                             Text(
                                                 if (kwh >= 10f) "%.1f kWh".format(kwh) else "%.2f kWh".format(kwh),
@@ -2003,7 +2023,7 @@ private fun TotalStat(
 }
 
 @Composable
-private fun ConsumerRow(rank: Int, name: String, watts: Float, shareOfHome: Int?) {
+private fun ConsumerRow(rank: Int, name: String, watts: Float, shareOfHome: Int?, onSettings: (() -> Unit)? = null) {
     val appColors = LocalHKIAppColors.current
     val rankColors = listOf(ExportGreen, Color(0xFF26A69A), SolarAmber, Color(0xFF8D6E63), Color(0xFF78909C))
     val badge = rankColors.getOrElse(rank - 1) { Color(0xFF78909C) }
@@ -2026,7 +2046,8 @@ private fun ConsumerRow(rank: Int, name: String, watts: Float, shareOfHome: Int?
                 style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
             )
         }
-        Icon(Icons.Default.ElectricBolt, null, tint = appColors.onMuted.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
+        if (onSettings != null) EditSettingsButton(onClick = onSettings)
+        else Icon(Icons.Default.ElectricBolt, null, tint = appColors.onMuted.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
     }
 }
 
@@ -3063,7 +3084,13 @@ fun EnergyCardPickerList(
     modifier: Modifier = Modifier
 ) {
     val appColors = LocalHKIAppColors.current
-    LazyColumn(modifier.heightIn(max = 420.dp)) {
+    val listState = rememberLazyListState()
+    LazyColumn(
+        modifier = modifier
+            .heightIn(max = 420.dp)
+            .fadingEdges(listState),
+        state = listState
+    ) {
         energyCardCatalog.groupBy { it.category }.forEach { (category, specs) ->
             item {
                 Text(category, style = MaterialTheme.typography.labelLarge,

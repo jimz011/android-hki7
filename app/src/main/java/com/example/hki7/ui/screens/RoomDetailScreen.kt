@@ -135,6 +135,8 @@ import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import com.example.hki7.data.HAEntity
+import com.example.hki7.data.HAEntityRegistryEntry
+import com.example.hki7.data.HADeviceRegistryEntry
 import com.example.hki7.data.HAServiceCall
 import com.example.hki7.data.HKIButtonStack
 import com.example.hki7.data.HKIButtonConfig
@@ -149,6 +151,7 @@ import com.example.hki7.data.HKISingleEntityWidget
 import com.example.hki7.data.HKISwipingStack
 import com.example.hki7.data.HKISubtitleWidget
 import com.example.hki7.data.HKIWeatherWidget
+import com.example.hki7.ui.components.DevicePickerDialog
 import androidx.compose.animation.core.tween
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.Screen
@@ -165,9 +168,11 @@ import com.example.hki7.ui.components.HKIDialog
 import com.example.hki7.ui.components.HKIPage
 import com.example.hki7.ui.components.HistoryPoint
 import com.example.hki7.ui.components.HistoryRangeChips
+import com.example.hki7.ui.components.HistoryView
 import com.example.hki7.ui.components.InteractiveLineGraph
 import com.example.hki7.ui.components.parseHistoryMillis
 import com.example.hki7.ui.components.HKICameraDialog
+import com.example.hki7.ui.components.ZoomableCameraImage
 import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.utils.MdiIcon
 import com.example.hki7.ui.components.HKILightDialog
@@ -341,15 +346,22 @@ fun RoomDetailScreen(
     var editingChildWeather by remember { mutableStateOf<Pair<String, HKIWeatherWidget>?>(null) }
     var showAutoWidgetInfo by remember { mutableStateOf(false) }
     var showAutoDeleteStackInfo by remember { mutableStateOf(false) }
-    val needsLiveEntityList = isEditMode || selectedClimateEntity != null || selectedLockEntity != null ||
-        selectedBlindEntity != null || selectedCameraEntity != null || selectedLightEntity != null ||
-        selectedCameraId != null || selectedGenericEntity != null || selectedVacuumEntityId != null ||
-        selectedFanEntity != null || selectedHumidifierEntity != null || selectedAlarmEntity != null ||
-        selectedPersonEntity != null
-    // Runtime widgets subscribe to their own dependency sets. The complete list stays live only for
-    // edit-time pickers and open detail dialogs that intentionally span multiple entities.
-    val entityListFlow = remember(viewModel, needsLiveEntityList) { viewModel.entityList(needsLiveEntityList) }
-    val allEntities by entityListFlow.collectAsState()
+    // Configuration pickers must not depend solely on the state stream: that stream can still be
+    // seeding/reconnecting while the entity registry is already available. Merge both sources so
+    // every registered entity remains selectable, replacing registry placeholders with live states.
+    val liveEntities by viewModel.entities.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.fetchRegistries()
+        if (viewModel.entities.value.isEmpty()) viewModel.refreshEntities(isSilent = true, includeDashboardRefresh = false)
+    }
+    val allEntities = remember(liveEntities, entityRegistry) {
+        val liveById = liveEntities.associateBy { it.entity_id }
+        (liveEntities + entityRegistry.asSequence()
+            .filterNot { it.entity_id in liveById }
+            .map { HAEntity(entity_id = it.entity_id, state = "unavailable") }
+            .toList())
+            .distinctBy { it.entity_id }
+    }
     fun newButtonStack(title: String?, icon: String?) = HKIButtonStack(
         id = UUID.randomUUID().toString(),
         title = title,
@@ -643,7 +655,7 @@ fun RoomDetailScreen(
             else -> 6
         }
         Column(modifier = Modifier.fillMaxSize()) {
-            key(isEditMode, uiRevision) {
+            key(uiRevision) {
                 if (!isEditMode) {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(widgetGridColumns),
@@ -1117,8 +1129,10 @@ fun RoomDetailScreen(
         CalendarEntityPickerDialog(
             allEntities = allEntities,
             onDismiss = {
-                pendingCalendarWidgetContainerId = null
-                if (target == "__top__") showAddWidgetDialog = true else addingToSwipingStackId = target
+                if (pendingCalendarWidgetContainerId != null) {
+                    pendingCalendarWidgetContainerId = null
+                    if (target == "__top__") showAddWidgetDialog = true else addingToSwipingStackId = target
+                }
             },
             onSelected = { ids ->
                 val widget = newCalendarWidget(ids)
@@ -1208,10 +1222,12 @@ fun RoomDetailScreen(
             singleSelect = true,
             preselectedIds = emptySet(),
             onDismiss = {
-                val containerId = pendingSingleWidgetContainerId
-                pendingSingleWidgetKind = null
-                pendingSingleWidgetContainerId = null
-                if (containerId == null) showAddWidgetDialog = true else addingToSwipingStackId = containerId
+                if (pendingSingleWidgetKind != null) {
+                    val containerId = pendingSingleWidgetContainerId
+                    pendingSingleWidgetKind = null
+                    pendingSingleWidgetContainerId = null
+                    if (containerId == null) showAddWidgetDialog = true else addingToSwipingStackId = containerId
+                }
             },
             onEntitiesSelected = { entityIds ->
                 val entityId = entityIds.firstOrNull()
@@ -1297,8 +1313,9 @@ fun RoomDetailScreen(
     }
 
     addingToNestedStack?.let { (swipingStackId, childStackId) ->
-        val parent = areaWidgets.filterIsInstance<HKISwipingStack>().find { it.id == swipingStackId }
-        val targetStack = parent?.widgets?.filterIsInstance<HKIButtonStack>()?.find { it.id == childStackId }
+        val parentWidgets = areaWidgets.filterIsInstance<HKISwipingStack>().find { it.id == swipingStackId }?.widgets
+            ?: areaWidgets.filterIsInstance<HKIEmptyStack>().find { it.id == swipingStackId }?.widgets
+        val targetStack = parentWidgets?.filterIsInstance<HKIButtonStack>()?.find { it.id == childStackId }
         when (targetStack?.stackType) {
             "camera", "single_camera" -> AdvancedEntitySearchDialog(
                 allEntities = allEntities.filter { it.entity_id.substringBefore(".").equals("camera", ignoreCase = true) },
@@ -1343,7 +1360,21 @@ fun RoomDetailScreen(
 
     if (addingToStackId != null && cameraAddMode == null) {
         val targetStack = areaWidgets.find { it.id == addingToStackId } as? HKIButtonStack
-        if (targetStack?.stackType == "camera") {
+        if (targetStack?.stackType == "vacuum") {
+            AdvancedEntitySearchDialog(
+                allEntities = allEntities.filter { it.entity_id.startsWith("vacuum.") },
+                title = "Select Vacuums",
+                preselectedIds = targetStack.entityIds.toSet(),
+                onDismiss = { addingToStackId = null },
+                onEntitiesSelected = { entityIds ->
+                    viewModel.updateWidget(
+                        areaId,
+                        targetStack.copy(entityIds = (targetStack.entityIds + entityIds).distinct())
+                    )
+                    addingToStackId = null
+                }
+            )
+        } else if (targetStack?.stackType == "camera") {
             // Show choice dialog for camera stacks
             AlertDialog(
                 onDismissRequest = { addingToStackId = null },
@@ -1608,6 +1639,8 @@ fun RoomDetailScreen(
             isCameraItem = widget.kind == "camera",
             isVacuumItem = widget.kind == "vacuum" || widget.entityId.startsWith("vacuum."),
             allEntities = allEntities,
+            entityRegistry = entityRegistry,
+            deviceRegistry = deviceRegistry,
             onDismiss = { selectedSingleWidgetSettings = null },
             widgetAppearance = WidgetAppearance(widget.isSquare, widget.cornerRadius, widget.width),
             onSaveWithAppearance = { config, a ->
@@ -1660,6 +1693,8 @@ fun RoomDetailScreen(
                 isCameraItem = stack.stackType == "camera",
                 isVacuumItem = stack.stackType == "vacuum" || entityId.startsWith("vacuum."),
                 allEntities = allEntities,
+                entityRegistry = entityRegistry,
+                deviceRegistry = deviceRegistry,
                 onDismiss = { selectedChildButtonSettings = null },
                 onSave = { config ->
                     updateChildInSwipingStack(
@@ -1695,6 +1730,8 @@ fun RoomDetailScreen(
                 isCameraItem = stack.stackType == "camera",
                 isVacuumItem = stack.stackType == "vacuum" || entityId.startsWith("vacuum."),
                 allEntities = allEntities,
+                entityRegistry = entityRegistry,
+                deviceRegistry = deviceRegistry,
                 onDismiss = { selectedButtonSettings = null },
                 onSave = { config ->
                     val latestStack = areaWidgets.find { it.id == stack.id } as? HKIButtonStack ?: stack
@@ -1735,6 +1772,8 @@ fun RoomDetailScreen(
             liveWebUrl = liveWebUrl,
             authToken = accessToken,
             statusText = "Live",
+            entity = entity,
+            viewModel = viewModel,
             onDismiss = { selectedCameraId = null; selectedCameraStack = null }
         )
     }
@@ -1862,6 +1901,8 @@ fun RoomDetailScreen(
             liveWebUrl = streamUrl,
             authToken = accessToken,
             statusText = "Live",
+            entity = entity,
+            viewModel = viewModel,
             onDismiss = { showCameraDialog = false }
         )
     }
@@ -1993,25 +2034,25 @@ fun AddRoomWidgetDialog(
         )
     }
 
+    val widgetPickerScroll = rememberScrollState()
+
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(32.dp),
             colors = CardDefaults.cardColors(containerColor = appColors.surface)
         ) {
-            val widgetPickerScroll = rememberScrollState()
             Column(
                 modifier = Modifier
-                    .heightIn(max = 560.dp)
-                    .padding(24.dp)
-                    .fadingEdges(widgetPickerScroll)
-                    .verticalScroll(widgetPickerScroll),
+                    .heightIn(min = 520.dp, max = 560.dp)
+                    .padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text("Add Widget", color = appColors.onSurface, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
                     IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, null, tint = appColors.onSurface) }
                 }
+
                 if (configureWidget == null && widgetGroup == null) {
                     OutlinedTextField(
                         value = search,
@@ -2037,6 +2078,17 @@ fun AddRoomWidgetDialog(
                             unfocusedBorderColor = appColors.onMuted
                         )
                     )
+                }
+
+                Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                    if (configureWidget == null && widgetGroup == null) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fadingEdges(widgetPickerScroll)
+                                .verticalScroll(widgetPickerScroll),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
                     val query = search.trim()
                     if (query.isEmpty()) {
                         topWidgets.forEach { w -> WidgetChoice(w.icon, w.title, w.subtitle, w.onSelect) }
@@ -2061,7 +2113,15 @@ fun AddRoomWidgetDialog(
                             results.forEach { w -> WidgetChoice(w.icon, w.title, w.subtitle, w.onSelect) }
                         }
                     }
+                        }
                 } else if (widgetGroup == "stacks" && configureWidget == null) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fadingEdges(widgetPickerScroll)
+                                .verticalScroll(widgetPickerScroll),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
                     TextButton(onClick = { widgetGroup = null }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
@@ -2071,7 +2131,12 @@ fun AddRoomWidgetDialog(
                     emptyStacks.forEach { w -> WidgetChoice(w.icon, w.title, w.subtitle, w.onSelect) }
                     Text("Predefined Stacks", color = appColors.onMuted, style = MaterialTheme.typography.labelLarge)
                     predefinedStacks.forEach { w -> WidgetChoice(w.icon, w.title, w.subtitle, w.onSelect) }
+                        }
                 } else if (widgetGroup == "energy_card" && configureWidget == null) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
                     TextButton(onClick = { widgetGroup = null }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
@@ -2083,15 +2148,15 @@ fun AddRoomWidgetDialog(
                         selected = energyPickerSelection,
                         onToggle = { key ->
                             energyPickerSelection = if (key in energyPickerSelection) energyPickerSelection - key else energyPickerSelection + key
-                        }
-                    )
-                    Button(
-                        onClick = { onAddEnergyCard?.invoke(energyPickerSelection); onDismiss() },
+                        },
                         modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Add")
+                    )
                     }
                 } else if (widgetGroup == "energy_stack" && configureWidget == null) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
                     TextButton(onClick = { widgetGroup = "stacks" }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
@@ -2103,15 +2168,18 @@ fun AddRoomWidgetDialog(
                         selected = energyPickerSelection,
                         onToggle = { key ->
                             energyPickerSelection = if (key in energyPickerSelection) energyPickerSelection - key else energyPickerSelection + key
-                        }
-                    )
-                    Button(
-                        onClick = { onAddEnergyStack?.invoke(energyPickerSelection); onDismiss() },
+                        },
                         modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Add")
+                    )
                     }
                 } else if (widgetGroup == "battery_card" && configureWidget == null) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fadingEdges(widgetPickerScroll)
+                                .verticalScroll(widgetPickerScroll),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
                     TextButton(onClick = { widgetGroup = null }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
@@ -2125,13 +2193,15 @@ fun AddRoomWidgetDialog(
                         }
                         Switch(checked = batteryNotesInstalled, onCheckedChange = { batteryNotesInstalled = it })
                     }
-                    Button(
-                        onClick = { onAddBatteryCard?.invoke(batteryNotesInstalled); onDismiss() },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Add")
                     }
                 } else {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fadingEdges(widgetPickerScroll)
+                                .verticalScroll(widgetPickerScroll),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
                     TextButton(onClick = { configureWidget = null }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
@@ -2199,6 +2269,32 @@ fun AddRoomWidgetDialog(
                         )
                         TextButton(onClick = { showIconPicker = true }) { Text("Change") }
                     }
+                        }
+                    }
+                }
+
+                if (widgetGroup == "energy_card" && configureWidget == null) {
+                    Button(
+                        onClick = { onAddEnergyCard?.invoke(energyPickerSelection); onDismiss() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Add")
+                    }
+                } else if (widgetGroup == "energy_stack" && configureWidget == null) {
+                    Button(
+                        onClick = { onAddEnergyStack?.invoke(energyPickerSelection); onDismiss() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Add")
+                    }
+                } else if (widgetGroup == "battery_card" && configureWidget == null) {
+                    Button(
+                        onClick = { onAddBatteryCard?.invoke(batteryNotesInstalled); onDismiss() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Add")
+                    }
+                } else if (configureWidget != null) {
                     Button(
                         onClick = {
                             if (configureWidget == "button" || configureWidget == "button_stack") {
@@ -2245,6 +2341,22 @@ fun WidgetChoice(icon: ImageVector, title: String, subtitle: String, onClick: ()
     }
 }
 
+@Composable
+private fun VacuumBindingRow(
+    entityId: String?,
+    allEntities: List<HAEntity>,
+    emptyLabel: String,
+    onChange: () -> Unit,
+    onClear: () -> Unit
+) {
+    val name = entityId?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(name ?: emptyLabel, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+        TextButton(onClick = onChange) { Text("Change") }
+        if (entityId != null) TextButton(onClick = onClear) { Text("Clear") }
+    }
+}
+
 /** Shape/size of a standalone (non-stacked) widget, edited from its button settings dialog. */
 data class WidgetAppearance(val isSquare: Boolean, val cornerRadius: Int, val width: String)
 
@@ -2255,6 +2367,8 @@ fun ButtonConfigDialog(
     isCameraItem: Boolean = false,
     isVacuumItem: Boolean = false,
     allEntities: List<HAEntity> = emptyList(),
+    entityRegistry: List<HAEntityRegistryEntry> = emptyList(),
+    deviceRegistry: List<HADeviceRegistryEntry> = emptyList(),
     onDismiss: () -> Unit,
     // Standalone widgets only: shape/roundness/width are edited here since there is no stack
     // to inherit them from. When set, Save reports through onSaveWithAppearance instead.
@@ -2307,11 +2421,17 @@ fun ButtonConfigDialog(
 
     // Vacuum settings (inline; pickers hoisted below the dialog so they render on top)
     var vacuumDisplayMode by remember(config) { mutableStateOf(config.vacuumDisplayMode) }
+    var vacuumDeviceId by remember(config) { mutableStateOf(config.vacuumDeviceId) }
     var vacuumMapEntityId by remember(config) { mutableStateOf(config.vacuumMapEntityId) }
     var vacuumBatteryEntityId by remember(config) { mutableStateOf(config.vacuumBatteryEntityId) }
+    var vacuumWaterEntityId by remember(config) { mutableStateOf(config.vacuumWaterEntityId) }
+    var vacuumEmptyBinEntityId by remember(config) { mutableStateOf(config.vacuumEmptyBinEntityId) }
     var vacuumImageUrl by remember(config) { mutableStateOf(config.vacuumImageUrl ?: "") }
     var showMapPicker by remember { mutableStateOf(false) }
     var showBattPicker by remember { mutableStateOf(false) }
+    var showVacuumDevicePicker by remember { mutableStateOf(false) }
+    var showWaterPicker by remember { mutableStateOf(false) }
+    var showEmptyBinPicker by remember { mutableStateOf(false) }
     val actions = listOf("toggle", "more_info", "none")
     val refreshOptions = listOf("Live" to 0, "5s" to 5, "10s" to 10, "15s" to 15, "30s" to 30)
     val lockRelockSeconds = lockRelockSecondsText.toIntOrNull()?.coerceIn(5, 86400) ?: DEFAULT_BUTTON_RELOCK_SECONDS
@@ -2353,6 +2473,12 @@ fun ButtonConfigDialog(
                     }
                 }
                 if (isVacuumItem) {
+                    Text("Vacuum device", style = MaterialTheme.typography.labelLarge)
+                    val deviceName = vacuumDeviceId?.let { id -> deviceRegistry.find { it.id == id }?.let { it.name_by_user ?: it.name } ?: id }
+                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Text(deviceName ?: "Select to auto-detect map, battery and controls", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                        TextButton(onClick = { showVacuumDevicePicker = true }) { Text("Change") }
+                    }
                     Text("Button image", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf("static" to "Robot icon", "camera" to "Map camera", "external" to "External URL").forEach { (v, l) ->
@@ -2377,6 +2503,10 @@ fun ButtonConfigDialog(
                         TextButton(onClick = { showMapPicker = true }) { Text("Change") }
                         if (!vacuumMapEntityId.isNullOrBlank()) { TextButton(onClick = { vacuumMapEntityId = null }) { Text("Clear") } }
                     }
+                    Text("Water level (optional fallback)", style = MaterialTheme.typography.labelLarge)
+                    VacuumBindingRow(vacuumWaterEntityId, allEntities, "Auto / unavailable", { showWaterPicker = true }, { vacuumWaterEntityId = null })
+                    Text("Empty bin (optional fallback)", style = MaterialTheme.typography.labelLarge)
+                    VacuumBindingRow(vacuumEmptyBinEntityId, allEntities, "Auto / unavailable", { showEmptyBinPicker = true }, { vacuumEmptyBinEntityId = null })
                     Text("Battery sensor (optional)", style = MaterialTheme.typography.labelLarge)
                     val battName = vacuumBatteryEntityId?.takeIf { it.isNotBlank() }?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -2553,8 +2683,11 @@ fun ButtonConfigDialog(
                             lockRelockSeconds = if (showButtonLockSettings) lockRelockSeconds else config.lockRelockSeconds,
                             doorEntityId = if (isLockEntity) doorEntityId else config.doorEntityId,
                             vacuumDisplayMode = if (isVacuumItem) vacuumDisplayMode else config.vacuumDisplayMode,
+                            vacuumDeviceId = if (isVacuumItem) vacuumDeviceId else config.vacuumDeviceId,
                             vacuumMapEntityId = if (isVacuumItem) vacuumMapEntityId else config.vacuumMapEntityId,
                             vacuumBatteryEntityId = if (isVacuumItem) vacuumBatteryEntityId else config.vacuumBatteryEntityId,
+                            vacuumWaterEntityId = if (isVacuumItem) vacuumWaterEntityId else config.vacuumWaterEntityId,
+                            vacuumEmptyBinEntityId = if (isVacuumItem) vacuumEmptyBinEntityId else config.vacuumEmptyBinEntityId,
                             vacuumImageUrl = if (isVacuumItem && vacuumDisplayMode == "external") vacuumImageUrl.ifBlank { null } else if (isVacuumItem) null else config.vacuumImageUrl,
                             climateTempSensorEntityId = if (isClimateEntity) climateTempSensorEntityId else config.climateTempSensorEntityId,
                             climateHumiditySensorEntityId = if (isClimateEntity) climateHumiditySensorEntityId else config.climateHumiditySensorEntityId
@@ -2595,6 +2728,25 @@ fun ButtonConfigDialog(
             preselectedIds = setOfNotNull(vacuumBatteryEntityId?.takeIf { it.isNotBlank() }),
             onDismiss = { showBattPicker = false },
             onEntitiesSelected = { ids -> vacuumBatteryEntityId = ids.firstOrNull(); showBattPicker = false }
+        )
+    }
+    if (showVacuumDevicePicker) {
+        DevicePickerDialog(deviceRegistry, vacuumDeviceId, { showVacuumDevicePicker = false }) {
+            vacuumDeviceId = it; showVacuumDevicePicker = false
+        }
+    }
+    if (showWaterPicker) {
+        AdvancedEntitySearchDialog(
+            allEntities = allEntities.filter { it.entity_id.startsWith("select.") || it.entity_id.startsWith("input_select.") },
+            title = "Select Water Level", singleSelect = true, preselectedIds = setOfNotNull(vacuumWaterEntityId),
+            onDismiss = { showWaterPicker = false }, onEntitiesSelected = { vacuumWaterEntityId = it.firstOrNull(); showWaterPicker = false }
+        )
+    }
+    if (showEmptyBinPicker) {
+        AdvancedEntitySearchDialog(
+            allEntities = allEntities.filter { it.entity_id.startsWith("button.") || it.entity_id.startsWith("switch.") },
+            title = "Select Empty Bin Control", singleSelect = true, preselectedIds = setOfNotNull(vacuumEmptyBinEntityId),
+            onDismiss = { showEmptyBinPicker = false }, onEntitiesSelected = { vacuumEmptyBinEntityId = it.firstOrNull(); showEmptyBinPicker = false }
         )
     }
     if (showTempSensorPicker) {
@@ -3153,7 +3305,9 @@ fun ButtonStackItem(
             }
         }.toList()
     }
-    val dependencyFlow = remember(viewModel, dependencyIds) { viewModel.entitiesFor(dependencyIds) }
+    val dependencyFlow = remember(viewModel, dependencyIds, isEditMode) {
+        if (isEditMode) viewModel.entitySnapshotFor(dependencyIds) else viewModel.entitiesFor(dependencyIds)
+    }
     val allEntities by dependencyFlow.collectAsState()
     val entityById = remember(allEntities) { allEntities.associateBy { it.entity_id } }
     val entities = remember(stack.entityIds, entityById) { stack.entityIds.mapNotNull(entityById::get) }
@@ -3524,7 +3678,9 @@ fun SingleEntityWidgetItem(
             widget.config.weatherEntityId
         ).distinct()
     }
-    val dependencyFlow = remember(viewModel, dependencyIds) { viewModel.entitiesFor(dependencyIds) }
+    val dependencyFlow = remember(viewModel, dependencyIds, isEditMode) {
+        if (isEditMode) viewModel.entitySnapshotFor(dependencyIds) else viewModel.entitiesFor(dependencyIds)
+    }
     val allEntities by dependencyFlow.collectAsState()
     val entity = allEntities.find { it.entity_id == widget.entityId }
 
@@ -3564,7 +3720,7 @@ fun SingleEntityWidgetItem(
                         entities = listOf(entity),
                         currentUrl = currentUrl,
                         accessToken = accessToken,
-                        isEditMode = false,
+                        isEditMode = isEditMode,
                         onEntityClick = { onEntityClick(widget.entityId) },
                         onButtonSettings = {},
                         onRemoveEntity = {},
@@ -4233,10 +4389,18 @@ private fun CameraStackCard(
     modifier: Modifier = Modifier
 ) {
     val appColors = LocalHKIAppColors.current
+    var mediaReady by remember(source.id, isEditMode) { mutableStateOf(false) }
+    LaunchedEffect(source.id, isEditMode) {
+        // Let the grid finish its first layout before image decoders/WebViews compete for CPU, and
+        // spread multiple visible cameras across frames instead of initializing them in one burst.
+        val stagger = (source.id.hashCode().ushr(1) % 6) * 120L
+        delay((if (isEditMode) 120L else 250L) + stagger)
+        mediaReady = true
+    }
     var refreshTick by remember(source.id, source.refreshIntervalSeconds, source.imageUrl) { mutableIntStateOf(0) }
     LaunchedEffect(source.id, source.refreshIntervalSeconds, source.imageUrl, source.liveWebUrl) {
         refreshTick = 0
-        if (source.refreshIntervalSeconds > 0 && source.liveWebUrl.isNullOrBlank()) {
+        if (!isEditMode && source.refreshIntervalSeconds > 0 && source.liveWebUrl.isNullOrBlank()) {
             while (true) {
                 delay(source.refreshIntervalSeconds.seconds)
                 refreshTick += 1
@@ -4246,6 +4410,9 @@ private fun CameraStackCard(
 
     val model = remember(source.imageUrl, refreshTick, source.refreshIntervalSeconds) {
         buildCameraRefreshModel(source.imageUrl, source.refreshIntervalSeconds, refreshTick)
+    }
+    val displayedModel = remember(model, isEditMode) {
+        if (isEditMode) model?.replace("/camera_proxy_stream/", "/camera_proxy/") else model
     }
     var lastSuccessfulModel by remember(source.id) { mutableStateOf(model) }
     val aspectRatio = if (stack.isSquare) 1f else stack.cameraAspectRatio
@@ -4258,7 +4425,11 @@ private fun CameraStackCard(
         color = Color.Black
     ) {
         Box {
-            if (!source.liveWebUrl.isNullOrBlank()) {
+            if (!mediaReady) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("Loading camera…", color = Color.Gray)
+                }
+            } else if (!isEditMode && !source.liveWebUrl.isNullOrBlank()) {
                 AndroidView(
                     modifier = Modifier.fillMaxSize(),
                     factory = { context ->
@@ -4270,8 +4441,17 @@ private fun CameraStackCard(
                             settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                             settings.useWideViewPort = true
                             settings.loadWithOverviewMode = true
-                            settings.builtInZoomControls = false
+                            settings.setSupportZoom(true)
+                            settings.builtInZoomControls = true
                             settings.displayZoomControls = false
+                            setOnTouchListener { view, event ->
+                                when (event.actionMasked) {
+                                    android.view.MotionEvent.ACTION_POINTER_DOWN -> view.parent?.requestDisallowInterceptTouchEvent(true)
+                                    android.view.MotionEvent.ACTION_UP,
+                                    android.view.MotionEvent.ACTION_CANCEL -> view.parent?.requestDisallowInterceptTouchEvent(false)
+                                }
+                                false
+                            }
                             webViewClient = WebViewClient()
                             val headers = if (!accessToken.isNullOrBlank()) {
                                 mapOf("Authorization" to "Bearer $accessToken")
@@ -4292,28 +4472,8 @@ private fun CameraStackCard(
                         }
                     }
                 )
-            } else if (model != null) {
-                SubcomposeAsyncImage(
-                    model = model,
-                    contentDescription = source.label,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = androidx.compose.ui.layout.ContentScale.Fit,
-                    loading = {
-                        val fallback = lastSuccessfulModel
-                        if (!fallback.isNullOrBlank()) {
-                            AsyncImage(
-                                model = fallback,
-                                contentDescription = source.label,
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = androidx.compose.ui.layout.ContentScale.Fit
-                            )
-                        }
-                    },
-                    success = {
-                        lastSuccessfulModel = model
-                        SubcomposeAsyncImageContent()
-                    }
-                )
+            } else if (displayedModel != null) {
+                ZoomableCameraImage(displayedModel, source.label)
             } else {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("No Stream Available", color = Color.Gray)
@@ -4426,7 +4586,7 @@ private fun LockControlContent(entity: HAEntity, viewModel: MainViewModel) {
 }
 
 @Composable
-private fun BlindControlContent(entity: HAEntity, viewModel: MainViewModel, activeColor: Color = coverAccentColor(entity)) {
+internal fun BlindControlContent(entity: HAEntity, viewModel: MainViewModel, activeColor: Color = coverAccentColor(entity)) {
     val appColors = LocalHKIAppColors.current
     val currentPosition = entity.attributes?.get("current_position")?.jsonPrimitive?.intOrNull ?: 0
     var localPosition by remember(currentPosition) { mutableFloatStateOf(currentPosition / 100f) }
@@ -5027,7 +5187,8 @@ fun GenericEntityDialog(
     val unit = entity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull
     val valueText = listOfNotNull(entity.state, unit).joinToString(" ")
     val isSwitchLike = domain in listOf("light", "switch", "input_boolean", "fan", "automation")
-    val isGraphLike = domain in listOf("sensor", "binary_sensor")
+    val isGraphLike = domain == "sensor"
+    val isBinary = domain == "binary_sensor"
     val icon = when (domain) {
         "switch", "input_boolean" -> Icons.Default.PowerSettingsNew
         "binary_sensor" -> Icons.Default.Security
@@ -5045,7 +5206,7 @@ fun GenericEntityDialog(
         titleOverride = titleOverride,
         iconName = iconName,
         spinIcon = spinIcon,
-        showHistoryButton = !isGraphLike,
+        showHistoryButton = !isGraphLike && !isBinary,
         statusText = valueText.uppercase()
     ) {
         val appColors = LocalHKIAppColors.current
@@ -5068,6 +5229,8 @@ fun GenericEntityDialog(
                     Spacer(Modifier.height(16.dp))
                     Text("SWITCH", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
                 }
+            } else if (isBinary) {
+                HistoryView(entity = entity, viewModel = viewModel)
             } else if (isGraphLike) {
                 SensorGraphContent(entity = entity, viewModel = viewModel, valueText = valueText)
             } else {

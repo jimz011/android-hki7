@@ -160,6 +160,15 @@ data class HAEntity(
         get() = attributes?.get("code_arm_required")?.jsonPrimitive?.booleanOrNull ?: true
 }
 
+/** Returns a presentation-only copy with a locally configured friendly name. */
+fun HAEntity.withDisplayName(name: String?): HAEntity {
+    if (name.isNullOrBlank()) return this
+    val updated = (attributes?.toMutableMap() ?: mutableMapOf()).apply {
+        put("friendly_name", JsonPrimitive(name.trim()))
+    }
+    return copy(attributes = JsonObject(updated))
+}
+
 @Serializable
 data class HAWeatherForecast(
     val datetime: String,
@@ -408,8 +417,11 @@ data class HKIBadge(
     val doorEntityId: String? = null,
     val doorEntityIds: Map<String, String> = emptyMap(),       // lockEntityId -> door sensor
     // Vacuum: per-entity map camera + battery sensor overrides.
+    val vacuumDeviceIds: Map<String, String> = emptyMap(),
     val vacuumMapEntityIds: Map<String, String> = emptyMap(),
-    val vacuumBatteryEntityIds: Map<String, String> = emptyMap()
+    val vacuumBatteryEntityIds: Map<String, String> = emptyMap(),
+    val vacuumWaterEntityIds: Map<String, String> = emptyMap(),
+    val vacuumEmptyBinEntityIds: Map<String, String> = emptyMap()
 ) {
     /** All entity ids this badge represents (falls back to the single [entityId]). */
     val effectiveEntityIds: List<String>
@@ -440,6 +452,7 @@ data class HKIPageConfig(
     val badgeBar: HKIBadgeBarConfig? = null,
     val energyConfig: HKIEnergyConfig? = null,
     val climateConfig: HKIClimateConfig? = null,
+    val securityConfig: HKISecurityConfig? = null,
     val batteryConfig: HKIBatteryConfig? = null,
     val vacuumEntityId: String? = null,
     val vacuumMapEntityId: String? = null
@@ -452,6 +465,16 @@ data class HKIBatteryConfig(
     val extraEntityIds: List<String> = emptyList(),
     val extraDeviceIds: List<String> = emptyList(),
     val entityOrder: List<String> = emptyList()
+)
+
+/** Entity bindings for the Security page. Entities are normally discovered from their Home
+ * Assistant domain/device class; these lists hold manual additions, removals and user ordering. */
+@Serializable
+data class HKISecurityConfig(
+    val extraEntityIds: Map<String, List<String>> = emptyMap(),
+    val hiddenEntityIds: List<String> = emptyList(),
+    val entityOrder: List<String> = emptyList(),
+    val customNames: Map<String, String> = emptyMap()
 )
 
 /** Entity bindings for the Climate page. Sensors/devices are auto-discovered by domain and
@@ -469,7 +492,8 @@ data class HKIClimateConfig(
     /** Entities removed via edit mode; excluded from cards, tiles, graphs and averages. */
     val hiddenEntityIds: List<String> = emptyList(),
     /** Optional user order for climate devices/sensors on detail pages. */
-    val entityOrder: List<String> = emptyList()
+    val entityOrder: List<String> = emptyList(),
+    val customNames: Map<String, String> = emptyMap()
 )
 
 /** Entity bindings for the Energy dashboard's power-flow visualization. All optional. */
@@ -492,6 +516,7 @@ data class HKIEnergyConfig(
     val waterCostEntityId: String? = null,
     /** Optional user order for the cards on the main Energy page. */
     val cardOrder: List<String> = emptyList(),
+    val customNames: Map<String, String> = emptyMap(),
     /** Power sensors the user tracks as individual devices (shown under Top consumers). */
     val deviceEntityIds: List<String> = emptyList(),
     // HA-style electricity sensors (P1 meter): per-phase power and tariff-split energy counters.
@@ -622,8 +647,11 @@ data class HKIButtonConfig(
     val doorEntityId: String? = null,
     // Vacuum buttons: how the button renders and which map/battery entities to pull from.
     val vacuumDisplayMode: String = "static",   // "static" | "camera" | "external"
+    val vacuumDeviceId: String? = null,
     val vacuumMapEntityId: String? = null,
     val vacuumBatteryEntityId: String? = null,
+    val vacuumWaterEntityId: String? = null,
+    val vacuumEmptyBinEntityId: String? = null,
     val vacuumImageUrl: String? = null,
     // Climate buttons: optional separate temp/humidity sensors, graphed in the entity's Activity tab.
     val climateTempSensorEntityId: String? = null,
