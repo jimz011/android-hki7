@@ -274,11 +274,10 @@ private fun CalendarWidgetCard(
         )
         return
     }
-    val cardHeight = calendarHeight(activeView)
-
     Card(
         modifier = modifier.fillMaxWidth().then(
-            if (widget.isSquare) Modifier.aspectRatio(1f) else Modifier.defaultMinSize(minHeight = cardHeight)
+            // "Standard" has one shared 16:9 footprint across every widget type.
+            if (widget.isSquare) Modifier.aspectRatio(1f) else Modifier.aspectRatio(16f / 9f)
         ),
         shape = RoundedCornerShape(widget.cornerRadius.dp),
         colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.84f))
@@ -365,7 +364,7 @@ private fun CompactCalendarWidgetCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .then(if (widget.isSquare) Modifier.aspectRatio(1f) else Modifier.height(146.dp)),
+            .then(if (widget.isSquare) Modifier.aspectRatio(1f) else Modifier.aspectRatio(16f / 9f)),
         shape = RoundedCornerShape(widget.cornerRadius.dp),
         colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.9f))
     ) {
@@ -1140,7 +1139,6 @@ fun CalendarEntityPickerDialog(
 private fun normalizeCalendarView(view: String): String =
     if (calendarWidgetViews.any { it.first == view }) view else "agenda"
 
-private fun calendarHeight(view: String) = if (view == "month") 430.dp else 330.dp
 
 private fun calendarWindow(view: String, selectedDate: LocalDate): CalendarWindow {
     val monthFmt = DateTimeFormatter.ofPattern("MMMM yyyy")

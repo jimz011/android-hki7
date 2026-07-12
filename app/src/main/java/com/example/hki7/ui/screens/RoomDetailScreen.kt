@@ -70,6 +70,7 @@ import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Lock
@@ -145,6 +146,7 @@ import com.example.hki7.data.HKIButtonConfig
 import com.example.hki7.data.HKIBatteryCardWidget
 import com.example.hki7.data.HKICalendarWidget
 import com.example.hki7.data.HKIWasteCollectionWidget
+import com.example.hki7.data.HKIParcelsWidget
 import com.example.hki7.data.HKIEmptyStack
 import com.example.hki7.data.HKIAreaConfig
 import com.example.hki7.data.HKIRoomWidget
@@ -240,6 +242,7 @@ fun HKIRoomWidget.withStackChildStyle(isSquare: Boolean, cornerRadius: Int): HKI
     is HKICalendarWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKIBatteryCardWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKIWasteCollectionWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
+    is HKIParcelsWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKIEmptyStack -> copy(
         isSquare = isSquare,
         cornerRadius = cornerRadius,
@@ -309,7 +312,9 @@ fun RoomDetailScreen(
     var editingCalendarWidget by remember { mutableStateOf<Pair<String?, HKICalendarWidget>?>(null) }
     var editingWasteWidget by remember { mutableStateOf<Pair<String?, HKIWasteCollectionWidget>?>(null) }
     var pendingWasteWidgetContainerId by remember { mutableStateOf<String?>(null) }
+    var pendingParcelsWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var editingBatteryWidget by remember { mutableStateOf<Pair<String?, HKIBatteryCardWidget>?>(null) }
+    var editingParcelsWidget by remember { mutableStateOf<Pair<String?, HKIParcelsWidget>?>(null) }
     var pendingCalendarWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var addingToStackId by remember { mutableStateOf<String?>(null) }
     var cameraAddMode by remember { mutableStateOf<String?>(null) } // "entity", "custom", or null
@@ -525,6 +530,12 @@ fun RoomDetailScreen(
                 onSettings = { editingWasteWidget = parent.id to child },
                 onUpdate = { updateChildInSwipingStack(parent.id, it) }
             )
+            is HKIParcelsWidget -> ParcelsWidgetItem(
+                widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                viewModel = viewModel, isEditMode = isEditMode,
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingParcelsWidget = parent.id to child }
+            )
             is HKISingleEntityWidget -> SingleEntityWidgetItem(
                 widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
                 viewModel = viewModel,
@@ -684,7 +695,7 @@ fun RoomDetailScreen(
                         columns = GridCells.Fixed(widgetGridColumns),
                         state = widgetGridState,
                         modifier = Modifier.weight(1f),
-                        contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 96.dp),
+                        contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current),
                         verticalArrangement = Arrangement.spacedBy(14.dp),
                         horizontalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
@@ -820,6 +831,10 @@ fun RoomDetailScreen(
                                     widget = widget, viewModel = viewModel, isEditMode = false,
                                     onDelete = {}, onSettings = {}, onUpdate = {}
                                 )
+                                is HKIParcelsWidget -> ParcelsWidgetItem(
+                                    widget = widget, viewModel = viewModel, isEditMode = false,
+                                    onDelete = {}, onSettings = {}
+                                )
                                 is HKIEnergyStack -> EnergyStackWidgetItem(
                                     stack = widget, viewModel = viewModel, isEditMode = false,
                                     onToggleCollapsed = { viewModel.updateWidget(areaId, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
@@ -836,7 +851,7 @@ fun RoomDetailScreen(
                     key = { it.id },
                     columns = GridCells.Fixed(widgetGridColumns),
                     span = { widgetSpan(it) },
-                    contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 156.dp),
+                    contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 156.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current),
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                     horizontalArrangement = Arrangement.spacedBy(14.dp),
                     axis = ReorderAxis.Vertical,
@@ -1008,6 +1023,11 @@ fun RoomDetailScreen(
                             onSettings = { editingWasteWidget = null to widget },
                             onUpdate = { viewModel.updateWidget(areaId, it) }
                         )
+                        is HKIParcelsWidget -> ParcelsWidgetItem(
+                            widget = widget, viewModel = viewModel, isEditMode = isEditMode,
+                            onDelete = { viewModel.deleteWidget(areaId, widget.id) },
+                            onSettings = { editingParcelsWidget = null to widget }
+                        )
                         is HKIEnergyStack -> EnergyStackWidgetItem(
                             stack = widget, viewModel = viewModel, isEditMode = isEditMode,
                             onToggleCollapsed = { viewModel.updateWidget(areaId, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
@@ -1117,6 +1137,10 @@ fun RoomDetailScreen(
                 pendingWasteWidgetContainerId = "__top__"
                 showAddWidgetDialog = false
             },
+            onAddParcelsWidget = {
+                pendingParcelsWidgetContainerId = "__top__"
+                showAddWidgetDialog = false
+            },
             onAddEnergyCard = { keys -> keys.forEach { viewModel.addWidgetToArea(areaId, HKIEnergyCardWidget(id = UUID.randomUUID().toString(), cardKey = it)) } },
             onAddEnergyStack = { keys -> viewModel.addWidgetToArea(areaId, HKIEnergyStack(id = UUID.randomUUID().toString(), cardKeys = keys)) },
             onAddBatteryCard = { useNotes ->
@@ -1175,6 +1199,26 @@ fun RoomDetailScreen(
                 editingWasteWidget = null
             }
         )
+    }
+    editingParcelsWidget?.let { (containerId, widget) ->
+        ParcelsWidgetSettingsDialog(widget, viewModel, onDismiss = { editingParcelsWidget = null }) { updated ->
+            if (containerId == null) viewModel.updateWidget(areaId, updated)
+            else updateChildInSwipingStack(containerId, updated)
+            editingParcelsWidget = null
+        }
+    }
+    pendingParcelsWidgetContainerId?.let { target ->
+        ParcelDevicePickerDialog(viewModel, null, onDismiss = {
+            pendingParcelsWidgetContainerId = null
+            if (target == "__top__") showAddWidgetDialog = true else addingToSwipingStackId = target
+        }) { deviceId ->
+            if (deviceId != null) {
+                val widget = HKIParcelsWidget(id = UUID.randomUUID().toString(), deviceIds = listOf(deviceId))
+                if (target == "__top__") viewModel.addWidgetToArea(areaId, widget)
+                else addChildToSwipingStack(target, widget)
+            }
+            pendingParcelsWidgetContainerId = null
+        }
     }
 
     pendingWasteWidgetContainerId?.let { target ->
@@ -1271,6 +1315,10 @@ fun RoomDetailScreen(
             },
             onAddWasteWidget = {
                 pendingWasteWidgetContainerId = stackId
+                addingToSwipingStackId = null
+            },
+            onAddParcelsWidget = {
+                pendingParcelsWidgetContainerId = stackId
                 addingToSwipingStackId = null
             },
             onAddEnergyCard = { keys -> keys.forEach { addChildToSwipingStack(stackId, HKIEnergyCardWidget(id = UUID.randomUUID().toString(), cardKey = it)) } },
@@ -2060,6 +2108,7 @@ fun AddRoomWidgetDialog(
     onAddWeatherWidget: (() -> Unit)? = null,
     onAddCalendarWidget: (() -> Unit)? = null,
     onAddWasteWidget: (() -> Unit)? = null,
+    onAddParcelsWidget: (() -> Unit)? = null,
     onAddEnergyCard: ((List<String>) -> Unit)? = null,
     onAddEnergyStack: ((List<String>) -> Unit)? = null,
     onAddBatteryCard: ((Boolean) -> Unit)? = null,
@@ -2089,6 +2138,7 @@ fun AddRoomWidgetDialog(
         add(PickerWidget(Icons.Default.Lightbulb, "Button", "A single configurable entity control", "toggle switch control single entity light") { onAddButtonWidget?.invoke() ?: run { stackTitle = ""; stackIcon = "None"; configureWidget = "button" } })
         if (onAddCalendarWidget != null) add(PickerWidget(Icons.Default.CalendarMonth, "Calendar", "Agenda, week, and month views from HA calendars", "events schedule date agenda month week appointments") { onAddCalendarWidget.invoke(); onDismiss() })
         if (onAddWasteWidget != null) add(PickerWidget(Icons.Default.DeleteSweep, "Waste Collection", "Upcoming pickups from waste sensors (e.g. Afvalbeheer)", "waste afval trash garbage gft pmd papier rest collection pickup afvalbeheer") { onAddWasteWidget.invoke(); onDismiss() })
+        if (onAddParcelsWidget != null) add(PickerWidget(Icons.Default.LocalShipping, "Parcels", "Incoming and outgoing parcels across PostNL, DHL, DPD and GLS", "packages delivery mail carrier tracking shipment") { onAddParcelsWidget.invoke(); onDismiss() })
         add(PickerWidget(Icons.Default.CameraAlt, "Camera", "A single live camera tile or stream URL", "video stream live cctv feed") { onAddCameraWidget?.invoke() ?: run { cameraTitle = ""; cameraIcon = "None"; configureWidget = "camera" } })
         if (onAddEnergyCard != null) add(PickerWidget(Icons.Default.ElectricBolt, "Energy Card", "Any card from the Energy view", "power usage solar gas water consumption electricity") { energyPickerSelection = emptyList(); widgetGroup = "energy_card" })
         if (onAddBatteryCard != null) add(PickerWidget(Icons.Default.BatteryAlert, "Battery Levels", "Low batteries, or Battery+ only with type details", "battery notes charge level power") { widgetGroup = "battery_card" })
@@ -3064,7 +3114,11 @@ fun StackSettingsDialog(
         onDismissRequest = onDismiss,
         title = { Text("Stack Settings") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            val settingsScroll = rememberScrollState()
+            Column(
+                modifier = Modifier.heightIn(max = 480.dp).fadingEdges(settingsScroll).verticalScroll(settingsScroll),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("Stack Title") }, singleLine = true)
                 WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 Text("Icon", style = MaterialTheme.typography.labelLarge)

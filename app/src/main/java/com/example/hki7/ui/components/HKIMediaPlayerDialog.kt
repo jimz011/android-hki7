@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -32,6 +33,7 @@ import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Pause
@@ -61,6 +63,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -81,6 +84,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.OffsetDateTime
 import kotlin.time.Duration.Companion.seconds
+
+/** Extra scroll space needed while the overlay mini-player is visible. */
+val LocalMediaPlayerBarInset = staticCompositionLocalOf { 0.dp }
 
 // media_player supported_features bits (subset used here).
 private const val MP_PAUSE = 1
@@ -171,6 +177,14 @@ fun HKIMediaPlayerDialog(
                     media_content_type = item.media_content_type
                 ))
             },
+            onShufflePlay = { item ->
+                service("shuffle_set", HAServiceCall(entity.entity_id, shuffle = true))
+                service("play_media", HAServiceCall(
+                    entity.entity_id,
+                    media_content_id = item.media_content_id,
+                    media_content_type = item.media_content_type
+                ))
+            },
             onDismiss = { showBrowser = false }
         )
     }
@@ -188,10 +202,14 @@ fun HKIMediaPlayerDialog(
             modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Artwork flexes to the available height.
-            Box(Modifier.weight(1f).fillMaxWidth().padding(vertical = 4.dp), contentAlignment = Alignment.Center) {
+            // Keep the artwork width-constrained. A height-first aspect ratio can grow wider
+            // than the dialog on tall phones and visually touch the screen edges.
+            Box(
+                Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                contentAlignment = Alignment.Center
+            ) {
                 Box(
-                    Modifier.fillMaxHeight().aspectRatio(1f, matchHeightConstraintsFirst = true)
+                    Modifier.fillMaxWidth().aspectRatio(1f)
                         .clip(RoundedCornerShape(20.dp)).background(appColors.subtleSurface),
                     contentAlignment = Alignment.Center
                 ) {
@@ -388,10 +406,11 @@ private fun MediaBrowseDialog(
     viewModel: MainViewModel,
     currentUrl: String,
     onPlay: (HAMediaBrowseItem) -> Unit,
+    onShufflePlay: (HAMediaBrowseItem) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val appColors = LocalHKIAppColors.current
     val scope = rememberCoroutineScope()
+    val colors = MaterialTheme.colorScheme
     var stack by remember { mutableStateOf<List<HAMediaBrowseItem>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var failed by remember { mutableStateOf(false) }
@@ -413,10 +432,11 @@ private fun MediaBrowseDialog(
     }
 
     val current = stack.lastOrNull()
+    val children = current?.children.orEmpty()
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 if (stack.size > 1) {
                     IconButton(onClick = { stack = stack.dropLast(1) }, modifier = Modifier.size(32.dp)) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", modifier = Modifier.size(18.dp))
@@ -424,7 +444,10 @@ private fun MediaBrowseDialog(
                     Spacer(Modifier.width(6.dp))
                 }
                 Text(current?.title?.takeIf { it.isNotBlank() } ?: "Media library",
-                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                IconButton(onClick = onDismiss) {
+                    Icon(Icons.Default.Close, "Close")
+                }
             }
         },
         text = {
@@ -432,56 +455,157 @@ private fun MediaBrowseDialog(
                 loading && current == null -> Box(Modifier.fillMaxWidth().height(160.dp), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
-                failed -> Text("Media browsing isn't available for this player.", color = appColors.onMuted,
+                failed -> Text("Media browsing isn't available for this player.", color = colors.onSurfaceVariant,
                     style = MaterialTheme.typography.bodySmall)
                 else -> {
-                    val children = current?.children.orEmpty()
                     val listState = androidx.compose.foundation.lazy.rememberLazyListState()
                     Box {
-                        LazyColumn(Modifier.heightIn(max = 420.dp).fadingEdges(listState), state = listState) {
+                        LazyColumn(
+                            Modifier.heightIn(max = 520.dp).fadingEdges(listState),
+                            state = listState,
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            if (current != null && (current.thumbnail != null || current.can_play)) {
+                                item {
+                                    val heroThumb = resolveMediaImage(current.thumbnail, currentUrl)
+                                    Row(
+                                        Modifier.fillMaxWidth().padding(bottom = 6.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(14.dp)
+                                    ) {
+                                        Box(
+                                            Modifier.size(72.dp).clip(RoundedCornerShape(10.dp))
+                                                .background(colors.surfaceContainerHighest),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            if (heroThumb != null) {
+                                                AsyncImage(heroThumb, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                                            } else {
+                                                Icon(Icons.AutoMirrored.Filled.PlaylistPlay, null, tint = colors.onSurfaceVariant,
+                                                    modifier = Modifier.size(34.dp))
+                                            }
+                                        }
+                                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                            Text(
+                                                current.title ?: "Media",
+                                                color = colors.onSurface,
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.Bold,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                            Text(
+                                                listOfNotNull(
+                                                    current.media_class?.replace('_', ' ')?.replaceFirstChar(Char::uppercase),
+                                                    children.takeIf { it.isNotEmpty() }?.let { "${it.size} items" }
+                                                ).joinToString(" • "),
+                                                color = colors.onSurfaceVariant,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                            if (current.can_play) {
+                                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                    listOf(
+                                                        Triple(Icons.Default.PlayArrow, "Play", onPlay),
+                                                        Triple(Icons.Default.Shuffle, "Shuffle", onShufflePlay)
+                                                    ).forEach { (icon, label, action) ->
+                                                        Surface(
+                                                            shape = RoundedCornerShape(50),
+                                                            color = colors.primary,
+                                                            modifier = Modifier.clickable(enabled = !loading) { action(current) }
+                                                        ) {
+                                                            Row(
+                                                                Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                                                verticalAlignment = Alignment.CenterVertically,
+                                                                horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                                            ) {
+                                                                Icon(icon, null, tint = colors.onPrimary, modifier = Modifier.size(17.dp))
+                                                                Text(label, color = colors.onPrimary, style = MaterialTheme.typography.labelLarge)
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                             if (children.isEmpty() && !loading) {
                                 item {
-                                    Text("Nothing here.", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall,
+                                    Text("Nothing here.", color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodySmall,
                                         modifier = Modifier.padding(vertical = 16.dp))
                                 }
                             }
-                            items(children) { child ->
-                                Row(
-                                    Modifier.fillMaxWidth()
+                            itemsIndexed(children) { index, child ->
+                                Surface(
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = Color.Transparent,
+                                    modifier = Modifier.fillMaxWidth()
                                         .clickable(enabled = !loading) {
                                             if (child.can_expand) drillInto(child) else if (child.can_play) onPlay(child)
                                         }
-                                        .padding(vertical = 7.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                                 ) {
-                                    val thumb = resolveMediaImage(child.thumbnail, currentUrl)
-                                    Box(
-                                        Modifier.size(38.dp).clip(RoundedCornerShape(10.dp)).background(appColors.subtleSurface),
-                                        contentAlignment = Alignment.Center
+                                    Row(
+                                        Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 5.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                                     ) {
-                                        if (thumb != null) {
-                                            AsyncImage(thumb, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-                                        } else {
-                                            Icon(
-                                                when {
-                                                    child.can_expand -> Icons.Default.Folder
-                                                    child.media_class == "playlist" -> Icons.AutoMirrored.Filled.PlaylistPlay
-                                                    else -> Icons.Default.MusicNote
-                                                },
-                                                null, tint = appColors.onMuted, modifier = Modifier.size(18.dp)
+                                        val thumb = resolveMediaImage(child.thumbnail, currentUrl)
+                                        Box(
+                                            Modifier.size(44.dp).clip(RoundedCornerShape(6.dp)).background(colors.surfaceContainerHighest),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            if (thumb != null) {
+                                                AsyncImage(thumb, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                                            } else {
+                                                Icon(
+                                                    when {
+                                                        child.can_expand -> Icons.Default.Folder
+                                                        child.media_class == "playlist" -> Icons.AutoMirrored.Filled.PlaylistPlay
+                                                        else -> Icons.Default.MusicNote
+                                                    },
+                                                    null, tint = colors.onSurfaceVariant, modifier = Modifier.size(20.dp)
+                                                )
+                                            }
+                                        }
+                                        Text(
+                                            (index + 1).toString(),
+                                            color = colors.onSurfaceVariant,
+                                            style = MaterialTheme.typography.labelMedium,
+                                            textAlign = TextAlign.Center,
+                                            modifier = Modifier.width(24.dp)
+                                        )
+                                        Column(Modifier.weight(1f)) {
+                                            Text(
+                                                child.title?.takeIf { it.isNotBlank() } ?: child.media_content_id ?: "Untitled",
+                                                color = colors.onSurface, style = MaterialTheme.typography.labelLarge,
+                                                fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis
+                                            )
+                                            val metadata = listOfNotNull(
+                                                child.artist?.takeIf { it.isNotBlank() },
+                                                child.media_class?.replace('_', ' ')?.replaceFirstChar(Char::uppercase)
+                                            ).joinToString(" • ")
+                                            if (metadata.isNotBlank()) Text(
+                                                metadata, color = colors.onSurfaceVariant,
+                                                style = MaterialTheme.typography.bodySmall, maxLines = 1
                                             )
                                         }
+                                        child.duration?.takeIf { it > 0 }?.let { duration ->
+                                            Text(
+                                                formatMediaTime(duration.toLong()),
+                                                color = colors.onSurfaceVariant,
+                                                style = MaterialTheme.typography.labelMedium
+                                            )
+                                        }
+                                        Surface(shape = CircleShape, color = Color.Transparent, modifier = Modifier.size(34.dp)) {
+                                            Box(contentAlignment = Alignment.Center) {
+                                                Icon(
+                                                    if (child.can_expand) Icons.Default.ChevronRight else Icons.Default.PlayArrow,
+                                                    if (child.can_expand) "Open" else "Play",
+                                                    tint = colors.onSurface, modifier = Modifier.size(20.dp)
+                                                )
+                                            }
+                                        }
                                     }
-                                    Text(
-                                        child.title?.takeIf { it.isNotBlank() } ?: child.media_content_id ?: "Untitled",
-                                        color = appColors.onSurface, style = MaterialTheme.typography.labelLarge,
-                                        maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f)
-                                    )
-                                    Icon(
-                                        if (child.can_expand) Icons.Default.ChevronRight else Icons.Default.PlayArrow,
-                                        null, tint = appColors.onMuted, modifier = Modifier.size(18.dp)
-                                    )
                                 }
                             }
                         }
@@ -492,7 +616,7 @@ private fun MediaBrowseDialog(
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } }
+        confirmButton = {}
     )
 }
 

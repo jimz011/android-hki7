@@ -39,6 +39,7 @@ import com.example.hki7.data.HKIBatteryConfig
 import androidx.navigation.NavController
 import com.example.hki7.data.HKIPageConfig
 import com.example.hki7.ui.MainViewModel
+import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.EditRemoveBadge
 import com.example.hki7.ui.components.EditSettingsButton
@@ -408,7 +409,7 @@ fun BatteryScreen(viewModel: MainViewModel, navController: NavController? = null
     ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 96.dp),
+            contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item { BatteryHero(batteries, filteredBatteries.size, config.useBatteryNotes) }
@@ -969,7 +970,11 @@ fun BatteryCardWidgetSettingsDialog(
         onDismissRequest = onDismiss,
         title = { Text("Battery Levels") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            val settingsScroll = rememberScrollState()
+            Column(
+                modifier = Modifier.heightIn(max = 460.dp).fadingEdges(settingsScroll).verticalScroll(settingsScroll),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 OutlinedTextField(title, { title = it }, label = { Text("Title") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(threshold, { threshold = it.filter(Char::isDigit).take(3) }, label = { Text("Low threshold (%)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

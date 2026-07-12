@@ -600,7 +600,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
         val appColors = LocalHKIAppColors.current
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(bottom = 96.dp)
+            contentPadding = PaddingValues(bottom = 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current)
         ) {
             if (page == "energy") {
                 // ── the animated house ────────────────────────────────────────

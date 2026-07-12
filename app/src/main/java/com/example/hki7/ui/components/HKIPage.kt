@@ -87,6 +87,8 @@ fun HKIPage(
     val currentUrl by viewModel.currentUrl.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
     val status by viewModel.status.collectAsState()
+    val notifications by viewModel.notifications.collectAsState()
+    val unreadNotificationCount = notifications.count { !it.read && !it.archived }
     val appColors = LocalHKIAppColors.current
     val pageConfigs by viewModel.pageConfigsMapping.collectAsState()
     val pageConfig = pageKey?.let { pageConfigs[it] } ?: HKIPageConfig()
@@ -319,8 +321,6 @@ fun HKIPage(
                                 val leftAlarmEntity = leftAlarmEntities.minByOrNull { alarmDisplayPriority(it.state) }
                                 val use24h by viewModel.use24hFormat.collectAsState()
                                 val useFullDayName by viewModel.useFullDayName.collectAsState()
-                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                NotificationBellButton(viewModel, pillColor = pillColor, iconTint = headerTextColor)
                                 HeaderStatusPill(
                                     displayType = leftDisplayType,
                                     weather = weather,
@@ -340,7 +340,6 @@ fun HKIPage(
                                         }
                                     }
                                 )
-                                }
                             }
 
                             val weatherDisplayType by viewModel.weatherDisplayType.collectAsState()
@@ -477,6 +476,10 @@ fun HKIPage(
                                             icon = subtitleIcon,
                                             color = headerMutedColor
                                         )
+                                        if (title == null) {
+                                            Spacer(Modifier.height(8.dp))
+                                            HeaderNotificationSummary(unreadNotificationCount, headerMutedColor)
+                                        }
                                     }
                                     if (showPeopleRow) {
                                         Spacer(Modifier.height(8.dp))
@@ -523,6 +526,10 @@ fun HKIPage(
                                             icon = subtitleIcon,
                                             color = headerMutedColor
                                         )
+                                        if (title == null) {
+                                            Spacer(Modifier.height(8.dp))
+                                            HeaderNotificationSummary(unreadNotificationCount, headerMutedColor)
+                                        }
                                     }
 
                                     if (showPeopleRow) {
@@ -593,6 +600,21 @@ fun HKIPage(
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 content(PaddingValues())
             }
+        }
+
+        if (unreadNotificationCount > 0 && onBack == null) {
+            val openNotifications = LocalOpenNotifications.current
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .offset(y = headerHeight / 2 - 32.dp)
+                    .width(8.dp)
+                    .height(64.dp)
+                    .clip(RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+                    .clickable { openNotifications?.invoke() }
+                    .zIndex(4f)
+            )
         }
         
         // Done Editing FAB removed to avoid overlap with widget selector
@@ -1167,6 +1189,35 @@ private fun HeaderSubtitle(text: String, icon: ImageVector?, color: Color) {
             Spacer(Modifier.width(6.dp))
         }
         Text(text = text, style = MaterialTheme.typography.bodyLarge, color = color)
+    }
+}
+
+@Composable
+private fun HeaderNotificationSummary(count: Int, color: Color) {
+    if (count == 0) {
+        Text("No Notifications", color = color, style = MaterialTheme.typography.labelMedium)
+        return
+    }
+    val openNotifications = LocalOpenNotifications.current
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Box(
+            modifier = Modifier
+                .height(22.dp)
+                .widthIn(min = 22.dp)
+                .background(MaterialTheme.colorScheme.primary, CircleShape)
+                .clip(CircleShape)
+                .clickable { openNotifications?.invoke() }
+                .padding(horizontal = 5.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                count.toString(),
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Text(if (count == 1) "Notification" else "Notifications", color = color, style = MaterialTheme.typography.labelMedium)
     }
 }
 

@@ -274,7 +274,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
             )
             else -> LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding),
-                contentPadding = PaddingValues(bottom = 96.dp)
+                contentPadding = PaddingValues(bottom = 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current)
             ) {
                 // ── hero: the house right now ─────────────────────────────────
                 item {
@@ -738,7 +738,7 @@ private fun ClimateDeviceListPage(
             columns = GridCells.Fixed(1),
             axis = ReorderAxis.Vertical,
             modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, top = 10.dp, end = 16.dp, bottom = 96.dp),
+            contentPadding = PaddingValues(start = 16.dp, top = 10.dp, end = 16.dp, bottom = 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) { entity, _ ->
             Box {
@@ -751,7 +751,7 @@ private fun ClimateDeviceListPage(
     }
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(padding),
-        contentPadding = PaddingValues(top = 10.dp, bottom = 96.dp)
+        contentPadding = PaddingValues(top = 10.dp, bottom = 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current)
     ) {
         if (devices.isEmpty()) {
             item {
@@ -973,7 +973,7 @@ private fun ClimateSensorDetailPage(
             columns = GridCells.Fixed(1),
             axis = ReorderAxis.Vertical,
             modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, top = 10.dp, end = 16.dp, bottom = 96.dp),
+            contentPadding = PaddingValues(start = 16.dp, top = 10.dp, end = 16.dp, bottom = 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) { sensor, _ ->
             Box {
@@ -998,7 +998,7 @@ private fun ClimateSensorDetailPage(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(padding),
-        contentPadding = PaddingValues(bottom = 96.dp)
+        contentPadding = PaddingValues(bottom = 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current)
     ) {
         // Summary card across all sensors in the group
         item {

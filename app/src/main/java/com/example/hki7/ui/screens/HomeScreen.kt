@@ -23,6 +23,7 @@ import com.example.hki7.data.HKIButtonStack
 import com.example.hki7.data.HKIBatteryCardWidget
 import com.example.hki7.data.HKICalendarWidget
 import com.example.hki7.data.HKIWasteCollectionWidget
+import com.example.hki7.data.HKIParcelsWidget
 import com.example.hki7.data.HKIEmptyStack
 import com.example.hki7.data.HKIRoomWidget
 import com.example.hki7.data.HKIEnergyCardWidget
@@ -34,6 +35,7 @@ import com.example.hki7.data.HKIWeatherWidget
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.Screen
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
+import com.example.hki7.ui.components.DevicePickerDialog
 import com.example.hki7.ui.components.HKIPage
 import com.example.hki7.ui.components.HKICameraDialog
 import com.example.hki7.ui.components.HKILightDialog
@@ -86,7 +88,9 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
     var editingCalendarWidget by remember { mutableStateOf<Pair<String?, HKICalendarWidget>?>(null) }
     var editingWasteWidget by remember { mutableStateOf<Pair<String?, HKIWasteCollectionWidget>?>(null) }
     var pendingWasteWidgetContainerId by remember { mutableStateOf<String?>(null) }
+    var pendingParcelsWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var editingBatteryWidget by remember { mutableStateOf<Pair<String?, HKIBatteryCardWidget>?>(null) }
+    var editingParcelsWidget by remember { mutableStateOf<Pair<String?, HKIParcelsWidget>?>(null) }
     var pendingCalendarWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var selectedChildStackSettings by remember { mutableStateOf<Pair<String, HKIButtonStack>?>(null) }
     var orderingStack by remember { mutableStateOf<Pair<String?, HKIButtonStack>?>(null) }
@@ -289,6 +293,12 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
                 onSettings = { editingWasteWidget = parent.id to child },
                 onUpdate = { updateChildInSwipingStack(parent.id, it) }
             )
+            is HKIParcelsWidget -> ParcelsWidgetItem(
+                widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                viewModel = viewModel, isEditMode = isEditMode,
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingParcelsWidget = parent.id to child }
+            )
             is HKISingleEntityWidget -> SingleEntityWidgetItem(
                 widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
                 viewModel = viewModel,
@@ -371,7 +381,7 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
                         columns = GridCells.Fixed(widgetGridColumns),
                         state = widgetGridState,
                         modifier = Modifier.weight(1f),
-                        contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 96.dp),
+                        contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current),
                         verticalArrangement = Arrangement.spacedBy(14.dp),
                         horizontalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
@@ -496,6 +506,10 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
                                     widget = widget, viewModel = viewModel, isEditMode = false,
                                     onDelete = {}, onSettings = {}, onUpdate = {}
                                 )
+                                is HKIParcelsWidget -> ParcelsWidgetItem(
+                                    widget = widget, viewModel = viewModel, isEditMode = false,
+                                    onDelete = {}, onSettings = {}
+                                )
                                 is HKIEnergyStack -> EnergyStackWidgetItem(
                                     stack = widget, viewModel = viewModel, isEditMode = false,
                                     onToggleCollapsed = { viewModel.updateWidget(HOME_WIDGET_AREA, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
@@ -512,7 +526,7 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
                         key = { it.id },
                         columns = GridCells.Fixed(widgetGridColumns),
                         span = { widgetSpan(it) },
-                        contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 156.dp),
+                        contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 156.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current),
                         verticalArrangement = Arrangement.spacedBy(14.dp),
                         horizontalArrangement = Arrangement.spacedBy(14.dp),
                         axis = ReorderAxis.Vertical,
@@ -649,6 +663,11 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
                                 onSettings = { editingWasteWidget = null to widget },
                                 onUpdate = { viewModel.updateWidget(HOME_WIDGET_AREA, it) }
                             )
+                            is HKIParcelsWidget -> ParcelsWidgetItem(
+                                widget = widget, viewModel = viewModel, isEditMode = isEditMode,
+                                onDelete = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
+                                onSettings = { editingParcelsWidget = null to widget }
+                            )
                             is HKIEnergyStack -> EnergyStackWidgetItem(
                                 stack = widget, viewModel = viewModel, isEditMode = isEditMode,
                                 onToggleCollapsed = { viewModel.updateWidget(HOME_WIDGET_AREA, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
@@ -752,6 +771,10 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
             onAddWeatherWidget = { pendingWeatherWidgetContainerId = "__top__"; showAddWidget = false },
             onAddCalendarWidget = { pendingCalendarWidgetContainerId = "__top__"; showAddWidget = false },
             onAddWasteWidget = { pendingWasteWidgetContainerId = "__top__"; showAddWidget = false },
+            onAddParcelsWidget = {
+                pendingParcelsWidgetContainerId = "__top__"
+                showAddWidget = false
+            },
             onAddEnergyCard = { keys -> keys.forEach { viewModel.addWidgetToArea(HOME_WIDGET_AREA, HKIEnergyCardWidget(id = UUID.randomUUID().toString(), cardKey = it)) } },
             onAddEnergyStack = { keys -> viewModel.addWidgetToArea(HOME_WIDGET_AREA, HKIEnergyStack(id = UUID.randomUUID().toString(), cardKeys = keys)) },
             onAddBatteryCard = { useNotes ->
@@ -777,6 +800,10 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
             onAddWeatherWidget = { pendingWeatherWidgetContainerId = stackId; addingToSwipingStackId = null },
             onAddCalendarWidget = { pendingCalendarWidgetContainerId = stackId; addingToSwipingStackId = null },
             onAddWasteWidget = { pendingWasteWidgetContainerId = stackId; addingToSwipingStackId = null },
+            onAddParcelsWidget = {
+                pendingParcelsWidgetContainerId = stackId
+                addingToSwipingStackId = null
+            },
             onAddEnergyCard = { keys -> keys.forEach { addChildToSwipingStack(stackId, HKIEnergyCardWidget(id = UUID.randomUUID().toString(), cardKey = it)) } },
             onAddEnergyStack = { keys -> addChildToSwipingStack(stackId, HKIEnergyStack(id = UUID.randomUUID().toString(), cardKeys = keys)) },
             onAddBatteryCard = { useNotes ->
@@ -1409,6 +1436,26 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
                 editingWasteWidget = null
             }
         )
+    }
+    editingParcelsWidget?.let { (containerId, widget) ->
+        ParcelsWidgetSettingsDialog(widget, viewModel, onDismiss = { editingParcelsWidget = null }) { updated ->
+            if (containerId == null) viewModel.updateWidget(HOME_WIDGET_AREA, updated)
+            else updateChildInSwipingStack(containerId, updated)
+            editingParcelsWidget = null
+        }
+    }
+    pendingParcelsWidgetContainerId?.let { target ->
+        ParcelDevicePickerDialog(viewModel, null, onDismiss = {
+            pendingParcelsWidgetContainerId = null
+            if (target == "__top__") showAddWidget = true else addingToSwipingStackId = target
+        }) { deviceId ->
+            if (deviceId != null) {
+                val widget = HKIParcelsWidget(id = UUID.randomUUID().toString(), deviceIds = listOf(deviceId))
+                if (target == "__top__") viewModel.addWidgetToArea(HOME_WIDGET_AREA, widget)
+                else addChildToSwipingStack(target, widget)
+            }
+            pendingParcelsWidgetContainerId = null
+        }
     }
     pendingWasteWidgetContainerId?.let { target ->
         WasteEntityPickerDialog(

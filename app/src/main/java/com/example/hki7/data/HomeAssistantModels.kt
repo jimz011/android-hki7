@@ -325,6 +325,9 @@ data class HAMediaBrowseItem(
     val can_play: Boolean = false,
     val can_expand: Boolean = false,
     val thumbnail: String? = null,
+    /** Optional provider metadata; many HA media sources omit these fields. */
+    val artist: String? = null,
+    val duration: Double? = null,
     val children: List<HAMediaBrowseItem> = emptyList()
 )
 
@@ -808,6 +811,22 @@ data class HKIBatteryCardWidget(
     val icon: String? = "battery-alert",
     val lowThreshold: Int = 30,
     val useBatteryNotes: Boolean = false,
+    val isSquare: Boolean = false,
+    val cornerRadius: Int = 28,
+    val isHidden: Boolean = false
+) : HKIRoomWidget()
+
+/** Carrier-agnostic parcel widget for PostNL, DHL NL, DPD and GLS integration devices. */
+@Serializable
+@SerialName("parcels")
+data class HKIParcelsWidget(
+    override val id: String,
+    override val width: String = "full",
+    val deviceIds: List<String> = emptyList(),
+    /** Optional carrier artwork override per HA device; accepts absolute URLs and HA/local paths. */
+    val carrierImageUrls: Map<String, String> = emptyMap(),
+    val title: String? = "Parcels",
+    val icon: String? = "package-variant-closed",
     val isSquare: Boolean = false,
     val cornerRadius: Int = 28,
     val isHidden: Boolean = false

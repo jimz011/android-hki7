@@ -35,6 +35,11 @@ import java.util.Locale
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
+/** Process-wide visibility shared by the UI websocket and optional push foreground service. */
+object AppVisibilityTracker {
+    @Volatile var isVisible: Boolean = false
+}
+
 /**
  * Turns a websocket push-channel event (a `notify.mobile_app_<device>` service call) into an
  * Android system notification plus an entry in the on-device history. Mirrors the official app's
@@ -57,7 +62,11 @@ class PushNotificationHandler(
             return
         }
 
-        postSystemNotification(title, message, data, tag)
+        // The in-app banner is enough while HKI is visible. Keep Android notifications enabled
+        // for this app in the background, where the banner cannot be seen.
+        if (!AppVisibilityTracker.isVisible) {
+            postSystemNotification(title, message, data, tag)
+        }
         appendHistory(
             HKINotification(
                 id = UUID.randomUUID().toString(),

@@ -81,6 +81,7 @@ import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.components.ReorderableGrid
 import com.example.hki7.ui.components.RoomConfigDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
+import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 import kotlin.math.max
@@ -132,7 +133,7 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                         start = 16.dp,
                         top = 16.dp,
                         end = 16.dp,
-                        bottom = if (isEditMode) 156.dp else 96.dp
+                        bottom = (if (isEditMode) 156.dp else 96.dp) + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current
                     ),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
@@ -156,8 +157,8 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                                 scrollState = roomsScrollState,
                                 isCollapsed = section.key in collapsedFloorIds,
                                 onToggleCollapsed = { viewModel.toggleFloorCollapsed(section.key) },
-                                onDeleteFloor = { section.floor?.let { viewModel.deleteFloor(it.floor_id) } },
-                                onSettingsFloor = { section.floor?.let { editingFloor = it } },
+                                onDeleteFloor = { section.floor?.takeUnless { it.floor_id == "__rooms__" }?.let { viewModel.deleteFloor(it.floor_id) } },
+                                onSettingsFloor = { editingFloor = section.floor ?: HAFloor(floor_id = "__rooms__", name = "Rooms") },
                                 onMoveArea = { from, to ->
                                     val fromId = section.areas.getOrNull(from)?.area_id ?: return@FloorSection
                                     val toId = section.areas.getOrNull(to)?.area_id ?: return@FloorSection
@@ -286,13 +287,15 @@ private fun buildFloorSections(
     floors: List<HAFloor>,
     configs: Map<String, HKIAreaConfig>
 ): List<FloorSectionData> {
-    val knownFloorIds = floors.map { it.floor_id }.toSet()
+    val layoutOnlyFloor = floors.firstOrNull { it.floor_id == "__rooms__" }
+    val importedFloors = floors.filterNot { it.floor_id == "__rooms__" }
+    val knownFloorIds = importedFloors.map { it.floor_id }.toSet()
     val byFloor = areas.groupBy { area -> configs[area.area_id]?.floorId ?: area.floor_id }
-    val sections = floors.map { floor -> FloorSectionData(floor.floor_id, floor, byFloor[floor.floor_id].orEmpty()) }
-        .filter { it.areas.isNotEmpty() || floors.isNotEmpty() }
+    val sections = importedFloors.map { floor -> FloorSectionData(floor.floor_id, floor, byFloor[floor.floor_id].orEmpty()) }
+        .filter { it.areas.isNotEmpty() || importedFloors.isNotEmpty() }
     val unassigned = byFloor.filterKeys { it == null || it !in knownFloorIds }.values.flatten()
-    return if (unassigned.isNotEmpty()) sections + FloorSectionData("__rooms__", null, unassigned) else sections.ifEmpty {
-        listOf(FloorSectionData("__rooms__", null, areas))
+    return if (unassigned.isNotEmpty()) sections + FloorSectionData("__rooms__", layoutOnlyFloor, unassigned) else sections.ifEmpty {
+        listOf(FloorSectionData("__rooms__", layoutOnlyFloor, areas))
     }
 }
 
@@ -336,11 +339,13 @@ private fun FloorSection(
                 modifier = Modifier.size(18.dp)
             )
             Spacer(Modifier.weight(1f))
-            if (isEditMode && dashboardMode != "auto" && floor != null) {
-                IconButton(onClick = onDeleteFloor, modifier = Modifier.size(24.dp)) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete floor", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+            if (isEditMode) {
+                if (dashboardMode != "auto" && floor != null && floor.floor_id != "__rooms__") {
+                    IconButton(onClick = onDeleteFloor, modifier = Modifier.size(24.dp)) {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete floor", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+                    }
+                    Spacer(Modifier.width(8.dp))
                 }
-                Spacer(Modifier.width(8.dp))
                 IconButton(onClick = onSettingsFloor, modifier = Modifier.size(24.dp)) {
                     Icon(Icons.Default.Settings, contentDescription = "Floor settings", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
                 }
@@ -642,7 +647,11 @@ private fun FloorSettingsDialog(
         onDismissRequest = onDismiss,
         title = { Text("Floor Settings") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            val settingsScroll = rememberScrollState()
+            Column(
+                modifier = Modifier.heightIn(max = 460.dp).fadingEdges(settingsScroll).verticalScroll(settingsScroll),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },

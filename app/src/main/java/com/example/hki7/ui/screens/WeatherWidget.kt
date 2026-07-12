@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
@@ -28,6 +29,7 @@ import com.example.hki7.data.HKIButtonConfig
 import com.example.hki7.data.HKIButtonStack
 import com.example.hki7.data.HKIWeatherWidget
 import com.example.hki7.ui.MainViewModel
+import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.EditRemoveBadge
 import com.example.hki7.ui.components.ReorderableGrid
 import com.example.hki7.ui.components.ForecastCard
@@ -325,7 +327,11 @@ fun WeatherWidgetSettingsDialog(
         onDismissRequest = onDismiss,
         title = { Text("Weather Widget") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            val settingsScroll = rememberScrollState()
+            Column(
+                modifier = Modifier.heightIn(max = 480.dp).fadingEdges(settingsScroll).verticalScroll(settingsScroll),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },

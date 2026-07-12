@@ -216,7 +216,7 @@ private fun SecurityOverview(
     val active = all.count(HAEntity::isSecurityActive)
     val alerts = securityGroups.filter { it.key in setOf("fire", "smoke", "gas", "moisture") }
         .sumOf { group -> grouped[group.key].orEmpty().count(HAEntity::isSecurityActive) }
-    LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(bottom = 96.dp)) {
+    LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(bottom = 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current)) {
         item { SecurityHero(all.size, active, alerts, cameras.size) }
         item {
             // Cameras get their own full-width section below instead of a tile.
@@ -290,7 +290,7 @@ private fun SecurityGroupPage(group: SecurityGroup, items: List<HAEntity>, viewM
     if (edit && items.isNotEmpty()) {
         ReorderableGrid(items, true, onReorder, { it.entity_id }, GridCells.Fixed(1),
             modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(16.dp, 10.dp, 16.dp, 96.dp),
+            contentPadding = PaddingValues(16.dp, 10.dp, 16.dp, 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current),
             verticalArrangement = Arrangement.spacedBy(10.dp), axis = ReorderAxis.Vertical) { entity, _ ->
             Box {
                 SecurityEntityCard(entity, group, viewModel, currentUrl, edit, customIcons[entity.entity_id], cameraConfigs[entity.entity_id])
@@ -298,7 +298,7 @@ private fun SecurityGroupPage(group: SecurityGroup, items: List<HAEntity>, viewM
                 EditRemoveBadge({ onRemove(entity.entity_id) }, Modifier.align(Alignment.TopEnd))
             }
         }
-    } else LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp, 10.dp, 16.dp, 96.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    } else LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp, 10.dp, 16.dp, 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         if (items.isEmpty()) item { EmptyEditHint(Modifier.fillParentMaxHeight()) }
         else item { SecurityGroupSummary(group, items) }
         items(items.size, key = { items[it].entity_id }) { SecurityEntityCard(items[it], group, viewModel, currentUrl, edit, customIcons[items[it].entity_id], cameraConfigs[items[it].entity_id]) }

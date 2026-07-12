@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -56,6 +57,7 @@ import com.example.hki7.data.HACalendarEvent
 import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HKIWasteCollectionWidget
 import com.example.hki7.ui.MainViewModel
+import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.EditRemoveBadge
 import com.example.hki7.ui.components.MdiIconPickerDialog
@@ -239,7 +241,7 @@ fun WasteCollectionWidgetItem(
         }
     }
     if (showDialog) {
-        WasteCollectionDialog(widget, categories, viewModel, zone, currentUrl, onUpdate) { showDialog = false }
+        WasteCollectionDialog(widget, categories, viewModel, zone, currentUrl) { showDialog = false }
     }
 }
 
@@ -333,38 +335,28 @@ private fun WasteCollectionDialog(
     viewModel: MainViewModel,
     zone: ZoneId,
     currentUrl: String,
-    onUpdate: (HKIWasteCollectionWidget) -> Unit,
     onDismiss: () -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
     val today = LocalDate.now(zone)
-    var showCalendarPicker by remember { mutableStateOf(false) }
-    val calendarFlow = remember(viewModel) {
-        viewModel.entitiesMatching("domain:calendar") { it.entity_id.startsWith("calendar.") }
-    }
-    val calendarEntities by calendarFlow.collectAsState()
-
-    if (showCalendarPicker) {
-        AdvancedEntitySearchDialog(
-            allEntities = calendarEntities,
-            title = "Select Week Calendar",
-            singleSelect = true,
-            preselectedIds = setOfNotNull(widget.calendarEntityId),
-            onDismiss = { showCalendarPicker = false },
-            onEntitiesSelected = { ids ->
-                onUpdate(widget.copy(calendarEntityId = ids.firstOrNull()))
-                showCalendarPicker = false
-            }
-        )
-    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(widget.title ?: "Waste Collection") },
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(widget.title ?: "Waste Collection", modifier = Modifier.weight(1f))
+                IconButton(onClick = onDismiss) {
+                    Icon(Icons.Default.Close, contentDescription = "Close")
+                }
+            }
+        },
         text = {
             val scroll = rememberScrollState()
             Column(
-                modifier = Modifier.heightIn(max = 480.dp).verticalScroll(scroll),
+                modifier = Modifier.heightIn(max = 480.dp).fadingEdges(scroll).verticalScroll(scroll),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 if (categories.isEmpty()) {
@@ -403,31 +395,13 @@ private fun WasteCollectionDialog(
                         }
                     }
                 }
-                HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.12f))
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text("Week calendar", color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
-                        Text(
-                            widget.calendarEntityId?.let { id ->
-                                calendarEntities.find { it.entity_id == id }?.friendlyName ?: id
-                            } ?: "Show a weekly overview from a calendar entity",
-                            color = appColors.onMuted, style = MaterialTheme.typography.bodySmall,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                    TextButton(onClick = { showCalendarPicker = true }) {
-                        Text(if (widget.calendarEntityId == null) "Add" else "Change")
-                    }
-                    if (widget.calendarEntityId != null) {
-                        TextButton(onClick = { onUpdate(widget.copy(calendarEntityId = null)) }) { Text("Clear") }
-                    }
-                }
                 widget.calendarEntityId?.let { calendarId ->
+                    HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.12f))
                     WasteWeekCalendar(calendarId, viewModel, zone)
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } }
+        confirmButton = {}
     )
 }
 
@@ -557,7 +531,7 @@ fun WasteCollectionSettingsDialog(
         title = { Text("Waste Collection Widget") },
         text = {
             Column(
-                modifier = Modifier.heightIn(max = 480.dp).verticalScroll(scroll),
+                modifier = Modifier.heightIn(max = 480.dp).fadingEdges(scroll).verticalScroll(scroll),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 OutlinedTextField(

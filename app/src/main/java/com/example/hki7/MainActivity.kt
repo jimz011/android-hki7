@@ -61,8 +61,10 @@ import com.example.hki7.ui.Screen
 import com.example.hki7.ui.components.HKIBottomBar
 import com.example.hki7.ui.components.HKIMediaPlayerDialog
 import com.example.hki7.ui.components.MediaPlayerMiniBar
+import com.example.hki7.ui.components.LocalMediaPlayerBarInset
 import com.example.hki7.ui.utils.MdiIcon
 import com.example.hki7.ui.components.NotificationPanel
+import com.example.hki7.ui.components.NotificationBannerHost
 import com.example.hki7.ui.screens.*
 import com.example.hki7.ui.theme.HKI7Theme
 import com.example.hki7.ui.theme.LocalHKIAppColors
@@ -222,6 +224,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             .map { it.withDisplayName(mediaPlayerNames[it.entity_id]) }
             .sortedBy { it.entity_id }
     }
+    val showConnectionBar = hasConnectedOnce && connectionStatus != ConnectionStatus.CONNECTED
     var mediaDialogEntityId by remember { mutableStateOf<String?>(null) }
 
     val navBarOrder by prefs.navBarOrder.collectAsState(initial = emptyList())
@@ -340,17 +343,21 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             containerColor = Color.Transparent,
             contentWindowInsets = WindowInsets(0, 0, 0, 0)
         ) { contentPadding ->
-            NavHost(
-                navController,
-                startDestination = Screen.Home.route,
-                // Extra bottom margin while the mini player is visible so page content stays reachable.
-                modifier = Modifier.fillMaxSize().padding(contentPadding)
-                    .padding(bottom = if (activeMediaPlayers.isNotEmpty() && !isEditMode) 86.dp else 0.dp),
-                enterTransition = { EnterTransition.None },
-                exitTransition = { ExitTransition.None },
-                popEnterTransition = { EnterTransition.None },
-                popExitTransition = { ExitTransition.None }
+            CompositionLocalProvider(
+                LocalMediaPlayerBarInset provides if (!isEditMode) {
+                    (if (activeMediaPlayers.isNotEmpty()) 86.dp else 0.dp) + (if (showConnectionBar) 62.dp else 0.dp)
+                } else 0.dp
             ) {
+                NavHost(
+                    navController,
+                    startDestination = Screen.Home.route,
+                    // Pages add this overlay height to their scroll content, not their background.
+                    modifier = Modifier.fillMaxSize().padding(contentPadding),
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None },
+                    popEnterTransition = { EnterTransition.None },
+                    popExitTransition = { ExitTransition.None }
+                ) {
                 composable(Screen.Home.route)     { HAHomeScreen(viewModel, navController) }
                 composable(Screen.Rooms.route)    { RoomsScreen(viewModel, navController) }
                 composable(Screen.Security.route) { SecurityScreen(viewModel) }
@@ -364,14 +371,20 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                     val areaId = backStackEntry.arguments?.getString("areaId") ?: ""
                     RoomDetailScreen(areaId, viewModel, navController)
                 }
+                }
             }
         }
+
+        NotificationBannerHost(viewModel, Modifier.align(Alignment.TopCenter))
 
         // When the bar is too narrow for every tab (small screens / many tabs), fall back to
         // fixed-width tabs in a horizontally scrollable row instead of squeezing weight()-tabs.
         val configuration = androidx.compose.ui.platform.LocalConfiguration.current
         val navBarScrollable = !isEditMode && (configuration.screenWidthDp - 64) < screens.size * 64
         Column(modifier = Modifier.align(Alignment.BottomCenter)) {
+        if (showConnectionBar && !isEditMode) {
+            HomeAssistantConnectionBar(connectionStatus, Modifier.padding(start = 20.dp, end = 20.dp, bottom = 6.dp))
+        }
         if (activeMediaPlayers.isNotEmpty() && !isEditMode) {
             MediaPlayerMiniBar(
                 players = activeMediaPlayers,
@@ -535,6 +548,35 @@ private fun ConnectionErrorOverlay(viewModel: MainViewModel) {
                 style = MaterialTheme.typography.labelSmall,
                 color = appColors.onMuted
             )
+        }
+    }
+}
+
+@Composable
+private fun HomeAssistantConnectionBar(status: ConnectionStatus, modifier: Modifier = Modifier) {
+    val appColors = LocalHKIAppColors.current
+    val label = when (status) {
+        ConnectionStatus.CONNECTING -> "Restarting or reconnecting…"
+        ConnectionStatus.ERROR -> "Unavailable · Retrying…"
+        ConnectionStatus.IDLE -> "Connection paused"
+        ConnectionStatus.CONNECTED -> "Connected"
+    }
+    Surface(
+        modifier = modifier.fillMaxWidth().height(56.dp),
+        shape = RoundedCornerShape(18.dp),
+        color = appColors.surface.copy(alpha = .96f),
+        shadowElevation = 8.dp
+    ) {
+        Row(
+            Modifier.padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            CircularProgressIndicator(modifier = Modifier.size(22.dp), strokeWidth = 2.5.dp)
+            Column {
+                Text("Home Assistant", color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
+                Text(label, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall, maxLines = 1)
+            }
         }
     }
 }

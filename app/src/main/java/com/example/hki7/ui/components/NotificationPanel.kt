@@ -1,6 +1,12 @@
 package com.example.hki7.ui.components
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -11,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.DoneAll
@@ -25,6 +32,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.clip
@@ -37,10 +45,105 @@ import com.example.hki7.data.HKINotification
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 /** Opens the notification drawer from anywhere in the app (provided by MainApp). */
 val LocalOpenNotifications = staticCompositionLocalOf<(() -> Unit)?> { null }
+
+/** Brief, inverted-theme banner for notifications received while the app is visible. */
+@Composable
+fun NotificationBannerHost(
+    viewModel: MainViewModel,
+    modifier: Modifier = Modifier
+) {
+    val notifications by viewModel.notifications.collectAsState()
+    val hostStartedAt = remember { System.currentTimeMillis() }
+    var knownIds by remember { mutableStateOf<Set<String>?>(null) }
+    var current by remember { mutableStateOf<HKINotification?>(null) }
+    var visible by remember { mutableStateOf(false) }
+    var exitMode by remember { mutableStateOf("auto") }
+
+    LaunchedEffect(notifications) {
+        val previous = knownIds
+        if (previous == null) {
+            knownIds = notifications.mapTo(mutableSetOf()) { it.id }
+            return@LaunchedEffect
+        }
+        val incoming = notifications
+            .filter { it.id !in previous && it.timestamp >= hostStartedAt }
+            .maxByOrNull { it.timestamp }
+        knownIds = notifications.mapTo(mutableSetOf()) { it.id }
+        if (incoming != null) {
+            current = incoming
+            exitMode = "auto"
+            visible = true
+        }
+    }
+
+    LaunchedEffect(current?.id, visible) {
+        if (current != null && visible) {
+            delay(5_000)
+            exitMode = "dismiss"
+            visible = false
+        }
+    }
+
+    val backgroundIsLight = MaterialTheme.colorScheme.background.luminance() > 0.5f
+    val bannerBackground = if (backgroundIsLight) Color(0xFF211F24) else Color(0xFFF4F0F5)
+    val bannerForeground = if (backgroundIsLight) Color(0xFFF7F2F8) else Color(0xFF211F24)
+    val bannerMuted = bannerForeground.copy(alpha = 0.68f)
+    val exit = when (exitMode) {
+        "dismiss" -> slideOutHorizontally { -it }
+        "delete" -> scaleOut(targetScale = 0.72f) + fadeOut()
+        else -> slideOutVertically { -it } + fadeOut()
+    }
+
+    AnimatedVisibility(
+        visible = visible && current != null,
+        modifier = modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 16.dp, vertical = 8.dp),
+        enter = slideInVertically { -it },
+        exit = exit
+    ) {
+        current?.let { notification ->
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                color = bannerBackground,
+                shadowElevation = 12.dp,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    Modifier.padding(start = 16.dp, top = 12.dp, end = 8.dp, bottom = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Icon(Icons.Default.Notifications, null, tint = bannerForeground, modifier = Modifier.size(22.dp))
+                    Column(Modifier.weight(1f)) {
+                        notification.title?.takeIf { it.isNotBlank() }?.let {
+                            Text(it, color = bannerForeground, style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        }
+                        Text(notification.message, color = if (notification.title.isNullOrBlank()) bannerForeground else bannerMuted,
+                            style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    }
+                    TextButton(onClick = {
+                        exitMode = "dismiss"
+                        visible = false
+                    }) {
+                        Text("Dismiss", color = bannerForeground)
+                    }
+                    IconButton(onClick = {
+                        exitMode = "delete"
+                        visible = false
+                        viewModel.deleteNotification(notification.id)
+                    }) {
+                        Icon(Icons.Default.Close, "Delete notification", tint = bannerForeground)
+                    }
+                }
+            }
+        }
+    }
+}
 
 /**
  * Round header tile matching the header-pill style: bell icon plus an unread-count badge in the

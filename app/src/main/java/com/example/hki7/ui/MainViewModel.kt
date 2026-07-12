@@ -462,7 +462,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private var highAccuracyJob: Job? = null
     private val refreshMutex = Mutex()
     private var lastTokenRefreshAt = 0L
-    private var appVisible = true
+    private var appVisible = true.also { com.example.hki7.data.AppVisibilityTracker.isVisible = true }
     private var lastDashboardRefreshAt = 0L
     private var appContext: Context? = null
     private var batteryReceiver: android.content.BroadcastReceiver? = null
@@ -556,7 +556,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         }
         viewModelScope.launch {
             prefs.savedFloors.collect { saved ->
-                if (_dashboardMode.value != "auto") _floors.value = saved
+                // Seed auto dashboards from the last successful registry refresh as well.
+                // A fresh HA response will replace this shortly, but the Rooms screen should
+                // not temporarily lose its floor grouping (and floor layout settings) at startup.
+                if (_dashboardMode.value != "auto" || _floors.value.isEmpty()) {
+                    _floors.value = saved
+                }
             }
         }
     }
@@ -740,9 +745,13 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                         flushSignal.close()
                         flushRealtimeBuffer()
                     }
+                    if (appVisible) _status.value = ConnectionStatus.CONNECTING
                 } catch (e: Exception) {
                     if (e.message == "AUTH_EXPIRED") tryTokenRefresh()
-                    else addLog("Realtime sync interrupted: ${e.message}")
+                    else {
+                        if (appVisible) _status.value = ConnectionStatus.CONNECTING
+                        addLog("Realtime sync interrupted: ${e.message}")
+                    }
                 }
                 delay(3.seconds) // backoff before reconnecting
             }
@@ -790,6 +799,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     /** Called from the UI lifecycle: hold the websocket only while the app is visible to avoid
      *  pointless background work, and re-seed immediately on return so the user sees fresh state. */
     fun setAppVisible(visible: Boolean) {
+        com.example.hki7.data.AppVisibilityTracker.isVisible = visible
         if (appVisible == visible) return
         appVisible = visible
         if (visible) {
@@ -854,8 +864,20 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     _areas.value = if (savedOrder.isNotEmpty()) {
                         allAreas.sortedBy { a -> savedOrder.indexOf(a.area_id).let { if (it == -1) Int.MAX_VALUE else it } }
                     } else allAreas
-                    _floors.value = allFloors
-                    autoPopulateDashboard(allAreas, allFloors, allEntities, entityRegistry, deviceRegistry)
+                    val savedFloorsById = prefs.savedFloors.first().associateBy { it.floor_id }
+                    val floorsWithLocalLayout = allFloors.map { imported ->
+                        savedFloorsById[imported.floor_id]?.let { saved ->
+                            imported.copy(
+                                columns = saved.columns,
+                                isSquare = saved.isSquare,
+                                cornerRadius = saved.cornerRadius,
+                                compactTiles = saved.compactTiles,
+                                width = saved.width
+                            )
+                        } ?: imported
+                    } + listOfNotNull(savedFloorsById["__rooms__"])
+                    _floors.value = floorsWithLocalLayout
+                    autoPopulateDashboard(allAreas, floorsWithLocalLayout, allEntities, entityRegistry, deviceRegistry)
                     lastDashboardRefreshAt = SystemClock.elapsedRealtime()
                 }
                 _status.value = ConnectionStatus.CONNECTED
@@ -1789,9 +1811,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun updateFloor(floor: HAFloor) {
-        if (_dashboardMode.value == "auto") return
         takeSnapshot()
-        val updated = _floors.value.map { if (it.floor_id == floor.floor_id) floor else it }
+        val updated = if (_floors.value.any { it.floor_id == floor.floor_id }) {
+            _floors.value.map { if (it.floor_id == floor.floor_id) floor else it }
+        } else {
+            _floors.value + floor
+        }
         _floors.value = updated
         viewModelScope.launch { prefs.saveFloors(updated) }
     }
