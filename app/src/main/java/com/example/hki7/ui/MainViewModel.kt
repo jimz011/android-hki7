@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.intOrNull
@@ -1497,6 +1498,26 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         }
     }
 
+    /** Browses a media player's library (playlists, favorites, …); null when unsupported/offline. */
+    suspend fun browseMedia(entityId: String, contentId: String? = null, contentType: String? = null): com.example.hki7.data.HAMediaBrowseItem? =
+        runCatching { client?.browseMedia(entityId, contentId, contentType) }.getOrNull()
+
+    /** Manual reconnect from the connection-error overlay; true when it ends up CONNECTED. */
+    suspend fun retryConnection(): Boolean {
+        refreshEntities()
+        // Skip the replayed current (ERROR) value, then wait for this attempt to settle.
+        val settled = withTimeoutOrNull(20_000) {
+            status.drop(1).first { it == ConnectionStatus.CONNECTED || it == ConnectionStatus.ERROR }
+        }
+        return settled == ConnectionStatus.CONNECTED
+    }
+
+    /** Clears credentials (config preserved) and routes the user to the login screen. */
+    fun forceRelogin(reason: String) {
+        viewModelScope.launch { prefs.clearAuth() }
+        _forcedLogoutReason.value = reason
+    }
+
     fun clearForcedLogoutReason() {
         _forcedLogoutReason.value = null
     }
@@ -1743,7 +1764,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val defaultAction = when {
             trigger != "tap" -> "more_info"
             stack?.stackType == "camera" -> "more_info"
-            domain in listOf("sensor", "binary_sensor", "camera", "climate", "cover", "lock", "fan", "humidifier", "alarm_control_panel", "person") -> "more_info"
+            domain in listOf("sensor", "binary_sensor", "camera", "climate", "cover", "lock", "fan", "humidifier", "alarm_control_panel", "person", "vacuum") -> "more_info"
             else -> "toggle"
         }
         val action = when (trigger) {

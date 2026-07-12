@@ -57,7 +57,12 @@ import coil3.compose.SubcomposeAsyncImageContent
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.data.HAEntity
 import com.example.hki7.ui.MainViewModel
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
@@ -249,10 +254,14 @@ private fun cameraHeaders(authToken: String?): Map<String, String> =
 @Composable
 fun ZoomableCameraImage(imageUrl: String?, contentDescription: String) {
     val hostView = LocalView.current
-    var scale by remember(imageUrl) { mutableFloatStateOf(1f) }
-    var offsetX by remember(imageUrl) { mutableFloatStateOf(0f) }
-    var offsetY by remember(imageUrl) { mutableFloatStateOf(0f) }
-    var lastSuccessfulModel by remember(imageUrl) { mutableStateOf(imageUrl) }
+    // Refresh ticks only change the hki_refresh query param. Key zoom/pan and the last good frame
+    // on the URL without it, so a snapshot refresh keeps showing the previous (memory-cached)
+    // frame while the new one loads — a seamless swap instead of a flash — and zoom survives it.
+    val stableKey = imageUrl?.substringBefore("hki_refresh=")?.trimEnd('?', '&')
+    var scale by remember(stableKey) { mutableFloatStateOf(1f) }
+    var offsetX by remember(stableKey) { mutableFloatStateOf(0f) }
+    var offsetY by remember(stableKey) { mutableFloatStateOf(0f) }
+    var lastSuccessfulModel by remember(stableKey) { mutableStateOf<String?>(null) }
 
     Box(
         modifier = Modifier
@@ -264,49 +273,65 @@ fun ZoomableCameraImage(imageUrl: String?, contentDescription: String) {
                 }
                 false
             }
-            .pointerInput(imageUrl) {
-                detectTransformGestures { _, pan, zoom, _ ->
-                    scale = (scale * zoom).coerceIn(1f, 4f)
-                    if (scale == 1f) {
-                        offsetX = 0f
-                        offsetY = 0f
-                    } else {
-                        offsetX += pan.x
-                        offsetY += pan.y
-                    }
+            .pointerInput(stableKey) {
+                // Hand-rolled transform handling: only claim events for a pinch (2+ fingers) or a
+                // pan while zoomed in. Unzoomed single-finger drags stay unconsumed so the list
+                // around a snapshot camera card keeps scrolling (live cards use a WebView, which
+                // never had this problem).
+                awaitEachGesture {
+                    var pinching = false
+                    awaitFirstDown(requireUnconsumed = false)
+                    do {
+                        val event = awaitPointerEvent()
+                        if (event.changes.count { it.pressed } > 1) pinching = true
+                        if (pinching || scale > 1f) {
+                            val zoom = event.calculateZoom()
+                            val pan = event.calculatePan()
+                            scale = (scale * zoom).coerceIn(1f, 4f)
+                            if (scale == 1f) {
+                                offsetX = 0f
+                                offsetY = 0f
+                            } else {
+                                offsetX += pan.x
+                                offsetY += pan.y
+                            }
+                            event.changes.forEach { if (it.positionChanged()) it.consume() }
+                        }
+                    } while (event.changes.any { it.pressed })
                 }
             },
         contentAlignment = Alignment.Center
     ) {
         if (!imageUrl.isNullOrBlank()) {
-            SubcomposeAsyncImage(
-                model = imageUrl,
-                contentDescription = contentDescription,
-                modifier = Modifier
+            // Two persistent layers: the last good frame always stays visible underneath while the
+            // next refresh tick loads invisibly on top and only covers it once fully decoded. This
+            // avoids the blank recomposition frames a single reloading image shows on every tick.
+            Box(
+                Modifier
                     .fillMaxSize()
                     .graphicsLayer(
                         scaleX = scale,
                         scaleY = scale,
                         translationX = offsetX,
                         translationY = offsetY
-                    ),
-                contentScale = ContentScale.Fit,
-                loading = {
-                    val fallback = lastSuccessfulModel
-                    if (!fallback.isNullOrBlank()) {
-                        AsyncImage(
-                            model = fallback,
-                            contentDescription = contentDescription,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Fit
-                        )
-                    }
-                },
-                success = {
-                    lastSuccessfulModel = imageUrl
-                    SubcomposeAsyncImageContent()
+                    )
+            ) {
+                lastSuccessfulModel?.let { fallback ->
+                    AsyncImage(
+                        model = fallback,
+                        contentDescription = contentDescription,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
                 }
-            )
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = contentDescription,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit,
+                    onSuccess = { lastSuccessfulModel = imageUrl }
+                )
+            }
         } else {
             Text("No Stream Available", color = Color.Gray)
         }

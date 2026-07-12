@@ -1,6 +1,7 @@
 package com.example.hki7.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -38,8 +40,11 @@ fun HKIBottomBar(
             .fillMaxWidth()
             .padding(start = horizontalPadding, end = horizontalPadding, bottom = 15.dp)
             .height(64.dp)
+            // Soft shadow + hairline border lift the floating bar off busy page content.
+            .shadow(10.dp, RoundedCornerShape(32.dp))
             .clip(RoundedCornerShape(32.dp))
             .background(barColor)
+            .border(1.dp, appColors.onMuted.copy(alpha = 0.10f), RoundedCornerShape(32.dp))
     ) {
         // weight()-based equal-width tabs can't live in a scrollable Row (unbounded width),
         // so scrollable mode uses fixed-width tabs with spacing instead of SpaceEvenly.

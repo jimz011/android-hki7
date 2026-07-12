@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
@@ -79,8 +80,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import com.example.hki7.BuildConfig
+import androidx.compose.ui.text.style.TextOverflow
+import com.example.hki7.data.HAEntity
 import com.example.hki7.data.PreferencesManager
 import com.example.hki7.data.PushForegroundService
+import com.example.hki7.ui.components.RenameCardDialog
 import com.example.hki7.ui.ConnectionStatus
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.NavBarConfig
@@ -92,19 +96,20 @@ import com.example.hki7.ui.utils.MdiIcon
 import kotlinx.coroutines.launch
 
 private enum class SettingsSection {
-    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, THEME, NAV_BAR, DASHBOARD, ACCOUNT
+    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, THEME, NAV_BAR, MEDIA_PLAYERS, DASHBOARD, ACCOUNT
 }
 
 private fun sectionTitle(section: SettingsSection): String = when (section) {
     SettingsSection.MENU -> "Settings"
     SettingsSection.NAV_BAR -> "Navigation Bar"
     SettingsSection.APPEARANCE -> "Appearance"
+    SettingsSection.MEDIA_PLAYERS -> "Media Players"
     else -> section.name.lowercase().replaceFirstChar { it.uppercase() }
 }
 
 // Sub-sections nested under Appearance return there on back; everything else returns to the menu.
 private fun parentSection(section: SettingsSection): SettingsSection = when (section) {
-    SettingsSection.THEME, SettingsSection.NAV_BAR -> SettingsSection.APPEARANCE
+    SettingsSection.THEME, SettingsSection.NAV_BAR, SettingsSection.MEDIA_PLAYERS -> SettingsSection.APPEARANCE
     else -> SettingsSection.MENU
 }
 
@@ -377,6 +382,69 @@ fun SettingsDialog(
                         SettingsSection.APPEARANCE -> {
                             SettingsChoice(Icons.Default.Palette, "Theme", "Colors and light/dark mode") { section = SettingsSection.THEME }
                             SettingsChoice(Icons.Default.Menu, "Navigation Bar", "Reorder and hide tabs") { section = SettingsSection.NAV_BAR }
+                            SettingsChoice(Icons.Default.MusicNote, "Media Players", "Rename players and mini player visibility") { section = SettingsSection.MEDIA_PLAYERS }
+                        }
+                        SettingsSection.MEDIA_PLAYERS -> {
+                            val customNames by prefs.mediaPlayerCustomNames.collectAsState(initial = emptyMap())
+                            val barHidden by prefs.mediaPlayerBarHidden.collectAsState(initial = emptyList())
+                            val playersFlow = remember(viewModel) {
+                                viewModel.entitiesMatching("domain:media_player") { it.entity_id.startsWith("media_player.") }
+                            }
+                            val players by playersFlow.collectAsState()
+                            var renamingPlayer by remember { mutableStateOf<HAEntity?>(null) }
+                            renamingPlayer?.let { player ->
+                                RenameCardDialog(
+                                    currentName = customNames[player.entity_id].orEmpty(),
+                                    defaultName = player.friendlyName ?: player.entity_id,
+                                    onDismiss = { renamingPlayer = null }
+                                ) { name ->
+                                    val names = if (name == null) customNames - player.entity_id
+                                        else customNames + (player.entity_id to name)
+                                    scope.launch { prefs.saveMediaPlayerCustomNames(names) }
+                                    renamingPlayer = null
+                                }
+                            }
+                            SettingsPanel {
+                                Text(
+                                    "Rename players and choose which ones may show the mini player above the navigation bar while playing.",
+                                    color = appColors.onMuted,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                val sorted = players.sortedBy { (customNames[it.entity_id] ?: it.friendlyName ?: it.entity_id).lowercase() }
+                                if (sorted.isEmpty()) {
+                                    Text("No media players found.", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                                }
+                                sorted.forEach { player ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Column(Modifier.weight(1f)) {
+                                            Text(
+                                                customNames[player.entity_id] ?: player.friendlyName ?: player.entity_id,
+                                                color = appColors.onSurface,
+                                                style = MaterialTheme.typography.labelLarge,
+                                                maxLines = 1, overflow = TextOverflow.Ellipsis
+                                            )
+                                            Text(
+                                                player.entity_id,
+                                                color = appColors.onMuted,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                maxLines = 1, overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                        TextButton(onClick = { renamingPlayer = player }) { Text("Rename") }
+                                        Switch(
+                                            checked = player.entity_id !in barHidden,
+                                            onCheckedChange = { show ->
+                                                val newHidden = if (show) barHidden - player.entity_id
+                                                    else (barHidden + player.entity_id).distinct()
+                                                scope.launch { prefs.saveMediaPlayerBarHidden(newHidden) }
+                                            }
+                                        )
+                                    }
+                                }
+                            }
                         }
                         SettingsSection.NAV_BAR -> {
                             val navBarOrder by prefs.navBarOrder.collectAsState(initial = emptyList())

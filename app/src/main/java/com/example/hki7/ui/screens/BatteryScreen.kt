@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -23,10 +25,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.hki7.data.HADeviceRegistryEntry
 import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HAEntityRegistryEntry
@@ -37,7 +41,9 @@ import com.example.hki7.data.HKIPageConfig
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.EditRemoveBadge
+import com.example.hki7.ui.components.EditSettingsButton
 import com.example.hki7.ui.components.HKIPage
+import com.example.hki7.ui.components.RenameCardDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
@@ -319,10 +325,12 @@ fun BatteryScreen(viewModel: MainViewModel, navController: NavController? = null
         devices,
         config.useBatteryNotes,
         config.hiddenEntityIds,
+        config.customNames,
         manualEntityIds
     ) {
         batteryEntities(batteryInputs.entities, registry, devices, config.useBatteryNotes, manualEntityIds)
             .filterNot { it.entity.entity_id in config.hiddenEntityIds }
+            .map { info -> config.customNames[info.entity.entity_id]?.let { info.copy(deviceName = it) } ?: info }
     }
     val batteryTypes = remember(batteries) {
         batteries.mapNotNull { it.batteryType }.distinct().sorted()
@@ -355,11 +363,29 @@ fun BatteryScreen(viewModel: MainViewModel, navController: NavController? = null
             )
         }
 
-    BackHandler(enabled = selected != null) { selected = null }
+    var renameBattery by remember { mutableStateOf<BatteryInfo?>(null) }
+    renameBattery?.let { info ->
+        RenameCardDialog(
+            currentName = config.customNames[info.entity.entity_id].orEmpty(),
+            defaultName = info.deviceName ?: info.entity.friendlyName ?: info.entity.entity_id,
+            onDismiss = { renameBattery = null }
+        ) { name ->
+            val names = if (name == null) config.customNames - info.entity.entity_id
+                else config.customNames + (info.entity.entity_id to name)
+            viewModel.updateBatteryConfig(BATTERY_PAGE_KEY, config.copy(customNames = names))
+            renameBattery = null
+        }
+    }
+
+    selected?.let { info ->
+        // Live lookup so the dialog reflects state updates while open.
+        BatteryDetailDialog(batteries.find { it.entity.entity_id == info.entity.entity_id } ?: info) { selected = null }
+    }
+
     HKIPage(
         viewModel = viewModel,
-        title = selected?.deviceName ?: "Batteries",
-        subtitle = selected?.entity?.entity_id ?: "$lowCount low batteries",
+        title = "Batteries",
+        subtitle = "$lowCount low batteries",
         pageKey = BATTERY_PAGE_KEY,
         pageSettingsTitle = "Battery Settings",
         extraPageSettingsSection = settingsSection,
@@ -377,37 +403,31 @@ fun BatteryScreen(viewModel: MainViewModel, navController: NavController? = null
                 onSortModeChange = { sortMode = it }
             )
         },
-        onBack = when {
-            // In a battery's detail view, back returns to the list.
-            selected != null -> ({ selected = null })
-            // Reached from the battery widget (or any deep link): offer a back button like a room page.
-            navController?.previousBackStackEntry != null -> ({ navController.navigateUp(); Unit })
-            else -> null
-        }
+        // Reached from the battery widget (or any deep link): offer a back button like a room page.
+        onBack = if (navController?.previousBackStackEntry != null) ({ navController.navigateUp(); Unit }) else null
     ) { padding ->
-        if (selected != null) {
-            BatteryDetail(selected!!, Modifier.fillMaxSize().padding(padding))
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(padding),
-                contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 96.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                item { BatteryHero(batteries, filteredBatteries.size, config.useBatteryNotes) }
-                if (filteredBatteries.isEmpty()) {
-                    item { BatteryEmptyState(config.useBatteryNotes) }
-                } else {
-                    batteryCategories.forEach { category ->
-                        val grouped = filteredBatteries.filter(category.predicate)
-                        if (grouped.isNotEmpty()) {
-                            item { BatteryCategoryHeader(category, grouped.size) }
-                            items(grouped, key = { it.entity.entity_id }) { info ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 96.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            item { BatteryHero(batteries, filteredBatteries.size, config.useBatteryNotes) }
+            if (filteredBatteries.isEmpty()) {
+                item { BatteryEmptyState(config.useBatteryNotes) }
+            } else {
+                batteryCategories.forEach { category ->
+                    val grouped = filteredBatteries.filter(category.predicate)
+                    if (grouped.isNotEmpty()) {
+                        item { BatteryCategoryHeader(category, grouped.size) }
+                        items(grouped, key = { it.entity.entity_id }) { info ->
+                            Box {
                                 BatteryRow(info, showNotes = config.useBatteryNotes, onClick = { selected = info })
-                                if (isEditMode) {
-                                    TextButton(onClick = {
-                                        viewModel.hideBatteryEntity(BATTERY_PAGE_KEY, info.entity.entity_id)
-                                    }) { Text("Hide") }
-                                }
+                                if (isEditMode) EditSettingsButton({ renameBattery = info }, Modifier.align(Alignment.Center))
+                            }
+                            if (isEditMode) {
+                                TextButton(onClick = {
+                                    viewModel.hideBatteryEntity(BATTERY_PAGE_KEY, info.entity.entity_id)
+                                }) { Text("Hide") }
                             }
                         }
                     }
@@ -453,37 +473,57 @@ fun BatteryCardWidgetItem(
     val lowCount = summary.lowCount
     val criticalCount = summary.criticalCount
     val accent = batteryColor(if (criticalCount > 0) 5 else if (lowCount > 0) 25 else 90)
+    val stateText = when {
+        criticalCount > 0 -> "$criticalCount critical · $lowCount low"
+        lowCount > 0 -> "$lowCount low"
+        else -> "All batteries OK"
+    }
+    // Same footprint and label placement as the waste/vacuum/camera widgets: 16:9 (or square)
+    // card with a centered artwork and the name + state overlay in the bottom-left corner.
     Box {
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .then(if (widget.isSquare) Modifier.aspectRatio(1f) else Modifier.height(146.dp))
+                .aspectRatio(if (widget.isSquare) 1f else 16f / 9f)
                 .clip(RoundedCornerShape(widget.cornerRadius.dp))
                 .clickable(enabled = !isEditMode, onClick = onOpen),
             shape = RoundedCornerShape(widget.cornerRadius.dp),
-            color = appColors.elevated
+            color = Color(0xFF1A1A2E)
         ) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.SpaceBetween) {
-                Row(verticalAlignment = Alignment.Top) {
-                    Surface(shape = RoundedCornerShape(16.dp), color = accent.copy(alpha = 0.15f)) {
-                        MdiIcon(widget.icon ?: "battery-alert", tint = accent, size = 28.dp, modifier = Modifier.padding(10.dp))
+            Box {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(
+                        Modifier.size(84.dp).background(accent.copy(alpha = 0.14f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        MdiIcon(widget.icon ?: "battery-heart", tint = accent, size = 44.dp)
                     }
-                    Spacer(Modifier.width(12.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text(widget.title ?: "Battery Levels", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        val source = if (widget.useBatteryNotes) "Battery+" else "battery sensors"
-                        Text(source, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall, maxLines = 1)
-                    }
-                    Text(
-                        if (lowCount == 0) "OK" else "$lowCount",
-                        color = accent,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
-                    )
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    BatteryStatPill("Low", lowCount.toString(), accent, Modifier.weight(1f))
-                    BatteryStatPill("Critical", criticalCount.toString(), batteryColor(5), Modifier.weight(1f))
+                Box(
+                    Modifier.fillMaxSize().background(
+                        Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent, Color.Black.copy(alpha = 0.72f)))
+                    )
+                )
+                Surface(
+                    modifier = Modifier.align(Alignment.BottomStart).padding(10.dp),
+                    color = Color.Black.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
+                        Text(
+                            widget.title ?: "Battery Levels",
+                            color = Color.White, style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Box(Modifier.size(5.dp).background(accent, CircleShape))
+                            Text(
+                                stateText, color = Color.White.copy(alpha = 0.8f),
+                                style = MaterialTheme.typography.labelSmall, fontSize = 10.sp,
+                                maxLines = 1, overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -492,17 +532,6 @@ fun BatteryCardWidgetItem(
                 Icon(Icons.Default.Settings, contentDescription = "Settings", tint = appColors.onSurface, modifier = Modifier.size(18.dp))
             }
             EditRemoveBadge(onClick = onDelete, modifier = Modifier.align(Alignment.TopEnd).padding(4.dp))
-        }
-    }
-}
-
-@Composable
-private fun BatteryStatPill(label: String, value: String, color: Color, modifier: Modifier = Modifier) {
-    Surface(modifier = modifier, shape = RoundedCornerShape(14.dp), color = color.copy(alpha = 0.12f)) {
-        Row(Modifier.padding(horizontal = 10.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(value, color = color, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
-            Spacer(Modifier.width(5.dp))
-            Text(label, color = LocalHKIAppColors.current.onMuted, style = MaterialTheme.typography.labelSmall)
         }
     }
 }
@@ -522,7 +551,7 @@ private fun BatteryHero(batteries: List<BatteryInfo>, visibleCount: Int, battery
                 }
                 Spacer(Modifier.width(14.dp))
                 Column(Modifier.weight(1f)) {
-                    Text(if (batteryPlusOnly) "Battery+ batteries" else "Battery overview", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text(if (batteryPlusOnly) "Battery+ batteries" else "Battery overview", color = appColors.onSurface, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Text("$visibleCount shown from ${batteries.size} batteries", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
                 }
                 Text(average?.let { "$it%" } ?: "--", color = accent, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
@@ -786,19 +815,30 @@ private fun BatteryMetaChip(text: String, color: Color) {
 }
 
 @Composable
-private fun BatteryDetail(info: BatteryInfo, modifier: Modifier) {
-    LazyColumn(modifier, contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        item { BatteryRow(info, showNotes = true, onClick = {}) }
-        item {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+private fun BatteryDetailDialog(info: BatteryInfo, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(info.deviceName ?: info.entity.friendlyName ?: info.entity.entity_id,
+                maxLines = 1, overflow = TextOverflow.Ellipsis)
+        },
+        text = {
+            val scroll = rememberScrollState()
+            Column(
+                modifier = Modifier.heightIn(max = 460.dp).verticalScroll(scroll),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                BatteryRow(info, showNotes = true, onClick = {})
+                Spacer(Modifier.height(4.dp))
                 BatteryDetailLine("Entity", info.entity.entity_id)
                 BatteryDetailLine("Battery type", info.batteryType ?: "Unknown")
                 BatteryDetailLine("Quantity", info.quantity ?: "Unknown")
                 BatteryDetailLine("Device id", info.deviceId ?: "Unknown")
                 info.notes.forEach { (name, value) -> BatteryDetailLine(name, value) }
             }
-        }
-    }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } }
+    )
 }
 
 @Composable

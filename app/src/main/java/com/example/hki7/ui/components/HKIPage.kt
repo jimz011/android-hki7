@@ -110,6 +110,7 @@ fun HKIPage(
     var previewHeaderColor by remember { mutableStateOf<String?>(null) }
     var pullOffset by remember { mutableFloatStateOf(0f) }
     var showSettings by remember { mutableStateOf(false) }
+    var showSearch by remember { mutableStateOf(false) }
     
     val maxPull = 450f 
     val pullOffsetDp = (pullOffset / 3f).dp
@@ -225,8 +226,8 @@ fun HKIPage(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            MenuButton(Icons.Default.Refresh, "Refresh", enabled = menuVisible, surfaceColor = menuButtonSurfaceColor, contentColor = menuButtonContentColor) { 
-                viewModel.refreshEntities()
+            MenuButton(Icons.Default.Search, "Search", enabled = menuVisible, surfaceColor = menuButtonSurfaceColor, contentColor = menuButtonContentColor) {
+                showSearch = true
                 pullOffset = 0f
             }
             MenuButton(if (isEditMode) Icons.Default.CheckCircle else Icons.Default.Edit, if (isEditMode) "Done" else "Edit", enabled = menuVisible, surfaceColor = menuButtonSurfaceColor, contentColor = menuButtonContentColor) { 
@@ -652,6 +653,10 @@ fun HKIPage(
                 viewModel = viewModel,
                 onDismiss = { showSettings = false }
             )
+        }
+
+        if (showSearch) {
+            GlobalSearchDialog(viewModel = viewModel, onDismiss = { showSearch = false })
         }
 
         if (showRoomConfig && areaId != null) {

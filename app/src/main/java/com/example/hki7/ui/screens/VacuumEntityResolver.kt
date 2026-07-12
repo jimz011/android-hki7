@@ -11,30 +11,47 @@ data class VacuumEntities(
     val emptyBin: HAEntity?
 )
 
+/** Auto-detects the vacuum's helper entities (map camera, battery, water level, empty bin)
+ *  among the entities registered to the given device. */
+fun resolveVacuumDeviceEntities(
+    deviceId: String?,
+    allEntities: List<HAEntity>,
+    registry: List<HAEntityRegistryEntry>
+): VacuumEntities {
+    val byId = allEntities.associateBy { it.entity_id }
+    val deviceEntities = deviceId?.let { id ->
+        registry.asSequence().filter { it.device_id == id }.mapNotNull { byId[it.entity_id] }.toList()
+    }.orEmpty()
+    fun text(e: HAEntity) = "${e.entity_id} ${e.friendlyName.orEmpty()}".lowercase()
+    val map = deviceEntities.firstOrNull {
+        it.entity_id.startsWith("camera.") && listOf("map", "kaart", "floor").any(text(it)::contains)
+    } ?: deviceEntities.firstOrNull { it.entity_id.startsWith("camera.") }
+    val battery = deviceEntities.firstOrNull {
+        it.deviceClass == "battery" || "battery" in text(it) || "accu" in text(it)
+    }
+    val water = deviceEntities.firstOrNull {
+        (it.entity_id.startsWith("select.") || it.entity_id.startsWith("input_select.")) &&
+            listOf("water", "mop", "dweil").any(text(it)::contains)
+    }
+    val empty = deviceEntities.firstOrNull {
+        (it.entity_id.startsWith("button.") || it.entity_id.startsWith("switch.")) &&
+            listOf("empty", "dust bin", "dustbin", "stofbak", "auto empty").any(text(it)::contains)
+    }
+    return VacuumEntities(map, battery, water, empty)
+}
+
 fun resolveVacuumEntities(
     config: HKIButtonConfig?,
     allEntities: List<HAEntity>,
     registry: List<HAEntityRegistryEntry>
 ): VacuumEntities {
     val byId = allEntities.associateBy { it.entity_id }
-    val deviceEntities = config?.vacuumDeviceId?.let { deviceId ->
-        registry.asSequence().filter { it.device_id == deviceId }.mapNotNull { byId[it.entity_id] }.toList()
-    }.orEmpty()
-    fun text(e: HAEntity) = "${e.entity_id} ${e.friendlyName.orEmpty()}".lowercase()
     fun manual(id: String?) = id?.let(byId::get)
-    val map = deviceEntities.firstOrNull {
-        it.entity_id.startsWith("camera.") && listOf("map", "kaart", "floor").any(text(it)::contains)
-    } ?: deviceEntities.firstOrNull { it.entity_id.startsWith("camera.") } ?: manual(config?.vacuumMapEntityId)
-    val battery = deviceEntities.firstOrNull {
-        it.deviceClass == "battery" || "battery" in text(it) || "accu" in text(it)
-    } ?: manual(config?.vacuumBatteryEntityId)
-    val water = deviceEntities.firstOrNull {
-        (it.entity_id.startsWith("select.") || it.entity_id.startsWith("input_select.")) &&
-            listOf("water", "mop", "dweil").any(text(it)::contains)
-    } ?: manual(config?.vacuumWaterEntityId)
-    val empty = deviceEntities.firstOrNull {
-        (it.entity_id.startsWith("button.") || it.entity_id.startsWith("switch.")) &&
-            listOf("empty", "dust bin", "dustbin", "stofbak", "auto empty").any(text(it)::contains)
-    } ?: manual(config?.vacuumEmptyBinEntityId)
-    return VacuumEntities(map, battery, water, empty)
+    val auto = resolveVacuumDeviceEntities(config?.vacuumDeviceId, allEntities, registry)
+    return VacuumEntities(
+        map = auto.map ?: manual(config?.vacuumMapEntityId),
+        battery = auto.battery ?: manual(config?.vacuumBatteryEntityId),
+        water = auto.water ?: manual(config?.vacuumWaterEntityId),
+        emptyBin = auto.emptyBin ?: manual(config?.vacuumEmptyBinEntityId)
+    )
 }

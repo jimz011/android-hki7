@@ -63,9 +63,22 @@ private enum class OnboardStep { WELCOME, SERVER, NAME, LOGIN, PERMISSIONS }
  * Calls [onComplete] when finished so the host can show the main app.
  */
 @Composable
-fun OnboardingScreen(prefs: PreferencesManager, onComplete: () -> Unit) {
-    var step by remember { mutableStateOf(OnboardStep.WELCOME) }
-    var serverUrl by remember { mutableStateOf("") }
+fun OnboardingScreen(prefs: PreferencesManager, startAtLogin: Boolean = false, onComplete: () -> Unit) {
+    // Re-login mode (e.g. session expired or the dashboard stopped connecting): the server is
+    // already known, so jump straight to the login step and skip the rest of onboarding.
+    val loadingSentinel = "__hki_loading__"
+    val savedServerUrl by prefs.serverUrl.collectAsState(initial = loadingSentinel)
+    if (startAtLogin && savedServerUrl == loadingSentinel) {
+        Box(Modifier.fillMaxSize().background(LocalHKIAppColors.current.background), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+    val loginOnly = startAtLogin && !savedServerUrl.isNullOrBlank()
+    var step by remember(loginOnly) { mutableStateOf(if (loginOnly) OnboardStep.LOGIN else OnboardStep.WELCOME) }
+    var serverUrl by remember(loginOnly) {
+        mutableStateOf(if (loginOnly) savedServerUrl.orEmpty().removeSuffix("/") else "")
+    }
 
     AnimatedContent(
         targetState = step,
@@ -86,8 +99,9 @@ fun OnboardingScreen(prefs: PreferencesManager, onComplete: () -> Unit) {
             OnboardStep.LOGIN -> LoginStep(
                 serverUrl = serverUrl,
                 prefs = prefs,
-                onBack = { step = OnboardStep.NAME },
-                onLoggedIn = { step = OnboardStep.PERMISSIONS }
+                // Re-login still allows stepping back to pick a different server if needed.
+                onBack = { step = if (loginOnly) OnboardStep.SERVER else OnboardStep.NAME },
+                onLoggedIn = { if (loginOnly) onComplete() else step = OnboardStep.PERMISSIONS }
             )
             OnboardStep.PERMISSIONS -> PermissionsStep(onFinish = onComplete)
         }

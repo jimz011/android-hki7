@@ -135,7 +135,10 @@ fun VacuumEntityCard(
 ) {
     val displayMode = config?.vacuumDisplayMode ?: "static"
     val mapCameraEntity = config?.vacuumMapEntityId?.let { id -> allEntities.find { it.entity_id == id } }
-    val externalUrl = config?.vacuumImageUrl
+    // Full URL or a path on the HA server (e.g. /local/vacuum.png), like the header wallpaper.
+    val externalUrl = remember(config?.vacuumImageUrl, currentUrl) {
+        resolveCameraUrl(config?.vacuumImageUrl, currentUrl)
+    }
 
     // Map camera image URL
     val mapImageUrl = remember(mapCameraEntity, currentUrl) {
@@ -207,32 +210,65 @@ fun VacuumEntityCard(
     }
 }
 
-// Simple robot graphic drawn with Canvas for "static" display mode
+// Top-down robot vacuum drawn with Canvas for the "static" (Robot image) display mode:
+// round body with lid seam, lidar turret, front bumper with notches, and dustbin latch.
 @Composable
 private fun StaticVacuumGraphic(modifier: Modifier = Modifier, state: String) {
     val primary = MaterialTheme.colorScheme.primary
     val isActive = state == "cleaning"
 
     androidx.compose.foundation.Canvas(modifier = modifier) {
-        val w = size.width; val h = size.height
-        val cx = w / 2f; val cy = h / 2f
-        val r = minOf(w, h) * 0.30f
+        val cx = center.x; val cy = center.y
+        val r = minOf(size.width, size.height) * 0.36f
+        val bodyColor = if (isActive) lerp(Color(0xFF52535A), primary, 0.30f) else Color(0xFF52535A)
+        val turretColor = if (isActive) lerp(Color(0xFF5D5E66), primary, 0.25f) else Color(0xFF5D5E66)
+        val outline = Color(0xFF2A2B30)
+        val seamStroke = Stroke(r * 0.035f)
 
-        // Glow
-        drawCircle(if (isActive) primary.copy(alpha = 0.15f) else Color(0xFF2A2A4A), r * 1.6f, center = center)
-        // Body
-        drawCircle(if (isActive) primary.copy(alpha = 0.85f) else Color(0xFF3A3A5A), r, center = center, style = Fill)
-        drawCircle(Color.White.copy(alpha = 0.15f), r, center = center, style = Stroke(2f))
-        // Sensor dot
-        drawCircle(Color.White.copy(alpha = 0.7f), r * 0.12f,
-            center = androidx.compose.ui.geometry.Offset(cx, cy - r * 0.35f))
-        // Brush arc at bottom
+        // Glow while cleaning
+        if (isActive) drawCircle(primary.copy(alpha = 0.16f), r * 1.3f, center = center)
+        // Body with outline
+        drawCircle(bodyColor, r, center = center, style = Fill)
+        drawCircle(outline, r, center = center, style = Stroke(r * 0.06f))
+        // Lid seam following the top rim
         drawArc(
-            color = Color.White.copy(alpha = 0.35f),
-            startAngle = 30f, sweepAngle = 120f, useCenter = false,
-            topLeft = androidx.compose.ui.geometry.Offset(cx - r * 0.7f, cy + r * 0.1f),
-            size = androidx.compose.ui.geometry.Size(r * 1.4f, r * 0.8f),
-            style = Stroke(3f)
+            color = outline.copy(alpha = 0.75f),
+            startAngle = 208f, sweepAngle = 124f, useCenter = false,
+            topLeft = androidx.compose.ui.geometry.Offset(cx - r * 0.82f, cy - r * 0.82f),
+            size = androidx.compose.ui.geometry.Size(r * 1.64f, r * 1.64f),
+            style = seamStroke
+        )
+        // Front bumper seam along the bottom rim…
+        drawArc(
+            color = outline,
+            startAngle = 22f, sweepAngle = 136f, useCenter = false,
+            topLeft = androidx.compose.ui.geometry.Offset(cx - r * 0.88f, cy - r * 0.88f),
+            size = androidx.compose.ui.geometry.Size(r * 1.76f, r * 1.76f),
+            style = Stroke(r * 0.05f)
+        )
+        // …with a notch where the bumper meets the body on each side
+        listOf(22f, 158f).forEach { deg ->
+            val rad = Math.toRadians(deg.toDouble())
+            val cos = kotlin.math.cos(rad).toFloat(); val sin = kotlin.math.sin(rad).toFloat()
+            drawLine(
+                color = outline,
+                start = androidx.compose.ui.geometry.Offset(cx + r * 0.88f * cos, cy + r * 0.88f * sin),
+                end = androidx.compose.ui.geometry.Offset(cx + r * cos, cy + r * sin),
+                strokeWidth = r * 0.05f
+            )
+        }
+        // Lidar turret
+        val turretCenter = androidx.compose.ui.geometry.Offset(cx, cy - r * 0.45f)
+        drawCircle(turretColor, r * 0.27f, center = turretCenter, style = Fill)
+        drawCircle(outline, r * 0.27f, center = turretCenter, style = Stroke(r * 0.05f))
+        // Dustbin latch at the front
+        val latchW = r * 0.18f; val latchH = r * 0.34f
+        drawRoundRect(
+            color = outline,
+            topLeft = androidx.compose.ui.geometry.Offset(cx - latchW / 2f, cy + r * 0.48f),
+            size = androidx.compose.ui.geometry.Size(latchW, latchH),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(latchW / 2f),
+            style = Stroke(r * 0.045f)
         )
     }
 }
@@ -376,17 +412,21 @@ fun VacuumStackDialog(
 
             // Fan speed
             if (fanSpeedList.isNotEmpty()) {
-                LazyRow(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    items(fanSpeedList) { speed ->
-                        FilterChip(
-                            selected = speed == fanSpeed,
-                            onClick = { viewModel.vacuumSetFanSpeed(entity.entity_id, speed) },
-                            label = { Text(speed.replaceFirstChar { it.uppercase() }, fontSize = 11.sp) },
-                            leadingIcon = if (speed == fanSpeed) { { Icon(Icons.Default.Air, null, Modifier.size(12.dp)) } } else null
-                        )
+                    Icon(Icons.Default.Air, "Fan speed", tint = appColors.onMuted, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(fanSpeedList) { speed ->
+                            FilterChip(
+                                selected = speed == fanSpeed,
+                                onClick = { viewModel.vacuumSetFanSpeed(entity.entity_id, speed) },
+                                label = { Text(speed.replaceFirstChar { it.uppercase() }, fontSize = 11.sp) }
+                            )
+                        }
                     }
                 }
             }
@@ -394,13 +434,21 @@ fun VacuumStackDialog(
             resolved.water?.let { water ->
                 val options = (water.attributes?.get("options") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
                 if (options.isNotEmpty()) {
-                    LazyRow(modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        items(options) { option ->
-                            FilterChip(
-                                selected = water.state == option,
-                                onClick = { viewModel.callService(water.entity_id.substringBefore('.'), "select_option", com.example.hki7.data.HAServiceCall(water.entity_id, option = option)) },
-                                label = { Text(option.replaceFirstChar { it.uppercase() }, fontSize = 11.sp) }
-                            )
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(Icons.Default.WaterDrop, "Water level", tint = appColors.onMuted, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            items(options) { option ->
+                                FilterChip(
+                                    selected = water.state == option,
+                                    onClick = { viewModel.callService(water.entity_id.substringBefore('.'), "select_option", com.example.hki7.data.HAServiceCall(water.entity_id, option = option)) },
+                                    label = { Text(option.replaceFirstChar { it.uppercase() }, fontSize = 11.sp) }
+                                )
+                            }
                         }
                     }
                 }
@@ -412,12 +460,15 @@ fun VacuumStackDialog(
             }
 
             resolved.emptyBin?.let { empty ->
-                TextButton(onClick = {
-                    val domain = empty.entity_id.substringBefore('.')
-                    viewModel.callService(domain, if (domain == "button") "press" else "turn_on", com.example.hki7.data.HAServiceCall(empty.entity_id))
-                }) {
+                FilledTonalButton(
+                    onClick = {
+                        val domain = empty.entity_id.substringBefore('.')
+                        viewModel.callService(domain, if (domain == "button") "press" else "turn_on", com.example.hki7.data.HAServiceCall(empty.entity_id))
+                    },
+                    modifier = Modifier.padding(vertical = 4.dp)
+                ) {
                     Icon(Icons.Default.DeleteSweep, null, modifier = Modifier.size(16.dp))
-                    Spacer(Modifier.width(4.dp))
+                    Spacer(Modifier.width(6.dp))
                     Text("Empty bin")
                 }
             }
@@ -460,20 +511,34 @@ private fun VacuumMapView(mapUrl: String?) {
         contentAlignment = Alignment.Center
     ) {
         if (!mapUrl.isNullOrBlank()) {
-            SubcomposeAsyncImage(
-                model = mapUrl,
-                contentDescription = "Vacuum map",
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.fillMaxSize()
-                    .graphicsLayer(scaleX = scale, scaleY = scale, translationX = offsetX, translationY = offsetY),
-                success = { SubcomposeAsyncImageContent() },
-                error = {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.BrokenImage, null, tint = appColors.onMuted.copy(alpha = 0.4f), modifier = Modifier.size(40.dp))
-                        Text("Map unavailable", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
-                    }
+            // Two persistent layers: the last good map frame stays visible underneath while a
+            // refresh tick loads invisibly on top, so periodic refreshes swap without flashing.
+            val stableKey = mapUrl.substringBefore("hki_refresh=").trimEnd('?', '&')
+            var lastGoodMap by remember(stableKey) { mutableStateOf<String?>(null) }
+            Box(
+                Modifier.fillMaxSize()
+                    .graphicsLayer(scaleX = scale, scaleY = scale, translationX = offsetX, translationY = offsetY)
+            ) {
+                lastGoodMap?.let { fallback ->
+                    AsyncImage(fallback, "Vacuum map", contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
                 }
-            )
+                SubcomposeAsyncImage(
+                    model = mapUrl,
+                    contentDescription = "Vacuum map",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize(),
+                    loading = {},
+                    success = { lastGoodMap = mapUrl; SubcomposeAsyncImageContent() },
+                    error = {
+                        if (lastGoodMap == null) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(Icons.Default.BrokenImage, null, tint = appColors.onMuted.copy(alpha = 0.4f), modifier = Modifier.size(40.dp))
+                                Text("Map unavailable", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                    }
+                )
+            }
         } else {
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Icon(Icons.Default.Map, null, tint = appColors.onMuted.copy(alpha = 0.3f), modifier = Modifier.size(48.dp))

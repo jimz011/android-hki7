@@ -200,7 +200,7 @@ fun UniversalStackDialog(
                         "cover"  -> UniversalCoverContent(liveEntity, viewModel)
                         "climate"-> UniversalClimateContent(liveEntity, viewModel, showModes = showClimateModes, onToggleModes = { showClimateModes = it })
                         "vacuum" -> UniversalVacuumContent(liveEntity, vacuumConfig, allEntities, currentUrl, viewModel)
-                        "switch", "input_boolean", "fan" -> UniversalSwitchContent(liveEntity, viewModel)
+                        "switch", "input_boolean", "fan", "group", "automation", "remote", "siren" -> UniversalSwitchContent(liveEntity, viewModel)
                         "camera" -> UniversalCameraContent(liveEntity, currentUrl)
                         else     -> UniversalGenericContent(liveEntity)
                     }

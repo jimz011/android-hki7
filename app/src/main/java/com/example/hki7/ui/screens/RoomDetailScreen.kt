@@ -49,6 +49,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -65,6 +66,7 @@ import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.ElectricBolt
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.LightMode
@@ -142,6 +144,7 @@ import com.example.hki7.data.HKIButtonStack
 import com.example.hki7.data.HKIButtonConfig
 import com.example.hki7.data.HKIBatteryCardWidget
 import com.example.hki7.data.HKICalendarWidget
+import com.example.hki7.data.HKIWasteCollectionWidget
 import com.example.hki7.data.HKIEmptyStack
 import com.example.hki7.data.HKIAreaConfig
 import com.example.hki7.data.HKIRoomWidget
@@ -236,6 +239,7 @@ fun HKIRoomWidget.withStackChildStyle(isSquare: Boolean, cornerRadius: Int): HKI
     is HKIWeatherWidget -> copy(cornerRadius = cornerRadius)
     is HKICalendarWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKIBatteryCardWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
+    is HKIWasteCollectionWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKIEmptyStack -> copy(
         isSquare = isSquare,
         cornerRadius = cornerRadius,
@@ -303,6 +307,8 @@ fun RoomDetailScreen(
     var editingEnergyCard by remember { mutableStateOf<Pair<String?, HKIEnergyCardWidget>?>(null) }
     var editingEnergyStack by remember { mutableStateOf<Pair<String?, HKIEnergyStack>?>(null) }
     var editingCalendarWidget by remember { mutableStateOf<Pair<String?, HKICalendarWidget>?>(null) }
+    var editingWasteWidget by remember { mutableStateOf<Pair<String?, HKIWasteCollectionWidget>?>(null) }
+    var pendingWasteWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var editingBatteryWidget by remember { mutableStateOf<Pair<String?, HKIBatteryCardWidget>?>(null) }
     var pendingCalendarWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var addingToStackId by remember { mutableStateOf<String?>(null) }
@@ -319,6 +325,7 @@ fun RoomDetailScreen(
     var selectedGenericConfig by remember { mutableStateOf<HKIButtonConfig?>(null) }
     var showGenericDialog by remember { mutableStateOf(false) }
     var selectedVacuumEntityId by remember { mutableStateOf<String?>(null) }
+    var selectedMediaPlayerId by remember { mutableStateOf<String?>(null) }
     var selectedFanEntity by remember { mutableStateOf<HAEntity?>(null) }
     var selectedFanConfig by remember { mutableStateOf<HKIButtonConfig?>(null) }
     var showFanDialog by remember { mutableStateOf(false) }
@@ -403,6 +410,11 @@ fun RoomDetailScreen(
         isSquare = kind != "camera"
     )
     fun newCalendarWidget(entityIds: List<String>) = HKICalendarWidget(
+        id = UUID.randomUUID().toString(),
+        entityIds = entityIds,
+        width = "full"
+    )
+    fun newWasteWidget(entityIds: List<String>) = HKIWasteCollectionWidget(
         id = UUID.randomUUID().toString(),
         entityIds = entityIds,
         width = "full"
@@ -505,6 +517,14 @@ fun RoomDetailScreen(
                 onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
                 onSettings = { editingCalendarWidget = parent.id to child }
             )
+            is HKIWasteCollectionWidget -> WasteCollectionWidgetItem(
+                widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                viewModel = viewModel,
+                isEditMode = isEditMode,
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingWasteWidget = parent.id to child },
+                onUpdate = { updateChildInSwipingStack(parent.id, it) }
+            )
             is HKISingleEntityWidget -> SingleEntityWidgetItem(
                 widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
                 viewModel = viewModel,
@@ -596,6 +616,9 @@ fun RoomDetailScreen(
             }
             entityId.startsWith("vacuum.") -> {
                 selectedVacuumEntityId = entityId
+            }
+            entityId.startsWith("media_player.") -> {
+                selectedMediaPlayerId = entityId
             }
             entityId.startsWith("fan.") -> {
                 selectedFanEntity = entity
@@ -793,6 +816,10 @@ fun RoomDetailScreen(
                                     onDelete = {},
                                     onSettings = {}
                                 )
+                                is HKIWasteCollectionWidget -> WasteCollectionWidgetItem(
+                                    widget = widget, viewModel = viewModel, isEditMode = false,
+                                    onDelete = {}, onSettings = {}, onUpdate = {}
+                                )
                                 is HKIEnergyStack -> EnergyStackWidgetItem(
                                     stack = widget, viewModel = viewModel, isEditMode = false,
                                     onToggleCollapsed = { viewModel.updateWidget(areaId, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
@@ -973,6 +1000,14 @@ fun RoomDetailScreen(
                             onDelete = { viewModel.deleteWidget(areaId, widget.id) },
                             onSettings = { editingBatteryWidget = null to widget }
                         )
+                        is HKIWasteCollectionWidget -> WasteCollectionWidgetItem(
+                            widget = widget,
+                            viewModel = viewModel,
+                            isEditMode = isEditMode,
+                            onDelete = { viewModel.deleteWidget(areaId, widget.id) },
+                            onSettings = { editingWasteWidget = null to widget },
+                            onUpdate = { viewModel.updateWidget(areaId, it) }
+                        )
                         is HKIEnergyStack -> EnergyStackWidgetItem(
                             stack = widget, viewModel = viewModel, isEditMode = isEditMode,
                             onToggleCollapsed = { viewModel.updateWidget(areaId, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
@@ -994,7 +1029,8 @@ fun RoomDetailScreen(
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter)
                         .padding(horizontal = 16.dp, vertical = 87.dp)
-                        .height(52.dp),
+                        .height(52.dp)
+                        .shadow(10.dp, RoundedCornerShape(18.dp)),
                     shape = RoundedCornerShape(18.dp)
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -1077,6 +1113,10 @@ fun RoomDetailScreen(
                 pendingCalendarWidgetContainerId = "__top__"
                 showAddWidgetDialog = false
             },
+            onAddWasteWidget = {
+                pendingWasteWidgetContainerId = "__top__"
+                showAddWidgetDialog = false
+            },
             onAddEnergyCard = { keys -> keys.forEach { viewModel.addWidgetToArea(areaId, HKIEnergyCardWidget(id = UUID.randomUUID().toString(), cardKey = it)) } },
             onAddEnergyStack = { keys -> viewModel.addWidgetToArea(areaId, HKIEnergyStack(id = UUID.randomUUID().toString(), cardKeys = keys)) },
             onAddBatteryCard = { useNotes ->
@@ -1121,6 +1161,39 @@ fun RoomDetailScreen(
                 if (containerId == null) viewModel.updateWidget(areaId, updated)
                 else updateChildInSwipingStack(containerId, updated)
                 editingBatteryWidget = null
+            }
+        )
+    }
+    editingWasteWidget?.let { (containerId, widget) ->
+        WasteCollectionSettingsDialog(
+            widget = widget,
+            allEntities = allEntities,
+            onDismiss = { editingWasteWidget = null },
+            onSave = { updated ->
+                if (containerId == null) viewModel.updateWidget(areaId, updated)
+                else updateChildInSwipingStack(containerId, updated)
+                editingWasteWidget = null
+            }
+        )
+    }
+
+    pendingWasteWidgetContainerId?.let { target ->
+        WasteEntityPickerDialog(
+            allEntities = allEntities,
+            onDismiss = {
+                if (pendingWasteWidgetContainerId != null) {
+                    pendingWasteWidgetContainerId = null
+                    if (target == "__top__") showAddWidgetDialog = true else addingToSwipingStackId = target
+                }
+            },
+            onSelected = { ids ->
+                val widget = newWasteWidget(ids)
+                if (target == "__top__") {
+                    viewModel.addWidgetToArea(areaId, widget)
+                } else {
+                    addChildToSwipingStack(target, widget)
+                }
+                pendingWasteWidgetContainerId = null
             }
         )
     }
@@ -1194,6 +1267,10 @@ fun RoomDetailScreen(
             },
             onAddCalendarWidget = {
                 pendingCalendarWidgetContainerId = stackId
+                addingToSwipingStackId = null
+            },
+            onAddWasteWidget = {
+                pendingWasteWidgetContainerId = stackId
                 addingToSwipingStackId = null
             },
             onAddEnergyCard = { keys -> keys.forEach { addChildToSwipingStack(stackId, HKIEnergyCardWidget(id = UUID.randomUUID().toString(), cardKey = it)) } },
@@ -1498,7 +1575,7 @@ fun RoomDetailScreen(
                                         name = "Custom Camera",
                                         cameraUrl = customCameraUrl,
                                         isCustomUrl = true,
-                                        cameraRefreshInterval = 0
+                                        cameraRefreshInterval = 5
                                     ))
                                 )
                             )
@@ -1748,7 +1825,7 @@ fun RoomDetailScreen(
     if (selectedCameraId != null && selectedCameraStack != null) {
         val entity = allEntities.find { it.entity_id == selectedCameraId }
         val config = selectedCameraStack!!.buttonConfigs[selectedCameraId]
-        val refreshInterval = config?.cameraRefreshInterval ?: 0
+        val refreshInterval = config?.cameraRefreshInterval ?: 5
         val fallbackEntityUrl = if (selectedCameraId?.startsWith("camera.") == true) {
             val path = if (refreshInterval == 0) "camera_proxy_stream" else "camera_proxy"
             "${currentUrl.removeSuffix("/")}/api/$path/$selectedCameraId"
@@ -1919,9 +1996,21 @@ fun RoomDetailScreen(
         )
     }
 
+    selectedMediaPlayerId?.let { id ->
+        val player = allEntities.find { it.entity_id == id }
+        if (player != null) {
+            com.example.hki7.ui.components.HKIMediaPlayerDialog(player, viewModel, currentUrl) { selectedMediaPlayerId = null }
+        } else {
+            selectedMediaPlayerId = null
+        }
+    }
+
     selectedVacuumEntityId?.let { vId ->
         // Open the vacuum dialog with all vacuums in the same stack (swipe between them), using per-entity config.
-        val stack = areaWidgets.filterIsInstance<HKIButtonStack>().find { it.entityIds.contains(vId) }
+        val nestedWidgets = areaWidgets.filterIsInstance<HKISwipingStack>().flatMap { it.widgets } +
+            areaWidgets.filterIsInstance<HKIEmptyStack>().flatMap { it.widgets }
+        val stack = (areaWidgets + nestedWidgets).filterIsInstance<HKIButtonStack>().find { it.entityIds.contains(vId) }
+        val single = (areaWidgets + nestedWidgets).filterIsInstance<HKISingleEntityWidget>().find { it.entityId == vId }
         val vacEntities = (stack?.entityIds ?: listOf(vId))
             .filter { it.startsWith("vacuum.") }
             .mapNotNull { id -> allEntities.find { it.entity_id == id } }
@@ -1929,7 +2018,7 @@ fun RoomDetailScreen(
             VacuumStackDialog(
                 entities = vacEntities,
                 startIndex = vacEntities.indexOfFirst { it.entity_id == vId }.coerceAtLeast(0),
-                buttonConfigs = stack?.buttonConfigs ?: emptyMap(),
+                buttonConfigs = stack?.buttonConfigs ?: single?.let { mapOf(vId to it.config) } ?: emptyMap(),
                 allEntities = allEntities,
                 currentUrl = currentUrl,
                 viewModel = viewModel,
@@ -1970,6 +2059,7 @@ fun AddRoomWidgetDialog(
     onAddVacuumWidget: (() -> Unit)? = null,
     onAddWeatherWidget: (() -> Unit)? = null,
     onAddCalendarWidget: (() -> Unit)? = null,
+    onAddWasteWidget: (() -> Unit)? = null,
     onAddEnergyCard: ((List<String>) -> Unit)? = null,
     onAddEnergyStack: ((List<String>) -> Unit)? = null,
     onAddBatteryCard: ((Boolean) -> Unit)? = null,
@@ -1998,6 +2088,7 @@ fun AddRoomWidgetDialog(
     val topWidgets = buildList {
         add(PickerWidget(Icons.Default.Lightbulb, "Button", "A single configurable entity control", "toggle switch control single entity light") { onAddButtonWidget?.invoke() ?: run { stackTitle = ""; stackIcon = "None"; configureWidget = "button" } })
         if (onAddCalendarWidget != null) add(PickerWidget(Icons.Default.CalendarMonth, "Calendar", "Agenda, week, and month views from HA calendars", "events schedule date agenda month week appointments") { onAddCalendarWidget.invoke(); onDismiss() })
+        if (onAddWasteWidget != null) add(PickerWidget(Icons.Default.DeleteSweep, "Waste Collection", "Upcoming pickups from waste sensors (e.g. Afvalbeheer)", "waste afval trash garbage gft pmd papier rest collection pickup afvalbeheer") { onAddWasteWidget.invoke(); onDismiss() })
         add(PickerWidget(Icons.Default.CameraAlt, "Camera", "A single live camera tile or stream URL", "video stream live cctv feed") { onAddCameraWidget?.invoke() ?: run { cameraTitle = ""; cameraIcon = "None"; configureWidget = "camera" } })
         if (onAddEnergyCard != null) add(PickerWidget(Icons.Default.ElectricBolt, "Energy Card", "Any card from the Energy view", "power usage solar gas water consumption electricity") { energyPickerSelection = emptyList(); widgetGroup = "energy_card" })
         if (onAddBatteryCard != null) add(PickerWidget(Icons.Default.BatteryAlert, "Battery Levels", "Low batteries, or Battery+ only with type details", "battery notes charge level power") { widgetGroup = "battery_card" })
@@ -2481,7 +2572,7 @@ fun ButtonConfigDialog(
                     }
                     Text("Button image", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf("static" to "Robot icon", "camera" to "Map camera", "external" to "External URL").forEach { (v, l) ->
+                        listOf("static" to "Robot image", "camera" to "Map camera", "external" to "External URL").forEach { (v, l) ->
                             FilterChip(selected = vacuumDisplayMode == v, onClick = { vacuumDisplayMode = v }, label = { Text(l) })
                         }
                     }
@@ -2489,10 +2580,11 @@ fun ButtonConfigDialog(
                         OutlinedTextField(
                             value = vacuumImageUrl,
                             onValueChange = { vacuumImageUrl = it },
-                            label = { Text("Image URL") },
+                            label = { Text("Image URL or path") },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
+                        Text("Full URL or a path on your Home Assistant server (e.g. /local/vacuum.png)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Text("Map camera (for dialog)", style = MaterialTheme.typography.labelLarge)
                     val mapName = vacuumMapEntityId?.takeIf { it.isNotBlank() }?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
@@ -2731,8 +2823,17 @@ fun ButtonConfigDialog(
         )
     }
     if (showVacuumDevicePicker) {
-        DevicePickerDialog(deviceRegistry, vacuumDeviceId, { showVacuumDevicePicker = false }) {
-            vacuumDeviceId = it; showVacuumDevicePicker = false
+        DevicePickerDialog(deviceRegistry, vacuumDeviceId, { showVacuumDevicePicker = false }) { deviceId ->
+            vacuumDeviceId = deviceId
+            if (deviceId != null) {
+                // Auto-fill the helper entity fields from the device, like the Energy view does.
+                val auto = resolveVacuumDeviceEntities(deviceId, allEntities, entityRegistry)
+                auto.map?.let { vacuumMapEntityId = it.entity_id }
+                auto.battery?.let { vacuumBatteryEntityId = it.entity_id }
+                auto.water?.let { vacuumWaterEntityId = it.entity_id }
+                auto.emptyBin?.let { vacuumEmptyBinEntityId = it.entity_id }
+            }
+            showVacuumDevicePicker = false
         }
     }
     if (showWaterPicker) {
@@ -3290,6 +3391,8 @@ fun ButtonStackItem(
 ) {
     val appColors = LocalHKIAppColors.current
     if (stack.isHidden && !isEditMode) return
+    // An unconfigured (empty) stack is only useful in edit mode; hide it entirely otherwise.
+    if (stack.entityIds.isEmpty() && !isEditMode) return
     val dependencyIds = remember(stack.entityIds, stack.buttonConfigs) {
         buildSet {
             addAll(stack.entityIds)
@@ -3832,6 +3935,8 @@ fun SwipingStackItem(
 ) {
     val appColors = LocalHKIAppColors.current
     if (stack.isHidden && !isEditMode) return
+    // An unconfigured (childless) container only matters in edit mode; hide it entirely otherwise.
+    if (stack.widgets.isEmpty() && !isEditMode) return
     val canCollapse = stack.collapsible
     val isCollapsed = canCollapse && (stack.isCollapsed ?: stack.defaultCollapsed)
     val pagerState = rememberPagerState(pageCount = { stack.widgets.size.coerceAtLeast(1) })
@@ -4072,6 +4177,8 @@ fun EmptyStackItem(
 ) {
     val appColors = LocalHKIAppColors.current
     if (stack.isHidden && !isEditMode) return
+    // An unconfigured (childless) container only matters in edit mode; hide it entirely otherwise.
+    if (stack.widgets.isEmpty() && !isEditMode) return
     val isCollapsed = stack.collapsible && (stack.isCollapsed ?: stack.defaultCollapsed)
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -4262,7 +4369,7 @@ internal fun EmptyStackHint(
 }
 
 @Composable
-private fun CameraStackContent(
+fun CameraStackContent(
     stack: HKIButtonStack,
     entities: List<HAEntity>,
     currentUrl: String,
@@ -4278,7 +4385,7 @@ private fun CameraStackContent(
         stack.entityIds.mapNotNull { entityId ->
             val entity = entityById[entityId]
             val config = stack.buttonConfigs[entityId]
-            val refreshInterval = config?.cameraRefreshInterval ?: 0
+            val refreshInterval = config?.cameraRefreshInterval ?: 5
             val fallbackEntityUrl = if (entityId.startsWith("camera.")) {
                 val path = if (refreshInterval == 0) "camera_proxy_stream" else "camera_proxy"
                 "${currentUrl.removeSuffix("/")}/api/$path/$entityId"
@@ -5186,7 +5293,7 @@ fun GenericEntityDialog(
     val domain = entity.entity_id.substringBefore(".")
     val unit = entity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull
     val valueText = listOfNotNull(entity.state, unit).joinToString(" ")
-    val isSwitchLike = domain in listOf("light", "switch", "input_boolean", "fan", "automation")
+    val isSwitchLike = domain in listOf("light", "switch", "input_boolean", "fan", "automation", "group", "remote", "siren", "humidifier")
     val isGraphLike = domain == "sensor"
     val isBinary = domain == "binary_sensor"
     val icon = when (domain) {

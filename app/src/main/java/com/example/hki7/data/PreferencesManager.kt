@@ -63,6 +63,8 @@ class PreferencesManager(private val context: Context) {
     private val backgroundPushKey = booleanPreferencesKey("background_push_enabled")
     private val navBarOrderKey = stringPreferencesKey("nav_bar_order")
     private val navBarHiddenKey = stringPreferencesKey("nav_bar_hidden")
+    private val mediaPlayerNamesKey = stringPreferencesKey("media_player_custom_names")
+    private val mediaPlayerBarHiddenKey = stringPreferencesKey("media_player_bar_hidden")
 
     val serverUrl: Flow<String?> = context.dataStore.data.map { it[serverUrlKey] }
     val accessToken: Flow<String?> = context.dataStore.data.map { it[accessTokenKey] }
@@ -165,6 +167,15 @@ class PreferencesManager(private val context: Context) {
         it[navBarHiddenKey]?.split(",")?.filter { r -> r.isNotBlank() } ?: emptyList()
     }
 
+    // Media players: local display names and which players may show the mini player bar.
+    val mediaPlayerCustomNames: Flow<Map<String, String>> = context.dataStore.data.map { preferences ->
+        val jsonStr = preferences[mediaPlayerNamesKey] ?: return@map emptyMap()
+        try { appJson.decodeFromString<Map<String, String>>(jsonStr) } catch (e: Exception) { emptyMap() }
+    }
+    val mediaPlayerBarHidden: Flow<List<String>> = context.dataStore.data.map {
+        it[mediaPlayerBarHiddenKey]?.split(",")?.filter { r -> r.isNotBlank() } ?: emptyList()
+    }
+
     suspend fun saveConnectionDetails(url: String, token: String, refresh: String? = null, expiresInSeconds: Int? = null) {
         context.dataStore.edit { preferences ->
             preferences[serverUrlKey] = url
@@ -213,6 +224,17 @@ class PreferencesManager(private val context: Context) {
         context.dataStore.edit {
             val cleaned = hidden.filter { r -> r.isNotBlank() }
             if (cleaned.isEmpty()) it.remove(navBarHiddenKey) else it[navBarHiddenKey] = cleaned.joinToString(",")
+        }
+    }
+    suspend fun saveMediaPlayerCustomNames(names: Map<String, String>) {
+        context.dataStore.edit {
+            if (names.isEmpty()) it.remove(mediaPlayerNamesKey) else it[mediaPlayerNamesKey] = appJson.encodeToString(names)
+        }
+    }
+    suspend fun saveMediaPlayerBarHidden(hidden: List<String>) {
+        context.dataStore.edit {
+            val cleaned = hidden.filter { r -> r.isNotBlank() }
+            if (cleaned.isEmpty()) it.remove(mediaPlayerBarHiddenKey) else it[mediaPlayerBarHiddenKey] = cleaned.joinToString(",")
         }
     }
     suspend fun saveBackgroundPushEnabled(enabled: Boolean) { context.dataStore.edit { it[backgroundPushKey] = enabled } }

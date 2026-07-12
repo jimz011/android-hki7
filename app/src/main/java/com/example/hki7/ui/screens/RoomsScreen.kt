@@ -58,6 +58,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -507,7 +508,8 @@ fun AddAreaCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(52.dp),
+            .height(52.dp)
+            .shadow(10.dp, RoundedCornerShape(18.dp)),
         shape = RoundedCornerShape(18.dp)
     ) {
         Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -522,7 +524,8 @@ fun AddFloorCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(52.dp),
+            .height(52.dp)
+            .shadow(10.dp, RoundedCornerShape(18.dp)),
         shape = RoundedCornerShape(18.dp)
     ) {
         Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(18.dp))

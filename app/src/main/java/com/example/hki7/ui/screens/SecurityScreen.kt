@@ -25,12 +25,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.example.hki7.data.HAEntity
+import com.example.hki7.data.HKIButtonConfig
+import com.example.hki7.data.HKIButtonStack
 import com.example.hki7.data.HKIPageConfig
 import com.example.hki7.data.HKISecurityConfig
 import com.example.hki7.data.withDisplayName
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.*
 import com.example.hki7.ui.theme.LocalHKIAppColors
+import com.example.hki7.ui.utils.MdiIcon
 
 private const val SECURITY_PAGE_KEY = "security"
 private val SecurityBlue = Color(0xFF4A90E2)
@@ -56,6 +59,9 @@ private val securityGroups = listOf(
     SecurityGroup("windows", "Windows", "Window contacts", Icons.Default.Window, SecurityBlue, deviceClasses = setOf("window")),
     SecurityGroup("openings", "Openings", "Garage doors and other openings", Icons.Default.Garage, SecurityBlue,
         deviceClasses = setOf("garage_door", "opening")),
+    // Before "covers", so garage covers land here instead of the generic covers group.
+    SecurityGroup("garage_doors", "Garage doors", "Garage door covers", Icons.Default.Garage, PresencePurple,
+        domains = setOf("cover"), deviceClasses = setOf("garage", "garage_door")),
     SecurityGroup("covers", "Covers", "Blinds, shutters and gates", Icons.Default.Blinds, PresencePurple,
         domains = setOf("cover")),
     SecurityGroup("locks", "Locks", "Door and gate locks", Icons.Default.Lock, PresencePurple,
@@ -81,7 +87,9 @@ private val securityGroups = listOf(
     SecurityGroup("light", "Light detection", "Light and beam sensors", Icons.Default.LightMode, WarningOrange,
         deviceClasses = setOf("light")),
     SecurityGroup("alarms", "Alarm systems", "Alarm control panels", Icons.Default.Security, AlertRed,
-        domains = setOf("alarm_control_panel"))
+        domains = setOf("alarm_control_panel")),
+    SecurityGroup("cameras", "Cameras", "Camera feeds", Icons.Default.Videocam, SecurityBlue,
+        domains = setOf("camera"))
 )
 
 private fun SecurityGroup.autoMatches(entity: HAEntity): Boolean {
@@ -110,7 +118,7 @@ fun SecurityScreen(viewModel: MainViewModel) {
     val flow = remember(viewModel, dependencies) {
         viewModel.entitiesMatching { entity ->
             val domain = entity.entity_id.substringBefore('.')
-            domain in setOf("binary_sensor", "sensor", "cover", "lock", "person", "device_tracker", "alarm_control_panel") ||
+            domain in setOf("binary_sensor", "sensor", "cover", "lock", "person", "device_tracker", "alarm_control_panel", "camera") ||
                 entity.entity_id in dependencies
         }
     }
@@ -133,12 +141,32 @@ fun SecurityScreen(viewModel: MainViewModel) {
     }
     var page by rememberSaveable { mutableStateOf("security") }
     BackHandler(page != "security") { page = "security" }
+    var cameraSettingsEntity by remember { mutableStateOf<HAEntity?>(null) }
+    cameraSettingsEntity?.let { entity ->
+        // Same settings dialog as camera widgets (name, refresh interval).
+        ButtonConfigDialog(
+            entity = entity,
+            config = config.cameraConfigs[entity.entity_id] ?: HKIButtonConfig(),
+            isCameraItem = true,
+            allEntities = entities,
+            onDismiss = { cameraSettingsEntity = null },
+            onSave = { cfg ->
+                viewModel.updateSecurityConfig(SECURITY_PAGE_KEY, config.copy(cameraConfigs = config.cameraConfigs + (entity.entity_id to cfg)))
+                cameraSettingsEntity = null
+            }
+        )
+    }
     var renameEntity by remember { mutableStateOf<HAEntity?>(null) }
     renameEntity?.let { entity ->
-        RenameCardDialog(config.customNames[entity.entity_id].orEmpty(), entity.friendlyName ?: entity.entity_id,
-            onDismiss = { renameEntity = null }) { name ->
+        SecurityCardSettingsDialog(
+            currentName = config.customNames[entity.entity_id].orEmpty(),
+            defaultName = entity.friendlyName ?: entity.entity_id,
+            currentIcon = config.customIcons[entity.entity_id].orEmpty(),
+            onDismiss = { renameEntity = null }
+        ) { name, icon ->
             val names = if (name == null) config.customNames - entity.entity_id else config.customNames + (entity.entity_id to name)
-            viewModel.updateSecurityConfig(SECURITY_PAGE_KEY, config.copy(customNames = names))
+            val icons = if (icon == null) config.customIcons - entity.entity_id else config.customIcons + (entity.entity_id to icon)
+            viewModel.updateSecurityConfig(SECURITY_PAGE_KEY, config.copy(customNames = names, customIcons = icons))
             renameEntity = null
         }
     }
@@ -167,10 +195,12 @@ fun SecurityScreen(viewModel: MainViewModel) {
         onBack = if (activeGroup != null) ({ page = "security" }) else null
     ) { padding -> key(uiRevision) {
         if (activeGroup != null) {
-            SecurityGroupPage(activeGroup, grouped[activeGroup.key].orEmpty(), viewModel, currentUrl,
-                isEditMode, ::remove, { renameEntity = it }, { from, to -> reorder(grouped[activeGroup.key].orEmpty(), from, to) }, padding)
+            SecurityGroupPage(activeGroup, grouped[activeGroup.key].orEmpty(), viewModel, currentUrl, config.customIcons, config.cameraConfigs,
+                isEditMode, ::remove,
+                { if (it.entity_id.startsWith("camera.")) cameraSettingsEntity = it else renameEntity = it },
+                { from, to -> reorder(grouped[activeGroup.key].orEmpty(), from, to) }, padding)
         } else {
-            SecurityOverview(grouped, viewModel, currentUrl, isEditMode, ::remove, { page = it }, padding)
+            SecurityOverview(grouped, viewModel, currentUrl, config.cameraConfigs, isEditMode, ::remove, { cameraSettingsEntity = it }, { page = it }, padding)
         }
     } }
 }
@@ -178,7 +208,8 @@ fun SecurityScreen(viewModel: MainViewModel) {
 @Composable
 private fun SecurityOverview(
     grouped: Map<String, List<HAEntity>>, viewModel: MainViewModel, currentUrl: String,
-    isEditMode: Boolean, onRemove: (String) -> Unit, onOpen: (String) -> Unit, padding: PaddingValues
+    cameraConfigs: Map<String, HKIButtonConfig>, isEditMode: Boolean, onRemove: (String) -> Unit,
+    onCameraSettings: (HAEntity) -> Unit, onOpen: (String) -> Unit, padding: PaddingValues
 ) {
     val all = grouped.filterKeys { it != "cameras" }.values.flatten().distinctBy { it.entity_id }
     val cameras = grouped["cameras"].orEmpty()
@@ -188,7 +219,8 @@ private fun SecurityOverview(
     LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(bottom = 96.dp)) {
         item { SecurityHero(all.size, active, alerts, cameras.size) }
         item {
-            val present = securityGroups.filter { grouped[it.key].orEmpty().isNotEmpty() }
+            // Cameras get their own full-width section below instead of a tile.
+            val present = securityGroups.filter { it.key != "cameras" && grouped[it.key].orEmpty().isNotEmpty() }
             Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 present.chunked(2).forEach { row ->
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -205,8 +237,11 @@ private fun SecurityOverview(
             item { SecuritySectionHeader("Cameras", cameras.size.toString()) }
             items(cameras.size, key = { cameras[it].entity_id }) { index ->
                 Box(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
-                    SecurityCameraCard(cameras[index], viewModel, currentUrl)
-                    if (isEditMode) EditRemoveBadge({ onRemove(cameras[index].entity_id) }, Modifier.align(Alignment.TopEnd))
+                    SecurityCameraCard(cameras[index], viewModel, currentUrl, cameraConfigs[cameras[index].entity_id])
+                    if (isEditMode) {
+                        EditSettingsButton({ onCameraSettings(cameras[index]) }, Modifier.align(Alignment.Center))
+                        EditRemoveBadge({ onRemove(cameras[index].entity_id) }, Modifier.align(Alignment.TopEnd))
+                    }
                 }
             }
         }
@@ -250,6 +285,7 @@ private fun SecurityTile(group: SecurityGroup, count: Int, active: Int, modifier
 
 @Composable
 private fun SecurityGroupPage(group: SecurityGroup, items: List<HAEntity>, viewModel: MainViewModel, currentUrl: String,
+    customIcons: Map<String, String>, cameraConfigs: Map<String, HKIButtonConfig>,
     edit: Boolean, onRemove: (String) -> Unit, onRename: (HAEntity) -> Unit, onReorder: (Int, Int) -> Unit, padding: PaddingValues) {
     if (edit && items.isNotEmpty()) {
         ReorderableGrid(items, true, onReorder, { it.entity_id }, GridCells.Fixed(1),
@@ -257,26 +293,115 @@ private fun SecurityGroupPage(group: SecurityGroup, items: List<HAEntity>, viewM
             contentPadding = PaddingValues(16.dp, 10.dp, 16.dp, 96.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp), axis = ReorderAxis.Vertical) { entity, _ ->
             Box {
-                SecurityEntityCard(entity, group, viewModel, currentUrl, edit)
+                SecurityEntityCard(entity, group, viewModel, currentUrl, edit, customIcons[entity.entity_id], cameraConfigs[entity.entity_id])
                 EditSettingsButton({ onRename(entity) }, Modifier.align(Alignment.Center))
                 EditRemoveBadge({ onRemove(entity.entity_id) }, Modifier.align(Alignment.TopEnd))
             }
         }
     } else LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp, 10.dp, 16.dp, 96.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         if (items.isEmpty()) item { EmptyEditHint(Modifier.fillParentMaxHeight()) }
-        items(items.size, key = { items[it].entity_id }) { SecurityEntityCard(items[it], group, viewModel, currentUrl, edit) }
+        else item { SecurityGroupSummary(group, items) }
+        items(items.size, key = { items[it].entity_id }) { SecurityEntityCard(items[it], group, viewModel, currentUrl, edit, customIcons[items[it].entity_id], cameraConfigs[items[it].entity_id]) }
+    }
+}
+
+/** Card settings for a security entity: rename plus an MDI icon override (same picker as buttons/badges). */
+@Composable
+private fun SecurityCardSettingsDialog(
+    currentName: String,
+    defaultName: String,
+    currentIcon: String,
+    onDismiss: () -> Unit,
+    onSave: (name: String?, icon: String?) -> Unit
+) {
+    var name by remember(currentName) { mutableStateOf(currentName) }
+    var icon by remember(currentIcon) { mutableStateOf(currentIcon) }
+    var showIconPicker by remember { mutableStateOf(false) }
+    if (showIconPicker) {
+        MdiIconPickerDialog(
+            current = icon,
+            onDismiss = { showIconPicker = false },
+            onSelect = { icon = it; showIconPicker = false }
+        )
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Card settings") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                OutlinedTextField(value = name, onValueChange = { name = it }, singleLine = true,
+                    label = { Text("Name") }, placeholder = { Text(defaultName) }, modifier = Modifier.fillMaxWidth())
+                Text("Icon", style = MaterialTheme.typography.labelLarge)
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    if (icon.isNotBlank()) MdiIcon(icon, size = 24.dp)
+                    Text(icon.ifBlank { "Auto" }, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                    TextButton(onClick = { showIconPicker = true }) { Text("Change") }
+                    if (icon.isNotBlank()) TextButton(onClick = { icon = "" }) { Text("Clear") }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onSave(name.trim().takeIf { it.isNotEmpty() }, icon.trim().takeIf { it.isNotEmpty() }) }) { Text("Save") }
+        },
+        dismissButton = {
+            Row {
+                TextButton(onClick = { onSave(null, null) }) { Text("Reset") }
+                TextButton(onClick = onDismiss) { Text("Cancel") }
+            }
+        }
+    )
+}
+
+@Composable
+private fun SecurityGroupSummary(group: SecurityGroup, items: List<HAEntity>) {
+    val c = LocalHKIAppColors.current
+    val active = items.count(HAEntity::isSecurityActive)
+    Surface(Modifier.fillMaxWidth(), RoundedCornerShape(20.dp), color = c.elevated) {
+        Column(Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Box(Modifier.size(34.dp).background(group.color.copy(.15f), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
+                    Icon(group.icon, null, tint = group.color, modifier = Modifier.size(18.dp))
+                }
+                Column {
+                    Text("${items.size} ${if (items.size == 1) "entity" else "entities"}",
+                        style = MaterialTheme.typography.titleSmall, color = c.onSurface, fontWeight = FontWeight.SemiBold)
+                    Text(group.subtitle, style = MaterialTheme.typography.bodySmall, color = c.onMuted)
+                }
+            }
+            Spacer(Modifier.height(14.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                SummaryStat(group.icon, group.color, items.size.toString(), "Total")
+                SummaryStat(Icons.Default.NotificationsActive, if (active > 0) WarningOrange else c.onMuted, active.toString(), "Active")
+                SummaryStat(Icons.Default.VerifiedUser, SafeGreen, (items.size - active).toString(), "Clear")
+            }
+        }
     }
 }
 
 @Composable
-private fun SecurityEntityCard(entity: HAEntity, group: SecurityGroup, viewModel: MainViewModel, currentUrl: String, editMode: Boolean = false) {
-    if (entity.entity_id.startsWith("camera.")) { SecurityCameraCard(entity, viewModel, currentUrl); return }
+private fun SummaryStat(icon: ImageVector, color: Color, value: String, label: String) {
+    val c = LocalHKIAppColors.current
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Icon(icon, null, tint = color, modifier = Modifier.size(15.dp))
+            Text(value, style = MaterialTheme.typography.titleSmall, color = c.onSurface, fontWeight = FontWeight.Bold)
+        }
+        Text(label, style = MaterialTheme.typography.labelSmall, color = c.onMuted)
+    }
+}
+
+@Composable
+private fun SecurityEntityCard(entity: HAEntity, group: SecurityGroup, viewModel: MainViewModel, currentUrl: String, editMode: Boolean = false, iconOverride: String? = null, cameraConfig: HKIButtonConfig? = null) {
+    if (entity.entity_id.startsWith("camera.")) { SecurityCameraCard(entity, viewModel, currentUrl, cameraConfig); return }
     val c = LocalHKIAppColors.current
     var dialog by remember { mutableStateOf(false) }
     val active = entity.isSecurityActive()
     Surface(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).clickable(enabled = !editMode) { dialog = true }, RoundedCornerShape(18.dp), color = c.elevated) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(42.dp).background((if (active) group.color else c.onMuted).copy(.15f), RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) { Icon(group.icon, null, tint = if (active) group.color else c.onMuted) }
+            Box(Modifier.size(42.dp).background((if (active) group.color else c.onMuted).copy(.15f), RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
+                if (iconOverride != null) MdiIcon(iconOverride, contentDescription = null, tint = if (active) group.color else c.onMuted, size = 24.dp)
+                else Icon(group.icon, null, tint = if (active) group.color else c.onMuted)
+            }
             Spacer(Modifier.width(12.dp)); Column(Modifier.weight(1f)) { Text(entity.friendlyName ?: entity.entity_id, color = c.onSurface, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis); Text(entity.state.replace('_', ' ').replaceFirstChar(Char::uppercase), color = if (active) group.color else c.onMuted, style = MaterialTheme.typography.bodySmall) }
             Icon(Icons.Default.ChevronRight, null, tint = c.onMuted)
         }
@@ -336,15 +461,40 @@ private fun SecurityCoverDialog(entity: HAEntity, viewModel: MainViewModel, onDi
 }
 
 @Composable
-private fun SecurityCameraCard(entity: HAEntity, viewModel: MainViewModel, currentUrl: String) {
-    val c = LocalHKIAppColors.current
-    val image = resolveEntityCameraUrl(entity, currentUrl, preferLive = false)
-    val live = resolveEntityCameraUrl(entity, currentUrl, preferLive = true)
+private fun SecurityCameraCard(entity: HAEntity, viewModel: MainViewModel, currentUrl: String, config: HKIButtonConfig? = null) {
+    val accessToken by viewModel.accessToken.collectAsState()
     var dialog by remember { mutableStateOf(false) }
-    Surface(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).clickable { dialog = true }, RoundedCornerShape(20.dp), color = c.elevated) {
-        Column { Box(Modifier.fillMaxWidth().aspectRatio(16f / 9f).background(Color.Black)) { if (image != null) AsyncImage(image, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) else Text("No preview", color = Color.Gray, modifier = Modifier.align(Alignment.Center)) }; Text(entity.friendlyName ?: entity.entity_id, Modifier.padding(16.dp), color = c.onSurface, fontWeight = FontWeight.SemiBold) }
+    // Reuse the regular camera stack widget (live stream, label overlay) as a single full-width card.
+    val stack = remember(entity.entity_id, config) {
+        HKIButtonStack(
+            id = "security_camera_${entity.entity_id}",
+            entityIds = listOf(entity.entity_id),
+            columns = 1,
+            isSquare = false,
+            cornerRadius = 20,
+            stackType = "camera",
+            cameraAspectRatio = 16f / 9f,
+            buttonConfigs = config?.let { mapOf(entity.entity_id to it) } ?: emptyMap()
+        )
     }
-    if (dialog) HKICameraDialog(entity.friendlyName ?: entity.entity_id, image, liveWebUrl = live, entity = entity, viewModel = viewModel, onDismiss = { dialog = false })
+    CameraStackContent(
+        stack = stack,
+        entities = listOf(entity),
+        currentUrl = currentUrl,
+        accessToken = accessToken,
+        isEditMode = false,
+        onEntityClick = { dialog = true },
+        onButtonSettings = {},
+        onRemoveEntity = {},
+        onReorderEntities = { _, _ -> }
+    )
+    if (dialog) {
+        val interval = config?.cameraRefreshInterval ?: 5
+        val image = resolveEntityCameraUrl(entity, currentUrl, preferLive = interval == 0)
+        val live = if (interval == 0) resolveEntityCameraUrl(entity, currentUrl, preferLive = true) else null
+        HKICameraDialog(config?.name ?: entity.friendlyName ?: entity.entity_id, image, refreshIntervalSeconds = interval,
+            liveWebUrl = live, authToken = accessToken, entity = entity, viewModel = viewModel, onDismiss = { dialog = false })
+    }
 }
 
 @Composable

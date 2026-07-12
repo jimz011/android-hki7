@@ -150,6 +150,30 @@ data class HAEntity(
     val humidifierAvailableModes: List<String>
         get() = (attributes?.get("available_modes") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
 
+    // ── media_player domain ──────────────────────────────────────────────────
+    val mediaAlbumName: String?
+        get() = attributes?.get("media_album_name")?.jsonPrimitive?.contentOrNull
+    val mediaDuration: Double?
+        get() = attributes?.get("media_duration")?.jsonPrimitive?.doubleOrNull
+    val mediaPosition: Double?
+        get() = attributes?.get("media_position")?.jsonPrimitive?.doubleOrNull
+    val mediaPositionUpdatedAt: String?
+        get() = attributes?.get("media_position_updated_at")?.jsonPrimitive?.contentOrNull
+    val volumeLevel: Double?
+        get() = attributes?.get("volume_level")?.jsonPrimitive?.doubleOrNull
+    val isVolumeMuted: Boolean?
+        get() = attributes?.get("is_volume_muted")?.jsonPrimitive?.booleanOrNull
+    val mediaShuffle: Boolean?
+        get() = attributes?.get("shuffle")?.jsonPrimitive?.booleanOrNull
+    val mediaRepeat: String?
+        get() = attributes?.get("repeat")?.jsonPrimitive?.contentOrNull
+    val mediaSource: String?
+        get() = attributes?.get("source")?.jsonPrimitive?.contentOrNull
+    val sourceList: List<String>
+        get() = (attributes?.get("source_list") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
+    val appName: String?
+        get() = attributes?.get("app_name")?.jsonPrimitive?.contentOrNull
+
     // ── alarm_control_panel domain ──────────────────────────────────────────
     val supportedFeatures: Int
         get() = attributes?.get("supported_features")?.jsonPrimitive?.intOrNull ?: 0
@@ -279,7 +303,29 @@ data class HAServiceCall(
     /** select/input_select.select_option */
     val option: String? = null,
     /** number/input_number/text/input_text.set_value (HA coerces numeric strings). */
-    val value: String? = null
+    val value: String? = null,
+    // media_player services
+    val volume_level: Float? = null,
+    val is_volume_muted: Boolean? = null,
+    val shuffle: Boolean? = null,
+    val repeat: String? = null,
+    val seek_position: Double? = null,
+    val source: String? = null,
+    val media_content_id: String? = null,
+    val media_content_type: String? = null
+)
+
+/** One node of a media_player/browse_media tree (playlists, albums, favorites, …). */
+@Serializable
+data class HAMediaBrowseItem(
+    val title: String? = null,
+    val media_content_id: String? = null,
+    val media_content_type: String? = null,
+    val media_class: String? = null,
+    val can_play: Boolean = false,
+    val can_expand: Boolean = false,
+    val thumbnail: String? = null,
+    val children: List<HAMediaBrowseItem> = emptyList()
 )
 
 @Serializable
@@ -464,7 +510,8 @@ data class HKIBatteryConfig(
     val hiddenEntityIds: List<String> = emptyList(),
     val extraEntityIds: List<String> = emptyList(),
     val extraDeviceIds: List<String> = emptyList(),
-    val entityOrder: List<String> = emptyList()
+    val entityOrder: List<String> = emptyList(),
+    val customNames: Map<String, String> = emptyMap()
 )
 
 /** Entity bindings for the Security page. Entities are normally discovered from their Home
@@ -474,7 +521,11 @@ data class HKISecurityConfig(
     val extraEntityIds: Map<String, List<String>> = emptyMap(),
     val hiddenEntityIds: List<String> = emptyList(),
     val entityOrder: List<String> = emptyList(),
-    val customNames: Map<String, String> = emptyMap()
+    val customNames: Map<String, String> = emptyMap(),
+    /** Per-entity MDI icon slug overriding the group's default icon. */
+    val customIcons: Map<String, String> = emptyMap(),
+    /** Per-camera button config (name, refresh interval), same settings as camera widgets. */
+    val cameraConfigs: Map<String, HKIButtonConfig> = emptyMap()
 )
 
 /** Entity bindings for the Climate page. Sensors/devices are auto-discovered by domain and
@@ -634,7 +685,7 @@ data class HKIButtonConfig(
     val spinIcon: Boolean = false,     // rotate the icon continuously while the entity isn't "off"
     val label: String? = null,
     val cameraUrl: String? = null,
-    val cameraRefreshInterval: Int = 0,
+    val cameraRefreshInterval: Int = 5,
     val isCustomUrl: Boolean = false,
     val tapAction: String = "toggle",
     val doubleTapAction: String = "more_info",
@@ -724,6 +775,26 @@ data class HKICalendarWidget(
     val isSquare: Boolean = false,
     val title: String? = null,
     val icon: String? = "calendar-month",
+    val cornerRadius: Int = 28,
+    val isHidden: Boolean = false
+) : HKIRoomWidget()
+
+/** Waste collection widget (e.g. Afvalbeheer): waste-type sensors whose state/attributes hold the
+ *  next pickup date. The card shows the next collection; tapping opens a dialog with every category
+ *  and an optional week-calendar overview. */
+@Serializable
+@SerialName("waste_collection")
+data class HKIWasteCollectionWidget(
+    override val id: String,
+    override val width: String = "full",
+    val entityIds: List<String> = emptyList(),
+    /** Optional calendar entity shown as a week overview inside the dialog. */
+    val calendarEntityId: String? = null,
+    val title: String? = "Waste Collection",
+    val icon: String? = "trash-can-outline",
+    /** "icon" = waste-type MDI icon; "picture" = the sensor's entity_picture. */
+    val imageStyle: String = "icon",
+    val isSquare: Boolean = false,
     val cornerRadius: Int = 28,
     val isHidden: Boolean = false
 ) : HKIRoomWidget()

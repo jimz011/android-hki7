@@ -133,6 +133,19 @@ class HomeAssistantClient(
         }
     }
 
+    /** Browses a media player's library (root when contentId is null). */
+    suspend fun browseMedia(entityId: String, contentId: String? = null, contentType: String? = null): HAMediaBrowseItem? {
+        return withWebSocket {
+            val data = buildMap<String, JsonElement> {
+                put("entity_id", JsonPrimitive(entityId))
+                if (contentId != null) put("media_content_id", JsonPrimitive(contentId))
+                if (contentType != null) put("media_content_type", JsonPrimitive(contentType))
+            }
+            val response = sendCommand("media_player/browse_media", data)
+            response["result"]?.let { json.decodeFromJsonElement(HAMediaBrowseItem.serializer(), it) }
+        }
+    }
+
     suspend fun getWeatherForecast(entityId: String, type: String = "daily"): List<HAWeatherForecast> {
         return withWebSocket {
             val response = sendCommand(

@@ -19,6 +19,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Redo
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -49,10 +51,16 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.hki7.data.PreferencesManager
+import com.example.hki7.data.withDisplayName
+import com.example.hki7.ui.ConnectionStatus
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.NavBarConfig
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import com.example.hki7.ui.Screen
 import com.example.hki7.ui.components.HKIBottomBar
+import com.example.hki7.ui.components.HKIMediaPlayerDialog
+import com.example.hki7.ui.components.MediaPlayerMiniBar
 import com.example.hki7.ui.utils.MdiIcon
 import com.example.hki7.ui.components.NotificationPanel
 import com.example.hki7.ui.screens.*
@@ -131,7 +139,7 @@ class MainActivity : ComponentActivity() {
                     }
                     onboardingActive -> {
                         Box {
-                            OnboardingScreen(prefs = prefs, onComplete = {
+                            OnboardingScreen(prefs = prefs, startAtLogin = forceLogin, onComplete = {
                                 forceLogin = false
                                 onboardingActive = false
                             })
@@ -193,6 +201,29 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         }
     })
     
+    val connectionStatus by viewModel.status.collectAsState()
+    var hasConnectedOnce by remember { mutableStateOf(false) }
+    LaunchedEffect(connectionStatus) { if (connectionStatus == ConnectionStatus.CONNECTED) hasConnectedOnce = true }
+    val hasEntities by remember(viewModel) {
+        viewModel.entities.map { it.isNotEmpty() }.distinctUntilChanged()
+    }.collectAsState(initial = false)
+
+    // Mini media player: any playing/paused media_player shows a swipeable bar above the nav bar.
+    // Custom names and per-player visibility come from Settings → Appearance → Media Players.
+    val currentUrl by viewModel.currentUrl.collectAsState()
+    val mediaPlayerNames by prefs.mediaPlayerCustomNames.collectAsState(initial = emptyMap())
+    val mediaBarHidden by prefs.mediaPlayerBarHidden.collectAsState(initial = emptyList())
+    val mediaPlayers by remember(viewModel) {
+        viewModel.entitiesMatching("domain:media_player") { it.entity_id.startsWith("media_player.") }
+    }.collectAsState()
+    val activeMediaPlayers = remember(mediaPlayers, mediaPlayerNames, mediaBarHidden) {
+        mediaPlayers.filter { it.state == "playing" || it.state == "paused" }
+            .filter { it.entity_id !in mediaBarHidden }
+            .map { it.withDisplayName(mediaPlayerNames[it.entity_id]) }
+            .sortedBy { it.entity_id }
+    }
+    var mediaDialogEntityId by remember { mutableStateOf<String?>(null) }
+
     val navBarOrder by prefs.navBarOrder.collectAsState(initial = emptyList())
     val navBarHidden by prefs.navBarHidden.collectAsState(initial = emptyList())
     val screens = remember(navBarOrder, navBarHidden) { NavBarConfig.visibleTabs(navBarOrder, navBarHidden) }
@@ -272,6 +303,8 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     Box(
         modifier = Modifier
             .fillMaxSize()
+            // Match the page background so the mini-player inset never shows as a gray strip.
+            .background(appColors.background)
             .systemGestureExclusion {
                 // Carve the upper-left edge out of the system back gesture (Pixel-style gesture
                 // nav) so swipes starting there reach the app and open the notification panel.
@@ -310,7 +343,9 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             NavHost(
                 navController,
                 startDestination = Screen.Home.route,
-                modifier = Modifier.fillMaxSize().padding(contentPadding),
+                // Extra bottom margin while the mini player is visible so page content stays reachable.
+                modifier = Modifier.fillMaxSize().padding(contentPadding)
+                    .padding(bottom = if (activeMediaPlayers.isNotEmpty() && !isEditMode) 86.dp else 0.dp),
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None },
                 popEnterTransition = { EnterTransition.None },
@@ -336,8 +371,17 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         // fixed-width tabs in a horizontally scrollable row instead of squeezing weight()-tabs.
         val configuration = androidx.compose.ui.platform.LocalConfiguration.current
         val navBarScrollable = !isEditMode && (configuration.screenWidthDp - 64) < screens.size * 64
+        Column(modifier = Modifier.align(Alignment.BottomCenter)) {
+        if (activeMediaPlayers.isNotEmpty() && !isEditMode) {
+            MediaPlayerMiniBar(
+                players = activeMediaPlayers,
+                currentUrl = currentUrl,
+                viewModel = viewModel,
+                onOpen = { mediaDialogEntityId = it.entity_id },
+                modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 6.dp)
+            )
+        }
         HKIBottomBar(
-            modifier = Modifier.align(Alignment.BottomCenter),
             horizontalPadding = 32.dp,
             scrollable = navBarScrollable
         ) {
@@ -410,8 +454,88 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                     }
             }
         }
+        }
+
+        mediaDialogEntityId?.let { id ->
+            val player = mediaPlayers.find { it.entity_id == id }?.withDisplayName(mediaPlayerNames[id])
+            if (player != null) {
+                HKIMediaPlayerDialog(player, viewModel, currentUrl) { mediaDialogEntityId = null }
+            } else {
+                mediaDialogEntityId = null
+            }
+        }
+
+        // Startup connection failure (like the official HA app): full-screen retry. Only shown
+        // while nothing has loaded yet — once connected, transient drops keep the dashboard up.
+        if (connectionStatus == ConnectionStatus.ERROR && !hasConnectedOnce && !hasEntities) {
+            ConnectionErrorOverlay(viewModel)
+        }
     }
     }
+    }
+}
+
+@Composable
+private fun ConnectionErrorOverlay(viewModel: MainViewModel) {
+    val appColors = LocalHKIAppColors.current
+    val currentUrl by viewModel.currentUrl.collectAsState()
+    val scope = rememberCoroutineScope()
+    var retrying by remember { mutableStateOf(false) }
+    Box(
+        modifier = Modifier.fillMaxSize().background(appColors.background),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(32.dp)
+        ) {
+            Icon(Icons.Default.CloudOff, null, tint = appColors.onMuted, modifier = Modifier.size(56.dp))
+            Spacer(Modifier.height(18.dp))
+            Text("Unable to connect", style = MaterialTheme.typography.headlineSmall, color = appColors.onSurface)
+            Spacer(Modifier.height(8.dp))
+            Text(
+                if (currentUrl.isBlank()) "Couldn't reach your Home Assistant server."
+                else "Couldn't reach $currentUrl",
+                style = MaterialTheme.typography.bodyMedium,
+                color = appColors.onMuted,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+            Spacer(Modifier.height(24.dp))
+            Button(
+                enabled = !retrying,
+                onClick = {
+                    retrying = true
+                    scope.launch {
+                        val connected = viewModel.retryConnection()
+                        retrying = false
+                        // The retry also failed: send the user to the login screen (server kept).
+                        if (!connected) viewModel.forceRelogin("Couldn't connect to your server. Please log in again.")
+                    }
+                },
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.height(52.dp)
+            ) {
+                if (retrying) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Text("Connecting…")
+                } else {
+                    Icon(Icons.Default.Refresh, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Refresh")
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+            Text(
+                "If this keeps failing you'll be taken to the login screen.",
+                style = MaterialTheme.typography.labelSmall,
+                color = appColors.onMuted
+            )
+        }
     }
 }
 

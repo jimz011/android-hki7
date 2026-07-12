@@ -48,6 +48,7 @@ import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.screens.PagedRoleDialog
 import com.example.hki7.ui.screens.AggregatedCoverDialog
 import com.example.hki7.ui.screens.VacuumStackDialog
+import com.example.hki7.ui.screens.resolveVacuumDeviceEntities
 import com.example.hki7.ui.screens.UniversalStackDialog
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
@@ -58,17 +59,6 @@ import kotlin.math.roundToInt
 // ─────────────────────────────────────────────────────────────────────────────
 // Domain helpers
 // ─────────────────────────────────────────────────────────────────────────────
-
-private fun defaultTapAction(entityId: String): String = when {
-    entityId.startsWith("climate.")             ||
-    entityId.startsWith("cover.")               ||
-    entityId.startsWith("camera.")              ||
-    entityId.startsWith("fan.")                 ||
-    entityId.startsWith("humidifier.")          ||
-    entityId.startsWith("alarm_control_panel.") ||
-    entityId.startsWith("person.")              -> "more_info"
-    else -> "toggle"
-}
 
 private fun domainRole(entityId: String): String = when {
     entityId.startsWith("light.")               -> "light"
@@ -168,7 +158,8 @@ fun HKIBadgeBar(
 
     fun handleTap(badge: HKIBadge) {
         val primary = badge.effectiveEntityIds.firstOrNull() ?: badge.entityId
-        val action = if (badge.tapAction == "auto") defaultTapAction(primary) else badge.tapAction
+        // Badges default to opening the entity dialog on tap; toggling is opt-in via badge settings.
+        val action = if (badge.tapAction == "auto") "more_info" else badge.tapAction
         if (action == "toggle") viewModel.toggleEntity(primary)
         else openMore(badge)
     }
@@ -1029,6 +1020,7 @@ fun BadgeSettingsDialog(
     var vacuumWaterPickerFor by remember { mutableStateOf<String?>(null) }
     var vacuumEmptyPickerFor by remember { mutableStateOf<String?>(null) }
     val devices by viewModel.deviceRegistry.collectAsState()
+    val entityRegistry by viewModel.entityRegistry.collectAsState()
     LaunchedEffect(Unit) { viewModel.fetchRegistries() }
 
     val lockIds   = editingEntityIds.filter { it.startsWith("lock.") }
@@ -1285,7 +1277,18 @@ fun BadgeSettingsDialog(
         DevicePickerDialog(
             devices = devices, currentId = vacuumDeviceIds[vId],
             onDismiss = { vacuumDevicePickerFor = null },
-            onSelected = { id -> vacuumDeviceIds = if (id != null) vacuumDeviceIds + (vId to id) else vacuumDeviceIds - vId; vacuumDevicePickerFor = null }
+            onSelected = { id ->
+                vacuumDeviceIds = if (id != null) vacuumDeviceIds + (vId to id) else vacuumDeviceIds - vId
+                if (id != null) {
+                    // Auto-fill the helper entity fields from the device, like the Energy view does.
+                    val auto = resolveVacuumDeviceEntities(id, allEntities, entityRegistry)
+                    auto.map?.let { vacuumMapIds = vacuumMapIds + (vId to it.entity_id) }
+                    auto.battery?.let { vacuumBattIds = vacuumBattIds + (vId to it.entity_id) }
+                    auto.water?.let { vacuumWaterIds = vacuumWaterIds + (vId to it.entity_id) }
+                    auto.emptyBin?.let { vacuumEmptyIds = vacuumEmptyIds + (vId to it.entity_id) }
+                }
+                vacuumDevicePickerFor = null
+            }
         )
     }
     vacuumWaterPickerFor?.let { vId ->
