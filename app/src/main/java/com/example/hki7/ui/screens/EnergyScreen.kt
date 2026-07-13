@@ -212,6 +212,11 @@ fun EnergyScreen(viewModel: MainViewModel) {
     val historyMap     by viewModel.historyMapping.collectAsState()
     val energyConfig: HKIEnergyConfig =
         (pageConfigsMap[ENERGY_PAGE_KEY] ?: HKIPageConfig()).energyConfig ?: HKIEnergyConfig()
+    LaunchedEffect(rawEntities.isNotEmpty(), energyConfig.usesHomeAssistantEnergyPreferences) {
+        if (rawEntities.isNotEmpty() && !energyConfig.usesHomeAssistantEnergyPreferences) {
+            viewModel.importHomeAssistantEnergyPreferences(ENERGY_PAGE_KEY)
+        }
+    }
     val isEditMode by viewModel.isEditMode.collectAsState()
     var renameEntity by remember { mutableStateOf<HAEntity?>(null) }
     renameEntity?.let { entity ->
@@ -489,7 +494,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
             energyConfig.powerPhase1EntityId, energyConfig.powerPhase2EntityId, energyConfig.powerPhase3EntityId
         )
     }
-    val topConsumers = remember(entities, mainPowerIds, energyConfig.deviceEntityIds, energyConfig.hiddenPowerDeviceEntityIds) {
+    val topConsumers = remember(entities, mainPowerIds, energyConfig.deviceEntityIds, energyConfig.hiddenPowerDeviceEntityIds, energyConfig.usesHomeAssistantEnergyPreferences) {
         fun wattsOf(e: HAEntity): Float? {
             val v = e.state.toFloatOrNull() ?: return null
             val unit = e.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull ?: ""
@@ -499,7 +504,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
             entityById[id]?.let { e -> e to (wattsOf(e) ?: 0f) }
         }
         val manualIds = manual.map { it.first.entity_id }.toSet()
-        val auto = entities.asSequence()
+        val auto = (if (energyConfig.usesHomeAssistantEnergyPreferences) emptySequence() else entities.asSequence())
             .filter {
                 it.entity_id.startsWith("sensor.") && it.entity_id !in mainPowerIds &&
                 it.entity_id !in manualIds && it.entity_id !in energyConfig.hiddenPowerDeviceEntityIds &&
@@ -516,10 +521,10 @@ fun EnergyScreen(viewModel: MainViewModel) {
             energyConfig.gridExportTariff1EntityId, energyConfig.gridExportTariff2EntityId
         )
     }
-    val deviceEnergyEntities = remember(entities, primaryEnergyIds, energyConfig.energyDeviceEntityIds, energyConfig.hiddenEnergyDeviceEntityIds) {
+    val deviceEnergyEntities = remember(entities, primaryEnergyIds, energyConfig.energyDeviceEntityIds, energyConfig.hiddenEnergyDeviceEntityIds, energyConfig.usesHomeAssistantEnergyPreferences) {
         val manual = energyConfig.energyDeviceEntityIds.mapNotNull(entityById::get)
         val manualIds = manual.map { it.entity_id }.toSet()
-        val auto = entities.filter {
+        val auto = if (energyConfig.usesHomeAssistantEnergyPreferences) emptyList() else entities.filter {
             it.entity_id.startsWith("sensor.") && it.deviceClass == "energy" &&
                 it.entity_id !in primaryEnergyIds && it.entity_id !in manualIds &&
                 it.entity_id !in energyConfig.hiddenEnergyDeviceEntityIds
@@ -2557,11 +2562,13 @@ private fun ColumnScope.EnergySensorSection(
                 cfg.gridImportTariff1EntityId, cfg.gridImportTariff2EntityId,
                 cfg.gridExportTariff1EntityId, cfg.gridExportTariff2EntityId
             )
-            val autoPower = remember(sensors, cfg.hiddenPowerDeviceEntityIds, excludedPowerIds) {
-                sensors.filter { it.deviceClass == "power" && it.entity_id !in excludedPowerIds && it.entity_id !in cfg.hiddenPowerDeviceEntityIds }
+            val autoPower = remember(sensors, cfg.hiddenPowerDeviceEntityIds, excludedPowerIds, cfg.usesHomeAssistantEnergyPreferences) {
+                if (cfg.usesHomeAssistantEnergyPreferences) emptyList()
+                else sensors.filter { it.deviceClass == "power" && it.entity_id !in excludedPowerIds && it.entity_id !in cfg.hiddenPowerDeviceEntityIds }
             }
-            val autoEnergy = remember(sensors, cfg.hiddenEnergyDeviceEntityIds, excludedEnergyIds) {
-                sensors.filter { it.deviceClass == "energy" && it.entity_id !in excludedEnergyIds && it.entity_id !in cfg.hiddenEnergyDeviceEntityIds }
+            val autoEnergy = remember(sensors, cfg.hiddenEnergyDeviceEntityIds, excludedEnergyIds, cfg.usesHomeAssistantEnergyPreferences) {
+                if (cfg.usesHomeAssistantEnergyPreferences) emptyList()
+                else sensors.filter { it.deviceClass == "energy" && it.entity_id !in excludedEnergyIds && it.entity_id !in cfg.hiddenEnergyDeviceEntityIds }
             }
             val visiblePowerIds = (cfg.deviceEntityIds + autoPower.map { it.entity_id }).distinct()
             val visibleEnergyIds = (cfg.energyDeviceEntityIds + autoEnergy.map { it.entity_id }).distinct()
@@ -2593,7 +2600,9 @@ private fun ColumnScope.EnergySensorSection(
             }
             Text("Top consumers", style = MaterialTheme.typography.titleSmall, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
             Text(
-                "All sensors with device_class power are included automatically. Remove any device to create your own list.",
+                if (cfg.usesHomeAssistantEnergyPreferences)
+                    "Live power sensors imported from Home Assistant's configured Energy devices."
+                else "All sensors with device_class power are included automatically. Remove any device to create your own list.",
                 style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
             )
             visiblePowerIds.forEach { id ->
@@ -2620,7 +2629,9 @@ private fun ColumnScope.EnergySensorSection(
             Spacer(Modifier.height(8.dp))
             Text("Device energy", style = MaterialTheme.typography.titleSmall, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
             Text(
-                "All sensors with device_class energy are included automatically. Their counter changes are used for the selected period.",
+                if (cfg.usesHomeAssistantEnergyPreferences)
+                    "Energy counters imported from Home Assistant's Energy dashboard."
+                else "All sensors with device_class energy are included automatically. Their counter changes are used for the selected period.",
                 style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
             )
             visibleEnergyIds.forEach { id ->
@@ -2642,6 +2653,11 @@ private fun ColumnScope.EnergySensorSection(
             }
             TextButton(onClick = { pickerType = "energy" }) {
                 Icon(Icons.Default.Edit, null, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(6.dp)); Text("Customize device energy")
+            }
+            TextButton(onClick = { viewModel.importHomeAssistantEnergyPreferences(ENERGY_PAGE_KEY, force = true) }) {
+                Icon(Icons.Default.Refresh, null, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("Re-import from Home Assistant")
             }
         }
     }
@@ -2742,7 +2758,7 @@ fun EnergyCardWidgetView(
             cfg.powerPhase1EntityId, cfg.powerPhase2EntityId, cfg.powerPhase3EntityId
         )
     }
-    val topConsumers = remember(entities, mainPowerIds, cfg.deviceEntityIds, cfg.hiddenPowerDeviceEntityIds) {
+    val topConsumers = remember(entities, mainPowerIds, cfg.deviceEntityIds, cfg.hiddenPowerDeviceEntityIds, cfg.usesHomeAssistantEnergyPreferences) {
         fun wattsOfE(e: HAEntity): Float? {
             val v = e.state.toFloatOrNull() ?: return null
             val unit = e.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull ?: ""
@@ -2750,7 +2766,7 @@ fun EnergyCardWidgetView(
         }
         val manual = cfg.deviceEntityIds.mapNotNull { id -> byId[id]?.let { e -> e to (wattsOfE(e) ?: 0f) } }
         val manualIds = manual.map { it.first.entity_id }.toSet()
-        val auto = entities.asSequence()
+        val auto = (if (cfg.usesHomeAssistantEnergyPreferences) emptySequence() else entities.asSequence())
             .filter {
                 it.entity_id.startsWith("sensor.") && it.entity_id !in mainPowerIds &&
                     it.entity_id !in manualIds && it.entity_id !in cfg.hiddenPowerDeviceEntityIds &&
@@ -2767,10 +2783,10 @@ fun EnergyCardWidgetView(
             cfg.gridExportTariff1EntityId, cfg.gridExportTariff2EntityId
         )
     }
-    val deviceEnergyEntities = remember(entities, primaryEnergyIds, cfg.energyDeviceEntityIds, cfg.hiddenEnergyDeviceEntityIds) {
+    val deviceEnergyEntities = remember(entities, primaryEnergyIds, cfg.energyDeviceEntityIds, cfg.hiddenEnergyDeviceEntityIds, cfg.usesHomeAssistantEnergyPreferences) {
         val manual = cfg.energyDeviceEntityIds.mapNotNull(byId::get)
         val manualIds = manual.map { it.entity_id }.toSet()
-        val auto = entities.filter {
+        val auto = if (cfg.usesHomeAssistantEnergyPreferences) emptyList() else entities.filter {
             it.entity_id.startsWith("sensor.") && it.deviceClass == "energy" &&
                 it.entity_id !in primaryEnergyIds && it.entity_id !in manualIds &&
                 it.entity_id !in cfg.hiddenEnergyDeviceEntityIds

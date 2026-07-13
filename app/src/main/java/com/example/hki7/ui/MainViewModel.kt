@@ -22,6 +22,8 @@ import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -1242,6 +1244,87 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     fun updateEnergyConfig(pageKey: String, config: com.example.hki7.data.HKIEnergyConfig) {
         val current = _pageConfigsMapping.value[pageKey] ?: com.example.hki7.data.HKIPageConfig()
         updatePageConfig(pageKey, current.copy(energyConfig = config))
+    }
+
+    /** Imports the read-only Energy dashboard preferences maintained by Home Assistant. */
+    fun importHomeAssistantEnergyPreferences(pageKey: String = "energy", force: Boolean = false) {
+        val current = (_pageConfigsMapping.value[pageKey] ?: HKIPageConfig()).energyConfig ?: HKIEnergyConfig()
+        if (current.usesHomeAssistantEnergyPreferences && !force) return
+        val currentClient = client ?: return
+        viewModelScope.launch {
+            try {
+                val prefsResult = currentClient.getEnergyPreferences() ?: return@launch
+                val sources = prefsResult["energy_sources"]?.jsonArray.orEmpty().mapNotNull { runCatching { it.jsonObject }.getOrNull() }
+                val devices = prefsResult["device_consumption"]?.jsonArray.orEmpty().mapNotNull { runCatching { it.jsonObject }.getOrNull() }
+                if (sources.isEmpty() && devices.isEmpty()) return@launch
+
+                fun JsonObject.text(key: String): String? = this[key]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
+                fun source(type: String): JsonObject? = sources.firstOrNull { it.text("type") == type }
+                fun JsonObject.powerRate(): String? = text("stat_rate")
+                    ?: this["power_config"]?.let { runCatching { it.jsonObject }.getOrNull() }?.let { power ->
+                        power.text("stat_rate") ?: power.text("stat_rate_from") ?: power.text("stat_rate_to")
+                    }
+
+                val grid = source("grid")
+                val solar = source("solar")
+                val battery = source("battery")
+                val gas = source("gas")
+                val water = source("water")
+                val energyIds = devices.mapNotNull { it.text("stat_consumption") }.distinct()
+                val registry = _entityRegistry.value.ifEmpty {
+                    currentClient.getEntityRegistry().also { _entityRegistry.value = it }
+                }
+                val registryByEntity = registry.associateBy { it.entity_id }
+                val liveById = _entities.value.associateBy { it.entity_id }
+                val powerIds = devices.mapNotNull { device ->
+                    device.text("stat_rate") ?: device.text("stat_consumption")?.let { consumptionId ->
+                        val deviceId = registryByEntity[consumptionId]?.device_id ?: return@let null
+                        registry.firstNotNullOfOrNull { entry ->
+                            entry.entity_id.takeIf { id ->
+                                entry.device_id == deviceId && liveById[id]?.deviceClass == "power"
+                            }
+                        }
+                    }
+                }.distinct()
+                val importedNames = buildMap {
+                    devices.forEach { device ->
+                        val name = device.text("name") ?: return@forEach
+                        device.text("stat_consumption")?.let { put(it, name) }
+                        device.text("stat_rate")?.let { put(it, name) }
+                    }
+                }
+
+                val imported = current.copy(
+                    usesHomeAssistantEnergyPreferences = true,
+                    gridImportEntityId = grid?.text("stat_energy_from") ?: current.gridImportEntityId,
+                    gridExportEntityId = grid?.text("stat_energy_to") ?: current.gridExportEntityId,
+                    gridPowerEntityId = grid?.powerRate() ?: current.gridPowerEntityId,
+                    energyCostEntityId = grid?.text("stat_cost") ?: current.energyCostEntityId,
+                    solarEnergyEntityId = solar?.text("stat_energy_from") ?: current.solarEnergyEntityId,
+                    solarPowerEntityId = solar?.powerRate() ?: current.solarPowerEntityId,
+                    batteryPowerEntityId = battery?.powerRate() ?: current.batteryPowerEntityId,
+                    batteryEntityId = battery?.text("stat_soc") ?: current.batteryEntityId,
+                    gasEntityId = gas?.text("stat_energy_from") ?: current.gasEntityId,
+                    gasCurrentEntityId = gas?.text("stat_rate") ?: current.gasCurrentEntityId,
+                    gasCostEntityId = gas?.text("stat_cost") ?: current.gasCostEntityId,
+                    waterEntityId = water?.text("stat_energy_from") ?: current.waterEntityId,
+                    waterCurrentEntityId = water?.text("stat_rate") ?: current.waterCurrentEntityId,
+                    waterCostEntityId = water?.text("stat_cost") ?: current.waterCostEntityId,
+                    deviceEntityIds = powerIds,
+                    energyDeviceEntityIds = energyIds,
+                    hiddenPowerDeviceEntityIds = emptyList(),
+                    hiddenEnergyDeviceEntityIds = emptyList(),
+                    customNames = current.customNames + importedNames
+                )
+                val page = _pageConfigsMapping.value[pageKey] ?: HKIPageConfig()
+                val updated = _pageConfigsMapping.value + (pageKey to page.copy(energyConfig = imported))
+                _pageConfigsMapping.value = updated
+                prefs.savePageConfigs(updated)
+                addLog("Imported ${energyIds.size} Energy dashboard devices from Home Assistant")
+            } catch (e: Exception) {
+                addLog("Energy dashboard import unavailable: ${e.message}")
+            }
+        }
     }
 
     fun updateClimateConfig(pageKey: String, config: com.example.hki7.data.HKIClimateConfig) {

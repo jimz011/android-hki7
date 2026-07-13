@@ -596,6 +596,8 @@ data class HKIClimateConfig(
 /** Entity bindings for the Energy dashboard's power-flow visualization. All optional. */
 @Serializable
 data class HKIEnergyConfig(
+    /** True after importing Home Assistant's Energy dashboard preferences; disables class-wide discovery. */
+    val usesHomeAssistantEnergyPreferences: Boolean = false,
     val solarPowerEntityId: String? = null,
     val gridPowerEntityId: String? = null,
     val homePowerEntityId: String? = null,

@@ -157,6 +157,15 @@ class HomeAssistantClient(
         }
     }
 
+    /** Read-only copy of the entities configured in Home Assistant's Energy dashboard. */
+    suspend fun getEnergyPreferences(): JsonObject? {
+        return withWebSocket {
+            val response = sendCommand("energy/get_prefs")
+            if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket null
+            response["result"]?.jsonObject
+        }
+    }
+
     /** Browses a media player's library (root when contentId is null). */
     suspend fun browseMedia(entityId: String, contentId: String? = null, contentType: String? = null): HAMediaBrowseItem? {
         return withWebSocket {
