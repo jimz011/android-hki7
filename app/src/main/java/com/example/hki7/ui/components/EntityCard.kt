@@ -180,7 +180,8 @@ fun EntityCard(
     val activeContent = if (primary.luminance() < 0.45f) Color.White else Color(0xFF111111)
     val primaryContent = if (primary.luminance() < 0.45f) Color.White else Color(0xFF111111)
     val unavailableStateColor = if (primary.isRedShade()) primary else Color(0xFFEF5350)
-    val brightnessEnabled = showBrightnessSlider && domain == "light" && entity.supportsBrightness && interactionsEnabled
+    val brightnessVisible = showBrightnessSlider && domain == "light" && entity.supportsBrightness
+    val brightnessEnabled = brightnessVisible && interactionsEnabled
     val entityBrightness = if (isActive) (entity.brightness ?: 0) / 255f else 0f
     var localBrightness by remember(entity.entity_id) { mutableFloatStateOf(entityBrightness) }
     LaunchedEffect(entity.brightness, entity.state) { localBrightness = entityBrightness }
@@ -225,25 +226,27 @@ fun EntityCard(
             domain == "climate" -> climateColor
             else -> primary
         }
+        // A brightness-enabled light tile is a full-height progress track: the lit section keeps
+        // the normal ON color while the unfilled section uses a darker shade of that same color.
+        val brightnessTrackColor = lerpColor(primary, Color.Black, 0.18f)
         Surface(
             shape = RoundedCornerShape(18.dp),
-            color = if (tileActive) primary else appColors.elevated,
+            color = when {
+                brightnessVisible && tileActive -> brightnessTrackColor
+                tileActive -> primary
+                else -> appColors.elevated
+            },
             modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).then(
                 if (interactionsEnabled) Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick, onDoubleClick = onDoubleClick)
                 else Modifier
             )
         ) {
             Box(Modifier.fillMaxWidth()) {
-                if (brightnessEnabled && localBrightness > 0f) {
+                if (brightnessVisible && localBrightness > 0f) {
                     Box(
                         Modifier.fillMaxWidth(localBrightness).fillMaxHeight()
-                            .background(if (tileActive) activeContent.copy(alpha = 0.20f) else accent.copy(alpha = 0.34f))
-                    ) {
-                        Box(
-                            Modifier.align(Alignment.CenterEnd).fillMaxHeight().width(3.dp)
-                                .background(if (tileActive) activeContent.copy(alpha = 0.82f) else accent)
-                        )
-                    }
+                            .background(if (tileActive) primary else accent.copy(alpha = 0.34f))
+                    )
                 }
                 Row(
                     modifier = Modifier.padding(12.dp),
@@ -293,7 +296,7 @@ fun EntityCard(
         )
     ) {
         Box(Modifier.fillMaxSize()) {
-            if (brightnessEnabled && localBrightness > 0f) {
+            if (brightnessVisible && localBrightness > 0f) {
                 Box(Modifier.fillMaxWidth(localBrightness).fillMaxHeight().background(Color.White.copy(alpha = 0.18f)))
             }
             Column(
