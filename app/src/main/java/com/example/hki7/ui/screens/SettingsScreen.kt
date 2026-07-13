@@ -44,6 +44,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.SettingsEthernet
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Wifi
@@ -52,6 +53,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,6 +62,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -91,12 +95,15 @@ import com.example.hki7.ui.NavBarConfig
 import com.example.hki7.ui.Screen
 import com.example.hki7.ui.components.ColorWheel
 import com.example.hki7.ui.components.fadingEdges
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 private enum class SettingsSection {
-    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, THEME, NAV_BAR, MEDIA_PLAYERS, DASHBOARD, ACCOUNT
+    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, THEME, FONTS, NAV_BAR, MEDIA_PLAYERS, DASHBOARD, ACCOUNT
 }
 
 private fun sectionTitle(section: SettingsSection): String = when (section) {
@@ -109,7 +116,7 @@ private fun sectionTitle(section: SettingsSection): String = when (section) {
 
 // Sub-sections nested under Appearance return there on back; everything else returns to the menu.
 private fun parentSection(section: SettingsSection): SettingsSection = when (section) {
-    SettingsSection.THEME, SettingsSection.NAV_BAR, SettingsSection.MEDIA_PLAYERS -> SettingsSection.APPEARANCE
+    SettingsSection.THEME, SettingsSection.FONTS, SettingsSection.NAV_BAR, SettingsSection.MEDIA_PLAYERS -> SettingsSection.APPEARANCE
     else -> SettingsSection.MENU
 }
 
@@ -381,8 +388,114 @@ fun SettingsDialog(
                         }
                         SettingsSection.APPEARANCE -> {
                             SettingsChoice(Icons.Default.Palette, "Theme", "Colors and light/dark mode") { section = SettingsSection.THEME }
+                            SettingsChoice(Icons.Default.TextFields, "Fonts", "Text size, boldness and font family") { section = SettingsSection.FONTS }
                             SettingsChoice(Icons.Default.Menu, "Navigation Bar", "Reorder and hide tabs") { section = SettingsSection.NAV_BAR }
                             SettingsChoice(Icons.Default.MusicNote, "Media Players", "Rename players and mini player visibility") { section = SettingsSection.MEDIA_PLAYERS }
+                        }
+                        SettingsSection.FONTS -> {
+                            val fontScale by prefs.fontScale.collectAsState(initial = 1f)
+                            val fontWeightAdjust by prefs.fontWeightAdjust.collectAsState(initial = 0)
+                            val fontFamily by prefs.fontFamily.collectAsState(initial = "default")
+                            var localScale by remember(fontScale) { mutableStateOf(fontScale) }
+                            var localWeight by remember(fontWeightAdjust) { mutableStateOf(fontWeightAdjust.toFloat()) }
+                            SettingsPanel {
+                                Text(
+                                    "Font size · ${(localScale * 100).toInt()}%",
+                                    color = appColors.onSurface,
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                                Slider(
+                                    value = localScale,
+                                    onValueChange = { localScale = it },
+                                    onValueChangeFinished = {
+                                        // Snap to 5% steps so the label and stored value stay tidy.
+                                        val snapped = (localScale * 20).roundToInt() / 20f
+                                        localScale = snapped
+                                        scope.launch { prefs.saveFontScale(snapped) }
+                                    },
+                                    valueRange = 0.8f..1.4f
+                                )
+                                val weightLabel = when (localWeight.roundToInt()) {
+                                    -200 -> "Thinner (-200)"
+                                    -100 -> "Thin (-100)"
+                                    0 -> "Default"
+                                    100 -> "Bold (+100)"
+                                    200 -> "Bolder (+200)"
+                                    else -> "Boldest (+300)"
+                                }
+                                Text(
+                                    "Boldness · $weightLabel",
+                                    color = appColors.onSurface,
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                                Slider(
+                                    value = localWeight,
+                                    onValueChange = { localWeight = it },
+                                    onValueChangeFinished = {
+                                        val snapped = (localWeight / 100f).roundToInt() * 100
+                                        localWeight = snapped.toFloat()
+                                        scope.launch { prefs.saveFontWeightAdjust(snapped) }
+                                    },
+                                    valueRange = -200f..300f,
+                                    steps = 4
+                                )
+                                Text("Font family", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
+                                var familyMenuOpen by remember { mutableStateOf(false) }
+                                val familyOptions = listOf(
+                                    "default" to "Default",
+                                    "sans" to "Sans Serif",
+                                    "serif" to "Serif",
+                                    "monospace" to "Monospace",
+                                    "cursive" to "Cursive"
+                                )
+                                Box {
+                                    Surface(
+                                        modifier = Modifier.fillMaxWidth().clickable { familyMenuOpen = true },
+                                        shape = RoundedCornerShape(16.dp),
+                                        color = appColors.subtleSurface
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                familyOptions.firstOrNull { it.first == fontFamily }?.second ?: "Default",
+                                                color = appColors.onSurface,
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                            Icon(Icons.Default.KeyboardArrowDown, null, tint = appColors.onMuted)
+                                        }
+                                    }
+                                    DropdownMenu(expanded = familyMenuOpen, onDismissRequest = { familyMenuOpen = false }) {
+                                        familyOptions.forEach { (value, label) ->
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(
+                                                        label,
+                                                        fontFamily = when (value) {
+                                                            "sans" -> FontFamily.SansSerif
+                                                            "serif" -> FontFamily.Serif
+                                                            "monospace" -> FontFamily.Monospace
+                                                            "cursive" -> FontFamily.Cursive
+                                                            else -> null
+                                                        },
+                                                        fontWeight = if (value == fontFamily) FontWeight.Bold else null
+                                                    )
+                                                },
+                                                onClick = {
+                                                    familyMenuOpen = false
+                                                    scope.launch { prefs.saveFontFamily(value) }
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                                Text(
+                                    "The quick brown fox jumps over the lazy dog — 0123456789",
+                                    color = appColors.onMuted,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
                         }
                         SettingsSection.MEDIA_PLAYERS -> {
                             val customNames by prefs.mediaPlayerCustomNames.collectAsState(initial = emptyMap())

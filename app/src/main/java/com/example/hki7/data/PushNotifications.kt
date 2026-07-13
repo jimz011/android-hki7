@@ -191,7 +191,7 @@ class PushForegroundService : Service() {
                     if (!refresh.isNullOrBlank()) {
                         runCatching {
                             val fresh = HomeAssistantClient.refreshAccessToken(prefs.serverUrl.first() ?: url, refresh)
-                            prefs.saveConnectionDetails(prefs.serverUrl.first() ?: url, fresh.access_token, expiresInSeconds = fresh.expires_in)
+                            prefs.saveAuthTokens(fresh.access_token, expiresInSeconds = fresh.expires_in)
                             token = fresh.access_token
                         }
                     }

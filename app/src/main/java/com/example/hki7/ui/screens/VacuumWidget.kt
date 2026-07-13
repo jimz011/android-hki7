@@ -133,6 +133,7 @@ fun VacuumEntityCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val appColors = LocalHKIAppColors.current
     val displayMode = config?.vacuumDisplayMode ?: "static"
     val mapCameraEntity = config?.vacuumMapEntityId?.let { id -> allEntities.find { it.entity_id == id } }
     // Full URL or a path on the HA server (e.g. /local/vacuum.png), like the header wallpaper.
@@ -158,7 +159,7 @@ fun VacuumEntityCard(
         "paused"    -> Color(0xFFFFB300)
         "error"     -> Color(0xFFEF5350)
         "returning" -> Color(0xFF42A5F5)
-        else        -> Color.White.copy(alpha = 0.7f)
+        else        -> appColors.onMuted
     }
 
     val sizeModifier = if (isSquare) Modifier.aspectRatio(1f) else Modifier.aspectRatio(aspectRatio)
@@ -170,7 +171,7 @@ fun VacuumEntityCard(
             .clip(RoundedCornerShape(cornerRadius.dp))
             .clickable { onClick() },
         shape = RoundedCornerShape(cornerRadius.dp),
-        color = Color(0xFF1A1A2E)
+        color = appColors.elevated
     ) {
         Box {
             // Background image
@@ -185,21 +186,21 @@ fun VacuumEntityCard(
 
             // Gradient overlay: dark at bottom (like camera stack)
             Box(modifier = Modifier.fillMaxSize().background(
-                Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent, Color.Black.copy(alpha = 0.72f)))
+                Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent, appColors.elevated.copy(alpha = 0.88f)))
             ))
 
             // Name + state + battery at BOTTOM-LEFT (like camera stack)
             Surface(
                 modifier = Modifier.align(Alignment.BottomStart).padding(10.dp),
-                color = Color.Black.copy(alpha = 0.5f),
-                shape = RoundedCornerShape(12.dp)
+                color = Color.Black.copy(alpha = 0.55f),
+                shape = RoundedCornerShape(14.dp)
             ) {
                 Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
                     Text(displayName, color = Color.White, style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         Box(Modifier.size(5.dp).background(stateColor, CircleShape))
-                        Text(stateTxt, color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.labelSmall, fontSize = 10.sp)
+                        Text(stateTxt, color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.labelSmall, fontSize = 10.sp)
                         Spacer(Modifier.weight(1f, fill = false))
                         Icon(Icons.Default.BatteryFull, null, tint = Color.White.copy(alpha = 0.7f), modifier = Modifier.size(11.dp))
                         Text("$batteryLevel%", color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.labelSmall, fontSize = 9.sp)

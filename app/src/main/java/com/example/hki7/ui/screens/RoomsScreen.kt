@@ -112,7 +112,8 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
         title = "Rooms",
         showPeople = false,
         pageKey = "rooms",
-        pageSettingsTitle = "Rooms Settings"
+        pageSettingsTitle = "Rooms Settings",
+        navController = navController
     ) { padding ->
         BoxWithConstraints(
             modifier = Modifier

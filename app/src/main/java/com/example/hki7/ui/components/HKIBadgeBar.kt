@@ -29,22 +29,28 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavController
+import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import com.example.hki7.data.HAEntity
+import com.example.hki7.data.HKIAction
 import com.example.hki7.data.HKIBadge
 import com.example.hki7.data.HKIBadgeBarConfig
 import com.example.hki7.data.HKIButtonConfig
 import com.example.hki7.ui.MainViewModel
+import com.example.hki7.ui.utils.handleActionOutcome
 import com.example.hki7.ui.screens.PagedRoleDialog
 import com.example.hki7.ui.screens.AggregatedCoverDialog
 import com.example.hki7.ui.screens.VacuumStackDialog
@@ -100,8 +106,11 @@ fun HKIBadgeBar(
     isEditMode: Boolean,
     viewModel: MainViewModel,
     onConfigChange: (HKIBadgeBarConfig?) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navController: NavController? = null
 ) {
+    val context = LocalContext.current
+    val currentUrl by viewModel.currentUrl.collectAsState()
     val config = badgeBarConfig ?: HKIBadgeBarConfig()
     val badges = config.badges
     val alignment = config.alignment
@@ -156,20 +165,26 @@ fun HKIBadgeBar(
         dialogBadge = badge
     }
 
-    fun handleTap(badge: HKIBadge) {
-        val primary = badge.effectiveEntityIds.firstOrNull() ?: badge.entityId
-        // Badges default to opening the entity dialog on tap; toggling is opt-in via badge settings.
-        val action = if (badge.tapAction == "auto") "more_info" else badge.tapAction
-        if (action == "toggle") viewModel.toggleEntity(primary)
-        else openMore(badge)
+    // Badges default to opening the entity dialog ("more_info") rather than the domain-based
+    // default; toggling and richer actions are opt-in via badge settings.
+    fun resolveBadgeAction(badge: HKIBadge, trigger: String): HKIAction {
+        val ex = if (trigger == "hold") badge.holdActionEx else badge.tapActionEx
+        if (ex != null) return ex
+        val legacy = if (trigger == "hold") badge.holdAction else badge.tapAction
+        return HKIAction(type = if (legacy == "auto") "more_info" else legacy)
     }
 
-    fun handleHold(badge: HKIBadge) {
+    fun dispatchBadge(badge: HKIBadge, trigger: String) {
         val primary = badge.effectiveEntityIds.firstOrNull() ?: badge.entityId
-        val action = if (badge.holdAction == "auto") "more_info" else badge.holdAction
-        if (action == "toggle") viewModel.toggleEntity(primary)
-        else openMore(badge)
+        handleActionOutcome(
+            viewModel.executeAction(resolveBadgeAction(badge, trigger), primary, trigger),
+            context, navController
+        ) { openMore(badge) }
     }
+
+    fun handleTap(badge: HKIBadge) = dispatchBadge(badge, "tap")
+
+    fun handleHold(badge: HKIBadge) = dispatchBadge(badge, "hold")
 
     // ── nothing to show ───────────────────────────────────────────────────────
     if (!config.visible || (!isEditMode && badges.isEmpty())) return
@@ -215,6 +230,7 @@ fun HKIBadgeBar(
                                     badges = leftBadges,
                                     allEntities = allEntities,
                                     isEditMode = true,
+                                    currentUrl = currentUrl,
                                     scrollState = leftScrollState,
                                     viewportWidthPx = leftLaneWidthPx,
                                     onTap = { b -> handleTap(b) },
@@ -242,6 +258,7 @@ fun HKIBadgeBar(
                                     badges = rightBadges,
                                     allEntities = allEntities,
                                     isEditMode = true,
+                                    currentUrl = currentUrl,
                                     scrollState = rightScrollState,
                                     viewportWidthPx = rightLaneWidthPx,
                                     onTap = { b -> handleTap(b) },
@@ -277,6 +294,7 @@ fun HKIBadgeBar(
                             badges = leftBadges,
                             allEntities = allEntities,
                             isEditMode = isEditMode,
+                            currentUrl = currentUrl,
                             modifier = Modifier.horizontalScroll(rememberScrollState()),
                             onTap    = { b -> handleTap(b) },
                             onHold   = { b -> if (isEditMode) editingBadge = b else handleHold(b) },
@@ -293,6 +311,7 @@ fun HKIBadgeBar(
                             badges = rightBadges,
                             allEntities = allEntities,
                             isEditMode = isEditMode,
+                            currentUrl = currentUrl,
                             modifier = Modifier.horizontalScroll(rememberScrollState()),
                             onTap    = { b -> handleTap(b) },
                             onHold   = { b -> if (isEditMode) editingBadge = b else handleHold(b) },
@@ -304,24 +323,26 @@ fun HKIBadgeBar(
             }
 
             else -> {
-                // Non-split: badges fill the remaining width so Center/Right/SpaceEvenly work
-                val hArrangement: Arrangement.Horizontal = when {
-                    alignment == "left"       -> Arrangement.Start
-                    alignment == "right"      -> Arrangement.End
-                    config.spanIcons -> Arrangement.SpaceEvenly
-                    else                      -> Arrangement.Center
+                // Non-split: the badge row fills the remaining width so Left/Center/Right and Span
+                // (evenly-spread) actually take effect. "Span" spreads the badges across the width;
+                // the other modes position the wrapped group via the outer row's arrangement.
+                val groupArrangement: Arrangement.Horizontal = when (alignment) {
+                    "left"  -> Arrangement.Start
+                    "right" -> Arrangement.End
+                    else    -> Arrangement.Center
                 }
                 Row(
-                    modifier = Modifier
-                        .weight(1f)
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = hArrangement,
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = groupArrangement,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     BadgeDraggableRow(
                         badges = badges,
                         allEntities = allEntities,
                         isEditMode = isEditMode,
+                        currentUrl = currentUrl,
+                        modifier = if (config.spanIcons) Modifier.weight(1f) else Modifier,
+                        arrangement = if (config.spanIcons) Arrangement.SpaceEvenly else Arrangement.spacedBy(8.dp),
                         onTap    = { b -> handleTap(b) },
                         onHold   = { b -> if (isEditMode) editingBadge = b else handleHold(b) },
                         onRemove = { b -> saveBadges(badges.filter { it.id != b.id }) },
@@ -375,12 +396,15 @@ fun HKIBadgeBar(
     val dr = dialogRole
     val badge = dialogBadge
     if (dr != null && dialogList.isNotEmpty()) {
-        val currentUrl   by viewModel.currentUrl.collectAsState()
         val accessToken  by viewModel.accessToken.collectAsState()
         // Always resolve live copies so the dialog reflects real-time state
         val live = dialogList.map { e -> allEntities.find { it.entity_id == e.entity_id } ?: e }
         val de = live.first()
         val dismiss = { dialogRole = null; dialogList = emptyList(); dialogBadge = null }
+        CompositionLocalProvider(
+            LocalDialogCustomButtons provides (badge?.customButtons ?: emptyList()),
+            LocalDialogNavController provides navController
+        ) {
         when (dr) {
             "light" -> {
                 if (live.size == 1) {
@@ -497,6 +521,7 @@ fun HKIBadgeBar(
                 }
             }
         }
+        }
     }
 }
 
@@ -510,7 +535,9 @@ private fun BadgeDraggableRow(
     badges: List<HKIBadge>,
     allEntities: List<HAEntity>,
     isEditMode: Boolean,
+    currentUrl: String = "",
     modifier: Modifier = Modifier,
+    arrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     scrollState: ScrollState? = null,
     viewportWidthPx: Int = 0,
     onTap: (HKIBadge) -> Unit,
@@ -535,7 +562,7 @@ private fun BadgeDraggableRow(
     val entityById = remember(allEntities) { allEntities.associateBy { it.entity_id } }
 
     Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = arrangement,
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.then(if (isEditMode) {
             Modifier.pointerInput(localList.size, scrollState, viewportWidthPx) {
@@ -607,6 +634,7 @@ private fun BadgeDraggableRow(
                     entities = entities,
                     allEntities = allEntities,
                     isEditMode = isEditMode,
+                    currentUrl = currentUrl,
                     onTap    = { onTap(badge) },
                     onHold   = { onHold(badge) },
                     onRemove = { onRemove(badge) }
@@ -627,6 +655,7 @@ private fun BadgeItem(
     entities: List<HAEntity>,
     allEntities: List<HAEntity>,
     isEditMode: Boolean,
+    currentUrl: String,
     onTap: () -> Unit,
     onHold: () -> Unit,
     onRemove: () -> Unit
@@ -656,6 +685,10 @@ private fun BadgeItem(
     }
     val effectiveSlug = customSlug ?: defaultSlug
     val fallbackIcon = entity?.let { domainIcon(it) } ?: Icons.Default.Circle
+    // "Use entity picture": render the HA picture when available, else fall back to the icon.
+    val pictureUrl = if (customSlug == ENTITY_PICTURE_ICON && entity != null && currentUrl.isNotBlank())
+        resolveEntityPictureUrl(entity, currentUrl) else null
+    val iconSlug = if (effectiveSlug == ENTITY_PICTURE_ICON) defaultSlug else effectiveSlug
     val spinIconModifier = Modifier.rotate(
         rememberIconSpinRotation(badge.spinIcon && entity != null && entity.state.lowercase() != "off")
     )
@@ -679,8 +712,11 @@ private fun BadgeItem(
         ) {
             if (isCircle) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                    if (effectiveSlug != null) MdiIcon(effectiveSlug, tint = colors.icon, size = 18.dp, modifier = spinIconModifier)
-                    else Icon(fallbackIcon, null, tint = colors.icon, modifier = spinIconModifier.size(18.dp))
+                    when {
+                        pictureUrl != null -> AsyncImage(model = pictureUrl, contentDescription = null, contentScale = ContentScale.Crop, modifier = spinIconModifier.size(24.dp).clip(CircleShape))
+                        iconSlug != null -> MdiIcon(iconSlug, tint = colors.icon, size = 18.dp, modifier = spinIconModifier)
+                        else -> Icon(fallbackIcon, null, tint = colors.icon, modifier = spinIconModifier.size(18.dp))
+                    }
                 }
             } else {
                 Row(
@@ -688,8 +724,11 @@ private fun BadgeItem(
                     modifier = Modifier.padding(horizontal = 10.dp)
                 ) {
                     if (badge.showIcon) {
-                        if (effectiveSlug != null) MdiIcon(effectiveSlug, tint = colors.icon, size = 16.dp, modifier = spinIconModifier)
-                        else Icon(fallbackIcon, null, tint = colors.icon, modifier = spinIconModifier.size(16.dp))
+                        when {
+                            pictureUrl != null -> AsyncImage(model = pictureUrl, contentDescription = null, contentScale = ContentScale.Crop, modifier = spinIconModifier.size(22.dp).clip(CircleShape))
+                            iconSlug != null -> MdiIcon(iconSlug, tint = colors.icon, size = 16.dp, modifier = spinIconModifier)
+                            else -> Icon(fallbackIcon, null, tint = colors.icon, modifier = spinIconModifier.size(16.dp))
+                        }
                     }
                     val showTwoLine = badge.showName && badge.showState && entity != null && entity.friendlyName != null
                     if (showTwoLine) {
@@ -1001,8 +1040,11 @@ fun BadgeSettingsDialog(
     var showIcon    by remember { mutableStateOf(badge.showIcon) }
     var customIcon  by remember { mutableStateOf(badge.customIcon ?: "") }
     var spinIcon    by remember { mutableStateOf(badge.spinIcon) }
-    var tapAction   by remember { mutableStateOf(badge.tapAction) }
-    var holdAction  by remember { mutableStateOf(badge.holdAction) }
+    // Badge "auto" preserves its dialog-first default, mapped to more_info for the structured editor.
+    var tapAction   by remember { mutableStateOf(badge.tapActionEx ?: HKIAction(type = if (badge.tapAction == "auto") "more_info" else badge.tapAction)) }
+    var holdAction  by remember { mutableStateOf(badge.holdActionEx ?: HKIAction(type = if (badge.holdAction == "auto") "more_info" else badge.holdAction)) }
+    var customButtons by remember { mutableStateOf(badge.customButtons) }
+    val areas by viewModel.areas.collectAsState()
     var editingEntityIds by remember { mutableStateOf(badge.effectiveEntityIds) }
     // Per-entity settings
     var doorEntityIds by remember { mutableStateOf(badge.doorEntityIds) }
@@ -1032,7 +1074,8 @@ fun BadgeSettingsDialog(
         MdiIconPickerDialog(
             current = customIcon,
             onDismiss = { showIconPickerBadge = false },
-            onSelect = { customIcon = it; showIconPickerBadge = false }
+            onSelect = { customIcon = it; showIconPickerBadge = false },
+            allowEntityPicture = true
         )
     }
 
@@ -1166,20 +1209,12 @@ fun BadgeSettingsDialog(
                     }
                 }
 
-                // Tap / Hold actions
+                // Tap / Hold actions + custom nav-bar buttons for the badge's dialog.
                 HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
-                Text("Tap action", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf("auto" to "Auto", "toggle" to "Toggle", "more_info" to "Dialog").forEach { (v, l) ->
-                        FilterChip(selected = tapAction == v, onClick = { tapAction = v }, label = { Text(l) })
-                    }
-                }
-                Text("Hold action", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf("auto" to "Auto", "toggle" to "Toggle", "more_info" to "Dialog").forEach { (v, l) ->
-                        FilterChip(selected = holdAction == v, onClick = { holdAction = v }, label = { Text(l) })
-                    }
-                }
+                ActionEditor("Tap", tapAction, allEntities, areas) { tapAction = it }
+                ActionEditor("Hold", holdAction, allEntities, areas) { holdAction = it }
+                HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
+                CustomButtonsEditor(customButtons, allEntities, areas) { customButtons = it }
             }
         },
         confirmButton = {
@@ -1195,8 +1230,9 @@ fun BadgeSettingsDialog(
                     showIcon   = showIcon,
                     customIcon = customIcon.ifBlank { null },
                     spinIcon   = spinIcon,
-                    tapAction  = tapAction,
-                    holdAction = holdAction,
+                    tapActionEx = tapAction,
+                    holdActionEx = holdAction,
+                    customButtons = customButtons,
                     doorEntityId = null,
                     doorEntityIds = doorEntityIds.filterKeys { it in lockIds },
                     vacuumMapEntityIds = vacuumMapIds.filterKeys { it in vacuumIds },

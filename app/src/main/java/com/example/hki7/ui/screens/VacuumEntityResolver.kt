@@ -48,10 +48,12 @@ fun resolveVacuumEntities(
     val byId = allEntities.associateBy { it.entity_id }
     fun manual(id: String?) = id?.let(byId::get)
     val auto = resolveVacuumDeviceEntities(config?.vacuumDeviceId, allEntities, registry)
+    // A manually-picked entity always wins over device auto-detection, so the dialog matches the
+    // card (which reads the manual ids directly). Auto-detection only fills the unset slots.
     return VacuumEntities(
-        map = auto.map ?: manual(config?.vacuumMapEntityId),
-        battery = auto.battery ?: manual(config?.vacuumBatteryEntityId),
-        water = auto.water ?: manual(config?.vacuumWaterEntityId),
-        emptyBin = auto.emptyBin ?: manual(config?.vacuumEmptyBinEntityId)
+        map = manual(config?.vacuumMapEntityId) ?: auto.map,
+        battery = manual(config?.vacuumBatteryEntityId) ?: auto.battery,
+        water = manual(config?.vacuumWaterEntityId) ?: auto.water,
+        emptyBin = manual(config?.vacuumEmptyBinEntityId) ?: auto.emptyBin
     )
 }

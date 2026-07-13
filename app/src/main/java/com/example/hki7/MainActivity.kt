@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.automirrored.filled.Redo
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.CheckCircle
@@ -85,11 +86,17 @@ class MainActivity : ComponentActivity() {
             val themeMode by prefs.themeMode.collectAsState(initial = "system")
             val systemLightThemeColor by prefs.systemLightThemeColor.collectAsState(initial = "auto")
             val systemDarkThemeColor by prefs.systemDarkThemeColor.collectAsState(initial = "auto")
+            val fontScale by prefs.fontScale.collectAsState(initial = 1f)
+            val fontWeightAdjust by prefs.fontWeightAdjust.collectAsState(initial = 0)
+            val fontFamily by prefs.fontFamily.collectAsState(initial = "default")
             HKI7Theme(
                 themeColor = themeColor,
                 themeMode = themeMode,
                 systemLightThemeColor = systemLightThemeColor,
-                systemDarkThemeColor = systemDarkThemeColor
+                systemDarkThemeColor = systemDarkThemeColor,
+                fontScale = fontScale,
+                fontWeightAdjust = fontWeightAdjust,
+                fontFamily = fontFamily
             ) {
                 val appColors = LocalHKIAppColors.current
                 val loading = "__hki_loading__"
@@ -112,13 +119,14 @@ class MainActivity : ComponentActivity() {
 
                 val forcedLogoutReason by viewModel.forcedLogoutReason.collectAsState()
                 LaunchedEffect(forcedLogoutReason) {
-                    if (forcedLogoutReason != null) {
+                    val reason = forcedLogoutReason
+                    if (reason != null) {
                         forceLogin = true
-                        snackbarHostState.showSnackbar(
-                            message = forcedLogoutReason ?: "You have been logged out",
-                            duration = SnackbarDuration.Long
-                        )
                         viewModel.clearForcedLogoutReason()
+                        // A blank reason is a user-initiated re-login; no need to explain it.
+                        if (reason.isNotBlank()) {
+                            snackbarHostState.showSnackbar(message = reason, duration = SnackbarDuration.Long)
+                        }
                     }
                 }
 
@@ -140,8 +148,11 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     onboardingActive -> {
+                        // A saved server URL means this is a re-login (forced, or a "keep config"
+                        // logout), so jump straight to the login step instead of full onboarding.
+                        val hasServerConfig = serverUrl != loading && !serverUrl.isNullOrBlank()
                         Box {
-                            OnboardingScreen(prefs = prefs, startAtLogin = forceLogin, onComplete = {
+                            OnboardingScreen(prefs = prefs, startAtLogin = forceLogin || hasServerConfig, onComplete = {
                                 forceLogin = false
                                 onboardingActive = false
                             })
@@ -519,10 +530,8 @@ private fun ConnectionErrorOverlay(viewModel: MainViewModel) {
                 onClick = {
                     retrying = true
                     scope.launch {
-                        val connected = viewModel.retryConnection()
+                        viewModel.retryConnection()
                         retrying = false
-                        // The retry also failed: send the user to the login screen (server kept).
-                        if (!connected) viewModel.forceRelogin("Couldn't connect to your server. Please log in again.")
                     }
                 },
                 shape = RoundedCornerShape(16.dp),
@@ -543,8 +552,19 @@ private fun ConnectionErrorOverlay(viewModel: MainViewModel) {
                 }
             }
             Spacer(Modifier.height(12.dp))
+            OutlinedButton(
+                enabled = !retrying,
+                onClick = { viewModel.requestRelogin() },
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.height(52.dp)
+            ) {
+                Icon(Icons.AutoMirrored.Filled.Login, null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Log in again")
+            }
+            Spacer(Modifier.height(12.dp))
             Text(
-                "If this keeps failing you'll be taken to the login screen.",
+                "Logging in again keeps your dashboard and settings.",
                 style = MaterialTheme.typography.labelSmall,
                 color = appColors.onMuted
             )

@@ -62,6 +62,8 @@ import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.EditRemoveBadge
 import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
+import com.example.hki7.ui.components.WidgetBackground
+import com.example.hki7.ui.components.WidgetBackgroundSelector
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 import kotlinx.serialization.json.contentOrNull
@@ -272,32 +274,37 @@ private fun WasteCollectionCard(
             .aspectRatio(if (widget.isSquare) 1f else 16f / 9f)
             .clip(RoundedCornerShape(widget.cornerRadius.dp)),
         shape = RoundedCornerShape(widget.cornerRadius.dp),
-        color = Color(0xFF1A1A2E)
+        color = appColors.elevated
     ) {
         Box {
-            // Artwork: the upcoming fraction's entity_picture, or its type icon.
-            val picture = if (widget.imageStyle == "picture") next?.entity?.let { wasteEntityPicture(it, currentUrl) } else null
-            if (picture != null) {
-                AsyncImage(picture, next?.name, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+            // A configured background image replaces the default artwork.
+            if (!widget.backgroundUrl.isNullOrBlank()) {
+                WidgetBackground(widget.backgroundUrl, currentUrl)
             } else {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Box(
-                        Modifier.size(84.dp).background(accent.copy(alpha = 0.14f), CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        MdiIcon(next?.let { wasteCategoryIcon(it.name) } ?: widget.icon ?: "trash-can-outline", tint = accent, size = 44.dp)
+                // Artwork: the upcoming fraction's entity_picture, or its type icon.
+                val picture = if (widget.imageStyle == "picture") next?.entity?.let { wasteEntityPicture(it, currentUrl) } else null
+                if (picture != null) {
+                    AsyncImage(picture, next?.name, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                } else {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Box(
+                            Modifier.size(84.dp).background(accent.copy(alpha = 0.14f), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            MdiIcon(next?.let { wasteCategoryIcon(it.name) } ?: widget.icon ?: "trash-can-outline", tint = accent, size = 44.dp)
+                        }
                     }
                 }
             }
             Box(
                 Modifier.fillMaxSize().background(
-                    Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent, Color.Black.copy(alpha = 0.72f)))
+                    Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent, appColors.elevated.copy(alpha = 0.88f)))
                 )
             )
             Surface(
                 modifier = Modifier.align(Alignment.BottomStart).padding(10.dp),
-                color = Color.Black.copy(alpha = 0.5f),
-                shape = RoundedCornerShape(12.dp)
+                color = Color.Black.copy(alpha = 0.55f),
+                shape = RoundedCornerShape(14.dp)
             ) {
                 Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
                     Text(
@@ -313,7 +320,7 @@ private fun WasteCollectionCard(
                             )
                         )
                         Text(
-                            stateText, color = Color.White.copy(alpha = 0.8f),
+                            stateText, color = Color.White.copy(alpha = 0.7f),
                             style = MaterialTheme.typography.labelSmall, fontSize = 10.sp,
                             maxLines = 1, overflow = TextOverflow.Ellipsis
                         )
@@ -493,6 +500,7 @@ fun WasteCollectionSettingsDialog(
     var width by remember(widget) { mutableStateOf(if (widget.width == "third") "half" else widget.width) }
     var isSquare by remember(widget) { mutableStateOf(widget.isSquare) }
     var cornerRadius by remember(widget) { mutableIntStateOf(widget.cornerRadius) }
+    var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
     var showEntityPicker by remember { mutableStateOf(false) }
     var showCalendarPicker by remember { mutableStateOf(false) }
     var showIconPicker by remember { mutableStateOf(false) }
@@ -587,6 +595,7 @@ fun WasteCollectionSettingsDialog(
                     MdiIcon(iconName, size = 20.dp)
                     TextButton(onClick = { showIconPicker = true }) { Text("Change") }
                 }
+                WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
             }
         },
         confirmButton = {
@@ -600,7 +609,8 @@ fun WasteCollectionSettingsDialog(
                         imageStyle = imageStyle,
                         width = width,
                         isSquare = isSquare,
-                        cornerRadius = cornerRadius
+                        cornerRadius = cornerRadius,
+                        backgroundUrl = backgroundUrl
                     )
                 )
             }) { Text("Save") }

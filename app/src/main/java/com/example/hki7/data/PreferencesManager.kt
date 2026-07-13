@@ -48,6 +48,9 @@ class PreferencesManager(private val context: Context) {
     private val systemLightThemeColorKey = stringPreferencesKey("system_light_theme_color")
     private val systemDarkThemeColorKey = stringPreferencesKey("system_dark_theme_color")
     private val forceHighRefreshRateKey = booleanPreferencesKey("force_high_refresh_rate")
+    private val fontScaleKey = floatPreferencesKey("font_scale")
+    private val fontWeightAdjustKey = intPreferencesKey("font_weight_adjust")
+    private val fontFamilyKey = stringPreferencesKey("font_family")
     private val mobileAppWebhookIdKey = stringPreferencesKey("mobile_app_webhook_id")
     private val mobileAppCloudhookUrlKey = stringPreferencesKey("mobile_app_cloudhook_url")
     private val mobileAppRegisteredUrlKey = stringPreferencesKey("mobile_app_registered_url")
@@ -127,6 +130,12 @@ class PreferencesManager(private val context: Context) {
     // When true, lock the window to the panel's highest mode regardless of the system peak-rate setting.
     val forceHighRefreshRate: Flow<Boolean> = context.dataStore.data.map { it[forceHighRefreshRateKey] ?: false }
 
+    // App-wide typography: size multiplier, weight offset (-200..300 in steps of 100) and font
+    // family key ("default", "sans", "serif", "monospace", "cursive").
+    val fontScale: Flow<Float> = context.dataStore.data.map { it[fontScaleKey] ?: 1f }
+    val fontWeightAdjust: Flow<Int> = context.dataStore.data.map { it[fontWeightAdjustKey] ?: 0 }
+    val fontFamily: Flow<String> = context.dataStore.data.map { it[fontFamilyKey] ?: "default" }
+
     // mobile_app integration registration (persistent device_tracker + sensors via webhook).
     val mobileAppWebhookId: Flow<String?> = context.dataStore.data.map { it[mobileAppWebhookIdKey] }
     val mobileAppCloudhookUrl: Flow<String?> = context.dataStore.data.map { it[mobileAppCloudhookUrlKey] }
@@ -187,6 +196,18 @@ class PreferencesManager(private val context: Context) {
         }
     }
 
+    /** Updates the auth tokens without touching the stored server URL (used by token refresh,
+     *  which may be talking to the resolved internal URL at the time). */
+    suspend fun saveAuthTokens(token: String, refresh: String? = null, expiresInSeconds: Int? = null) {
+        context.dataStore.edit { preferences ->
+            preferences[accessTokenKey] = token
+            if (refresh != null) preferences[refreshTokenKey] = refresh
+            if (expiresInSeconds != null) {
+                preferences[accessTokenExpiryKey] = System.currentTimeMillis() + expiresInSeconds * 1000L
+            }
+        }
+    }
+
     suspend fun saveWeatherEntity(entityId: String) { context.dataStore.edit { it[weatherEntityIdKey] = entityId } }
     suspend fun saveDisplayName(name: String) { context.dataStore.edit { it[displayNameKey] = name } }
     suspend fun saveAreaOrder(order: List<String>) { context.dataStore.edit { it[areaOrderKey] = order.joinToString(",") } }
@@ -202,6 +223,9 @@ class PreferencesManager(private val context: Context) {
         }
     }
     suspend fun saveForceHighRefreshRate(enabled: Boolean) { context.dataStore.edit { it[forceHighRefreshRateKey] = enabled } }
+    suspend fun saveFontScale(scale: Float) { context.dataStore.edit { it[fontScaleKey] = scale } }
+    suspend fun saveFontWeightAdjust(adjust: Int) { context.dataStore.edit { it[fontWeightAdjustKey] = adjust } }
+    suspend fun saveFontFamily(family: String) { context.dataStore.edit { it[fontFamilyKey] = family } }
 
     suspend fun saveInternalUrl(url: String?) {
         context.dataStore.edit { if (url.isNullOrBlank()) it.remove(internalUrlKey) else it[internalUrlKey] = url.trim() }

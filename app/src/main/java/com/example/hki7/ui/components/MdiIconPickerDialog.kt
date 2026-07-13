@@ -1,6 +1,5 @@
 package com.example.hki7.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
@@ -15,11 +14,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
@@ -81,7 +81,9 @@ private val ICON_CATEGORIES: List<Pair<String, String?>> = listOf(
 fun MdiIconPickerDialog(
     current: String,
     onDismiss: () -> Unit,
-    onSelect: (String) -> Unit
+    onSelect: (String) -> Unit,
+    // When true, offers a "Use entity picture" option that selects the ENTITY_PICTURE_ICON sentinel.
+    allowEntityPicture: Boolean = false
 ) {
     val appColors = LocalHKIAppColors.current
     val context = LocalContext.current
@@ -157,16 +159,24 @@ fun MdiIconPickerDialog(
 
                 Spacer(Modifier.height(12.dp))
 
-                // ── "None / Auto" chip ────────────────────────────────────────
+                // ── "None / Auto" + optional "Entity picture" chips ──────────
                 Row(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.Start
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     FilterChip(
                         selected = current.isEmpty(),
                         onClick = { onSelect("") },
                         label = { Text("None / Auto") }
                     )
+                    if (allowEntityPicture) {
+                        FilterChip(
+                            selected = current == ENTITY_PICTURE_ICON,
+                            onClick = { onSelect(ENTITY_PICTURE_ICON) },
+                            leadingIcon = { Icon(Icons.Default.AccountCircle, null, modifier = Modifier.size(18.dp)) },
+                            label = { Text("Entity picture") }
+                        )
+                    }
                 }
 
                 Spacer(Modifier.height(8.dp))

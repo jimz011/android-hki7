@@ -46,6 +46,8 @@ import com.example.hki7.ui.components.EditSettingsButton
 import com.example.hki7.ui.components.HKIPage
 import com.example.hki7.ui.components.RenameCardDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
+import com.example.hki7.ui.components.WidgetBackground
+import com.example.hki7.ui.components.WidgetBackgroundSelector
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 import kotlinx.serialization.json.contentOrNull
@@ -451,6 +453,7 @@ fun BatteryCardWidgetItem(
 ) {
     if (widget.isHidden && !isEditMode) return
     val appColors = LocalHKIAppColors.current
+    val currentUrl by viewModel.currentUrl.collectAsState()
     val batteryEntityFlow = remember(viewModel) {
         viewModel.entitiesMatching("battery:auto") { it.isBatteryLevelSensor() || it.isBatteryMetadataEntity() }
     }
@@ -489,26 +492,30 @@ fun BatteryCardWidgetItem(
                 .clip(RoundedCornerShape(widget.cornerRadius.dp))
                 .clickable(enabled = !isEditMode, onClick = onOpen),
             shape = RoundedCornerShape(widget.cornerRadius.dp),
-            color = Color(0xFF1A1A2E)
+            color = appColors.elevated
         ) {
             Box {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Box(
-                        Modifier.size(84.dp).background(accent.copy(alpha = 0.14f), CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        MdiIcon(widget.icon ?: "battery-heart", tint = accent, size = 44.dp)
+                if (!widget.backgroundUrl.isNullOrBlank()) {
+                    WidgetBackground(widget.backgroundUrl, currentUrl)
+                } else {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Box(
+                            Modifier.size(84.dp).background(accent.copy(alpha = 0.14f), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            MdiIcon(widget.icon ?: "battery-heart", tint = accent, size = 44.dp)
+                        }
                     }
                 }
                 Box(
                     Modifier.fillMaxSize().background(
-                        Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent, Color.Black.copy(alpha = 0.72f)))
+                        Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent, appColors.elevated.copy(alpha = 0.88f)))
                     )
                 )
                 Surface(
                     modifier = Modifier.align(Alignment.BottomStart).padding(10.dp),
-                    color = Color.Black.copy(alpha = 0.5f),
-                    shape = RoundedCornerShape(12.dp)
+                    color = Color.Black.copy(alpha = 0.55f),
+                    shape = RoundedCornerShape(14.dp)
                 ) {
                     Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
                         Text(
@@ -519,7 +526,7 @@ fun BatteryCardWidgetItem(
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Box(Modifier.size(5.dp).background(accent, CircleShape))
                             Text(
-                                stateText, color = Color.White.copy(alpha = 0.8f),
+                                stateText, color = Color.White.copy(alpha = 0.7f),
                                 style = MaterialTheme.typography.labelSmall, fontSize = 10.sp,
                                 maxLines = 1, overflow = TextOverflow.Ellipsis
                             )
@@ -966,6 +973,7 @@ fun BatteryCardWidgetSettingsDialog(
     var isSquare by remember(widget) { mutableStateOf(widget.isSquare) }
     var radius by remember(widget) { mutableStateOf(widget.cornerRadius) }
     var width by remember(widget) { mutableStateOf(widget.width) }
+    var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Battery Levels") },
@@ -993,6 +1001,7 @@ fun BatteryCardWidgetSettingsDialog(
                     FilterChip(selected = radius == 28, onClick = { radius = 28 }, label = { Text("Round") })
                 }
                 WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
+                WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
             }
         },
         confirmButton = {
@@ -1003,7 +1012,8 @@ fun BatteryCardWidgetSettingsDialog(
                     useBatteryNotes = useNotes,
                     isSquare = isSquare,
                     cornerRadius = radius,
-                    width = width
+                    width = width,
+                    backgroundUrl = backgroundUrl
                 ))
             }) { Text("Save") }
         },

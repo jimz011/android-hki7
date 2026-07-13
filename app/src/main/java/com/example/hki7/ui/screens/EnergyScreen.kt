@@ -406,7 +406,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
     fun todayTotal(id: String?): Float =
         id?.let { energyStats["$it|TODAY"] }
             ?.sumOf { (it.change ?: 0f).coerceAtLeast(0f).toDouble() }?.toFloat() ?: 0f
-    fun todayRecentUsage(id: String?, hours: Int = 2): Boolean {
+    fun todayRecentUsage(id: String?, hours: Int = 1): Boolean {
         val now = todayWindow.nowIndex() ?: return false
         val from = (now - hours + 1).coerceAtLeast(0)
         return id?.let { energyStats["$it|TODAY"] }
@@ -2637,7 +2637,8 @@ private fun Map<String, HAEntity>.displayOf(id: String?): String? {
     return listOf(num, unit).filter { it.isNotBlank() }.joinToString(" ")
 }
 
-/** Renders one energy card for a "today" window, self-contained (fetches its own stats). */
+/** Renders one energy card for a "today" window, self-contained (fetches its own stats).
+ *  [configOverride] replaces the Energy view's entity bindings for this card only. */
 @Composable
 fun EnergyCardWidgetView(
     cardKey: String,
@@ -2646,11 +2647,13 @@ fun EnergyCardWidgetView(
     modifier: Modifier = Modifier,
     rangeName: String = EnergyRange.DAY.name,
     rangeOffset: Int = 0,
-    onNavigate: ((String) -> Unit)? = null
+    onNavigate: ((String) -> Unit)? = null,
+    configOverride: HKIEnergyConfig? = null
 ) {
     val appColors = LocalHKIAppColors.current
     val pageConfigsMap by viewModel.pageConfigsMapping.collectAsState()
-    val cfg = (pageConfigsMap[ENERGY_PAGE_KEY] ?: HKIPageConfig()).energyConfig ?: HKIEnergyConfig()
+    val cfg = configOverride
+        ?: (pageConfigsMap[ENERGY_PAGE_KEY] ?: HKIPageConfig()).energyConfig ?: HKIEnergyConfig()
     val energyEntityFlow = remember(viewModel) {
         viewModel.entitiesMatching("domain:sensor") { it.entity_id.startsWith("sensor.") }
     }
@@ -2747,7 +2750,7 @@ fun EnergyCardWidgetView(
     val tooltipLabels = remember(window) { window.tooltipLabels() }
     val axisLabels = remember(window, tooltipLabels) { window.axisLabels(tooltipLabels) }
     val nowIndex = window.nowIndex()
-    fun recentUsage(id: String?, hours: Int = 2): Boolean {
+    fun recentUsage(id: String?, hours: Int = 1): Boolean {
         val now = nowIndex ?: return false
         val from = (now - hours + 1).coerceAtLeast(0)
         return points(id)?.any { p ->
@@ -3002,7 +3005,7 @@ fun EnergyCardWidgetItem(
                 }
                 Spacer(Modifier.height(12.dp))
             }
-            EnergyCardWidgetView(widget.cardKey, viewModel, widget.cornerRadius)
+            EnergyCardWidgetView(widget.cardKey, viewModel, widget.cornerRadius, configOverride = widget.energyConfig)
         }
         if (isEditMode) {
             IconButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center).size(24.dp)) {
@@ -3055,7 +3058,7 @@ fun EnergyStackWidgetItem(
                         }
                     }
                     stack.cardKeys.forEach { key ->
-                        EnergyCardWidgetView(key, viewModel, stack.cornerRadius)
+                        EnergyCardWidgetView(key, viewModel, stack.cornerRadius, configOverride = stack.energyConfig)
                     }
                 }
             }
@@ -3164,17 +3167,198 @@ fun EnergyCardPickerDialog(
     )
 }
 
+// ── Per-card entity overrides ────────────────────────────────────────────────
+// Each card key exposes only the config roles it actually reads. An override
+// starts as a copy of the Energy view's bindings and is edited role by role.
+
+private data class EnergyRole(
+    val key: String,
+    val label: String,
+    val multi: Boolean = false
+)
+
+private fun energyRolesFor(cardKey: String): List<EnergyRole> = when (cardKey) {
+    "tiles" -> listOf(
+        EnergyRole("grid_power", "Grid power (W)"),
+        EnergyRole("home_power", "Home power (W)"),
+        EnergyRole("solar_power", "Solar power (W)"),
+        EnergyRole("battery_power", "Battery power (W)"),
+        EnergyRole("battery_level", "Battery level (%)")
+    )
+    "usage" -> listOf(
+        EnergyRole("grid_import", "Grid import (kWh)"),
+        EnergyRole("grid_export", "Grid export (kWh)"),
+        EnergyRole("solar_energy", "Solar production (kWh)"),
+        EnergyRole("home_power", "Home power (W)"),
+        EnergyRole("grid_power", "Grid power (W)")
+    )
+    "phases" -> listOf(
+        EnergyRole("phase1", "Phase 1 power"),
+        EnergyRole("phase2", "Phase 2 power"),
+        EnergyRole("phase3", "Phase 3 power")
+    )
+    "tariffs" -> listOf(
+        EnergyRole("import_t1", "Import meter tariff 1"),
+        EnergyRole("import_t2", "Import meter tariff 2"),
+        EnergyRole("export_t1", "Export meter tariff 1"),
+        EnergyRole("export_t2", "Export meter tariff 2"),
+        EnergyRole("energy_cost", "Energy cost")
+    )
+    "solar" -> listOf(
+        EnergyRole("solar_power", "Solar power (W)"),
+        EnergyRole("solar_energy", "Solar production (kWh)"),
+        EnergyRole("grid_export", "Grid export (kWh)")
+    )
+    "battery" -> listOf(
+        EnergyRole("battery_power", "Battery power (W)"),
+        EnergyRole("battery_level", "Battery level (%)")
+    )
+    "gas" -> listOf(
+        EnergyRole("gas", "Gas total (m³)"),
+        EnergyRole("gas_current", "Gas flow (now)"),
+        EnergyRole("gas_cost", "Gas cost")
+    )
+    "water" -> listOf(
+        EnergyRole("water", "Water total"),
+        EnergyRole("water_current", "Water flow (now)"),
+        EnergyRole("water_cost", "Water cost")
+    )
+    "top_consumers" -> listOf(
+        EnergyRole("devices", "Tracked device sensors", multi = true),
+        EnergyRole("home_power", "Home power (W)")
+    )
+    "device_energy" -> listOf(EnergyRole("devices", "Tracked device sensors", multi = true))
+    else -> emptyList()
+}
+
+private fun HKIEnergyConfig.roleValue(key: String): List<String> = when (key) {
+    "grid_power" -> listOfNotNull(gridPowerEntityId)
+    "home_power" -> listOfNotNull(homePowerEntityId)
+    "solar_power" -> listOfNotNull(solarPowerEntityId)
+    "battery_power" -> listOfNotNull(batteryPowerEntityId)
+    "battery_level" -> listOfNotNull(batteryEntityId)
+    "grid_import" -> listOfNotNull(gridImportEntityId)
+    "grid_export" -> listOfNotNull(gridExportEntityId)
+    "solar_energy" -> listOfNotNull(solarEnergyEntityId)
+    "phase1" -> listOfNotNull(powerPhase1EntityId)
+    "phase2" -> listOfNotNull(powerPhase2EntityId)
+    "phase3" -> listOfNotNull(powerPhase3EntityId)
+    "import_t1" -> listOfNotNull(gridImportTariff1EntityId)
+    "import_t2" -> listOfNotNull(gridImportTariff2EntityId)
+    "export_t1" -> listOfNotNull(gridExportTariff1EntityId)
+    "export_t2" -> listOfNotNull(gridExportTariff2EntityId)
+    "energy_cost" -> listOfNotNull(energyCostEntityId)
+    "gas" -> listOfNotNull(gasEntityId)
+    "gas_current" -> listOfNotNull(gasCurrentEntityId)
+    "gas_cost" -> listOfNotNull(gasCostEntityId)
+    "water" -> listOfNotNull(waterEntityId)
+    "water_current" -> listOfNotNull(waterCurrentEntityId)
+    "water_cost" -> listOfNotNull(waterCostEntityId)
+    "devices" -> deviceEntityIds
+    else -> emptyList()
+}
+
+private fun HKIEnergyConfig.withRole(key: String, ids: List<String>): HKIEnergyConfig {
+    val id = ids.firstOrNull()
+    return when (key) {
+        "grid_power" -> copy(gridPowerEntityId = id)
+        "home_power" -> copy(homePowerEntityId = id)
+        "solar_power" -> copy(solarPowerEntityId = id)
+        "battery_power" -> copy(batteryPowerEntityId = id)
+        "battery_level" -> copy(batteryEntityId = id)
+        "grid_import" -> copy(gridImportEntityId = id)
+        "grid_export" -> copy(gridExportEntityId = id)
+        "solar_energy" -> copy(solarEnergyEntityId = id)
+        "phase1" -> copy(powerPhase1EntityId = id)
+        "phase2" -> copy(powerPhase2EntityId = id)
+        "phase3" -> copy(powerPhase3EntityId = id)
+        "import_t1" -> copy(gridImportTariff1EntityId = id)
+        "import_t2" -> copy(gridImportTariff2EntityId = id)
+        "export_t1" -> copy(gridExportTariff1EntityId = id)
+        "export_t2" -> copy(gridExportTariff2EntityId = id)
+        "energy_cost" -> copy(energyCostEntityId = id)
+        "gas" -> copy(gasEntityId = id)
+        "gas_current" -> copy(gasCurrentEntityId = id)
+        "gas_cost" -> copy(gasCostEntityId = id)
+        "water" -> copy(waterEntityId = id)
+        "water_current" -> copy(waterCurrentEntityId = id)
+        "water_cost" -> copy(waterCostEntityId = id)
+        "devices" -> copy(deviceEntityIds = ids)
+        else -> this
+    }
+}
+
+/** "Custom entities" section of the energy card/stack settings: a toggle that switches the card
+ *  from the Energy view's bindings to its own copy, plus one entity picker row per role.
+ *  Returns the role being picked so the caller can suppress its own dialog while picking. */
+@Composable
+private fun ColumnScope.EnergyEntityOverridesSection(
+    roles: List<EnergyRole>,
+    config: HKIEnergyConfig?,
+    pageDefault: HKIEnergyConfig,
+    allEntities: List<HAEntity>,
+    onChange: (HKIEnergyConfig?) -> Unit,
+    onPickRole: (EnergyRole) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.weight(1f)) {
+            Text("Custom entities", style = MaterialTheme.typography.labelLarge)
+            Text(
+                if (config == null) "Using the Energy view's entities" else "This card uses its own entities",
+                style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
+            )
+        }
+        Switch(
+            checked = config != null,
+            onCheckedChange = { custom -> onChange(if (custom) pageDefault else null) }
+        )
+    }
+    if (config != null) {
+        roles.forEach { role ->
+            val ids = config.roleValue(role.key)
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.weight(1f)) {
+                    Text(role.label, style = MaterialTheme.typography.labelMedium)
+                    Text(
+                        when {
+                            ids.isEmpty() -> "None"
+                            role.multi -> "${ids.size} selected"
+                            else -> allEntities.find { it.entity_id == ids.first() }?.friendlyName ?: ids.first()
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (ids.isEmpty()) appColors.onMuted else MaterialTheme.colorScheme.primary,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis
+                    )
+                }
+                if (ids.isNotEmpty()) {
+                    IconButton(onClick = { onChange(config.withRole(role.key, emptyList())) }, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.Default.Close, "Clear", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+                    }
+                }
+                TextButton(onClick = { onPickRole(role) }) { Text("Change") }
+            }
+        }
+    }
+}
+
 @Composable
 fun EnergyCardWidgetSettingsDialog(
     widget: HKIEnergyCardWidget,
+    viewModel: MainViewModel,
     onDismiss: () -> Unit,
     onSave: (HKIEnergyCardWidget) -> Unit
 ) {
+    val pageConfigsMap by viewModel.pageConfigsMapping.collectAsState()
+    val pageDefault = (pageConfigsMap[ENERGY_PAGE_KEY] ?: HKIPageConfig()).energyConfig ?: HKIEnergyConfig()
+    val allEntities by viewModel.entities.collectAsState()
     var title by remember { mutableStateOf(widget.title ?: "") }
     var width by remember { mutableStateOf(if (widget.width == "third") "half" else widget.width) }
     var radius by remember { mutableStateOf(widget.cornerRadius) }
     var cardKey by remember { mutableStateOf(widget.cardKey) }
+    var override by remember { mutableStateOf(widget.energyConfig) }
     var showPicker by remember { mutableStateOf(false) }
+    var pickingRole by remember { mutableStateOf<EnergyRole?>(null) }
     if (showPicker) {
         EnergyCardPickerDialog(
             multiSelect = false, preselected = listOf(cardKey), title = "Select Energy Card",
@@ -3182,11 +3366,30 @@ fun EnergyCardWidgetSettingsDialog(
             onSelected = { sel -> sel.firstOrNull()?.let { cardKey = it }; showPicker = false }
         )
     }
+    pickingRole?.let { role ->
+        AdvancedEntitySearchDialog(
+            allEntities = allEntities.filter { it.entity_id.startsWith("sensor.") },
+            title = role.label,
+            singleSelect = !role.multi,
+            preselectedIds = override?.roleValue(role.key)?.toSet().orEmpty(),
+            onDismiss = { pickingRole = null },
+            onEntitiesSelected = { ids ->
+                override = override?.withRole(role.key, ids)
+                pickingRole = null
+            }
+        )
+        // Do not compose the settings AlertDialog over the entity picker.
+        return
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Energy Card") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            val scroll = rememberScrollState()
+            Column(
+                Modifier.heightIn(max = 480.dp).fadingEdges(scroll).verticalScroll(scroll),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.weight(1f)) {
                         Text("Card", style = MaterialTheme.typography.labelLarge)
@@ -3196,6 +3399,14 @@ fun EnergyCardWidgetSettingsDialog(
                     }
                     TextButton(onClick = { showPicker = true }) { Text("Change") }
                 }
+                EnergyEntityOverridesSection(
+                    roles = energyRolesFor(cardKey),
+                    config = override,
+                    pageDefault = pageDefault,
+                    allEntities = allEntities,
+                    onChange = { override = it },
+                    onPickRole = { pickingRole = it }
+                )
                 OutlinedTextField(value = title, onValueChange = { title = it },
                     label = { Text("Title (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 com.example.hki7.ui.components.WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
@@ -3209,7 +3420,10 @@ fun EnergyCardWidgetSettingsDialog(
         },
         confirmButton = {
             Button(onClick = {
-                onSave(widget.copy(cardKey = cardKey, title = title.ifBlank { null }, width = width, cornerRadius = radius))
+                onSave(widget.copy(
+                    cardKey = cardKey, title = title.ifBlank { null }, width = width,
+                    cornerRadius = radius, energyConfig = override
+                ))
             }) { Text("Save") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
@@ -3219,15 +3433,21 @@ fun EnergyCardWidgetSettingsDialog(
 @Composable
 fun EnergyStackSettingsDialog(
     stack: HKIEnergyStack,
+    viewModel: MainViewModel,
     onDismiss: () -> Unit,
     onSave: (HKIEnergyStack) -> Unit
 ) {
+    val pageConfigsMap by viewModel.pageConfigsMapping.collectAsState()
+    val pageDefault = (pageConfigsMap[ENERGY_PAGE_KEY] ?: HKIPageConfig()).energyConfig ?: HKIEnergyConfig()
+    val allEntities by viewModel.entities.collectAsState()
     var title by remember { mutableStateOf(stack.title ?: "") }
     var width by remember { mutableStateOf(if (stack.width == "third") "half" else stack.width) }
     var radius by remember { mutableStateOf(stack.cornerRadius) }
     var cardKeys by remember { mutableStateOf(stack.cardKeys) }
     var collapsible by remember { mutableStateOf(stack.collapsible) }
+    var override by remember { mutableStateOf(stack.energyConfig) }
     var showPicker by remember { mutableStateOf(false) }
+    var pickingRole by remember { mutableStateOf<EnergyRole?>(null) }
     if (showPicker) {
         EnergyCardPickerDialog(
             multiSelect = true, preselected = cardKeys, title = "Stack Cards",
@@ -3235,11 +3455,30 @@ fun EnergyStackSettingsDialog(
             onSelected = { cardKeys = it; showPicker = false }
         )
     }
+    pickingRole?.let { role ->
+        AdvancedEntitySearchDialog(
+            allEntities = allEntities.filter { it.entity_id.startsWith("sensor.") },
+            title = role.label,
+            singleSelect = !role.multi,
+            preselectedIds = override?.roleValue(role.key)?.toSet().orEmpty(),
+            onDismiss = { pickingRole = null },
+            onEntitiesSelected = { ids ->
+                override = override?.withRole(role.key, ids)
+                pickingRole = null
+            }
+        )
+        // Do not compose the settings AlertDialog over the entity picker.
+        return
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Energy Stack") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            val scroll = rememberScrollState()
+            Column(
+                Modifier.heightIn(max = 480.dp).fadingEdges(scroll).verticalScroll(scroll),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.weight(1f)) {
                         Text("Cards", style = MaterialTheme.typography.labelLarge)
@@ -3252,6 +3491,14 @@ fun EnergyStackSettingsDialog(
                     }
                     TextButton(onClick = { showPicker = true }) { Text("Change") }
                 }
+                EnergyEntityOverridesSection(
+                    roles = cardKeys.flatMap { energyRolesFor(it) }.distinctBy { it.key },
+                    config = override,
+                    pageDefault = pageDefault,
+                    allEntities = allEntities,
+                    onChange = { override = it },
+                    onPickRole = { pickingRole = it }
+                )
                 OutlinedTextField(value = title, onValueChange = { title = it },
                     label = { Text("Title") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -3271,7 +3518,7 @@ fun EnergyStackSettingsDialog(
             Button(onClick = {
                 onSave(stack.copy(
                     title = title.ifBlank { null }, width = width, cornerRadius = radius,
-                    cardKeys = cardKeys, collapsible = collapsible
+                    cardKeys = cardKeys, collapsible = collapsible, energyConfig = override
                 ))
             }) { Text("Save") }
         },

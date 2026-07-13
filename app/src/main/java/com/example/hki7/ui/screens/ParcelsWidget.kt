@@ -1,5 +1,6 @@
 package com.example.hki7.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -26,10 +27,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
 import coil3.network.NetworkHeaders
 import coil3.network.httpHeaders
@@ -39,13 +42,17 @@ import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.DevicePickerDialog
 import com.example.hki7.ui.components.EditRemoveBadge
 import com.example.hki7.ui.components.WidgetWidthSelector
+import com.example.hki7.ui.components.WidgetBackground
+import com.example.hki7.ui.components.WidgetBackgroundSelector
 import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 import kotlinx.serialization.json.*
 import kotlinx.coroutines.delay
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 private data class ParcelCarrier(
     val key: String,
@@ -58,8 +65,22 @@ private data class ParcelCarrier(
     val baseUrl: String,
     val accessToken: String
 ) {
+    val supportsLetters: Boolean get() = entities.any { entity ->
+        val label = "${entity.entity_id} ${entity.friendlyName.orEmpty()}"
+        !entity.entity_id.startsWith("image.") &&
+            (label.contains("letters", true) || label.contains("brieven", true))
+    }
+    val currentLetterCount: Int get() = letters.count(::isCurrentOrFutureLetter)
+
     val parcels: List<JsonObject> get() {
-        val individual = entities.mapNotNull { entity -> entity.attributes?.takeIf { entity.parcelAttribute("barcode") != null } }
+        val individual = entities.mapNotNull { entity ->
+            val attributes = entity.attributes?.takeIf { entity.parcelAttribute("barcode") != null } ?: return@mapNotNull null
+            val label = "${entity.entity_id} ${entity.friendlyName.orEmpty()}"
+            buildJsonObject {
+                attributes.forEach { (key, value) -> put(key, value) }
+                put("_direction", if (label.contains("outgoing", true)) "Outgoing" else "Incoming")
+            }
+        }
         val summaries = entities.flatMap { entity ->
             val label = "${entity.entity_id} ${entity.friendlyName.orEmpty()}"
             val direction = if (label.contains("outgoing", true)) "Outgoing" else "Incoming"
@@ -103,6 +124,43 @@ private data class ParcelCarrier(
                 ?.let { if (it.startsWith("http")) it else "${baseUrl.removeSuffix("/")}/${it.removePrefix("/")}" }
         }
     }
+}
+
+private enum class ParcelTab(val title: String) {
+    Incoming("Incoming"), Delivered("Delivered"), Outgoing("Outgoing"), Letters("Letters")
+}
+
+private fun JsonObject.parcelValue(name: String): String? = this[name]?.jsonPrimitive?.contentOrNull
+
+private fun JsonObject.isDeliveredParcel(): Boolean {
+    val status = listOfNotNull(parcelValue("status"), parcelValue("raw_status")).joinToString(" ")
+    return status.contains("delivered", true) || status.contains("bezorgd", true)
+}
+
+private fun JsonObject.isOutgoingParcel(): Boolean =
+    parcelValue("_direction")?.contains("outgoing", true) == true
+
+private fun isCurrentOrFutureLetter(letter: JsonObject, today: LocalDate = LocalDate.now()): Boolean {
+    val attributeDate = letter["date"]?.jsonPrimitive?.contentOrNull
+    val fullDate = attributeDate?.let { value ->
+        runCatching { LocalDate.parse(value.take(10)) }.getOrNull()
+    }
+    if (fullDate != null) return !fullDate.isBefore(today)
+
+    val title = letter["title"]?.jsonPrimitive?.contentOrNull?.lowercase(Locale.ROOT) ?: return false
+    val match = Regex("(\\d{1,2})\\s+([\\p{L}]+)(?:\\s+(\\d{4}))?").find(title) ?: return false
+    val day = match.groupValues[1].toIntOrNull() ?: return false
+    val month = when (match.groupValues[2].take(3)) {
+        "jan" -> 1; "feb" -> 2; "maa", "mar" -> 3; "apr" -> 4
+        "mei", "may" -> 5; "jun" -> 6; "jul" -> 7; "aug" -> 8
+        "sep" -> 9; "okt", "oct" -> 10; "nov" -> 11; "dec" -> 12
+        else -> return false
+    }
+    val explicitYear = match.groupValues[3].toIntOrNull()
+    var date = runCatching { LocalDate.of(explicitYear ?: today.year, month, day) }.getOrNull() ?: return false
+    // A January announcement shown in December refers to the upcoming year.
+    if (explicitYear == null && today.monthValue == 12 && month == 1) date = date.plusYears(1)
+    return !date.isBefore(today)
 }
 
 private fun HAEntity.parcelAttribute(name: String): String? =
@@ -195,11 +253,27 @@ fun ParcelsWidgetItem(
     val devices by viewModel.deviceRegistry.collectAsState()
     val currentUrl by viewModel.currentUrl.collectAsState()
     val accessToken by viewModel.accessToken.collectAsState()
+    val hasUnresolvedDevices = widget.deviceIds.any { deviceId ->
+        devices.none { it.id == deviceId } || registry.none { it.device_id == deviceId }
+    }
+    LaunchedEffect(widget.deviceIds, hasUnresolvedDevices) {
+        if (widget.deviceIds.isNotEmpty() && hasUnresolvedDevices) {
+            viewModel.fetchRegistries(force = true)
+            delay(1_500)
+            val deviceRegistry = viewModel.deviceRegistry.value
+            val entityRegistry = viewModel.entityRegistry.value
+            if (widget.deviceIds.any { id -> deviceRegistry.none { it.id == id } || entityRegistry.none { it.device_id == id } }) {
+                viewModel.fetchRegistries(force = true)
+            }
+        }
+    }
     val carriers = remember(widget.deviceIds, widget.carrierImageUrls, entities, registry, devices, currentUrl, accessToken) {
         resolveParcelCarriers(widget.deviceIds, entities, registry, devices, widget.carrierImageUrls, currentUrl, accessToken.orEmpty())
     }
     val incoming = carriers.sumOf { it.incoming }
     val outgoing = carriers.sumOf { it.outgoing }
+    val supportsLetters = carriers.any { it.supportsLetters }
+    val letters = carriers.sumOf { it.currentLetterCount }
     var showDialog by remember { mutableStateOf(false) }
     Box {
         Surface(
@@ -208,24 +282,32 @@ fun ParcelsWidgetItem(
                 .clip(RoundedCornerShape(widget.cornerRadius.dp))
                 .clickable(enabled = !isEditMode) { showDialog = true },
             shape = RoundedCornerShape(widget.cornerRadius.dp),
-            color = Color(0xFF1A1A2E)
+            color = appColors.elevated
         ) {
             Box {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Row(horizontalArrangement = Arrangement.spacedBy((-8).dp), verticalAlignment = Alignment.CenterVertically) {
-                        carriers.take(4).forEach { CarrierLogo(it, 56) }
-                        if (carriers.isEmpty()) {
-                            Box(Modifier.size(84.dp).background(Color(0xFF60A5FA).copy(alpha = .15f), CircleShape), contentAlignment = Alignment.Center) {
-                                MdiIcon(widget.icon, tint = Color(0xFF60A5FA), size = 44.dp)
+                if (!widget.backgroundUrl.isNullOrBlank()) {
+                    WidgetBackground(widget.backgroundUrl, currentUrl)
+                } else {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Row(horizontalArrangement = Arrangement.spacedBy((-8).dp), verticalAlignment = Alignment.CenterVertically) {
+                            carriers.take(4).forEach { CarrierLogo(it, 56) }
+                            if (carriers.isEmpty()) {
+                                Box(Modifier.size(84.dp).background(Color(0xFF60A5FA).copy(alpha = .15f), CircleShape), contentAlignment = Alignment.Center) {
+                                    MdiIcon(widget.icon, tint = Color(0xFF60A5FA), size = 44.dp)
+                                }
                             }
                         }
                     }
                 }
-                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent, Color.Black.copy(.74f)))))
-                Surface(Modifier.align(Alignment.BottomStart).padding(10.dp), color = Color.Black.copy(.52f), shape = RoundedCornerShape(12.dp)) {
+                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent, appColors.elevated.copy(.88f)))))
+                Surface(Modifier.align(Alignment.BottomStart).padding(10.dp), color = Color.Black.copy(.55f), shape = RoundedCornerShape(14.dp)) {
                     Column(Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
                         Text(widget.title ?: "Parcels", color = Color.White, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
-                        Text("$incoming incoming · $outgoing outgoing", color = Color.White.copy(.8f), style = MaterialTheme.typography.labelSmall, fontSize = 10.sp)
+                        val summary = buildString {
+                            append("$incoming incoming · $outgoing outgoing")
+                            if (supportsLetters) append(" · $letters letters")
+                        }
+                        Text(summary, color = Color.White.copy(.7f), style = MaterialTheme.typography.labelSmall, fontSize = 10.sp)
                     }
                 }
             }
@@ -273,16 +355,37 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, onDismiss: () -> Unit) {
     val appColors = LocalHKIAppColors.current
     var selectedCarrierId by remember(carriers) { mutableStateOf(if (carriers.size == 1) carriers.firstOrNull()?.deviceId else null) }
     val carrier = carriers.firstOrNull { it.deviceId == selectedCarrierId }
-    var tab by remember(selectedCarrierId) { mutableStateOf("parcels") }
+    var tab by remember(selectedCarrierId) { mutableStateOf(ParcelTab.Incoming) }
     var selectedParcel by remember(selectedCarrierId) { mutableStateOf<JsonObject?>(null) }
     var selectedHistory by remember(selectedParcel) { mutableStateOf<JsonObject?>(null) }
     var parcelDetail by remember(selectedCarrierId) { mutableStateOf(false) }
     var selectedLetter by remember { mutableStateOf<JsonObject?>(null) }
-    LaunchedEffect(carrier?.deviceId, carrier?.parcels?.size) {
-        if (selectedParcel == null || selectedParcel !in carrier?.parcels.orEmpty()) selectedParcel = carrier?.parcels?.firstOrNull()
+    LaunchedEffect(carrier?.deviceId, carrier?.parcels?.size, tab) {
+        val parcelsForTab = carrier?.parcels.orEmpty().filter { parcel ->
+            when (tab) {
+                ParcelTab.Incoming -> !parcel.isDeliveredParcel() && !parcel.isOutgoingParcel()
+                ParcelTab.Delivered -> parcel.isDeliveredParcel()
+                ParcelTab.Outgoing -> !parcel.isDeliveredParcel() && parcel.isOutgoingParcel()
+                ParcelTab.Letters -> false
+            }
+        }
+        if (selectedParcel !in parcelsForTab) selectedParcel = parcelsForTab.firstOrNull()
     }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(dismissOnBackPress = false)
+    ) {
+        BackHandler {
+            when {
+                parcelDetail -> {
+                    parcelDetail = false
+                    selectedHistory = null
+                }
+                carrier != null && carriers.size > 1 -> selectedCarrierId = null
+                else -> onDismiss()
+            }
+        }
         Card(
             modifier = Modifier.fillMaxWidth().height(640.dp),
             shape = RoundedCornerShape(30.dp),
@@ -291,9 +394,7 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, onDismiss: () -> Unit) {
         ) {
             Column(Modifier.fillMaxSize().padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    if (parcelDetail || (carrier != null && carriers.size > 1)) IconButton(onClick = {
-                        if (parcelDetail) { parcelDetail = false; selectedHistory = null } else selectedCarrierId = null
-                    }) {
+                    if (!parcelDetail && carrier != null && carriers.size > 1) IconButton(onClick = { selectedCarrierId = null }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Carriers")
                     }
                     Text(carrier?.name ?: "Parcels", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
@@ -311,7 +412,8 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, onDismiss: () -> Unit) {
                                         CarrierLogo(item, 56)
                                         Column(Modifier.weight(1f)) {
                                             Text(item.name, fontWeight = FontWeight.Bold)
-                                            Text("${item.incoming} incoming · ${item.outgoing} outgoing · ${item.letters.size} letters", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                                            val letterSummary = if (item.supportsLetters) " · ${item.currentLetterCount} letters" else ""
+                                            Text("${item.incoming} incoming · ${item.outgoing} outgoing$letterSummary", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
                                         }
                                     }
                                 }
@@ -319,9 +421,14 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, onDismiss: () -> Unit) {
                         }
                     }
                     else -> {
-                        ParcelHero(carrier, selectedParcel, selectedHistory)
                         if (parcelDetail) {
-                            Text("Tracking history", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            ParcelHero(carrier, selectedParcel, selectedHistory)
+                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(onClick = { parcelDetail = false; selectedHistory = null }) {
+                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back to parcels")
+                                }
+                                Text("Tracking history", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            }
                             val historyScroll = rememberScrollState()
                             Column(Modifier.weight(1f).fadingEdges(historyScroll).verticalScroll(historyScroll), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 selectedParcel?.let { parcel ->
@@ -329,15 +436,41 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, onDismiss: () -> Unit) {
                                 }
                             }
                         } else {
-                        PrimaryTabRow(selectedTabIndex = if (tab == "parcels") 0 else 1, containerColor = Color.Transparent) {
-                            Tab(tab == "parcels", { tab = "parcels" }, text = { Text("Parcels (${carrier.parcels.size})") })
-                            Tab(tab == "letters", { tab = "letters" }, text = { Text("Letters (${carrier.letters.size})") })
+                        val incomingParcels = carrier.parcels.filter { !it.isDeliveredParcel() && !it.isOutgoingParcel() }
+                        val deliveredParcels = carrier.parcels.filter { it.isDeliveredParcel() }
+                        val outgoingParcels = carrier.parcels.filter { !it.isDeliveredParcel() && it.isOutgoingParcel() }
+                        val availableTabs = if (carrier.supportsLetters) ParcelTab.entries else ParcelTab.entries.filterNot { it == ParcelTab.Letters }
+                        ParcelHero(carrier, selectedParcel, selectedHistory)
+                        PrimaryTabRow(selectedTabIndex = availableTabs.indexOf(tab).coerceAtLeast(0), containerColor = Color.Transparent) {
+                            availableTabs.forEach { item ->
+                                val count = when (item) {
+                                    ParcelTab.Incoming -> incomingParcels.size
+                                    ParcelTab.Delivered -> deliveredParcels.size
+                                    ParcelTab.Outgoing -> outgoingParcels.size
+                                    ParcelTab.Letters -> carrier.currentLetterCount
+                                }
+                                Tab(tab == item, {
+                                    tab = item
+                                    selectedHistory = null
+                                }, text = { Text("${item.title} ($count)", maxLines = 1) })
+                            }
                         }
                         val scroll = rememberScrollState()
                         Column(Modifier.weight(1f).fadingEdges(scroll).verticalScroll(scroll), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            if (tab == "parcels") {
-                                if (carrier.parcels.isEmpty()) Text("No parcels.", color = appColors.onMuted)
-                                carrier.parcels.forEach { parcel ->
+                            if (tab != ParcelTab.Letters) {
+                                val visibleParcels = when (tab) {
+                                    ParcelTab.Incoming -> incomingParcels
+                                    ParcelTab.Delivered -> deliveredParcels
+                                    ParcelTab.Outgoing -> outgoingParcels
+                                    ParcelTab.Letters -> emptyList()
+                                }
+                                if (visibleParcels.isEmpty()) Text(
+                                    "No ${tab.title.lowercase()} parcels.",
+                                    color = appColors.onMuted,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp)
+                                )
+                                visibleParcels.forEach { parcel ->
                                     InteractiveParcelRow(parcel, parcel == selectedParcel) {
                                         selectedParcel = parcel
                                         selectedHistory = null
@@ -345,7 +478,12 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, onDismiss: () -> Unit) {
                                     }
                                 }
                             } else {
-                                if (carrier.letters.isEmpty()) Text("No announced letters.", color = appColors.onMuted)
+                                if (carrier.letters.isEmpty()) Text(
+                                    "No announced letters.",
+                                    color = appColors.onMuted,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp)
+                                )
                                 carrier.letters.forEach { letter ->
                                     val image = carrier.letterImage(letter)
                                     Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -624,7 +762,18 @@ fun ParcelsWidgetSettingsDialog(
     var square by remember(widget) { mutableStateOf(widget.isSquare) }
     var radius by remember(widget) { mutableIntStateOf(widget.cornerRadius) }
     var imageUrls by remember(widget) { mutableStateOf(widget.carrierImageUrls) }
+    var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
     var picking by remember { mutableStateOf(false) }
+    val hasUnresolvedDevices = deviceIds.any { id -> devices.none { it.id == id } }
+    LaunchedEffect(deviceIds, hasUnresolvedDevices) {
+        if (deviceIds.isNotEmpty() && hasUnresolvedDevices) {
+            viewModel.fetchRegistries(force = true)
+            delay(1_500)
+            if (deviceIds.any { id -> viewModel.deviceRegistry.value.none { it.id == id } }) {
+                viewModel.fetchRegistries(force = true)
+            }
+        }
+    }
     if (picking) {
         ParcelDevicePickerDialog(viewModel, null, { picking = false }) { id ->
             if (id != null) deviceIds = (deviceIds + id).distinct()
@@ -641,7 +790,8 @@ fun ParcelsWidgetSettingsDialog(
             deviceIds.forEach { id ->
                 Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Text(devices.firstOrNull { it.id == id }?.let { it.name_by_user ?: it.name } ?: id, modifier = Modifier.weight(1f), maxLines = 1)
+                        val device = devices.firstOrNull { it.id == id }
+                        Text(device?.let { it.name_by_user ?: it.name } ?: "Loading device...", modifier = Modifier.weight(1f), maxLines = 1)
                         IconButton(onClick = { deviceIds = deviceIds - id; imageUrls = imageUrls - id }) { Icon(Icons.Default.Close, "Remove") }
                     }
                     OutlinedTextField(
@@ -664,7 +814,8 @@ fun ParcelsWidgetSettingsDialog(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf(8 to "Sharp", 20 to "Modern", 28 to "Round").forEach { (value, label) -> FilterChip(radius == value, { radius = value }, label = { Text(label) }) }
             }
+            WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
         }
-    }, confirmButton = { Button(onClick = { onSave(widget.copy(deviceIds = deviceIds, carrierImageUrls = imageUrls, title = title.ifBlank { "Parcels" }, width = width, isSquare = square, cornerRadius = radius)) }) { Text("Save") } },
+    }, confirmButton = { Button(onClick = { onSave(widget.copy(deviceIds = deviceIds, carrierImageUrls = imageUrls, title = title.ifBlank { "Parcels" }, width = width, isSquare = square, cornerRadius = radius, backgroundUrl = backgroundUrl)) }) { Text("Save") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } })
 }

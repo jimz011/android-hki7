@@ -29,6 +29,20 @@ sealed class Screen(
  * neither reordered nor hidden; [configurable] tabs can be reordered and hidden from Settings →
  * Appearance → Navigation Bar. Order/visibility are persisted as route lists in PreferencesManager.
  */
+/** Maps an [HKIAction] navigation target to a NavController route, or null if unknown.
+ *  Targets: "home"|"rooms"|"security"|"energy"|"climate"|"battery"|"settings"|"room:<areaId>". */
+fun navRouteForTarget(target: String): String? = when {
+    target == "home" -> Screen.Home.route
+    target == "rooms" -> Screen.Rooms.route
+    target == "security" -> Screen.Security.route
+    target == "energy" -> Screen.Energy.route
+    target == "climate" -> Screen.Climate.route
+    target == "battery" -> Screen.Battery.route
+    target == "settings" -> Screen.Settings.route
+    target.startsWith("room:") -> Screen.RoomDetail.createRoute(target.removePrefix("room:"))
+    else -> null
+}
+
 object NavBarConfig {
     val fixed: List<Screen> = listOf(Screen.Home, Screen.Rooms)
     val configurable: List<Screen> = listOf(Screen.Security, Screen.Energy, Screen.Climate, Screen.Battery)

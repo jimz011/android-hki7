@@ -3,6 +3,7 @@
 package com.example.hki7.ui.components
 
 import android.app.Activity
+import androidx.navigation.NavController
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -79,6 +80,8 @@ fun HKIPage(
     showBadgeBar: Boolean = true,
     /** Pinned bar between the header and the scrolling content (e.g. the energy time filter). */
     headerBar: (@Composable () -> Unit)? = null,
+    /** Optional NavController so badge actions can navigate within the app. */
+    navController: NavController? = null,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val weather by viewModel.weather.collectAsState()
@@ -583,6 +586,7 @@ fun HKIPage(
                 badgeBarConfig = badgeBarConfig,
                 isEditMode     = isEditMode,
                 viewModel      = viewModel,
+                navController  = navController,
                 onConfigChange = { newBarConfig ->
                     if (areaId != null) {
                         viewModel.updateAreaConfig(

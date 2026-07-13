@@ -30,8 +30,10 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import coil3.compose.AsyncImage
 import com.example.hki7.data.HAEntity
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
@@ -142,7 +144,9 @@ fun EntityCard(
     isSquare: Boolean = false,
     cornerRadius: Int = 28,
     interactionsEnabled: Boolean = true,
-    doorOpen: Boolean = false
+    doorOpen: Boolean = false,
+    // Needed to resolve the entity's picture when the icon is set to ENTITY_PICTURE_ICON.
+    currentUrl: String? = null
 ) {
     val appColors = LocalHKIAppColors.current
     val isActive = entity.state == "on"
@@ -222,15 +226,28 @@ fun EntityCard(
             val effectiveSlug = iconName?.takeUnless { it.isBlank() } ?: defaultSlug
             val spinRotation = rememberIconSpinRotation(spinIcon && !isUnavailable && entity.state.lowercase() != "off")
             val spinModifier = Modifier.rotate(spinRotation)
-            if (effectiveSlug != null) {
-                MdiIcon(name = effectiveSlug, tint = iconTint, modifier = spinModifier)
-            } else {
-                Icon(
-                    imageVector = Icons.Default.DeviceUnknown,
+            // "Use entity picture": render the HA picture when available, else fall back to the icon.
+            val pictureUrl = if (effectiveSlug == ENTITY_PICTURE_ICON && !currentUrl.isNullOrBlank())
+                resolveEntityPictureUrl(entity, currentUrl) else null
+            if (pictureUrl != null) {
+                AsyncImage(
+                    model = pictureUrl,
                     contentDescription = null,
-                    tint = iconTint,
-                    modifier = spinModifier
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.size(32.dp).clip(CircleShape).then(spinModifier)
                 )
+            } else {
+                val slugForIcon = if (effectiveSlug == ENTITY_PICTURE_ICON) defaultSlug else effectiveSlug
+                if (slugForIcon != null) {
+                    MdiIcon(name = slugForIcon, tint = iconTint, modifier = spinModifier)
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.DeviceUnknown,
+                        contentDescription = null,
+                        tint = iconTint,
+                        modifier = spinModifier
+                    )
+                }
             }
             Column {
                 Text(
@@ -259,20 +276,30 @@ fun EntityCard(
                     }
                     else -> label ?: entity.state.split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
                 }
-                Text(
-                    text = labelText,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = when {
-                        isCoverNotClosed -> primaryContent.copy(alpha = 0.75f)
-                        isLockDoorOpen  -> primaryContent.copy(alpha = 0.75f)
-                        isLockUnlocked  -> primaryContent.copy(alpha = 0.75f)
-                        isUnavailable   -> unavailableStateColor
-                        isActive || isClimateNotOff -> activeContent.copy(alpha = 0.68f)
-                        else            -> appColors.onMuted
-                    },
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (domain == "camera" && entity.state.equals("recording", ignoreCase = true)) {
+                        Box(
+                            Modifier
+                                .size(7.dp)
+                                .background(Color(0xFFEF5350), CircleShape)
+                        )
+                        Spacer(Modifier.width(5.dp))
+                    }
+                    Text(
+                        text = labelText,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = when {
+                            isCoverNotClosed -> primaryContent.copy(alpha = 0.75f)
+                            isLockDoorOpen  -> primaryContent.copy(alpha = 0.75f)
+                            isLockUnlocked  -> primaryContent.copy(alpha = 0.75f)
+                            isUnavailable   -> unavailableStateColor
+                            isActive || isClimateNotOff -> activeContent.copy(alpha = 0.68f)
+                            else            -> appColors.onMuted
+                        },
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }

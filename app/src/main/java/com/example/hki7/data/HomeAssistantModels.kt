@@ -447,6 +447,33 @@ data class HKIAreaConfig(
     val badgeBar: HKIBadgeBarConfig? = null
 )
 
+/** A configurable tap/hold/double-tap action. Modelled on Home Assistant's action config: it can
+ *  toggle, open more-info, call an arbitrary service with data, navigate within the app, or open a
+ *  URL. [type] "default" defers to the domain-based heuristic in the view model. */
+@Serializable
+data class HKIAction(
+    val type: String = "default",       // default | none | toggle | more_info | call_service | navigate | url
+    val service: String? = null,        // "light.turn_on"
+    val targetEntityId: String? = null, // service/toggle target; null = the button's own entity
+    val data: JsonObject? = null,       // arbitrary service data
+    val moreInfoEntityId: String? = null, // more_info of a different entity
+    val navigationTarget: String? = null, // "home"|"rooms"|"energy"|"climate"|"security"|"battery"|"room:<areaId>"
+    val url: String? = null
+)
+
+/** A user-added quick-access button shown in a dialog's nav bar. Each targets an entity and carries
+ *  its own tap/hold/double-tap actions. */
+@Serializable
+data class HKIActionButton(
+    val id: String,
+    val entityId: String,
+    val name: String? = null,
+    val icon: String? = null,
+    val tapAction: HKIAction = HKIAction(type = "more_info"),
+    val holdAction: HKIAction = HKIAction(type = "default"),
+    val doubleTapAction: HKIAction = HKIAction(type = "default")
+)
+
 @Serializable
 data class HKIBadge(
     val id: String,
@@ -462,6 +489,12 @@ data class HKIBadge(
     val spinIcon: Boolean = false,     // rotate the icon continuously while the entity isn't "off"
     val tapAction: String = "auto",    // "auto", "toggle", "more_info"
     val holdAction: String = "auto",   // "auto", "toggle", "more_info"
+    // Structured action overrides (win over the legacy string fields above when non-null).
+    val tapActionEx: HKIAction? = null,
+    val holdActionEx: HKIAction? = null,
+    val doubleTapActionEx: HKIAction? = null,
+    // User-added quick-access buttons for this badge's dialog nav bar.
+    val customButtons: List<HKIActionButton> = emptyList(),
     // Lock: optional door/contact sensor(s). Legacy single-sensor + per-lock map.
     val doorEntityId: String? = null,
     val doorEntityIds: Map<String, String> = emptyMap(),       // lockEntityId -> door sensor
@@ -504,7 +537,9 @@ data class HKIPageConfig(
     val securityConfig: HKISecurityConfig? = null,
     val batteryConfig: HKIBatteryConfig? = null,
     val vacuumEntityId: String? = null,
-    val vacuumMapEntityId: String? = null
+    val vacuumMapEntityId: String? = null,
+    /** Per-person custom nav-bar buttons for the person dialog, keyed by person entity id. */
+    val personButtons: Map<String, List<HKIActionButton>> = emptyMap()
 )
 
 @Serializable
@@ -547,7 +582,11 @@ data class HKIClimateConfig(
     val hiddenEntityIds: List<String> = emptyList(),
     /** Optional user order for climate devices/sensors on detail pages. */
     val entityOrder: List<String> = emptyList(),
-    val customNames: Map<String, String> = emptyMap()
+    val customNames: Map<String, String> = emptyMap(),
+    /** Per-climate-device MDI icon slug overriding the default hvac icon. */
+    val customIcons: Map<String, String> = emptyMap(),
+    /** Per-climate-device card style on the main page: "card" (default) or "dial". */
+    val deviceCardStyles: Map<String, String> = emptyMap()
 )
 
 /** Entity bindings for the Energy dashboard's power-flow visualization. All optional. */
@@ -693,6 +732,12 @@ data class HKIButtonConfig(
     val tapAction: String = "toggle",
     val doubleTapAction: String = "more_info",
     val holdAction: String = "more_info",
+    // Structured action overrides (win over the legacy string fields above when non-null).
+    val tapActionEx: HKIAction? = null,
+    val holdActionEx: HKIAction? = null,
+    val doubleTapActionEx: HKIAction? = null,
+    // User-added quick-access buttons for this button's dialog nav bar.
+    val customButtons: List<HKIActionButton> = emptyList(),
     val lockEnabled: Boolean = false,
     val lockUnlockMode: String = "double_tap", // "double_tap" | "pin"
     val lockPin: String? = null,
@@ -736,7 +781,10 @@ data class HKIEnergyCardWidget(
     val title: String? = null,
     val icon: String? = null,
     val cornerRadius: Int = 28,
-    val isHidden: Boolean = false
+    val backgroundUrl: String? = null,
+    val isHidden: Boolean = false,
+    /** Per-card entity bindings; null inherits the Energy view's settings. */
+    val energyConfig: HKIEnergyConfig? = null
 ) : HKIRoomWidget()
 
 /** A stack of energy cards, collapsible like the other stacks. */
@@ -752,7 +800,109 @@ data class HKIEnergyStack(
     val isHidden: Boolean = false,
     val collapsible: Boolean = true,
     val defaultCollapsed: Boolean = false,
+    val isCollapsed: Boolean? = null,
+    /** Entity bindings applied to every card in the stack; null inherits the Energy view's settings. */
+    val energyConfig: HKIEnergyConfig? = null
+) : HKIRoomWidget()
+
+/** One card from the Climate view, embeddable on any page. cardKey selects the card (see
+ *  climateCardCatalog in ClimateScreen). */
+@Serializable
+@SerialName("climate_card")
+data class HKIClimateCardWidget(
+    override val id: String,
+    override val width: String = "full",
+    val cardKey: String = "hero",
+    val title: String? = null,
+    val icon: String? = null,
+    val cornerRadius: Int = 28,
+    val isSquare: Boolean = false,
+    val backgroundUrl: String? = null,
+    val isHidden: Boolean = false,
+    /** Per-card entities; empty inherits the Climate view's auto-discovered entities. */
+    val entityIds: List<String> = emptyList()
+) : HKIRoomWidget()
+
+/** A stack of climate cards, collapsible like the energy stack. */
+@Serializable
+@SerialName("climate_stack")
+data class HKIClimateStack(
+    override val id: String,
+    override val width: String = "full",
+    val title: String? = null,
+    val icon: String? = null,
+    val cardKeys: List<String> = emptyList(),
+    val cornerRadius: Int = 28,
+    val isHidden: Boolean = false,
+    val collapsible: Boolean = true,
+    val defaultCollapsed: Boolean = false,
+    val isCollapsed: Boolean? = null,
+    /** Entities applied to every card in the stack; empty inherits the Climate view's discovery. */
+    val entityIds: List<String> = emptyList()
+) : HKIRoomWidget()
+
+/** Media player tile that uses the current album art (entity_picture) as its background. */
+@Serializable
+@SerialName("media_player")
+data class HKIMediaPlayerWidget(
+    override val id: String,
+    override val width: String = "full",
+    val entityId: String,
+    val title: String? = null,
+    val icon: String? = "speaker",
+    val isSquare: Boolean = false,
+    val cornerRadius: Int = 28,
+    /** Optional background image (URL or HA path); drawn behind the card content. */
+    val backgroundUrl: String? = null,
+    val isHidden: Boolean = false
+) : HKIRoomWidget()
+
+/** History graph for one or more (numeric) sensors, drawn as lines or bars. */
+@Serializable
+@SerialName("sensor_graph")
+data class HKISensorGraphWidget(
+    override val id: String,
+    override val width: String = "full",
+    val entityIds: List<String> = emptyList(),
+    val title: String? = null,
+    val icon: String? = null,
+    /** "line" = temperature-style line graph, "bar" = energy-style bars. */
+    val style: String = "line",
+    /** History window in hours (see HistoryRangeOptions). */
+    val hours: Int = 24,
+    val isSquare: Boolean = false,
+    val cornerRadius: Int = 28,
+    val backgroundUrl: String? = null,
+    val isHidden: Boolean = false
+) : HKIRoomWidget()
+
+/** A collapsible stack of sensor graphs, like the energy/climate stacks. */
+@Serializable
+@SerialName("sensor_graph_stack")
+data class HKISensorGraphStack(
+    override val id: String,
+    override val width: String = "full",
+    val title: String? = null,
+    val icon: String? = null,
+    val graphs: List<HKISensorGraphWidget> = emptyList(),
+    val cornerRadius: Int = 28,
+    val isHidden: Boolean = false,
+    val collapsible: Boolean = true,
+    val defaultCollapsed: Boolean = false,
     val isCollapsed: Boolean? = null
+) : HKIRoomWidget()
+
+/** Free-form card whose contents are written in markdown (headings, lists, bold, links, ...). */
+@Serializable
+@SerialName("markdown")
+data class HKIMarkdownWidget(
+    override val id: String,
+    override val width: String = "full",
+    val content: String = "",
+    val isSquare: Boolean = false,
+    val cornerRadius: Int = 28,
+    val backgroundUrl: String? = null,
+    val isHidden: Boolean = false
 ) : HKIRoomWidget()
 
 @Serializable
@@ -765,7 +915,8 @@ data class HKIWeatherWidget(
     val imageUrl: String? = null,   // rainmap style: external radar/rain map image URL
     val title: String? = null,
     val icon: String? = null,
-    val cornerRadius: Int = 28
+    val cornerRadius: Int = 28,
+    val backgroundUrl: String? = null
 ) : HKIRoomWidget()
 
 @Serializable
@@ -779,6 +930,7 @@ data class HKICalendarWidget(
     val title: String? = null,
     val icon: String? = "calendar-month",
     val cornerRadius: Int = 28,
+    val backgroundUrl: String? = null,
     val isHidden: Boolean = false
 ) : HKIRoomWidget()
 
@@ -799,6 +951,7 @@ data class HKIWasteCollectionWidget(
     val imageStyle: String = "icon",
     val isSquare: Boolean = false,
     val cornerRadius: Int = 28,
+    val backgroundUrl: String? = null,
     val isHidden: Boolean = false
 ) : HKIRoomWidget()
 
@@ -813,6 +966,7 @@ data class HKIBatteryCardWidget(
     val useBatteryNotes: Boolean = false,
     val isSquare: Boolean = false,
     val cornerRadius: Int = 28,
+    val backgroundUrl: String? = null,
     val isHidden: Boolean = false
 ) : HKIRoomWidget()
 
@@ -829,5 +983,6 @@ data class HKIParcelsWidget(
     val icon: String? = "package-variant-closed",
     val isSquare: Boolean = false,
     val cornerRadius: Int = 28,
+    val backgroundUrl: String? = null,
     val isHidden: Boolean = false
 ) : HKIRoomWidget()

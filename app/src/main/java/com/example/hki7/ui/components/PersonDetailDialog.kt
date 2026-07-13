@@ -3,12 +3,13 @@ package com.example.hki7.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -32,10 +33,21 @@ import coil3.network.httpHeaders
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.example.hki7.data.HAEntity
+import com.example.hki7.data.HKIActionButton
+import com.example.hki7.data.HKIPageConfig
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.theme.LocalHKIAppColors
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.net.HttpURLConnection
+import java.net.URL
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.floor
@@ -49,16 +61,46 @@ fun PersonDetailDialog(
     viewModel: MainViewModel,
     onDismiss: () -> Unit
 ) {
+    val appColors = LocalHKIAppColors.current
     val currentUrl by viewModel.currentUrl.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
-    var showSettings by remember { mutableStateOf(false) }
-    val personEntityFlow = remember(viewModel, person.entity_id, showSettings, isEditMode) {
-        if (showSettings || isEditMode) viewModel.entitiesMatching { true }
+    // Settings needs the full catalog for the entity pickers; normal view only the person.
+    val personEntityFlow = remember(viewModel, person.entity_id, isEditMode) {
+        if (isEditMode) viewModel.entitiesMatching { true }
         else viewModel.entitiesFor(listOf(person.entity_id))
     }
     val allEntities by personEntityFlow.collectAsState()
+    val areas by viewModel.areas.collectAsState()
     val livePerson = allEntities.find { it.entity_id == person.entity_id } ?: person
     val imageUrl = livePerson.entityPicture?.let { if (it.startsWith("http")) it else "$currentUrl$it" }
+
+    val pageConfigs by viewModel.pageConfigsMapping.collectAsState()
+    val homeConfig = pageConfigs["home"] ?: HKIPageConfig()
+    val personButtons = homeConfig.personButtons[person.entity_id] ?: emptyList()
+
+    // Edit mode: tapping a person opens its individual settings (HKIDialog auto-dismisses in edit
+    // mode, so the settings live in their own dialog here rather than inside the person dialog).
+    if (isEditMode) {
+        PersonSettingsDialog(
+            person = livePerson,
+            viewModel = viewModel,
+            allEntities = allEntities,
+            areas = areas,
+            homeConfig = homeConfig,
+            personButtons = personButtons,
+            onDismiss = onDismiss
+        )
+        return
+    }
+
+    val lat = livePerson.attributes?.get("latitude")?.jsonPrimitive?.doubleOrNull
+    val lon = livePerson.attributes?.get("longitude")?.jsonPrimitive?.doubleOrNull
+
+    // Reverse-geocode the coordinates to a human-readable address, shown under the map.
+    var address by remember(lat, lon) { mutableStateOf<String?>(null) }
+    LaunchedEffect(lat, lon) {
+        address = if (lat != null && lon != null) reverseGeocode(lat, lon) else null
+    }
 
     HKIDialog(
         entity = livePerson,
@@ -66,49 +108,80 @@ fun PersonDetailDialog(
         viewModel = viewModel,
         icon = Icons.Default.Person,
         headerImageUrl = imageUrl,
-        statusText = livePerson.state.uppercase()
+        statusText = livePerson.state.uppercase(),
+        customButtons = personButtons
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            if (showSettings || isEditMode) {
-                PersonSettingsView(
-                    person = livePerson,
-                    viewModel = viewModel,
-                    allEntities = allEntities,
-                    onBack = { if (isEditMode) onDismiss() else showSettings = false }
-                )
-            } else {
-                // Map Content
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f)
-                        .padding(horizontal = 16.dp)
-                        .clip(RoundedCornerShape(24.dp)),
-                    color = Color.Black
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        val lat = livePerson.attributes?.get("latitude")?.jsonPrimitive?.doubleOrNull
-                        val lon = livePerson.attributes?.get("longitude")?.jsonPrimitive?.doubleOrNull
-                        
-                        if (lat != null && lon != null) {
-                            OpenStreetMapPreview(lat = lat, lon = lon, imageUrl = imageUrl)
-                        } else {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(Icons.Default.Map, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(48.dp))
-                                Spacer(Modifier.height(8.dp))
-                                Text("Location Unavailable", color = Color.Gray)
-                            }
+            // Map
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .padding(horizontal = 16.dp)
+                    .clip(RoundedCornerShape(24.dp)),
+                color = if (lat != null && lon != null) Color.Black else appColors.elevated
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    if (lat != null && lon != null) {
+                        OpenStreetMapPreview(lat = lat, lon = lon, imageUrl = imageUrl)
+                    } else {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Map, contentDescription = null, tint = appColors.onMuted, modifier = Modifier.size(48.dp))
+                            Spacer(Modifier.height(8.dp))
+                            Text("Location Unavailable", color = appColors.onMuted)
                         }
                     }
                 }
-                
-                Spacer(Modifier.height(24.dp))
-                
-                Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    InfoChip(Icons.Default.BatteryChargingFull, "84%", Modifier.weight(1f))
-                    InfoChip(Icons.Default.PhoneIphone, "iPhone 15", Modifier.weight(1f))
+            }
+
+            // Geocoded location under the map.
+            if (lat != null && lon != null) {
+                Spacer(Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(Icons.Default.Place, contentDescription = null, tint = appColors.onMuted, modifier = Modifier.size(18.dp))
+                    Text(
+                        address ?: "Locating…",
+                        color = appColors.onSurface,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
+            Spacer(Modifier.height(16.dp))
+        }
+    }
+}
+
+/** Standalone person settings dialog shown when a person is tapped in edit mode. */
+@Composable
+private fun PersonSettingsDialog(
+    person: HAEntity,
+    viewModel: MainViewModel,
+    allEntities: List<HAEntity>,
+    areas: List<com.example.hki7.data.HAArea>,
+    homeConfig: HKIPageConfig,
+    personButtons: List<HKIActionButton>,
+    onDismiss: () -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(0.95f).fillMaxHeight(0.85f),
+            shape = RoundedCornerShape(28.dp),
+            color = appColors.elevated
+        ) {
+            PersonSettingsView(
+                person = person,
+                viewModel = viewModel,
+                allEntities = allEntities,
+                areas = areas,
+                homeConfig = homeConfig,
+                personButtons = personButtons,
+                onBack = onDismiss
+            )
         }
     }
 }
@@ -118,44 +191,25 @@ fun PersonSettingsView(
     person: HAEntity,
     viewModel: MainViewModel,
     allEntities: List<HAEntity>,
+    areas: List<com.example.hki7.data.HAArea>,
+    homeConfig: HKIPageConfig,
+    personButtons: List<HKIActionButton>,
     onBack: () -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
-    var showBatteryPicker by remember { mutableStateOf(false) }
-    val pageConfigs by viewModel.pageConfigsMapping.collectAsState()
-    val homeConfig = pageConfigs["home"] ?: com.example.hki7.data.HKIPageConfig()
     val isVisible = person.entity_id !in homeConfig.hiddenPeople
 
-    Column(modifier = Modifier.padding(24.dp).heightIn(max = 500.dp)) {
+    Column(
+        modifier = Modifier
+            .padding(24.dp)
+            .heightIn(max = 520.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            TextButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("Back")
-            }
-            Spacer(Modifier.width(8.dp))
-            Text("Person Settings", style = MaterialTheme.typography.titleMedium, color = appColors.onSurface)
+            Text("Person Settings", modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, color = appColors.onSurface)
+            TextButton(onClick = onBack) { Text("Done") }
         }
-        
-        Spacer(Modifier.height(16.dp))
-        
-        OutlinedTextField(
-            value = "iPhone 15",
-            onValueChange = {},
-            label = { Text("Phone Name") },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = appColors.onSurface,
-                unfocusedTextColor = appColors.onSurface,
-                focusedLabelColor = appColors.onSurface.copy(alpha = 0.8f),
-                unfocusedLabelColor = appColors.onMuted,
-                cursorColor = MaterialTheme.colorScheme.primary,
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = appColors.onMuted
-            )
-        )
-        
+
         Spacer(Modifier.height(16.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -178,41 +232,38 @@ fun PersonSettingsView(
         }
 
         Spacer(Modifier.height(16.dp))
-        
-        Button(
-            onClick = { showBatteryPicker = true },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = appColors.subtleSurface)
-        ) {
-            Text("Select Battery Entity", color = appColors.onSurface)
-        }
-    }
 
-    if (showBatteryPicker) {
-        AdvancedEntitySearchDialog(
+        CustomButtonsEditor(
+            buttons = personButtons,
             allEntities = allEntities,
-            onDismiss = { showBatteryPicker = false },
-            onEntitiesSelected = { /* Set battery entity */ },
-            title = "Select Battery Sensor",
-            singleSelect = true
+            areas = areas,
+            onChange = { updated ->
+                viewModel.updatePageConfig(
+                    "home",
+                    homeConfig.copy(personButtons = homeConfig.personButtons + (person.entity_id to updated))
+                )
+            }
         )
     }
 }
 
-@Composable
-fun InfoChip(icon: androidx.compose.ui.graphics.vector.ImageVector, value: String, modifier: Modifier = Modifier) {
-    val appColors = LocalHKIAppColors.current
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        color = appColors.elevated.copy(alpha = 0.78f)
-    ) {
-        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, contentDescription = null, tint = Color(0xFFAF7AC5), modifier = Modifier.size(20.dp))
-            Spacer(Modifier.width(8.dp))
-            Text(value, color = appColors.onSurface, fontSize = 12.sp)
+/** Reverse-geocodes coordinates to a display address via OpenStreetMap's Nominatim service.
+ *  Uses the same "HKI7 Android" User-Agent as the map tiles; returns null on any failure. */
+private val geocodeJson = Json { ignoreUnknownKeys = true }
+
+private suspend fun reverseGeocode(lat: Double, lon: Double): String? = withContext(Dispatchers.IO) {
+    runCatching {
+        val url = URL("https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lon&zoom=16&addressdetails=0")
+        val conn = (url.openConnection() as HttpURLConnection).apply {
+            requestMethod = "GET"
+            setRequestProperty("User-Agent", "HKI7 Android")
+            connectTimeout = 8000
+            readTimeout = 8000
         }
-    }
+        val body = conn.inputStream.bufferedReader().use { it.readText() }
+        geocodeJson.parseToJsonElement(body)
+            .jsonObject["display_name"]?.jsonPrimitive?.contentOrNull
+    }.getOrNull()
 }
 
 @Composable

@@ -1,4 +1,4 @@
-@file:Suppress("UnusedBoxWithConstraintsScope", "DEPRECATION", "KotlinConstantConditions")
+@file:Suppress("UnusedBoxWithConstraintsScope", "DEPRECATION", "KotlinConstantConditions", "SpellCheckingInspection")
 
 package com.example.hki7.ui.components
 
@@ -11,6 +11,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -55,17 +56,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.core.view.WindowCompat
+import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.example.hki7.data.HAEntity
+import com.example.hki7.data.HKIActionButton
 import com.example.hki7.ui.MainViewModel
+import com.example.hki7.ui.screens.GenericEntityDialog
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
+import com.example.hki7.ui.utils.handleActionOutcome
+import androidx.compose.runtime.compositionLocalOf
+
+/** Custom nav-bar buttons for the currently-open dialog. Provided at the dialog's open site so every
+ *  HKIDialog wrapper (light, lock, person, …) inherits them without threading an extra parameter. */
+val LocalDialogCustomButtons = compositionLocalOf { emptyList<HKIActionButton>() }
+
+/** NavController for dialog custom-button "navigate" actions; null on surfaces without navigation. */
+val LocalDialogNavController = compositionLocalOf<NavController?> { null }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -85,12 +100,26 @@ fun HKIDialog(
     groupContent: (@Composable () -> Unit)? = null,
     tabs: List<Triple<String, ImageVector, () -> Unit>> = emptyList(),
     currentTab: String? = null,
+    // User-added quick-access buttons rendered on wrapped rows below the default nav bar. Defaults
+    // to the value provided at the open site via LocalDialogCustomButtons.
+    customButtons: List<HKIActionButton> = LocalDialogCustomButtons.current,
+    navController: NavController? = LocalDialogNavController.current,
     content: @Composable ColumnScope.(Boolean) -> Unit
 ) {
     val editMode by viewModel.isEditMode.collectAsState()
     LaunchedEffect(editMode) { if (editMode) onDismiss() }
     if (editMode) return
     val appColors = LocalHKIAppColors.current
+    val context = LocalContext.current
+    val currentUrl by viewModel.currentUrl.collectAsState()
+    // "Use entity picture" as the header icon resolves to the circular header-image path below.
+    val resolvedHeaderImage = headerImageUrl
+        ?: if (iconName == ENTITY_PICTURE_ICON) resolveEntityPictureUrl(entity, currentUrl) else null
+    // Live entities for the custom buttons (icon/state); nested more-info host for their actions.
+    val customButtonIds = remember(customButtons) { customButtons.map { it.entityId } }
+    val customEntitiesFlow = remember(viewModel, customButtonIds) { viewModel.entitiesFor(customButtonIds) }
+    val customEntities by customEntitiesFlow.collectAsState()
+    var moreInfoEntityId by remember { mutableStateOf<String?>(null) }
     val dialogNavigationBarColor = MaterialTheme.colorScheme.primary.copy(alpha = 230 / 255f).toArgb()
     var showHistory by remember { mutableStateOf(false) }
     var showGroup by remember { mutableStateOf(false) }
@@ -154,19 +183,24 @@ fun HKIDialog(
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         val dialogBottomControlsLift = 7.dp
+                        // Bottom controls: the default nav bar (tabs) on the first row, then any custom
+                        // buttons wrapped onto additional rows (≤5 per row → up to 2 more rows).
+                        val customRows = remember(customButtons) { customButtons.chunked(5) }
+                        val bottomRowCount = (if (tabs.isNotEmpty()) 1 else 0) + customRows.size
+                        val showBottomControls = bottomRowCount > 0 && !showHistory && !showGroup && !showDevice
                         Column(modifier = Modifier.fillMaxSize()) {
                             Row(
                                 modifier = Modifier.padding(24.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                if (headerImageUrl != null) {
+                                if (resolvedHeaderImage != null) {
                                     Surface(
                                         modifier = Modifier.size(36.dp),
                                         shape = CircleShape,
                                         color = appColors.elevated
                                     ) {
                                         AsyncImage(
-                                            model = headerImageUrl,
+                                            model = resolvedHeaderImage,
                                             contentDescription = null,
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier.fillMaxSize()
@@ -177,7 +211,8 @@ fun HKIDialog(
                                     val iconModifier = Modifier
                                         .size(24.dp)
                                         .rotate(spinRotation)
-                                    val effectiveIconName = iconName?.takeUnless { it.isBlank() }
+                                    // Drop the picture sentinel here (no picture available) so it falls back to the icon.
+                                    val effectiveIconName = iconName?.takeUnless { it.isBlank() || it == ENTITY_PICTURE_ICON }
                                     if (effectiveIconName != null) {
                                         MdiIcon(effectiveIconName, contentDescription = null, tint = iconTint, size = 24.dp, modifier = iconModifier)
                                     } else {
@@ -290,7 +325,7 @@ fun HKIDialog(
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxWidth()
-                                    .padding(bottom = if (tabs.isNotEmpty() && !showHistory && !showGroup && !showDevice) 88.dp + dialogBottomControlsLift else 0.dp)
+                                    .padding(bottom = if (showBottomControls) (bottomRowCount * 78).dp + dialogBottomControlsLift else 0.dp)
                             ) {
                                 if (showHistory) {
                                     HistoryView(entity = entity, viewModel = viewModel, extraGraphEntityIds = extraGraphEntityIds)
@@ -306,38 +341,72 @@ fun HKIDialog(
                             }
                         }
 
-                        if (tabs.isNotEmpty() && !showHistory && !showGroup && !showDevice) {
-                            val denseTabs = tabs.size > 5
-                            HKIBottomBar(
+                        if (showBottomControls) {
+                            Column(
                                 modifier = Modifier
                                     .align(Alignment.BottomCenter)
                                     .padding(bottom = dialogBottomControlsLift),
-                                horizontalPadding = if (denseTabs) 16.dp else if (isPhone) 64.dp else 16.dp,
-                                scrollable = false
+                                verticalArrangement = Arrangement.spacedBy(0.dp)
                             ) {
-                                tabs.forEach { (label, tabIcon, action) ->
-                                    val isSelected = currentTab == label
-                                    Column(
-                                        modifier = Modifier.weight(1f)
-                                            .fillMaxHeight()
-                                            .clip(RoundedCornerShape(16.dp))
-                                            .background(if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f) else Color.Transparent)
-                                            .combinedClickable(onClick = action)
-                                            .padding(vertical = if (denseTabs) 10.dp else 12.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally
+                                if (tabs.isNotEmpty()) {
+                                    val denseTabs = tabs.size > 5
+                                    HKIBottomBar(
+                                        horizontalPadding = if (denseTabs) 16.dp else if (isPhone) 64.dp else 16.dp,
+                                        scrollable = false
                                     ) {
-                                        Icon(
-                                            tabIcon,
-                                            contentDescription = null,
-                                            tint = if (isSelected) MaterialTheme.colorScheme.primary else appColors.onMuted,
-                                            modifier = Modifier.size(if (denseTabs) 22.dp else 24.dp)
-                                        )
-                                        Text(
-                                            label,
-                                            color = if (isSelected) appColors.onSurface else appColors.onMuted,
-                                            style = if (denseTabs) MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp) else MaterialTheme.typography.labelSmall,
-                                            maxLines = 1
-                                        )
+                                        tabs.forEach { (label, tabIcon, action) ->
+                                            val isSelected = currentTab == label
+                                            Column(
+                                                modifier = Modifier.weight(1f)
+                                                    .fillMaxHeight()
+                                                    .clip(RoundedCornerShape(16.dp))
+                                                    .background(if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f) else Color.Transparent)
+                                                    .combinedClickable(onClick = action)
+                                                    .padding(vertical = if (denseTabs) 10.dp else 12.dp),
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Icon(
+                                                    tabIcon,
+                                                    contentDescription = null,
+                                                    tint = if (isSelected) MaterialTheme.colorScheme.primary else appColors.onMuted,
+                                                    modifier = Modifier.size(if (denseTabs) 22.dp else 24.dp)
+                                                )
+                                                Text(
+                                                    label,
+                                                    color = if (isSelected) appColors.onSurface else appColors.onMuted,
+                                                    style = if (denseTabs) MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp) else MaterialTheme.typography.labelSmall,
+                                                    maxLines = 1
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                                customRows.forEach { rowButtons ->
+                                    HKIBottomBar(
+                                        horizontalPadding = if (isPhone) 32.dp else 16.dp,
+                                        scrollable = false
+                                    ) {
+                                        rowButtons.forEach { button ->
+                                            CustomNavButton(
+                                                button = button,
+                                                entity = customEntities.find { it.entity_id == button.entityId },
+                                                currentUrl = currentUrl,
+                                                modifier = Modifier.weight(1f),
+                                                onTrigger = { trigger ->
+                                                    val action = when (trigger) {
+                                                        "hold" -> button.holdAction
+                                                        "double" -> button.doubleTapAction
+                                                        else -> button.tapAction
+                                                    }
+                                                    handleActionOutcome(
+                                                        viewModel.executeAction(action, button.entityId, trigger),
+                                                        context, navController
+                                                    ) { moreInfoEntityId = it }
+                                                }
+                                            )
+                                        }
+                                        // Pad a short final row so its buttons stay left-aligned by weight.
+                                        repeat(5 - rowButtons.size) { Spacer(Modifier.weight(1f)) }
                                     }
                                 }
                             }
@@ -346,6 +415,67 @@ fun HKIDialog(
                 }
             }
         }
+    }
+
+    // Nested more-info opened by a custom nav-bar button. Reset the custom-buttons local so the
+    // nested dialog doesn't inherit (and repeat) this dialog's buttons.
+    moreInfoEntityId?.let { id ->
+        val target = customEntities.find { it.entity_id == id }
+        if (target != null) {
+            androidx.compose.runtime.CompositionLocalProvider(LocalDialogCustomButtons provides emptyList()) {
+                GenericEntityDialog(entity = target, viewModel = viewModel, onDismiss = { moreInfoEntityId = null })
+            }
+        } else {
+            moreInfoEntityId = null
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun CustomNavButton(
+    button: HKIActionButton,
+    entity: HAEntity?,
+    currentUrl: String,
+    modifier: Modifier = Modifier,
+    onTrigger: (String) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    val active = entity != null && entity.state.lowercase() !in listOf("off", "unavailable", "closed", "locked", "idle", "0")
+    val tint = if (active) MaterialTheme.colorScheme.primary else appColors.onMuted
+    val label = button.name ?: entity?.friendlyName ?: button.entityId.substringAfter(".")
+    val pictureUrl = if (button.icon == ENTITY_PICTURE_ICON && entity != null && currentUrl.isNotBlank())
+        resolveEntityPictureUrl(entity, currentUrl) else null
+    // Configured icon → the entity's own HA icon → the domain default (so a button always has an icon).
+    val iconName = button.icon?.takeUnless { it.isBlank() || it == ENTITY_PICTURE_ICON }
+        ?: entity?.icon?.substringAfter(":")?.takeUnless { it.isBlank() }
+        ?: entity?.let { defaultEntityIconSlug(it) }
+    // Matches the default nav-bar tab: icon-over-label in a rounded cell, highlighted when active.
+    Column(
+        modifier = modifier
+            .fillMaxHeight()
+            .clip(RoundedCornerShape(16.dp))
+            .background(if (active) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f) else Color.Transparent)
+            .combinedClickable(
+                onClick = { onTrigger("tap") },
+                onDoubleClick = { onTrigger("double") },
+                onLongClick = { onTrigger("hold") }
+            )
+            .padding(vertical = 12.dp, horizontal = 2.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        when {
+            pictureUrl != null -> AsyncImage(model = pictureUrl, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.size(24.dp).clip(CircleShape))
+            iconName != null -> MdiIcon(iconName, contentDescription = null, tint = tint, size = 24.dp)
+            else -> Icon(Icons.Default.Circle, contentDescription = null, tint = tint, modifier = Modifier.size(24.dp))
+        }
+        Text(
+            label,
+            color = if (active) appColors.onSurface else appColors.onMuted,
+            style = MaterialTheme.typography.labelSmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 

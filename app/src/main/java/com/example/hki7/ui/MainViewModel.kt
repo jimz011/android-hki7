@@ -25,6 +25,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.put
 import android.os.SystemClock
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -34,6 +36,19 @@ import kotlin.time.Duration.Companion.seconds
 
 enum class ConnectionStatus {
     IDLE, CONNECTING, CONNECTED, ERROR
+}
+
+/** Result of running an [HKIAction]. Side-effecting actions execute in the view model and report
+ *  [Handled]; UI-routing actions hand back an outcome the composable resolves. */
+sealed interface ActionOutcome {
+    /** The action ran to completion in the view model (toggle / service call). */
+    data object Handled : ActionOutcome
+    /** Nothing to do (type "none" or an incompletely configured action). */
+    data object None : ActionOutcome
+    data class OpenMoreInfo(val entityId: String) : ActionOutcome
+    /** Navigate within the app. Target: "home"|"rooms"|"energy"|"climate"|"security"|"battery"|"room:<areaId>". */
+    data class Navigate(val target: String) : ActionOutcome
+    data class OpenUrl(val url: String) : ActionOutcome
 }
 
 /** How often the expensive dashboard rebuild (areas/floors/registries/auto-populate) runs. */
@@ -804,11 +819,20 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         appVisible = visible
         if (visible) {
             if (client != null && realtimeJob?.isActive != true) startSync()
+            // Re-arm the proactive token refresh: while backgrounded the scheduled refresh may
+            // have fired and failed (Doze blocks network) or drifted past expiry while the
+            // process was frozen. This refreshes immediately when the stored token is already stale.
+            if (client != null) scheduleProactiveRefreshFromStoredExpiry()
             setBatteryMonitoring(true)
             appContext?.let { reportDeviceTelemetry(it) }
         } else {
             setBatteryMonitoring(false)
             stopSync()
+            // Battery parity with the official app: never refresh tokens on a background timer
+            // (with a dead network it would retry every minute for nothing). The stored token is
+            // refreshed lazily on return to foreground instead — see the re-arm above.
+            tokenRefreshJob?.cancel()
+            tokenRefreshJob = null
         }
     }
 
@@ -929,7 +953,11 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         )?.takeIf { it.isNotBlank() } ?: return null
         val token = prefs.accessToken.first()?.takeIf { it.isNotBlank() }
         val refresh = prefs.refreshToken.first()?.takeIf { it.isNotBlank() }
-        if (token != null) {
+        // A stored token past its persisted expiry can only 401; fall through to a refresh
+        // instead of rebuilding a client that is doomed to fail.
+        val expiry = prefs.accessTokenExpiry.first()
+        val tokenUsable = expiry == null || expiry - System.currentTimeMillis() > 60_000L
+        if (token != null && tokenUsable) {
             val rebuilt = HomeAssistantClient(url, token)
             client = rebuilt
             activeConnectionKey = "$url|$token"
@@ -954,7 +982,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 try {
                     if (attempt > 0) kotlinx.coroutines.delay(delayMs)
                     val response = HomeAssistantClient.refreshAccessToken(url, refresh)
-                    prefs.saveConnectionDetails(url, response.access_token, response.refresh_token, response.expires_in)
+                    // Save only the tokens: `url` is the currently *resolved* base URL (internal
+                    // when on home Wi-Fi) and must not overwrite the stored external server URL.
+                    prefs.saveAuthTokens(response.access_token, response.refresh_token, response.expires_in)
                     client = HomeAssistantClient(url, response.access_token)
                     activeConnectionKey = "$url|${response.access_token}"
                     lastTokenRefreshAt = SystemClock.elapsedRealtime()
@@ -972,9 +1002,14 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     }
                 }
             }
-            // All attempts failed without an explicit rejection — keep auth and let polling retry.
+            // All attempts failed without an explicit rejection — keep auth and retry in a minute.
+            // Without this reschedule nothing re-triggers a refresh until a request happens to 401.
             addLog("Token refresh failed after ${delays.size} attempts (transient). Will retry later.")
             _status.value = ConnectionStatus.ERROR
+            tokenRefreshJob = viewModelScope.launch {
+                delay(60.seconds)
+                tryTokenRefresh()
+            }
         } else {
             addLog("No refresh token available; login may be required.")
         }
@@ -1540,6 +1575,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         _forcedLogoutReason.value = reason
     }
 
+    /** Routes the user to the login screen while keeping the stored tokens — a successful login
+     *  simply overwrites them. Blank reason means user-initiated, so no snackbar is shown. */
+    fun requestRelogin() {
+        _forcedLogoutReason.value = ""
+    }
+
     fun clearForcedLogoutReason() {
         _forcedLogoutReason.value = null
     }
@@ -1779,25 +1820,88 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         viewModelScope.launch { prefs.saveAreaWidgets(currentMapping) }
     }
 
-    fun performButtonAction(areaId: String, stackId: String, entityId: String, trigger: String): String {
-        val stack = _areaWidgetsMapping.value[areaId]?.filterIsInstance<HKIButtonStack>()?.firstOrNull { it.id == stackId }
-        val config = stack?.buttonConfigs?.get(entityId)
+    /** Calls an arbitrary service with a free-form JSON payload (custom actions). */
+    fun callServiceRaw(domain: String, service: String, payload: JsonObject) {
+        val currentClient = client ?: return
+        viewModelScope.launch {
+            try {
+                currentClient.callServiceRaw(domain, service, payload)
+                refreshAfterServiceCall()
+            } catch (e: Exception) {
+                addLog("Service call failed: ${e.message}")
+            }
+        }
+    }
+
+    /** Domain-based default behavior for a plain tap (used when an action resolves to "default"). */
+    private fun defaultActionType(entityId: String, trigger: String, cameraStack: Boolean = false): String {
         val domain = entityId.substringBefore(".")
-        val defaultAction = when {
+        return when {
             trigger != "tap" -> "more_info"
-            stack?.stackType == "camera" -> "more_info"
+            cameraStack -> "more_info"
             domain in listOf("sensor", "binary_sensor", "camera", "climate", "cover", "lock", "fan", "humidifier", "alarm_control_panel", "person", "vacuum") -> "more_info"
             else -> "toggle"
         }
-        val action = when (trigger) {
+    }
+
+    /** Runs a structured [HKIAction] against [ownerEntityId]. Side-effecting types (toggle,
+     *  call_service) execute inline and return [ActionOutcome.Handled]; UI-routing types return an
+     *  outcome the caller resolves (open more-info, navigate, open URL). */
+    fun executeAction(action: HKIAction, ownerEntityId: String, trigger: String = "tap"): ActionOutcome {
+        val type = action.type.takeUnless { it == "default" } ?: defaultActionType(ownerEntityId, trigger)
+        return when (type) {
+            "none" -> ActionOutcome.None
+            "toggle" -> { toggleEntity(action.targetEntityId ?: ownerEntityId); ActionOutcome.Handled }
+            "more_info" -> ActionOutcome.OpenMoreInfo(action.moreInfoEntityId ?: action.targetEntityId ?: ownerEntityId)
+            "navigate" -> action.navigationTarget?.let { ActionOutcome.Navigate(it) } ?: ActionOutcome.None
+            "url" -> action.url?.takeIf { it.isNotBlank() }?.let { ActionOutcome.OpenUrl(it) } ?: ActionOutcome.None
+            "call_service" -> {
+                val service = action.service?.takeIf { it.contains(".") }
+                if (service == null) { ActionOutcome.None }
+                else {
+                    val domain = service.substringBefore(".")
+                    val name = service.substringAfter(".")
+                    val target = action.targetEntityId ?: ownerEntityId
+                    val payload = buildJsonObject {
+                        if (target.isNotBlank()) put("entity_id", JsonPrimitive(target))
+                        action.data?.forEach { (k, v) -> put(k, v) }
+                    }
+                    callServiceRaw(domain, name, payload)
+                    ActionOutcome.Handled
+                }
+            }
+            else -> ActionOutcome.None
+        }
+    }
+
+    /** Resolves the effective action for a button/badge trigger, preferring the structured
+     *  override, then the legacy string, then the domain default. */
+    fun resolveButtonAction(config: HKIButtonConfig?, entityId: String, trigger: String, cameraStack: Boolean = false): HKIAction {
+        val ex = when (trigger) {
+            "double" -> config?.doubleTapActionEx
+            "hold" -> config?.holdActionEx
+            else -> config?.tapActionEx
+        }
+        if (ex != null) return ex
+        val legacy = when (trigger) {
             "double" -> config?.doubleTapAction
             "hold" -> config?.holdAction
             else -> config?.tapAction
-        } ?: defaultAction
-        when (action) {
-            "toggle" -> toggleEntity(entityId)
+        } ?: defaultActionType(entityId, trigger, cameraStack)
+        // Vacuums have no meaningful toggle; their tap opens the rich dialog. The stored default is
+        // "toggle" (shared by all button configs), so treat that as open-dialog. A user who really
+        // wants a different action sets a structured override (handled above via [ex]).
+        if (legacy == "toggle" && entityId.substringBefore(".") == "vacuum") {
+            return HKIAction(type = "more_info")
         }
-        return action
+        return HKIAction(type = legacy)
+    }
+
+    fun performButtonAction(areaId: String, stackId: String, entityId: String, trigger: String): ActionOutcome {
+        val stack = _areaWidgetsMapping.value[areaId]?.filterIsInstance<HKIButtonStack>()?.firstOrNull { it.id == stackId }
+        val config = stack?.buttonConfigs?.get(entityId)
+        val action = resolveButtonAction(config, entityId, trigger, cameraStack = stack?.stackType == "camera")
+        return executeAction(action, entityId, trigger)
     }
 
     fun addManualFloor(name: String): HAFloor? {

@@ -52,8 +52,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
-import coil3.compose.SubcomposeAsyncImage
-import coil3.compose.SubcomposeAsyncImageContent
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.data.HAEntity
 import com.example.hki7.ui.MainViewModel
@@ -61,7 +59,6 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.ui.input.pointer.pointerInput
@@ -228,7 +225,8 @@ private fun CameraViewer(
                     setOnTouchListener { view, event ->
                         when (event.actionMasked) {
                             MotionEvent.ACTION_POINTER_DOWN -> view.parent?.requestDisallowInterceptTouchEvent(true)
-                            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> view.parent?.requestDisallowInterceptTouchEvent(false)
+                            MotionEvent.ACTION_UP -> { view.parent?.requestDisallowInterceptTouchEvent(false); view.performClick() }
+                            MotionEvent.ACTION_CANCEL -> view.parent?.requestDisallowInterceptTouchEvent(false)
                         }
                         false
                     }

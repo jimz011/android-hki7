@@ -5,6 +5,7 @@ package com.example.hki7.data
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
@@ -38,6 +39,8 @@ import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -57,6 +60,8 @@ import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.put
 import java.time.Duration
 import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import kotlin.math.abs
@@ -78,6 +83,19 @@ class HomeAssistantClient(
         install(ContentNegotiation) {
             json(json)
         }
+        // Ktor 3 defaults to expectSuccess=false, so a 401 never throws ResponseException on its
+        // own — it would surface as a JSON parse error of the "401: Unauthorized" body and the
+        // token-refresh path would never trigger. Map it explicitly, but only for authorized
+        // calls (webhook POSTs are unauthenticated and inspect their status manually).
+        HttpResponseValidator {
+            validateResponse { response ->
+                if (response.status == HttpStatusCode.Unauthorized &&
+                    response.call.request.headers.contains(HttpHeaders.Authorization)
+                ) {
+                    throw Exception("AUTH_EXPIRED")
+                }
+            }
+        }
         install(WebSockets) {
             contentConverter = KotlinxWebsocketSerializationConverter(json)
         }
@@ -88,9 +106,15 @@ class HomeAssistantClient(
         }
     }
 
-    private var session: DefaultClientWebSocketSession? = null
-    private var messageId = 1
-    private val responseChannels = mutableMapOf<Int, Channel<JsonObject>>()
+    /** One live websocket plus the response channels registered on it. Channels are scoped to the
+     *  connection so a dying socket only unblocks its own waiters — never a newer connection's. */
+    private class WsConnection(val session: DefaultClientWebSocketSession) {
+        val channels = ConcurrentHashMap<Int, Channel<JsonObject>>()
+    }
+
+    private val connectMutex = Mutex()
+    @Volatile private var connection: WsConnection? = null
+    private val messageId = AtomicInteger(1)
 
     suspend fun getEntities(): List<HAEntity> {
         return withAuthHandling {
@@ -262,63 +286,79 @@ class HomeAssistantClient(
         return block()
     }
 
-    private suspend fun ensureConnected() {
-        if (session != null && session?.isActive == true) return
-        session = null
+    /** Establishes (or reuses) the single live websocket. Serialized so concurrent callers —
+     *  realtime sync, the push channel, parallel registry fetches — share one connection instead
+     *  of racing to create sockets that stomp on and leak each other. */
+    private suspend fun ensureConnected(): WsConnection {
+        connection?.takeIf { it.session.isActive }?.let { return it }
+        connectMutex.withLock {
+            connection?.takeIf { it.session.isActive }?.let { return it }
+            dropConnection()
 
-        val activeSession = withTimeout(10.seconds) {
-            client.webSocketSession(webSocketUrl())
-        }
-        session = activeSession
-
-        val authMsg = withTimeout(10.seconds) {
-            activeSession.incoming.receive()
-        } as? Frame.Text
-            ?: throw Exception("WS connection failed")
-        val authType = json.parseToJsonElement(authMsg.readText())
-            .jsonObject["type"]?.jsonPrimitive?.content
-
-        if (authType == "auth_required") {
-            activeSession.send(buildJsonObject {
-                put("type", "auth")
-                put("access_token", accessToken)
-            }.toString())
-
-            val authResult = withTimeout(10.seconds) {
-                activeSession.incoming.receive()
-            } as? Frame.Text
-                ?: throw Exception("Auth failed")
-            val resultType = json.parseToJsonElement(authResult.readText())
-                .jsonObject["type"]?.jsonPrimitive?.content
-            if (resultType == "auth_invalid") {
-                session = null
-                throw Exception("AUTH_EXPIRED")
+            val activeSession = withTimeout(10.seconds) {
+                client.webSocketSession(webSocketUrl())
             }
-            if (resultType != "auth_ok") throw Exception("Auth rejected: $resultType")
-        }
-
-        CoroutineScope(Dispatchers.IO).launch {
             try {
-                for (frame in activeSession.incoming) {
-                    if (frame is Frame.Text) {
-                        val response = json.parseToJsonElement(frame.readText()).jsonObject
-                        val id = response["id"]?.jsonPrimitive?.intOrNull
-                        if (id != null) {
-                            responseChannels[id]?.send(response)
-                        }
-                    }
+                val authMsg = withTimeout(10.seconds) {
+                    activeSession.incoming.receive()
+                } as? Frame.Text
+                    ?: throw Exception("WS connection failed")
+                val authType = json.parseToJsonElement(authMsg.readText())
+                    .jsonObject["type"]?.jsonPrimitive?.content
+
+                if (authType == "auth_required") {
+                    activeSession.send(buildJsonObject {
+                        put("type", "auth")
+                        put("access_token", accessToken)
+                    }.toString())
+
+                    val authResult = withTimeout(10.seconds) {
+                        activeSession.incoming.receive()
+                    } as? Frame.Text
+                        ?: throw Exception("Auth failed")
+                    val resultType = json.parseToJsonElement(authResult.readText())
+                        .jsonObject["type"]?.jsonPrimitive?.content
+                    if (resultType == "auth_invalid") throw Exception("AUTH_EXPIRED")
+                    if (resultType != "auth_ok") throw Exception("Auth rejected: $resultType")
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                if (session == activeSession) {
-                    session = null
-                }
-                // Unblock any in-flight request/subscription waiters so they can error out and reconnect.
-                responseChannels.values.forEach { runCatching { it.close() } }
-                responseChannels.clear()
+                runCatching { activeSession.close() }
+                throw e
             }
+
+            val conn = WsConnection(activeSession)
+            connection = conn
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    for (frame in activeSession.incoming) {
+                        if (frame is Frame.Text) {
+                            val response = json.parseToJsonElement(frame.readText()).jsonObject
+                            val id = response["id"]?.jsonPrimitive?.intOrNull
+                            if (id != null) {
+                                conn.channels[id]?.send(response)
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    if (connection === conn) connection = null
+                    // Unblock this connection's request/subscription waiters so they can error out and reconnect.
+                    conn.channels.values.forEach { runCatching { it.close() } }
+                    conn.channels.clear()
+                }
+            }
+            return conn
         }
+    }
+
+    /** Drops the current connection (if any): unblocks its waiters and closes the socket. */
+    private fun dropConnection() {
+        val current = connection ?: return
+        connection = null
+        current.channels.values.forEach { runCatching { it.close() } }
+        current.channels.clear()
+        CoroutineScope(Dispatchers.IO).launch { runCatching { current.session.close() } }
     }
 
     private fun webSocketUrl(): String {
@@ -336,7 +376,6 @@ class HomeAssistantClient(
                 return sendCommandOnce(type, data)
             } catch (e: Exception) {
                 lastError = e
-                session = null
                 if (e.message == "AUTH_EXPIRED" || attempt == 1) throw e
                 delay(150.milliseconds)
             }
@@ -348,8 +387,8 @@ class HomeAssistantClient(
         type: String,
         data: Map<String, JsonElement> = emptyMap()
     ): JsonObject {
-        ensureConnected()
-        val id = messageId++
+        val conn = ensureConnected()
+        val id = messageId.getAndIncrement()
         val command = buildJsonObject {
             put("id", id)
             put("type", type)
@@ -357,29 +396,32 @@ class HomeAssistantClient(
         }
 
         val channel = Channel<JsonObject>(1)
-        responseChannels[id] = channel
+        conn.channels[id] = channel
 
         try {
-            val activeSession = session ?: throw Exception("WS connection failed")
-            activeSession.send(command.toString())
+            conn.session.send(command.toString())
             return withTimeout(5.seconds) {
                 channel.receive()
             }
+        } catch (e: Exception) {
+            // A send failure or response timeout means this socket is suspect; drop it (if it is
+            // still the current one) so the retry reconnects instead of reusing it.
+            if (connection === conn) dropConnection()
+            throw e
         } finally {
-            responseChannels.remove(id)
+            conn.channels.remove(id)
         }
     }
 
     /** Streams live `state_changed` events from a single websocket subscription. The flow completes
      *  (rather than erroring) when the socket drops, so the caller can simply re-collect to reconnect. */
     fun subscribeStateChanges(): Flow<HAStateChange> = flow {
-        ensureConnected()
-        val id = messageId++
+        val conn = ensureConnected()
+        val id = messageId.getAndIncrement()
         val channel = Channel<JsonObject>(Channel.UNLIMITED)
-        responseChannels[id] = channel
+        conn.channels[id] = channel
         try {
-            val activeSession = session ?: throw Exception("WS connection failed")
-            activeSession.send(buildJsonObject {
+            conn.session.send(buildJsonObject {
                 put("id", id)
                 put("type", "subscribe_events")
                 put("event_type", "state_changed")
@@ -395,10 +437,10 @@ class HomeAssistantClient(
                 emit(HAStateChange(entityId, newState))
             }
         } finally {
-            responseChannels.remove(id)
+            conn.channels.remove(id)
             runCatching {
-                session?.send(buildJsonObject {
-                    put("id", messageId++)
+                conn.session.send(buildJsonObject {
+                    put("id", messageId.getAndIncrement())
                     put("type", "unsubscribe_events")
                     put("subscription", id)
                 }.toString())
@@ -447,13 +489,12 @@ class HomeAssistantClient(
      *  the subscription is up, and we confirm each delivery so HA knows it arrived. The flow
      *  completes when the socket drops; re-collect to reconnect. */
     fun subscribePushNotifications(webhookId: String): Flow<JsonObject> = flow {
-        ensureConnected()
-        val id = messageId++
+        val conn = ensureConnected()
+        val id = messageId.getAndIncrement()
         val channel = Channel<JsonObject>(Channel.UNLIMITED)
-        responseChannels[id] = channel
+        conn.channels[id] = channel
         try {
-            val activeSession = session ?: throw Exception("WS connection failed")
-            activeSession.send(buildJsonObject {
+            conn.session.send(buildJsonObject {
                 put("id", id)
                 put("type", "mobile_app/push_notification_channel")
                 put("webhook_id", webhookId)
@@ -465,8 +506,8 @@ class HomeAssistantClient(
                 val event = message["event"]?.jsonObject ?: continue
                 event["hass_confirm_id"]?.jsonPrimitive?.contentOrNull?.let { confirmId ->
                     runCatching {
-                        session?.send(buildJsonObject {
-                            put("id", messageId++)
+                        conn.session.send(buildJsonObject {
+                            put("id", messageId.getAndIncrement())
                             put("type", "mobile_app/push_notification_confirm")
                             put("webhook_id", webhookId)
                             put("confirm_id", confirmId)
@@ -476,19 +517,13 @@ class HomeAssistantClient(
                 emit(event)
             }
         } finally {
-            responseChannels.remove(id)
+            conn.channels.remove(id)
         }
     }
 
     /** Closes the live websocket (used when sync stops). Safe to call from a non-suspend context. */
     fun closeSession() {
-        val active = session
-        session = null
-        responseChannels.values.forEach { runCatching { it.close() } }
-        responseChannels.clear()
-        if (active != null) {
-            CoroutineScope(Dispatchers.IO).launch { runCatching { active.close() } }
-        }
+        dropConnection()
     }
 
     /** POSTs a payload to a mobile_app webhook URL (unauthenticated). Returns (httpStatus, bodyText);
@@ -536,6 +571,21 @@ class HomeAssistantClient(
                 header(HttpHeaders.Authorization, "Bearer $accessToken")
                 header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                 setBody(serviceCall)
+            }
+            if (!response.status.isSuccess()) {
+                throw Exception("Service call failed: ${response.status.value} ${response.bodyAsText().take(200)}")
+            }
+        }
+    }
+
+    /** Calls an arbitrary service with a free-form JSON payload (target + service data), for
+     *  user-configured custom actions where the fixed [HAServiceCall] fields aren't enough. */
+    suspend fun callServiceRaw(domain: String, service: String, payload: JsonObject) {
+        withAuthHandling {
+            val response: HttpResponse = client.post("$baseUrl/api/services/$domain/$service") {
+                header(HttpHeaders.Authorization, "Bearer $accessToken")
+                header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                setBody(payload)
             }
             if (!response.status.isSuccess()) {
                 throw Exception("Service call failed: ${response.status.value} ${response.bodyAsText().take(200)}")

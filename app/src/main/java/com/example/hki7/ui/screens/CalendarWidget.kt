@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -78,6 +79,8 @@ import com.example.hki7.ui.components.EditRemoveBadge
 import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
+import com.example.hki7.ui.components.WidgetBackground
+import com.example.hki7.ui.components.WidgetBackgroundSelector
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 import kotlinx.coroutines.Dispatchers
@@ -146,7 +149,7 @@ fun CalendarWidgetItem(
         if (showFullDialog) {
             Dialog(onDismissRequest = { showFullDialog = false }) {
                 Card(
-                    modifier = Modifier.fillMaxWidth().height(540.dp),
+                    modifier = Modifier.fillMaxWidth().fillMaxHeight(0.85f),
                     shape = RoundedCornerShape(28.dp),
                     // Opaque so the header strip and the (semi-transparent) calendar card below it
                     // composite to one uniform tone instead of showing a two-tone seam.
@@ -177,7 +180,8 @@ fun CalendarWidgetItem(
                                 widget = widget.copy(width = "full", isSquare = false),
                                 viewModel = viewModel,
                                 interactionsEnabled = true,
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxSize(),
+                                fillHeight = true
                             )
                         }
                     }
@@ -207,9 +211,13 @@ private fun CalendarWidgetCard(
     viewModel: MainViewModel,
     freezeUpdates: Boolean = false,
     interactionsEnabled: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    // The full-screen dialog: drop the fixed 16:9 footprint and let the content
+    // use (and scroll within) all available height, so e.g. a month shows all weeks.
+    fillHeight: Boolean = false
 ) {
     val appColors = LocalHKIAppColors.current
+    val currentUrl by viewModel.currentUrl.collectAsState()
     val zone = ZoneId.systemDefault()
     val calendarEntityFlow = remember(viewModel, widget.entityIds, freezeUpdates) {
         if (widget.entityIds.isEmpty()) {
@@ -270,20 +278,31 @@ private fun CalendarWidgetCard(
             window = window,
             events = events,
             colorsByEntity = colorsByEntity,
-            zone = zone
+            zone = zone,
+            currentUrl = currentUrl
         )
         return
     }
     Card(
         modifier = modifier.fillMaxWidth().then(
-            // "Standard" has one shared 16:9 footprint across every widget type.
-            if (widget.isSquare) Modifier.aspectRatio(1f) else Modifier.aspectRatio(16f / 9f)
+            when {
+                fillHeight -> Modifier.fillMaxSize()
+                // "Standard" has one shared 16:9 footprint across every widget type.
+                widget.isSquare -> Modifier.aspectRatio(1f)
+                else -> Modifier.aspectRatio(16f / 9f)
+            }
         ),
         shape = RoundedCornerShape(widget.cornerRadius.dp),
-        colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.84f))
+        colors = CardDefaults.cardColors(
+            containerColor = if (!widget.backgroundUrl.isNullOrBlank()) Color.Transparent else appColors.elevated.copy(alpha = 0.84f)
+        )
     ) {
+      Box {
+        WidgetBackground(widget.backgroundUrl, currentUrl)
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .padding(16.dp)
+                .then(if (fillHeight) Modifier.verticalScroll(rememberScrollState()) else Modifier),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             CalendarHeader(
@@ -332,6 +351,7 @@ private fun CalendarWidgetCard(
                 }
             }
         }
+      }
     }
 
     if (showDatePicker) {
@@ -355,7 +375,8 @@ private fun CompactCalendarWidgetCard(
     window: CalendarWindow,
     events: List<HACalendarEvent>,
     colorsByEntity: Map<String, Color>,
-    zone: ZoneId
+    zone: ZoneId,
+    currentUrl: String = ""
 ) {
     val appColors = LocalHKIAppColors.current
     val visibleEvents = remember(events, selectedDate, zone) {
@@ -366,8 +387,12 @@ private fun CompactCalendarWidgetCard(
             .fillMaxWidth()
             .then(if (widget.isSquare) Modifier.aspectRatio(1f) else Modifier.aspectRatio(16f / 9f)),
         shape = RoundedCornerShape(widget.cornerRadius.dp),
-        colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.9f))
+        colors = CardDefaults.cardColors(
+            containerColor = if (!widget.backgroundUrl.isNullOrBlank()) Color.Transparent else appColors.elevated.copy(alpha = 0.9f)
+        )
     ) {
+      Box {
+        WidgetBackground(widget.backgroundUrl, currentUrl)
         when (normalizeCalendarView(activeView)) {
             "month" -> CompactMonthCalendar(
                 selectedDate = selectedDate,
@@ -426,6 +451,7 @@ private fun CompactCalendarWidgetCard(
                 }
             }
         }
+      }
     }
 }
 
@@ -1007,6 +1033,7 @@ fun CalendarWidgetSettingsDialog(
     var iconName by remember(widget) { mutableStateOf(widget.icon ?: "calendar-month") }
     var width by remember(widget) { mutableStateOf(if (widget.width == "third") "half" else widget.width) }
     var cornerRadius by remember(widget) { mutableStateOf(widget.cornerRadius) }
+    var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
     var showEntityPicker by remember { mutableStateOf(false) }
     var showIconPicker by remember { mutableStateOf(false) }
     val calendarEntities = remember(allEntities) { allEntities.filter { it.entity_id.startsWith("calendar.") } }
@@ -1096,6 +1123,7 @@ fun CalendarWidgetSettingsDialog(
                     TextButton(onClick = { showIconPicker = true }) { Text(if (iconName == "None") "Choose" else "Change") }
                     if (iconName != "None") TextButton(onClick = { iconName = "None" }) { Text("None") }
                 }
+                WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
             }
         },
         confirmButton = {
@@ -1109,7 +1137,8 @@ fun CalendarWidgetSettingsDialog(
                             title = title.ifBlank { null },
                             icon = iconName.takeUnless { it == "None" },
                             width = width,
-                            cornerRadius = cornerRadius
+                            cornerRadius = cornerRadius,
+                            backgroundUrl = backgroundUrl
                         )
                     )
                 }

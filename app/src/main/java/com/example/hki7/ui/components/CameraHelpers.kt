@@ -66,6 +66,15 @@ fun resolveCameraUrl(url: String?, currentUrl: String): String? {
     }
 }
 
+/** Reserved icon-slug sentinel: render the entity's Home Assistant `entity_picture` instead of an
+ *  MDI icon. Stored in the usual icon fields (HKIButtonConfig.icon, HKIBadge.customIcon, …). */
+const val ENTITY_PICTURE_ICON = "entity_picture"
+
+/** Absolute URL for an entity's `entity_picture` (relative HA paths are prefixed with the base URL),
+ *  or null if the entity has no picture. */
+fun resolveEntityPictureUrl(entity: HAEntity?, currentUrl: String): String? =
+    resolveCameraUrl(entity?.entityPicture, currentUrl)
+
 fun buildCameraRefreshModel(imageUrl: String?, refreshIntervalSeconds: Int, refreshTick: Int): String? {
     val baseUrl = imageUrl?.trim()?.takeIf { it.isNotBlank() } ?: return null
     if (refreshIntervalSeconds <= 0) return baseUrl
