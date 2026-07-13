@@ -463,6 +463,9 @@ fun EnergyScreen(viewModel: MainViewModel) {
     // Self-used solar: whatever was produced but not exported stayed in the house.
     val selfUsedPeriod = (producedPeriod - exportPeriod).coerceIn(0f, producedPeriod)
     val selfUsedPct = if (producedPeriod > 0.01f) (selfUsedPeriod / producedPeriod * 100).toInt() else null
+    val selfSufficiencyPct = if (solarEnergyId != null && usedPeriod > 0.01f) {
+        (selfUsedPeriod / usedPeriod * 100f).toInt().coerceIn(0, 100)
+    } else null
     val periodLabel = window.periodLabel()
 
     val forecastPalette = listOf(Color(0xFF29B6F6), Color(0xFFAB47BC), Color(0xFF26A69A), Color(0xFF8D6E63))
@@ -486,16 +489,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
             energyConfig.powerPhase1EntityId, energyConfig.powerPhase2EntityId, energyConfig.powerPhase3EntityId
         )
     }
-    // Energy per tracked device over the window, integrated from the recorder's hourly/daily
-    // power means (device power sensors rarely have energy counters of their own).
-    val consumerHoursPerBucket = when (range) {
-        EnergyRange.DAY -> 1f
-        EnergyRange.WEEK, EnergyRange.MONTH -> 24f
-        EnergyRange.YEAR -> 730f
-    }
-    fun deviceEnergyKwh(id: String): Float = statMeans(id).sum() * consumerHoursPerBucket / 1000f
-
-    val topConsumers = remember(entities, mainPowerIds, energyConfig.deviceEntityIds) {
+    val topConsumers = remember(entities, mainPowerIds, energyConfig.deviceEntityIds, energyConfig.hiddenPowerDeviceEntityIds) {
         fun wattsOf(e: HAEntity): Float? {
             val v = e.state.toFloatOrNull() ?: return null
             val unit = e.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull ?: ""
@@ -508,18 +502,39 @@ fun EnergyScreen(viewModel: MainViewModel) {
         val auto = entities.asSequence()
             .filter {
                 it.entity_id.startsWith("sensor.") && it.entity_id !in mainPowerIds &&
-                it.entity_id !in manualIds && it.deviceClass == "power"
+                it.entity_id !in manualIds && it.entity_id !in energyConfig.hiddenPowerDeviceEntityIds &&
+                    it.deviceClass == "power"
             }
-            .mapNotNull { e -> wattsOf(e)?.takeIf { w -> w >= 1f }?.let { w -> e to w } }
+            .map { e -> e to (wattsOf(e) ?: 0f) }
             .toList()
-        (manual + auto).sortedByDescending { it.second }.take(8)
+        (manual + auto).distinctBy { it.first.entity_id }.sortedByDescending { it.second }
     }
-    // Stats for the consumer list's energy bars. Keyed on the id set so watt jitter in the
-    // ranking doesn't refetch, only membership changes do.
-    val consumerIds = remember(topConsumers) { topConsumers.map { it.first.entity_id } }
-    LaunchedEffect(consumerIds.toSet(), window) {
-        if (consumerIds.isNotEmpty())
-            viewModel.fetchEnergyStatistics(consumerIds, window.startMs, window.statPeriod(), window.key(), window.endMs)
+    val primaryEnergyIds = remember(energyConfig) {
+        setOfNotNull(
+            energyConfig.gridImportEntityId, energyConfig.gridExportEntityId, energyConfig.solarEnergyEntityId,
+            energyConfig.gridImportTariff1EntityId, energyConfig.gridImportTariff2EntityId,
+            energyConfig.gridExportTariff1EntityId, energyConfig.gridExportTariff2EntityId
+        )
+    }
+    val deviceEnergyEntities = remember(entities, primaryEnergyIds, energyConfig.energyDeviceEntityIds, energyConfig.hiddenEnergyDeviceEntityIds) {
+        val manual = energyConfig.energyDeviceEntityIds.mapNotNull(entityById::get)
+        val manualIds = manual.map { it.entity_id }.toSet()
+        val auto = entities.filter {
+            it.entity_id.startsWith("sensor.") && it.deviceClass == "energy" &&
+                it.entity_id !in primaryEnergyIds && it.entity_id !in manualIds &&
+                it.entity_id !in energyConfig.hiddenEnergyDeviceEntityIds
+        }
+        (manual + auto).distinctBy { it.entity_id }
+    }
+    fun deviceEnergyKwh(entity: HAEntity): Float {
+        val value = statChanges(entity.entity_id).sum()
+        val unit = entity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull.orEmpty()
+        return if (unit.equals("Wh", ignoreCase = true)) value / 1000f else value
+    }
+    val deviceEnergyIds = remember(deviceEnergyEntities) { deviceEnergyEntities.map { it.entity_id } }
+    LaunchedEffect(deviceEnergyIds.toSet(), window) {
+        if (deviceEnergyIds.isNotEmpty())
+            viewModel.fetchEnergyStatistics(deviceEnergyIds, window.startMs, window.statPeriod(), window.key(), window.endMs)
     }
 
     val energySettingsSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> = "Energy Sensors" to { setBack ->
@@ -683,6 +698,9 @@ fun EnergyScreen(viewModel: MainViewModel) {
                                     TotalStat(Icons.Default.ArrowDownward, ElecBlue, "%.1f kWh".format(usedPeriod), "Used $periodLabel")
                                     TotalStat(Icons.Default.ArrowDownward, ImportRed, "%.1f kWh".format(importPeriod), "Imported")
                                     TotalStat(Icons.Default.ArrowUpward, ExportGreen, "%.1f kWh".format(exportPeriod), "Exported")
+                                    selfSufficiencyPct?.let {
+                                        TotalStat(Icons.Default.Home, SolarAmber, "$it%", "Self-sufficient")
+                                    }
                                 }
                                 TextButton(onClick = { page = "electricity" }) { Text("Details") }
                             }
@@ -792,9 +810,11 @@ fun EnergyScreen(viewModel: MainViewModel) {
                     }
 
                     // ── Energy per device: horizontal bars over the window ────
+                }
+                if (deviceEnergyEntities.isNotEmpty()) {
                     item {
-                        val deviceEnergies = topConsumers
-                            .map { (e, _) -> e to deviceEnergyKwh(e.entity_id) }
+                        val deviceEnergies = deviceEnergyEntities
+                            .map { e -> e to deviceEnergyKwh(e) }
                             .sortedByDescending { it.second }
                         val maxKwh = (deviceEnergies.maxOfOrNull { it.second } ?: 0f).coerceAtLeast(0.001f)
                         SectionHeader("Device energy", "Used $periodLabel")
@@ -2527,71 +2547,101 @@ private fun ColumnScope.EnergySensorSection(
             sensorRow("water_cost", "Water cost today")
         }
         "devices" -> {
-            var showDevicePicker by remember { mutableStateOf(false) }
-            if (showDevicePicker) {
-                val powerSensors = sensors.filter { e ->
-                    val unit = e.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull
-                    e.deviceClass == "power" || unit == "W" || unit == "kW"
+            var pickerType by remember { mutableStateOf<String?>(null) }
+            val excludedPowerIds = setOfNotNull(
+                cfg.solarPowerEntityId, cfg.gridPowerEntityId, cfg.homePowerEntityId, cfg.batteryPowerEntityId,
+                cfg.powerPhase1EntityId, cfg.powerPhase2EntityId, cfg.powerPhase3EntityId
+            )
+            val excludedEnergyIds = setOfNotNull(
+                cfg.gridImportEntityId, cfg.gridExportEntityId, cfg.solarEnergyEntityId,
+                cfg.gridImportTariff1EntityId, cfg.gridImportTariff2EntityId,
+                cfg.gridExportTariff1EntityId, cfg.gridExportTariff2EntityId
+            )
+            val autoPower = remember(sensors, cfg.hiddenPowerDeviceEntityIds, excludedPowerIds) {
+                sensors.filter { it.deviceClass == "power" && it.entity_id !in excludedPowerIds && it.entity_id !in cfg.hiddenPowerDeviceEntityIds }
+            }
+            val autoEnergy = remember(sensors, cfg.hiddenEnergyDeviceEntityIds, excludedEnergyIds) {
+                sensors.filter { it.deviceClass == "energy" && it.entity_id !in excludedEnergyIds && it.entity_id !in cfg.hiddenEnergyDeviceEntityIds }
+            }
+            val visiblePowerIds = (cfg.deviceEntityIds + autoPower.map { it.entity_id }).distinct()
+            val visibleEnergyIds = (cfg.energyDeviceEntityIds + autoEnergy.map { it.entity_id }).distinct()
+            if (pickerType != null) {
+                val isPower = pickerType == "power"
+                val excluded = if (isPower) excludedPowerIds else excludedEnergyIds
+                val candidates = sensors.filter {
+                    it.deviceClass == (if (isPower) "power" else "energy") && it.entity_id !in excluded
                 }
+                val selected = if (isPower) visiblePowerIds else visibleEnergyIds
                 AdvancedEntitySearchDialog(
-                    allEntities = powerSensors.ifEmpty { sensors },
-                    title = "Track Devices",
+                    allEntities = candidates,
+                    title = if (isPower) "Top consumer devices" else "Device energy counters",
                     singleSelect = false,
-                    preselectedIds = cfg.deviceEntityIds.toSet(),
-                    onDismiss = { showDevicePicker = false },
+                    preselectedIds = selected.toSet(),
+                    onDismiss = { pickerType = null },
                     onEntitiesSelected = { ids ->
-                        cfg = cfg.copy(deviceEntityIds = ids)
+                        cfg = if (isPower) cfg.copy(
+                            deviceEntityIds = ids,
+                            hiddenPowerDeviceEntityIds = candidates.map { it.entity_id }.filterNot { it in ids }
+                        ) else cfg.copy(
+                            energyDeviceEntityIds = ids,
+                            hiddenEnergyDeviceEntityIds = candidates.map { it.entity_id }.filterNot { it in ids }
+                        )
                         onSave(cfg)
-                        showDevicePicker = false
+                        pickerType = null
                     }
                 )
             }
+            Text("Top consumers", style = MaterialTheme.typography.titleSmall, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
             Text(
-                "Power sensors tracked as individual devices under Top consumers.",
+                "All sensors with device_class power are included automatically. Remove any device to create your own list.",
                 style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
             )
-            if (cfg.deviceEntityIds.isNotEmpty()) {
-                ReorderableGrid(
-                    items = cfg.deviceEntityIds,
-                    canReorder = true,
-                    onReorder = { from, to ->
-                        val ids = cfg.deviceEntityIds.toMutableList().apply { add(to, removeAt(from)) }
-                        cfg = cfg.copy(deviceEntityIds = ids)
+            visiblePowerIds.forEach { id ->
+                val name = allEntities.find { it.entity_id == id }?.friendlyName ?: id
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(name, style = MaterialTheme.typography.labelMedium, color = appColors.onSurface,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                    IconButton(onClick = {
+                        cfg = cfg.copy(
+                            deviceEntityIds = cfg.deviceEntityIds - id,
+                            hiddenPowerDeviceEntityIds = (cfg.hiddenPowerDeviceEntityIds + id).distinct()
+                        )
                         onSave(cfg)
-                    },
-                    key = { it },
-                    columns = GridCells.Fixed(1),
-                    axis = ReorderAxis.Vertical,
-                    modifier = Modifier.fillMaxWidth().heightIn(max = 420.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) { id, _ ->
-                    val name = allEntities.find { it.entity_id == id }?.friendlyName ?: id
-                    Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(name, style = MaterialTheme.typography.labelMedium, color = appColors.onSurface,
-                                maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-                            IconButton(
-                                onClick = {
-                                    cfg = cfg.copy(deviceEntityIds = cfg.deviceEntityIds - id)
-                                    onSave(cfg)
-                                },
-                                modifier = Modifier.size(28.dp)
-                            ) {
-                                Icon(Icons.Default.Close, "Remove", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
-                            }
-                        }
-                        HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
+                    }, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.Default.Close, "Remove", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
                     }
                 }
+                HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
             }
-            TextButton(onClick = { showDevicePicker = true }) {
-                Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(if (cfg.deviceEntityIds.isEmpty()) "Add devices" else "Edit devices")
+            TextButton(onClick = { pickerType = "power" }) {
+                Icon(Icons.Default.Edit, null, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(6.dp)); Text("Customize top consumers")
+            }
+
+            Spacer(Modifier.height(8.dp))
+            Text("Device energy", style = MaterialTheme.typography.titleSmall, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+            Text(
+                "All sensors with device_class energy are included automatically. Their counter changes are used for the selected period.",
+                style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
+            )
+            visibleEnergyIds.forEach { id ->
+                    val name = allEntities.find { it.entity_id == id }?.friendlyName ?: id
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(name, style = MaterialTheme.typography.labelMedium, color = appColors.onSurface,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                    IconButton(onClick = {
+                        cfg = cfg.copy(
+                            energyDeviceEntityIds = cfg.energyDeviceEntityIds - id,
+                            hiddenEnergyDeviceEntityIds = (cfg.hiddenEnergyDeviceEntityIds + id).distinct()
+                        )
+                        onSave(cfg)
+                    }, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.Default.Close, "Remove", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+                    }
+                }
+                HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
+            }
+            TextButton(onClick = { pickerType = "energy" }) {
+                Icon(Icons.Default.Edit, null, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(6.dp)); Text("Customize device energy")
             }
         }
     }
@@ -2692,7 +2742,7 @@ fun EnergyCardWidgetView(
             cfg.powerPhase1EntityId, cfg.powerPhase2EntityId, cfg.powerPhase3EntityId
         )
     }
-    val topConsumers = remember(entities, mainPowerIds, cfg.deviceEntityIds) {
+    val topConsumers = remember(entities, mainPowerIds, cfg.deviceEntityIds, cfg.hiddenPowerDeviceEntityIds) {
         fun wattsOfE(e: HAEntity): Float? {
             val v = e.state.toFloatOrNull() ?: return null
             val unit = e.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull ?: ""
@@ -2703,11 +2753,29 @@ fun EnergyCardWidgetView(
         val auto = entities.asSequence()
             .filter {
                 it.entity_id.startsWith("sensor.") && it.entity_id !in mainPowerIds &&
-                    it.entity_id !in manualIds && it.deviceClass == "power"
+                    it.entity_id !in manualIds && it.entity_id !in cfg.hiddenPowerDeviceEntityIds &&
+                    it.deviceClass == "power"
             }
-            .mapNotNull { e -> wattsOfE(e)?.takeIf { w -> w >= 1f }?.let { w -> e to w } }
+            .map { e -> e to (wattsOfE(e) ?: 0f) }
             .toList()
-        (manual + auto).sortedByDescending { it.second }.take(8)
+        (manual + auto).distinctBy { it.first.entity_id }.sortedByDescending { it.second }
+    }
+    val primaryEnergyIds = remember(cfg) {
+        setOfNotNull(
+            cfg.gridImportEntityId, cfg.gridExportEntityId, cfg.solarEnergyEntityId,
+            cfg.gridImportTariff1EntityId, cfg.gridImportTariff2EntityId,
+            cfg.gridExportTariff1EntityId, cfg.gridExportTariff2EntityId
+        )
+    }
+    val deviceEnergyEntities = remember(entities, primaryEnergyIds, cfg.energyDeviceEntityIds, cfg.hiddenEnergyDeviceEntityIds) {
+        val manual = cfg.energyDeviceEntityIds.mapNotNull(byId::get)
+        val manualIds = manual.map { it.entity_id }.toSet()
+        val auto = entities.filter {
+            it.entity_id.startsWith("sensor.") && it.deviceClass == "energy" &&
+                it.entity_id !in primaryEnergyIds && it.entity_id !in manualIds &&
+                it.entity_id !in cfg.hiddenEnergyDeviceEntityIds
+        }
+        (manual + auto).distinctBy { it.entity_id }
     }
 
     val statIds = when (cardKey) {
@@ -2718,7 +2786,7 @@ fun EnergyCardWidgetView(
         "gas" -> listOfNotNull(gasId)
         "water" -> listOfNotNull(waterId)
         "house" -> listOfNotNull(gasId)
-        "device_energy" -> topConsumers.map { it.first.entity_id }
+        "device_energy" -> deviceEnergyEntities.map { it.entity_id }
         else -> emptyList()
     }
     LaunchedEffect(statIds.toSet()) {
@@ -2804,10 +2872,13 @@ fun EnergyCardWidgetView(
                 val exportPeriod = total(exportId)
                 val producedPeriod = total(solarEnergyId)
                 val usedPeriod = (importPeriod + producedPeriod - exportPeriod).coerceAtLeast(0f)
+                val selfUsed = (producedPeriod - exportPeriod).coerceIn(0f, producedPeriod)
+                val selfSufficiency = if (solarEnergyId != null && usedPeriod > 0.01f) (selfUsed / usedPeriod * 100f).toInt().coerceIn(0, 100) else null
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                     TotalStat(Icons.Default.ArrowDownward, ElecBlue, "%.1f kWh".format(usedPeriod), "Used $periodLabel")
                     TotalStat(Icons.Default.ArrowDownward, ImportRed, "%.1f kWh".format(importPeriod), "Imported")
                     TotalStat(Icons.Default.ArrowUpward, ExportGreen, "%.1f kWh".format(exportPeriod), "Exported")
+                    selfSufficiency?.let { TotalStat(Icons.Default.Home, SolarAmber, "$it%", "Self-sufficient") }
                 }
                 Spacer(Modifier.height(14.dp))
                 val exportSeries = changes(exportId)
@@ -2947,12 +3018,16 @@ fun EnergyCardWidgetView(
                 }
             }
             "device_energy" -> Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                val deviceEnergies = topConsumers
-                    .map { (e, _) -> e to means(e.entity_id).sum() / 1000f }
+                val deviceEnergies = deviceEnergyEntities
+                    .map { e ->
+                        val raw = changes(e.entity_id).sum()
+                        val unit = e.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull.orEmpty()
+                        e to if (unit.equals("Wh", ignoreCase = true)) raw / 1000f else raw
+                    }
                     .sortedByDescending { it.second }
                 val maxKwh = (deviceEnergies.maxOfOrNull { it.second } ?: 0f).coerceAtLeast(0.001f)
                 if (deviceEnergies.isEmpty()) {
-                    Text("No power sensors found.", style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
+                    Text("No energy sensors found.", style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
                 }
                 deviceEnergies.forEach { (entity, kwh) ->
                     Column {
@@ -3224,10 +3299,10 @@ private fun energyRolesFor(cardKey: String): List<EnergyRole> = when (cardKey) {
         EnergyRole("water_cost", "Water cost")
     )
     "top_consumers" -> listOf(
-        EnergyRole("devices", "Tracked device sensors", multi = true),
+        EnergyRole("power_devices", "Power devices", multi = true),
         EnergyRole("home_power", "Home power (W)")
     )
-    "device_energy" -> listOf(EnergyRole("devices", "Tracked device sensors", multi = true))
+    "device_energy" -> listOf(EnergyRole("energy_devices", "Energy devices", multi = true))
     else -> emptyList()
 }
 
@@ -3254,7 +3329,8 @@ private fun HKIEnergyConfig.roleValue(key: String): List<String> = when (key) {
     "water" -> listOfNotNull(waterEntityId)
     "water_current" -> listOfNotNull(waterCurrentEntityId)
     "water_cost" -> listOfNotNull(waterCostEntityId)
-    "devices" -> deviceEntityIds
+    "power_devices" -> deviceEntityIds
+    "energy_devices" -> energyDeviceEntityIds
     else -> emptyList()
 }
 
@@ -3283,7 +3359,8 @@ private fun HKIEnergyConfig.withRole(key: String, ids: List<String>): HKIEnergyC
         "water" -> copy(waterEntityId = id)
         "water_current" -> copy(waterCurrentEntityId = id)
         "water_cost" -> copy(waterCostEntityId = id)
-        "devices" -> copy(deviceEntityIds = ids)
+        "power_devices" -> copy(deviceEntityIds = ids)
+        "energy_devices" -> copy(energyDeviceEntityIds = ids)
         else -> this
     }
 }
@@ -3332,7 +3409,14 @@ private fun ColumnScope.EnergyEntityOverridesSection(
                     )
                 }
                 if (ids.isNotEmpty()) {
-                    IconButton(onClick = { onChange(config.withRole(role.key, emptyList())) }, modifier = Modifier.size(28.dp)) {
+                    IconButton(onClick = {
+                        val cleared = config.withRole(role.key, emptyList())
+                        onChange(when (role.key) {
+                            "power_devices" -> cleared.copy(hiddenPowerDeviceEntityIds = allEntities.filter { it.deviceClass == "power" }.map { it.entity_id })
+                            "energy_devices" -> cleared.copy(hiddenEnergyDeviceEntityIds = allEntities.filter { it.deviceClass == "energy" }.map { it.entity_id })
+                            else -> cleared
+                        })
+                    }, modifier = Modifier.size(28.dp)) {
                         Icon(Icons.Default.Close, "Clear", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
                     }
                 }
@@ -3368,13 +3452,25 @@ fun EnergyCardWidgetSettingsDialog(
     }
     pickingRole?.let { role ->
         AdvancedEntitySearchDialog(
-            allEntities = allEntities.filter { it.entity_id.startsWith("sensor.") },
+            allEntities = allEntities.filter {
+                it.entity_id.startsWith("sensor.") && when (role.key) {
+                    "power_devices" -> it.deviceClass == "power"
+                    "energy_devices" -> it.deviceClass == "energy"
+                    else -> true
+                }
+            },
             title = role.label,
             singleSelect = !role.multi,
             preselectedIds = override?.roleValue(role.key)?.toSet().orEmpty(),
             onDismiss = { pickingRole = null },
             onEntitiesSelected = { ids ->
-                override = override?.withRole(role.key, ids)
+                override = override?.withRole(role.key, ids)?.let { updated ->
+                    when (role.key) {
+                        "power_devices" -> updated.copy(hiddenPowerDeviceEntityIds = allEntities.filter { it.deviceClass == "power" }.map { it.entity_id }.filterNot { it in ids })
+                        "energy_devices" -> updated.copy(hiddenEnergyDeviceEntityIds = allEntities.filter { it.deviceClass == "energy" }.map { it.entity_id }.filterNot { it in ids })
+                        else -> updated
+                    }
+                }
                 pickingRole = null
             }
         )
@@ -3457,13 +3553,25 @@ fun EnergyStackSettingsDialog(
     }
     pickingRole?.let { role ->
         AdvancedEntitySearchDialog(
-            allEntities = allEntities.filter { it.entity_id.startsWith("sensor.") },
+            allEntities = allEntities.filter {
+                it.entity_id.startsWith("sensor.") && when (role.key) {
+                    "power_devices" -> it.deviceClass == "power"
+                    "energy_devices" -> it.deviceClass == "energy"
+                    else -> true
+                }
+            },
             title = role.label,
             singleSelect = !role.multi,
             preselectedIds = override?.roleValue(role.key)?.toSet().orEmpty(),
             onDismiss = { pickingRole = null },
             onEntitiesSelected = { ids ->
-                override = override?.withRole(role.key, ids)
+                override = override?.withRole(role.key, ids)?.let { updated ->
+                    when (role.key) {
+                        "power_devices" -> updated.copy(hiddenPowerDeviceEntityIds = allEntities.filter { it.deviceClass == "power" }.map { it.entity_id }.filterNot { it in ids })
+                        "energy_devices" -> updated.copy(hiddenEnergyDeviceEntityIds = allEntities.filter { it.deviceClass == "energy" }.map { it.entity_id }.filterNot { it in ids })
+                        else -> updated
+                    }
+                }
                 pickingRole = null
             }
         )

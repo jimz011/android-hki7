@@ -614,6 +614,12 @@ data class HKIEnergyConfig(
     val customNames: Map<String, String> = emptyMap(),
     /** Power sensors the user tracks as individual devices (shown under Top consumers). */
     val deviceEntityIds: List<String> = emptyList(),
+    /** Energy-counter sensors the user adds to Device energy. */
+    val energyDeviceEntityIds: List<String> = emptyList(),
+    /** Auto-discovered device_class=power sensors explicitly removed by the user. */
+    val hiddenPowerDeviceEntityIds: List<String> = emptyList(),
+    /** Auto-discovered device_class=energy sensors explicitly removed by the user. */
+    val hiddenEnergyDeviceEntityIds: List<String> = emptyList(),
     // HA-style electricity sensors (P1 meter): per-phase power and tariff-split energy counters.
     val powerPhase1EntityId: String? = null,
     val powerPhase2EntityId: String? = null,
