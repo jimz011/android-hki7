@@ -495,6 +495,8 @@ data class HKIBadge(
     val doubleTapActionEx: HKIAction? = null,
     // User-added quick-access buttons for this badge's dialog nav bar.
     val customButtons: List<HKIActionButton> = emptyList(),
+    /** Climate dialog control: "slider" (default) or "dial". */
+    val climateDialogControl: String = "slider",
     // Lock: optional door/contact sensor(s). Legacy single-sensor + per-lock map.
     val doorEntityId: String? = null,
     val doorEntityIds: Map<String, String> = emptyMap(),       // lockEntityId -> door sensor
@@ -585,6 +587,10 @@ data class HKIClimateConfig(
     val customNames: Map<String, String> = emptyMap(),
     /** Per-climate-device MDI icon slug overriding the default hvac icon. */
     val customIcons: Map<String, String> = emptyMap(),
+    /** Page-wide thermostat style, overridden only by entries in [deviceCardStyles]. */
+    val defaultDeviceCardStyle: String = "card",
+    /** Page-wide thermostat width, overridden only by entries in [deviceCardWidths]. */
+    val defaultDeviceCardWidth: String = "full",
     /** Per-climate-device card style on the main page: "card" (default) or "dial". */
     val deviceCardStyles: Map<String, String> = emptyMap(),
     /** Per-device width on the main page: "full", "half", or "third". */
@@ -773,6 +779,8 @@ data class HKIButtonConfig(
     // Climate buttons: optional separate temp/humidity sensors, graphed in the entity's Activity tab.
     val climateTempSensorEntityId: String? = null,
     val climateHumiditySensorEntityId: String? = null,
+    /** Climate dialog control: "slider" (default) or "dial". */
+    val climateDialogControl: String = "slider",
     // Weather stack items: each item is a weather card with its own style/entity/image.
     val weatherStyle: String? = null,           // "current" | "forecast" | "hourly" | "wind" | "rainmap"
     val weatherEntityId: String? = null,        // null = app's default weather entity

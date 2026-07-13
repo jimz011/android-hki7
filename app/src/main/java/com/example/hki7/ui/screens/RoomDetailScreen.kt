@@ -3000,6 +3000,7 @@ fun ButtonConfigDialog(
     val isClimateEntity = entity?.entity_id?.startsWith("climate.") == true
     var climateTempSensorEntityId by remember(config) { mutableStateOf(config.climateTempSensorEntityId) }
     var climateHumiditySensorEntityId by remember(config) { mutableStateOf(config.climateHumiditySensorEntityId) }
+    var climateDialogControl by remember(config) { mutableStateOf(config.climateDialogControl) }
     var showTempSensorPicker by remember { mutableStateOf(false) }
     var showHumiditySensorPicker by remember { mutableStateOf(false) }
 
@@ -3160,6 +3161,19 @@ fun ButtonConfigDialog(
                     }
                 }
                 if (isClimateEntity) {
+                    Text("Dialog control", style = MaterialTheme.typography.labelLarge)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = climateDialogControl != "dial",
+                            onClick = { climateDialogControl = "slider" },
+                            label = { Text("Vertical slider") }
+                        )
+                        FilterChip(
+                            selected = climateDialogControl == "dial",
+                            onClick = { climateDialogControl = "dial" },
+                            label = { Text("Thermostat dial") }
+                        )
+                    }
                     Text("Temperature sensor (graphed in Activity)", style = MaterialTheme.typography.labelLarge)
                     val tempName = climateTempSensorEntityId?.takeIf { it.isNotBlank() }
                         ?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
@@ -3299,7 +3313,8 @@ fun ButtonConfigDialog(
                             vacuumEmptyBinEntityId = if (isVacuumItem) vacuumEmptyBinEntityId else config.vacuumEmptyBinEntityId,
                             vacuumImageUrl = if (isVacuumItem && vacuumDisplayMode == "external") vacuumImageUrl.ifBlank { null } else if (isVacuumItem) null else config.vacuumImageUrl,
                             climateTempSensorEntityId = if (isClimateEntity) climateTempSensorEntityId else config.climateTempSensorEntityId,
-                            climateHumiditySensorEntityId = if (isClimateEntity) climateHumiditySensorEntityId else config.climateHumiditySensorEntityId
+                            climateHumiditySensorEntityId = if (isClimateEntity) climateHumiditySensorEntityId else config.climateHumiditySensorEntityId,
+                            climateDialogControl = if (isClimateEntity) climateDialogControl else config.climateDialogControl
                         )
                     )
                 }
@@ -3512,7 +3527,13 @@ fun PagedRoleDialog(
         ) {
             Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 when (role) {
-                    "climate" -> ClimateControlContent(entity, viewModel, showModes = showClimateModes, onToggleModes = { showClimateModes = it }, useDial = useClimateDial)
+                    "climate" -> ClimateControlContent(
+                        entity,
+                        viewModel,
+                        showModes = showClimateModes,
+                        onToggleModes = { showClimateModes = it },
+                        useDial = useClimateDial || climateConfig?.climateDialogControl == "dial"
+                    )
                     "lock" -> LockControlContent(entity, viewModel)
                     "cover" -> BlindControlContent(entity, viewModel)
                     "camera" -> CameraContent(entity, viewModel)

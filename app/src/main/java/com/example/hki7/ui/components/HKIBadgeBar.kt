@@ -430,7 +430,13 @@ fun HKIBadgeBar(
                 live,
                 viewModel,
                 dismiss,
-                live.associate { e -> e.entity_id to HKIButtonConfig(icon = badge?.customIcon, spinIcon = badge?.spinIcon == true) }
+                live.associate { e ->
+                    e.entity_id to HKIButtonConfig(
+                        icon = badge?.customIcon,
+                        spinIcon = badge?.spinIcon == true,
+                        climateDialogControl = badge?.climateDialogControl ?: "slider"
+                    )
+                }
             )
             "lock" -> {
                 val doorEntities = live.associate { e ->
@@ -1044,6 +1050,7 @@ fun BadgeSettingsDialog(
     var tapAction   by remember { mutableStateOf(badge.tapActionEx ?: HKIAction(type = if (badge.tapAction == "auto") "more_info" else badge.tapAction)) }
     var holdAction  by remember { mutableStateOf(badge.holdActionEx ?: HKIAction(type = if (badge.holdAction == "auto") "more_info" else badge.holdAction)) }
     var customButtons by remember { mutableStateOf(badge.customButtons) }
+    var climateDialogControl by remember { mutableStateOf(badge.climateDialogControl) }
     val areas by viewModel.areas.collectAsState()
     var editingEntityIds by remember { mutableStateOf(badge.effectiveEntityIds) }
     // Per-entity settings
@@ -1067,6 +1074,7 @@ fun BadgeSettingsDialog(
 
     val lockIds   = editingEntityIds.filter { it.startsWith("lock.") }
     val vacuumIds = editingEntityIds.filter { it.startsWith("vacuum.") }
+    val climateIds = editingEntityIds.filter { it.startsWith("climate.") }
 
     fun nameOf(id: String) = allEntities.find { it.entity_id == id }?.friendlyName ?: id
 
@@ -1153,6 +1161,23 @@ fun BadgeSettingsDialog(
                     }
                 }
 
+                if (climateIds.isNotEmpty()) {
+                    HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
+                    Text("Climate dialog control", style = MaterialTheme.typography.labelLarge)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = climateDialogControl != "dial",
+                            onClick = { climateDialogControl = "slider" },
+                            label = { Text("Vertical slider") }
+                        )
+                        FilterChip(
+                            selected = climateDialogControl == "dial",
+                            onClick = { climateDialogControl = "dial" },
+                            label = { Text("Thermostat dial") }
+                        )
+                    }
+                }
+
                 HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
 
                 // Shape
@@ -1233,6 +1258,7 @@ fun BadgeSettingsDialog(
                     tapActionEx = tapAction,
                     holdActionEx = holdAction,
                     customButtons = customButtons,
+                    climateDialogControl = climateDialogControl,
                     doorEntityId = null,
                     doorEntityIds = doorEntityIds.filterKeys { it in lockIds },
                     vacuumMapEntityIds = vacuumMapIds.filterKeys { it in vacuumIds },

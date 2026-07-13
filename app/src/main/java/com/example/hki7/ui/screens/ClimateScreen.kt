@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.hki7.data.HAEntity
@@ -192,13 +193,14 @@ fun ClimateScreen(viewModel: MainViewModel) {
             .sortedBy { it.friendlyName ?: it.entity_id }
             .applyClimateOrder(climateConfig.entityOrder)
     }
-    val climateDeviceRows = remember(climateEntities, climateConfig.deviceCardWidths) {
+    val climateDeviceRows = remember(climateEntities, climateConfig.deviceCardWidths, climateConfig.deviceCardStyles, climateConfig.defaultDeviceCardWidth, climateConfig.defaultDeviceCardStyle) {
         buildList<List<HAEntity>> {
             var row = mutableListOf<HAEntity>()
             var used = 0
             climateEntities.forEach { entity ->
-                val configuredWidth = climateConfig.deviceCardWidths[entity.entity_id]
-                val effectiveWidth = if (climateConfig.deviceCardStyles[entity.entity_id] == "dial" && configuredWidth == "third") "half" else configuredWidth
+                val configuredWidth = climateConfig.deviceCardWidths[entity.entity_id] ?: climateConfig.defaultDeviceCardWidth
+                val style = climateConfig.deviceCardStyles[entity.entity_id] ?: climateConfig.defaultDeviceCardStyle
+                val effectiveWidth = if (style == "dial" && configuredWidth == "third") "half" else configuredWidth
                 val span = when (effectiveWidth) {
                     "third" -> 2
                     "half" -> 3
@@ -424,12 +426,13 @@ fun ClimateScreen(viewModel: MainViewModel) {
                         ) {
                             var used = 0
                             row.forEach { entity ->
-                                val configuredWidth = climateConfig.deviceCardWidths[entity.entity_id] ?: "full"
-                                val width = if (climateConfig.deviceCardStyles[entity.entity_id] == "dial" && configuredWidth == "third") "half" else configuredWidth
+                                val configuredWidth = climateConfig.deviceCardWidths[entity.entity_id] ?: climateConfig.defaultDeviceCardWidth
+                                val style = climateConfig.deviceCardStyles[entity.entity_id] ?: climateConfig.defaultDeviceCardStyle
+                                val width = if (style == "dial" && configuredWidth == "third") "half" else configuredWidth
                                 val span = when (width) { "third" -> 2; "half" -> 3; else -> 6 }
                                 used += span
                                 val iconOverride = climateConfig.customIcons[entity.entity_id]
-                                val cardStyle = climateConfig.deviceCardStyles[entity.entity_id] ?: "card"
+                                val cardStyle = climateConfig.deviceCardStyles[entity.entity_id] ?: climateConfig.defaultDeviceCardStyle
                                 val isSquare = climateConfig.deviceCardShapes[entity.entity_id] == "square"
                                 Box(Modifier.weight(span.toFloat())) {
                                     if (cardStyle == "dial") ThermostatDialCard(entity, viewModel, isSquare = isSquare, iconOverride = iconOverride, onCenterClick = { dialDialogEntity = entity })
@@ -461,8 +464,8 @@ private fun ClimateDeviceSettingsDialog(
 ) {
     var name by remember(entity) { mutableStateOf(config.customNames[entity.entity_id].orEmpty()) }
     var icon by remember(entity) { mutableStateOf(config.customIcons[entity.entity_id].orEmpty()) }
-    var style by remember(entity) { mutableStateOf(config.deviceCardStyles[entity.entity_id] ?: "card") }
-    var width by remember(entity) { mutableStateOf(config.deviceCardWidths[entity.entity_id] ?: "full") }
+    var style by remember(entity) { mutableStateOf(config.deviceCardStyles[entity.entity_id] ?: config.defaultDeviceCardStyle) }
+    var width by remember(entity) { mutableStateOf(config.deviceCardWidths[entity.entity_id] ?: config.defaultDeviceCardWidth) }
     var shape by remember(entity) { mutableStateOf(config.deviceCardShapes[entity.entity_id] ?: "standard") }
     var showIconPicker by remember { mutableStateOf(false) }
 
@@ -510,8 +513,8 @@ private fun ClimateDeviceSettingsDialog(
                 onSave(config.copy(
                     customNames = if (name.isBlank()) config.customNames - id else config.customNames + (id to name.trim()),
                     customIcons = if (icon.isBlank()) config.customIcons - id else config.customIcons + (id to icon),
-                    deviceCardStyles = if (style == "card") config.deviceCardStyles - id else config.deviceCardStyles + (id to style),
-                    deviceCardWidths = if (width == "full") config.deviceCardWidths - id else config.deviceCardWidths + (id to width),
+                    deviceCardStyles = if (style == config.defaultDeviceCardStyle) config.deviceCardStyles - id else config.deviceCardStyles + (id to style),
+                    deviceCardWidths = if (width == config.defaultDeviceCardWidth) config.deviceCardWidths - id else config.deviceCardWidths + (id to width),
                     deviceCardShapes = if (shape == "standard") config.deviceCardShapes - id else config.deviceCardShapes + (id to shape)
                 ))
             }) { Text("Save") }
@@ -647,6 +650,75 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, corner
         shape = RoundedCornerShape(cornerRadius.dp), color = appColors.elevated
     ) {
         Column(Modifier.padding(if (isSquare) 12.dp else 16.dp)) {
+            if (isSquare) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(
+                        Modifier.size(30.dp).background(actionColor.copy(alpha = 0.16f), RoundedCornerShape(9.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        val iconSlug = iconOverride?.takeUnless { it.isBlank() }
+                        if (iconSlug != null) MdiIcon(iconSlug, tint = actionColor, size = 18.dp)
+                        else Icon(hvacModeIcon(localMode), null, tint = actionColor, modifier = Modifier.size(18.dp))
+                    }
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            entity.friendlyName ?: entity.entity_id,
+                            style = MaterialTheme.typography.labelLarge,
+                            color = appColors.onSurface,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            if (currentTemp != null) "${"%.1f".format(locale, currentTemp)}° current" else statusText,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = actionColor,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+                Spacer(Modifier.weight(1f))
+                if (targetTemp != null && entity.state != "off") {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        CompactTempStepButton(Icons.Default.Remove, enabled = localTarget > minTemp) {
+                            localTarget = (localTarget - step).coerceAtLeast(minTemp)
+                            viewModel.setClimateTemp(entity.entity_id, localTarget)
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                "${"%.1f".format(locale, localTarget)}°",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = actionColor,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text("Target", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+                        }
+                        CompactTempStepButton(Icons.Default.Add, enabled = localTarget < maxTemp) {
+                            localTarget = (localTarget + step).coerceAtMost(maxTemp)
+                            viewModel.setClimateTemp(entity.entity_id, localTarget)
+                        }
+                    }
+                } else {
+                    Text(
+                        statusText,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = actionColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            } else {
             // Header: name, live status, current temperature
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(
@@ -763,6 +835,7 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, corner
                         }
                     }
                 }
+            }
             }
         }
     }
@@ -1112,6 +1185,25 @@ private fun TempStepButton(icon: ImageVector, enabled: Boolean, onClick: () -> U
                 icon, null,
                 tint = if (enabled) appColors.onSurface else appColors.onMuted.copy(alpha = 0.4f),
                 modifier = Modifier.size(22.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun CompactTempStepButton(icon: ImageVector, enabled: Boolean, onClick: () -> Unit) {
+    val appColors = LocalHKIAppColors.current
+    Surface(
+        shape = CircleShape,
+        color = appColors.subtleSurface,
+        modifier = Modifier.size(30.dp).clip(CircleShape).clickable(enabled = enabled, onClick = onClick)
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = if (enabled) appColors.onSurface else appColors.onMuted.copy(alpha = 0.4f),
+                modifier = Modifier.size(17.dp)
             )
         }
     }
@@ -1617,6 +1709,65 @@ private fun ColumnScope.ClimateSensorSection(
     }
 
     if (category == null) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(18.dp),
+            color = appColors.subtleSurface
+        ) {
+            Column(
+                modifier = Modifier.padding(14.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    "All thermostats",
+                    color = appColors.onSurface,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    "Set the layout for every thermostat on this Climate page. You can still override individual devices in edit mode.",
+                    color = appColors.onMuted,
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text("Control", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("card" to "Climate control", "dial" to "Thermostat dial").forEach { (value, label) ->
+                        FilterChip(
+                            selected = cfg.defaultDeviceCardStyle == value,
+                            onClick = {
+                                val adjustedWidths = if (value == "dial") {
+                                    cfg.deviceCardWidths.mapValues { (_, width) -> if (width == "third") "half" else width }
+                                } else cfg.deviceCardWidths
+                                cfg = cfg.copy(
+                                    defaultDeviceCardStyle = value,
+                                    defaultDeviceCardWidth = if (value == "dial" && cfg.defaultDeviceCardWidth == "third") "half" else cfg.defaultDeviceCardWidth,
+                                    deviceCardStyles = emptyMap(),
+                                    deviceCardWidths = adjustedWidths
+                                )
+                                onSave(cfg)
+                            },
+                            label = { Text(label) }
+                        )
+                    }
+                }
+                Text("Width", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("third" to "Third", "half" to "Half", "full" to "Full").forEach { (value, label) ->
+                        val enabled = value != "third" || cfg.defaultDeviceCardStyle != "dial"
+                        FilterChip(
+                            selected = cfg.defaultDeviceCardWidth == value,
+                            enabled = enabled,
+                            onClick = {
+                                cfg = cfg.copy(defaultDeviceCardWidth = value, deviceCardWidths = emptyMap())
+                                onSave(cfg)
+                            },
+                            label = { Text(label) }
+                        )
+                    }
+                }
+            }
+        }
+        Spacer(Modifier.height(4.dp))
         climateSensorGroups.forEach { group ->
             val extraCount = cfg.extraSensorIds[group.key].orEmpty().size
             categoryButton(
