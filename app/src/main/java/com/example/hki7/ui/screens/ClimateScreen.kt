@@ -487,7 +487,7 @@ private fun ClimateDeviceSettingsDialog(
                 )
                 Text("Card style", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = style == "card", onClick = { style = "card" }, label = { Text("Current card") })
+                    FilterChip(selected = style == "card", onClick = { style = "card" }, label = { Text("Climate control") })
                     FilterChip(selected = style == "dial", onClick = { style = "dial"; if (width == "third") width = "half" }, label = { Text("Thermostat dial") })
                 }
                 Text("Shape", style = MaterialTheme.typography.labelLarge)
