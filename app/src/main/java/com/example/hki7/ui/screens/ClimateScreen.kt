@@ -154,6 +154,16 @@ fun ClimateScreen(viewModel: MainViewModel) {
         viewModel.hideClimateEntity(CLIMATE_PAGE_KEY, id)
     }
     var renameEntity by remember { mutableStateOf<HAEntity?>(null) }
+    var dialDialogEntity by remember { mutableStateOf<HAEntity?>(null) }
+    dialDialogEntity?.let { entity ->
+        PagedRoleDialog(
+            role = "climate",
+            entities = listOf(entity),
+            viewModel = viewModel,
+            onDismiss = { dialDialogEntity = null },
+            useClimateDial = true
+        )
+    }
     renameEntity?.let { entity ->
         ClimateDeviceSettingsDialog(
             entity = entity,
@@ -187,7 +197,9 @@ fun ClimateScreen(viewModel: MainViewModel) {
             var row = mutableListOf<HAEntity>()
             var used = 0
             climateEntities.forEach { entity ->
-                val span = when (climateConfig.deviceCardWidths[entity.entity_id]) {
+                val configuredWidth = climateConfig.deviceCardWidths[entity.entity_id]
+                val effectiveWidth = if (climateConfig.deviceCardStyles[entity.entity_id] == "dial" && configuredWidth == "third") "half" else configuredWidth
+                val span = when (effectiveWidth) {
                     "third" -> 2
                     "half" -> 3
                     else -> 6
@@ -412,14 +424,16 @@ fun ClimateScreen(viewModel: MainViewModel) {
                         ) {
                             var used = 0
                             row.forEach { entity ->
-                                val width = climateConfig.deviceCardWidths[entity.entity_id] ?: "full"
+                                val configuredWidth = climateConfig.deviceCardWidths[entity.entity_id] ?: "full"
+                                val width = if (climateConfig.deviceCardStyles[entity.entity_id] == "dial" && configuredWidth == "third") "half" else configuredWidth
                                 val span = when (width) { "third" -> 2; "half" -> 3; else -> 6 }
                                 used += span
                                 val iconOverride = climateConfig.customIcons[entity.entity_id]
                                 val cardStyle = climateConfig.deviceCardStyles[entity.entity_id] ?: "card"
+                                val isSquare = climateConfig.deviceCardShapes[entity.entity_id] == "square"
                                 Box(Modifier.weight(span.toFloat())) {
-                                    if (cardStyle == "dial") ThermostatDialCard(entity, viewModel, iconOverride = iconOverride)
-                                    else ClimateDeviceCard(entity, viewModel, iconOverride = iconOverride)
+                                    if (cardStyle == "dial") ThermostatDialCard(entity, viewModel, isSquare = isSquare, iconOverride = iconOverride, onCenterClick = { dialDialogEntity = entity })
+                                    else ClimateDeviceCard(entity, viewModel, isSquare = isSquare, iconOverride = iconOverride)
                                     if (isEditMode) {
                                         EditSettingsButton(onClick = { renameEntity = entity }, modifier = Modifier.align(Alignment.Center))
                                         EditRemoveBadge(onClick = { hideEntity(entity.entity_id) }, modifier = Modifier.align(Alignment.TopEnd))
@@ -449,6 +463,7 @@ private fun ClimateDeviceSettingsDialog(
     var icon by remember(entity) { mutableStateOf(config.customIcons[entity.entity_id].orEmpty()) }
     var style by remember(entity) { mutableStateOf(config.deviceCardStyles[entity.entity_id] ?: "card") }
     var width by remember(entity) { mutableStateOf(config.deviceCardWidths[entity.entity_id] ?: "full") }
+    var shape by remember(entity) { mutableStateOf(config.deviceCardShapes[entity.entity_id] ?: "standard") }
     var showIconPicker by remember { mutableStateOf(false) }
 
     if (showIconPicker) {
@@ -473,9 +488,14 @@ private fun ClimateDeviceSettingsDialog(
                 Text("Card style", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(selected = style == "card", onClick = { style = "card" }, label = { Text("Current card") })
-                    FilterChip(selected = style == "dial", onClick = { style = "dial" }, label = { Text("Thermostat dial") })
+                    FilterChip(selected = style == "dial", onClick = { style = "dial"; if (width == "third") width = "half" }, label = { Text("Thermostat dial") })
                 }
-                WidgetWidthSelector(width = width, onWidthChange = { width = it })
+                Text("Shape", style = MaterialTheme.typography.labelLarge)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = shape == "standard", onClick = { shape = "standard" }, label = { Text("Standard") })
+                    FilterChip(selected = shape == "square", onClick = { shape = "square" }, label = { Text("Square") })
+                }
+                WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = style != "dial")
                 Text("Icon", style = MaterialTheme.typography.labelLarge)
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (icon.isNotBlank()) MdiIcon(icon, size = 20.dp)
@@ -491,7 +511,8 @@ private fun ClimateDeviceSettingsDialog(
                     customNames = if (name.isBlank()) config.customNames - id else config.customNames + (id to name.trim()),
                     customIcons = if (icon.isBlank()) config.customIcons - id else config.customIcons + (id to icon),
                     deviceCardStyles = if (style == "card") config.deviceCardStyles - id else config.deviceCardStyles + (id to style),
-                    deviceCardWidths = if (width == "full") config.deviceCardWidths - id else config.deviceCardWidths + (id to width)
+                    deviceCardWidths = if (width == "full") config.deviceCardWidths - id else config.deviceCardWidths + (id to width),
+                    deviceCardShapes = if (shape == "standard") config.deviceCardShapes - id else config.deviceCardShapes + (id to shape)
                 ))
             }) { Text("Save") }
         },
@@ -593,11 +614,13 @@ private fun hvacModeLabel(mode: String): String = when (mode) {
 }
 
 @Composable
-private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: Int = 20, iconOverride: String? = null) {
+private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: Int = 20, isSquare: Boolean = false, iconOverride: String? = null) {
     val appColors = LocalHKIAppColors.current
     val locale = LocalConfiguration.current.locales[0]
     val hvacAction = entity.attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
-    val actionColor = hvacColor(hvacAction ?: entity.state)
+    var localMode by remember(entity.entity_id) { mutableStateOf(entity.state) }
+    LaunchedEffect(entity.state) { localMode = entity.state }
+    val actionColor = hvacColor(if (localMode != entity.state) localMode else hvacAction ?: entity.state)
     val currentTemp = entity.attributes?.get("current_temperature")?.jsonPrimitive?.doubleOrNull
     val targetTemp = entity.temperature
     val minTemp = (entity.attributes?.get("min_temp")?.jsonPrimitive?.doubleOrNull ?: 7.0).toFloat()
@@ -614,16 +637,16 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, corner
         entity.swingHorizontalModes.isNotEmpty() || presetModes.isNotEmpty()
 
     val statusText = buildString {
-        append((hvacAction ?: entity.state).replace('_', ' ').replaceFirstChar(Char::uppercase))
+        append((if (localMode != entity.state) localMode else hvacAction ?: entity.state).replace('_', ' ').replaceFirstChar(Char::uppercase))
         presetMode?.takeIf { it != "none" }?.let { append(" · ${it.replaceFirstChar(Char::uppercase)}") }
         currentHumidity?.let { append(" · ${it.toInt()}%") }
     }
 
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().then(if (isSquare) Modifier.aspectRatio(1f) else Modifier),
         shape = RoundedCornerShape(cornerRadius.dp), color = appColors.elevated
     ) {
-        Column(Modifier.padding(16.dp)) {
+        Column(Modifier.padding(if (isSquare) 12.dp else 16.dp)) {
             // Header: name, live status, current temperature
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(
@@ -632,7 +655,7 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, corner
                 ) {
                     val iconSlug = iconOverride?.takeUnless { it.isBlank() }
                     if (iconSlug != null) MdiIcon(iconSlug, tint = actionColor, size = 22.dp)
-                    else Icon(hvacModeIcon(entity.state), null, tint = actionColor, modifier = Modifier.size(22.dp))
+                    else Icon(hvacModeIcon(localMode), null, tint = actionColor, modifier = Modifier.size(22.dp))
                 }
                 Column(Modifier.weight(1f)) {
                     Text(
@@ -690,13 +713,13 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, corner
             }
 
             // HVAC mode pills, centered; scrolls when there are more than fit.
-            if (entity.hvacModes.isNotEmpty()) {
+            if (!isSquare && entity.hvacModes.isNotEmpty()) {
                 Spacer(Modifier.height(14.dp))
-                HvacModePillsRow(entity, viewModel)
+                HvacModePillsRow(entity, viewModel, localMode) { localMode = it }
             }
 
             // Fan / swing / preset modes, collapsed behind a "More" toggle
-            if (hasExtras) {
+            if (!isSquare && hasExtras) {
                 Spacer(Modifier.height(6.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
@@ -758,14 +781,17 @@ private fun lightened(color: Color, factor: Float): Color = Color(
 )
 
 @Composable
-private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: Int = 20, isSquare: Boolean = false, iconOverride: String? = null) {
+private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: Int = 20, isSquare: Boolean = false, iconOverride: String? = null, onCenterClick: (() -> Unit)? = null) {
     val appColors = LocalHKIAppColors.current
     val locale = LocalConfiguration.current.locales[0]
     val weatherEntity by viewModel.weather.collectAsState()
 
     val hvacAction = entity.attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
-    val accent = hvacColor(hvacAction ?: entity.state)
-    val statusLabel = (hvacAction ?: entity.state).replace('_', ' ').uppercase(locale)
+    var localMode by remember(entity.entity_id) { mutableStateOf(entity.state) }
+    LaunchedEffect(entity.state) { localMode = entity.state }
+    val optimisticMode = if (localMode != entity.state) localMode else hvacAction ?: entity.state
+    val accent = hvacColor(optimisticMode)
+    val statusLabel = optimisticMode.replace('_', ' ').uppercase(locale)
     val currentTemp = entity.attributes?.get("current_temperature")?.jsonPrimitive?.doubleOrNull
     val outdoorTemp = weatherEntity?.attributes?.get("temperature")?.jsonPrimitive?.doubleOrNull
     val minTemp = (entity.attributes?.get("min_temp")?.jsonPrimitive?.doubleOrNull ?: 7.0).toFloat()
@@ -920,7 +946,8 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
 
                     // Inner face: status + big target temperature.
                     Surface(
-                        modifier = Modifier.align(Alignment.Center).fillMaxSize(0.58f),
+                        modifier = Modifier.align(Alignment.Center).fillMaxSize(0.58f)
+                            .then(if (onCenterClick != null) Modifier.clickable { onCenterClick() } else Modifier),
                         shape = CircleShape,
                         color = appColors.surface,
                         shadowElevation = 8.dp
@@ -959,7 +986,7 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
                                         modifier = Modifier.size(40.dp).clip(CircleShape).clickable { modesOpen = true }
                                     ) {
                                         Box(contentAlignment = Alignment.Center) {
-                                            Icon(hvacModeIcon(entity.state), contentDescription = "Mode",
+                                            Icon(hvacModeIcon(localMode), contentDescription = "Mode",
                                                 tint = accent, modifier = Modifier.size(20.dp))
                                         }
                                     }
@@ -972,10 +999,11 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
                                                 },
                                                 text = {
                                                     Text(hvacModeLabel(mode),
-                                                        fontWeight = if (mode == entity.state) FontWeight.Bold else null)
+                                                        fontWeight = if (mode == localMode) FontWeight.Bold else null)
                                                 },
                                                 onClick = {
                                                     modesOpen = false
+                                                    localMode = mode
                                                     viewModel.setHvacMode(entity.entity_id, mode)
                                                 }
                                             )
@@ -1022,7 +1050,7 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
             // variant (the dial's own mode pill still opens the full mode menu).
             if (!isSquare && entity.hvacModes.isNotEmpty()) {
                 Spacer(Modifier.height(14.dp))
-                HvacModePillsRow(entity, viewModel)
+                HvacModePillsRow(entity, viewModel, localMode) { localMode = it }
             }
         }
     }
@@ -1030,7 +1058,7 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
 
 /** Centered, scrollable HVAC mode pills; shared by the thermostat card and the dial card. */
 @Composable
-private fun HvacModePillsRow(entity: HAEntity, viewModel: MainViewModel) {
+private fun HvacModePillsRow(entity: HAEntity, viewModel: MainViewModel, selectedMode: String = entity.state, onModeSelected: (String) -> Unit = {}) {
     val appColors = LocalHKIAppColors.current
     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         Row(
@@ -1038,7 +1066,7 @@ private fun HvacModePillsRow(entity: HAEntity, viewModel: MainViewModel) {
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             entity.hvacModes.forEach { mode ->
-                val selected = mode == entity.state
+                val selected = mode == selectedMode
                 val modeColor = hvacColor(mode)
                 Surface(
                     shape = RoundedCornerShape(14.dp),
@@ -1048,7 +1076,7 @@ private fun HvacModePillsRow(entity: HAEntity, viewModel: MainViewModel) {
                         if (selected) modeColor.copy(alpha = 0.8f) else appColors.onMuted.copy(alpha = 0.14f)
                     ),
                     modifier = Modifier.clip(RoundedCornerShape(14.dp))
-                        .clickable { viewModel.setHvacMode(entity.entity_id, mode) }
+                        .clickable { onModeSelected(mode); viewModel.setHvacMode(entity.entity_id, mode) }
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),

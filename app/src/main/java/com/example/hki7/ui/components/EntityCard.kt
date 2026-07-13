@@ -219,6 +219,7 @@ fun EntityCard(
     }
 
     if (buttonStyle == "tile") {
+        val tileActive = isCoverNotClosed || isLockDoorOpen || isLockUnlocked || isActive || isClimateNotOff
         val accent = when {
             domain == "light" && isActive -> lightColor ?: Color(0xFFB58E31)
             domain == "climate" -> climateColor
@@ -226,7 +227,7 @@ fun EntityCard(
         }
         Surface(
             shape = RoundedCornerShape(18.dp),
-            color = appColors.elevated,
+            color = if (tileActive) primary else appColors.elevated,
             modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).then(
                 if (interactionsEnabled) Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick, onDoubleClick = onDoubleClick)
                 else Modifier
@@ -234,23 +235,32 @@ fun EntityCard(
         ) {
             Box(Modifier.fillMaxWidth()) {
                 if (brightnessEnabled && localBrightness > 0f) {
-                    Box(Modifier.fillMaxWidth(localBrightness).fillMaxHeight().background(accent.copy(alpha = 0.22f)))
+                    Box(
+                        Modifier.fillMaxWidth(localBrightness).fillMaxHeight()
+                            .background(if (tileActive) activeContent.copy(alpha = 0.20f) else accent.copy(alpha = 0.34f))
+                    ) {
+                        Box(
+                            Modifier.align(Alignment.CenterEnd).fillMaxHeight().width(3.dp)
+                                .background(if (tileActive) activeContent.copy(alpha = 0.82f) else accent)
+                        )
+                    }
                 }
                 Row(
                     modifier = Modifier.padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Box(Modifier.size(34.dp).background(accent.copy(alpha = 0.15f), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(34.dp).background(if (tileActive) activeContent.copy(alpha = 0.16f) else accent.copy(alpha = 0.15f), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
                         val slug = iconName?.takeUnless { it.isBlank() } ?: defaultEntityIconSlug(entity, lockDoorOpen = isLockDoorOpen)
-                        if (slug != null) MdiIcon(slug, tint = accent, size = 18.dp)
-                        else Icon(Icons.Default.DeviceUnknown, null, tint = accent, modifier = Modifier.size(18.dp))
+                        val tileIconTint = if (tileActive) activeContent else accent
+                        if (slug != null) MdiIcon(slug, tint = tileIconTint, size = 18.dp)
+                        else Icon(Icons.Default.DeviceUnknown, null, tint = tileIconTint, modifier = Modifier.size(18.dp))
                     }
                     Column(Modifier.weight(1f)) {
-                        Text(name, style = MaterialTheme.typography.labelLarge, color = appColors.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text(statusText, style = MaterialTheme.typography.bodySmall, color = appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(name, style = MaterialTheme.typography.labelLarge, color = if (tileActive) activeContent else appColors.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(statusText, style = MaterialTheme.typography.bodySmall, color = if (tileActive) activeContent.copy(alpha = 0.68f) else appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
-                    Icon(Icons.Default.ChevronRight, null, tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.ChevronRight, null, tint = if (tileActive) activeContent.copy(alpha = 0.68f) else appColors.onMuted, modifier = Modifier.size(16.dp))
                 }
                 if (brightnessEnabled) Box(Modifier.matchParentSize().then(sliderModifier))
             }

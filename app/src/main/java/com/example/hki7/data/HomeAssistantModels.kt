@@ -588,7 +588,9 @@ data class HKIClimateConfig(
     /** Per-climate-device card style on the main page: "card" (default) or "dial". */
     val deviceCardStyles: Map<String, String> = emptyMap(),
     /** Per-device width on the main page: "full", "half", or "third". */
-    val deviceCardWidths: Map<String, String> = emptyMap()
+    val deviceCardWidths: Map<String, String> = emptyMap(),
+    /** Per-device shape on the main page: "standard" (default) or "square". */
+    val deviceCardShapes: Map<String, String> = emptyMap()
 )
 
 /** Entity bindings for the Energy dashboard's power-flow visualization. All optional. */

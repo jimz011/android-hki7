@@ -15,6 +15,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.rememberScrollState
@@ -25,6 +26,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Switch
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -127,6 +129,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
@@ -228,6 +233,10 @@ import com.example.hki7.ui.components.HorizontalHueBar
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.roundToInt
+import kotlin.math.sin
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.coroutines.delay
@@ -3388,7 +3397,8 @@ fun PagedRoleDialog(
     entities: List<HAEntity>,
     viewModel: MainViewModel,
     onDismiss: () -> Unit,
-    buttonConfigs: Map<String, HKIButtonConfig> = emptyMap()
+    buttonConfigs: Map<String, HKIButtonConfig> = emptyMap(),
+    useClimateDial: Boolean = false
 ) {
     var page by remember(entities.map { it.entity_id }) { mutableIntStateOf(0) }
     val entity = entities[page.coerceIn(0, entities.lastIndex)]
@@ -3502,7 +3512,7 @@ fun PagedRoleDialog(
         ) {
             Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 when (role) {
-                    "climate" -> ClimateControlContent(entity, viewModel, showModes = showClimateModes, onToggleModes = { showClimateModes = it })
+                    "climate" -> ClimateControlContent(entity, viewModel, showModes = showClimateModes, onToggleModes = { showClimateModes = it }, useDial = useClimateDial)
                     "lock" -> LockControlContent(entity, viewModel)
                     "cover" -> BlindControlContent(entity, viewModel)
                     "camera" -> CameraContent(entity, viewModel)
@@ -5155,7 +5165,7 @@ private fun CameraStackCard(
  * The middle region absorbs size differences via Modifier.weight.
  */
 @Composable
-private fun ClimateControlContent(entity: HAEntity, viewModel: MainViewModel, showModes: Boolean, onToggleModes: (Boolean) -> Unit) {
+private fun ClimateControlContent(entity: HAEntity, viewModel: MainViewModel, showModes: Boolean, onToggleModes: (Boolean) -> Unit, useDial: Boolean = false) {
     val appColors = LocalHKIAppColors.current
     val locale = LocalConfiguration.current.locales[0]
     val minTemp = entity.attributes?.get("min_temp")?.jsonPrimitive?.doubleOrNull ?: 15.0
@@ -5174,16 +5184,28 @@ private fun ClimateControlContent(entity: HAEntity, viewModel: MainViewModel, sh
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = if (showModes) "Modes" else String.format(locale, "%.1f\u00B0", localTarget),
-            color = appColors.onSurface,
-            style = if (showModes) MaterialTheme.typography.displayMedium else MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Normal
-        )
-        Spacer(Modifier.height(24.dp))
+        if (showModes || !useDial) {
+            Text(
+                text = if (showModes) "Modes" else String.format(locale, "%.1f\u00B0", localTarget),
+                color = appColors.onSurface,
+                style = if (showModes) MaterialTheme.typography.displayMedium else MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Normal
+            )
+            Spacer(Modifier.height(24.dp))
+        }
         Box(Modifier.height(VerticalControlHeight).fillMaxWidth(), contentAlignment = Alignment.Center) {
             if (showModes) {
                 ClimateModesList(entity, viewModel)
+            } else if (useDial) {
+                ClimateDialogDial(
+                    value = localTarget,
+                    minValue = minTemp.toFloat(),
+                    maxValue = maxTemp.toFloat(),
+                    step = (entity.attributes?.get("target_temp_step")?.jsonPrimitive?.doubleOrNull ?: 0.5).toFloat(),
+                    color = hvacColor(hvacAction ?: localMode),
+                    onValueChange = { localTarget = it },
+                    onValueChangeFinished = { viewModel.setClimateTemp(entity.entity_id, localTarget) }
+                )
             } else {
                 VerticalSlider(
                     value = ((localTarget - minTemp.toFloat()) / (maxTemp.toFloat() - minTemp.toFloat())).coerceIn(0f, 1f),
@@ -5196,6 +5218,80 @@ private fun ClimateControlContent(entity: HAEntity, viewModel: MainViewModel, sh
         Spacer(Modifier.height(16.dp))
         Text(if (showModes) "MODES" else "TARGET", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
         ClimateModesButton(entity, onClick = { onToggleModes(!showModes) }, selected = showModes)
+    }
+}
+
+@Composable
+private fun ClimateDialogDial(
+    value: Float,
+    minValue: Float,
+    maxValue: Float,
+    step: Float,
+    color: Color,
+    onValueChange: (Float) -> Unit,
+    onValueChangeFinished: () -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    val ringWidth = 38.dp
+    Box(Modifier.size(280.dp), contentAlignment = Alignment.Center) {
+        Canvas(
+            Modifier.fillMaxSize().pointerInput(minValue, maxValue, step) {
+                var dragging = false
+                fun valueAt(position: Offset): Float {
+                    val center = Offset(size.width / 2f, size.height / 2f)
+                    var angle = Math.toDegrees(atan2((position.y - center.y).toDouble(), (position.x - center.x).toDouble())).toFloat()
+                    if (angle < 0f) angle += 360f
+                    val sweep = when {
+                        angle >= 135f -> angle - 135f
+                        angle <= 45f -> angle + 225f
+                        angle < 90f -> 270f
+                        else -> 0f
+                    }
+                    val raw = minValue + (sweep / 270f).coerceIn(0f, 1f) * (maxValue - minValue)
+                    return ((raw / step).roundToInt() * step).coerceIn(minValue, maxValue)
+                }
+                detectDragGestures(
+                    onDragStart = { position ->
+                        val center = Offset(size.width / 2f, size.height / 2f)
+                        val distance = (position - center).getDistance()
+                        val radius = minOf(size.width, size.height) / 2f
+                        dragging = distance >= radius - ringWidth.toPx() * 1.6f
+                        if (dragging) onValueChange(valueAt(position))
+                    },
+                    onDrag = { change, _ ->
+                        if (dragging) {
+                            change.consume()
+                            onValueChange(valueAt(change.position))
+                        }
+                    },
+                    onDragEnd = { if (dragging) onValueChangeFinished(); dragging = false },
+                    onDragCancel = { dragging = false }
+                )
+            }
+        ) {
+            val strokePx = ringWidth.toPx()
+            val inset = strokePx / 2f
+            val arcSize = Size(size.width - strokePx, size.height - strokePx)
+            val fraction = ((value - minValue) / (maxValue - minValue)).coerceIn(0f, 1f)
+            drawArc(appColors.onMuted.copy(alpha = 0.18f), 135f, 270f, false, Offset(inset, inset), arcSize, style = Stroke(strokePx))
+            drawArc(color, 135f, 270f * fraction, false, Offset(inset, inset), arcSize, style = Stroke(strokePx))
+            val angle = Math.toRadians((135f + 270f * fraction).toDouble())
+            val radius = (size.minDimension - strokePx) / 2f
+            val handle = Offset(
+                size.width / 2f + (radius * cos(angle)).toFloat(),
+                size.height / 2f + (radius * sin(angle)).toFloat()
+            )
+            drawCircle(Color.White, strokePx * 0.28f, handle)
+            drawCircle(color, strokePx * 0.16f, handle)
+        }
+        Surface(shape = CircleShape, color = appColors.surface, shadowElevation = 8.dp, modifier = Modifier.fillMaxSize(0.58f)) {
+            Box(contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("TARGET", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+                    Text("%.1f\u00B0".format(value), style = MaterialTheme.typography.displayMedium, color = appColors.onSurface, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
     }
 }
 
