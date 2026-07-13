@@ -25,12 +25,15 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.put
 import android.os.SystemClock
 import java.time.LocalTime
+import java.time.Instant
+import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
@@ -297,6 +300,34 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     // Energy statistics (recorder aggregates), keyed "entityId|period" so ranges don't mix.
     private val _energyStats = MutableStateFlow<Map<String, List<HAStatPoint>>>(emptyMap())
     val energyStats: StateFlow<Map<String, List<HAStatPoint>>> = _energyStats
+
+    /** HA solar forecast provider id -> epoch millis -> forecast Wh for that hour. */
+    private val _energySolarForecasts = MutableStateFlow<Map<String, Map<Long, Float>>>(emptyMap())
+    val energySolarForecasts: StateFlow<Map<String, Map<Long, Float>>> = _energySolarForecasts
+
+    private fun applyEnergySolarForecasts(raw: JsonObject?) {
+        _energySolarForecasts.value = raw.orEmpty().mapNotNull provider@{ (providerId, value) ->
+            val providerJson = runCatching { value.jsonObject }.getOrNull() ?: return@provider null
+            val hours = runCatching { providerJson["wh_hours"]?.jsonObject }.getOrNull().orEmpty()
+                .mapNotNull hour@{ (timestamp, amount) ->
+                    val millis = runCatching { Instant.parse(timestamp).toEpochMilli() }.getOrNull()
+                        ?: runCatching { OffsetDateTime.parse(timestamp).toInstant().toEpochMilli() }.getOrNull()
+                        ?: return@hour null
+                    val wh = amount.jsonPrimitive.doubleOrNull?.toFloat() ?: return@hour null
+                    millis to wh
+                }.toMap()
+            providerId to hours
+        }.toMap()
+    }
+
+    fun fetchHomeAssistantEnergySolarForecasts() {
+        val currentClient = client ?: return
+        viewModelScope.launch {
+            runCatching { currentClient.getEnergySolarForecasts() }
+                .onSuccess(::applyEnergySolarForecasts)
+                .onFailure { addLog("Energy solar forecast unavailable: ${it.message}") }
+        }
+    }
 
     fun fetchEnergyStatistics(
         ids: List<String>, startMillis: Long, period: String, keySuffix: String,
@@ -1256,7 +1287,8 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 val prefsResult = currentClient.getEnergyPreferences() ?: return@launch
                 val sources = prefsResult["energy_sources"]?.jsonArray.orEmpty().mapNotNull { runCatching { it.jsonObject }.getOrNull() }
                 val devices = prefsResult["device_consumption"]?.jsonArray.orEmpty().mapNotNull { runCatching { it.jsonObject }.getOrNull() }
-                if (sources.isEmpty() && devices.isEmpty()) return@launch
+                val waterDevices = prefsResult["device_consumption_water"]?.jsonArray.orEmpty().mapNotNull { runCatching { it.jsonObject }.getOrNull() }
+                if (sources.isEmpty() && devices.isEmpty() && waterDevices.isEmpty()) return@launch
 
                 fun JsonObject.text(key: String): String? = this[key]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
                 fun source(type: String): JsonObject? = sources.firstOrNull { it.text("type") == type }
@@ -1271,11 +1303,28 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 val gas = source("gas")
                 val water = source("water")
                 val energyIds = devices.mapNotNull { it.text("stat_consumption") }.distinct()
+                val waterDeviceIds = waterDevices.mapNotNull { it.text("stat_consumption") }.distinct()
+                val solarForecastConfigEntryIds = sources.asSequence()
+                    .filter { it.text("type") == "solar" }
+                    .flatMap { solarSource ->
+                        runCatching { solarSource["config_entry_solar_forecast"]?.jsonArray }
+                            .getOrNull().orEmpty().asSequence()
+                    }
+                    .mapNotNull { it.jsonPrimitive.contentOrNull }
+                    .filter { it.isNotBlank() }
+                    .distinct()
+                    .toList()
                 val registry = _entityRegistry.value.ifEmpty {
                     currentClient.getEntityRegistry().also { _entityRegistry.value = it }
                 }
                 val registryByEntity = registry.associateBy { it.entity_id }
                 val liveById = _entities.value.associateBy { it.entity_id }
+                val carbonEntityId = registry.firstNotNullOfOrNull { entry ->
+                    entry.entity_id.takeIf { id ->
+                        entry.platform == "co2signal" &&
+                            liveById[id]?.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull == "%"
+                    }
+                }
                 val powerIds = devices.mapNotNull { device ->
                     device.text("stat_rate") ?: device.text("stat_consumption")?.let { consumptionId ->
                         val deviceId = registryByEntity[consumptionId]?.device_id ?: return@let null
@@ -1288,6 +1337,11 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 }.distinct()
                 val importedNames = buildMap {
                     devices.forEach { device ->
+                        val name = device.text("name") ?: return@forEach
+                        device.text("stat_consumption")?.let { put(it, name) }
+                        device.text("stat_rate")?.let { put(it, name) }
+                    }
+                    waterDevices.forEach { device ->
                         val name = device.text("name") ?: return@forEach
                         device.text("stat_consumption")?.let { put(it, name) }
                         device.text("stat_rate")?.let { put(it, name) }
@@ -1310,17 +1364,24 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     waterEntityId = water?.text("stat_energy_from") ?: current.waterEntityId,
                     waterCurrentEntityId = water?.text("stat_rate") ?: current.waterCurrentEntityId,
                     waterCostEntityId = water?.text("stat_cost") ?: current.waterCostEntityId,
+                    gridCarbonFootprintEntityId = carbonEntityId ?: current.gridCarbonFootprintEntityId,
                     deviceEntityIds = powerIds,
                     energyDeviceEntityIds = energyIds,
+                    waterDeviceEntityIds = waterDeviceIds,
+                    solarForecastConfigEntryIds = solarForecastConfigEntryIds,
                     hiddenPowerDeviceEntityIds = emptyList(),
                     hiddenEnergyDeviceEntityIds = emptyList(),
+                    hiddenWaterDeviceEntityIds = emptyList(),
                     customNames = current.customNames + importedNames
                 )
                 val page = _pageConfigsMapping.value[pageKey] ?: HKIPageConfig()
                 val updated = _pageConfigsMapping.value + (pageKey to page.copy(energyConfig = imported))
                 _pageConfigsMapping.value = updated
                 prefs.savePageConfigs(updated)
-                addLog("Imported ${energyIds.size} Energy dashboard devices from Home Assistant")
+                runCatching { currentClient.getEnergySolarForecasts() }
+                    .onSuccess(::applyEnergySolarForecasts)
+                    .onFailure { addLog("Energy solar forecast unavailable: ${it.message}") }
+                addLog("Imported ${energyIds.size} energy and ${waterDeviceIds.size} water devices from Home Assistant")
             } catch (e: Exception) {
                 addLog("Energy dashboard import unavailable: ${e.message}")
             }

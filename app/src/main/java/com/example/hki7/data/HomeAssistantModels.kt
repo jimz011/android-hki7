@@ -626,10 +626,14 @@ data class HKIEnergyConfig(
     val deviceEntityIds: List<String> = emptyList(),
     /** Energy-counter sensors the user adds to Device energy. */
     val energyDeviceEntityIds: List<String> = emptyList(),
+    /** Individual water meters configured in Home Assistant's Energy dashboard. */
+    val waterDeviceEntityIds: List<String> = emptyList(),
     /** Auto-discovered device_class=power sensors explicitly removed by the user. */
     val hiddenPowerDeviceEntityIds: List<String> = emptyList(),
     /** Auto-discovered device_class=energy sensors explicitly removed by the user. */
     val hiddenEnergyDeviceEntityIds: List<String> = emptyList(),
+    /** Individual water meters explicitly removed by the user. */
+    val hiddenWaterDeviceEntityIds: List<String> = emptyList(),
     // HA-style electricity sensors (P1 meter): per-phase power and tariff-split energy counters.
     val powerPhase1EntityId: String? = null,
     val powerPhase2EntityId: String? = null,
@@ -652,6 +656,8 @@ data class HKIEnergyConfig(
     val solarLast7DaysEntityId: String? = null,
     val solarLifetimeEntityId: String? = null,
     val solarForecastEntityIds: List<String> = emptyList(),
+    /** Home Assistant solar forecast config-entry ids used by energy/solar_forecast. */
+    val solarForecastConfigEntryIds: List<String> = emptyList(),
     /** HA device whose entities (per-inverter sensors) are listed on the Solar page. */
     val solarDeviceId: String? = null,
     // Source devices per category: picking one auto-fills the matching entity fields.

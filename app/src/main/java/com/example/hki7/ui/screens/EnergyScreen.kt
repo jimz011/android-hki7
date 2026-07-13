@@ -210,11 +210,17 @@ fun EnergyScreen(viewModel: MainViewModel) {
     val rawEntities by energyEntityFlow.collectAsState()
     val pageConfigsMap by viewModel.pageConfigsMapping.collectAsState()
     val historyMap     by viewModel.historyMapping.collectAsState()
+    val homeAssistantSolarForecasts by viewModel.energySolarForecasts.collectAsState()
     val energyConfig: HKIEnergyConfig =
         (pageConfigsMap[ENERGY_PAGE_KEY] ?: HKIPageConfig()).energyConfig ?: HKIEnergyConfig()
     LaunchedEffect(rawEntities.isNotEmpty(), energyConfig.usesHomeAssistantEnergyPreferences) {
         if (rawEntities.isNotEmpty() && !energyConfig.usesHomeAssistantEnergyPreferences) {
             viewModel.importHomeAssistantEnergyPreferences(ENERGY_PAGE_KEY)
+        }
+    }
+    LaunchedEffect(energyConfig.usesHomeAssistantEnergyPreferences, energyConfig.solarForecastConfigEntryIds) {
+        if (energyConfig.usesHomeAssistantEnergyPreferences && energyConfig.solarForecastConfigEntryIds.isNotEmpty()) {
+            viewModel.fetchHomeAssistantEnergySolarForecasts()
         }
     }
     val isEditMode by viewModel.isEditMode.collectAsState()
@@ -483,7 +489,31 @@ fun EnergyScreen(viewModel: MainViewModel) {
             Triple(name, values, forecastPalette[i % forecastPalette.size])
         }
     }
-    val forecastKwhToday = forecastIds.firstNotNullOfOrNull { id ->
+    val importedForecastSeries = remember(homeAssistantSolarForecasts, energyConfig.solarForecastConfigEntryIds, window, range, rangeOffset) {
+        if (range != EnergyRange.DAY || rangeOffset != 0) emptyList()
+        else energyConfig.solarForecastConfigEntryIds.mapNotNull { providerId ->
+            val hours = homeAssistantSolarForecasts[providerId].orEmpty()
+            if (hours.isEmpty()) return@mapNotNull null
+            val values = FloatArray(window.buckets)
+            hours.forEach { (timestamp, wh) ->
+                val index = window.bucketOf(timestamp)
+                if (index in values.indices) values[index] += wh
+            }
+            Triple(
+                if (energyConfig.solarForecastConfigEntryIds.size == 1) "Home Assistant forecast" else "Forecast ${energyConfig.solarForecastConfigEntryIds.indexOf(providerId) + 1}",
+                values,
+                forecastPalette[(forecastSeries.size + energyConfig.solarForecastConfigEntryIds.indexOf(providerId)) % forecastPalette.size]
+            )
+        }
+    }
+    val importedForecastKwhToday = remember(homeAssistantSolarForecasts, energyConfig.solarForecastConfigEntryIds, window) {
+        energyConfig.solarForecastConfigEntryIds.sumOf { providerId ->
+            homeAssistantSolarForecasts[providerId].orEmpty()
+                .filterKeys { it in window.startMs until window.endMs }
+                .values.sum().toDouble()
+        }.toFloat() / 1000f
+    }.takeIf { it > 0f }
+    val forecastKwhToday = importedForecastKwhToday ?: forecastIds.firstNotNullOfOrNull { id ->
         if (entityUnit(id, "").contains("Wh", ignoreCase = true)) entityFloat(id) else null
     } ?: energyConfig.solarForecastEntityId?.let { entityFloat(it) }
 
@@ -540,6 +570,15 @@ fun EnergyScreen(viewModel: MainViewModel) {
     LaunchedEffect(deviceEnergyIds.toSet(), window) {
         if (deviceEnergyIds.isNotEmpty())
             viewModel.fetchEnergyStatistics(deviceEnergyIds, window.startMs, window.statPeriod(), window.key(), window.endMs)
+    }
+    val waterDeviceEntities = remember(entities, energyConfig.waterDeviceEntityIds) {
+        energyConfig.waterDeviceEntityIds.mapNotNull(entityById::get).distinctBy { it.entity_id }
+    }
+    val waterDeviceIds = remember(waterDeviceEntities) { waterDeviceEntities.map { it.entity_id } }
+    LaunchedEffect(waterDeviceIds.toSet(), window) {
+        if (waterDeviceIds.isNotEmpty()) {
+            viewModel.fetchEnergyStatistics(waterDeviceIds, window.startMs, window.statPeriod(), window.key(), window.endMs)
+        }
     }
 
     val energySettingsSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> = "Energy Sensors" to { setBack ->
@@ -866,6 +905,22 @@ fun EnergyScreen(viewModel: MainViewModel) {
                         }
                     }
                 }
+                if (waterDeviceEntities.isNotEmpty()) {
+                    item {
+                        SectionHeader("Individual water usage", "Used $periodLabel")
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                            shape = RoundedCornerShape(20.dp),
+                            color = appColors.elevated
+                        ) {
+                            IndividualWaterUsageContent(
+                                entities = waterDeviceEntities,
+                                rawUsage = { id -> statChanges(id).sum() },
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                    }
+                }
             } else if (page == "solar") {
                 // ═══ SOLAR PAGE ═══════════════════════════════════════════════
                 item {
@@ -897,7 +952,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
                 }
 
                 // ── Forecast (today only: forecast sensors have no history) ───
-                if (forecastIds.isNotEmpty() && range == EnergyRange.DAY && rangeOffset == 0) {
+                if ((forecastIds.isNotEmpty() || importedForecastSeries.isNotEmpty()) && range == EnergyRange.DAY && rangeOffset == 0) {
                     item {
                         SectionHeader("Forecast", null)
                         Surface(
@@ -924,6 +979,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
                                 val chartSeries = buildList {
                                     add(Triple("Production", solarSeries, SolarAmber))
                                     addAll(forecastSeries)
+                                    addAll(importedForecastSeries)
                                 }
                                 EnergyMultiLineChart(chartSeries, "W", axisLabels, tooltipLabels)
                             }
@@ -1156,6 +1212,22 @@ fun EnergyScreen(viewModel: MainViewModel) {
                             }
                             Spacer(Modifier.height(14.dp))
                             EnergyBarChart(waterSeries, WaterBlue, waterDisplayUnit, axisLabels, tooltipLabels, nowIndex)
+                        }
+                    }
+                }
+                if (waterDeviceEntities.isNotEmpty()) {
+                    item {
+                        SectionHeader("Individual water usage", null)
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                            shape = RoundedCornerShape(20.dp),
+                            color = appColors.elevated
+                        ) {
+                            IndividualWaterUsageContent(
+                                entities = waterDeviceEntities,
+                                rawUsage = { id -> statChanges(id).sum() },
+                                modifier = Modifier.padding(16.dp)
+                            )
                         }
                     }
                 }
@@ -2107,6 +2179,9 @@ private fun UtilityCard(
 private fun formatW(w: Float) = when { w < 1f -> "0 W"; w < 1000f -> "${w.toInt()} W"; else -> "${"%.1f".format(w / 1000f)} kW" }
 
 private fun formatCarbonIntensity(value: Float, rawUnit: String): String {
+    if (rawUnit.trim() == "%") {
+        return "${if (abs(value) >= 10f) "%.0f".format(value) else "%.1f".format(value)}% fossil"
+    }
     val unit = when {
         rawUnit.contains("kWh", ignoreCase = true) -> rawUnit
         rawUnit.contains("kg", ignoreCase = true) -> "kg CO2/kWh"
@@ -2444,7 +2519,7 @@ private fun ColumnScope.EnergySensorSection(
         categoryButton("carbon", "Carbon", "Grid carbon footprint device", Icons.Default.Cloud, ExportGreen)
         categoryButton("gas", "Gas", "Usage and cost", Icons.Default.LocalFireDepartment, GasPink)
         categoryButton("water", "Water", "Usage and cost", Icons.Default.WaterDrop, WaterBlue)
-        categoryButton("devices", "Devices", "Individual devices under Top consumers", Icons.Default.Power, ExportGreen)
+        categoryButton("devices", "Devices", "Power, energy, and individual water devices", Icons.Default.Power, ExportGreen)
         Spacer(Modifier.height(6.dp))
         HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.10f))
         TextButton(
@@ -2582,27 +2657,52 @@ private fun ColumnScope.EnergySensorSection(
             }
             val visiblePowerIds = (cfg.deviceEntityIds + autoPower.map { it.entity_id }).distinct()
             val visibleEnergyIds = (cfg.energyDeviceEntityIds + autoEnergy.map { it.entity_id }).distinct()
+            val visibleWaterIds = cfg.waterDeviceEntityIds.distinct()
             if (pickerType != null) {
-                val isPower = pickerType == "power"
-                val excluded = if (isPower) excludedPowerIds else excludedEnergyIds
-                val candidates = sensors.filter {
-                    it.deviceClass == (if (isPower) "power" else "energy") && it.entity_id !in excluded
+                val type = pickerType!!
+                val excluded = when (type) {
+                    "power" -> excludedPowerIds
+                    "energy" -> excludedEnergyIds
+                    else -> setOfNotNull(cfg.waterEntityId)
                 }
-                val selected = if (isPower) visiblePowerIds else visibleEnergyIds
+                val candidates = sensors.filter { entity ->
+                    val matches = when (type) {
+                        "power" -> entity.deviceClass == "power"
+                        "energy" -> entity.deviceClass == "energy"
+                        else -> entity.entity_id in cfg.waterDeviceEntityIds || entity.deviceClass in setOf("water", "volume")
+                    }
+                    matches && entity.entity_id !in excluded
+                }
+                val selected = when (type) {
+                    "power" -> visiblePowerIds
+                    "energy" -> visibleEnergyIds
+                    else -> visibleWaterIds
+                }
                 AdvancedEntitySearchDialog(
                     allEntities = candidates,
-                    title = if (isPower) "Top consumer devices" else "Device energy counters",
+                    title = when (type) {
+                        "power" -> "Top consumer devices"
+                        "energy" -> "Device energy counters"
+                        else -> "Individual water devices"
+                    },
                     singleSelect = false,
                     preselectedIds = selected.toSet(),
                     onDismiss = { pickerType = null },
                     onEntitiesSelected = { ids ->
-                        cfg = if (isPower) cfg.copy(
-                            deviceEntityIds = ids,
-                            hiddenPowerDeviceEntityIds = candidates.map { it.entity_id }.filterNot { it in ids }
-                        ) else cfg.copy(
-                            energyDeviceEntityIds = ids,
-                            hiddenEnergyDeviceEntityIds = candidates.map { it.entity_id }.filterNot { it in ids }
-                        )
+                        cfg = when (type) {
+                            "power" -> cfg.copy(
+                                deviceEntityIds = ids,
+                                hiddenPowerDeviceEntityIds = candidates.map { it.entity_id }.filterNot { it in ids }
+                            )
+                            "energy" -> cfg.copy(
+                                energyDeviceEntityIds = ids,
+                                hiddenEnergyDeviceEntityIds = candidates.map { it.entity_id }.filterNot { it in ids }
+                            )
+                            else -> cfg.copy(
+                                waterDeviceEntityIds = ids,
+                                hiddenWaterDeviceEntityIds = candidates.map { it.entity_id }.filterNot { it in ids }
+                            )
+                        }
                         onSave(cfg)
                         pickerType = null
                     }
@@ -2664,6 +2764,36 @@ private fun ColumnScope.EnergySensorSection(
             TextButton(onClick = { pickerType = "energy" }) {
                 Icon(Icons.Default.Edit, null, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(6.dp)); Text("Customize device energy")
             }
+
+            Spacer(Modifier.height(8.dp))
+            Text("Individual water usage", style = MaterialTheme.typography.titleSmall, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+            Text(
+                if (cfg.usesHomeAssistantEnergyPreferences)
+                    "Water meters imported from Home Assistant's Energy dashboard."
+                else "Add individual water meters to compare their usage.",
+                style = MaterialTheme.typography.bodySmall,
+                color = appColors.onMuted
+            )
+            visibleWaterIds.forEach { id ->
+                val name = allEntities.find { it.entity_id == id }?.friendlyName ?: cfg.customNames[id] ?: id
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(name, style = MaterialTheme.typography.labelMedium, color = appColors.onSurface,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                    IconButton(onClick = {
+                        cfg = cfg.copy(
+                            waterDeviceEntityIds = cfg.waterDeviceEntityIds - id,
+                            hiddenWaterDeviceEntityIds = (cfg.hiddenWaterDeviceEntityIds + id).distinct()
+                        )
+                        onSave(cfg)
+                    }, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.Default.Close, "Remove", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+                    }
+                }
+                HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
+            }
+            TextButton(onClick = { pickerType = "water" }) {
+                Icon(Icons.Default.Edit, null, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(6.dp)); Text("Customize water devices")
+            }
         }
     }
 }
@@ -2673,6 +2803,54 @@ private fun ColumnScope.EnergySensorSection(
 // Energy cards as widgets: any card of the Energy view can be embedded on other
 // pages, standalone or grouped in an energy stack. Data always reflects "today".
 // ═════════════════════════════════════════════════════════════════════════════
+
+@Composable
+private fun IndividualWaterUsageContent(
+    entities: List<HAEntity>,
+    rawUsage: (String) -> Float,
+    modifier: Modifier = Modifier
+) {
+    val appColors = LocalHKIAppColors.current
+    val usage = entities.map { entity ->
+        val rawUnit = entity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull.orEmpty()
+        val isM3 = rawUnit.contains("m³") || rawUnit.contains("m3", ignoreCase = true)
+        Triple(entity, if (isM3) rawUsage(entity.entity_id) * 1000f else rawUsage(entity.entity_id), if (isM3) "L" else rawUnit.ifBlank { "L" })
+    }.sortedByDescending { it.second }
+    val maxUsage = (usage.maxOfOrNull { it.second } ?: 0f).coerceAtLeast(0.001f)
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        if (usage.isEmpty()) {
+            Text("No individual water devices configured.", style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
+        }
+        usage.forEach { (entity, amount, unit) ->
+            Column {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(
+                        entity.friendlyName ?: entity.entity_id,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = appColors.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        (if (amount >= 100f) "%.0f %s" else "%.1f %s").format(amount, unit),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = appColors.onSurface,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                Spacer(Modifier.height(4.dp))
+                Box(Modifier.fillMaxWidth().height(8.dp).background(WaterBlue.copy(alpha = 0.12f), RoundedCornerShape(4.dp))) {
+                    Box(
+                        Modifier.fillMaxWidth((amount / maxUsage).coerceIn(0.02f, 1f)).fillMaxHeight()
+                            .background(WaterBlue, RoundedCornerShape(4.dp))
+                    )
+                }
+            }
+        }
+    }
+}
 
 data class EnergyCardSpec(val key: String, val label: String, val category: String, val mdiIcon: String)
 
@@ -2686,6 +2864,7 @@ val energyCardCatalog = listOf(
     EnergyCardSpec("battery", "Home battery", "Battery", "battery-charging"),
     EnergyCardSpec("gas", "Gas usage", "Gas", "fire"),
     EnergyCardSpec("water", "Water usage", "Water", "water"),
+    EnergyCardSpec("water_devices", "Individual water usage", "Water", "water-pump"),
     EnergyCardSpec("top_consumers", "Top consumers", "Devices", "power-plug"),
     EnergyCardSpec("device_energy", "Device energy bars", "Devices", "chart-bar")
 )
@@ -2730,6 +2909,7 @@ fun EnergyCardWidgetView(
     }
     val entities by energyEntityFlow.collectAsState()
     val energyStats by viewModel.energyStats.collectAsState()
+    val homeAssistantSolarForecasts by viewModel.energySolarForecasts.collectAsState()
     val byId = remember(entities) { entities.associateBy { it.entity_id } }
     val range = remember(rangeName) { runCatching { EnergyRange.valueOf(rangeName) }.getOrDefault(EnergyRange.DAY) }
     val window = remember(range, rangeOffset) { energyWindow(range, rangeOffset) }
@@ -2798,6 +2978,14 @@ fun EnergyCardWidgetView(
         }
         (manual + auto).distinctBy { it.entity_id }
     }
+    val waterDeviceEntities = remember(entities, cfg.waterDeviceEntityIds, cfg.customNames) {
+        cfg.waterDeviceEntityIds.mapNotNull(byId::get)
+            .map { it.withDisplayName(cfg.customNames[it.entity_id]) }
+            .distinctBy { it.entity_id }
+    }
+    LaunchedEffect(cfg.solarForecastConfigEntryIds) {
+        if (cfg.solarForecastConfigEntryIds.isNotEmpty()) viewModel.fetchHomeAssistantEnergySolarForecasts()
+    }
 
     val statIds = when (cardKey) {
         "usage" -> listOfNotNull(chartPowerId, importId, exportId, solarEnergyId)
@@ -2806,6 +2994,7 @@ fun EnergyCardWidgetView(
         "battery" -> listOfNotNull(batteryPowerId)
         "gas" -> listOfNotNull(gasId)
         "water" -> listOfNotNull(waterId)
+        "water_devices" -> waterDeviceEntities.map { it.entity_id }
         "house" -> listOfNotNull(gasId)
         "device_energy" -> deviceEnergyEntities.map { it.entity_id }
         else -> emptyList()
@@ -2835,6 +3024,24 @@ fun EnergyCardWidgetView(
     }
     fun total(id: String?): Float =
         points(id)?.sumOf { (it.change ?: 0f).coerceAtLeast(0f).toDouble() }?.toFloat() ?: 0f
+
+    val importedForecastSeries = remember(homeAssistantSolarForecasts, cfg.solarForecastConfigEntryIds, window, range, rangeOffset) {
+        if (range != EnergyRange.DAY || rangeOffset != 0) emptyList()
+        else cfg.solarForecastConfigEntryIds.mapNotNull { providerId ->
+            val hours = homeAssistantSolarForecasts[providerId].orEmpty()
+            if (hours.isEmpty()) return@mapNotNull null
+            val values = FloatArray(window.buckets)
+            hours.forEach { (timestamp, wh) ->
+                val index = window.bucketOf(timestamp)
+                if (index in values.indices) values[index] += wh
+            }
+            Triple(
+                if (cfg.solarForecastConfigEntryIds.size == 1) "Forecast" else "Forecast ${cfg.solarForecastConfigEntryIds.indexOf(providerId) + 1}",
+                values,
+                Color(0xFF29B6F6)
+            )
+        }
+    }
 
     val tooltipLabels = remember(window) { window.tooltipLabels() }
     val axisLabels = remember(window, tooltipLabels) { window.axisLabels(tooltipLabels) }
@@ -2965,7 +3172,15 @@ fun EnergyCardWidgetView(
                     TotalStat(Icons.Default.Home, ExportGreen, "%.1f kWh".format(selfUsed), "Self-used")
                 }
                 Spacer(Modifier.height(14.dp))
-                EnergyBarChart(means(solarPowerId), SolarAmber, "W", axisLabels, tooltipLabels, nowIndex)
+                val production = means(solarPowerId)
+                if (importedForecastSeries.isNotEmpty()) {
+                    EnergyMultiLineChart(
+                        listOf(Triple("Production", production, SolarAmber)) + importedForecastSeries,
+                        "W", axisLabels, tooltipLabels
+                    )
+                } else {
+                    EnergyBarChart(production, SolarAmber, "W", axisLabels, tooltipLabels, nowIndex)
+                }
             }
             "battery" -> Column(Modifier.padding(16.dp)) {
                 val battStatus = when {
@@ -3022,6 +3237,11 @@ fun EnergyCardWidgetView(
                     WaterBlue, unit, axisLabels, tooltipLabels, nowIndex
                 )
             }
+            "water_devices" -> IndividualWaterUsageContent(
+                entities = waterDeviceEntities,
+                rawUsage = { id -> changes(id).sum() },
+                modifier = Modifier.padding(16.dp)
+            )
             "top_consumers" -> Column(Modifier.padding(vertical = 6.dp)) {
                 if (topConsumers.isEmpty()) {
                     Text("No power sensors found.", style = MaterialTheme.typography.bodySmall,
@@ -3319,6 +3539,7 @@ private fun energyRolesFor(cardKey: String): List<EnergyRole> = when (cardKey) {
         EnergyRole("water_current", "Water flow (now)"),
         EnergyRole("water_cost", "Water cost")
     )
+    "water_devices" -> listOf(EnergyRole("water_devices", "Individual water devices", multi = true))
     "top_consumers" -> listOf(
         EnergyRole("power_devices", "Power devices", multi = true),
         EnergyRole("home_power", "Home power (W)")
@@ -3352,6 +3573,7 @@ private fun HKIEnergyConfig.roleValue(key: String): List<String> = when (key) {
     "water_cost" -> listOfNotNull(waterCostEntityId)
     "power_devices" -> deviceEntityIds
     "energy_devices" -> energyDeviceEntityIds
+    "water_devices" -> waterDeviceEntityIds
     else -> emptyList()
 }
 
@@ -3382,6 +3604,7 @@ private fun HKIEnergyConfig.withRole(key: String, ids: List<String>): HKIEnergyC
         "water_cost" -> copy(waterCostEntityId = id)
         "power_devices" -> copy(deviceEntityIds = ids)
         "energy_devices" -> copy(energyDeviceEntityIds = ids)
+        "water_devices" -> copy(waterDeviceEntityIds = ids)
         else -> this
     }
 }

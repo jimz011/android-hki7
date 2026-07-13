@@ -166,6 +166,15 @@ class HomeAssistantClient(
         }
     }
 
+    /** Hourly solar forecasts from providers configured in Home Assistant's Energy dashboard. */
+    suspend fun getEnergySolarForecasts(): JsonObject? {
+        return withWebSocket {
+            val response = sendCommand("energy/solar_forecast")
+            if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket null
+            response["result"]?.jsonObject
+        }
+    }
+
     /** Browses a media player's library (root when contentId is null). */
     suspend fun browseMedia(entityId: String, contentId: String? = null, contentType: String? = null): HAMediaBrowseItem? {
         return withWebSocket {
