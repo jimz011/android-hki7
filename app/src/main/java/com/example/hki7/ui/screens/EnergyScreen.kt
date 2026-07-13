@@ -2445,6 +2445,16 @@ private fun ColumnScope.EnergySensorSection(
         categoryButton("gas", "Gas", "Usage and cost", Icons.Default.LocalFireDepartment, GasPink)
         categoryButton("water", "Water", "Usage and cost", Icons.Default.WaterDrop, WaterBlue)
         categoryButton("devices", "Devices", "Individual devices under Top consumers", Icons.Default.Power, ExportGreen)
+        Spacer(Modifier.height(6.dp))
+        HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.10f))
+        TextButton(
+            onClick = { viewModel.importHomeAssistantEnergyPreferences(ENERGY_PAGE_KEY, force = true) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(Icons.Default.Refresh, null, modifier = Modifier.size(16.dp))
+            Spacer(Modifier.width(6.dp))
+            Text("Re-import from Home Assistant")
+        }
         return
     }
 
@@ -2653,11 +2663,6 @@ private fun ColumnScope.EnergySensorSection(
             }
             TextButton(onClick = { pickerType = "energy" }) {
                 Icon(Icons.Default.Edit, null, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(6.dp)); Text("Customize device energy")
-            }
-            TextButton(onClick = { viewModel.importHomeAssistantEnergyPreferences(ENERGY_PAGE_KEY, force = true) }) {
-                Icon(Icons.Default.Refresh, null, modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("Re-import from Home Assistant")
             }
         }
     }
