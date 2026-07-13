@@ -2050,6 +2050,7 @@ fun ClimateCardWidgetView(
     val appColors = LocalHKIAppColors.current
     val data = if (entityIdsOverride.isEmpty()) rememberClimateWidgetData(viewModel)
         else rememberClimateWidgetOverrideData(viewModel, entityIdsOverride)
+    var dialDialogEntityId by remember { mutableStateOf<String?>(null) }
 
     @Composable
     fun emptyCard(text: String) {
@@ -2124,7 +2125,15 @@ fun ClimateCardWidgetView(
         "dial" -> deviceList(
             data.climateEntities,
             "No climate devices found. Thermostats and AC units from Home Assistant appear here automatically."
-        ) { ThermostatDialCard(it, viewModel, cornerRadius, isSquare) }
+        ) { entity ->
+            ThermostatDialCard(
+                entity = entity,
+                viewModel = viewModel,
+                cornerRadius = cornerRadius,
+                isSquare = isSquare,
+                onCenterClick = { dialDialogEntityId = entity.entity_id }
+            )
+        }
         "fans" -> deviceList(
             data.fanEntities,
             "No fans found. Fan entities from Home Assistant appear here automatically."
@@ -2178,6 +2187,18 @@ fun ClimateCardWidgetView(
                     }
                 }
             }
+        }
+    }
+
+    dialDialogEntityId?.let { entityId ->
+        data.climateEntities.find { it.entity_id == entityId }?.let { entity ->
+            PagedRoleDialog(
+                role = "climate",
+                entities = listOf(entity),
+                viewModel = viewModel,
+                onDismiss = { dialDialogEntityId = null },
+                useClimateDial = true
+            )
         }
     }
 }
