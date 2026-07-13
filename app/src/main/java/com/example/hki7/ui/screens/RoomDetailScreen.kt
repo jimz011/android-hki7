@@ -2121,18 +2121,18 @@ fun RoomDetailScreen(
             entityRegistry = entityRegistry,
             deviceRegistry = deviceRegistry,
             onDismiss = { selectedSingleWidgetSettings = null },
-            widgetAppearance = WidgetAppearance(widget.isSquare, widget.cornerRadius, widget.width),
+            widgetAppearance = WidgetAppearance(widget.isSquare, widget.cornerRadius, widget.width, widget.buttonStyle),
             onSaveWithAppearance = { config, a ->
                 if (containerId == null) {
                     val latest = areaWidgets.filterIsInstance<HKISingleEntityWidget>().find { it.id == widget.id } ?: widget
                     viewModel.updateWidget(
                         areaId,
-                        latest.copy(config = config, isSquare = a.isSquare, cornerRadius = a.cornerRadius, width = a.width)
+                        latest.copy(config = config, isSquare = a.isSquare, cornerRadius = a.cornerRadius, width = a.width, buttonStyle = a.buttonStyle)
                     )
                 } else {
                     updateChildInSwipingStack(
                         containerId,
-                        widget.copy(config = config, isSquare = a.isSquare, cornerRadius = a.cornerRadius, width = a.width)
+                        widget.copy(config = config, isSquare = a.isSquare, cornerRadius = a.cornerRadius, width = a.width, buttonStyle = a.buttonStyle)
                     )
                 }
                 selectedSingleWidgetSettings = null
@@ -2937,7 +2937,7 @@ private fun VacuumBindingRow(
 }
 
 /** Shape/size of a standalone (non-stacked) widget, edited from its button settings dialog. */
-data class WidgetAppearance(val isSquare: Boolean, val cornerRadius: Int, val width: String)
+data class WidgetAppearance(val isSquare: Boolean, val cornerRadius: Int, val width: String, val buttonStyle: String = "")
 
 @Composable
 fun ButtonConfigDialog(
@@ -2957,6 +2957,9 @@ fun ButtonConfigDialog(
     onSave: (HKIButtonConfig) -> Unit
 ) {
     var appearIsSquare by remember(widgetAppearance) { mutableStateOf(widgetAppearance?.isSquare ?: true) }
+    var appearButtonStyle by remember(widgetAppearance) {
+        mutableStateOf(widgetAppearance?.buttonStyle?.takeIf { it.isNotBlank() } ?: if (widgetAppearance?.isSquare == true) "square" else "standard")
+    }
     var appearRadius by remember(widgetAppearance) { mutableIntStateOf(widgetAppearance?.cornerRadius ?: 28) }
     var appearWidth by remember(widgetAppearance) { mutableStateOf(widgetAppearance?.width ?: "half") }
     var name by remember(config) { mutableStateOf(config.name ?: entity?.friendlyName ?: entity?.entity_id ?: "") }
@@ -2965,6 +2968,8 @@ fun ButtonConfigDialog(
     var refreshInterval by remember(config) { mutableIntStateOf(config.cameraRefreshInterval) }
     var iconName by remember(config) { mutableStateOf(config.icon ?: "None") }
     var spinIcon by remember(config) { mutableStateOf(config.spinIcon) }
+    val isLightEntity = entity?.entity_id?.startsWith("light.") == true
+    var showBrightnessSlider by remember(config) { mutableStateOf(config.showBrightnessSlider) }
     var tapAction by remember(config) { mutableStateOf(config.tapActionEx ?: HKIAction(type = config.tapAction)) }
     var doubleAction by remember(config) { mutableStateOf(config.doubleTapActionEx ?: HKIAction(type = config.doubleTapAction)) }
     var holdAction by remember(config) { mutableStateOf(config.holdActionEx ?: HKIAction(type = config.holdAction)) }
@@ -3123,6 +3128,15 @@ fun ButtonConfigDialog(
                         }
                         Switch(checked = spinIcon, onCheckedChange = { spinIcon = it })
                     }
+                    if (isLightEntity) {
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Column(Modifier.weight(1f)) {
+                                Text("Brightness slider", style = MaterialTheme.typography.labelLarge)
+                                Text("Drag horizontally across the full button", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            Switch(checked = showBrightnessSlider, onCheckedChange = { showBrightnessSlider = it })
+                        }
+                    }
                 }
                 if (isLockEntity) {
                     Text("Door sensor (turns lock card red when open)", style = MaterialTheme.typography.labelLarge)
@@ -3221,10 +3235,11 @@ fun ButtonConfigDialog(
                     }
                 }
                 if (widgetAppearance != null) {
-                    Text("Shape", style = MaterialTheme.typography.labelLarge)
+                    Text("Type", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(selected = !appearIsSquare, onClick = { appearIsSquare = false }, label = { Text("Standard") })
-                        FilterChip(selected = appearIsSquare, onClick = { appearIsSquare = true }, label = { Text("Square") })
+                        FilterChip(selected = appearButtonStyle == "standard", onClick = { appearButtonStyle = "standard"; appearIsSquare = false }, label = { Text("Standard") })
+                        FilterChip(selected = appearButtonStyle == "square", onClick = { appearButtonStyle = "square"; appearIsSquare = true }, label = { Text("Square") })
+                        FilterChip(selected = appearButtonStyle == "tile", onClick = { appearButtonStyle = "tile"; appearIsSquare = false }, label = { Text("Tile") })
                     }
                     Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -3244,7 +3259,7 @@ fun ButtonConfigDialog(
                         if (widgetAppearance != null && onSaveWithAppearance != null) {
                             onSaveWithAppearance(
                                 newConfig,
-                                WidgetAppearance(appearIsSquare, appearRadius, appearWidth)
+                                WidgetAppearance(appearIsSquare, appearRadius, appearWidth, appearButtonStyle)
                             )
                         } else onSave(newConfig)
                     }
@@ -3254,6 +3269,7 @@ fun ButtonConfigDialog(
                             label = if (isVacuumItem) config.label else label.ifBlank { null },
                             icon = if (isCameraItem || isVacuumItem) config.icon else iconName.takeUnless { it == "None" },
                             spinIcon = if (isCameraItem || isVacuumItem) config.spinIcon else spinIcon,
+                            showBrightnessSlider = if (isLightEntity) showBrightnessSlider else false,
                             cameraUrl = if (isCameraItem && config.isCustomUrl) cameraUrl.ifBlank { null } else config.cameraUrl,
                             cameraRefreshInterval = if (isCameraItem) refreshInterval else config.cameraRefreshInterval,
                             isCustomUrl = config.isCustomUrl,
@@ -3519,6 +3535,9 @@ fun StackSettingsDialog(
     var columns by remember(stack) { mutableIntStateOf(stack.columns.coerceIn(1, 3)) }
     var showBadge by remember(stack) { mutableStateOf(stack.showBadge) }
     var isSquare by remember(stack) { mutableStateOf(stack.isSquare) }
+    var buttonStyle by remember(stack) {
+        mutableStateOf(stack.buttonStyle.takeIf { it.isNotBlank() } ?: if (stack.isSquare) "square" else "standard")
+    }
     var cornerRadius by remember(stack) { mutableIntStateOf(stack.cornerRadius) }
     var collapsible by remember(stack) { mutableStateOf(stack.collapsible) }
     var defaultCollapsed by remember(stack) { mutableStateOf(stack.defaultCollapsed) }
@@ -3570,10 +3589,11 @@ fun StackSettingsDialog(
                     }
                 }
                 if (stack.stackType != "weather") {
-                    Text("Shape", style = MaterialTheme.typography.labelLarge)
+                    Text("Button type", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
-                        FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text("Square") })
+                        FilterChip(selected = buttonStyle == "standard", onClick = { buttonStyle = "standard"; isSquare = false }, label = { Text("Standard") })
+                        FilterChip(selected = buttonStyle == "square", onClick = { buttonStyle = "square"; isSquare = true }, label = { Text("Square") })
+                        FilterChip(selected = buttonStyle == "tile", onClick = { buttonStyle = "tile"; isSquare = false }, label = { Text("Tile") })
                     }
                 }
                 Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
@@ -3623,6 +3643,7 @@ fun StackSettingsDialog(
                             columns = columns.coerceIn(1, 3),
                             showBadge = if (stack.stackType in listOf("camera", "weather")) false else showBadge,
                             isSquare = if (stack.stackType == "weather") false else isSquare,
+                            buttonStyle = if (stack.stackType in listOf("weather", "camera", "vacuum")) stack.buttonStyle else buttonStyle,
                             cornerRadius = cornerRadius,
                             collapsible = collapsible,
                             defaultCollapsed = defaultCollapsed,
@@ -4090,6 +4111,10 @@ fun ButtonStackItem(
                                 onDoubleClick = { handleButtonInteraction(entity.entity_id, cfg, "double") { onEntityDoubleClick(entity.entity_id) } },
                                 isSquare = stack.isSquare,
                                 cornerRadius = stack.cornerRadius,
+                                buttonStyle = stack.buttonStyle.takeIf { it.isNotBlank() } ?: if (stack.isSquare) "square" else "standard",
+                                showBrightnessSlider = cfg?.showBrightnessSlider == true,
+                                onBrightnessChange = { viewModel.setOptimisticBrightness(entity.entity_id, it) },
+                                onBrightnessChangeFinished = { viewModel.setBrightness(entity.entity_id, it) },
                                 doorOpen = doorOpen,
                                 currentUrl = currentUrl
                             )
@@ -4172,6 +4197,10 @@ fun ButtonStackItem(
                                         onDoubleClick = { handleButtonInteraction(entity.entity_id, cfg, "double") { onEntityDoubleClick(entity.entity_id) } },
                                         isSquare = stack.isSquare,
                                         cornerRadius = stack.cornerRadius,
+                                        buttonStyle = stack.buttonStyle.takeIf { it.isNotBlank() } ?: if (stack.isSquare) "square" else "standard",
+                                        showBrightnessSlider = cfg?.showBrightnessSlider == true,
+                                        onBrightnessChange = { viewModel.setOptimisticBrightness(entity.entity_id, it) },
+                                        onBrightnessChangeFinished = { viewModel.setBrightness(entity.entity_id, it) },
                                         doorOpen = doorOpen,
                                         currentUrl = currentUrl
                                     )
@@ -4209,6 +4238,10 @@ fun ButtonStackItem(
                                         onDoubleClick = { onEntityDoubleClick(entity.entity_id) },
                                         isSquare = stack.isSquare,
                                         cornerRadius = stack.cornerRadius,
+                                        buttonStyle = stack.buttonStyle.takeIf { it.isNotBlank() } ?: if (stack.isSquare) "square" else "standard",
+                                        showBrightnessSlider = buttonConfigs[entity.entity_id]?.showBrightnessSlider == true,
+                                        onBrightnessChange = { viewModel.setOptimisticBrightness(entity.entity_id, it) },
+                                        onBrightnessChangeFinished = { viewModel.setBrightness(entity.entity_id, it) },
                                         interactionsEnabled = false,
                                         currentUrl = currentUrl
                                     )
@@ -4376,6 +4409,10 @@ fun SingleEntityWidgetItem(
                         onDoubleClick = { handleSingleButtonInteraction("double") { onEntityDoubleClick(widget.entityId) } },
                         isSquare = widget.isSquare,
                         cornerRadius = widget.cornerRadius,
+                        buttonStyle = widget.buttonStyle.takeIf { it.isNotBlank() } ?: if (widget.isSquare) "square" else "standard",
+                        showBrightnessSlider = widget.config.showBrightnessSlider,
+                        onBrightnessChange = { viewModel.setOptimisticBrightness(widget.entityId, it) },
+                        onBrightnessChangeFinished = { viewModel.setBrightness(widget.entityId, it) },
                         doorOpen = doorOpen,
                         interactionsEnabled = !isEditMode,
                         currentUrl = currentUrl

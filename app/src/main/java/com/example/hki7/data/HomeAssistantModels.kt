@@ -586,7 +586,9 @@ data class HKIClimateConfig(
     /** Per-climate-device MDI icon slug overriding the default hvac icon. */
     val customIcons: Map<String, String> = emptyMap(),
     /** Per-climate-device card style on the main page: "card" (default) or "dial". */
-    val deviceCardStyles: Map<String, String> = emptyMap()
+    val deviceCardStyles: Map<String, String> = emptyMap(),
+    /** Per-device width on the main page: "full", "half", or "third". */
+    val deviceCardWidths: Map<String, String> = emptyMap()
 )
 
 /** Entity bindings for the Energy dashboard's power-flow visualization. All optional. */
@@ -669,6 +671,8 @@ data class HKIButtonStack(
     val stackType: String = "buttons",
     val cameraUrls: List<String> = emptyList(),
     val cameraAspectRatio: Float = 16f / 9f,
+    /** Empty preserves the legacy isSquare behaviour; otherwise "standard", "square", or "tile". */
+    val buttonStyle: String = "",
     val buttonConfigs: Map<String, HKIButtonConfig> = emptyMap()
 ) : HKIRoomWidget()
 
@@ -717,6 +721,8 @@ data class HKISingleEntityWidget(
     val cornerRadius: Int = 28,
     val isHidden: Boolean = false,
     val cameraAspectRatio: Float = 16f / 9f,
+    /** Empty preserves the legacy isSquare behaviour; otherwise "standard", "square", or "tile". */
+    val buttonStyle: String = "",
     val config: HKIButtonConfig = HKIButtonConfig()
 ) : HKIRoomWidget()
 
@@ -726,6 +732,8 @@ data class HKIButtonConfig(
     val icon: String? = null,
     val spinIcon: Boolean = false,     // rotate the icon continuously while the entity isn't "off"
     val label: String? = null,
+    /** Light-only Google Home-style full-height brightness control. */
+    val showBrightnessSlider: Boolean = false,
     val cameraUrl: String? = null,
     val cameraRefreshInterval: Int = 5,
     val isCustomUrl: Boolean = false,

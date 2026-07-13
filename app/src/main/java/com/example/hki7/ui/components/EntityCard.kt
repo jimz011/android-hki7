@@ -12,6 +12,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,7 +20,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.Alignment
@@ -31,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil3.compose.AsyncImage
@@ -145,6 +150,10 @@ fun EntityCard(
     cornerRadius: Int = 28,
     interactionsEnabled: Boolean = true,
     doorOpen: Boolean = false,
+    buttonStyle: String = if (isSquare) "square" else "standard",
+    showBrightnessSlider: Boolean = false,
+    onBrightnessChange: (Float) -> Unit = {},
+    onBrightnessChangeFinished: (Float) -> Unit = {},
     // Needed to resolve the entity's picture when the icon is set to ENTITY_PICTURE_ICON.
     currentUrl: String? = null
 ) {
@@ -171,6 +180,83 @@ fun EntityCard(
     val activeContent = if (primary.luminance() < 0.45f) Color.White else Color(0xFF111111)
     val primaryContent = if (primary.luminance() < 0.45f) Color.White else Color(0xFF111111)
     val unavailableStateColor = if (primary.isRedShade()) primary else Color(0xFFEF5350)
+    val brightnessEnabled = showBrightnessSlider && domain == "light" && entity.supportsBrightness && interactionsEnabled
+    val entityBrightness = if (isActive) (entity.brightness ?: 0) / 255f else 0f
+    var localBrightness by remember(entity.entity_id) { mutableFloatStateOf(entityBrightness) }
+    LaunchedEffect(entity.brightness, entity.state) { localBrightness = entityBrightness }
+
+    val sliderModifier = if (brightnessEnabled) {
+        Modifier.pointerInput(entity.entity_id) {
+            detectHorizontalDragGestures(
+                onDragStart = { offset ->
+                    localBrightness = (offset.x / size.width.toFloat()).coerceIn(0f, 1f)
+                    onBrightnessChange(localBrightness)
+                },
+                onHorizontalDrag = { change, _ ->
+                    localBrightness = (change.position.x / size.width.toFloat()).coerceIn(0f, 1f)
+                    onBrightnessChange(localBrightness)
+                    change.consume()
+                },
+                onDragEnd = { onBrightnessChangeFinished(localBrightness) }
+            )
+        }
+    } else Modifier
+
+    val statusText = run {
+        val brightnessPercent = ((entity.brightness ?: 0) / 255f * 100).toInt()
+        when {
+            isLockDoorOpen -> "Open"
+            domain == "light" && entity.supportsBrightness && isActive -> "On - ${brightnessPercent}%"
+            domain == "climate" -> {
+                val mode = (entity.attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
+                    ?: entity.attributes?.get("hvac_mode")?.jsonPrimitive?.contentOrNull
+                    ?: entity.state).split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+                val temp = entity.attributes?.get("temperature")?.jsonPrimitive?.content?.toDoubleOrNull()
+                if (temp != null && isClimateNotOff) "$mode - ${temp.toInt()}\u00B0C" else mode
+            }
+            else -> label ?: entity.state.split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+        }
+    }
+
+    if (buttonStyle == "tile") {
+        val accent = when {
+            domain == "light" && isActive -> lightColor ?: Color(0xFFB58E31)
+            domain == "climate" -> climateColor
+            else -> primary
+        }
+        Surface(
+            shape = RoundedCornerShape(18.dp),
+            color = appColors.elevated,
+            modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).then(
+                if (interactionsEnabled) Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick, onDoubleClick = onDoubleClick)
+                else Modifier
+            )
+        ) {
+            Box(Modifier.fillMaxWidth()) {
+                if (brightnessEnabled && localBrightness > 0f) {
+                    Box(Modifier.fillMaxWidth(localBrightness).fillMaxHeight().background(accent.copy(alpha = 0.22f)))
+                }
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Box(Modifier.size(34.dp).background(accent.copy(alpha = 0.15f), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
+                        val slug = iconName?.takeUnless { it.isBlank() } ?: defaultEntityIconSlug(entity, lockDoorOpen = isLockDoorOpen)
+                        if (slug != null) MdiIcon(slug, tint = accent, size = 18.dp)
+                        else Icon(Icons.Default.DeviceUnknown, null, tint = accent, modifier = Modifier.size(18.dp))
+                    }
+                    Column(Modifier.weight(1f)) {
+                        Text(name, style = MaterialTheme.typography.labelLarge, color = appColors.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(statusText, style = MaterialTheme.typography.bodySmall, color = appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    Icon(Icons.Default.ChevronRight, null, tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+                }
+                if (brightnessEnabled) Box(Modifier.matchParentSize().then(sliderModifier))
+            }
+        }
+        return
+    }
 
     Card(
         modifier = modifier
@@ -196,12 +282,14 @@ fun EntityCard(
             }
         )
     ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
+        Box(Modifier.fillMaxSize()) {
+            if (brightnessEnabled && localBrightness > 0f) {
+                Box(Modifier.fillMaxWidth(localBrightness).fillMaxHeight().background(Color.White.copy(alpha = 0.18f)))
+            }
+            Column(
+                modifier = Modifier.padding(16.dp).fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
             val iconTint = when {
                 coverDoorIconColor != null  -> coverDoorIconColor   // door cover: state color on icon only
                 isCoverNotClosed            -> primaryContent        // open cover (non-door): readable on primary bg
@@ -262,20 +350,6 @@ fun EntityCard(
                         else            -> appColors.onSurface
                     }
                 )
-                val brightnessPercent = ((entity.brightness ?: 0) / 255f * 100).toInt()
-                val labelText = when {
-                    isLockDoorOpen -> "Open"
-                    domain == "light" && entity.supportsBrightness && isActive -> "On - ${brightnessPercent}%"
-                    domain == "climate" -> {
-                        val mode = (entity.attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
-                            ?: entity.attributes?.get("hvac_mode")?.jsonPrimitive?.contentOrNull
-                            ?: entity.state)
-                            .split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
-                        val temp = entity.attributes?.get("temperature")?.jsonPrimitive?.content?.toDoubleOrNull()
-                        if (temp != null && isClimateNotOff) "$mode - ${temp.toInt()}\u00B0C" else mode
-                    }
-                    else -> label ?: entity.state.split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
-                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (domain == "camera" && entity.state.equals("recording", ignoreCase = true)) {
                         Box(
@@ -286,7 +360,7 @@ fun EntityCard(
                         Spacer(Modifier.width(5.dp))
                     }
                     Text(
-                        text = labelText,
+                        text = statusText,
                         style = MaterialTheme.typography.labelMedium,
                         color = when {
                             isCoverNotClosed -> primaryContent.copy(alpha = 0.75f)
@@ -301,6 +375,8 @@ fun EntityCard(
                     )
                 }
             }
+            }
+            if (brightnessEnabled) Box(Modifier.matchParentSize().then(sliderModifier))
         }
     }
 }

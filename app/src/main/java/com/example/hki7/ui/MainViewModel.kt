@@ -2151,10 +2151,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                         columns = existingStack?.columns ?: 3,
                         showBadge = existingStack?.showBadge ?: true,
                         isSquare = existingStack?.isSquare ?: true,
+                        buttonStyle = existingStack?.buttonStyle.orEmpty(),
                         cornerRadius = existingStack?.cornerRadius ?: 28,
                         isHidden = existingStack?.isHidden ?: false,
                         defaultCollapsed = existingStack?.defaultCollapsed ?: false,
-                        isCollapsed = existingStack?.isCollapsed
+                        isCollapsed = existingStack?.isCollapsed,
+                        buttonConfigs = existingStack?.buttonConfigs.orEmpty()
                     )
                 }
             if (existingWidgets[area.area_id] != stacks) {

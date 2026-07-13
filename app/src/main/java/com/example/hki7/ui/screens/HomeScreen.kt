@@ -1438,18 +1438,18 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
             entityRegistry = entityRegistry,
             deviceRegistry = deviceRegistry,
             onDismiss = { selectedSingleWidgetSettings = null },
-            widgetAppearance = WidgetAppearance(widget.isSquare, widget.cornerRadius, widget.width),
+            widgetAppearance = WidgetAppearance(widget.isSquare, widget.cornerRadius, widget.width, widget.buttonStyle),
             onSaveWithAppearance = { config, a ->
                 if (containerId == null) {
                     val latest = homeWidgets.filterIsInstance<HKISingleEntityWidget>().find { it.id == widget.id } ?: widget
                     viewModel.updateWidget(
                         HOME_WIDGET_AREA,
-                        latest.copy(config = config, isSquare = a.isSquare, cornerRadius = a.cornerRadius, width = a.width)
+                        latest.copy(config = config, isSquare = a.isSquare, cornerRadius = a.cornerRadius, width = a.width, buttonStyle = a.buttonStyle)
                     )
                 } else {
                     updateChildInSwipingStack(
                         containerId,
-                        widget.copy(config = config, isSquare = a.isSquare, cornerRadius = a.cornerRadius, width = a.width)
+                        widget.copy(config = config, isSquare = a.isSquare, cornerRadius = a.cornerRadius, width = a.width, buttonStyle = a.buttonStyle)
                     )
                 }
                 selectedSingleWidgetSettings = null

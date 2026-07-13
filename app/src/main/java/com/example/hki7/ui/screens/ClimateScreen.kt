@@ -182,6 +182,32 @@ fun ClimateScreen(viewModel: MainViewModel) {
             .sortedBy { it.friendlyName ?: it.entity_id }
             .applyClimateOrder(climateConfig.entityOrder)
     }
+    val climateDeviceRows = remember(climateEntities, climateConfig.deviceCardWidths) {
+        buildList<List<HAEntity>> {
+            var row = mutableListOf<HAEntity>()
+            var used = 0
+            climateEntities.forEach { entity ->
+                val span = when (climateConfig.deviceCardWidths[entity.entity_id]) {
+                    "third" -> 2
+                    "half" -> 3
+                    else -> 6
+                }
+                if (row.isNotEmpty() && used + span > 6) {
+                    add(row)
+                    row = mutableListOf()
+                    used = 0
+                }
+                row.add(entity)
+                used += span
+                if (used == 6) {
+                    add(row)
+                    row = mutableListOf()
+                    used = 0
+                }
+            }
+            if (row.isNotEmpty()) add(row)
+        }
+    }
     // Humidifiers/dehumidifiers: humidifier.* domain plus manual additions.
     val humidifierEntities = remember(entities, climateConfig) {
         (entities.filter { it.entity_id.startsWith("humidifier.") } +
@@ -377,23 +403,30 @@ fun ClimateScreen(viewModel: MainViewModel) {
                     }
                 } else {
                     item { ClimateSectionHeader("Thermostats", "${climateEntities.size}") }
-                    items(count = climateEntities.size, key = { climateEntities[it].entity_id }) { idx ->
-                        val entity = climateEntities[idx]
-                        val iconOverride = climateConfig.customIcons[entity.entity_id]
-                        val cardStyle = climateConfig.deviceCardStyles[entity.entity_id] ?: "card"
-                        Box(Modifier.padding(horizontal = 16.dp, vertical = 5.dp)) {
-                            if (cardStyle == "dial") ThermostatDialCard(entity, viewModel, iconOverride = iconOverride)
-                            else ClimateDeviceCard(entity, viewModel, iconOverride = iconOverride)
-                            if (isEditMode) {
-                                EditSettingsButton(
-                                    onClick = { renameEntity = entity },
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
-                                EditRemoveBadge(
-                                    onClick = { hideEntity(entity.entity_id) },
-                                    modifier = Modifier.align(Alignment.TopEnd)
-                                )
+                    items(count = climateDeviceRows.size, key = { row -> climateDeviceRows[row].joinToString("|") { it.entity_id } }) { rowIndex ->
+                        val row = climateDeviceRows[rowIndex]
+                        Row(
+                            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 5.dp),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            var used = 0
+                            row.forEach { entity ->
+                                val width = climateConfig.deviceCardWidths[entity.entity_id] ?: "full"
+                                val span = when (width) { "third" -> 2; "half" -> 3; else -> 6 }
+                                used += span
+                                val iconOverride = climateConfig.customIcons[entity.entity_id]
+                                val cardStyle = climateConfig.deviceCardStyles[entity.entity_id] ?: "card"
+                                Box(Modifier.weight(span.toFloat())) {
+                                    if (cardStyle == "dial") ThermostatDialCard(entity, viewModel, iconOverride = iconOverride)
+                                    else ClimateDeviceCard(entity, viewModel, iconOverride = iconOverride)
+                                    if (isEditMode) {
+                                        EditSettingsButton(onClick = { renameEntity = entity }, modifier = Modifier.align(Alignment.Center))
+                                        EditRemoveBadge(onClick = { hideEntity(entity.entity_id) }, modifier = Modifier.align(Alignment.TopEnd))
+                                    }
+                                }
                             }
+                            if (used < 6) Spacer(Modifier.weight((6 - used).toFloat()))
                         }
                     }
                 }
@@ -415,6 +448,7 @@ private fun ClimateDeviceSettingsDialog(
     var name by remember(entity) { mutableStateOf(config.customNames[entity.entity_id].orEmpty()) }
     var icon by remember(entity) { mutableStateOf(config.customIcons[entity.entity_id].orEmpty()) }
     var style by remember(entity) { mutableStateOf(config.deviceCardStyles[entity.entity_id] ?: "card") }
+    var width by remember(entity) { mutableStateOf(config.deviceCardWidths[entity.entity_id] ?: "full") }
     var showIconPicker by remember { mutableStateOf(false) }
 
     if (showIconPicker) {
@@ -441,6 +475,7 @@ private fun ClimateDeviceSettingsDialog(
                     FilterChip(selected = style == "card", onClick = { style = "card" }, label = { Text("Current card") })
                     FilterChip(selected = style == "dial", onClick = { style = "dial" }, label = { Text("Thermostat dial") })
                 }
+                WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 Text("Icon", style = MaterialTheme.typography.labelLarge)
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (icon.isNotBlank()) MdiIcon(icon, size = 20.dp)
@@ -455,7 +490,8 @@ private fun ClimateDeviceSettingsDialog(
                 onSave(config.copy(
                     customNames = if (name.isBlank()) config.customNames - id else config.customNames + (id to name.trim()),
                     customIcons = if (icon.isBlank()) config.customIcons - id else config.customIcons + (id to icon),
-                    deviceCardStyles = if (style == "card") config.deviceCardStyles - id else config.deviceCardStyles + (id to style)
+                    deviceCardStyles = if (style == "card") config.deviceCardStyles - id else config.deviceCardStyles + (id to style),
+                    deviceCardWidths = if (width == "full") config.deviceCardWidths - id else config.deviceCardWidths + (id to width)
                 ))
             }) { Text("Save") }
         },
