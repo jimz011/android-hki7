@@ -222,32 +222,50 @@ fun EntityCard(
 
     if (buttonStyle == "tile") {
         val tileActive = isCoverNotClosed || isLockDoorOpen || isLockUnlocked || isActive || isClimateNotOff
-        val accent = when (domain) {
-            "light" -> if (isActive) lightColor ?: Color(0xFFB58E31) else primary
-            "climate" -> climateColor
-            else -> primary
+        // Same base fill + depth gradient as the standard/square card: primary when on, elevated when off.
+        val tileBase = when {
+            isCoverNotClosed                 -> primary
+            isLockDoorOpen || isLockUnlocked -> primary
+            isActive || isClimateNotOff      -> primary
+            else                             -> appColors.elevated
         }
-        // Keep the filled portion identical to a normal ON button. Only the unfilled remainder is
-        // tonal, so brightness reads as a horizontal level instead of dimming the entire tile.
-        val brightnessFillColor = primary
-        val brightnessTrackColor = lerpColor(primary, appColors.elevated, 0.74f)
+        // Icon reflects the entity's real colour — identical logic to the standard/square card.
+        val tileIconTint = when {
+            coverDoorIconColor != null           -> coverDoorIconColor
+            isCoverNotClosed                     -> primaryContent
+            isLockDoorOpen                       -> LockRed
+            isLockUnlocked                       -> LockOrange
+            domain == "lock"                     -> LockGreen
+            domain == "climate"                  -> climateColor
+            domain == "light" && isActive        -> lightColor ?: Color(0xFFB58E31)
+            domain == "fan" && isActive          -> FanBlue
+            domain == "humidifier" && isActive   -> HumidifierCyan
+            domain == "alarm_control_panel"      -> alarmStateColor(entity.state)
+            isActive                             -> activeContent
+            isUnavailable                        -> appColors.onMuted
+            else                                 -> primary
+        }
+        val contentColor = if (tileActive) activeContent else appColors.onSurface
+        val mutedContent = if (tileActive) activeContent.copy(alpha = 0.72f) else appColors.onMuted
+        val lightFill = lightColor ?: Color(0xFFB58E31)
         Surface(
             shape = RoundedCornerShape(18.dp),
-            color = when {
-                brightnessVisible && tileActive -> brightnessTrackColor
-                tileActive -> primary
-                else -> appColors.elevated
-            },
+            color = tileBase,
             modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).then(
                 if (interactionsEnabled) Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick, onDoubleClick = onDoubleClick)
                 else Modifier
             )
         ) {
             Box(Modifier.fillMaxWidth()) {
-                if (brightnessVisible && localBrightness > 0f) {
+                // Depth gradient (two shades of the tile's own colour), same style as the card.
+                Box(Modifier.matchParentSize().background(surfaceGradient(tileBase)))
+                // Brightness: the light's own colour fills horizontally from the left to the current
+                // level (e.g. 50% brightness = coloured left half), deepening toward the level edge.
+                if (brightnessVisible && isActive && localBrightness > 0f) {
                     Box(
-                        Modifier.fillMaxWidth(localBrightness).fillMaxHeight()
-                            .background(if (tileActive) brightnessFillColor else accent.copy(alpha = 0.34f))
+                        Modifier.fillMaxWidth(localBrightness).fillMaxHeight().background(
+                            Brush.horizontalGradient(listOf(lightFill.copy(alpha = 0.22f), lightFill.copy(alpha = 0.80f)))
+                        )
                     )
                 }
                 Row(
@@ -255,17 +273,16 @@ fun EntityCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Box(Modifier.size(34.dp).background(if (tileActive) activeContent.copy(alpha = 0.12f) else accent.copy(alpha = 0.15f), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(34.dp).background((if (tileActive) activeContent else tileIconTint).copy(alpha = if (tileActive) 0.12f else 0.15f), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
                         val slug = iconName?.takeUnless { it.isBlank() } ?: defaultEntityIconSlug(entity, lockDoorOpen = isLockDoorOpen)
-                        val tileIconTint = if (tileActive) activeContent else accent
                         if (slug != null) MdiIcon(slug, tint = tileIconTint, size = 18.dp)
                         else Icon(Icons.Default.DeviceUnknown, null, tint = tileIconTint, modifier = Modifier.size(18.dp))
                     }
                     Column(Modifier.weight(1f)) {
-                        Text(name, style = MaterialTheme.typography.labelLarge, color = if (tileActive) activeContent else appColors.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text(statusText, style = MaterialTheme.typography.bodySmall, color = if (tileActive) activeContent.copy(alpha = 0.72f) else appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(name, style = MaterialTheme.typography.labelLarge, color = contentColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(statusText, style = MaterialTheme.typography.bodySmall, color = mutedContent, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
-                    Icon(Icons.Default.ChevronRight, null, tint = if (tileActive) activeContent.copy(alpha = 0.68f) else appColors.onMuted, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.ChevronRight, null, tint = mutedContent.copy(alpha = 0.85f), modifier = Modifier.size(16.dp))
                 }
                 if (brightnessEnabled) Box(Modifier.matchParentSize().then(sliderModifier))
             }
@@ -298,6 +315,14 @@ fun EntityCard(
         )
     ) {
         Box(Modifier.fillMaxSize()) {
+            // Background-derived depth gradient (two shades of the card's own colour, no accent).
+            val cardBg = when {
+                isCoverNotClosed                 -> primary
+                isLockDoorOpen || isLockUnlocked -> primary
+                isActive || isClimateNotOff      -> primary
+                else                             -> appColors.elevated
+            }
+            Box(Modifier.matchParentSize().background(surfaceGradient(cardBg)))
             if (brightnessVisible && localBrightness > 0f) {
                 Box(Modifier.fillMaxWidth(localBrightness).fillMaxHeight().background(Color.White.copy(alpha = 0.18f)))
             }
@@ -427,6 +452,15 @@ private fun lerpColor(start: Color, end: Color, fraction: Float): Color {
         alpha = 1f
     )
 }
+
+/** Subtle depth gradient built purely from a surface's own colour (two shades of it, no accent). */
+fun surfaceGradient(base: Color): Brush = Brush.verticalGradient(
+    listOf(
+        lerpColor(base, Color.White, 0.06f),
+        base,
+        lerpColor(base, Color.Black, 0.10f)
+    )
+)
 
 fun coverDoorColor(state: String): Color = when (state.lowercase()) {
     "closed"  -> Color(0xFF4CAF50)   // green = closed/secure

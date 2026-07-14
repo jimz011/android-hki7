@@ -58,6 +58,7 @@ import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.WidgetBackground
 import com.example.hki7.ui.components.WidgetBackgroundSelector
 import com.example.hki7.ui.components.fadingEdges
+import com.example.hki7.ui.components.surfaceGradient
 import com.example.hki7.ui.theme.LocalHKIAppColors
 
 /** Free-form markdown card. Content is authored in the widget settings. */
@@ -74,9 +75,14 @@ fun MarkdownWidgetItem(
     Box {
         Surface(
             modifier = Modifier.fillMaxWidth()
-                .then(if (widget.isSquare) Modifier.aspectRatio(1f) else Modifier),
+                .then(if (widget.isSquare) Modifier.aspectRatio(1f) else Modifier)
+                .then(
+                    if (widget.backgroundUrl.isNullOrBlank())
+                        Modifier.background(surfaceGradient(appColors.elevated), RoundedCornerShape(widget.cornerRadius.dp))
+                    else Modifier
+                ),
             shape = RoundedCornerShape(widget.cornerRadius.dp),
-            color = if (!widget.backgroundUrl.isNullOrBlank()) Color.Transparent else appColors.elevated
+            color = Color.Transparent
         ) {
           Box {
             WidgetBackground(widget.backgroundUrl, currentUrl)

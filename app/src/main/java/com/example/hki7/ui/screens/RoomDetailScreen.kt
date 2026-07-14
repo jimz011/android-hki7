@@ -66,6 +66,8 @@ import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.BatteryAlert
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.ElectricBolt
 import androidx.compose.material.icons.filled.Close
@@ -5946,11 +5948,19 @@ fun GenericEntityDialog(
     val isSwitchLike = domain in listOf("light", "switch", "input_boolean", "fan", "automation", "group", "remote", "siren", "humidifier")
     val isGraphLike = domain == "sensor"
     val isBinary = domain == "binary_sensor"
+    val isSelectLike = domain == "select" || domain == "input_select"
+    // select/input_select expose their choices via the "options" attribute; the current state is
+    // the active option. The dialog defaults to a pickable list, mirroring the light effects list.
+    val selectOptions = remember(entity) {
+        (entity.attributes?.get("options") as? kotlinx.serialization.json.JsonArray)
+            ?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
+    }
     val icon = when (domain) {
         "switch", "input_boolean" -> Icons.Default.PowerSettingsNew
         "binary_sensor" -> Icons.Default.Security
         "sensor" -> Icons.Default.Sensors
         "fan" -> Icons.Default.Air
+        "select", "input_select" -> Icons.AutoMirrored.Filled.FormatListBulleted
         else -> Icons.Default.Power
     }
 
@@ -5963,12 +5973,23 @@ fun GenericEntityDialog(
         titleOverride = titleOverride,
         iconName = iconName,
         spinIcon = spinIcon,
-        showHistoryButton = !isGraphLike && !isBinary,
+        showHistoryButton = !isGraphLike && !isBinary && !isSelectLike,
         statusText = valueText.uppercase()
     ) {
         val appColors = LocalHKIAppColors.current
         Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-            if (isSwitchLike) {
+            if (isSelectLike) {
+                SelectOptionsContent(
+                    options = selectOptions,
+                    activeOption = entity.state,
+                    onSelect = { option ->
+                        viewModel.callService(
+                            domain, "select_option",
+                            HAServiceCall(entity_id = entity.entity_id, option = option)
+                        )
+                    }
+                )
+            } else if (isSwitchLike) {
                 Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = if (entity.state == "on") "On" else "Off",
@@ -6014,6 +6035,66 @@ fun GenericEntityDialog(
                         Box(contentAlignment = Alignment.Center) {
                             Text("Open history for graph", color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
                         }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Pickable options list for select/input_select entities, styled like the light effects list. */
+@Composable
+private fun SelectOptionsContent(
+    options: List<String>,
+    activeOption: String?,
+    onSelect: (String) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 32.dp)
+            .fadingEdges(scrollState)
+            .verticalScroll(scrollState),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text("Options", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+        Text("Select an option", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+        Spacer(Modifier.height(6.dp))
+        if (options.isEmpty()) {
+            Text("No options available", color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
+        }
+        options.forEach { option ->
+            val selected = option == activeOption
+            Surface(
+                modifier = Modifier.fillMaxWidth().clickable { onSelect(option) },
+                shape = RoundedCornerShape(18.dp),
+                color = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f) else appColors.surface,
+                border = BorderStroke(
+                    1.dp,
+                    if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.7f) else appColors.onMuted.copy(alpha = 0.16f)
+                )
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.FormatListBulleted,
+                        contentDescription = null,
+                        tint = if (selected) MaterialTheme.colorScheme.primary else appColors.onMuted,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = option.split("_").joinToString(" ") { it.replaceFirstChar(Char::uppercase) },
+                        color = if (selected) appColors.onSurface else appColors.onMuted,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (selected) {
+                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     }
                 }
             }

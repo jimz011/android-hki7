@@ -125,6 +125,9 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
     var editingChildWeather by remember { mutableStateOf<Pair<String, HKIWeatherWidget>?>(null) }
     var selectedGenericEntity by remember { mutableStateOf<HAEntity?>(null) }
     var selectedLightEntity by remember { mutableStateOf<HAEntity?>(null) }
+    var selectedClimateEntity by remember { mutableStateOf<HAEntity?>(null) }
+    var selectedLockEntity by remember { mutableStateOf<HAEntity?>(null) }
+    var selectedCoverEntity by remember { mutableStateOf<HAEntity?>(null) }
     var selectedCameraId by remember { mutableStateOf<String?>(null) }
     var selectedCameraStack by remember { mutableStateOf<HKIButtonStack?>(null) }
     // Universal stack dialog state
@@ -237,6 +240,11 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
         entities.find { it.entity_id == entityId }?.let { entity ->
             when {
                 entity.entity_id.startsWith("camera.") -> { selectedCameraId = entityId; selectedCameraStack = null }
+                // Route entities with a rich domain dialog to it, instead of the on/off generic one.
+                entity.entity_id.startsWith("light.") && entity.supportsBrightness -> selectedLightEntity = entity
+                entity.entity_id.startsWith("climate.") -> selectedClimateEntity = entity
+                entity.entity_id.startsWith("lock.") -> selectedLockEntity = entity
+                entity.entity_id.startsWith("cover.") -> selectedCoverEntity = entity
                 else -> selectedGenericEntity = entity
             }
         }
@@ -1558,6 +1566,33 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
             entity = entities.find { it.entity_id == entity.entity_id } ?: entity,
             viewModel = viewModel,
             onDismiss = { selectedLightEntity = null }
+        )
+    }
+
+    selectedClimateEntity?.let { entity ->
+        PagedRoleDialog(
+            role = "climate",
+            entities = listOf(entities.find { it.entity_id == entity.entity_id } ?: entity),
+            viewModel = viewModel,
+            onDismiss = { selectedClimateEntity = null }
+        )
+    }
+
+    selectedLockEntity?.let { entity ->
+        PagedRoleDialog(
+            role = "lock",
+            entities = listOf(entities.find { it.entity_id == entity.entity_id } ?: entity),
+            viewModel = viewModel,
+            onDismiss = { selectedLockEntity = null }
+        )
+    }
+
+    selectedCoverEntity?.let { entity ->
+        PagedRoleDialog(
+            role = "cover",
+            entities = listOf(entities.find { it.entity_id == entity.entity_id } ?: entity),
+            viewModel = viewModel,
+            onDismiss = { selectedCoverEntity = null }
         )
     }
 

@@ -64,6 +64,7 @@ import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.WidgetBackground
 import com.example.hki7.ui.components.WidgetBackgroundSelector
+import com.example.hki7.ui.components.surfaceGradient
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 import kotlinx.serialization.json.contentOrNull
@@ -272,9 +273,10 @@ private fun WasteCollectionCard(
     Surface(
         modifier = modifier.fillMaxWidth()
             .aspectRatio(if (widget.isSquare) 1f else 16f / 9f)
-            .clip(RoundedCornerShape(widget.cornerRadius.dp)),
+            .clip(RoundedCornerShape(widget.cornerRadius.dp))
+            .background(surfaceGradient(appColors.elevated)),
         shape = RoundedCornerShape(widget.cornerRadius.dp),
-        color = appColors.elevated
+        color = Color.Transparent
     ) {
         Box {
             // A configured background image replaces the default artwork.

@@ -48,6 +48,7 @@ import com.example.hki7.ui.components.RenameCardDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.WidgetBackground
 import com.example.hki7.ui.components.WidgetBackgroundSelector
+import com.example.hki7.ui.components.surfaceGradient
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 import kotlinx.serialization.json.contentOrNull
@@ -490,9 +491,10 @@ fun BatteryCardWidgetItem(
                 .fillMaxWidth()
                 .aspectRatio(if (widget.isSquare) 1f else 16f / 9f)
                 .clip(RoundedCornerShape(widget.cornerRadius.dp))
+                .background(surfaceGradient(appColors.elevated))
                 .clickable(enabled = !isEditMode, onClick = onOpen),
             shape = RoundedCornerShape(widget.cornerRadius.dp),
-            color = appColors.elevated
+            color = Color.Transparent
         ) {
             Box {
                 if (!widget.backgroundUrl.isNullOrBlank()) {

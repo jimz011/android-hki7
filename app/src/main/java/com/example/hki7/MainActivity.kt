@@ -3,8 +3,13 @@ package com.example.hki7
 import android.os.Bundle
 import android.Manifest
 import android.content.pm.PackageManager
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -12,6 +17,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -237,6 +243,8 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     }
     val showConnectionBar = hasConnectedOnce && connectionStatus != ConnectionStatus.CONNECTED
     var mediaDialogEntityId by remember { mutableStateOf<String?>(null) }
+    // Transient: swipe the media bar down to tuck it away; swipe up from the nav bar to bring it back.
+    var mediaBarDismissed by remember { mutableStateOf(false) }
 
     val navBarOrder by prefs.navBarOrder.collectAsState(initial = emptyList())
     val navBarHidden by prefs.navBarHidden.collectAsState(initial = emptyList())
@@ -356,7 +364,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         ) { contentPadding ->
             CompositionLocalProvider(
                 LocalMediaPlayerBarInset provides if (!isEditMode) {
-                    (if (activeMediaPlayers.isNotEmpty()) 86.dp else 0.dp) + (if (showConnectionBar) 62.dp else 0.dp)
+                    (if (activeMediaPlayers.isNotEmpty() && !mediaBarDismissed) 86.dp else 0.dp) + (if (showConnectionBar) 62.dp else 0.dp)
                 } else 0.dp
             ) {
                 NavHost(
@@ -396,18 +404,55 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         if (showConnectionBar && !isEditMode) {
             HomeAssistantConnectionBar(connectionStatus, Modifier.padding(start = 20.dp, end = 20.dp, bottom = 6.dp))
         }
-        if (activeMediaPlayers.isNotEmpty() && !isEditMode) {
+        AnimatedVisibility(
+            visible = activeMediaPlayers.isNotEmpty() && !isEditMode && !mediaBarDismissed,
+            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
+        ) {
             MediaPlayerMiniBar(
                 players = activeMediaPlayers,
                 currentUrl = currentUrl,
                 viewModel = viewModel,
                 onOpen = { mediaDialogEntityId = it.entity_id },
-                modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 6.dp)
+                modifier = Modifier
+                    .padding(start = 20.dp, end = 20.dp, bottom = 6.dp)
+                    // Swipe the bar down to dismiss it (vertical only; the pager still takes horizontal swipes).
+                    .pointerInput(Unit) {
+                        var drag = 0f
+                        detectVerticalDragGestures(
+                            onDragEnd = { drag = 0f },
+                            onDragCancel = { drag = 0f },
+                            onVerticalDrag = { _, amount ->
+                                drag += amount
+                                if (drag > 40.dp.toPx()) {
+                                    mediaBarDismissed = true
+                                    drag = 0f
+                                }
+                            }
+                        )
+                    }
             )
         }
+        val canRestoreMediaBar = activeMediaPlayers.isNotEmpty() && !isEditMode && mediaBarDismissed
+        Box(contentAlignment = Alignment.TopCenter) {
         HKIBottomBar(
             horizontalPadding = 32.dp,
-            scrollable = navBarScrollable
+            scrollable = navBarScrollable,
+            // While the media bar is tucked away, a swipe up on the nav bar brings it back.
+            modifier = if (canRestoreMediaBar) Modifier.pointerInput(Unit) {
+                var drag = 0f
+                detectVerticalDragGestures(
+                    onDragEnd = { drag = 0f },
+                    onDragCancel = { drag = 0f },
+                    onVerticalDrag = { _, amount ->
+                        drag += amount
+                        if (drag < -40.dp.toPx()) {
+                            mediaBarDismissed = false
+                            drag = 0f
+                        }
+                    }
+                )
+            } else Modifier
         ) {
             if (isEditMode) {
                 EditNavButton(Icons.AutoMirrored.Filled.Undo, "Undo", enabled = canUndo) { viewModel.undo() }
@@ -477,6 +522,16 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                         }
                     }
             }
+        }
+        // Handlebar affordance: shows when the media bar is tucked away; swipe up here to restore it.
+        if (canRestoreMediaBar) {
+            Box(
+                Modifier
+                    .padding(top = 7.dp)
+                    .size(width = 34.dp, height = 4.dp)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.9f), RoundedCornerShape(2.dp))
+            )
+        }
         }
         }
 

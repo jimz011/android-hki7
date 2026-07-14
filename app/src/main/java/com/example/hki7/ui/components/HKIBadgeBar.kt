@@ -5,6 +5,7 @@ package com.example.hki7.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -701,20 +702,26 @@ private fun BadgeItem(
 
     // Outer Box: badge content + edit-mode overlays
     Box {
+        // Background-derived depth gradient (two shades of the badge's own fill, no icon colour).
         Surface(
             shape = shape,
-            color = colors.background.copy(alpha = if (isEditMode) 0.65f else 1f),
+            color = Color.Transparent,
             border = BorderStroke(1.dp,
                 if (isEditMode) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                 else Color.Gray.copy(alpha = 0.25f)
             ),
-            modifier = sizeMod.then(
-                if (isEditMode) Modifier
-                else Modifier.combinedClickable(
-                    onClick = onTap,
-                    onLongClick = onHold
+            modifier = sizeMod
+                .then(
+                    if (isEditMode) Modifier.background(colors.background.copy(alpha = 0.65f), shape)
+                    else Modifier.background(surfaceGradient(colors.background), shape)
                 )
-            )
+                .then(
+                    if (isEditMode) Modifier
+                    else Modifier.combinedClickable(
+                        onClick = onTap,
+                        onLongClick = onHold
+                    )
+                )
         ) {
             if (isCircle) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {

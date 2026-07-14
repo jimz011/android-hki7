@@ -70,6 +70,7 @@ import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HKIActionButton
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.screens.GenericEntityDialog
+import com.example.hki7.ui.screens.PagedRoleDialog
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 import com.example.hki7.ui.utils.handleActionOutcome
@@ -429,11 +430,36 @@ fun HKIDialog(
         val target = customEntities.find { it.entity_id == id }
         if (target != null) {
             androidx.compose.runtime.CompositionLocalProvider(LocalDialogCustomButtons provides emptyList()) {
-                GenericEntityDialog(entity = target, viewModel = viewModel, onDismiss = { moreInfoEntityId = null })
+                EntityMoreInfoDialog(entity = target, viewModel = viewModel, onDismiss = { moreInfoEntityId = null })
             }
         } else {
             moreInfoEntityId = null
         }
+    }
+}
+
+/** Routes an entity opened from a dialog's custom nav button to its domain-specific more-info
+ *  dialog (light/climate/lock/cover/fan/…), falling back to the generic dialog for plain domains. */
+@Composable
+fun EntityMoreInfoDialog(
+    entity: HAEntity,
+    viewModel: MainViewModel,
+    onDismiss: () -> Unit
+) {
+    val currentUrl by viewModel.currentUrl.collectAsState()
+    val id = entity.entity_id
+    when {
+        id.startsWith("light.") && entity.supportsBrightness ->
+            HKILightDialog(entity = entity, onDismiss = onDismiss, viewModel = viewModel)
+        id.startsWith("climate.") -> PagedRoleDialog("climate", listOf(entity), viewModel, onDismiss)
+        id.startsWith("lock.")    -> PagedRoleDialog("lock", listOf(entity), viewModel, onDismiss)
+        id.startsWith("cover.")   -> PagedRoleDialog("cover", listOf(entity), viewModel, onDismiss)
+        id.startsWith("fan.")         -> HKIFanDialog(entity = entity, viewModel = viewModel, onDismiss = onDismiss)
+        id.startsWith("humidifier.")  -> HKIHumidifierDialog(entity = entity, viewModel = viewModel, onDismiss = onDismiss)
+        id.startsWith("alarm_control_panel.") -> HKIAlarmDialog(entity = entity, viewModel = viewModel, onDismiss = onDismiss)
+        id.startsWith("person.")      -> PersonDetailDialog(person = entity, viewModel = viewModel, onDismiss = onDismiss)
+        id.startsWith("media_player.") -> HKIMediaPlayerDialog(entity, viewModel, currentUrl, onDismiss)
+        else -> GenericEntityDialog(entity = entity, viewModel = viewModel, onDismiss = onDismiss)
     }
 }
 

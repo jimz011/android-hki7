@@ -75,6 +75,7 @@ import java.util.UUID
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.EditRemoveBadge
 import com.example.hki7.ui.components.HistoryPoint
+import com.example.hki7.ui.components.surfaceGradient
 import com.example.hki7.ui.components.HistoryRangeOptions
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.fadingEdges
@@ -243,9 +244,10 @@ private fun SensorGraphCardView(
 
     Surface(
         modifier = modifier.fillMaxWidth()
-            .then(if (widget.isSquare) Modifier.aspectRatio(1f) else Modifier),
+            .then(if (widget.isSquare) Modifier.aspectRatio(1f) else Modifier)
+            .background(surfaceGradient(appColors.elevated), RoundedCornerShape(widget.cornerRadius.dp)),
         shape = RoundedCornerShape(widget.cornerRadius.dp),
-        color = appColors.elevated
+        color = Color.Transparent
     ) {
         Column(Modifier.padding(14.dp).then(if (widget.isSquare) Modifier.fillMaxSize() else Modifier)) {
             if (!widget.title.isNullOrBlank() || !widget.icon.isNullOrBlank()) {

@@ -36,6 +36,7 @@ import com.example.hki7.data.HKIButtonConfig
 import com.example.hki7.data.HKIButtonStack
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.*
+import com.example.hki7.ui.components.surfaceGradient
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.*
@@ -169,9 +170,10 @@ fun VacuumEntityCard(
             .fillMaxWidth()
             .then(sizeModifier)
             .clip(RoundedCornerShape(cornerRadius.dp))
+            .background(surfaceGradient(appColors.elevated))
             .clickable { onClick() },
         shape = RoundedCornerShape(cornerRadius.dp),
-        color = appColors.elevated
+        color = Color.Transparent
     ) {
         Box {
             // Background image

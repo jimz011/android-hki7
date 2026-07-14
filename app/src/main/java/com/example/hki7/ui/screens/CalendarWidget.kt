@@ -81,6 +81,7 @@ import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.WidgetBackground
 import com.example.hki7.ui.components.WidgetBackgroundSelector
+import com.example.hki7.ui.components.surfaceGradient
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 import kotlinx.coroutines.Dispatchers
@@ -291,11 +292,13 @@ private fun CalendarWidgetCard(
                 widget.isSquare -> Modifier.aspectRatio(1f)
                 else -> Modifier.aspectRatio(16f / 9f)
             }
+        ).then(
+            if (widget.backgroundUrl.isNullOrBlank())
+                Modifier.background(surfaceGradient(appColors.elevated), RoundedCornerShape(widget.cornerRadius.dp))
+            else Modifier
         ),
         shape = RoundedCornerShape(widget.cornerRadius.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (!widget.backgroundUrl.isNullOrBlank()) Color.Transparent else appColors.elevated.copy(alpha = 0.84f)
-        )
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
       Box {
         WidgetBackground(widget.backgroundUrl, currentUrl)
@@ -385,11 +388,14 @@ private fun CompactCalendarWidgetCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .then(if (widget.isSquare) Modifier.aspectRatio(1f) else Modifier.aspectRatio(16f / 9f)),
+            .then(if (widget.isSquare) Modifier.aspectRatio(1f) else Modifier.aspectRatio(16f / 9f))
+            .then(
+                if (widget.backgroundUrl.isNullOrBlank())
+                    Modifier.background(surfaceGradient(appColors.elevated), RoundedCornerShape(widget.cornerRadius.dp))
+                else Modifier
+            ),
         shape = RoundedCornerShape(widget.cornerRadius.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (!widget.backgroundUrl.isNullOrBlank()) Color.Transparent else appColors.elevated.copy(alpha = 0.9f)
-        )
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
       Box {
         WidgetBackground(widget.backgroundUrl, currentUrl)

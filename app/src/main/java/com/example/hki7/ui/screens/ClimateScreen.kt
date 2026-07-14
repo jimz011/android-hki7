@@ -56,6 +56,7 @@ import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.hvacColor
 import com.example.hki7.ui.components.hvacGradient
 import com.example.hki7.ui.utils.MdiIcon
+import com.example.hki7.ui.components.surfaceGradient
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
@@ -647,8 +648,9 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, corner
     }
 
     Surface(
-        modifier = Modifier.fillMaxWidth().then(if (isSquare) Modifier.aspectRatio(1f) else Modifier),
-        shape = RoundedCornerShape(cornerRadius.dp), color = appColors.elevated
+        modifier = Modifier.fillMaxWidth().then(if (isSquare) Modifier.aspectRatio(1f) else Modifier)
+            .background(surfaceGradient(appColors.elevated), RoundedCornerShape(cornerRadius.dp)),
+        shape = RoundedCornerShape(cornerRadius.dp), color = Color.Transparent
     ) {
         Column(Modifier.padding(if (isSquare) 12.dp else 16.dp)) {
             if (isSquare) {
@@ -812,7 +814,7 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, corner
                 if (expanded) {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         if (presetModes.isNotEmpty()) {
-                            ClimateChipGroup("Preset", presetModes, presetMode) { mode ->
+                            ClimateChipGroup("Preset", presetModes, presetMode, centered = true) { mode ->
                                 viewModel.callService(
                                     "climate", "set_preset_mode",
                                     HAServiceCall(entity_id = entity.entity_id, preset_mode = mode)
@@ -873,9 +875,10 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
     var modesOpen by remember { mutableStateOf(false) }
 
     Surface(
-        modifier = Modifier.fillMaxWidth().then(if (isSquare) Modifier.aspectRatio(1f) else Modifier),
+        modifier = Modifier.fillMaxWidth().then(if (isSquare) Modifier.aspectRatio(1f) else Modifier)
+            .background(surfaceGradient(appColors.elevated), RoundedCornerShape(cornerRadius.dp)),
         shape = RoundedCornerShape(cornerRadius.dp),
-        color = appColors.elevated
+        color = Color.Transparent
     ) {
         Column(
             modifier = if (isSquare) Modifier.fillMaxSize().padding(12.dp) else Modifier.fillMaxWidth().padding(16.dp),
@@ -1203,16 +1206,19 @@ private fun CompactTempStepButton(icon: ImageVector, enabled: Boolean, onClick: 
 
 @Composable
 private fun ClimateChipGroup(
-    title: String, modes: List<String>, activeMode: String?, onSelect: (String) -> Unit
+    title: String, modes: List<String>, activeMode: String?, centered: Boolean = false, onSelect: (String) -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
     val accent = MaterialTheme.colorScheme.primary
-    Column {
+    Column(horizontalAlignment = if (centered) Alignment.CenterHorizontally else Alignment.Start) {
         Text(title, style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
         Spacer(Modifier.height(6.dp))
         Row(
             modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(
+                8.dp,
+                if (centered) Alignment.CenterHorizontally else Alignment.Start
+            )
         ) {
             modes.forEach { mode ->
                 val selected = mode == activeMode
@@ -1319,7 +1325,7 @@ private fun FanCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: In
     val percentage = entity.fanPercentage
     var localPct by remember(percentage) { mutableFloatStateOf((percentage ?: 0).toFloat()) }
 
-    Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(cornerRadius.dp), color = appColors.elevated) {
+    Surface(modifier = Modifier.fillMaxWidth().background(surfaceGradient(appColors.elevated), RoundedCornerShape(cornerRadius.dp)), shape = RoundedCornerShape(cornerRadius.dp), color = Color.Transparent) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(
@@ -1386,7 +1392,7 @@ private fun HumidifierCard(entity: HAEntity, viewModel: MainViewModel, cornerRad
     val maxHum = (entity.maxHumidity ?: 100).toFloat()
     var localTarget by remember(target) { mutableFloatStateOf((target ?: 50.0).toFloat()) }
 
-    Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(cornerRadius.dp), color = appColors.elevated) {
+    Surface(modifier = Modifier.fillMaxWidth().background(surfaceGradient(appColors.elevated), RoundedCornerShape(cornerRadius.dp)), shape = RoundedCornerShape(cornerRadius.dp), color = Color.Transparent) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(
@@ -1882,9 +1888,10 @@ private fun ClimateLiveTile(
     val appColors = LocalHKIAppColors.current
     Surface(
         shape = RoundedCornerShape(cornerRadius.dp),
-        color = appColors.elevated,
+        color = Color.Transparent,
         modifier = modifier
             .clip(RoundedCornerShape(cornerRadius.dp))
+            .background(surfaceGradient(appColors.elevated), RoundedCornerShape(cornerRadius.dp))
             .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
     ) {
         Row(
@@ -2046,7 +2053,7 @@ fun ClimateCardWidgetView(
 
     @Composable
     fun emptyCard(text: String) {
-        Surface(modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(cornerRadius.dp), color = appColors.elevated) {
+        Surface(modifier = modifier.fillMaxWidth().background(surfaceGradient(appColors.elevated), RoundedCornerShape(cornerRadius.dp)), shape = RoundedCornerShape(cornerRadius.dp), color = Color.Transparent) {
             Text(text, style = MaterialTheme.typography.bodySmall, color = appColors.onMuted, modifier = Modifier.padding(16.dp))
         }
     }
@@ -2145,7 +2152,7 @@ fun ClimateCardWidgetView(
             val sensors = data.groupSensors[group.key].orEmpty().ifEmpty { data.overrideSensors }
             val values = sensors.mapNotNull { it.numericState() }
             val unit = sensors.firstOrNull()?.unit() ?: ""
-            Surface(modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(cornerRadius.dp), color = appColors.elevated) {
+            Surface(modifier = modifier.fillMaxWidth().background(surfaceGradient(appColors.elevated), RoundedCornerShape(cornerRadius.dp)), shape = RoundedCornerShape(cornerRadius.dp), color = Color.Transparent) {
                 Column(Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Box(

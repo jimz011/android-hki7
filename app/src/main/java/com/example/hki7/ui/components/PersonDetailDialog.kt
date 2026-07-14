@@ -134,20 +134,32 @@ fun PersonDetailDialog(
                 }
             }
 
-            // Geocoded location under the map.
+            // Geocoded location under the map: centered pill, styled like the battery widget's state chip.
             if (lat != null && lon != null) {
                 Spacer(Modifier.height(12.dp))
-                Row(
+                Box(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Place, contentDescription = null, tint = appColors.onMuted, modifier = Modifier.size(18.dp))
-                    Text(
-                        address ?: "Locating…",
-                        color = appColors.onSurface,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Surface(
+                        shape = RoundedCornerShape(14.dp),
+                        color = appColors.subtleSurface,
+                        border = BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.14f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(Icons.Default.Place, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                            Text(
+                                address ?: "Locating…",
+                                color = appColors.onSurface,
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                        }
+                    }
                 }
             }
             Spacer(Modifier.height(16.dp))

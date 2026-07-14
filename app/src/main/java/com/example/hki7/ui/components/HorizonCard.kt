@@ -12,11 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -241,21 +239,6 @@ fun HorizonCard(
                         alignEnd = false,
                         compact = compact
                     )
-                    if (!compact) {
-                        Box(
-                            modifier = Modifier
-                                .size(34.dp)
-                                .background(Color(0xFFFFD45A).copy(alpha = 0.16f), CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.WbSunny,
-                                contentDescription = null,
-                                tint = Color(0xFFFFD45A),
-                                modifier = Modifier.size(19.dp)
-                            )
-                        }
-                    }
                     HorizonTimeLabel(
                         label = "Sunset",
                         time = timeline.sunset.format(timeFormatter),

@@ -32,6 +32,7 @@ import com.example.hki7.data.HKISecurityConfig
 import com.example.hki7.data.withDisplayName
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.*
+import com.example.hki7.ui.components.surfaceGradient
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 
@@ -274,7 +275,7 @@ private fun SecurityHero(total: Int, active: Int, alerts: Int, cameras: Int) {
 @Composable
 private fun SecurityTile(group: SecurityGroup, count: Int, active: Int, modifier: Modifier, onClick: () -> Unit) {
     val c = LocalHKIAppColors.current
-    Surface(modifier.clip(RoundedCornerShape(18.dp)).clickable(onClick = onClick), RoundedCornerShape(18.dp), color = c.elevated) {
+    Surface(modifier.clip(RoundedCornerShape(18.dp)).background(surfaceGradient(c.elevated), RoundedCornerShape(18.dp)).clickable(onClick = onClick), RoundedCornerShape(18.dp), color = Color.Transparent) {
         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Box(Modifier.size(34.dp).background(group.color.copy(.15f), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) { Icon(group.icon, null, tint = group.color, modifier = Modifier.size(18.dp)) }
             Column(Modifier.weight(1f)) { Text(group.title, color = c.onSurface, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, maxLines = 1); Text("$count · $active active", color = c.onMuted, style = MaterialTheme.typography.bodySmall, maxLines = 1) }
@@ -356,7 +357,7 @@ private fun SecurityCardSettingsDialog(
 private fun SecurityGroupSummary(group: SecurityGroup, items: List<HAEntity>) {
     val c = LocalHKIAppColors.current
     val active = items.count(HAEntity::isSecurityActive)
-    Surface(Modifier.fillMaxWidth(), RoundedCornerShape(20.dp), color = c.elevated) {
+    Surface(Modifier.fillMaxWidth().background(surfaceGradient(c.elevated), RoundedCornerShape(20.dp)), RoundedCornerShape(20.dp), color = Color.Transparent) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Box(Modifier.size(34.dp).background(group.color.copy(.15f), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
@@ -396,7 +397,7 @@ private fun SecurityEntityCard(entity: HAEntity, group: SecurityGroup, viewModel
     val c = LocalHKIAppColors.current
     var dialog by remember { mutableStateOf(false) }
     val active = entity.isSecurityActive()
-    Surface(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).clickable(enabled = !editMode) { dialog = true }, RoundedCornerShape(18.dp), color = c.elevated) {
+    Surface(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(surfaceGradient(c.elevated), RoundedCornerShape(18.dp)).clickable(enabled = !editMode) { dialog = true }, RoundedCornerShape(18.dp), color = Color.Transparent) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(42.dp).background((if (active) group.color else c.onMuted).copy(.15f), RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
                 if (iconOverride != null) MdiIcon(iconOverride, contentDescription = null, tint = if (active) group.color else c.onMuted, size = 24.dp)

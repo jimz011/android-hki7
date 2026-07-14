@@ -33,9 +33,12 @@ fun HKILightDialog(
     iconName: String? = null,
     spinIcon: Boolean = false
 ) {
+    val topAppColors = LocalHKIAppColors.current
     val supportsBrightness = entity.supportsBrightness
     val supportsColorTemp = entity.supportsColorTemp
     val supportsColor = entity.supportsColor
+    // Reflect the light's real colour (rgb / colour-temp) for the header icon and brightness slider.
+    val lightAccent = lightStateColor(entity) ?: Color(0xFFFFA500)
     val effects = entity.effectList
     val supportsEffects = effects.isNotEmpty()
     var localEffect by remember(entity.entity_id) { mutableStateOf(entity.effect) }
@@ -75,6 +78,7 @@ fun HKILightDialog(
         onDismiss = onDismiss,
         viewModel = viewModel,
         icon = Icons.Default.Lightbulb,
+        iconTint = if (entity.state == "on") lightAccent else topAppColors.onMuted,
         titleOverride = titleOverride,
         iconName = iconName,
         spinIcon = spinIcon,
@@ -147,7 +151,7 @@ fun HKILightDialog(
                                         viewModel.setOptimisticBrightness(entity.entity_id, it)
                                     },
                                     onValueChangeFinished = { viewModel.setBrightness(entity.entity_id, sliderValue) },
-                                    activeColor = Color(0xFFFFA500)
+                                    activeColor = lightAccent
                                 )
                             }
                             Spacer(Modifier.height(16.dp))
