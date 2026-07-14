@@ -257,10 +257,27 @@ data class HAEntityRegistryEntry(
     val area_id: String? = null,
     val device_id: String? = null,
     val platform: String? = null,
+    /** Config entry that owns this entity, when it was created by an integration. */
+    val config_entry_id: String? = null,
+    /** Stable integration-defined key; unlike an entity id this survives user renames. */
+    val translation_key: String? = null,
+    val unique_id: String? = null,
+    /** Unit recorded in the entity registry. May be null on older Home Assistant versions. */
+    val unit_of_measurement: String? = null,
     /** "config" | "diagnostic" | null (= primary control/sensor). */
     val entity_category: String? = null,
     val disabled_by: String? = null,
     val hidden_by: String? = null
+)
+
+/** Lightweight response model for `config_entries/get`. */
+@Serializable
+data class HAConfigEntry(
+    val entry_id: String,
+    val domain: String,
+    val title: String = "",
+    val state: String? = null,
+    val disabled_by: String? = null
 )
 
 @Serializable
@@ -943,7 +960,7 @@ data class HKIWeatherWidget(
     override val id: String,
     override val width: String = "full",
     val entityId: String? = null,   // null = use the app's default weather entity
-    val style: String = "current",  // "current" | "forecast" | "hourly" | "wind" | "rainmap"
+    val style: String = "current",  // "current" | "forecast" | "hourly" | "horizon" | "wind" | "rainmap"
     val imageUrl: String? = null,   // rainmap style: external radar/rain map image URL
     val title: String? = null,
     val icon: String? = null,

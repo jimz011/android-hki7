@@ -149,6 +149,24 @@ class HomeAssistantClient(
         }
     }
 
+    /** Config entries are separate from Energy preferences. Home Assistant uses this endpoint to
+     * expose the Electricity Maps (`co2signal`) entry in Energy Settings. */
+    suspend fun getConfigEntries(domain: String? = null): List<HAConfigEntry> {
+        return withWebSocket {
+            val response = sendCommand(
+                "config_entries/get",
+                buildMap {
+                    domain?.takeIf { it.isNotBlank() }?.let { put("domain", JsonPrimitive(it)) }
+                }
+            )
+            if (response["success"]?.jsonPrimitive?.booleanOrNull != true) {
+                return@withWebSocket emptyList()
+            }
+            val result = response["result"]?.jsonArray ?: return@withWebSocket emptyList()
+            json.decodeFromJsonElement(ListSerializer(HAConfigEntry.serializer()), result)
+        }
+    }
+
     suspend fun getDeviceRegistry(): List<HADeviceRegistryEntry> {
         return withWebSocket {
             val response = sendCommand("config/device_registry/list")

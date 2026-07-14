@@ -94,7 +94,9 @@ fun HKIDialog(
     iconName: String? = null,
     spinIcon: Boolean = false,
     headerImageUrl: String? = null,
+    headerIconContent: (@Composable () -> Unit)? = null,
     statusText: String? = null,
+    allowInEditMode: Boolean = false,
     showHistoryButton: Boolean = true,
     extraGraphEntityIds: List<String> = emptyList(),
     groupContent: (@Composable () -> Unit)? = null,
@@ -107,8 +109,8 @@ fun HKIDialog(
     content: @Composable ColumnScope.(Boolean) -> Unit
 ) {
     val editMode by viewModel.isEditMode.collectAsState()
-    LaunchedEffect(editMode) { if (editMode) onDismiss() }
-    if (editMode) return
+    LaunchedEffect(editMode, allowInEditMode) { if (editMode && !allowInEditMode) onDismiss() }
+    if (editMode && !allowInEditMode) return
     val appColors = LocalHKIAppColors.current
     val context = LocalContext.current
     val currentUrl by viewModel.currentUrl.collectAsState()
@@ -205,6 +207,10 @@ fun HKIDialog(
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier.fillMaxSize()
                                         )
+                                    }
+                                } else if (headerIconContent != null) {
+                                    Box(modifier = Modifier.size(32.dp), contentAlignment = Alignment.Center) {
+                                        headerIconContent()
                                     }
                                 } else {
                                     val spinRotation = rememberIconSpinRotation(spinIcon && entity.state.lowercase() != "off")

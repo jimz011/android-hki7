@@ -1,10 +1,11 @@
 package com.example.hki7.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -27,6 +29,8 @@ import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.CloudQueue
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Card
@@ -36,6 +40,7 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,9 +52,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -59,13 +63,27 @@ import com.example.hki7.data.HAWeatherForecast
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import kotlin.math.PI
-import kotlin.math.sin
+
+private val defaultWeatherCardWidths = mapOf(
+    "current" to "full",
+    "forecast" to "full",
+    "horizon" to "full",
+    "moon" to "half",
+    "aqi" to "half",
+    "rain" to "half",
+    "stats" to "half"
+)
+
+private fun weatherCardSpan(width: String): Int = when (width) {
+    "third" -> 2
+    "half" -> 3
+    else -> 6
+}
 
 @Composable
 fun HKIWeatherDialog(
@@ -82,6 +100,8 @@ fun HKIWeatherDialog(
     val use24h by viewModel.use24hFormat.collectAsState()
     val extraEntities by viewModel.weatherExtraEntities.collectAsState()
     val fetchedForecast by viewModel.weatherForecast.collectAsState()
+    val savedCardWidths by viewModel.weatherCardWidths.collectAsState()
+    val cardWidths = remember(savedCardWidths) { defaultWeatherCardWidths + savedCardWidths }
     val roleEntityIds = remember(weather.entity_id, extraEntities, alarmEntityIds) {
         buildSet {
             add(weather.entity_id)
@@ -138,8 +158,13 @@ fun HKIWeatherDialog(
         onDismiss = onDismiss,
         viewModel = viewModel,
         icon = headerDisplayIcon(currentDisplayType, weather.state),
+        iconTint = weatherStateColor(weather.state),
+        headerIconContent = if (currentDisplayType == "Weather" || currentDisplayType == "DateTime") {
+            { WeatherStateIcon(state = weather.state, size = 28.dp, contentDescription = formatWeatherState(weather.state)) }
+        } else null,
         titleOverride = if (isEditMode) settingsTitle else "Weather",
-        statusText = if (isEditMode) "SETTINGS" else "${formatWeatherState(weather.state)} - ${season?.state ?: "Season"}"
+        statusText = if (isEditMode) "SETTINGS" else "${formatWeatherState(weather.state)} - ${season?.state ?: "Season"}",
+        allowInEditMode = true
     ) {
         if (isEditMode) {
             WeatherConfigView(
@@ -155,20 +180,20 @@ fun HKIWeatherDialog(
         } else {
             val weatherGridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
             LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
+                columns = GridCells.Fixed(6),
                 state = weatherGridState,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 24.dp),
                 modifier = Modifier.weight(1f).fadingEdges(weatherGridState)
             ) {
-                item(span = { GridItemSpan(2) }) { WeatherMainCard(weather) }
-                item(span = { GridItemSpan(2) }) { ForecastCard(dialogForecast) }
-                item { SunCard(sun, use24h) }
-                item { MoonCard(moon) }
-                item { AqiCard(aqi) }
-                item { RainCard(rain) }
-                item { StatsCard(weather) }
+                item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("current"))) }) { WeatherMainCard(weather) }
+                item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("forecast"))) }) { ForecastCard(dialogForecast) }
+                item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("horizon"))) }) { HorizonCard(sun, use24h) }
+                item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("moon"))) }) { MoonCard(moon) }
+                item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("aqi"))) }) { AqiCard(aqi) }
+                item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("rain"))) }) { RainCard(rain) }
+                item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("stats"))) }) { StatsCard(weather) }
             }
         }
     }
@@ -196,56 +221,176 @@ fun formatWeatherState(state: String): String {
 }
 
 @Composable
-fun WeatherMainCard(weather: HAEntity, cornerRadius: Int = 24) {
+fun WeatherMainCard(weather: HAEntity, cornerRadius: Int = 24, modifier: Modifier = Modifier) {
     val appColors = LocalHKIAppColors.current
+    val accent = weatherStateColor(weather.state)
+    val temperatureUnit = weather.attributes?.get("temperature_unit")?.jsonPrimitive?.contentOrNull ?: "°"
+    val apparent = weather.attributes?.get("apparent_temperature")?.jsonPrimitive?.doubleOrNull
     Card(
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(cornerRadius.dp),
-        colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.78f))
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
-        Row(
-            modifier = Modifier.padding(24.dp).fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = "${weather.temperature?.toInt() ?: "--"}\u00B0",
-                    style = MaterialTheme.typography.displayLarge,
-                    color = appColors.onSurface,
-                    fontWeight = FontWeight.Light
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.linearGradient(
+                        listOf(accent.copy(alpha = 0.30f), appColors.elevated.copy(alpha = 0.96f))
+                    )
                 )
-                Text(formatWeatherState(weather.state), color = appColors.onMuted)
+        ) {
+            val compact = maxWidth < 250.dp
+            val veryCompact = maxWidth < 180.dp
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(if (veryCompact) 12.dp else if (compact) 16.dp else 22.dp),
+                verticalArrangement = Arrangement.spacedBy(if (compact) 12.dp else 16.dp)
+            ) {
+                if (veryCompact) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = weather.friendlyName ?: "Current weather",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = appColors.onMuted,
+                            maxLines = 1,
+                        )
+                        WeatherStateIcon(
+                            state = weather.state,
+                            size = 54.dp,
+                            contentDescription = formatWeatherState(weather.state)
+                        )
+                        Text(
+                            text = "${weather.temperature?.toInt() ?: "--"}${temperatureUnit}",
+                            style = MaterialTheme.typography.headlineLarge,
+                            color = appColors.onSurface,
+                            fontWeight = FontWeight.Light
+                        )
+                        Text(
+                            formatWeatherState(weather.state),
+                            color = appColors.onSurface,
+                            style = MaterialTheme.typography.labelMedium,
+                            maxLines = 1
+                        )
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = weather.friendlyName ?: "Current weather",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = appColors.onMuted,
+                                maxLines = 1
+                            )
+                            Row(verticalAlignment = Alignment.Bottom) {
+                                Text(
+                                    text = "${weather.temperature?.toInt() ?: "--"}°",
+                                    style = if (compact) MaterialTheme.typography.displayMedium else MaterialTheme.typography.displayLarge,
+                                    color = appColors.onSurface,
+                                    fontWeight = FontWeight.Light
+                                )
+                                if (temperatureUnit != "°" && temperatureUnit.isNotBlank()) {
+                                    Text(
+                                        text = temperatureUnit.removePrefix("°"),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = appColors.onMuted,
+                                        modifier = Modifier.padding(bottom = 8.dp)
+                                    )
+                                }
+                            }
+                            Text(
+                                formatWeatherState(weather.state),
+                                color = appColors.onSurface,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+                        WeatherStateIcon(
+                            state = weather.state,
+                            size = if (compact) 62.dp else 92.dp,
+                            contentDescription = formatWeatherState(weather.state)
+                        )
+                    }
+                }
+
+                if (!veryCompact) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        apparent?.let { WeatherMetricChip(Icons.Default.Thermostat, "Feels ${it.toInt()}°") }
+                        weather.humidity?.let { WeatherMetricChip(Icons.Default.WaterDrop, "${it.toInt()}%") }
+                        weather.windSpeed?.let { WeatherMetricChip(Icons.Default.Air, "${it.toInt()} km/h") }
+                        weather.pressure?.let { WeatherMetricChip(Icons.Default.Speed, "${it.toInt()} hPa") }
+                    }
+                }
             }
-            Icon(
-                imageVector = weatherIcon(weather.state),
-                contentDescription = null,
-                tint = appColors.onSurface,
-                modifier = Modifier.size(80.dp)
-            )
         }
     }
 }
 
 @Composable
-fun ForecastCard(forecasts: List<HAWeatherForecast>?, cornerRadius: Int = 24) {
+private fun WeatherMetricChip(icon: ImageVector, text: String) {
     val appColors = LocalHKIAppColors.current
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(cornerRadius.dp),
-        colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.78f))
+    Surface(
+        color = appColors.surface.copy(alpha = 0.46f),
+        shape = RoundedCornerShape(999.dp)
     ) {
-        Column(Modifier.padding(16.dp)) {
-            Text("Forecast", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
+        Row(
+            modifier = Modifier.padding(horizontal = 11.dp, vertical = 7.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Icon(icon, contentDescription = null, tint = appColors.onMuted, modifier = Modifier.size(15.dp))
+            Text(text, color = appColors.onSurface, style = MaterialTheme.typography.labelMedium)
+        }
+    }
+}
+
+@Composable
+fun ForecastCard(
+    forecasts: List<HAWeatherForecast>?,
+    cornerRadius: Int = 24,
+    modifier: Modifier = Modifier
+) {
+    val appColors = LocalHKIAppColors.current
+    val accent = weatherStateColor(forecasts?.firstOrNull()?.condition)
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(cornerRadius.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.linearGradient(
+                        listOf(accent.copy(alpha = 0.16f), appColors.elevated.copy(alpha = 0.96f))
+                    )
+                )
+                .padding(16.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.CalendarMonth, null, tint = accent, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Forecast", style = MaterialTheme.typography.titleSmall, color = appColors.onSurface)
+            }
             Spacer(Modifier.height(12.dp))
             if (!forecasts.isNullOrEmpty()) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     forecasts.take(5).forEach { day -> ForecastItem(day) }
                 }
             } else {
-                Box(modifier = Modifier.fillMaxWidth().height(72.dp), contentAlignment = Alignment.Center) {
+                Box(modifier = Modifier.fillMaxWidth().height(84.dp), contentAlignment = Alignment.Center) {
                     Text("No forecast available", color = appColors.onMuted, style = MaterialTheme.typography.labelMedium)
                 }
             }
@@ -254,247 +399,39 @@ fun ForecastCard(forecasts: List<HAWeatherForecast>?, cornerRadius: Int = 24) {
 }
 
 @Composable
-fun SunCard(sun: HAEntity?, use24h: Boolean) {
-    val appColors = LocalHKIAppColors.current
-    Card(
-        modifier = Modifier.fillMaxWidth().height(150.dp),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.78f))
-    ) {
-        Column(Modifier.padding(16.dp).fillMaxWidth()) {
-            Text("Sun", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
-            Spacer(Modifier.height(8.dp))
-
-            val sunset = sun?.attributes?.get("next_setting")?.jsonPrimitive?.contentOrNull
-            val sunrise = sun?.attributes?.get("next_rising")?.jsonPrimitive?.contentOrNull
-            val pattern = if (use24h) "HH:mm" else "hh:mm a"
-            val sunsetStr = sunset?.let {
-                runCatching { LocalDateTime.parse(it, DateTimeFormatter.ISO_DATE_TIME).format(DateTimeFormatter.ofPattern(pattern)) }.getOrDefault("--")
-            } ?: "--"
-            val sunriseStr = sunrise?.let {
-                runCatching { LocalDateTime.parse(it, DateTimeFormatter.ISO_DATE_TIME).format(DateTimeFormatter.ofPattern(pattern)) }.getOrDefault("--")
-            } ?: "--"
-
-            val sunProgress = remember(sun?.state, sunrise, sunset) { calculateSunProgress(sun?.state, sunrise, sunset) }
-            val riseTime = parseSunTime(sunrise)
-            val setTime = parseSunTime(sunset)
-            val dawnTime = sun?.attributes?.get("next_dawn")?.jsonPrimitive?.contentOrNull?.let { parseSunTime(it) }
-                ?: runCatching {
-                    if (riseTime != null && setTime != null) riseTime.minusMinutes(((java.time.Duration.between(riseTime, setTime).toMinutes()) * 7L / 100L)) else null
-                }.getOrNull()
-            val duskTime = sun?.attributes?.get("next_dusk")?.jsonPrimitive?.contentOrNull?.let { parseSunTime(it) }
-                ?: runCatching {
-                    if (riseTime != null && setTime != null) setTime.plusMinutes(((java.time.Duration.between(riseTime, setTime).toMinutes()) * 7L / 100L)) else null
-                }.getOrNull()
-
-            fun timeToProgress(t: OffsetDateTime?): Float {
-                if (riseTime == null || setTime == null || t == null) return 0f
-                val total = java.time.Duration.between(riseTime, setTime).toMillis().coerceAtLeast(1)
-                val elapsed = java.time.Duration.between(riseTime, t).toMillis()
-                return (elapsed.toFloat() / total).coerceIn(0f, 1f)
-            }
-
-            val dawnProgress = timeToProgress(dawnTime)
-            val noonProgress = 0.5f
-            val duskProgress = timeToProgress(duskTime)
-
-            // Top row with sunrise/sunset times
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Column(horizontalAlignment = Alignment.Start) {
-                    Text(sunriseStr, color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
-                    Text("Sunrise", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
-                }
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(sunsetStr, color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
-                    Text("Sunset", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
-                }
-            }
-
-            Spacer(Modifier.height(8.dp))
-
-            Box(modifier = Modifier.fillMaxWidth().height(92.dp), contentAlignment = Alignment.Center) {
-                Canvas(modifier = Modifier.fillMaxWidth(0.96f).height(84.dp)) {
-                    val w = size.width
-                    val h = size.height
-                    val horizon = h * 0.7f
-                    val amplitude = h * 0.6f
-                    val samples = 120
-
-                    // Build full arc path
-                    val fullPath = Path()
-                    for (i in 0..samples) {
-                        val t = i / samples.toFloat()
-                        val x = t * w
-                        val y = horizon - sin(t * PI).toFloat() * amplitude
-                        if (i == 0) fullPath.moveTo(x, y) else fullPath.lineTo(x, y)
-                    }
-
-                    // Night area before dawn
-                    if (dawnProgress > 0f) {
-                        val endX = dawnProgress * w
-                        val nightPath = Path()
-                        nightPath.moveTo(0f, horizon)
-                        for (i in 0..(samples * dawnProgress).toInt().coerceAtLeast(1)) {
-                            val t = i / samples.toFloat()
-                            val x = t * w
-                            val y = horizon - sin(t * PI).toFloat() * amplitude
-                            nightPath.lineTo(x, y)
-                        }
-                        nightPath.lineTo(endX, horizon)
-                        nightPath.close()
-                        drawPath(nightPath, Color(0xFF1E2A4A))
-                    }
-
-                    // Filled day under arc up to sun position
-                    val sunFillPath = Path()
-                    val sunIndex = (samples * sunProgress).toInt().coerceIn(0, samples)
-                    sunFillPath.moveTo(0f, horizon)
-                    for (i in 0..sunIndex) {
-                        val t = i / samples.toFloat()
-                        val x = t * w
-                        val y = horizon - sin(t * PI).toFloat() * amplitude
-                        sunFillPath.lineTo(x, y)
-                    }
-                    sunFillPath.lineTo(sunIndex / samples.toFloat() * w, horizon)
-                    sunFillPath.close()
-                    drawPath(sunFillPath, Color(0xFFBFE0FF))
-
-                    // Arc outline
-                    drawPath(fullPath, Color(0xFF9FBFE0), style = Stroke(width = 2.dp.toPx()))
-
-                    // Sun marker
-                    val tSun = sunProgress.coerceIn(0f, 1f)
-                    val sunX = tSun * w
-                    val sunY = horizon - sin(tSun * PI).toFloat() * amplitude
-                    drawCircle(Color(0xFFFFD45A), radius = 10.dp.toPx(), center = androidx.compose.ui.geometry.Offset(sunX, sunY))
-                    drawCircle(Color.White.copy(alpha = 0.22f), radius = 16.dp.toPx(), center = androidx.compose.ui.geometry.Offset(sunX, sunY), style = Stroke(width = 1.2.dp.toPx()))
-
-                    // Markers: dawn, noon, dusk
-                    fun drawMarker(progress: Float, color: Color) {
-                        val x = progress * w
-                        val yTop = horizon - sin(progress * PI).toFloat() * amplitude - 6.dp.toPx()
-                        drawLine(color, androidx.compose.ui.geometry.Offset(x, yTop), androidx.compose.ui.geometry.Offset(x, horizon + 6.dp.toPx()), strokeWidth = 1.dp.toPx())
-                        drawCircle(color, radius = 3.dp.toPx(), center = androidx.compose.ui.geometry.Offset(x, yTop - 6.dp.toPx()))
-                    }
-
-                    if (dawnProgress in 0f..1f) drawMarker(dawnProgress, Color(0xFF6978A8))
-                    drawMarker(noonProgress, Color(0xFF4F6FA0))
-                    if (duskProgress in 0f..1f) drawMarker(duskProgress, Color(0xFF6978A8))
-                }
-            }
-
-            Spacer(Modifier.height(6.dp))
-
-            // Bottom labels: Dawn | Solar noon | Dusk
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Dawn", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
-                    Text(dawnTime?.toLocalTime()?.format(DateTimeFormatter.ofPattern(if (use24h) "HH:mm" else "hh:mm a")) ?: "--", color = appColors.onSurface, style = MaterialTheme.typography.bodyMedium)
-                }
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Solar noon", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
-                    Text(
-                        runCatching {
-                            if (riseTime != null && setTime != null) {
-                                val noon = riseTime.plusSeconds(java.time.Duration.between(riseTime, setTime).toSeconds() / 2)
-                                noon.toLocalTime().format(DateTimeFormatter.ofPattern(if (use24h) "HH:mm" else "hh:mm a"))
-                            } else "--"
-                        }.getOrDefault("--"),
-                        color = appColors.onSurface,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Dusk", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
-                    Text(duskTime?.toLocalTime()?.format(DateTimeFormatter.ofPattern(if (use24h) "HH:mm" else "hh:mm a")) ?: "--", color = appColors.onSurface, style = MaterialTheme.typography.bodyMedium)
-                }
-            }
-        }
-    }
-}
-
-private fun calculateSunProgress(state: String?, sunrise: String?, sunset: String?): Float {
-    val now = OffsetDateTime.now()
-    val nextRise = parseSunTime(sunrise)
-    val nextSet = parseSunTime(sunset)
-    return when (state) {
-        "above_horizon" -> {
-            val set = nextSet ?: return 0.65f
-            val rise = set.minusHours(12)
-            val total = java.time.Duration.between(rise, set).toMillis().coerceAtLeast(1)
-            val elapsed = java.time.Duration.between(rise, now).toMillis()
-            (elapsed.toFloat() / total).coerceIn(0.05f, 0.95f)
-        }
-        else -> {
-            val rise = nextRise ?: return 0.02f
-            if (rise.toLocalDate() == now.toLocalDate()) 0.02f else 0.98f
-        }
-    }
-}
-
-private fun parseSunTime(value: String?): OffsetDateTime? {
-    return value?.let {
-        runCatching { OffsetDateTime.parse(it).withOffsetSameInstant(OffsetDateTime.now().offset) }
-            .recoverCatching { LocalDateTime.parse(value, DateTimeFormatter.ISO_DATE_TIME).atZone(ZoneId.systemDefault()).toOffsetDateTime() }
-            .getOrNull()
-    }
-}
-
-@Composable
 fun MoonCard(moon: HAEntity?) {
-    val appColors = LocalHKIAppColors.current
-    Card(
-        modifier = Modifier.fillMaxWidth().height(150.dp),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.78f))
-    ) {
-        Column(Modifier.padding(16.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Moon", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted, modifier = Modifier.align(Alignment.Start))
-            Spacer(Modifier.height(8.dp))
-            Icon(Icons.Default.Brightness2, null, tint = Color.LightGray, modifier = Modifier.size(40.dp))
-            Spacer(Modifier.height(8.dp))
-            Text(
-                moon?.state?.replace("_", " ")?.replaceFirstChar { it.uppercase() } ?: "Unknown",
-                color = appColors.onSurface,
-                style = MaterialTheme.typography.labelMedium
-            )
-        }
-    }
+    WeatherInfoCard(
+        title = "Moon",
+        value = moon?.state?.replace("_", " ")?.replaceFirstChar { it.uppercase() } ?: "Unknown",
+        subtitle = "Lunar phase",
+        icon = Icons.Default.Brightness2,
+        accent = Color(0xFF9FA8DA)
+    )
 }
 
 @Composable
 fun AqiCard(aqi: HAEntity?) {
-    val appColors = LocalHKIAppColors.current
-    Card(
-        modifier = Modifier.fillMaxWidth().height(150.dp),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.78f))
-    ) {
-        Column(Modifier.padding(16.dp).fillMaxWidth()) {
-            Text("AQI", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
-            Spacer(Modifier.height(8.dp))
-            Text(aqi?.state ?: "--", style = MaterialTheme.typography.headlineMedium, color = Color(0xFFAF7AC5))
-            Text("Air Quality", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
-        }
+    val value = aqi?.state?.toDoubleOrNull()
+    val color = when {
+        value == null -> Color(0xFF90A4AE)
+        value <= 50 -> Color(0xFF66BB6A)
+        value <= 100 -> Color(0xFFFFCA28)
+        value <= 150 -> Color(0xFFFF8A65)
+        else -> Color(0xFFEF5350)
     }
+    WeatherInfoCard("Air quality", aqi?.state ?: "--", "AQI", Icons.Default.Air, color)
 }
 
 @Composable
 fun RainCard(rain: HAEntity?) {
-    val appColors = LocalHKIAppColors.current
-    Card(
-        modifier = Modifier.fillMaxWidth().height(150.dp),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.78f))
-    ) {
-        Column(Modifier.padding(16.dp).fillMaxWidth()) {
-            val unit = rain?.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull ?: "mm"
-            Text("Rain", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
-            Spacer(Modifier.height(8.dp))
-            Text("${rain?.state ?: "0"}$unit", style = MaterialTheme.typography.headlineMedium, color = Color(0xFFCCE6FF))
-            Text("Precipitation", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
-        }
-    }
+    val unit = rain?.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull ?: "mm"
+    WeatherInfoCard(
+        title = "Rain",
+        value = "${rain?.state ?: "0"} $unit",
+        subtitle = "Precipitation",
+        icon = Icons.Default.WaterDrop,
+        accent = weatherStateColor("rainy")
+    )
 }
 
 @Composable
@@ -503,23 +440,109 @@ fun StatsCard(weather: HAEntity) {
     Card(
         modifier = Modifier.fillMaxWidth().height(150.dp),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.78f))
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
-        Column(Modifier.padding(16.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            StatLine("Humidity", "${weather.humidity?.toInt() ?: "--"}%", Icons.Default.WaterDrop)
-            StatLine("Wind", "${weather.windSpeed?.toInt() ?: "--"} km/h", Icons.Default.Air)
+        BoxWithConstraints(
+            Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.linearGradient(
+                        listOf(weatherStateColor(weather.state).copy(alpha = 0.15f), appColors.elevated.copy(alpha = 0.96f))
+                    )
+                )
+        ) {
+            val compact = maxWidth < 180.dp
+            Column(
+                Modifier.fillMaxSize().padding(if (compact) 12.dp else 16.dp),
+                verticalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 10.dp)
+            ) {
+                Text(
+                    if (compact) "Details" else "Weather details",
+                    color = appColors.onMuted,
+                    style = MaterialTheme.typography.labelLarge,
+                    maxLines = 1
+                )
+                StatLine("Humidity", "${weather.humidity?.toInt() ?: "--"}%", Icons.Default.WaterDrop, compact)
+                StatLine("Wind", "${weather.windSpeed?.toInt() ?: "--"} km/h", Icons.Default.Air, compact)
+                weather.pressure?.let { StatLine("Pressure", "${it.toInt()} hPa", Icons.Default.Speed, compact) }
+            }
         }
     }
 }
 
 @Composable
-fun StatLine(label: String, value: String, icon: ImageVector) {
+private fun WeatherInfoCard(
+    title: String,
+    value: String,
+    subtitle: String,
+    icon: ImageVector,
+    accent: Color
+) {
+    val appColors = LocalHKIAppColors.current
+    Card(
+        modifier = Modifier.fillMaxWidth().height(150.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+    ) {
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Brush.linearGradient(listOf(accent.copy(alpha = 0.22f), appColors.elevated.copy(alpha = 0.96f))))
+        ) {
+            val compact = maxWidth < 160.dp
+            Column(
+                modifier = Modifier.fillMaxSize().padding(if (compact) 12.dp else 16.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = if (compact) Alignment.CenterHorizontally else Alignment.Start
+            ) {
+                if (compact) {
+                    Box(
+                        modifier = Modifier.size(38.dp).background(accent.copy(alpha = 0.16f), RoundedCornerShape(13.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(icon, null, tint = accent, modifier = Modifier.size(22.dp))
+                    }
+                } else {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(title, style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
+                        Box(
+                            modifier = Modifier.size(34.dp).background(accent.copy(alpha = 0.16f), RoundedCornerShape(12.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(icon, null, tint = accent, modifier = Modifier.size(19.dp))
+                        }
+                    }
+                }
+                Column(horizontalAlignment = if (compact) Alignment.CenterHorizontally else Alignment.Start) {
+                    Text(
+                        value,
+                        style = if (compact) MaterialTheme.typography.titleMedium else MaterialTheme.typography.headlineSmall,
+                        color = appColors.onSurface,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = if (compact) 2 else 1
+                    )
+                    Text(
+                        if (compact) title else subtitle,
+                        color = appColors.onMuted,
+                        style = MaterialTheme.typography.labelSmall,
+                        maxLines = 1
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun StatLine(label: String, value: String, icon: ImageVector, compact: Boolean = false) {
     val appColors = LocalHKIAppColors.current
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(icon, null, tint = appColors.onMuted, modifier = Modifier.size(16.dp))
         Spacer(Modifier.width(8.dp))
-        Text(label, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f))
-        Text(value, color = appColors.onSurface, style = MaterialTheme.typography.labelMedium)
+        if (!compact) {
+            Text(label, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f))
+        }
+        Text(value, color = appColors.onSurface, style = MaterialTheme.typography.labelMedium, maxLines = 1)
     }
 }
 
@@ -527,24 +550,45 @@ fun StatLine(label: String, value: String, icon: ImageVector) {
 fun ForecastItem(forecast: HAWeatherForecast) {
     val appColors = LocalHKIAppColors.current
     val locale = LocalConfiguration.current.locales[0]
-    val date = try {
-        val dt = LocalDateTime.parse(forecast.datetime, DateTimeFormatter.ISO_DATE_TIME)
-        dt.format(DateTimeFormatter.ofPattern("EEE", locale))
-    } catch (_: Exception) {
-        forecast.datetime.take(3)
-    }
+    val date = runCatching {
+        OffsetDateTime.parse(forecast.datetime, DateTimeFormatter.ISO_DATE_TIME)
+            .format(DateTimeFormatter.ofPattern("EEE", locale))
+    }.recoverCatching {
+        LocalDateTime.parse(forecast.datetime, DateTimeFormatter.ISO_DATE_TIME)
+            .format(DateTimeFormatter.ofPattern("EEE", locale))
+    }.getOrDefault(forecast.datetime.take(3))
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(date, color = appColors.onSurface, style = MaterialTheme.typography.labelMedium)
-        Spacer(Modifier.height(8.dp))
-        Icon(
-            imageVector = weatherIcon(forecast.condition ?: ""),
-            contentDescription = null,
-            tint = appColors.onSurface,
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(Modifier.height(8.dp))
-        Text("${forecast.temperature?.toInt() ?: "--"}\u00B0", color = appColors.onSurface, fontWeight = FontWeight.Bold)
+    Surface(
+        modifier = Modifier.width(82.dp),
+        color = appColors.subtleSurface,
+        shape = RoundedCornerShape(18.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 11.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(date, color = appColors.onMuted, style = MaterialTheme.typography.labelMedium)
+            WeatherStateIcon(
+                state = forecast.condition,
+                size = 38.dp,
+                contentDescription = forecast.condition?.let(::formatWeatherState),
+                loop = false
+            )
+            Text(
+                buildString {
+                    append(forecast.temperature?.toInt() ?: "--")
+                    append("°")
+                    forecast.templow?.let { append("  ${it.toInt()}°") }
+                },
+                color = appColors.onSurface,
+                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.labelLarge
+            )
+            forecast.precipitation?.takeIf { it > 0.0 }?.let {
+                Text("${it.toInt()} mm", color = weatherStateColor("rainy"), style = MaterialTheme.typography.labelSmall)
+            }
+        }
     }
 }
 
@@ -565,6 +609,8 @@ fun WeatherConfigView(
     val use24h by viewModel.use24hFormat.collectAsState()
     val useFullDayName by viewModel.useFullDayName.collectAsState()
     val extraEntities by viewModel.weatherExtraEntities.collectAsState()
+    val savedCardWidths by viewModel.weatherCardWidths.collectAsState()
+    val cardWidths = remember(savedCardWidths) { defaultWeatherCardWidths + savedCardWidths }
     var selectingForRole by remember { mutableStateOf<String?>(null) }
     var showDevicePicker by remember { mutableStateOf(false) }
     val entityRegistry by viewModel.entityRegistry.collectAsState()
@@ -629,6 +675,28 @@ fun WeatherConfigView(
                     WeatherEntityRow("AQI", extraEntities["aqi"]) { selectingForRole = "aqi" }
                     WeatherEntityRow("Season", extraEntities["season"]) { selectingForRole = "season" }
                     WeatherEntityRow("Rain", extraEntities["rain"]) { selectingForRole = "rain" }
+                }
+            }
+
+            if (currentDisplayType in listOf("Weather", "DateTime")) item {
+                Text("Weather dialog card sizes", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
+                Spacer(Modifier.height(8.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    listOf(
+                        "current" to "Current weather",
+                        "forecast" to "Forecast",
+                        "horizon" to "Sun horizon",
+                        "moon" to "Moon",
+                        "aqi" to "Air quality",
+                        "rain" to "Rain",
+                        "stats" to "Weather details"
+                    ).forEach { (key, label) ->
+                        WeatherCardWidthRow(
+                            label = label,
+                            width = cardWidths.getValue(key),
+                            onWidthChange = { viewModel.setWeatherCardWidth(key, it) }
+                        )
+                    }
                 }
             }
 
@@ -697,6 +765,29 @@ fun WeatherConfigView(
                 selectingForRole = null
             }
         )
+    }
+}
+
+@Composable
+private fun WeatherCardWidthRow(label: String, width: String, onWidthChange: (String) -> Unit) {
+    val appColors = LocalHKIAppColors.current
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(appColors.subtleSurface, RoundedCornerShape(14.dp))
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(label, color = appColors.onSurface, style = MaterialTheme.typography.bodyMedium)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf("full" to "Full", "half" to "Half", "third" to "Third").forEach { (value, text) ->
+                FilterChip(
+                    selected = width == value,
+                    onClick = { onWidthChange(value) },
+                    label = { Text(text, style = MaterialTheme.typography.labelSmall) }
+                )
+            }
+        }
     }
 }
 

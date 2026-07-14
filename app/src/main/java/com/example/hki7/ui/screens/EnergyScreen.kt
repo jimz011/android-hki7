@@ -213,8 +213,15 @@ fun EnergyScreen(viewModel: MainViewModel) {
     val homeAssistantSolarForecasts by viewModel.energySolarForecasts.collectAsState()
     val energyConfig: HKIEnergyConfig =
         (pageConfigsMap[ENERGY_PAGE_KEY] ?: HKIPageConfig()).energyConfig ?: HKIEnergyConfig()
-    LaunchedEffect(rawEntities.isNotEmpty(), energyConfig.usesHomeAssistantEnergyPreferences) {
-        if (rawEntities.isNotEmpty() && !energyConfig.usesHomeAssistantEnergyPreferences) {
+    LaunchedEffect(
+        rawEntities.isNotEmpty(),
+        energyConfig.usesHomeAssistantEnergyPreferences,
+        energyConfig.gridCarbonFootprintEntityId
+    ) {
+        if (
+            rawEntities.isNotEmpty() &&
+            (!energyConfig.usesHomeAssistantEnergyPreferences || energyConfig.gridCarbonFootprintEntityId == null)
+        ) {
             viewModel.importHomeAssistantEnergyPreferences(ENERGY_PAGE_KEY)
         }
     }

@@ -1,6 +1,7 @@
 package com.example.hki7.ui.screens
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -15,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
@@ -33,9 +35,11 @@ import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.EditRemoveBadge
 import com.example.hki7.ui.components.ReorderableGrid
 import com.example.hki7.ui.components.ForecastCard
+import com.example.hki7.ui.components.HorizonCard
 import com.example.hki7.ui.components.WeatherMainCard
+import com.example.hki7.ui.components.WeatherStateIcon
 import com.example.hki7.ui.components.formatWeatherState
-import com.example.hki7.ui.components.weatherIcon
+import com.example.hki7.ui.components.weatherStateColor
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
@@ -52,6 +56,7 @@ val weatherWidgetStyles = listOf(
     "current" to "Current weather",
     "forecast" to "Daily forecast",
     "hourly" to "Hourly forecast",
+    "horizon" to "Sunrise & sunset horizon",
     "wind" to "Wind compass",
     "rainmap" to "Rain map (image URL)"
 )
@@ -72,6 +77,14 @@ fun WeatherRoomWidget(
     }
     val specificEntities by specificFlow.collectAsState()
     val weatherEntity = widget.entityId?.let { specificEntities.firstOrNull() } ?: defaultWeatherEntity
+    val weatherExtras by viewModel.weatherExtraEntities.collectAsState()
+    val use24h by viewModel.use24hFormat.collectAsState()
+    val sunEntityId = weatherExtras["sun"] ?: "sun.sun"
+    val sunFlow = remember(viewModel, sunEntityId, isEditMode) {
+        if (isEditMode) viewModel.entitySnapshotFor(listOf(sunEntityId)) else viewModel.entitiesFor(listOf(sunEntityId))
+    }
+    val sunEntities by sunFlow.collectAsState()
+    val sunEntity = sunEntities.firstOrNull()
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -96,7 +109,11 @@ fun WeatherRoomWidget(
                 Spacer(Modifier.height(12.dp))
             }
 
-            if (weatherEntity == null) {
+            if (widget.style == "horizon") {
+                HorizonCard(sun = sunEntity, use24h = use24h, cornerRadius = widget.cornerRadius)
+            } else if (widget.style == "rainmap") {
+                RainMapCard(widget.imageUrl, widget.cornerRadius)
+            } else if (weatherEntity == null) {
                 Surface(
                     shape = RoundedCornerShape(widget.cornerRadius.dp),
                     color = appColors.elevated.copy(alpha = 0.78f),
@@ -117,7 +134,6 @@ fun WeatherRoomWidget(
                         HourlyForecastCard(forecasts, widget.cornerRadius)
                     }
                     "wind" -> WindCompassCard(weatherEntity, widget.cornerRadius)
-                    "rainmap" -> RainMapCard(widget.imageUrl, widget.cornerRadius)
                     else -> WeatherMainCard(weatherEntity, widget.cornerRadius)
                 }
             }
@@ -154,18 +170,28 @@ private fun rememberEntityForecast(weatherEntity: HAEntity, viewModel: MainViewM
 @Composable
 fun HourlyForecastCard(forecasts: List<HAWeatherForecast>, cornerRadius: Int = 24) {
     val appColors = LocalHKIAppColors.current
+    val accent = weatherStateColor(forecasts.firstOrNull()?.condition)
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(cornerRadius.dp),
-        colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.78f))
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
-        Column(Modifier.padding(16.dp)) {
-            Text("Hourly", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(Brush.linearGradient(listOf(accent.copy(alpha = 0.16f), appColors.elevated.copy(alpha = 0.96f))))
+                .padding(16.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Schedule, null, tint = accent, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Hourly forecast", style = MaterialTheme.typography.titleSmall, color = appColors.onSurface)
+            }
             Spacer(Modifier.height(12.dp))
             if (forecasts.isNotEmpty()) {
                 Row(
                     modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(18.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     forecasts.take(12).forEach { hour -> HourlyForecastItem(hour) }
                 }
@@ -186,12 +212,25 @@ private fun HourlyForecastItem(forecast: HAWeatherForecast) {
     } catch (_: Exception) {
         forecast.datetime.take(5)
     }
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(timeLabel, color = appColors.onSurface, style = MaterialTheme.typography.labelMedium)
-        Spacer(Modifier.height(8.dp))
-        Icon(weatherIcon(forecast.condition ?: ""), contentDescription = null, tint = appColors.onSurface, modifier = Modifier.size(22.dp))
-        Spacer(Modifier.height(8.dp))
-        Text("${forecast.temperature?.toInt() ?: "--"}°", color = appColors.onSurface, fontWeight = FontWeight.Bold)
+    Surface(
+        modifier = Modifier.width(72.dp),
+        color = appColors.subtleSurface,
+        shape = RoundedCornerShape(18.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(timeLabel, color = appColors.onMuted, style = MaterialTheme.typography.labelMedium)
+            WeatherStateIcon(
+                state = forecast.condition,
+                size = 34.dp,
+                contentDescription = forecast.condition?.let(::formatWeatherState),
+                loop = false
+            )
+            Text("${forecast.temperature?.toInt() ?: "--"}°", color = appColors.onSurface, fontWeight = FontWeight.Bold)
+        }
     }
 }
 
@@ -206,42 +245,50 @@ fun WindCompassCard(weather: HAEntity, cornerRadius: Int = 24) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(cornerRadius.dp),
-        colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.78f))
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
-        Column(Modifier.padding(20.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Wind", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted, modifier = Modifier.align(Alignment.Start))
-            Spacer(Modifier.height(12.dp))
-            Box(modifier = Modifier.size(160.dp), contentAlignment = Alignment.Center) {
-                Canvas(modifier = Modifier.fillMaxSize()) {
-                    val radius = size.minDimension / 2f * 0.86f
-                    val center = Offset(size.width / 2f, size.height / 2f)
-                    drawCircle(color = appColors.onMuted.copy(alpha = 0.18f), radius = radius, center = center, style = Stroke(width = 2.dp.toPx()))
-                    for (deg in 0 until 360 step 30) {
-                        val rad = Math.toRadians(deg.toDouble() - 90)
-                        val outer = Offset(center.x + radius * cos(rad).toFloat(), center.y + radius * sin(rad).toFloat())
-                        val inner = Offset(center.x + (radius - 8.dp.toPx()) * cos(rad).toFloat(), center.y + (radius - 8.dp.toPx()) * sin(rad).toFloat())
-                        drawLine(appColors.onMuted.copy(alpha = 0.35f), inner, outer, strokeWidth = 2.dp.toPx())
+        BoxWithConstraints(
+            Modifier
+                .fillMaxWidth()
+                .background(Brush.linearGradient(listOf(needleColor.copy(alpha = 0.18f), appColors.elevated.copy(alpha = 0.96f))))
+        ) {
+            val compact = maxWidth < 220.dp
+            val compassSize = if (compact) (maxWidth - 24.dp).coerceIn(72.dp, 128.dp) else 160.dp
+            Column(Modifier.padding(if (compact) 12.dp else 20.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Wind", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted, modifier = Modifier.align(Alignment.Start))
+                Spacer(Modifier.height(if (compact) 6.dp else 12.dp))
+                Box(modifier = Modifier.size(compassSize), contentAlignment = Alignment.Center) {
+                    Canvas(modifier = Modifier.fillMaxSize()) {
+                        val radius = size.minDimension / 2f * 0.86f
+                        val center = Offset(size.width / 2f, size.height / 2f)
+                        drawCircle(color = appColors.onMuted.copy(alpha = 0.18f), radius = radius, center = center, style = Stroke(width = 2.dp.toPx()))
+                        for (deg in 0 until 360 step 30) {
+                            val rad = Math.toRadians(deg.toDouble() - 90)
+                            val outer = Offset(center.x + radius * cos(rad).toFloat(), center.y + radius * sin(rad).toFloat())
+                            val inner = Offset(center.x + (radius - 8.dp.toPx()) * cos(rad).toFloat(), center.y + (radius - 8.dp.toPx()) * sin(rad).toFloat())
+                            drawLine(appColors.onMuted.copy(alpha = 0.35f), inner, outer, strokeWidth = 2.dp.toPx())
+                        }
+                        val needleRad = Math.toRadians(bearing - 90)
+                        val tip = Offset(center.x + radius * 0.82f * cos(needleRad).toFloat(), center.y + radius * 0.82f * sin(needleRad).toFloat())
+                        val tailRad = Math.toRadians(bearing - 90 + 180)
+                        val tail = Offset(center.x + radius * 0.35f * cos(tailRad).toFloat(), center.y + radius * 0.35f * sin(tailRad).toFloat())
+                        drawLine(needleColor, tail, tip, strokeWidth = 5.dp.toPx(), cap = StrokeCap.Round)
+                        drawCircle(needleColor, radius = 5.dp.toPx(), center = tip)
+                        drawCircle(appColors.onSurface, radius = 4.dp.toPx(), center = center)
                     }
-                    val needleRad = Math.toRadians(bearing - 90)
-                    val tip = Offset(center.x + radius * 0.82f * cos(needleRad).toFloat(), center.y + radius * 0.82f * sin(needleRad).toFloat())
-                    val tailRad = Math.toRadians(bearing - 90 + 180)
-                    val tail = Offset(center.x + radius * 0.35f * cos(tailRad).toFloat(), center.y + radius * 0.35f * sin(tailRad).toFloat())
-                    drawLine(needleColor, tail, tip, strokeWidth = 5.dp.toPx(), cap = StrokeCap.Round)
-                    drawCircle(needleColor, radius = 5.dp.toPx(), center = tip)
-                    drawCircle(appColors.onSurface, radius = 4.dp.toPx(), center = center)
+                    Text("N", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, modifier = Modifier.align(Alignment.TopCenter).padding(top = 2.dp))
+                    Text("E", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, modifier = Modifier.align(Alignment.CenterEnd).padding(end = 2.dp))
+                    Text("S", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 2.dp))
+                    Text("W", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, modifier = Modifier.align(Alignment.CenterStart).padding(start = 2.dp))
                 }
-                Text("N", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, modifier = Modifier.align(Alignment.TopCenter).padding(top = 2.dp))
-                Text("E", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, modifier = Modifier.align(Alignment.CenterEnd).padding(end = 2.dp))
-                Text("S", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 2.dp))
-                Text("W", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, modifier = Modifier.align(Alignment.CenterStart).padding(start = 2.dp))
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    "${speed?.toInt() ?: "--"} km/h" + (gust?.takeUnless { compact }?.let { " (gust ${it.toInt()})" } ?: ""),
+                    color = appColors.onSurface,
+                    style = if (compact) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium
+                )
+                Text(bearingToCompassLabel(bearing), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
             }
-            Spacer(Modifier.height(12.dp))
-            Text(
-                "${speed?.toInt() ?: "--"} km/h" + (gust?.let { " (gust ${it.toInt()})" } ?: ""),
-                color = appColors.onSurface,
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(bearingToCompassLabel(bearing), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
         }
     }
 }
@@ -259,10 +306,23 @@ fun RainMapCard(imageUrl: String?, cornerRadius: Int = 24) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(cornerRadius.dp),
-        colors = CardDefaults.cardColors(containerColor = appColors.elevated.copy(alpha = 0.78f))
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
-        Column(Modifier.padding(16.dp)) {
-            Text("Rain Map", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.linearGradient(
+                        listOf(weatherStateColor("rainy").copy(alpha = 0.16f), appColors.elevated.copy(alpha = 0.96f))
+                    )
+                )
+                .padding(16.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.WaterDrop, null, tint = weatherStateColor("rainy"), modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Rain map", style = MaterialTheme.typography.titleSmall, color = appColors.onSurface)
+            }
             Spacer(Modifier.height(12.dp))
             if (!imageUrl.isNullOrBlank()) {
                 AsyncImage(
@@ -386,6 +446,12 @@ fun WeatherWidgetSettingsDialog(
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
+                } else if (style == "horizon") {
+                    Text(
+                        "Uses the Sun entity configured in Weather settings.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
         },
@@ -488,6 +554,18 @@ private fun WeatherStackCard(
 ) {
     val appColors = LocalHKIAppColors.current
     val style = config?.weatherStyle ?: "current"
+    if (style == "horizon") {
+        val weatherExtras by viewModel.weatherExtraEntities.collectAsState()
+        val use24h by viewModel.use24hFormat.collectAsState()
+        val sunEntityId = weatherExtras["sun"] ?: "sun.sun"
+        val sunFlow = remember(viewModel, sunEntityId) { viewModel.entitiesFor(listOf(sunEntityId)) }
+        val observedSun by sunFlow.collectAsState()
+        val sunEntity = observedSun.firstOrNull()
+            ?: allEntities.find { it.entity_id == sunEntityId }
+            ?: allEntities.find { it.entity_id == "sun.sun" }
+        HorizonCard(sun = sunEntity, use24h = use24h, cornerRadius = cornerRadius)
+        return
+    }
     val weatherEntity = allEntities.find { it.entity_id == config?.weatherEntityId }
         ?: allEntities.find { it.entity_id.startsWith("weather.") }
     if (weatherEntity == null && style != "rainmap") {
@@ -574,6 +652,12 @@ fun WeatherItemDialog(
                         label = { Text("Rain map image URL") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
+                    )
+                } else if (style == "horizon") {
+                    Text(
+                        "Uses the Sun entity configured in Weather settings.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
             }

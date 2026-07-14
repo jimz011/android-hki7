@@ -39,6 +39,7 @@ class PreferencesManager(private val context: Context) {
     private val seasonEntityKey = stringPreferencesKey("season_entity_id")
     private val rainEntityKey = stringPreferencesKey("rain_entity_id")
     private val weatherDeviceKey = stringPreferencesKey("weather_device_id")
+    private val weatherCardWidthsKey = stringPreferencesKey("weather_card_widths")
     private val alarmEntityKey = stringPreferencesKey("header_alarm_entity_id")
     private val headerLeftAlarmEntityKey = stringPreferencesKey("header_left_alarm_entity_id")
     private val alarmPendingSecondsKey = intPreferencesKey("alarm_pending_seconds")
@@ -115,6 +116,11 @@ class PreferencesManager(private val context: Context) {
     val rainEntityId: Flow<String?> = context.dataStore.data.map { it[rainEntityKey] }
     /** HA device the weather page's role entities were auto-filled from (device-first setup). */
     val weatherDeviceId: Flow<String?> = context.dataStore.data.map { it[weatherDeviceKey] }
+    /** Widths for the cards in the global weather dialog: "third", "half", or "full". */
+    val weatherCardWidths: Flow<Map<String, String>> = context.dataStore.data.map { preferences ->
+        val saved = preferences[weatherCardWidthsKey] ?: "{}"
+        runCatching { appJson.decodeFromString<Map<String, String>>(saved) }.getOrDefault(emptyMap())
+    }
     val alarmEntityIds: Flow<List<String>> = context.dataStore.data.map { p ->
         p[alarmEntityKey]?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
     }
@@ -331,6 +337,18 @@ class PreferencesManager(private val context: Context) {
                 else -> return@edit
             }
             if (entityId == null) preferences.remove(key) else preferences[key] = entityId
+        }
+    }
+
+    suspend fun saveWeatherCardWidth(card: String, width: String) {
+        if (width !in setOf("third", "half", "full")) return
+        context.dataStore.edit { preferences ->
+            val current = preferences[weatherCardWidthsKey]
+                ?.let { saved -> runCatching { appJson.decodeFromString<Map<String, String>>(saved) }.getOrNull() }
+                .orEmpty()
+                .toMutableMap()
+            current[card] = width
+            preferences[weatherCardWidthsKey] = appJson.encodeToString(current)
         }
     }
 

@@ -226,13 +226,11 @@ fun EntityCard(
             domain == "climate" -> climateColor
             else -> primary
         }
-        // Google Home-style tonal progress: both sides retain the ON hue, with a stronger tint for
-        // the filled brightness portion and a softer tint for the remaining track.
-        val brightnessFillColor = lerpColor(primary, appColors.elevated, 0.34f)
-        val brightnessTrackColor = lerpColor(primary, appColors.elevated, 0.68f)
-        val tileActiveContent = if (brightnessVisible) {
-            if (brightnessFillColor.luminance() < 0.45f) Color.White else Color(0xFF111111)
-        } else activeContent
+        // Keep the filled portion identical to a normal ON button. Only the unfilled remainder is
+        // tonal, so brightness reads as a horizontal level instead of dimming the entire tile.
+        val brightnessFillColor = primary
+        val brightnessTrackColor = lerpColor(primary, appColors.elevated, 0.74f)
+        val tileActiveContent = activeContent
         Surface(
             shape = RoundedCornerShape(18.dp),
             color = when {

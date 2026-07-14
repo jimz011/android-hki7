@@ -70,6 +70,59 @@ private const val WEATHER_FORECAST_TTL_MS = 10 * 60 * 1000L
 /** Calendar widgets refresh often enough to feel current without refetching on every recomposition. */
 private const val CALENDAR_EVENTS_TTL_MS = 2 * 60 * 1000L
 
+/** Resolve the fossil-fuel percentage entity configured by Home Assistant's Energy Settings.
+ *
+ * The carbon provider is not included in `energy/get_prefs`: Energy Settings stores it as an
+ * Electricity Maps config entry whose internal domain remains `co2signal`. Prefer stable registry
+ * metadata tied to an enabled config entry, then retain compatibility with older registry payloads
+ * using unique-id, entity-id, registry-unit, and live-state-unit fallbacks. */
+internal fun resolveHomeAssistantEnergyCarbonEntity(
+    configEntries: List<HAConfigEntry>,
+    registry: List<HAEntityRegistryEntry>,
+    liveEntities: List<HAEntity>
+): String? {
+    val hasCarbonConfigMetadata = configEntries.any { it.domain == "co2signal" }
+    val enabledEntries = configEntries
+        .asSequence()
+        .filter { it.domain == "co2signal" && it.disabled_by == null }
+        .sortedByDescending { it.state == "loaded" }
+        .toList()
+    if (hasCarbonConfigMetadata && enabledEntries.isEmpty()) return null
+    val enabledEntryIds = enabledEntries.mapTo(linkedSetOf()) { it.entry_id }
+    val entryPriority = enabledEntries.mapIndexed { index, entry -> entry.entry_id to index }.toMap()
+    val liveById = liveEntities.associateBy { it.entity_id }
+
+    val platformCandidates = registry.asSequence()
+        .filter { it.platform == "co2signal" && it.disabled_by == null }
+        // If HA returned config entries and registry ownership metadata, never select an entity
+        // belonging to a disabled/different Electricity Maps entry.
+        .filter { entry ->
+            enabledEntryIds.isEmpty() || entry.config_entry_id == null || entry.config_entry_id in enabledEntryIds
+        }
+        .sortedWith(
+            compareBy<HAEntityRegistryEntry> {
+                entryPriority[it.config_entry_id] ?: Int.MAX_VALUE
+            }.thenBy { it.entity_id }
+        )
+        .toList()
+
+    fun registryUnit(entry: HAEntityRegistryEntry): String? =
+        entry.unit_of_measurement?.trim()
+            ?: liveById[entry.entity_id]?.attributes
+                ?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull?.trim()
+
+    return platformCandidates.firstOrNull {
+        it.translation_key == "fossil_fuel_percentage"
+    }?.entity_id
+        ?: platformCandidates.firstOrNull {
+            it.unique_id?.lowercase()?.contains("fossilfuelpercentage") == true
+        }?.entity_id
+        ?: platformCandidates.firstOrNull {
+            it.entity_id.lowercase().contains("fossil_fuel_percentage")
+        }?.entity_id
+        ?: platformCandidates.firstOrNull { registryUnit(it) == "%" }?.entity_id
+}
+
 
 class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : ViewModel() {
     private val networkMonitor = appCtx?.let { NetworkMonitor(it) }
@@ -490,6 +543,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private val _weatherExtraEntities = MutableStateFlow<Map<String, String?>>(emptyMap())
     val weatherExtraEntities: StateFlow<Map<String, String?>> = _weatherExtraEntities
 
+    private val _weatherCardWidths = MutableStateFlow<Map<String, String>>(emptyMap())
+    val weatherCardWidths: StateFlow<Map<String, String>> = _weatherCardWidths
+
     private val _headerAlarmEntityIds = MutableStateFlow<List<String>>(emptyList())
     val headerAlarmEntityIds: StateFlow<List<String>> = _headerAlarmEntityIds
 
@@ -549,6 +605,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         viewModelScope.launch { prefs.alarmEntityIds.collect { _headerAlarmEntityIds.value = it } }
         viewModelScope.launch { prefs.headerLeftAlarmEntityIds.collect { _headerLeftAlarmEntityIds.value = it } }
         viewModelScope.launch { prefs.alarmPendingSeconds.collect { _alarmPendingSeconds.value = it } }
+        viewModelScope.launch { prefs.weatherCardWidths.collect { _weatherCardWidths.value = it } }
         viewModelScope.launch {
             combine(prefs.sunEntityId, prefs.moonEntityId, prefs.aqiEntityId, prefs.seasonEntityId, prefs.rainEntityId, prefs.weatherDeviceId) { args: Array<String?> ->
                 mapOf("sun" to args[0], "moon" to args[1], "aqi" to args[2], "season" to args[3], "rain" to args[4], "device" to args[5])
@@ -1218,6 +1275,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     fun setUse24hFormat(use24h: Boolean) { viewModelScope.launch { prefs.saveUse24hFormat(use24h) } }
     fun setUseFullDayName(useFullDayName: Boolean) { viewModelScope.launch { prefs.saveUseFullDayName(useFullDayName) } }
     fun setWeatherExtraEntity(role: String, entityId: String?) { viewModelScope.launch { prefs.saveWeatherExtraEntity(role, entityId) } }
+    fun setWeatherCardWidth(card: String, width: String) { viewModelScope.launch { prefs.saveWeatherCardWidth(card, width) } }
     fun setHeaderAlarmEntities(entityIds: List<String>) { viewModelScope.launch { prefs.saveHeaderAlarmEntities(entityIds) } }
     fun setHeaderLeftAlarmEntities(entityIds: List<String>) { viewModelScope.launch { prefs.saveHeaderLeftAlarmEntities(entityIds) } }
     fun setAlarmPendingSeconds(seconds: Int) { viewModelScope.launch { prefs.saveAlarmPendingSeconds(seconds) } }
@@ -1280,7 +1338,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     /** Imports the read-only Energy dashboard preferences maintained by Home Assistant. */
     fun importHomeAssistantEnergyPreferences(pageKey: String = "energy", force: Boolean = false) {
         val current = (_pageConfigsMapping.value[pageKey] ?: HKIPageConfig()).energyConfig ?: HKIEnergyConfig()
-        if (current.usesHomeAssistantEnergyPreferences && !force) return
+        // Re-run the lightweight import for existing HA-backed setups that predate carbon-entry
+        // discovery, so Electricity Maps appears without requiring a manual re-import.
+        if (current.usesHomeAssistantEnergyPreferences && current.gridCarbonFootprintEntityId != null && !force) return
         val currentClient = client ?: return
         viewModelScope.launch {
             try {
@@ -1288,7 +1348,6 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 val sources = prefsResult["energy_sources"]?.jsonArray.orEmpty().mapNotNull { runCatching { it.jsonObject }.getOrNull() }
                 val devices = prefsResult["device_consumption"]?.jsonArray.orEmpty().mapNotNull { runCatching { it.jsonObject }.getOrNull() }
                 val waterDevices = prefsResult["device_consumption_water"]?.jsonArray.orEmpty().mapNotNull { runCatching { it.jsonObject }.getOrNull() }
-                if (sources.isEmpty() && devices.isEmpty() && waterDevices.isEmpty()) return@launch
 
                 fun JsonObject.text(key: String): String? = this[key]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
                 fun source(type: String): JsonObject? = sources.firstOrNull { it.text("type") == type }
@@ -1319,11 +1378,20 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 }
                 val registryByEntity = registry.associateBy { it.entity_id }
                 val liveById = _entities.value.associateBy { it.entity_id }
-                val carbonEntityId = registry.firstNotNullOfOrNull { entry ->
-                    entry.entity_id.takeIf { id ->
-                        entry.platform == "co2signal" &&
-                            liveById[id]?.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull == "%"
-                    }
+                val carbonConfigEntries = runCatching {
+                    currentClient.getConfigEntries("co2signal")
+                }.getOrElse {
+                    // Older HA versions or restricted users may not expose config entries. The
+                    // resolver still supports the same registry/live-state fallback HA uses.
+                    emptyList()
+                }
+                val carbonEntityId = resolveHomeAssistantEnergyCarbonEntity(
+                    configEntries = carbonConfigEntries,
+                    registry = registry,
+                    liveEntities = _entities.value
+                )
+                if (sources.isEmpty() && devices.isEmpty() && waterDevices.isEmpty() && carbonEntityId == null) {
+                    return@launch
                 }
                 val powerIds = devices.mapNotNull { device ->
                     device.text("stat_rate") ?: device.text("stat_consumption")?.let { consumptionId ->

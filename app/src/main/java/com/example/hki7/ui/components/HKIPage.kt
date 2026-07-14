@@ -399,16 +399,10 @@ fun HKIPage(
                                                         size = 18.dp
                                                     )
                                                 } else {
-                                                    Icon(
-                                                        imageVector = when (weather?.state?.lowercase()) {
-                                                            "cloudy" -> Icons.Default.Cloud
-                                                            "rainy" -> Icons.Default.CloudQueue
-                                                            "sunny" -> Icons.Default.WbSunny
-                                                            else -> Icons.Default.Cloud
-                                                        },
-                                                        contentDescription = null,
-                                                        tint = headerTextColor,
-                                                        modifier = Modifier.size(18.dp)
+                                                    WeatherStateIcon(
+                                                        state = weather?.state,
+                                                        size = 20.dp,
+                                                        contentDescription = weather?.state?.let(::formatWeatherState)
                                                     )
                                                 }
                                                 if (displayStr.isNotEmpty()) Spacer(Modifier.width(8.dp))
@@ -1155,12 +1149,12 @@ private fun HeaderStatusPill(
                         )
                         Spacer(Modifier.width(8.dp))
                     } else {
-                        val icon = when (displayType) {
-                            "Weather", "DateTime" -> weatherIcon(weather?.state.orEmpty())
-                            else -> null
-                        }
-                        if (icon != null) {
-                            Icon(icon, contentDescription = null, tint = textColor, modifier = Modifier.size(18.dp))
+                        if (displayType == "Weather" || displayType == "DateTime") {
+                            WeatherStateIcon(
+                                state = weather?.state,
+                                size = 20.dp,
+                                contentDescription = weather?.state?.let(::formatWeatherState)
+                            )
                             Spacer(Modifier.width(8.dp))
                         }
                     }
