@@ -222,16 +222,15 @@ fun EntityCard(
 
     if (buttonStyle == "tile") {
         val tileActive = isCoverNotClosed || isLockDoorOpen || isLockUnlocked || isActive || isClimateNotOff
-        val accent = when {
-            domain == "light" && isActive -> lightColor ?: Color(0xFFB58E31)
-            domain == "climate" -> climateColor
+        val accent = when (domain) {
+            "light" -> if (isActive) lightColor ?: Color(0xFFB58E31) else primary
+            "climate" -> climateColor
             else -> primary
         }
         // Keep the filled portion identical to a normal ON button. Only the unfilled remainder is
         // tonal, so brightness reads as a horizontal level instead of dimming the entire tile.
         val brightnessFillColor = primary
         val brightnessTrackColor = lerpColor(primary, appColors.elevated, 0.74f)
-        val tileActiveContent = activeContent
         Surface(
             shape = RoundedCornerShape(18.dp),
             color = when {
@@ -256,17 +255,17 @@ fun EntityCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Box(Modifier.size(34.dp).background(if (tileActive) tileActiveContent.copy(alpha = 0.12f) else accent.copy(alpha = 0.15f), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(34.dp).background(if (tileActive) activeContent.copy(alpha = 0.12f) else accent.copy(alpha = 0.15f), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
                         val slug = iconName?.takeUnless { it.isBlank() } ?: defaultEntityIconSlug(entity, lockDoorOpen = isLockDoorOpen)
-                        val tileIconTint = if (tileActive) tileActiveContent else accent
+                        val tileIconTint = if (tileActive) activeContent else accent
                         if (slug != null) MdiIcon(slug, tint = tileIconTint, size = 18.dp)
                         else Icon(Icons.Default.DeviceUnknown, null, tint = tileIconTint, modifier = Modifier.size(18.dp))
                     }
                     Column(Modifier.weight(1f)) {
-                        Text(name, style = MaterialTheme.typography.labelLarge, color = if (tileActive) tileActiveContent else appColors.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text(statusText, style = MaterialTheme.typography.bodySmall, color = if (tileActive) tileActiveContent.copy(alpha = 0.72f) else appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(name, style = MaterialTheme.typography.labelLarge, color = if (tileActive) activeContent else appColors.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(statusText, style = MaterialTheme.typography.bodySmall, color = if (tileActive) activeContent.copy(alpha = 0.72f) else appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
-                    Icon(Icons.Default.ChevronRight, null, tint = if (tileActive) tileActiveContent.copy(alpha = 0.68f) else appColors.onMuted, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.ChevronRight, null, tint = if (tileActive) activeContent.copy(alpha = 0.68f) else appColors.onMuted, modifier = Modifier.size(16.dp))
                 }
                 if (brightnessEnabled) Box(Modifier.matchParentSize().then(sliderModifier))
             }

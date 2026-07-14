@@ -78,7 +78,7 @@ fun PersonDetailDialog(
     val homeConfig = pageConfigs["home"] ?: HKIPageConfig()
     val personButtons = homeConfig.personButtons[person.entity_id] ?: emptyList()
 
-    // Edit mode: tapping a person opens its individual settings (HKIDialog auto-dismisses in edit
+    // Edit mode: tapping a person opens its individual settings (the entity dialog auto-dismisses in edit
     // mode, so the settings live in their own dialog here rather than inside the person dialog).
     if (isEditMode) {
         PersonSettingsDialog(
