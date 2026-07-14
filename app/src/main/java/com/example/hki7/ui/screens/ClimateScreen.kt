@@ -54,6 +54,7 @@ import com.example.hki7.ui.components.ReorderableGrid
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.hvacColor
+import com.example.hki7.ui.components.hvacGradient
 import com.example.hki7.ui.utils.MdiIcon
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.serialization.json.contentOrNull
@@ -846,13 +847,6 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, corner
 private fun dimmed(color: Color, factor: Float): Color =
     Color(color.red * factor, color.green * factor, color.blue * factor, 1f)
 
-private fun lightened(color: Color, factor: Float): Color = Color(
-    color.red + (1f - color.red) * factor,
-    color.green + (1f - color.green) * factor,
-    color.blue + (1f - color.blue) * factor,
-    1f
-)
-
 @Composable
 private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: Int = 20, isSquare: Boolean = false, iconOverride: String? = null, onCenterClick: (() -> Unit)? = null) {
     val appColors = LocalHKIAppColors.current
@@ -864,6 +858,7 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
     LaunchedEffect(entity.state) { localMode = entity.state }
     val optimisticMode = if (localMode != entity.state) localMode else hvacAction ?: entity.state
     val accent = hvacColor(optimisticMode)
+    val accentGradient = hvacGradient(optimisticMode)
     val statusLabel = optimisticMode.replace('_', ' ').uppercase(locale)
     val currentTemp = entity.attributes?.get("current_temperature")?.jsonPrimitive?.doubleOrNull
     val outdoorTemp = weatherEntity?.attributes?.get("temperature")?.jsonPrimitive?.doubleOrNull
@@ -986,10 +981,7 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
                         if (hasTarget) {
                             val fraction = ((localTarget - minTemp) / (maxTemp - minTemp)).coerceIn(0f, 1f)
                             drawArc(
-                                brush = Brush.sweepGradient(
-                                    0.375f to lightened(accent, 0.35f),
-                                    1f to accent
-                                ),
+                                brush = accentGradient,
                                 startAngle = 135f, sweepAngle = 270f * fraction, useCenter = false,
                                 topLeft = topLeft, size = arcSize, style = stroke
                             )

@@ -216,6 +216,7 @@ import com.example.hki7.ui.components.VerticalMasterSwitch
 import com.example.hki7.ui.components.VerticalSlider
 import com.example.hki7.ui.components.VerticalControlHeight
 import com.example.hki7.ui.components.hvacColor
+import com.example.hki7.ui.components.hvacGradient
 import com.example.hki7.ui.components.climateModeLabel
 import com.example.hki7.ui.components.climateModeIcon
 import com.example.hki7.ui.components.ClimateModesButton
@@ -5197,6 +5198,7 @@ private fun ClimateControlContent(entity: HAEntity, viewModel: MainViewModel, sh
     var localTarget by remember(targetTemp) { mutableFloatStateOf(targetTemp.toFloat()) }
     var localMode by remember(entity.entity_id) { mutableStateOf(entity.state) }
     LaunchedEffect(entity.state) { localMode = entity.state }
+    val activeHvacMode = hvacAction ?: localMode
 
     Column(
         modifier = Modifier
@@ -5223,7 +5225,8 @@ private fun ClimateControlContent(entity: HAEntity, viewModel: MainViewModel, sh
                     minValue = minTemp.toFloat(),
                     maxValue = maxTemp.toFloat(),
                     step = (entity.attributes?.get("target_temp_step")?.jsonPrimitive?.doubleOrNull ?: 0.5).toFloat(),
-                    color = hvacColor(hvacAction ?: localMode),
+                    activeColor = hvacColor(activeHvacMode),
+                    activeGradient = hvacGradient(activeHvacMode),
                     onValueChange = { localTarget = it },
                     onValueChangeFinished = { viewModel.setClimateTemp(entity.entity_id, localTarget) }
                 )
@@ -5232,7 +5235,7 @@ private fun ClimateControlContent(entity: HAEntity, viewModel: MainViewModel, sh
                     value = ((localTarget - minTemp.toFloat()) / (maxTemp.toFloat() - minTemp.toFloat())).coerceIn(0f, 1f),
                     onValueChange = { localTarget = minTemp.toFloat() + it * (maxTemp.toFloat() - minTemp.toFloat()) },
                     onValueChangeFinished = { viewModel.setClimateTemp(entity.entity_id, localTarget) },
-                    gradient = hvacModeGradient(hvacAction ?: localMode)
+                    gradient = hvacGradient(activeHvacMode)
                 )
             }
         }
@@ -5248,7 +5251,8 @@ private fun ClimateDialogDial(
     minValue: Float,
     maxValue: Float,
     step: Float,
-    color: Color,
+    activeColor: Color,
+    activeGradient: Brush,
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: () -> Unit
 ) {
@@ -5295,7 +5299,7 @@ private fun ClimateDialogDial(
             val arcSize = Size(size.width - strokePx, size.height - strokePx)
             val fraction = ((value - minValue) / (maxValue - minValue)).coerceIn(0f, 1f)
             drawArc(appColors.onMuted.copy(alpha = 0.18f), 135f, 270f, false, Offset(inset, inset), arcSize, style = Stroke(strokePx))
-            drawArc(color, 135f, 270f * fraction, false, Offset(inset, inset), arcSize, style = Stroke(strokePx))
+            drawArc(activeGradient, 135f, 270f * fraction, false, Offset(inset, inset), arcSize, style = Stroke(strokePx))
             val angle = Math.toRadians((135f + 270f * fraction).toDouble())
             val radius = (size.minDimension - strokePx) / 2f
             val handle = Offset(
@@ -5303,7 +5307,7 @@ private fun ClimateDialogDial(
                 size.height / 2f + (radius * sin(angle)).toFloat()
             )
             drawCircle(Color.White, strokePx * 0.28f, handle)
-            drawCircle(color, strokePx * 0.16f, handle)
+            drawCircle(activeColor, strokePx * 0.16f, handle)
         }
         Surface(shape = CircleShape, color = appColors.surface, shadowElevation = 8.dp, modifier = Modifier.fillMaxSize(0.58f)) {
             Box(contentAlignment = Alignment.Center) {
@@ -5314,11 +5318,6 @@ private fun ClimateDialogDial(
             }
         }
     }
-}
-
-private fun hvacModeGradient(mode: String): Brush {
-    val color = hvacColor(mode)
-    return Brush.verticalGradient(listOf(color.copy(alpha = 0.35f), color))
 }
 
 @Composable

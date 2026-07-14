@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -625,6 +626,11 @@ fun hvacColor(mode: String?): Color {
         "off" -> Color(0xFF424242)
         else -> Color(0xFF4CAF50)
     }
+}
+
+fun hvacGradient(mode: String?): Brush {
+    val color = hvacColor(mode)
+    return Brush.verticalGradient(listOf(color.copy(alpha = 0.35f), color))
 }
 
 fun climateModeLabel(mode: String): String = when (mode.lowercase()) {
