@@ -5106,7 +5106,10 @@ private fun CameraStackCard(
                             setOnTouchListener { view, event ->
                                 when (event.actionMasked) {
                                     android.view.MotionEvent.ACTION_POINTER_DOWN -> view.parent?.requestDisallowInterceptTouchEvent(true)
-                                    android.view.MotionEvent.ACTION_UP,
+                                    android.view.MotionEvent.ACTION_UP -> {
+                                        view.parent?.requestDisallowInterceptTouchEvent(false)
+                                        view.performClick()
+                                    }
                                     android.view.MotionEvent.ACTION_CANCEL -> view.parent?.requestDisallowInterceptTouchEvent(false)
                                 }
                                 false

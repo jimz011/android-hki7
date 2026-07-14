@@ -127,14 +127,14 @@ fun WeatherRoomWidget(
                 when (widget.style) {
                     "forecast" -> {
                         val forecasts = rememberEntityForecast(weatherEntity, viewModel, "daily")
-                        ForecastCard(forecasts, widget.cornerRadius)
+                        ForecastCard(forecasts, cornerRadius = widget.cornerRadius)
                     }
                     "hourly" -> {
                         val forecasts = rememberEntityForecast(weatherEntity, viewModel, "hourly")
                         HourlyForecastCard(forecasts, widget.cornerRadius)
                     }
                     "wind" -> WindCompassCard(weatherEntity, widget.cornerRadius)
-                    else -> WeatherMainCard(weatherEntity, widget.cornerRadius)
+                    else -> WeatherMainCard(weatherEntity, cornerRadius = widget.cornerRadius)
                 }
             }
         }
@@ -581,11 +581,11 @@ private fun WeatherStackCard(
         return
     }
     when (style) {
-        "forecast" -> ForecastCard(rememberEntityForecast(weatherEntity!!, viewModel, "daily"), cornerRadius)
+        "forecast" -> ForecastCard(rememberEntityForecast(weatherEntity!!, viewModel, "daily"), cornerRadius = cornerRadius)
         "hourly" -> HourlyForecastCard(rememberEntityForecast(weatherEntity!!, viewModel, "hourly"), cornerRadius)
         "wind" -> WindCompassCard(weatherEntity!!, cornerRadius)
         "rainmap" -> RainMapCard(config?.weatherImageUrl, cornerRadius)
-        else -> WeatherMainCard(weatherEntity!!, cornerRadius)
+        else -> WeatherMainCard(weatherEntity!!, cornerRadius = cornerRadius)
     }
 }
 

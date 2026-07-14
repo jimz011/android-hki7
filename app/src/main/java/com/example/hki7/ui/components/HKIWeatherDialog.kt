@@ -221,7 +221,7 @@ fun formatWeatherState(state: String): String {
 }
 
 @Composable
-fun WeatherMainCard(weather: HAEntity, cornerRadius: Int = 24, modifier: Modifier = Modifier) {
+fun WeatherMainCard(weather: HAEntity, modifier: Modifier = Modifier, cornerRadius: Int = 24) {
     val appColors = LocalHKIAppColors.current
     val accent = weatherStateColor(weather.state)
     val temperatureUnit = weather.attributes?.get("temperature_unit")?.jsonPrimitive?.contentOrNull ?: "°"
@@ -356,8 +356,8 @@ private fun WeatherMetricChip(icon: ImageVector, text: String) {
 @Composable
 fun ForecastCard(
     forecasts: List<HAWeatherForecast>?,
-    cornerRadius: Int = 24,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    cornerRadius: Int = 24
 ) {
     val appColors = LocalHKIAppColors.current
     val accent = weatherStateColor(forecasts?.firstOrNull()?.condition)
