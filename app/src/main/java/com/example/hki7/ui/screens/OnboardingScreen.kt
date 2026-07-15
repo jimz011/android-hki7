@@ -50,11 +50,16 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.example.hki7.data.HomeAssistantClient
 import com.example.hki7.data.LocationWork
 import com.example.hki7.data.PreferencesManager
+import com.example.hki7.data.HKIPageConfig
+import com.example.hki7.data.HKIClimateConfig
+import com.example.hki7.data.HKISecurityConfig
+import com.example.hki7.data.HKIBatteryConfig
+import com.example.hki7.data.HKIEnergyConfig
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.coroutines.launch
 import java.net.URLEncoder
 
-private enum class OnboardStep { WELCOME, SERVER, NAME, LOGIN, PERMISSIONS }
+private enum class OnboardStep { WELCOME, SERVER, NAME, LOGIN, PERMISSIONS, DASHBOARD }
 
 /**
  * First-run onboarding, modeled on the official Home Assistant app: welcome → auto-discover/enter the
@@ -105,7 +110,55 @@ fun OnboardingScreen(prefs: PreferencesManager, startAtLogin: Boolean = false, o
                 onBack = { step = if (loginOnly) OnboardStep.SERVER else OnboardStep.NAME },
                 onLoggedIn = { if (loginOnly) onComplete() else step = OnboardStep.PERMISSIONS }
             )
-            OnboardStep.PERMISSIONS -> PermissionsStep(onFinish = onComplete)
+            OnboardStep.PERMISSIONS -> PermissionsStep(onFinish = { step = OnboardStep.DASHBOARD })
+            OnboardStep.DASHBOARD -> DashboardSetupStep(prefs, onComplete)
+        }
+    }
+}
+
+@Composable
+private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit) {
+    val colors = LocalHKIAppColors.current
+    val scope = rememberCoroutineScope()
+    var saving by remember { mutableStateOf(false) }
+    fun finish(auto: Boolean) {
+        if (saving) return
+        saving = true
+        scope.launch {
+            prefs.clearDashboardConfig(keepMode = true)
+            prefs.saveDashboardMode(if (auto) "auto" else "manual")
+            prefs.savePendingAutoTakeover(auto)
+            prefs.savePageConfigs(
+                if (auto) emptyMap() else mapOf(
+                    "climate" to HKIPageConfig(climateConfig = HKIClimateConfig(manualOnly = true)),
+                    "security" to HKIPageConfig(securityConfig = HKISecurityConfig(manualOnly = true)),
+                    "battery" to HKIPageConfig(batteryConfig = HKIBatteryConfig(manualOnly = true)),
+                    "energy" to HKIPageConfig(energyConfig = HKIEnergyConfig(manualOnly = true))
+                )
+            )
+            prefs.ensureDashboardStore(if (auto) "Default (auto generated)" else "Default")
+            onComplete()
+        }
+    }
+    Column(
+        Modifier.fillMaxSize().background(colors.background).padding(24.dp).verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text("Welcome to HKI 7", style = MaterialTheme.typography.headlineMedium, color = colors.onSurface)
+        Text(
+            "This app can fetch your entities automatically and will attempt to build a UI for your setup.\n\n" +
+                "For auto filling the UI to work you must create Areas in Home Assistant and fill them with the correct entities. You should also set up an energy dashboard in Home Assistant so this app can fetch energy entities automatically.\n\n" +
+                "After auto generation, the dashboard will no longer import new devices or rooms. You can add new entities manually or re-import rooms, climate, security, or energy entities.\n\n" +
+                "To get started, select an option below:",
+            color = colors.onMuted,
+            style = MaterialTheme.typography.bodyLarge
+        )
+        Spacer(Modifier.weight(1f))
+        Button(onClick = { finish(true) }, enabled = !saving, modifier = Modifier.fillMaxWidth().height(54.dp)) {
+            Text("Auto Generate")
+        }
+        OutlinedButton(onClick = { finish(false) }, enabled = !saving, modifier = Modifier.fillMaxWidth().height(54.dp)) {
+            Text("Start Empty")
         }
     }
 }

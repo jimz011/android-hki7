@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.util.UUID
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -18,6 +19,22 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 private val appJson = Json { ignoreUnknownKeys = true }
 private inline fun <reified T> decodeBackup(value: String?, fallback: T): T =
     value?.let { runCatching { appJson.decodeFromString<T>(it) }.getOrNull() } ?: fallback
+
+@Serializable
+data class HKIDashboard(
+    val id: String,
+    val name: String,
+    val mode: String = "manual",
+    val areaOrder: List<String> = emptyList(),
+    val areas: List<HAArea> = emptyList(),
+    val floors: List<HAFloor> = emptyList(),
+    val areaWidgets: Map<String, List<HKIRoomWidget>> = emptyMap(),
+    val areaConfigs: Map<String, HKIAreaConfig> = emptyMap(),
+    val pageConfigs: Map<String, HKIPageConfig> = emptyMap(),
+    val customPages: List<HKICustomPage> = emptyList(),
+    val navBarOrder: List<String> = emptyList(),
+    val navBarHidden: List<String> = emptyList()
+)
 
 @Serializable
 private data class HKIUiBackup(
@@ -119,6 +136,10 @@ class PreferencesManager(private val context: Context) {
     private val customPagesKey = stringPreferencesKey("custom_pages")
     private val mediaPlayerNamesKey = stringPreferencesKey("media_player_custom_names")
     private val mediaPlayerBarHiddenKey = stringPreferencesKey("media_player_bar_hidden")
+    private val dashboardsKey = stringPreferencesKey("dashboards_v2")
+    private val activeDashboardIdKey = stringPreferencesKey("active_dashboard_id")
+    private val defaultDashboardIdKey = stringPreferencesKey("default_dashboard_id")
+    private val pendingAutoTakeoverKey = booleanPreferencesKey("pending_auto_takeover")
 
     val serverUrl: Flow<String?> = context.dataStore.data.map { it[serverUrlKey] }
     val accessToken: Flow<String?> = context.dataStore.data.map { it[accessTokenKey] }
@@ -132,6 +153,12 @@ class PreferencesManager(private val context: Context) {
     val profilePersonEntityId: Flow<String?> = context.dataStore.data.map { it[profilePersonEntityKey] }
     val areaOrder: Flow<List<String>> = context.dataStore.data.map { it[areaOrderKey]?.split(",")?.filter { it.isNotBlank() } ?: emptyList() }
     val dashboardMode: Flow<String> = context.dataStore.data.map { it[dashboardModeKey] ?: "auto" }
+    val dashboards: Flow<List<HKIDashboard>> = context.dataStore.data.map { p ->
+        decodeBackup(p[dashboardsKey], emptyList())
+    }
+    val activeDashboardId: Flow<String?> = context.dataStore.data.map { it[activeDashboardIdKey] }
+    val defaultDashboardId: Flow<String?> = context.dataStore.data.map { it[defaultDashboardIdKey] }
+    val pendingAutoTakeover: Flow<Boolean> = context.dataStore.data.map { it[pendingAutoTakeoverKey] ?: false }
 
     val savedAreas: Flow<List<HAArea>> = context.dataStore.data.map { preferences ->
         val jsonStr = preferences[savedAreasKey] ?: "[]"
@@ -368,6 +395,138 @@ class PreferencesManager(private val context: Context) {
     }
     suspend fun saveAreaOrder(order: List<String>) { context.dataStore.edit { it[areaOrderKey] = order.joinToString(",") } }
     suspend fun saveDashboardMode(mode: String) { context.dataStore.edit { it[dashboardModeKey] = mode } }
+    suspend fun savePendingAutoTakeover(pending: Boolean) {
+        context.dataStore.edit { if (pending) it[pendingAutoTakeoverKey] = true else it.remove(pendingAutoTakeoverKey) }
+    }
+
+    /** Migrates the original single dashboard in place, without changing what is currently loaded. */
+    suspend fun ensureDashboardStore(defaultName: String = "Default") {
+        context.dataStore.edit { p ->
+            val existing = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList())
+            if (existing.isNotEmpty()) {
+                if (p[activeDashboardIdKey].isNullOrBlank()) p[activeDashboardIdKey] = existing.first().id
+                if (p[defaultDashboardIdKey].isNullOrBlank()) p[defaultDashboardIdKey] = existing.first().id
+                return@edit
+            }
+            val id = UUID.randomUUID().toString()
+            val dashboard = dashboardFromPreferences(p, id, defaultName)
+            p[dashboardsKey] = appJson.encodeToString(listOf(dashboard))
+            p[activeDashboardIdKey] = id
+            p[defaultDashboardIdKey] = id
+        }
+    }
+
+    suspend fun createDashboard(name: String, autoGenerate: Boolean): String {
+        val id = UUID.randomUUID().toString()
+        context.dataStore.edit { p ->
+            val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
+            saveLoadedDashboardInto(p, dashboards)
+            val created = HKIDashboard(id = id, name = name.trim().ifBlank { "Dashboard" }, mode = if (autoGenerate) "auto" else "manual")
+            dashboards += created
+            p[dashboardsKey] = appJson.encodeToString(dashboards)
+            p[activeDashboardIdKey] = id
+            if (p[defaultDashboardIdKey].isNullOrBlank()) p[defaultDashboardIdKey] = id
+            loadDashboardIntoPreferences(p, created)
+            if (autoGenerate) p[pendingAutoTakeoverKey] = true else p.remove(pendingAutoTakeoverKey)
+        }
+        return id
+    }
+
+    suspend fun switchDashboard(id: String): Boolean {
+        var switched = false
+        context.dataStore.edit { p ->
+            val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
+            val target = dashboards.firstOrNull { it.id == id } ?: return@edit
+            saveLoadedDashboardInto(p, dashboards)
+            p[dashboardsKey] = appJson.encodeToString(dashboards)
+            p[activeDashboardIdKey] = id
+            loadDashboardIntoPreferences(p, target)
+            p.remove(pendingAutoTakeoverKey)
+            switched = true
+        }
+        return switched
+    }
+
+    suspend fun renameDashboard(id: String, name: String) {
+        context.dataStore.edit { p ->
+            val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList())
+            p[dashboardsKey] = appJson.encodeToString(dashboards.map {
+                if (it.id == id) it.copy(name = name.trim().ifBlank { it.name }) else it
+            })
+        }
+    }
+
+    suspend fun deleteDashboard(id: String): Boolean {
+        var deleted = false
+        context.dataStore.edit { p ->
+            val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
+            if (dashboards.size <= 1 || dashboards.none { it.id == id }) return@edit
+            saveLoadedDashboardInto(p, dashboards)
+            dashboards.removeAll { it.id == id }
+            val replacement = dashboards.firstOrNull { it.id == p[defaultDashboardIdKey] } ?: dashboards.first()
+            if (p[defaultDashboardIdKey] == id) p[defaultDashboardIdKey] = replacement.id
+            if (p[activeDashboardIdKey] == id) {
+                p[activeDashboardIdKey] = replacement.id
+                loadDashboardIntoPreferences(p, replacement)
+            }
+            p[dashboardsKey] = appJson.encodeToString(dashboards)
+            deleted = true
+        }
+        return deleted
+    }
+
+    suspend fun setDefaultDashboard(id: String) {
+        context.dataStore.edit { p ->
+            val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList())
+            if (dashboards.any { it.id == id }) p[defaultDashboardIdKey] = id
+        }
+    }
+
+    suspend fun finishAutoGeneration(name: String = "Default (auto generated)") {
+        context.dataStore.edit { p ->
+            p[dashboardModeKey] = "manual"
+            p.remove(pendingAutoTakeoverKey)
+            val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
+            val activeId = p[activeDashboardIdKey] ?: return@edit
+            val index = dashboards.indexOfFirst { it.id == activeId }
+            if (index >= 0) dashboards[index] = dashboardFromPreferences(p, activeId, name).copy(mode = "manual")
+            p[dashboardsKey] = appJson.encodeToString(dashboards)
+        }
+    }
+
+    private fun dashboardFromPreferences(p: Preferences, id: String, name: String): HKIDashboard = HKIDashboard(
+        id = id,
+        name = name,
+        mode = p[dashboardModeKey] ?: "manual",
+        areaOrder = p[areaOrderKey]?.split(',')?.filter(String::isNotBlank).orEmpty(),
+        areas = decodeBackup(p[savedAreasKey], emptyList()),
+        floors = decodeBackup(p[savedFloorsKey], emptyList()),
+        areaWidgets = decodeBackup(p[areaStacksKey], emptyMap()),
+        areaConfigs = decodeBackup(p[areaConfigsKey], emptyMap()),
+        pageConfigs = decodeBackup(p[pageConfigsKey], emptyMap()),
+        customPages = decodeBackup(p[customPagesKey], emptyList()),
+        navBarOrder = p[navBarOrderKey]?.split(',')?.filter(String::isNotBlank).orEmpty(),
+        navBarHidden = p[navBarHiddenKey]?.split(',')?.filter(String::isNotBlank).orEmpty()
+    )
+
+    private fun saveLoadedDashboardInto(p: MutablePreferences, dashboards: MutableList<HKIDashboard>) {
+        val activeId = p[activeDashboardIdKey] ?: return
+        val index = dashboards.indexOfFirst { it.id == activeId }
+        if (index >= 0) dashboards[index] = dashboardFromPreferences(p, activeId, dashboards[index].name)
+    }
+
+    private fun loadDashboardIntoPreferences(p: MutablePreferences, dashboard: HKIDashboard) {
+        p[dashboardModeKey] = dashboard.mode
+        p[areaOrderKey] = dashboard.areaOrder.joinToString(",")
+        p[savedAreasKey] = appJson.encodeToString(dashboard.areas)
+        p[savedFloorsKey] = appJson.encodeToString(dashboard.floors)
+        p[areaStacksKey] = appJson.encodeToString(dashboard.areaWidgets)
+        p[areaConfigsKey] = appJson.encodeToString(dashboard.areaConfigs)
+        p[pageConfigsKey] = appJson.encodeToString(dashboard.pageConfigs)
+        p[customPagesKey] = appJson.encodeToString(dashboard.customPages)
+        p[navBarOrderKey] = dashboard.navBarOrder.joinToString(",")
+        p[navBarHiddenKey] = dashboard.navBarHidden.joinToString(",")
+    }
     suspend fun saveAreas(areas: List<HAArea>) { context.dataStore.edit { it[savedAreasKey] = appJson.encodeToString(areas) } }
     suspend fun saveFloors(floors: List<HAFloor>) { context.dataStore.edit { it[savedFloorsKey] = appJson.encodeToString(floors) } }
     suspend fun saveAreaWidgets(mapping: Map<String, List<HKIRoomWidget>>) { context.dataStore.edit { it[areaStacksKey] = appJson.encodeToString(mapping) } }

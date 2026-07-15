@@ -37,6 +37,9 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lock
@@ -150,6 +153,9 @@ fun SettingsDialog(
     val systemDarkThemeColor by prefs.systemDarkThemeColor.collectAsState(initial = "auto")
     val status by viewModel.status.collectAsState()
     val dashboardMode by viewModel.dashboardMode.collectAsState()
+    val dashboards by viewModel.dashboards.collectAsState()
+    val activeDashboardId by viewModel.activeDashboardId.collectAsState()
+    val defaultDashboardId by viewModel.defaultDashboardId.collectAsState()
     val hasForegroundLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
         ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
     val hasBackgroundLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -160,7 +166,10 @@ fun SettingsDialog(
 
     var section by remember { mutableStateOf(SettingsSection.MENU) }
     var showNewConfigConfirm by remember { mutableStateOf(false) }
-    var showTakeoverConfirm by remember { mutableStateOf(false) }
+    var newDashboardName by remember { mutableStateOf("") }
+    var dashboardEditMode by remember { mutableStateOf(false) }
+    var renameDashboard by remember { mutableStateOf<com.example.hki7.data.HKIDashboard?>(null) }
+    var deleteDashboard by remember { mutableStateOf<com.example.hki7.data.HKIDashboard?>(null) }
     var setupChangedMessage by remember { mutableStateOf<String?>(null) }
     val avatarPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let {
@@ -848,25 +857,45 @@ fun SettingsDialog(
                         }
                         SettingsSection.DASHBOARD -> {
                             SettingsPanel {
-                                SettingsTile(Icons.Default.Dashboard, "Mode", dashboardMode.replaceFirstChar { it.uppercase() })
-                                OutlinedButton(
-                                    onClick = { showTakeoverConfirm = true },
-                                    enabled = dashboardMode == "auto",
-                                    modifier = Modifier.fillMaxWidth().height(52.dp),
-                                    shape = itemCornerShape()
-                                ) {
-                                    Icon(Icons.Default.Lock, null)
-                                    Spacer(Modifier.width(8.dp))
-                                    Text("Take Over Current")
+                                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                    Text("Dashboards", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                                    TextButton(onClick = { dashboardEditMode = !dashboardEditMode }) {
+                                        Icon(if (dashboardEditMode) Icons.Default.CheckCircle else Icons.Default.Edit, null)
+                                        Spacer(Modifier.width(6.dp))
+                                        Text(if (dashboardEditMode) "Done" else "Edit")
+                                    }
+                                }
+                                dashboards.forEach { dashboard ->
+                                    Surface(
+                                        Modifier.fillMaxWidth().clickable(enabled = dashboard.id != activeDashboardId) { viewModel.switchDashboard(dashboard.id) },
+                                        shape = itemCornerShape(),
+                                        color = if (dashboard.id == activeDashboardId) MaterialTheme.colorScheme.primaryContainer else appColors.subtleSurface
+                                    ) {
+                                        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                            Column(Modifier.weight(1f)) {
+                                                Text(dashboard.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                                Text(if (dashboard.id == activeDashboardId) "Currently loaded" else "Tap to load", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                                            }
+                                            IconButton(onClick = { viewModel.setDefaultDashboard(dashboard.id) }) {
+                                                Icon(if (dashboard.id == defaultDashboardId) Icons.Default.Star else Icons.Default.StarBorder, "Set as default")
+                                            }
+                                            if (dashboardEditMode) {
+                                                IconButton(onClick = { renameDashboard = dashboard }) { Icon(Icons.Default.Edit, "Rename") }
+                                                IconButton(onClick = { deleteDashboard = dashboard }, enabled = dashboards.size > 1) {
+                                                    Icon(Icons.Default.Delete, "Delete", tint = MaterialTheme.colorScheme.error)
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                                 Button(
-                                    onClick = { showNewConfigConfirm = true },
+                                    onClick = { newDashboardName = "Dashboard ${dashboards.size + 1}"; showNewConfigConfirm = true },
                                     modifier = Modifier.fillMaxWidth().height(52.dp),
                                     shape = itemCornerShape()
                                 ) {
                                     Icon(Icons.Default.Add, null)
                                     Spacer(Modifier.width(8.dp))
-                                    Text("New Config")
+                                    Text("New Dashboard")
                                 }
                             }
                         }
@@ -937,38 +966,54 @@ fun SettingsDialog(
         AlertDialog(
             onDismissRequest = { showNewConfigConfirm = false },
             title = { Text("Start new dashboard?") },
-            text = { Text("This clears dashboard widgets, room order, room settings, and floor layout. Auto will import Home Assistant rooms and floors again. Manual starts empty and will not auto-import.") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Create a separate dashboard. Auto Generate imports once and then becomes editable; Start Empty only keeps persons available.")
+                    OutlinedTextField(newDashboardName, { newDashboardName = it }, label = { Text("Dashboard name") }, singleLine = true)
+                }
+            },
             confirmButton = {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = {
-                        viewModel.startNewDashboard(auto = true)
+                        viewModel.createDashboard(newDashboardName, auto = true)
                         showNewConfigConfirm = false
-                        setupChangedMessage = "Dashboard changed to auto import."
-                    }) { Text("Auto") }
+                        setupChangedMessage = "New dashboard is being auto generated."
+                    }) { Text("Auto Generate") }
                     Button(onClick = {
-                        viewModel.startNewDashboard(auto = false)
+                        viewModel.createDashboard(newDashboardName, auto = false)
                         showNewConfigConfirm = false
-                        setupChangedMessage = "Dashboard changed to manual setup."
-                    }) { Text("Manual") }
+                        setupChangedMessage = "Created an empty dashboard."
+                    }) { Text("Start Empty") }
                 }
             },
             dismissButton = { TextButton(onClick = { showNewConfigConfirm = false }) { Text("Cancel") } }
         )
     }
 
-    if (showTakeoverConfirm) {
+    renameDashboard?.let { dashboard ->
         AlertDialog(
-            onDismissRequest = { showTakeoverConfirm = false },
-            title = { Text("Take over dashboard?") },
-            text = { Text("This keeps the current dashboard exactly as it is and stops automatic Home Assistant room/floor imports until you explicitly start auto mode again.") },
+            onDismissRequest = { renameDashboard = null },
+            title = { Text("Rename dashboard") },
+            text = { OutlinedTextField(newDashboardName, { newDashboardName = it }, label = { Text("Name") }, singleLine = true) },
             confirmButton = {
                 Button(onClick = {
-                    viewModel.takeOverCurrentDashboard()
-                    showTakeoverConfirm = false
-                    setupChangedMessage = "Dashboard takeover complete. Auto import is now disabled."
-                }) { Text("Take Over") }
+                    viewModel.renameDashboard(dashboard.id, newDashboardName)
+                    renameDashboard = null
+                }) { Text("Save") }
             },
-            dismissButton = { TextButton(onClick = { showTakeoverConfirm = false }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { renameDashboard = null }) { Text("Cancel") } }
+        )
+    }
+
+    LaunchedEffect(renameDashboard?.id) { renameDashboard?.let { newDashboardName = it.name } }
+
+    deleteDashboard?.let { dashboard ->
+        AlertDialog(
+            onDismissRequest = { deleteDashboard = null },
+            title = { Text("Delete ${dashboard.name}?") },
+            text = { Text("This permanently removes this dashboard and its room and page configuration.") },
+            confirmButton = { Button(onClick = { viewModel.deleteDashboard(dashboard.id); deleteDashboard = null }) { Text("Delete") } },
+            dismissButton = { TextButton(onClick = { deleteDashboard = null }) { Text("Cancel") } }
         )
     }
 

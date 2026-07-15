@@ -133,7 +133,9 @@ fun HKIPage(
     val headerContentColor = headerColorValue?.let { if (it.luminance() < 0.45f) Color.White else Color(0xFF111111) }
     val headerTextColor = headerContentColor ?: if (hasHeaderMedia) Color.White else appColors.onSurface
     val headerMutedColor = headerContentColor?.copy(alpha = 0.75f) ?: if (hasHeaderMedia) Color.White.copy(alpha = 0.8f) else appColors.onMuted
-    val pillColor = headerContentColor?.copy(alpha = 0.16f) ?: if (hasHeaderMedia) Color.Black.copy(alpha = 0.3f) else appColors.surface.copy(alpha = 0.78f)
+    // A custom header color must not tint the pills themselves. Reuse the normal theme pill
+    // surface and only adapt foreground content for contrast against the selected header.
+    val pillColor = if (effectiveBackground != null) Color.Black.copy(alpha = 0.3f) else appColors.surface.copy(alpha = 0.78f)
     val headerHeight = 236.dp
     val view = LocalView.current
     if (!view.isInEditMode) {
@@ -224,8 +226,13 @@ fun HKIPage(
         }
 
         // Long-Pull Menu - Shifted down 20px
-        val menuButtonSurfaceColor = if (hasHeaderMedia) Color.Black.copy(alpha = 0.34f) else appColors.subtleSurface
-        val menuButtonContentColor = if (hasHeaderMedia) headerTextColor else appColors.onSurface
+        val menuButtonSurfaceColor = when {
+            headerColorValue != null && headerTextColor == Color.White -> Color.White.copy(alpha = 0.16f)
+            headerColorValue != null -> Color.Black.copy(alpha = 0.14f)
+            effectiveBackground != null -> Color.Black.copy(alpha = 0.34f)
+            else -> appColors.subtleSurface
+        }
+        val menuButtonContentColor = if (headerColorValue != null || effectiveBackground != null) headerTextColor else appColors.onSurface
         Row(
             modifier = Modifier
                 .fillMaxWidth()

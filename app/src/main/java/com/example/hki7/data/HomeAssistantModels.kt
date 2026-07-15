@@ -586,6 +586,8 @@ data class HKIBatteryConfig(
  * Assistant domain/device class; these lists hold manual additions, removals and user ordering. */
 @Serializable
 data class HKISecurityConfig(
+    /** Disable device-class/domain discovery until the user explicitly imports or adds entities. */
+    val manualOnly: Boolean = false,
     val extraEntityIds: Map<String, List<String>> = emptyMap(),
     val hiddenEntityIds: List<String> = emptyList(),
     val entityOrder: List<String> = emptyList(),
@@ -600,6 +602,8 @@ data class HKISecurityConfig(
  *  device_class; this config holds the user's manual additions and removals on top of that. */
 @Serializable
 data class HKIClimateConfig(
+    /** Disable device-class/domain discovery until the user explicitly imports or adds entities. */
+    val manualOnly: Boolean = false,
     /** Extra sensors added manually, keyed by group ("temperature", "humidity", "pressure", "co2", "air"). */
     val extraSensorIds: Map<String, List<String>> = emptyMap(),
     /** Extra thermostat/AC entities beyond the auto-discovered climate.* domain. */
@@ -608,6 +612,8 @@ data class HKIClimateConfig(
     val purifierEntityIds: List<String> = emptyList(),
     /** Extra humidifier/dehumidifier entities beyond the auto-discovered humidifier.* domain. */
     val extraHumidifierIds: List<String> = emptyList(),
+    /** Fan entities captured by one-time auto generation. */
+    val extraFanIds: List<String> = emptyList(),
     /** Entities removed via edit mode; excluded from cards, tiles, graphs and averages. */
     val hiddenEntityIds: List<String> = emptyList(),
     /** Optional user order for climate devices/sensors on detail pages. */
@@ -630,6 +636,8 @@ data class HKIClimateConfig(
 /** Entity bindings for the Energy dashboard's power-flow visualization. All optional. */
 @Serializable
 data class HKIEnergyConfig(
+    /** Start with no inferred energy entities; only explicit selections are shown. */
+    val manualOnly: Boolean = false,
     /** True after importing Home Assistant's Energy dashboard preferences; disables class-wide discovery. */
     val usesHomeAssistantEnergyPreferences: Boolean = false,
     val solarPowerEntityId: String? = null,

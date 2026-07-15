@@ -810,6 +810,12 @@ fun RoomDetailScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             key(uiRevision) {
                 if (!isEditMode) {
+                    if (areaWidgets.isEmpty()) {
+                        EmptyEditHint(
+                            Modifier.fillMaxSize(),
+                            "This is an empty room. You can add widgets, buttons, and tiles by swiping down on the header and enabling edit mode."
+                        )
+                    } else {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(widgetGridColumns),
                         state = widgetGridState,
@@ -991,6 +997,7 @@ fun RoomDetailScreen(
                                 )
                             }
                         }
+                    }
                     }
                 } else {
                 ReorderableGrid(

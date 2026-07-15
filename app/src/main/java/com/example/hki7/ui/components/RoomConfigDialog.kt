@@ -49,6 +49,7 @@ fun RoomConfigDialog(
     var badgeRightOverflow by remember(config) { mutableStateOf(config.badgeBar?.rightOverflow ?: false) }
     var showIconPickerRoom by remember { mutableStateOf(false) }
     var section by remember { mutableStateOf("menu") }
+    var showReimport by remember { mutableStateOf(false) }
 
     if (showIconPickerRoom) {
         MdiIconPickerDialog(
@@ -101,6 +102,7 @@ fun RoomConfigDialog(
                     RoomSettingsChoice(Icons.Default.Image, "Header", "Wallpaper and custom color") { section = "header" }
                     RoomSettingsChoice(Icons.Default.Home, "Floor", "Assign this room to a floor") { section = "floor" }
                     RoomSettingsChoice(Icons.Default.ViewStream, "Badge Bar", "Alignment and display options") { section = "badgebar" }
+                    RoomSettingsChoice(Icons.Default.Sync, "Re-import from Home Assistant", "Import new rooms or rebuild every room") { showReimport = true }
                 } else {
                     TextButton(onClick = { section = "menu" }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
@@ -318,6 +320,23 @@ fun RoomConfigDialog(
             }) { Text("Cancel") }
         }
     )
+
+    if (showReimport) {
+        AlertDialog(
+            onDismissRequest = { showReimport = false },
+            title = { Text("Re-import rooms") },
+            text = { Text("Import only rooms that have not been edited, or rebuild everything. Rebuilding removes all edited rooms and floors before importing them from scratch.") },
+            confirmButton = {
+                Column(horizontalAlignment = Alignment.End) {
+                    Button(onClick = { viewModel.reimportRooms(fromScratch = false); showReimport = false; onDismiss() }) { Text("Import unedited") }
+                    TextButton(onClick = { viewModel.reimportRooms(fromScratch = true); showReimport = false; onDismiss() }) {
+                        Text("Remove edits and import all", color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            },
+            dismissButton = { TextButton(onClick = { showReimport = false }) { Text("Cancel") } }
+        )
+    }
 }
 
 @Composable

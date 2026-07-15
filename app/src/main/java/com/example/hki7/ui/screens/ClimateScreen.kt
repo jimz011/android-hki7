@@ -255,6 +255,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
         buildSet {
             addAll(climateConfig.extraClimateIds)
             addAll(climateConfig.extraHumidifierIds)
+            addAll(climateConfig.extraFanIds)
             addAll(climateConfig.purifierEntityIds)
             climateConfig.extraSensorIds.values.forEach(::addAll)
         }
@@ -307,7 +308,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
 
     // Thermostats & air conditioners: every climate.* entity, plus manual additions, minus removed.
     val climateEntities = remember(entities, climateConfig) {
-        (entities.filter { it.entity_id.startsWith("climate.") } +
+        ((if (climateConfig.manualOnly) emptyList() else entities.filter { it.entity_id.startsWith("climate.") }) +
             climateConfig.extraClimateIds.mapNotNull { entityById[it] })
             .distinctBy { it.entity_id }
             .filter { it.entity_id !in hidden }
@@ -345,7 +346,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
     }
     // Humidifiers/dehumidifiers: humidifier.* domain plus manual additions.
     val humidifierEntities = remember(entities, climateConfig) {
-        (entities.filter { it.entity_id.startsWith("humidifier.") } +
+        ((if (climateConfig.manualOnly) emptyList() else entities.filter { it.entity_id.startsWith("humidifier.") }) +
             climateConfig.extraHumidifierIds.mapNotNull { entityById[it] })
             .distinctBy { it.entity_id }
             .filter { it.entity_id !in hidden }
@@ -355,7 +356,8 @@ fun ClimateScreen(viewModel: MainViewModel) {
     // Native fan.* entities are imported automatically. Air purifiers remain an optional
     // user-curated subset with their own tab.
     val fanEntities = remember(entities, climateConfig) {
-        entities.filter { it.entity_id.startsWith("fan.") }
+        ((if (climateConfig.manualOnly) emptyList() else entities.filter { it.entity_id.startsWith("fan.") }) +
+            climateConfig.extraFanIds.mapNotNull { entityById[it] })
             .distinctBy { it.entity_id }
             .filter { it.entity_id !in hidden }
             .sortedBy { it.friendlyName ?: it.entity_id }
@@ -371,7 +373,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
     // Sensors per group: auto-discovered by device_class plus manual additions, minus removed.
     val groupSensors: Map<String, List<HAEntity>> = remember(entities, climateConfig) {
         climateSensorGroups.associate { group ->
-            val auto = entities.filter { e ->
+            val auto = if (climateConfig.manualOnly) emptyList() else entities.filter { e ->
                 e.entity_id.startsWith("sensor.") &&
                     e.deviceClass in group.deviceClasses &&
                     e.numericState() != null
@@ -420,6 +422,25 @@ fun ClimateScreen(viewModel: MainViewModel) {
                 viewModel.updateClimateConfig(CLIMATE_PAGE_KEY, newCfg)
             }
         }
+    var showClimateReimport by remember { mutableStateOf(false) }
+    val climateImportSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
+        "Re-import" to { _ ->
+            Text("Fetch climate entities from Home Assistant again.", color = LocalHKIAppColors.current.onMuted)
+            Button(onClick = { showClimateReimport = true }, modifier = Modifier.fillMaxWidth()) { Text("Re-import Climate") }
+        }
+
+    if (showClimateReimport) {
+        AlertDialog(
+            onDismissRequest = { showClimateReimport = false },
+            title = { Text("Re-import climate") },
+            text = { Text("Import entities that have not been edited, or remove all climate edits and import from scratch.") },
+            confirmButton = { Column(horizontalAlignment = Alignment.End) {
+                Button(onClick = { viewModel.reimportClimate(false); showClimateReimport = false }) { Text("Import unedited") }
+                TextButton(onClick = { viewModel.reimportClimate(true); showClimateReimport = false }) { Text("Remove edits and import all", color = MaterialTheme.colorScheme.error) }
+            } },
+            dismissButton = { TextButton(onClick = { showClimateReimport = false }) { Text("Cancel") } }
+        )
+    }
 
     val pageTitle = when (page) {
         "fans" -> "Fans"; "purifiers" -> "Air purifiers"; "humidifiers" -> "Humidifiers"
@@ -436,7 +457,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
         pageKey = CLIMATE_PAGE_KEY,
         pageSettingsTitle = "Climate Settings",
         extraPageSettingsSection = climateAppearanceSection,
-        additionalPageSettingsSections = listOf(climateSettingsSection),
+        additionalPageSettingsSections = listOf(climateSettingsSection, climateImportSection),
         showBadgeBar = false,
         headerBar = if (page != "climate") ({
             ClimateEntitySearchBar(
@@ -485,6 +506,14 @@ fun ClimateScreen(viewModel: MainViewModel) {
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentPadding = PaddingValues(bottom = 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current)
             ) {
+                if (climateConfig.manualOnly && climateEntities.isEmpty() && groupSensors.values.all { it.isEmpty() } && fanEntities.isEmpty() && humidifierEntities.isEmpty()) {
+                    item {
+                        EmptyEditHint(
+                            Modifier.fillParentMaxHeight(),
+                            "This is an empty climate view. Swipe down on the header and open Climate Settings to add entities manually."
+                        )
+                    }
+                }
                 // ── hero: the house right now ─────────────────────────────────
                 item {
                     ClimateHero(

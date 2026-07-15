@@ -105,6 +105,13 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
     var showAddFloor by remember { mutableStateOf(false) }
     var editingAreaId by remember { mutableStateOf<String?>(null) }
     var editingFloor by remember { mutableStateOf<HAFloor?>(null) }
+    var showRoomsReimport by remember { mutableStateOf(false) }
+
+    val roomsImportSettings: Pair<String, @Composable androidx.compose.foundation.layout.ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
+        "Re-import" to { _ ->
+            Text("Fetch rooms, floors, and their entities from Home Assistant again.", color = LocalHKIAppColors.current.onMuted)
+            Button(onClick = { showRoomsReimport = true }, modifier = Modifier.fillMaxWidth()) { Text("Re-import Rooms") }
+        }
 
     val groupedFloors = remember(areas, floors, configs) {
         buildFloorSections(areas, floors, configs)
@@ -117,6 +124,7 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
         showPeople = false,
         pageKey = "rooms",
         pageSettingsTitle = "Rooms Settings",
+        extraPageSettingsSection = roomsImportSettings,
         navController = navController
     ) { padding ->
         BoxWithConstraints(
@@ -214,8 +222,21 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
         AlertDialog(
             onDismissRequest = { showAutoInfo = false },
             title = { Text("Rooms are imported") },
-            text = { Text("Auto mode keeps rooms and floors synced from Home Assistant. Use Settings to take over the current dashboard or start a manual config before adding rooms here.") },
+            text = { Text("This dashboard is currently being generated from Home Assistant. You can edit rooms as soon as the one-time import finishes.") },
             confirmButton = { Button(onClick = { showAutoInfo = false }) { Text("OK") } }
+        )
+    }
+
+    if (showRoomsReimport) {
+        AlertDialog(
+            onDismissRequest = { showRoomsReimport = false },
+            title = { Text("Re-import rooms") },
+            text = { Text("Import only rooms and entities that have not been edited, or remove all edited rooms and floors and import everything from scratch.") },
+            confirmButton = { Column(horizontalAlignment = Alignment.End) {
+                Button(onClick = { viewModel.reimportRooms(false); showRoomsReimport = false }) { Text("Import unedited") }
+                TextButton(onClick = { viewModel.reimportRooms(true); showRoomsReimport = false }) { Text("Remove edits and import all", color = MaterialTheme.colorScheme.error) }
+            } },
+            dismissButton = { TextButton(onClick = { showRoomsReimport = false }) { Text("Cancel") } }
         )
     }
 

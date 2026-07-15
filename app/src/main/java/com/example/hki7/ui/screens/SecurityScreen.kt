@@ -296,7 +296,7 @@ fun SecurityScreen(viewModel: MainViewModel) {
     val grouped = remember(entities, config) {
         val claimed = mutableSetOf<String>()
         securityGroups.associate { group ->
-            val automatic = entities.filter { it.isAutoSecurityEntityFor(group.key) }
+            val automatic = if (config.manualOnly) emptyList() else entities.filter { it.isAutoSecurityEntityFor(group.key) }
             val manual = config.extraEntityIds[group.key].orEmpty().mapNotNull(byId::get)
             group.key to (automatic + manual).distinctBy { it.entity_id }
                 .filterNot { it.entity_id in hidden || it.entity_id in claimed }
@@ -362,6 +362,24 @@ fun SecurityScreen(viewModel: MainViewModel) {
             SecurityEntitySettings(config, entities,
                 onSave = { viewModel.updateSecurityConfig(SECURITY_PAGE_KEY, it) }, setBack = setBack)
         }
+    var showSecurityReimport by remember { mutableStateOf(false) }
+    val importSettings: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
+        "Re-import" to { _ ->
+            Text("Fetch security entities from Home Assistant again.", color = LocalHKIAppColors.current.onMuted)
+            Button(onClick = { showSecurityReimport = true }, modifier = Modifier.fillMaxWidth()) { Text("Re-import Security") }
+        }
+    if (showSecurityReimport) {
+        AlertDialog(
+            onDismissRequest = { showSecurityReimport = false },
+            title = { Text("Re-import security") },
+            text = { Text("Import entities that have not been edited, or remove all security edits and import from scratch.") },
+            confirmButton = { Column(horizontalAlignment = Alignment.End) {
+                Button(onClick = { viewModel.reimportSecurity(false); showSecurityReimport = false }) { Text("Import unedited") }
+                TextButton(onClick = { viewModel.reimportSecurity(true); showSecurityReimport = false }) { Text("Remove edits and import all", color = MaterialTheme.colorScheme.error) }
+            } },
+            dismissButton = { TextButton(onClick = { showSecurityReimport = false }) { Text("Cancel") } }
+        )
+    }
 
     HKIPage(
         viewModel = viewModel,
@@ -370,6 +388,7 @@ fun SecurityScreen(viewModel: MainViewModel) {
         pageKey = SECURITY_PAGE_KEY,
         pageSettingsTitle = "Security Settings",
         extraPageSettingsSection = settings,
+        additionalPageSettingsSections = listOf(importSettings),
         showBadgeBar = false,
         headerBar = if (activeGroup != null) ({
             SecurityEntitySearchBar(entitySearch, { entitySearch = it }, entitySort, { entitySort = it })
@@ -1303,4 +1322,7 @@ private fun ColumnScope.SecurityEntitySettings(config: HKISecurityConfig, allEnt
 @Composable private fun SecuritySectionHeader(title: String, count: String) { val c = LocalHKIAppColors.current; Row(Modifier.fillMaxWidth().padding(20.dp, 22.dp, 20.dp, 10.dp), horizontalArrangement = Arrangement.SpaceBetween) { Text(title, color = c.onSurface, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold); Text(count, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) } }
 
 @Composable
-fun EmptyEditHint(modifier: Modifier = Modifier) { Column(modifier.padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) { Text("No matching entities found. Home Assistant entities appear automatically; you can also add them in Security Settings.", color = Color.Gray, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center) } }
+fun EmptyEditHint(
+    modifier: Modifier = Modifier,
+    message: String = "This is an empty security view. Swipe down on the header and open Security Settings to add entities manually."
+) { Column(modifier.padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) { Text(message, color = Color.Gray, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center) } }

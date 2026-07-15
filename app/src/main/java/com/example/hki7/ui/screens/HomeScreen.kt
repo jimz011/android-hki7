@@ -485,7 +485,13 @@ fun HAHomeScreen(
             }
             Column(modifier = Modifier.fillMaxSize()) {
                 if (homeWidgets.isEmpty() && !isEditMode) {
-                    EmptyEditHint(Modifier.weight(1f))
+                    EmptyEditHint(
+                        Modifier.weight(1f),
+                        if (customPage == null)
+                            "This is the homepage. You can add widgets to this page by swiping down on the header and enabling edit mode."
+                        else
+                            "This is an empty page. You can add widgets to this page by swiping down on the header and enabling edit mode."
+                    )
                 } else if (!isEditMode) {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(widgetGridColumns),

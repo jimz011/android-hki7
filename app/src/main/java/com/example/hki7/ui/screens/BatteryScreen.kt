@@ -425,7 +425,11 @@ fun BatteryScreen(viewModel: MainViewModel, navController: NavController? = null
         ) {
             item { BatteryHero(batteries, filteredBatteries.size, config.useBatteryNotes) }
             if (filteredBatteries.isEmpty()) {
-                item { BatteryEmptyState(config.useBatteryNotes) }
+                item {
+                    if (config.manualOnly) EmptyEditHint(
+                        message = "This is an empty battery view. Swipe down on the header and open Battery Settings to add entities manually."
+                    ) else BatteryEmptyState(config.useBatteryNotes)
+                }
             } else {
                 batteryCategories.forEach { category ->
                     val grouped = filteredBatteries.filter(category.predicate)
