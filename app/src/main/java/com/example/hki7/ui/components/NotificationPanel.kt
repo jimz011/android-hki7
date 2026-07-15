@@ -107,7 +107,7 @@ fun NotificationBannerHost(
     ) {
         current?.let { notification ->
             Surface(
-                shape = RoundedCornerShape(20.dp),
+                shape = itemCornerShape(),
                 color = bannerBackground,
                 shadowElevation = 12.dp,
                 modifier = Modifier.fillMaxWidth()

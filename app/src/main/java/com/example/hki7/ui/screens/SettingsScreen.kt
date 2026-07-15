@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings as AndroidSettings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,10 +30,13 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BatterySaver
+import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lock
@@ -62,7 +67,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -82,10 +86,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import com.example.hki7.BuildConfig
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.hki7.data.HAEntity
+import com.example.hki7.data.HKICustomPage
 import com.example.hki7.data.PreferencesManager
 import com.example.hki7.data.PushForegroundService
 import com.example.hki7.ui.components.RenameCardDialog
@@ -94,16 +100,21 @@ import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.NavBarConfig
 import com.example.hki7.ui.Screen
 import com.example.hki7.ui.components.ColorWheel
+import com.example.hki7.ui.components.HKISlider
+import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.components.fadingEdges
-import androidx.compose.ui.text.font.FontFamily
+import com.example.hki7.ui.components.itemCornerShape
 import androidx.compose.ui.text.font.FontWeight
 import com.example.hki7.ui.theme.LocalHKIAppColors
+import com.example.hki7.ui.theme.AppFontFamilyOptions
+import com.example.hki7.ui.theme.appFontFamily
 import com.example.hki7.ui.utils.MdiIcon
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import java.util.UUID
 
 private enum class SettingsSection {
-    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, THEME, FONTS, NAV_BAR, MEDIA_PLAYERS, DASHBOARD, ACCOUNT
+    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, THEME, FONTS, NAV_BAR, MEDIA_PLAYERS, DASHBOARD, BACKUP_RESTORE, ACCOUNT
 }
 
 private fun sectionTitle(section: SettingsSection): String = when (section) {
@@ -111,12 +122,14 @@ private fun sectionTitle(section: SettingsSection): String = when (section) {
     SettingsSection.NAV_BAR -> "Navigation Bar"
     SettingsSection.APPEARANCE -> "Appearance"
     SettingsSection.MEDIA_PLAYERS -> "Media Players"
+    SettingsSection.BACKUP_RESTORE -> "Backup and Restore"
     else -> section.name.lowercase().replaceFirstChar { it.uppercase() }
 }
 
 // Sub-sections nested under Appearance return there on back; everything else returns to the menu.
 private fun parentSection(section: SettingsSection): SettingsSection = when (section) {
     SettingsSection.THEME, SettingsSection.FONTS, SettingsSection.NAV_BAR, SettingsSection.MEDIA_PLAYERS -> SettingsSection.APPEARANCE
+    SettingsSection.CONNECTION, SettingsSection.PROFILE, SettingsSection.LOCATION -> SettingsSection.ACCOUNT
     else -> SettingsSection.MENU
 }
 
@@ -149,13 +162,47 @@ fun SettingsDialog(
     var showNewConfigConfirm by remember { mutableStateOf(false) }
     var showTakeoverConfirm by remember { mutableStateOf(false) }
     var setupChangedMessage by remember { mutableStateOf<String?>(null) }
-
-    Dialog(onDismissRequest = onDismiss) {
+    val avatarPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let {
+            runCatching { context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
+            scope.launch { prefs.saveProfileAvatar(it.toString()) }
+        }
+    }
+    val backupLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        uri?.let {
+            scope.launch {
+                runCatching {
+                    context.contentResolver.openOutputStream(it)?.bufferedWriter()?.use { writer -> writer.write(prefs.exportUiBackup()) }
+                        ?: error("Could not open the selected file")
+                }.onSuccess { setupChangedMessage = "Dashboard backup saved." }
+                    .onFailure { error -> setupChangedMessage = "Backup failed: ${error.message}" }
+            }
+        }
+    }
+    val restoreLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let {
+            scope.launch {
+                runCatching {
+                    val raw = context.contentResolver.openInputStream(it)?.bufferedReader()?.use { reader -> reader.readText() }
+                        ?: error("Could not open the selected file")
+                    prefs.restoreUiBackup(raw)
+                }.onSuccess { setupChangedMessage = "Dashboard configuration restored." }
+                    .onFailure { error -> setupChangedMessage = "Restore failed: ${error.message}" }
+            }
+        }
+    }
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = false)
+    ) {
+        androidx.activity.compose.BackHandler {
+            if (section == SettingsSection.MENU) onDismiss() else section = parentSection(section)
+        }
         Card(
             modifier = Modifier
-                .fillMaxWidth(0.92f)
+                .fillMaxWidth(0.95f)
                 .fillMaxHeight(0.76f),
-            shape = RoundedCornerShape(28.dp),
+            shape = itemCornerShape(),
             colors = CardDefaults.cardColors(containerColor = appColors.surface)
         ) {
             Column(
@@ -181,13 +228,11 @@ fun SettingsDialog(
                 ) {
                     when (section) {
                         SettingsSection.MENU -> {
-                            SettingsChoice(Icons.Default.SettingsEthernet, "Connection", connectionText(status)) { section = SettingsSection.CONNECTION }
-                            SettingsChoice(Icons.Default.Person, "Profile", displayName) { section = SettingsSection.PROFILE }
-                            SettingsChoice(Icons.Default.MyLocation, "Location", "Device tracker and geocoded location") { section = SettingsSection.LOCATION }
-                            SettingsChoice(Icons.Default.Notifications, "Notifications", "Push delivery and history") { section = SettingsSection.NOTIFICATIONS }
-                            SettingsChoice(Icons.Default.Palette, "Appearance", "Theme and navigation bar") { section = SettingsSection.APPEARANCE }
+                            SettingsChoice(Icons.Default.Person, "Account", displayName) { section = SettingsSection.ACCOUNT }
                             SettingsChoice(Icons.Default.Dashboard, "Dashboard", dashboardMode.replaceFirstChar { it.uppercase() }) { section = SettingsSection.DASHBOARD }
-                            SettingsChoice(Icons.AutoMirrored.Filled.Logout, "Account", "Logout and reset") { section = SettingsSection.ACCOUNT }
+                            SettingsChoice(Icons.Default.Palette, "Appearance", "Theme and navigation bar") { section = SettingsSection.APPEARANCE }
+                            SettingsChoice(Icons.Default.Notifications, "Notifications", "Push delivery and history") { section = SettingsSection.NOTIFICATIONS }
+                            SettingsChoice(Icons.Default.Backup, "Backup and Restore", "Save or restore dashboard configuration") { section = SettingsSection.BACKUP_RESTORE }
                         }
                         SettingsSection.CONNECTION -> {
                             val internalUrl by prefs.internalUrl.collectAsState(initial = null)
@@ -205,7 +250,7 @@ fun SettingsDialog(
                                 Button(
                                     onClick = { viewModel.refreshEntities() },
                                     modifier = Modifier.fillMaxWidth().height(52.dp),
-                                    shape = RoundedCornerShape(16.dp)
+                                    shape = itemCornerShape()
                                 ) { Text("Refresh Connection") }
 
                                 Spacer(Modifier.height(4.dp))
@@ -250,7 +295,7 @@ fun SettingsDialog(
                                         }
                                     },
                                     modifier = Modifier.fillMaxWidth().height(52.dp),
-                                    shape = RoundedCornerShape(16.dp)
+                                    shape = itemCornerShape()
                                 ) { Text("Save Local Network") }
                                 Text(
                                     "On these Wi-Fi networks the app connects via the internal URL; everywhere else it uses the main server URL above.",
@@ -260,8 +305,70 @@ fun SettingsDialog(
                             }
                         }
                         SettingsSection.PROFILE -> {
+                            val avatar by prefs.profileAvatar.collectAsState(initial = null)
+                            val birthday by prefs.profileBirthday.collectAsState(initial = null)
+                            val profilePersonId by prefs.profilePersonEntityId.collectAsState(initial = null)
+                            val people by viewModel.people.collectAsState()
+                            var nameInput by remember(displayName) { mutableStateOf(displayName) }
+                            var birthdayInput by remember(birthday) { mutableStateOf(birthday.orEmpty()) }
+                            var personInput by remember(profilePersonId, people) { mutableStateOf(profilePersonId ?: people.singleOrNull()?.entity_id) }
+                            var personMenuOpen by remember { mutableStateOf(false) }
                             SettingsPanel {
-                                SettingsTile(Icons.Default.Person, displayName, serverUrl ?: "")
+                                OutlinedTextField(
+                                    value = nameInput,
+                                    onValueChange = { nameInput = it },
+                                    label = { Text("Name") },
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = settingsTextFieldColors()
+                                )
+                                Box {
+                                    Surface(
+                                        modifier = Modifier.fillMaxWidth().clickable { personMenuOpen = true },
+                                        shape = itemCornerShape(),
+                                        color = appColors.subtleSurface
+                                    ) {
+                                        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                                            Text(people.find { it.entity_id == personInput }?.friendlyName ?: "Choose person entity", modifier = Modifier.weight(1f), color = appColors.onSurface)
+                                            Icon(Icons.Default.KeyboardArrowDown, null, tint = appColors.onMuted)
+                                        }
+                                    }
+                                    DropdownMenu(expanded = personMenuOpen, onDismissRequest = { personMenuOpen = false }) {
+                                        people.forEach { person ->
+                                            DropdownMenuItem(
+                                                text = { Text(person.friendlyName ?: person.entity_id) },
+                                                onClick = { personInput = person.entity_id; personMenuOpen = false }
+                                            )
+                                        }
+                                    }
+                                }
+                                OutlinedTextField(
+                                    value = birthdayInput,
+                                    onValueChange = { birthdayInput = it },
+                                    label = { Text("Birthday (YYYY-MM-DD)") },
+                                    leadingIcon = { Icon(Icons.Default.Cake, null) },
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = settingsTextFieldColors()
+                                )
+                                OutlinedButton(onClick = { avatarPicker.launch(arrayOf("image/*")) }, modifier = Modifier.fillMaxWidth()) {
+                                    Icon(Icons.Default.Person, null)
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(if (avatar == null) "Choose avatar image" else "Change avatar image")
+                                }
+                                if (avatar != null) {
+                                    TextButton(onClick = { scope.launch { prefs.saveProfileAvatar(null) } }, modifier = Modifier.fillMaxWidth()) { Text("Remove avatar") }
+                                }
+                                Button(
+                                    onClick = {
+                                        scope.launch {
+                                            prefs.saveDisplayName(nameInput.trim().ifBlank { "User" })
+                                            prefs.saveProfileBirthday(birthdayInput.trim().ifBlank { null })
+                                            prefs.saveProfilePersonEntityId(personInput)
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) { Text("Save profile") }
                             }
                         }
                         SettingsSection.LOCATION -> {
@@ -299,7 +406,7 @@ fun SettingsDialog(
                                         )
                                     },
                                     modifier = Modifier.fillMaxWidth().height(52.dp),
-                                    shape = RoundedCornerShape(16.dp)
+                                    shape = itemCornerShape()
                                 ) {
                                     Icon(Icons.Default.MyLocation, null)
                                     Spacer(Modifier.width(8.dp))
@@ -318,7 +425,7 @@ fun SettingsDialog(
                                         }
                                     },
                                     modifier = Modifier.fillMaxWidth().height(52.dp),
-                                    shape = RoundedCornerShape(16.dp)
+                                    shape = itemCornerShape()
                                 ) {
                                     Icon(Icons.Default.BatterySaver, null)
                                     Spacer(Modifier.width(8.dp))
@@ -327,7 +434,7 @@ fun SettingsDialog(
                                 Button(
                                     onClick = { viewModel.reportDeviceTelemetry(context) },
                                     modifier = Modifier.fillMaxWidth().height(52.dp),
-                                    shape = RoundedCornerShape(16.dp)
+                                    shape = itemCornerShape()
                                 ) {
                                     Icon(Icons.Default.Sync, null)
                                     Spacer(Modifier.width(8.dp))
@@ -374,7 +481,7 @@ fun SettingsDialog(
                                             runCatching { context.startActivity(intent) }
                                         },
                                         modifier = Modifier.fillMaxWidth().height(52.dp),
-                                        shape = RoundedCornerShape(16.dp)
+                                        shape = itemCornerShape()
                                     ) {
                                         Text("Hide Connection Notification")
                                     }
@@ -404,7 +511,7 @@ fun SettingsDialog(
                                     color = appColors.onSurface,
                                     style = MaterialTheme.typography.titleSmall
                                 )
-                                Slider(
+                                HKISlider(
                                     value = localScale,
                                     onValueChange = { localScale = it },
                                     onValueChangeFinished = {
@@ -428,7 +535,7 @@ fun SettingsDialog(
                                     color = appColors.onSurface,
                                     style = MaterialTheme.typography.titleSmall
                                 )
-                                Slider(
+                                HKISlider(
                                     value = localWeight,
                                     onValueChange = { localWeight = it },
                                     onValueChangeFinished = {
@@ -441,17 +548,11 @@ fun SettingsDialog(
                                 )
                                 Text("Font family", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
                                 var familyMenuOpen by remember { mutableStateOf(false) }
-                                val familyOptions = listOf(
-                                    "default" to "Default",
-                                    "sans" to "Sans Serif",
-                                    "serif" to "Serif",
-                                    "monospace" to "Monospace",
-                                    "cursive" to "Cursive"
-                                )
+                                val familyOptions = AppFontFamilyOptions
                                 Box {
                                     Surface(
                                         modifier = Modifier.fillMaxWidth().clickable { familyMenuOpen = true },
-                                        shape = RoundedCornerShape(16.dp),
+                                        shape = itemCornerShape(),
                                         color = appColors.subtleSurface
                                     ) {
                                         Row(
@@ -472,13 +573,7 @@ fun SettingsDialog(
                                                 text = {
                                                     Text(
                                                         label,
-                                                        fontFamily = when (value) {
-                                                            "sans" -> FontFamily.SansSerif
-                                                            "serif" -> FontFamily.Serif
-                                                            "monospace" -> FontFamily.Monospace
-                                                            "cursive" -> FontFamily.Cursive
-                                                            else -> null
-                                                        },
+                                                        fontFamily = appFontFamily(value),
                                                         fontWeight = if (value == fontFamily) FontWeight.Bold else null
                                                     )
                                                 },
@@ -562,14 +657,27 @@ fun SettingsDialog(
                         SettingsSection.NAV_BAR -> {
                             val navBarOrder by prefs.navBarOrder.collectAsState(initial = emptyList())
                             val navBarHidden by prefs.navBarHidden.collectAsState(initial = emptyList())
-                            val configurable = remember(navBarOrder) { NavBarConfig.orderedConfigurable(navBarOrder) }
+                            val customPages by prefs.customPages.collectAsState(initial = emptyList())
+                            val configurable = remember(navBarOrder, customPages) {
+                                NavBarConfig.orderedConfigurable(navBarOrder, customPages)
+                            }
                             val hiddenSet = navBarHidden.toSet()
+                            var showPageEditor by remember { mutableStateOf(false) }
+                            var editingPage by remember { mutableStateOf<HKICustomPage?>(null) }
                             SettingsPanel {
                                 Text(
                                     "Home and Rooms are always shown. Reorder the other tabs with the arrows and toggle each on or off.",
                                     color = appColors.onMuted,
                                     style = MaterialTheme.typography.bodySmall
                                 )
+                                Button(
+                                    onClick = { editingPage = null; showPageEditor = true },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Icon(Icons.Default.Add, contentDescription = null)
+                                    Spacer(Modifier.width(8.dp))
+                                    Text("Create custom page")
+                                }
                                 NavBarConfig.fixed.forEach { screen ->
                                     NavTabRow(
                                         screen = screen,
@@ -607,13 +715,29 @@ fun SettingsDialog(
                                                 routes.add(index + 1, routes.removeAt(index))
                                                 scope.launch { prefs.saveNavBarOrder(routes) }
                                             }
-                                        }
+                                        },
+                                        onEdit = if (screen is Screen.Custom) {
+                                            { editingPage = screen.page; showPageEditor = true }
+                                        } else null
                                     )
                                 }
+                            }
+                            if (showPageEditor) {
+                                CustomPageDialog(
+                                    page = editingPage,
+                                    onDismiss = { showPageEditor = false },
+                                    onSave = { saved ->
+                                        val updated = if (editingPage == null) customPages + saved
+                                            else customPages.map { if (it.id == saved.id) saved else it }
+                                        scope.launch { prefs.saveCustomPages(updated) }
+                                        showPageEditor = false
+                                    }
+                                )
                             }
                         }
                         SettingsSection.THEME -> {
                             val forceHighRefresh by prefs.forceHighRefreshRate.collectAsState(initial = false)
+                            val itemCornerRadius by prefs.itemCornerRadius.collectAsState(initial = 20)
                             SettingsPanel {
                                 SettingsToggle(
                                     title = "Force high refresh rate",
@@ -705,6 +829,21 @@ fun SettingsDialog(
                                         )
                                     }
                                 }
+                                Text("Item corner roundness", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
+                                Text(
+                                    "Applies to all dashboard buttons, widgets, stacks, rooms, and cards.",
+                                    color = appColors.onMuted,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    listOf(8 to "Sharp", 20 to "Modern", 28 to "Round").forEach { (radius, label) ->
+                                        FilterChip(
+                                            selected = itemCornerRadius == radius,
+                                            onClick = { scope.launch { prefs.saveItemCornerRadius(radius) } },
+                                            label = { Text(label) }
+                                        )
+                                    }
+                                }
                             }
                         }
                         SettingsSection.DASHBOARD -> {
@@ -714,7 +853,7 @@ fun SettingsDialog(
                                     onClick = { showTakeoverConfirm = true },
                                     enabled = dashboardMode == "auto",
                                     modifier = Modifier.fillMaxWidth().height(52.dp),
-                                    shape = RoundedCornerShape(16.dp)
+                                    shape = itemCornerShape()
                                 ) {
                                     Icon(Icons.Default.Lock, null)
                                     Spacer(Modifier.width(8.dp))
@@ -723,7 +862,7 @@ fun SettingsDialog(
                                 Button(
                                     onClick = { showNewConfigConfirm = true },
                                     modifier = Modifier.fillMaxWidth().height(52.dp),
-                                    shape = RoundedCornerShape(16.dp)
+                                    shape = itemCornerShape()
                                 ) {
                                     Icon(Icons.Default.Add, null)
                                     Spacer(Modifier.width(8.dp))
@@ -731,12 +870,42 @@ fun SettingsDialog(
                                 }
                             }
                         }
+                        SettingsSection.BACKUP_RESTORE -> {
+                            SettingsPanel {
+                                Text(
+                                    "Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.",
+                                    color = appColors.onMuted,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Button(
+                                    onClick = { backupLauncher.launch("hki7-dashboard-backup.json") },
+                                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                                    shape = itemCornerShape()
+                                ) {
+                                    Icon(Icons.Default.Backup, null)
+                                    Spacer(Modifier.width(8.dp))
+                                    Text("Backup")
+                                }
+                                OutlinedButton(
+                                    onClick = { restoreLauncher.launch(arrayOf("application/json", "text/plain")) },
+                                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                                    shape = itemCornerShape()
+                                ) {
+                                    Icon(Icons.Default.Sync, null)
+                                    Spacer(Modifier.width(8.dp))
+                                    Text("Restore")
+                                }
+                            }
+                        }
                         SettingsSection.ACCOUNT -> {
+                            SettingsChoice(Icons.Default.Person, "Profile", displayName) { section = SettingsSection.PROFILE }
+                            SettingsChoice(Icons.Default.SettingsEthernet, "Connection", connectionText(status)) { section = SettingsSection.CONNECTION }
+                            SettingsChoice(Icons.Default.MyLocation, "Location", "Device tracker and geocoded location") { section = SettingsSection.LOCATION }
                             SettingsPanel {
                                 OutlinedButton(
                                     onClick = { viewModel.logout(keepConfig = true); onDismiss() },
                                     modifier = Modifier.fillMaxWidth().height(56.dp),
-                                    shape = RoundedCornerShape(16.dp),
+                                    shape = itemCornerShape(),
                                     colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
                                 ) {
                                     Icon(Icons.AutoMirrored.Filled.Logout, null)
@@ -834,7 +1003,7 @@ private fun SettingsChoice(icon: ImageVector, title: String, subtitle: String, o
     val appColors = LocalHKIAppColors.current
     Surface(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
-        shape = RoundedCornerShape(22.dp),
+        shape = itemCornerShape(),
         color = appColors.subtleSurface
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -849,6 +1018,85 @@ private fun SettingsChoice(icon: ImageVector, title: String, subtitle: String, o
 }
 
 @Composable
+private fun CustomPageDialog(
+    page: HKICustomPage?,
+    onDismiss: () -> Unit,
+    onSave: (HKICustomPage) -> Unit
+) {
+    var name by remember(page) { mutableStateOf(page?.name.orEmpty()) }
+    var subtitle by remember(page) { mutableStateOf(page?.subtitle.orEmpty()) }
+    var icon by remember(page) { mutableStateOf(page?.icon ?: "view-dashboard") }
+    var showIconPicker by remember { mutableStateOf(false) }
+    val appColors = LocalHKIAppColors.current
+
+    if (showIconPicker) {
+        MdiIconPickerDialog(
+            current = icon,
+            onDismiss = { showIconPicker = false },
+            onSelect = { selected ->
+                icon = selected.ifBlank { "view-dashboard" }
+                showIconPicker = false
+            }
+        )
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(if (page == null) "Create custom page" else "Edit custom page") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Page name") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = subtitle,
+                    onValueChange = { subtitle = it },
+                    label = { Text("Page subtitle") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Surface(shape = itemCornerShape(), color = appColors.subtleSurface) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        MdiIcon(name = icon, tint = appColors.onSurface, size = 26.dp)
+                        Spacer(Modifier.width(12.dp))
+                        Text("Page icon", modifier = Modifier.weight(1f), color = appColors.onSurface)
+                        TextButton(onClick = { showIconPicker = true }) { Text("Change") }
+                    }
+                }
+                Text(
+                    "The page starts empty with its own header and page settings, while keeping the Home widget catalogue.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = appColors.onMuted
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = name.isNotBlank(),
+                onClick = {
+                    onSave(
+                        HKICustomPage(
+                            id = page?.id ?: UUID.randomUUID().toString(),
+                            name = name.trim(),
+                            subtitle = subtitle.trim(),
+                            icon = icon
+                        )
+                    )
+                }
+            ) { Text("Save") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+    )
+}
+
+@Composable
 private fun NavTabRow(
     screen: Screen,
     fixed: Boolean,
@@ -857,12 +1105,13 @@ private fun NavTabRow(
     canMoveDown: Boolean,
     onToggleVisible: () -> Unit,
     onMoveUp: () -> Unit,
-    onMoveDown: () -> Unit
+    onMoveDown: () -> Unit,
+    onEdit: (() -> Unit)? = null
 ) {
     val appColors = LocalHKIAppColors.current
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
+        shape = itemCornerShape(),
         color = appColors.subtleSurface
     ) {
         Row(
@@ -891,6 +1140,11 @@ private fun NavTabRow(
                     modifier = Modifier.size(20.dp).padding(end = 12.dp)
                 )
             } else {
+                if (onEdit != null) {
+                    IconButton(onClick = onEdit) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit page", tint = appColors.onSurface)
+                    }
+                }
                 IconButton(onClick = onMoveUp, enabled = canMoveUp) {
                     Icon(
                         Icons.Default.KeyboardArrowUp,
@@ -922,7 +1176,7 @@ private fun SettingsPanel(content: @Composable ColumnScope.() -> Unit) {
     val appColors = LocalHKIAppColors.current
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = itemCornerShape(),
         color = appColors.elevated.copy(alpha = 0.86f)
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp), content = content)

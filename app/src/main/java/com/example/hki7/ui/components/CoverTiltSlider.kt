@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,7 +38,7 @@ fun CoverTiltSlider(
     BoxWithConstraints(
         modifier = modifier
             .width(100.dp)
-            .clip(RoundedCornerShape(32.dp))
+            .clip(itemCornerShape())
             .background(Color.DarkGray.copy(alpha = 0.5f))
             .pointerInput(Unit) {
                 detectDragGestures(onDragEnd = { onValueChangeFinished() }) { change, _ ->
@@ -84,7 +83,7 @@ fun CoverTiltSlider(
                 .padding(top = 8.dp)
                 .width(52.dp)
                 .height(10.dp)
-                .clip(RoundedCornerShape(6.dp))
+                .clip(itemCornerShape())
                 .background(Color.White.copy(alpha = 0.9f))
         )
     }

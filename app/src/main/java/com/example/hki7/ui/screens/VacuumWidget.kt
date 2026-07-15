@@ -37,6 +37,7 @@ import com.example.hki7.data.HKIButtonStack
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.*
 import com.example.hki7.ui.components.surfaceGradient
+import com.example.hki7.ui.components.itemCornerShape
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.*
@@ -80,10 +81,10 @@ fun VacuumStackContent(
                                 aspectRatio = stack.cameraAspectRatio,
                                 onClick = {}
                             )
-                            IconButton(onClick = { onButtonSettings(entity.entity_id) },
-                                modifier = Modifier.align(Alignment.Center).size(24.dp)) {
-                                Icon(Icons.Default.Settings, "Settings", tint = Color.White, modifier = Modifier.size(16.dp))
-                            }
+                            EditSettingsButton(
+                                onClick = { onButtonSettings(entity.entity_id) },
+                                modifier = Modifier.align(Alignment.Center)
+                            )
                             EditRemoveBadge(
                                 onClick = { onRemoveEntity(entity.entity_id) },
                                 modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
@@ -195,7 +196,7 @@ fun VacuumEntityCard(
             Surface(
                 modifier = Modifier.align(Alignment.BottomStart).padding(10.dp),
                 color = Color.Black.copy(alpha = 0.55f),
-                shape = RoundedCornerShape(14.dp)
+                shape = itemCornerShape()
             ) {
                 Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
                     Text(displayName, color = Color.White, style = MaterialTheme.typography.labelMedium,
@@ -468,7 +469,8 @@ fun VacuumStackDialog(
                         val domain = empty.entity_id.substringBefore('.')
                         viewModel.callService(domain, if (domain == "button") "press" else "turn_on", com.example.hki7.data.HAServiceCall(empty.entity_id))
                     },
-                    modifier = Modifier.padding(vertical = 4.dp)
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    shape = itemCornerShape()
                 ) {
                     Icon(Icons.Default.DeleteSweep, null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(6.dp))

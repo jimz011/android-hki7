@@ -189,7 +189,7 @@ private fun FanPresetList(entity: HAEntity, viewModel: MainViewModel) {
             val isCustom = entity.fanPresetMode.isNullOrBlank()
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp),
+                shape = itemCornerShape(),
                 color = if (isCustom) FanBlue.copy(alpha = 0.22f) else appColors.surface,
                 border = BorderStroke(1.dp, if (isCustom) FanBlue.copy(alpha = 0.7f) else appColors.onMuted.copy(alpha = 0.16f))
             ) {
@@ -221,7 +221,7 @@ private fun FanPresetList(entity: HAEntity, viewModel: MainViewModel) {
                     .clickable {
                         viewModel.setFanPresetMode(entity.entity_id, mode)
                     },
-                shape = RoundedCornerShape(18.dp),
+                shape = itemCornerShape(),
                 color = if (selected) FanBlue.copy(alpha = 0.22f) else appColors.surface,
                 border = BorderStroke(1.dp, if (selected) FanBlue.copy(alpha = 0.7f) else appColors.onMuted.copy(alpha = 0.16f))
             ) {

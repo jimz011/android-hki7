@@ -45,6 +45,7 @@ import coil3.compose.AsyncImage
 import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HKIAreaConfig
 import com.example.hki7.data.HKIBadgeBarConfig
+import com.example.hki7.data.HKICustomPage
 import com.example.hki7.data.HKIPageConfig
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.ConnectionStatus
@@ -75,9 +76,14 @@ fun HKIPage(
     headerColor: String? = null,
     pageKey: String? = null,
     pageSettingsTitle: String? = null,
+    customPage: HKICustomPage? = null,
+    onCustomPageSave: (HKICustomPage) -> Unit = {},
     extraPageSettingsSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit>? = null,
+    additionalPageSettingsSections: List<Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit>> = emptyList(),
     onBack: (() -> Unit)? = null,
     showBadgeBar: Boolean = true,
+    /** Whether the header summary and unread edge marker are shown on this page. */
+    showNotificationStatus: Boolean = true,
     /** Pinned bar between the header and the scrolling content (e.g. the energy time filter). */
     headerBar: (@Composable () -> Unit)? = null,
     /** Optional NavController so badge actions can navigate within the app. */
@@ -235,7 +241,7 @@ fun HKIPage(
                 showSearch = true
                 pullOffset = 0f
             }
-            MenuButton(if (isEditMode) Icons.Default.CheckCircle else Icons.Default.Edit, if (isEditMode) "Done" else "Edit", enabled = menuVisible, surfaceColor = menuButtonSurfaceColor, contentColor = menuButtonContentColor) { 
+            MenuButton(if (isEditMode) Icons.Default.CheckCircle else Icons.Default.Edit, if (isEditMode) "Done" else "Edit", enabled = menuVisible, surfaceColor = menuButtonSurfaceColor, contentColor = menuButtonContentColor) {
                 viewModel.toggleEditMode()
                 pullOffset = 0f
             }
@@ -309,11 +315,24 @@ fun HKIPage(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             if (onBack != null) {
-                                IconButton(
-                                    onClick = onBack,
-                                    modifier = Modifier.size(36.dp).background(pillColor, CircleShape)
+                                val backShape = itemCornerShape()
+                                Surface(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(backShape)
+                                        .background(surfaceGradient(pillColor))
+                                        .clickable(onClick = onBack),
+                                    color = Color.Transparent,
+                                    shape = backShape
                                 ) {
-                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = headerTextColor, modifier = Modifier.size(18.dp))
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                            Icons.AutoMirrored.Filled.ArrowBack,
+                                            contentDescription = "Back",
+                                            tint = headerTextColor,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
                                 }
                             } else {
                                 val leftDisplayType by viewModel.headerLeftDisplayType.collectAsState()
@@ -356,10 +375,12 @@ fun HKIPage(
                                 contentAlignment = Alignment.Center
                             ) {
                                 if (showPill) {
+                                    val pillShape = itemCornerShape()
                                     Surface(
                                         modifier = Modifier
                                             .height(36.dp)
-                                            .clip(RoundedCornerShape(18.dp))
+                                            .clip(pillShape)
+                                            .background(surfaceGradient(pillColor))
                                             .clickable {
                                                 if (!isEditMode) {
                                                     when (weatherDisplayType) {
@@ -369,8 +390,8 @@ fun HKIPage(
                                                     }
                                                 }
                                             },
-                                        color = pillColor,
-                                        shape = RoundedCornerShape(18.dp)
+                                        color = Color.Transparent,
+                                        shape = pillShape
                                     ) {
                                         Row(
                                             modifier = Modifier.padding(horizontal = 12.dp),
@@ -421,14 +442,15 @@ fun HKIPage(
                                 
                                 if (isEditMode) {
                                     val overlayModifier = if (showPill) Modifier.matchParentSize() else Modifier.fillMaxSize()
+                                    val pillShape = itemCornerShape()
                                     Surface(
                                         modifier = overlayModifier
-                                            .clip(RoundedCornerShape(18.dp))
+                                            .clip(pillShape)
                                             .clickable { showRightPillSettings = true },
                                         color = appColors.surface.copy(alpha = 0.7f)
                                     ) {
                                         Box(contentAlignment = Alignment.Center) {
-                                            Icon(Icons.Default.Settings, null, tint = appColors.onSurface, modifier = Modifier.size(16.dp))
+                                            EditSettingsButton(onClick = { showRightPillSettings = true })
                                         }
                                     }
                                 }
@@ -473,7 +495,7 @@ fun HKIPage(
                                             icon = subtitleIcon,
                                             color = headerMutedColor
                                         )
-                                        if (title == null) {
+                                        if (title == null && showNotificationStatus) {
                                             Spacer(Modifier.height(8.dp))
                                             HeaderNotificationSummary(unreadNotificationCount, headerMutedColor)
                                         }
@@ -523,7 +545,7 @@ fun HKIPage(
                                             icon = subtitleIcon,
                                             color = headerMutedColor
                                         )
-                                        if (title == null) {
+                                        if (title == null && showNotificationStatus) {
                                             Spacer(Modifier.height(8.dp))
                                             HeaderNotificationSummary(unreadNotificationCount, headerMutedColor)
                                         }
@@ -600,7 +622,7 @@ fun HKIPage(
             }
         }
 
-        if (unreadNotificationCount > 0 && onBack == null) {
+        if (showNotificationStatus && unreadNotificationCount > 0 && onBack == null) {
             val openNotifications = LocalOpenNotifications.current
             Box(
                 modifier = Modifier
@@ -698,7 +720,10 @@ fun HKIPage(
                 config = pageConfig,
                 people = people,
                 showPeopleSettings = showPeople,
-                extraSection = extraPageSettingsSection,
+                showBadgeBarSettings = showBadgeBar,
+                customPage = customPage,
+                onCustomPageSave = onCustomPageSave,
+                extraSections = listOfNotNull(extraPageSettingsSection) + additionalPageSettingsSections,
                 onHeaderColorPreview = { previewHeaderColor = it },
                 onBadgeBarPreview = { previewBadgeBarConfig = it },
                 onDismiss = {
@@ -730,7 +755,7 @@ private fun PersonAvatar(
         ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
     }
     val imageUrl = person.entityPicture?.let {
-        if (it.startsWith("http")) it else "$currentUrl$it"
+        if (it.startsWith("http") || it.startsWith("content:") || it.startsWith("file:")) it else "$currentUrl$it"
     }
     Box(contentAlignment = Alignment.Center) {
         Surface(
@@ -763,7 +788,7 @@ private fun PersonAvatar(
                 color = appColors.surface.copy(alpha = 0.7f)
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Default.Settings, null, tint = appColors.onSurface, modifier = Modifier.size(16.dp))
+                    EditSettingsButton(onClick = onClick)
                 }
             }
         }
@@ -776,7 +801,10 @@ fun PageSettingsDialog(
     config: HKIPageConfig,
     people: List<HAEntity>,
     showPeopleSettings: Boolean,
-    extraSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit>? = null,
+    showBadgeBarSettings: Boolean = true,
+    customPage: HKICustomPage? = null,
+    onCustomPageSave: (HKICustomPage) -> Unit = {},
+    extraSections: List<Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit>> = emptyList(),
     onHeaderColorPreview: (String?) -> Unit = {},
     onBadgeBarPreview: (HKIBadgeBarConfig?) -> Unit = {},
     onDismiss: () -> Unit,
@@ -786,6 +814,10 @@ fun PageSettingsDialog(
     var wallpaper by remember(config) { mutableStateOf(config.wallpaper ?: "") }
     var headerColorText by remember(config) { mutableStateOf(config.headerColor ?: "") }
     var headerRgb by remember(config) { mutableStateOf(hexToRgb(config.headerColor) ?: listOf(155, 83, 83)) }
+    var customPageName by remember(customPage) { mutableStateOf(customPage?.name.orEmpty()) }
+    var customPageSubtitle by remember(customPage) { mutableStateOf(customPage?.subtitle.orEmpty()) }
+    var customPageIcon by remember(customPage) { mutableStateOf(customPage?.icon ?: "view-dashboard") }
+    var showCustomPageIconPicker by remember { mutableStateOf(false) }
     var showPeople by remember(config) { mutableStateOf(config.showPeople) }
     var peopleSort by remember(config) { mutableStateOf(config.peopleSort) }
     var hiddenPeople by remember(config) { mutableStateOf(config.hiddenPeople) }
@@ -804,9 +836,38 @@ fun PageSettingsDialog(
         )
     }
 
+    fun navigateBack() {
+        val innerBack = extraSectionInnerBack
+        if (section.startsWith("extra:") && innerBack != null) innerBack()
+        else if (section != "menu") {
+            section = "menu"
+            extraSectionInnerBack = null
+        } else onDismiss()
+    }
+    if (showCustomPageIconPicker) {
+        MdiIconPickerDialog(
+            current = customPageIcon,
+            onDismiss = { showCustomPageIconPicker = false },
+            onSelect = { icon ->
+                customPageIcon = icon.ifBlank { "view-dashboard" }
+                showCustomPageIconPicker = false
+            }
+        )
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (section == "menu") title else if (section == "extra") extraSection?.first ?: title else section.replaceFirstChar { it.uppercase() }) },
+        properties = androidx.compose.ui.window.DialogProperties(dismissOnBackPress = false),
+        title = {
+            androidx.activity.compose.BackHandler { navigateBack() }
+            val extraIndex = section.removePrefix("extra:").toIntOrNull()
+            Text(
+                when {
+                    section == "menu" -> title
+                    section == "page" -> "Page Settings"
+                    else -> extraIndex?.let { extraSections.getOrNull(it)?.first } ?: section.replaceFirstChar { it.uppercase() }
+                }
+            )
+        },
         text = {
             val settingsScrollState = rememberScrollState()
             Column(
@@ -815,25 +876,57 @@ fun PageSettingsDialog(
             ) {
                 if (section == "menu") {
                     SettingsMenuChoice(Icons.Default.Image, "Header", "Wallpaper and custom header color") { section = "header" }
-                    SettingsMenuChoice(Icons.Default.ViewStream, "Badge Bar", "Visibility, alignment, and display options") { section = "badgebar" }
+                    if (customPage != null) {
+                        SettingsMenuChoice(Icons.Default.DashboardCustomize, "Page Settings", "Name, subtitle and navigation icon") { section = "page" }
+                    }
+                    if (showBadgeBarSettings) {
+                        SettingsMenuChoice(Icons.Default.ViewStream, "Badge Bar", "Visibility, alignment, and display options") { section = "badgebar" }
+                    }
                     if (showPeopleSettings) {
                         SettingsMenuChoice(Icons.Default.Person, "Persons", "Visibility and ordering") { section = "persons" }
                     }
-                    if (extraSection != null) {
-                        SettingsMenuChoice(Icons.Default.Tune, extraSection.first, "Configure") { section = "extra" }
+                    extraSections.forEachIndexed { index, extra ->
+                        SettingsMenuChoice(Icons.Default.Tune, extra.first, "Configure") { section = "extra:$index" }
                     }
                 } else {
                     // A single Back button: if the extra section owns an inner navigation
                     // step, it goes back one level within that section first; otherwise it
                     // returns to the settings menu. Never shows two Back buttons at once.
-                    val innerBack = extraSectionInnerBack
-                    TextButton(onClick = {
-                        if (section == "extra" && innerBack != null) innerBack()
-                        else { section = "menu"; extraSectionInnerBack = null }
-                    }) {
+                    TextButton(onClick = ::navigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
                         Text("Back")
+                    }
+                }
+                if (section == "page" && customPage != null) {
+                    OutlinedTextField(
+                        value = customPageName,
+                        onValueChange = { customPageName = it },
+                        label = { Text("Page name") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = customPageSubtitle,
+                        onValueChange = { customPageSubtitle = it },
+                        label = { Text("Page subtitle") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().clickable { showCustomPageIconPicker = true },
+                        shape = itemCornerShape(),
+                        color = appColors.subtleSurface
+                    ) {
+                        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            MdiIcon(customPageIcon, contentDescription = null, tint = appColors.onSurface, size = 24.dp)
+                            Spacer(Modifier.width(12.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text("Page icon", color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
+                                Text(customPageIcon, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                            }
+                            Icon(Icons.Default.ChevronRight, null, tint = appColors.onMuted)
+                        }
                     }
                 }
                 if (section == "header") {
@@ -895,7 +988,7 @@ fun PageSettingsDialog(
                         ) { personId, _ ->
                             people.find { it.entity_id == personId }?.let { person ->
                                 Surface(
-                                    shape = RoundedCornerShape(18.dp),
+                                    shape = itemCornerShape(),
                                     color = appColors.subtleSurface
                                 ) {
                                     Row(
@@ -946,10 +1039,12 @@ fun PageSettingsDialog(
                         )
                     }
                 }
-                if (section == "extra" && extraSection != null) {
-                    extraSection.second(this) { extraSectionInnerBack = it }
+                if (section.startsWith("extra:")) {
+                    section.removePrefix("extra:").toIntOrNull()?.let { index ->
+                        extraSections.getOrNull(index)?.second?.invoke(this) { extraSectionInnerBack = it }
+                    }
                 }
-                if (section == "badgebar") {
+                if (section == "badgebar" && showBadgeBarSettings) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -1028,6 +1123,15 @@ fun PageSettingsDialog(
         },
         confirmButton = {
             Button(onClick = {
+                customPage?.let {
+                    onCustomPageSave(
+                        it.copy(
+                            name = customPageName.trim(),
+                            subtitle = customPageSubtitle.trim(),
+                            icon = customPageIcon
+                        )
+                    )
+                }
                 onSave(
                     config.copy(
                         wallpaper = wallpaper.ifBlank { null },
@@ -1036,16 +1140,18 @@ fun PageSettingsDialog(
                         peopleSort = peopleSort,
                         customPeopleOrder = customOrder,
                         hiddenPeople = hiddenPeople,
-                        badgeBar = (config.badgeBar ?: HKIBadgeBarConfig()).copy(
-                            visible = badgeBarEnabled,
-                            alignment = badgeAlignment,
-                            spanIcons = badgeSpanIcons,
-                            leftOverflow = badgeLeftOverflow,
-                            rightOverflow = badgeRightOverflow
-                        )
+                        badgeBar = if (showBadgeBarSettings) {
+                            (config.badgeBar ?: HKIBadgeBarConfig()).copy(
+                                visible = badgeBarEnabled,
+                                alignment = badgeAlignment,
+                                spanIcons = badgeSpanIcons,
+                                leftOverflow = badgeLeftOverflow,
+                                rightOverflow = badgeRightOverflow
+                            )
+                        } else config.badgeBar
                     )
                 )
-            }) { Text("Save") }
+            }, enabled = customPage == null || customPageName.isNotBlank()) { Text("Save") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
@@ -1056,7 +1162,7 @@ private fun SettingsMenuChoice(icon: ImageVector, title: String, subtitle: Strin
     val appColors = LocalHKIAppColors.current
     Surface(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
-        shape = RoundedCornerShape(22.dp),
+        shape = itemCornerShape(),
         color = appColors.subtleSurface
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -1128,13 +1234,15 @@ private fun HeaderStatusPill(
                 "Alarm" -> alarm?.state?.replace("_", " ")?.replaceFirstChar { it.uppercase() } ?: "Alarm"
                 else -> "${weather?.state?.let { formatWeatherState(it) } ?: "Cloudy"} ${weather?.temperature?.toInt() ?: 12}°C"
             }
+            val pillShape = itemCornerShape()
             Surface(
                 modifier = Modifier
                     .height(36.dp)
-                    .clip(RoundedCornerShape(18.dp))
+                    .clip(pillShape)
+                    .background(surfaceGradient(pillColor))
                     .clickable { if (!isEditMode) onClick() },
-                color = pillColor,
-                shape = RoundedCornerShape(18.dp)
+                color = Color.Transparent,
+                shape = pillShape
             ) {
                 Row(
                     modifier = Modifier.padding(horizontal = 12.dp),
@@ -1165,14 +1273,15 @@ private fun HeaderStatusPill(
 
         if (isEditMode) {
             val overlayModifier = if (showPill) Modifier.matchParentSize() else Modifier.fillMaxSize()
+            val pillShape = itemCornerShape()
             Surface(
                 modifier = overlayModifier
-                    .clip(RoundedCornerShape(18.dp))
+                    .clip(pillShape)
                     .clickable { onSettingsClick() },
                 color = editSurfaceColor
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Default.Settings, null, tint = textColor, modifier = Modifier.size(16.dp))
+                    EditSettingsButton(onClick = onSettingsClick)
                 }
             }
         }

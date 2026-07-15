@@ -10,11 +10,13 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -31,12 +33,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.setProgress
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil3.compose.AsyncImage
@@ -59,6 +69,7 @@ fun EditRemoveBadge(onClick: () -> Unit, modifier: Modifier = Modifier) {
             .size(20.dp)
             .zIndex(2f)
             .background(Color(0xFF3C3C3E), CircleShape)
+            .border(1.dp, Color.White.copy(alpha = 0.72f), CircleShape)
             .clip(CircleShape)
             .clickable { onClick() },
         contentAlignment = Alignment.Center
@@ -70,9 +81,23 @@ fun EditRemoveBadge(onClick: () -> Unit, modifier: Modifier = Modifier) {
 /** Standard edit-mode cog placed on cards, matching the other configurable widgets. */
 @Composable
 fun EditSettingsButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    IconButton(onClick = onClick, modifier = modifier.size(28.dp).zIndex(2f)) {
-        Icon(Icons.Default.Settings, contentDescription = "Card settings", tint = LocalHKIAppColors.current.onSurface,
-            modifier = Modifier.size(18.dp))
+    Box(
+        modifier = modifier
+            .size(20.dp)
+            .zIndex(2f)
+            .shadow(5.dp, CircleShape)
+            .background(Color.Black.copy(alpha = 0.58f), CircleShape)
+            .border(1.dp, Color.White.copy(alpha = 0.72f), CircleShape)
+            .clip(CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            Icons.Default.Settings,
+            contentDescription = "Card settings",
+            tint = Color.White,
+            modifier = Modifier.size(12.dp)
+        )
     }
 }
 
@@ -148,7 +173,7 @@ fun EntityCard(
     iconName: String? = null,
     spinIcon: Boolean = false,
     isSquare: Boolean = false,
-    cornerRadius: Int = 28,
+    cornerRadius: Int = LocalItemCornerRadius.current,
     interactionsEnabled: Boolean = true,
     doorOpen: Boolean = false,
     buttonStyle: String = if (isSquare) "square" else "standard",
@@ -178,12 +203,12 @@ fun EntityCard(
     val isClimateNotOff = domain == "climate" && entity.state.lowercase() != "off"
     val lightColor = lightStateColor(entity)
     val primary = MaterialTheme.colorScheme.primary
-    val activeContent = if (primary.luminance() < 0.45f) Color.White else Color(0xFF111111)
-    val primaryContent = if (primary.luminance() < 0.45f) Color.White else Color(0xFF111111)
+    val activeContent = primary.maxContrastForeground()
+    val primaryContent = primary.maxContrastForeground()
     val unavailableStateColor = if (primary.isRedShade()) primary else Color(0xFFEF5350)
     val brightnessVisible = showBrightnessSlider && domain == "light" && entity.supportsBrightness
     val brightnessEnabled = brightnessVisible && interactionsEnabled
-    val entityBrightness = if (isActive) (entity.brightness ?: 0) / 255f else 0f
+    val entityBrightness = if (isActive) (entity.brightness ?: 255) / 255f else 0f
     var localBrightness by remember(entity.entity_id) { mutableFloatStateOf(entityBrightness) }
     LaunchedEffect(entity.brightness, entity.state) { localBrightness = entityBrightness }
 
@@ -199,13 +224,19 @@ fun EntityCard(
                     onBrightnessChange(localBrightness)
                     change.consume()
                 },
-                onDragEnd = { onBrightnessChangeFinished(localBrightness) }
+                onDragEnd = { onBrightnessChangeFinished(localBrightness) },
+                // A parent/system gesture can cancel after optimistic updates have begun. Commit
+                // the last visible value so UI state and Home Assistant cannot diverge.
+                onDragCancel = { onBrightnessChangeFinished(localBrightness) }
             )
         }
     } else Modifier
 
     val statusText = run {
-        val brightnessPercent = ((entity.brightness ?: 0) / 255f * 100).toInt()
+        val brightnessPercent = (
+            if (brightnessVisible) localBrightness * 100f
+            else (entity.brightness ?: 0) / 255f * 100f
+        ).toInt().coerceIn(0, 100)
         when {
             isLockDoorOpen -> "Open"
             domain == "light" && entity.supportsBrightness && isActive -> "On - ${brightnessPercent}%"
@@ -222,8 +253,10 @@ fun EntityCard(
 
     if (buttonStyle == "tile") {
         val tileActive = isCoverNotClosed || isLockDoorOpen || isLockUnlocked || isActive || isClimateNotOff
-        // Same base fill + depth gradient as the standard/square card: primary when on, elevated when off.
+        // Brightness tiles use the normal elevated/off surface as their track; the primary/on
+        // surface is drawn below as the proportional fill. Other tiles keep their usual base.
         val tileBase = when {
+            brightnessVisible                -> appColors.elevated
             isCoverNotClosed                 -> primary
             isLockDoorOpen || isLockUnlocked -> primary
             isActive || isClimateNotOff      -> primary
@@ -247,11 +280,41 @@ fun EntityCard(
         }
         val contentColor = if (tileActive) activeContent else appColors.onSurface
         val mutedContent = if (tileActive) activeContent.copy(alpha = 0.72f) else appColors.onMuted
-        val lightFill = lightColor ?: Color(0xFFB58E31)
+        val tileIconSlug = iconName?.takeUnless { it.isBlank() }
+            ?: defaultEntityIconSlug(entity, lockDoorOpen = isLockDoorOpen)
+        @Composable
+        fun TileForeground(
+            mainColor: Color,
+            secondaryColor: Color,
+            iconBackgroundColor: Color,
+            foregroundModifier: Modifier = Modifier
+        ) {
+            Row(
+                modifier = foregroundModifier.fillMaxWidth().padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Box(
+                    Modifier.size(34.dp).background(
+                        iconBackgroundColor.copy(alpha = if (tileActive) 0.12f else 0.15f),
+                        RoundedCornerShape(10.dp)
+                    ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (tileIconSlug != null) MdiIcon(tileIconSlug, tint = tileIconTint, size = 18.dp)
+                    else Icon(Icons.Default.DeviceUnknown, null, tint = tileIconTint, modifier = Modifier.size(18.dp))
+                }
+                Column(Modifier.weight(1f)) {
+                    Text(name, style = MaterialTheme.typography.labelLarge, color = mainColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(statusText, style = MaterialTheme.typography.bodySmall, color = secondaryColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+                Icon(Icons.Default.ChevronRight, null, tint = secondaryColor.copy(alpha = 0.85f), modifier = Modifier.size(16.dp))
+            }
+        }
         Surface(
-            shape = RoundedCornerShape(18.dp),
+            shape = RoundedCornerShape(cornerRadius.dp),
             color = tileBase,
-            modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).then(
+            modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(cornerRadius.dp)).then(
                 if (interactionsEnabled) Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick, onDoubleClick = onDoubleClick)
                 else Modifier
             )
@@ -259,32 +322,69 @@ fun EntityCard(
             Box(Modifier.fillMaxWidth()) {
                 // Depth gradient (two shades of the tile's own colour), same style as the card.
                 Box(Modifier.matchParentSize().background(surfaceGradient(tileBase)))
-                // Brightness: the light's own colour fills horizontally from the left to the current
-                // level (e.g. 50% brightness = coloured left half), deepening toward the level edge.
-                if (brightnessVisible && isActive && localBrightness > 0f) {
-                    Box(
-                        Modifier.fillMaxWidth(localBrightness).fillMaxHeight().background(
-                            Brush.horizontalGradient(listOf(lightFill.copy(alpha = 0.22f), lightFill.copy(alpha = 0.80f)))
+                // The exact primary/on colour doubles as a full-height progress fill. Keeping it
+                // solid guarantees that the selected black/white foreground remains readable at
+                // every vertical position, including custom colours near the contrast crossover.
+                // The matchParentSize wrapper gives fillMaxHeight a bounded tile height; without it,
+                // wrap-content tiles can measure the progress layer at zero pixels high.
+                if (brightnessVisible && localBrightness > 0f) {
+                    Box(Modifier.matchParentSize()) {
+                        Box(
+                            Modifier
+                                .fillMaxWidth(localBrightness.coerceIn(0f, 1f))
+                                .fillMaxHeight()
+                                .background(primary)
                         )
+                    }
+                }
+                if (brightnessVisible) {
+                    // Render foreground colours appropriate to each side of the split background.
+                    // The second copy is drawing-only and clipped at the same progress boundary.
+                    TileForeground(appColors.onSurface, appColors.onSurface, appColors.onSurface)
+                    if (localBrightness > 0f) {
+                        val fraction = localBrightness.coerceIn(0f, 1f)
+                        val progressClip = GenericShape { size, _ ->
+                            moveTo(0f, 0f)
+                            lineTo(size.width * fraction, 0f)
+                            lineTo(size.width * fraction, size.height)
+                            lineTo(0f, size.height)
+                            close()
+                        }
+                        Box(
+                            Modifier
+                                .matchParentSize()
+                                .clip(progressClip)
+                                .clearAndSetSemantics { }
+                        ) {
+                            TileForeground(activeContent, activeContent, activeContent)
+                        }
+                    }
+                } else {
+                    TileForeground(
+                        contentColor,
+                        mutedContent,
+                        if (tileActive) activeContent else tileIconTint
                     )
                 }
-                Row(
-                    modifier = Modifier.padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Box(Modifier.size(34.dp).background((if (tileActive) activeContent else tileIconTint).copy(alpha = if (tileActive) 0.12f else 0.15f), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
-                        val slug = iconName?.takeUnless { it.isBlank() } ?: defaultEntityIconSlug(entity, lockDoorOpen = isLockDoorOpen)
-                        if (slug != null) MdiIcon(slug, tint = tileIconTint, size = 18.dp)
-                        else Icon(Icons.Default.DeviceUnknown, null, tint = tileIconTint, modifier = Modifier.size(18.dp))
-                    }
-                    Column(Modifier.weight(1f)) {
-                        Text(name, style = MaterialTheme.typography.labelLarge, color = contentColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text(statusText, style = MaterialTheme.typography.bodySmall, color = mutedContent, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    }
-                    Icon(Icons.Default.ChevronRight, null, tint = mutedContent.copy(alpha = 0.85f), modifier = Modifier.size(16.dp))
+                if (brightnessEnabled) {
+                    Box(
+                        Modifier
+                            .matchParentSize()
+                            .semantics {
+                                contentDescription = "$name brightness"
+                                stateDescription = "${(localBrightness * 100f).toInt().coerceIn(0, 100)} percent"
+                                progressBarRangeInfo = ProgressBarRangeInfo(localBrightness, 0f..1f)
+                                setProgress { requested ->
+                                    val value = requested.coerceIn(0f, 1f)
+                                    localBrightness = value
+                                    onBrightnessChange(value)
+                                    onBrightnessChangeFinished(value)
+                                    true
+                                }
+                            }
+                            .then(sliderModifier)
+                    )
                 }
-                if (brightnessEnabled) Box(Modifier.matchParentSize().then(sliderModifier))
             }
         }
         return
@@ -424,6 +524,14 @@ fun EntityCard(
 private fun Color.isRedShade(): Boolean =
     red > green * 1.25f && red > blue * 1.25f
 
+/** Pick the WCAG-higher-contrast opaque foreground for an arbitrary theme colour. */
+private fun Color.maxContrastForeground(): Color {
+    val relativeLuminance = luminance()
+    val whiteContrast = 1.05f / (relativeLuminance + 0.05f)
+    val blackContrast = (relativeLuminance + 0.05f) / 0.05f
+    return if (whiteContrast > blackContrast) Color.White else Color.Black
+}
+
 fun lightStateColor(entity: HAEntity): Color? {
     entity.rgbColor
         ?.takeIf { entity.supportsColor && it.size >= 3 }
@@ -477,6 +585,39 @@ val CoverPurple = Color(0xFF8B5CF6)
  * covers (garage/door/gate), the standard cover purple otherwise. */
 fun coverAccentColor(entity: HAEntity): Color =
     if (isCoverDoorLike(entity)) coverDoorColor(entity.state) else CoverPurple
+
+/** Domain/state icon tint shared by entity buttons, badges, and dialog custom buttons. */
+@Composable
+fun entityStateIconColor(entity: HAEntity, inactive: Color = LocalHKIAppColors.current.onMuted): Color {
+    val state = entity.state.lowercase()
+    val primary = MaterialTheme.colorScheme.primary
+    return when (entity.entity_id.substringBefore('.')) {
+        "light" -> if (state == "on") lightStateColor(entity) ?: Color(0xFFB58E31) else inactive
+        "climate" -> if (state == "off") inactive else hvacColor(
+            entity.attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
+                ?: entity.attributes?.get("hvac_mode")?.jsonPrimitive?.contentOrNull
+                ?: state
+        )
+        "lock" -> when (state) {
+            "locked" -> LockGreen
+            "unlocked" -> LockOrange
+            "open" -> LockRed
+            else -> inactive
+        }
+        "cover" -> if (isCoverDoorLike(entity) && state != "unavailable") coverDoorColor(state)
+            else if (state != "closed" && state != "unavailable") primary else inactive
+        "vacuum" -> when (state) {
+            "cleaning" -> Color(0xFF66BB6A)
+            "returning", "paused" -> Color(0xFFFFB300)
+            "error" -> Color(0xFFE53935)
+            else -> inactive
+        }
+        "fan" -> if (state == "on") FanBlue else inactive
+        "humidifier" -> if (state == "on") HumidifierCyan else inactive
+        "alarm_control_panel" -> alarmStateColor(state)
+        else -> if (state in listOf("on", "playing", "home", "open", "unlocked")) primary else inactive
+    }
+}
 
 /**
  * State-aware default MDI icon slug for domains that ship custom defaults (lock, cover).

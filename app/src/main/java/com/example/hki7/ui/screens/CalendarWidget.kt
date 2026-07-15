@@ -70,18 +70,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.hki7.data.HACalendarEvent
 import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HKICalendarWidget
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.EditRemoveBadge
+import com.example.hki7.ui.components.EditSettingsButton
 import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.WidgetBackground
 import com.example.hki7.ui.components.WidgetBackgroundSelector
 import com.example.hki7.ui.components.surfaceGradient
+import com.example.hki7.ui.components.itemCornerShape
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 import kotlinx.coroutines.Dispatchers
@@ -148,20 +151,36 @@ fun CalendarWidgetItem(
             )
         }
         if (showFullDialog) {
-            Dialog(onDismissRequest = { showFullDialog = false }) {
+            Dialog(
+                onDismissRequest = { showFullDialog = false },
+                properties = DialogProperties(usePlatformDefaultWidth = false)
+            ) {
                 Card(
-                    modifier = Modifier.fillMaxWidth().fillMaxHeight(0.85f),
-                    shape = RoundedCornerShape(28.dp),
+                    modifier = Modifier.fillMaxWidth(0.95f).fillMaxHeight(0.78f),
+                    shape = itemCornerShape(),
                     // Opaque so the header strip and the (semi-transparent) calendar card below it
                     // composite to one uniform tone instead of showing a two-tone seam.
                     colors = CardDefaults.cardColors(containerColor = appColors.elevated)
                 ) {
                     Column {
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(start = 24.dp, top = 20.dp, end = 20.dp),
-                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier.fillMaxWidth().padding(24.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            MdiIcon(widget.icon ?: "calendar-month", tint = MaterialTheme.colorScheme.primary, size = 24.dp)
+                            Spacer(Modifier.width(12.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(
+                                    widget.title ?: "Calendar",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = appColors.onSurface
+                                )
+                                Text(
+                                    normalizeCalendarView(widget.view).uppercase(),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = appColors.onMuted
+                                )
+                            }
                             IconButton(
                                 onClick = { showFullDialog = false },
                                 modifier = Modifier
@@ -176,6 +195,7 @@ fun CalendarWidgetItem(
                                 )
                             }
                         }
+                        Spacer(Modifier.height(16.dp))
                         Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
                             CalendarWidgetCard(
                                 widget = widget.copy(width = "full", isSquare = false),
@@ -190,14 +210,7 @@ fun CalendarWidgetItem(
             }
         }
         if (isEditMode) {
-            IconButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center).size(24.dp)) {
-                Icon(
-                    Icons.Default.Settings,
-                    contentDescription = "Settings",
-                    tint = appColors.onSurface,
-                    modifier = Modifier.size(16.dp)
-                )
-            }
+            EditSettingsButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center))
             EditRemoveBadge(
                 onClick = onDelete,
                 modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
@@ -496,7 +509,7 @@ private fun CompactWeekCalendar(
                 val hasEvents = events.any { it.occursOn(day, zone) }
                 Surface(
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(11.dp),
+                    shape = itemCornerShape(),
                     color = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
                 )
                 {
@@ -625,7 +638,7 @@ private fun CompactCalendarEventPill(
     val appColors = LocalHKIAppColors.current
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
+        shape = itemCornerShape(),
         color = color.copy(alpha = 0.2f)
     ) {
         Column(Modifier.padding(horizontal = 10.dp, vertical = 7.dp)) {
@@ -696,7 +709,7 @@ private fun CalendarHeader(
     val today = LocalDate.now()
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         Surface(
-            shape = RoundedCornerShape(16.dp),
+            shape = itemCornerShape(),
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
             modifier = if (onPickDate != null) Modifier.clickable { onPickDate() } else Modifier
         ) {
@@ -767,13 +780,13 @@ private fun CalendarHeader(
 @Composable
 private fun CalendarViewTabs(activeView: String, enabled: Boolean, onSelect: (String) -> Unit) {
     val appColors = LocalHKIAppColors.current
-    Surface(shape = RoundedCornerShape(16.dp), color = appColors.subtleSurface) {
+    Surface(shape = itemCornerShape(), color = appColors.subtleSurface) {
         Row(modifier = Modifier.fillMaxWidth().padding(3.dp), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
             calendarWidgetViews.forEach { (value, label) ->
                 val selected = activeView == value
                 Surface(
-                    modifier = Modifier.weight(1f).clip(RoundedCornerShape(13.dp)).clickable(enabled = enabled) { onSelect(value) },
-                    shape = RoundedCornerShape(13.dp),
+                    modifier = Modifier.weight(1f).clip(itemCornerShape()).clickable(enabled = enabled) { onSelect(value) },
+                    shape = itemCornerShape(),
                     color = if (selected) appColors.surface else Color.Transparent,
                     tonalElevation = if (selected) 2.dp else 0.dp
                 ) {
@@ -846,8 +859,8 @@ private fun WeekCalendarView(
             val dayEvents = events.filter { it.occursOn(day, zone) }
             val selected = day == selectedDate
             Surface(
-                modifier = Modifier.weight(1f).clip(RoundedCornerShape(18.dp)).clickable(enabled = interactionsEnabled) { onSelectDate(day) },
-                shape = RoundedCornerShape(18.dp),
+                modifier = Modifier.weight(1f).clip(itemCornerShape()).clickable(enabled = interactionsEnabled) { onSelectDate(day) },
+                shape = itemCornerShape(),
                 color = if (selected) MaterialTheme.colorScheme.primary else appColors.subtleSurface
             ) {
                 Column(
@@ -908,8 +921,8 @@ private fun MonthCalendarView(
                     val selected = day == selectedDate
                     val dayEvents = events.filter { it.occursOn(day, zone) }
                     Surface(
-                        modifier = Modifier.weight(1f).height(42.dp).clip(RoundedCornerShape(12.dp)).clickable(enabled = interactionsEnabled) { onSelectDate(day) },
-                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.weight(1f).height(42.dp).clip(itemCornerShape()).clickable(enabled = interactionsEnabled) { onSelectDate(day) },
+                        shape = itemCornerShape(),
                         color = when {
                             selected -> MaterialTheme.colorScheme.primary
                             day == today -> MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
@@ -974,7 +987,7 @@ private fun CalendarEventRow(
     zone: ZoneId
 ) {
     val appColors = LocalHKIAppColors.current
-    Surface(shape = RoundedCornerShape(18.dp), color = appColors.subtleSurface) {
+    Surface(shape = itemCornerShape(), color = appColors.subtleSurface) {
         Row(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(modifier = Modifier.width(4.dp).height(44.dp).background(color, RoundedCornerShape(3.dp)))
             Spacer(Modifier.width(12.dp))
@@ -1000,7 +1013,7 @@ private fun CalendarEventRow(
                 }
             }
             if (!calendarName.isNullOrBlank()) {
-                Surface(shape = RoundedCornerShape(999.dp), color = color.copy(alpha = 0.16f)) {
+                Surface(shape = itemCornerShape(), color = color.copy(alpha = 0.16f)) {
                     Text(calendarName, color = color, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), maxLines = 1)
                 }
             }
@@ -1011,7 +1024,7 @@ private fun CalendarEventRow(
 @Composable
 private fun CalendarEmptyState(message: String, compact: Boolean = false) {
     val appColors = LocalHKIAppColors.current
-    Surface(shape = RoundedCornerShape(18.dp), color = appColors.subtleSurface) {
+    Surface(shape = itemCornerShape(), color = appColors.subtleSurface) {
         Box(
             modifier = Modifier.fillMaxWidth().height(if (compact) 64.dp else 140.dp),
             contentAlignment = Alignment.Center
@@ -1116,12 +1129,6 @@ fun CalendarWidgetSettingsDialog(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
                     FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text("Square") })
-                }
-                Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = cornerRadius == 8, onClick = { cornerRadius = 8 }, label = { Text("Sharp") })
-                    FilterChip(selected = cornerRadius == 20, onClick = { cornerRadius = 20 }, label = { Text("Modern") })
-                    FilterChip(selected = cornerRadius == 28, onClick = { cornerRadius = 28 }, label = { Text("Round") })
                 }
                 Text("Icon", style = MaterialTheme.typography.labelLarge)
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {

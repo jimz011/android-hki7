@@ -79,7 +79,17 @@ fun RoomConfigDialog(
             onBadgeBarPreview(null)
             onDismiss()
         },
-        title = { Text(if (section == "menu") "Room Configuration" else section.replaceFirstChar { it.uppercase() }) },
+        properties = androidx.compose.ui.window.DialogProperties(dismissOnBackPress = false),
+        title = {
+            androidx.activity.compose.BackHandler {
+                if (section == "menu") {
+                    onHeaderColorPreview(null)
+                    onBadgeBarPreview(null)
+                    onDismiss()
+                } else section = "menu"
+            }
+            Text(if (section == "menu") "Room Configuration" else section.replaceFirstChar { it.uppercase() })
+        },
         text = {
             val scrollState = rememberScrollState()
             Column(

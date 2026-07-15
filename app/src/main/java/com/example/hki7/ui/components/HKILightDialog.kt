@@ -6,7 +6,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -225,7 +224,7 @@ private fun LightEffectsContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onEffectClick(effect) },
-                shape = RoundedCornerShape(18.dp),
+                shape = itemCornerShape(),
                 color = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f) else appColors.surface,
                 border = BorderStroke(
                     1.dp,
@@ -283,7 +282,7 @@ fun VerticalMasterSwitch(
         modifier = modifier
             .height(VerticalControlHeight)
             .width(100.dp)
-            .clip(RoundedCornerShape(32.dp))
+            .clip(itemCornerShape())
             .background(appColors.surface)
             .clickable { onToggle() },
         contentAlignment = Alignment.BottomCenter
@@ -301,18 +300,18 @@ fun VerticalMasterSwitch(
                 .fillMaxWidth()
                 .height(116.dp)
                 .align(if (isOn) Alignment.TopCenter else Alignment.BottomCenter)
-                .border(1.dp, appColors.onMuted.copy(alpha = 0.18f), RoundedCornerShape(24.dp))
-                .clip(RoundedCornerShape(24.dp))
+                .border(1.dp, appColors.onMuted.copy(alpha = 0.18f), itemCornerShape())
+                .clip(itemCornerShape())
                 .background(appColors.elevated)
         )
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .background(Color.Transparent, RoundedCornerShape(12.dp))
+                .background(Color.Transparent, itemCornerShape())
         ) {
             Surface(
                 modifier = Modifier.matchParentSize(),
-                shape = RoundedCornerShape(32.dp),
+                shape = itemCornerShape(),
                 color = Color.Transparent,
                 border = BorderStroke(2.dp, accent.copy(alpha = if (isOn || doorOpen) 0.9f else 0.55f))
             ) {}

@@ -3,12 +3,14 @@ package com.example.hki7.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.Typography
+import androidx.compose.material3.Shapes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
@@ -17,13 +19,52 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.example.hki7.R
+
+/** Readable bundled families. Bundling avoids OEM aliases silently resolving to the same font. */
+private val NunitoFontFamily = FontFamily(Font(R.font.nunito))
+private val ComfortaaFontFamily = FontFamily(Font(R.font.comfortaa))
+private val SpaceGroteskFontFamily = FontFamily(Font(R.font.space_grotesk))
+private val BreeSerifFontFamily = FontFamily(Font(R.font.bree_serif))
+private val PatrickHandFontFamily = FontFamily(Font(R.font.patrick_hand))
+private val AtkinsonHyperlegibleFontFamily = FontFamily(Font(R.font.atkinson_hyperlegible_next))
+
+val AppFontFamilyOptions = listOf(
+    "default" to "Default",
+    "sans" to "Sans Serif",
+    "serif" to "Serif",
+    "monospace" to "Monospace",
+    "cursive" to "Cursive",
+    "nunito" to "Nunito",
+    "comfortaa" to "Comfortaa",
+    "space_grotesk" to "Space Grotesk",
+    "bree_serif" to "Bree Serif",
+    "patrick_hand" to "Patrick Hand",
+    "atkinson" to "Atkinson Hyperlegible"
+)
+
+fun appFontFamily(key: String): FontFamily? = when (key) {
+    "sans" -> FontFamily.SansSerif
+    "serif" -> FontFamily.Serif
+    "monospace" -> FontFamily.Monospace
+    "cursive" -> FontFamily.Cursive
+    "nunito" -> NunitoFontFamily
+    "comfortaa" -> ComfortaaFontFamily
+    "space_grotesk" -> SpaceGroteskFontFamily
+    "bree_serif" -> BreeSerifFontFamily
+    "patrick_hand" -> PatrickHandFontFamily
+    "atkinson" -> AtkinsonHyperlegibleFontFamily
+    else -> null
+}
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -84,6 +125,7 @@ fun HKI7Theme(
     fontScale: Float = 1f,
     fontWeightAdjust: Int = 0,
     fontFamily: String = "default",
+    itemCornerRadius: Int = 20,
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
@@ -132,10 +174,21 @@ fun HKI7Theme(
     val typography = remember(fontScale, fontWeightAdjust, fontFamily) {
         adjustedTypography(Typography, fontScale, fontWeightAdjust, fontFamily)
     }
+    val shapes = remember(itemCornerRadius) {
+        val itemShape = RoundedCornerShape(itemCornerRadius.dp)
+        Shapes(
+            extraSmall = itemShape,
+            small = itemShape,
+            medium = itemShape,
+            large = itemShape,
+            extraLarge = itemShape
+        )
+    }
     CompositionLocalProvider(LocalHKIAppColors provides appColors) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = typography,
+            shapes = shapes,
             content = content
         )
     }
@@ -143,13 +196,7 @@ fun HKI7Theme(
 
 /** Applies the user's font preferences (size multiplier, weight offset, family) to every style. */
 private fun adjustedTypography(base: Typography, scale: Float, weightAdjust: Int, familyKey: String): Typography {
-    val family = when (familyKey) {
-        "sans" -> FontFamily.SansSerif
-        "serif" -> FontFamily.Serif
-        "monospace" -> FontFamily.Monospace
-        "cursive" -> FontFamily.Cursive
-        else -> null
-    }
+    val family = appFontFamily(familyKey)
     if (scale == 1f && weightAdjust == 0 && family == null) return base
 
     fun TextStyle.adjust(): TextStyle {

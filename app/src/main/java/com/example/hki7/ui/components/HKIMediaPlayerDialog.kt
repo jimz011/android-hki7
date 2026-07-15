@@ -1,6 +1,7 @@
 package com.example.hki7.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -50,7 +51,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -67,7 +67,10 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -210,7 +213,7 @@ fun HKIMediaPlayerDialog(
             ) {
                 Box(
                     Modifier.fillMaxWidth().aspectRatio(1f)
-                        .clip(RoundedCornerShape(20.dp)).background(appColors.subtleSurface),
+                        .clip(itemCornerShape()).background(appColors.subtleSurface),
                     contentAlignment = Alignment.Center
                 ) {
                     if (artwork != null) {
@@ -241,7 +244,7 @@ fun HKIMediaPlayerDialog(
             // Progress
             if (duration != null && duration > 0) {
                 Spacer(Modifier.height(2.dp))
-                Slider(
+                HKISlider(
                     value = progressFraction,
                     onValueChange = { if (entity.supportsMedia(MP_SEEK)) seekDrag = it },
                     onValueChangeFinished = {
@@ -328,7 +331,7 @@ fun HKIMediaPlayerDialog(
             val hasVolume = entity.supportsMedia(MP_VOLUME_SET)
             if (hasSources || hasBrowse || hasMute || hasVolume) {
                 Spacer(Modifier.height(10.dp))
-                Surface(shape = RoundedCornerShape(20.dp), color = appColors.subtleSurface, modifier = Modifier.fillMaxWidth()) {
+                Surface(shape = itemCornerShape(), color = appColors.subtleSurface, modifier = Modifier.fillMaxWidth()) {
                     Row(
                         Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -361,7 +364,7 @@ fun HKIMediaPlayerDialog(
                         if (hasVolume) {
                             var volumeDrag by remember(entity.entity_id) { mutableStateOf<Float?>(null) }
                             val volume = volumeDrag ?: (entity.volumeLevel ?: 0.0).toFloat()
-                            Slider(
+                            HKISlider(
                                 value = volume.coerceIn(0f, 1f),
                                 onValueChange = { volumeDrag = it },
                                 onValueChangeFinished = {
@@ -435,7 +438,11 @@ private fun MediaBrowseDialog(
     val children = current?.children.orEmpty()
     AlertDialog(
         onDismissRequest = onDismiss,
+        properties = androidx.compose.ui.window.DialogProperties(dismissOnBackPress = false),
         title = {
+            androidx.activity.compose.BackHandler {
+                if (stack.size > 1) stack = stack.dropLast(1) else onDismiss()
+            }
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 if (stack.size > 1) {
                     IconButton(onClick = { stack = stack.dropLast(1) }, modifier = Modifier.size(32.dp)) {
@@ -582,7 +589,10 @@ private fun MediaBrowseDialog(
                                             )
                                             val metadata = listOfNotNull(
                                                 child.artist?.takeIf { it.isNotBlank() },
-                                                child.media_class?.replace('_', ' ')?.replaceFirstChar(Char::uppercase)
+                                                child.media_class
+                                                    ?.takeUnless { child.can_play && it.equals("track", ignoreCase = true) }
+                                                    ?.replace('_', ' ')
+                                                    ?.replaceFirstChar(Char::uppercase)
                                             ).joinToString(" • ")
                                             if (metadata.isNotBlank()) Text(
                                                 metadata, color = colors.onSurfaceVariant,
@@ -633,7 +643,14 @@ fun MediaPlayerMiniBar(
     modifier: Modifier = Modifier
 ) {
     if (players.isEmpty()) return
-    val appColors = LocalHKIAppColors.current
+    // Match the notification banner: this transient overlay deliberately contrasts with the
+    // active app theme (dark over light themes, light over dark themes).
+    val backgroundIsLight = MaterialTheme.colorScheme.background.luminance() > 0.5f
+    val barBackground = if (backgroundIsLight) Color(0xFF211F24) else Color(0xFFF4F0F5)
+    val barForeground = if (backgroundIsLight) Color(0xFFF7F2F8) else Color(0xFF211F24)
+    val barMuted = barForeground.copy(alpha = 0.68f)
+    val barSubtle = barForeground.copy(alpha = 0.10f)
+    val barShape = itemCornerShape()
     val pagerState = rememberPagerState(pageCount = { players.size })
 
     // 1s ticker so the mini progress bar advances between HA updates.
@@ -646,14 +663,20 @@ fun MediaPlayerMiniBar(
     }
 
     Surface(
-        modifier = modifier.fillMaxWidth().height(80.dp),
-        shape = RoundedCornerShape(20.dp),
-        color = appColors.surface.copy(alpha = 0.96f),
+        modifier = modifier.fillMaxWidth().height(80.dp).clip(barShape),
+        shape = barShape,
+        color = barBackground,
         shadowElevation = 10.dp,
-        border = BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.10f))
+        border = BorderStroke(1.dp, barForeground.copy(alpha = 0.10f))
     ) {
-        // One page per active player; swipe left/right to switch players.
-        HorizontalPager(state = pagerState) { page ->
+        Box(Modifier.fillMaxSize()) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(surfaceGradient(barBackground))
+            )
+            // One page per active player; swipe left/right to switch players.
+            HorizontalPager(state = pagerState) { page ->
             val player = players.getOrNull(page) ?: return@HorizontalPager
             val artwork = resolveMediaImage(player.entityPicture, currentUrl)
             Column(Modifier.fillMaxSize().clickable { onOpen(player) }) {
@@ -663,31 +686,31 @@ fun MediaPlayerMiniBar(
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Box(
-                        Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(appColors.subtleSurface),
+                        Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(barSubtle),
                         contentAlignment = Alignment.Center
                     ) {
                         if (artwork != null) {
                             AsyncImage(artwork, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                         } else {
-                            Icon(Icons.Default.MusicNote, null, tint = appColors.onMuted, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.MusicNote, null, tint = barMuted, modifier = Modifier.size(20.dp))
                         }
                     }
                     Column(Modifier.weight(1f)) {
                         // Player name on its own line so it's always clear which device is playing.
                         Text(
                             player.friendlyName ?: player.entity_id,
-                            color = appColors.onMuted, style = MaterialTheme.typography.labelSmall,
+                            color = barMuted, style = MaterialTheme.typography.labelSmall,
                             fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis
                         )
                         Text(
                             player.mediaTitle ?: player.state.replaceFirstChar(Char::uppercase),
-                            color = appColors.onSurface, style = MaterialTheme.typography.labelLarge,
+                            color = barForeground, style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis
                         )
                         player.mediaArtist?.takeIf { it.isNotBlank() }?.let { artist ->
                             Text(
                                 artist,
-                                color = appColors.onMuted, style = MaterialTheme.typography.labelSmall,
+                                color = barMuted, style = MaterialTheme.typography.labelSmall,
                                 maxLines = 1, overflow = TextOverflow.Ellipsis
                             )
                         }
@@ -695,18 +718,48 @@ fun MediaPlayerMiniBar(
                     if (players.size > 1) {
                         Text(
                             "${page + 1}/${players.size}",
-                            color = appColors.onMuted, style = MaterialTheme.typography.labelSmall
+                            color = barMuted, style = MaterialTheme.typography.labelSmall
                         )
                     }
-                    IconButton(
-                        onClick = { viewModel.callService("media_player", "media_play_pause", HAServiceCall(player.entity_id)) },
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Icon(
-                            if (player.state == "playing") Icons.Default.Pause else Icons.Default.PlayArrow,
-                            if (player.state == "playing") "Pause" else "Play",
-                            tint = appColors.onSurface, modifier = Modifier.size(26.dp)
-                        )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(
+                            onClick = { viewModel.callService("media_player", "media_previous_track", HAServiceCall(player.entity_id)) },
+                            enabled = player.supportsMedia(MP_PREVIOUS),
+                            modifier = Modifier.size(34.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.SkipPrevious,
+                                "Previous",
+                                tint = barForeground.copy(alpha = if (player.supportsMedia(MP_PREVIOUS)) 1f else 0.35f),
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                        IconButton(
+                            onClick = { viewModel.callService("media_player", "media_play_pause", HAServiceCall(player.entity_id)) },
+                            enabled = player.supportsMedia(MP_PLAY) || player.supportsMedia(MP_PAUSE),
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                if (player.state == "playing") Icons.Default.Pause else Icons.Default.PlayArrow,
+                                if (player.state == "playing") "Pause" else "Play",
+                                tint = barForeground.copy(
+                                    alpha = if (player.supportsMedia(MP_PLAY) || player.supportsMedia(MP_PAUSE)) 1f else 0.35f
+                                ),
+                                modifier = Modifier.size(26.dp)
+                            )
+                        }
+                        IconButton(
+                            onClick = { viewModel.callService("media_player", "media_next_track", HAServiceCall(player.entity_id)) },
+                            enabled = player.supportsMedia(MP_NEXT),
+                            modifier = Modifier.size(34.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.SkipNext,
+                                "Next",
+                                tint = barForeground.copy(alpha = if (player.supportsMedia(MP_NEXT)) 1f else 0.35f),
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
                     }
                 }
                 // Elapsed / progress / remaining, when the player reports a duration.
@@ -718,19 +771,32 @@ fun MediaPlayerMiniBar(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(formatMediaTime(position.toLong()), color = appColors.onMuted,
+                        Text(formatMediaTime(position.toLong()), color = barMuted,
                             style = MaterialTheme.typography.labelSmall, fontSize = 9.sp)
-                        Box(Modifier.weight(1f).height(3.dp).clip(RoundedCornerShape(2.dp)).background(appColors.onMuted.copy(alpha = 0.18f))) {
-                            Box(
-                                Modifier.fillMaxWidth((position / duration).toFloat().coerceIn(0f, 1f))
-                                    .fillMaxHeight().background(MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
+                        val progress = (position / duration).toFloat().coerceIn(0f, 1f)
+                        val trackColor = barForeground.copy(alpha = 0.18f)
+                        val progressColor = MaterialTheme.colorScheme.primary
+                        Canvas(Modifier.weight(1f).height(3.dp)) {
+                            val radius = size.height / 2f
+                            drawRoundRect(
+                                color = trackColor,
+                                size = size,
+                                cornerRadius = CornerRadius(radius, radius)
                             )
+                            if (progress > 0f) {
+                                drawRoundRect(
+                                    color = progressColor,
+                                    size = Size(size.width * progress, size.height),
+                                    cornerRadius = CornerRadius(radius, radius)
+                                )
+                            }
                         }
-                        Text("-${formatMediaTime((duration - position).toLong())}", color = appColors.onMuted,
+                        Text("-${formatMediaTime((duration - position).toLong())}", color = barMuted,
                             style = MaterialTheme.typography.labelSmall, fontSize = 9.sp)
                     }
                 }
             }
+        }
         }
     }
 }

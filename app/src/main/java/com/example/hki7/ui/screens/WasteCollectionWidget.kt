@@ -60,11 +60,13 @@ import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.EditRemoveBadge
+import com.example.hki7.ui.components.EditSettingsButton
 import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.WidgetBackground
 import com.example.hki7.ui.components.WidgetBackgroundSelector
 import com.example.hki7.ui.components.surfaceGradient
+import com.example.hki7.ui.components.itemCornerShape
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 import kotlinx.serialization.json.contentOrNull
@@ -237,9 +239,7 @@ fun WasteCollectionWidgetItem(
             modifier = Modifier.clickable(enabled = !isEditMode) { showDialog = true }
         )
         if (isEditMode) {
-            IconButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center).size(24.dp)) {
-                Icon(Icons.Default.Settings, "Settings", tint = appColors.onSurface, modifier = Modifier.size(16.dp))
-            }
+            EditSettingsButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center))
             EditRemoveBadge(onClick = onDelete, modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp))
         }
     }
@@ -306,7 +306,7 @@ private fun WasteCollectionCard(
             Surface(
                 modifier = Modifier.align(Alignment.BottomStart).padding(10.dp),
                 color = Color.Black.copy(alpha = 0.55f),
-                shape = RoundedCornerShape(14.dp)
+                shape = itemCornerShape()
             ) {
                 Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
                     Text(
@@ -377,15 +377,15 @@ private fun WasteCollectionDialog(
                 categories.forEach { category ->
                     val color = wasteCategoryColor(category.name)
                     val isToday = category.date == today
-                    Surface(shape = RoundedCornerShape(16.dp), color = if (isToday) color.copy(alpha = 0.14f) else appColors.subtleSurface) {
+                    Surface(shape = itemCornerShape(), color = if (isToday) color.copy(alpha = 0.14f) else appColors.subtleSurface) {
                         Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                             val picture = if (widget.imageStyle == "picture") wasteEntityPicture(category.entity, currentUrl) else null
                             if (picture != null) {
-                                Box(Modifier.size(32.dp).clip(RoundedCornerShape(10.dp)).background(color.copy(alpha = 0.16f))) {
+                                Box(Modifier.size(32.dp).clip(itemCornerShape()).background(color.copy(alpha = 0.16f))) {
                                     AsyncImage(picture, category.name, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                                 }
                             } else {
-                                Surface(shape = RoundedCornerShape(10.dp), color = color.copy(alpha = 0.16f)) {
+                                Surface(shape = itemCornerShape(), color = color.copy(alpha = 0.16f)) {
                                     MdiIcon(wasteCategoryIcon(category.name), tint = color, size = 18.dp, modifier = Modifier.padding(7.dp))
                                 }
                             }
@@ -440,7 +440,7 @@ private fun WasteWeekCalendar(calendarEntityId: String, viewModel: MainViewModel
     }
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         byDay.forEach { (date, dayEvents) ->
-            Surface(shape = RoundedCornerShape(14.dp), color = appColors.subtleSurface) {
+            Surface(shape = itemCornerShape(), color = appColors.subtleSurface) {
                 Row(Modifier.fillMaxWidth().padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         wasteDateLabel(date, zone),
@@ -585,12 +585,6 @@ fun WasteCollectionSettingsDialog(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
                     FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text("Square") })
-                }
-                Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = cornerRadius == 8, onClick = { cornerRadius = 8 }, label = { Text("Sharp") })
-                    FilterChip(selected = cornerRadius == 20, onClick = { cornerRadius = 20 }, label = { Text("Modern") })
-                    FilterChip(selected = cornerRadius == 28, onClick = { cornerRadius = 28 }, label = { Text("Round") })
                 }
                 Text("Icon", style = MaterialTheme.typography.labelLarge)
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {

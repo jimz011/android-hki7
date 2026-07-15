@@ -74,8 +74,10 @@ import com.example.hki7.ui.MainViewModel
 import java.util.UUID
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.EditRemoveBadge
+import com.example.hki7.ui.components.EditSettingsButton
 import com.example.hki7.ui.components.HistoryPoint
 import com.example.hki7.ui.components.surfaceGradient
+import com.example.hki7.ui.components.itemCornerShape
 import com.example.hki7.ui.components.HistoryRangeOptions
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.fadingEdges
@@ -123,14 +125,11 @@ fun SensorGraphWidgetItem(
     onSettings: () -> Unit
 ) {
     if (widget.isHidden && !isEditMode) return
-    val appColors = LocalHKIAppColors.current
     Box(modifier = Modifier.fillMaxWidth()) {
         SensorGraphCardView(widget, viewModel)
         if (isEditMode) {
             EditRemoveBadge(onClick = onDelete, modifier = Modifier.align(Alignment.TopEnd))
-            IconButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center).size(28.dp)) {
-                Icon(Icons.Default.Settings, "Graph settings", tint = appColors.onSurface, modifier = Modifier.size(18.dp))
-            }
+            EditSettingsButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center))
         }
     }
 }
@@ -183,10 +182,7 @@ fun SensorGraphStackWidgetItem(
         }
         if (isEditMode) {
             EditRemoveBadge(onClick = onDelete, modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp))
-            IconButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center).size(24.dp)) {
-                Icon(Icons.Default.Settings, contentDescription = "Settings",
-                    tint = appColors.onSurface, modifier = Modifier.size(16.dp))
-            }
+            EditSettingsButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center))
         }
     }
 }
@@ -292,7 +288,7 @@ private fun SensorGraphCardView(
                     Surface(
                         modifier = Modifier.fillMaxWidth()
                             .then(if (widget.isSquare) Modifier.weight(1f) else Modifier.height(150.dp)),
-                        shape = RoundedCornerShape(18.dp),
+                        shape = itemCornerShape(),
                         color = appColors.subtleSurface,
                         border = BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.16f))
                     ) {
@@ -682,7 +678,12 @@ fun SensorGraphWidgetSettingsDialog(
                 Text("Time Range", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     HistoryRangeOptions.forEach { option ->
-                        FilterChip(selected = hours == option, onClick = { hours = option }, label = { Text("${option}h") })
+                        FilterChip(
+                            selected = hours == option,
+                            onClick = { hours = option },
+                            label = { Text("${option}h") },
+                            shape = itemCornerShape()
+                        )
                     }
                 }
                 if (showLayoutOptions) {
@@ -691,12 +692,6 @@ fun SensorGraphWidgetSettingsDialog(
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(selected = !square, onClick = { square = false }, label = { Text("Standard") })
                         FilterChip(selected = square, onClick = { square = true }, label = { Text("Square") })
-                    }
-                    Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf(8 to "Sharp", 20 to "Modern", 28 to "Round").forEach { (value, label) ->
-                            FilterChip(selected = radius == value, onClick = { radius = value }, label = { Text(label) })
-                        }
                     }
                 }
             }
@@ -798,12 +793,6 @@ fun SensorGraphStackSettingsDialog(
                     Switch(checked = collapsible, onCheckedChange = { collapsible = it })
                 }
                 WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
-                Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf(8 to "Sharp", 20 to "Modern", 28 to "Round").forEach { (value, label) ->
-                        FilterChip(selected = radius == value, onClick = { radius = value }, label = { Text(label) })
-                    }
-                }
             }
         },
         confirmButton = {

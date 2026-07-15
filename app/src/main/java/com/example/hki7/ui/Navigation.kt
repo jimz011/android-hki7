@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ViewQuilt
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.hki7.data.HKICustomPage
 
 sealed class Screen(
     val route: String,
@@ -12,6 +13,9 @@ sealed class Screen(
     // When set, the bottom bar renders this MDI glyph instead of [icon] (see MdiIcon).
     val mdiIcon: String? = null
 ) {
+    companion object {
+        const val CUSTOM_PAGE_ROUTE = "custom_page/{pageId}"
+    }
     object Home     : Screen("home",     "Home",     Icons.Default.Home)
     object Rooms    : Screen("rooms",    "Rooms",    Icons.AutoMirrored.Filled.ViewQuilt)
     object Security : Screen("security", "Security", Icons.Default.Security)
@@ -19,6 +23,12 @@ sealed class Screen(
     object Climate  : Screen("climate",  "Climate",  Icons.Default.Thermostat, mdiIcon = "thermostat")
     object Battery  : Screen("battery",  "Battery",  Icons.Default.BatteryAlert)
     object Settings : Screen("settings", "Settings", Icons.Default.Settings)
+    data class Custom(val page: HKICustomPage) : Screen(
+        route = "custom_page/${page.id}",
+        title = page.name,
+        icon = Icons.Default.Dashboard,
+        mdiIcon = page.icon
+    )
     object RoomDetail : Screen("room_detail/{areaId}", "Room Detail", Icons.AutoMirrored.Filled.ViewQuilt) {
         fun createRoute(areaId: String) = "room_detail/$areaId"
     }
@@ -48,16 +58,17 @@ object NavBarConfig {
     val configurable: List<Screen> = listOf(Screen.Security, Screen.Energy, Screen.Climate, Screen.Battery)
 
     /** Configurable tabs in the saved order; unknown/legacy routes are dropped and new ones appended. */
-    fun orderedConfigurable(savedOrder: List<String>): List<Screen> {
-        val byRoute = configurable.associateBy { it.route }
+    fun orderedConfigurable(savedOrder: List<String>, customPages: List<HKICustomPage> = emptyList()): List<Screen> {
+        val available = configurable + customPages.map(Screen::Custom)
+        val byRoute = available.associateBy { it.route }
         val ordered = savedOrder.mapNotNull { byRoute[it] }
-        val rest = configurable.filter { it !in ordered }
+        val rest = available.filter { it !in ordered }
         return ordered + rest
     }
 
     /** Tabs shown in the bottom bar: the fixed pair followed by the visible configurable tabs. */
-    fun visibleTabs(savedOrder: List<String>, hidden: List<String>): List<Screen> {
+    fun visibleTabs(savedOrder: List<String>, hidden: List<String>, customPages: List<HKICustomPage> = emptyList()): List<Screen> {
         val hiddenSet = hidden.toSet()
-        return fixed + orderedConfigurable(savedOrder).filter { it.route !in hiddenSet }
+        return fixed + orderedConfigurable(savedOrder, customPages).filter { it.route !in hiddenSet }
     }
 }

@@ -177,7 +177,7 @@ fun HorizonCard(
     sun: HAEntity?,
     use24h: Boolean,
     modifier: Modifier = Modifier,
-    cornerRadius: Int = 24
+    cornerRadius: Int = LocalItemCornerRadius.current
 ) {
     val appColors = LocalHKIAppColors.current
     val zone = remember { ZoneId.systemDefault() }
@@ -467,7 +467,7 @@ private fun HorizonMetric(label: String, value: String, modifier: Modifier = Mod
     val appColors = LocalHKIAppColors.current
     Row(
         modifier = modifier
-            .background(appColors.subtleSurface, RoundedCornerShape(14.dp))
+            .background(appColors.subtleSurface, itemCornerShape())
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(9.dp)

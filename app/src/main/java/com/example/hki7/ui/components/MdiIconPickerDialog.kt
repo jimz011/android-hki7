@@ -115,7 +115,7 @@ fun MdiIconPickerDialog(
             modifier = Modifier
                 .fillMaxWidth(0.95f)
                 .fillMaxHeight(0.88f),
-            shape = RoundedCornerShape(28.dp),
+            shape = itemCornerShape(),
             colors = CardDefaults.cardColors(containerColor = appColors.elevated)
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {

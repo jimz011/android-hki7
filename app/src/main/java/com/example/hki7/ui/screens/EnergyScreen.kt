@@ -49,6 +49,7 @@ import com.example.hki7.ui.components.ReorderAxis
 import com.example.hki7.ui.components.ReorderableGrid
 import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.parseHistoryMillis
+import com.example.hki7.ui.components.itemCornerShape
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
@@ -629,7 +630,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
                             selected = range == r,
                             onClick = { rangeName = r.name; rangeOffset = 0 },
                             label = { Text(r.label) },
-                            shape = RoundedCornerShape(12.dp)
+                            shape = itemCornerShape()
                         )
                     }
                 }
@@ -649,7 +650,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .widthIn(min = 148.dp)
-                            .clip(RoundedCornerShape(12.dp))
+                            .clip(itemCornerShape())
                             .clickable { showDatePicker = true }
                             .padding(horizontal = 8.dp, vertical = 6.dp)
                     )
@@ -741,8 +742,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
                 item {
                     SectionHeader("Electricity Total", if (!energyConfig.energyCostEntityId.isNullOrBlank()) "€ ${"%.2f".format(costVal)}" else null)
                     Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), RoundedCornerShape(20.dp)),
-                        shape = RoundedCornerShape(20.dp), color = Color.Transparent
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                        shape = itemCornerShape(), color = Color.Transparent
                     ) {
                         Column(Modifier.padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -779,8 +780,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
                     item {
                         SectionHeader("Solar", null)
                         Surface(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), RoundedCornerShape(20.dp)),
-                            shape = RoundedCornerShape(20.dp), color = Color.Transparent
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                        shape = itemCornerShape(), color = Color.Transparent
                         ) {
                             Column(Modifier.padding(16.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -842,8 +843,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
                     item {
                         SectionHeader("Top consumers", null)
                         Surface(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), RoundedCornerShape(20.dp)),
-                            shape = RoundedCornerShape(20.dp), color = Color.Transparent
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                        shape = itemCornerShape(), color = Color.Transparent
                         ) {
                             Column(Modifier.padding(vertical = 6.dp)) {
                                 topConsumers.forEachIndexed { idx, (entity, watts) ->
@@ -871,8 +872,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
                         val maxKwh = (deviceEnergies.maxOfOrNull { it.second } ?: 0f).coerceAtLeast(0.001f)
                         SectionHeader("Device energy", "Used $periodLabel")
                         Surface(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), RoundedCornerShape(20.dp)),
-                            shape = RoundedCornerShape(20.dp), color = Color.Transparent
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                        shape = itemCornerShape(), color = Color.Transparent
                         ) {
                             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                 deviceEnergies.forEach { (entity, kwh) ->
@@ -918,7 +919,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
                         SectionHeader("Individual water usage", "Used $periodLabel")
                         Surface(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                            shape = RoundedCornerShape(20.dp),
+                            shape = itemCornerShape(),
                             color = appColors.elevated
                         ) {
                             IndividualWaterUsageContent(
@@ -934,8 +935,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
                 item {
                     SectionHeader("Production", null)
                     Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), RoundedCornerShape(20.dp)),
-                        shape = RoundedCornerShape(20.dp), color = Color.Transparent
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                        shape = itemCornerShape(), color = Color.Transparent
                     ) {
                         Column(Modifier.padding(16.dp)) {
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -964,8 +965,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
                     item {
                         SectionHeader("Forecast", null)
                         Surface(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), RoundedCornerShape(20.dp)),
-                            shape = RoundedCornerShape(20.dp), color = Color.Transparent
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                        shape = itemCornerShape(), color = Color.Transparent
                         ) {
                             Column(Modifier.padding(16.dp)) {
                                 if (forecastKwhToday != null && forecastKwhToday > 0f) {
@@ -1002,8 +1003,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
                     val deviceId = energyConfig.solarDeviceId
                     SectionHeader("Inverters", null)
                     Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), RoundedCornerShape(20.dp)),
-                        shape = RoundedCornerShape(20.dp), color = Color.Transparent
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                        shape = itemCornerShape(), color = Color.Transparent
                     ) {
                         if (deviceId.isNullOrBlank()) {
                             Text(
@@ -1073,8 +1074,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
                 item {
                     SectionHeader("Now", null)
                     Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), RoundedCornerShape(20.dp)),
-                        shape = RoundedCornerShape(20.dp), color = Color.Transparent
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                        shape = itemCornerShape(), color = Color.Transparent
                     ) {
                         Column(Modifier.padding(16.dp)) {
                             val gridStatus = when {
@@ -1127,8 +1128,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
                 item {
                     SectionHeader("Power", null)
                     Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), RoundedCornerShape(20.dp)),
-                        shape = RoundedCornerShape(20.dp), color = Color.Transparent
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                        shape = itemCornerShape(), color = Color.Transparent
                     ) {
                         Column(Modifier.padding(16.dp)) {
                             EnergyBarChart(homeSeries, ElecBlue, "W", axisLabels, tooltipLabels, nowIndex)
@@ -1147,8 +1148,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
                 item {
                     SectionHeader("Energy", if (!energyConfig.energyCostEntityId.isNullOrBlank()) "€ ${"%.2f".format(costVal)}" else null)
                     Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), RoundedCornerShape(20.dp)),
-                        shape = RoundedCornerShape(20.dp), color = Color.Transparent
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                        shape = itemCornerShape(), color = Color.Transparent
                     ) {
                         Column(Modifier.padding(16.dp)) {
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -1182,8 +1183,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
                 item {
                     SectionHeader("Usage", gasCost?.let { "€ ${"%.2f".format(it)}" })
                     Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), RoundedCornerShape(20.dp)),
-                        shape = RoundedCornerShape(20.dp), color = Color.Transparent
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                        shape = itemCornerShape(), color = Color.Transparent
                     ) {
                         Column(Modifier.padding(16.dp)) {
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -1206,8 +1207,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
                 item {
                     SectionHeader("Usage", waterCost?.let { "€ ${"%.2f".format(it)}" })
                     Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), RoundedCornerShape(20.dp)),
-                        shape = RoundedCornerShape(20.dp), color = Color.Transparent
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                        shape = itemCornerShape(), color = Color.Transparent
                     ) {
                         Column(Modifier.padding(16.dp)) {
                             fun fmtWater(v: Float) = (if (v >= 100f) "%.0f %s" else "%.1f %s").format(v, waterDisplayUnit)
@@ -1228,7 +1229,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
                         SectionHeader("Individual water usage", null)
                         Surface(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                            shape = RoundedCornerShape(20.dp),
+                            shape = itemCornerShape(),
                             color = appColors.elevated
                         ) {
                             IndividualWaterUsageContent(
@@ -1244,8 +1245,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
                 item {
                     SectionHeader("Battery", null)
                     Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), RoundedCornerShape(20.dp)),
-                        shape = RoundedCornerShape(20.dp), color = Color.Transparent
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                        shape = itemCornerShape(), color = Color.Transparent
                     ) {
                         Column(Modifier.padding(16.dp)) {
                             val battStatus = when {
@@ -1955,12 +1956,18 @@ private fun EnergyMultiLineChart(
     val appColors = LocalHKIAppColors.current
     var selected by remember(series) { mutableStateOf<Int?>(null) }
     val n = series.firstOrNull()?.second?.size ?: 24
-    val maxV = series.maxOfOrNull { it.second.max() }?.coerceAtLeast(0.001f) ?: 0.001f
-    val maxLabel = when {
-        unit == "W" && maxV >= 1000f -> "%.1fk".format(maxV / 1000f)
-        maxV >= 100f -> "%.0f".format(maxV)
-        else -> "%.1f".format(maxV)
+    val rawMin = series.minOfOrNull { it.second.minOrNull() ?: 0f } ?: 0f
+    val rawMax = series.maxOfOrNull { it.second.maxOrNull() ?: 0f } ?: 0f
+    val minV = minOf(rawMin, 0f)
+    val maxV = maxOf(rawMax, 0f)
+    val valueRange = (maxV - minV).coerceAtLeast(0.001f)
+    fun axisLabel(value: Float): String = when {
+        unit == "W" && abs(value) >= 1000f -> "%.1fk".format(value / 1000f)
+        abs(value) >= 100f -> "%.0f".format(value)
+        else -> "%.1f".format(value)
     }
+    val maxLabel = axisLabel(maxV)
+    val minLabel = if (minV < 0f) axisLabel(minV) else "0"
     Column(modifier.fillMaxWidth()) {
         Text(
             selected?.let { i ->
@@ -1980,7 +1987,7 @@ private fun EnergyMultiLineChart(
             ) {
                 Text(maxLabel, style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
                 Text(unit, style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
-                Text("0", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+                Text(minLabel, style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
             }
             Canvas(
                 Modifier
@@ -2010,12 +2017,13 @@ private fun EnergyMultiLineChart(
                         pathEffect = PathEffect.dashPathEffect(floatArrayOf(4f, 6f))
                     )
                 }
-                drawLine(guide, Offset(0f, ch), Offset(cw, ch), 1.dp.toPx())
+                val zeroY = ((maxV - 0f) / valueRange) * ch
+                drawLine(guide, Offset(0f, zeroY), Offset(cw, zeroY), 1.dp.toPx())
                 series.forEach { (_, values, color) ->
                     val path = Path()
                     for (i in 0 until n) {
                         val x = cw * (i + 0.5f) / n
-                        val y = ch - (values[i] / maxV) * (ch - 2.dp.toPx())
+                        val y = ((maxV - values[i]) / valueRange) * (ch - 2.dp.toPx())
                         if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
                     }
                     drawPath(path, color, style = Stroke(2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
@@ -2025,7 +2033,7 @@ private fun EnergyMultiLineChart(
                     drawLine(appColors.onSurface.copy(alpha = 0.5f), Offset(x, 0f), Offset(x, ch), 1.dp.toPx(),
                         pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 5f)))
                     series.forEach { (_, values, color) ->
-                        val y = ch - (values[i] / maxV) * (ch - 2.dp.toPx())
+                        val y = ((maxV - values[i]) / valueRange) * (ch - 2.dp.toPx())
                         drawCircle(color, 3.5.dp.toPx(), Offset(x, y))
                     }
                 }
@@ -2089,12 +2097,12 @@ private fun EnergyLiveTile(
 ) {
     val appColors = LocalHKIAppColors.current
     Surface(
-        shape = RoundedCornerShape(18.dp),
+        shape = itemCornerShape(),
         color = Color.Transparent,
         modifier = modifier
-            .background(surfaceGradient(appColors.elevated), RoundedCornerShape(18.dp))
+            .background(surfaceGradient(appColors.elevated), itemCornerShape())
             .then(
-                if (onClick != null) Modifier.clip(RoundedCornerShape(18.dp)).clickable { onClick() } else Modifier
+                if (onClick != null) Modifier.clip(itemCornerShape()).clickable { onClick() } else Modifier
             )
     ) {
         Row(
@@ -2166,8 +2174,8 @@ private fun UtilityCard(
 ) {
     val appColors = LocalHKIAppColors.current
     Surface(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), RoundedCornerShape(20.dp)),
-        shape = RoundedCornerShape(20.dp), color = Color.Transparent
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+        shape = itemCornerShape(), color = Color.Transparent
     ) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -2478,7 +2486,7 @@ private fun ColumnScope.EnergySensorSection(
         }
         Surface(
             modifier = Modifier.fillMaxWidth().clickable { pickingDeviceFor = cat },
-            shape = RoundedCornerShape(14.dp),
+            shape = itemCornerShape(),
             color = appColors.subtleSurface
         ) {
             Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -2502,7 +2510,7 @@ private fun ColumnScope.EnergySensorSection(
     fun categoryButton(key: String, title: String, subtitle: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color) {
         Surface(
             modifier = Modifier.fillMaxWidth().clickable { category = key },
-            shape = RoundedCornerShape(18.dp),
+            shape = itemCornerShape(),
             color = appColors.subtleSurface
         ) {
             Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -3334,10 +3342,7 @@ fun EnergyCardWidgetItem(
             EnergyCardWidgetView(widget.cardKey, viewModel, widget.cornerRadius, configOverride = widget.energyConfig)
         }
         if (isEditMode) {
-            IconButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center).size(24.dp)) {
-                Icon(Icons.Default.Settings, contentDescription = "Settings",
-                    tint = LocalHKIAppColors.current.onSurface, modifier = Modifier.size(16.dp))
-            }
+            EditSettingsButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center))
             com.example.hki7.ui.components.EditRemoveBadge(
                 onClick = onDelete,
                 modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
@@ -3390,10 +3395,7 @@ fun EnergyStackWidgetItem(
             }
         }
         if (isEditMode) {
-            IconButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center).size(24.dp)) {
-                Icon(Icons.Default.Settings, contentDescription = "Settings",
-                    tint = appColors.onSurface, modifier = Modifier.size(16.dp))
-            }
+            EditSettingsButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center))
             com.example.hki7.ui.components.EditRemoveBadge(
                 onClick = onDelete,
                 modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
@@ -3432,9 +3434,9 @@ fun EnergyCardPickerList(
                 Surface(
                     modifier = Modifier.fillMaxWidth()
                         .padding(vertical = 4.dp)
-                        .clip(RoundedCornerShape(22.dp))
+                        .clip(itemCornerShape())
                         .clickable { onToggle(spec.key) },
-                    shape = RoundedCornerShape(22.dp),
+                    shape = itemCornerShape(),
                     color = appColors.subtleSurface,
                     border = if (isSel) BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.28f)) else null
                 ) {
@@ -3760,12 +3762,6 @@ fun EnergyCardWidgetSettingsDialog(
                 OutlinedTextField(value = title, onValueChange = { title = it },
                     label = { Text("Title (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 com.example.hki7.ui.components.WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
-                Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = radius == 8, onClick = { radius = 8 }, label = { Text("Sharp") })
-                    FilterChip(selected = radius == 20, onClick = { radius = 20 }, label = { Text("Modern") })
-                    FilterChip(selected = radius == 28, onClick = { radius = 28 }, label = { Text("Round") })
-                }
             }
         },
         confirmButton = {
@@ -3868,12 +3864,6 @@ fun EnergyStackSettingsDialog(
                     Switch(checked = collapsible, onCheckedChange = { collapsible = it })
                 }
                 com.example.hki7.ui.components.WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
-                Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = radius == 8, onClick = { radius = 8 }, label = { Text("Sharp") })
-                    FilterChip(selected = radius == 20, onClick = { radius = 20 }, label = { Text("Modern") })
-                    FilterChip(selected = radius == 28, onClick = { radius = 28 }, label = { Text("Round") })
-                }
             }
         },
         confirmButton = {

@@ -34,6 +34,7 @@ fun HKIBottomBar(
 ) {
     val appColors = LocalHKIAppColors.current
     val barColor = containerColor ?: appColors.surface.copy(alpha = 0.9f)
+    val barShape = itemCornerShape()
 
     Box(
         modifier = modifier
@@ -41,10 +42,10 @@ fun HKIBottomBar(
             .padding(start = horizontalPadding, end = horizontalPadding, bottom = 15.dp)
             .height(64.dp)
             // Soft shadow + hairline border lift the floating bar off busy page content.
-            .shadow(10.dp, RoundedCornerShape(32.dp))
-            .clip(RoundedCornerShape(32.dp))
-            .background(barColor)
-            .border(1.dp, appColors.onMuted.copy(alpha = 0.10f), RoundedCornerShape(32.dp))
+            .shadow(10.dp, barShape)
+            .clip(barShape)
+            .background(surfaceGradient(barColor))
+            .border(1.dp, appColors.onMuted.copy(alpha = 0.10f), barShape)
     ) {
         // weight()-based equal-width tabs can't live in a scrollable Row (unbounded width),
         // so scrollable mode uses fixed-width tabs with spacing instead of SpaceEvenly.

@@ -183,7 +183,7 @@ private fun HumidifierModesList(entity: HAEntity, viewModel: MainViewModel) {
                     .clickable {
                         viewModel.setHumidifierMode(entity.entity_id, mode)
                     },
-                shape = RoundedCornerShape(18.dp),
+                shape = itemCornerShape(),
                 color = if (selected) HumidifierCyan.copy(alpha = 0.22f) else appColors.surface,
                 border = BorderStroke(1.dp, if (selected) HumidifierCyan.copy(alpha = 0.7f) else appColors.onMuted.copy(alpha = 0.16f))
             ) {

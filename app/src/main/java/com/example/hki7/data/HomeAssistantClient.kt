@@ -202,8 +202,60 @@ class HomeAssistantClient(
                 if (contentType != null) put("media_content_type", JsonPrimitive(contentType))
             }
             val response = sendCommand("media_player/browse_media", data)
-            response["result"]?.let { json.decodeFromJsonElement(HAMediaBrowseItem.serializer(), it) }
+            response["result"]?.let(::decodeMediaBrowseItem)
         }
+    }
+
+    private fun decodeMediaBrowseItem(element: JsonElement): HAMediaBrowseItem? {
+        val item = element as? JsonObject ?: return null
+        val metadata = item["metadata"] as? JsonObject
+
+        fun stringValue(vararg keys: String): String? = keys.firstNotNullOfOrNull { key ->
+            item[key]?.jsonPrimitive?.contentOrNull ?: metadata?.get(key)?.jsonPrimitive?.contentOrNull
+        }
+        fun artistValue(value: JsonElement?): String? = when (value) {
+            is JsonPrimitive -> value.contentOrNull
+            is JsonObject -> listOf("name", "title", "artist").firstNotNullOfOrNull { key ->
+                value[key]?.jsonPrimitive?.contentOrNull
+            }
+            is JsonArray -> value.mapNotNull(::artistValue).distinct().joinToString(", ").ifBlank { null }
+            else -> null
+        }
+        fun durationValue(value: JsonElement?): Double? {
+            val primitive = value as? JsonPrimitive ?: return null
+            primitive.doubleOrNull?.let { return it }
+            val parts = primitive.contentOrNull?.split(':')?.mapNotNull(String::toDoubleOrNull).orEmpty()
+            return when (parts.size) {
+                2 -> parts[0] * 60 + parts[1]
+                3 -> parts[0] * 3600 + parts[1] * 60 + parts[2]
+                else -> null
+            }
+        }
+
+        val mediaClass = stringValue("media_class")
+        val artist = sequenceOf(
+            item["artist"], item["artists"], item["media_artist"], item["creator"],
+            metadata?.get("artist"), metadata?.get("artists"), metadata?.get("media_artist"), metadata?.get("creator")
+        ).mapNotNull(::artistValue)
+            .firstOrNull { value -> !value.equals(mediaClass, ignoreCase = true) && !value.equals("track", ignoreCase = true) }
+        val duration = sequenceOf(
+            item["duration"], item["media_duration"], item["duration_seconds"],
+            metadata?.get("duration"), metadata?.get("media_duration"), metadata?.get("duration_seconds")
+        ).mapNotNull(::durationValue).firstOrNull()
+            ?: durationValue(item["duration_ms"] ?: metadata?.get("duration_ms"))?.div(1000.0)
+
+        return HAMediaBrowseItem(
+            title = stringValue("title", "name"),
+            media_content_id = stringValue("media_content_id", "content_id"),
+            media_content_type = stringValue("media_content_type", "content_type"),
+            media_class = mediaClass,
+            can_play = item["can_play"]?.jsonPrimitive?.booleanOrNull ?: false,
+            can_expand = item["can_expand"]?.jsonPrimitive?.booleanOrNull ?: false,
+            thumbnail = stringValue("thumbnail", "image", "image_url"),
+            artist = artist,
+            duration = duration,
+            children = (item["children"] as? JsonArray).orEmpty().mapNotNull(::decodeMediaBrowseItem)
+        )
     }
 
     suspend fun getWeatherForecast(entityId: String, type: String = "daily"): List<HAWeatherForecast> {
@@ -708,15 +760,15 @@ class HomeAssistantClient(
         }
 
         suspend fun getAccessToken(serverUrl: String, code: String): HATokenResponse {
-            return client.submitForm(
+            val response: HttpResponse = client.submitForm(
                 url = "${serverUrl.removeSuffix("/")}/auth/token",
                 formParameters = parameters {
                     append("grant_type", "authorization_code")
                     append("code", code)
                     append("client_id", "https://home-assistant.io/android")
-                    append("redirect_uri", "homeassistant://auth-callback")
                 }
-            ).body()
+            )
+            return decodeTokenResponse(response, "Login")
         }
 
         suspend fun refreshAccessToken(serverUrl: String, refreshToken: String): HATokenResponse {
@@ -735,6 +787,23 @@ class HomeAssistantClient(
             val invalidGrant = response.status == HttpStatusCode.BadRequest &&
                 bodyText.contains("invalid_grant", ignoreCase = true)
             throw TokenRefreshException(invalidGrant, "Token refresh failed: ${response.status.value} ${bodyText.take(200)}")
+        }
+
+        private suspend fun decodeTokenResponse(response: HttpResponse, operation: String): HATokenResponse {
+            val bodyText = runCatching { response.bodyAsText() }.getOrDefault("")
+            if (response.status.isSuccess()) {
+                return runCatching { json.decodeFromString<HATokenResponse>(bodyText) }
+                    .getOrElse { cause ->
+                        throw IllegalStateException("$operation returned an invalid token response", cause)
+                    }
+            }
+            val error = runCatching { json.parseToJsonElement(bodyText).jsonObject }.getOrNull()
+            val description = error?.get("error_description")?.jsonPrimitive?.contentOrNull
+                ?: error?.get("message")?.jsonPrimitive?.contentOrNull
+                ?: error?.get("error")?.jsonPrimitive?.contentOrNull
+                ?: bodyText.take(200).takeIf { it.isNotBlank() }
+                ?: "HTTP ${response.status.value}"
+            throw IllegalStateException("$operation failed: $description")
         }
     }
 }

@@ -29,6 +29,7 @@ import com.example.hki7.data.HKIEmptyStack
 import com.example.hki7.data.HKIRoomWidget
 import com.example.hki7.data.HKIClimateCardWidget
 import com.example.hki7.data.HKIClimateStack
+import com.example.hki7.data.HKICustomPage
 import com.example.hki7.data.HKIEnergyCardWidget
 import com.example.hki7.data.HKIEnergyConfig
 import com.example.hki7.data.HKIEnergyStack
@@ -48,6 +49,10 @@ import com.example.hki7.ui.components.LocalDialogNavController
 import androidx.compose.runtime.CompositionLocalProvider
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.HKIPage
+import com.example.hki7.ui.components.GradientActionButton
+import com.example.hki7.ui.components.LocalItemCornerRadius
+import com.example.hki7.ui.components.itemCornerShape
+import com.example.hki7.ui.components.withGlobalCornerRadius
 import com.example.hki7.ui.components.HKICameraDialog
 import com.example.hki7.ui.components.HKILightDialog
 import com.example.hki7.ui.components.HKIFanDialog
@@ -63,10 +68,17 @@ import com.example.hki7.ui.components.resolveCameraUrl
 import androidx.navigation.NavController
 import java.util.UUID
 
-private const val HOME_WIDGET_AREA = "__home__"
+private const val DEFAULT_HOME_WIDGET_AREA = "__home__"
 
 @Composable
-fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
+fun HAHomeScreen(
+    viewModel: MainViewModel,
+    navController: NavController,
+    widgetAreaId: String = DEFAULT_HOME_WIDGET_AREA,
+    customPage: HKICustomPage? = null
+) {
+    @Suppress("LocalVariableName")
+    val HOME_WIDGET_AREA = widgetAreaId
     val context = LocalContext.current
     val areas by viewModel.areas.collectAsState()
     var selectedPerson by remember { mutableStateOf<HAEntity?>(null) }
@@ -76,7 +88,10 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
     val entityRegistry by viewModel.entityRegistry.collectAsState()
     val deviceRegistry by viewModel.deviceRegistry.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
-    val homeWidgets = widgets[HOME_WIDGET_AREA].orEmpty()
+    val itemCornerRadius = LocalItemCornerRadius.current
+    val homeWidgets = remember(widgets, itemCornerRadius) {
+        widgets[HOME_WIDGET_AREA].orEmpty().map { it.withGlobalCornerRadius(itemCornerRadius) }
+    }
     val widgetGridState = rememberLazyGridState()
     var showAddWidget by remember { mutableStateOf(false) }
     var addingToStackId by remember { mutableStateOf<String?>(null) }
@@ -441,11 +456,16 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
     HKIPage(
         viewModel = viewModel,
         areaId = null,
-        title = null,
-        showPeople = true,
+        title = customPage?.name,
+        subtitle = customPage?.subtitle,
+        showPeople = customPage == null,
         onPeopleClick = { person -> selectedPerson = person },
-        pageKey = "home",
-        pageSettingsTitle = "Home Settings",
+        pageKey = customPage?.let { "custom_page_${it.id}" } ?: "home",
+        pageSettingsTitle = customPage?.let { "${it.name} Settings" } ?: "Home Settings",
+        customPage = customPage,
+        onCustomPageSave = viewModel::updateCustomPage,
+        showBadgeBar = customPage == null,
+        showNotificationStatus = customPage == null,
         navController = navController
     ) { padding ->
         BoxWithConstraints(modifier = Modifier.fillMaxSize().padding(padding)) {
@@ -832,15 +852,14 @@ fun HAHomeScreen(viewModel: MainViewModel, navController: NavController) {
                 }
             }
             if (isEditMode) {
-                Button(
+                GradientActionButton(
                     onClick = { showAddWidget = true },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 87.dp)
                         .height(52.dp)
-                        .shadow(10.dp, RoundedCornerShape(18.dp)),
-                    shape = RoundedCornerShape(18.dp)
+                        .shadow(10.dp, itemCornerShape()),
                 ) {
                     Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))

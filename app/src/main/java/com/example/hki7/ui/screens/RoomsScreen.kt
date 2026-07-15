@@ -70,6 +70,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.example.hki7.data.HAArea
 import com.example.hki7.data.HAEntity
 import com.example.hki7.ui.components.EditRemoveBadge
+import com.example.hki7.ui.components.EditSettingsButton
 import com.example.hki7.ui.components.mediaPlayerStatus
 import com.example.hki7.ui.components.mediaPlayerStateIcon
 import com.example.hki7.data.HAFloor
@@ -77,11 +78,14 @@ import com.example.hki7.data.HKIAreaConfig
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.Screen
 import com.example.hki7.ui.components.HKIPage
+import com.example.hki7.ui.components.GradientActionButton
 import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.components.ReorderableGrid
 import com.example.hki7.ui.components.RoomConfigDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.fadingEdges
+import com.example.hki7.ui.components.LocalItemCornerRadius
+import com.example.hki7.ui.components.itemCornerShape
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 import kotlin.math.max
@@ -347,9 +351,7 @@ private fun FloorSection(
                     }
                     Spacer(Modifier.width(8.dp))
                 }
-                IconButton(onClick = onSettingsFloor, modifier = Modifier.size(24.dp)) {
-                    Icon(Icons.Default.Settings, contentDescription = "Floor settings", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
-                }
+                EditSettingsButton(onClick = onSettingsFloor)
             }
         }
 
@@ -386,7 +388,7 @@ private fun FloorSection(
                     isDragging = isDragging,
                     isSquare = floor?.isSquare == true,
                     compactTiles = floor?.compactTiles == true,
-                    cornerRadius = floor?.cornerRadius ?: 24,
+                    cornerRadius = LocalItemCornerRadius.current,
                     onDelete = { onDeleteArea(area.area_id) },
                     onSettings = { onSettingsArea(area.area_id) },
                     onClick = { onClickArea(area.area_id) }
@@ -407,7 +409,7 @@ fun AreaCard(
     isDragging: Boolean,
     isSquare: Boolean = false,
     compactTiles: Boolean = false,
-    cornerRadius: Int = 24,
+    cornerRadius: Int = LocalItemCornerRadius.current,
     onDelete: () -> Unit,
     onSettings: () -> Unit,
     onClick: () -> Unit
@@ -493,9 +495,7 @@ fun AreaCard(
 
             if (isEditMode) {
                 Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.2f))) {
-                    IconButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center)) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
-                    }
+                    EditSettingsButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center))
                     if (canDelete) {
                         EditRemoveBadge(
                             onClick = onDelete,
@@ -510,13 +510,12 @@ fun AreaCard(
 
 @Composable
 fun AddAreaCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Button(
+    GradientActionButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
             .height(52.dp)
-            .shadow(10.dp, RoundedCornerShape(18.dp)),
-        shape = RoundedCornerShape(18.dp)
+            .shadow(10.dp, itemCornerShape()),
     ) {
         Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
         Spacer(Modifier.width(8.dp))
@@ -526,13 +525,12 @@ fun AddAreaCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
 
 @Composable
 fun AddFloorCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Button(
+    GradientActionButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
             .height(52.dp)
-            .shadow(10.dp, RoundedCornerShape(18.dp)),
-        shape = RoundedCornerShape(18.dp)
+            .shadow(10.dp, itemCornerShape()),
     ) {
         Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(18.dp))
         Spacer(Modifier.width(8.dp))
@@ -677,12 +675,6 @@ private fun FloorSettingsDialog(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
                     FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text("Square") })
-                }
-                Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = cornerRadius == 8, onClick = { cornerRadius = 8 }, label = { Text("Sharp") })
-                    FilterChip(selected = cornerRadius == 20, onClick = { cornerRadius = 20 }, label = { Text("Modern") })
-                    FilterChip(selected = cornerRadius == 28, onClick = { cornerRadius = 28 }, label = { Text("Round") })
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = compactTiles, onCheckedChange = { compactTiles = it })

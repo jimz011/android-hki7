@@ -319,7 +319,7 @@ private fun AlarmModeList(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onActionClick(action) },
-                shape = RoundedCornerShape(18.dp),
+                shape = itemCornerShape(),
                 color = appColors.surface,
                 border = BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.16f))
             ) {
@@ -385,13 +385,15 @@ private fun PendingTimerSelector(
                         showCustom = false
                         onPendingSecondsSelected(seconds)
                     },
-                    label = { Text(label) }
+                    label = { Text(label) },
+                    shape = itemCornerShape()
                 )
             }
             FilterChip(
                 selected = customSelected,
                 onClick = { showCustom = true },
-                label = { Text("Custom") }
+                label = { Text("Custom") },
+                shape = itemCornerShape()
             )
         }
         if (customSelected) {
@@ -419,7 +421,7 @@ private fun AlarmPendingPanel(
     val appColors = LocalHKIAppColors.current
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
+        shape = itemCornerShape(),
         color = appColors.surface,
         border = BorderStroke(1.dp, alarmStateColor("pending").copy(alpha = 0.55f))
     ) {

@@ -108,7 +108,7 @@ private fun ClimateModeGroup(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onSelect(mode) },
-            shape = RoundedCornerShape(18.dp),
+            shape = itemCornerShape(),
             color = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f) else appColors.surface,
             border = BorderStroke(
                 1.dp,

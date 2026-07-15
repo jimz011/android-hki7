@@ -41,11 +41,13 @@ import com.example.hki7.data.*
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.DevicePickerDialog
 import com.example.hki7.ui.components.EditRemoveBadge
+import com.example.hki7.ui.components.EditSettingsButton
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.WidgetBackground
 import com.example.hki7.ui.components.WidgetBackgroundSelector
 import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.surfaceGradient
+import com.example.hki7.ui.components.itemCornerShape
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 import kotlinx.serialization.json.*
@@ -210,6 +212,7 @@ private fun resolveParcelCarriers(
     registry: List<HAEntityRegistryEntry>,
     devices: List<HADeviceRegistryEntry>,
     customImages: Map<String, String>,
+    customNames: Map<String, String>,
     currentUrl: String,
     accessToken: String
 ): List<ParcelCarrier> {
@@ -234,7 +237,7 @@ private fun resolveParcelCarriers(
         }).distinctBy { it.entity_id }
         val configured = customImages[deviceId]?.takeIf { it.isNotBlank() }
         val image = (configured ?: carrierLogo(key))?.let { if (it.startsWith("http")) it else "${currentUrl.removeSuffix("/")}/${it.removePrefix("/")}" }
-        ParcelCarrier(key, carrierName(key), deviceId, deviceEntities,
+        ParcelCarrier(key, customNames[deviceId]?.takeIf { it.isNotBlank() } ?: carrierName(key), deviceId, deviceEntities,
             countEntity(deviceEntities, "incoming"), countEntity(deviceEntities, "outgoing"), image, currentUrl, accessToken)
     }
 }
@@ -268,8 +271,8 @@ fun ParcelsWidgetItem(
             }
         }
     }
-    val carriers = remember(widget.deviceIds, widget.carrierImageUrls, entities, registry, devices, currentUrl, accessToken) {
-        resolveParcelCarriers(widget.deviceIds, entities, registry, devices, widget.carrierImageUrls, currentUrl, accessToken.orEmpty())
+    val carriers = remember(widget.deviceIds, widget.carrierImageUrls, widget.carrierNames, entities, registry, devices, currentUrl, accessToken) {
+        resolveParcelCarriers(widget.deviceIds, entities, registry, devices, widget.carrierImageUrls, widget.carrierNames, currentUrl, accessToken.orEmpty())
     }
     val incoming = carriers.sumOf { it.incoming }
     val outgoing = carriers.sumOf { it.outgoing }
@@ -302,7 +305,7 @@ fun ParcelsWidgetItem(
                     }
                 }
                 Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent, appColors.elevated.copy(.88f)))))
-                Surface(Modifier.align(Alignment.BottomStart).padding(10.dp), color = Color.Black.copy(.55f), shape = RoundedCornerShape(14.dp)) {
+                Surface(Modifier.align(Alignment.BottomStart).padding(10.dp), color = Color.Black.copy(.55f), shape = itemCornerShape()) {
                     Column(Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
                         Text(widget.title ?: "Parcels", color = Color.White, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
                         val summary = buildString {
@@ -316,9 +319,7 @@ fun ParcelsWidgetItem(
         }
         if (isEditMode) {
             EditRemoveBadge(onClick = onDelete, modifier = Modifier.align(Alignment.TopEnd))
-            IconButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center).size(28.dp)) {
-                Icon(Icons.Default.Settings, "Parcel settings", tint = appColors.onSurface, modifier = Modifier.size(18.dp))
-            }
+            EditSettingsButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center))
         }
     }
     if (showDialog) ParcelDialog(carriers, onDismiss = { showDialog = false })
@@ -390,7 +391,7 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, onDismiss: () -> Unit) {
         }
         Card(
             modifier = Modifier.fillMaxWidth().height(640.dp),
-            shape = RoundedCornerShape(30.dp),
+            shape = itemCornerShape(),
             colors = CardDefaults.cardColors(containerColor = appColors.surface, contentColor = appColors.onSurface),
             elevation = CardDefaults.cardElevation(defaultElevation = 16.dp)
         ) {
@@ -408,7 +409,7 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, onDismiss: () -> Unit) {
                         val scroll = rememberScrollState()
                         Column(Modifier.weight(1f).fadingEdges(scroll).verticalScroll(scroll), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             carriers.forEach { item ->
-                                Surface(shape = RoundedCornerShape(18.dp), color = appColors.subtleSurface, contentColor = appColors.onSurface,
+                                Surface(shape = itemCornerShape(), color = appColors.subtleSurface, contentColor = appColors.onSurface,
                                     modifier = Modifier.fillMaxWidth().clickable { selectedCarrierId = item.deviceId }) {
                                     Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                         CarrierLogo(item, 56)
@@ -488,10 +489,10 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, onDismiss: () -> Unit) {
                                 )
                                 carrier.letters.forEach { letter ->
                                     val image = carrier.letterImage(letter)
-                                    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    Surface(shape = itemCornerShape(), color = MaterialTheme.colorScheme.surfaceContainerHigh,
                                         modifier = Modifier.fillMaxWidth().clickable { selectedLetter = letter }) {
                                         Row(Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                            if (image != null) ParcelAsyncImage(carrier, image, null, Modifier.size(58.dp).clip(RoundedCornerShape(10.dp)), ContentScale.Crop)
+                                            if (image != null) ParcelAsyncImage(carrier, image, null, Modifier.size(58.dp).clip(itemCornerShape()), ContentScale.Crop)
                                             Column(Modifier.weight(1f)) {
                                                 Text(letter["title"]?.jsonPrimitive?.contentOrNull ?: "Mail", fontWeight = FontWeight.SemiBold)
                                                 Text(letter["date"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime) ?: "Announced letter", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
@@ -528,7 +529,7 @@ private fun ParcelHistoryList(parcel: JsonObject, selected: JsonObject?, onSelec
             MaterialTheme.colorScheme.surfaceContainerHigh to MaterialTheme.colorScheme.onSurface
         }
         Surface(
-            shape = RoundedCornerShape(12.dp),
+            shape = itemCornerShape(),
             color = selectedColors.first,
             contentColor = selectedColors.second,
             modifier = Modifier.fillMaxWidth().clickable { onSelected(event) }
@@ -549,7 +550,7 @@ private fun ParcelHero(carrier: ParcelCarrier, parcel: JsonObject?, history: Jso
     val moment = history?.attr("timestamp")?.let(::formatParcelTime)
         ?: listOfNotNull(parcel?.attr("planned_from")?.let(::formatParcelTime), parcel?.attr("planned_to")?.let(::formatParcelTime)).joinToString(" – ")
     val stage = when (status) { "registered" -> 0; "in_transit" -> 1; "out_for_delivery", "at_pickup_point" -> 2; "delivered" -> 3; else -> 1 }
-    Surface(shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = Modifier.fillMaxWidth().height(190.dp)) {
+    Surface(shape = itemCornerShape(), color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = Modifier.fillMaxWidth().height(190.dp)) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.SpaceBetween) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 CarrierLogo(carrier, 58)
@@ -583,7 +584,7 @@ private fun InteractiveParcelRow(parcel: JsonObject, selected: Boolean, onClick:
     val title = attr("sender") ?: attr("receiver") ?: attr("barcode") ?: "Parcel"
     val status = attr("raw_status") ?: attr("status") ?: "Unknown status"
     val schedule = listOfNotNull(attr("planned_from")?.let(::formatParcelTime), attr("planned_to")?.let(::formatParcelTime)).joinToString(" – ")
-    Surface(shape = RoundedCornerShape(16.dp), color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
+    Surface(shape = itemCornerShape(), color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
             Text(title, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -597,14 +598,14 @@ private fun InteractiveParcelRow(parcel: JsonObject, selected: Boolean, onClick:
 private fun LetterViewerDialog(carrier: ParcelCarrier?, letter: JsonObject, onDismiss: () -> Unit) {
     val image = carrier?.letterImage(letter)
     Dialog(onDismissRequest = onDismiss) {
-        Card(Modifier.fillMaxWidth().height(640.dp), shape = RoundedCornerShape(30.dp), elevation = CardDefaults.cardElevation(16.dp)) {
+        Card(Modifier.fillMaxWidth().height(640.dp), shape = itemCornerShape(), elevation = CardDefaults.cardElevation(16.dp)) {
             Column(Modifier.fillMaxSize().padding(18.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(letter["title"]?.jsonPrimitive?.contentOrNull ?: "Mail", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
                     IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, "Close") }
                 }
                 Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
-                    if (image != null) ParcelAsyncImage(carrier, image, null, Modifier.fillMaxSize().clip(RoundedCornerShape(18.dp)), ContentScale.Fit)
+                    if (image != null) ParcelAsyncImage(carrier, image, null, Modifier.fillMaxSize().clip(itemCornerShape()), ContentScale.Fit)
                     else Text("No letter image available", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Text(letter["date"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime).orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
@@ -632,7 +633,7 @@ private fun ParcelDialogLegacy(carriers: List<ParcelCarrier>, onDismiss: () -> U
             Column(Modifier.heightIn(max = 520.dp).fadingEdges(scroll).verticalScroll(scroll), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (carriers.isEmpty()) Text("Choose one or more carrier devices in widget settings.", color = appColors.onMuted)
                 else if (carrier == null) carriers.forEach { item ->
-                    Surface(shape = RoundedCornerShape(18.dp), color = appColors.subtleSurface,
+                    Surface(shape = itemCornerShape(), color = appColors.subtleSurface,
                         modifier = Modifier.fillMaxWidth().clickable { selected = item.deviceId }) {
                         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             CarrierLogo(item, 48)
@@ -653,7 +654,7 @@ private fun ParcelDialogLegacy(carriers: List<ParcelCarrier>, onDismiss: () -> U
                     carrier.letters.forEach { letter ->
                         val image = carrier.letterImage(letter)
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            if (image != null) AsyncImage(image, null, Modifier.size(52.dp).clip(RoundedCornerShape(12.dp)), contentScale = ContentScale.Crop)
+                            if (image != null) AsyncImage(image, null, Modifier.size(52.dp).clip(itemCornerShape()), contentScale = ContentScale.Crop)
                             Box(Modifier.weight(1f)) {
                                 DetailRow(letter["title"]?.jsonPrimitive?.contentOrNull ?: "Mail",
                                     letter["date"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime) ?: "Announced letter")
@@ -668,7 +669,7 @@ private fun ParcelDialogLegacy(carriers: List<ParcelCarrier>, onDismiss: () -> U
 
 @Composable private fun SummaryPill(label: String, count: Int, modifier: Modifier = Modifier) {
     val colors = MaterialTheme.colorScheme
-    Surface(modifier, shape = RoundedCornerShape(16.dp), color = colors.surfaceContainerHigh) {
+    Surface(modifier, shape = itemCornerShape(), color = colors.surfaceContainerHigh) {
         Column(Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text("$count", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
             Text(label, style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant)
@@ -684,7 +685,7 @@ private fun ParcelDialogLegacy(carriers: List<ParcelCarrier>, onDismiss: () -> U
     val from = attr("planned_from")
     val to = attr("planned_to")
     val schedule = listOfNotNull(from?.let(::formatParcelTime), to?.let(::formatParcelTime)).joinToString(" – ")
-    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerHigh) {
+    Surface(shape = itemCornerShape(), color = MaterialTheme.colorScheme.surfaceContainerHigh) {
         Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(title, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(status.replaceFirstChar(Char::uppercase), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
@@ -764,6 +765,7 @@ fun ParcelsWidgetSettingsDialog(
     var square by remember(widget) { mutableStateOf(widget.isSquare) }
     var radius by remember(widget) { mutableIntStateOf(widget.cornerRadius) }
     var imageUrls by remember(widget) { mutableStateOf(widget.carrierImageUrls) }
+    var carrierNames by remember(widget) { mutableStateOf(widget.carrierNames) }
     var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
     var picking by remember { mutableStateOf(false) }
     val hasUnresolvedDevices = deviceIds.any { id -> devices.none { it.id == id } }
@@ -794,8 +796,15 @@ fun ParcelsWidgetSettingsDialog(
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         val device = devices.firstOrNull { it.id == id }
                         Text(device?.let { it.name_by_user ?: it.name } ?: "Loading device...", modifier = Modifier.weight(1f), maxLines = 1)
-                        IconButton(onClick = { deviceIds = deviceIds - id; imageUrls = imageUrls - id }) { Icon(Icons.Default.Close, "Remove") }
+                        IconButton(onClick = { deviceIds = deviceIds - id; imageUrls = imageUrls - id; carrierNames = carrierNames - id }) { Icon(Icons.Default.Close, "Remove") }
                     }
+                    OutlinedTextField(
+                        value = carrierNames[id].orEmpty(),
+                        onValueChange = { value -> carrierNames = if (value.isBlank()) carrierNames - id else carrierNames + (id to value) },
+                        label = { Text("Carrier display name (optional)") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                     OutlinedTextField(
                         value = imageUrls[id].orEmpty(),
                         onValueChange = { value -> imageUrls = if (value.isBlank()) imageUrls - id else imageUrls + (id to value) },
@@ -812,12 +821,8 @@ fun ParcelsWidgetSettingsDialog(
                 FilterChip(!square, { square = false }, label = { Text("Standard") })
                 FilterChip(square, { square = true }, label = { Text("Square") })
             }
-            Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf(8 to "Sharp", 20 to "Modern", 28 to "Round").forEach { (value, label) -> FilterChip(radius == value, { radius = value }, label = { Text(label) }) }
-            }
             WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
         }
-    }, confirmButton = { Button(onClick = { onSave(widget.copy(deviceIds = deviceIds, carrierImageUrls = imageUrls, title = title.ifBlank { "Parcels" }, width = width, isSquare = square, cornerRadius = radius, backgroundUrl = backgroundUrl)) }) { Text("Save") } },
+    }, confirmButton = { Button(onClick = { onSave(widget.copy(deviceIds = deviceIds, carrierImageUrls = imageUrls, carrierNames = carrierNames, title = title.ifBlank { "Parcels" }, width = width, isSquare = square, cornerRadius = radius, backgroundUrl = backgroundUrl)) }) { Text("Save") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } })
 }

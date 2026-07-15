@@ -49,11 +49,13 @@ import com.example.hki7.data.HKIMediaPlayerWidget
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.EditRemoveBadge
+import com.example.hki7.ui.components.EditSettingsButton
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.WidgetBackground
 import com.example.hki7.ui.components.WidgetBackgroundSelector
 import com.example.hki7.ui.components.mediaPlayerStatus
 import com.example.hki7.ui.components.surfaceGradient
+import com.example.hki7.ui.components.itemCornerShape
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import com.example.hki7.ui.utils.MdiIcon
 
@@ -120,7 +122,7 @@ fun MediaPlayerWidgetItem(
                 Surface(
                     modifier = Modifier.align(Alignment.BottomStart).padding(10.dp),
                     color = Color.Black.copy(alpha = 0.55f),
-                    shape = RoundedCornerShape(14.dp)
+                    shape = itemCornerShape()
                 ) {
                     Column(Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
                         Text(name, color = Color.White, style = MaterialTheme.typography.labelMedium,
@@ -133,9 +135,7 @@ fun MediaPlayerWidgetItem(
         }
         if (isEditMode) {
             EditRemoveBadge(onClick = onDelete, modifier = Modifier.align(Alignment.TopEnd))
-            IconButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center).size(28.dp)) {
-                Icon(Icons.Default.Settings, "Media player settings", tint = appColors.onSurface, modifier = Modifier.size(18.dp))
-            }
+            EditSettingsButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center))
         }
     }
 }
@@ -190,12 +190,6 @@ fun MediaPlayerWidgetSettingsDialog(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(selected = !square, onClick = { square = false }, label = { Text("Standard") })
                     FilterChip(selected = square, onClick = { square = true }, label = { Text("Square") })
-                }
-                Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf(8 to "Sharp", 20 to "Modern", 28 to "Round").forEach { (value, label) ->
-                        FilterChip(selected = radius == value, onClick = { radius = value }, label = { Text(label) })
-                    }
                 }
                 WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
             }

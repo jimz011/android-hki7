@@ -4,6 +4,15 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
+/** A user-created bottom-navigation page backed by the same widget canvas as Home. */
+@Serializable
+data class HKICustomPage(
+    val id: String,
+    val name: String,
+    val subtitle: String = "",
+    val icon: String = "view-dashboard"
+)
+
 @Serializable
 data class HAEntity(
     val entity_id: String,
@@ -564,6 +573,8 @@ data class HKIPageConfig(
 @Serializable
 data class HKIBatteryConfig(
     val useBatteryNotes: Boolean = false,
+    /** When true, only explicitly selected entities/devices are shown. */
+    val manualOnly: Boolean = false,
     val hiddenEntityIds: List<String> = emptyList(),
     val extraEntityIds: List<String> = emptyList(),
     val extraDeviceIds: List<String> = emptyList(),
@@ -605,10 +616,10 @@ data class HKIClimateConfig(
     /** Per-climate-device MDI icon slug overriding the default hvac icon. */
     val customIcons: Map<String, String> = emptyMap(),
     /** Page-wide thermostat style, overridden only by entries in [deviceCardStyles]. */
-    val defaultDeviceCardStyle: String = "card",
+    val defaultDeviceCardStyle: String = "dial",
     /** Page-wide thermostat width, overridden only by entries in [deviceCardWidths]. */
-    val defaultDeviceCardWidth: String = "full",
-    /** Per-climate-device card style on the main page: "card" (default) or "dial". */
+    val defaultDeviceCardWidth: String = "half",
+    /** Legacy per-device style overrides; the page-wide default is a thermostat dial. */
     val deviceCardStyles: Map<String, String> = emptyMap(),
     /** Per-device width on the main page: "full", "half", or "third". */
     val deviceCardWidths: Map<String, String> = emptyMap(),
@@ -1028,6 +1039,8 @@ data class HKIParcelsWidget(
     val deviceIds: List<String> = emptyList(),
     /** Optional carrier artwork override per HA device; accepts absolute URLs and HA/local paths. */
     val carrierImageUrls: Map<String, String> = emptyMap(),
+    /** Optional display-name override per carrier device. */
+    val carrierNames: Map<String, String> = emptyMap(),
     val title: String? = "Parcels",
     val icon: String? = "package-variant-closed",
     val isSquare: Boolean = false,

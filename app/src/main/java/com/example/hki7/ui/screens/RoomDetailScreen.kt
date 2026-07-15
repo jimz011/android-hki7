@@ -182,13 +182,20 @@ import com.example.hki7.ui.components.AdvancedEntitySearchDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.EntityCard
 import com.example.hki7.ui.components.EditRemoveBadge
+import com.example.hki7.ui.components.EditSettingsButton
 import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.mediaPlayerStatus
 import com.example.hki7.ui.components.mediaPlayerStateIcon
 import com.example.hki7.ui.components.defaultEntityIconSlug
 import com.example.hki7.ui.components.coverAccentColor
+import com.example.hki7.ui.components.entityStateIconColor
 import com.example.hki7.ui.components.HKIDialog
 import com.example.hki7.ui.components.HKIPage
+import com.example.hki7.ui.components.GradientActionButton
+import com.example.hki7.ui.components.surfaceGradient
+import com.example.hki7.ui.components.LocalItemCornerRadius
+import com.example.hki7.ui.components.itemCornerShape
+import com.example.hki7.ui.components.withGlobalCornerRadius
 import com.example.hki7.ui.components.HistoryPoint
 import com.example.hki7.ui.components.HistoryRangeChips
 import com.example.hki7.ui.components.HistoryView
@@ -325,7 +332,10 @@ fun RoomDetailScreen(
     val dashboardMode by viewModel.dashboardMode.collectAsState()
     val uiRevision by viewModel.uiRevision.collectAsState()
 
-    val areaWidgets = areaWidgetsMapping[areaId] ?: emptyList()
+    val itemCornerRadius = LocalItemCornerRadius.current
+    val areaWidgets = remember(areaWidgetsMapping, areaId, itemCornerRadius) {
+        areaWidgetsMapping[areaId].orEmpty().map { it.withGlobalCornerRadius(itemCornerRadius) }
+    }
     val widgetGridState = rememberLazyGridState()
     val areaConfig = areaConfigsMapping[areaId] ?: HKIAreaConfig()
 
@@ -1211,7 +1221,7 @@ fun RoomDetailScreen(
         }
 
             if (isEditMode) {
-                Button(
+                GradientActionButton(
                     onClick = {
                         if (dashboardMode == "auto") showAutoWidgetInfo = true else showAddWidgetDialog = true
                     },
@@ -1220,8 +1230,7 @@ fun RoomDetailScreen(
                         .align(Alignment.BottomCenter)
                         .padding(horizontal = 16.dp, vertical = 87.dp)
                         .height(52.dp)
-                        .shadow(10.dp, RoundedCornerShape(18.dp)),
-                    shape = RoundedCornerShape(18.dp)
+                        .shadow(10.dp, itemCornerShape()),
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
@@ -2572,10 +2581,21 @@ fun AddRoomWidgetDialog(
 
     val widgetPickerScroll = rememberScrollState()
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(dismissOnBackPress = false)
+    ) {
+        androidx.activity.compose.BackHandler {
+            when {
+                configureWidget != null -> configureWidget = null
+                widgetGroup == "energy_stack" || widgetGroup == "climate_stack" -> widgetGroup = "stacks"
+                widgetGroup != null -> widgetGroup = null
+                else -> onDismiss()
+            }
+        }
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(32.dp),
+            shape = itemCornerShape(),
             colors = CardDefaults.cardColors(containerColor = appColors.surface)
         ) {
             Column(
@@ -2914,7 +2934,7 @@ fun WidgetChoice(icon: ImageVector, title: String, subtitle: String, onClick: ()
     val appColors = LocalHKIAppColors.current
     Surface(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
-        shape = RoundedCornerShape(22.dp),
+        shape = itemCornerShape(),
         color = appColors.subtleSurface
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -3064,7 +3084,8 @@ fun ButtonConfigDialog(
                             FilterChip(
                                 selected = refreshInterval == seconds,
                                 onClick = { refreshInterval = seconds },
-                                label = { Text(label) }
+                                label = { Text(label) },
+                                shape = itemCornerShape()
                             )
                         }
                     }
@@ -3244,7 +3265,8 @@ fun ButtonConfigDialog(
                                 FilterChip(
                                     selected = lockRelockSeconds == seconds,
                                     onClick = { lockRelockSecondsText = seconds.toString() },
-                                    label = { Text(label) }
+                                    label = { Text(label) },
+                                    shape = itemCornerShape()
                                 )
                             }
                         }
@@ -3264,12 +3286,6 @@ fun ButtonConfigDialog(
                         FilterChip(selected = appearButtonStyle == "standard", onClick = { appearButtonStyle = "standard"; appearIsSquare = false }, label = { Text("Standard") })
                         FilterChip(selected = appearButtonStyle == "square", onClick = { appearButtonStyle = "square"; appearIsSquare = true }, label = { Text("Square") })
                         FilterChip(selected = appearButtonStyle == "tile", onClick = { appearButtonStyle = "tile"; appearIsSquare = false }, label = { Text("Tile") })
-                    }
-                    Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(selected = appearRadius == 8, onClick = { appearRadius = 8 }, label = { Text("Sharp") })
-                        FilterChip(selected = appearRadius == 20, onClick = { appearRadius = 20 }, label = { Text("Modern") })
-                        FilterChip(selected = appearRadius == 28, onClick = { appearRadius = 28 }, label = { Text("Round") })
                     }
                     WidgetWidthSelector(width = appearWidth, onWidthChange = { appearWidth = it })
                 }
@@ -3440,6 +3456,10 @@ fun PagedRoleDialog(
             ?: entity.attributes?.get("hvac_mode")?.jsonPrimitive?.contentOrNull
             ?: entity.state
     )
+    // Keep the dialog control tied to the exact same state colour used by entity cards,
+    // badges, and custom dialog buttons. This is especially visible for lock dialogs opened
+    // from a custom action: locked/unlocked/open must stay green/orange/red respectively.
+    val entityStateTone = entityStateIconColor(entity)
     var selectedClimateMode by remember(entity.entity_id) { mutableStateOf(entity.state) }
     LaunchedEffect(entity.state) { selectedClimateMode = entity.state }
     var showClimateModes by remember(entity.entity_id) { mutableStateOf(false) }
@@ -3488,13 +3508,19 @@ fun PagedRoleDialog(
         icon = icon,
         iconTint = when (role) {
             "climate" -> hvacTone
+            "lock" -> entityStateTone
             "cover" -> coverAccentColor(entity)
             else -> Color(0xFFFFA500)
         },
         titleOverride = headerConfig?.name,
         iconName = headerConfig?.icon?.takeUnless { it.isBlank() } ?: defaultEntityIconSlug(entity),
         spinIcon = headerConfig?.spinIcon == true,
-        statusText = if (entities.size > 1) "${page + 1}/${entities.size} - ${entity.state.uppercase()}" else entity.state.uppercase(),
+        statusText = if (role == "climate") {
+            val optimisticState = climateModeLabel(selectedClimateMode).uppercase()
+            if (entities.size > 1) "${page + 1}/${entities.size} - $optimisticState" else optimisticState
+        } else if (entities.size > 1) {
+            "${page + 1}/${entities.size} - ${entity.state.uppercase()}"
+        } else entity.state.uppercase(),
         extraGraphEntityIds = extraGraphEntityIds,
         tabs = when (role) {
             "climate" -> climateTabs.takeIf { it.size > 1 } ?: emptyList()
@@ -3535,7 +3561,7 @@ fun PagedRoleDialog(
                         onToggleModes = { showClimateModes = it },
                         useDial = useClimateDial || climateConfig?.climateDialogControl == "dial"
                     )
-                    "lock" -> LockControlContent(entity, viewModel)
+                    "lock" -> LockControlContent(entity, viewModel, entityStateTone)
                     "cover" -> BlindControlContent(entity, viewModel)
                     "camera" -> CameraContent(entity, viewModel)
                 }
@@ -3627,12 +3653,6 @@ fun StackSettingsDialog(
                         FilterChip(selected = buttonStyle == "square", onClick = { buttonStyle = "square"; isSquare = true }, label = { Text("Square") })
                         FilterChip(selected = buttonStyle == "tile", onClick = { buttonStyle = "tile"; isSquare = false }, label = { Text("Tile") })
                     }
-                }
-                Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = cornerRadius == 8, onClick = { cornerRadius = 8 }, label = { Text("Sharp") })
-                    FilterChip(selected = cornerRadius == 20, onClick = { cornerRadius = 20 }, label = { Text("Modern") })
-                    FilterChip(selected = cornerRadius == 28, onClick = { cornerRadius = 28 }, label = { Text("Round") })
                 }
                 if (stack.stackType !in listOf("camera", "weather")) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -3848,7 +3868,7 @@ private fun StackOrderRow(
     val iconName = config?.icon?.takeIf { it.isNotBlank() } ?: entity?.let { defaultEntityIconSlug(it) }
 
     Surface(
-        shape = RoundedCornerShape(18.dp),
+        shape = itemCornerShape(),
         color = if (isDragging) MaterialTheme.colorScheme.primary.copy(alpha = 0.14f) else appColors.subtleSurface,
         border = BorderStroke(1.dp, appColors.onMuted.copy(alpha = if (isDragging) 0.28f else 0.12f))
     ) {
@@ -4079,7 +4099,7 @@ fun ButtonStackItem(
                 } else if (stack.showBadge && activeCount > 0) {
                     Surface(
                         color = MaterialTheme.colorScheme.primary,
-                        shape = CircleShape,
+                        shape = itemCornerShape(),
                         modifier = Modifier.clickable { onBadgeClick() }
                     ) {
                         Text(
@@ -4277,14 +4297,10 @@ fun ButtonStackItem(
                                         interactionsEnabled = false,
                                         currentUrl = currentUrl
                                     )
-                                    IconButton(
+                                    EditSettingsButton(
                                         onClick = { onButtonSettings(entity.entity_id) },
-                                        modifier = Modifier
-                                            .align(Alignment.Center)
-                                            .size(24.dp)
-                                    ) {
-                                        Icon(Icons.Default.Settings, contentDescription = "Button settings", tint = appColors.onSurface, modifier = Modifier.size(16.dp))
-                                    }
+                                        modifier = Modifier.align(Alignment.Center)
+                                    )
                                     EditRemoveBadge(
                                         onClick = { onRemoveEntity(entity.entity_id) },
                                         modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
@@ -4459,12 +4475,10 @@ fun SingleEntityWidgetItem(
                 }
             }
             if (isEditMode) {
-                IconButton(
+                EditSettingsButton(
                     onClick = onSettingsClick,
-                    modifier = Modifier.align(Alignment.Center).size(24.dp)
-                ) {
-                    Icon(Icons.Default.Settings, contentDescription = "Settings", tint = appColors.onSurface, modifier = Modifier.size(16.dp))
-                }
+                    modifier = Modifier.align(Alignment.Center)
+                )
                 EditRemoveBadge(
                     onClick = onDeleteClick,
                     modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
@@ -4658,12 +4672,6 @@ fun SwipingStackSettingsDialog(
                     FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
                     FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text("Square") })
                 }
-                Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = cornerRadius == 8, onClick = { cornerRadius = 8 }, label = { Text("Sharp") })
-                    FilterChip(selected = cornerRadius == 20, onClick = { cornerRadius = 20 }, label = { Text("Modern") })
-                    FilterChip(selected = cornerRadius == 28, onClick = { cornerRadius = 28 }, label = { Text("Round") })
-                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = collapsible, onCheckedChange = { collapsible = it })
                     Text("Collapsible")
@@ -4853,12 +4861,6 @@ fun EmptyStackSettingsDialog(
                     FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
                     FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text("Square") })
                 }
-                Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = cornerRadius == 8, onClick = { cornerRadius = 8 }, label = { Text("Sharp") })
-                    FilterChip(selected = cornerRadius == 20, onClick = { cornerRadius = 20 }, label = { Text("Modern") })
-                    FilterChip(selected = cornerRadius == 28, onClick = { cornerRadius = 28 }, label = { Text("Round") })
-                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = showBadge, onCheckedChange = { showBadge = it })
                     Text("Show activity badge")
@@ -4905,7 +4907,7 @@ internal fun EmptyStackHint(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(enabled = isEditMode && onAdd != null) { onAdd?.invoke() },
-        shape = RoundedCornerShape(22.dp),
+        shape = itemCornerShape(),
         color = appColors.subtleSurface,
         border = BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.16f))
     ) {
@@ -5169,12 +5171,10 @@ private fun CameraStackCard(
                 }
             }
             if (isEditMode) {
-                IconButton(
+                EditSettingsButton(
                     onClick = { onButtonSettings(source.id) },
-                    modifier = Modifier.align(Alignment.Center).size(24.dp)
-                ) {
-                    Icon(Icons.Default.Settings, contentDescription = "Button settings", tint = appColors.onSurface, modifier = Modifier.size(16.dp))
-                }
+                    modifier = Modifier.align(Alignment.Center)
+                )
                 EditRemoveBadge(
                     onClick = { onRemoveEntity(source.id) },
                     modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
@@ -5324,11 +5324,16 @@ private fun ClimateDialogDial(
 }
 
 @Composable
-private fun LockControlContent(entity: HAEntity, viewModel: MainViewModel) {
+private fun LockControlContent(
+    entity: HAEntity,
+    viewModel: MainViewModel,
+    accentColor: Color = entityStateIconColor(entity)
+) {
+    val appColors = LocalHKIAppColors.current
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = if (entity.state == "locked") "Door\nLocked" else "Door\nOpen",
-            color = Color.White,
+            color = appColors.onSurface,
             style = MaterialTheme.typography.displaySmall,
             textAlign = TextAlign.Center
         )
@@ -5336,11 +5341,12 @@ private fun LockControlContent(entity: HAEntity, viewModel: MainViewModel) {
         Box(Modifier.height(VerticalControlHeight).fillMaxWidth(), contentAlignment = Alignment.Center) {
             VerticalMasterSwitch(
                 isOn = entity.state == "locked",
-                onToggle = { viewModel.toggleLock(entity.entity_id) }
+                onToggle = { viewModel.toggleLock(entity.entity_id) },
+                accentColor = accentColor
             )
         }
         Spacer(Modifier.height(16.dp))
-        Text("LOCK", color = Color.White.copy(alpha = 0.5f), style = MaterialTheme.typography.labelSmall)
+        Text("LOCK", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
     }
 }
 
@@ -5475,7 +5481,7 @@ private fun CameraContent(entity: HAEntity, viewModel: MainViewModel) {
 private fun CameraFrame(streamUrl: String?) {
     Surface(
         modifier = Modifier.fillMaxWidth().padding(16.dp).aspectRatio(16 / 9f),
-        shape = RoundedCornerShape(24.dp),
+        shape = itemCornerShape(),
         color = Color.Black
     ) {
         if (streamUrl != null) {
@@ -5576,7 +5582,7 @@ fun GroupMembersContent(
                     val entity = entities[index]
                     val isOn = entity.state == "on"
                     Surface(
-                        shape = RoundedCornerShape(18.dp),
+                        shape = itemCornerShape(),
                         color = appColors.subtleSurface,
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -5673,7 +5679,7 @@ private fun GroupDialogTabBar(
 private fun GroupLightControlRow(label: String, icon: String?, iconTint: Color, content: @Composable () -> Unit) {
     val appColors = LocalHKIAppColors.current
     Surface(
-        shape = RoundedCornerShape(18.dp),
+        shape = itemCornerShape(),
         color = appColors.subtleSurface,
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -5750,7 +5756,7 @@ fun GroupEntityDialog(
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .fillMaxHeight(0.78f),
-            shape = RoundedCornerShape(32.dp),
+            shape = itemCornerShape(),
             colors = CardDefaults.cardColors(containerColor = appColors.elevated)
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -5878,7 +5884,7 @@ fun GroupEntityDialog(
                                     else -> entity.state.split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
                                 }
                                 Surface(
-                                    shape = RoundedCornerShape(18.dp),
+                                    shape = itemCornerShape(),
                                     color = appColors.subtleSurface,
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
@@ -6028,7 +6034,7 @@ fun GenericEntityDialog(
                     Spacer(Modifier.height(32.dp))
                     Surface(
                         modifier = Modifier.fillMaxWidth().height(120.dp),
-                        shape = RoundedCornerShape(24.dp),
+                        shape = itemCornerShape(),
                         color = appColors.subtleSurface,
                         border = BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.16f))
                     ) {
@@ -6069,7 +6075,7 @@ private fun SelectOptionsContent(
             val selected = option == activeOption
             Surface(
                 modifier = Modifier.fillMaxWidth().clickable { onSelect(option) },
-                shape = RoundedCornerShape(18.dp),
+                shape = itemCornerShape(),
                 color = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f) else appColors.surface,
                 border = BorderStroke(
                     1.dp,
@@ -6163,7 +6169,7 @@ private fun SensorGraphContent(entity: HAEntity, viewModel: MainViewModel, value
         Spacer(Modifier.height(18.dp))
         Surface(
             modifier = Modifier.fillMaxWidth().height(220.dp),
-            shape = RoundedCornerShape(24.dp),
+            shape = itemCornerShape(),
             color = appColors.subtleSurface,
             border = BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.16f))
         ) {
@@ -6251,9 +6257,7 @@ fun SubtitleWidget(
         )
         if (isEditMode) {
             Spacer(Modifier.weight(1f))
-            IconButton(onClick = onSettings) {
-                Icon(Icons.Default.Settings, contentDescription = "Settings", tint = appColors.onMuted, modifier = Modifier.size(18.dp))
-            }
+            EditSettingsButton(onClick = onSettings)
             IconButton(onClick = onDelete) {
                 Icon(Icons.Default.Delete, contentDescription = "Delete", tint = appColors.onMuted, modifier = Modifier.size(18.dp))
             }

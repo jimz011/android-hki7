@@ -33,6 +33,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.delay
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
@@ -69,6 +70,8 @@ import com.example.hki7.ui.components.HKIBottomBar
 import com.example.hki7.ui.components.HKIMediaPlayerDialog
 import com.example.hki7.ui.components.MediaPlayerMiniBar
 import com.example.hki7.ui.components.LocalMediaPlayerBarInset
+import com.example.hki7.ui.components.LocalItemCornerRadius
+import com.example.hki7.ui.components.itemCornerShape
 import com.example.hki7.ui.utils.MdiIcon
 import com.example.hki7.ui.components.NotificationPanel
 import com.example.hki7.ui.components.NotificationBannerHost
@@ -95,6 +98,7 @@ class MainActivity : ComponentActivity() {
             val fontScale by prefs.fontScale.collectAsState(initial = 1f)
             val fontWeightAdjust by prefs.fontWeightAdjust.collectAsState(initial = 0)
             val fontFamily by prefs.fontFamily.collectAsState(initial = "default")
+            val itemCornerRadius by prefs.itemCornerRadius.collectAsState(initial = 20)
             HKI7Theme(
                 themeColor = themeColor,
                 themeMode = themeMode,
@@ -102,8 +106,10 @@ class MainActivity : ComponentActivity() {
                 systemDarkThemeColor = systemDarkThemeColor,
                 fontScale = fontScale,
                 fontWeightAdjust = fontWeightAdjust,
-                fontFamily = fontFamily
+                fontFamily = fontFamily,
+                itemCornerRadius = itemCornerRadius
             ) {
+                CompositionLocalProvider(LocalItemCornerRadius provides itemCornerRadius) {
                 val appColors = LocalHKIAppColors.current
                 val loading = "__hki_loading__"
                 val serverUrl by prefs.serverUrl.collectAsState(initial = loading)
@@ -141,8 +147,15 @@ class MainActivity : ComponentActivity() {
                 // Latch onboarding on once we know the user needs to log in, and keep it on through the
                 // login + permission steps (saving the token mid-flow would otherwise jump to the app).
                 var onboardingActive by remember { mutableStateOf(false) }
+                var onboardingStartsAtLogin by remember { mutableStateOf(false) }
                 LaunchedEffect(isLoading, loggedIn, forceLogin) {
-                    if (!isLoading && (forceLogin || !loggedIn)) onboardingActive = true
+                    if (!isLoading && (forceLogin || !loggedIn) && !onboardingActive) {
+                        // Decide this once, before OAuth writes the server/token preferences. If it
+                        // were recomputed after the token save, a first-time flow would suddenly be
+                        // mistaken for re-login and jump back to the login WebView.
+                        onboardingStartsAtLogin = forceLogin || !serverUrl.isNullOrBlank()
+                        onboardingActive = true
+                    }
                 }
                 when {
                     isLoading && !onboardingActive -> {
@@ -156,9 +169,8 @@ class MainActivity : ComponentActivity() {
                     onboardingActive -> {
                         // A saved server URL means this is a re-login (forced, or a "keep config"
                         // logout), so jump straight to the login step instead of full onboarding.
-                        val hasServerConfig = serverUrl != loading && !serverUrl.isNullOrBlank()
                         Box {
-                            OnboardingScreen(prefs = prefs, startAtLogin = forceLogin || hasServerConfig, onComplete = {
+                            OnboardingScreen(prefs = prefs, startAtLogin = onboardingStartsAtLogin, onComplete = {
                                 forceLogin = false
                                 onboardingActive = false
                             })
@@ -168,6 +180,7 @@ class MainActivity : ComponentActivity() {
                     else -> {
                         MainApp(prefs, viewModel)
                     }
+                }
                 }
             }
         }
@@ -245,10 +258,39 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     var mediaDialogEntityId by remember { mutableStateOf<String?>(null) }
     // Transient: swipe the media bar down to tuck it away; swipe up from the nav bar to bring it back.
     var mediaBarDismissed by remember { mutableStateOf(false) }
+    var mediaBarRevealGeneration by remember { mutableIntStateOf(0) }
+    val mediaBarPlaybackKey = activeMediaPlayers.joinToString(separator = "|") { player ->
+        val mediaMetadata = player.attributes?.entries
+            ?.asSequence()
+            ?.filter { (key, _) ->
+                (key.startsWith("media_") || key == "entity_picture") &&
+                    key != "media_position" && key != "media_position_updated_at"
+            }
+            ?.sortedBy { it.key }
+            ?.joinToString(separator = ",") { (key, value) -> "$key=$value" }
+            .orEmpty()
+        listOf(
+            player.entity_id,
+            player.state,
+            mediaMetadata
+        ).joinToString(separator = ":")
+    }
+    LaunchedEffect(mediaBarPlaybackKey, mediaBarRevealGeneration) {
+        if (mediaBarPlaybackKey.isNotEmpty()) {
+            mediaBarDismissed = false
+            delay(10_000)
+            mediaBarDismissed = true
+        } else {
+            mediaBarDismissed = false
+        }
+    }
 
     val navBarOrder by prefs.navBarOrder.collectAsState(initial = emptyList())
     val navBarHidden by prefs.navBarHidden.collectAsState(initial = emptyList())
-    val screens = remember(navBarOrder, navBarHidden) { NavBarConfig.visibleTabs(navBarOrder, navBarHidden) }
+    val customPages by prefs.customPages.collectAsState(initial = emptyList())
+    val screens = remember(navBarOrder, navBarHidden, customPages) {
+        NavBarConfig.visibleTabs(navBarOrder, navBarHidden, customPages)
+    }
         val isEditMode by viewModel.isEditMode.collectAsState()
         val canUndo by viewModel.canUndo.collectAsState()
         val canRedo by viewModel.canRedo.collectAsState()
@@ -384,6 +426,19 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                 composable(Screen.Climate.route)  { ClimateScreen(viewModel) }
                 composable(Screen.Battery.route)  { BatteryScreen(viewModel, navController) }
                 composable(
+                    route = Screen.CUSTOM_PAGE_ROUTE,
+                    arguments = listOf(navArgument("pageId") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val pageId = backStackEntry.arguments?.getString("pageId").orEmpty()
+                    val customPage = customPages.firstOrNull { it.id == pageId }
+                    HAHomeScreen(
+                        viewModel,
+                        navController,
+                        widgetAreaId = "__custom_page_${pageId}__",
+                        customPage = customPage
+                    )
+                }
+                composable(
                     route = Screen.RoomDetail.route,
                     arguments = listOf(navArgument("areaId") { type = NavType.StringType })
                 ) { backStackEntry ->
@@ -448,6 +503,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                         drag += amount
                         if (drag < -40.dp.toPx()) {
                             mediaBarDismissed = false
+                            mediaBarRevealGeneration++
                             drag = 0f
                         }
                     }
@@ -463,7 +519,12 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                 val currentDestination = navBackStackEntry?.destination
 
                 screens.forEach { screen ->
-                        val isSelected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
+                        val isSelected = if (screen is Screen.Custom) {
+                            currentDestination?.route == Screen.CUSTOM_PAGE_ROUTE &&
+                                navBackStackEntry?.arguments?.getString("pageId") == screen.page.id
+                        } else {
+                            currentDestination?.hierarchy?.any { it.route == screen.route } == true
+                        }
 
                         Column(
                             modifier = Modifier
@@ -473,7 +534,15 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                                 )
                                 .fillMaxHeight()
                                 .clickable {
-                                    if (screen == Screen.Home || screen == Screen.Rooms || screen == Screen.Security) {
+                                    if (screen == Screen.Climate || screen == Screen.Energy) {
+                                        // These screens keep their detail page as local UI state. Recreate the
+                                        // destination on every nav tap so the tab always opens at its root page.
+                                        navController.navigate(screen.route) {
+                                            popUpTo(navController.graph.findStartDestination().id) { saveState = false }
+                                            launchSingleTop = false
+                                            restoreState = false
+                                        }
+                                    } else if (screen == Screen.Home || screen == Screen.Rooms || screen == Screen.Security) {
                                         navController.navigate(screen.route) {
                                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                                             launchSingleTop = true
@@ -493,7 +562,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                             Box(
                                 modifier = Modifier
                                     .size(width = 56.dp, height = 32.dp)
-                                    .clip(RoundedCornerShape(16.dp))
+                                    .clip(itemCornerShape())
                                     .background(if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.18f) else Color.Transparent),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -638,7 +707,7 @@ private fun HomeAssistantConnectionBar(status: ConnectionStatus, modifier: Modif
     }
     Surface(
         modifier = modifier.fillMaxWidth().height(56.dp),
-        shape = RoundedCornerShape(18.dp),
+        shape = itemCornerShape(),
         color = appColors.surface.copy(alpha = .96f),
         shadowElevation = 8.dp
     ) {

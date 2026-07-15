@@ -5,7 +5,9 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -14,6 +16,49 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 // Tolerates fields removed from saved config data classes across app updates — without this,
 // a stale key in a persisted blob throws on decode and the catch-all fallback wipes that store.
 private val appJson = Json { ignoreUnknownKeys = true }
+private inline fun <reified T> decodeBackup(value: String?, fallback: T): T =
+    value?.let { runCatching { appJson.decodeFromString<T>(it) }.getOrNull() } ?: fallback
+
+@Serializable
+private data class HKIUiBackup(
+    val version: Int = 1,
+    val areaOrder: List<String> = emptyList(),
+    val savedAreas: List<HAArea> = emptyList(),
+    val savedFloors: List<HAFloor> = emptyList(),
+    val areaWidgets: Map<String, List<HKIRoomWidget>> = emptyMap(),
+    val areaConfigs: Map<String, HKIAreaConfig> = emptyMap(),
+    val pageConfigs: Map<String, HKIPageConfig> = emptyMap(),
+    val dashboardMode: String = "auto",
+    val customPages: List<HKICustomPage> = emptyList(),
+    val navBarOrder: List<String> = emptyList(),
+    val navBarHidden: List<String> = emptyList(),
+    val themeColor: String = "system",
+    val themeMode: String = "system",
+    val systemLightThemeColor: String = "auto",
+    val systemDarkThemeColor: String = "auto",
+    val fontScale: Float = 1f,
+    val fontWeightAdjust: Int = 0,
+    val fontFamily: String = "default",
+    val itemCornerRadius: Int = 20,
+    val forceHighRefreshRate: Boolean = false,
+    val weatherEntityId: String? = "weather.home",
+    val weatherDisplayType: String = "Weather",
+    val headerLeftDisplayType: String = "None",
+    val use24hFormat: Boolean = true,
+    val useFullDayName: Boolean = false,
+    val sunEntityId: String? = "sun.sun",
+    val moonEntityId: String? = "sensor.moon",
+    val aqiEntityId: String? = null,
+    val seasonEntityId: String? = "sensor.season",
+    val rainEntityId: String? = null,
+    val weatherDeviceId: String? = null,
+    val weatherCardWidths: Map<String, String> = emptyMap(),
+    val alarmEntityIds: List<String> = emptyList(),
+    val headerLeftAlarmEntityIds: List<String> = emptyList(),
+    val alarmPendingSeconds: Int = 0,
+    val mediaPlayerNames: Map<String, String> = emptyMap(),
+    val mediaPlayerBarHidden: List<String> = emptyList()
+)
 
 class PreferencesManager(private val context: Context) {
     private val serverUrlKey = stringPreferencesKey("server_url")
@@ -22,6 +67,9 @@ class PreferencesManager(private val context: Context) {
     private val accessTokenExpiryKey = longPreferencesKey("access_token_expiry")
     private val weatherEntityIdKey = stringPreferencesKey("weather_entity_id")
     private val displayNameKey = stringPreferencesKey("display_name")
+    private val profileAvatarKey = stringPreferencesKey("profile_avatar")
+    private val profileBirthdayKey = stringPreferencesKey("profile_birthday")
+    private val profilePersonEntityKey = stringPreferencesKey("profile_person_entity")
     private val areaOrderKey = stringPreferencesKey("area_order")
     private val savedAreasKey = stringPreferencesKey("saved_areas")
     private val savedFloorsKey = stringPreferencesKey("saved_floors")
@@ -52,6 +100,7 @@ class PreferencesManager(private val context: Context) {
     private val fontScaleKey = floatPreferencesKey("font_scale")
     private val fontWeightAdjustKey = intPreferencesKey("font_weight_adjust")
     private val fontFamilyKey = stringPreferencesKey("font_family")
+    private val itemCornerRadiusKey = intPreferencesKey("item_corner_radius")
     private val mobileAppWebhookIdKey = stringPreferencesKey("mobile_app_webhook_id")
     private val mobileAppCloudhookUrlKey = stringPreferencesKey("mobile_app_cloudhook_url")
     private val mobileAppRegisteredUrlKey = stringPreferencesKey("mobile_app_registered_url")
@@ -67,6 +116,7 @@ class PreferencesManager(private val context: Context) {
     private val backgroundPushKey = booleanPreferencesKey("background_push_enabled")
     private val navBarOrderKey = stringPreferencesKey("nav_bar_order")
     private val navBarHiddenKey = stringPreferencesKey("nav_bar_hidden")
+    private val customPagesKey = stringPreferencesKey("custom_pages")
     private val mediaPlayerNamesKey = stringPreferencesKey("media_player_custom_names")
     private val mediaPlayerBarHiddenKey = stringPreferencesKey("media_player_bar_hidden")
 
@@ -77,6 +127,9 @@ class PreferencesManager(private val context: Context) {
     val accessTokenExpiry: Flow<Long?> = context.dataStore.data.map { it[accessTokenExpiryKey] }
     val weatherEntityId: Flow<String?> = context.dataStore.data.map { it[weatherEntityIdKey] ?: "weather.home" }
     val displayName: Flow<String?> = context.dataStore.data.map { it[displayNameKey] ?: "User" }
+    val profileAvatar: Flow<String?> = context.dataStore.data.map { it[profileAvatarKey] }
+    val profileBirthday: Flow<String?> = context.dataStore.data.map { it[profileBirthdayKey] }
+    val profilePersonEntityId: Flow<String?> = context.dataStore.data.map { it[profilePersonEntityKey] }
     val areaOrder: Flow<List<String>> = context.dataStore.data.map { it[areaOrderKey]?.split(",")?.filter { it.isNotBlank() } ?: emptyList() }
     val dashboardMode: Flow<String> = context.dataStore.data.map { it[dashboardModeKey] ?: "auto" }
 
@@ -141,6 +194,7 @@ class PreferencesManager(private val context: Context) {
     val fontScale: Flow<Float> = context.dataStore.data.map { it[fontScaleKey] ?: 1f }
     val fontWeightAdjust: Flow<Int> = context.dataStore.data.map { it[fontWeightAdjustKey] ?: 0 }
     val fontFamily: Flow<String> = context.dataStore.data.map { it[fontFamilyKey] ?: "default" }
+    val itemCornerRadius: Flow<Int> = context.dataStore.data.map { it[itemCornerRadiusKey] ?: 20 }
 
     // mobile_app integration registration (persistent device_tracker + sensors via webhook).
     val mobileAppWebhookId: Flow<String?> = context.dataStore.data.map { it[mobileAppWebhookIdKey] }
@@ -181,6 +235,10 @@ class PreferencesManager(private val context: Context) {
     val navBarHidden: Flow<List<String>> = context.dataStore.data.map {
         it[navBarHiddenKey]?.split(",")?.filter { r -> r.isNotBlank() } ?: emptyList()
     }
+    val customPages: Flow<List<HKICustomPage>> = context.dataStore.data.map { preferences ->
+        val saved = preferences[customPagesKey] ?: "[]"
+        runCatching { appJson.decodeFromString<List<HKICustomPage>>(saved) }.getOrDefault(emptyList())
+    }
 
     // Media players: local display names and which players may show the mini player bar.
     val mediaPlayerCustomNames: Flow<Map<String, String>> = context.dataStore.data.map { preferences ->
@@ -216,6 +274,98 @@ class PreferencesManager(private val context: Context) {
 
     suspend fun saveWeatherEntity(entityId: String) { context.dataStore.edit { it[weatherEntityIdKey] = entityId } }
     suspend fun saveDisplayName(name: String) { context.dataStore.edit { it[displayNameKey] = name } }
+    suspend fun saveProfileAvatar(uri: String?) { context.dataStore.edit { if (uri.isNullOrBlank()) it.remove(profileAvatarKey) else it[profileAvatarKey] = uri } }
+    suspend fun saveProfileBirthday(birthday: String?) { context.dataStore.edit { if (birthday.isNullOrBlank()) it.remove(profileBirthdayKey) else it[profileBirthdayKey] = birthday } }
+    suspend fun saveProfilePersonEntityId(entityId: String?) { context.dataStore.edit { if (entityId.isNullOrBlank()) it.remove(profilePersonEntityKey) else it[profilePersonEntityKey] = entityId } }
+
+    suspend fun exportUiBackup(): String {
+        val p = context.dataStore.data.first()
+        fun strings(key: Preferences.Key<String>): List<String> = p[key]?.split(',')?.filter(String::isNotBlank).orEmpty()
+        return appJson.encodeToString(HKIUiBackup(
+            areaOrder = strings(areaOrderKey),
+            savedAreas = decodeBackup(p[savedAreasKey], emptyList()),
+            savedFloors = decodeBackup(p[savedFloorsKey], emptyList()),
+            areaWidgets = decodeBackup(p[areaStacksKey], emptyMap()),
+            areaConfigs = decodeBackup(p[areaConfigsKey], emptyMap()),
+            pageConfigs = decodeBackup(p[pageConfigsKey], emptyMap()),
+            dashboardMode = p[dashboardModeKey] ?: "auto",
+            customPages = decodeBackup(p[customPagesKey], emptyList()),
+            navBarOrder = strings(navBarOrderKey),
+            navBarHidden = strings(navBarHiddenKey),
+            themeColor = p[themeColorKey] ?: "system",
+            themeMode = p[themeModeKey] ?: "system",
+            systemLightThemeColor = p[systemLightThemeColorKey] ?: "auto",
+            systemDarkThemeColor = p[systemDarkThemeColorKey] ?: "auto",
+            fontScale = p[fontScaleKey] ?: 1f,
+            fontWeightAdjust = p[fontWeightAdjustKey] ?: 0,
+            fontFamily = p[fontFamilyKey] ?: "default",
+            itemCornerRadius = p[itemCornerRadiusKey] ?: 20,
+            forceHighRefreshRate = p[forceHighRefreshRateKey] ?: false,
+            weatherEntityId = p[weatherEntityIdKey],
+            weatherDisplayType = p[weatherDisplayKey] ?: "Weather",
+            headerLeftDisplayType = p[headerLeftDisplayKey] ?: "None",
+            use24hFormat = p[use24hFormatKey] ?: true,
+            useFullDayName = p[useFullDayNameKey] ?: false,
+            sunEntityId = p[sunEntityKey],
+            moonEntityId = p[moonEntityKey],
+            aqiEntityId = p[aqiEntityKey],
+            seasonEntityId = p[seasonEntityKey],
+            rainEntityId = p[rainEntityKey],
+            weatherDeviceId = p[weatherDeviceKey],
+            weatherCardWidths = decodeBackup(p[weatherCardWidthsKey], emptyMap()),
+            alarmEntityIds = strings(alarmEntityKey),
+            headerLeftAlarmEntityIds = strings(headerLeftAlarmEntityKey),
+            alarmPendingSeconds = p[alarmPendingSecondsKey] ?: 0,
+            mediaPlayerNames = decodeBackup(p[mediaPlayerNamesKey], emptyMap()),
+            mediaPlayerBarHidden = strings(mediaPlayerBarHiddenKey)
+        ))
+    }
+
+    suspend fun restoreUiBackup(raw: String) {
+        val backup = appJson.decodeFromString<HKIUiBackup>(raw)
+        require(backup.version == 1) { "Unsupported backup version ${backup.version}" }
+        context.dataStore.edit { p ->
+            p[areaOrderKey] = backup.areaOrder.joinToString(",")
+            p[savedAreasKey] = appJson.encodeToString(backup.savedAreas)
+            p[savedFloorsKey] = appJson.encodeToString(backup.savedFloors)
+            p[areaStacksKey] = appJson.encodeToString(backup.areaWidgets)
+            p[areaConfigsKey] = appJson.encodeToString(backup.areaConfigs)
+            p[pageConfigsKey] = appJson.encodeToString(backup.pageConfigs)
+            p[dashboardModeKey] = backup.dashboardMode
+            p[customPagesKey] = appJson.encodeToString(backup.customPages)
+            p[navBarOrderKey] = backup.navBarOrder.joinToString(",")
+            p[navBarHiddenKey] = backup.navBarHidden.joinToString(",")
+            p[themeColorKey] = backup.themeColor
+            p[themeModeKey] = backup.themeMode
+            p[systemLightThemeColorKey] = backup.systemLightThemeColor
+            p[systemDarkThemeColorKey] = backup.systemDarkThemeColor
+            p[fontScaleKey] = backup.fontScale
+            p[fontWeightAdjustKey] = backup.fontWeightAdjust
+            p[fontFamilyKey] = backup.fontFamily
+            p[itemCornerRadiusKey] = backup.itemCornerRadius
+            p[forceHighRefreshRateKey] = backup.forceHighRefreshRate
+            fun setOptional(key: Preferences.Key<String>, value: String?) {
+                if (value.isNullOrBlank()) p.remove(key) else p[key] = value
+            }
+            setOptional(weatherEntityIdKey, backup.weatherEntityId)
+            p[weatherDisplayKey] = backup.weatherDisplayType
+            p[headerLeftDisplayKey] = backup.headerLeftDisplayType
+            p[use24hFormatKey] = backup.use24hFormat
+            p[useFullDayNameKey] = backup.useFullDayName
+            setOptional(sunEntityKey, backup.sunEntityId)
+            setOptional(moonEntityKey, backup.moonEntityId)
+            setOptional(aqiEntityKey, backup.aqiEntityId)
+            setOptional(seasonEntityKey, backup.seasonEntityId)
+            setOptional(rainEntityKey, backup.rainEntityId)
+            setOptional(weatherDeviceKey, backup.weatherDeviceId)
+            p[weatherCardWidthsKey] = appJson.encodeToString(backup.weatherCardWidths)
+            p[alarmEntityKey] = backup.alarmEntityIds.joinToString(",")
+            p[headerLeftAlarmEntityKey] = backup.headerLeftAlarmEntityIds.joinToString(",")
+            p[alarmPendingSecondsKey] = backup.alarmPendingSeconds
+            p[mediaPlayerNamesKey] = appJson.encodeToString(backup.mediaPlayerNames)
+            p[mediaPlayerBarHiddenKey] = backup.mediaPlayerBarHidden.joinToString(",")
+        }
+    }
     suspend fun saveAreaOrder(order: List<String>) { context.dataStore.edit { it[areaOrderKey] = order.joinToString(",") } }
     suspend fun saveDashboardMode(mode: String) { context.dataStore.edit { it[dashboardModeKey] = mode } }
     suspend fun saveAreas(areas: List<HAArea>) { context.dataStore.edit { it[savedAreasKey] = appJson.encodeToString(areas) } }
@@ -232,6 +382,7 @@ class PreferencesManager(private val context: Context) {
     suspend fun saveFontScale(scale: Float) { context.dataStore.edit { it[fontScaleKey] = scale } }
     suspend fun saveFontWeightAdjust(adjust: Int) { context.dataStore.edit { it[fontWeightAdjustKey] = adjust } }
     suspend fun saveFontFamily(family: String) { context.dataStore.edit { it[fontFamilyKey] = family } }
+    suspend fun saveItemCornerRadius(radius: Int) { context.dataStore.edit { it[itemCornerRadiusKey] = radius.coerceIn(0, 48) } }
 
     suspend fun saveInternalUrl(url: String?) {
         context.dataStore.edit { if (url.isNullOrBlank()) it.remove(internalUrlKey) else it[internalUrlKey] = url.trim() }
@@ -349,6 +500,11 @@ class PreferencesManager(private val context: Context) {
                 .toMutableMap()
             current[card] = width
             preferences[weatherCardWidthsKey] = appJson.encodeToString(current)
+        }
+    }
+    suspend fun saveCustomPages(pages: List<HKICustomPage>) {
+        context.dataStore.edit {
+            if (pages.isEmpty()) it.remove(customPagesKey) else it[customPagesKey] = appJson.encodeToString(pages)
         }
     }
 

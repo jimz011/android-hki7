@@ -1,5 +1,6 @@
 package com.example.hki7.ui.screens
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -23,10 +24,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -40,6 +45,7 @@ import com.example.hki7.data.HKIClimateCardWidget
 import com.example.hki7.data.HKIClimateConfig
 import com.example.hki7.data.HKIClimateStack
 import com.example.hki7.data.HKIPageConfig
+import com.example.hki7.data.HKISecurityConfig
 import com.example.hki7.data.withDisplayName
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
@@ -48,6 +54,7 @@ import com.example.hki7.ui.components.EditSettingsButton
 import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.components.EntitySensorGraphCard
 import com.example.hki7.ui.components.HKIPage
+import com.example.hki7.ui.components.HKISlider
 import com.example.hki7.ui.components.HistoryRangeChips
 import com.example.hki7.ui.components.ReorderAxis
 import com.example.hki7.ui.components.ReorderableGrid
@@ -57,6 +64,8 @@ import com.example.hki7.ui.components.hvacColor
 import com.example.hki7.ui.components.hvacGradient
 import com.example.hki7.ui.utils.MdiIcon
 import com.example.hki7.ui.components.surfaceGradient
+import com.example.hki7.ui.components.LocalItemCornerRadius
+import com.example.hki7.ui.components.itemCornerShape
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
@@ -64,6 +73,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import java.util.Locale
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
@@ -114,6 +124,114 @@ private fun formatValue(v: Float): String =
     if (kotlin.math.abs(v) >= 100f) "%.0f".format(Locale.getDefault(), v)
     else "%.1f".format(Locale.getDefault(), v)
 
+internal data class ClimateOpeningState(
+    val openDoors: Int = 0,
+    val openWindows: Int = 0
+)
+
+internal fun HAEntity.isClimateOpeningCandidate(): Boolean {
+    return isAutoSecurityEntityFor("doors") || isAutoSecurityEntityFor("windows")
+}
+
+internal fun Iterable<HAEntity>.climateOpeningState(
+    config: HKISecurityConfig = HKISecurityConfig()
+): ClimateOpeningState {
+    val all = toList()
+    val byId = all.associateBy { it.entity_id }
+    val hidden = config.hiddenEntityIds.toSet()
+    fun group(key: String): List<HAEntity> = (
+        all.filter { it.isAutoSecurityEntityFor(key) } +
+            config.extraEntityIds[key].orEmpty().mapNotNull(byId::get)
+        ).distinctBy { it.entity_id }.filterNot { it.entity_id in hidden }
+    val doors = group("doors")
+    val doorIds = doors.mapTo(mutableSetOf()) { it.entity_id }
+    val windows = group("windows").filterNot { it.entity_id in doorIds }
+    val snapshot = mapOf(
+        "doors" to doors,
+        "windows" to windows
+    ).toSecuritySceneState()
+    return ClimateOpeningState(
+        openDoors = snapshot.openDoors,
+        openWindows = snapshot.openWindows
+    )
+}
+
+@Composable
+private fun rememberClimateOpeningState(viewModel: MainViewModel): ClimateOpeningState {
+    val pageConfigs by viewModel.pageConfigsMapping.collectAsState()
+    val config = (pageConfigs["security"] ?: HKIPageConfig()).securityConfig ?: HKISecurityConfig()
+    val manualIds = remember(config) {
+        (config.extraEntityIds["doors"].orEmpty() + config.extraEntityIds["windows"].orEmpty()).toSet()
+    }
+    val selectorKey = remember(manualIds) {
+        "climate_openings:${manualIds.sorted().joinToString(",")}"
+    }
+    val flow = remember(viewModel, selectorKey) {
+        viewModel.entitiesMatching(selectorKey) { entity ->
+            entity.isClimateOpeningCandidate() || entity.entity_id in manualIds
+        }
+    }
+    val entities by flow.collectAsState()
+    return remember(entities, config) { entities.climateOpeningState(config) }
+}
+
+/** What the Climate hero can meaningfully animate for one climate entity. */
+internal enum class ClimateSceneActivity { HEATING, COOLING, FAN, DRYING, DEFROSTING }
+
+/**
+ * Resolve actual HVAC activity without assuming every integration exposes `hvac_action`.
+ *
+ * `hvac_action` is authoritative when present, so an idle thermostat whose selected mode is
+ * `cool` remains visually idle. Some AC integrations omit that optional attribute entirely;
+ * for those integrations the selected `heat`, `cool`, `dry`, or `fan_only` mode is the best
+ * available live signal and must drive the house scene.
+ */
+internal fun HAEntity.climateSceneActivity(): ClimateSceneActivity? {
+    fun String.normalized() = trim().lowercase(Locale.ROOT).replace('-', '_').replace(' ', '_')
+    val entityState = state.normalized()
+    if (entityState in setOf("off", "idle", "unavailable", "unknown")) return null
+    val mode = attributes?.get("hvac_mode")?.jsonPrimitive?.contentOrNull
+        ?.normalized()
+        ?.takeUnless(String::isBlank)
+        ?: entityState
+
+    val action = attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
+        ?.normalized()
+        ?.takeUnless { it.isBlank() || it == "unknown" || it == "unavailable" }
+    if (action != null) {
+        when (action) {
+            "off", "idle" -> return null
+            "heating", "heat", "preheating" -> return ClimateSceneActivity.HEATING
+            "cooling", "cool" -> return ClimateSceneActivity.COOLING
+            "fan", "fan_only" -> return ClimateSceneActivity.FAN
+            "drying", "dry" -> return ClimateSceneActivity.DRYING
+            "defrosting", "defrost" -> return ClimateSceneActivity.DEFROSTING
+            // Custom integrations sometimes expose a generic action such as "running". In that
+            // case their selected hvac_mode/state is still more useful than suppressing motion.
+        }
+    }
+
+    return when (mode) {
+        "heating", "heat", "preheating" -> ClimateSceneActivity.HEATING
+        "cooling", "cool" -> ClimateSceneActivity.COOLING
+        "fan", "fan_only" -> ClimateSceneActivity.FAN
+        "drying", "dry" -> ClimateSceneActivity.DRYING
+        "defrosting", "defrost" -> ClimateSceneActivity.DEFROSTING
+        "auto", "heat_cool" -> {
+            val current = attributes?.get("current_temperature")?.jsonPrimitive?.doubleOrNull
+            val low = attributes?.get("target_temp_low")?.jsonPrimitive?.doubleOrNull
+            val high = attributes?.get("target_temp_high")?.jsonPrimitive?.doubleOrNull
+            when {
+                current == null -> null
+                low != null && current < low - 0.2 -> ClimateSceneActivity.HEATING
+                high != null && current > high + 0.2 -> ClimateSceneActivity.COOLING
+                else -> null
+            }
+        }
+        else -> null
+    }
+}
+
 private fun List<HAEntity>.applyClimateOrder(order: List<String>): List<HAEntity> =
     if (order.isEmpty()) this else sortedWith(
         compareBy<HAEntity> {
@@ -132,6 +250,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
     val appColors = LocalHKIAppColors.current
     val climateConfig: HKIClimateConfig =
         (pageConfigsMap[CLIMATE_PAGE_KEY] ?: HKIPageConfig()).climateConfig ?: HKIClimateConfig()
+    val openingState = rememberClimateOpeningState(viewModel)
     val climateDependencyIds = remember(climateConfig) {
         buildSet {
             addAll(climateConfig.extraClimateIds)
@@ -195,13 +314,13 @@ fun ClimateScreen(viewModel: MainViewModel) {
             .sortedBy { it.friendlyName ?: it.entity_id }
             .applyClimateOrder(climateConfig.entityOrder)
     }
-    val climateDeviceRows = remember(climateEntities, climateConfig.deviceCardWidths, climateConfig.deviceCardStyles, climateConfig.defaultDeviceCardWidth, climateConfig.defaultDeviceCardStyle) {
+    val climateDeviceRows = remember(climateEntities, climateConfig.deviceCardWidths, climateConfig.defaultDeviceCardWidth, climateConfig.defaultDeviceCardStyle) {
         buildList<List<HAEntity>> {
             var row = mutableListOf<HAEntity>()
             var used = 0
             climateEntities.forEach { entity ->
                 val configuredWidth = climateConfig.deviceCardWidths[entity.entity_id] ?: climateConfig.defaultDeviceCardWidth
-                val style = climateConfig.deviceCardStyles[entity.entity_id] ?: climateConfig.defaultDeviceCardStyle
+                val style = climateConfig.defaultDeviceCardStyle
                 val effectiveWidth = if (style == "dial" && configuredWidth == "third") "half" else configuredWidth
                 val span = when (effectiveWidth) {
                     "third" -> 2
@@ -267,8 +386,23 @@ fun ClimateScreen(viewModel: MainViewModel) {
     }
 
     var page by rememberSaveable { mutableStateOf("climate") }
+    var entitySearch by rememberSaveable { mutableStateOf("") }
+    var entitySort by rememberSaveable { mutableStateOf("custom") }
     androidx.activity.compose.BackHandler(enabled = page != "climate") { page = "climate" }
     val activeGroup = climateSensorGroups.find { it.key == page }
+    LaunchedEffect(page) { entitySearch = "" }
+
+    fun filteredEntities(source: List<HAEntity>): List<HAEntity> {
+        val needle = entitySearch.trim().lowercase(Locale.getDefault())
+        val filtered = if (needle.isBlank()) source else source.filter { entity ->
+            (entity.friendlyName ?: entity.entity_id).lowercase(Locale.getDefault()).contains(needle)
+        }
+        return when (entitySort) {
+            "name_asc" -> filtered.sortedBy { (it.friendlyName ?: it.entity_id).lowercase(Locale.getDefault()) }
+            "name_desc" -> filtered.sortedByDescending { (it.friendlyName ?: it.entity_id).lowercase(Locale.getDefault()) }
+            else -> filtered
+        }
+    }
 
     val climateSettingsSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
         "Climate Entities" to { setBack ->
@@ -279,6 +413,12 @@ fun ClimateScreen(viewModel: MainViewModel) {
                 onSave = { newCfg -> viewModel.updateClimateConfig(CLIMATE_PAGE_KEY, newCfg) },
                 setBack = setBack
             )
+        }
+    val climateAppearanceSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
+        "Appearance" to { _ ->
+            ClimateAppearanceSection(climateConfig) { newCfg ->
+                viewModel.updateClimateConfig(CLIMATE_PAGE_KEY, newCfg)
+            }
         }
 
     val pageTitle = when (page) {
@@ -295,39 +435,48 @@ fun ClimateScreen(viewModel: MainViewModel) {
         subtitle = pageSubtitle,
         pageKey = CLIMATE_PAGE_KEY,
         pageSettingsTitle = "Climate Settings",
-        extraPageSettingsSection = climateSettingsSection,
+        extraPageSettingsSection = climateAppearanceSection,
+        additionalPageSettingsSections = listOf(climateSettingsSection),
         showBadgeBar = false,
+        headerBar = if (page != "climate") ({
+            ClimateEntitySearchBar(
+                query = entitySearch,
+                onQueryChange = { entitySearch = it },
+                sortMode = entitySort,
+                onSortModeChange = { entitySort = it }
+            )
+        }) else null,
         onBack = if (page != "climate") ({ page = "climate" }) else null
     ) { padding ->
         key(uiRevision) {
         when {
             activeGroup != null -> ClimateSensorDetailPage(
                 group = activeGroup,
-                sensors = groupSensors[activeGroup.key].orEmpty(),
+                sensors = filteredEntities(groupSensors[activeGroup.key].orEmpty()),
                 viewModel = viewModel,
                 isEditMode = isEditMode,
                 onRemove = ::hideEntity,
                 onRename = { renameEntity = it },
-                onReorder = { from, to -> reorderClimateEntities(groupSensors[activeGroup.key].orEmpty(), from, to) },
+                onReorder = { from, to -> reorderClimateEntities(filteredEntities(groupSensors[activeGroup.key].orEmpty()), from, to) },
                 padding = padding
             )
             page == "fans" || page == "purifiers" || page == "humidifiers" -> ClimateDeviceListPage(
                 deviceType = page,
-                devices = when (page) {
+                devices = filteredEntities(when (page) {
                     "fans" -> fanEntities
                     "purifiers" -> purifierEntities
                     else -> humidifierEntities
-                },
+                }),
                 viewModel = viewModel,
                 isEditMode = isEditMode,
                 onRemove = ::hideEntity,
                 onRename = { renameEntity = it },
                 onReorder = { from, to ->
-                    val visible = when (page) {
+                    val visible = filteredEntities(when (page) {
                         "fans" -> fanEntities
                         "purifiers" -> purifierEntities
                         else -> humidifierEntities
-                    }
+                    })
                     reorderClimateEntities(visible, from, to)
                 },
                 padding = padding
@@ -341,7 +490,10 @@ fun ClimateScreen(viewModel: MainViewModel) {
                     ClimateHero(
                         tempSensors = groupSensors["temperature"].orEmpty(),
                         humiditySensors = groupSensors["humidity"].orEmpty(),
-                        climateEntities = climateEntities
+                        climateEntities = climateEntities,
+                        fanEntities = fanEntities,
+                        humidifierEntities = humidifierEntities,
+                        openingState = openingState
                     )
                 }
 
@@ -408,7 +560,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
                         ClimateSectionHeader("Thermostats", null)
                         Surface(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                            shape = RoundedCornerShape(20.dp), color = appColors.elevated
+                            shape = itemCornerShape(), color = appColors.elevated
                         ) {
                             Text(
                                 "No climate devices found. Thermostats and AC units from Home Assistant appear here automatically.",
@@ -429,12 +581,12 @@ fun ClimateScreen(viewModel: MainViewModel) {
                             var used = 0
                             row.forEach { entity ->
                                 val configuredWidth = climateConfig.deviceCardWidths[entity.entity_id] ?: climateConfig.defaultDeviceCardWidth
-                                val style = climateConfig.deviceCardStyles[entity.entity_id] ?: climateConfig.defaultDeviceCardStyle
+                                val style = climateConfig.defaultDeviceCardStyle
                                 val width = if (style == "dial" && configuredWidth == "third") "half" else configuredWidth
                                 val span = when (width) { "third" -> 2; "half" -> 3; else -> 6 }
                                 used += span
                                 val iconOverride = climateConfig.customIcons[entity.entity_id]
-                                val cardStyle = climateConfig.deviceCardStyles[entity.entity_id] ?: climateConfig.defaultDeviceCardStyle
+                                val cardStyle = climateConfig.defaultDeviceCardStyle
                                 val isSquare = climateConfig.deviceCardShapes[entity.entity_id] == "square"
                                 Box(Modifier.weight(span.toFloat())) {
                                     if (cardStyle == "dial") ThermostatDialCard(entity, viewModel, isSquare = isSquare, iconOverride = iconOverride, onCenterClick = { dialDialogEntity = entity })
@@ -455,8 +607,82 @@ fun ClimateScreen(viewModel: MainViewModel) {
     }
 }
 
-/** Per-device settings for a climate device on the main Climate page: rename, custom icon, and the
- *  card style (the standard "current" card or the round thermostat dial). */
+@Composable
+private fun ClimateEntitySearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    sortMode: String,
+    onSortModeChange: (String) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    val sortLabel = when (sortMode) {
+        "name_asc" -> "Name A-Z"
+        "name_desc" -> "Name Z-A"
+        else -> "Custom order"
+    }
+    val summary = buildList {
+        if (query.isNotBlank()) add("\"${query.trim()}\"")
+        if (sortMode != "custom") add(sortLabel)
+    }.joinToString(" - ").ifBlank { "No search active · $sortLabel" }
+
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(itemCornerShape())
+                .clickable { expanded = !expanded }
+                .padding(horizontal = 12.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.Default.Search, null, tint = appColors.onSurface, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Column(Modifier.weight(1f)) {
+                Text("Search & sort", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(summary, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            Icon(
+                if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                contentDescription = if (expanded) "Collapse search" else "Expand search",
+                tint = appColors.onMuted
+            )
+        }
+        if (expanded) {
+            OutlinedTextField(
+                value = query,
+                onValueChange = onQueryChange,
+                label = { Text("Search by name") },
+                leadingIcon = { Icon(Icons.Default.Search, null) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+            ) {
+                listOf(
+                    "custom" to "Custom order",
+                    "name_asc" to "Name A-Z",
+                    "name_desc" to "Name Z-A"
+                ).forEach { (value, label) ->
+                    FilterChip(
+                        selected = sortMode == value,
+                        onClick = { onSortModeChange(value) },
+                        label = { Text(label) },
+                        shape = itemCornerShape()
+                    )
+                }
+            }
+            if (query.isNotBlank()) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    TextButton(onClick = { onQueryChange("") }) { Text("Clear search") }
+                }
+            }
+        }
+    }
+}
+
+/** Per-device settings for a climate device on the main Climate page. Control/dial style is page-wide. */
 @Composable
 private fun ClimateDeviceSettingsDialog(
     entity: HAEntity,
@@ -466,7 +692,6 @@ private fun ClimateDeviceSettingsDialog(
 ) {
     var name by remember(entity) { mutableStateOf(config.customNames[entity.entity_id].orEmpty()) }
     var icon by remember(entity) { mutableStateOf(config.customIcons[entity.entity_id].orEmpty()) }
-    var style by remember(entity) { mutableStateOf(config.deviceCardStyles[entity.entity_id] ?: config.defaultDeviceCardStyle) }
     var width by remember(entity) { mutableStateOf(config.deviceCardWidths[entity.entity_id] ?: config.defaultDeviceCardWidth) }
     var shape by remember(entity) { mutableStateOf(config.deviceCardShapes[entity.entity_id] ?: "standard") }
     var showIconPicker by remember { mutableStateOf(false) }
@@ -490,17 +715,12 @@ private fun ClimateDeviceSettingsDialog(
                     placeholder = { Text(entity.friendlyName ?: entity.entity_id) },
                     singleLine = true, modifier = Modifier.fillMaxWidth()
                 )
-                Text("Card style", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = style == "card", onClick = { style = "card" }, label = { Text("Climate control") })
-                    FilterChip(selected = style == "dial", onClick = { style = "dial"; if (width == "third") width = "half" }, label = { Text("Thermostat dial") })
-                }
                 Text("Shape", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(selected = shape == "standard", onClick = { shape = "standard" }, label = { Text("Standard") })
                     FilterChip(selected = shape == "square", onClick = { shape = "square" }, label = { Text("Square") })
                 }
-                WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = style != "dial")
+                WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = config.defaultDeviceCardStyle != "dial")
                 Text("Icon", style = MaterialTheme.typography.labelLarge)
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (icon.isNotBlank()) MdiIcon(icon, size = 20.dp)
@@ -515,7 +735,7 @@ private fun ClimateDeviceSettingsDialog(
                 onSave(config.copy(
                     customNames = if (name.isBlank()) config.customNames - id else config.customNames + (id to name.trim()),
                     customIcons = if (icon.isBlank()) config.customIcons - id else config.customIcons + (id to icon),
-                    deviceCardStyles = if (style == config.defaultDeviceCardStyle) config.deviceCardStyles - id else config.deviceCardStyles + (id to style),
+                    deviceCardStyles = config.deviceCardStyles - id,
                     deviceCardWidths = if (width == config.defaultDeviceCardWidth) config.deviceCardWidths - id else config.deviceCardWidths + (id to width),
                     deviceCardShapes = if (shape == "standard") config.deviceCardShapes - id else config.deviceCardShapes + (id to shape)
                 ))
@@ -532,8 +752,10 @@ private fun ClimateHero(
     tempSensors: List<HAEntity>,
     humiditySensors: List<HAEntity>,
     climateEntities: List<HAEntity>,
-    modifier: Modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
-    cornerRadius: Int = 24
+    fanEntities: List<HAEntity>,
+    humidifierEntities: List<HAEntity>,
+    openingState: ClimateOpeningState,
+    modifier: Modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
 ) {
     val appColors = LocalHKIAppColors.current
     val temps = tempSensors.mapNotNull { it.numericState() }
@@ -541,49 +763,583 @@ private fun ClimateHero(
     val avgTemp = if (temps.isNotEmpty()) temps.average().toFloat() else null
     val avgHum = if (hums.isNotEmpty()) hums.average().toFloat() else null
     val tempUnit = tempSensors.firstOrNull()?.unit()?.ifBlank { "°C" } ?: "°C"
-    val activeCount = climateEntities.count { it.state != "off" && it.state != "unavailable" }
-
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(cornerRadius.dp), color = appColors.elevated
+    val activities = climateEntities.mapNotNull(HAEntity::climateSceneActivity)
+    val heating = ClimateSceneActivity.HEATING in activities
+    val cooling = ClimateSceneActivity.COOLING in activities
+    val climateFanActive = ClimateSceneActivity.FAN in activities
+    val drying = ClimateSceneActivity.DRYING in activities
+    val defrosting = ClimateSceneActivity.DEFROSTING in activities
+    val fanActive = fanEntities.any { it.state.equals("on", ignoreCase = true) } || climateFanActive
+    val humidifying = humidifierEntities.any {
+        it.state.equals("on", ignoreCase = true) || it.state.equals("humidifying", ignoreCase = true)
+    }
+    val enabledClimateCount = climateEntities.count {
+        it.state.trim().lowercase(Locale.ROOT) !in setOf("off", "unavailable", "unknown")
+    }
+    val enabledFanCount = fanEntities.count { it.state.equals("on", ignoreCase = true) }
+    val enabledHumidifierCount = humidifierEntities.count {
+        it.state.equals("on", ignoreCase = true) || it.state.equals("humidifying", ignoreCase = true)
+    }
+    val enabledCount = enabledClimateCount + enabledFanCount + enabledHumidifierCount
+    val activeCount = activities.size + enabledFanCount + enabledHumidifierCount
+    val totalDeviceCount = climateEntities.size + fanEntities.size + humidifierEntities.size
+    val mixedThermal = heating && cooling
+    val hasReadings = temps.isNotEmpty() || hums.isNotEmpty()
+    val targets = climateEntities.mapNotNull {
+        it.attributes?.get("temperature")?.jsonPrimitive?.doubleOrNull?.toFloat()
+    }
+    val averageTarget = targets.takeIf { it.isNotEmpty() }?.average()?.toFloat()
+    val targetTolerance = if (tempUnit.contains("F", ignoreCase = true)) 1f else 0.6f
+    val atTarget = avgTemp != null && averageTarget != null &&
+        kotlin.math.abs(avgTemp - averageTarget) <= targetTolerance
+    val sceneAccent = when {
+        mixedThermal -> MixedClimateViolet
+        heating -> TempWarm
+        cooling -> CoolBlue
+        drying -> HumidBlue
+        defrosting -> MixedClimateViolet
+        humidifying -> HumidBlue
+        fanActive -> Co2Teal
+        else -> SafeClimateGreen
+    }
+    val statusLabel = when {
+        mixedThermal -> "Mixed climate"
+        heating -> "Heating"
+        cooling -> "Cooling"
+        drying -> "Drying"
+        defrosting -> "Defrosting"
+        humidifying -> "Humidifying"
+        fanActive -> "Air circulating"
+        atTarget && enabledCount > 0 -> "At target"
+        enabledCount > 0 -> "Systems idle"
+        hasReadings -> "Monitoring"
+        else -> "No climate data"
+    }
+    // Match the Energy scene: the illustration sits directly on the page. Only the compact data
+    // pills have surfaces; there is no opaque card or wash behind the house.
+    Column(
+        modifier = modifier.padding(vertical = 14.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(
-            Modifier.background(
-                Brush.linearGradient(
-                    listOf(CoolBlue.copy(alpha = 0.16f), Color.Transparent, TempWarm.copy(alpha = 0.16f))
-                )
+        Box(Modifier.fillMaxWidth().height(252.dp)) {
+            ClimateHouseScene(
+                heating = heating,
+                cooling = cooling,
+                fanActive = fanActive,
+                humidifying = humidifying,
+                drying = drying,
+                defrosting = defrosting,
+                heatPumpActive = heating || cooling || climateFanActive || drying || defrosting,
+                systemsEnabled = enabledCount > 0,
+                hasReadings = hasReadings,
+                openDoorCount = openingState.openDoors,
+                openWindowCount = openingState.openWindows,
+                modifier = Modifier.fillMaxSize()
             )
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Surface(
+                modifier = Modifier.align(Alignment.TopStart).padding(start = 14.dp, top = 8.dp),
+                color = appColors.surface.copy(alpha = 0.88f), shape = itemCornerShape()
             ) {
-                Text("INDOOR CLIMATE", style = MaterialTheme.typography.labelSmall,
-                    color = appColors.onMuted, fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.height(4.dp))
-                Row(verticalAlignment = Alignment.Top) {
-                    Text(
-                        avgTemp?.let { "%.1f".format(Locale.getDefault(), it) } ?: "—",
-                        style = MaterialTheme.typography.displayMedium,
-                        color = appColors.onSurface, fontWeight = FontWeight.Bold
-                    )
-                    if (avgTemp != null) {
-                        Text(tempUnit, style = MaterialTheme.typography.titleMedium,
-                            color = TempWarm, modifier = Modifier.padding(top = 8.dp, start = 2.dp))
+                Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+                    Text("INDOOR AVERAGE", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted, fontWeight = FontWeight.SemiBold)
+                    Row(verticalAlignment = Alignment.Top) {
+                        Text(avgTemp?.let { "%.1f".format(Locale.getDefault(), it) } ?: "—", style = MaterialTheme.typography.headlineMedium, color = appColors.onSurface, fontWeight = FontWeight.Bold)
+                        if (avgTemp != null) Text(tempUnit, style = MaterialTheme.typography.labelLarge, color = sceneAccent, modifier = Modifier.padding(top = 4.dp, start = 2.dp))
                     }
                 }
-                Text("Average temperature", style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
-                Spacer(Modifier.height(16.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                    HeroStat(Icons.Default.WaterDrop, HumidBlue,
-                        avgHum?.let { "${formatValue(it)}%" } ?: "—", "Humidity")
-                    HeroStat(Icons.Default.Thermostat, TempWarm,
-                        "${tempSensors.size}", "Temp sensors")
-                    HeroStat(Icons.Default.HeatPump, Co2Teal,
-                        "$activeCount of ${climateEntities.size}", "Devices active")
+            }
+            Surface(
+                modifier = Modifier.align(Alignment.TopEnd).padding(end = 14.dp, top = 8.dp),
+                color = sceneAccent.copy(alpha = 0.16f), shape = itemCornerShape()
+            ) {
+                Row(Modifier.padding(horizontal = 10.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(7.dp).background(sceneAccent, CircleShape))
+                    Spacer(Modifier.width(6.dp))
+                    Text(statusLabel, color = appColors.onSurface, style = MaterialTheme.typography.labelMedium)
                 }
             }
         }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            HeroStat(Icons.Default.WaterDrop, HumidBlue,
+                avgHum?.let { "${formatValue(it)}%" } ?: "—", "Humidity")
+            HeroStat(Icons.Default.Thermostat, TempWarm,
+                "${tempSensors.size}", "Temp sensors")
+            HeroStat(Icons.Default.HeatPump, Co2Teal,
+                "$activeCount of $totalDeviceCount", "Devices active")
+        }
+    }
+}
+
+private val SafeClimateGreen = Color(0xFF4CAF73)
+private val MixedClimateViolet = Color(0xFF8B7CF6)
+
+@Composable
+private fun ClimateHouseScene(
+    heating: Boolean,
+    cooling: Boolean,
+    fanActive: Boolean,
+    humidifying: Boolean,
+    drying: Boolean,
+    defrosting: Boolean,
+    heatPumpActive: Boolean,
+    systemsEnabled: Boolean,
+    hasReadings: Boolean,
+    openDoorCount: Int,
+    openWindowCount: Int,
+    modifier: Modifier = Modifier
+) {
+    val appColors = LocalHKIAppColors.current
+    val dark = appColors.background.luminance() < 0.5f
+    val mixedThermal = heating && cooling
+    val stableAccent = if (systemsEnabled || hasReadings) SafeClimateGreen else appColors.onMuted
+    val accent = when {
+        mixedThermal -> MixedClimateViolet
+        heating -> TempWarm
+        cooling -> CoolBlue
+        drying -> HumidBlue
+        defrosting -> MixedClimateViolet
+        humidifying -> HumidBlue
+        fanActive -> Co2Teal
+        else -> stableAccent
+    }
+    val doorOpen by animateFloatAsState(
+        targetValue = if (openDoorCount > 0) 1f else 0f,
+        animationSpec = tween(850, easing = FastOutSlowInEasing),
+        label = "climateDoorOpen"
+    )
+    val windowOpen by animateFloatAsState(
+        targetValue = if (openWindowCount > 0) 1f else 0f,
+        animationSpec = tween(850, easing = FastOutSlowInEasing),
+        label = "climateWindowOpen"
+    )
+    val infinite = rememberInfiniteTransition(label = "climateHouse")
+    val phase by infinite.animateFloat(0f, 1f, infiniteRepeatable(tween(3200, easing = LinearEasing)), label = "airPhase")
+    val pulse by infinite.animateFloat(.62f, 1f, infiniteRepeatable(tween(2200, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "comfortPulse")
+
+    Canvas(modifier) {
+        // Use a fixed design viewport and one scale for both axes. The hero is also available as a
+        // widget, so this preserves the house proportions instead of stretching it with the card.
+        val designWidth = 850f
+        val designHeight = 620f
+        val scale = min(size.width / designWidth, size.height / designHeight)
+        if (scale <= 0f) return@Canvas
+        // The illustration's visual centre is slightly right of its coordinate centre because of
+        // the outdoor unit. Centre that composition and let it use more of the available card.
+        val originX = size.width / 2f - 470f * scale
+        val originY = size.height - designHeight * scale
+        fun point(x: Float, y: Float) = Offset(originX + x * scale, originY + y * scale)
+        fun d(value: Float) = value * scale
+
+        val leftWall = if (dark) Color(0xFF33424B) else Color(0xFFD9E3E8)
+        val rightWall = if (dark) Color(0xFF40515B) else Color(0xFFF0F4F6)
+        val gableFace = if (dark) Color(0xFF394952) else Color(0xFFE7EDF0)
+        val roofFront = if (dark) Color(0xFF1D2930) else Color(0xFFAAB8C0)
+        val roofBack = if (dark) Color(0xFF29363E) else Color(0xFFC1CBD1)
+        val glass = if (dark) Color(0xFF162B34) else Color(0xFFAFC7D2)
+        val edge = if (dark) Color(0xFF82959F) else Color.White.copy(alpha = 0.82f)
+        val frame = if (dark) Color(0xFF9AAAB2) else Color(0xFF687A83)
+        val furniture = if (dark) Color(0xFF111D22).copy(alpha = 0.56f) else Color(0xFF61727B).copy(alpha = 0.50f)
+        val equipment = if (dark) Color(0xFF435660) else Color(0xFFB8C6CD)
+        val equipmentDark = if (dark) Color(0xFF101B21) else Color(0xFF667780)
+        val neutralPipe = if (dark) Color(0xFF72828B) else Color(0xFF7C8C94)
+        fun quad(a: Offset, b: Offset, c: Offset, d: Offset) = Path().apply {
+            moveTo(a.x, a.y); lineTo(b.x, b.y); lineTo(c.x, c.y); lineTo(d.x, d.y); close()
+        }
+
+        val fc = point(500f, 530f)
+        val leftAxis = Offset(d(-350f), d(-55f))
+        val rightAxis = Offset(d(260f), d(-70f))
+        val wallHeight = d(185f)
+        val fcTop = fc + Offset(0f, -wallHeight)
+        val leftBottom = fc + leftAxis
+        val leftTop = fcTop + leftAxis
+        val rightBottom = fc + rightAxis
+        val rightTop = fcTop + rightAxis
+        val apex = point(630f, 225f)
+        val backApex = apex + leftAxis
+        val backRightTop = rightTop + leftAxis
+        fun leftFace(u: Float, v: Float) = fc + leftAxis * u + Offset(0f, -wallHeight * v)
+        fun rightFace(u: Float, v: Float) = fc + rightAxis * u + Offset(0f, -wallHeight * v)
+        fun roof(u: Float, v: Float) = fcTop + leftAxis * u + (apex - fcTop) * v
+
+        fun pointAlong(points: List<Offset>, value: Float): Offset {
+            if (points.size < 2) return points.firstOrNull() ?: Offset.Zero
+            var total = 0f
+            for (index in 0 until points.lastIndex) total += (points[index + 1] - points[index]).getDistance()
+            if (total <= 0f) return points.first()
+            var target = value.coerceIn(0f, 1f) * total
+            for (index in 0 until points.lastIndex) {
+                val length = (points[index + 1] - points[index]).getDistance()
+                if (target <= length || index == points.lastIndex - 1) {
+                    val fraction = if (length > 0f) (target / length).coerceIn(0f, 1f) else 0f
+                    return points[index] + (points[index + 1] - points[index]) * fraction
+                }
+                target -= length
+            }
+            return points.last()
+        }
+
+        // A restrained state halo and broad contact shadow ground the scene without colouring the
+        // whole building. Walls and roof remain neutral in every mode.
+        drawCircle(
+            brush = Brush.radialGradient(
+                listOf(accent.copy(alpha = (if (dark) 0.10f else 0.07f) * pulse), Color.Transparent),
+                center = point(500f, 365f),
+                radius = d(390f)
+            ),
+            radius = d(390f),
+            center = point(500f, 365f)
+        )
+        drawOval(
+            color = Color.Black.copy(alpha = if (dark) 0.32f else 0.10f),
+            topLeft = point(72f, 492f),
+            size = Size(d(770f), d(92f))
+        )
+
+        // Back roof plane first, then the walls and gable. This is the same coherent isometric
+        // construction used by the Energy house, rather than a collection of unrelated polygons.
+        drawPath(quad(apex, rightTop, backRightTop, backApex), roofBack)
+        drawPath(quad(fc, leftBottom, leftTop, fcTop), leftWall)
+        drawPath(quad(fc, rightBottom, rightTop, fcTop), rightWall)
+        drawPath(Path().apply {
+            moveTo(fcTop.x, fcTop.y); lineTo(apex.x, apex.y); lineTo(rightTop.x, rightTop.y); close()
+        }, gableFace)
+        drawLine(if (dark) Color.Black.copy(alpha = 0.25f) else frame.copy(alpha = 0.35f), leftBottom, fc, 2.dp.toPx())
+        drawLine(if (dark) Color.Black.copy(alpha = 0.22f) else frame.copy(alpha = 0.28f), fc, rightBottom, 2.dp.toPx())
+
+        val leftZoneAccent = if (mixedThermal) TempWarm else accent
+        val rightZoneAccent = if (mixedThermal) CoolBlue else accent
+        val roomAlpha = when {
+            heating || cooling || fanActive || humidifying || drying -> if (dark) 0.20f + 0.09f * pulse else 0.13f + 0.06f * pulse
+            systemsEnabled || hasReadings -> if (dark) 0.10f + 0.03f * pulse else 0.07f + 0.02f * pulse
+            else -> 0f
+        }
+        val windowBottom = 0.19f
+        val windowTop = 0.67f
+        fun roomPath(u0: Float, u1: Float) = quad(
+            leftFace(u0, windowBottom), leftFace(u1, windowBottom),
+            leftFace(u1, windowTop), leftFace(u0, windowTop)
+        )
+        val livingRoom = roomPath(0.09f, 0.44f)
+        val bedroom = roomPath(0.56f, 0.91f)
+        drawPath(livingRoom, glass)
+        drawPath(livingRoom, leftZoneAccent.copy(alpha = roomAlpha))
+        drawPath(livingRoom, frame.copy(alpha = 0.76f), style = Stroke(1.4.dp.toPx()))
+        drawPath(bedroom, glass)
+        drawPath(bedroom, rightZoneAccent.copy(alpha = roomAlpha))
+        drawPath(bedroom, frame.copy(alpha = 0.76f), style = Stroke(1.4.dp.toPx()))
+        // Proper window mullions make this read as an inhabited home rather than an open box.
+        listOf(0.265f, 0.735f).forEach { u ->
+            drawLine(frame.copy(alpha = 0.56f), leftFace(u, windowBottom), leftFace(u, windowTop), 1.dp.toPx())
+        }
+        listOf(0.09f to 0.44f, 0.56f to 0.91f).forEach { (u0, u1) ->
+            drawLine(
+                frame.copy(alpha = 0.48f),
+                leftFace(u0, 0.43f), leftFace(u1, 0.43f), 1.dp.toPx()
+            )
+        }
+        drawLine(frame.copy(alpha = 0.46f), leftFace(0.07f, windowBottom), leftFace(0.93f, windowBottom), 1.2.dp.toPx())
+
+        // Restrained silhouettes behind the glass suggest a living room and bedroom without
+        // competing with the animated climate state.
+        drawPath(quad(leftFace(0.13f, 0.21f), leftFace(0.40f, 0.21f), leftFace(0.40f, 0.31f), leftFace(0.13f, 0.31f)), furniture)
+        drawPath(quad(leftFace(0.16f, 0.30f), leftFace(0.37f, 0.30f), leftFace(0.37f, 0.39f), leftFace(0.16f, 0.39f)), furniture.copy(alpha = 0.72f))
+        drawLine(furniture, leftFace(0.405f, 0.22f), leftFace(0.405f, 0.39f), 1.2.dp.toPx(), cap = StrokeCap.Round)
+        drawCircle(furniture.copy(alpha = 0.82f), d(7f), leftFace(0.405f, 0.41f))
+
+        drawPath(quad(leftFace(0.60f, 0.21f), leftFace(0.86f, 0.21f), leftFace(0.86f, 0.30f), leftFace(0.60f, 0.30f)), furniture)
+        drawPath(quad(leftFace(0.82f, 0.21f), leftFace(0.87f, 0.21f), leftFace(0.87f, 0.43f), leftFace(0.82f, 0.43f)), furniture.copy(alpha = 0.76f))
+        drawPath(quad(leftFace(0.61f, 0.30f), leftFace(0.70f, 0.30f), leftFace(0.70f, 0.35f), leftFace(0.61f, 0.35f)), furniture.copy(alpha = 0.52f))
+
+        // Wall thermostat on the pier between both rooms.
+        val thermostat = leftFace(0.50f, 0.50f)
+        drawCircle(if (dark) Color(0xFF17242B) else Color(0xFFF5F7F8), d(17f), thermostat)
+        drawCircle(frame.copy(alpha = 0.75f), d(17f), thermostat, style = Stroke(1.dp.toPx()))
+        drawCircle(accent.copy(alpha = 0.9f), d(4.5f), thermostat)
+
+        // A visible indoor fan explains the "Air circulating" state. The outdoor heat pump only
+        // spins when a climate entity itself is running.
+        val roomFanCenter = leftFace(0.27f, 0.56f)
+        drawCircle(if (dark) Color(0xFF152229) else Color(0xFFEEF3F5), d(15f), roomFanCenter)
+        drawCircle(frame.copy(alpha = 0.48f), d(15f), roomFanCenter, style = Stroke(1.dp.toPx()))
+        drawCircle(frame.copy(alpha = 0.22f), d(10f), roomFanCenter, style = Stroke(0.8.dp.toPx()))
+        val roomFanRotation = if (fanActive) phase * 6.283185f else 0.25f
+        repeat(4) { blade ->
+            val angle = roomFanRotation + blade * 6.283185f / 4f
+            val direction = Offset(cos(angle), sin(angle))
+            val tangent = Offset(-direction.y, direction.x)
+            val start = roomFanCenter + direction * d(3f)
+            val end = roomFanCenter + direction * d(10.5f) + tangent * d(2.5f)
+            drawPath(
+                Path().apply {
+                    moveTo(start.x, start.y)
+                    cubicTo(
+                        start.x + tangent.x * d(1.5f), start.y + tangent.y * d(1.5f),
+                        end.x - direction.x * d(3f), end.y - direction.y * d(3f),
+                        end.x, end.y
+                    )
+                },
+                (if (fanActive) Co2Teal else frame).copy(alpha = if (fanActive) 0.90f else 0.36f),
+                style = Stroke(2.2.dp.toPx(), cap = StrokeCap.Round)
+            )
+        }
+        drawCircle(if (fanActive) Co2Teal else frame.copy(alpha = 0.52f), d(3.5f), roomFanCenter)
+
+        // The front/gable face gets a real hinged door. A live open contact narrows and moves the
+        // leaf in perspective, exposing the dark doorway instead of merely changing its colour.
+        val doorway = quad(
+            rightFace(0.08f, 0.02f), rightFace(0.31f, 0.02f),
+            rightFace(0.31f, 0.64f), rightFace(0.08f, 0.64f)
+        )
+        drawPath(doorway, equipmentDark.copy(alpha = 0.94f))
+        val doorHingeBottom = rightFace(0.08f, 0.02f)
+        val doorHingeTop = rightFace(0.08f, 0.64f)
+        val doorFarU = 0.31f - 0.14f * doorOpen
+        val doorOffset = Offset(d(18f * doorOpen), d(8f * doorOpen))
+        val doorLeaf = quad(
+            doorHingeBottom,
+            rightFace(doorFarU, 0.02f) + doorOffset,
+            rightFace(doorFarU, 0.64f) + doorOffset,
+            doorHingeTop
+        )
+        drawPath(doorLeaf, if (dark) Color(0xFF26343C) else Color(0xFFB8C6CD))
+        drawPath(doorLeaf, furniture.copy(alpha = 0.55f), style = Stroke(1.dp.toPx()))
+        val doorPane = quad(
+            rightFace(0.12f, 0.43f),
+            rightFace(doorFarU - 0.04f, 0.43f) + doorOffset,
+            rightFace(doorFarU - 0.04f, 0.58f) + doorOffset,
+            rightFace(0.12f, 0.58f)
+        )
+        drawPath(doorPane, glass)
+        drawPath(doorPane, accent.copy(alpha = roomAlpha * 0.9f))
+        drawCircle(frame, d(3.2f), rightFace(doorFarU - 0.035f, 0.28f) + doorOffset)
+
+        val frontWindow = quad(rightFace(0.42f, 0.23f), rightFace(0.82f, 0.23f), rightFace(0.82f, 0.70f), rightFace(0.42f, 0.70f))
+        drawPath(frontWindow, glass)
+        drawPath(frontWindow, rightZoneAccent.copy(alpha = roomAlpha * 0.90f))
+        drawPath(frontWindow, frame.copy(alpha = 0.72f), style = Stroke(1.dp.toPx()))
+        drawLine(frame.copy(alpha = 0.62f), rightFace(0.62f, 0.23f), rightFace(0.62f, 0.70f), 1.dp.toPx())
+        drawLine(frame.copy(alpha = 0.62f), rightFace(0.42f, 0.465f), rightFace(0.82f, 0.465f), 1.dp.toPx())
+        if (windowOpen > 0.01f) {
+            val openHalf = quad(
+                rightFace(0.62f, 0.23f), rightFace(0.82f, 0.23f),
+                rightFace(0.82f, 0.70f), rightFace(0.62f, 0.70f)
+            )
+            drawPath(openHalf, equipmentDark.copy(alpha = 0.78f * windowOpen))
+            val windowFarU = 0.82f - 0.10f * windowOpen
+            val windowOffset = Offset(d(20f * windowOpen), d(8f * windowOpen))
+            val openPane = quad(
+                rightFace(0.62f, 0.23f),
+                rightFace(windowFarU, 0.23f) + windowOffset,
+                rightFace(windowFarU, 0.70f) + windowOffset,
+                rightFace(0.62f, 0.70f)
+            )
+            drawPath(openPane, glass.copy(alpha = 0.88f))
+            drawPath(openPane, rightZoneAccent.copy(alpha = roomAlpha * 0.72f))
+            drawPath(openPane, frame.copy(alpha = 0.90f), style = Stroke(1.2.dp.toPx()))
+            drawLine(
+                frame.copy(alpha = 0.78f),
+                rightFace(0.62f, 0.465f),
+                rightFace(windowFarU, 0.465f) + windowOffset,
+                1.dp.toPx()
+            )
+        }
+        val atticVent = Offset((fcTop.x + apex.x + rightTop.x) / 3f, (fcTop.y + apex.y + rightTop.y) / 3f)
+        drawCircle(if (dark) Color(0xFF17242B) else Color(0xFFB7C5CC), d(16f), atticVent)
+        drawCircle(frame.copy(alpha = 0.65f), d(16f), atticVent, style = Stroke(1.dp.toPx()))
+        drawLine(frame.copy(alpha = 0.7f), atticVent + Offset(d(-8f), 0f), atticVent + Offset(d(8f), 0f), 1.dp.toPx())
+
+        // Floor/ceiling vents anchor every animated air path to something physical.
+        listOf(0.27f, 0.72f).forEach { u ->
+            drawLine(frame.copy(alpha = 0.65f), leftFace(u - 0.055f, 0.17f), leftFace(u + 0.055f, 0.17f), 2.dp.toPx(), cap = StrokeCap.Round)
+            drawLine(frame.copy(alpha = 0.50f), leftFace(u - 0.055f, 0.71f), leftFace(u + 0.055f, 0.71f), 2.dp.toPx(), cap = StrokeCap.Round)
+        }
+
+        fun drawAirColumn(centerU: Float, color: Color, rising: Boolean, seed: Float) {
+            val path = Path()
+            for (step in 0..24) {
+                val t = step / 24f
+                val v = if (rising) 0.19f + t * 0.50f else 0.70f - t * 0.50f
+                val u = centerU + sin(t * 6.283185f + seed) * 0.022f
+                val p = leftFace(u, v)
+                if (step == 0) path.moveTo(p.x, p.y) else path.lineTo(p.x, p.y)
+            }
+            drawPath(path, color.copy(alpha = if (dark) 0.27f else 0.21f), style = Stroke(1.4.dp.toPx(), cap = StrokeCap.Round))
+            repeat(2) { bead ->
+                val head = (phase + bead * 0.48f + seed * 0.07f) % 1f
+                repeat(3) { trail ->
+                    val t = (head - trail * 0.045f).let { if (it < 0f) it + 1f else it }
+                    val v = if (rising) 0.19f + t * 0.50f else 0.70f - t * 0.50f
+                    val u = centerU + sin(t * 6.283185f + seed) * 0.022f
+                    drawCircle(
+                        color.copy(alpha = 0.88f - trail * 0.24f),
+                        d(5.5f - trail * 0.9f),
+                        leftFace(u, v)
+                    )
+                }
+            }
+        }
+
+        when {
+            mixedThermal -> {
+                drawAirColumn(0.27f, TempWarm, rising = true, seed = 0.3f)
+                drawAirColumn(0.72f, CoolBlue, rising = false, seed = 1.4f)
+            }
+            heating -> {
+                drawAirColumn(0.27f, TempWarm, rising = true, seed = 0.3f)
+                drawAirColumn(0.72f, TempWarm, rising = true, seed = 1.4f)
+            }
+            cooling -> {
+                drawAirColumn(0.27f, CoolBlue, rising = false, seed = 0.3f)
+                drawAirColumn(0.72f, CoolBlue, rising = false, seed = 1.4f)
+            }
+            drying -> {
+                drawAirColumn(0.27f, HumidBlue, rising = false, seed = 0.3f)
+                drawAirColumn(0.72f, HumidBlue, rising = false, seed = 1.4f)
+            }
+            fanActive -> {
+                fun drawAirStream(u0: Float, u1: Float, v: Float, seed: Float) {
+                    val stream = Path()
+                    for (step in 0..24) {
+                        val t = step / 24f
+                        val u = u0 + (u1 - u0) * t
+                        val waveV = v + sin(t * 6.283185f * 1.25f + seed) * 0.018f
+                        val p = leftFace(u, waveV)
+                        if (step == 0) stream.moveTo(p.x, p.y) else stream.lineTo(p.x, p.y)
+                    }
+                    drawPath(
+                        stream,
+                        Co2Teal.copy(alpha = if (dark) 0.30f else 0.23f),
+                        style = Stroke(1.4.dp.toPx(), cap = StrokeCap.Round)
+                    )
+                    val head = (phase + seed * 0.11f) % 1f
+                    repeat(3) { trail ->
+                        val t = (head - trail * 0.055f).let { if (it < 0f) it + 1f else it }
+                        val u = u0 + (u1 - u0) * t
+                        val waveV = v + sin(t * 6.283185f * 1.25f + seed) * 0.018f
+                        drawCircle(
+                            Co2Teal.copy(alpha = 0.88f - trail * 0.24f),
+                            d(5.0f - trail * 0.8f),
+                            leftFace(u, waveV)
+                        )
+                    }
+                }
+                drawAirStream(0.39f, 0.13f, 0.36f, 0.2f)
+                drawAirStream(0.86f, 0.60f, 0.36f, 1.1f)
+            }
+        }
+
+        // A small indoor humidifier creates mist only while that device is actually active.
+        val humidifierBody = quad(leftFace(0.73f, 0.14f), leftFace(0.86f, 0.14f), leftFace(0.86f, 0.28f), leftFace(0.73f, 0.28f))
+        drawPath(humidifierBody, if (dark) Color(0xFF38505A) else Color(0xFF91A9B3))
+        drawLine(frame.copy(alpha = 0.55f), leftFace(0.75f, 0.25f), leftFace(0.84f, 0.25f), 1.dp.toPx())
+        if (humidifying) {
+            repeat(3) { mist ->
+                val t = (phase * 0.72f + mist / 3f) % 1f
+                val u = 0.765f + mist * 0.035f + sin(t * 6.283185f + mist) * 0.008f
+                val v = 0.29f + t * 0.29f
+                drawCircle(HumidBlue.copy(alpha = (1f - t) * 0.72f), d(7.5f - t * 2f), leftFace(u, v))
+            }
+        }
+
+        // Pitched roof, seams, generous eaves and a small chimney finish the house silhouette.
+        drawPath(quad(roof(-0.035f, -0.05f), roof(1.035f, -0.05f), roof(1.035f, 1.04f), roof(-0.035f, 1.04f)), roofFront)
+        listOf(0.25f, 0.50f, 0.75f).forEach { u ->
+            drawLine(edge.copy(alpha = 0.16f), roof(u, 0.02f), roof(u, 0.98f), 0.8.dp.toPx())
+        }
+        drawLine(edge, roof(-0.035f, -0.05f), roof(-0.035f, 1.04f), 1.5.dp.toPx())
+        drawLine(edge.copy(alpha = 0.85f), roof(-0.035f, 1.04f), roof(1.035f, 1.04f), 1.2.dp.toPx())
+
+        val chimneyBase = roof(0.67f, 0.61f)
+        val chimneyLeft = chimneyBase + Offset(d(-16f), 0f)
+        val chimneyRight = chimneyBase + Offset(d(15f), d(2f))
+        val chimneyUp = Offset(0f, d(-48f))
+        drawPath(quad(chimneyLeft, chimneyRight, chimneyRight + chimneyUp, chimneyLeft + chimneyUp), if (dark) Color(0xFF3C4B54) else Color(0xFF8798A1))
+        drawPath(
+            quad(chimneyLeft + chimneyUp, chimneyRight + chimneyUp, chimneyRight + chimneyUp + Offset(d(-8f), d(-6f)), chimneyLeft + chimneyUp + Offset(d(-8f), d(-6f))),
+            if (dark) Color(0xFF56656D) else Color(0xFF71828B)
+        )
+
+        // Properly mounted outdoor heat-pump: feet, grille, five curved blades, status LED and
+        // twin insulated pipes visibly connect it to the house.
+        val unitTopLeft = point(748f, 432f)
+        val unitSize = Size(d(112f), d(92f))
+        val wallPipe = rightFace(0.70f, 0.17f)
+        val pipePoints = listOf(
+            unitTopLeft + Offset(0f, d(49f)),
+            point(730f, 481f),
+            point(730f, 445f),
+            wallPipe
+        )
+        val pipePath = Path().apply {
+            moveTo(pipePoints.first().x, pipePoints.first().y)
+            pipePoints.drop(1).forEach { lineTo(it.x, it.y) }
+        }
+        drawPath(pipePath, neutralPipe.copy(alpha = 0.86f), style = Stroke(3.dp.toPx(), cap = StrokeCap.Round))
+        val secondPipe = pipePoints.map { it + Offset(0f, d(7f)) }
+        val secondPipePath = Path().apply {
+            moveTo(secondPipe.first().x, secondPipe.first().y)
+            secondPipe.drop(1).forEach { lineTo(it.x, it.y) }
+        }
+        drawPath(secondPipePath, neutralPipe.copy(alpha = 0.58f), style = Stroke(1.6.dp.toPx(), cap = StrokeCap.Round))
+        if (heatPumpActive) {
+            repeat(2) { bead ->
+                val head = (phase + bead * 0.50f) % 1f
+                repeat(3) { trail ->
+                    val t = (head - trail * 0.05f).coerceAtLeast(0f)
+                    drawCircle(accent.copy(alpha = 0.86f - trail * 0.24f), d(5.3f - trail * 0.8f), pointAlong(pipePoints, t))
+                }
+            }
+        }
+
+        drawOval(Color.Black.copy(alpha = if (dark) 0.24f else 0.09f), point(742f, 515f), Size(d(128f), d(28f)))
+        drawRoundRect(
+            color = equipment,
+            topLeft = unitTopLeft,
+            size = unitSize,
+            cornerRadius = CornerRadius(d(15f), d(15f))
+        )
+        drawRoundRect(
+            color = frame.copy(alpha = 0.34f),
+            topLeft = unitTopLeft,
+            size = unitSize,
+            cornerRadius = CornerRadius(d(15f), d(15f)),
+            style = Stroke(1.dp.toPx())
+        )
+        drawLine(equipmentDark.copy(alpha = 0.70f), unitTopLeft + Offset(d(18f), unitSize.height), unitTopLeft + Offset(d(18f), unitSize.height + d(12f)), 3.dp.toPx(), cap = StrokeCap.Round)
+        drawLine(equipmentDark.copy(alpha = 0.70f), unitTopLeft + Offset(unitSize.width - d(18f), unitSize.height), unitTopLeft + Offset(unitSize.width - d(18f), unitSize.height + d(12f)), 3.dp.toPx(), cap = StrokeCap.Round)
+
+        val unitCenter = unitTopLeft + Offset(unitSize.width * 0.52f, unitSize.height * 0.53f)
+        val fanRadius = d(32f)
+        drawCircle(equipmentDark.copy(alpha = 0.62f), fanRadius, unitCenter)
+        drawCircle(frame.copy(alpha = 0.42f), fanRadius, unitCenter, style = Stroke(1.dp.toPx()))
+        drawCircle(frame.copy(alpha = 0.28f), fanRadius * 0.72f, unitCenter, style = Stroke(1.dp.toPx()))
+        val rotation = if (heatPumpActive) phase * 6.283185f else 0.35f
+        repeat(5) { blade ->
+            val angle = rotation + blade * (6.283185f / 5f)
+            val direction = Offset(cos(angle), sin(angle))
+            val tangent = Offset(-direction.y, direction.x)
+            val start = unitCenter + direction * (fanRadius * 0.18f)
+            val end = unitCenter + direction * (fanRadius * 0.70f) + tangent * (fanRadius * 0.14f)
+            val bladePath = Path().apply {
+                moveTo(start.x, start.y)
+                cubicTo(
+                    start.x + tangent.x * fanRadius * 0.08f,
+                    start.y + tangent.y * fanRadius * 0.08f,
+                    end.x - direction.x * fanRadius * 0.20f,
+                    end.y - direction.y * fanRadius * 0.20f,
+                    end.x,
+                    end.y
+                )
+            }
+            drawPath(
+                bladePath,
+                (if (heatPumpActive) accent else frame).copy(alpha = if (heatPumpActive) 0.88f else 0.38f),
+                style = Stroke(4.dp.toPx(), cap = StrokeCap.Round)
+            )
+        }
+        drawCircle(if (heatPumpActive) accent.copy(alpha = 0.45f + 0.55f * pulse) else frame.copy(alpha = 0.35f), d(4f), unitTopLeft + Offset(unitSize.width - d(13f), d(13f)))
+        drawCircle(equipmentDark, d(6f), unitCenter)
     }
 }
 
@@ -619,7 +1375,7 @@ private fun hvacModeLabel(mode: String): String = when (mode) {
 }
 
 @Composable
-private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: Int = 20, isSquare: Boolean = false, iconOverride: String? = null) {
+private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: Int = LocalItemCornerRadius.current, isSquare: Boolean = false, iconOverride: String? = null) {
     val appColors = LocalHKIAppColors.current
     val locale = LocalConfiguration.current.locales[0]
     val hvacAction = entity.attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
@@ -850,7 +1606,7 @@ private fun dimmed(color: Color, factor: Float): Color =
     Color(color.red * factor, color.green * factor, color.blue * factor, 1f)
 
 @Composable
-private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: Int = 20, isSquare: Boolean = false, iconOverride: String? = null, onCenterClick: (() -> Unit)? = null) {
+private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: Int = LocalItemCornerRadius.current, isSquare: Boolean = false, iconOverride: String? = null, onCenterClick: (() -> Unit)? = null) {
     val appColors = LocalHKIAppColors.current
     val locale = LocalConfiguration.current.locales[0]
     val weatherEntity by viewModel.weather.collectAsState()
@@ -1137,13 +1893,13 @@ private fun HvacModePillsRow(entity: HAEntity, viewModel: MainViewModel, selecte
                 val selected = mode == selectedMode
                 val modeColor = hvacColor(mode)
                 Surface(
-                    shape = RoundedCornerShape(14.dp),
+                    shape = itemCornerShape(),
                     color = if (selected) modeColor.copy(alpha = 0.22f) else appColors.subtleSurface,
                     border = BorderStroke(
                         1.dp,
                         if (selected) modeColor.copy(alpha = 0.8f) else appColors.onMuted.copy(alpha = 0.14f)
                     ),
-                    modifier = Modifier.clip(RoundedCornerShape(14.dp))
+                    modifier = Modifier.clip(itemCornerShape())
                         .clickable { onModeSelected(mode); viewModel.setHvacMode(entity.entity_id, mode) }
                 ) {
                     Row(
@@ -1223,13 +1979,13 @@ private fun ClimateChipGroup(
             modes.forEach { mode ->
                 val selected = mode == activeMode
                 Surface(
-                    shape = RoundedCornerShape(12.dp),
+                    shape = itemCornerShape(),
                     color = if (selected) accent.copy(alpha = 0.22f) else appColors.subtleSurface,
                     border = androidx.compose.foundation.BorderStroke(
                         1.dp,
                         if (selected) accent.copy(alpha = 0.8f) else appColors.onMuted.copy(alpha = 0.14f)
                     ),
-                    modifier = Modifier.clip(RoundedCornerShape(12.dp)).clickable { onSelect(mode) }
+                    modifier = Modifier.clip(itemCornerShape()).clickable { onSelect(mode) }
                 ) {
                     Text(
                         mode.split("_").joinToString(" ") { it.replaceFirstChar(Char::uppercase) },
@@ -1286,7 +2042,7 @@ private fun ClimateDeviceListPage(
             item {
                 Surface(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    shape = RoundedCornerShape(20.dp), color = appColors.elevated
+                    shape = itemCornerShape(), color = appColors.elevated
                 ) {
                     Text(
                         when (deviceType) {
@@ -1318,7 +2074,7 @@ private fun ClimateDeviceListPage(
 }
 
 @Composable
-private fun FanCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: Int = 20) {
+private fun FanCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: Int = LocalItemCornerRadius.current) {
     val appColors = LocalHKIAppColors.current
     val isOn = entity.state == "on"
     val color = if (isOn) AirGreen else appColors.onMuted
@@ -1356,7 +2112,7 @@ private fun FanCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: In
                 Spacer(Modifier.height(10.dp))
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Icon(Icons.Default.Speed, null, tint = appColors.onMuted, modifier = Modifier.size(16.dp))
-                    Slider(
+                    HKISlider(
                         value = localPct,
                         onValueChange = { localPct = it },
                         onValueChangeFinished = { viewModel.setFanPercentage(entity.entity_id, localPct.toInt()) },
@@ -1381,7 +2137,7 @@ private fun FanCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: In
 }
 
 @Composable
-private fun HumidifierCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: Int = 20) {
+private fun HumidifierCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: Int = LocalItemCornerRadius.current) {
     val appColors = LocalHKIAppColors.current
     val isOn = entity.state == "on"
     val isDehumidifier = entity.deviceClass == "dehumidifier"
@@ -1506,18 +2262,12 @@ private fun ClimateSensorDetailPage(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) { sensor, _ ->
             Box {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp), color = appColors.elevated
-                ) {
-                    EntitySensorGraphCard(
-                        sensorEntity = sensor,
-                        viewModel = viewModel,
-                        selectedHours = selectedHours,
-                        lineColor = group.color,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
+                EntitySensorGraphCard(
+                    sensorEntity = sensor,
+                    viewModel = viewModel,
+                    selectedHours = selectedHours,
+                    lineColor = group.color
+                )
                 EditSettingsButton(onClick = { onRename(sensor) }, modifier = Modifier.align(Alignment.Center))
                 EditRemoveBadge(onClick = { onRemove(sensor.entity_id) }, modifier = Modifier.align(Alignment.TopEnd))
             }
@@ -1532,8 +2282,9 @@ private fun ClimateSensorDetailPage(
         // Summary card across all sensors in the group
         item {
             Surface(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
-                shape = RoundedCornerShape(20.dp), color = appColors.elevated
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp)
+                    .background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                shape = itemCornerShape(), color = Color.Transparent
             ) {
                 Column(Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -1575,7 +2326,7 @@ private fun ClimateSensorDetailPage(
             item {
                 Surface(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    shape = RoundedCornerShape(20.dp), color = appColors.elevated
+                    shape = itemCornerShape(), color = appColors.elevated
                 ) {
                     Text(
                         "No ${group.title.lowercase()} sensors found.",
@@ -1589,18 +2340,12 @@ private fun ClimateSensorDetailPage(
             items(count = sensors.size, key = { sensors[it].entity_id }) { idx ->
                 val sensor = sensors[idx]
                 Box(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(20.dp), color = appColors.elevated
-                    ) {
-                        EntitySensorGraphCard(
-                            sensorEntity = sensor,
-                            viewModel = viewModel,
-                            selectedHours = selectedHours,
-                            lineColor = group.color,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
+                    EntitySensorGraphCard(
+                        sensorEntity = sensor,
+                        viewModel = viewModel,
+                        selectedHours = selectedHours,
+                        lineColor = group.color
+                    )
                     if (isEditMode) {
                         EditSettingsButton(onClick = { onRename(sensor) }, modifier = Modifier.align(Alignment.Center))
                         EditRemoveBadge(
@@ -1615,6 +2360,58 @@ private fun ClimateSensorDetailPage(
 }
 
 // ═══ CLIMATE SETTINGS (entity pickers, Energy-settings style) ═══════════════
+
+@Composable
+private fun ColumnScope.ClimateAppearanceSection(
+    climateConfig: HKIClimateConfig,
+    onSave: (HKIClimateConfig) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    var cfg by remember(climateConfig) { mutableStateOf(climateConfig) }
+    Surface(modifier = Modifier.fillMaxWidth(), shape = itemCornerShape(), color = appColors.subtleSurface) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("All thermostats", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(
+                "Set the control style for every thermostat on this Climate page. Standalone climate widgets keep their own layout settings.",
+                color = appColors.onMuted,
+                style = MaterialTheme.typography.bodySmall
+            )
+            Text("Control", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("card" to "Climate control", "dial" to "Thermostat dial").forEach { (value, label) ->
+                    FilterChip(
+                        selected = cfg.defaultDeviceCardStyle == value,
+                        onClick = {
+                            val widths = if (value == "dial") cfg.deviceCardWidths.mapValues { (_, width) -> if (width == "third") "half" else width } else cfg.deviceCardWidths
+                            cfg = cfg.copy(
+                                defaultDeviceCardStyle = value,
+                                defaultDeviceCardWidth = if (value == "dial" && cfg.defaultDeviceCardWidth == "third") "half" else cfg.defaultDeviceCardWidth,
+                                deviceCardStyles = emptyMap(),
+                                deviceCardWidths = widths
+                            )
+                            onSave(cfg)
+                        },
+                        label = { Text(label) }
+                    )
+                }
+            }
+            Text("Width", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("third" to "Third", "half" to "Half", "full" to "Full").forEach { (value, label) ->
+                    FilterChip(
+                        selected = cfg.defaultDeviceCardWidth == value,
+                        enabled = value != "third" || cfg.defaultDeviceCardStyle != "dial",
+                        onClick = {
+                            cfg = cfg.copy(defaultDeviceCardWidth = value, deviceCardWidths = emptyMap())
+                            onSave(cfg)
+                        },
+                        label = { Text(label) }
+                    )
+                }
+            }
+        }
+    }
+}
 
 @Composable
 private fun ColumnScope.ClimateSensorSection(
@@ -1686,7 +2483,7 @@ private fun ColumnScope.ClimateSensorSection(
     fun categoryButton(key: String, title: String, subtitle: String, icon: ImageVector, color: Color) {
         Surface(
             modifier = Modifier.fillMaxWidth().clickable { category = key },
-            shape = RoundedCornerShape(18.dp),
+            shape = itemCornerShape(),
             color = appColors.subtleSurface
         ) {
             Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -1707,65 +2504,6 @@ private fun ColumnScope.ClimateSensorSection(
     }
 
     if (category == null) {
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp),
-            color = appColors.subtleSurface
-        ) {
-            Column(
-                modifier = Modifier.padding(14.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text(
-                    "All thermostats",
-                    color = appColors.onSurface,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    "Set the layout for every thermostat on this Climate page. You can still override individual devices in edit mode.",
-                    color = appColors.onMuted,
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Text("Control", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf("card" to "Climate control", "dial" to "Thermostat dial").forEach { (value, label) ->
-                        FilterChip(
-                            selected = cfg.defaultDeviceCardStyle == value,
-                            onClick = {
-                                val adjustedWidths = if (value == "dial") {
-                                    cfg.deviceCardWidths.mapValues { (_, width) -> if (width == "third") "half" else width }
-                                } else cfg.deviceCardWidths
-                                cfg = cfg.copy(
-                                    defaultDeviceCardStyle = value,
-                                    defaultDeviceCardWidth = if (value == "dial" && cfg.defaultDeviceCardWidth == "third") "half" else cfg.defaultDeviceCardWidth,
-                                    deviceCardStyles = emptyMap(),
-                                    deviceCardWidths = adjustedWidths
-                                )
-                                onSave(cfg)
-                            },
-                            label = { Text(label) }
-                        )
-                    }
-                }
-                Text("Width", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf("third" to "Third", "half" to "Half", "full" to "Full").forEach { (value, label) ->
-                        val enabled = value != "third" || cfg.defaultDeviceCardStyle != "dial"
-                        FilterChip(
-                            selected = cfg.defaultDeviceCardWidth == value,
-                            enabled = enabled,
-                            onClick = {
-                                cfg = cfg.copy(defaultDeviceCardWidth = value, deviceCardWidths = emptyMap())
-                                onSave(cfg)
-                            },
-                            label = { Text(label) }
-                        )
-                    }
-                }
-            }
-        }
-        Spacer(Modifier.height(4.dp))
         climateSensorGroups.forEach { group ->
             val extraCount = cfg.extraSensorIds[group.key].orEmpty().size
             categoryButton(
@@ -1883,7 +2621,7 @@ private fun ClimateSectionHeader(title: String, trailing: String?) {
 @Composable
 private fun ClimateLiveTile(
     icon: ImageVector, color: Color, title: String, status: String,
-    modifier: Modifier = Modifier, cornerRadius: Int = 18, onClick: (() -> Unit)? = null
+    modifier: Modifier = Modifier, cornerRadius: Int = LocalItemCornerRadius.current, onClick: (() -> Unit)? = null
 ) {
     val appColors = LocalHKIAppColors.current
     Surface(
@@ -2049,6 +2787,8 @@ fun ClimateCardWidgetView(
     val appColors = LocalHKIAppColors.current
     val data = if (entityIdsOverride.isEmpty()) rememberClimateWidgetData(viewModel)
         else rememberClimateWidgetOverrideData(viewModel, entityIdsOverride)
+    val openingState = if (cardKey == "hero") rememberClimateOpeningState(viewModel)
+        else ClimateOpeningState()
     var dialDialogEntityId by remember { mutableStateOf<String?>(null) }
 
     @Composable
@@ -2071,8 +2811,10 @@ fun ClimateCardWidgetView(
             tempSensors = data.groupSensors["temperature"].orEmpty(),
             humiditySensors = data.groupSensors["humidity"].orEmpty(),
             climateEntities = data.climateEntities,
-            modifier = modifier.fillMaxWidth(),
-            cornerRadius = cornerRadius
+            fanEntities = data.fanEntities,
+            humidifierEntities = data.humidifierEntities,
+            openingState = openingState,
+            modifier = modifier.fillMaxWidth()
         )
         "tiles" -> {
             data class TileSpec(val icon: ImageVector, val color: Color, val title: String, val status: String)
@@ -2230,10 +2972,7 @@ fun ClimateCardWidgetItem(
             ClimateCardWidgetView(widget.cardKey, viewModel, widget.cornerRadius, entityIdsOverride = widget.entityIds, isSquare = widget.isSquare)
         }
         if (isEditMode) {
-            IconButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center).size(24.dp)) {
-                Icon(Icons.Default.Settings, contentDescription = "Settings",
-                    tint = LocalHKIAppColors.current.onSurface, modifier = Modifier.size(16.dp))
-            }
+            EditSettingsButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center))
             EditRemoveBadge(
                 onClick = onDelete,
                 modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
@@ -2286,10 +3025,7 @@ fun ClimateStackWidgetItem(
             }
         }
         if (isEditMode) {
-            IconButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center).size(24.dp)) {
-                Icon(Icons.Default.Settings, contentDescription = "Settings",
-                    tint = appColors.onSurface, modifier = Modifier.size(16.dp))
-            }
+            EditSettingsButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center))
             EditRemoveBadge(
                 onClick = onDelete,
                 modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
@@ -2327,9 +3063,9 @@ fun ClimateCardPickerList(
                 Surface(
                     modifier = Modifier.fillMaxWidth()
                         .padding(vertical = 4.dp)
-                        .clip(RoundedCornerShape(22.dp))
+                        .clip(itemCornerShape())
                         .clickable { onToggle(spec.key) },
-                    shape = RoundedCornerShape(22.dp),
+                    shape = itemCornerShape(),
                     color = appColors.subtleSurface,
                     border = if (isSel) BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.28f)) else null
                 ) {
@@ -2512,12 +3248,6 @@ fun ClimateCardWidgetSettingsDialog(
                         FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text("Square") })
                     }
                 }
-                Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = radius == 8, onClick = { radius = 8 }, label = { Text("Sharp") })
-                    FilterChip(selected = radius == 20, onClick = { radius = 20 }, label = { Text("Modern") })
-                    FilterChip(selected = radius == 28, onClick = { radius = 28 }, label = { Text("Round") })
-                }
             }
         },
         confirmButton = {
@@ -2597,12 +3327,6 @@ fun ClimateStackSettingsDialog(
                     Switch(checked = collapsible, onCheckedChange = { collapsible = it })
                 }
                 WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
-                Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = radius == 8, onClick = { radius = 8 }, label = { Text("Sharp") })
-                    FilterChip(selected = radius == 20, onClick = { radius = 20 }, label = { Text("Modern") })
-                    FilterChip(selected = radius == 28, onClick = { radius = 28 }, label = { Text("Round") })
-                }
             }
         },
         confirmButton = {

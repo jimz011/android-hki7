@@ -221,7 +221,11 @@ fun formatWeatherState(state: String): String {
 }
 
 @Composable
-fun WeatherMainCard(weather: HAEntity, modifier: Modifier = Modifier, cornerRadius: Int = 24) {
+fun WeatherMainCard(
+    weather: HAEntity,
+    modifier: Modifier = Modifier,
+    cornerRadius: Int = LocalItemCornerRadius.current
+) {
     val appColors = LocalHKIAppColors.current
     val accent = weatherStateColor(weather.state)
     val temperatureUnit = weather.attributes?.get("temperature_unit")?.jsonPrimitive?.contentOrNull ?: "°"
@@ -340,7 +344,7 @@ private fun WeatherMetricChip(icon: ImageVector, text: String) {
     val appColors = LocalHKIAppColors.current
     Surface(
         color = appColors.surface.copy(alpha = 0.46f),
-        shape = RoundedCornerShape(999.dp)
+        shape = itemCornerShape()
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 11.dp, vertical = 7.dp),
@@ -357,7 +361,7 @@ private fun WeatherMetricChip(icon: ImageVector, text: String) {
 fun ForecastCard(
     forecasts: List<HAWeatherForecast>?,
     modifier: Modifier = Modifier,
-    cornerRadius: Int = 24
+    cornerRadius: Int = LocalItemCornerRadius.current
 ) {
     val appColors = LocalHKIAppColors.current
     val accent = weatherStateColor(forecasts?.firstOrNull()?.condition)
@@ -439,7 +443,7 @@ fun StatsCard(weather: HAEntity) {
     val appColors = LocalHKIAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth().height(150.dp),
-        shape = RoundedCornerShape(24.dp),
+        shape = itemCornerShape(),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
         BoxWithConstraints(
@@ -481,7 +485,7 @@ private fun WeatherInfoCard(
     val appColors = LocalHKIAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth().height(150.dp),
-        shape = RoundedCornerShape(24.dp),
+        shape = itemCornerShape(),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
         BoxWithConstraints(
@@ -497,7 +501,7 @@ private fun WeatherInfoCard(
             ) {
                 if (compact) {
                     Box(
-                        modifier = Modifier.size(38.dp).background(accent.copy(alpha = 0.16f), RoundedCornerShape(13.dp)),
+                        modifier = Modifier.size(38.dp).background(accent.copy(alpha = 0.16f), itemCornerShape()),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(icon, null, tint = accent, modifier = Modifier.size(22.dp))
@@ -506,7 +510,7 @@ private fun WeatherInfoCard(
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(title, style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
                         Box(
-                            modifier = Modifier.size(34.dp).background(accent.copy(alpha = 0.16f), RoundedCornerShape(12.dp)),
+                            modifier = Modifier.size(34.dp).background(accent.copy(alpha = 0.16f), itemCornerShape()),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(icon, null, tint = accent, modifier = Modifier.size(19.dp))
@@ -561,7 +565,7 @@ fun ForecastItem(forecast: HAWeatherForecast) {
     Surface(
         modifier = Modifier.width(82.dp),
         color = appColors.subtleSurface,
-        shape = RoundedCornerShape(18.dp)
+        shape = itemCornerShape()
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 11.dp),
@@ -774,7 +778,7 @@ private fun WeatherCardWidthRow(label: String, width: String, onWidthChange: (St
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(appColors.subtleSurface, RoundedCornerShape(14.dp))
+            .background(appColors.subtleSurface, itemCornerShape())
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
@@ -806,7 +810,7 @@ fun WeatherEntityRow(label: String, entityId: String?, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .background(appColors.subtleSurface, RoundedCornerShape(12.dp))
+            .background(appColors.subtleSurface, itemCornerShape())
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically

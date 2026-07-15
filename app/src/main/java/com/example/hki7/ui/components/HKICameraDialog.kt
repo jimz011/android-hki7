@@ -112,7 +112,7 @@ fun HKICameraDialog(
             ) {
                 Surface(
                     modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f),
-                    shape = RoundedCornerShape(24.dp),
+                    shape = itemCornerShape(),
                     color = Color.Black
                 ) {
                     CameraViewer(
@@ -145,7 +145,7 @@ fun HKICameraDialog(
                     .fillMaxWidth(0.95f)
                     .fillMaxSize(if (isPhone) 0.78f else 0.85f)
                     .windowInsetsPadding(WindowInsets.statusBars),
-                shape = RoundedCornerShape(32.dp),
+                shape = itemCornerShape(),
                 colors = CardDefaults.cardColors(containerColor = appColors.elevated)
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -185,7 +185,7 @@ fun HKICameraDialog(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .aspectRatio(4f / 3f),
-                                shape = RoundedCornerShape(24.dp),
+                                shape = itemCornerShape(),
                                 color = Color.Black
                             ) {
                                 CameraViewer(resolvedModel, liveWebUrl, authToken, title) { streamWebView = it }

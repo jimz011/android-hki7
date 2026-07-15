@@ -54,11 +54,13 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.example.hki7.data.HKIMarkdownWidget
 import com.example.hki7.ui.components.EditRemoveBadge
+import com.example.hki7.ui.components.EditSettingsButton
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.WidgetBackground
 import com.example.hki7.ui.components.WidgetBackgroundSelector
 import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.surfaceGradient
+import com.example.hki7.ui.components.itemCornerShape
 import com.example.hki7.ui.theme.LocalHKIAppColors
 
 /** Free-form markdown card. Content is authored in the widget settings. */
@@ -106,9 +108,7 @@ fun MarkdownWidgetItem(
         }
         if (isEditMode) {
             EditRemoveBadge(onClick = onDelete, modifier = Modifier.align(Alignment.TopEnd))
-            IconButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center).size(28.dp)) {
-                Icon(Icons.Default.Settings, "Markdown settings", tint = appColors.onSurface, modifier = Modifier.size(18.dp))
-            }
+            EditSettingsButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center))
         }
     }
 }
@@ -135,7 +135,7 @@ fun MarkdownContent(markdown: String) {
                 }
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
+                    shape = itemCornerShape(),
                     color = appColors.subtleSurface
                 ) {
                     Text(
@@ -308,12 +308,6 @@ fun MarkdownWidgetSettingsDialog(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(selected = !square, onClick = { square = false }, label = { Text("Standard") })
                     FilterChip(selected = square, onClick = { square = true }, label = { Text("Square") })
-                }
-                Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf(8 to "Sharp", 20 to "Modern", 28 to "Round").forEach { (value, label) ->
-                        FilterChip(selected = radius == value, onClick = { radius = value }, label = { Text(label) })
-                    }
                 }
                 WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
             }

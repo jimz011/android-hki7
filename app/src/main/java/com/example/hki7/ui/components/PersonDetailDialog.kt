@@ -72,7 +72,9 @@ fun PersonDetailDialog(
     val allEntities by personEntityFlow.collectAsState()
     val areas by viewModel.areas.collectAsState()
     val livePerson = allEntities.find { it.entity_id == person.entity_id } ?: person
-    val imageUrl = livePerson.entityPicture?.let { if (it.startsWith("http")) it else "$currentUrl$it" }
+    val imageUrl = livePerson.entityPicture?.let {
+        if (it.startsWith("http") || it.startsWith("content:") || it.startsWith("file:")) it else "$currentUrl$it"
+    }
 
     val pageConfigs by viewModel.pageConfigsMapping.collectAsState()
     val homeConfig = pageConfigs["home"] ?: HKIPageConfig()
@@ -118,7 +120,7 @@ fun PersonDetailDialog(
                     .fillMaxWidth()
                     .aspectRatio(1f)
                     .padding(horizontal = 16.dp)
-                    .clip(RoundedCornerShape(24.dp)),
+                    .clip(itemCornerShape()),
                 color = if (lat != null && lon != null) Color.Black else appColors.elevated
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -182,7 +184,7 @@ private fun PersonSettingsDialog(
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(
             modifier = Modifier.fillMaxWidth(0.95f).fillMaxHeight(0.85f),
-            shape = RoundedCornerShape(28.dp),
+            shape = itemCornerShape(),
             color = appColors.elevated
         ) {
             PersonSettingsView(
@@ -321,7 +323,7 @@ private fun OpenStreetMapPreview(lat: Double, lon: Double, imageUrl: String?) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .clip(RoundedCornerShape(24.dp))
+            .clip(itemCornerShape())
             .background(Color(0xFF151515))
             .onSizeChanged { viewportSize = it }
             .pointerInput(lat, lon, zoom, viewportSize, tileSizePx) {

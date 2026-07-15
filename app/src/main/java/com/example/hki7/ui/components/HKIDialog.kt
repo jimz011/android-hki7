@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Close
@@ -181,7 +180,7 @@ fun HKIDialog(
                         .fillMaxHeight(if (isPhone) 0.78f else 0.85f)
                         .windowInsetsPadding(WindowInsets.statusBars)
                         .combinedClickable(onClick = {}),
-                    shape = RoundedCornerShape(32.dp),
+                    shape = itemCornerShape(),
                     colors = CardDefaults.cardColors(containerColor = appColors.elevated)
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
@@ -366,7 +365,7 @@ fun HKIDialog(
                                             Column(
                                                 modifier = Modifier.weight(1f)
                                                     .fillMaxHeight()
-                                                    .clip(RoundedCornerShape(16.dp))
+                                                    .clip(itemCornerShape())
                                                     .background(if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f) else Color.Transparent)
                                                     .combinedClickable(onClick = action)
                                                     .padding(vertical = if (denseTabs) 10.dp else 12.dp),
@@ -393,6 +392,8 @@ fun HKIDialog(
                                         horizontalPadding = if (isPhone) 32.dp else 16.dp,
                                         scrollable = false
                                     ) {
+                                        val emptyWeight = (5 - rowButtons.size).coerceAtLeast(0) / 2f
+                                        if (emptyWeight > 0f) Spacer(Modifier.weight(emptyWeight))
                                         rowButtons.forEach { button ->
                                             CustomNavButton(
                                                 button = button,
@@ -412,8 +413,7 @@ fun HKIDialog(
                                                 }
                                             )
                                         }
-                                        // Pad a short final row so its buttons stay left-aligned by weight.
-                                        repeat(5 - rowButtons.size) { Spacer(Modifier.weight(1f)) }
+                                        if (emptyWeight > 0f) Spacer(Modifier.weight(emptyWeight))
                                     }
                                 }
                             }
@@ -429,7 +429,9 @@ fun HKIDialog(
     moreInfoEntityId?.let { id ->
         val target = customEntities.find { it.entity_id == id }
         if (target != null) {
-            androidx.compose.runtime.CompositionLocalProvider(LocalDialogCustomButtons provides emptyList()) {
+            androidx.compose.runtime.CompositionLocalProvider(
+                LocalDialogCustomButtons provides emptyList()
+            ) {
                 EntityMoreInfoDialog(entity = target, viewModel = viewModel, onDismiss = { moreInfoEntityId = null })
             }
         } else {
@@ -473,8 +475,7 @@ private fun CustomNavButton(
     onTrigger: (String) -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
-    val active = entity != null && entity.state.lowercase() !in listOf("off", "unavailable", "closed", "locked", "idle", "0")
-    val tint = if (active) MaterialTheme.colorScheme.primary else appColors.onMuted
+    val tint = entity?.let { entityStateIconColor(it, appColors.onMuted) } ?: appColors.onMuted
     val label = button.name ?: entity?.friendlyName ?: button.entityId.substringAfter(".")
     val pictureUrl = if (button.icon == ENTITY_PICTURE_ICON && entity != null && currentUrl.isNotBlank())
         resolveEntityPictureUrl(entity, currentUrl) else null
@@ -482,12 +483,11 @@ private fun CustomNavButton(
     val iconName = button.icon?.takeUnless { it.isBlank() || it == ENTITY_PICTURE_ICON }
         ?: entity?.icon?.substringAfter(":")?.takeUnless { it.isBlank() }
         ?: entity?.let { defaultEntityIconSlug(it) }
-    // Matches the default nav-bar tab: icon-over-label in a rounded cell, highlighted when active.
+    // Dialog actions stay flat. Entity state is communicated by the icon, just like tiles and badges.
     Column(
         modifier = modifier
             .fillMaxHeight()
-            .clip(RoundedCornerShape(16.dp))
-            .background(if (active) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f) else Color.Transparent)
+            .clip(itemCornerShape())
             .combinedClickable(
                 onClick = { onTrigger("tap") },
                 onDoubleClick = { onTrigger("double") },
@@ -503,7 +503,7 @@ private fun CustomNavButton(
         }
         Text(
             label,
-            color = if (active) appColors.onSurface else appColors.onMuted,
+            color = appColors.onSurface,
             style = MaterialTheme.typography.labelSmall,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

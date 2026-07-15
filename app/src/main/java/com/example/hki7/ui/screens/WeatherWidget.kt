@@ -33,11 +33,13 @@ import com.example.hki7.data.HKIWeatherWidget
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.EditRemoveBadge
+import com.example.hki7.ui.components.EditSettingsButton
 import com.example.hki7.ui.components.ReorderableGrid
 import com.example.hki7.ui.components.ForecastCard
 import com.example.hki7.ui.components.HorizonCard
 import com.example.hki7.ui.components.WeatherMainCard
 import com.example.hki7.ui.components.WeatherStateIcon
+import com.example.hki7.ui.components.itemCornerShape
 import com.example.hki7.ui.components.formatWeatherState
 import com.example.hki7.ui.components.weatherStateColor
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
@@ -140,12 +142,7 @@ fun WeatherRoomWidget(
         }
 
         if (isEditMode) {
-            IconButton(
-                onClick = onSettings,
-                modifier = Modifier.align(Alignment.Center).size(24.dp)
-            ) {
-                Icon(Icons.Default.Settings, contentDescription = "Settings", tint = appColors.onSurface, modifier = Modifier.size(16.dp))
-            }
+            EditSettingsButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center))
             EditRemoveBadge(
                 onClick = onDelete,
                 modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)
@@ -215,7 +212,7 @@ private fun HourlyForecastItem(forecast: HAWeatherForecast) {
     Surface(
         modifier = Modifier.width(72.dp),
         color = appColors.subtleSurface,
-        shape = RoundedCornerShape(18.dp)
+        shape = itemCornerShape()
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
@@ -406,12 +403,6 @@ fun WeatherWidgetSettingsDialog(
                     TextButton(onClick = { showIconPicker = true }) { Text(if (iconName.isEmpty()) "Choose" else "Change") }
                     if (iconName.isNotEmpty()) TextButton(onClick = { iconName = "" }) { Text("None") }
                 }
-                Text("Corner Roundness", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = cornerRadius == 8, onClick = { cornerRadius = 8 }, label = { Text("Sharp") })
-                    FilterChip(selected = cornerRadius == 20, onClick = { cornerRadius = 20 }, label = { Text("Modern") })
-                    FilterChip(selected = cornerRadius == 28, onClick = { cornerRadius = 28 }, label = { Text("Round") })
-                }
                 Text("Weather entity", style = MaterialTheme.typography.labelLarge)
                 val entityName = entityId?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -513,12 +504,10 @@ fun WeatherStackContent(
                     row.forEach { itemId ->
                         Box(modifier = Modifier.weight(1f)) {
                             WeatherStackCard(stack.buttonConfigs[itemId], allEntities, viewModel, stack.cornerRadius)
-                            IconButton(
+                            EditSettingsButton(
                                 onClick = { onItemSettings(itemId) },
-                                modifier = Modifier.align(Alignment.Center).size(24.dp)
-                            ) {
-                                Icon(Icons.Default.Settings, contentDescription = "Weather card settings", tint = appColors.onSurface, modifier = Modifier.size(16.dp))
-                            }
+                                modifier = Modifier.align(Alignment.Center)
+                            )
                             EditRemoveBadge(
                                 onClick = { onRemoveItem(itemId) },
                                 modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp)

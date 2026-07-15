@@ -6,7 +6,6 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -37,13 +36,15 @@ fun VerticalSlider(
     modifier: Modifier = Modifier.height(VerticalControlHeight),
     gradient: Brush? = null,
     activeColor: Color = MaterialTheme.colorScheme.primary,
-    trackColor: Color = Color.DarkGray.copy(alpha = 0.5f)
+    trackColor: Color? = null
 ) {
+    val appColors = LocalHKIAppColors.current
+    val resolvedTrackColor = trackColor ?: appColors.surface
     BoxWithConstraints(
         modifier = modifier
             .width(100.dp)
-            .clip(RoundedCornerShape(32.dp))
-            .background(trackColor)
+            .clip(itemCornerShape())
+            .background(resolvedTrackColor)
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragEnd = { onValueChangeFinished() }
@@ -77,7 +78,7 @@ fun VerticalSlider(
                 .padding(horizontal = 8.dp)
                 .align(androidx.compose.ui.Alignment.BottomCenter)
                 .offset(y = -(constraintsScope.maxHeight * value) + 2.dp)
-                .background(Color.White.copy(alpha = 0.8f))
+                .background(appColors.onSurface.copy(alpha = 0.8f), itemCornerShape())
         )
     }
 }
@@ -216,7 +217,7 @@ fun HorizontalLightBar(
     val handlebarWidth = 3.dp
     BoxWithConstraints(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(itemCornerShape())
             .background(appColors.elevated)
             .pointerInput(entity.entity_id + "_drag") {
                 detectHorizontalDragGestures(
@@ -249,7 +250,7 @@ fun HorizontalLightBar(
                     .fillMaxHeight(0.6f)
                     .width(handlebarWidth)
                     .absoluteOffset(x = (maxWidth - handlebarWidth) * localBrightness)
-                    .background(Color.White.copy(alpha = 0.8f), RoundedCornerShape(2.dp))
+                    .background(Color.White.copy(alpha = 0.8f), itemCornerShape())
             )
         }
         if (!isOn) {
@@ -272,7 +273,7 @@ fun HorizontalColorTempBar(
 ) {
     val appColors = LocalHKIAppColors.current
     if (!entity.supportsColorTemp) {
-        Box(modifier.clip(RoundedCornerShape(12.dp)).background(appColors.elevated))
+        Box(modifier.clip(itemCornerShape()).background(appColors.elevated))
         return
     }
     val minK = (entity.minKelvin ?: 2000).toFloat()
@@ -290,7 +291,7 @@ fun HorizontalColorTempBar(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(itemCornerShape())
             .background(ctGradient)
             .pointerInput(entity.entity_id + "_drag") {
                 detectHorizontalDragGestures(
@@ -334,7 +335,7 @@ fun HorizontalHueBar(
 ) {
     val appColors = LocalHKIAppColors.current
     if (!entity.supportsColor) {
-        Box(modifier.clip(RoundedCornerShape(12.dp)).background(appColors.elevated))
+        Box(modifier.clip(itemCornerShape()).background(appColors.elevated))
         return
     }
 
@@ -353,7 +354,7 @@ fun HorizontalHueBar(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(itemCornerShape())
             .background(hueGradient)
             .pointerInput(entity.entity_id + "_drag") {
                 detectHorizontalDragGestures(

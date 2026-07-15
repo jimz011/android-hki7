@@ -129,7 +129,7 @@ fun DeviceEntitiesView(
             }
         } else {
             item {
-                Surface(shape = RoundedCornerShape(20.dp), color = appColors.subtleSurface) {
+                Surface(shape = itemCornerShape(), color = appColors.subtleSurface) {
                     Column(Modifier.padding(vertical = 4.dp)) {
                         siblings.forEachIndexed { idx, (entry, e) ->
                             DeviceEntityRow(

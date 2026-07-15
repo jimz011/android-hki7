@@ -669,7 +669,7 @@ private fun BadgeItem(
 ) {
     val appColors = LocalHKIAppColors.current
     val isCircle = badge.shape == "circle"
-    val shape    = if (isCircle) CircleShape else RoundedCornerShape(18.dp)
+    val shape    = if (isCircle) CircleShape else itemCornerShape()
     val sizeMod  = if (isCircle) Modifier.size(36.dp) else Modifier.height(36.dp)
     // Display the most attention-worthy entity (e.g. the cover that is not closed)
     val entity = representativeBadgeEntity(entities)
@@ -797,14 +797,10 @@ private fun BadgeItem(
         // ── edit mode overlays ────────────────────────────────────────────────
         if (isEditMode) {
             // Settings cog overlay (covers the whole badge, like person avatar edit)
-            IconButton(
+            EditSettingsButton(
                 onClick = onHold,
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(24.dp)
-            ) {
-                Icon(Icons.Default.Settings, contentDescription = "Badge settings", tint = appColors.onSurface, modifier = Modifier.size(16.dp))
-            }
+                modifier = Modifier.align(Alignment.Center)
+            )
             // X remove button at top-right corner
             EditRemoveBadge(
                 onClick = onRemove,
@@ -990,7 +986,7 @@ fun AddBadgePill(
     onClick: () -> Unit
 ) {
     val borderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
-    val shape = RoundedCornerShape(18.dp)
+    val shape = itemCornerShape()
 
     Row(
         modifier = modifier,

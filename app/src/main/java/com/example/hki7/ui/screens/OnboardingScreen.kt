@@ -74,9 +74,11 @@ fun OnboardingScreen(prefs: PreferencesManager, startAtLogin: Boolean = false, o
         }
         return
     }
-    val loginOnly = startAtLogin && !savedServerUrl.isNullOrBlank()
-    var step by remember(loginOnly) { mutableStateOf(if (loginOnly) OnboardStep.LOGIN else OnboardStep.WELCOME) }
-    var serverUrl by remember(loginOnly) {
+    // The host latches startAtLogin for the lifetime of this onboarding run. Keep this state stable
+    // too: the OAuth token save must not recreate the flow at LOGIN before it advances.
+    val loginOnly = remember { startAtLogin && !savedServerUrl.isNullOrBlank() }
+    var step by remember { mutableStateOf(if (loginOnly) OnboardStep.LOGIN else OnboardStep.WELCOME) }
+    var serverUrl by remember {
         mutableStateOf(if (loginOnly) savedServerUrl.orEmpty().removeSuffix("/") else "")
     }
 
@@ -335,6 +337,7 @@ private fun LoginStep(serverUrl: String, prefs: PreferencesManager, onBack: () -
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var authInProgress by remember { mutableStateOf(false) }
     val authUrl = "${serverUrl.removeSuffix("/")}/auth/authorize?client_id=${URLEncoder.encode("https://home-assistant.io/android", "UTF-8")}&redirect_uri=${URLEncoder.encode("homeassistant://auth-callback", "UTF-8")}"
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -349,7 +352,13 @@ private fun LoginStep(serverUrl: String, prefs: PreferencesManager, onBack: () -
                             val url = request?.url?.toString() ?: ""
                             if (url.startsWith("homeassistant://auth-callback")) {
                                 val code = request?.url?.getQueryParameter("code")
-                                if (code != null) {
+                                val callbackError = request?.url?.getQueryParameter("error_description")
+                                    ?: request?.url?.getQueryParameter("error")
+                                if (callbackError != null) {
+                                    errorMessage = "Login failed: $callbackError"
+                                } else if (code != null && !authInProgress) {
+                                    authInProgress = true
+                                    errorMessage = null
                                     scope.launch {
                                         try {
                                             val response = HomeAssistantClient.getAccessToken(serverUrl, code)
@@ -363,6 +372,7 @@ private fun LoginStep(serverUrl: String, prefs: PreferencesManager, onBack: () -
                                             onLoggedIn()
                                         } catch (e: Exception) {
                                             errorMessage = "Login failed: ${e.message}"
+                                            authInProgress = false
                                         }
                                     }
                                 }

@@ -91,7 +91,6 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
             .take(150)
             .toList()
     }
-
     controlEntity?.let { picked ->
         val live = entityById[picked.entity_id] ?: picked
         if (live.entity_id.startsWith("media_player.")) {
@@ -109,7 +108,11 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        properties = androidx.compose.ui.window.DialogProperties(dismissOnBackPress = false),
         title = {
+            androidx.activity.compose.BackHandler {
+                if (selectedDevice != null) selectedDevice = null else onDismiss()
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 selectedDevice?.let { dev ->
                     IconButton(onClick = { selectedDevice = null }, modifier = Modifier.size(32.dp)) {

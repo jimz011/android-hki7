@@ -186,7 +186,14 @@ fun EntitySensorGraphCard(
     val maxValue = values.maxOrNull()
     val avgValue = if (values.isNotEmpty()) values.average().toFloat() else null
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(surfaceGradient(appColors.elevated), itemCornerShape()),
+        shape = itemCornerShape(),
+        color = Color.Transparent
+    ) {
+    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Box(Modifier.size(10.dp).background(lineColor, CircleShape))
             Spacer(Modifier.width(8.dp))
@@ -202,7 +209,7 @@ fun EntitySensorGraphCard(
         Spacer(Modifier.height(8.dp))
         Surface(
             modifier = Modifier.fillMaxWidth().height(120.dp),
-            shape = RoundedCornerShape(18.dp),
+            shape = itemCornerShape(),
             color = appColors.subtleSurface,
             border = BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.16f))
         ) {
@@ -228,6 +235,7 @@ fun EntitySensorGraphCard(
                 SensorGraphStat("Max", trimSensorGraphValue(maxValue), unit)
             }
         }
+    }
     }
 }
 
@@ -261,14 +269,15 @@ fun HistoryRangeChips(
     ) {
         HistoryRangeOptions.forEach { hours ->
             val isSelected = hours == selectedHours
+            val chipShape = itemCornerShape()
             Box(
                 modifier = Modifier
-                    .clip(CircleShape)
+                    .clip(chipShape)
                     .background(if (isSelected) accent.copy(alpha = 0.22f) else appColors.subtleSurface)
                     .border(
                         width = 1.dp,
                         color = if (isSelected) accent else appColors.onMuted.copy(alpha = 0.18f),
-                        shape = CircleShape
+                        shape = chipShape
                     )
                     .clickable { onSelect(hours) }
                     .padding(horizontal = 14.dp, vertical = 7.dp),

@@ -143,6 +143,16 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     private val _entities = MutableStateFlow<List<HAEntity>>(emptyList())
     val entities: StateFlow<List<HAEntity>> = _entities
+    private val _displayName = MutableStateFlow("User")
+    val displayName: StateFlow<String> = _displayName
+    private val _profileAvatar = MutableStateFlow<String?>(null)
+    val profileAvatar: StateFlow<String?> = _profileAvatar
+    private val _profileBirthday = MutableStateFlow<String?>(null)
+    val profileBirthday: StateFlow<String?> = _profileBirthday
+    private val _profilePersonEntityId = MutableStateFlow<String?>(null)
+    val profilePersonEntityId: StateFlow<String?> = _profilePersonEntityId
+    private val originalProfilePictures = mutableMapOf<String, String?>()
+    private val originalProfileBirthdays = mutableMapOf<String, String?>()
 
     // Keyed mirror used by UI selectors. Screens/widgets should observe the smallest set of
     // entity ids they render instead of collecting [entities], which invalidates them for every
@@ -201,9 +211,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         MutableStateFlow(_entitiesById.value.values.filter(predicate))
 
     private fun publishEntities(value: List<HAEntity>) {
+        val profiled = value.map(::applyProfileOverride)
         val previousById = _entitiesById.value
-        val nextById = value.associateBy { it.entity_id }
-        _entities.value = value
+        val nextById = profiled.associateBy { it.entity_id }
+        _entities.value = profiled
         _entitiesById.value = nextById
         // Only selectors for entities whose value actually changed are notified. This avoids every
         // button/widget selector waking up for every unrelated Home Assistant event.
@@ -211,6 +222,25 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             val next = nextById[entityId]
             if (previousById[entityId] != next) stateFlow.value = next
         }
+    }
+
+    private fun applyProfileOverride(entity: HAEntity): HAEntity {
+        if (entity.entity_id != _profilePersonEntityId.value) return entity
+        if (!originalProfilePictures.containsKey(entity.entity_id)) originalProfilePictures[entity.entity_id] = entity.entityPicture
+        if (!originalProfileBirthdays.containsKey(entity.entity_id)) {
+            originalProfileBirthdays[entity.entity_id] = entity.attributes?.get("birthday")?.jsonPrimitive?.contentOrNull
+        }
+        val attributes = buildJsonObject {
+            entity.attributes?.forEach { (key, value) ->
+                if (key !in setOf("friendly_name", "entity_picture", "birthday")) put(key, value)
+            }
+            put("friendly_name", JsonPrimitive(_displayName.value))
+            (_profileAvatar.value?.takeIf(String::isNotBlank) ?: originalProfilePictures[entity.entity_id])
+                ?.let { put("entity_picture", JsonPrimitive(it)) }
+            (_profileBirthday.value?.takeIf(String::isNotBlank) ?: originalProfileBirthdays[entity.entity_id])
+                ?.let { put("birthday", JsonPrimitive(it)) }
+        }
+        return entity.copy(attributes = attributes)
     }
 
     private val _areas = MutableStateFlow<List<HAArea>>(emptyList())
@@ -328,9 +358,6 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     private val _status = MutableStateFlow(ConnectionStatus.IDLE)
     val status: StateFlow<ConnectionStatus> = _status
-
-    private val _displayName = MutableStateFlow("User")
-    val displayName: StateFlow<String> = _displayName
 
     private val _currentUrl = MutableStateFlow("")
     val currentUrl: StateFlow<String> = _currentUrl
@@ -688,10 +715,27 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     private fun observeSettings() {
         viewModelScope.launch {
+            combine(prefs.profileAvatar, prefs.profileBirthday, prefs.profilePersonEntityId) { avatar, birthday, personId ->
+                Triple(avatar, birthday, personId)
+            }.collect { (avatar, birthday, personId) ->
+                _profileAvatar.value = avatar
+                _profileBirthday.value = birthday
+                _profilePersonEntityId.value = personId
+                if (_entities.value.isNotEmpty()) {
+                    publishEntities(_entities.value)
+                    _people.value = _entities.value.filter { it.entity_id.startsWith("person.") }
+                }
+            }
+        }
+        viewModelScope.launch {
             combine(activeBaseUrl, prefs.accessToken, prefs.refreshToken, prefs.displayName) { url, token, refresh, name ->
                 HKIAuthSettings(url, token, refresh, name)
             }.collect { settings ->
                 _displayName.value = settings.name ?: "User"
+                if (_entities.value.isNotEmpty() && _profilePersonEntityId.value != null) {
+                    publishEntities(_entities.value)
+                    _people.value = _entities.value.filter { it.entity_id.startsWith("person.") }
+                }
                 _currentUrl.value = settings.url ?: ""
                 _accessToken.value = settings.token
                 val connectionKey = "${settings.url}|${settings.token}"
@@ -892,7 +936,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val merged = applyPendingEntityStates(ordered.values.toList())
         publishEntities(merged)
         if (snapshot.keys.any { it.startsWith("person.") }) {
-            _people.value = merged.filter { it.entity_id.startsWith("person.") }
+            _people.value = _entities.value.filter { it.entity_id.startsWith("person.") }
         }
         _weather.value?.entity_id?.let { weatherId ->
             if (snapshot.containsKey(weatherId)) {
@@ -945,7 +989,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 val allEntities = withTimeout(10.seconds) { currentClient.getEntities() }
                 val displayEntities = applyPendingEntityStates(allEntities)
                 publishEntities(displayEntities)
-                _people.value = displayEntities.filter { it.entity_id.startsWith("person.") }
+                _people.value = _entities.value.filter { it.entity_id.startsWith("person.") }
 
                 val weatherId = prefs.weatherEntityId.first() ?: "weather.home"
 
@@ -1197,7 +1241,11 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             pending.expiresAt <= now || (byId[entityId]?.state?.equals(pending.state, ignoreCase = true) == true && now >= pending.requestedAt + confirmDelay)
         }
         pendingBrightness.entries.removeAll { (entityId, pending) ->
-            pending.expiresAt <= now || (byId[entityId]?.brightness == pending.brightness && now >= pending.requestedAt + confirmDelay)
+            pending.expiresAt <= now || (
+                byId[entityId]?.brightness == pending.brightness &&
+                    byId[entityId]?.state.equals("on", ignoreCase = true) &&
+                    now >= pending.requestedAt + confirmDelay
+                )
         }
         pendingCoverPosition.entries.removeAll { (entityId, pending) ->
             pending.expiresAt <= now || (byId[entityId]?.attributes?.get("current_position")?.jsonPrimitive?.intOrNull == pending.position && now >= pending.requestedAt + confirmDelay)
@@ -1214,7 +1262,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     entity.attributes?.forEach { (k, v) -> put(k, v) }
                     put("brightness", JsonPrimitive(pending.brightness))
                 }
-                modified = modified.copy(attributes = newAttrs)
+                // Brightness is committed through light.turn_on. Mirroring that state keeps the
+                // interactive tile fill visible while Home Assistant confirms an initially-off light.
+                val optimisticState = if (pendingEntityStates.containsKey(entity.entity_id)) modified.state else "on"
+                modified = modified.copy(state = optimisticState, attributes = newAttrs)
             }
             pendingCoverPosition[entity.entity_id]?.let { pending ->
                 val newAttrs = buildJsonObject {
@@ -1495,6 +1546,13 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     fun updateBatteryConfig(pageKey: String, config: com.example.hki7.data.HKIBatteryConfig) {
         val current = _pageConfigsMapping.value[pageKey] ?: com.example.hki7.data.HKIPageConfig()
         updatePageConfig(pageKey, current.copy(batteryConfig = config))
+    }
+
+    fun updateCustomPage(page: com.example.hki7.data.HKICustomPage) {
+        viewModelScope.launch {
+            val pages = prefs.customPages.first()
+            prefs.saveCustomPages(pages.map { existing -> if (existing.id == page.id) page else existing })
+        }
     }
 
     fun hideBatteryEntity(pageKey: String, entityId: String) {
