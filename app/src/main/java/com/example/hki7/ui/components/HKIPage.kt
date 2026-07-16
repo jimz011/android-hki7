@@ -129,13 +129,18 @@ fun HKIPage(
     val headerColorSource = previewHeaderColor ?: headerColor ?: pageConfig.headerColor
     val headerColorValue = parseHexColor(headerColorSource)
     val effectiveBackground = if (!headerColorSource.isNullOrBlank()) null else backgroundImage ?: pageConfig.wallpaper
-    val hasHeaderMedia = effectiveBackground != null || headerColorValue != null
-    val headerContentColor = headerColorValue?.let { if (it.luminance() < 0.45f) Color.White else Color(0xFF111111) }
-    val headerTextColor = headerContentColor ?: if (hasHeaderMedia) Color.White else appColors.onSurface
-    val headerMutedColor = headerContentColor?.copy(alpha = 0.75f) ?: if (hasHeaderMedia) Color.White.copy(alpha = 0.8f) else appColors.onMuted
+    val isDarkAppearance = appColors.background.luminance() < 0.5f
+    // Recreate the exact primary-container/header tint Theme.kt would generate if this custom
+    // color had been selected globally.
+    val customHeaderStart = headerColorValue?.copy(
+        alpha = if (isDarkAppearance) 0.45f else if (headerColorValue.luminance() < 0.35f) 0.28f else 0.18f
+    )
+    val headerTextColor = if (effectiveBackground != null) Color.White else appColors.onSurface
+    val headerMutedColor = if (effectiveBackground != null) Color.White.copy(alpha = 0.8f) else appColors.onMuted
     // A custom header color must not tint the pills themselves. Reuse the normal theme pill
     // surface and only adapt foreground content for contrast against the selected header.
     val pillColor = if (effectiveBackground != null) Color.Black.copy(alpha = 0.3f) else appColors.surface.copy(alpha = 0.78f)
+    val pillContentColor = if (effectiveBackground != null) Color.White else appColors.onSurface
     val headerHeight = 236.dp
     val view = LocalView.current
     if (!view.isInEditMode) {
@@ -143,12 +148,10 @@ fun HKIPage(
             val window = (view.context as? Activity)?.window ?: return@SideEffect
             val statusBarColor = when {
                 effectiveBackground != null -> Color.Transparent
-                headerColorValue != null -> headerColorValue
                 else -> appColors.background
             }
             val useDarkStatusBarIcons = when {
                 effectiveBackground != null -> false
-                headerColorValue != null -> headerColorValue.luminance() > 0.5f
                 else -> appColors.background.luminance() > 0.5f
             }
             @Suppress("DEPRECATION")
@@ -226,13 +229,10 @@ fun HKIPage(
         }
 
         // Long-Pull Menu - Shifted down 20px
-        val menuButtonSurfaceColor = when {
-            headerColorValue != null && headerTextColor == Color.White -> Color.White.copy(alpha = 0.16f)
-            headerColorValue != null -> Color.Black.copy(alpha = 0.14f)
-            effectiveBackground != null -> Color.Black.copy(alpha = 0.34f)
-            else -> appColors.subtleSurface
-        }
-        val menuButtonContentColor = if (headerColorValue != null || effectiveBackground != null) headerTextColor else appColors.onSurface
+        // The pull-down controls sit on the app background after the header moves down. They must
+        // therefore use the active theme surface/content pair, not colors inferred from the header.
+        val menuButtonSurfaceColor = appColors.subtleSurface
+        val menuButtonContentColor = appColors.onSurface
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -295,12 +295,12 @@ fun HKIPage(
                                 colors = listOf(
                                     when {
                                         effectiveBackground != null -> Color.Black.copy(alpha = 0.30f)
-                                        headerColorValue != null -> headerColorValue.copy(alpha = appColors.headerFallbackStart.alpha)
+                                        customHeaderStart != null -> customHeaderStart
                                         else -> appColors.headerFallbackStart
                                     },
                                     when {
                                         effectiveBackground != null -> Color.Black.copy(alpha = 0.135f)
-                                        headerColorValue != null -> headerColorValue.copy(alpha = appColors.headerFallbackStart.alpha * 0.45f)
+                                        customHeaderStart != null -> customHeaderStart.copy(alpha = customHeaderStart.alpha * 0.45f)
                                         else -> appColors.headerFallbackStart.copy(alpha = appColors.headerFallbackStart.alpha * 0.45f)
                                     },
                                     appColors.background
@@ -336,7 +336,7 @@ fun HKIPage(
                                         Icon(
                                             Icons.AutoMirrored.Filled.ArrowBack,
                                             contentDescription = "Back",
-                                            tint = headerTextColor,
+                                            tint = pillContentColor,
                                             modifier = Modifier.size(16.dp)
                                         )
                                     }
@@ -358,7 +358,7 @@ fun HKIPage(
                                     useFullDayName = useFullDayName,
                                     isEditMode = isEditMode,
                                     pillColor = pillColor,
-                                    textColor = headerTextColor,
+                                    textColor = pillContentColor,
                                     editSurfaceColor = appColors.surface.copy(alpha = 0.7f),
                                     onSettingsClick = { showLeftPillSettings = true },
                                     onClick = {
@@ -439,7 +439,7 @@ fun HKIPage(
                                             if (displayStr.isNotEmpty()) {
                                                 Text(
                                                     text = displayStr,
-                                                    color = headerTextColor,
+                                                    color = pillContentColor,
                                                     style = MaterialTheme.typography.bodyMedium
                                                 )
                                             }
@@ -893,7 +893,11 @@ fun PageSettingsDialog(
                         SettingsMenuChoice(Icons.Default.Person, "Persons", "Visibility and ordering") { section = "persons" }
                     }
                     extraSections.forEachIndexed { index, extra ->
-                        SettingsMenuChoice(Icons.Default.Tune, extra.first, "Configure") { section = "extra:$index" }
+                        SettingsMenuChoice(
+                            if (extra.first.equals("Re-import", ignoreCase = true)) Icons.Default.CloudDownload else Icons.Default.Tune,
+                            extra.first,
+                            if (extra.first.equals("Re-import", ignoreCase = true)) "Fetch from Home Assistant" else "Configure"
+                        ) { section = "extra:$index" }
                     }
                 } else {
                     // A single Back button: if the extra section owns an inner navigation

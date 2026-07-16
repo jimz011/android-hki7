@@ -671,7 +671,7 @@ fun RoomDetailScreen(
                 registry = entityRegistry,
                 devices = deviceRegistry,
                 isEditMode = isEditMode,
-                onOpen = { navController.navigate(Screen.Battery.route) },
+                onOpen = { navController.navigate(Screen.Battery.WIDGET_ROUTE) },
                 onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
                 onSettings = { editingBatteryWidget = parent.id to child }
             )
@@ -951,7 +951,7 @@ fun RoomDetailScreen(
                                     registry = entityRegistry,
                                     devices = deviceRegistry,
                                     isEditMode = false,
-                                    onOpen = { navController.navigate(Screen.Battery.route) },
+                                    onOpen = { navController.navigate(Screen.Battery.WIDGET_ROUTE) },
                                     onDelete = {},
                                     onSettings = {}
                                 )
@@ -1164,7 +1164,7 @@ fun RoomDetailScreen(
                             registry = entityRegistry,
                             devices = deviceRegistry,
                             isEditMode = isEditMode,
-                            onOpen = { navController.navigate(Screen.Battery.route) },
+                            onOpen = { navController.navigate(Screen.Battery.WIDGET_ROUTE) },
                             onDelete = { viewModel.deleteWidget(areaId, widget.id) },
                             onSettings = { editingBatteryWidget = null to widget }
                         )

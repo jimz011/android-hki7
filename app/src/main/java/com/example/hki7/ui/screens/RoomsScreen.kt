@@ -36,8 +36,10 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material.icons.filled.Room
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -106,11 +108,17 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
     var editingAreaId by remember { mutableStateOf<String?>(null) }
     var editingFloor by remember { mutableStateOf<HAFloor?>(null) }
     var showRoomsReimport by remember { mutableStateOf(false) }
+    var showClearRooms by remember { mutableStateOf(false) }
 
     val roomsImportSettings: Pair<String, @Composable androidx.compose.foundation.layout.ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
         "Re-import" to { _ ->
             Text("Fetch rooms, floors, and their entities from Home Assistant again.", color = LocalHKIAppColors.current.onMuted)
-            Button(onClick = { showRoomsReimport = true }, modifier = Modifier.fillMaxWidth()) { Text("Re-import Rooms") }
+            Button(onClick = { showRoomsReimport = true }, modifier = Modifier.fillMaxWidth()) {
+                Icon(Icons.Default.CloudDownload, null); Spacer(Modifier.width(8.dp)); Text("Re-import Rooms")
+            }
+            OutlinedButton(onClick = { showClearRooms = true }, modifier = Modifier.fillMaxWidth()) {
+                Text("Clear Rooms View", color = MaterialTheme.colorScheme.error)
+            }
         }
 
     val groupedFloors = remember(areas, floors, configs) {
@@ -138,27 +146,33 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                 maxWidth >= 600.dp -> 1
                 else -> 0
             }
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(roomsScrollState)
-                    .padding(
-                        start = 16.dp,
-                        top = 16.dp,
-                        end = 16.dp,
-                        bottom = (if (isEditMode) 156.dp else 96.dp) + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current
-                    ),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                packFloorRows(groupedFloors).forEach { floorRow ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        floorRow.forEach { section ->
-                            val units = if (section.floor?.width == "half") 1f else 2f
-                            FloorSection(
+            if (groupedFloors.isEmpty() && !isEditMode) {
+                EmptyEditHint(
+                    Modifier.fillMaxSize(),
+                    "This is an empty rooms view. You can add floors and rooms by swiping down on the header and enabling edit mode."
+                )
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(roomsScrollState)
+                        .padding(
+                            start = 16.dp,
+                            top = 16.dp,
+                            end = 16.dp,
+                            bottom = (if (isEditMode) 156.dp else 96.dp) + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current
+                        ),
+                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    packFloorRows(groupedFloors).forEach { floorRow ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            floorRow.forEach { section ->
+                                val units = if (section.floor?.width == "half") 1f else 2f
+                                FloorSection(
                                 floor = section.floor,
                                 areas = section.areas,
                                 configs = configs,
@@ -184,11 +198,12 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                                 onClickArea = { areaId ->
                                     if (!isEditMode) navController.navigate(Screen.RoomDetail.createRoute(areaId))
                                 },
-                                modifier = Modifier.weight(units)
-                            )
+                                    modifier = Modifier.weight(units)
+                                )
+                            }
+                            val usedUnits = floorRow.sumOf { if (it.floor?.width == "half") 1 else 2 }
+                            if (usedUnits < 2) Spacer(Modifier.weight((2 - usedUnits).toFloat()))
                         }
-                        val usedUnits = floorRow.sumOf { if (it.floor?.width == "half") 1 else 2 }
-                        if (usedUnits < 2) Spacer(Modifier.weight((2 - usedUnits).toFloat()))
                     }
                 }
             }
@@ -237,6 +252,15 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                 TextButton(onClick = { viewModel.reimportRooms(true); showRoomsReimport = false }) { Text("Remove edits and import all", color = MaterialTheme.colorScheme.error) }
             } },
             dismissButton = { TextButton(onClick = { showRoomsReimport = false }) { Text("Cancel") } }
+        )
+    }
+    if (showClearRooms) {
+        AlertDialog(
+            onDismissRequest = { showClearRooms = false },
+            title = { Text("Clear rooms view?") },
+            text = { Text("This removes all imported rooms and floors from this view.") },
+            confirmButton = { TextButton(onClick = { viewModel.clearRoomImports(); showClearRooms = false }) { Text("Clear", color = MaterialTheme.colorScheme.error) } },
+            dismissButton = { TextButton(onClick = { showClearRooms = false }) { Text("Cancel") } }
         )
     }
 
@@ -320,9 +344,7 @@ private fun buildFloorSections(
     val sections = importedFloors.map { floor -> FloorSectionData(floor.floor_id, floor, byFloor[floor.floor_id].orEmpty()) }
         .filter { it.areas.isNotEmpty() || importedFloors.isNotEmpty() }
     val unassigned = byFloor.filterKeys { it == null || it !in knownFloorIds }.values.flatten()
-    return if (unassigned.isNotEmpty()) sections + FloorSectionData("__rooms__", layoutOnlyFloor, unassigned) else sections.ifEmpty {
-        listOf(FloorSectionData("__rooms__", layoutOnlyFloor, areas))
-    }
+    return if (unassigned.isNotEmpty()) sections + FloorSectionData("__rooms__", layoutOnlyFloor, unassigned) else sections
 }
 
 @Composable

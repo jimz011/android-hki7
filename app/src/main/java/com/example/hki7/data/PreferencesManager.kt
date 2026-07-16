@@ -140,6 +140,7 @@ class PreferencesManager(private val context: Context) {
     private val activeDashboardIdKey = stringPreferencesKey("active_dashboard_id")
     private val defaultDashboardIdKey = stringPreferencesKey("default_dashboard_id")
     private val pendingAutoTakeoverKey = booleanPreferencesKey("pending_auto_takeover")
+    private val cloudBackupEnabledKey = booleanPreferencesKey("cloud_backup_enabled")
 
     val serverUrl: Flow<String?> = context.dataStore.data.map { it[serverUrlKey] }
     val accessToken: Flow<String?> = context.dataStore.data.map { it[accessTokenKey] }
@@ -159,6 +160,11 @@ class PreferencesManager(private val context: Context) {
     val activeDashboardId: Flow<String?> = context.dataStore.data.map { it[activeDashboardIdKey] }
     val defaultDashboardId: Flow<String?> = context.dataStore.data.map { it[defaultDashboardIdKey] }
     val pendingAutoTakeover: Flow<Boolean> = context.dataStore.data.map { it[pendingAutoTakeoverKey] ?: false }
+    val cloudBackupEnabled: Flow<Boolean> = context.dataStore.data.map { it[cloudBackupEnabledKey] ?: false }
+
+    suspend fun saveCloudBackup(enabled: Boolean) {
+        context.dataStore.edit { it[cloudBackupEnabledKey] = enabled }
+    }
 
     val savedAreas: Flow<List<HAArea>> = context.dataStore.data.map { preferences ->
         val jsonStr = preferences[savedAreasKey] ?: "[]"
@@ -399,6 +405,41 @@ class PreferencesManager(private val context: Context) {
         context.dataStore.edit { if (pending) it[pendingAutoTakeoverKey] = true else it.remove(pendingAutoTakeoverKey) }
     }
 
+    /** Prevents the eagerly-created view model from running an auto import while first-run
+     * onboarding is still waiting for the user's dashboard choice. */
+    suspend fun prepareForInitialDashboardChoice() {
+        context.dataStore.edit { p ->
+            p[dashboardModeKey] = "manual"
+            p.remove(pendingAutoTakeoverKey)
+        }
+    }
+
+    /** Applies the first-run choice in one DataStore transaction, so observers can never see an
+     * auto mode paired with the empty-dashboard page configuration (or vice versa). */
+    suspend fun configureInitialDashboard(autoGenerate: Boolean) {
+        context.dataStore.edit { p ->
+            p.remove(areaOrderKey)
+            p[savedAreasKey] = "[]"
+            p[savedFloorsKey] = "[]"
+            p[areaStacksKey] = "{}"
+            p[areaConfigsKey] = "{}"
+            p[dashboardModeKey] = if (autoGenerate) "auto" else "manual"
+            val pageConfigs = if (autoGenerate) emptyMap() else manualOnlyPageConfigs()
+            p[pageConfigsKey] = appJson.encodeToString(pageConfigs)
+            if (autoGenerate) p[pendingAutoTakeoverKey] = true else p.remove(pendingAutoTakeoverKey)
+
+            val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
+            val activeId = p[activeDashboardIdKey] ?: dashboards.firstOrNull()?.id ?: UUID.randomUUID().toString()
+            val name = if (autoGenerate) "Default (auto generated)" else "Default"
+            val configured = dashboardFromPreferences(p, activeId, name)
+            val index = dashboards.indexOfFirst { it.id == activeId }
+            if (index >= 0) dashboards[index] = configured else dashboards += configured
+            p[dashboardsKey] = appJson.encodeToString(dashboards)
+            p[activeDashboardIdKey] = activeId
+            p[defaultDashboardIdKey] = activeId
+        }
+    }
+
     /** Migrates the original single dashboard in place, without changing what is currently loaded. */
     suspend fun ensureDashboardStore(defaultName: String = "Default") {
         context.dataStore.edit { p ->
@@ -421,7 +462,12 @@ class PreferencesManager(private val context: Context) {
         context.dataStore.edit { p ->
             val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
             saveLoadedDashboardInto(p, dashboards)
-            val created = HKIDashboard(id = id, name = name.trim().ifBlank { "Dashboard" }, mode = if (autoGenerate) "auto" else "manual")
+            val created = HKIDashboard(
+                id = id,
+                name = name.trim().ifBlank { "Dashboard" },
+                mode = if (autoGenerate) "auto" else "manual",
+                pageConfigs = if (autoGenerate) emptyMap() else manualOnlyPageConfigs()
+            )
             dashboards += created
             p[dashboardsKey] = appJson.encodeToString(dashboards)
             p[activeDashboardIdKey] = id
@@ -527,6 +573,13 @@ class PreferencesManager(private val context: Context) {
         p[navBarOrderKey] = dashboard.navBarOrder.joinToString(",")
         p[navBarHiddenKey] = dashboard.navBarHidden.joinToString(",")
     }
+
+    private fun manualOnlyPageConfigs(): Map<String, HKIPageConfig> = mapOf(
+        "climate" to HKIPageConfig(climateConfig = HKIClimateConfig(manualOnly = true)),
+        "security" to HKIPageConfig(securityConfig = HKISecurityConfig(manualOnly = true)),
+        "battery" to HKIPageConfig(batteryConfig = HKIBatteryConfig(manualOnly = true)),
+        "energy" to HKIPageConfig(energyConfig = HKIEnergyConfig(manualOnly = true))
+    )
     suspend fun saveAreas(areas: List<HAArea>) { context.dataStore.edit { it[savedAreasKey] = appJson.encodeToString(areas) } }
     suspend fun saveFloors(floors: List<HAFloor>) { context.dataStore.edit { it[savedFloorsKey] = appJson.encodeToString(floors) } }
     suspend fun saveAreaWidgets(mapping: Map<String, List<HKIRoomWidget>>) { context.dataStore.edit { it[areaStacksKey] = appJson.encodeToString(mapping) } }

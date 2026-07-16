@@ -423,10 +423,16 @@ fun ClimateScreen(viewModel: MainViewModel) {
             }
         }
     var showClimateReimport by remember { mutableStateOf(false) }
+    var showClearClimate by remember { mutableStateOf(false) }
     val climateImportSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
         "Re-import" to { _ ->
             Text("Fetch climate entities from Home Assistant again.", color = LocalHKIAppColors.current.onMuted)
-            Button(onClick = { showClimateReimport = true }, modifier = Modifier.fillMaxWidth()) { Text("Re-import Climate") }
+            Button(onClick = { showClimateReimport = true }, modifier = Modifier.fillMaxWidth()) {
+                Icon(Icons.Default.CloudDownload, null); Spacer(Modifier.width(8.dp)); Text("Re-import Climate")
+            }
+            OutlinedButton(onClick = { showClearClimate = true }, modifier = Modifier.fillMaxWidth()) {
+                Text("Clear Climate View", color = MaterialTheme.colorScheme.error)
+            }
         }
 
     if (showClimateReimport) {
@@ -439,6 +445,15 @@ fun ClimateScreen(viewModel: MainViewModel) {
                 TextButton(onClick = { viewModel.reimportClimate(true); showClimateReimport = false }) { Text("Remove edits and import all", color = MaterialTheme.colorScheme.error) }
             } },
             dismissButton = { TextButton(onClick = { showClimateReimport = false }) { Text("Cancel") } }
+        )
+    }
+    if (showClearClimate) {
+        AlertDialog(
+            onDismissRequest = { showClearClimate = false },
+            title = { Text("Clear climate view?") },
+            text = { Text("This removes all imported climate entities from this view.") },
+            confirmButton = { TextButton(onClick = { viewModel.clearClimateImports(); showClearClimate = false }) { Text("Clear", color = MaterialTheme.colorScheme.error) } },
+            dismissButton = { TextButton(onClick = { showClearClimate = false }) { Text("Cancel") } }
         )
     }
 
@@ -502,18 +517,15 @@ fun ClimateScreen(viewModel: MainViewModel) {
                 },
                 padding = padding
             )
-            else -> LazyColumn(
+            else -> if (climateConfig.manualOnly && climateEntities.isEmpty() && groupSensors.values.all { it.isEmpty() } && fanEntities.isEmpty() && humidifierEntities.isEmpty()) {
+                EmptyEditHint(
+                    Modifier.fillMaxSize().padding(padding),
+                    "This is an empty climate view. Swipe down on the header and open Climate Settings to add entities manually."
+                )
+            } else LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentPadding = PaddingValues(bottom = 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current)
             ) {
-                if (climateConfig.manualOnly && climateEntities.isEmpty() && groupSensors.values.all { it.isEmpty() } && fanEntities.isEmpty() && humidifierEntities.isEmpty()) {
-                    item {
-                        EmptyEditHint(
-                            Modifier.fillParentMaxHeight(),
-                            "This is an empty climate view. Swipe down on the header and open Climate Settings to add entities manually."
-                        )
-                    }
-                }
                 // ── hero: the house right now ─────────────────────────────────
                 item {
                     ClimateHero(

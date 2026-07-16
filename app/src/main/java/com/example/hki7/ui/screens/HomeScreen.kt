@@ -340,7 +340,7 @@ fun HAHomeScreen(
                 registry = entityRegistry,
                 devices = deviceRegistry,
                 isEditMode = isEditMode,
-                onOpen = { navController.navigate(Screen.Battery.route) },
+                onOpen = { navController.navigate(Screen.Battery.WIDGET_ROUTE) },
                 onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
                 onSettings = { editingBatteryWidget = parent.id to child }
             )
@@ -615,7 +615,7 @@ fun HAHomeScreen(
                                     registry = entityRegistry,
                                     devices = deviceRegistry,
                                     isEditMode = false,
-                                    onOpen = { navController.navigate(Screen.Battery.route) },
+                                    onOpen = { navController.navigate(Screen.Battery.WIDGET_ROUTE) },
                                     onDelete = {},
                                     onSettings = {}
                                 )
@@ -796,7 +796,7 @@ fun HAHomeScreen(
                                 registry = entityRegistry,
                                 devices = deviceRegistry,
                                 isEditMode = isEditMode,
-                                onOpen = { navController.navigate(Screen.Battery.route) },
+                                onOpen = { navController.navigate(Screen.Battery.WIDGET_ROUTE) },
                                 onDelete = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
                                 onSettings = { editingBatteryWidget = null to widget }
                             )

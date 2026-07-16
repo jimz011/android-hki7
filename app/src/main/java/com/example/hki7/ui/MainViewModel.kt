@@ -685,13 +685,15 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
     private fun observeDashboard() {
         viewModelScope.launch { prefs.dashboardMode.collect { _dashboardMode.value = it } }
-        // Combine savedAreas + areaOrder so we never read a stale order when areas change.
+        // Include the persisted mode so clearing a dashboard and switching to manual is observed
+        // atomically; an empty saved list must also clear any rooms left in memory by an in-flight
+        // onboarding refresh.
         // When moveArea() updates _areas.value AND writes areaOrder to DataStore, the combine
         // fires with BOTH new values simultaneously — no race condition.
         viewModelScope.launch {
-            combine(prefs.savedAreas, prefs.areaOrder) { saved, order -> saved to order }
-                .collect { (saved, order) ->
-                    if (_dashboardMode.value != "auto" && saved.isNotEmpty()) {
+            combine(prefs.savedAreas, prefs.areaOrder, prefs.dashboardMode) { saved, order, mode -> Triple(saved, order, mode) }
+                .collect { (saved, order, mode) ->
+                    if (mode != "auto") {
                         val sorted = if (order.isNotEmpty()) {
                             saved.sortedBy { a -> order.indexOf(a.area_id).let { if (it == -1) Int.MAX_VALUE else it } }
                         } else saved
@@ -705,11 +707,11 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 }
         }
         viewModelScope.launch {
-            prefs.savedFloors.collect { saved ->
+            combine(prefs.savedFloors, prefs.dashboardMode) { saved, mode -> saved to mode }.collect { (saved, mode) ->
                 // Seed auto dashboards from the last successful registry refresh as well.
                 // A fresh HA response will replace this shortly, but the Rooms screen should
                 // not temporarily lose its floor grouping (and floor layout settings) at startup.
-                if (_dashboardMode.value != "auto" || _floors.value.isEmpty()) {
+                if (mode != "auto" || _floors.value.isEmpty()) {
                     _floors.value = saved
                 }
             }
@@ -1023,7 +1025,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     weather.forecast.takeUnless { it.isNullOrEmpty() }
                         ?: runCatching { withTimeout(10.seconds) { currentClient.getWeatherForecast(weather.entity_id) } }.getOrDefault(emptyList())
                 }.orEmpty()
-                if (includeDashboardRefresh && _dashboardMode.value == "auto") {
+                if (includeDashboardRefresh && prefs.dashboardMode.first() == "auto") {
                     val (allAreas, allFloors, entityRegistry, deviceRegistry) = coroutineScope {
                         val areas = async { withTimeout(10.seconds) { currentClient.getAreas() } }
                         val floors = async { withTimeout(10.seconds) { currentClient.getFloors() } }
@@ -1032,6 +1034,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                         DashboardRegistrySnapshot(
                             areas.await(), floors.await(), entitiesRegistry.await(), devicesRegistry.await()
                         )
+                    }
+                    // The user may have selected Start Empty while registry requests were in
+                    // flight. Never apply or persist their results after that atomic mode change.
+                    if (prefs.dashboardMode.first() != "auto") {
+                        _status.value = ConnectionStatus.CONNECTED
+                        return@launch
                     }
                     val savedOrder = prefs.areaOrder.first()
                     _entityRegistry.value = entityRegistry
@@ -2282,19 +2290,50 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     fun reimportRooms(fromScratch: Boolean) {
         viewModelScope.launch {
-            if (fromScratch) {
-                _areas.value = emptyList()
-                _floors.value = emptyList()
-                _areaWidgetsMapping.value = emptyMap()
-                _areaConfigsMapping.value = emptyMap()
-                prefs.clearDashboardConfig(keepMode = true)
-            } else {
-                protectExistingRoomsOnNextImport = true
+            val currentClient = client ?: return@launch
+            try {
+                val (importedAreas, importedFloors, entityRegistry, deviceRegistry) = coroutineScope {
+                    val areas = async { withTimeout(10.seconds) { currentClient.getAreas() } }
+                    val floors = async { withTimeout(10.seconds) { currentClient.getFloors() } }
+                    val registry = async { withTimeout(10.seconds) { currentClient.getEntityRegistry() } }
+                    val devices = async { withTimeout(10.seconds) { currentClient.getDeviceRegistry() } }
+                    DashboardRegistrySnapshot(areas.await(), floors.await(), registry.await(), devices.await())
+                }
+                if (fromScratch) {
+                    _areas.value = emptyList()
+                    _floors.value = emptyList()
+                    _areaWidgetsMapping.value = emptyMap()
+                    _areaConfigsMapping.value = emptyMap()
+                    prefs.clearDashboardConfig(keepMode = true)
+                } else {
+                    protectExistingRoomsOnNextImport = true
+                }
+                _entityRegistry.value = entityRegistry
+                _deviceRegistry.value = deviceRegistry
+                _areas.value = importedAreas
+                _floors.value = importedFloors
+                // Deliberately update only room/floor state. Page configs for climate, security,
+                // energy, and battery are not touched by a Rooms re-import.
+                autoPopulateDashboard(importedAreas, importedFloors, _entities.value, entityRegistry, deviceRegistry)
+                addLog("Re-imported ${importedAreas.size} rooms from Home Assistant")
+            } catch (e: Exception) {
+                protectExistingRoomsOnNextImport = false
+                addLog("Room re-import failed: ${e.message}")
             }
-            prefs.saveDashboardMode("auto")
-            prefs.savePendingAutoTakeover(true)
-            _dashboardMode.value = "auto"
-            refreshEntities(isSilent = true)
+        }
+    }
+
+    fun clearRoomImports() {
+        _areas.value = emptyList()
+        _floors.value = emptyList()
+        _areaWidgetsMapping.value = emptyMap()
+        _areaConfigsMapping.value = emptyMap()
+        viewModelScope.launch {
+            prefs.saveAreas(emptyList())
+            prefs.saveFloors(emptyList())
+            prefs.saveAreaWidgets(emptyMap())
+            prefs.saveAreaConfigs(emptyMap())
+            prefs.saveAreaOrder(emptyList())
         }
     }
 
@@ -2319,6 +2358,11 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         updatePageConfig("climate", current.copy(climateConfig = config))
     }
 
+    fun clearClimateImports() {
+        val current = _pageConfigsMapping.value["climate"] ?: HKIPageConfig()
+        updatePageConfig("climate", current.copy(climateConfig = HKIClimateConfig(manualOnly = true)))
+    }
+
     fun reimportSecurity(fromScratch: Boolean) {
         val current = _pageConfigsMapping.value["security"] ?: HKIPageConfig()
         val old = if (fromScratch) HKISecurityConfig() else current.securityConfig ?: HKISecurityConfig()
@@ -2331,11 +2375,41 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         updatePageConfig("security", current.copy(securityConfig = config))
     }
 
+    fun clearSecurityImports() {
+        val current = _pageConfigsMapping.value["security"] ?: HKIPageConfig()
+        updatePageConfig("security", current.copy(securityConfig = HKISecurityConfig(manualOnly = true)))
+    }
+
     fun reimportEnergy(fromScratch: Boolean) {
         val current = _pageConfigsMapping.value["energy"] ?: HKIPageConfig()
         val retained = if (fromScratch) HKIEnergyConfig() else (current.energyConfig ?: HKIEnergyConfig()).copy(manualOnly = false)
         updatePageConfig("energy", current.copy(energyConfig = retained))
         importHomeAssistantEnergyPreferences(force = true)
+    }
+
+    fun clearEnergyImports() {
+        val current = _pageConfigsMapping.value["energy"] ?: HKIPageConfig()
+        updatePageConfig("energy", current.copy(energyConfig = HKIEnergyConfig(manualOnly = true)))
+    }
+
+    fun reimportBattery(fromScratch: Boolean) {
+        val current = _pageConfigsMapping.value["battery"] ?: HKIPageConfig()
+        val old = if (fromScratch) HKIBatteryConfig() else current.batteryConfig ?: HKIBatteryConfig()
+        val imported = _entities.value.filter { entity ->
+            entity.entity_id.startsWith("sensor.") && (
+                entity.deviceClass == "battery" ||
+                    entity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull == "%"
+            )
+        }.map { it.entity_id }
+        updatePageConfig(
+            "battery",
+            current.copy(batteryConfig = old.copy(manualOnly = true, extraEntityIds = (old.extraEntityIds + imported).distinct()))
+        )
+    }
+
+    fun clearBatteryImports() {
+        val current = _pageConfigsMapping.value["battery"] ?: HKIPageConfig()
+        updatePageConfig("battery", current.copy(batteryConfig = HKIBatteryConfig(manualOnly = true)))
     }
 
     private fun emptyManualPageConfigs(): Map<String, HKIPageConfig> = mapOf(

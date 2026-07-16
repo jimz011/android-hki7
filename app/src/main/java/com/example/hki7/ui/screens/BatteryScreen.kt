@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -301,7 +302,11 @@ private fun batteryEntities(
 }
 
 @Composable
-fun BatteryScreen(viewModel: MainViewModel, navController: NavController? = null) {
+fun BatteryScreen(
+    viewModel: MainViewModel,
+    navController: NavController? = null,
+    showBackButton: Boolean = false
+) {
     val registry by viewModel.entityRegistry.collectAsState()
     val devices by viewModel.deviceRegistry.collectAsState()
     val pageConfigs by viewModel.pageConfigsMapping.collectAsState()
@@ -361,6 +366,7 @@ fun BatteryScreen(viewModel: MainViewModel, navController: NavController? = null
         )
     }
     val lowCount = batteries.count { (it.level ?: 101) <= 30 }
+    val isEmptyBatteryView = config.manualOnly && batteries.isEmpty()
 
     val settingsSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
         "Battery Entities" to { _ ->
@@ -374,6 +380,41 @@ fun BatteryScreen(viewModel: MainViewModel, navController: NavController? = null
                 onSave = { viewModel.updateBatteryConfig(BATTERY_PAGE_KEY, it) }
             )
         }
+    var showBatteryReimport by remember { mutableStateOf(false) }
+    var showClearBattery by remember { mutableStateOf(false) }
+    val batteryImportSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
+        "Re-import" to { _ ->
+            Text("Fetch battery entities from Home Assistant again.", color = LocalHKIAppColors.current.onMuted)
+            Button(onClick = { showBatteryReimport = true }, modifier = Modifier.fillMaxWidth()) {
+                Icon(Icons.Default.CloudDownload, null); Spacer(Modifier.width(8.dp)); Text("Re-import Batteries")
+            }
+            OutlinedButton(onClick = { showClearBattery = true }, modifier = Modifier.fillMaxWidth()) {
+                Text("Clear Battery View", color = MaterialTheme.colorScheme.error)
+            }
+        }
+    if (showBatteryReimport) {
+        AlertDialog(
+            onDismissRequest = { showBatteryReimport = false },
+            title = { Text("Re-import batteries") },
+            text = { Text("Import battery entities that have not been edited, or remove all battery edits and import from scratch.") },
+            confirmButton = { Column(horizontalAlignment = Alignment.End) {
+                Button(onClick = { viewModel.reimportBattery(false); showBatteryReimport = false }) { Text("Import unedited") }
+                TextButton(onClick = { viewModel.reimportBattery(true); showBatteryReimport = false }) {
+                    Text("Remove edits and import all", color = MaterialTheme.colorScheme.error)
+                }
+            } },
+            dismissButton = { TextButton(onClick = { showBatteryReimport = false }) { Text("Cancel") } }
+        )
+    }
+    if (showClearBattery) {
+        AlertDialog(
+            onDismissRequest = { showClearBattery = false },
+            title = { Text("Clear battery view?") },
+            text = { Text("This removes all imported battery entities from this view.") },
+            confirmButton = { TextButton(onClick = { viewModel.clearBatteryImports(); showClearBattery = false }) { Text("Clear", color = MaterialTheme.colorScheme.error) } },
+            dismissButton = { TextButton(onClick = { showClearBattery = false }) { Text("Cancel") } }
+        )
+    }
 
     var renameBattery by remember { mutableStateOf<BatteryInfo?>(null) }
     renameBattery?.let { info ->
@@ -401,8 +442,9 @@ fun BatteryScreen(viewModel: MainViewModel, navController: NavController? = null
         pageKey = BATTERY_PAGE_KEY,
         pageSettingsTitle = "Battery Settings",
         extraPageSettingsSection = settingsSection,
+        additionalPageSettingsSections = listOf(batteryImportSection),
         showBadgeBar = false,
-        headerBar = {
+        headerBar = if (isEmptyBatteryView) null else ({
             BatteryFilters(
                 query = query,
                 onQueryChange = { query = it },
@@ -414,10 +456,15 @@ fun BatteryScreen(viewModel: MainViewModel, navController: NavController? = null
                 sortMode = sortMode,
                 onSortModeChange = { sortMode = it }
             )
-        },
-        // Reached from the battery widget (or any deep link): offer a back button like a room page.
-        onBack = if (navController?.previousBackStackEntry != null) ({ navController.navigateUp(); Unit }) else null
+        }),
+        onBack = if (showBackButton && navController != null) ({ navController.navigateUp(); Unit }) else null
     ) { padding ->
+        if (isEmptyBatteryView) {
+            EmptyEditHint(
+                Modifier.fillMaxSize().padding(padding),
+                "This is an empty battery view. Swipe down on the header and open Battery Settings to add entities manually."
+            )
+        } else {
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current),
@@ -425,11 +472,7 @@ fun BatteryScreen(viewModel: MainViewModel, navController: NavController? = null
         ) {
             item { BatteryHero(batteries, filteredBatteries.size, config.useBatteryNotes) }
             if (filteredBatteries.isEmpty()) {
-                item {
-                    if (config.manualOnly) EmptyEditHint(
-                        message = "This is an empty battery view. Swipe down on the header and open Battery Settings to add entities manually."
-                    ) else BatteryEmptyState(config.useBatteryNotes)
-                }
+                item { BatteryEmptyState(config.useBatteryNotes) }
             } else {
                 batteryCategories.forEach { category ->
                     val grouped = filteredBatteries.filter(category.predicate)
@@ -450,6 +493,7 @@ fun BatteryScreen(viewModel: MainViewModel, navController: NavController? = null
                     }
                 }
             }
+        }
         }
     }
 }

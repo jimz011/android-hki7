@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.play.services.location)
+    implementation(libs.play.services.auth)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)

@@ -424,7 +424,8 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                 composable(Screen.Security.route) { SecurityScreen(viewModel) }
                 composable(Screen.Energy.route)   { EnergyScreen(viewModel) }
                 composable(Screen.Climate.route)  { ClimateScreen(viewModel) }
-                composable(Screen.Battery.route)  { BatteryScreen(viewModel, navController) }
+                composable(Screen.Battery.route)  { BatteryScreen(viewModel, navController, showBackButton = false) }
+                composable(Screen.Battery.WIDGET_ROUTE) { BatteryScreen(viewModel, navController, showBackButton = true) }
                 composable(
                     route = Screen.CUSTOM_PAGE_ROUTE,
                     arguments = listOf(navArgument("pageId") { type = NavType.StringType })
@@ -522,6 +523,8 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                         val isSelected = if (screen is Screen.Custom) {
                             currentDestination?.route == Screen.CUSTOM_PAGE_ROUTE &&
                                 navBackStackEntry?.arguments?.getString("pageId") == screen.page.id
+                        } else if (screen == Screen.Battery && currentDestination?.route == Screen.Battery.WIDGET_ROUTE) {
+                            true
                         } else {
                             currentDestination?.hierarchy?.any { it.route == screen.route } == true
                         }

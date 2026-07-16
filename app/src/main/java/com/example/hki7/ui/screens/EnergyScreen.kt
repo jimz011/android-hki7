@@ -215,6 +215,16 @@ fun EnergyScreen(viewModel: MainViewModel) {
     val homeAssistantSolarForecasts by viewModel.energySolarForecasts.collectAsState()
     val energyConfig: HKIEnergyConfig =
         (pageConfigsMap[ENERGY_PAGE_KEY] ?: HKIPageConfig()).energyConfig ?: HKIEnergyConfig()
+    val isEmptyManualEnergyConfig = remember(energyConfig) {
+        energyConfig.manualOnly && energyConfig.copy(
+            manualOnly = false,
+            cardOrder = emptyList(),
+            customNames = emptyMap(),
+            hiddenPowerDeviceEntityIds = emptyList(),
+            hiddenEnergyDeviceEntityIds = emptyList(),
+            hiddenWaterDeviceEntityIds = emptyList()
+        ) == HKIEnergyConfig()
+    }
     LaunchedEffect(
         rawEntities.isNotEmpty(),
         energyConfig.usesHomeAssistantEnergyPreferences,
@@ -601,9 +611,15 @@ fun EnergyScreen(viewModel: MainViewModel) {
         )
     }
     var showEnergyReimport by remember { mutableStateOf(false) }
+    var showClearEnergy by remember { mutableStateOf(false) }
     val energyImportSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> = "Re-import" to { _ ->
         Text("Fetch the Home Assistant energy dashboard configuration again.", color = LocalHKIAppColors.current.onMuted)
-        Button(onClick = { showEnergyReimport = true }, modifier = Modifier.fillMaxWidth()) { Text("Re-import Energy") }
+        Button(onClick = { showEnergyReimport = true }, modifier = Modifier.fillMaxWidth()) {
+            Icon(Icons.Default.CloudDownload, null); Spacer(Modifier.width(8.dp)); Text("Re-import Energy")
+        }
+        OutlinedButton(onClick = { showClearEnergy = true }, modifier = Modifier.fillMaxWidth()) {
+            Text("Clear Energy View", color = MaterialTheme.colorScheme.error)
+        }
     }
     if (showEnergyReimport) {
         AlertDialog(
@@ -615,6 +631,15 @@ fun EnergyScreen(viewModel: MainViewModel) {
                 TextButton(onClick = { viewModel.reimportEnergy(true); showEnergyReimport = false }) { Text("Remove edits and import all", color = MaterialTheme.colorScheme.error) }
             } },
             dismissButton = { TextButton(onClick = { showEnergyReimport = false }) { Text("Cancel") } }
+        )
+    }
+    if (showClearEnergy) {
+        AlertDialog(
+            onDismissRequest = { showClearEnergy = false },
+            title = { Text("Clear energy view?") },
+            text = { Text("This removes all imported energy entities from this view.") },
+            confirmButton = { TextButton(onClick = { viewModel.clearEnergyImports(); showClearEnergy = false }) { Text("Clear", color = MaterialTheme.colorScheme.error) } },
+            dismissButton = { TextButton(onClick = { showClearEnergy = false }) { Text("Cancel") } }
         )
     }
 
@@ -637,7 +662,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
         additionalPageSettingsSections = listOf(energyImportSection),
         showBadgeBar = false,
         // Time filter lives in the pinned header slot so it never scrolls away.
-        headerBar = {
+        headerBar = if (isEmptyManualEnergyConfig) null else ({
             val appColors = LocalHKIAppColors.current
             Column {
                 Row(
@@ -681,22 +706,20 @@ fun EnergyScreen(viewModel: MainViewModel) {
                     }
                 }
             }
-        },
+        }),
         onBack = if (page != "energy") ({ page = "energy" }) else null
     ) { padding ->
         val appColors = LocalHKIAppColors.current
+        if (isEmptyManualEnergyConfig) {
+            EmptyEditHint(
+                Modifier.fillMaxSize().padding(padding),
+                "This is an empty energy view. Swipe down on the header and open Energy Settings to add entities manually."
+            )
+        } else {
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(bottom = 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current)
         ) {
-            if (energyConfig.manualOnly) {
-                item {
-                    EmptyEditHint(
-                        Modifier.fillParentMaxHeight(),
-                        "This is an empty energy view. Swipe down on the header and open Energy Settings to add entities manually."
-                    )
-                }
-            }
             if (page == "energy") {
                 // ── the animated house ────────────────────────────────────────
                 item {
@@ -1308,6 +1331,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
                     }
                 }
             }
+        }
         }
     }
 }
@@ -2565,16 +2589,6 @@ private fun ColumnScope.EnergySensorSection(
         categoryButton("gas", "Gas", "Usage and cost", Icons.Default.LocalFireDepartment, GasPink)
         categoryButton("water", "Water", "Usage and cost", Icons.Default.WaterDrop, WaterBlue)
         categoryButton("devices", "Devices", "Power, energy, and individual water devices", Icons.Default.Power, ExportGreen)
-        Spacer(Modifier.height(6.dp))
-        HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.10f))
-        TextButton(
-            onClick = { viewModel.importHomeAssistantEnergyPreferences(ENERGY_PAGE_KEY, force = true) },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Icon(Icons.Default.Refresh, null, modifier = Modifier.size(16.dp))
-            Spacer(Modifier.width(6.dp))
-            Text("Re-import from Home Assistant")
-        }
         return
     }
 

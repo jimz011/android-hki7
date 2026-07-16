@@ -50,11 +50,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.example.hki7.data.HomeAssistantClient
 import com.example.hki7.data.LocationWork
 import com.example.hki7.data.PreferencesManager
-import com.example.hki7.data.HKIPageConfig
-import com.example.hki7.data.HKIClimateConfig
-import com.example.hki7.data.HKISecurityConfig
-import com.example.hki7.data.HKIBatteryConfig
-import com.example.hki7.data.HKIEnergyConfig
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.coroutines.launch
 import java.net.URLEncoder
@@ -82,6 +77,9 @@ fun OnboardingScreen(prefs: PreferencesManager, startAtLogin: Boolean = false, o
     // The host latches startAtLogin for the lifetime of this onboarding run. Keep this state stable
     // too: the OAuth token save must not recreate the flow at LOGIN before it advances.
     val loginOnly = remember { startAtLogin && !savedServerUrl.isNullOrBlank() }
+    LaunchedEffect(loginOnly) {
+        if (!loginOnly) prefs.prepareForInitialDashboardChoice()
+    }
     var step by remember { mutableStateOf(if (loginOnly) OnboardStep.LOGIN else OnboardStep.WELCOME) }
     var serverUrl by remember {
         mutableStateOf(if (loginOnly) savedServerUrl.orEmpty().removeSuffix("/") else "")
@@ -125,24 +123,18 @@ private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit
         if (saving) return
         saving = true
         scope.launch {
-            prefs.clearDashboardConfig(keepMode = true)
-            prefs.saveDashboardMode(if (auto) "auto" else "manual")
-            prefs.savePendingAutoTakeover(auto)
-            prefs.savePageConfigs(
-                if (auto) emptyMap() else mapOf(
-                    "climate" to HKIPageConfig(climateConfig = HKIClimateConfig(manualOnly = true)),
-                    "security" to HKIPageConfig(securityConfig = HKISecurityConfig(manualOnly = true)),
-                    "battery" to HKIPageConfig(batteryConfig = HKIBatteryConfig(manualOnly = true)),
-                    "energy" to HKIPageConfig(energyConfig = HKIEnergyConfig(manualOnly = true))
-                )
-            )
-            prefs.ensureDashboardStore(if (auto) "Default (auto generated)" else "Default")
+            prefs.configureInitialDashboard(auto)
             onComplete()
         }
     }
     Column(
-        Modifier.fillMaxSize().background(colors.background).padding(24.dp).verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        Modifier
+            .fillMaxSize()
+            .background(colors.background)
+            .windowInsetsPadding(WindowInsets.safeDrawing)
+            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
     ) {
         Text("Welcome to HKI 7", style = MaterialTheme.typography.headlineMedium, color = colors.onSurface)
         Text(
@@ -153,7 +145,6 @@ private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit
             color = colors.onMuted,
             style = MaterialTheme.typography.bodyLarge
         )
-        Spacer(Modifier.weight(1f))
         Button(onClick = { finish(true) }, enabled = !saving, modifier = Modifier.fillMaxWidth().height(54.dp)) {
             Text("Auto Generate")
         }

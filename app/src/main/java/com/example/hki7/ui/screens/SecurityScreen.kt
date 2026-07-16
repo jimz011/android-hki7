@@ -363,10 +363,16 @@ fun SecurityScreen(viewModel: MainViewModel) {
                 onSave = { viewModel.updateSecurityConfig(SECURITY_PAGE_KEY, it) }, setBack = setBack)
         }
     var showSecurityReimport by remember { mutableStateOf(false) }
+    var showClearSecurity by remember { mutableStateOf(false) }
     val importSettings: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
         "Re-import" to { _ ->
             Text("Fetch security entities from Home Assistant again.", color = LocalHKIAppColors.current.onMuted)
-            Button(onClick = { showSecurityReimport = true }, modifier = Modifier.fillMaxWidth()) { Text("Re-import Security") }
+            Button(onClick = { showSecurityReimport = true }, modifier = Modifier.fillMaxWidth()) {
+                Icon(Icons.Default.CloudDownload, null); Spacer(Modifier.width(8.dp)); Text("Re-import Security")
+            }
+            OutlinedButton(onClick = { showClearSecurity = true }, modifier = Modifier.fillMaxWidth()) {
+                Text("Clear Security View", color = MaterialTheme.colorScheme.error)
+            }
         }
     if (showSecurityReimport) {
         AlertDialog(
@@ -378,6 +384,15 @@ fun SecurityScreen(viewModel: MainViewModel) {
                 TextButton(onClick = { viewModel.reimportSecurity(true); showSecurityReimport = false }) { Text("Remove edits and import all", color = MaterialTheme.colorScheme.error) }
             } },
             dismissButton = { TextButton(onClick = { showSecurityReimport = false }) { Text("Cancel") } }
+        )
+    }
+    if (showClearSecurity) {
+        AlertDialog(
+            onDismissRequest = { showClearSecurity = false },
+            title = { Text("Clear security view?") },
+            text = { Text("This removes all imported security entities from this view.") },
+            confirmButton = { TextButton(onClick = { viewModel.clearSecurityImports(); showClearSecurity = false }) { Text("Clear", color = MaterialTheme.colorScheme.error) } },
+            dismissButton = { TextButton(onClick = { showClearSecurity = false }) { Text("Cancel") } }
         )
     }
 
@@ -462,6 +477,10 @@ private fun SecurityOverview(
 ) {
     val all = grouped.filterKeys { it != "cameras" }.values.flatten().distinctBy { it.entity_id }
     val cameras = grouped["cameras"].orEmpty()
+    if (all.isEmpty() && cameras.isEmpty()) {
+        EmptyEditHint(Modifier.fillMaxSize().padding(padding))
+        return
+    }
     val sceneState = remember(grouped) { grouped.toSecuritySceneState() }
     LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(bottom = 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current)) {
         item { SecurityHero(sceneState) }
@@ -492,7 +511,6 @@ private fun SecurityOverview(
                 }
             }
         }
-        if (all.isEmpty() && cameras.isEmpty()) item { EmptyEditHint(Modifier.fillParentMaxHeight()) }
     }
 }
 
@@ -1083,9 +1101,10 @@ private fun SecurityGroupPage(group: SecurityGroup, items: List<HAEntity>, viewM
                 EditRemoveBadge({ onRemove(entity.entity_id) }, Modifier.align(Alignment.TopEnd))
             }
         }
+    } else if (items.isEmpty()) {
+        EmptyEditHint(Modifier.fillMaxSize().padding(padding))
     } else LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp, 10.dp, 16.dp, 96.dp + com.example.hki7.ui.components.LocalMediaPlayerBarInset.current), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        if (items.isEmpty()) item { EmptyEditHint(Modifier.fillParentMaxHeight()) }
-        else item { SecurityGroupSummary(group, items) }
+        item { SecurityGroupSummary(group, items) }
         items(items.size, key = { items[it].entity_id }) { SecurityEntityCard(items[it], group, viewModel, currentUrl, edit, customIcons[items[it].entity_id], cameraConfigs[items[it].entity_id]) }
     }
 }
@@ -1325,4 +1344,4 @@ private fun ColumnScope.SecurityEntitySettings(config: HKISecurityConfig, allEnt
 fun EmptyEditHint(
     modifier: Modifier = Modifier,
     message: String = "This is an empty security view. Swipe down on the header and open Security Settings to add entities manually."
-) { Column(modifier.padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) { Text(message, color = Color.Gray, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center) } }
+) { Column(modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) { Text(message, color = Color.Gray, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center) } }

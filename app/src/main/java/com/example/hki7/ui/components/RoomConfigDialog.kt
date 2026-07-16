@@ -50,6 +50,7 @@ fun RoomConfigDialog(
     var showIconPickerRoom by remember { mutableStateOf(false) }
     var section by remember { mutableStateOf("menu") }
     var showReimport by remember { mutableStateOf(false) }
+    var showClearRooms by remember { mutableStateOf(false) }
 
     if (showIconPickerRoom) {
         MdiIconPickerDialog(
@@ -102,7 +103,10 @@ fun RoomConfigDialog(
                     RoomSettingsChoice(Icons.Default.Image, "Header", "Wallpaper and custom color") { section = "header" }
                     RoomSettingsChoice(Icons.Default.Home, "Floor", "Assign this room to a floor") { section = "floor" }
                     RoomSettingsChoice(Icons.Default.ViewStream, "Badge Bar", "Alignment and display options") { section = "badgebar" }
-                    RoomSettingsChoice(Icons.Default.Sync, "Re-import from Home Assistant", "Import new rooms or rebuild every room") { showReimport = true }
+                    RoomSettingsChoice(Icons.Default.CloudDownload, "Re-import from Home Assistant", "Import new rooms or rebuild every room") { showReimport = true }
+                    RoomSettingsChoice(Icons.Default.DeleteSweep, "Clear Rooms View", "Remove imported rooms and floors") {
+                        showClearRooms = true
+                    }
                 } else {
                     TextButton(onClick = { section = "menu" }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
@@ -335,6 +339,19 @@ fun RoomConfigDialog(
                 }
             },
             dismissButton = { TextButton(onClick = { showReimport = false }) { Text("Cancel") } }
+        )
+    }
+    if (showClearRooms) {
+        AlertDialog(
+            onDismissRequest = { showClearRooms = false },
+            title = { Text("Clear rooms view?") },
+            text = { Text("This removes all imported rooms and floors from this view.") },
+            confirmButton = {
+                TextButton(onClick = { viewModel.clearRoomImports(); showClearRooms = false; onDismiss() }) {
+                    Text("Clear", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = { TextButton(onClick = { showClearRooms = false }) { Text("Cancel") } }
         )
     }
 }

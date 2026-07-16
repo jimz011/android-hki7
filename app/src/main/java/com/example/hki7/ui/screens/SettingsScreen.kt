@@ -1,11 +1,13 @@
 package com.example.hki7.ui.screens
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings as AndroidSettings
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +36,8 @@ import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Edit
@@ -94,6 +98,11 @@ import androidx.core.content.ContextCompat
 import com.example.hki7.BuildConfig
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.hki7.data.HAEntity
+import com.example.hki7.data.CloudBackupStorage
+import com.example.hki7.data.CloudBackupFile
+import com.example.hki7.data.CloudBackupWork
+import com.example.hki7.data.driveAuthorizationRequest
+import com.google.android.gms.auth.api.identity.Identity
 import com.example.hki7.data.HKICustomPage
 import com.example.hki7.data.PreferencesManager
 import com.example.hki7.data.PushForegroundService
@@ -146,6 +155,8 @@ fun SettingsDialog(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val serverUrl by prefs.serverUrl.collectAsState(initial = "")
+    val internalUrl by prefs.internalUrl.collectAsState(initial = null)
+    val currentUrl by viewModel.currentUrl.collectAsState()
     val displayName by viewModel.displayName.collectAsState()
     val themeColor by prefs.themeColor.collectAsState(initial = "system")
     val themeMode by prefs.themeMode.collectAsState(initial = "system")
@@ -156,6 +167,8 @@ fun SettingsDialog(
     val dashboards by viewModel.dashboards.collectAsState()
     val activeDashboardId by viewModel.activeDashboardId.collectAsState()
     val defaultDashboardId by viewModel.defaultDashboardId.collectAsState()
+    val cloudBackupEnabled by prefs.cloudBackupEnabled.collectAsState(initial = false)
+    val isInternalConnection = internalUrl?.trimEnd('/')?.equals(currentUrl.trimEnd('/'), ignoreCase = true) == true
     val hasForegroundLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
         ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
     val hasBackgroundLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -171,6 +184,9 @@ fun SettingsDialog(
     var renameDashboard by remember { mutableStateOf<com.example.hki7.data.HKIDashboard?>(null) }
     var deleteDashboard by remember { mutableStateOf<com.example.hki7.data.HKIDashboard?>(null) }
     var setupChangedMessage by remember { mutableStateOf<String?>(null) }
+    var showRestoreSource by remember { mutableStateOf(false) }
+    var showCloudRestore by remember { mutableStateOf(false) }
+    var cloudRestoreFiles by remember { mutableStateOf(emptyList<CloudBackupFile>()) }
     val avatarPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let {
             runCatching { context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
@@ -199,6 +215,39 @@ fun SettingsDialog(
                     .onFailure { error -> setupChangedMessage = "Restore failed: ${error.message}" }
             }
         }
+    }
+    val enableCloudBackup = {
+        scope.launch {
+            prefs.saveCloudBackup(true)
+            CloudBackupWork.schedule(context)
+            setupChangedMessage = "Automatic cloud backup enabled."
+        }
+    }
+    val driveAuthorizationLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+            runCatching {
+                Identity.getAuthorizationClient(context).getAuthorizationResultFromIntent(result.data!!)
+            }.onSuccess { authorization ->
+                if (authorization.accessToken != null) enableCloudBackup()
+                else setupChangedMessage = "Google Drive authorization did not return an access token."
+            }.onFailure { setupChangedMessage = "Google Drive authorization failed: ${it.message}" }
+        } else {
+            setupChangedMessage = "Google Drive authorization was cancelled."
+        }
+    }
+    val requestDriveAuthorization = {
+        Identity.getAuthorizationClient(context).authorize(driveAuthorizationRequest())
+            .addOnSuccessListener { authorization ->
+                if (authorization.hasResolution()) {
+                    val pendingIntent = authorization.pendingIntent
+                    if (pendingIntent != null) {
+                        driveAuthorizationLauncher.launch(IntentSenderRequest.Builder(pendingIntent.intentSender).build())
+                    } else setupChangedMessage = "Google Drive authorization could not be opened."
+                } else if (authorization.accessToken != null) {
+                    enableCloudBackup()
+                } else setupChangedMessage = "Google Drive authorization did not return an access token."
+            }
+            .addOnFailureListener { setupChangedMessage = "Google Drive authorization failed: ${it.message}" }
     }
     Dialog(
         onDismissRequest = onDismiss,
@@ -244,18 +293,21 @@ fun SettingsDialog(
                             SettingsChoice(Icons.Default.Backup, "Backup and Restore", "Save or restore dashboard configuration") { section = SettingsSection.BACKUP_RESTORE }
                         }
                         SettingsSection.CONNECTION -> {
-                            val internalUrl by prefs.internalUrl.collectAsState(initial = null)
                             val homeSsids by prefs.homeSsids.collectAsState(initial = emptyList())
                             val currentSsid by viewModel.currentSsid.collectAsState()
                             var internalUrlInput by remember(internalUrl) { mutableStateOf(internalUrl.orEmpty()) }
                             var ssidsInput by remember(homeSsids) { mutableStateOf(homeSsids.joinToString(", ")) }
                             SettingsPanel {
                                 val (icon, color, text) = when (status) {
-                                    ConnectionStatus.CONNECTED -> Triple(Icons.Default.CheckCircle, Color(0xFF6AC36A), "Connected")
+                                    ConnectionStatus.CONNECTED -> Triple(
+                                        Icons.Default.CheckCircle,
+                                        Color(0xFF6AC36A),
+                                        if (isInternalConnection) "Connected internally" else "Connected externally"
+                                    )
                                     ConnectionStatus.ERROR -> Triple(Icons.Default.Error, MaterialTheme.colorScheme.error, "Error")
                                     else -> Triple(Icons.Default.Sync, Color.Gray, "Connecting...")
                                 }
-                                SettingsTile(icon, text, serverUrl ?: "", iconTint = color)
+                                SettingsTile(icon, text, currentUrl.ifBlank { serverUrl ?: "" }, iconTint = color)
                                 Button(
                                     onClick = { viewModel.refreshEntities() },
                                     modifier = Modifier.fillMaxWidth().height(52.dp),
@@ -858,7 +910,7 @@ fun SettingsDialog(
                         SettingsSection.DASHBOARD -> {
                             SettingsPanel {
                                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                    Text("Dashboards", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                                    Text("Dashboards", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                                     TextButton(onClick = { dashboardEditMode = !dashboardEditMode }) {
                                         Icon(if (dashboardEditMode) Icons.Default.CheckCircle else Icons.Default.Edit, null)
                                         Spacer(Modifier.width(6.dp))
@@ -906,6 +958,7 @@ fun SettingsDialog(
                                     color = appColors.onMuted,
                                     style = MaterialTheme.typography.bodySmall
                                 )
+                                Text("On this device", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
                                 Button(
                                     onClick = { backupLauncher.launch("hki7-dashboard-backup.json") },
                                     modifier = Modifier.fillMaxWidth().height(52.dp),
@@ -916,7 +969,7 @@ fun SettingsDialog(
                                     Text("Backup")
                                 }
                                 OutlinedButton(
-                                    onClick = { restoreLauncher.launch(arrayOf("application/json", "text/plain")) },
+                                    onClick = { showRestoreSource = true },
                                     modifier = Modifier.fillMaxWidth().height(52.dp),
                                     shape = itemCornerShape()
                                 ) {
@@ -924,11 +977,37 @@ fun SettingsDialog(
                                     Spacer(Modifier.width(8.dp))
                                     Text("Restore")
                                 }
+                                Spacer(Modifier.height(6.dp))
+                                Text("Automatic cloud backup", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
+                                Text(
+                                    "Uses HKI 7's private Google Drive storage. Enable it once to create an immediate backup and then back up automatically every day.",
+                                    color = appColors.onMuted,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                    Column(Modifier.weight(1f)) {
+                                        Text("Enable cloud backup", color = appColors.onSurface)
+                                        Text(
+                                            if (cloudBackupEnabled) "Daily backup is active" else "Cloud backup is off",
+                                            color = appColors.onMuted,
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                    Switch(
+                                        checked = cloudBackupEnabled,
+                                        onCheckedChange = { enabled ->
+                                            if (enabled) requestDriveAuthorization() else scope.launch {
+                                                prefs.saveCloudBackup(false)
+                                                CloudBackupWork.cancel(context)
+                                            }
+                                        }
+                                    )
+                                }
                             }
                         }
                         SettingsSection.ACCOUNT -> {
                             SettingsChoice(Icons.Default.Person, "Profile", displayName) { section = SettingsSection.PROFILE }
-                            SettingsChoice(Icons.Default.SettingsEthernet, "Connection", connectionText(status)) { section = SettingsSection.CONNECTION }
+                            SettingsChoice(Icons.Default.SettingsEthernet, "Connection", connectionText(status, isInternalConnection)) { section = SettingsSection.CONNECTION }
                             SettingsChoice(Icons.Default.MyLocation, "Location", "Device tracker and geocoded location") { section = SettingsSection.LOCATION }
                             SettingsPanel {
                                 OutlinedButton(
@@ -960,6 +1039,61 @@ fun SettingsDialog(
                 )
             }
         }
+    }
+
+    if (showRestoreSource) {
+        AlertDialog(
+            onDismissRequest = { showRestoreSource = false },
+            title = { Text("Restore backup") },
+            text = { Text("Choose where to restore the dashboard configuration from.") },
+            confirmButton = {
+                Button(onClick = {
+                    showRestoreSource = false
+                    restoreLauncher.launch(arrayOf("application/json", "text/plain"))
+                }) { Text("Local") }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showRestoreSource = false
+                    scope.launch {
+                        runCatching { CloudBackupStorage.backups(context) }
+                            .onSuccess { backups ->
+                                cloudRestoreFiles = backups
+                                if (backups.isEmpty()) setupChangedMessage = "No cloud backups were found."
+                                else showCloudRestore = true
+                            }
+                            .onFailure { setupChangedMessage = "Could not load cloud backups: ${it.message}" }
+                    }
+                }) { Text("Cloud") }
+            }
+        )
+    }
+
+    if (showCloudRestore) {
+        AlertDialog(
+            onDismissRequest = { showCloudRestore = false },
+            title = { Text("Restore from cloud") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    cloudRestoreFiles.forEach { file ->
+                        TextButton(
+                            onClick = {
+                                showCloudRestore = false
+                                scope.launch {
+                                    runCatching {
+                                        val raw = CloudBackupStorage.read(context, file.id)
+                                        prefs.restoreUiBackup(raw)
+                                    }.onSuccess { setupChangedMessage = "Dashboard configuration restored." }
+                                        .onFailure { setupChangedMessage = "Restore failed: ${it.message}" }
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text(file.name) }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { showCloudRestore = false }) { Text("Cancel") } }
+        )
     }
 
     if (showNewConfigConfirm) {
@@ -1250,8 +1384,8 @@ private fun SettingsChipRow(options: List<Pair<String, String>>, selected: Strin
     }
 }
 
-private fun connectionText(status: ConnectionStatus): String = when (status) {
-    ConnectionStatus.CONNECTED -> "Connected"
+private fun connectionText(status: ConnectionStatus, isInternal: Boolean): String = when (status) {
+    ConnectionStatus.CONNECTED -> if (isInternal) "Connected internally" else "Connected externally"
     ConnectionStatus.ERROR -> "Error"
     else -> "Connecting..."
 }

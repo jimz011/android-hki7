@@ -21,7 +21,9 @@ sealed class Screen(
     object Security : Screen("security", "Security", Icons.Default.Security)
     object Energy   : Screen("energy",   "Energy",   Icons.Default.ElectricBolt)
     object Climate  : Screen("climate",  "Climate",  Icons.Default.Thermostat, mdiIcon = "thermostat")
-    object Battery  : Screen("battery",  "Battery",  Icons.Default.BatteryAlert)
+    object Battery  : Screen("battery",  "Battery",  Icons.Default.BatteryAlert) {
+        const val WIDGET_ROUTE = "battery/widget"
+    }
     object Settings : Screen("settings", "Settings", Icons.Default.Settings)
     data class Custom(val page: HKICustomPage) : Screen(
         route = "custom_page/${page.id}",
