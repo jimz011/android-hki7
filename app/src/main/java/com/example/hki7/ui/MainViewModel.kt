@@ -71,6 +71,24 @@ private const val WEATHER_FORECAST_TTL_MS = 10 * 60 * 1000L
 /** Calendar widgets refresh often enough to feel current without refetching on every recomposition. */
 private const val CALENDAR_EVENTS_TTL_MS = 2 * 60 * 1000L
 
+/** Domains that participate in automatic room discovery. Sensors are retained in the discovery
+ * set for future room features, but intentionally do not generate widgets or badges yet. */
+private val AUTO_ROOM_IMPORT_DOMAINS = setOf(
+    "light",
+    "switch",
+    "lock",
+    "camera",
+    "cover",
+    "climate",
+    "humidifier",
+    "fan",
+    "binary_sensor",
+    "sensor",
+    "media_player"
+)
+
+private val AUTO_ROOM_STACK_DOMAINS = setOf("light", "switch")
+
 /** Resolve the fossil-fuel percentage entity configured by Home Assistant's Energy Settings.
  *
  * The carbon provider is not included in `energy/get_prefs`: Energy Settings stores it as an
@@ -122,6 +140,115 @@ internal fun resolveHomeAssistantEnergyCarbonEntity(
             it.entity_id.lowercase().contains("fossil_fuel_percentage")
         }?.entity_id
         ?: platformCandidates.firstOrNull { registryUnit(it) == "%" }?.entity_id
+}
+
+/** Enrich an Energy preferences import with useful entities belonging to the same HA devices.
+ * `energy/get_prefs` only names the statistics selected by the user; the live power, phase,
+ * current, voltage, and supporting source sensors remain discoverable through the registries. */
+internal fun importRelatedHomeAssistantEnergyEntities(
+    config: HKIEnergyConfig,
+    sourceEntityIds: Map<String, List<String>>,
+    registry: List<HAEntityRegistryEntry>,
+    devices: List<HADeviceRegistryEntry>,
+    liveEntities: List<HAEntity>
+): HKIEnergyConfig {
+    val registryByEntity = registry.associateBy { it.entity_id }
+
+    fun related(category: String): Pair<String, List<HAEntity>>? {
+        val deviceId = sourceEntityIds[category].orEmpty()
+            .firstNotNullOfOrNull { registryByEntity[it]?.device_id }
+            ?: return null
+        // Include direct child devices, matching the manual Energy source-device picker.
+        val relatedDeviceIds = setOf(deviceId) + devices.filter { it.via_device_id == deviceId }.map { it.id }
+        val relatedEntityIds = registry.asSequence()
+            .filter { it.device_id in relatedDeviceIds && it.disabled_by == null }
+            .mapTo(hashSetOf()) { it.entity_id }
+        return deviceId to liveEntities.filter { it.entity_id in relatedEntityIds }
+    }
+
+    fun List<HAEntity>.unit(entity: HAEntity) =
+        entity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull.orEmpty()
+    fun HAEntity.normalizedName() = (friendlyName ?: entity_id).lowercase()
+    fun List<HAEntity>.pick(predicate: (HAEntity) -> Boolean): String? = firstOrNull(predicate)?.entity_id
+    fun List<HAEntity>.isPower(entity: HAEntity) =
+        entity.deviceClass == "power" || unit(entity) in setOf("W", "kW")
+    fun List<HAEntity>.isEnergy(entity: HAEntity) =
+        entity.deviceClass == "energy" || unit(entity).contains("Wh", ignoreCase = true)
+    fun HAEntity.matchesPhase(phase: Int): Boolean {
+        val name = normalizedName()
+        return name.contains("phase $phase") || name.contains(" l$phase")
+    }
+
+    var result = config
+    related("electricity")?.let { (deviceId, entities) ->
+        fun phasePower(phase: Int) = entities.pick { entities.isPower(it) && it.matchesPhase(phase) }
+        fun phaseClass(deviceClass: String, unit: String, phase: Int) = entities.pick {
+            (it.deviceClass == deviceClass || entities.unit(it) == unit) && it.matchesPhase(phase)
+        }
+        result = result.copy(
+            electricityDeviceId = deviceId,
+            gridPowerEntityId = entities.pick { entities.isPower(it) && !it.normalizedName().contains("phase") }
+                ?: result.gridPowerEntityId,
+            powerPhase1EntityId = phasePower(1) ?: result.powerPhase1EntityId,
+            powerPhase2EntityId = phasePower(2) ?: result.powerPhase2EntityId,
+            powerPhase3EntityId = phasePower(3) ?: result.powerPhase3EntityId,
+            currentPhase1EntityId = phaseClass("current", "A", 1) ?: result.currentPhase1EntityId,
+            currentPhase2EntityId = phaseClass("current", "A", 2) ?: result.currentPhase2EntityId,
+            currentPhase3EntityId = phaseClass("current", "A", 3) ?: result.currentPhase3EntityId,
+            voltagePhase1EntityId = phaseClass("voltage", "V", 1) ?: result.voltagePhase1EntityId,
+            voltagePhase2EntityId = phaseClass("voltage", "V", 2) ?: result.voltagePhase2EntityId,
+            voltagePhase3EntityId = phaseClass("voltage", "V", 3) ?: result.voltagePhase3EntityId,
+            gridImportTariff1EntityId = entities.pick {
+                entities.isEnergy(it) && it.normalizedName().contains("import") && it.normalizedName().contains("tariff 1")
+            } ?: result.gridImportTariff1EntityId,
+            gridImportTariff2EntityId = entities.pick {
+                entities.isEnergy(it) && it.normalizedName().contains("import") && it.normalizedName().contains("tariff 2")
+            } ?: result.gridImportTariff2EntityId,
+            gridExportTariff1EntityId = entities.pick {
+                entities.isEnergy(it) && it.normalizedName().contains("export") && it.normalizedName().contains("tariff 1")
+            } ?: result.gridExportTariff1EntityId,
+            gridExportTariff2EntityId = entities.pick {
+                entities.isEnergy(it) && it.normalizedName().contains("export") && it.normalizedName().contains("tariff 2")
+            } ?: result.gridExportTariff2EntityId
+        )
+    }
+    related("solar")?.let { (deviceId, entities) ->
+        result = result.copy(
+            solarDeviceId = deviceId,
+            solarPowerEntityId = entities.pick { entities.isPower(it) } ?: result.solarPowerEntityId,
+            solarLast7DaysEntityId = entities.pick {
+                entities.isEnergy(it) && (it.normalizedName().contains("7 days") || it.normalizedName().contains("seven"))
+            } ?: result.solarLast7DaysEntityId,
+            solarLifetimeEntityId = entities.pick {
+                entities.isEnergy(it) && it.normalizedName().contains("lifetime")
+            } ?: result.solarLifetimeEntityId
+        )
+    }
+    related("battery")?.let { (deviceId, entities) ->
+        result = result.copy(
+            batteryDeviceId = deviceId,
+            batteryPowerEntityId = entities.pick { entities.isPower(it) } ?: result.batteryPowerEntityId,
+            batteryEntityId = entities.pick {
+                it.deviceClass == "battery" || (entities.unit(it) == "%" && it.normalizedName().contains("batter"))
+            } ?: result.batteryEntityId
+        )
+    }
+    related("gas")?.let { (deviceId, entities) ->
+        result = result.copy(
+            gasDeviceId = deviceId,
+            gasCurrentEntityId = entities.pick { entities.unit(it).contains("m\u00B3/h") } ?: result.gasCurrentEntityId
+        )
+    }
+    related("water")?.let { (deviceId, entities) ->
+        result = result.copy(
+            waterDeviceId = deviceId,
+            waterCurrentEntityId = entities.pick {
+                entities.unit(it).contains("/min") || entities.unit(it).contains("m\u00B3/h")
+            } ?: result.waterCurrentEntityId
+        )
+    }
+    related("carbon")?.let { (deviceId, _) -> result = result.copy(carbonDeviceId = deviceId) }
+    return result
 }
 
 
@@ -1422,7 +1549,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val current = (_pageConfigsMapping.value[pageKey] ?: HKIPageConfig()).energyConfig ?: HKIEnergyConfig()
         // Re-run the lightweight import for existing HA-backed setups that predate carbon-entry
         // discovery, so Electricity Maps appears without requiring a manual re-import.
-        if (current.usesHomeAssistantEnergyPreferences && current.gridCarbonFootprintEntityId != null && !force) return
+        if (
+            current.usesHomeAssistantEnergyPreferences &&
+            current.gridCarbonFootprintEntityId != null &&
+            current.hasImportedRelatedEntities &&
+            !force
+        ) return
         val currentClient = client ?: return
         viewModelScope.launch {
             try {
@@ -1457,6 +1589,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     .toList()
                 val registry = _entityRegistry.value.ifEmpty {
                     currentClient.getEntityRegistry().also { _entityRegistry.value = it }
+                }
+                val deviceRegistry = _deviceRegistry.value.ifEmpty {
+                    currentClient.getDeviceRegistry().also { _deviceRegistry.value = it }
                 }
                 val registryByEntity = registry.associateBy { it.entity_id }
                 val liveById = _entities.value.associateBy { it.entity_id }
@@ -1498,23 +1633,45 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     }
                 }
 
-                val imported = current.copy(
+                val related = importRelatedHomeAssistantEnergyEntities(
+                    config = current,
+                    sourceEntityIds = mapOf(
+                        "electricity" to listOfNotNull(
+                            grid?.text("stat_energy_from"), grid?.text("stat_energy_to"), grid?.powerRate()
+                        ),
+                        "solar" to listOfNotNull(solar?.text("stat_energy_from"), solar?.powerRate()),
+                        "battery" to listOfNotNull(
+                            battery?.text("stat_soc"), battery?.text("stat_energy_from"),
+                            battery?.text("stat_energy_to"), battery?.powerRate()
+                        ),
+                        "gas" to listOfNotNull(gas?.text("stat_energy_from"), gas?.text("stat_rate")),
+                        "water" to listOfNotNull(water?.text("stat_energy_from"), water?.text("stat_rate")),
+                        "carbon" to listOfNotNull(carbonEntityId)
+                    ),
+                    registry = registry,
+                    devices = deviceRegistry,
+                    liveEntities = _entities.value
+                )
+                // Values explicitly selected in HA's Energy settings take precedence over the
+                // related device entities inferred above.
+                val imported = related.copy(
                     usesHomeAssistantEnergyPreferences = true,
-                    gridImportEntityId = grid?.text("stat_energy_from") ?: current.gridImportEntityId,
-                    gridExportEntityId = grid?.text("stat_energy_to") ?: current.gridExportEntityId,
-                    gridPowerEntityId = grid?.powerRate() ?: current.gridPowerEntityId,
-                    energyCostEntityId = grid?.text("stat_cost") ?: current.energyCostEntityId,
-                    solarEnergyEntityId = solar?.text("stat_energy_from") ?: current.solarEnergyEntityId,
-                    solarPowerEntityId = solar?.powerRate() ?: current.solarPowerEntityId,
-                    batteryPowerEntityId = battery?.powerRate() ?: current.batteryPowerEntityId,
-                    batteryEntityId = battery?.text("stat_soc") ?: current.batteryEntityId,
-                    gasEntityId = gas?.text("stat_energy_from") ?: current.gasEntityId,
-                    gasCurrentEntityId = gas?.text("stat_rate") ?: current.gasCurrentEntityId,
-                    gasCostEntityId = gas?.text("stat_cost") ?: current.gasCostEntityId,
-                    waterEntityId = water?.text("stat_energy_from") ?: current.waterEntityId,
-                    waterCurrentEntityId = water?.text("stat_rate") ?: current.waterCurrentEntityId,
-                    waterCostEntityId = water?.text("stat_cost") ?: current.waterCostEntityId,
-                    gridCarbonFootprintEntityId = carbonEntityId ?: current.gridCarbonFootprintEntityId,
+                    hasImportedRelatedEntities = true,
+                    gridImportEntityId = grid?.text("stat_energy_from") ?: related.gridImportEntityId,
+                    gridExportEntityId = grid?.text("stat_energy_to") ?: related.gridExportEntityId,
+                    gridPowerEntityId = grid?.powerRate() ?: related.gridPowerEntityId,
+                    energyCostEntityId = grid?.text("stat_cost") ?: related.energyCostEntityId,
+                    solarEnergyEntityId = solar?.text("stat_energy_from") ?: related.solarEnergyEntityId,
+                    solarPowerEntityId = solar?.powerRate() ?: related.solarPowerEntityId,
+                    batteryPowerEntityId = battery?.powerRate() ?: related.batteryPowerEntityId,
+                    batteryEntityId = battery?.text("stat_soc") ?: related.batteryEntityId,
+                    gasEntityId = gas?.text("stat_energy_from") ?: related.gasEntityId,
+                    gasCurrentEntityId = gas?.text("stat_rate") ?: related.gasCurrentEntityId,
+                    gasCostEntityId = gas?.text("stat_cost") ?: related.gasCostEntityId,
+                    waterEntityId = water?.text("stat_energy_from") ?: related.waterEntityId,
+                    waterCurrentEntityId = water?.text("stat_rate") ?: related.waterCurrentEntityId,
+                    waterCostEntityId = water?.text("stat_cost") ?: related.waterCostEntityId,
+                    gridCarbonFootprintEntityId = carbonEntityId ?: related.gridCarbonFootprintEntityId,
                     deviceEntityIds = powerIds,
                     energyDeviceEntityIds = energyIds,
                     waterDeviceEntityIds = waterDeviceIds,
@@ -2582,17 +2739,50 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             if (protectExistingRoomsOnNextImport && (existingWidgets.containsKey(area.area_id) || existingConfigs.containsKey(area.area_id))) {
                 return@forEach
             }
-            val areaEntities = entitiesByArea[area.area_id].orEmpty()
-            val lockIds = areaEntities.filter { it.entity_id.startsWith("lock.") }.map { it.entity_id }
-            val climateIds = areaEntities.filter { it.entity_id.startsWith("climate.") }.map { it.entity_id }
-            val cameraIds = areaEntities.filter { it.entity_id.startsWith("camera.") }.map { it.entity_id }
-            val blindIds = areaEntities.filter { it.entity_id.startsWith("cover.") }.map { it.entity_id }
+            val areaEntities = entitiesByArea[area.area_id]
+                .orEmpty()
+                .filter { it.entity_id.substringBefore(".") in AUTO_ROOM_IMPORT_DOMAINS }
+            val entityIdsByDomain = areaEntities.groupBy(
+                keySelector = { it.entity_id.substringBefore(".") },
+                valueTransform = { it.entity_id }
+            )
+            val lockIds = entityIdsByDomain["lock"].orEmpty()
+            val climateIds = entityIdsByDomain["climate"].orEmpty()
+            val cameraIds = entityIdsByDomain["camera"].orEmpty()
+            val blindIds = entityIdsByDomain["cover"].orEmpty()
+            val mediaPlayerIds = entityIdsByDomain["media_player"].orEmpty()
+
+            fun autoBadge(domain: String, side: String, shape: String): HKIBadge? {
+                val ids = entityIdsByDomain[domain].orEmpty()
+                if (ids.isEmpty()) return null
+                return HKIBadge(
+                    id = "auto_${area.area_id}_$domain",
+                    entityId = ids.first(),
+                    entityIds = ids,
+                    shape = shape,
+                    side = side
+                )
+            }
+
+            val importedBadges = buildList {
+                // Left lane: cameras only.
+                autoBadge("camera", side = "left", shape = "circle")?.let(::add)
+
+                // Right lane is ordered from left to right. Climate is deliberately appended last,
+                // with lock (or cover when there is no lock) immediately before it when available.
+                autoBadge("fan", side = "right", shape = "circle")?.let(::add)
+                autoBadge("humidifier", side = "right", shape = "circle")?.let(::add)
+                autoBadge("cover", side = "right", shape = "circle")?.let(::add)
+                autoBadge("lock", side = "right", shape = "circle")?.let(::add)
+                autoBadge("climate", side = "right", shape = "pill")?.let(::add)
+            }
 
             val current = existingConfigs[area.area_id] ?: HKIAreaConfig()
             val importedConfig = current.copy(
                 floorId = area.floor_id,
                 icon = current.icon ?: area.icon,
                 wallpaper = current.wallpaper ?: area.picture,
+                mediaPlayerEntityId = mediaPlayerIds.firstOrNull(),
                 lockEntityId = lockIds.firstOrNull(),
                 climateEntityId = climateIds.firstOrNull(),
                 cameraEntityId = cameraIds.firstOrNull(),
@@ -2604,18 +2794,21 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 lockIcon = current.lockIcon ?: "Door",
                 climateIcon = current.climateIcon ?: "thermostat",
                 cameraIcon = current.cameraIcon ?: "CameraAlt",
-                blindIcon = current.blindIcon ?: "Blinds"
+                blindIcon = current.blindIcon ?: "Blinds",
+                badgeBar = HKIBadgeBarConfig(
+                    badges = importedBadges,
+                    alignment = "split",
+                    leftOverflow = false,
+                    rightOverflow = true
+                )
             )
             if (existingConfigs[area.area_id] != importedConfig) {
                 existingConfigs[area.area_id] = importedConfig
                 changedConfigs = true
             }
 
-            val roleEntityIds = (lockIds + climateIds + cameraIds + blindIds).toSet()
-            val autoImportExcludedDomains = setOf("automation", "time", "event", "device_tracker", "number", "update")
             val stacks = areaEntities
-                .filterNot { it.entity_id in roleEntityIds }
-                .filterNot { it.entity_id.substringBefore(".") in autoImportExcludedDomains }
+                .filter { it.entity_id.substringBefore(".") in AUTO_ROOM_STACK_DOMAINS }
                 .groupBy { autoStackTitle(it.entity_id.substringBefore(".")) }
                 .filterValues { it.isNotEmpty() }
                 .map { (title, grouped) ->

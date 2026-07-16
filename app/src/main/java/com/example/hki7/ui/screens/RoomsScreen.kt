@@ -43,6 +43,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -100,6 +101,7 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
     val isEditMode by viewModel.isEditMode.collectAsState()
     val currentUrl by viewModel.currentUrl.collectAsState()
     val dashboardMode by viewModel.dashboardMode.collectAsState()
+    val autoGenerationPending by viewModel.prefs.pendingAutoTakeover.collectAsState(initial = false)
     val collapsedFloorIds by viewModel.collapsedFloorIds.collectAsState()
 
     var showAutoInfo by remember { mutableStateOf(false) }
@@ -147,10 +149,14 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                 else -> 0
             }
             if (groupedFloors.isEmpty() && !isEditMode) {
-                EmptyEditHint(
-                    Modifier.fillMaxSize(),
-                    "This is an empty rooms view. You can add floors and rooms by swiping down on the header and enabling edit mode."
-                )
+                if (autoGenerationPending) {
+                    RoomsImportProgress(Modifier.fillMaxSize(), centered = true)
+                } else {
+                    EmptyEditHint(
+                        Modifier.fillMaxSize(),
+                        "This is an empty rooms view. You can add floors and rooms by swiping down on the header and enabling edit mode."
+                    )
+                }
             } else {
                 Column(
                     modifier = Modifier
@@ -164,6 +170,9 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                         ),
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
+                    if (autoGenerationPending) {
+                        RoomsImportProgress(Modifier.fillMaxWidth())
+                    }
                     packFloorRows(groupedFloors).forEach { floorRow ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -307,6 +316,34 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                 editingFloor = null
             }
         )
+    }
+}
+
+@Composable
+private fun RoomsImportProgress(modifier: Modifier = Modifier, centered: Boolean = false) {
+    val appColors = LocalHKIAppColors.current
+    Box(modifier = modifier, contentAlignment = if (centered) Alignment.Center else Alignment.TopCenter) {
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            color = appColors.subtleSurface,
+            modifier = if (centered) Modifier.padding(24.dp) else Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                CircularProgressIndicator(modifier = Modifier.size(28.dp), strokeWidth = 3.dp)
+                Column {
+                    Text("Generating your rooms", style = MaterialTheme.typography.titleSmall, color = appColors.onSurface)
+                    Text(
+                        "Importing areas and entities from Home Assistant…",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = appColors.onMuted
+                    )
+                }
+            }
+        }
     }
 }
 

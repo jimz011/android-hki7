@@ -1,8 +1,10 @@
 package com.example.hki7.ui
 
 import com.example.hki7.data.HAConfigEntry
+import com.example.hki7.data.HADeviceRegistryEntry
 import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HAEntityRegistryEntry
+import com.example.hki7.data.HKIEnergyConfig
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.Assert.assertEquals
@@ -10,6 +12,49 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 class EnergyCarbonImportTest {
+    @Test
+    fun `energy preference source imports related entities from the same device`() {
+        fun entity(id: String, name: String, deviceClass: String, unit: String) = HAEntity(
+            entity_id = id,
+            state = "1",
+            attributes = buildJsonObject {
+                put("friendly_name", name)
+                put("device_class", deviceClass)
+                put("unit_of_measurement", unit)
+            }
+        )
+        val source = entity("sensor.meter_import", "Grid import", "energy", "kWh")
+        val gridPower = entity("sensor.meter_power", "Grid power", "power", "W")
+        val phasePower = entity("sensor.meter_phase_1", "Grid power phase 1", "power", "W")
+        val phaseCurrent = entity("sensor.meter_current_1", "Grid current phase 1", "current", "A")
+        val tariff = entity("sensor.meter_import_t1", "Grid import tariff 1", "energy", "kWh")
+        val unrelated = entity("sensor.other_power", "Other power", "power", "W")
+        val live = listOf(source, gridPower, phasePower, phaseCurrent, tariff, unrelated)
+        val registry = live.map { entity ->
+            HAEntityRegistryEntry(
+                entity_id = entity.entity_id,
+                device_id = if (entity == unrelated) "other-device" else "meter-device"
+            )
+        }
+
+        val result = importRelatedHomeAssistantEnergyEntities(
+            config = HKIEnergyConfig(),
+            sourceEntityIds = mapOf("electricity" to listOf(source.entity_id)),
+            registry = registry,
+            devices = listOf(
+                HADeviceRegistryEntry(id = "meter-device"),
+                HADeviceRegistryEntry(id = "other-device")
+            ),
+            liveEntities = live
+        )
+
+        assertEquals("meter-device", result.electricityDeviceId)
+        assertEquals(gridPower.entity_id, result.gridPowerEntityId)
+        assertEquals(phasePower.entity_id, result.powerPhase1EntityId)
+        assertEquals(phaseCurrent.entity_id, result.currentPhase1EntityId)
+        assertEquals(tariff.entity_id, result.gridImportTariff1EntityId)
+    }
+
     @Test
     fun `matches fossil percentage through enabled Electricity Maps config entry`() {
         val result = resolveHomeAssistantEnergyCarbonEntity(

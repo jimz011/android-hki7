@@ -1,5 +1,6 @@
 package com.example.hki7.data
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
@@ -14,6 +15,7 @@ data class HKICustomPage(
 )
 
 @Serializable
+@Immutable
 data class HAEntity(
     val entity_id: String,
     val state: String,
@@ -640,6 +642,8 @@ data class HKIEnergyConfig(
     val manualOnly: Boolean = false,
     /** True after importing Home Assistant's Energy dashboard preferences; disables class-wide discovery. */
     val usesHomeAssistantEnergyPreferences: Boolean = false,
+    /** Migration marker: the HA import also resolved source statistics to their related device entities. */
+    val hasImportedRelatedEntities: Boolean = false,
     val solarPowerEntityId: String? = null,
     val gridPowerEntityId: String? = null,
     val homePowerEntityId: String? = null,

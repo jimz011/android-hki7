@@ -877,16 +877,13 @@ private fun ClimateHero(
                 openWindowCount = openingState.openWindows,
                 modifier = Modifier.fillMaxSize()
             )
-            Surface(
-                modifier = Modifier.align(Alignment.TopStart).padding(start = 14.dp, top = 8.dp),
-                color = appColors.surface.copy(alpha = 0.88f), shape = itemCornerShape()
+            Column(
+                modifier = Modifier.align(Alignment.TopStart).padding(start = 14.dp, top = 8.dp)
             ) {
-                Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-                    Text("INDOOR AVERAGE", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted, fontWeight = FontWeight.SemiBold)
-                    Row(verticalAlignment = Alignment.Top) {
-                        Text(avgTemp?.let { "%.1f".format(Locale.getDefault(), it) } ?: "—", style = MaterialTheme.typography.headlineMedium, color = appColors.onSurface, fontWeight = FontWeight.Bold)
-                        if (avgTemp != null) Text(tempUnit, style = MaterialTheme.typography.labelLarge, color = sceneAccent, modifier = Modifier.padding(top = 4.dp, start = 2.dp))
-                    }
+                Text("INDOOR AVERAGE", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted, fontWeight = FontWeight.SemiBold)
+                Row(verticalAlignment = Alignment.Top) {
+                    Text(avgTemp?.let { "%.1f".format(Locale.getDefault(), it) } ?: "—", style = MaterialTheme.typography.headlineMedium, color = appColors.onSurface, fontWeight = FontWeight.Bold)
+                    if (avgTemp != null) Text(tempUnit, style = MaterialTheme.typography.labelLarge, color = sceneAccent, modifier = Modifier.padding(top = 4.dp, start = 2.dp))
                 }
             }
             Surface(
@@ -2751,6 +2748,45 @@ private fun rememberClimateWidgetOverrideData(viewModel: MainViewModel, override
     }
 }
 
+/** Thermostat cards only need climate entities. Keeping this selector separate prevents a sensor,
+ * fan, or humidifier state change from rebuilding every comparatively expensive dial widget. */
+@Composable
+private fun rememberClimateDeviceWidgetData(viewModel: MainViewModel): ClimateWidgetData {
+    val pageConfigsMap by viewModel.pageConfigsMapping.collectAsState()
+    val climateConfig =
+        (pageConfigsMap[CLIMATE_PAGE_KEY] ?: HKIPageConfig()).climateConfig ?: HKIClimateConfig()
+    val extraIds = remember(climateConfig.extraClimateIds) { climateConfig.extraClimateIds.toSet() }
+    val selectorKey = remember(extraIds) {
+        "climate_device_widget:${extraIds.sorted().joinToString(",")}"
+    }
+    val entityFlow = remember(viewModel, selectorKey) {
+        viewModel.entitiesMatching(selectorKey) { entity ->
+            entity.entity_id.startsWith("climate.") || entity.entity_id in extraIds
+        }
+    }
+    val rawEntities by entityFlow.collectAsState()
+    return remember(rawEntities, climateConfig) {
+        val entities = rawEntities.map { it.withDisplayName(climateConfig.customNames[it.entity_id]) }
+        val byId = entities.associateBy { it.entity_id }
+        val hidden = climateConfig.hiddenEntityIds.toSet()
+        val climateEntities = (
+            (if (climateConfig.manualOnly) emptyList() else entities.filter { it.entity_id.startsWith("climate.") }) +
+                climateConfig.extraClimateIds.mapNotNull(byId::get)
+            )
+            .distinctBy { it.entity_id }
+            .filterNot { it.entity_id in hidden }
+            .sortedBy { it.friendlyName ?: it.entity_id }
+            .applyClimateOrder(climateConfig.entityOrder)
+        ClimateWidgetData(
+            climateEntities = climateEntities,
+            fanEntities = emptyList(),
+            purifierEntities = emptyList(),
+            humidifierEntities = emptyList(),
+            groupSensors = emptyMap()
+        )
+    }
+}
+
 /** Same discovery rules as the Climate page (domain + device_class + manual config). */
 @Composable
 private fun rememberClimateWidgetData(viewModel: MainViewModel): ClimateWidgetData {
@@ -2826,8 +2862,11 @@ fun ClimateCardWidgetView(
     isSquare: Boolean = false
 ) {
     val appColors = LocalHKIAppColors.current
-    val data = if (entityIdsOverride.isEmpty()) rememberClimateWidgetData(viewModel)
-        else rememberClimateWidgetOverrideData(viewModel, entityIdsOverride)
+    val data = when {
+        entityIdsOverride.isNotEmpty() -> rememberClimateWidgetOverrideData(viewModel, entityIdsOverride)
+        cardKey == "dial" || cardKey == "thermostats" -> rememberClimateDeviceWidgetData(viewModel)
+        else -> rememberClimateWidgetData(viewModel)
+    }
     val openingState = if (cardKey == "hero") rememberClimateOpeningState(viewModel)
         else ClimateOpeningState()
     var dialDialogEntityId by remember { mutableStateOf<String?>(null) }

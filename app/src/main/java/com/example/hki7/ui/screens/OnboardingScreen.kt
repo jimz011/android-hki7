@@ -191,7 +191,7 @@ private fun WelcomeStep(onNext: () -> Unit) {
             Text("Welcome to HKI 7", style = MaterialTheme.typography.displaySmall, color = appColors.onSurface, textAlign = TextAlign.Center)
             Spacer(Modifier.height(12.dp))
             Text(
-                "A fast, native dashboard for your Home Assistant.\nLet's connect to your server.",
+                "A fast, auto-generating dashboard for Home Assistant\nLet's connect to your server.",
                 style = MaterialTheme.typography.bodyLarge,
                 color = appColors.onMuted,
                 textAlign = TextAlign.Center

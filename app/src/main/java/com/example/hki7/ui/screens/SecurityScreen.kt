@@ -565,57 +565,43 @@ private fun SecurityHero(state: SecuritySceneState) {
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+        // ClimateHero has 10dp on its default modifier plus 14dp on its inner scene column.
+        // Keep the same total inset so both house scenes and metric baselines align exactly.
+        modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(Modifier.fillMaxWidth().height(274.dp)) {
+        Box(Modifier.fillMaxWidth().height(252.dp)) {
             SecurityHouseScene(state = state, accent = color, modifier = Modifier.fillMaxSize())
-            Row(
-                modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.Top
+            Column(
+                modifier = Modifier.align(Alignment.TopStart)
+                    .padding(start = 14.dp, top = 8.dp)
             ) {
-                Surface(
-                    modifier = Modifier.weight(1.15f),
-                    color = colors.surface.copy(alpha = 0.88f),
-                    shape = itemCornerShape()
+                Text("HOME SECURITY", style = MaterialTheme.typography.labelSmall, color = colors.onMuted, fontWeight = FontWeight.SemiBold)
+                Text(
+                    status,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = colors.onSurface,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Surface(
+                modifier = Modifier.align(Alignment.TopEnd).padding(end = 14.dp, top = 8.dp),
+                color = color.copy(alpha = 0.16f),
+                shape = itemCornerShape()
+            ) {
+                Row(
+                    Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-                        Text("HOME SECURITY", style = MaterialTheme.typography.labelSmall, color = colors.onMuted, fontWeight = FontWeight.SemiBold)
-                        Text(
-                            status,
-                            style = MaterialTheme.typography.titleLarge,
-                            color = colors.onSurface,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-                Surface(
-                    modifier = Modifier.weight(0.85f),
-                    color = color.copy(alpha = 0.16f),
-                    shape = itemCornerShape()
-                ) {
-                    Row(
-                        Modifier.padding(horizontal = 10.dp, vertical = 9.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(Modifier.size(7.dp).background(color, androidx.compose.foundation.shape.CircleShape))
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            alarmLabel,
-                            color = colors.onSurface,
-                            style = MaterialTheme.typography.labelMedium,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                    Box(Modifier.size(7.dp).background(color, androidx.compose.foundation.shape.CircleShape))
+                    Spacer(Modifier.width(6.dp))
+                    Text(alarmLabel, color = colors.onSurface, style = MaterialTheme.typography.labelMedium)
                 }
             }
         }
-        Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             SecurityHeroStat(
                 Icons.Default.SensorDoor,
                 when {
@@ -624,8 +610,7 @@ private fun SecurityHero(state: SecuritySceneState) {
                     else -> SafeGreen
                 },
                 state.openingCount.toString(),
-                "Openings",
-                Modifier.weight(1f)
+                "Openings"
             )
             SecurityHeroStat(
                 Icons.Default.Lock,
@@ -636,8 +621,7 @@ private fun SecurityHero(state: SecuritySceneState) {
                     else -> SafeGreen
                 },
                 if (state.lockCount > 0) "${state.lockedLocks}/${state.lockCount}" else "—",
-                "Locked",
-                Modifier.weight(1f)
+                "Locked"
             )
             SecurityHeroStat(
                 Icons.Default.Videocam,
@@ -647,8 +631,7 @@ private fun SecurityHero(state: SecuritySceneState) {
                     else -> SafeGreen
                 },
                 if (state.cameras > 0) "${state.onlineCameras}/${state.cameras}" else "—",
-                "Cameras online",
-                Modifier.weight(1f)
+                "Cameras online"
             )
         }
     }
@@ -659,23 +642,15 @@ private fun SecurityHeroStat(
     icon: ImageVector,
     color: Color,
     value: String,
-    label: String,
-    modifier: Modifier = Modifier
+    label: String
 ) {
     val appColors = LocalHKIAppColors.current
-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             Icon(icon, null, tint = color, modifier = Modifier.size(15.dp))
             Text(value, color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
         }
-        Text(
-            label,
-            color = appColors.onMuted,
-            style = MaterialTheme.typography.labelSmall,
-            textAlign = TextAlign.Center,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
+        Text(label, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
     }
 }
 
@@ -723,11 +698,13 @@ private fun SecurityHouseScene(
     )
 
     Canvas(modifier) {
-        val designWidth = 900f
+        val designWidth = 850f
         val designHeight = 620f
         val scale = min(size.width / designWidth, size.height / designHeight)
         if (scale <= 0f) return@Canvas
-        val originX = (size.width - designWidth * scale) / 2f
+        // Match the Climate scene's composition: the house and its right-side fixtures share one
+        // visual centre, so the shell fills the hero without looking pinched or left-heavy.
+        val originX = size.width / 2f - 470f * scale
         val originY = size.height - designHeight * scale
         fun point(x: Float, y: Float) = Offset(originX + x * scale, originY + y * scale)
         fun d(value: Float) = value * scale
@@ -751,29 +728,29 @@ private fun SecurityHouseScene(
             return points.last()
         }
 
-        val leftWall = if (dark) Color(0xFF303E47) else Color(0xFFD7E0E5)
-        val rightWall = if (dark) Color(0xFF3B4B55) else Color(0xFFEDF2F4)
-        val gableFace = if (dark) Color(0xFF35444D) else Color(0xFFE5ECEF)
-        val roofFront = if (dark) Color(0xFF1B272E) else Color(0xFFA9B7BF)
-        val roofBack = if (dark) Color(0xFF26343C) else Color(0xFFC0CBD1)
-        val glass = if (dark) Color(0xFF172C35) else Color(0xFFAEC6D0)
-        val frame = if (dark) Color(0xFF91A3AC) else Color(0xFF687982)
-        val edge = if (dark) Color(0xFF7C909A) else Color.White.copy(alpha = 0.82f)
+        val leftWall = if (dark) Color(0xFF33424B) else Color(0xFFD9E3E8)
+        val rightWall = if (dark) Color(0xFF40515B) else Color(0xFFF0F4F6)
+        val gableFace = if (dark) Color(0xFF394952) else Color(0xFFE7EDF0)
+        val roofFront = if (dark) Color(0xFF1D2930) else Color(0xFFAAB8C0)
+        val roofBack = if (dark) Color(0xFF29363E) else Color(0xFFC1CBD1)
+        val glass = if (dark) Color(0xFF162B34) else Color(0xFFAFC7D2)
+        val frame = if (dark) Color(0xFF9AAAB2) else Color(0xFF687A83)
+        val edge = if (dark) Color(0xFF82959F) else Color.White.copy(alpha = 0.82f)
         val doorColor = if (dark) Color(0xFF273840) else Color(0xFFB4C3CA)
         val garageColor = if (dark) Color(0xFF44545D) else Color(0xFFBCC8CE)
         val deep = if (dark) Color(0xFF111C21) else Color(0xFF596B74)
         val cameraBody = if (dark) Color(0xFF52636C) else Color(0xFFA9B8BF)
 
-        val fc = point(515f, 520f)
-        val leftAxis = Offset(d(-330f), d(-55f))
-        val rightAxis = Offset(d(235f), d(-65f))
-        val wallHeight = d(180f)
+        val fc = point(500f, 530f)
+        val leftAxis = Offset(d(-350f), d(-55f))
+        val rightAxis = Offset(d(260f), d(-70f))
+        val wallHeight = d(185f)
         val fcTop = fc + Offset(0f, -wallHeight)
         val leftBottom = fc + leftAxis
         val leftTop = fcTop + leftAxis
         val rightBottom = fc + rightAxis
         val rightTop = fcTop + rightAxis
-        val apex = point(632f, 220f)
+        val apex = point(630f, 225f)
         val backApex = apex + leftAxis
         val backRightTop = rightTop + leftAxis
         fun leftFace(u: Float, v: Float) = fc + leftAxis * u + Offset(0f, -wallHeight * v)
@@ -783,14 +760,14 @@ private fun SecurityHouseScene(
         drawCircle(
             brush = Brush.radialGradient(
                 listOf(accent.copy(alpha = (if (dark) 0.10f else 0.07f) * pulse), Color.Transparent),
-                center = point(500f, 360f), radius = d(390f)
+                center = point(500f, 365f), radius = d(390f)
             ),
-            radius = d(390f), center = point(500f, 360f)
+            radius = d(390f), center = point(500f, 365f)
         )
 
         drawOval(
             Color.Black.copy(alpha = if (dark) 0.32f else 0.10f),
-            topLeft = point(85f, 488f), size = Size(d(745f), d(94f))
+            topLeft = point(72f, 492f), size = Size(d(770f), d(92f))
         )
 
         val perimeter = listOf(
@@ -814,7 +791,7 @@ private fun SecurityHouseScene(
             (state.alarmCount > 0 && state.availableAlarmCount == 0)
         drawPath(
             perimeterPath,
-            perimeterColor.copy(alpha = if (perimeterActive) 0.34f else 0.12f),
+            perimeterColor.copy(alpha = if (perimeterActive) 0.34f else 0.035f),
             style = Stroke(1.4.dp.toPx(), cap = StrokeCap.Round)
         )
         if (perimeterActive) {
@@ -831,29 +808,100 @@ private fun SecurityHouseScene(
             }
         }
 
-        // Main shell: one coherent isometric structure, shared by every security fixture.
-        drawPath(quad(apex, rightTop, backRightTop, backApex), roofBack)
-        drawPath(quad(fc, leftBottom, leftTop, fcTop), leftWall)
-        drawPath(quad(fc, rightBottom, rightTop, fcTop), rightWall)
-        drawPath(Path().apply {
+        // Main shell: softly graded planes give the same depth and material finish as the Climate
+        // house while leaving enough contrast for live security fixtures to remain legible.
+        drawPath(
+            quad(apex, rightTop, backRightTop, backApex),
+            Brush.linearGradient(
+                listOf(roofBack.copy(alpha = 0.94f), roofFront.copy(alpha = 0.98f)),
+                start = backApex,
+                end = rightTop
+            )
+        )
+        drawPath(
+            quad(fc, leftBottom, leftTop, fcTop),
+            Brush.linearGradient(
+                listOf(
+                    if (dark) Color(0xFF3B4C56) else Color(0xFFE4EBEE),
+                    leftWall,
+                    if (dark) Color(0xFF293840) else Color(0xFFCAD6DC)
+                ),
+                start = leftTop,
+                end = leftBottom
+            )
+        )
+        drawPath(
+            quad(fc, rightBottom, rightTop, fcTop),
+            Brush.linearGradient(
+                listOf(
+                    if (dark) Color(0xFF4A5C66) else Color(0xFFF7F9FA),
+                    rightWall,
+                    if (dark) Color(0xFF35454E) else Color(0xFFDDE6EA)
+                ),
+                start = rightTop,
+                end = rightBottom
+            )
+        )
+        val gablePath = Path().apply {
             moveTo(fcTop.x, fcTop.y); lineTo(apex.x, apex.y); lineTo(rightTop.x, rightTop.y); close()
-        }, gableFace)
-        drawLine(frame.copy(alpha = 0.28f), leftBottom, fc, 1.2.dp.toPx())
-        drawLine(frame.copy(alpha = 0.28f), fc, rightBottom, 1.2.dp.toPx())
+        }
+        drawPath(
+            gablePath,
+            Brush.linearGradient(
+                listOf(gableFace, if (dark) Color(0xFF304049) else Color(0xFFD9E3E7)),
+                start = apex,
+                end = fcTop
+            )
+        )
+        // Foundation and corner trim make the planes read as one built structure instead of flat
+        // adjoining polygons.
+        drawLine(if (dark) Color.Black.copy(alpha = 0.26f) else frame.copy(alpha = 0.34f), leftBottom, fc, 2.dp.toPx())
+        drawLine(if (dark) Color.Black.copy(alpha = 0.23f) else frame.copy(alpha = 0.28f), fc, rightBottom, 2.dp.toPx())
+        drawLine(edge.copy(alpha = 0.18f), leftTop, fcTop, 1.dp.toPx())
+        drawLine(edge.copy(alpha = 0.16f), fcTop, rightTop, 1.dp.toPx())
+        drawLine(frame.copy(alpha = 0.18f), fcTop, fc, 1.dp.toPx())
+
+        // Very subtle siding courses add scale without turning the illustration into line art.
+        listOf(0.18f, 0.40f, 0.62f, 0.84f).forEach { v ->
+            drawLine(edge.copy(alpha = if (dark) 0.045f else 0.08f), leftFace(0f, v), leftFace(1f, v), 0.55.dp.toPx())
+            drawLine(edge.copy(alpha = if (dark) 0.04f else 0.07f), rightFace(0f, v), rightFace(1f, v), 0.55.dp.toPx())
+        }
 
         // Living-room window. Presence gives it a restrained warm, inhabited glow.
         val livingWindow = quad(
             leftFace(0.08f, 0.22f), leftFace(0.45f, 0.22f),
             leftFace(0.45f, 0.68f), leftFace(0.08f, 0.68f)
         )
-        drawPath(livingWindow, if (state.peopleHome > 0) SecurityWindowWarm.copy(alpha = 0.72f + 0.18f * pulse) else glass)
+        val occupiedWindow = state.peopleHome > 0
+        drawPath(livingWindow, glass)
+        if (occupiedWindow) {
+            drawPath(
+                livingWindow,
+                Brush.linearGradient(
+                    colors = listOf(
+                        SecurityWindowWarm.copy(alpha = if (dark) 0.25f + 0.08f * pulse else 0.16f + 0.05f * pulse),
+                        Color(0xFFD6B96E).copy(alpha = if (dark) 0.15f + 0.06f * pulse else 0.09f + 0.04f * pulse)
+                    ),
+                    start = leftFace(0.26f, 0.68f),
+                    end = leftFace(0.26f, 0.22f)
+                )
+            )
+        }
         drawPath(livingWindow, frame.copy(alpha = 0.76f), style = Stroke(1.3.dp.toPx()))
         drawLine(frame.copy(alpha = 0.58f), leftFace(0.265f, 0.22f), leftFace(0.265f, 0.68f), 1.dp.toPx())
         drawLine(frame.copy(alpha = 0.50f), leftFace(0.08f, 0.45f), leftFace(0.45f, 0.45f), 1.dp.toPx())
+        // A sill, sofa, and lamp silhouette give the warm panes an inhabited interior.
+        drawLine(frame.copy(alpha = 0.72f), leftFace(0.065f, 0.20f), leftFace(0.465f, 0.20f), 2.dp.toPx(), cap = StrokeCap.Round)
         drawPath(
             quad(leftFace(0.12f, 0.23f), leftFace(0.38f, 0.23f), leftFace(0.38f, 0.32f), leftFace(0.12f, 0.32f)),
-            deep.copy(alpha = 0.48f)
+            deep.copy(alpha = 0.54f)
         )
+        drawPath(
+            quad(leftFace(0.15f, 0.31f), leftFace(0.35f, 0.31f), leftFace(0.35f, 0.37f), leftFace(0.15f, 0.37f)),
+            deep.copy(alpha = 0.32f)
+        )
+        drawLine(deep.copy(alpha = 0.48f), leftFace(0.405f, 0.23f), leftFace(0.405f, 0.37f), 1.2.dp.toPx(), cap = StrokeCap.Round)
+        drawCircle(deep.copy(alpha = 0.52f), d(6f), leftFace(0.405f, 0.39f))
 
         // Integrated garage. The slatted panel physically lifts when any configured garage opens.
         val garageBottom = 0.08f
@@ -864,6 +912,22 @@ private fun SecurityHouseScene(
         )
         drawPath(garageOpening, deep.copy(alpha = 0.92f))
         drawPath(garageOpening, frame.copy(alpha = 0.72f), style = Stroke(1.3.dp.toPx()))
+        // The vehicle lives inside the recess; drawing it before the moving panel lets the panel
+        // naturally mask it until enough of the garage has lifted.
+        if (garageOpen > 0.08f) {
+            val reveal = garageOpen.coerceIn(0f, 1f)
+            val carBody = quad(
+                leftFace(0.61f, 0.10f), leftFace(0.88f, 0.10f),
+                leftFace(0.84f, 0.28f), leftFace(0.66f, 0.28f)
+            )
+            drawPath(carBody, frame.copy(alpha = 0.24f * reveal))
+            drawPath(
+                quad(leftFace(0.68f, 0.25f), leftFace(0.82f, 0.25f), leftFace(0.79f, 0.32f), leftFace(0.70f, 0.32f)),
+                glass.copy(alpha = 0.52f * reveal)
+            )
+            drawCircle(Color.Black.copy(alpha = 0.58f * reveal), d(7f), leftFace(0.66f, 0.09f))
+            drawCircle(Color.Black.copy(alpha = 0.58f * reveal), d(7f), leftFace(0.85f, 0.09f))
+        }
         val panelBottom = garageBottom + (garageTop - garageBottom) * garageOpen
         if (panelBottom < garageTop - 0.01f) {
             val panel = quad(
@@ -876,8 +940,20 @@ private fun SecurityHouseScene(
                 val v = panelBottom + remaining * line / 5f
                 drawLine(deep.copy(alpha = 0.38f), leftFace(0.54f, v), leftFace(0.94f, v), 1.dp.toPx())
             }
+            drawLine(
+                frame.copy(alpha = 0.42f),
+                leftFace(0.57f, panelBottom),
+                leftFace(0.57f, garageTop),
+                0.8.dp.toPx()
+            )
+            drawLine(
+                deep.copy(alpha = 0.48f),
+                leftFace(0.72f, panelBottom + remaining * 0.12f),
+                leftFace(0.78f, panelBottom + remaining * 0.12f),
+                1.4.dp.toPx(),
+                cap = StrokeCap.Round
+            )
         }
-
         // Stone path from the front door to the foreground.
         drawPath(
             quad(rightFace(0.10f, 0f), rightFace(0.34f, 0f), point(735f, 584f), point(615f, 604f)),
@@ -909,8 +985,36 @@ private fun SecurityHouseScene(
             rightFace(0.11f, 0.43f), rightFace(farU - 0.03f, 0.43f) + doorOffset,
             rightFace(farU - 0.03f, 0.58f) + doorOffset, rightFace(0.11f, 0.58f)
         )
-        drawPath(doorPane, if (state.peopleHome > 0) SecurityWindowWarm.copy(alpha = 0.58f) else glass)
+        drawPath(doorPane, glass)
+        if (occupiedWindow) drawPath(doorPane, SecurityWindowWarm.copy(alpha = if (dark) 0.22f else 0.13f))
         drawCircle(frame, d(3f), rightFace(farU - 0.015f, 0.27f) + doorOffset)
+        drawLine(frame.copy(alpha = 0.66f), rightFace(0.065f, 0.01f), rightFace(0.355f, 0.01f), 2.dp.toPx(), cap = StrokeCap.Round)
+
+        // Entry canopy and porch light visually anchor the door. The light responds to occupancy
+        // or motion, while remaining a small physical fixture in the idle state.
+        val canopyLeft = rightFace(0.045f, 0.69f)
+        val canopyRight = rightFace(0.37f, 0.69f)
+        drawLine(deep.copy(alpha = 0.38f), canopyLeft + Offset(0f, d(5f)), canopyRight + Offset(0f, d(5f)), 4.dp.toPx(), cap = StrokeCap.Round)
+        drawLine(frame.copy(alpha = 0.72f), canopyLeft, canopyRight, 2.3.dp.toPx(), cap = StrokeCap.Round)
+        val porchLight = rightFace(0.405f, 0.61f)
+        val porchActive = state.peopleHome > 0 || state.motionCount > 0 || state.sensorActivityCount > 0
+        if (porchActive) {
+            drawCircle(
+                brush = Brush.radialGradient(
+                    listOf(SecurityWindowWarm.copy(alpha = 0.22f * pulse), Color.Transparent),
+                    center = porchLight,
+                    radius = d(46f)
+                ),
+                radius = d(46f),
+                center = porchLight
+            )
+        }
+        drawLine(frame.copy(alpha = 0.72f), porchLight - Offset(0f, d(8f)), porchLight, 1.4.dp.toPx())
+        drawCircle(
+            if (porchActive) SecurityWindowWarm.copy(alpha = 0.72f + 0.22f * pulse) else frame.copy(alpha = 0.52f),
+            d(5f),
+            porchLight
+        )
 
         val lockStateColor = when {
             state.jammedLocks > 0 -> AlertRed
@@ -933,10 +1037,28 @@ private fun SecurityHouseScene(
             rightFace(0.48f, 0.24f), rightFace(0.84f, 0.24f),
             rightFace(0.84f, 0.68f), rightFace(0.48f, 0.68f)
         )
-        drawPath(frontWindow, if (state.peopleHome > 0) SecurityWindowWarm.copy(alpha = 0.60f + 0.16f * pulse) else glass)
+        drawPath(frontWindow, glass)
+        if (occupiedWindow) {
+            drawPath(
+                frontWindow,
+                Brush.linearGradient(
+                    colors = listOf(
+                        SecurityWindowWarm.copy(alpha = if (dark) 0.23f + 0.08f * pulse else 0.15f + 0.05f * pulse),
+                        Color(0xFFD1AD5A).copy(alpha = if (dark) 0.14f + 0.05f * pulse else 0.08f + 0.03f * pulse)
+                    ),
+                    start = rightFace(0.66f, 0.68f),
+                    end = rightFace(0.66f, 0.24f)
+                )
+            )
+        }
         drawPath(frontWindow, frame.copy(alpha = 0.76f), style = Stroke(1.3.dp.toPx()))
         drawLine(frame.copy(alpha = 0.58f), rightFace(0.66f, 0.24f), rightFace(0.66f, 0.68f), 1.dp.toPx())
         drawLine(frame.copy(alpha = 0.50f), rightFace(0.48f, 0.46f), rightFace(0.84f, 0.46f), 1.dp.toPx())
+        drawLine(frame.copy(alpha = 0.72f), rightFace(0.465f, 0.22f), rightFace(0.855f, 0.22f), 2.dp.toPx(), cap = StrokeCap.Round)
+        drawPath(
+            quad(rightFace(0.52f, 0.25f), rightFace(0.79f, 0.25f), rightFace(0.79f, 0.32f), rightFace(0.52f, 0.32f)),
+            deep.copy(alpha = 0.34f)
+        )
         if (windowOpen > 0.01f) {
             val paneOffset = Offset(d(18f * windowOpen), d(4f * windowOpen))
             val openPane = quad(
@@ -947,11 +1069,22 @@ private fun SecurityHouseScene(
             drawPath(openPane, WarningOrange.copy(alpha = 0.82f), style = Stroke(1.2.dp.toPx()))
         }
 
-        // Low landscaping helps the scene feel inhabited and grounds the path.
-        listOf(point(430f, 530f), point(470f, 538f), point(770f, 520f), point(804f, 526f)).forEachIndexed { index, center ->
+        // Layered landscaping and contact shadows ground the building without competing with its
+        // security indicators.
+        listOf(point(414f, 532f), point(447f, 539f), point(775f, 520f), point(808f, 527f)).forEachIndexed { index, center ->
+            drawOval(
+                Color.Black.copy(alpha = if (dark) 0.18f else 0.07f),
+                center - Offset(d(19f), d(5f)),
+                Size(d(40f), d(16f))
+            )
             drawCircle(
-                (if (dark) Color(0xFF29473A) else Color(0xFF7F9E86)).copy(alpha = 0.88f),
-                d(if (index % 2 == 0) 16f else 12f), center
+                (if (dark) Color(0xFF29473A) else Color(0xFF7F9E86)).copy(alpha = 0.92f),
+                d(if (index % 2 == 0) 17f else 13f), center
+            )
+            drawCircle(
+                (if (dark) Color(0xFF3E6652) else Color(0xFFA4BBA8)).copy(alpha = 0.46f),
+                d(if (index % 2 == 0) 8f else 6f),
+                center - Offset(d(5f), d(6f))
             )
         }
 
@@ -982,29 +1115,78 @@ private fun SecurityHouseScene(
         }
 
         // Roof, eaves and chimney complete the silhouette after façade details.
-        drawPath(quad(roof(-0.035f, -0.05f), roof(1.035f, -0.05f), roof(1.035f, 1.04f), roof(-0.035f, 1.04f)), roofFront)
-        listOf(0.33f, 0.66f).forEach { u ->
+        val frontRoof = quad(roof(-0.035f, -0.05f), roof(1.035f, -0.05f), roof(1.035f, 1.04f), roof(-0.035f, 1.04f))
+        drawPath(
+            frontRoof,
+            Brush.linearGradient(
+                listOf(
+                    if (dark) Color(0xFF26343C) else Color(0xFFC0CBD1),
+                    roofFront,
+                    if (dark) Color(0xFF172229) else Color(0xFF96A7B0)
+                ),
+                start = roof(0.5f, 1.04f),
+                end = roof(0.5f, -0.05f)
+            )
+        )
+        listOf(0.25f, 0.50f, 0.75f).forEach { u ->
             drawLine(edge.copy(alpha = 0.17f), roof(u, 0.02f), roof(u, 0.98f), 0.8.dp.toPx())
         }
         drawLine(edge, roof(-0.035f, -0.05f), roof(-0.035f, 1.04f), 1.5.dp.toPx())
         drawLine(edge.copy(alpha = 0.84f), roof(-0.035f, 1.04f), roof(1.035f, 1.04f), 1.2.dp.toPx())
+        drawLine(deep.copy(alpha = 0.42f), leftTop + Offset(0f, d(5f)), fcTop + Offset(0f, d(5f)), 3.dp.toPx(), cap = StrokeCap.Round)
+        drawLine(deep.copy(alpha = 0.38f), fcTop + Offset(0f, d(5f)), rightTop + Offset(0f, d(5f)), 3.dp.toPx(), cap = StrokeCap.Round)
         val chimneyBase = roof(0.68f, 0.60f)
         val chimneyLeft = chimneyBase + Offset(d(-15f), 0f)
         val chimneyRight = chimneyBase + Offset(d(14f), d(2f))
         val chimneyUp = Offset(0f, d(-45f))
         drawPath(quad(chimneyLeft, chimneyRight, chimneyRight + chimneyUp, chimneyLeft + chimneyUp), if (dark) Color(0xFF46565F) else Color(0xFF82949D))
+        drawPath(
+            quad(
+                chimneyLeft + chimneyUp + Offset(d(-4f), 0f),
+                chimneyRight + chimneyUp + Offset(d(4f), 0f),
+                chimneyRight + chimneyUp + Offset(d(1f), d(-7f)),
+                chimneyLeft + chimneyUp + Offset(d(-7f), d(-7f))
+            ),
+            if (dark) Color(0xFF64747C) else Color(0xFF71828B)
+        )
+
+        val atticVent = Offset((fcTop.x + apex.x + rightTop.x) / 3f, (fcTop.y + apex.y + rightTop.y) / 3f)
+        drawCircle(deep.copy(alpha = 0.58f), d(14f), atticVent)
+        drawCircle(frame.copy(alpha = 0.58f), d(14f), atticVent, style = Stroke(1.dp.toPx()))
+        listOf(-6f, 0f, 6f).forEach { offset ->
+            drawLine(frame.copy(alpha = 0.54f), atticVent + Offset(d(-7f), d(offset)), atticVent + Offset(d(7f), d(offset)), 0.8.dp.toPx())
+        }
 
         // Eave camera fixture and status LED.
         if (state.cameras > 0) {
-            drawLine(frame, cameraCenter + Offset(d(-10f), d(-13f)), cameraCenter + Offset(d(-4f), d(-3f)), 2.dp.toPx(), cap = StrokeCap.Round)
+            val cameraTopLeft = cameraCenter - Offset(d(18f), d(10f))
+            drawLine(deep.copy(alpha = 0.82f), cameraCenter + Offset(d(-12f), d(-17f)), cameraCenter + Offset(d(-5f), d(-5f)), 4.dp.toPx(), cap = StrokeCap.Round)
+            drawLine(frame.copy(alpha = 0.78f), cameraCenter + Offset(d(-12f), d(-17f)), cameraCenter + Offset(d(-5f), d(-5f)), 1.6.dp.toPx(), cap = StrokeCap.Round)
+            drawRoundRect(
+                deep.copy(alpha = 0.36f),
+                topLeft = cameraTopLeft + Offset(d(2f), d(4f)),
+                size = Size(d(38f), d(21f)),
+                cornerRadius = CornerRadius(d(8f), d(8f))
+            )
             drawRoundRect(
                 cameraBody,
-                topLeft = cameraCenter - Offset(d(17f), d(9f)),
-                size = Size(d(34f), d(18f)), cornerRadius = CornerRadius(d(7f), d(7f))
+                topLeft = cameraTopLeft,
+                size = Size(d(38f), d(20f)), cornerRadius = CornerRadius(d(8f), d(8f))
             )
-            drawCircle(deep, d(6f), cameraCenter + Offset(d(9f), 0f))
+            drawLine(
+                edge.copy(alpha = 0.36f),
+                cameraTopLeft + Offset(d(7f), d(4f)),
+                cameraTopLeft + Offset(d(25f), d(4f)),
+                0.9.dp.toPx(),
+                cap = StrokeCap.Round
+            )
+            val lensCenter = cameraCenter + Offset(d(10f), 0f)
+            drawCircle(deep, d(7f), lensCenter)
+            drawCircle(frame.copy(alpha = 0.58f), d(7f), lensCenter, style = Stroke(0.8.dp.toPx()))
+            drawCircle(glass.copy(alpha = 0.86f), d(3f), lensCenter - Offset(d(1f), d(1f)))
             val cameraLed = if (state.onlineCameras == state.cameras) SafeGreen else WarningOrange
-            drawCircle(cameraLed, d(2.5f), cameraCenter + Offset(d(-9f), d(-2f)))
+            drawCircle(cameraLed.copy(alpha = 0.52f + 0.48f * pulse), d(2.5f), cameraCenter + Offset(d(-10f), d(-2f)))
+            drawCircle(frame.copy(alpha = 0.52f), d(1.5f), cameraCenter + Offset(d(-3f), d(3f)))
         }
 
         // A configured door/gate cover belongs on the perimeter, not on the garage. Two leaves
