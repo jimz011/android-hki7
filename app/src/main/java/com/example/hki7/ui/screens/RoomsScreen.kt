@@ -1,5 +1,3 @@
-@file:Suppress("UnusedBoxWithConstraintsScope")
-
 package com.example.hki7.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
@@ -8,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -21,6 +18,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.rememberScrollState
@@ -63,7 +61,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -74,17 +76,23 @@ import com.example.hki7.data.HAArea
 import com.example.hki7.data.HAEntity
 import com.example.hki7.ui.components.EditRemoveBadge
 import com.example.hki7.ui.components.EditSettingsButton
-import com.example.hki7.ui.components.mediaPlayerStatus
 import com.example.hki7.ui.components.mediaPlayerStateIcon
 import com.example.hki7.data.HAFloor
 import com.example.hki7.data.HKIAreaConfig
 import com.example.hki7.ui.MainViewModel
+import com.example.hki7.ui.RoomStatusRoles
+import com.example.hki7.ui.resolveRoomMediaStatus
+import com.example.hki7.ui.resolveRoomStatus
+import com.example.hki7.ui.roomMediaPlayerIds
+import com.example.hki7.ui.roomEntityIds
 import com.example.hki7.ui.Screen
 import com.example.hki7.ui.components.HKIPage
 import com.example.hki7.ui.components.GradientActionButton
 import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.components.ReorderableGrid
 import com.example.hki7.ui.components.RoomConfigDialog
+import com.example.hki7.ui.components.RoomEnvironmentSummary
+import com.example.hki7.ui.components.RoomStatusIndicators
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.LocalItemCornerRadius
@@ -137,17 +145,11 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
         extraPageSettingsSection = roomsImportSettings,
         navController = navController
     ) { padding ->
-        BoxWithConstraints(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Widen every floor's room grid on larger screens (fold/tablet).
-            val columnBonus = when {
-                maxWidth >= 900.dp -> 2
-                maxWidth >= 600.dp -> 1
-                else -> 0
-            }
             if (groupedFloors.isEmpty() && !isEditMode) {
                 if (autoGenerationPending) {
                     RoomsImportProgress(Modifier.fillMaxSize(), centered = true)
@@ -189,7 +191,6 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                                 baseUrl = currentUrl,
                                 isEditMode = isEditMode,
                                 dashboardMode = dashboardMode,
-                                columnBonus = columnBonus,
                                 scrollState = roomsScrollState,
                                 isCollapsed = section.key in collapsedFloorIds,
                                 onToggleCollapsed = { viewModel.toggleFloorCollapsed(section.key) },
@@ -393,7 +394,6 @@ private fun FloorSection(
     baseUrl: String,
     isEditMode: Boolean,
     dashboardMode: String,
-    columnBonus: Int,
     scrollState: ScrollState,
     isCollapsed: Boolean,
     onToggleCollapsed: () -> Unit,
@@ -431,18 +431,23 @@ private fun FloorSection(
                     }
                     Spacer(Modifier.width(8.dp))
                 }
-                EditSettingsButton(onClick = onSettingsFloor)
+                IconButton(onClick = onSettingsFloor, modifier = Modifier.size(24.dp)) {
+                    Icon(
+                        Icons.Default.Settings,
+                        contentDescription = "Floor settings",
+                        tint = appColors.onMuted,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
             }
         }
 
         if (!isCollapsed) {
             Spacer(Modifier.height(12.dp))
 
-            // Card columns come from the floor config; widen on larger screens (fold/tablet).
-            // Half-width floors skip the widen bonus since the whole section is already narrow.
-            val bonus = if (floor?.width == "half") 0 else columnBonus
-            val gridColumns = (floor?.columns?.coerceIn(1, 3) ?: 2) + bonus
-            val cardHeight = if (floor?.compactTiles == true) 112 else 160
+            val gridColumns = floor?.columns?.coerceIn(1, 3) ?: 1
+            val compactTiles = floor?.compactTiles ?: true
+            val cardHeight = if (compactTiles) 112 else 160
             val rowHeight = if (floor?.isSquare == true) 180 else cardHeight + 12
             val rows = max(1, (areas.size + gridColumns - 1) / gridColumns)
             ReorderableGrid(
@@ -467,7 +472,7 @@ private fun FloorSection(
                     canDelete = dashboardMode != "auto",
                     isDragging = isDragging,
                     isSquare = floor?.isSquare == true,
-                    compactTiles = floor?.compactTiles == true,
+                    compactTiles = compactTiles,
                     cornerRadius = LocalItemCornerRadius.current,
                     onDelete = { onDeleteArea(area.area_id) },
                     onSettings = { onSettingsArea(area.area_id) },
@@ -488,15 +493,35 @@ fun AreaCard(
     canDelete: Boolean,
     isDragging: Boolean,
     isSquare: Boolean = false,
-    compactTiles: Boolean = false,
+    compactTiles: Boolean = true,
     cornerRadius: Int = LocalItemCornerRadius.current,
     onDelete: () -> Unit,
     onSettings: () -> Unit,
     onClick: () -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
-    val imageSource = config.wallpaper ?: area.picture
+    val headerColor = remember(config.headerColor) { parseRoomHeaderColor(config.headerColor) }
+    // Match HKIPage: a custom header color takes precedence over the room wallpaper/picture.
+    val imageSource = if (headerColor != null) null else config.wallpaper ?: area.picture
     val imageUrl = imageSource?.let { if (it.startsWith("http")) it else "$baseUrl$it" }
+    val roomCardColor = headerColor?.copy(
+        alpha = if (appColors.background.luminance() < 0.5f) {
+            0.45f
+        } else if (headerColor.luminance() < 0.35f) {
+            0.28f
+        } else {
+            0.18f
+        }
+    )
+    val roomCardBrush = roomCardColor?.let { color ->
+        Brush.verticalGradient(
+            listOf(
+                color.compositeOver(appColors.background),
+                color.copy(alpha = color.alpha * 0.45f).compositeOver(appColors.background),
+                appColors.background
+            )
+        )
+    } ?: SolidColor(appColors.subtleSurface)
     val scale by animateFloatAsState(if (isDragging) 1.05f else if (isEditMode) 0.95f else 1f, label = "room-scale")
 
     Card(
@@ -520,7 +545,7 @@ fun AreaCard(
                 Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.28f)))
             } else {
                 Box(
-                    modifier = Modifier.fillMaxSize().background(appColors.subtleSurface),
+                    modifier = Modifier.fillMaxSize().background(roomCardBrush),
                     contentAlignment = Alignment.Center
                 ) {
                     if (config.icon != "None") {
@@ -529,34 +554,103 @@ fun AreaCard(
                 }
             }
 
-            val mediaEntityIds = remember(config.mediaPlayerEntityId) { listOfNotNull(config.mediaPlayerEntityId) }
-            val mediaEntityFlow = remember(viewModel, mediaEntityIds) { viewModel.entitiesFor(mediaEntityIds) }
-            val mediaEntities by mediaEntityFlow.collectAsState()
-            val mediaPlayerEntity = mediaEntities.firstOrNull()
-            val mediaStatus = mediaPlayerStatus(mediaPlayerEntity)
-            val mediaIcon = mediaPlayerStateIcon(mediaPlayerEntity)
+            val mediaPlayerIds = remember(config) { config.roomMediaPlayerIds() }
+            val dependencyIds = remember(config, mediaPlayerIds) {
+                (config.roomEntityIds() + mediaPlayerIds).distinct()
+            }
+            val dependencyFlow = remember(viewModel, dependencyIds) { viewModel.entitiesFor(dependencyIds) }
+            val roomEntities by dependencyFlow.collectAsState()
+            val mediaPlayers = remember(mediaPlayerIds, roomEntities) {
+                val byId = roomEntities.associateBy(HAEntity::entity_id)
+                mediaPlayerIds.map { id -> byId[id] ?: HAEntity(entity_id = id, state = "unavailable") }
+            }
+            val mediaSummary = remember(mediaPlayers) { resolveRoomMediaStatus(mediaPlayers) }
+            val mediaStatus = mediaSummary.text
+            val mediaIcon = mediaPlayerStateIcon(mediaSummary.representative)
+            val roomSummary = remember(config, roomEntities) {
+                resolveRoomStatus(config, roomEntities)
+            }
+            val topIndicatorKinds = roomSummary.indicators.count { it.role in ROOM_CARD_TOP_STATUS_ROLES }
+            val bottomIndicatorKinds = roomSummary.indicators.count { it.role in ROOM_CARD_BOTTOM_STATUS_ROLES }
+            val topIndicatorPadding = when (topIndicatorKinds) {
+                0 -> 0.dp
+                1 -> 42.dp
+                2 -> 76.dp
+                else -> 112.dp
+            }
+            val bottomIndicatorPadding = when (bottomIndicatorKinds) {
+                0 -> 8.dp
+                1 -> 42.dp
+                2 -> 76.dp
+                else -> 116.dp
+            }
+            val primaryColor = if (imageUrl != null) Color.White else appColors.onSurface
+            val secondaryColor = if (imageUrl != null) Color.White.copy(alpha = 0.88f) else appColors.onMuted
             Box(
-                modifier = Modifier.fillMaxSize().padding(16.dp),
-                contentAlignment = Alignment.TopStart
+                modifier = Modifier.fillMaxSize().padding(if (compactTiles) 12.dp else 16.dp)
             ) {
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (config.icon != "None") {
-                            Surface(shape = CircleShape, color = Color.Black.copy(alpha = 0.35f)) {
-                                MdiIcon(config.icon ?: area.icon, modifier = Modifier.padding(8.dp), tint = Color.White, size = 18.dp)
-                            }
-                            Spacer(Modifier.width(10.dp))
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .fillMaxWidth()
+                        .padding(end = topIndicatorPadding),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (config.icon != "None") {
+                        Surface(shape = CircleShape, color = Color.Black.copy(alpha = 0.35f)) {
+                            MdiIcon(
+                                config.icon ?: area.icon,
+                                modifier = Modifier.padding(if (compactTiles) 6.dp else 8.dp),
+                                tint = Color.White,
+                                size = if (compactTiles) 16.dp else 18.dp
+                            )
                         }
-                        Text(config.name ?: area.name, style = MaterialTheme.typography.titleMedium, color = if (imageUrl != null) Color.White else appColors.onSurface, fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.width(10.dp))
                     }
+                    Text(
+                        config.name ?: area.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = primaryColor,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                RoomStatusIndicators(
+                    summary = roomSummary,
+                    contentColor = primaryColor,
+                    compact = true,
+                    visibleRoles = ROOM_CARD_TOP_STATUS_ROLES,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .widthIn(max = 108.dp)
+                )
+
+                RoomStatusIndicators(
+                    summary = roomSummary,
+                    contentColor = primaryColor,
+                    compact = true,
+                    visibleRoles = ROOM_CARD_BOTTOM_STATUS_ROLES,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .widthIn(max = 108.dp)
+                )
+
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .fillMaxWidth()
+                        .padding(end = bottomIndicatorPadding),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
                     if (mediaStatus != null) {
-                        Spacer(Modifier.height(8.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             if (mediaIcon != null) {
                                 Icon(
                                     mediaIcon,
                                     contentDescription = null,
-                                    tint = if (imageUrl != null) Color.White.copy(alpha = 0.85f) else appColors.onMuted,
+                                    tint = secondaryColor,
                                     modifier = Modifier.size(14.dp)
                                 )
                                 Spacer(Modifier.width(5.dp))
@@ -564,12 +658,17 @@ fun AreaCard(
                             Text(
                                 mediaStatus,
                                 style = MaterialTheme.typography.labelSmall,
-                                color = if (imageUrl != null) Color.White.copy(alpha = 0.85f) else appColors.onMuted,
+                                color = secondaryColor,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
+                    RoomEnvironmentSummary(
+                        summary = roomSummary,
+                        color = primaryColor,
+                        compact = true
+                    )
                 }
             }
 
@@ -587,6 +686,28 @@ fun AreaCard(
         }
     }
 }
+
+private fun parseRoomHeaderColor(value: String?): Color? {
+    val normalized = value?.trim()?.takeIf { it.isNotEmpty() }?.let {
+        if (it.startsWith("#")) it else "#$it"
+    } ?: return null
+    return runCatching { Color(android.graphics.Color.parseColor(normalized)) }.getOrNull()
+}
+
+private val ROOM_CARD_TOP_STATUS_ROLES = setOf(
+    RoomStatusRoles.DOORS,
+    RoomStatusRoles.WINDOWS,
+    RoomStatusRoles.LIGHTS,
+    RoomStatusRoles.DEVICES
+)
+
+private val ROOM_CARD_BOTTOM_STATUS_ROLES = setOf(
+    RoomStatusRoles.MOTION,
+    RoomStatusRoles.PRESENCE,
+    RoomStatusRoles.SMOKE,
+    RoomStatusRoles.GAS,
+    RoomStatusRoles.FIRE
+)
 
 @Composable
 fun AddAreaCard(modifier: Modifier = Modifier, onClick: () -> Unit) {

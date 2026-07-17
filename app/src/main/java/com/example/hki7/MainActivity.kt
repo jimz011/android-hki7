@@ -173,6 +173,7 @@ class MainActivity : ComponentActivity() {
                             OnboardingScreen(prefs = prefs, startAtLogin = onboardingStartsAtLogin, onComplete = {
                                 forceLogin = false
                                 onboardingActive = false
+                                viewModel.completeInitialDashboardSetup()
                             })
                             SnackbarHost(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
                         }
@@ -236,10 +237,6 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     val connectionStatus by viewModel.status.collectAsState()
     var hasConnectedOnce by remember { mutableStateOf(false) }
     LaunchedEffect(connectionStatus) { if (connectionStatus == ConnectionStatus.CONNECTED) hasConnectedOnce = true }
-    val hasEntities by remember(viewModel) {
-        viewModel.entities.map { it.isNotEmpty() }.distinctUntilChanged()
-    }.collectAsState(initial = false)
-
     // Mini media player: any playing/paused media_player shows a swipeable bar above the nav bar.
     // Custom names and per-player visibility come from Settings → Appearance → Media Players.
     val currentUrl by viewModel.currentUrl.collectAsState()
@@ -616,9 +613,10 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             }
         }
 
-        // Startup connection failure (like the official HA app): full-screen retry. Only shown
-        // while nothing has loaded yet — once connected, transient drops keep the dashboard up.
-        if (connectionStatus == ConnectionStatus.ERROR && !hasConnectedOnce && !hasEntities) {
+        // A hard connection failure always needs an actionable screen. Cached entities and a
+        // connection that succeeded earlier in this Activity must not hide the failure on a real
+        // device, where both are much more likely than on a clean emulator install.
+        if (connectionStatus == ConnectionStatus.ERROR) {
             ConnectionErrorOverlay(viewModel)
         }
     }
@@ -722,7 +720,12 @@ private fun HomeAssistantConnectionBar(status: ConnectionStatus, modifier: Modif
             CircularProgressIndicator(modifier = Modifier.size(22.dp), strokeWidth = 2.5.dp)
             Column {
                 Text("Home Assistant", color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
-                Text(label, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall, maxLines = 1)
+                Text(
+                    label,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1
+                )
             }
         }
     }

@@ -262,7 +262,7 @@ fun EntityCard(
             isActive || isClimateNotOff      -> primary
             else                             -> appColors.elevated
         }
-        // Icon reflects the entity's real colour — identical logic to the standard/square card.
+        // Icon reflects the entity's real color — identical logic to the standard/square card.
         val tileIconTint = when {
             coverDoorIconColor != null           -> coverDoorIconColor
             isCoverNotClosed                     -> primaryContent
@@ -320,11 +320,11 @@ fun EntityCard(
             )
         ) {
             Box(Modifier.fillMaxWidth()) {
-                // Depth gradient (two shades of the tile's own colour), same style as the card.
+                // Depth gradient (two shades of the tile's own color), same style as the card.
                 Box(Modifier.matchParentSize().background(surfaceGradient(tileBase)))
-                // The exact primary/on colour doubles as a full-height progress fill. Keeping it
+                // The exact primary/on color doubles as a full-height progress fill. Keeping it
                 // solid guarantees that the selected black/white foreground remains readable at
-                // every vertical position, including custom colours near the contrast crossover.
+                // every vertical position, including custom colors near the contrast crossover.
                 // The matchParentSize wrapper gives fillMaxHeight a bounded tile height; without it,
                 // wrap-content tiles can measure the progress layer at zero pixels high.
                 if (brightnessVisible && localBrightness > 0f) {
@@ -338,7 +338,7 @@ fun EntityCard(
                     }
                 }
                 if (brightnessVisible) {
-                    // Render foreground colours appropriate to each side of the split background.
+                    // Render foreground colors appropriate to each side of the split background.
                     // The second copy is drawing-only and clipped at the same progress boundary.
                     TileForeground(appColors.onSurface, appColors.onSurface, appColors.onSurface)
                     if (localBrightness > 0f) {
@@ -415,7 +415,7 @@ fun EntityCard(
         )
     ) {
         Box(Modifier.fillMaxSize()) {
-            // Background-derived depth gradient (two shades of the card's own colour, no accent).
+            // Background-derived depth gradient (two shades of the card's own color, no accent).
             val cardBg = when {
                 isCoverNotClosed                 -> primary
                 isLockDoorOpen || isLockUnlocked -> primary
@@ -524,7 +524,7 @@ fun EntityCard(
 private fun Color.isRedShade(): Boolean =
     red > green * 1.25f && red > blue * 1.25f
 
-/** Pick the WCAG-higher-contrast opaque foreground for an arbitrary theme colour. */
+/** Pick the WCAG-higher-contrast opaque foreground for an arbitrary theme color. */
 private fun Color.maxContrastForeground(): Color {
     val relativeLuminance = luminance()
     val whiteContrast = 1.05f / (relativeLuminance + 0.05f)
@@ -561,7 +561,7 @@ private fun lerpColor(start: Color, end: Color, fraction: Float): Color {
     )
 }
 
-/** Subtle depth gradient built purely from a surface's own colour (two shades of it, no accent). */
+/** Subtle depth gradient built purely from a surface's own color (two shades of it, no accent). */
 fun surfaceGradient(base: Color): Brush = Brush.verticalGradient(
     listOf(
         lerpColor(base, Color.White, 0.06f),

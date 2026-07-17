@@ -681,7 +681,20 @@ class PreferencesManager(private val context: Context) {
     }
     suspend fun saveHeaderLeftAlarmEntities(entityIds: List<String>) {
         context.dataStore.edit {
-            if (entityIds.isEmpty()) it.remove(headerLeftAlarmEntityKey) else it[headerLeftAlarmEntityKey] = entityIds.joinToString(",")
+            // Keep an explicit empty value so clearing the selection remains distinct from a new
+            // install whose alarm entities have not been auto-imported yet.
+            it[headerLeftAlarmEntityKey] = entityIds.joinToString(",")
+        }
+    }
+    suspend fun seedHeaderLeftAlarmEntitiesIfUnset(entityIds: List<String>, showByDefault: Boolean = false) {
+        if (entityIds.isEmpty()) return
+        context.dataStore.edit { preferences ->
+            if (headerLeftAlarmEntityKey !in preferences) {
+                preferences[headerLeftAlarmEntityKey] = entityIds.distinct().joinToString(",")
+            }
+            if (showByDefault && headerLeftDisplayKey !in preferences) {
+                preferences[headerLeftDisplayKey] = "Alarm"
+            }
         }
     }
     suspend fun saveAlarmPendingSeconds(seconds: Int) {

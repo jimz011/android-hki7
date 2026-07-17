@@ -86,6 +86,10 @@ fun HKIPage(
     showNotificationStatus: Boolean = true,
     /** Pinned bar between the header and the scrolling content (e.g. the energy time filter). */
     headerBar: (@Composable () -> Unit)? = null,
+    /** Optional compact content beside the title, rendered inside the header. */
+    headerTrailingContent: (@Composable (Color) -> Unit)? = null,
+    /** Optional secondary content below the subtitle, rendered inside the header. */
+    headerBottomContent: (@Composable (Color) -> Unit)? = null,
     /** Optional NavController so badge actions can navigate within the app. */
     navController: NavController? = null,
     content: @Composable (PaddingValues) -> Unit
@@ -488,23 +492,47 @@ fun HKIPage(
 
                             if (inlinePeopleCapacity == 0) {
                                 Column(modifier = Modifier.fillMaxWidth()) {
-                                    Column(modifier = Modifier.fillMaxWidth()) {
-                                        Text(
-                                            text = title ?: viewModel.greeting,
-                                            style = MaterialTheme.typography.headlineLarge,
-                                            color = headerTextColor,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 40.sp,
-                                            lineHeight = 44.sp
-                                        )
-                                        HeaderSubtitle(
-                                            text = subtitle ?: (if (title == null) displayName else (if (status == ConnectionStatus.ERROR) "Connection Error" else "All systems normal")),
-                                            icon = subtitleIcon,
-                                            color = headerMutedColor
-                                        )
-                                        if (title == null && showNotificationStatus) {
-                                            Spacer(Modifier.height(8.dp))
-                                            HeaderNotificationSummary(unreadNotificationCount, headerMutedColor)
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.Top
+                                    ) {
+                                        Column(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .padding(end = if (headerTrailingContent != null) 12.dp else 0.dp)
+                                        ) {
+                                            Text(
+                                                text = title ?: viewModel.greeting,
+                                                style = MaterialTheme.typography.headlineLarge,
+                                                color = headerTextColor,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 40.sp,
+                                                lineHeight = 44.sp
+                                            )
+                                            HeaderSubtitle(
+                                                text = subtitle ?: (if (title == null) displayName else (if (status == ConnectionStatus.ERROR) "Connection Error" else "All systems normal")),
+                                                icon = subtitleIcon,
+                                                color = headerMutedColor
+                                            )
+                                            if (headerBottomContent != null) {
+                                                Spacer(Modifier.height(6.dp))
+                                                headerBottomContent(headerMutedColor)
+                                            }
+                                            if (title == null && showNotificationStatus) {
+                                                Spacer(Modifier.height(8.dp))
+                                                HeaderNotificationSummary(unreadNotificationCount, headerMutedColor)
+                                            }
+                                        }
+                                        if (headerTrailingContent != null) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .widthIn(max = 168.dp)
+                                                    .padding(top = 4.dp),
+                                                contentAlignment = Alignment.TopEnd
+                                            ) {
+                                                headerTrailingContent(headerTextColor)
+                                            }
                                         }
                                     }
                                     if (showPeopleRow) {
@@ -552,6 +580,10 @@ fun HKIPage(
                                             icon = subtitleIcon,
                                             color = headerMutedColor
                                         )
+                                        if (headerBottomContent != null) {
+                                            Spacer(Modifier.height(6.dp))
+                                            headerBottomContent(headerMutedColor)
+                                        }
                                         if (title == null && showNotificationStatus) {
                                             Spacer(Modifier.height(8.dp))
                                             HeaderNotificationSummary(unreadNotificationCount, headerMutedColor)
@@ -868,9 +900,9 @@ fun PageSettingsDialog(
             androidx.activity.compose.BackHandler { navigateBack() }
             val extraIndex = section.removePrefix("extra:").toIntOrNull()
             Text(
-                when {
-                    section == "menu" -> title
-                    section == "page" -> "Page Settings"
+                when (section) {
+                    "menu" -> title
+                    "page" -> "Page Settings"
                     else -> extraIndex?.let { extraSections.getOrNull(it)?.first } ?: section.replaceFirstChar { it.uppercase() }
                 }
             )

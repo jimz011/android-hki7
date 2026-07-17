@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.WbSunny
@@ -48,6 +47,7 @@ import com.example.hki7.ui.components.LocalDialogCustomButtons
 import com.example.hki7.ui.components.LocalDialogNavController
 import androidx.compose.runtime.CompositionLocalProvider
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
+import com.example.hki7.ui.components.VacuumWidgetSetupDialog
 import com.example.hki7.ui.components.HKIPage
 import com.example.hki7.ui.components.GradientActionButton
 import com.example.hki7.ui.components.LocalItemCornerRadius
@@ -180,7 +180,8 @@ fun HAHomeScreen(
     fun newVacuumStack(title: String?, icon: String?) = HKIButtonStack(id = UUID.randomUUID().toString(), title = title, icon = icon, columns = 2, isSquare = true, stackType = "vacuum")
     fun newWeatherStack(title: String?, icon: String?) = HKIButtonStack(id = UUID.randomUUID().toString(), title = title, icon = icon, columns = 1, isSquare = false, showBadge = false, cornerRadius = 24, stackType = "weather")
     fun newEmptyStack() = HKIEmptyStack(id = UUID.randomUUID().toString())
-    fun newSingleEntityWidget(kind: String, entityId: String) = HKISingleEntityWidget(id = UUID.randomUUID().toString(), entityId = entityId, kind = kind, isSquare = kind != "camera")
+    fun newSingleEntityWidget(kind: String, entityId: String, config: HKIButtonConfig = HKIButtonConfig()) =
+        HKISingleEntityWidget(id = UUID.randomUUID().toString(), entityId = entityId, kind = kind, isSquare = kind != "camera", config = config)
     fun newCalendarWidget(entityIds: List<String>) = HKICalendarWidget(id = UUID.randomUUID().toString(), entityIds = entityIds, width = "full")
     fun newWasteWidget(entityIds: List<String>) = HKIWasteCollectionWidget(id = UUID.randomUUID().toString(), entityIds = entityIds, width = "full")
     fun newMarkdownWidget() = HKIMarkdownWidget(
@@ -1047,16 +1048,38 @@ fun HAHomeScreen(
     }
 
     pendingSingleWidgetKind?.let { kind ->
+        if (kind == "vacuum") {
+            VacuumWidgetSetupDialog(
+                allEntities = entities,
+                entityRegistry = entityRegistry,
+                deviceRegistry = deviceRegistry,
+                onDismiss = {
+                    val containerId = pendingSingleWidgetContainerId
+                    pendingSingleWidgetKind = null
+                    pendingSingleWidgetContainerId = null
+                    if (containerId == null) showAddWidget = true else addingToSwipingStackId = containerId
+                },
+                onSelected = { entityId, config ->
+                    val containerId = pendingSingleWidgetContainerId
+                    if (containerId == null) {
+                        viewModel.addSingleEntityWidgetToArea(HOME_WIDGET_AREA, kind, entityId, config)
+                    } else {
+                        addChildToSwipingStack(containerId, newSingleEntityWidget(kind, entityId, config))
+                    }
+                    pendingSingleWidgetKind = null
+                    pendingSingleWidgetContainerId = null
+                }
+            )
+            return@let
+        }
         val candidates = when (kind) {
             "camera" -> entities.filter { it.entity_id.substringBefore(".").equals("camera", ignoreCase = true) }
-            "vacuum" -> entities.filter { it.entity_id.startsWith("vacuum.") }
             else -> entities
         }
         AdvancedEntitySearchDialog(
             allEntities = candidates,
             title = when (kind) {
                 "camera" -> "Select Camera"
-                "vacuum" -> "Select Vacuum"
                 else -> "Select Entity"
             },
             singleSelect = true,

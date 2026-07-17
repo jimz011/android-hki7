@@ -8,9 +8,11 @@ import android.content.Context
 import com.example.hki7.data.*
 import com.example.hki7.ui.screens.isAutoSecurityEntityFor
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -71,8 +73,48 @@ private const val WEATHER_FORECAST_TTL_MS = 10 * 60 * 1000L
 /** Calendar widgets refresh often enough to feel current without refetching on every recomposition. */
 private const val CALENDAR_EVENTS_TTL_MS = 2 * 60 * 1000L
 
-/** Domains that participate in automatic room discovery. Sensors are retained in the discovery
- * set for future room features, but intentionally do not generate widgets or badges yet. */
+/** Home Assistant floors do not own HKI's card layout; new imports always start from HKI defaults. */
+internal fun HAFloor.withDefaultRoomLayout() = copy(
+    columns = 1,
+    isSquare = false,
+    compactTiles = true,
+    width = "full"
+)
+
+/** Whether a fetched registry snapshot is trustworthy enough to become the dashboard.
+ *
+ * A live server always exposes states, entity-registry entries, and devices — this app's own
+ * mobile_app registration during onboarding guarantees at least one of each — and floors exist
+ * only to group areas, so floors without any areas means the area list was dropped. Importing
+ * such a snapshot yields floors without rooms or rooms without entities; during the onboarding
+ * takeover the result would even be frozen permanently. Callers should skip the import (keeping
+ * the previous rooms and any pending takeover) and let the next refresh retry instead. */
+internal fun isCompleteDashboardRegistrySnapshot(
+    entities: List<HAEntity>,
+    areas: List<HAArea>,
+    floors: List<HAFloor>,
+    registry: List<HAEntityRegistryEntry>,
+    devices: List<HADeviceRegistryEntry>
+): Boolean {
+    if (entities.isEmpty() || registry.isEmpty() || devices.isEmpty()) return false
+    return floors.isEmpty() || areas.isNotEmpty()
+}
+
+/** Accept a supporting Energy entity only when it belongs to the resolved source device. */
+internal fun supportingEnergyEntityForDevice(
+    candidateEntityId: String?,
+    sourceDeviceId: String?,
+    registry: List<HAEntityRegistryEntry>
+): String? {
+    if (candidateEntityId == null) return null
+    if (sourceDeviceId == null) return candidateEntityId
+    return candidateEntityId.takeIf { candidate ->
+        registry.firstOrNull { it.entity_id == candidate }?.device_id == sourceDeviceId
+    }
+}
+
+/** Domains that participate in automatic room discovery. Sensor and binary-sensor metadata also
+ * drives each room's environmental readings and active-state summary. */
 private val AUTO_ROOM_IMPORT_DOMAINS = setOf(
     "light",
     "switch",
@@ -149,19 +191,19 @@ internal fun importRelatedHomeAssistantEnergyEntities(
     config: HKIEnergyConfig,
     sourceEntityIds: Map<String, List<String>>,
     registry: List<HAEntityRegistryEntry>,
-    devices: List<HADeviceRegistryEntry>,
     liveEntities: List<HAEntity>
 ): HKIEnergyConfig {
     val registryByEntity = registry.associateBy { it.entity_id }
 
     fun related(category: String): Pair<String, List<HAEntity>>? {
+        // The first explicit HA Energy source is the anchor. Guesses must stay on its owning
+        // device: including child or secondary devices can select a similarly named but unrelated
+        // phase, inverter, or power sensor.
         val deviceId = sourceEntityIds[category].orEmpty()
             .firstNotNullOfOrNull { registryByEntity[it]?.device_id }
             ?: return null
-        // Include direct child devices, matching the manual Energy source-device picker.
-        val relatedDeviceIds = setOf(deviceId) + devices.filter { it.via_device_id == deviceId }.map { it.id }
         val relatedEntityIds = registry.asSequence()
-            .filter { it.device_id in relatedDeviceIds && it.disabled_by == null }
+            .filter { it.device_id == deviceId && it.disabled_by == null }
             .mapTo(hashSetOf()) { it.entity_id }
         return deviceId to liveEntities.filter { it.entity_id in relatedEntityIds }
     }
@@ -170,14 +212,20 @@ internal fun importRelatedHomeAssistantEnergyEntities(
         entity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull.orEmpty()
     fun HAEntity.normalizedName() = (friendlyName ?: entity_id).lowercase()
     fun List<HAEntity>.pick(predicate: (HAEntity) -> Boolean): String? = firstOrNull(predicate)?.entity_id
+    fun List<HAEntity>.pickUnique(predicate: (HAEntity) -> Boolean): String? =
+        filter(predicate).singleOrNull()?.entity_id
     fun List<HAEntity>.isPower(entity: HAEntity) =
         entity.deviceClass == "power" || unit(entity) in setOf("W", "kW")
     fun List<HAEntity>.isEnergy(entity: HAEntity) =
         entity.deviceClass == "energy" || unit(entity).contains("Wh", ignoreCase = true)
+    fun List<HAEntity>.isCost(entity: HAEntity) =
+        entity.deviceClass == "monetary" || entity.normalizedName().contains("cost")
     fun HAEntity.matchesPhase(phase: Int): Boolean {
         val name = normalizedName()
         return name.contains("phase $phase") || name.contains(" l$phase")
     }
+    fun fill(role: String, current: String?, guessed: String?): String? =
+        if (role in config.customizedEntityRoles) current else guessed ?: current
 
     var result = config
     related("electricity")?.let { (deviceId, entities) ->
@@ -186,68 +234,100 @@ internal fun importRelatedHomeAssistantEnergyEntities(
             (it.deviceClass == deviceClass || entities.unit(it) == unit) && it.matchesPhase(phase)
         }
         result = result.copy(
-            electricityDeviceId = deviceId,
-            gridPowerEntityId = entities.pick { entities.isPower(it) && !it.normalizedName().contains("phase") }
-                ?: result.gridPowerEntityId,
-            powerPhase1EntityId = phasePower(1) ?: result.powerPhase1EntityId,
-            powerPhase2EntityId = phasePower(2) ?: result.powerPhase2EntityId,
-            powerPhase3EntityId = phasePower(3) ?: result.powerPhase3EntityId,
-            currentPhase1EntityId = phaseClass("current", "A", 1) ?: result.currentPhase1EntityId,
-            currentPhase2EntityId = phaseClass("current", "A", 2) ?: result.currentPhase2EntityId,
-            currentPhase3EntityId = phaseClass("current", "A", 3) ?: result.currentPhase3EntityId,
-            voltagePhase1EntityId = phaseClass("voltage", "V", 1) ?: result.voltagePhase1EntityId,
-            voltagePhase2EntityId = phaseClass("voltage", "V", 2) ?: result.voltagePhase2EntityId,
-            voltagePhase3EntityId = phaseClass("voltage", "V", 3) ?: result.voltagePhase3EntityId,
-            gridImportTariff1EntityId = entities.pick {
+            electricityDeviceId = result.electricityDeviceId ?: deviceId,
+            gridPowerEntityId = fill("grid_power", result.gridPowerEntityId, entities.pick {
+                entities.isPower(it) && !it.normalizedName().contains("phase") &&
+                    listOf("grid", "current power", "active power", "power consumption", "power import", "net power")
+                        .any(it.normalizedName()::contains)
+            } ?: entities.pickUnique {
+                entities.isPower(it) && !it.normalizedName().contains("phase") &&
+                    listOf("home", "consumption", "load").none(it.normalizedName()::contains)
+            }),
+            homePowerEntityId = fill("home_power", result.homePowerEntityId, entities.pick {
+                entities.isPower(it) && listOf("home", "house", "load").any(it.normalizedName()::contains)
+            }),
+            gridImportEntityId = fill("import_kwh", result.gridImportEntityId, entities.pick {
+                entities.isEnergy(it) && it.normalizedName().contains("import") && !it.normalizedName().contains("tariff")
+            }),
+            gridExportEntityId = fill("export_kwh", result.gridExportEntityId, entities.pick {
+                entities.isEnergy(it) && it.normalizedName().contains("export") && !it.normalizedName().contains("tariff")
+            }),
+            energyCostEntityId = fill("cost", result.energyCostEntityId, entities.pick { entities.isCost(it) }),
+            powerPhase1EntityId = fill("phase1", result.powerPhase1EntityId, phasePower(1)),
+            powerPhase2EntityId = fill("phase2", result.powerPhase2EntityId, phasePower(2)),
+            powerPhase3EntityId = fill("phase3", result.powerPhase3EntityId, phasePower(3)),
+            currentPhase1EntityId = fill("current1", result.currentPhase1EntityId, phaseClass("current", "A", 1)),
+            currentPhase2EntityId = fill("current2", result.currentPhase2EntityId, phaseClass("current", "A", 2)),
+            currentPhase3EntityId = fill("current3", result.currentPhase3EntityId, phaseClass("current", "A", 3)),
+            voltagePhase1EntityId = fill("voltage1", result.voltagePhase1EntityId, phaseClass("voltage", "V", 1)),
+            voltagePhase2EntityId = fill("voltage2", result.voltagePhase2EntityId, phaseClass("voltage", "V", 2)),
+            voltagePhase3EntityId = fill("voltage3", result.voltagePhase3EntityId, phaseClass("voltage", "V", 3)),
+            gridImportTariff1EntityId = fill("import_t1", result.gridImportTariff1EntityId, entities.pick {
                 entities.isEnergy(it) && it.normalizedName().contains("import") && it.normalizedName().contains("tariff 1")
-            } ?: result.gridImportTariff1EntityId,
-            gridImportTariff2EntityId = entities.pick {
+            }),
+            gridImportTariff2EntityId = fill("import_t2", result.gridImportTariff2EntityId, entities.pick {
                 entities.isEnergy(it) && it.normalizedName().contains("import") && it.normalizedName().contains("tariff 2")
-            } ?: result.gridImportTariff2EntityId,
-            gridExportTariff1EntityId = entities.pick {
+            }),
+            gridExportTariff1EntityId = fill("export_t1", result.gridExportTariff1EntityId, entities.pick {
                 entities.isEnergy(it) && it.normalizedName().contains("export") && it.normalizedName().contains("tariff 1")
-            } ?: result.gridExportTariff1EntityId,
-            gridExportTariff2EntityId = entities.pick {
+            }),
+            gridExportTariff2EntityId = fill("export_t2", result.gridExportTariff2EntityId, entities.pick {
                 entities.isEnergy(it) && it.normalizedName().contains("export") && it.normalizedName().contains("tariff 2")
-            } ?: result.gridExportTariff2EntityId
+            })
         )
     }
     related("solar")?.let { (deviceId, entities) ->
         result = result.copy(
-            solarDeviceId = deviceId,
-            solarPowerEntityId = entities.pick { entities.isPower(it) } ?: result.solarPowerEntityId,
-            solarLast7DaysEntityId = entities.pick {
+            solarDeviceId = result.solarDeviceId ?: deviceId,
+            solarPowerEntityId = fill("solar_power", result.solarPowerEntityId, entities.pick {
+                entities.isPower(it) && listOf("solar", "production", "current").any(it.normalizedName()::contains)
+            } ?: entities.pick { entities.isPower(it) }),
+            solarEnergyEntityId = fill("solar_kwh", result.solarEnergyEntityId, entities.pick {
+                entities.isEnergy(it) && (it.normalizedName().contains("today") || it.normalizedName().contains("daily"))
+            } ?: entities.pick { entities.isEnergy(it) }),
+            solarLast7DaysEntityId = fill("solar_7d", result.solarLast7DaysEntityId, entities.pick {
                 entities.isEnergy(it) && (it.normalizedName().contains("7 days") || it.normalizedName().contains("seven"))
-            } ?: result.solarLast7DaysEntityId,
-            solarLifetimeEntityId = entities.pick {
+            }),
+            solarLifetimeEntityId = fill("solar_lifetime", result.solarLifetimeEntityId, entities.pick {
                 entities.isEnergy(it) && it.normalizedName().contains("lifetime")
-            } ?: result.solarLifetimeEntityId
+            })
         )
     }
     related("battery")?.let { (deviceId, entities) ->
         result = result.copy(
-            batteryDeviceId = deviceId,
-            batteryPowerEntityId = entities.pick { entities.isPower(it) } ?: result.batteryPowerEntityId,
-            batteryEntityId = entities.pick {
+            batteryDeviceId = result.batteryDeviceId ?: deviceId,
+            batteryPowerEntityId = fill("battery_power", result.batteryPowerEntityId, entities.pick { entities.isPower(it) }),
+            batteryEntityId = fill("battery_pct", result.batteryEntityId, entities.pick {
                 it.deviceClass == "battery" || (entities.unit(it) == "%" && it.normalizedName().contains("batter"))
-            } ?: result.batteryEntityId
+            })
         )
     }
     related("gas")?.let { (deviceId, entities) ->
         result = result.copy(
-            gasDeviceId = deviceId,
-            gasCurrentEntityId = entities.pick { entities.unit(it).contains("m\u00B3/h") } ?: result.gasCurrentEntityId
+            gasDeviceId = result.gasDeviceId ?: deviceId,
+            gasEntityId = fill("gas", result.gasEntityId, entities.pick {
+                it.deviceClass == "gas" || (entities.unit(it).contains("m\u00B3") && !entities.unit(it).contains("/"))
+            }),
+            gasCurrentEntityId = fill("gas_current", result.gasCurrentEntityId, entities.pick { entities.unit(it).contains("m\u00B3/h") }),
+            gasCostEntityId = fill("gas_cost", result.gasCostEntityId, entities.pick { entities.isCost(it) })
         )
     }
     related("water")?.let { (deviceId, entities) ->
         result = result.copy(
-            waterDeviceId = deviceId,
-            waterCurrentEntityId = entities.pick {
+            waterDeviceId = result.waterDeviceId ?: deviceId,
+            waterEntityId = fill("water", result.waterEntityId, entities.pick {
+                it.deviceClass == "water" || entities.unit(it) == "L" ||
+                    (entities.unit(it).contains("m\u00B3") && !entities.unit(it).contains("/"))
+            }),
+            waterCurrentEntityId = fill("water_current", result.waterCurrentEntityId, entities.pick {
                 entities.unit(it).contains("/min") || entities.unit(it).contains("m\u00B3/h")
-            } ?: result.waterCurrentEntityId
+            }),
+            waterCostEntityId = fill("water_cost", result.waterCostEntityId, entities.pick { entities.isCost(it) })
         )
     }
-    related("carbon")?.let { (deviceId, _) -> result = result.copy(carbonDeviceId = deviceId) }
+    related("carbon")?.let { (deviceId, _) ->
+        result = result.copy(carbonDeviceId = result.carbonDeviceId ?: deviceId)
+    }
     return result
 }
 
@@ -289,6 +369,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     val entitiesById: StateFlow<Map<String, HAEntity>> = _entitiesById
     private val entityStateFlows = java.util.concurrent.ConcurrentHashMap<String, MutableStateFlow<HAEntity?>>()
     private val matchingEntitySelectors = java.util.concurrent.ConcurrentHashMap<String, StateFlow<List<HAEntity>>>()
+    private var discoveredHeaderAlarmIds: List<String> = emptyList()
 
     private fun entityState(entityId: String): StateFlow<HAEntity?> =
         entityStateFlows.computeIfAbsent(entityId) {
@@ -340,6 +421,15 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     private fun publishEntities(value: List<HAEntity>) {
         val profiled = value.map(::applyProfileOverride)
+        val alarmIds = profiled.asSequence()
+            .map { it.entity_id }
+            .filter { it.startsWith("alarm_control_panel.") }
+            .sorted()
+            .toList()
+        if (alarmIds.isNotEmpty() && alarmIds != discoveredHeaderAlarmIds) {
+            discoveredHeaderAlarmIds = alarmIds
+            viewModelScope.launch { prefs.seedHeaderLeftAlarmEntitiesIfUnset(alarmIds) }
+        }
         val previousById = _entitiesById.value
         val nextById = profiled.associateBy { it.entity_id }
         _entities.value = profiled
@@ -565,7 +655,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     fun fetchRegistries(force: Boolean = false) {
         val currentClient = client ?: return
         // Registries barely change at runtime; dialogs call this on open, so serve the cache.
-        if (registriesLoaded && !force) return
+        if (
+            registriesLoaded &&
+            _entityRegistry.value.isNotEmpty() &&
+            _deviceRegistry.value.isNotEmpty() &&
+            !force
+        ) return
         registriesLoaded = true
         viewModelScope.launch {
             runCatching {
@@ -727,6 +822,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private val pushHandler by lazy { appContext?.let { PushNotificationHandler(it, prefs) } }
     private val realtimeBuffer = java.util.concurrent.ConcurrentHashMap<String, HAStateChange>()
     private var refreshJob: Job? = null
+    private var initialAutoGenerationJob: Job? = null
     private var tokenRefreshJob: Job? = null
     private var highAccuracyJob: Job? = null
     private val refreshMutex = Mutex()
@@ -767,6 +863,14 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         observePageConfigs()
         observeDashboard()
         observeWeatherPrefs()
+        // Auto generation is a persisted command, not merely a UI state. Observing it here makes
+        // the first import start as soon as onboarding commits the choice, even if the composable
+        // handoff or activity lifecycle does not deliver another callback.
+        viewModelScope.launch {
+            prefs.pendingAutoTakeover.distinctUntilChanged().collect { pending ->
+                if (pending) completeInitialDashboardSetup()
+            }
+        }
     }
 
     private fun observeWeatherPrefs() {
@@ -1100,6 +1204,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         appVisible = visible
         if (visible) {
             if (client != null && realtimeJob?.isActive != true) startSync()
+            viewModelScope.launch {
+                if (prefs.pendingAutoTakeover.first()) completeInitialDashboardSetup()
+            }
             // Re-arm the proactive token refresh: while backgrounded the scheduled refresh may
             // have fired and failed (Doze blocks network) or drifted past expiry while the
             // process was frozen. This refreshes immediately when the stored token is already stale.
@@ -1114,6 +1221,42 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             // refreshed lazily on return to foreground instead — see the re-arm above.
             tokenRefreshJob?.cancel()
             tokenRefreshJob = null
+        }
+    }
+
+    /** Starts the dashboard import selected at the end of first-run onboarding.
+     *
+     * Authentication normally starts the entity poll before the dashboard choice is made. That
+     * first poll therefore runs in manual mode and cannot perform auto generation. Explicitly run
+     * the pending import now, after the dashboard-mode transaction has completed, and retry brief
+     * startup races without requiring the user to open the Rooms re-import dialog. */
+    fun completeInitialDashboardSetup() {
+        if (initialAutoGenerationJob?.isActive == true) return
+        initialAutoGenerationJob = viewModelScope.launch {
+            if (!prefs.pendingAutoTakeover.first()) return@launch
+            // The authentication poll usually started while onboarding deliberately held the
+            // dashboard in manual mode. Supersede it; waiting for that stale refresh can defer the
+            // auto import until the 15-minute reseed or the next process start.
+            refreshJob?.cancelAndJoin()
+            repeat(3) {
+                if (!prefs.pendingAutoTakeover.first()) return@launch
+                refreshEntities(
+                    isSilent = false,
+                    allowReconnectRetry = true,
+                    includeDashboardRefresh = true
+                )
+                // A failed refresh can chain a reconnect retry that reassigns refreshJob. Follow
+                // the chain until it settles so attempts never overlap an in-flight import.
+                var generationRefresh = refreshJob
+                while (generationRefresh != null) {
+                    generationRefresh.join()
+                    val successor = refreshJob
+                    generationRefresh = successor?.takeIf { it !== generationRefresh && it.isActive }
+                }
+                if (!prefs.pendingAutoTakeover.first()) return@launch
+                delay(1500)
+            }
+            addLog("Initial dashboard generation is still pending; it will retry on the next sync.")
         }
     }
 
@@ -1168,6 +1311,18 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                         _status.value = ConnectionStatus.CONNECTED
                         return@launch
                     }
+                    if (!isCompleteDashboardRegistrySnapshot(allEntities, allAreas, allFloors, entityRegistry, deviceRegistry)) {
+                        // Keep the previous dashboard and leave any pending takeover set;
+                        // completeInitialDashboardSetup's retry loop or the next sync re-imports.
+                        // lastDashboardRefreshAt is deliberately not advanced.
+                        addLog(
+                            "Dashboard import skipped: incomplete Home Assistant snapshot " +
+                                "(${allAreas.size} areas, ${allFloors.size} floors, " +
+                                "${entityRegistry.size} registry entries, ${deviceRegistry.size} devices)"
+                        )
+                        _status.value = ConnectionStatus.CONNECTED
+                        return@launch
+                    }
                     val savedOrder = prefs.areaOrder.first()
                     _entityRegistry.value = entityRegistry
                     _deviceRegistry.value = deviceRegistry
@@ -1185,7 +1340,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                                 compactTiles = saved.compactTiles,
                                 width = saved.width
                             )
-                        } ?: imported
+                        } ?: imported.withDefaultRoomLayout()
                     } + listOfNotNull(savedFloorsById["__rooms__"])
                     _floors.value = floorsWithLocalLayout
                     autoPopulateDashboard(allAreas, floorsWithLocalLayout, allEntities, entityRegistry, deviceRegistry)
@@ -1197,6 +1352,8 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     lastDashboardRefreshAt = SystemClock.elapsedRealtime()
                 }
                 _status.value = ConnectionStatus.CONNECTED
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 if (e.message == "AUTH_EXPIRED") {
                     addLog("Session expired. Attempting refresh...")
@@ -1590,8 +1747,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 val registry = _entityRegistry.value.ifEmpty {
                     currentClient.getEntityRegistry().also { _entityRegistry.value = it }
                 }
-                val deviceRegistry = _deviceRegistry.value.ifEmpty {
-                    currentClient.getDeviceRegistry().also { _deviceRegistry.value = it }
+                // Keep the device selector usable even when Energy preferences are imported before
+                // the normal dashboard registry refresh has run.
+                if (_deviceRegistry.value.isEmpty()) {
+                    _deviceRegistry.value = currentClient.getDeviceRegistry()
                 }
                 val registryByEntity = registry.associateBy { it.entity_id }
                 val liveById = _entities.value.associateBy { it.entity_id }
@@ -1633,45 +1792,72 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     }
                 }
 
+                val relatedSourceEntityIds = mapOf(
+                        "electricity" to sources.filter { it.text("type") == "grid" }.flatMap { source ->
+                            listOfNotNull(source.text("stat_energy_from"), source.text("stat_energy_to"), source.powerRate())
+                        },
+                        "solar" to sources.filter { it.text("type") == "solar" }.flatMap { source ->
+                            listOfNotNull(source.text("stat_energy_from"), source.powerRate())
+                        },
+                        "battery" to sources.filter { it.text("type") == "battery" }.flatMap { source ->
+                            listOfNotNull(
+                                source.text("stat_soc"), source.text("stat_energy_from"),
+                                source.text("stat_energy_to"), source.powerRate()
+                            )
+                        },
+                        "gas" to sources.filter { it.text("type") == "gas" }.flatMap { source ->
+                            listOfNotNull(source.text("stat_energy_from"), source.text("stat_rate"))
+                        },
+                        "water" to sources.filter { it.text("type") == "water" }.flatMap { source ->
+                            listOfNotNull(source.text("stat_energy_from"), source.text("stat_rate"))
+                        },
+                        "carbon" to listOfNotNull(carbonEntityId)
+                    )
                 val related = importRelatedHomeAssistantEnergyEntities(
                     config = current,
-                    sourceEntityIds = mapOf(
-                        "electricity" to listOfNotNull(
-                            grid?.text("stat_energy_from"), grid?.text("stat_energy_to"), grid?.powerRate()
-                        ),
-                        "solar" to listOfNotNull(solar?.text("stat_energy_from"), solar?.powerRate()),
-                        "battery" to listOfNotNull(
-                            battery?.text("stat_soc"), battery?.text("stat_energy_from"),
-                            battery?.text("stat_energy_to"), battery?.powerRate()
-                        ),
-                        "gas" to listOfNotNull(gas?.text("stat_energy_from"), gas?.text("stat_rate")),
-                        "water" to listOfNotNull(water?.text("stat_energy_from"), water?.text("stat_rate")),
-                        "carbon" to listOfNotNull(carbonEntityId)
-                    ),
+                    sourceEntityIds = relatedSourceEntityIds,
                     registry = registry,
-                    devices = deviceRegistry,
                     liveEntities = _entities.value
                 )
+                fun sourceDevice(category: String): String? = relatedSourceEntityIds[category].orEmpty()
+                    .firstNotNullOfOrNull { registryByEntity[it]?.device_id }
+                val gridPowerRate = supportingEnergyEntityForDevice(
+                    grid?.powerRate(), sourceDevice("electricity"), registry
+                )
+                val solarPowerRate = supportingEnergyEntityForDevice(
+                    solar?.powerRate(), sourceDevice("solar"), registry
+                )
+                val batteryPowerRate = supportingEnergyEntityForDevice(
+                    battery?.powerRate(), sourceDevice("battery"), registry
+                )
+                val gasRate = supportingEnergyEntityForDevice(
+                    gas?.text("stat_rate"), sourceDevice("gas"), registry
+                )
+                val waterRate = supportingEnergyEntityForDevice(
+                    water?.text("stat_rate"), sourceDevice("water"), registry
+                )
                 // Values explicitly selected in HA's Energy settings take precedence over the
-                // related device entities inferred above.
+                // related device entities inferred above. Individual app overrides remain final.
+                fun roleValue(role: String, currentValue: String?, haValue: String?, inferredValue: String?): String? =
+                    if (role in current.customizedEntityRoles) currentValue else haValue ?: inferredValue
                 val imported = related.copy(
                     usesHomeAssistantEnergyPreferences = true,
                     hasImportedRelatedEntities = true,
-                    gridImportEntityId = grid?.text("stat_energy_from") ?: related.gridImportEntityId,
-                    gridExportEntityId = grid?.text("stat_energy_to") ?: related.gridExportEntityId,
-                    gridPowerEntityId = grid?.powerRate() ?: related.gridPowerEntityId,
-                    energyCostEntityId = grid?.text("stat_cost") ?: related.energyCostEntityId,
-                    solarEnergyEntityId = solar?.text("stat_energy_from") ?: related.solarEnergyEntityId,
-                    solarPowerEntityId = solar?.powerRate() ?: related.solarPowerEntityId,
-                    batteryPowerEntityId = battery?.powerRate() ?: related.batteryPowerEntityId,
-                    batteryEntityId = battery?.text("stat_soc") ?: related.batteryEntityId,
-                    gasEntityId = gas?.text("stat_energy_from") ?: related.gasEntityId,
-                    gasCurrentEntityId = gas?.text("stat_rate") ?: related.gasCurrentEntityId,
-                    gasCostEntityId = gas?.text("stat_cost") ?: related.gasCostEntityId,
-                    waterEntityId = water?.text("stat_energy_from") ?: related.waterEntityId,
-                    waterCurrentEntityId = water?.text("stat_rate") ?: related.waterCurrentEntityId,
-                    waterCostEntityId = water?.text("stat_cost") ?: related.waterCostEntityId,
-                    gridCarbonFootprintEntityId = carbonEntityId ?: related.gridCarbonFootprintEntityId,
+                    gridImportEntityId = roleValue("import_kwh", current.gridImportEntityId, grid?.text("stat_energy_from"), related.gridImportEntityId),
+                    gridExportEntityId = roleValue("export_kwh", current.gridExportEntityId, grid?.text("stat_energy_to"), related.gridExportEntityId),
+                    gridPowerEntityId = roleValue("grid_power", current.gridPowerEntityId, gridPowerRate, related.gridPowerEntityId),
+                    energyCostEntityId = roleValue("cost", current.energyCostEntityId, grid?.text("stat_cost"), related.energyCostEntityId),
+                    solarEnergyEntityId = roleValue("solar_kwh", current.solarEnergyEntityId, solar?.text("stat_energy_from"), related.solarEnergyEntityId),
+                    solarPowerEntityId = roleValue("solar_power", current.solarPowerEntityId, solarPowerRate, related.solarPowerEntityId),
+                    batteryPowerEntityId = roleValue("battery_power", current.batteryPowerEntityId, batteryPowerRate, related.batteryPowerEntityId),
+                    batteryEntityId = roleValue("battery_pct", current.batteryEntityId, battery?.text("stat_soc"), related.batteryEntityId),
+                    gasEntityId = roleValue("gas", current.gasEntityId, gas?.text("stat_energy_from"), related.gasEntityId),
+                    gasCurrentEntityId = roleValue("gas_current", current.gasCurrentEntityId, gasRate, related.gasCurrentEntityId),
+                    gasCostEntityId = roleValue("gas_cost", current.gasCostEntityId, gas?.text("stat_cost"), related.gasCostEntityId),
+                    waterEntityId = roleValue("water", current.waterEntityId, water?.text("stat_energy_from"), related.waterEntityId),
+                    waterCurrentEntityId = roleValue("water_current", current.waterCurrentEntityId, waterRate, related.waterCurrentEntityId),
+                    waterCostEntityId = roleValue("water_cost", current.waterCostEntityId, water?.text("stat_cost"), related.waterCostEntityId),
+                    gridCarbonFootprintEntityId = roleValue("carbon", current.gridCarbonFootprintEntityId, null, carbonEntityId ?: related.gridCarbonFootprintEntityId),
                     deviceEntityIds = powerIds,
                     energyDeviceEntityIds = energyIds,
                     waterDeviceEntityIds = waterDeviceIds,
@@ -2260,7 +2446,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         viewModelScope.launch { prefs.saveAreaWidgets(currentMapping) }
     }
 
-    fun addSingleEntityWidgetToArea(areaId: String, type: String, entityId: String) {
+    fun addSingleEntityWidgetToArea(
+        areaId: String,
+        type: String,
+        entityId: String,
+        config: HKIButtonConfig = HKIButtonConfig()
+    ) {
         takeSnapshot()
         bumpWidgetUi()
         val currentMapping = _areaWidgetsMapping.value.toMutableMap()
@@ -2270,7 +2461,8 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 id = UUID.randomUUID().toString(),
                 entityId = entityId,
                 kind = type,
-                isSquare = type != "camera"
+                isSquare = type != "camera",
+                config = config
             )
         )
         currentMapping[areaId] = currentList
@@ -2456,6 +2648,24 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     val devices = async { withTimeout(10.seconds) { currentClient.getDeviceRegistry() } }
                     DashboardRegistrySnapshot(areas.await(), floors.await(), registry.await(), devices.await())
                 }
+                if (!isCompleteDashboardRegistrySnapshot(_entities.value, importedAreas, importedFloors, entityRegistry, deviceRegistry)) {
+                    // Abort before the from-scratch clear below: replacing existing rooms with a
+                    // degraded snapshot would destroy them for no gain.
+                    addLog("Room re-import skipped: Home Assistant returned an incomplete snapshot; try again.")
+                    return@launch
+                }
+                val savedFloorsById = if (fromScratch) emptyMap() else _floors.value.associateBy { it.floor_id }
+                val floorsWithLocalLayout = importedFloors.map { imported ->
+                    savedFloorsById[imported.floor_id]?.let { saved ->
+                        imported.copy(
+                            columns = saved.columns,
+                            isSquare = saved.isSquare,
+                            cornerRadius = saved.cornerRadius,
+                            compactTiles = saved.compactTiles,
+                            width = saved.width
+                        )
+                    } ?: imported.withDefaultRoomLayout()
+                }
                 if (fromScratch) {
                     _areas.value = emptyList()
                     _floors.value = emptyList()
@@ -2468,10 +2678,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 _entityRegistry.value = entityRegistry
                 _deviceRegistry.value = deviceRegistry
                 _areas.value = importedAreas
-                _floors.value = importedFloors
+                _floors.value = floorsWithLocalLayout
                 // Deliberately update only room/floor state. Page configs for climate, security,
                 // energy, and battery are not touched by a Rooms re-import.
-                autoPopulateDashboard(importedAreas, importedFloors, _entities.value, entityRegistry, deviceRegistry)
+                autoPopulateDashboard(importedAreas, floorsWithLocalLayout, _entities.value, entityRegistry, deviceRegistry)
                 addLog("Re-imported ${importedAreas.size} rooms from Home Assistant")
             } catch (e: Exception) {
                 protectExistingRoomsOnNextImport = false
@@ -2712,13 +2922,17 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         ignoreWidgetPrefsUntil = SystemClock.elapsedRealtime() + 5000
     }
 
-    private fun autoPopulateDashboard(
+    private suspend fun autoPopulateDashboard(
         areas: List<HAArea>,
         floors: List<HAFloor>,
         entities: List<HAEntity>,
         registry: List<HAEntityRegistryEntry>,
         devices: List<HADeviceRegistryEntry>
     ) {
+        prefs.seedHeaderLeftAlarmEntitiesIfUnset(
+            entities.filter { it.entity_id.startsWith("alarm_control_panel.") }.map { it.entity_id },
+            showByDefault = true
+        )
         val existingWidgets = _areaWidgetsMapping.value.toMutableMap()
         val existingConfigs = _areaConfigsMapping.value.toMutableMap()
         var changedWidgets = false
@@ -2734,14 +2948,48 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             )
         }
         val entitiesByArea = entities.groupBy { areaByEntity[it.entity_id] }
+        val climateWindowEntityIds = climateOwnedWindowEntityIds(entities, registry)
 
         areas.forEach { area ->
-            if (protectExistingRoomsOnNextImport && (existingWidgets.containsKey(area.area_id) || existingConfigs.containsKey(area.area_id))) {
-                return@forEach
-            }
             val areaEntities = entitiesByArea[area.area_id]
                 .orEmpty()
                 .filter { it.entity_id.substringBefore(".") in AUTO_ROOM_IMPORT_DOMAINS }
+            val mediaPlayerIds = areaEntities
+                .filter { it.entity_id.startsWith("media_player.") }
+                .map(HAEntity::entity_id)
+            val discoveredRoomStatus = discoverRoomStatus(
+                entities = areaEntities,
+                excludedWindowEntityIds = climateWindowEntityIds
+            )
+
+            if (protectExistingRoomsOnNextImport && (existingWidgets.containsKey(area.area_id) || existingConfigs.containsKey(area.area_id))) {
+                // Refresh auto-owned summary and media bindings on older imported rooms while
+                // preserving every source group the user customized explicitly.
+                val current = existingConfigs[area.area_id]
+                if (current != null) {
+                    var enriched = current
+                    if (!current.roomEntitiesCustomized) {
+                        enriched = enriched.copy(
+                            roomStatusEntityIds = discoveredRoomStatus.entityIds,
+                            roomTemperatureEntityId = null,
+                            roomHumidityEntityId = null,
+                            roomTemperatureEntityIds = discoveredRoomStatus.temperatureEntityIds,
+                            roomHumidityEntityIds = discoveredRoomStatus.humidityEntityIds
+                        )
+                    }
+                    if (!current.mediaPlayersCustomized) {
+                        enriched = enriched.copy(
+                            mediaPlayerEntityId = null,
+                            mediaPlayerEntityIds = mediaPlayerIds
+                        )
+                    }
+                    if (enriched != current) {
+                        existingConfigs[area.area_id] = enriched
+                        changedConfigs = true
+                    }
+                }
+                return@forEach
+            }
             val entityIdsByDomain = areaEntities.groupBy(
                 keySelector = { it.entity_id.substringBefore(".") },
                 valueTransform = { it.entity_id }
@@ -2750,7 +2998,6 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             val climateIds = entityIdsByDomain["climate"].orEmpty()
             val cameraIds = entityIdsByDomain["camera"].orEmpty()
             val blindIds = entityIdsByDomain["cover"].orEmpty()
-            val mediaPlayerIds = entityIdsByDomain["media_player"].orEmpty()
 
             fun autoBadge(domain: String, side: String, shape: String): HKIBadge? {
                 val ids = entityIdsByDomain[domain].orEmpty()
@@ -2782,7 +3029,16 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 floorId = area.floor_id,
                 icon = current.icon ?: area.icon,
                 wallpaper = current.wallpaper ?: area.picture,
-                mediaPlayerEntityId = mediaPlayerIds.firstOrNull(),
+                mediaPlayerEntityId = if (current.mediaPlayersCustomized) {
+                    current.mediaPlayerEntityId
+                } else {
+                    null
+                },
+                mediaPlayerEntityIds = if (current.mediaPlayersCustomized) {
+                    current.mediaPlayerEntityIds
+                } else {
+                    mediaPlayerIds
+                },
                 lockEntityId = lockIds.firstOrNull(),
                 climateEntityId = climateIds.firstOrNull(),
                 cameraEntityId = cameraIds.firstOrNull(),
@@ -2795,6 +3051,31 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 climateIcon = current.climateIcon ?: "thermostat",
                 cameraIcon = current.cameraIcon ?: "CameraAlt",
                 blindIcon = current.blindIcon ?: "Blinds",
+                roomStatusEntityIds = if (current.roomEntitiesCustomized) {
+                    current.roomStatusEntityIds
+                } else {
+                    discoveredRoomStatus.entityIds
+                },
+                roomTemperatureEntityId = if (current.roomEntitiesCustomized) {
+                    current.roomTemperatureEntityId
+                } else {
+                    null
+                },
+                roomHumidityEntityId = if (current.roomEntitiesCustomized) {
+                    current.roomHumidityEntityId
+                } else {
+                    null
+                },
+                roomTemperatureEntityIds = if (current.roomEntitiesCustomized) {
+                    current.roomTemperatureEntityIds
+                } else {
+                    discoveredRoomStatus.temperatureEntityIds
+                },
+                roomHumidityEntityIds = if (current.roomEntitiesCustomized) {
+                    current.roomHumidityEntityIds
+                } else {
+                    discoveredRoomStatus.humidityEntityIds
+                },
                 badgeBar = HKIBadgeBarConfig(
                     badges = importedBadges,
                     alignment = "split",
@@ -2845,17 +3126,17 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
         if (changedWidgets) {
             _areaWidgetsMapping.value = existingWidgets
-            viewModelScope.launch { prefs.saveAreaWidgets(existingWidgets) }
+            prefs.saveAreaWidgets(existingWidgets)
         }
         if (changedConfigs) {
             _areaConfigsMapping.value = existingConfigs
-            viewModelScope.launch { prefs.saveAreaConfigs(existingConfigs) }
+            prefs.saveAreaConfigs(existingConfigs)
         }
-        viewModelScope.launch {
-            prefs.saveAreas(areas)
-            prefs.saveFloors(floors)
-            prefs.saveAreaOrder(areas.map { it.area_id })
-        }
+        // These writes must finish before finishAutoGeneration snapshots the active dashboard.
+        // Detached saves allowed the empty onboarding configuration to win on process shutdown.
+        prefs.saveAreas(areas)
+        prefs.saveFloors(floors)
+        prefs.saveAreaOrder(areas.map { it.area_id })
         protectExistingRoomsOnNextImport = false
     }
 

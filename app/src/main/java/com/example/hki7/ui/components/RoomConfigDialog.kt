@@ -12,9 +12,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HKIAreaConfig
 import com.example.hki7.data.HKIBadgeBarConfig
 import com.example.hki7.ui.MainViewModel
+import com.example.hki7.ui.RoomStatusRoles
 import com.example.hki7.ui.components.MdiIconPickerDialog
 import com.example.hki7.ui.utils.MdiIcon
 import com.example.hki7.ui.theme.LocalHKIAppColors
@@ -35,7 +37,13 @@ fun RoomConfigDialog(
     val area = areas.find { it.area_id == areaId }
 
     var name by remember(config) { mutableStateOf(config.name ?: area?.name ?: "") }
-    var mediaPlayerEntityId by remember(config) { mutableStateOf(config.mediaPlayerEntityId ?: "") }
+    var mediaPlayerEntityIds by remember(config) {
+        mutableStateOf(
+            normalizeRoomEntityIds(
+                config.mediaPlayerEntityIds.ifEmpty { listOfNotNull(config.mediaPlayerEntityId) }
+            )
+        )
+    }
     var showMediaPicker by remember { mutableStateOf(false) }
     var iconName by remember(config) { mutableStateOf(config.icon ?: "Room") }
     var wallpaper by remember(config) { mutableStateOf(config.wallpaper ?: "") }
@@ -47,6 +55,26 @@ fun RoomConfigDialog(
     var badgeSpanIcons by remember(config) { mutableStateOf(config.badgeBar?.spanIcons ?: false) }
     var badgeLeftOverflow by remember(config) { mutableStateOf(config.badgeBar?.leftOverflow ?: false) }
     var badgeRightOverflow by remember(config) { mutableStateOf(config.badgeBar?.rightOverflow ?: false) }
+    var roomStatusEntityIds by remember(config) { mutableStateOf(config.roomStatusEntityIds) }
+    var roomTemperatureEntityIds by remember(config) {
+        mutableStateOf(
+            normalizeRoomEntityIds(
+                config.roomTemperatureEntityIds.ifEmpty {
+                    listOfNotNull(config.roomTemperatureEntityId)
+                }
+            )
+        )
+    }
+    var roomHumidityEntityIds by remember(config) {
+        mutableStateOf(
+            normalizeRoomEntityIds(
+                config.roomHumidityEntityIds.ifEmpty {
+                    listOfNotNull(config.roomHumidityEntityId)
+                }
+            )
+        )
+    }
+    var roomEntityPicker by remember { mutableStateOf<String?>(null) }
     var showIconPickerRoom by remember { mutableStateOf(false) }
     var section by remember { mutableStateOf("menu") }
     var showReimport by remember { mutableStateOf(false) }
@@ -67,11 +95,39 @@ fun RoomConfigDialog(
         val mediaPlayers = allEntities.filter { it.entity_id.startsWith("media_player.") }
         AdvancedEntitySearchDialog(
             allEntities = mediaPlayers,
-            title = "Select Media Player",
-            singleSelect = true,
-            preselectedIds = setOfNotNull(mediaPlayerEntityId.takeIf { it.isNotBlank() }),
+            title = "Select Media Players",
+            singleSelect = false,
+            preselectedIds = mediaPlayerEntityIds.toSet(),
             onDismiss = { showMediaPicker = false },
-            onEntitiesSelected = { ids -> mediaPlayerEntityId = ids.firstOrNull() ?: ""; showMediaPicker = false }
+            onEntitiesSelected = { ids ->
+                mediaPlayerEntityIds = normalizeRoomEntityIds(ids)
+                showMediaPicker = false
+            }
+        )
+    }
+
+    roomEntityPicker?.let { picker ->
+        val selectedIds = when (picker) {
+            ROOM_TEMPERATURE_PICKER -> roomTemperatureEntityIds.toSet()
+            ROOM_HUMIDITY_PICKER -> roomHumidityEntityIds.toSet()
+            else -> roomStatusEntityIds[picker].orEmpty().toSet()
+        }
+        AdvancedEntitySearchDialog(
+            allEntities = roomEntityCandidates(picker, allEntities, selectedIds),
+            title = "Select ${roomEntityLabel(picker)}",
+            singleSelect = false,
+            preselectedIds = selectedIds,
+            onDismiss = { roomEntityPicker = null },
+            onEntitiesSelected = { ids ->
+                when (picker) {
+                    ROOM_TEMPERATURE_PICKER -> roomTemperatureEntityIds = normalizeRoomEntityIds(ids)
+                    ROOM_HUMIDITY_PICKER -> roomHumidityEntityIds = normalizeRoomEntityIds(ids)
+                    else -> roomStatusEntityIds = roomStatusEntityIds.toMutableMap().apply {
+                        if (ids.isEmpty()) remove(picker) else put(picker, ids.distinct())
+                    }
+                }
+                roomEntityPicker = null
+            }
         )
     }
 
@@ -99,10 +155,11 @@ fun RoomConfigDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 if (section == "menu") {
-                    RoomSettingsChoice(Icons.Default.Tune, "General", "Name, icon and media player") { section = "general" }
+                    RoomSettingsChoice(Icons.Default.Tune, "General", "Name and icon") { section = "general" }
                     RoomSettingsChoice(Icons.Default.Image, "Header", "Wallpaper and custom color") { section = "header" }
-                    RoomSettingsChoice(Icons.Default.Home, "Floor", "Assign this room to a floor") { section = "floor" }
                     RoomSettingsChoice(Icons.Default.ViewStream, "Badge Bar", "Alignment and display options") { section = "badgebar" }
+                    RoomSettingsChoice(Icons.Default.Home, "Floor", "Assign this room to a floor") { section = "floor" }
+                    RoomSettingsChoice(Icons.Default.Sensors, "Room status", "Media, activity, safety and climate indicators") { section = "room status" }
                     RoomSettingsChoice(Icons.Default.CloudDownload, "Re-import from Home Assistant", "Import new rooms or rebuild every room") { showReimport = true }
                     RoomSettingsChoice(Icons.Default.DeleteSweep, "Clear Rooms View", "Remove imported rooms and floors") {
                         showClearRooms = true
@@ -140,29 +197,6 @@ fun RoomConfigDialog(
                             color = appColors.onSurface
                         )
                         TextButton(onClick = { showIconPickerRoom = true }) { Text("Change") }
-                    }
-                    Text("Media player", style = MaterialTheme.typography.labelLarge)
-                    Text(
-                        "When set, the room header and card show what's playing instead of \"Room Details\".",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = appColors.onMuted
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        val selectedMedia = allEntities.find { it.entity_id == mediaPlayerEntityId }
-                        Text(
-                            selectedMedia?.friendlyName ?: mediaPlayerEntityId.ifBlank { "None" },
-                            modifier = Modifier.weight(1f),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = appColors.onSurface
-                        )
-                        if (mediaPlayerEntityId.isNotBlank()) {
-                            TextButton(onClick = { mediaPlayerEntityId = "" }) { Text("Clear") }
-                        }
-                        TextButton(onClick = { showMediaPicker = true }) { Text("Change") }
                     }
                 }
 
@@ -212,6 +246,79 @@ fun RoomConfigDialog(
                             )
                         }
                     }
+                }
+
+                if (section == "room status") {
+                    val appColors = LocalHKIAppColors.current
+                    Text("Media players", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+                    Text(
+                        "The room header and card show a single player's media, or an active-player count when multiple players are selected.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = appColors.onMuted
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text(
+                            selectedEntitySummary(mediaPlayerEntityIds, allEntities),
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = appColors.onSurface
+                        )
+                        if (mediaPlayerEntityIds.isNotEmpty()) {
+                            TextButton(onClick = { mediaPlayerEntityIds = emptyList() }) { Text("Clear") }
+                        }
+                        TextButton(onClick = { showMediaPicker = true }) { Text("Change") }
+                    }
+                    HorizontalDivider()
+                    Text(
+                        "Choose the Home Assistant entities that drive this room's live indicators. Indicators only appear while they are active.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = appColors.onMuted
+                    )
+                    RoomStatusRoles.ORDERED.forEach { role ->
+                        val selectedIds = roomStatusEntityIds[role].orEmpty()
+                        RoomEntitySelectionRow(
+                            label = roomEntityLabel(role),
+                            selection = selectedEntitySummary(selectedIds, allEntities),
+                            hasSelection = selectedIds.isNotEmpty(),
+                            onClear = {
+                                roomStatusEntityIds = roomStatusEntityIds.toMutableMap().apply { remove(role) }
+                            },
+                            onChange = { roomEntityPicker = role }
+                        )
+                    }
+
+                    HorizontalDivider()
+                    Text("Room climate", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+                    Text(
+                        "Climate sources take priority and use their current_temperature and current_humidity values. " +
+                            "Multiple climate values are averaged. Separate sensor values are averaged only when no climate source is selected.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = appColors.onMuted
+                    )
+                    RoomEntitySelectionRow(
+                        label = "Temperature",
+                        selection = selectedEntitySummary(
+                            roomTemperatureEntityIds,
+                            allEntities
+                        ),
+                        hasSelection = roomTemperatureEntityIds.isNotEmpty(),
+                        onClear = { roomTemperatureEntityIds = emptyList() },
+                        onChange = { roomEntityPicker = ROOM_TEMPERATURE_PICKER }
+                    )
+                    RoomEntitySelectionRow(
+                        label = "Humidity",
+                        selection = selectedEntitySummary(
+                            roomHumidityEntityIds,
+                            allEntities
+                        ),
+                        hasSelection = roomHumidityEntityIds.isNotEmpty(),
+                        onClear = { roomHumidityEntityIds = emptyList() },
+                        onChange = { roomEntityPicker = ROOM_HUMIDITY_PICKER }
+                    )
                 }
 
                 if (section == "badgebar") {
@@ -293,11 +400,31 @@ fun RoomConfigDialog(
         },
         confirmButton = {
             Button(onClick = {
+                val normalizedMediaPlayerEntityIds = normalizeRoomEntityIds(mediaPlayerEntityIds)
+                val configuredMediaPlayerEntityIds = normalizeRoomEntityIds(
+                    config.mediaPlayerEntityIds.ifEmpty { listOfNotNull(config.mediaPlayerEntityId) }
+                )
+                val mediaPlayersChanged = normalizedMediaPlayerEntityIds != configuredMediaPlayerEntityIds
+                val normalizedRoomStatusEntityIds = normalizeRoomStatusEntityIds(roomStatusEntityIds)
+                val normalizedRoomTemperatureEntityIds = normalizeRoomEntityIds(roomTemperatureEntityIds)
+                val normalizedRoomHumidityEntityIds = normalizeRoomEntityIds(roomHumidityEntityIds)
+                val configuredRoomTemperatureEntityIds = normalizeRoomEntityIds(
+                    config.roomTemperatureEntityIds.ifEmpty { listOfNotNull(config.roomTemperatureEntityId) }
+                )
+                val configuredRoomHumidityEntityIds = normalizeRoomEntityIds(
+                    config.roomHumidityEntityIds.ifEmpty { listOfNotNull(config.roomHumidityEntityId) }
+                )
+                val roomEntitiesChanged =
+                    normalizedRoomStatusEntityIds != normalizeRoomStatusEntityIds(config.roomStatusEntityIds) ||
+                        normalizedRoomTemperatureEntityIds != configuredRoomTemperatureEntityIds ||
+                        normalizedRoomHumidityEntityIds != configuredRoomHumidityEntityIds
                 viewModel.updateAreaConfig(
                     areaId,
                     config.copy(
                         name        = name.trim().ifBlank { null }?.takeUnless { it == area?.name },
-                        mediaPlayerEntityId = mediaPlayerEntityId.ifBlank { null },
+                        mediaPlayerEntityIds = normalizedMediaPlayerEntityIds,
+                        mediaPlayerEntityId = null,
+                        mediaPlayersCustomized = if (mediaPlayersChanged) true else config.mediaPlayersCustomized,
                         icon        = iconName,
                         wallpaper   = wallpaper.ifBlank { null },
                         headerColor = headerColor.ifBlank { null },
@@ -308,7 +435,13 @@ fun RoomConfigDialog(
                             spanIcons  = badgeSpanIcons,
                             leftOverflow = badgeLeftOverflow,
                             rightOverflow = badgeRightOverflow
-                        )
+                        ),
+                        roomStatusEntityIds = normalizedRoomStatusEntityIds,
+                        roomTemperatureEntityIds = normalizedRoomTemperatureEntityIds,
+                        roomHumidityEntityIds = normalizedRoomHumidityEntityIds,
+                        roomTemperatureEntityId = null,
+                        roomHumidityEntityId = null,
+                        roomEntitiesCustomized = if (roomEntitiesChanged) true else config.roomEntitiesCustomized
                     )
                 )
                 onHeaderColorPreview(null)
@@ -375,6 +508,120 @@ private fun RoomSettingsChoice(icon: androidx.compose.ui.graphics.vector.ImageVe
         }
     }
 }
+
+@Composable
+private fun RoomEntitySelectionRow(
+    label: String,
+    selection: String,
+    hasSelection: Boolean,
+    onClear: () -> Unit,
+    onChange: () -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(label, style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                selection,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodySmall,
+                color = if (hasSelection) appColors.onSurface else appColors.onMuted
+            )
+            if (hasSelection) {
+                TextButton(onClick = onClear) { Text("Clear") }
+            }
+            TextButton(onClick = onChange) { Text("Change") }
+        }
+    }
+}
+
+private const val ROOM_TEMPERATURE_PICKER = "__room_temperature__"
+private const val ROOM_HUMIDITY_PICKER = "__room_humidity__"
+
+private fun roomEntityLabel(role: String): String = when (role) {
+    RoomStatusRoles.DOORS -> "Doors"
+    RoomStatusRoles.WINDOWS -> "Windows"
+    RoomStatusRoles.MOTION -> "Motion"
+    RoomStatusRoles.PRESENCE -> "Presence"
+    RoomStatusRoles.LIGHTS -> "Lights"
+    RoomStatusRoles.DEVICES -> "Devices"
+    RoomStatusRoles.SMOKE -> "Smoke"
+    RoomStatusRoles.GAS -> "Gas"
+    RoomStatusRoles.FIRE -> "Fire"
+    ROOM_TEMPERATURE_PICKER -> "Temperature"
+    ROOM_HUMIDITY_PICKER -> "Humidity"
+    else -> role.replace('_', ' ').replaceFirstChar { it.uppercase() }
+}
+
+private fun roomEntityCandidates(
+    picker: String,
+    allEntities: List<HAEntity>,
+    selectedIds: Set<String>
+): List<HAEntity> = allEntities.filter { entity ->
+    if (entity.entity_id in selectedIds) return@filter true
+    val domain = entity.entity_id.substringBefore('.')
+    val deviceClass = entity.deviceClass?.lowercase()
+    when (picker) {
+        RoomStatusRoles.DOORS ->
+            (domain == "binary_sensor" && deviceClass in setOf("door", "garage_door")) ||
+                (domain == "cover" && deviceClass in setOf("door", "garage", "garage_door", "gate"))
+
+        RoomStatusRoles.WINDOWS ->
+            (domain == "binary_sensor" || domain == "cover") && deviceClass == "window"
+
+        RoomStatusRoles.MOTION ->
+            domain == "binary_sensor" && deviceClass in setOf("motion", "moving", "vibration")
+
+        RoomStatusRoles.PRESENCE ->
+            (domain == "binary_sensor" && deviceClass in setOf("occupancy", "presence")) ||
+                domain in setOf("person", "device_tracker")
+
+        RoomStatusRoles.LIGHTS -> domain == "light"
+        RoomStatusRoles.DEVICES -> domain in setOf("switch", "fan", "humidifier", "input_boolean")
+        RoomStatusRoles.SMOKE -> domain == "binary_sensor" && deviceClass == "smoke"
+        RoomStatusRoles.GAS ->
+            domain == "binary_sensor" && deviceClass in setOf("gas", "carbon_monoxide")
+
+        RoomStatusRoles.FIRE ->
+            domain == "binary_sensor" && deviceClass in setOf("fire", "heat", "safety")
+
+        ROOM_TEMPERATURE_PICKER ->
+            domain == "climate" || (domain == "sensor" && deviceClass == "temperature")
+
+        ROOM_HUMIDITY_PICKER ->
+            domain == "climate" || (domain == "sensor" && deviceClass == "humidity")
+
+        else -> false
+    }
+}
+
+private fun selectedEntitySummary(
+    selectedIds: List<String>,
+    allEntities: List<HAEntity>,
+    includeCount: Boolean = true
+): String {
+    if (selectedIds.isEmpty()) return "None"
+    val names = selectedIds.map { id ->
+        allEntities.firstOrNull { it.entity_id == id }?.friendlyName ?: id
+    }
+    if (!includeCount) return names.first()
+    return when (names.size) {
+        1 -> "1 selected · ${names.first()}"
+        2 -> "2 selected · ${names.joinToString()}"
+        else -> "${names.size} selected · ${names.first()} +${names.size - 1}"
+    }
+}
+
+private fun normalizeRoomStatusEntityIds(entityIds: Map<String, List<String>>): Map<String, List<String>> =
+    entityIds.mapValues { (_, ids) -> ids.filter { it.isNotBlank() }.distinct() }
+        .filterValues { it.isNotEmpty() }
+
+private fun normalizeRoomEntityIds(entityIds: List<String>): List<String> =
+    entityIds.filter { it.isNotBlank() }.distinct()
 
 /** Shared Full/Half/Third size selector used by widget and room-card settings so they stay
  *  consistent. Room cards don't support thirds (their row packing is full/half only). */

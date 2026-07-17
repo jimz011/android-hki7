@@ -72,7 +72,7 @@ fun navTargetOptions(areas: List<HAArea>): List<Pair<String, String>> = buildLis
 }
 
 private fun parseJsonObjectOrNull(text: String): JsonObject? =
-    if (text.isBlank()) null else runCatching { Json.parseToJsonElement(text).jsonObject }.getOrNull()
+    if (text.isBlank()) null else  runCatching { Json.parseToJsonElement(text).jsonObject }.getOrNull()
 
 private fun entityLabel(entityId: String?, allEntities: List<HAEntity>): String? =
     entityId?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }

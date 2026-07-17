@@ -33,6 +33,21 @@ fun DevicePickerDialog(
     currentId: String?,
     onDismiss: () -> Unit,
     onSelected: (String?) -> Unit
+) = DevicePickerDialogWithAlternative(
+    devices = devices,
+    currentId = currentId,
+    onDismiss = onDismiss,
+    onSelected = onSelected
+)
+
+@Composable
+fun DevicePickerDialogWithAlternative(
+    devices: List<HADeviceRegistryEntry>,
+    currentId: String?,
+    onDismiss: () -> Unit,
+    alternativeLabel: String? = null,
+    onAlternative: (() -> Unit)? = null,
+    onSelected: (String?) -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
     var query by remember { mutableStateOf("") }
@@ -53,6 +68,9 @@ fun DevicePickerDialog(
                     singleLine = true, modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(8.dp))
+                if (alternativeLabel != null && onAlternative != null) {
+                    TextButton(onClick = onAlternative) { Text(alternativeLabel) }
+                }
                 val listState = androidx.compose.foundation.lazy.rememberLazyListState()
                 LazyColumn(Modifier.heightIn(max = 340.dp).fadingEdges(listState), state = listState) {
                     if (currentId != null) {

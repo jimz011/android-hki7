@@ -723,13 +723,12 @@ fun EnergyScreen(viewModel: MainViewModel) {
             if (page == "energy") {
                 // ── the animated house ────────────────────────────────────────
                 item {
-                    EnergyHouseScene(
+                    EnergyHero(
                         solarW = solarW, gridW = gridW, homeW = homeW,
                         batteryW = batteryW, batteryPct = batteryPct, hasBattery = hasBattery,
                         hasSolar = hasSolar, hasGas = gasId != null, hasWater = waterId != null,
                         gasFlowing = gasUsedRecently,
-                        waterFlowing = (entityFloat(energyConfig.waterCurrentEntityId) ?: 0f) > 0.001f,
-                        modifier = Modifier.fillMaxWidth().height(300.dp)
+                        waterFlowing = (entityFloat(energyConfig.waterCurrentEntityId) ?: 0f) > 0.001f
                     )
                 }
 
@@ -1356,6 +1355,146 @@ private fun TariffLine(label: String, importText: String?, exportText: String?) 
 // roof plane, garage with slatted door, glowing gable window, wall meter and
 // cable runs. Light pulses travel the cables while power flows.
 // ─────────────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun EnergyHero(
+    solarW: Float,
+    gridW: Float,
+    homeW: Float,
+    batteryW: Float,
+    batteryPct: Int?,
+    hasBattery: Boolean,
+    hasSolar: Boolean,
+    hasGas: Boolean,
+    hasWater: Boolean,
+    gasFlowing: Boolean,
+    waterFlowing: Boolean
+) {
+    val appColors = LocalHKIAppColors.current
+    val primary = MaterialTheme.colorScheme.primary
+    val solarActive = hasSolar && solarW > 10f
+    val importing = gridW > 10f
+    val exporting = gridW < -10f
+    val batteryCharging = hasBattery && batteryW > 10f
+    val batteryDischarging = hasBattery && batteryW < -10f
+    val accent = when {
+        exporting -> ExportGreen
+        importing -> ElecBlue
+        batteryDischarging || batteryCharging -> BattPurple
+        solarActive -> SolarAmber
+        homeW > 10f -> primary
+        else -> appColors.onMuted
+    }
+    val status = when {
+        exporting -> "Exporting power"
+        importing -> "Importing power"
+        batteryDischarging -> "Battery supporting"
+        batteryCharging -> "Battery charging"
+        solarActive -> "Solar producing"
+        homeW > 10f -> "Home consuming"
+        else -> "Energy idle"
+    }
+    val gridIcon = when {
+        exporting -> Icons.Default.ArrowUpward
+        importing -> Icons.Default.ArrowDownward
+        else -> Icons.Default.ElectricBolt
+    }
+    val batteryColor = when {
+        !hasBattery || batteryPct == null -> appColors.onMuted
+        batteryPct > 50 -> ExportGreen
+        batteryPct > 20 -> SolarAmber
+        else -> ImportRed
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(Modifier.fillMaxWidth().height(252.dp)) {
+            EnergyHouseScene(
+                solarW = solarW,
+                gridW = gridW,
+                homeW = homeW,
+                batteryW = batteryW,
+                batteryPct = batteryPct,
+                hasBattery = hasBattery,
+                hasSolar = hasSolar,
+                hasGas = hasGas,
+                hasWater = hasWater,
+                gasFlowing = gasFlowing,
+                waterFlowing = waterFlowing,
+                modifier = Modifier.align(Alignment.BottomCenter).aspectRatio(850f / 620f)
+            )
+            Column(
+                modifier = Modifier.align(Alignment.TopStart).padding(start = 14.dp, top = 8.dp)
+            ) {
+                Text(
+                    "HOME POWER",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = appColors.onMuted,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    formatW(homeW.coerceAtLeast(0f)),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = appColors.onSurface,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Surface(
+                modifier = Modifier.align(Alignment.TopEnd).padding(end = 14.dp, top = 8.dp),
+                color = accent.copy(alpha = 0.16f),
+                shape = itemCornerShape()
+            ) {
+                Row(
+                    Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(Modifier.size(7.dp).background(accent, CircleShape))
+                    Spacer(Modifier.width(6.dp))
+                    Text(status, color = appColors.onSurface, style = MaterialTheme.typography.labelMedium)
+                }
+            }
+        }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            EnergyHeroStat(
+                Icons.Default.WbSunny,
+                if (hasSolar) SolarAmber else appColors.onMuted,
+                if (hasSolar) formatW(solarW.coerceAtLeast(0f)) else "—",
+                "Solar"
+            )
+            EnergyHeroStat(
+                gridIcon,
+                when { exporting -> ExportGreen; importing -> ElecBlue; else -> appColors.onMuted },
+                formatW(kotlin.math.abs(gridW)),
+                "Grid flow"
+            )
+            EnergyHeroStat(
+                if (batteryCharging) Icons.Default.BatteryChargingFull else Icons.Default.BatteryStd,
+                batteryColor,
+                if (hasBattery) batteryPct?.let { "$it%" } ?: "—" else "—",
+                "Battery"
+            )
+        }
+    }
+}
+
+@Composable
+private fun EnergyHeroStat(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    color: Color,
+    value: String,
+    label: String
+) {
+    val appColors = LocalHKIAppColors.current
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Icon(icon, null, tint = color, modifier = Modifier.size(15.dp))
+            Text(value, color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+        }
+        Text(label, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+    }
+}
 
 @Composable
 private fun EnergyHouseScene(
@@ -2274,18 +2413,23 @@ private fun autoMapDeviceEntities(
     category: String,
     deviceId: String,
     entityRegistry: List<HAEntityRegistryEntry>,
-    deviceRegistry: List<HADeviceRegistryEntry>,
     entities: List<HAEntity>,
     cfg: HKIEnergyConfig
 ): HKIEnergyConfig {
-    // Include child devices (e.g. inverters behind an Envoy hub).
-    val deviceIds = setOf(deviceId) + deviceRegistry.filter { it.via_device_id == deviceId }.map { it.id }
-    val ids = entityRegistry.filter { it.device_id in deviceIds }.map { it.entity_id }.toSet()
+    // A selected source device is an exact boundary. Child devices can expose similarly named
+    // sensors, but choosing one of those would make the selector appear arbitrary.
+    val ids = entityRegistry
+        .filter { it.device_id == deviceId && it.disabled_by == null }
+        .map { it.entity_id }
+        .toSet()
     val dev = entities.filter { it.entity_id in ids }
 
     fun unit(e: HAEntity) = e.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull ?: ""
     fun name(e: HAEntity) = (e.friendlyName ?: e.entity_id).lowercase()
     fun pick(pred: (HAEntity) -> Boolean): String? = dev.firstOrNull(pred)?.entity_id
+    fun pickUnique(pred: (HAEntity) -> Boolean): String? = dev.filter(pred).singleOrNull()?.entity_id
+    fun keep(role: String, current: String?, guessed: String?): String? =
+        if (role in cfg.customizedEntityRoles) current else guessed ?: current
     val isPower  = { e: HAEntity -> e.deviceClass == "power" || unit(e) == "W" || unit(e) == "kW" }
     val isEnergy = { e: HAEntity -> e.deviceClass == "energy" || unit(e).contains("Wh") }
     val isCurrent = { e: HAEntity -> e.deviceClass == "current" || unit(e) == "A" }
@@ -2300,59 +2444,67 @@ private fun autoMapDeviceEntities(
     fun pickCarbon(): String? =
         pick { isCarbon(it) && unit(it).contains("kWh", ignoreCase = true) }
             ?: pick { isCarbon(it) }
+    fun gridPowerGuess(): String? = pick {
+        isPower(it) && !name(it).contains("phase") &&
+            listOf("grid", "current power", "active power", "power consumption", "power import", "net power")
+                .any(name(it)::contains)
+    } ?: pickUnique { isPower(it) && !name(it).contains("phase") }
 
     return when (category) {
         "electricity" -> cfg.copy(
             electricityDeviceId = deviceId,
-            gridPowerEntityId = pick { isPower(it) && !name(it).contains("phase") } ?: cfg.gridPowerEntityId,
-            powerPhase1EntityId = pick { isPower(it) && (name(it).contains("phase 1") || name(it).contains(" l1")) } ?: cfg.powerPhase1EntityId,
-            powerPhase2EntityId = pick { isPower(it) && (name(it).contains("phase 2") || name(it).contains(" l2")) } ?: cfg.powerPhase2EntityId,
-            powerPhase3EntityId = pick { isPower(it) && (name(it).contains("phase 3") || name(it).contains(" l3")) } ?: cfg.powerPhase3EntityId,
-            currentPhase1EntityId = pick { isCurrent(it) && phaseMatch(it, 1) } ?: pick { isCurrent(it) } ?: cfg.currentPhase1EntityId,
-            currentPhase2EntityId = pick { isCurrent(it) && phaseMatch(it, 2) } ?: cfg.currentPhase2EntityId,
-            currentPhase3EntityId = pick { isCurrent(it) && phaseMatch(it, 3) } ?: cfg.currentPhase3EntityId,
-            voltagePhase1EntityId = pick { isVoltage(it) && phaseMatch(it, 1) } ?: pick { isVoltage(it) } ?: cfg.voltagePhase1EntityId,
-            voltagePhase2EntityId = pick { isVoltage(it) && phaseMatch(it, 2) } ?: cfg.voltagePhase2EntityId,
-            voltagePhase3EntityId = pick { isVoltage(it) && phaseMatch(it, 3) } ?: cfg.voltagePhase3EntityId,
-            gridImportEntityId = pick { isEnergy(it) && name(it).contains("import") && !name(it).contains("tariff") } ?: cfg.gridImportEntityId,
-            gridImportTariff1EntityId = pick { isEnergy(it) && name(it).contains("import") && name(it).contains("tariff 1") } ?: cfg.gridImportTariff1EntityId,
-            gridImportTariff2EntityId = pick { isEnergy(it) && name(it).contains("import") && name(it).contains("tariff 2") } ?: cfg.gridImportTariff2EntityId,
-            gridExportEntityId = pick { isEnergy(it) && name(it).contains("export") && !name(it).contains("tariff") } ?: cfg.gridExportEntityId,
-            gridExportTariff1EntityId = pick { isEnergy(it) && name(it).contains("export") && name(it).contains("tariff 1") } ?: cfg.gridExportTariff1EntityId,
-            gridExportTariff2EntityId = pick { isEnergy(it) && name(it).contains("export") && name(it).contains("tariff 2") } ?: cfg.gridExportTariff2EntityId
+            gridPowerEntityId = keep("grid_power", cfg.gridPowerEntityId, gridPowerGuess()),
+            homePowerEntityId = keep("home_power", cfg.homePowerEntityId, pick {
+                isPower(it) && listOf("home", "house", "load").any(name(it)::contains)
+            }),
+            powerPhase1EntityId = keep("phase1", cfg.powerPhase1EntityId, pick { isPower(it) && phaseMatch(it, 1) }),
+            powerPhase2EntityId = keep("phase2", cfg.powerPhase2EntityId, pick { isPower(it) && phaseMatch(it, 2) }),
+            powerPhase3EntityId = keep("phase3", cfg.powerPhase3EntityId, pick { isPower(it) && phaseMatch(it, 3) }),
+            currentPhase1EntityId = keep("current1", cfg.currentPhase1EntityId, pick { isCurrent(it) && phaseMatch(it, 1) } ?: pick { isCurrent(it) }),
+            currentPhase2EntityId = keep("current2", cfg.currentPhase2EntityId, pick { isCurrent(it) && phaseMatch(it, 2) }),
+            currentPhase3EntityId = keep("current3", cfg.currentPhase3EntityId, pick { isCurrent(it) && phaseMatch(it, 3) }),
+            voltagePhase1EntityId = keep("voltage1", cfg.voltagePhase1EntityId, pick { isVoltage(it) && phaseMatch(it, 1) } ?: pick { isVoltage(it) }),
+            voltagePhase2EntityId = keep("voltage2", cfg.voltagePhase2EntityId, pick { isVoltage(it) && phaseMatch(it, 2) }),
+            voltagePhase3EntityId = keep("voltage3", cfg.voltagePhase3EntityId, pick { isVoltage(it) && phaseMatch(it, 3) }),
+            gridImportEntityId = keep("import_kwh", cfg.gridImportEntityId, pick { isEnergy(it) && name(it).contains("import") && !name(it).contains("tariff") }),
+            gridImportTariff1EntityId = keep("import_t1", cfg.gridImportTariff1EntityId, pick { isEnergy(it) && name(it).contains("import") && name(it).contains("tariff 1") }),
+            gridImportTariff2EntityId = keep("import_t2", cfg.gridImportTariff2EntityId, pick { isEnergy(it) && name(it).contains("import") && name(it).contains("tariff 2") }),
+            gridExportEntityId = keep("export_kwh", cfg.gridExportEntityId, pick { isEnergy(it) && name(it).contains("export") && !name(it).contains("tariff") }),
+            gridExportTariff1EntityId = keep("export_t1", cfg.gridExportTariff1EntityId, pick { isEnergy(it) && name(it).contains("export") && name(it).contains("tariff 1") }),
+            gridExportTariff2EntityId = keep("export_t2", cfg.gridExportTariff2EntityId, pick { isEnergy(it) && name(it).contains("export") && name(it).contains("tariff 2") })
         )
         "carbon" -> cfg.copy(
             carbonDeviceId = deviceId,
-            gridCarbonFootprintEntityId = pickCarbon()
+            gridCarbonFootprintEntityId = keep("carbon", cfg.gridCarbonFootprintEntityId, pickCarbon())
         )
         "solar" -> cfg.copy(
             solarDeviceId = deviceId,
-            solarPowerEntityId = pick { isPower(it) && name(it).contains("current") }
+            solarPowerEntityId = keep("solar_power", cfg.solarPowerEntityId, pick { isPower(it) && name(it).contains("current") }
                 ?: pick { isPower(it) && (name(it).contains("production") || name(it).contains("power")) }
-                ?: cfg.solarPowerEntityId,
-            solarEnergyEntityId = pick { isEnergy(it) && name(it).contains("today") } ?: cfg.solarEnergyEntityId,
-            solarLast7DaysEntityId = pick { isEnergy(it) && (name(it).contains("seven") || name(it).contains("7 days")) } ?: cfg.solarLast7DaysEntityId,
-            solarLifetimeEntityId = pick { isEnergy(it) && name(it).contains("lifetime") } ?: cfg.solarLifetimeEntityId
+            ),
+            solarEnergyEntityId = keep("solar_kwh", cfg.solarEnergyEntityId, pick { isEnergy(it) && name(it).contains("today") }),
+            solarLast7DaysEntityId = keep("solar_7d", cfg.solarLast7DaysEntityId, pick { isEnergy(it) && (name(it).contains("seven") || name(it).contains("7 days")) }),
+            solarLifetimeEntityId = keep("solar_lifetime", cfg.solarLifetimeEntityId, pick { isEnergy(it) && name(it).contains("lifetime") })
         )
         "battery" -> cfg.copy(
             batteryDeviceId = deviceId,
-            batteryEntityId = pick { it.deviceClass == "battery" || (unit(it) == "%" && name(it).contains("batter")) } ?: cfg.batteryEntityId,
-            batteryPowerEntityId = pick { isPower(it) } ?: cfg.batteryPowerEntityId
+            batteryEntityId = keep("battery_pct", cfg.batteryEntityId, pick { it.deviceClass == "battery" || (unit(it) == "%" && name(it).contains("batter")) }),
+            batteryPowerEntityId = keep("battery_power", cfg.batteryPowerEntityId, pick { isPower(it) })
         )
         "gas" -> cfg.copy(
             gasDeviceId = deviceId,
-            gasEntityId = pick { it.deviceClass == "gas" }
+            gasEntityId = keep("gas", cfg.gasEntityId, pick { it.deviceClass == "gas" }
                 ?: pick { unit(it).contains("m³") && name(it).contains("gas") }
                 ?: pick { unit(it).contains("m³") }
-                ?: cfg.gasEntityId,
-            gasCurrentEntityId = pick { unit(it).contains("m³/h") } ?: cfg.gasCurrentEntityId
+            ),
+            gasCurrentEntityId = keep("gas_current", cfg.gasCurrentEntityId, pick { unit(it).contains("m³/h") })
         )
         "water" -> cfg.copy(
             waterDeviceId = deviceId,
-            waterEntityId = pick { it.deviceClass == "water" }
+            waterEntityId = keep("water", cfg.waterEntityId, pick { it.deviceClass == "water" }
                 ?: pick { unit(it) == "L" || unit(it).contains("m³") }
-                ?: cfg.waterEntityId,
-            waterCurrentEntityId = pick { unit(it).contains("/min") || unit(it).contains("m³/h") } ?: cfg.waterCurrentEntityId
+            ),
+            waterCurrentEntityId = keep("water_current", cfg.waterCurrentEntityId, pick { unit(it).contains("/min") || unit(it).contains("m³/h") })
         )
         else -> cfg
     }
@@ -2453,6 +2605,9 @@ private fun ColumnScope.EnergySensorSection(
             "water_cost"     -> cfg.copy(waterCostEntityId = id)
             else -> cfg
         }
+        field?.let { role ->
+            cfg = cfg.copy(customizedEntityRoles = cfg.customizedEntityRoles + role)
+        }
         onSave(cfg)
     }
 
@@ -2495,7 +2650,7 @@ private fun ColumnScope.EnergySensorSection(
                             else -> cfg
                         }
                     } else {
-                        autoMapDeviceEntities(cat, id, entityRegistry, deviceRegistry, allEntities, cfg)
+                        autoMapDeviceEntities(cat, id, entityRegistry, allEntities, cfg)
                     }
                     onSave(cfg)
                 }

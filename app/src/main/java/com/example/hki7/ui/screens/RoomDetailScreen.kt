@@ -177,22 +177,25 @@ import com.example.hki7.data.HKIWeatherWidget
 import com.example.hki7.ui.components.DevicePickerDialog
 import androidx.compose.animation.core.tween
 import com.example.hki7.ui.MainViewModel
+import com.example.hki7.ui.resolveRoomMediaStatus
+import com.example.hki7.ui.resolveRoomStatus
+import com.example.hki7.ui.roomMediaPlayerIds
 import com.example.hki7.ui.Screen
 import com.example.hki7.ui.components.AdvancedEntitySearchDialog
+import com.example.hki7.ui.components.VacuumWidgetSetupDialog
 import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.EntityCard
 import com.example.hki7.ui.components.EditRemoveBadge
 import com.example.hki7.ui.components.EditSettingsButton
 import com.example.hki7.ui.components.fadingEdges
-import com.example.hki7.ui.components.mediaPlayerStatus
 import com.example.hki7.ui.components.mediaPlayerStateIcon
 import com.example.hki7.ui.components.defaultEntityIconSlug
 import com.example.hki7.ui.components.coverAccentColor
 import com.example.hki7.ui.components.entityStateIconColor
 import com.example.hki7.ui.components.HKIDialog
 import com.example.hki7.ui.components.HKIPage
+import com.example.hki7.ui.components.RoomStatusIndicators
 import com.example.hki7.ui.components.GradientActionButton
-import com.example.hki7.ui.components.surfaceGradient
 import com.example.hki7.ui.components.LocalItemCornerRadius
 import com.example.hki7.ui.components.itemCornerShape
 import com.example.hki7.ui.components.withGlobalCornerRadius
@@ -467,11 +470,12 @@ fun RoomDetailScreen(
         stackType = "weather"
     )
     fun newEmptyStack() = HKIEmptyStack(id = UUID.randomUUID().toString())
-    fun newSingleEntityWidget(kind: String, entityId: String) = HKISingleEntityWidget(
+    fun newSingleEntityWidget(kind: String, entityId: String, config: HKIButtonConfig = HKIButtonConfig()) = HKISingleEntityWidget(
         id = UUID.randomUUID().toString(),
         entityId = entityId,
         kind = kind,
-        isSquare = kind != "camera"
+        isSquare = kind != "camera",
+        config = config
     )
     fun newCalendarWidget(entityIds: List<String>) = HKICalendarWidget(
         id = UUID.randomUUID().toString(),
@@ -780,16 +784,43 @@ fun RoomDetailScreen(
             ) { openEntityFromSingleWidget(it, widget.kind) }
         }
     }
-    val mediaPlayerEntity = areaConfig.mediaPlayerEntityId?.let { id -> allEntities.find { it.entity_id == id } }
+    val mediaPlayerIds = remember(areaConfig) { areaConfig.roomMediaPlayerIds() }
+    val mediaPlayers = remember(mediaPlayerIds, allEntities) {
+        val byId = allEntities.associateBy(HAEntity::entity_id)
+        mediaPlayerIds.map { id -> byId[id] ?: HAEntity(entity_id = id, state = "unavailable") }
+    }
+    val mediaSummary = remember(mediaPlayers) { resolveRoomMediaStatus(mediaPlayers) }
+    val roomSummary = remember(areaConfig, allEntities) {
+        resolveRoomStatus(areaConfig, allEntities)
+    }
     HKIPage(
         viewModel = viewModel,
         areaId = areaId,
         title = areaConfig.name ?: area?.name ?: "Room",
-        subtitle = mediaPlayerStatus(mediaPlayerEntity) ?: "Room Details",
-        subtitleIcon = mediaPlayerStateIcon(mediaPlayerEntity),
+        subtitle = mediaSummary.text ?: "Room Details",
+        subtitleIcon = mediaPlayerStateIcon(mediaSummary.representative),
         backgroundImage = if (!areaConfig.headerColor.isNullOrBlank()) null else areaConfig.wallpaper ?: area?.picture,
         headerColor = areaConfig.headerColor,
         onBack = { navController.popBackStack() },
+        headerTrailingContent = if (roomSummary.indicators.isNotEmpty()) {
+            { color ->
+                RoomStatusIndicators(
+                    summary = roomSummary,
+                    contentColor = color,
+                    compact = false
+                )
+            }
+        } else null,
+        headerBottomContent = roomSummary.environmentText?.let { environment ->
+            { color ->
+                Text(
+                    text = environment,
+                    color = color,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        },
         navController = navController
     ) { padding ->
         BoxWithConstraints(modifier = Modifier.fillMaxSize().padding(padding)) {
@@ -1711,16 +1742,38 @@ fun RoomDetailScreen(
     }
 
     pendingSingleWidgetKind?.let { kind ->
+        if (kind == "vacuum") {
+            VacuumWidgetSetupDialog(
+                allEntities = allEntities,
+                entityRegistry = entityRegistry,
+                deviceRegistry = deviceRegistry,
+                onDismiss = {
+                    val containerId = pendingSingleWidgetContainerId
+                    pendingSingleWidgetKind = null
+                    pendingSingleWidgetContainerId = null
+                    if (containerId == null) showAddWidgetDialog = true else addingToSwipingStackId = containerId
+                },
+                onSelected = { entityId, config ->
+                    val containerId = pendingSingleWidgetContainerId
+                    if (containerId == null) {
+                        viewModel.addSingleEntityWidgetToArea(areaId, kind, entityId, config)
+                    } else {
+                        addChildToSwipingStack(containerId, newSingleEntityWidget(kind, entityId, config))
+                    }
+                    pendingSingleWidgetKind = null
+                    pendingSingleWidgetContainerId = null
+                }
+            )
+            return@let
+        }
         val candidates = when (kind) {
             "camera" -> allEntities.filter { it.entity_id.substringBefore(".").equals("camera", ignoreCase = true) }
-            "vacuum" -> allEntities.filter { it.entity_id.startsWith("vacuum.") }
             else -> allEntities
         }
         AdvancedEntitySearchDialog(
             allEntities = candidates,
             title = when (kind) {
                 "camera" -> "Select Camera"
-                "vacuum" -> "Select Vacuum"
                 else -> "Select Entity"
             },
             singleSelect = true,
@@ -3463,7 +3516,7 @@ fun PagedRoleDialog(
             ?: entity.attributes?.get("hvac_mode")?.jsonPrimitive?.contentOrNull
             ?: entity.state
     )
-    // Keep the dialog control tied to the exact same state colour used by entity cards,
+    // Keep the dialog control tied to the exact same state color used by entity cards,
     // badges, and custom dialog buttons. This is especially visible for lock dialogs opened
     // from a custom action: locked/unlocked/open must stay green/orange/red respectively.
     val entityStateTone = entityStateIconColor(entity)
@@ -3949,7 +4002,6 @@ fun ButtonStackItem(
     onReorderEntities: (Int, Int) -> Unit,
     onManageOrder: () -> Unit = {}
 ) {
-    val appColors = LocalHKIAppColors.current
     if (stack.isHidden && !isEditMode) return
     // An unconfigured (empty) stack is only useful in edit mode; hide it entirely otherwise.
     if (stack.entityIds.isEmpty() && !isEditMode) return
@@ -5059,7 +5111,6 @@ private fun CameraStackCard(
     onRemoveEntity: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val appColors = LocalHKIAppColors.current
     var mediaReady by remember(source.id, isEditMode) { mutableStateOf(false) }
     LaunchedEffect(source.id, isEditMode) {
         // Let the grid finish its first layout before image decoders/WebViews compete for CPU, and

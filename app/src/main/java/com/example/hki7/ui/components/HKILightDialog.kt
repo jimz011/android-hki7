@@ -36,7 +36,7 @@ fun HKILightDialog(
     val supportsBrightness = entity.supportsBrightness
     val supportsColorTemp = entity.supportsColorTemp
     val supportsColor = entity.supportsColor
-    // Reflect the light's real colour (rgb / colour-temp) for the header icon and brightness slider.
+    // Reflect the light's real color (RGB / color temperature) for the header icon and brightness slider.
     val lightAccent = lightStateColor(entity) ?: Color(0xFFFFA500)
     val effects = entity.effectList
     val supportsEffects = effects.isNotEmpty()

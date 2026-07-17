@@ -125,9 +125,20 @@ class HomeAssistantClient(
         }
     }
 
+    /** Registry lists must fail loudly. Treating a command error as an empty list lets a degraded
+     *  response be imported as a dashboard with no rooms — and the onboarding takeover would then
+     *  freeze that empty result permanently. */
+    private fun requireCommandSuccess(response: JsonObject, command: String): JsonObject {
+        if (response["success"]?.jsonPrimitive?.booleanOrNull == false) {
+            val message = response["error"]?.jsonObject?.get("message")?.jsonPrimitive?.contentOrNull
+            throw Exception("$command failed: ${message ?: "unknown error"}")
+        }
+        return response
+    }
+
     suspend fun getAreas(): List<HAArea> {
         return withWebSocket {
-            val response = sendCommand("config/area_registry/list")
+            val response = requireCommandSuccess(sendCommand("config/area_registry/list"), "config/area_registry/list")
             val result = response["result"]?.jsonArray ?: return@withWebSocket emptyList()
             json.decodeFromJsonElement(ListSerializer(HAArea.serializer()), result)
         }
@@ -135,7 +146,7 @@ class HomeAssistantClient(
 
     suspend fun getFloors(): List<HAFloor> {
         return withWebSocket {
-            val response = sendCommand("config/floor_registry/list")
+            val response = requireCommandSuccess(sendCommand("config/floor_registry/list"), "config/floor_registry/list")
             val result = response["result"]?.jsonArray ?: return@withWebSocket emptyList()
             json.decodeFromJsonElement(ListSerializer(HAFloor.serializer()), result)
         }
@@ -143,7 +154,7 @@ class HomeAssistantClient(
 
     suspend fun getEntityRegistry(): List<HAEntityRegistryEntry> {
         return withWebSocket {
-            val response = sendCommand("config/entity_registry/list")
+            val response = requireCommandSuccess(sendCommand("config/entity_registry/list"), "config/entity_registry/list")
             val result = response["result"]?.jsonArray ?: return@withWebSocket emptyList()
             json.decodeFromJsonElement(ListSerializer(HAEntityRegistryEntry.serializer()), result)
         }
@@ -169,7 +180,7 @@ class HomeAssistantClient(
 
     suspend fun getDeviceRegistry(): List<HADeviceRegistryEntry> {
         return withWebSocket {
-            val response = sendCommand("config/device_registry/list")
+            val response = requireCommandSuccess(sendCommand("config/device_registry/list"), "config/device_registry/list")
             val result = response["result"]?.jsonArray ?: return@withWebSocket emptyList()
             json.decodeFromJsonElement(ListSerializer(HADeviceRegistryEntry.serializer()), result)
         }
@@ -241,7 +252,7 @@ class HomeAssistantClient(
         val duration = sequenceOf(
             item["duration"], item["media_duration"], item["duration_seconds"],
             metadata?.get("duration"), metadata?.get("media_duration"), metadata?.get("duration_seconds")
-        ).mapNotNull(::durationValue).firstOrNull()
+        ).firstNotNullOfOrNull(::durationValue)
             ?: durationValue(item["duration_ms"] ?: metadata?.get("duration_ms"))?.div(1000.0)
 
         return HAMediaBrowseItem(

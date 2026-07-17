@@ -255,10 +255,10 @@ data class HAFloor(
     val name: String,
     val level: Int? = null,
     val icon: String? = null,
-    val columns: Int = 2,
+    val columns: Int = 1,
     val isSquare: Boolean = false,
     val cornerRadius: Int = 24,
-    val compactTiles: Boolean = false,
+    val compactTiles: Boolean = true,
     val width: String = "full"   // "full" | "half" — size of every room card on this floor
 )
 
@@ -460,6 +460,10 @@ data class HKIAreaConfig(
     val blindEntityId: String? = null,
     val name: String? = null,
     val mediaPlayerEntityId: String? = null,
+    /** Media players associated with this room. Supersedes the singular legacy field. */
+    val mediaPlayerEntityIds: List<String> = emptyList(),
+    /** True after the user changes the room's automatically discovered media-player sources. */
+    val mediaPlayersCustomized: Boolean = false,
     val icon: String? = null,
     val wallpaper: String? = null,
     val headerColor: String? = null,
@@ -472,7 +476,19 @@ data class HKIAreaConfig(
     val climateIcon: String? = null,
     val cameraIcon: String? = null,
     val blindIcon: String? = null,
-    val badgeBar: HKIBadgeBarConfig? = null
+    val badgeBar: HKIBadgeBarConfig? = null,
+    /** Entities used for the active-state summary on room cards and room headers, keyed by role. */
+    val roomStatusEntityIds: Map<String, List<String>> = emptyMap(),
+    /** Legacy single source for the room's current temperature. */
+    val roomTemperatureEntityId: String? = null,
+    /** Legacy single source for the room's current humidity. */
+    val roomHumidityEntityId: String? = null,
+    /** Sources averaged for the room's current temperature. Supersedes the singular legacy field. */
+    val roomTemperatureEntityIds: List<String> = emptyList(),
+    /** Sources averaged for the room's current humidity. Supersedes the singular legacy field. */
+    val roomHumidityEntityIds: List<String> = emptyList(),
+    /** True after a user changes any of the automatically discovered room sources. */
+    val roomEntitiesCustomized: Boolean = false
 )
 
 /** A configurable tap/hold/double-tap action. Modelled on Home Assistant's action config: it can
@@ -705,7 +721,9 @@ data class HKIEnergyConfig(
     val batteryDeviceId: String? = null,
     val carbonDeviceId: String? = null,
     val gasDeviceId: String? = null,
-    val waterDeviceId: String? = null
+    val waterDeviceId: String? = null,
+    /** Energy sensor roles explicitly changed by the user; source-device guesses must preserve them. */
+    val customizedEntityRoles: Set<String> = emptySet()
 )
 
 @Serializable

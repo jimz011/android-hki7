@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -667,7 +666,6 @@ private fun BadgeItem(
     onHold: () -> Unit,
     onRemove: () -> Unit
 ) {
-    val appColors = LocalHKIAppColors.current
     val isCircle = badge.shape == "circle"
     val shape    = if (isCircle) CircleShape else itemCornerShape()
     val sizeMod  = if (isCircle) Modifier.size(36.dp) else Modifier.height(36.dp)
@@ -702,7 +700,7 @@ private fun BadgeItem(
 
     // Outer Box: badge content + edit-mode overlays
     Box {
-        // Background-derived depth gradient (two shades of the badge's own fill, no icon colour).
+        // Background-derived depth gradient (two shades of the badge's own fill, no icon color).
         Surface(
             shape = shape,
             color = Color.Transparent,

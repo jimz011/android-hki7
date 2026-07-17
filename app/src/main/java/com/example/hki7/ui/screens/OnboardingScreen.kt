@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -138,12 +139,20 @@ private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit
     ) {
         Text("Welcome to HKI 7", style = MaterialTheme.typography.headlineMedium, color = colors.onSurface)
         Text(
-            "This app can fetch your entities automatically and will attempt to build a UI for your setup.\n\n" +
-                "For auto filling the UI to work you must create Areas in Home Assistant and fill them with the correct entities. You should also set up an energy dashboard in Home Assistant so this app can fetch energy entities automatically.\n\n" +
-                "After auto generation, the dashboard will no longer import new devices or rooms. You can add new entities manually or re-import rooms, climate, security, or energy entities.\n\n" +
-                "To get started, select an option below:",
+            "This app can fetch your entities automatically and will attempt to build a dashboard for your setup.\n\n" +
+                "For auto filling the UI to work you must create areas in Home Assistant and fill the areas with entities that are within those areas. You should also set up an energy dashboard in Home Assistant so this app can fetch energy entities automatically. Anything else like the climate, security, alarm, weather and battery views are generated fully automatically without any user intervention needed.\n\n" +
+                "It is impossible to know each and every setup, so auto generation might not be sufficient for your needs, though you can simply edit the dashboard afterwards via HKI 7's edit mode to add or delete items/buttons etc.\n\n" +
+                "After auto generation, the dashboard will no longer import new devices, entities or rooms! However if you desire you can re-import from Home Assistant per view if you would ever need that again.\n\n" +
+                "If you prefer to build the entire UI yourself, then this is absolutely possible. Every view can be setup manually. If you want an empty dashboard, you should choose start empty below.\n\n" +
+                "Note: The homepage will start empty and you should add widgets to this page yourself.",
             color = colors.onMuted,
             style = MaterialTheme.typography.bodyLarge
+        )
+        Text(
+            "To get started, select an option below:",
+            color = colors.onMuted,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold
         )
         Button(onClick = { finish(true) }, enabled = !saving, modifier = Modifier.fillMaxWidth().height(54.dp)) {
             Text("Auto Generate")
