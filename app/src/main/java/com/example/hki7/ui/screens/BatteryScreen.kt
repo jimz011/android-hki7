@@ -38,6 +38,7 @@ import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HAEntityRegistryEntry
 import com.example.hki7.data.HKIBatteryCardWidget
 import com.example.hki7.data.HKIBatteryConfig
+import com.example.hki7.data.isBatteryPercentageSensor
 import androidx.navigation.NavController
 import com.example.hki7.data.HKIPageConfig
 import com.example.hki7.ui.MainViewModel
@@ -111,19 +112,6 @@ private fun HAEntity.batteryLevel(): Int? =
         ?.toInt()
         ?.coerceIn(0, 100)
 
-private fun HAEntity.unit(): String =
-    attr("unit_of_measurement").orEmpty()
-
-private fun HAEntity.isBatteryLevelSensor(): Boolean {
-    if (!entity_id.startsWith("sensor.")) return false
-    val stateValue = state.toFloatOrNull()
-    val unavailable = state.equals("unknown", true) || state.equals("unavailable", true)
-    val looksLikeLevel = deviceClass == "battery" || unit() == "%"
-    if (!looksLikeLevel) return false
-    if (stateValue != null) return stateValue in 0f..100f
-    return unavailable && deviceClass == "battery"
-}
-
 private fun HAEntity.isBatteryMetadataEntity(): Boolean {
     if (!entity_id.startsWith("sensor.")) return false
     val haystack = "${entity_id} ${friendlyName.orEmpty()}".lowercase(Locale.getDefault())
@@ -160,11 +148,9 @@ private fun HAEntity.batterySignaturePart(): String {
     return "$entity_id|$state|${icon.orEmpty()}|${deviceClass.orEmpty()}|$attrs"
 }
 
-private fun batteryInputSet(entities: List<HAEntity>, manualEntityIds: Set<String> = emptySet()): BatteryInputSet {
+private fun batteryInputSet(entities: List<HAEntity>): BatteryInputSet {
     val relevant = entities.filter { entity ->
-        entity.isBatteryLevelSensor() ||
-            entity.isBatteryMetadataEntity() ||
-            (entity.entity_id in manualEntityIds && entity.entity_id.startsWith("sensor.") && entity.batteryLevel() != null)
+        entity.isBatteryPercentageSensor() || entity.isBatteryMetadataEntity()
     }
     return BatteryInputSet(
         signature = relevant.joinToString(separator = "\n") { it.batterySignaturePart() },
@@ -252,8 +238,7 @@ private fun batteryEntities(
     val entitiesByDevice = registry.groupBy { it.device_id }
     return entities.asSequence()
         .filter { e ->
-            (!manualOnly && e.isBatteryLevelSensor()) ||
-                (e.entity_id in manualEntityIds && e.entity_id.startsWith("sensor.") && e.batteryLevel() != null)
+            e.isBatteryPercentageSensor() && (!manualOnly || e.entity_id in manualEntityIds)
         }
         .map { entity ->
             val entry = registryById[entity.entity_id]
@@ -323,17 +308,14 @@ fun BatteryScreen(
             .map { it.entity_id })
             .toSet()
     }
-    val batteryEntityFlow = remember(viewModel, manualEntityIds) {
-        val selectorKey = "battery:${manualEntityIds.sorted().joinToString(",")}"
-        viewModel.entitiesMatching(selectorKey) { entity ->
-            entity.isBatteryLevelSensor() ||
-                entity.isBatteryMetadataEntity() ||
-                (entity.entity_id in manualEntityIds && entity.entity_id.startsWith("sensor.") && entity.batteryLevel() != null)
+    val batteryEntityFlow = remember(viewModel) {
+        viewModel.entitiesMatching("battery:strict") { entity ->
+            entity.isBatteryPercentageSensor() || entity.isBatteryMetadataEntity()
         }
     }
     val batteryEntities by batteryEntityFlow.collectAsState()
-    val batteryInputs = remember(batteryEntities, manualEntityIds) {
-        batteryInputSet(batteryEntities, manualEntityIds)
+    val batteryInputs = remember(batteryEntities) {
+        batteryInputSet(batteryEntities)
     }
     val batteries = remember(
         batteryInputs.signature,
@@ -384,7 +366,10 @@ fun BatteryScreen(
     var showClearBattery by remember { mutableStateOf(false) }
     val batteryImportSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
         "Re-import" to { _ ->
-            Text("Fetch battery entities from Home Assistant again.", color = LocalHKIAppColors.current.onMuted)
+            Text(
+                "Import sensors with device_class battery and unit_of_measurement %.",
+                color = LocalHKIAppColors.current.onMuted
+            )
             Button(onClick = { showBatteryReimport = true }, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.CloudDownload, null); Spacer(Modifier.width(8.dp)); Text("Re-import Batteries")
             }
@@ -396,7 +381,12 @@ fun BatteryScreen(
         AlertDialog(
             onDismissRequest = { showBatteryReimport = false },
             title = { Text("Re-import batteries") },
-            text = { Text("Import battery entities that have not been edited, or remove all battery edits and import from scratch.") },
+            text = {
+                Text(
+                    "Only percentage sensors classified by Home Assistant as batteries are imported. " +
+                        "Keep existing edits, or remove all battery edits and import from scratch."
+                )
+            },
             confirmButton = { Column(horizontalAlignment = Alignment.End) {
                 Button(onClick = { viewModel.reimportBattery(false); showBatteryReimport = false }) { Text("Import unedited") }
                 TextButton(onClick = { viewModel.reimportBattery(true); showBatteryReimport = false }) {
@@ -520,12 +510,9 @@ fun BatteryCardWidgetItem(
             .map { it.entity_id })
             .toSet()
     }
-    val batteryEntityFlow = remember(viewModel, manualEntityIds) {
-        val selectorKey = "battery:widget:${manualEntityIds.sorted().joinToString(",")}"
-        viewModel.entitiesMatching(selectorKey) { entity ->
-            entity.isBatteryLevelSensor() ||
-                entity.isBatteryMetadataEntity() ||
-                (entity.entity_id in manualEntityIds && entity.entity_id.startsWith("sensor.") && entity.batteryLevel() != null)
+    val batteryEntityFlow = remember(viewModel) {
+        viewModel.entitiesMatching("battery:widget:strict") { entity ->
+            entity.isBatteryPercentageSensor() || entity.isBatteryMetadataEntity()
         }
     }
     val allEntities by batteryEntityFlow.collectAsState()
@@ -540,7 +527,14 @@ fun BatteryCardWidgetItem(
         manualEntityIds
     ) {
         value = withContext(Dispatchers.Default) {
-            val batteries = batteryEntities(allEntities, registry, devices, widget.useBatteryNotes, manualEntityIds)
+            val batteries = batteryEntities(
+                allEntities,
+                registry,
+                devices,
+                widget.useBatteryNotes,
+                manualEntityIds,
+                batteryConfig.manualOnly
+            )
                 .filterNot { it.entity.entity_id in batteryConfig.hiddenEntityIds }
             BatteryWidgetSummary(
                 lowCount = batteries.count { (it.level ?: 101) <= widget.lowThreshold },
@@ -960,7 +954,7 @@ private fun BatterySettingsSection(
     var showDevicePicker by remember { mutableStateOf(false) }
     var showClearConfirmation by remember { mutableStateOf(false) }
     val batteryCandidates = remember(allEntities) {
-        allEntities.filter { it.isBatteryLevelSensor() || (it.entity_id.startsWith("sensor.") && it.batteryLevel() != null) }
+        allEntities.filter { it.isBatteryPercentageSensor() }
     }
     val deviceNames = remember(devices) {
         devices.associate { it.id to (it.name_by_user ?: it.name ?: it.id) }
@@ -1025,7 +1019,7 @@ private fun BatterySettingsSection(
     Text("${batteries.size} battery entities visible", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     Text(
         if (config.manualOnly) "Manual configuration: only selected entities and devices are shown."
-        else "Automatic configuration: discovered battery entities are included.",
+        else "Automatic configuration: only battery-class percentage sensors are included.",
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )

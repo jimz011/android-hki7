@@ -26,9 +26,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BatterySaver
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DashboardCustomize
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
@@ -119,46 +121,225 @@ fun OnboardingScreen(prefs: PreferencesManager, startAtLogin: Boolean = false, o
 private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit) {
     val colors = LocalHKIAppColors.current
     val scope = rememberCoroutineScope()
-    var saving by remember { mutableStateOf(false) }
+    var savingMode by remember { mutableStateOf<Boolean?>(null) }
     fun finish(auto: Boolean) {
-        if (saving) return
-        saving = true
+        if (savingMode != null) return
+        savingMode = auto
         scope.launch {
             prefs.configureInitialDashboard(auto)
             onComplete()
         }
     }
-    Column(
+    Box(
         Modifier
             .fillMaxSize()
-            .background(colors.background)
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                        colors.background,
+                        colors.background
+                    )
+                )
+            )
             .windowInsetsPadding(WindowInsets.safeDrawing)
-            .padding(horizontal = 24.dp, vertical = 16.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Text("Welcome to HKI 7", style = MaterialTheme.typography.headlineMedium, color = colors.onSurface)
-        Text(
-            "This app can fetch your entities automatically and will attempt to build a dashboard for your setup.\n\n" +
-                "For auto filling the UI to work you must create areas in Home Assistant and fill the areas with entities that are within those areas. You should also set up an energy dashboard in Home Assistant so this app can fetch energy entities automatically. Anything else like the climate, security, alarm, weather and battery views are generated fully automatically without any user intervention needed.\n\n" +
-                "It is impossible to know each and every setup, so auto generation might not be sufficient for your needs, though you can simply edit the dashboard afterwards via HKI 7's edit mode to add or delete items/buttons etc.\n\n" +
-                "After auto generation, the dashboard will no longer import new devices, entities or rooms! However if you desire you can re-import from Home Assistant per view if you would ever need that again.\n\n" +
-                "If you prefer to build the entire UI yourself, then this is absolutely possible. Every view can be setup manually. If you want an empty dashboard, you should choose start empty below.\n\n" +
-                "Note: The homepage will start empty and you should add widgets to this page yourself.",
-            color = colors.onMuted,
-            style = MaterialTheme.typography.bodyLarge
-        )
-        Text(
-            "To get started, select an option below:",
-            color = colors.onMuted,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold
-        )
-        Button(onClick = { finish(true) }, enabled = !saving, modifier = Modifier.fillMaxWidth().height(54.dp)) {
-            Text("Auto Generate")
+        Surface(
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.96f).widthIn(max = 560.dp),
+            shape = RoundedCornerShape(32.dp),
+            color = colors.surface,
+            tonalElevation = 10.dp,
+            shadowElevation = 20.dp
+        ) {
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                                colors.surface,
+                                colors.surface
+                            )
+                        )
+                    )
+                    .verticalScroll(rememberScrollState())
+                    .padding(24.dp)
+            ) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        modifier = Modifier.size(52.dp),
+                        shape = RoundedCornerShape(18.dp),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.17f)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                Icons.Default.DashboardCustomize,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(27.dp)
+                            )
+                        }
+                    }
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = colors.subtleSurface
+                    ) {
+                        Text(
+                            "FINAL STEP",
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            color = colors.onMuted,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+                Spacer(Modifier.height(18.dp))
+                Text(
+                    "Choose your starting point",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = colors.onSurface
+                )
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    "Both options stay fully editable. Pick the one that gets you closest to the dashboard you want.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = colors.onMuted
+                )
+                Spacer(Modifier.height(22.dp))
+
+                DashboardChoiceCard(
+                    title = "Auto generate",
+                    subtitle = "Let HKI 7 create the first version for you.",
+                    icon = Icons.Default.AutoAwesome,
+                    recommended = true,
+                    bullets = listOf(
+                        "Creates rooms and floors from Home Assistant areas",
+                        "Finds suitable Climate, Security, Energy and Battery entities",
+                        "Everything can be changed afterward in Edit mode"
+                    ),
+                    buttonText = if (savingMode == true) "Building dashboard…" else "Auto generate",
+                    enabled = savingMode == null,
+                    onClick = { finish(true) }
+                )
+                Spacer(Modifier.height(12.dp))
+                DashboardChoiceCard(
+                    title = "Start empty",
+                    subtitle = "Build the interface entirely your way.",
+                    icon = Icons.Default.DashboardCustomize,
+                    recommended = false,
+                    bullets = listOf(
+                        "Starts without imported rooms, widgets or view entities",
+                        "Add everything yourself using Edit mode"
+                    ),
+                    buttonText = if (savingMode == false) "Preparing dashboard…" else "Start empty",
+                    enabled = savingMode == null,
+                    onClick = { finish(false) }
+                )
+                Spacer(Modifier.height(14.dp))
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    color = colors.subtleSurface
+                ) {
+                    Text(
+                        "Auto generation is a one-time starting point. The Home page starts empty in either mode, and you can re-import Home Assistant data later from individual views.",
+                        modifier = Modifier.padding(14.dp),
+                        color = colors.onMuted,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
         }
-        OutlinedButton(onClick = { finish(false) }, enabled = !saving, modifier = Modifier.fillMaxWidth().height(54.dp)) {
-            Text("Start Empty")
+    }
+}
+
+@Composable
+private fun DashboardChoiceCard(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    recommended: Boolean,
+    bullets: List<String>,
+    buttonText: String,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    val colors = LocalHKIAppColors.current
+    val accent = MaterialTheme.colorScheme.primary
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(22.dp),
+        color = if (recommended) accent.copy(alpha = 0.10f) else colors.subtleSurface,
+        border = if (recommended) androidx.compose.foundation.BorderStroke(1.dp, accent.copy(alpha = 0.32f)) else null
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Surface(
+                    modifier = Modifier.size(44.dp),
+                    shape = RoundedCornerShape(15.dp),
+                    color = if (recommended) accent.copy(alpha = 0.20f) else colors.surface
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(23.dp))
+                    }
+                }
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = colors.onSurface)
+                        if (recommended) {
+                            Spacer(Modifier.width(8.dp))
+                            Surface(shape = RoundedCornerShape(9.dp), color = accent.copy(alpha = 0.18f)) {
+                                Text(
+                                    "RECOMMENDED",
+                                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = accent
+                                )
+                            }
+                        }
+                    }
+                    Text(subtitle, style = MaterialTheme.typography.bodySmall, color = colors.onMuted)
+                }
+            }
+            Spacer(Modifier.height(14.dp))
+            bullets.forEach { bullet ->
+                Row(Modifier.padding(vertical = 3.dp), verticalAlignment = Alignment.Top) {
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = null,
+                        tint = accent,
+                        modifier = Modifier.padding(top = 1.dp).size(17.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(bullet, style = MaterialTheme.typography.bodySmall, color = colors.onMuted, modifier = Modifier.weight(1f))
+                }
+            }
+            Spacer(Modifier.height(14.dp))
+            if (recommended) {
+                Button(
+                    onClick = onClick,
+                    enabled = enabled,
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) { Text(buttonText, fontWeight = FontWeight.Bold) }
+            } else {
+                OutlinedButton(
+                    onClick = onClick,
+                    enabled = enabled,
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) { Text(buttonText, fontWeight = FontWeight.Bold) }
+            }
         }
     }
 }
@@ -393,6 +574,39 @@ private fun LoginStep(serverUrl: String, prefs: PreferencesManager, onBack: () -
     var authInProgress by remember { mutableStateOf(false) }
     val authUrl = "${serverUrl.removeSuffix("/")}/auth/authorize?client_id=${URLEncoder.encode("https://home-assistant.io/android", "UTF-8")}&redirect_uri=${URLEncoder.encode("homeassistant://auth-callback", "UTF-8")}"
 
+    fun handleAuthCallback(rawUrl: String?): Boolean {
+        val callbackUri = rawUrl?.let { runCatching { Uri.parse(it) }.getOrNull() } ?: return false
+        if (!callbackUri.scheme.equals("homeassistant", ignoreCase = true) ||
+            !callbackUri.host.equals("auth-callback", ignoreCase = true)
+        ) return false
+
+        val code = callbackUri.getQueryParameter("code")
+        val callbackError = callbackUri.getQueryParameter("error_description")
+            ?: callbackUri.getQueryParameter("error")
+        if (callbackError != null) {
+            errorMessage = "Login failed: $callbackError"
+        } else if (code != null && !authInProgress) {
+            authInProgress = true
+            errorMessage = null
+            scope.launch {
+                try {
+                    val response = HomeAssistantClient.getAccessToken(serverUrl, code)
+                    prefs.saveConnectionDetails(serverUrl, response.access_token, response.refresh_token, response.expires_in)
+                    val appCtx = context.applicationContext
+                    LocationWork.schedule(appCtx)
+                    LocationWork.syncNow(appCtx)
+                    onLoggedIn()
+                } catch (e: Exception) {
+                    errorMessage = "Login failed: ${e.message}"
+                    authInProgress = false
+                }
+            }
+        } else if (code == null) {
+            errorMessage = "Login failed: Home Assistant returned no authorization code."
+        }
+        return true
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         AndroidView(
             factory = { ctx ->
@@ -402,6 +616,7 @@ private fun LoginStep(serverUrl: String, prefs: PreferencesManager, onBack: () -
                     settings.userAgentString = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
                     webViewClient = object : WebViewClient() {
                         override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                            if (handleAuthCallback(request?.url?.toString())) return true
                             val url = request?.url?.toString() ?: ""
                             if (url.startsWith("homeassistant://auth-callback")) {
                                 val code = request?.url?.getQueryParameter("code")
@@ -433,22 +648,46 @@ private fun LoginStep(serverUrl: String, prefs: PreferencesManager, onBack: () -
                             }
                             return false
                         }
+
+                        @Suppress("DEPRECATION")
+                        override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                            return handleAuthCallback(url)
+                        }
+
+                        override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
+                            // Some WebView versions skip shouldOverrideUrlLoading for a custom
+                            // scheme in a redirect chain. Catch it before HA treats the callback as
+                            // a server URL and displays "Unable to fetch auth providers".
+                            if (handleAuthCallback(url)) view?.stopLoading()
+                        }
                     }
                     loadUrl(authUrl)
                 }
             },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            onRelease = {
+                it.stopLoading()
+                it.loadUrl("about:blank")
+                it.destroy()
+            }
         )
         IconButton(
             onClick = onBack,
-            modifier = Modifier.align(Alignment.TopEnd).padding(16.dp),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+                .padding(16.dp)
+                .size(48.dp),
             colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Black.copy(alpha = 0.5f))
         ) {
             Icon(Icons.Default.Close, contentDescription = "Back", tint = Color.White)
         }
         errorMessage?.let { msg ->
             Surface(
-                modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .windowInsetsPadding(WindowInsets.safeDrawing)
+                    .padding(16.dp),
                 shape = RoundedCornerShape(12.dp),
                 color = MaterialTheme.colorScheme.errorContainer
             ) {

@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import android.content.Context
 import com.example.hki7.data.*
 import com.example.hki7.ui.screens.isAutoSecurityEntityFor
+import com.example.hki7.ui.screens.isAutoClimateSensorFor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -46,6 +47,18 @@ enum class ConnectionStatus {
     IDLE, CONNECTING, CONNECTED, ERROR
 }
 
+/** A route change often produces one or two failures while Android's new transport settles. Keep
+ * those failures in the non-blocking banner state; the actionable error overlay is reserved for a
+ * connection that failed three consecutive attempts. */
+internal const val CONNECTION_FAILURES_BEFORE_ERROR = 3
+
+internal fun connectionStatusAfterFailures(failedAttempts: Int): ConnectionStatus =
+    if (failedAttempts < CONNECTION_FAILURES_BEFORE_ERROR) {
+        ConnectionStatus.CONNECTING
+    } else {
+        ConnectionStatus.ERROR
+    }
+
 /** Result of running an [HKIAction]. Side-effecting actions execute in the view model and report
  *  [Handled]; UI-routing actions hand back an outcome the composable resolves. */
 sealed interface ActionOutcome {
@@ -66,6 +79,13 @@ private const val DASHBOARD_REFRESH_INTERVAL_MS = 5 * 60 * 1000L
  *  also re-seeds on every reconnect and on foreground return), so this full re-download only needs to
  *  run rarely to self-heal any silently-missed events — not every minute. */
 private const val STATE_RESEED_INTERVAL_MS = 15 * 60 * 1000L
+
+/** Fast recovery probes after LAN fallback. Failed checks back off and then cap at ten seconds. */
+private val INTERNAL_URL_RETRY_DELAYS_MS = longArrayOf(1_000L, 3_000L, 5_000L, 10_000L)
+private const val INTERNAL_URL_PROBE_TIMEOUT_MS = 4_000L
+
+/** Delays between the two automatic retries that precede the full connection-error overlay. */
+private val CONNECTION_RETRY_DELAYS_MS = longArrayOf(1_000L, 3_000L)
 
 /** How long a fetched weather forecast is served from cache before re-fetching. */
 private const val WEATHER_FORECAST_TTL_MS = 10 * 60 * 1000L
@@ -336,8 +356,11 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private val networkMonitor = appCtx?.let { NetworkMonitor(it) }
     val currentSsid: StateFlow<String?> = networkMonitor?.currentSsid ?: MutableStateFlow(null)
 
+    private data class InternalUrlFallback(val networkGeneration: Long, val failedUrl: String)
+    private val internalUrlFallback = MutableStateFlow<InternalUrlFallback?>(null)
+
     /** The HA base URL to use right now: the internal URL when on a configured home Wi-Fi, else external. */
-    private val activeBaseUrl: Flow<String?> = combine(
+    private val preferredBaseUrl: Flow<String?> = combine(
         prefs.serverUrl,
         prefs.internalUrl,
         prefs.homeSsids,
@@ -345,9 +368,23 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     ) { external, internal, homeSsids, ssid ->
         resolveBaseUrl(external, internal, homeSsids, ssid)
     }
+    private val activeBaseUrl: Flow<String?> = combine(
+        preferredBaseUrl,
+        prefs.serverUrl,
+        networkMonitor?.networkGeneration ?: MutableStateFlow(0L),
+        internalUrlFallback
+    ) { preferred, external, networkGeneration, fallback ->
+        if (fallback?.networkGeneration == networkGeneration &&
+            urlsEqual(fallback.failedUrl, preferred) &&
+            !external.isNullOrBlank()
+        ) external else preferred
+    }
 
     private fun resolveBaseUrl(external: String?, internal: String?, homeSsids: List<String>, ssid: String?): String? =
         resolveHomeAssistantUrl(external, internal, homeSsids, ssid)
+
+    private fun urlsEqual(first: String?, second: String?): Boolean =
+        first?.trim()?.trimEnd('/')?.equals(second?.trim()?.trimEnd('/'), ignoreCase = true) == true
 
     private val _entities = MutableStateFlow<List<HAEntity>>(emptyList())
     val entities: StateFlow<List<HAEntity>> = _entities
@@ -587,6 +624,11 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private val _status = MutableStateFlow(ConnectionStatus.IDLE)
     val status: StateFlow<ConnectionStatus> = _status
 
+    private val _connectionRoute = MutableStateFlow<HomeAssistantConnectionRoute?>(null)
+    val connectionRoute: StateFlow<HomeAssistantConnectionRoute?> = _connectionRoute
+    private val _connectionRouteSwitches = MutableSharedFlow<HomeAssistantConnectionRoute>(extraBufferCapacity = 1)
+    val connectionRouteSwitches: SharedFlow<HomeAssistantConnectionRoute> = _connectionRouteSwitches.asSharedFlow()
+
     private val _currentUrl = MutableStateFlow("")
     val currentUrl: StateFlow<String> = _currentUrl
 
@@ -822,6 +864,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private val pushHandler by lazy { appContext?.let { PushNotificationHandler(it, prefs) } }
     private val realtimeBuffer = java.util.concurrent.ConcurrentHashMap<String, HAStateChange>()
     private var refreshJob: Job? = null
+    private var internalUrlRetryJob: Job? = null
     private var initialAutoGenerationJob: Job? = null
     private var tokenRefreshJob: Job? = null
     private var highAccuracyJob: Job? = null
@@ -850,6 +893,15 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private data class PendingCoverPosition(val position: Int, val expiresAt: Long, val requestedAt: Long)
 
     init {
+        networkMonitor?.let { monitor ->
+            viewModelScope.launch {
+                monitor.networkChangeGeneration.drop(1).collect {
+                    internalUrlFallback.value?.let { fallback ->
+                        if (appVisible) scheduleInternalUrlRetry(fallback, retryImmediately = true)
+                    }
+                }
+            }
+        }
         viewModelScope.launch {
             prefs.ensureDashboardStore()
             val defaultId = prefs.defaultDashboardId.first()
@@ -979,9 +1031,23 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             }
         }
         viewModelScope.launch {
-            combine(activeBaseUrl, prefs.accessToken, prefs.refreshToken, prefs.displayName) { url, token, refresh, name ->
-                HKIAuthSettings(url, token, refresh, name)
+            combine(
+                activeBaseUrl,
+                prefs.accessToken,
+                prefs.refreshToken,
+                prefs.displayName,
+                networkMonitor?.networkGeneration ?: MutableStateFlow(0L)
+            ) { url, token, refresh, name, networkGeneration ->
+                HKIAuthSettings(url, token, refresh, name, networkGeneration)
             }.collect { settings ->
+                internalUrlFallback.value?.let { fallback ->
+                    val configuredInternalUrl = prefs.internalUrl.first()
+                    if (fallback.networkGeneration != settings.networkGeneration ||
+                        !urlsEqual(fallback.failedUrl, configuredInternalUrl)
+                    ) {
+                        clearInternalUrlFallback()
+                    }
+                }
                 _displayName.value = settings.name ?: "User"
                 if (_entities.value.isNotEmpty() && _profilePersonEntityId.value != null) {
                     publishEntities(_entities.value)
@@ -989,10 +1055,11 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 }
                 _currentUrl.value = settings.url ?: ""
                 _accessToken.value = settings.token
-                val connectionKey = "${settings.url}|${settings.token}"
+                val connectionKey = "${settings.url}|${settings.token}|${settings.networkGeneration}"
                 when {
                     settings.url.isNullOrBlank() -> {
                         addLog("Logged out or settings cleared.")
+                        clearInternalUrlFallback()
                         stopSync()
                         tokenRefreshJob?.cancel()
                         tokenRefreshJob = null
@@ -1003,8 +1070,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                             LocationWork.cancel(it)
                             com.example.hki7.data.BackgroundLocationReceiver.unregister(it)
                         }
+                        client?.dispose()
                         client = null
                         activeConnectionKey = null
+                        _connectionRoute.value = null
                         _status.value = ConnectionStatus.IDLE
                         publishEntities(emptyList())
                         pendingEntityStates.clear()
@@ -1018,6 +1087,11 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     }
                     !settings.token.isNullOrBlank() -> {
                         if (activeConnectionKey != connectionKey) {
+                            // A different URL/token or a reconnected Wi-Fi transport invalidates
+                            // requests and WebSockets held by the old client. Close it first so a
+                            // half-open socket cannot leave the UI permanently stale.
+                            stopSync()
+                            client?.dispose()
                             activeConnectionKey = connectionKey
                             addLog("Connecting to ${settings.url}")
                             _status.value = ConnectionStatus.CONNECTING
@@ -1037,12 +1111,30 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                             addLog("Session restore failed. Login is required.")
                         }
                     }
+                    else -> {
+                        // Logout (Keep Config) deliberately leaves the server URL in place but
+                        // removes both tokens. Do not let the previous authenticated client keep
+                        // polling behind the re-login WebView.
+                        stopSync()
+                        clearInternalUrlFallback()
+                        client?.dispose()
+                        client = null
+                        activeConnectionKey = null
+                        _connectionRoute.value = null
+                        _status.value = ConnectionStatus.IDLE
+                    }
                 }
             }
         }
     }
 
-    private data class HKIAuthSettings(val url: String?, val token: String?, val refresh: String?, val name: String?)
+    private data class HKIAuthSettings(
+        val url: String?,
+        val token: String?,
+        val refresh: String?,
+        val name: String?,
+        val networkGeneration: Long
+    )
 
     private fun startSync() {
         startPolling()
@@ -1054,6 +1146,8 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         stopPolling()
         stopRealtimeSync()
         stopPushChannel()
+        refreshJob?.cancel()
+        refreshJob = null
         client?.closeSession()
     }
 
@@ -1145,11 +1239,15 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                         flushSignal.close()
                         flushRealtimeBuffer()
                     }
-                    if (appVisible) _status.value = ConnectionStatus.CONNECTING
+                    if (appVisible && _status.value != ConnectionStatus.ERROR) {
+                        _status.value = ConnectionStatus.CONNECTING
+                    }
                 } catch (e: Exception) {
                     if (e.message == "AUTH_EXPIRED") tryTokenRefresh()
                     else {
-                        if (appVisible) _status.value = ConnectionStatus.CONNECTING
+                        if (appVisible && _status.value != ConnectionStatus.ERROR) {
+                            _status.value = ConnectionStatus.CONNECTING
+                        }
                         addLog("Realtime sync interrupted: ${e.message}")
                     }
                 }
@@ -1204,6 +1302,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         appVisible = visible
         if (visible) {
             if (client != null && realtimeJob?.isActive != true) startSync()
+            internalUrlFallback.value?.let { scheduleInternalUrlRetry(it, retryImmediately = true) }
             viewModelScope.launch {
                 if (prefs.pendingAutoTakeover.first()) completeInitialDashboardSetup()
             }
@@ -1214,6 +1313,8 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             setBatteryMonitoring(true)
             appContext?.let { reportDeviceTelemetry(it) }
         } else {
+            internalUrlRetryJob?.cancel()
+            internalUrlRetryJob = null
             setBatteryMonitoring(false)
             stopSync()
             // Battery parity with the official app: never refresh tokens on a background timer
@@ -1260,23 +1361,121 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         }
     }
 
+    private suspend fun <T> withHaRequestTimeout(
+        label: String,
+        timeoutMs: Long = 10_000L,
+        block: suspend () -> T
+    ): T = withTimeoutOrNull(timeoutMs.milliseconds) { block() }
+            ?: throw java.net.SocketTimeoutException("$label timed out")
+
+    private suspend fun markConnectionEstablished(url: String, connectedClient: HomeAssistantClient) {
+        val route = classifyHomeAssistantConnectionRoute(
+            activeUrl = url,
+            internalUrl = prefs.internalUrl.first(),
+            connectedViaLocalAddress = connectedClient.isConnectedViaLocalAddress() == true
+        )
+        val previous = _connectionRoute.value
+        _connectionRoute.value = route
+        _status.value = ConnectionStatus.CONNECTED
+        if (previous != null && previous != route) _connectionRouteSwitches.tryEmit(route)
+    }
+
+    /** If the selected LAN address cannot answer, use the external/Nabu Casa URL for the rest of
+     *  this Wi-Fi connection. A separate probe periodically switches back once LAN works again. */
+    private suspend fun activateExternalFallback(failedUrl: String): Boolean {
+        val internal = prefs.internalUrl.first()?.takeIf { it.isNotBlank() } ?: return false
+        val external = prefs.serverUrl.first()?.takeIf { it.isNotBlank() } ?: return false
+        if (!urlsEqual(failedUrl, internal) || urlsEqual(internal, external)) return false
+
+        val networkGeneration = networkMonitor?.networkGeneration?.value ?: 0L
+        val fallback = InternalUrlFallback(networkGeneration, failedUrl.trim().trimEnd('/'))
+        if (internalUrlFallback.value != fallback) {
+            addLog("Internal connection failed; falling back to $external")
+            internalUrlFallback.value = fallback
+            scheduleInternalUrlRetry(fallback)
+        } else if (internalUrlRetryJob?.isActive != true) {
+            scheduleInternalUrlRetry(fallback)
+        }
+        return true
+    }
+
+    private fun clearInternalUrlFallback() {
+        internalUrlFallback.value = null
+        internalUrlRetryJob?.cancel()
+        internalUrlRetryJob = null
+    }
+
+    private fun scheduleInternalUrlRetry(
+        fallback: InternalUrlFallback,
+        retryImmediately: Boolean = false
+    ) {
+        internalUrlRetryJob?.cancel()
+        internalUrlRetryJob = viewModelScope.launch(Dispatchers.IO) {
+            var retryIndex = if (retryImmediately) -1 else 0
+            while (currentCoroutineContext().isActive && internalUrlFallback.value == fallback) {
+                val retryDelay = if (retryIndex < 0) 0L else {
+                    INTERNAL_URL_RETRY_DELAYS_MS[retryIndex.coerceAtMost(INTERNAL_URL_RETRY_DELAYS_MS.lastIndex)]
+                }
+                if (retryDelay > 0) delay(retryDelay.milliseconds)
+                retryIndex += 1
+                if (!appVisible || internalUrlFallback.value != fallback) break
+
+                val generation = networkMonitor?.networkGeneration?.value ?: 0L
+                val internal = prefs.internalUrl.first()?.takeIf { it.isNotBlank() }
+                val token = prefs.accessToken.first()?.takeIf { it.isNotBlank() }
+                if (generation != fallback.networkGeneration ||
+                    !urlsEqual(internal, fallback.failedUrl) || token == null
+                ) {
+                    if (internalUrlFallback.value == fallback) internalUrlFallback.value = null
+                    break
+                }
+
+                val probe = HomeAssistantClient(internal!!, token)
+                val reachable = try {
+                    withHaRequestTimeout("Internal connection check", INTERNAL_URL_PROBE_TIMEOUT_MS) {
+                        probe.checkConnection()
+                    }
+                    true
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    false
+                } finally {
+                    probe.dispose()
+                }
+
+                if (reachable && internalUrlFallback.value == fallback) {
+                    addLog("Internal connection restored; switching back to $internal")
+                    internalUrlFallback.value = null
+                    break
+                }
+            }
+        }
+    }
+
     fun refreshEntities(
         isSilent: Boolean = false,
         allowReconnectRetry: Boolean = true,
-        includeDashboardRefresh: Boolean = true
+        includeDashboardRefresh: Boolean = true,
+        failedConnectionAttempts: Int = 0
     ) {
         val now = SystemClock.elapsedRealtime()
-        if (isSilent && refreshJob?.isActive == true) return
+        if (isSilent && failedConnectionAttempts == 0 && refreshJob?.isActive == true) return
         // Run network + JSON parsing + dashboard computation off the UI thread to avoid
         // startup/scroll jank. All state writes below go through thread-safe StateFlow/DataStore.
         refreshJob = viewModelScope.launch(Dispatchers.Default) {
+            val attemptedUrl = _currentUrl.value
+            var baseConnectionEstablished = false
             val currentClient = client ?: rebuildClientFromPrefs() ?: run {
                 if (!isSilent) _status.value = ConnectionStatus.ERROR
                 return@launch
             }
             if (!isSilent) _status.value = ConnectionStatus.CONNECTING
             try {
-                val allEntities = withTimeout(10.seconds) { currentClient.getEntities() }
+                val allEntities = withHaRequestTimeout("Loading Home Assistant states") {
+                    currentClient.getEntities()
+                }
+                baseConnectionEstablished = true
                 val displayEntities = applyPendingEntityStates(allEntities)
                 publishEntities(displayEntities)
                 _people.value = _entities.value.filter { it.entity_id.startsWith("person.") }
@@ -1293,14 +1492,18 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 _weather.value = displayEntities.find { it.entity_id == weatherId } ?: displayEntities.find { it.entity_id.startsWith("weather.") }
                 _weatherForecast.value = _weather.value?.let { weather ->
                     weather.forecast.takeUnless { it.isNullOrEmpty() }
-                        ?: runCatching { withTimeout(10.seconds) { currentClient.getWeatherForecast(weather.entity_id) } }.getOrDefault(emptyList())
+                        ?: runCatching {
+                            withHaRequestTimeout("Loading weather forecast") {
+                                currentClient.getWeatherForecast(weather.entity_id)
+                            }
+                        }.getOrDefault(emptyList())
                 }.orEmpty()
                 if (includeDashboardRefresh && prefs.dashboardMode.first() == "auto") {
                     val (allAreas, allFloors, entityRegistry, deviceRegistry) = coroutineScope {
-                        val areas = async { withTimeout(10.seconds) { currentClient.getAreas() } }
-                        val floors = async { withTimeout(10.seconds) { currentClient.getFloors() } }
-                        val entitiesRegistry = async { withTimeout(10.seconds) { currentClient.getEntityRegistry() } }
-                        val devicesRegistry = async { withTimeout(10.seconds) { currentClient.getDeviceRegistry() } }
+                        val areas = async { withHaRequestTimeout("Loading areas") { currentClient.getAreas() } }
+                        val floors = async { withHaRequestTimeout("Loading floors") { currentClient.getFloors() } }
+                        val entitiesRegistry = async { withHaRequestTimeout("Loading entity registry") { currentClient.getEntityRegistry() } }
+                        val devicesRegistry = async { withHaRequestTimeout("Loading device registry") { currentClient.getDeviceRegistry() } }
                         DashboardRegistrySnapshot(
                             areas.await(), floors.await(), entitiesRegistry.await(), devicesRegistry.await()
                         )
@@ -1308,7 +1511,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     // The user may have selected Start Empty while registry requests were in
                     // flight. Never apply or persist their results after that atomic mode change.
                     if (prefs.dashboardMode.first() != "auto") {
-                        _status.value = ConnectionStatus.CONNECTED
+                        markConnectionEstablished(attemptedUrl, currentClient)
                         return@launch
                     }
                     if (!isCompleteDashboardRegistrySnapshot(allEntities, allAreas, allFloors, entityRegistry, deviceRegistry)) {
@@ -1320,7 +1523,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                                 "(${allAreas.size} areas, ${allFloors.size} floors, " +
                                 "${entityRegistry.size} registry entries, ${deviceRegistry.size} devices)"
                         )
-                        _status.value = ConnectionStatus.CONNECTED
+                        markConnectionEstablished(attemptedUrl, currentClient)
                         return@launch
                     }
                     val savedOrder = prefs.areaOrder.first()
@@ -1351,10 +1554,14 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     }
                     lastDashboardRefreshAt = SystemClock.elapsedRealtime()
                 }
-                _status.value = ConnectionStatus.CONNECTED
+                markConnectionEstablished(attemptedUrl, currentClient)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
+                if (!baseConnectionEstablished && e.message != "AUTH_EXPIRED" && activateExternalFallback(attemptedUrl)) {
+                    _status.value = ConnectionStatus.CONNECTING
+                    return@launch
+                }
                 if (e.message == "AUTH_EXPIRED") {
                     addLog("Session expired. Attempting refresh...")
                     if (tryTokenRefresh()) {
@@ -1366,21 +1573,33 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     if (!isSilent) _status.value = ConnectionStatus.ERROR
                     return@launch
                 }
-                if (!isSilent) {
+                val failureCount = failedConnectionAttempts + 1
+                val failureStatus = connectionStatusAfterFailures(failureCount)
+                _status.value = failureStatus
+                if (allowReconnectRetry && failureStatus == ConnectionStatus.CONNECTING) {
+                    val retryDelay = CONNECTION_RETRY_DELAYS_MS[
+                        (failureCount - 1).coerceIn(0, CONNECTION_RETRY_DELAYS_MS.lastIndex)
+                    ]
+                    addLog(
+                        "Connection attempt $failureCount failed: ${e.message}. " +
+                            "Retrying in ${retryDelay / 1_000}s..."
+                    )
+                    delay(retryDelay.milliseconds)
                     val recoveredClient = rebuildClientFromPrefs()
-                    if (allowReconnectRetry && recoveredClient != null && recoveredClient !== currentClient) {
-                        addLog("Reconnected. Retrying refresh...")
+                    if (recoveredClient != null) {
                         refreshEntities(
-                            isSilent = false,
-                            allowReconnectRetry = false,
-                            includeDashboardRefresh = includeDashboardRefresh
+                            isSilent = isSilent,
+                            allowReconnectRetry = true,
+                            includeDashboardRefresh = includeDashboardRefresh,
+                            failedConnectionAttempts = failureCount
                         )
                     } else {
                         _status.value = ConnectionStatus.ERROR
-                        addLog("Refresh Error: ${e.message}")
+                        addLog("Unable to rebuild the Home Assistant connection.")
                     }
                 } else {
                     _status.value = ConnectionStatus.ERROR
+                    addLog("Refresh failed after $failureCount attempts: ${e.message}")
                 }
             }
         }
@@ -1408,6 +1627,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val tokenUsable = expiry == null || expiry - System.currentTimeMillis() > 60_000L
         if (token != null && tokenUsable) {
             val rebuilt = HomeAssistantClient(url, token)
+            client?.dispose()
             client = rebuilt
             activeConnectionKey = "$url|$token"
             return rebuilt
@@ -1434,6 +1654,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     // Save only the tokens: `url` is the currently *resolved* base URL (internal
                     // when on home Wi-Fi) and must not overwrite the stored external server URL.
                     prefs.saveAuthTokens(response.access_token, response.refresh_token, response.expires_in)
+                    client?.dispose()
                     client = HomeAssistantClient(url, response.access_token)
                     activeConnectionKey = "$url|${response.access_token}"
                     lastTokenRefreshAt = SystemClock.elapsedRealtime()
@@ -2329,6 +2550,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     override fun onCleared() {
+        internalUrlRetryJob?.cancel()
+        stopSync()
+        client?.dispose()
+        client = null
         super.onCleared()
         setBatteryMonitoring(false)
     }
@@ -2708,6 +2933,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val current = _pageConfigsMapping.value["climate"] ?: HKIPageConfig()
         val old = if (fromScratch) HKIClimateConfig() else current.climateConfig ?: HKIClimateConfig()
         val all = _entities.value
+        val registryById = _entityRegistry.value.associateBy { it.entity_id }
         val sensorClasses = mapOf(
             "temperature" to setOf("temperature"), "humidity" to setOf("humidity"),
             "pressure" to setOf("pressure", "atmospheric_pressure"), "co2" to setOf("carbon_dioxide", "co2"),
@@ -2719,7 +2945,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             extraHumidifierIds = (old.extraHumidifierIds + all.filter { it.entity_id.startsWith("humidifier.") }.map { it.entity_id }).distinct(),
             extraFanIds = (old.extraFanIds + all.filter { it.entity_id.startsWith("fan.") }.map { it.entity_id }).distinct(),
             extraSensorIds = sensorClasses.mapValues { (key, classes) ->
-                (old.extraSensorIds[key].orEmpty() + all.filter { it.entity_id.startsWith("sensor.") && it.deviceClass in classes }.map { it.entity_id }).distinct()
+                (old.extraSensorIds[key].orEmpty() + all.filter {
+                    it.deviceClass in classes && it.isAutoClimateSensorFor(key, registryById[it.entity_id])
+                }.map { it.entity_id }).distinct()
             }
         )
         updatePageConfig("climate", current.copy(climateConfig = config))
@@ -2762,15 +2990,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     fun reimportBattery(fromScratch: Boolean) {
         val current = _pageConfigsMapping.value["battery"] ?: HKIPageConfig()
         val old = if (fromScratch) HKIBatteryConfig() else current.batteryConfig ?: HKIBatteryConfig()
-        val imported = _entities.value.filter { entity ->
-            entity.entity_id.startsWith("sensor.") && (
-                entity.deviceClass == "battery" ||
-                    entity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull == "%"
-            )
-        }.map { it.entity_id }
+        val imported = _entities.value.filter { it.isBatteryPercentageSensor() }.map { it.entity_id }
         updatePageConfig(
             "battery",
-            current.copy(batteryConfig = old.copy(manualOnly = true, extraEntityIds = (old.extraEntityIds + imported).distinct()))
+            current.copy(batteryConfig = old.copy(manualOnly = true, extraEntityIds = imported.distinct()))
         )
     }
 
@@ -2787,6 +3010,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     )
 
     private suspend fun freezeAutoGeneratedEntityViews(allEntities: List<HAEntity>) {
+        val registryById = _entityRegistry.value.associateBy { it.entity_id }
         val climateGroups = listOf(
             "temperature" to setOf("temperature"),
             "humidity" to setOf("humidity"),
@@ -2800,7 +3024,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             extraHumidifierIds = allEntities.filter { it.entity_id.startsWith("humidifier.") }.map { it.entity_id },
             extraFanIds = allEntities.filter { it.entity_id.startsWith("fan.") }.map { it.entity_id },
             extraSensorIds = climateGroups.associate { (key, classes) ->
-                key to allEntities.filter { it.entity_id.startsWith("sensor.") && it.deviceClass in classes }.map { it.entity_id }
+                key to allEntities.filter {
+                    it.deviceClass in classes && it.isAutoClimateSensorFor(key, registryById[it.entity_id])
+                }.map { it.entity_id }
             }
         )
         val securityKeys = listOf("doors", "windows", "garage", "locks", "motion", "presence", "safety", "alarms", "cameras")
@@ -2808,11 +3034,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             manualOnly = true,
             extraEntityIds = securityKeys.associateWith { key -> allEntities.filter { it.isAutoSecurityEntityFor(key) }.map { it.entity_id } }
         )
-        val batteryIds = allEntities.filter { entity ->
-            entity.entity_id.startsWith("sensor.") && (
-                entity.deviceClass == "battery" || entity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull == "%"
-            )
-        }.map { it.entity_id }
+        val batteryIds = allEntities.filter { it.isBatteryPercentageSensor() }.map { it.entity_id }
         val updated = _pageConfigsMapping.value.toMutableMap().apply {
             this["climate"] = (this["climate"] ?: HKIPageConfig()).copy(climateConfig = climate)
             this["security"] = (this["security"] ?: HKIPageConfig()).copy(securityConfig = security)

@@ -121,6 +121,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -2308,15 +2309,13 @@ fun RoomDetailScreen(
     if (selectedCameraId != null && selectedCameraStack != null) {
         val entity = allEntities.find { it.entity_id == selectedCameraId }
         val config = selectedCameraStack!!.buttonConfigs[selectedCameraId]
-        val refreshInterval = config?.cameraRefreshInterval ?: 5
         val fallbackEntityUrl = if (selectedCameraId?.startsWith("camera.") == true) {
-            val path = if (refreshInterval == 0) "camera_proxy_stream" else "camera_proxy"
-            "${currentUrl.removeSuffix("/")}/api/$path/$selectedCameraId"
+            "${currentUrl.removeSuffix("/")}/api/camera_proxy_stream/$selectedCameraId"
         } else {
             null
         }
         val streamUrl = config?.cameraUrl?.takeIf { it.isNotBlank() }
-            ?: resolveEntityCameraUrl(entity, currentUrl, preferLive = refreshInterval == 0)
+            ?: resolveEntityCameraUrl(entity, currentUrl, preferLive = true)
             ?: fallbackEntityUrl
         val label = config?.name ?: entity?.friendlyName ?: selectedCameraId ?: "Camera"
         val liveWebUrl = when {
@@ -2324,16 +2323,25 @@ fun RoomDetailScreen(
             fallbackEntityUrl != null -> fallbackEntityUrl
             else -> buildWebRtcApiUrl(config?.cameraUrl, currentUrl)
         }
+        val cameraIds = selectedCameraStack!!.entityIds
+        val cameraIndex = cameraIds.indexOf(selectedCameraId)
+        val hasCameraNavigation = cameraIds.size > 1 && cameraIndex >= 0
 
         HKICameraDialog(
             title = label,
-            imageUrl = buildCameraRefreshModel(resolveCameraUrl(streamUrl, currentUrl), refreshInterval, 0),
-            refreshIntervalSeconds = refreshInterval,
+            imageUrl = resolveCameraUrl(streamUrl, currentUrl),
             liveWebUrl = liveWebUrl,
             authToken = accessToken,
             statusText = "Live",
             entity = entity,
             viewModel = viewModel,
+            onPrevious = if (hasCameraNavigation) {
+                { selectedCameraId = cameraIds[(cameraIndex - 1 + cameraIds.size) % cameraIds.size] }
+            } else null,
+            onNext = if (hasCameraNavigation) {
+                { selectedCameraId = cameraIds[(cameraIndex + 1) % cameraIds.size] }
+            } else null,
+            positionText = if (hasCameraNavigation) "${cameraIndex + 1} / ${cameraIds.size}" else null,
             onDismiss = { selectedCameraId = null; selectedCameraStack = null }
         )
     }
@@ -2471,7 +2479,6 @@ fun RoomDetailScreen(
         HKICameraDialog(
             title = entity.friendlyName ?: entity.entity_id,
             imageUrl = buildCameraRefreshModel(streamUrl, 0, 0),
-            refreshIntervalSeconds = 0,
             liveWebUrl = streamUrl,
             authToken = accessToken,
             statusText = "Live",
@@ -5111,6 +5118,8 @@ private fun CameraStackCard(
     onRemoveEntity: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val currentOnEntityClick by rememberUpdatedState(onEntityClick)
+    val currentSourceId by rememberUpdatedState(source.id)
     var mediaReady by remember(source.id, isEditMode) { mutableStateOf(false) }
     LaunchedEffect(source.id, isEditMode) {
         // Let the grid finish its first layout before image decoders/WebViews compete for CPU, and
@@ -5155,6 +5164,10 @@ private fun CameraStackCard(
                     modifier = Modifier.fillMaxSize(),
                     factory = { context ->
                         WebView(context).apply {
+                            val touchSlop = android.view.ViewConfiguration.get(context).scaledTouchSlop
+                            var downX = 0f
+                            var downY = 0f
+                            var tapCandidate = false
                             settings.javaScriptEnabled = true
                             settings.domStorageEnabled = true
                             settings.cacheMode = WebSettings.LOAD_DEFAULT
@@ -5167,12 +5180,30 @@ private fun CameraStackCard(
                             settings.displayZoomControls = false
                             setOnTouchListener { view, event ->
                                 when (event.actionMasked) {
-                                    android.view.MotionEvent.ACTION_POINTER_DOWN -> view.parent?.requestDisallowInterceptTouchEvent(true)
+                                    android.view.MotionEvent.ACTION_DOWN -> {
+                                        downX = event.x
+                                        downY = event.y
+                                        tapCandidate = true
+                                    }
+                                    android.view.MotionEvent.ACTION_MOVE -> {
+                                        if (kotlin.math.abs(event.x - downX) > touchSlop ||
+                                            kotlin.math.abs(event.y - downY) > touchSlop
+                                        ) tapCandidate = false
+                                    }
+                                    android.view.MotionEvent.ACTION_POINTER_DOWN -> {
+                                        tapCandidate = false
+                                        view.parent?.requestDisallowInterceptTouchEvent(true)
+                                    }
                                     android.view.MotionEvent.ACTION_UP -> {
                                         view.parent?.requestDisallowInterceptTouchEvent(false)
                                         view.performClick()
+                                        if (tapCandidate) currentOnEntityClick(currentSourceId)
+                                        tapCandidate = false
                                     }
-                                    android.view.MotionEvent.ACTION_CANCEL -> view.parent?.requestDisallowInterceptTouchEvent(false)
+                                    android.view.MotionEvent.ACTION_CANCEL -> {
+                                        tapCandidate = false
+                                        view.parent?.requestDisallowInterceptTouchEvent(false)
+                                    }
                                 }
                                 false
                             }
@@ -5197,7 +5228,11 @@ private fun CameraStackCard(
                     }
                 )
             } else if (displayedModel != null) {
-                ZoomableCameraImage(displayedModel, source.label)
+                ZoomableCameraImage(
+                    imageUrl = displayedModel,
+                    contentDescription = source.label,
+                    onTap = { if (!isEditMode) currentOnEntityClick(currentSourceId) }
+                )
             } else {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("No Stream Available", color = Color.Gray)

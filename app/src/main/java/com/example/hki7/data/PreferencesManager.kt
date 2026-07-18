@@ -140,6 +140,7 @@ class PreferencesManager(private val context: Context) {
     private val activeDashboardIdKey = stringPreferencesKey("active_dashboard_id")
     private val defaultDashboardIdKey = stringPreferencesKey("default_dashboard_id")
     private val pendingAutoTakeoverKey = booleanPreferencesKey("pending_auto_takeover")
+    private val quickStartGuidePendingKey = booleanPreferencesKey("quick_start_guide_pending")
     private val cloudBackupEnabledKey = booleanPreferencesKey("cloud_backup_enabled")
 
     val serverUrl: Flow<String?> = context.dataStore.data.map { it[serverUrlKey] }
@@ -160,6 +161,7 @@ class PreferencesManager(private val context: Context) {
     val activeDashboardId: Flow<String?> = context.dataStore.data.map { it[activeDashboardIdKey] }
     val defaultDashboardId: Flow<String?> = context.dataStore.data.map { it[defaultDashboardIdKey] }
     val pendingAutoTakeover: Flow<Boolean> = context.dataStore.data.map { it[pendingAutoTakeoverKey] ?: false }
+    val quickStartGuidePending: Flow<Boolean> = context.dataStore.data.map { it[quickStartGuidePendingKey] ?: false }
     val cloudBackupEnabled: Flow<Boolean> = context.dataStore.data.map { it[cloudBackupEnabledKey] ?: false }
 
     suspend fun saveCloudBackup(enabled: Boolean) {
@@ -411,6 +413,7 @@ class PreferencesManager(private val context: Context) {
         context.dataStore.edit { p ->
             p[dashboardModeKey] = "manual"
             p.remove(pendingAutoTakeoverKey)
+            p.remove(quickStartGuidePendingKey)
         }
     }
 
@@ -427,6 +430,7 @@ class PreferencesManager(private val context: Context) {
             val pageConfigs = if (autoGenerate) emptyMap() else manualOnlyPageConfigs()
             p[pageConfigsKey] = appJson.encodeToString(pageConfigs)
             if (autoGenerate) p[pendingAutoTakeoverKey] = true else p.remove(pendingAutoTakeoverKey)
+            p[quickStartGuidePendingKey] = true
 
             val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
             val activeId = p[activeDashboardIdKey] ?: dashboards.firstOrNull()?.id ?: UUID.randomUUID().toString()
@@ -438,6 +442,12 @@ class PreferencesManager(private val context: Context) {
             p[activeDashboardIdKey] = activeId
             p[defaultDashboardIdKey] = activeId
         }
+    }
+
+    /** Marks the post-onboarding gesture guide as acknowledged. Authentication-only logout keeps
+     * this preference; a full reset clears it along with the rest of DataStore. */
+    suspend fun acknowledgeQuickStartGuide() {
+        context.dataStore.edit { it.remove(quickStartGuidePendingKey) }
     }
 
     /** Migrates the original single dashboard in place, without changing what is currently loaded. */
@@ -646,11 +656,33 @@ class PreferencesManager(private val context: Context) {
     suspend fun saveMobileAppSensorsRegistered(webhookId: String) {
         context.dataStore.edit { it[mobileAppSensorsWebhookIdKey] = webhookId }
     }
-    suspend fun saveMobileAppRegistration(webhookId: String, cloudhookUrl: String?, registeredUrl: String) {
+    suspend fun saveMobileAppRegistration(
+        webhookId: String,
+        cloudhookUrl: String?,
+        remoteUiUrl: String?,
+        registeredUrl: String
+    ) {
         context.dataStore.edit { preferences ->
             preferences[mobileAppWebhookIdKey] = webhookId
             if (cloudhookUrl.isNullOrBlank()) preferences.remove(mobileAppCloudhookUrlKey) else preferences[mobileAppCloudhookUrlKey] = cloudhookUrl
-            preferences[mobileAppRegisteredUrlKey] = registeredUrl
+
+            val remote = remoteUiUrl?.trim()?.removeSuffix("/")?.takeIf { it.isNotBlank() }
+            val registered = registeredUrl.trim().removeSuffix("/")
+            val currentPrimary = preferences[serverUrlKey]?.trim()?.removeSuffix("/")
+
+            // Home Assistant Cloud returns its Nabu Casa Remote UI address during mobile_app
+            // registration. Adopt it as the stable external URL, while retaining a LAN address for
+            // optional SSID-based internal switching. This is the same local-discovery -> cloud-URL
+            // handoff used by companion apps and avoids asking the user to copy the cloud URL.
+            if (remote != null && currentPrimary.equals(registered, ignoreCase = true)) {
+                if (!remote.equals(registered, ignoreCase = true) && isLikelyLocalHomeAssistantUrl(registered)) {
+                    preferences[internalUrlKey] = registered
+                }
+                preferences[serverUrlKey] = remote
+                preferences[mobileAppRegisteredUrlKey] = remote
+            } else {
+                preferences[mobileAppRegisteredUrlKey] = registered
+            }
         }
     }
     suspend fun saveThemeColor(theme: String) { context.dataStore.edit { it[themeColorKey] = theme } }

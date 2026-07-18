@@ -84,12 +84,10 @@ private val securityGroups = listOf(
         domains = setOf("cover")),
     SecurityGroup("locks", "Locks", "Door and gate locks", Icons.Default.Lock, PresencePurple,
         domains = setOf("lock")),
-    SecurityGroup("motion", "Motion", "Motion and vibration detection", Icons.AutoMirrored.Filled.DirectionsWalk, WarningOrange,
-        deviceClasses = setOf("motion", "moving", "vibration")),
-    SecurityGroup("occupancy", "Occupancy", "Occupancy sensors", Icons.Default.SensorOccupied, PresencePurple,
+    SecurityGroup("motion", "Motion", "Motion detection", Icons.AutoMirrored.Filled.DirectionsWalk, WarningOrange,
+        deviceClasses = setOf("motion")),
+    SecurityGroup("presence", "Presence", "Occupancy sensors", Icons.Default.SensorOccupied, PresencePurple,
         deviceClasses = setOf("occupancy")),
-    SecurityGroup("presence", "Presence", "People and presence trackers", Icons.Default.Person, PresencePurple,
-        domains = setOf("person", "device_tracker")),
     SecurityGroup("fire", "Fire & temperature", "Fire, heat, cold and safety alarms", Icons.Default.LocalFireDepartment, AlertRed,
         deviceClasses = setOf("heat", "cold", "safety")),
     SecurityGroup("smoke", "Smoke", "Smoke detectors", Icons.Default.SmokeFree, AlertRed,
@@ -297,7 +295,14 @@ fun SecurityScreen(viewModel: MainViewModel) {
         val claimed = mutableSetOf<String>()
         securityGroups.associate { group ->
             val automatic = if (config.manualOnly) emptyList() else entities.filter { it.isAutoSecurityEntityFor(group.key) }
-            val manual = config.extraEntityIds[group.key].orEmpty().mapNotNull(byId::get)
+            // `occupancy` was a separate group in older configs. Fold those saved manual imports
+            // into Presence now that Presence is defined exclusively as device_class=occupancy.
+            val manualIds = if (group.key == "presence") {
+                config.extraEntityIds[group.key].orEmpty() + config.extraEntityIds["occupancy"].orEmpty()
+            } else {
+                config.extraEntityIds[group.key].orEmpty()
+            }
+            val manual = manualIds.mapNotNull(byId::get)
             group.key to (automatic + manual).distinctBy { it.entity_id }
                 .filterNot { it.entity_id in hidden || it.entity_id in claimed }
                 .securityOrder(config.entityOrder)
@@ -1476,10 +1481,8 @@ private fun SecurityCameraCard(entity: HAEntity, viewModel: MainViewModel, curre
         onReorderEntities = { _, _ -> }
     )
     if (dialog) {
-        val interval = config?.cameraRefreshInterval ?: 5
-        val image = resolveEntityCameraUrl(entity, currentUrl, preferLive = interval == 0)
-        val live = if (interval == 0) resolveEntityCameraUrl(entity, currentUrl, preferLive = true) else null
-        HKICameraDialog(config?.name ?: entity.friendlyName ?: entity.entity_id, image, refreshIntervalSeconds = interval,
+        val live = resolveEntityCameraUrl(entity, currentUrl, preferLive = true)
+        HKICameraDialog(config?.name ?: entity.friendlyName ?: entity.entity_id, live,
             liveWebUrl = live, authToken = accessToken, entity = entity, viewModel = viewModel, onDismiss = { dialog = false })
     }
 }

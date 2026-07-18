@@ -468,8 +468,9 @@ fun EnergyScreen(viewModel: MainViewModel) {
     }
     val usagePosLayers = remember(importEnergySeries, consumedSolarSeries, importId, solarEnergyId) {
         buildList {
-            if (importId != null) add(Triple("Imported", importEnergySeries, ElecBlue))
+            // Self-consumed solar is the base of total consumption, starting at the zero line.
             if (solarEnergyId != null) add(Triple("Consumed solar", consumedSolarSeries, SolarAmber))
+            if (importId != null) add(Triple("Imported", importEnergySeries, ElecBlue))
         }
     }
     val usageNegLayers = remember(exportEnergySeries, exportId) {
@@ -2092,21 +2093,37 @@ private fun EnergyStackedBarChart(
                         selected == i -> 1f
                         else -> 0.30f
                     }
+                    val positiveSegments = positives.mapNotNull { (_, values, color) ->
+                        ((values[i] / span) * ch).takeIf { it > 0f }?.let { it to color.copy(alpha = alpha) }
+                    }
                     var yUp = zeroY
-                    positives.forEach { (_, values, color) ->
-                        val h = (values[i] / span) * ch
-                        if (h > 0f) {
-                            drawRoundRect(color.copy(alpha = alpha), Offset(x, yUp - h), Size(barW, h), corner)
-                            yUp -= h
+                    positiveSegments.forEachIndexed { index, (h, color) ->
+                        val top = yUp - h
+                        if (index == positiveSegments.lastIndex) {
+                            // Round only the exposed top. Refill the lower corner area so the join
+                            // to the segment below (or the zero line) is perfectly flush.
+                            drawRoundRect(color, Offset(x, top), Size(barW, h), corner)
+                            val seamHeight = minOf(h, corner.y)
+                            drawRect(color, Offset(x, yUp - seamHeight), Size(barW, seamHeight))
+                        } else {
+                            drawRect(color, Offset(x, top), Size(barW, h))
                         }
+                        yUp = top
+                    }
+                    val negativeSegments = negatives.mapNotNull { (_, values, color) ->
+                        ((values[i] / span) * ch).takeIf { it > 0f }?.let { it to color.copy(alpha = alpha) }
                     }
                     var yDown = zeroY
-                    negatives.forEach { (_, values, color) ->
-                        val h = (values[i] / span) * ch
-                        if (h > 0f) {
-                            drawRoundRect(color.copy(alpha = alpha), Offset(x, yDown), Size(barW, h), corner)
-                            yDown += h
+                    negativeSegments.forEachIndexed { index, (h, color) ->
+                        if (index == negativeSegments.lastIndex) {
+                            // Mirror the positive bar: only the exposed bottom remains rounded.
+                            drawRoundRect(color, Offset(x, yDown), Size(barW, h), corner)
+                            val seamHeight = minOf(h, corner.y)
+                            drawRect(color, Offset(x, yDown), Size(barW, seamHeight))
+                        } else {
+                            drawRect(color, Offset(x, yDown), Size(barW, h))
                         }
+                        yDown += h
                     }
                 }
                 selected?.let { i ->
@@ -3326,12 +3343,12 @@ fun EnergyCardWidgetView(
                 val exportSeries = changes(exportId)
                 val solarSeries = changes(solarEnergyId)
                 val pos = buildList {
-                    if (importId != null) add(Triple("Imported", changes(importId), ElecBlue))
                     if (solarEnergyId != null) add(Triple(
                         "Consumed solar",
                         FloatArray(window.buckets) { (solarSeries[it] - exportSeries[it]).coerceAtLeast(0f) },
                         SolarAmber
                     ))
+                    if (importId != null) add(Triple("Imported", changes(importId), ElecBlue))
                 }
                 val neg = if (exportId != null) listOf(Triple("Exported", exportSeries, BattPurple)) else emptyList()
                 if (pos.isNotEmpty() || neg.isNotEmpty()) {

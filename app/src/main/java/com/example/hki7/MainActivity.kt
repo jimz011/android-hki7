@@ -58,12 +58,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.hki7.data.HomeAssistantConnectionRoute
 import com.example.hki7.data.PreferencesManager
 import com.example.hki7.data.withDisplayName
 import com.example.hki7.ui.ConnectionStatus
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.NavBarConfig
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import com.example.hki7.ui.Screen
 import com.example.hki7.ui.components.HKIBottomBar
@@ -75,6 +77,10 @@ import com.example.hki7.ui.components.itemCornerShape
 import com.example.hki7.ui.utils.MdiIcon
 import com.example.hki7.ui.components.NotificationPanel
 import com.example.hki7.ui.components.NotificationBannerHost
+import com.example.hki7.ui.components.QuickStartGuideDialog
+import com.example.hki7.ui.components.CameraFullscreenHost
+import com.example.hki7.ui.components.CameraFullscreenRequest
+import com.example.hki7.ui.components.LocalCameraFullscreenLauncher
 import com.example.hki7.ui.screens.*
 import com.example.hki7.ui.theme.HKI7Theme
 import com.example.hki7.ui.theme.LocalHKIAppColors
@@ -224,6 +230,8 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     val navController = rememberNavController()
     val appColors = LocalHKIAppColors.current
     val appCtx = LocalContext.current.applicationContext
+    val quickStartGuidePending by prefs.quickStartGuidePending.collectAsState(initial = false)
+    val quickStartScope = rememberCoroutineScope()
     val viewModel: MainViewModel = sharedViewModel ?: viewModel(factory = object : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
@@ -237,6 +245,14 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     val connectionStatus by viewModel.status.collectAsState()
     var hasConnectedOnce by remember { mutableStateOf(false) }
     LaunchedEffect(connectionStatus) { if (connectionStatus == ConnectionStatus.CONNECTED) hasConnectedOnce = true }
+    var switchedConnectionRoute by remember { mutableStateOf<HomeAssistantConnectionRoute?>(null) }
+    LaunchedEffect(viewModel) {
+        viewModel.connectionRouteSwitches.collectLatest { route ->
+            switchedConnectionRoute = route
+            delay(4_000)
+            if (switchedConnectionRoute == route) switchedConnectionRoute = null
+        }
+    }
     // Mini media player: any playing/paused media_player shows a swipeable bar above the nav bar.
     // Custom names and per-player visibility come from Settings → Appearance → Media Players.
     val currentUrl by viewModel.currentUrl.collectAsState()
@@ -256,6 +272,16 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     // Transient: swipe the media bar down to tuck it away; swipe up from the nav bar to bring it back.
     var mediaBarDismissed by remember { mutableStateOf(false) }
     var mediaBarRevealGeneration by remember { mutableIntStateOf(0) }
+    var fullscreenCamera by remember { mutableStateOf<CameraFullscreenRequest?>(null) }
+    val launchFullscreenCamera = remember {
+        { request: CameraFullscreenRequest -> fullscreenCamera = request }
+    }
+
+    if (quickStartGuidePending) {
+        QuickStartGuideDialog(
+            onComplete = { quickStartScope.launch { prefs.acknowledgeQuickStartGuide() } }
+        )
+    }
     val mediaBarPlaybackKey = activeMediaPlayers.joinToString(separator = "|") { player ->
         val mediaMetadata = player.attributes?.entries
             ?.asSequence()
@@ -344,7 +370,8 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     val edgeStripTopPx = with(density) { 56.dp.toPx() }
     val edgeStripHeightPx = with(density) { 200.dp.toPx() }
     androidx.compose.runtime.CompositionLocalProvider(
-        com.example.hki7.ui.components.LocalOpenNotifications provides { drawerScope.launch { drawerState.open() } }
+        com.example.hki7.ui.components.LocalOpenNotifications provides { drawerScope.launch { drawerState.open() } },
+        LocalCameraFullscreenLauncher provides launchFullscreenCamera
     ) {
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -454,8 +481,17 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         val configuration = androidx.compose.ui.platform.LocalConfiguration.current
         val navBarScrollable = !isEditMode && (configuration.screenWidthDp - 64) < screens.size * 64
         Column(modifier = Modifier.align(Alignment.BottomCenter)) {
-        if (showConnectionBar && !isEditMode) {
-            HomeAssistantConnectionBar(connectionStatus, Modifier.padding(start = 20.dp, end = 20.dp, bottom = 6.dp))
+        if (!isEditMode) {
+            when {
+                showConnectionBar -> HomeAssistantConnectionBar(
+                    connectionStatus,
+                    Modifier.padding(start = 20.dp, end = 20.dp, bottom = 6.dp)
+                )
+                switchedConnectionRoute != null -> HomeAssistantConnectionSwitchBar(
+                    switchedConnectionRoute!!,
+                    Modifier.padding(start = 20.dp, end = 20.dp, bottom = 6.dp)
+                )
+            }
         }
         AnimatedVisibility(
             visible = activeMediaPlayers.isNotEmpty() && !isEditMode && !mediaBarDismissed,
@@ -619,6 +655,11 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         if (connectionStatus == ConnectionStatus.ERROR) {
             ConnectionErrorOverlay(viewModel)
         }
+
+        CameraFullscreenHost(
+            request = fullscreenCamera,
+            onDismiss = { fullscreenCamera = null }
+        )
     }
     }
     }
@@ -723,6 +764,42 @@ private fun HomeAssistantConnectionBar(status: ConnectionStatus, modifier: Modif
                 Text(
                     label,
                     color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun HomeAssistantConnectionSwitchBar(
+    route: HomeAssistantConnectionRoute,
+    modifier: Modifier = Modifier
+) {
+    val appColors = LocalHKIAppColors.current
+    Surface(
+        modifier = modifier.fillMaxWidth().height(56.dp),
+        shape = itemCornerShape(),
+        color = appColors.surface.copy(alpha = .96f),
+        shadowElevation = 8.dp
+    ) {
+        Row(
+            Modifier.padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(
+                Icons.Default.CheckCircle,
+                contentDescription = null,
+                tint = Color(0xFF6AC36A),
+                modifier = Modifier.size(24.dp)
+            )
+            Column {
+                Text("Home Assistant", color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
+                Text(
+                    "Connection switched to ${route.displayName}",
+                    color = Color(0xFF6AC36A),
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1
                 )

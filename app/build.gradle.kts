@@ -12,8 +12,8 @@ android {
         applicationId = "com.example.hki7"
         minSdk = 34
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 5
+        versionName = "1.0.0-alpha-05"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

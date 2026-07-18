@@ -144,13 +144,28 @@ class SecuritySceneStateTest {
     }
 
     @Test
-    fun `persons and trackers auto-discover as presence without a device class`() {
+    fun `only occupancy binary sensors auto-discover as presence`() {
         val person = entity("person.alex", "home")
         val tracker = entity("device_tracker.alex_phone", "home")
+        val occupancy = entity("binary_sensor.office_occupied", "on", deviceClass = "occupancy")
+        val legacyPresence = entity("binary_sensor.legacy_presence", "on", deviceClass = "presence")
 
-        assertTrue(person.isAutoSecurityEntityFor("presence"))
-        assertTrue(tracker.isAutoSecurityEntityFor("presence"))
+        assertTrue(occupancy.isAutoSecurityEntityFor("presence"))
+        assertFalse(person.isAutoSecurityEntityFor("presence"))
+        assertFalse(tracker.isAutoSecurityEntityFor("presence"))
+        assertFalse(legacyPresence.isAutoSecurityEntityFor("presence"))
         assertFalse(person.isAutoSecurityEntityFor("motion"))
+    }
+
+    @Test
+    fun `security auto-discovery uses exact requested classes and domains`() {
+        assertTrue(entity("binary_sensor.front_door", "off", deviceClass = "door").isAutoSecurityEntityFor("doors"))
+        assertFalse(entity("binary_sensor.garage", "off", deviceClass = "garage_door").isAutoSecurityEntityFor("doors"))
+        assertTrue(entity("binary_sensor.bedroom_window", "off", deviceClass = "window").isAutoSecurityEntityFor("windows"))
+        assertTrue(entity("binary_sensor.hall_motion", "off", deviceClass = "motion").isAutoSecurityEntityFor("motion"))
+        assertFalse(entity("binary_sensor.washer_moving", "off", deviceClass = "moving").isAutoSecurityEntityFor("motion"))
+        assertTrue(entity("lock.front_door", "locked").isAutoSecurityEntityFor("locks"))
+        assertFalse(entity("binary_sensor.front_door_lock", "off", deviceClass = "lock").isAutoSecurityEntityFor("locks"))
     }
 
     @Test

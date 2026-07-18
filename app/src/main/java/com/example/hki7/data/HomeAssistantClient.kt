@@ -64,6 +64,8 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import java.net.InetAddress
+import java.net.InetSocketAddress
 import kotlin.math.abs
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -73,6 +75,7 @@ class HomeAssistantClient(
     private val accessToken: String
 ) {
     private val baseUrl = serverUrl.removeSuffix("/")
+    @Volatile private var connectedAddress: InetAddress? = null
     private val json = Json {
         ignoreUnknownKeys = true
         coerceInputValues = true
@@ -102,6 +105,12 @@ class HomeAssistantClient(
         engine {
             config {
                 pingInterval(30, java.util.concurrent.TimeUnit.SECONDS)
+                eventListener(object : okhttp3.EventListener() {
+                    override fun connectionAcquired(call: okhttp3.Call, connection: okhttp3.Connection) {
+                        connectedAddress =
+                            (connection.socket().remoteSocketAddress as? InetSocketAddress)?.address
+                    }
+                })
             }
         }
     }
@@ -124,6 +133,21 @@ class HomeAssistantClient(
             json.decodeFromString(ListSerializer(HAEntity.serializer()), responseText)
         }
     }
+
+    /** Lightweight authenticated probe used when deciding whether a local URL is reachable again. */
+    suspend fun checkConnection() {
+        withAuthHandling {
+            val response = client.get("$baseUrl/api/") {
+                header(HttpHeaders.Authorization, "Bearer $accessToken")
+            }
+            if (!response.status.isSuccess()) {
+                throw Exception("Connection check failed: HTTP ${response.status.value}")
+            }
+        }
+    }
+
+    /** Whether the socket that served this client is connected to a private/link-local address. */
+    fun isConnectedViaLocalAddress(): Boolean? = connectedAddress?.let(::isLocalNetworkAddress)
 
     /** Registry lists must fail loudly. Treating a command error as an empty list lets a degraded
      *  response be imported as a dashboard with no rooms — and the onboarding takeover would then
@@ -623,6 +647,12 @@ class HomeAssistantClient(
     /** Closes the live websocket (used when sync stops). Safe to call from a non-suspend context. */
     fun closeSession() {
         dropConnection()
+    }
+
+    /** Permanently releases this short-lived client and its HTTP connection pool. */
+    fun dispose() {
+        dropConnection()
+        client.close()
     }
 
     /** POSTs a payload to a mobile_app webhook URL (unauthenticated). Returns (httpStatus, bodyText);

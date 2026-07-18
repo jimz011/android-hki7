@@ -57,7 +57,7 @@ import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-private data class ParcelCarrier(
+internal data class ParcelCarrier(
     val key: String,
     val name: String,
     val deviceId: String,
@@ -189,6 +189,32 @@ private fun carrierLogo(key: String): String? = when (key) {
     else -> null
 }
 
+/** Combines multiple integration devices for the same known carrier while retaining first-seen
+ * carrier ordering. Unknown/generic devices stay independent because sharing the fallback key does
+ * not prove that they belong to the same delivery company. */
+internal fun aggregateParcelCarriers(carriers: List<ParcelCarrier>): List<ParcelCarrier> {
+    val grouped = linkedMapOf<String, MutableList<ParcelCarrier>>()
+    carriers.forEach { carrier ->
+        val groupId = if (carrier.key == "parcel") "parcel:${carrier.deviceId}" else carrier.key
+        grouped.getOrPut(groupId) { mutableListOf() } += carrier
+    }
+    return grouped.values.map { accounts ->
+        if (accounts.size == 1) return@map accounts.first()
+        val first = accounts.first()
+        ParcelCarrier(
+            key = first.key,
+            name = carrierName(first.key),
+            deviceId = "aggregate:${first.key}",
+            entities = accounts.flatMap { it.entities }.distinctBy { it.entity_id },
+            incoming = accounts.sumOf { it.incoming },
+            outgoing = accounts.sumOf { it.outgoing },
+            logoUrl = accounts.firstNotNullOfOrNull { it.logoUrl },
+            baseUrl = first.baseUrl,
+            accessToken = first.accessToken
+        )
+    }
+}
+
 private fun extractObjectList(attributes: JsonObject?): List<JsonObject> {
     attributes ?: return emptyList()
     val preferred = listOf("letters", "brieven", "items", "shipments", "parcels")
@@ -231,7 +257,10 @@ private fun resolveParcelCarriers(
             val matchesSensorPrefix = letterPrefixes.any { prefix ->
                 entity.entity_id.startsWith("image.${prefix}_letter", true)
             }
-            val isPostNlLetterImage = key == "postnl" &&
+            // With one configured account the integration's unscoped PostNL image entities are
+            // safe as a fallback. With multiple accounts, only direct-device/prefix matches may be
+            // attached; otherwise disabling aggregation would duplicate both accounts' letters.
+            val isPostNlLetterImage = deviceIds.distinct().size == 1 && key == "postnl" &&
                 entity.attributes?.get("id")?.jsonPrimitive?.contentOrNull != null
             matchesSensorPrefix || isPostNlLetterImage
         }).distinctBy { it.entity_id }
@@ -271,8 +300,9 @@ fun ParcelsWidgetItem(
             }
         }
     }
-    val carriers = remember(widget.deviceIds, widget.carrierImageUrls, widget.carrierNames, entities, registry, devices, currentUrl, accessToken) {
-        resolveParcelCarriers(widget.deviceIds, entities, registry, devices, widget.carrierImageUrls, widget.carrierNames, currentUrl, accessToken.orEmpty())
+    val carriers = remember(widget.deviceIds, widget.carrierImageUrls, widget.carrierNames, widget.aggregateCarriers, entities, registry, devices, currentUrl, accessToken) {
+        val resolved = resolveParcelCarriers(widget.deviceIds, entities, registry, devices, widget.carrierImageUrls, widget.carrierNames, currentUrl, accessToken.orEmpty())
+        if (widget.aggregateCarriers) aggregateParcelCarriers(resolved) else resolved
     }
     val incoming = carriers.sumOf { it.incoming }
     val outgoing = carriers.sumOf { it.outgoing }
@@ -766,6 +796,7 @@ fun ParcelsWidgetSettingsDialog(
     var radius by remember(widget) { mutableIntStateOf(widget.cornerRadius) }
     var imageUrls by remember(widget) { mutableStateOf(widget.carrierImageUrls) }
     var carrierNames by remember(widget) { mutableStateOf(widget.carrierNames) }
+    var aggregateCarriers by remember(widget) { mutableStateOf(widget.aggregateCarriers) }
     var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
     var picking by remember { mutableStateOf(false) }
     val hasUnresolvedDevices = deviceIds.any { id -> devices.none { it.id == id } }
@@ -815,6 +846,27 @@ fun ParcelsWidgetSettingsDialog(
                 }
             }
             TextButton(onClick = { picking = true }) { Icon(Icons.Default.Add, null); Spacer(Modifier.width(6.dp)); Text("Add carrier device") }
+            Surface(
+                modifier = Modifier.fillMaxWidth().clickable { aggregateCarriers = !aggregateCarriers },
+                shape = itemCornerShape(),
+                color = LocalHKIAppColors.current.subtleSurface
+            ) {
+                Row(
+                    Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Aggregate carriers", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            "Combine multiple accounts from the same carrier into one tab and parcel list.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = LocalHKIAppColors.current.onMuted
+                        )
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Switch(checked = aggregateCarriers, onCheckedChange = { aggregateCarriers = it })
+                }
+            }
             WidgetWidthSelector(width, { width = it })
             Text("Shape", style = MaterialTheme.typography.labelLarge)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -823,6 +875,6 @@ fun ParcelsWidgetSettingsDialog(
             }
             WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
         }
-    }, confirmButton = { Button(onClick = { onSave(widget.copy(deviceIds = deviceIds, carrierImageUrls = imageUrls, carrierNames = carrierNames, title = title.ifBlank { "Parcels" }, width = width, isSquare = square, cornerRadius = radius, backgroundUrl = backgroundUrl)) }) { Text("Save") } },
+    }, confirmButton = { Button(onClick = { onSave(widget.copy(deviceIds = deviceIds, carrierImageUrls = imageUrls, carrierNames = carrierNames, aggregateCarriers = aggregateCarriers, title = title.ifBlank { "Parcels" }, width = width, isSquare = square, cornerRadius = radius, backgroundUrl = backgroundUrl)) }) { Text("Save") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } })
 }

@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.hki7.data.HAEntity
+import com.example.hki7.data.HAEntityRegistryEntry
 import com.example.hki7.data.HAServiceCall
 import com.example.hki7.data.HKIClimateCardWidget
 import com.example.hki7.data.HKIClimateConfig
@@ -113,6 +114,40 @@ private val climateSensorGroups = listOf(
             "volatile_organic_compounds_parts", "nitrogen_dioxide", "carbon_monoxide"
         ))
 )
+
+private val weatherSensorPlatforms = setOf(
+    "accuweather", "buienradar", "climacell", "dwd_weather", "environment_canada",
+    "met", "nws", "open_meteo", "openweathermap", "pirateweather", "tomorrowio",
+    "weatherflow", "weatherkit", "yr"
+)
+
+private val hardwareTemperatureTokens = setOf(
+    "cpu", "disk", "drive", "gpu", "hdd", "memory", "motherboard", "nvme",
+    "processor", "ram", "ssd", "storage"
+)
+
+/** Automatic Climate discovery is intentionally about room conditions, not machine health or
+ * internet weather feeds. Manual additions remain unrestricted. */
+internal fun HAEntity.isAutoClimateSensorFor(
+    groupKey: String,
+    registryEntry: HAEntityRegistryEntry? = null
+): Boolean {
+    val group = climateSensorGroups.firstOrNull { it.key == groupKey } ?: return false
+    if (!entity_id.startsWith("sensor.") || deviceClass !in group.deviceClasses || numericState() == null) return false
+    if (registryEntry?.entity_category == "diagnostic") return false
+
+    val platform = registryEntry?.platform?.lowercase(Locale.ROOT)
+    if (platform in weatherSensorPlatforms) return false
+    val normalizedId = entity_id.substringAfter('.').lowercase(Locale.ROOT)
+    if (weatherSensorPlatforms.any { normalizedId == it || normalizedId.startsWith("${it}_") }) return false
+
+    if (groupKey == "temperature") {
+        val searchable = "$normalizedId ${friendlyName.orEmpty().lowercase(Locale.ROOT)}"
+        val tokens = searchable.split(Regex("[^a-z0-9]+"))
+        if (tokens.any { it in hardwareTemperatureTokens }) return false
+    }
+    return true
+}
 
 private fun HAEntity.numericState(): Float? =
     if (state == "unavailable" || state == "unknown") null else state.toFloatOrNull()
@@ -243,6 +278,7 @@ private fun List<HAEntity>.applyClimateOrder(order: List<String>): List<HAEntity
 @Composable
 fun ClimateScreen(viewModel: MainViewModel) {
     val pageConfigsMap by viewModel.pageConfigsMapping.collectAsState()
+    val entityRegistry by viewModel.entityRegistry.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
     // Bumped by undo/redo; keying the page content on it rebuilds the reorderable lists so a
     // restored order shows immediately instead of only after leaving edit mode.
@@ -272,6 +308,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
     }
     val hidden = remember(climateConfig) { climateConfig.hiddenEntityIds.toSet() }
     val entityById = remember(entities) { entities.associateBy { it.entity_id } }
+    val registryById = remember(entityRegistry) { entityRegistry.associateBy { it.entity_id } }
 
     fun hideEntity(id: String) {
         viewModel.hideClimateEntity(CLIMATE_PAGE_KEY, id)
@@ -371,12 +408,10 @@ fun ClimateScreen(viewModel: MainViewModel) {
             .applyClimateOrder(climateConfig.entityOrder)
     }
     // Sensors per group: auto-discovered by device_class plus manual additions, minus removed.
-    val groupSensors: Map<String, List<HAEntity>> = remember(entities, climateConfig) {
+    val groupSensors: Map<String, List<HAEntity>> = remember(entities, climateConfig, registryById) {
         climateSensorGroups.associate { group ->
             val auto = if (climateConfig.manualOnly) emptyList() else entities.filter { e ->
-                e.entity_id.startsWith("sensor.") &&
-                    e.deviceClass in group.deviceClasses &&
-                    e.numericState() != null
+                e.isAutoClimateSensorFor(group.key, registryById[e.entity_id])
             }
             val extras = climateConfig.extraSensorIds[group.key].orEmpty().mapNotNull { entityById[it] }
             group.key to (auto + extras)
@@ -2791,6 +2826,7 @@ private fun rememberClimateDeviceWidgetData(viewModel: MainViewModel): ClimateWi
 @Composable
 private fun rememberClimateWidgetData(viewModel: MainViewModel): ClimateWidgetData {
     val pageConfigsMap by viewModel.pageConfigsMapping.collectAsState()
+    val entityRegistry by viewModel.entityRegistry.collectAsState()
     val climateConfig: HKIClimateConfig =
         (pageConfigsMap[CLIMATE_PAGE_KEY] ?: HKIPageConfig()).climateConfig ?: HKIClimateConfig()
     val climateDependencyIds = remember(climateConfig) {
@@ -2808,8 +2844,9 @@ private fun rememberClimateWidgetData(viewModel: MainViewModel): ClimateWidgetDa
         }
     }
     val rawEntities by climateEntityFlow.collectAsState()
-    return remember(rawEntities, climateConfig) {
+    return remember(rawEntities, climateConfig, entityRegistry) {
         val entities = rawEntities.map { it.withDisplayName(climateConfig.customNames[it.entity_id]) }
+        val registryById = entityRegistry.associateBy { it.entity_id }
         val hidden = climateConfig.hiddenEntityIds.toSet()
         val entityById = entities.associateBy { it.entity_id }
         val climateEntities = (entities.filter { it.entity_id.startsWith("climate.") } +
@@ -2835,9 +2872,7 @@ private fun rememberClimateWidgetData(viewModel: MainViewModel): ClimateWidgetDa
             .applyClimateOrder(climateConfig.entityOrder)
         val groupSensors = climateSensorGroups.associate { group ->
             val auto = entities.filter { e ->
-                e.entity_id.startsWith("sensor.") &&
-                    e.deviceClass in group.deviceClasses &&
-                    e.numericState() != null
+                e.isAutoClimateSensorFor(group.key, registryById[e.entity_id])
             }
             val extras = climateConfig.extraSensorIds[group.key].orEmpty().mapNotNull { entityById[it] }
             group.key to (auto + extras)

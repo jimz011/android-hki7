@@ -1931,15 +1931,13 @@ fun HAHomeScreen(
     if (selectedCameraId != null) {
         val entity = entities.find { it.entity_id == selectedCameraId }
         val config = selectedCameraStack?.buttonConfigs?.get(selectedCameraId)
-        val refreshInterval = config?.cameraRefreshInterval ?: 5
         val fallbackEntityUrl = if (selectedCameraId?.startsWith("camera.") == true) {
-            val path = if (refreshInterval == 0) "camera_proxy_stream" else "camera_proxy"
-            "${currentUrl.removeSuffix("/")}/api/$path/$selectedCameraId"
+            "${currentUrl.removeSuffix("/")}/api/camera_proxy_stream/$selectedCameraId"
         } else {
             null
         }
         val streamUrl = config?.cameraUrl?.takeIf { it.isNotBlank() }
-            ?: resolveEntityCameraUrl(entity, currentUrl, preferLive = refreshInterval == 0)
+            ?: resolveEntityCameraUrl(entity, currentUrl, preferLive = true)
             ?: fallbackEntityUrl
         val label = config?.name ?: entity?.friendlyName ?: selectedCameraId ?: "Camera"
         val liveWebUrl = when {
@@ -1947,16 +1945,25 @@ fun HAHomeScreen(
             fallbackEntityUrl != null -> fallbackEntityUrl
             else -> buildWebRtcApiUrl(config?.cameraUrl, currentUrl)
         }
+        val cameraIds = selectedCameraStack?.entityIds.orEmpty()
+        val cameraIndex = cameraIds.indexOf(selectedCameraId)
+        val hasCameraNavigation = cameraIds.size > 1 && cameraIndex >= 0
 
         HKICameraDialog(
             title = label,
-            imageUrl = buildCameraRefreshModel(resolveCameraUrl(streamUrl, currentUrl), refreshInterval, 0),
-            refreshIntervalSeconds = refreshInterval,
+            imageUrl = resolveCameraUrl(streamUrl, currentUrl),
             liveWebUrl = liveWebUrl,
             authToken = accessToken,
             statusText = "Live",
             entity = entity,
             viewModel = viewModel,
+            onPrevious = if (hasCameraNavigation) {
+                { selectedCameraId = cameraIds[(cameraIndex - 1 + cameraIds.size) % cameraIds.size] }
+            } else null,
+            onNext = if (hasCameraNavigation) {
+                { selectedCameraId = cameraIds[(cameraIndex + 1) % cameraIds.size] }
+            } else null,
+            positionText = if (hasCameraNavigation) "${cameraIndex + 1} / ${cameraIds.size}" else null,
             onDismiss = {
                 selectedCameraId = null
                 selectedCameraStack = null

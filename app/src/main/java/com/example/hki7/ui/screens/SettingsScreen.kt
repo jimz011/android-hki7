@@ -98,6 +98,7 @@ import androidx.core.content.ContextCompat
 import com.example.hki7.BuildConfig
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.hki7.data.HAEntity
+import com.example.hki7.data.HomeAssistantConnectionRoute
 import com.example.hki7.data.CloudBackupStorage
 import com.example.hki7.data.CloudBackupFile
 import com.example.hki7.data.CloudBackupWork
@@ -163,12 +164,12 @@ fun SettingsDialog(
     val systemLightThemeColor by prefs.systemLightThemeColor.collectAsState(initial = "auto")
     val systemDarkThemeColor by prefs.systemDarkThemeColor.collectAsState(initial = "auto")
     val status by viewModel.status.collectAsState()
+    val currentConnectionRoute by viewModel.connectionRoute.collectAsState()
     val dashboardMode by viewModel.dashboardMode.collectAsState()
     val dashboards by viewModel.dashboards.collectAsState()
     val activeDashboardId by viewModel.activeDashboardId.collectAsState()
     val defaultDashboardId by viewModel.defaultDashboardId.collectAsState()
     val cloudBackupEnabled by prefs.cloudBackupEnabled.collectAsState(initial = false)
-    val isInternalConnection = internalUrl?.trimEnd('/')?.equals(currentUrl.trimEnd('/'), ignoreCase = true) == true
     val hasForegroundLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
         ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
     val hasBackgroundLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -302,7 +303,7 @@ fun SettingsDialog(
                                     ConnectionStatus.CONNECTED -> Triple(
                                         Icons.Default.CheckCircle,
                                         Color(0xFF6AC36A),
-                                        if (isInternalConnection) "Connected internally" else "Connected externally"
+                                        "Connected via ${currentConnectionRoute?.displayName ?: "Unknown"}"
                                     )
                                     ConnectionStatus.ERROR -> Triple(Icons.Default.Error, MaterialTheme.colorScheme.error, "Error")
                                     else -> Triple(Icons.Default.Sync, Color.Gray, "Connecting...")
@@ -1007,7 +1008,7 @@ fun SettingsDialog(
                         }
                         SettingsSection.ACCOUNT -> {
                             SettingsChoice(Icons.Default.Person, "Profile", displayName) { section = SettingsSection.PROFILE }
-                            SettingsChoice(Icons.Default.SettingsEthernet, "Connection", connectionText(status, isInternalConnection)) { section = SettingsSection.CONNECTION }
+                            SettingsChoice(Icons.Default.SettingsEthernet, "Connection", connectionText(status, currentConnectionRoute)) { section = SettingsSection.CONNECTION }
                             SettingsChoice(Icons.Default.MyLocation, "Location", "Device tracker and geocoded location") { section = SettingsSection.LOCATION }
                             SettingsPanel {
                                 OutlinedButton(
@@ -1384,8 +1385,8 @@ private fun SettingsChipRow(options: List<Pair<String, String>>, selected: Strin
     }
 }
 
-private fun connectionText(status: ConnectionStatus, isInternal: Boolean): String = when (status) {
-    ConnectionStatus.CONNECTED -> if (isInternal) "Connected internally" else "Connected externally"
+private fun connectionText(status: ConnectionStatus, route: HomeAssistantConnectionRoute?): String = when (status) {
+    ConnectionStatus.CONNECTED -> "Connected via ${route?.displayName ?: "Unknown"}"
     ConnectionStatus.ERROR -> "Error"
     else -> "Connecting..."
 }

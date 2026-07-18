@@ -501,7 +501,6 @@ fun HKIBadgeBar(
                 HKICameraDialog(
                     title = de.friendlyName ?: de.entity_id,
                     imageUrl = buildCameraRefreshModel(streamUrl, 0, 0),
-                    refreshIntervalSeconds = 0,
                     liveWebUrl = streamUrl,
                     authToken = accessToken,
                     statusText = "Live",

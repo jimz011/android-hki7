@@ -234,7 +234,12 @@ class DeviceTelemetryReporter(
             log("mobile_app registration failed: ${it.message}")
             return@withLock null
         }
-        prefs.saveMobileAppRegistration(registration.webhook_id, registration.cloudhook_url, baseUrl)
+        prefs.saveMobileAppRegistration(
+            registration.webhook_id,
+            registration.cloudhook_url,
+            registration.remote_ui_url,
+            baseUrl
+        )
         log("mobile_app registered (device_tracker will appear in HA)")
         return@withLock registration.webhook_id
     }

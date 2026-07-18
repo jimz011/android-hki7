@@ -141,10 +141,10 @@ fun HKIPage(
     )
     val headerTextColor = if (effectiveBackground != null) Color.White else appColors.onSurface
     val headerMutedColor = if (effectiveBackground != null) Color.White.copy(alpha = 0.8f) else appColors.onMuted
-    // A custom header color must not tint the pills themselves. Reuse the normal theme pill
-    // surface and only adapt foreground content for contrast against the selected header.
-    val pillColor = if (effectiveBackground != null) Color.Black.copy(alpha = 0.3f) else appColors.surface.copy(alpha = 0.78f)
-    val pillContentColor = if (effectiveBackground != null) Color.White else appColors.onSurface
+    // Header artwork and custom header colors must not change the pills' gradient palette.
+    // Keep room-page pills identical to the rest of the app; the surface supplies its own contrast.
+    val pillColor = appColors.surface.copy(alpha = 0.78f)
+    val pillContentColor = appColors.onSurface
     val headerHeight = 236.dp
     val view = LocalView.current
     if (!view.isInEditMode) {

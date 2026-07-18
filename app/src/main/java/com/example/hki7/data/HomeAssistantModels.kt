@@ -240,6 +240,12 @@ fun JsonElement.asHAWeatherForecast(): HAWeatherForecast {
     )
 }
 
+/** A battery-view entity must be a percentage sensor explicitly classified as a battery by HA. */
+fun HAEntity.isBatteryPercentageSensor(): Boolean =
+    entity_id.startsWith("sensor.") &&
+        deviceClass.equals("battery", ignoreCase = true) &&
+        attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull?.trim() == "%"
+
 @Serializable
 data class HAArea(
     val area_id: String,
@@ -1071,6 +1077,8 @@ data class HKIParcelsWidget(
     val carrierImageUrls: Map<String, String> = emptyMap(),
     /** Optional display-name override per carrier device. */
     val carrierNames: Map<String, String> = emptyMap(),
+    /** Merge selected accounts belonging to the same detected carrier into one carrier tab. */
+    val aggregateCarriers: Boolean = false,
     val title: String? = "Parcels",
     val icon: String? = "package-variant-closed",
     val isSquare: Boolean = false,

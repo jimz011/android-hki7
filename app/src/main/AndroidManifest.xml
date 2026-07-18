@@ -30,7 +30,9 @@
 
         <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.HKI7">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
