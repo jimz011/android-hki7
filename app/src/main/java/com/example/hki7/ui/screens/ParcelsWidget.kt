@@ -1,5 +1,7 @@
 package com.example.hki7.ui.screens
 
+import com.example.hki7.ui.components.ModernAlertDialog as AlertDialog
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Inventory2
@@ -405,34 +408,22 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, onDismiss: () -> Unit) {
         if (selectedParcel !in parcelsForTab) selectedParcel = parcelsForTab.firstOrNull()
     }
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(dismissOnBackPress = false)
-    ) {
-        BackHandler {
-            when {
-                parcelDetail -> {
-                    parcelDetail = false
-                    selectedHistory = null
-                }
-                carrier != null && carriers.size > 1 -> selectedCarrierId = null
-                else -> onDismiss()
-            }
-        }
-        Card(
-            modifier = Modifier.fillMaxWidth().height(640.dp),
-            shape = itemCornerShape(),
-            colors = CardDefaults.cardColors(containerColor = appColors.surface, contentColor = appColors.onSurface),
-            elevation = CardDefaults.cardElevation(defaultElevation = 16.dp)
-        ) {
-            Column(Modifier.fillMaxSize().padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    if (!parcelDetail && carrier != null && carriers.size > 1) IconButton(onClick = { selectedCarrierId = null }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Carriers")
-                    }
-                    Text(carrier?.name ?: "Parcels", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                    IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, "Close") }
-                }
+    com.example.hki7.ui.components.ModernSettingsDialogFrame(
+        title = if (parcelDetail) "Tracking history" else carrier?.name ?: "Parcels",
+        subtitle = when {
+            parcelDetail -> "Parcel journey and status updates"
+            carrier == null -> "Choose a carrier account"
+            else -> "${carrier.incoming} incoming · ${carrier.outgoing} outgoing"
+        },
+        icon = Icons.Default.LocalShipping,
+        onDismiss = onDismiss,
+        onBack = when {
+            parcelDetail -> {{ parcelDetail = false; selectedHistory = null }}
+            carrier != null && carriers.size > 1 -> {{ selectedCarrierId = null }}
+            else -> null
+        },
+        content = {
+            Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 when {
                     carriers.isEmpty() -> Text("Choose one or more carrier devices in widget settings.", color = appColors.onMuted)
                     carrier == null -> {
@@ -456,12 +447,6 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, onDismiss: () -> Unit) {
                     else -> {
                         if (parcelDetail) {
                             ParcelHero(carrier, selectedParcel, selectedHistory)
-                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                IconButton(onClick = { parcelDetail = false; selectedHistory = null }) {
-                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back to parcels")
-                                }
-                                Text("Tracking history", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                            }
                             val historyScroll = rememberScrollState()
                             Column(Modifier.weight(1f).fadingEdges(historyScroll).verticalScroll(historyScroll), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 selectedParcel?.let { parcel ->
@@ -536,8 +521,9 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, onDismiss: () -> Unit) {
                     }
                 }
             }
-        }
-    }
+        },
+        footer = { TextButton(onClick = onDismiss) { Text("Done") } }
+    )
     selectedLetter?.let { letter -> LetterViewerDialog(carrier, letter) { selectedLetter = null } }
 }
 
@@ -627,21 +613,19 @@ private fun InteractiveParcelRow(parcel: JsonObject, selected: Boolean, onClick:
 @Composable
 private fun LetterViewerDialog(carrier: ParcelCarrier?, letter: JsonObject, onDismiss: () -> Unit) {
     val image = carrier?.letterImage(letter)
-    Dialog(onDismissRequest = onDismiss) {
-        Card(Modifier.fillMaxWidth().height(640.dp), shape = itemCornerShape(), elevation = CardDefaults.cardElevation(16.dp)) {
-            Column(Modifier.fillMaxSize().padding(18.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(letter["title"]?.jsonPrimitive?.contentOrNull ?: "Mail", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
-                    IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, "Close") }
-                }
-                Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
-                    if (image != null) ParcelAsyncImage(carrier, image, null, Modifier.fillMaxSize().clip(itemCornerShape()), ContentScale.Fit)
-                    else Text("No letter image available", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                Text(letter["date"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime).orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+    com.example.hki7.ui.components.ModernSettingsDialogFrame(
+        title = letter["title"]?.jsonPrimitive?.contentOrNull ?: "Mail",
+        subtitle = letter["date"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime) ?: "Letter preview",
+        icon = Icons.Default.Email,
+        onDismiss = onDismiss,
+        content = {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                if (image != null) ParcelAsyncImage(carrier, image, null, Modifier.fillMaxSize().clip(itemCornerShape()), ContentScale.Fit)
+                else Text("No letter image available", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-        }
-    }
+        },
+        footer = { TextButton(onClick = onDismiss) { Text("Done") } }
+    )
 }
 
 @Composable
@@ -655,7 +639,6 @@ private fun ParcelDialogLegacy(carriers: List<ParcelCarrier>, onDismiss: () -> U
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 if (carrier != null && carriers.size > 1) IconButton(onClick = { selected = null }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Carriers") }
                 Text(carrier?.name ?: "Parcels", modifier = Modifier.weight(1f))
-                IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, "Close") }
             }
         },
         text = {
@@ -799,6 +782,7 @@ fun ParcelsWidgetSettingsDialog(
     var aggregateCarriers by remember(widget) { mutableStateOf(widget.aggregateCarriers) }
     var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
     var picking by remember { mutableStateOf(false) }
+    var settingsPage by remember(widget) { mutableStateOf("accounts") }
     val hasUnresolvedDevices = deviceIds.any { id -> devices.none { it.id == id } }
     LaunchedEffect(deviceIds, hasUnresolvedDevices) {
         if (deviceIds.isNotEmpty() && hasUnresolvedDevices) {
@@ -817,9 +801,16 @@ fun ParcelsWidgetSettingsDialog(
         // Do not compose the settings AlertDialog over the device picker.
         return
     }
-    AlertDialog(onDismissRequest = onDismiss, title = { Text("Parcels Widget") }, text = {
+    AlertDialog(stableHeight = true, onDismissRequest = onDismiss, title = { com.example.hki7.ui.components.ModernSettingsDialogTitle("Parcels", "Carrier accounts, aggregation, and appearance") }, text = {
         val scroll = rememberScrollState()
         Column(Modifier.heightIn(max = 480.dp).fadingEdges(scroll).verticalScroll(scroll), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            com.example.hki7.ui.components.SettingsTabRow(
+                tabs = listOf("accounts" to "Accounts", "organization" to "Organization", "appearance" to "Appearance"),
+                selected = settingsPage,
+                onSelect = { settingsPage = it }
+            )
+            if (settingsPage == "accounts") {
+            com.example.hki7.ui.components.SettingsSubcategory("Carrier accounts", "Add every integration account that should contribute parcels")
             OutlinedTextField(title, { title = it }, label = { Text("Title") }, singleLine = true, modifier = Modifier.fillMaxWidth())
             Text("Carrier devices", style = MaterialTheme.typography.labelLarge)
             deviceIds.forEach { id ->
@@ -846,6 +837,9 @@ fun ParcelsWidgetSettingsDialog(
                 }
             }
             TextButton(onClick = { picking = true }) { Icon(Icons.Default.Add, null); Spacer(Modifier.width(6.dp)); Text("Add carrier device") }
+            }
+            if (settingsPage == "organization") {
+            com.example.hki7.ui.components.SettingsSubcategory("Organization", "Control how accounts become tabs and lists")
             Surface(
                 modifier = Modifier.fillMaxWidth().clickable { aggregateCarriers = !aggregateCarriers },
                 shape = itemCornerShape(),
@@ -867,6 +861,9 @@ fun ParcelsWidgetSettingsDialog(
                     Switch(checked = aggregateCarriers, onCheckedChange = { aggregateCarriers = it })
                 }
             }
+            }
+            if (settingsPage == "appearance") {
+            com.example.hki7.ui.components.SettingsSubcategory("Appearance", "Card size, shape, and background")
             WidgetWidthSelector(width, { width = it })
             Text("Shape", style = MaterialTheme.typography.labelLarge)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -874,6 +871,7 @@ fun ParcelsWidgetSettingsDialog(
                 FilterChip(square, { square = true }, label = { Text("Square") })
             }
             WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
+            }
         }
     }, confirmButton = { Button(onClick = { onSave(widget.copy(deviceIds = deviceIds, carrierImageUrls = imageUrls, carrierNames = carrierNames, aggregateCarriers = aggregateCarriers, title = title.ifBlank { "Parcels" }, width = width, isSquare = square, cornerRadius = radius, backgroundUrl = backgroundUrl)) }) { Text("Save") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } })

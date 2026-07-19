@@ -1,5 +1,7 @@
 package com.example.hki7.ui.screens
 
+import com.example.hki7.ui.components.ModernAlertDialog as AlertDialog
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -358,6 +360,7 @@ fun WeatherWidgetSettingsDialog(
     var cornerRadius by remember(widget) { mutableIntStateOf(widget.cornerRadius) }
     var showEntityPicker by remember { mutableStateOf(false) }
     var showIconPicker by remember { mutableStateOf(false) }
+    var settingsPage by remember(widget) { mutableStateOf("source") }
 
     val weatherEntities = remember(allEntities) { allEntities.filter { it.entity_id.startsWith("weather.") } }
 
@@ -381,14 +384,22 @@ fun WeatherWidgetSettingsDialog(
     }
 
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text("Weather Widget") },
+        title = { com.example.hki7.ui.components.ModernSettingsDialogTitle("Weather", "Entity, card type, and appearance") },
         text = {
             val settingsScroll = rememberScrollState()
             Column(
                 modifier = Modifier.heightIn(max = 480.dp).fadingEdges(settingsScroll).verticalScroll(settingsScroll),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                com.example.hki7.ui.components.SettingsTabRow(
+                    tabs = listOf("source" to "Weather", "appearance" to "Appearance"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "source") {
+                com.example.hki7.ui.components.SettingsSubcategory("Weather source", "Choose the entity and card content")
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
@@ -396,6 +407,9 @@ fun WeatherWidgetSettingsDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+                }
+                if (settingsPage == "appearance") {
+                com.example.hki7.ui.components.SettingsSubcategory("Appearance", "Card width, icon, and styling")
                 WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 Text("Icon", style = MaterialTheme.typography.labelLarge)
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -403,6 +417,8 @@ fun WeatherWidgetSettingsDialog(
                     TextButton(onClick = { showIconPicker = true }) { Text(if (iconName.isEmpty()) "Choose" else "Change") }
                     if (iconName.isNotEmpty()) TextButton(onClick = { iconName = "" }) { Text("None") }
                 }
+                }
+                if (settingsPage == "source") {
                 Text("Weather entity", style = MaterialTheme.typography.labelLarge)
                 val entityName = entityId?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -443,6 +459,7 @@ fun WeatherWidgetSettingsDialog(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodySmall
                     )
+                }
                 }
             }
         },

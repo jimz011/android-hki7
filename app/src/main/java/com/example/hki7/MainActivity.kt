@@ -119,6 +119,7 @@ class MainActivity : ComponentActivity() {
                 val appColors = LocalHKIAppColors.current
                 val loading = "__hki_loading__"
                 val serverUrl by prefs.serverUrl.collectAsState(initial = loading)
+                val internalUrl by prefs.internalUrl.collectAsState(initial = loading)
                 val accessToken by prefs.accessToken.collectAsState(initial = loading)
                 val refreshToken by prefs.refreshToken.collectAsState(initial = loading)
                 var forceLogin by remember { mutableStateOf(false) }
@@ -148,8 +149,9 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                val isLoading = serverUrl == loading || accessToken == loading || refreshToken == loading
-                val loggedIn = !serverUrl.isNullOrBlank() && (!accessToken.isNullOrBlank() || !refreshToken.isNullOrBlank())
+                val isLoading = serverUrl == loading || internalUrl == loading || accessToken == loading || refreshToken == loading
+                val hasConnectionUrl = !serverUrl.isNullOrBlank() || !internalUrl.isNullOrBlank()
+                val loggedIn = hasConnectionUrl && (!accessToken.isNullOrBlank() || !refreshToken.isNullOrBlank())
                 // Latch onboarding on once we know the user needs to log in, and keep it on through the
                 // login + permission steps (saving the token mid-flow would otherwise jump to the app).
                 var onboardingActive by remember { mutableStateOf(false) }
@@ -159,7 +161,7 @@ class MainActivity : ComponentActivity() {
                         // Decide this once, before OAuth writes the server/token preferences. If it
                         // were recomputed after the token save, a first-time flow would suddenly be
                         // mistaken for re-login and jump back to the login WebView.
-                        onboardingStartsAtLogin = forceLogin || !serverUrl.isNullOrBlank()
+                        onboardingStartsAtLogin = forceLogin || hasConnectionUrl
                         onboardingActive = true
                     }
                 }
@@ -231,6 +233,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     val appColors = LocalHKIAppColors.current
     val appCtx = LocalContext.current.applicationContext
     val quickStartGuidePending by prefs.quickStartGuidePending.collectAsState(initial = false)
+    val autoGenerationPending by prefs.pendingAutoTakeover.collectAsState(initial = false)
     val quickStartScope = rememberCoroutineScope()
     val viewModel: MainViewModel = sharedViewModel ?: viewModel(factory = object : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -267,7 +270,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             .map { it.withDisplayName(mediaPlayerNames[it.entity_id]) }
             .sortedBy { it.entity_id }
     }
-    val showConnectionBar = hasConnectedOnce && connectionStatus != ConnectionStatus.CONNECTED
+    val showConnectionBar = (hasConnectedOnce || autoGenerationPending) && connectionStatus != ConnectionStatus.CONNECTED
     var mediaDialogEntityId by remember { mutableStateOf<String?>(null) }
     // Transient: swipe the media bar down to tuck it away; swipe up from the nav bar to bring it back.
     var mediaBarDismissed by remember { mutableStateOf(false) }
@@ -485,7 +488,8 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             when {
                 showConnectionBar -> HomeAssistantConnectionBar(
                     connectionStatus,
-                    Modifier.padding(start = 20.dp, end = 20.dp, bottom = 6.dp)
+                    isAutoGenerating = autoGenerationPending,
+                    modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 6.dp)
                 )
                 switchedConnectionRoute != null -> HomeAssistantConnectionSwitchBar(
                     switchedConnectionRoute!!,
@@ -739,14 +743,21 @@ private fun ConnectionErrorOverlay(viewModel: MainViewModel) {
 }
 
 @Composable
-private fun HomeAssistantConnectionBar(status: ConnectionStatus, modifier: Modifier = Modifier) {
+private fun HomeAssistantConnectionBar(
+    status: ConnectionStatus,
+    isAutoGenerating: Boolean,
+    modifier: Modifier = Modifier
+) {
     val appColors = LocalHKIAppColors.current
-    val label = when (status) {
-        ConnectionStatus.CONNECTING -> "Restarting or reconnecting…"
-        ConnectionStatus.ERROR -> "Unavailable · Retrying…"
-        ConnectionStatus.IDLE -> "Connection paused"
-        ConnectionStatus.CONNECTED -> "Connected"
+    val label = when {
+        isAutoGenerating -> "Auto-generating rooms and widgets…"
+        status == ConnectionStatus.CONNECTING -> "Restarting or reconnecting…"
+        status == ConnectionStatus.ERROR -> "Unavailable · Retrying…"
+        status == ConnectionStatus.IDLE -> "Connection paused"
+        else -> "Connected"
     }
+    val title = if (isAutoGenerating) "Building your dashboard" else "Home Assistant"
+    val statusColor = if (isAutoGenerating) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
     Surface(
         modifier = modifier.fillMaxWidth().height(56.dp),
         shape = itemCornerShape(),
@@ -760,10 +771,10 @@ private fun HomeAssistantConnectionBar(status: ConnectionStatus, modifier: Modif
         ) {
             CircularProgressIndicator(modifier = Modifier.size(22.dp), strokeWidth = 2.5.dp)
             Column {
-                Text("Home Assistant", color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
+                Text(title, color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
                 Text(
                     label,
-                    color = MaterialTheme.colorScheme.error,
+                    color = statusColor,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1
                 )

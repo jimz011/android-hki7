@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -106,25 +105,24 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
         }
     }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        properties = androidx.compose.ui.window.DialogProperties(dismissOnBackPress = false),
-        title = {
-            androidx.activity.compose.BackHandler {
-                if (selectedDevice != null) selectedDevice = null else onDismiss()
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                selectedDevice?.let { dev ->
-                    IconButton(onClick = { selectedDevice = null }, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", modifier = Modifier.size(18.dp))
-                    }
-                    Spacer(Modifier.width(6.dp))
-                    Text(deviceName(dev), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                } ?: Text("Search")
+    ModernSettingsDialogFrame(
+        title = selectedDevice?.let(::deviceName) ?: "Search",
+        subtitle = selectedDevice?.let { device ->
+            "Browse ${entityCountByDevice[device.id] ?: 0} entities on this device"
+        } ?: "Find and control any Home Assistant device or entity",
+        icon = Icons.Default.Search,
+        onDismiss = onDismiss,
+        onBack = selectedDevice?.let {
+            {
+                selectedDevice = null
+                query = ""
             }
         },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        content = {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
                 OutlinedTextField(
                     value = query,
                     onValueChange = { query = it },
@@ -140,9 +138,9 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                 )
                 if (selectedDevice == null) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(selected = mode == "entities", onClick = { mode = "entities" }, label = { Text("Entities") },
+                        SettingsChoiceChip(selected = mode == "entities", onClick = { mode = "entities" }, label = { Text("Entities") },
                             leadingIcon = { Icon(Icons.Default.Lightbulb, null, Modifier.size(14.dp)) })
-                        FilterChip(selected = mode == "devices", onClick = { mode = "devices" }, label = { Text("Devices") },
+                        SettingsChoiceChip(selected = mode == "devices", onClick = { mode = "devices" }, label = { Text("Devices") },
                             leadingIcon = { Icon(Icons.Default.Memory, null, Modifier.size(14.dp)) })
                     }
                 }
@@ -151,12 +149,12 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        FilterChip(selected = activeOnly, onClick = { activeOnly = !activeOnly },
+                        SettingsChoiceChip(selected = activeOnly, onClick = { activeOnly = !activeOnly },
                             label = { Text("Active") },
                             leadingIcon = { Icon(Icons.Default.Bolt, null, Modifier.size(14.dp)) })
-                        FilterChip(selected = domainFilter == null, onClick = { domainFilter = null }, label = { Text("All") })
+                        SettingsChoiceChip(selected = domainFilter == null, onClick = { domainFilter = null }, label = { Text("All") })
                         domains.forEach { domain ->
-                            FilterChip(
+                            SettingsChoiceChip(
                                 selected = domainFilter == domain,
                                 onClick = { domainFilter = if (domainFilter == domain) null else domain },
                                 label = { Text(domain.replace('_', ' ').replaceFirstChar(Char::uppercase)) }
@@ -165,7 +163,7 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                     }
                 }
                 val listState = androidx.compose.foundation.lazy.rememberLazyListState()
-                LazyColumn(Modifier.heightIn(max = 380.dp).fadingEdges(listState), state = listState) {
+                LazyColumn(Modifier.weight(1f).fadingEdges(listState), state = listState) {
                     if (mode == "devices" && selectedDevice == null) {
                         if (deviceResults.isEmpty()) item { SearchEmptyHint("No matching devices.") }
                         items(deviceResults, key = { it.id }) { device ->
@@ -191,7 +189,7 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } }
+        footer = { TextButton(onClick = onDismiss) { Text("Close") } }
     )
 }
 

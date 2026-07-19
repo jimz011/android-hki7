@@ -1,5 +1,7 @@
 package com.example.hki7.ui.screens
 
+import com.example.hki7.ui.components.ModernAlertDialog as AlertDialog
+
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -771,6 +773,7 @@ private fun ClimateDeviceSettingsDialog(
     var width by remember(entity) { mutableStateOf(config.deviceCardWidths[entity.entity_id] ?: config.defaultDeviceCardWidth) }
     var shape by remember(entity) { mutableStateOf(config.deviceCardShapes[entity.entity_id] ?: "standard") }
     var showIconPicker by remember { mutableStateOf(false) }
+    var settingsPage by remember(entity) { mutableStateOf("identity") }
 
     if (showIconPicker) {
         MdiIconPickerDialog(
@@ -781,16 +784,27 @@ private fun ClimateDeviceSettingsDialog(
     }
 
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text("Device Settings") },
+        title = { com.example.hki7.ui.components.ModernSettingsDialogTitle("Climate device", "Display name and linked sensors") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                com.example.hki7.ui.components.SettingsTabRow(
+                    tabs = listOf("identity" to "Identity", "appearance" to "Appearance"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "identity") {
+                com.example.hki7.ui.components.SettingsSubcategory("Identity", "Optional name and icon overrides")
                 OutlinedTextField(
                     value = name, onValueChange = { name = it },
                     label = { Text("Name") },
                     placeholder = { Text(entity.friendlyName ?: entity.entity_id) },
                     singleLine = true, modifier = Modifier.fillMaxWidth()
                 )
+                }
+                if (settingsPage == "appearance") {
+                com.example.hki7.ui.components.SettingsSubcategory("Appearance", "Card shape and width")
                 Text("Shape", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(selected = shape == "standard", onClick = { shape = "standard" }, label = { Text("Standard") })
@@ -802,6 +816,7 @@ private fun ClimateDeviceSettingsDialog(
                     if (icon.isNotBlank()) MdiIcon(icon, size = 20.dp)
                     TextButton(onClick = { showIconPicker = true }) { Text(if (icon.isBlank()) "Choose" else "Change") }
                     if (icon.isNotBlank()) TextButton(onClick = { icon = "" }) { Text("Default") }
+                }
                 }
             }
         },
@@ -3314,6 +3329,7 @@ fun ClimateCardWidgetSettingsDialog(
     var entityIds by remember { mutableStateOf(widget.entityIds) }
     var showPicker by remember { mutableStateOf(false) }
     var pickingEntities by remember { mutableStateOf(false) }
+    var settingsPage by remember(widget) { mutableStateOf("data") }
     if (showPicker) {
         ClimateCardPickerDialog(
             multiSelect = false, preselected = listOf(cardKey), title = "Select Climate Card",
@@ -3334,10 +3350,18 @@ fun ClimateCardWidgetSettingsDialog(
         return
     }
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text("Climate Card") },
+        title = { com.example.hki7.ui.components.ModernSettingsDialogTitle("Climate card", "Data sources and card appearance") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                com.example.hki7.ui.components.SettingsTabRow(
+                    tabs = listOf("data" to "Card & data", "appearance" to "Appearance"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "data") {
+                com.example.hki7.ui.components.SettingsSubcategory("Card & entities", "Choose the climate view and optional entity overrides")
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.weight(1f)) {
                         Text("Card", style = MaterialTheme.typography.labelLarge)
@@ -3352,6 +3376,9 @@ fun ClimateCardWidgetSettingsDialog(
                     onPick = { pickingEntities = true },
                     onReset = { entityIds = emptyList() }
                 )
+                }
+                if (settingsPage == "appearance") {
+                com.example.hki7.ui.components.SettingsSubcategory("Appearance", "Optional title, width, and supported shape")
                 OutlinedTextField(value = title, onValueChange = { title = it },
                     label = { Text("Title (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
@@ -3362,6 +3389,7 @@ fun ClimateCardWidgetSettingsDialog(
                         FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
                         FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text("Square") })
                     }
+                }
                 }
             }
         },
@@ -3394,6 +3422,7 @@ fun ClimateStackSettingsDialog(
     var entityIds by remember { mutableStateOf(stack.entityIds) }
     var showPicker by remember { mutableStateOf(false) }
     var pickingEntities by remember { mutableStateOf(false) }
+    var settingsPage by remember(stack) { mutableStateOf("cards") }
     if (showPicker) {
         ClimateCardPickerDialog(
             multiSelect = true, preselected = cardKeys, title = "Stack Cards",
@@ -3414,10 +3443,18 @@ fun ClimateStackSettingsDialog(
         return
     }
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text("Climate Stack") },
+        title = { com.example.hki7.ui.components.ModernSettingsDialogTitle("Climate stack", "Cards, data sources, and layout") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                com.example.hki7.ui.components.SettingsTabRow(
+                    tabs = listOf("cards" to "Cards & data", "layout" to "Layout"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "cards") {
+                com.example.hki7.ui.components.SettingsSubcategory("Cards & entities", "Choose included views and shared entity overrides")
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.weight(1f)) {
                         Text("Cards", style = MaterialTheme.typography.labelLarge)
@@ -3435,6 +3472,9 @@ fun ClimateStackSettingsDialog(
                     onPick = { pickingEntities = true },
                     onReset = { entityIds = emptyList() }
                 )
+                }
+                if (settingsPage == "layout") {
+                com.example.hki7.ui.components.SettingsSubcategory("Stack layout", "Title, collapse behavior, and dashboard width")
                 OutlinedTextField(value = title, onValueChange = { title = it },
                     label = { Text("Title") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -3442,6 +3482,7 @@ fun ClimateStackSettingsDialog(
                     Switch(checked = collapsible, onCheckedChange = { collapsible = it })
                 }
                 WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
+                }
             }
         },
         confirmButton = {

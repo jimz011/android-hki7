@@ -1,5 +1,7 @@
 package com.example.hki7.ui.screens
 
+import com.example.hki7.ui.components.ModernAlertDialog as AlertDialog
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
@@ -107,6 +109,9 @@ private val securityGroups = listOf(
     SecurityGroup("cameras", "Cameras", "Camera feeds", Icons.Default.Videocam, SecurityBlue,
         domains = setOf("camera"))
 )
+
+/** The canonical group list used by both live discovery and frozen auto-imports. */
+internal val AUTO_SECURITY_GROUP_KEYS: List<String> = securityGroups.map { it.key }
 
 private fun SecurityGroup.autoMatches(entity: HAEntity): Boolean {
     val domain = entity.entity_id.substringBefore('.')
@@ -1317,9 +1322,10 @@ private fun SecurityCardSettingsDialog(
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Card settings") },
+        title = { com.example.hki7.ui.components.ModernSettingsDialogTitle("Security card", "Name, layout, and card appearance") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                com.example.hki7.ui.components.SettingsSubcategory("Identity", "Optional display name and icon override")
                 OutlinedTextField(value = name, onValueChange = { name = it }, singleLine = true,
                     label = { Text("Name") }, placeholder = { Text(defaultName) }, modifier = Modifier.fillMaxWidth())
                 Text("Icon", style = MaterialTheme.typography.labelLarge)

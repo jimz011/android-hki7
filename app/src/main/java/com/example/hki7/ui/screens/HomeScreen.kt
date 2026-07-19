@@ -2,6 +2,8 @@
 
 package com.example.hki7.ui.screens
 
+import com.example.hki7.ui.components.ModernAlertDialog as AlertDialog
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -59,7 +61,6 @@ import com.example.hki7.ui.components.HKIFanDialog
 import com.example.hki7.ui.components.HKIHumidifierDialog
 import com.example.hki7.ui.components.HKIAlarmDialog
 import com.example.hki7.ui.components.buildWebRtcApiUrl
-import com.example.hki7.ui.components.buildCameraRefreshModel
 import com.example.hki7.ui.components.ReorderableGrid
 import com.example.hki7.ui.components.ReorderAxis
 import com.example.hki7.ui.components.PersonDetailDialog
@@ -1708,8 +1709,10 @@ fun HAHomeScreen(
         CalendarEntityPickerDialog(
             allEntities = entities,
             onDismiss = {
-                pendingCalendarWidgetContainerId = null
-                if (target == "__top__") showAddWidget = true else addingToSwipingStackId = target
+                if (pendingCalendarWidgetContainerId != null) {
+                    pendingCalendarWidgetContainerId = null
+                    if (target == "__top__") showAddWidget = true else addingToSwipingStackId = target
+                }
             },
             onSelected = { ids ->
                 val widget = newCalendarWidget(ids)
@@ -1897,8 +1900,10 @@ fun HAHomeScreen(
         WasteEntityPickerDialog(
             allEntities = entities,
             onDismiss = {
-                pendingWasteWidgetContainerId = null
-                if (target == "__top__") showAddWidget = true else addingToSwipingStackId = target
+                if (pendingWasteWidgetContainerId != null) {
+                    pendingWasteWidgetContainerId = null
+                    if (target == "__top__") showAddWidget = true else addingToSwipingStackId = target
+                }
             },
             onSelected = { ids ->
                 val widget = newWasteWidget(ids)

@@ -35,7 +35,7 @@ import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material.icons.filled.Room
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.CloudDownload
-import androidx.compose.material3.AlertDialog
+import com.example.hki7.ui.components.ModernAlertDialog as AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Card
@@ -845,13 +845,14 @@ private fun FloorSettingsDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Floor Settings") },
+        title = { com.example.hki7.ui.components.ModernSettingsDialogTitle("Floor", "Identity, layout, and card style") },
         text = {
             val settingsScroll = rememberScrollState()
             Column(
                 modifier = Modifier.heightIn(max = 460.dp).fadingEdges(settingsScroll).verticalScroll(settingsScroll),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                com.example.hki7.ui.components.SettingsSubcategory("Identity", "Name and icon shown above this floor")
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -865,6 +866,7 @@ private fun FloorSettingsDialog(
                     TextButton(onClick = { showIconPickerFloor = true }) { Text(if (iconName.isEmpty()) "Choose" else "Change") }
                     if (iconName.isNotEmpty()) TextButton(onClick = { iconName = "" }) { Text("None") }
                 }
+                com.example.hki7.ui.components.SettingsSubcategory("Layout", "Grid density, width, and tile shape")
                 Text("Columns", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     (1..3).forEach { count ->

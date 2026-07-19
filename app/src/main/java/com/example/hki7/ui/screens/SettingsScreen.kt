@@ -10,6 +10,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -60,14 +62,13 @@ import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Wifi
-import androidx.compose.material3.AlertDialog
+import com.example.hki7.ui.components.ModernAlertDialog as AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -89,6 +90,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -115,6 +117,11 @@ import com.example.hki7.ui.Screen
 import com.example.hki7.ui.components.ColorWheel
 import com.example.hki7.ui.components.HKISlider
 import com.example.hki7.ui.components.MdiIconPickerDialog
+import com.example.hki7.ui.components.ModernSettingsHeader
+import com.example.hki7.ui.components.ModernSettingsMenuItem
+import com.example.hki7.ui.components.SettingsGroup
+import com.example.hki7.ui.components.SettingsChoiceChip
+import com.example.hki7.ui.components.SettingsSubcategory
 import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.itemCornerShape
 import androidx.compose.ui.text.font.FontWeight
@@ -137,6 +144,36 @@ private fun sectionTitle(section: SettingsSection): String = when (section) {
     SettingsSection.MEDIA_PLAYERS -> "Media Players"
     SettingsSection.BACKUP_RESTORE -> "Backup and Restore"
     else -> section.name.lowercase().replaceFirstChar { it.uppercase() }
+}
+
+private fun sectionSubtitle(section: SettingsSection): String = when (section) {
+    SettingsSection.MENU -> "Everything that shapes your HKI 7 experience"
+    SettingsSection.ACCOUNT -> "Your profile, Home Assistant connection, and location"
+    SettingsSection.PROFILE -> "Personal details used throughout your dashboard"
+    SettingsSection.CONNECTION -> "Server routes and local-network preferences"
+    SettingsSection.LOCATION -> "Presence updates and background access"
+    SettingsSection.DASHBOARD -> "Create, switch, rename, and organize dashboards"
+    SettingsSection.APPEARANCE -> "Make the dashboard feel like yours"
+    SettingsSection.THEME -> "Color, contrast, mode, and corner styling"
+    SettingsSection.FONTS -> "Size, weight, and typeface readability"
+    SettingsSection.NAV_BAR -> "Choose which destinations are always within reach"
+    SettingsSection.MEDIA_PLAYERS -> "Names and mini-player visibility"
+    SettingsSection.NOTIFICATIONS -> "Push delivery, history, and service behavior"
+    SettingsSection.BACKUP_RESTORE -> "Protect or move your dashboard configuration"
+}
+
+private fun sectionIcon(section: SettingsSection): ImageVector = when (section) {
+    SettingsSection.MENU -> Icons.Default.SettingsEthernet
+    SettingsSection.ACCOUNT, SettingsSection.PROFILE -> Icons.Default.Person
+    SettingsSection.CONNECTION -> Icons.Default.SettingsEthernet
+    SettingsSection.LOCATION -> Icons.Default.MyLocation
+    SettingsSection.DASHBOARD -> Icons.Default.Dashboard
+    SettingsSection.APPEARANCE, SettingsSection.THEME -> Icons.Default.Palette
+    SettingsSection.FONTS -> Icons.Default.TextFields
+    SettingsSection.NAV_BAR -> Icons.Default.Menu
+    SettingsSection.MEDIA_PLAYERS -> Icons.Default.MusicNote
+    SettingsSection.NOTIFICATIONS -> Icons.Default.Notifications
+    SettingsSection.BACKUP_RESTORE -> Icons.Default.Backup
 }
 
 // Sub-sections nested under Appearance return there on back; everything else returns to the menu.
@@ -260,24 +297,41 @@ fun SettingsDialog(
         Card(
             modifier = Modifier
                 .fillMaxWidth(0.95f)
-                .fillMaxHeight(0.76f),
-            shape = itemCornerShape(),
-            colors = CardDefaults.cardColors(containerColor = appColors.surface)
+                .widthIn(max = 600.dp)
+                .fillMaxHeight(0.92f),
+            shape = RoundedCornerShape(32.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = appColors.elevated,
+                contentColor = appColors.onSurface
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 16.dp)
         ) {
             Column(
                 modifier = Modifier
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                                appColors.elevated,
+                                appColors.elevated
+                            )
+                        )
+                    )
                     .padding(24.dp)
                     .fillMaxHeight(),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 SettingsHeader(
                     title = sectionTitle(section),
+                    subtitle = sectionSubtitle(section),
+                    icon = sectionIcon(section),
                     canGoBack = section != SettingsSection.MENU,
                     onBack = { section = parentSection(section) },
                     onDismiss = onDismiss
                 )
 
                 val contentScroll = rememberScrollState()
+                LaunchedEffect(section) { contentScroll.scrollTo(0) }
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -287,15 +341,19 @@ fun SettingsDialog(
                 ) {
                     when (section) {
                         SettingsSection.MENU -> {
+                            SettingsSubcategory("Your home", "Identity and dashboard management")
                             SettingsChoice(Icons.Default.Person, "Account", displayName) { section = SettingsSection.ACCOUNT }
                             SettingsChoice(Icons.Default.Dashboard, "Dashboard", dashboardMode.replaceFirstChar { it.uppercase() }) { section = SettingsSection.DASHBOARD }
+                            SettingsSubcategory("Personalize", "Visual style and everyday navigation")
                             SettingsChoice(Icons.Default.Palette, "Appearance", "Theme and navigation bar") { section = SettingsSection.APPEARANCE }
+                            SettingsSubcategory("Services & data", "Messages, safety, and portability")
                             SettingsChoice(Icons.Default.Notifications, "Notifications", "Push delivery and history") { section = SettingsSection.NOTIFICATIONS }
                             SettingsChoice(Icons.Default.Backup, "Backup and Restore", "Save or restore dashboard configuration") { section = SettingsSection.BACKUP_RESTORE }
                         }
                         SettingsSection.CONNECTION -> {
                             val homeSsids by prefs.homeSsids.collectAsState(initial = emptyList())
                             val currentSsid by viewModel.currentSsid.collectAsState()
+                            var externalUrlInput by remember(serverUrl) { mutableStateOf(serverUrl.orEmpty()) }
                             var internalUrlInput by remember(internalUrl) { mutableStateOf(internalUrl.orEmpty()) }
                             var ssidsInput by remember(homeSsids) { mutableStateOf(homeSsids.joinToString(", ")) }
                             SettingsPanel {
@@ -314,6 +372,34 @@ fun SettingsDialog(
                                     modifier = Modifier.fillMaxWidth().height(52.dp),
                                     shape = itemCornerShape()
                                 ) { Text("Refresh Connection") }
+
+                                Spacer(Modifier.height(4.dp))
+                                Text(
+                                    "Remote access (optional)",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = appColors.onSurface
+                                )
+                                OutlinedTextField(
+                                    value = externalUrlInput,
+                                    onValueChange = { externalUrlInput = it },
+                                    label = { Text("External URL or Nabu Casa URL") },
+                                    placeholder = { Text("https://example.ui.nabu.casa") },
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = settingsTextFieldColors()
+                                )
+                                Button(
+                                    onClick = {
+                                        scope.launch { prefs.saveExternalUrl(externalUrlInput.ifBlank { null }) }
+                                    },
+                                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                                    shape = itemCornerShape()
+                                ) { Text("Save Remote Access") }
+                                Text(
+                                    "Leave this empty for local-only access. Add an external or Nabu Casa URL to use HKI 7 away from home.",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = appColors.onMuted
+                                )
 
                                 Spacer(Modifier.height(4.dp))
                                 Text(
@@ -556,8 +642,10 @@ fun SettingsDialog(
                             }
                         }
                         SettingsSection.APPEARANCE -> {
+                            SettingsSubcategory("Visual style", "Color, typography, and component shape")
                             SettingsChoice(Icons.Default.Palette, "Theme", "Colors and light/dark mode") { section = SettingsSection.THEME }
                             SettingsChoice(Icons.Default.TextFields, "Fonts", "Text size, boldness and font family") { section = SettingsSection.FONTS }
+                            SettingsSubcategory("Everyday navigation", "Tabs and media controls shown throughout the app")
                             SettingsChoice(Icons.Default.Menu, "Navigation Bar", "Reorder and hide tabs") { section = SettingsSection.NAV_BAR }
                             SettingsChoice(Icons.Default.MusicNote, "Media Players", "Rename players and mini player visibility") { section = SettingsSection.MEDIA_PLAYERS }
                         }
@@ -899,7 +987,7 @@ fun SettingsDialog(
                                 )
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     listOf(8 to "Sharp", 20 to "Modern", 28 to "Round").forEach { (radius, label) ->
-                                        FilterChip(
+                                        SettingsChoiceChip(
                                             selected = itemCornerRadius == radius,
                                             onClick = { scope.launch { prefs.saveItemCornerRadius(radius) } },
                                             label = { Text(label) }
@@ -1007,9 +1095,11 @@ fun SettingsDialog(
                             }
                         }
                         SettingsSection.ACCOUNT -> {
+                            SettingsSubcategory("Identity & server", "Personal information and Home Assistant access")
                             SettingsChoice(Icons.Default.Person, "Profile", displayName) { section = SettingsSection.PROFILE }
                             SettingsChoice(Icons.Default.SettingsEthernet, "Connection", connectionText(status, currentConnectionRoute)) { section = SettingsSection.CONNECTION }
                             SettingsChoice(Icons.Default.MyLocation, "Location", "Device tracker and geocoded location") { section = SettingsSection.LOCATION }
+                            SettingsSubcategory("Session", "Sign out safely or reset this installation")
                             SettingsPanel {
                                 OutlinedButton(
                                     onClick = { viewModel.logout(keepConfig = true); onDismiss() },
@@ -1163,38 +1253,27 @@ fun SettingsDialog(
 }
 
 @Composable
-private fun SettingsHeader(title: String, canGoBack: Boolean, onBack: () -> Unit, onDismiss: () -> Unit) {
-    val appColors = LocalHKIAppColors.current
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-        if (canGoBack) {
-            TextButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("Back")
-            }
-        }
-        Text(title, style = MaterialTheme.typography.headlineSmall, color = appColors.onSurface, modifier = Modifier.weight(1f))
-        IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, null, tint = appColors.onSurface) }
-    }
+private fun SettingsHeader(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    canGoBack: Boolean,
+    onBack: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    ModernSettingsHeader(
+        title = title,
+        subtitle = subtitle,
+        icon = icon,
+        canGoBack = canGoBack,
+        onBack = onBack,
+        onClose = onDismiss
+    )
 }
 
 @Composable
 private fun SettingsChoice(icon: ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
-    val appColors = LocalHKIAppColors.current
-    Surface(
-        modifier = Modifier.fillMaxWidth().clickable { onClick() },
-        shape = itemCornerShape(),
-        color = appColors.subtleSurface
-    ) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, null, tint = appColors.onSurface, modifier = Modifier.size(28.dp))
-            Spacer(Modifier.width(14.dp))
-            Column(Modifier.weight(1f)) {
-                Text(title, color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
-                Text(subtitle, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
-            }
-        }
-    }
+    ModernSettingsMenuItem(icon = icon, title = title, subtitle = subtitle, onClick = onClick)
 }
 
 @Composable
@@ -1222,9 +1301,15 @@ private fun CustomPageDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (page == null) "Create custom page" else "Edit custom page") },
+        title = {
+            com.example.hki7.ui.components.ModernSettingsDialogTitle(
+                if (page == null) "Create custom page" else "Edit custom page",
+                "Identity and navigation appearance"
+            )
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                SettingsSubcategory("Page identity", "Name, subtitle, and navigation icon")
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -1353,14 +1438,7 @@ private fun NavTabRow(
 
 @Composable
 private fun SettingsPanel(content: @Composable ColumnScope.() -> Unit) {
-    val appColors = LocalHKIAppColors.current
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = itemCornerShape(),
-        color = appColors.elevated.copy(alpha = 0.86f)
-    ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
-    }
+    SettingsGroup(content = content)
 }
 
 @Composable
@@ -1380,7 +1458,7 @@ private fun SettingsTile(icon: ImageVector, title: String, subtitle: String, ico
 private fun SettingsChipRow(options: List<Pair<String, String>>, selected: String, onSelect: (String) -> Unit) {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
         items(options) { (value, label) ->
-            FilterChip(selected = selected == value, onClick = { onSelect(value) }, label = { Text(label) })
+            SettingsChoiceChip(selected = selected == value, onClick = { onSelect(value) }, label = { Text(label) })
         }
     }
 }

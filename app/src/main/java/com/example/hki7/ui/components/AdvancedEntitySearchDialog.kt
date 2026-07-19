@@ -58,36 +58,13 @@ fun AdvancedEntitySearchDialog(
         }
     }
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = appColors.background
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                // Header with Multi-Select Action
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    TextButton(onClick = onDismiss) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Back")
-                    }
-                    Spacer(Modifier.width(4.dp))
-                    Text(title, style = MaterialTheme.typography.titleLarge, color = appColors.onSurface, modifier = Modifier.weight(1f))
-                    
-                    if (!singleSelect && selectedIds.isNotEmpty()) {
-                        Button(
-                            onClick = { onEntitiesSelected(selectedIds.toList()); onDismiss() },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFAF7AC5))
-                        ) {
-                            Text("Add (${selectedIds.size})")
-                        }
-                    }
-                }
-
-                Spacer(Modifier.height(16.dp))
+    ModernSettingsDialogFrame(
+        title = title,
+        subtitle = if (singleSelect) "Search and choose one entity" else "Search and select one or more entities",
+        icon = Icons.Default.Search,
+        onDismiss = onDismiss,
+        content = {
+            Column(modifier = Modifier.fillMaxSize()) {
 
                 // Search Bar
                 OutlinedTextField(
@@ -112,7 +89,7 @@ fun AdvancedEntitySearchDialog(
                 Spacer(Modifier.height(16.dp))
 
                 // Domain Filter Chips
-                ScrollableTabRow(
+                PrimaryScrollableTabRow(
                     selectedTabIndex = domains.indexOf(selectedDomain).coerceAtLeast(0),
                     containerColor = Color.Transparent,
                     edgePadding = 0.dp,
@@ -121,19 +98,11 @@ fun AdvancedEntitySearchDialog(
                 ) {
                     domains.forEach { domain ->
                         val isSelected = selectedDomain == domain
-                        FilterChip(
+                        SettingsChoiceChip(
                             selected = isSelected,
                             onClick = { selectedDomain = domain },
                             label = { Text(domain.replaceFirstChar { it.uppercase() }) },
-                            modifier = Modifier.padding(end = 8.dp),
-                            colors = FilterChipDefaults.filterChipColors(
-                                containerColor = appColors.elevated,
-                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                labelColor = appColors.onMuted,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                            ),
-                            border = null,
-                            shape = RoundedCornerShape(12.dp)
+                            modifier = Modifier.padding(end = 8.dp)
                         )
                     }
                 }
@@ -196,6 +165,15 @@ fun AdvancedEntitySearchDialog(
                     }
                 }
             }
+        },
+        footer = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+            if (!singleSelect) {
+                Button(
+                    onClick = { onEntitiesSelected(selectedIds.toList()); onDismiss() },
+                    enabled = selectedIds.isNotEmpty()
+                ) { Text("Add (${selectedIds.size})") }
+            }
         }
-    }
+    )
 }

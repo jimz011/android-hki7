@@ -25,7 +25,7 @@ class TelemetryWorker(appContext: Context, params: WorkerParameters) :
 
     override suspend fun doWork(): Result {
         val prefs = PreferencesManager(applicationContext)
-        if (prefs.serverUrl.first().isNullOrBlank()) {
+        if (prefs.serverUrl.first().isNullOrBlank() && prefs.internalUrl.first().isNullOrBlank()) {
             // Logged out: stop waking up until the app re-arms us on next login.
             LocationWork.cancel(applicationContext)
             BackgroundLocationReceiver.unregister(applicationContext)

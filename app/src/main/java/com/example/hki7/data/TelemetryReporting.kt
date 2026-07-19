@@ -17,14 +17,15 @@ suspend fun reportTelemetryNow(
     locationOnly: Boolean = false,
     log: (String) -> Unit = {}
 ) {
-    val external = prefs.serverUrl.first()?.takeIf { it.isNotBlank() } ?: return
+    val external = prefs.serverUrl.first()?.takeIf { it.isNotBlank() }
     val internal = prefs.internalUrl.first()
+    val primary = external ?: internal?.takeIf { it.isNotBlank() } ?: return
     val ssids = prefs.homeSsids.first()
     val ssid = currentWifiSsid(context)
-    val active = resolveHomeAssistantUrl(external, internal, ssids, ssid) ?: external
+    val active = resolveHomeAssistantUrl(external, internal, ssids, ssid) ?: primary
     val token = prefs.accessToken.first().orEmpty()
     val deviceName = prefs.mobileDeviceName.first()
     val client = HomeAssistantClient(active, token)
     DeviceTelemetryReporter(context.applicationContext, prefs)
-        .report(client, external, active, deviceName, providedLocation = providedLocation, freshLocation = freshLocation, locationOnly = locationOnly, log = log)
+        .report(client, primary, active, deviceName, providedLocation = providedLocation, freshLocation = freshLocation, locationOnly = locationOnly, log = log)
 }

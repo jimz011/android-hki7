@@ -53,8 +53,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.automirrored.filled.ShortText
 import androidx.compose.material.icons.automirrored.filled.ShowChart
@@ -101,7 +99,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.AlertDialog
+import com.example.hki7.ui.components.ModernAlertDialog as AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
@@ -188,6 +186,11 @@ import com.example.hki7.ui.components.WidgetWidthSelector
 import com.example.hki7.ui.components.EntityCard
 import com.example.hki7.ui.components.EditRemoveBadge
 import com.example.hki7.ui.components.EditSettingsButton
+import com.example.hki7.ui.components.ModernSettingsHeader
+import com.example.hki7.ui.components.ModernSettingsMenuItem
+import com.example.hki7.ui.components.ModernSettingsDialogTitle
+import com.example.hki7.ui.components.SettingsSubcategory
+import com.example.hki7.ui.components.SettingsTabRow
 import com.example.hki7.ui.components.fadingEdges
 import com.example.hki7.ui.components.mediaPlayerStateIcon
 import com.example.hki7.ui.components.defaultEntityIconSlug
@@ -2549,6 +2552,36 @@ private data class PickerWidget(
             keywords.contains(query, ignoreCase = true)
 }
 
+private enum class WidgetPickerCategory(
+    val key: String,
+    val label: String,
+    val description: String,
+    val icon: ImageVector
+) {
+    CONTROLS("controls", "Controls", "Buttons, vacuums, and their grouped controls", Icons.Default.Lightbulb),
+    CAMERAS("cameras", "Cameras", "Live camera tiles and multi-camera views", Icons.Default.CameraAlt),
+    CLIMATE("climate", "Climate & weather", "Temperature, comfort, forecasts, and conditions", Icons.Default.WbSunny),
+    ENERGY("energy", "Energy & batteries", "Consumption, production, and device health", Icons.Default.ElectricBolt),
+    INFORMATION("information", "Information & media", "Calendars, deliveries, graphs, notes, and playback", Icons.AutoMirrored.Filled.Notes),
+    LAYOUT("layout", "Layout & structure", "Headings and flexible widget containers", Icons.AutoMirrored.Filled.ViewQuilt)
+}
+
+private fun PickerWidget.category(): WidgetPickerCategory = when {
+    title.contains("Button", ignoreCase = true) || title.contains("Vacuum", ignoreCase = true) -> WidgetPickerCategory.CONTROLS
+    title.contains("Camera", ignoreCase = true) -> WidgetPickerCategory.CAMERAS
+    title.contains("Climate", ignoreCase = true) || title.contains("Weather", ignoreCase = true) -> WidgetPickerCategory.CLIMATE
+    title.contains("Energy", ignoreCase = true) || title.contains("Battery", ignoreCase = true) -> WidgetPickerCategory.ENERGY
+    title.contains("Header", ignoreCase = true) || title.contains("Empty Stack", ignoreCase = true) || title.contains("Swiping Stack", ignoreCase = true) -> WidgetPickerCategory.LAYOUT
+    else -> WidgetPickerCategory.INFORMATION
+}
+
+private fun categoryGroup(category: WidgetPickerCategory): String = "category:${category.key}"
+
+private fun categoryFromGroup(group: String?): WidgetPickerCategory? {
+    val key = group?.removePrefix("category:")?.takeIf { group.startsWith("category:") } ?: return null
+    return WidgetPickerCategory.entries.firstOrNull { it.key == key }
+}
+
 @Composable
 fun AddRoomWidgetDialog(
     onDismiss: () -> Unit,
@@ -2655,26 +2688,63 @@ fun AddRoomWidgetDialog(
         androidx.activity.compose.BackHandler {
             when {
                 configureWidget != null -> configureWidget = null
-                widgetGroup == "energy_stack" || widgetGroup == "climate_stack" -> widgetGroup = "stacks"
+                widgetGroup == "energy_stack" || widgetGroup == "energy_card" || widgetGroup == "battery_card" ->
+                    widgetGroup = categoryGroup(WidgetPickerCategory.ENERGY)
+                widgetGroup == "climate_stack" || widgetGroup == "climate_card" ->
+                    widgetGroup = categoryGroup(WidgetPickerCategory.CLIMATE)
                 widgetGroup != null -> widgetGroup = null
                 else -> onDismiss()
             }
         }
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = itemCornerShape(),
-            colors = CardDefaults.cardColors(containerColor = appColors.surface)
+            shape = RoundedCornerShape(30.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = appColors.elevated,
+                contentColor = appColors.onSurface
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 14.dp)
         ) {
             Column(
                 modifier = Modifier
                     .heightIn(min = 520.dp, max = 560.dp)
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.11f),
+                                appColors.elevated,
+                                appColors.elevated
+                            )
+                        )
+                    )
                     .padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Text("Add Widget", color = appColors.onSurface, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
-                    IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, null, tint = appColors.onSurface) }
-                }
+                ModernSettingsHeader(
+                    title = when {
+                        configureWidget != null -> "Configure widget"
+                        categoryFromGroup(widgetGroup) != null -> categoryFromGroup(widgetGroup)!!.label
+                        widgetGroup != null -> "Widget options"
+                        else -> "Add widget"
+                    },
+                    subtitle = when {
+                        configureWidget != null -> "Set the essentials before adding it"
+                        categoryFromGroup(widgetGroup) != null -> categoryFromGroup(widgetGroup)!!.description
+                        widgetGroup != null -> "Choose what this widget should display"
+                        else -> "Browse by purpose, or search every widget"
+                    },
+                    icon = categoryFromGroup(widgetGroup)?.icon ?: Icons.Default.Add,
+                    canGoBack = configureWidget != null || widgetGroup != null,
+                    onBack = {
+                        when {
+                            configureWidget != null -> configureWidget = null
+                            widgetGroup == "energy_stack" || widgetGroup == "energy_card" || widgetGroup == "battery_card" -> widgetGroup = categoryGroup(WidgetPickerCategory.ENERGY)
+                            widgetGroup == "climate_stack" || widgetGroup == "climate_card" -> widgetGroup = categoryGroup(WidgetPickerCategory.CLIMATE)
+                            else -> widgetGroup = null
+                        }
+                    },
+                    onClose = onDismiss
+                )
 
                 if (configureWidget == null && widgetGroup == null) {
                     OutlinedTextField(
@@ -2714,14 +2784,17 @@ fun AddRoomWidgetDialog(
                         ) {
                     val query = search.trim()
                     if (query.isEmpty()) {
-                        topWidgets.forEach { w -> WidgetChoice(w.icon, w.title, w.subtitle, w.onSelect) }
-                        if (stackWidgets.isNotEmpty()) {
+                        val availableWidgets = topWidgets + stackWidgets
+                        WidgetPickerCategory.entries.forEach { category ->
+                            val count = availableWidgets.count { it.category() == category }
+                            if (count > 0) {
                             WidgetChoice(
-                                icon = Icons.AutoMirrored.Filled.ViewQuilt,
-                                title = "Stacks",
-                                subtitle = "Button, camera, climate, energy, vacuum, weather, swipe, and empty stacks",
-                                onClick = { widgetGroup = "stacks" }
+                                    icon = category.icon,
+                                    title = category.label,
+                                    subtitle = "${category.description} — $count ${if (count == 1) "option" else "options"}",
+                                    onClick = { widgetGroup = categoryGroup(category) }
                             )
+                            }
                         }
                     } else {
                         val results = (topWidgets + stackWidgets).filter { it.matches(query) }.sortedBy { it.title.lowercase() }
@@ -2737,34 +2810,31 @@ fun AddRoomWidgetDialog(
                         }
                     }
                         }
-                } else if (widgetGroup == "stacks" && configureWidget == null) {
+                } else if (categoryFromGroup(widgetGroup) != null && configureWidget == null) {
+                        val category = categoryFromGroup(widgetGroup)!!
+                        val categoryWidgets = (topWidgets + stackWidgets).filter { it.category() == category }
+                        val (stacks, individual) = categoryWidgets.partition { it.title.endsWith("Stack") }
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .fadingEdges(widgetPickerScroll)
                                 .verticalScroll(widgetPickerScroll),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                    TextButton(onClick = { widgetGroup = null }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Back")
-                    }
-                    val (emptyStacks, predefinedStacks) = stackWidgets.partition { it.title == "Empty Stack" }
-                    emptyStacks.forEach { w -> WidgetChoice(w.icon, w.title, w.subtitle, w.onSelect) }
-                    Text("Predefined Stacks", color = appColors.onMuted, style = MaterialTheme.typography.labelLarge)
-                    predefinedStacks.forEach { w -> WidgetChoice(w.icon, w.title, w.subtitle, w.onSelect) }
+                            if (individual.isNotEmpty()) {
+                                SettingsSubcategory("Individual widgets", "Add one focused card")
+                                individual.forEach { widget -> WidgetChoice(widget.icon, widget.title, widget.subtitle, widget.onSelect) }
+                            }
+                            if (stacks.isNotEmpty()) {
+                                SettingsSubcategory("Stacks", "Group related cards in one section")
+                                stacks.forEach { widget -> WidgetChoice(widget.icon, widget.title, widget.subtitle, widget.onSelect) }
+                            }
                         }
                 } else if (widgetGroup == "energy_card" && configureWidget == null) {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                    TextButton(onClick = { widgetGroup = null }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Back")
-                    }
                     Text("Energy Cards", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
                     EnergyCardPickerList(
                         multiSelect = true,
@@ -2780,11 +2850,6 @@ fun AddRoomWidgetDialog(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                    TextButton(onClick = { widgetGroup = "stacks" }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Back")
-                    }
                     Text("Energy Stack Cards", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
                     EnergyCardPickerList(
                         multiSelect = true,
@@ -2800,11 +2865,6 @@ fun AddRoomWidgetDialog(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                    TextButton(onClick = { widgetGroup = null }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Back")
-                    }
                     Text("Climate Cards", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
                     ClimateCardPickerList(
                         multiSelect = true,
@@ -2820,11 +2880,6 @@ fun AddRoomWidgetDialog(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                    TextButton(onClick = { widgetGroup = "stacks" }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Back")
-                    }
                     Text("Climate Stack Cards", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
                     ClimateCardPickerList(
                         multiSelect = true,
@@ -2843,11 +2898,6 @@ fun AddRoomWidgetDialog(
                                 .verticalScroll(widgetPickerScroll),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                    TextButton(onClick = { widgetGroup = null }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Back")
-                    }
                     Text("Battery Levels", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
@@ -2865,11 +2915,6 @@ fun AddRoomWidgetDialog(
                                 .verticalScroll(widgetPickerScroll),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                    TextButton(onClick = { configureWidget = null }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Back")
-                    }
                     Text(
                         when (configureWidget) {
                             "button", "button_stack" -> if (configureWidget == "button") "Button" else "Button Stack"
@@ -2998,24 +3043,7 @@ fun AddRoomWidgetDialog(
 
 @Composable
 fun WidgetChoice(icon: ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
-    val appColors = LocalHKIAppColors.current
-    Surface(
-        modifier = Modifier.fillMaxWidth().clickable { onClick() },
-        shape = itemCornerShape(),
-        color = appColors.subtleSurface
-    ) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, null, tint = appColors.onSurface, modifier = Modifier.size(28.dp))
-            Spacer(Modifier.width(14.dp))
-            Column(Modifier.weight(1f)) {
-                Text(title, color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
-                if (subtitle.isNotBlank()) {
-                    Text(subtitle, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
-                }
-            }
-            Icon(Icons.AutoMirrored.Filled.ArrowForward, null, tint = appColors.onMuted)
-        }
-    }
+    ModernSettingsMenuItem(icon = icon, title = title, subtitle = subtitle, onClick = onClick)
 }
 
 @Composable
@@ -3121,20 +3149,50 @@ fun ButtonConfigDialog(
     val lockRelockSeconds = lockRelockSecondsText.toIntOrNull()?.coerceIn(5, 86400) ?: DEFAULT_BUTTON_RELOCK_SECONDS
     val showButtonLockSettings = !isCameraItem && !isVacuumItem
     val lockPinMissing = showButtonLockSettings && lockEnabled && lockUnlockMode == BUTTON_LOCK_PIN && lockPin.isBlank()
+    var settingsPage by remember(isCameraItem, isVacuumItem) { mutableStateOf("general") }
+    val settingsTabs = buildList {
+        add("general" to "General")
+        if (isCameraItem) add("camera" to "Camera")
+        if (isVacuumItem) add("vacuum" to "Vacuum")
+        if (!isCameraItem && !isVacuumItem || widgetAppearance != null) add("appearance" to "Appearance")
+        if (isLockEntity || isClimateEntity) add("entity" to "Entity")
+        if (!isVacuumItem) add("actions" to "Actions")
+        if (showButtonLockSettings) add("protection" to "Protection")
+    }
 
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text(if (isVacuumItem) "Vacuum Settings" else "Button Settings") },
+        title = {
+            ModernSettingsDialogTitle(
+                title = when {
+                    isCameraItem -> "Camera settings"
+                    isVacuumItem -> "Vacuum settings"
+                    else -> "Button settings"
+                },
+                subtitle = "Focused groups keep advanced options easy to find",
+                icon = when {
+                    isCameraItem -> Icons.Default.CameraAlt
+                    isVacuumItem -> Icons.Default.CleaningServices
+                    else -> Icons.Default.Lightbulb
+                }
+            )
+        },
         text = {
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                OutlinedTextField(name, { name = it }, label = { Text("Name") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                if (!isVacuumItem) {
-                    OutlinedTextField(label, { label = it }, label = { Text("Label") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                SettingsTabRow(tabs = settingsTabs, selected = settingsPage, onSelect = { settingsPage = it })
+                if (settingsPage == "general") {
+                    SettingsSubcategory("Identity", "The text shown on the dashboard")
+                    OutlinedTextField(name, { name = it }, label = { Text("Name") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    if (!isVacuumItem) {
+                        OutlinedTextField(label, { label = it }, label = { Text("Label") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    }
                 }
-                if (isCameraItem) {
+                if (settingsPage == "camera" && isCameraItem) {
+                    SettingsSubcategory("Stream", "Source and card refresh behavior")
                     if (config.isCustomUrl) {
                         OutlinedTextField(
                             value = cameraUrl,
@@ -3157,7 +3215,8 @@ fun ButtonConfigDialog(
                         }
                     }
                 }
-                if (isVacuumItem) {
+                if (settingsPage == "vacuum" && isVacuumItem) {
+                    SettingsSubcategory("Device & helpers", "Map, status sensors, and control bindings")
                     Text("Vacuum device", style = MaterialTheme.typography.labelLarge)
                     val deviceName = vacuumDeviceId?.let { id -> deviceRegistry.find { it.id == id }?.let { it.name_by_user ?: it.name } ?: id }
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -3203,7 +3262,8 @@ fun ButtonConfigDialog(
                         if (!vacuumBatteryEntityId.isNullOrBlank()) { TextButton(onClick = { vacuumBatteryEntityId = null }) { Text("Clear") } }
                     }
                 }
-                if (!isCameraItem && !isVacuumItem) {
+                if (settingsPage == "appearance" && !isCameraItem && !isVacuumItem) {
+                    SettingsSubcategory("Icon & feedback", "How this control communicates state")
                     Text("Icon", style = MaterialTheme.typography.labelLarge)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -3237,7 +3297,8 @@ fun ButtonConfigDialog(
                         }
                     }
                 }
-                if (isLockEntity) {
+                if (settingsPage == "entity" && isLockEntity) {
+                    SettingsSubcategory("Lock integration", "Optional context shown by the lock card")
                     Text("Door sensor (turns lock card red when open)", style = MaterialTheme.typography.labelLarge)
                     val doorName = doorEntityId?.takeIf { it.isNotBlank() }
                         ?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
@@ -3249,7 +3310,8 @@ fun ButtonConfigDialog(
                         if (!doorEntityId.isNullOrBlank()) { TextButton(onClick = { doorEntityId = null }) { Text("Clear") } }
                     }
                 }
-                if (isClimateEntity) {
+                if (settingsPage == "entity" && isClimateEntity) {
+                    SettingsSubcategory("Climate integration", "Controls and history sensors used by the dialog")
                     Text("Dialog control", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(
@@ -3284,13 +3346,15 @@ fun ButtonConfigDialog(
                         if (!climateHumiditySensorEntityId.isNullOrBlank()) { TextButton(onClick = { climateHumiditySensorEntityId = null }) { Text("Clear") } }
                     }
                 }
-                if (!isVacuumItem) {
+                if (settingsPage == "actions" && !isVacuumItem) {
+                    SettingsSubcategory("Interactions", "Choose what tap, double tap, and hold should do")
                     ActionEditor("Tap", tapAction, allEntities, areas) { tapAction = it }
                     ActionEditor("Double", doubleAction, allEntities, areas) { doubleAction = it }
                     ActionEditor("Hold", holdAction, allEntities, areas) { holdAction = it }
                     CustomButtonsEditor(customButtons, allEntities, areas) { customButtons = it }
                 }
-                if (showButtonLockSettings) {
+                if (settingsPage == "protection" && showButtonLockSettings) {
+                    SettingsSubcategory("Accidental-touch protection", "Require an extra gesture or PIN before actions run")
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Column(Modifier.weight(1f)) {
                             Text("Button lock", style = MaterialTheme.typography.labelLarge)
@@ -3347,7 +3411,8 @@ fun ButtonConfigDialog(
                         )
                     }
                 }
-                if (widgetAppearance != null) {
+                if (settingsPage == "appearance" && widgetAppearance != null) {
+                    SettingsSubcategory("Card layout", "Shape and width on the dashboard")
                     Text("Type", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(selected = appearButtonStyle == "standard", onClick = { appearButtonStyle = "standard"; appearIsSquare = false }, label = { Text("Standard") })
@@ -3668,6 +3733,7 @@ fun StackSettingsDialog(
     var defaultCollapsed by remember(stack) { mutableStateOf(stack.defaultCollapsed) }
     var cameraAspect by remember(stack) { mutableFloatStateOf(stack.cameraAspectRatio) }
     var showIconPickerStack by remember { mutableStateOf(false) }
+    var settingsPage by remember(stack) { mutableStateOf("identity") }
 
     if (showIconPickerStack) {
         MdiIconPickerDialog(
@@ -3681,14 +3747,22 @@ fun StackSettingsDialog(
     }
 
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text("Stack Settings") },
+        title = { ModernSettingsDialogTitle("Button stack", "Layout, appearance, and entity order") },
         text = {
             val settingsScroll = rememberScrollState()
             Column(
                 modifier = Modifier.heightIn(max = 480.dp).fadingEdges(settingsScroll).verticalScroll(settingsScroll),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                SettingsTabRow(
+                    tabs = listOf("identity" to "Identity", "layout" to "Layout", "behavior" to "Behavior"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "identity") {
+                SettingsSubcategory("Identity", "Title, width, and icon")
                 OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("Stack Title") }, singleLine = true)
                 WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 Text("Icon", style = MaterialTheme.typography.labelLarge)
@@ -3707,6 +3781,9 @@ fun StackSettingsDialog(
                     )
                     TextButton(onClick = { showIconPickerStack = true }) { Text("Change") }
                 }
+                }
+                if (settingsPage == "layout") {
+                SettingsSubcategory("Layout", "Grid density and button presentation")
                 Text("Columns", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     (1..3).forEach { count ->
@@ -3721,6 +3798,9 @@ fun StackSettingsDialog(
                         FilterChip(selected = buttonStyle == "tile", onClick = { buttonStyle = "tile"; isSquare = false }, label = { Text("Tile") })
                     }
                 }
+                }
+                if (settingsPage == "behavior") {
+                SettingsSubcategory("Behavior", "Activity indication and collapsing")
                 if (stack.stackType !in listOf("camera", "weather")) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = showBadge, onCheckedChange = { showBadge = it })
@@ -3737,7 +3817,9 @@ fun StackSettingsDialog(
                         Text("Collapsed by default")
                     }
                 }
-                if (stack.stackType == "camera") {
+                }
+                if (settingsPage == "layout" && stack.stackType == "camera") {
+                    SettingsSubcategory("Camera display", "Aspect ratio used by every stream")
                     Text("Camera aspect ratio", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf("16:9" to (16f / 9f), "4:3" to (4f / 3f), "1:1" to 1f).forEach { (label, value) ->
@@ -4726,12 +4808,21 @@ fun SwipingStackSettingsDialog(
     var animation by remember(stack) {
         mutableStateOf(stack.animation.takeIf { type -> swipingStackAnimationTypes.any { it.first == type } } ?: "swipe")
     }
+    var settingsPage by remember(stack) { mutableStateOf("layout") }
 
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text("Swiping Stack Settings") },
+        title = { ModernSettingsDialogTitle("Swiping stack", "Pages, height, and card appearance") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                SettingsTabRow(
+                    tabs = listOf("layout" to "Layout", "playback" to "Playback"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "layout") {
+                SettingsSubcategory("Layout", "Width, shape, and collapse behavior")
                 WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 Text("Shape", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -4748,6 +4839,9 @@ fun SwipingStackSettingsDialog(
                         Text("Collapsed by default")
                     }
                 }
+                }
+                if (settingsPage == "playback") {
+                SettingsSubcategory("Playback", "Automatic paging and transition style")
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = autoplay, onCheckedChange = { autoplay = it })
                     Text("Autoplay")
@@ -4767,6 +4861,7 @@ fun SwipingStackSettingsDialog(
                             label = { Text(label) }
                         )
                     }
+                }
                 }
             }
         },
@@ -4909,12 +5004,21 @@ fun EmptyStackSettingsDialog(
     var cornerRadius by remember(stack) { mutableIntStateOf(stack.cornerRadius) }
     var collapsible by remember(stack) { mutableStateOf(stack.collapsible) }
     var defaultCollapsed by remember(stack) { mutableStateOf(stack.defaultCollapsed) }
+    var settingsPage by remember(stack) { mutableStateOf("layout") }
 
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text("Empty Stack Settings") },
+        title = { ModernSettingsDialogTitle("Empty stack", "Container layout and appearance") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                SettingsTabRow(
+                    tabs = listOf("layout" to "Layout", "behavior" to "Behavior"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "layout") {
+                SettingsSubcategory("Layout", "Width, columns, and container shape")
                 WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 Text("Columns", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -4927,6 +5031,9 @@ fun EmptyStackSettingsDialog(
                     FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
                     FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text("Square") })
                 }
+                }
+                if (settingsPage == "behavior") {
+                SettingsSubcategory("Behavior", "Activity indication and collapsing")
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = showBadge, onCheckedChange = { showBadge = it })
                     Text("Show activity badge")
@@ -4940,6 +5047,7 @@ fun EmptyStackSettingsDialog(
                         Checkbox(checked = defaultCollapsed, onCheckedChange = { defaultCollapsed = it })
                         Text("Collapsed by default")
                     }
+                }
                 }
             }
         },
@@ -5849,19 +5957,40 @@ fun GroupEntityDialog(
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .fillMaxHeight(0.78f),
-            shape = itemCornerShape(),
-            colors = CardDefaults.cardColors(containerColor = appColors.elevated)
+            shape = RoundedCornerShape(32.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = appColors.elevated,
+                contentColor = appColors.onSurface
+            )
         ) {
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(
+                    Brush.verticalGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.11f),
+                            appColors.elevated,
+                            appColors.elevated
+                        )
+                    )
+                )
+            ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Row(
                         modifier = Modifier.padding(24.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        MdiIcon(stack.icon, tint = MaterialTheme.colorScheme.primary)
+                        Surface(
+                            modifier = Modifier.size(50.dp),
+                            shape = RoundedCornerShape(17.dp),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                MdiIcon(stack.icon, tint = MaterialTheme.colorScheme.primary)
+                            }
+                        }
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
-                            Text(stack.title ?: "Entities", style = MaterialTheme.typography.titleLarge, color = appColors.onSurface)
+                            Text(stack.title ?: "Entities", style = MaterialTheme.typography.headlineSmall, color = appColors.onSurface, fontWeight = FontWeight.Bold)
                             Text(
                                 if (activeCount > 0) "$activeCount/${entities.size} active" else "All off",
                                 style = MaterialTheme.typography.bodySmall,
@@ -5871,7 +6000,7 @@ fun GroupEntityDialog(
                         IconButton(
                             onClick = onDismiss,
                             modifier = Modifier
-                                .background(appColors.elevated.copy(alpha = 0.85f), CircleShape)
+                                .background(appColors.subtleSurface, CircleShape)
                                 .size(48.dp)
                         ) {
                             Icon(Icons.Default.Close, contentDescription = "Close", tint = appColors.onSurface, modifier = Modifier.size(24.dp))
@@ -6368,6 +6497,7 @@ fun HeaderTextSettingsDialog(
     var iconName by remember(widget) { mutableStateOf(widget.icon ?: "") }
     var width by remember(widget) { mutableStateOf(widget.width) }
     var showIconPickerHeader by remember { mutableStateOf(false) }
+    var settingsPage by remember(widget) { mutableStateOf("content") }
 
     if (showIconPickerHeader) {
         MdiIconPickerDialog(
@@ -6378,10 +6508,18 @@ fun HeaderTextSettingsDialog(
     }
 
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text("Header Text") },
+        title = { ModernSettingsDialogTitle("Header text", "Heading content and visual style") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                SettingsTabRow(
+                    tabs = listOf("content" to "Content", "appearance" to "Appearance"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "content") {
+                SettingsSubcategory("Content", "The heading shown between dashboard sections")
                 OutlinedTextField(
                     value = text,
                     onValueChange = { text = it },
@@ -6389,12 +6527,16 @@ fun HeaderTextSettingsDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+                }
+                if (settingsPage == "appearance") {
+                SettingsSubcategory("Appearance", "Width and optional icon")
                 WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Icon", style = MaterialTheme.typography.labelLarge)
                     if (iconName.isNotEmpty()) MdiIcon(iconName, size = 20.dp)
                     TextButton(onClick = { showIconPickerHeader = true }) { Text(if (iconName.isEmpty()) "Choose" else "Change") }
                     if (iconName.isNotEmpty()) TextButton(onClick = { iconName = "" }) { Text("None") }
+                }
                 }
             }
         },

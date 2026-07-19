@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.content.Context
 import com.example.hki7.data.*
+import com.example.hki7.ui.screens.AUTO_SECURITY_GROUP_KEYS
 import com.example.hki7.ui.screens.isAutoSecurityEntityFor
 import com.example.hki7.ui.screens.isAutoClimateSensorFor
 import kotlinx.coroutines.Dispatchers
@@ -101,38 +102,6 @@ internal fun HAFloor.withDefaultRoomLayout() = copy(
     width = "full"
 )
 
-/** Whether a fetched registry snapshot is trustworthy enough to become the dashboard.
- *
- * A live server always exposes states, entity-registry entries, and devices — this app's own
- * mobile_app registration during onboarding guarantees at least one of each — and floors exist
- * only to group areas, so floors without any areas means the area list was dropped. Importing
- * such a snapshot yields floors without rooms or rooms without entities; during the onboarding
- * takeover the result would even be frozen permanently. Callers should skip the import (keeping
- * the previous rooms and any pending takeover) and let the next refresh retry instead. */
-internal fun isCompleteDashboardRegistrySnapshot(
-    entities: List<HAEntity>,
-    areas: List<HAArea>,
-    floors: List<HAFloor>,
-    registry: List<HAEntityRegistryEntry>,
-    devices: List<HADeviceRegistryEntry>
-): Boolean {
-    if (entities.isEmpty() || registry.isEmpty() || devices.isEmpty()) return false
-    return floors.isEmpty() || areas.isNotEmpty()
-}
-
-/** Accept a supporting Energy entity only when it belongs to the resolved source device. */
-internal fun supportingEnergyEntityForDevice(
-    candidateEntityId: String?,
-    sourceDeviceId: String?,
-    registry: List<HAEntityRegistryEntry>
-): String? {
-    if (candidateEntityId == null) return null
-    if (sourceDeviceId == null) return candidateEntityId
-    return candidateEntityId.takeIf { candidate ->
-        registry.firstOrNull { it.entity_id == candidate }?.device_id == sourceDeviceId
-    }
-}
-
 /** Domains that participate in automatic room discovery. Sensor and binary-sensor metadata also
  * drives each room's environmental readings and active-state summary. */
 private val AUTO_ROOM_IMPORT_DOMAINS = setOf(
@@ -149,7 +118,63 @@ private val AUTO_ROOM_IMPORT_DOMAINS = setOf(
     "media_player"
 )
 
-private val AUTO_ROOM_STACK_DOMAINS = setOf("light", "switch")
+private val AUTO_ROOM_STACK_DOMAINS = listOf("light", "switch")
+
+/** Returns only present stack domains in their stable room-import display order. */
+internal fun orderedAutoRoomStackDomains(domains: Iterable<String>): List<String> {
+    val present = domains.toSet()
+    return AUTO_ROOM_STACK_DOMAINS.filter { it in present }
+}
+
+/** Whether a fetched registry snapshot is trustworthy enough to become the dashboard.
+ *
+ * A live server always exposes states, entity-registry entries, and devices — this app's own
+ * mobile_app registration during onboarding guarantees at least one of each — and floors exist
+ * only to group areas, so floors without any areas means the area list was dropped. Importing
+ * such a snapshot yields floors without rooms or rooms without entities; during the onboarding
+ * takeover the result would even be frozen permanently. Callers should skip the import (keeping
+ * the previous rooms and any pending takeover) and let the next refresh retry instead. */
+internal fun isCompleteDashboardRegistrySnapshot(
+    entities: List<HAEntity>,
+    areas: List<HAArea>,
+    floors: List<HAFloor>,
+    registry: List<HAEntityRegistryEntry>,
+    devices: List<HADeviceRegistryEntry>
+): Boolean {
+    if (entities.isEmpty() || registry.isEmpty() || devices.isEmpty()) return false
+    if (floors.isNotEmpty() && areas.isEmpty()) return false
+
+    // Immediately after mobile-app registration HA can briefly return only the new phone states
+    // while its websocket registries already contain the rest of the installation. Treating that
+    // as complete creates every room but freezes it without widgets or status entities at the end
+    // of onboarding. If the registry proves that importable entities belong to imported rooms,
+    // wait until at least one of those entities is also present in the live-state snapshot.
+    val areaIds = areas.mapTo(hashSetOf()) { it.area_id }
+    if (areaIds.isEmpty()) return true
+    val areaByDevice = devices.associate { it.id to it.area_id }
+    val roomRegistryEntityIds = registry.asSequence()
+        .filter { it.entity_id.substringBefore('.') in AUTO_ROOM_IMPORT_DOMAINS }
+        .filter { entry ->
+            val resolvedAreaId = entry.area_id ?: entry.device_id?.let(areaByDevice::get)
+            resolvedAreaId in areaIds
+        }
+        .mapTo(hashSetOf()) { it.entity_id }
+    if (roomRegistryEntityIds.isEmpty()) return true
+    return entities.any { it.entity_id in roomRegistryEntityIds }
+}
+
+/** Accept a supporting Energy entity only when it belongs to the resolved source device. */
+internal fun supportingEnergyEntityForDevice(
+    candidateEntityId: String?,
+    sourceDeviceId: String?,
+    registry: List<HAEntityRegistryEntry>
+): String? {
+    if (candidateEntityId == null) return null
+    if (sourceDeviceId == null) return candidateEntityId
+    return candidateEntityId.takeIf { candidate ->
+        registry.firstOrNull { it.entity_id == candidate }?.device_id == sourceDeviceId
+    }
+}
 
 /** Resolve the fossil-fuel percentage entity configured by Home Assistant's Energy Settings.
  *
@@ -2961,7 +2986,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     fun reimportSecurity(fromScratch: Boolean) {
         val current = _pageConfigsMapping.value["security"] ?: HKIPageConfig()
         val old = if (fromScratch) HKISecurityConfig() else current.securityConfig ?: HKISecurityConfig()
-        val keys = listOf("doors", "windows", "garage", "locks", "motion", "presence", "safety", "alarms", "cameras")
+        val keys = AUTO_SECURITY_GROUP_KEYS
         val imported = keys.associateWith { key -> _entities.value.filter { it.isAutoSecurityEntityFor(key) }.map { it.entity_id } }
         val config = old.copy(
             manualOnly = true,
@@ -3029,7 +3054,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 }.map { it.entity_id }
             }
         )
-        val securityKeys = listOf("doors", "windows", "garage", "locks", "motion", "presence", "safety", "alarms", "cameras")
+        val securityKeys = AUTO_SECURITY_GROUP_KEYS
         val security = HKISecurityConfig(
             manualOnly = true,
             extraEntityIds = securityKeys.associateWith { key -> allEntities.filter { it.isAutoSecurityEntityFor(key) }.map { it.entity_id } }
@@ -3310,11 +3335,13 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 changedConfigs = true
             }
 
-            val stacks = areaEntities
+            val stackEntitiesByDomain = areaEntities
                 .filter { it.entity_id.substringBefore(".") in AUTO_ROOM_STACK_DOMAINS }
-                .groupBy { autoStackTitle(it.entity_id.substringBefore(".")) }
-                .filterValues { it.isNotEmpty() }
-                .map { (title, grouped) ->
+                .groupBy { it.entity_id.substringBefore(".") }
+            val stacks = orderedAutoRoomStackDomains(stackEntitiesByDomain.keys)
+                .map { domain ->
+                    val title = autoStackTitle(domain)
+                    val grouped = stackEntitiesByDomain.getValue(domain)
                     val existingStack = existingWidgets[area.area_id]
                         ?.filterIsInstance<HKIButtonStack>()
                         ?.firstOrNull { it.title == title }

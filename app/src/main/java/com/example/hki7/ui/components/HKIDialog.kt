@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Close
@@ -52,11 +53,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -180,10 +183,25 @@ fun HKIDialog(
                         .fillMaxHeight(if (isPhone) 0.78f else 0.85f)
                         .windowInsetsPadding(WindowInsets.statusBars)
                         .combinedClickable(onClick = {}),
-                    shape = itemCornerShape(),
-                    colors = CardDefaults.cardColors(containerColor = appColors.elevated)
+                    shape = RoundedCornerShape(32.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = appColors.elevated,
+                        contentColor = appColors.onSurface
+                    )
                 ) {
-                    Box(modifier = Modifier.fillMaxSize()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    listOf(
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.11f),
+                                        appColors.elevated,
+                                        appColors.elevated
+                                    )
+                                )
+                            )
+                    ) {
                         val dialogBottomControlsLift = 7.dp
                         // Bottom controls: the default nav bar (tabs) on the first row, then any custom
                         // buttons wrapped onto additional rows (≤5 per row → up to 2 more rows).
@@ -197,9 +215,9 @@ fun HKIDialog(
                             ) {
                                 if (resolvedHeaderImage != null) {
                                     Surface(
-                                        modifier = Modifier.size(36.dp),
-                                        shape = CircleShape,
-                                        color = appColors.elevated
+                                        modifier = Modifier.size(50.dp),
+                                        shape = RoundedCornerShape(17.dp),
+                                        color = appColors.subtleSurface
                                     ) {
                                         AsyncImage(
                                             model = resolvedHeaderImage,
@@ -209,8 +227,12 @@ fun HKIDialog(
                                         )
                                     }
                                 } else if (headerIconContent != null) {
-                                    Box(modifier = Modifier.size(32.dp), contentAlignment = Alignment.Center) {
-                                        headerIconContent()
+                                    Surface(
+                                        modifier = Modifier.size(50.dp),
+                                        shape = RoundedCornerShape(17.dp),
+                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) { headerIconContent() }
                                     }
                                 } else {
                                     val spinRotation = rememberIconSpinRotation(spinIcon && entity.state.lowercase() != "off")
@@ -219,10 +241,18 @@ fun HKIDialog(
                                         .rotate(spinRotation)
                                     // Drop the picture sentinel here (no picture available) so it falls back to the icon.
                                     val effectiveIconName = iconName?.takeUnless { it.isBlank() || it == ENTITY_PICTURE_ICON }
-                                    if (effectiveIconName != null) {
-                                        MdiIcon(effectiveIconName, contentDescription = null, tint = iconTint, size = 24.dp, modifier = iconModifier)
-                                    } else {
-                                        Icon(icon, contentDescription = null, tint = iconTint, modifier = iconModifier)
+                                    Surface(
+                                        modifier = Modifier.size(50.dp),
+                                        shape = RoundedCornerShape(17.dp),
+                                        color = iconTint.copy(alpha = 0.16f)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            if (effectiveIconName != null) {
+                                                MdiIcon(effectiveIconName, contentDescription = null, tint = iconTint, size = 24.dp, modifier = iconModifier)
+                                            } else {
+                                                Icon(icon, contentDescription = null, tint = iconTint, modifier = iconModifier)
+                                            }
+                                        }
                                     }
                                 }
 
@@ -230,8 +260,11 @@ fun HKIDialog(
                                 Column(Modifier.weight(1f)) {
                                     Text(
                                         titleOverride?.takeUnless { it.isBlank() } ?: entity.friendlyName ?: entity.entity_id,
-                                        style = MaterialTheme.typography.titleLarge,
-                                        color = appColors.onSurface
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        color = appColors.onSurface,
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
                                     )
                                     Text(
                                         statusText ?: entity.state.uppercase(),
@@ -253,7 +286,7 @@ fun HKIDialog(
                                         modifier = Modifier
                                             .background(
                                                 if (showDevice) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
-                                                else appColors.elevated.copy(alpha = 0.85f),
+                                                else appColors.subtleSurface,
                                                 CircleShape
                                             )
                                             .size(48.dp)
@@ -274,7 +307,7 @@ fun HKIDialog(
                                         modifier = Modifier
                                             .background(
                                                 if (showGroup) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
-                                                else appColors.elevated.copy(alpha = 0.85f),
+                                                else appColors.subtleSurface,
                                                 CircleShape
                                             )
                                             .size(48.dp)
@@ -295,7 +328,7 @@ fun HKIDialog(
                                         modifier = Modifier
                                             .background(
                                                 if (showHistory) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
-                                                else appColors.elevated.copy(alpha = 0.85f),
+                                                else appColors.subtleSurface,
                                                 CircleShape
                                             )
                                             .size(48.dp)
@@ -313,7 +346,7 @@ fun HKIDialog(
                                 IconButton(
                                     onClick = onDismiss,
                                     modifier = Modifier
-                                        .background(appColors.elevated.copy(alpha = 0.85f), CircleShape)
+                                        .background(appColors.subtleSurface, CircleShape)
                                         .size(48.dp)
                                 ) {
                                     Icon(

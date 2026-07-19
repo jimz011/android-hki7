@@ -36,7 +36,7 @@ import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.AlertDialog
+import com.example.hki7.ui.components.ModernAlertDialog as AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -151,63 +151,22 @@ fun CalendarWidgetItem(
             )
         }
         if (showFullDialog) {
-            Dialog(
-                onDismissRequest = { showFullDialog = false },
-                properties = DialogProperties(usePlatformDefaultWidth = false)
-            ) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(0.95f).fillMaxHeight(0.78f),
-                    shape = itemCornerShape(),
-                    // Opaque so the header strip and the (semi-transparent) calendar card below it
-                    // composite to one uniform tone instead of showing a two-tone seam.
-                    colors = CardDefaults.cardColors(containerColor = appColors.elevated)
-                ) {
-                    Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(24.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            MdiIcon(widget.icon ?: "calendar-month", tint = MaterialTheme.colorScheme.primary, size = 24.dp)
-                            Spacer(Modifier.width(12.dp))
-                            Column(Modifier.weight(1f)) {
-                                Text(
-                                    widget.title ?: "Calendar",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    color = appColors.onSurface
-                                )
-                                Text(
-                                    normalizeCalendarView(widget.view).uppercase(),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = appColors.onMuted
-                                )
-                            }
-                            IconButton(
-                                onClick = { showFullDialog = false },
-                                modifier = Modifier
-                                    .background(appColors.elevated.copy(alpha = 0.85f), CircleShape)
-                                    .size(48.dp)
-                            ) {
-                                Icon(
-                                    Icons.Default.Close,
-                                    contentDescription = "Close",
-                                    tint = appColors.onSurface,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            }
-                        }
-                        Spacer(Modifier.height(16.dp))
-                        Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
-                            CalendarWidgetCard(
-                                widget = widget.copy(width = "full", isSquare = false),
-                                viewModel = viewModel,
-                                interactionsEnabled = true,
-                                modifier = Modifier.fillMaxSize(),
-                                fillHeight = true
-                            )
-                        }
-                    }
-                }
-            }
+            com.example.hki7.ui.components.ModernSettingsDialogFrame(
+                title = widget.title ?: "Calendar",
+                subtitle = normalizeCalendarView(widget.view).replaceFirstChar { it.uppercase() },
+                icon = Icons.Default.CalendarMonth,
+                onDismiss = { showFullDialog = false },
+                content = {
+                    CalendarWidgetCard(
+                        widget = widget.copy(width = "full", isSquare = false),
+                        viewModel = viewModel,
+                        interactionsEnabled = true,
+                        modifier = Modifier.fillMaxSize(),
+                        fillHeight = true
+                    )
+                },
+                footer = { TextButton(onClick = { showFullDialog = false }) { Text("Done") } }
+            )
         }
         if (isEditMode) {
             EditSettingsButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center))
@@ -1055,6 +1014,7 @@ fun CalendarWidgetSettingsDialog(
     var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
     var showEntityPicker by remember { mutableStateOf(false) }
     var showIconPicker by remember { mutableStateOf(false) }
+    var settingsPage by remember(widget) { mutableStateOf("content") }
     val calendarEntities = remember(allEntities) { allEntities.filter { it.entity_id.startsWith("calendar.") } }
 
     if (showEntityPicker) {
@@ -1084,8 +1044,9 @@ fun CalendarWidgetSettingsDialog(
 
     val settingsScroll = rememberScrollState()
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text("Calendar Widget") },
+        title = { com.example.hki7.ui.components.ModernSettingsDialogTitle("Calendar", "Calendars, default view, and appearance") },
         text = {
             Column(
                 modifier = Modifier
@@ -1094,6 +1055,13 @@ fun CalendarWidgetSettingsDialog(
                     .verticalScroll(settingsScroll),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                com.example.hki7.ui.components.SettingsTabRow(
+                    tabs = listOf("content" to "Calendar", "appearance" to "Appearance"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "content") {
+                com.example.hki7.ui.components.SettingsSubcategory("Calendar content", "Select calendars and the view shown first")
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
@@ -1124,6 +1092,9 @@ fun CalendarWidgetSettingsDialog(
                         FilterChip(selected = view == value, onClick = { view = value }, label = { Text(label) })
                     }
                 }
+                }
+                if (settingsPage == "appearance") {
+                com.example.hki7.ui.components.SettingsSubcategory("Appearance", "Card width, shape, icon, and background")
                 WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
                 Text("Shape", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1137,6 +1108,7 @@ fun CalendarWidgetSettingsDialog(
                     if (iconName != "None") TextButton(onClick = { iconName = "None" }) { Text("None") }
                 }
                 WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
+                }
             }
         },
         confirmButton = {

@@ -18,7 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.AlertDialog
+import com.example.hki7.ui.components.ModernAlertDialog as AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -281,15 +281,24 @@ fun MarkdownWidgetSettingsDialog(
     var square by remember(widget) { mutableStateOf(widget.isSquare) }
     var radius by remember(widget) { mutableIntStateOf(widget.cornerRadius) }
     var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
+    var settingsPage by remember(widget) { mutableStateOf("content") }
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text("Markdown Widget") },
+        title = { com.example.hki7.ui.components.ModernSettingsDialogTitle("Markdown", "Content and card appearance") },
         text = {
             val scroll = rememberScrollState()
             Column(
                 Modifier.heightIn(max = 480.dp).fadingEdges(scroll).verticalScroll(scroll),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                com.example.hki7.ui.components.SettingsTabRow(
+                    tabs = listOf("content" to "Content", "appearance" to "Appearance"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "content") {
+                com.example.hki7.ui.components.SettingsSubcategory("Content", "Write the information shown on this card")
                 OutlinedTextField(
                     value = content,
                     onValueChange = { content = it },
@@ -303,6 +312,9 @@ fun MarkdownWidgetSettingsDialog(
                     style = MaterialTheme.typography.labelSmall,
                     color = LocalHKIAppColors.current.onMuted
                 )
+                }
+                if (settingsPage == "appearance") {
+                com.example.hki7.ui.components.SettingsSubcategory("Appearance", "Size, shape, and background")
                 WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 Text("Shape", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -310,6 +322,7 @@ fun MarkdownWidgetSettingsDialog(
                     FilterChip(selected = square, onClick = { square = true }, label = { Text("Square") })
                 }
                 WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
+                }
             }
         },
         confirmButton = {

@@ -126,16 +126,36 @@ fun currentWifiSsid(context: Context): String? {
 
 /** Picks the internal URL when on a configured home Wi-Fi, otherwise the external/primary URL. */
 fun resolveHomeAssistantUrl(external: String?, internal: String?, homeSsids: List<String>, ssid: String?): String? {
+    // A local-first onboarding intentionally leaves the external URL empty. In that state the
+    // internal endpoint is the only connection and must work without an SSID allow-list (location
+    // permission is requested later in onboarding and may remain disabled).
+    if (external.isNullOrBlank()) return internal?.takeIf { it.isNotBlank() }
     if (!internal.isNullOrBlank() && ssid != null && homeSsids.any { it.equals(ssid, ignoreCase = true) }) {
         return internal
     }
     return external
 }
 
+internal data class HomeAssistantConnectionUrls(
+    val external: String?,
+    val internal: String?
+)
+
+/** Places a user-selected onboarding endpoint in the matching settings field. */
+internal fun splitHomeAssistantConnectionUrl(url: String): HomeAssistantConnectionUrls {
+    val normalized = url.trim().trimEnd('/')
+    return if (isLikelyLocalHomeAssistantUrl(normalized)) {
+        HomeAssistantConnectionUrls(external = null, internal = normalized)
+    } else {
+        HomeAssistantConnectionUrls(external = normalized, internal = null)
+    }
+}
+
 /** True for addresses that are normally reachable only from the user's LAN. */
 internal fun isLikelyLocalHomeAssistantUrl(url: String): Boolean {
     val host = runCatching { URI(url).host?.lowercase()?.removeSurrounding("[", "]") }.getOrNull() ?: return false
     if (host == "localhost" || host.endsWith(".local")) return true
+    if (!host.contains('.') && !host.contains(':')) return true // e.g. http://homeassistant:8123
     if (host == "::1" || host.startsWith("fe80:") || host.startsWith("fc") || host.startsWith("fd")) return true
 
     val octets = host.split('.').mapNotNull { it.toIntOrNull() }

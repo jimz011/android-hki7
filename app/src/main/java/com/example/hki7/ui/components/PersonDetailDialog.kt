@@ -35,8 +35,6 @@ import coil3.request.crossfade
 import com.example.hki7.data.HAEntity
 import com.example.hki7.data.HKIActionButton
 import com.example.hki7.data.HKIPageConfig
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.example.hki7.ui.MainViewModel
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.coroutines.Dispatchers
@@ -180,13 +178,12 @@ private fun PersonSettingsDialog(
     personButtons: List<HKIActionButton>,
     onDismiss: () -> Unit
 ) {
-    val appColors = LocalHKIAppColors.current
-    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Surface(
-            modifier = Modifier.fillMaxWidth(0.95f).fillMaxHeight(0.85f),
-            shape = itemCornerShape(),
-            color = appColors.elevated
-        ) {
+    ModernSettingsDialogFrame(
+        title = "Person settings",
+        subtitle = person.friendlyName ?: person.entity_id,
+        icon = Icons.Default.Person,
+        onDismiss = onDismiss,
+        content = {
             PersonSettingsView(
                 person = person,
                 viewModel = viewModel,
@@ -194,10 +191,12 @@ private fun PersonSettingsDialog(
                 areas = areas,
                 homeConfig = homeConfig,
                 personButtons = personButtons,
-                onBack = onDismiss
+                onBack = onDismiss,
+                showHeader = false
             )
-        }
-    }
+        },
+        footer = { Button(onClick = onDismiss) { Text("Done") } }
+    )
 }
 
 @Composable
@@ -208,24 +207,29 @@ fun PersonSettingsView(
     areas: List<com.example.hki7.data.HAArea>,
     homeConfig: HKIPageConfig,
     personButtons: List<HKIActionButton>,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    showHeader: Boolean = true
 ) {
     val appColors = LocalHKIAppColors.current
     val isVisible = person.entity_id !in homeConfig.hiddenPeople
 
     Column(
         modifier = Modifier
-            .padding(24.dp)
+            .padding(if (showHeader) 24.dp else 0.dp)
             .heightIn(max = 520.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Person Settings", modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, color = appColors.onSurface)
-            TextButton(onClick = onBack) { Text("Done") }
+        if (showHeader) {
+            ModernSettingsHeader(
+                title = "Person settings",
+                subtitle = person.friendlyName ?: person.entity_id,
+                icon = Icons.Default.Person,
+                onClose = onBack
+            )
+            Spacer(Modifier.height(16.dp))
         }
 
-        Spacer(Modifier.height(16.dp))
-
+        SettingsSubcategory("Visibility", "Choose whether this person appears in the Home header")
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
                 checked = isVisible,
@@ -247,6 +251,8 @@ fun PersonSettingsView(
 
         Spacer(Modifier.height(16.dp))
 
+        SettingsSubcategory("Quick actions", "Buttons available from this person's detail dialog")
+        Spacer(Modifier.height(8.dp))
         CustomButtonsEditor(
             buttons = personButtons,
             allEntities = allEntities,

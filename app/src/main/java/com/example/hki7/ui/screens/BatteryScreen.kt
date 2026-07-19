@@ -1,5 +1,7 @@
 package com.example.hki7.ui.screens
 
+import com.example.hki7.ui.components.ModernAlertDialog as AlertDialog
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -350,6 +352,10 @@ fun BatteryScreen(
     val lowCount = batteries.count { (it.level ?: 101) <= 30 }
     val isEmptyBatteryView = config.manualOnly && batteries.isEmpty()
 
+    LaunchedEffect(isEditMode) {
+        if (isEditMode) selected = null
+    }
+
     val settingsSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
         "Battery Entities" to { _ ->
             val allEntities by viewModel.entities.collectAsState()
@@ -420,7 +426,7 @@ fun BatteryScreen(
         }
     }
 
-    selected?.let { info ->
+    if (!isEditMode) selected?.let { info ->
         // Live lookup so the dialog reflects state updates while open.
         BatteryDetailDialog(batteries.find { it.entity.entity_id == info.entity.entity_id } ?: info) { selected = null }
     }
@@ -470,7 +476,11 @@ fun BatteryScreen(
                         item { BatteryCategoryHeader(category, grouped.size) }
                         items(grouped, key = { it.entity.entity_id }) { info ->
                             Box {
-                                BatteryRow(info, showNotes = config.useBatteryNotes, onClick = { selected = info })
+                                BatteryRow(
+                                    info,
+                                    showNotes = config.useBatteryNotes,
+                                    onClick = { if (!isEditMode) selected = info }
+                                )
                                 if (isEditMode) {
                                     EditSettingsButton({ renameBattery = info }, Modifier.align(Alignment.Center))
                                     EditRemoveBadge(
@@ -1094,21 +1104,33 @@ fun BatteryCardWidgetSettingsDialog(
     var radius by remember(widget) { mutableStateOf(widget.cornerRadius) }
     var width by remember(widget) { mutableStateOf(widget.width) }
     var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
+    var settingsPage by remember(widget) { mutableStateOf("rules") }
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text("Battery Levels") },
+        title = { com.example.hki7.ui.components.ModernSettingsDialogTitle("Battery levels", "Thresholds, sources, and appearance") },
         text = {
             val settingsScroll = rememberScrollState()
             Column(
                 modifier = Modifier.heightIn(max = 460.dp).fadingEdges(settingsScroll).verticalScroll(settingsScroll),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                com.example.hki7.ui.components.SettingsTabRow(
+                    tabs = listOf("rules" to "Battery rules", "appearance" to "Appearance"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "rules") {
+                com.example.hki7.ui.components.SettingsSubcategory("Battery rules", "Choose the source and when a battery is considered low")
                 OutlinedTextField(title, { title = it }, label = { Text("Title") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(threshold, { threshold = it.filter(Char::isDigit).take(3) }, label = { Text("Low threshold (%)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text("Battery+ / Battery Notes only", modifier = Modifier.weight(1f))
                     Switch(checked = useNotes, onCheckedChange = { useNotes = it })
                 }
+                }
+                if (settingsPage == "appearance") {
+                com.example.hki7.ui.components.SettingsSubcategory("Appearance", "Card shape, width, and background")
                 Text("Shape", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
@@ -1116,6 +1138,7 @@ fun BatteryCardWidgetSettingsDialog(
                 }
                 WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
                 WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
+                }
             }
         },
         confirmButton = {

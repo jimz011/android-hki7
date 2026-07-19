@@ -285,8 +285,22 @@ class PreferencesManager(private val context: Context) {
     }
 
     suspend fun saveConnectionDetails(url: String, token: String, refresh: String? = null, expiresInSeconds: Int? = null) {
+        val connectionUrls = splitHomeAssistantConnectionUrl(url)
         context.dataStore.edit { preferences ->
-            preferences[serverUrlKey] = url
+            connectionUrls.external?.let { external ->
+                preferences[serverUrlKey] = external
+                if (!preferences[mobileAppWebhookIdKey].isNullOrBlank()) {
+                    preferences[mobileAppRegisteredUrlKey] = external
+                }
+            }
+            connectionUrls.internal?.let { internal ->
+                preferences[internalUrlKey] = internal
+                if (preferences[serverUrlKey]?.trim()?.trimEnd('/')
+                        .equals(internal, ignoreCase = true)
+                ) {
+                    preferences.remove(serverUrlKey)
+                }
+            }
             preferences[accessTokenKey] = token
             if (refresh != null) preferences[refreshTokenKey] = refresh
             if (expiresInSeconds != null) {
@@ -399,6 +413,28 @@ class PreferencesManager(private val context: Context) {
             p[alarmPendingSecondsKey] = backup.alarmPendingSeconds
             p[mediaPlayerNamesKey] = appJson.encodeToString(backup.mediaPlayerNames)
             p[mediaPlayerBarHiddenKey] = backup.mediaPlayerBarHidden.joinToString(",")
+        }
+    }
+
+    /** Saves the first endpoint into exactly one slot. Local onboarding starts internal-only;
+     * remote/Nabu Casa onboarding starts external-only. */
+    suspend fun saveInitialConnectionDetails(
+        url: String,
+        token: String,
+        refresh: String? = null,
+        expiresInSeconds: Int? = null
+    ) {
+        val connectionUrls = splitHomeAssistantConnectionUrl(url)
+        context.dataStore.edit { preferences ->
+            connectionUrls.external?.let { preferences[serverUrlKey] = it }
+                ?: preferences.remove(serverUrlKey)
+            connectionUrls.internal?.let { preferences[internalUrlKey] = it }
+                ?: preferences.remove(internalUrlKey)
+            preferences[accessTokenKey] = token
+            if (refresh != null) preferences[refreshTokenKey] = refresh
+            if (expiresInSeconds != null) {
+                preferences[accessTokenExpiryKey] = System.currentTimeMillis() + expiresInSeconds * 1000L
+            }
         }
     }
     suspend fun saveAreaOrder(order: List<String>) { context.dataStore.edit { it[areaOrderKey] = order.joinToString(",") } }
@@ -608,6 +644,27 @@ class PreferencesManager(private val context: Context) {
 
     suspend fun saveInternalUrl(url: String?) {
         context.dataStore.edit { if (url.isNullOrBlank()) it.remove(internalUrlKey) else it[internalUrlKey] = url.trim() }
+    }
+    suspend fun saveExternalUrl(url: String?) {
+        context.dataStore.edit { preferences ->
+            val external = url?.trim()?.trimEnd('/')?.takeIf { it.isNotBlank() }
+            if (external == null) {
+                preferences.remove(serverUrlKey)
+                preferences[internalUrlKey]?.takeIf { it.isNotBlank() }?.let { internal ->
+                    if (!preferences[mobileAppWebhookIdKey].isNullOrBlank()) {
+                        preferences[mobileAppRegisteredUrlKey] = internal
+                    }
+                }
+            } else {
+                preferences[serverUrlKey] = external
+                // Internal and external endpoints address the same HA instance; retain the
+                // existing mobile_app webhook instead of creating a duplicate device solely
+                // because the preferred endpoint changed.
+                if (!preferences[mobileAppWebhookIdKey].isNullOrBlank()) {
+                    preferences[mobileAppRegisteredUrlKey] = external
+                }
+            }
+        }
     }
     suspend fun saveHomeSsids(ssids: List<String>) {
         context.dataStore.edit {

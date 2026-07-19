@@ -2,6 +2,7 @@
 
 package com.example.hki7.ui.components
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -46,7 +47,6 @@ import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -78,6 +78,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogWindowProvider
@@ -100,6 +101,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.milliseconds
 
 internal data class CameraFullscreenRequest(
     val title: String,
@@ -235,19 +237,32 @@ fun HKICameraDialog(
                     .fillMaxWidth(0.95f)
                     .fillMaxSize(if (isPhone) 0.78f else 0.85f)
                     .windowInsetsPadding(WindowInsets.statusBars),
-                shape = itemCornerShape(),
-                colors = CardDefaults.cardColors(containerColor = appColors.elevated)
+                shape = RoundedCornerShape(32.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = appColors.elevated,
+                    contentColor = appColors.onSurface
+                )
             ) {
-                Box(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier.fillMaxSize().background(
+                        Brush.verticalGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.11f),
+                                appColors.elevated,
+                                appColors.elevated
+                            )
+                        )
+                    )
+                ) {
                     Column(modifier = Modifier.fillMaxSize()) {
                         Row(
                             modifier = Modifier.padding(24.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Surface(
-                                modifier = Modifier.size(36.dp),
-                                shape = CircleShape,
-                                color = appColors.elevated
+                                modifier = Modifier.size(50.dp),
+                                shape = RoundedCornerShape(17.dp),
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(Icons.Default.CameraAlt, contentDescription = null, tint = appColors.onMuted)
@@ -255,13 +270,13 @@ fun HKICameraDialog(
                             }
                             Spacer(Modifier.width(12.dp))
                             Column(Modifier.weight(1f)) {
-                                Text(title, style = MaterialTheme.typography.titleLarge, color = appColors.onSurface)
+                                Text(title, style = MaterialTheme.typography.headlineSmall, color = appColors.onSurface, fontWeight = FontWeight.Bold)
                                 Text(statusText ?: if (imageUrl.isNullOrBlank()) "No stream available" else "Live", style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
                             }
                             IconButton(
                                 onClick = onDismiss,
                                 modifier = Modifier
-                                    .background(appColors.elevated.copy(alpha = 0.85f), CircleShape)
+                                    .background(appColors.subtleSurface, CircleShape)
                                     .size(48.dp)
                             ) {
                                 Icon(Icons.Default.Close, contentDescription = "Close", tint = appColors.onSurface)
@@ -296,6 +311,7 @@ fun HKICameraDialog(
 }
 
 @Composable
+@SuppressLint("SourceLockedOrientationActivity")
 internal fun CameraFullscreenHost(
     request: CameraFullscreenRequest?,
     onDismiss: () -> Unit
@@ -383,7 +399,7 @@ private fun FullscreenCameraViewer(
         revealControls()
         // Live MJPEG responses never finish by design, and some WebView builds never emit a
         // reliable commit callback for them. Never leave a permanent spinner over valid video.
-        delay(2_000)
+        delay(2_000.milliseconds)
         isLoading = false
     }
     LaunchedEffect(orientation) {
@@ -392,7 +408,7 @@ private fun FullscreenCameraViewer(
     }
     LaunchedEffect(controlsVisible, controlsTimeoutKey, isLoading) {
         if (controlsVisible && !isLoading) {
-            delay(3_500)
+            delay(3_500.milliseconds)
             controlsVisible = false
         }
     }

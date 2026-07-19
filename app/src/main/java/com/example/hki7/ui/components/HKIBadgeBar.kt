@@ -1038,6 +1038,7 @@ fun BadgeSettingsDialog(
     onRemove: () -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
+    var settingsPage by remember { mutableStateOf("entities") }
 
     var shape       by remember { mutableStateOf(badge.shape) }
     var side        by remember { mutableStateOf(badge.side) }
@@ -1087,14 +1088,22 @@ fun BadgeSettingsDialog(
         )
     }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Badge Settings") },
-        text = {
+    ModernSettingsDialogFrame(
+        title = "Header pill",
+        subtitle = "Entities, appearance, and interactions",
+        onDismiss = onDismiss,
+        content = {
             Column(
-                modifier = Modifier.verticalScroll(rememberScrollState()),
+                modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
+                SettingsTabRow(
+                    tabs = listOf("entities" to "Entities", "appearance" to "Appearance", "actions" to "Actions"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "entities") {
+                SettingsSubcategory("Entities", "Choose what this badge summarizes")
                 // Entities (multi-select)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -1112,6 +1121,10 @@ fun BadgeSettingsDialog(
                         )
                     }
                     TextButton(onClick = { showEntityPicker = true }) { Text("Change") }
+                }
+
+                if (lockIds.isNotEmpty() || vacuumIds.isNotEmpty() || climateIds.isNotEmpty()) {
+                    SettingsSubcategory("Entity integrations", "Optional controls and sensors for richer dialogs")
                 }
 
                 // Per-lock door sensors
@@ -1178,9 +1191,11 @@ fun BadgeSettingsDialog(
                     }
                 }
 
-                HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
+                }
 
                 // Shape
+                if (settingsPage == "appearance") {
+                SettingsSubcategory("Appearance", "Shape, visible information, and icon behavior")
                 Text("Shape", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf("pill" to "Pill", "circle" to "Circle").forEach { (value, label) ->
@@ -1227,6 +1242,7 @@ fun BadgeSettingsDialog(
                 // Side (only in split mode)
                 if (showSidePicker) {
                     HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
+                    SettingsSubcategory("Placement", "Choose a side when the badge bar is split")
                     Text("Side (split alignment)", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(selected = side == "left",  onClick = { side = "left" },  label = { Text("Left") })
@@ -1234,15 +1250,22 @@ fun BadgeSettingsDialog(
                     }
                 }
 
+                }
+
                 // Tap / Hold actions + custom nav-bar buttons for the badge's dialog.
-                HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
+                if (settingsPage == "actions") {
+                SettingsSubcategory("Interactions", "Tap, hold, and dialog quick actions")
                 ActionEditor("Tap", tapAction, allEntities, areas) { tapAction = it }
                 ActionEditor("Hold", holdAction, allEntities, areas) { holdAction = it }
                 HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
                 CustomButtonsEditor(customButtons, allEntities, areas) { customButtons = it }
+                }
             }
         },
-        confirmButton = {
+        footer = {
+            TextButton(onClick = onRemove) { Text("Remove", color = MaterialTheme.colorScheme.error) }
+            Spacer(Modifier.weight(1f))
+            TextButton(onClick = onDismiss) { Text("Cancel") }
             Button(onClick = {
                 val primary = editingEntityIds.firstOrNull() ?: badge.entityId
                 onSave(badge.copy(
@@ -1268,12 +1291,6 @@ fun BadgeSettingsDialog(
                     vacuumEmptyBinEntityIds = vacuumEmptyIds.filterKeys { it in vacuumIds }
                 ))
             }) { Text("Save") }
-        },
-        dismissButton = {
-            Row {
-                TextButton(onClick = onRemove) { Text("Remove", color = MaterialTheme.colorScheme.error) }
-                TextButton(onClick = onDismiss) { Text("Cancel") }
-            }
         }
     )
 

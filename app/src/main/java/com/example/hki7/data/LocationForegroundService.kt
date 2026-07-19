@@ -64,7 +64,7 @@ class LocationForegroundService : Service() {
         startForeground(NOTIFICATION_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
         if (observeJob?.isActive != true) {
             observeJob = scope.launch {
-                val loggedIn = !prefs.serverUrl.first().isNullOrBlank()
+                val loggedIn = !prefs.serverUrl.first().isNullOrBlank() || !prefs.internalUrl.first().isNullOrBlank()
                 if (!loggedIn) {
                     stopSelf()
                     return@launch

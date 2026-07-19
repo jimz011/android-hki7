@@ -33,10 +33,11 @@ class GeofenceManager(private val context: Context) {
             log("Geofencing skipped: no background location permission")
             return
         }
-        val external = prefs.serverUrl.first()?.takeIf { it.isNotBlank() } ?: return
+        val external = prefs.serverUrl.first()?.takeIf { it.isNotBlank() }
         val internal = prefs.internalUrl.first()
+        val primary = external ?: internal?.takeIf { it.isNotBlank() } ?: return
         val ssids = prefs.homeSsids.first()
-        val active = resolveHomeAssistantUrl(external, internal, ssids, currentWifiSsid(context)) ?: external
+        val active = resolveHomeAssistantUrl(external, internal, ssids, currentWifiSsid(context)) ?: primary
         val token = prefs.accessToken.first().orEmpty()
 
         val zones = runCatching { HomeAssistantClient(active, token).getEntities() }

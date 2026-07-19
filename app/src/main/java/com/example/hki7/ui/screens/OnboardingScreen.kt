@@ -29,11 +29,15 @@ import androidx.compose.material.icons.filled.BatterySaver
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DashboardCustomize
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.PhoneAndroid
+import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -42,7 +46,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -50,14 +53,19 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.hki7.data.HomeAssistantClient
+import com.example.hki7.data.HomeAssistantConnectionRoute
 import com.example.hki7.data.LocationWork
 import com.example.hki7.data.PreferencesManager
+import com.example.hki7.data.classifyHomeAssistantConnectionRoute
+import com.example.hki7.data.splitHomeAssistantConnectionUrl
+import com.example.hki7.ui.components.ModernSettingsHeader
 import com.example.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.coroutines.launch
 import java.net.URLEncoder
 
-private enum class OnboardStep { WELCOME, SERVER, NAME, LOGIN, PERMISSIONS, DASHBOARD }
+private enum class OnboardStep { WELCOME, SERVER, NAME, LOGIN, PERMISSIONS, CONNECTION, DASHBOARD }
 
 /**
  * First-run onboarding, modeled on the official Home Assistant app: welcome → auto-discover/enter the
@@ -71,7 +79,8 @@ fun OnboardingScreen(prefs: PreferencesManager, startAtLogin: Boolean = false, o
     // already known, so jump straight to the login step and skip the rest of onboarding.
     val loadingSentinel = "__hki_loading__"
     val savedServerUrl by prefs.serverUrl.collectAsState(initial = loadingSentinel)
-    if (startAtLogin && savedServerUrl == loadingSentinel) {
+    val savedInternalUrl by prefs.internalUrl.collectAsState(initial = loadingSentinel)
+    if (startAtLogin && (savedServerUrl == loadingSentinel || savedInternalUrl == loadingSentinel)) {
         Box(Modifier.fillMaxSize().background(LocalHKIAppColors.current.background), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
@@ -79,13 +88,15 @@ fun OnboardingScreen(prefs: PreferencesManager, startAtLogin: Boolean = false, o
     }
     // The host latches startAtLogin for the lifetime of this onboarding run. Keep this state stable
     // too: the OAuth token save must not recreate the flow at LOGIN before it advances.
-    val loginOnly = remember { startAtLogin && !savedServerUrl.isNullOrBlank() }
+    val savedLoginUrl = savedServerUrl?.takeIf { it.isNotBlank() }
+        ?: savedInternalUrl?.takeIf { it.isNotBlank() }
+    val loginOnly = remember { startAtLogin && !savedLoginUrl.isNullOrBlank() }
     LaunchedEffect(loginOnly) {
         if (!loginOnly) prefs.prepareForInitialDashboardChoice()
     }
     var step by remember { mutableStateOf(if (loginOnly) OnboardStep.LOGIN else OnboardStep.WELCOME) }
     var serverUrl by remember {
-        mutableStateOf(if (loginOnly) savedServerUrl.orEmpty().removeSuffix("/") else "")
+        mutableStateOf(if (loginOnly) savedLoginUrl.orEmpty().removeSuffix("/") else "")
     }
 
     AnimatedContent(
@@ -107,12 +118,183 @@ fun OnboardingScreen(prefs: PreferencesManager, startAtLogin: Boolean = false, o
             OnboardStep.LOGIN -> LoginStep(
                 serverUrl = serverUrl,
                 prefs = prefs,
+                initialConnection = !loginOnly,
                 // Re-login still allows stepping back to pick a different server if needed.
                 onBack = { step = if (loginOnly) OnboardStep.SERVER else OnboardStep.NAME },
                 onLoggedIn = { if (loginOnly) onComplete() else step = OnboardStep.PERMISSIONS }
             )
-            OnboardStep.PERMISSIONS -> PermissionsStep(onFinish = { step = OnboardStep.DASHBOARD })
+            OnboardStep.PERMISSIONS -> PermissionsStep(onFinish = { step = OnboardStep.CONNECTION })
+            OnboardStep.CONNECTION -> ConnectionInfoStep(serverUrl, onContinue = { step = OnboardStep.DASHBOARD })
             OnboardStep.DASHBOARD -> DashboardSetupStep(prefs, onComplete)
+        }
+    }
+}
+
+@Composable
+private fun ConnectionInfoStep(serverUrl: String, onContinue: () -> Unit) {
+    val colors = LocalHKIAppColors.current
+    val connectionUrls = remember(serverUrl) { splitHomeAssistantConnectionUrl(serverUrl) }
+    val route = remember(serverUrl, connectionUrls) {
+        classifyHomeAssistantConnectionRoute(
+            activeUrl = serverUrl,
+            internalUrl = connectionUrls.internal,
+            connectedViaLocalAddress = false
+        )
+    }
+    val content = when (route) {
+        HomeAssistantConnectionRoute.LOCAL -> ConnectionInfoContent(
+            title = "Local by default. Remote when you're ready.",
+            subtitle = "HKI 7 is connected through your home network",
+            icon = Icons.Default.Wifi,
+            paragraphs = listOf(
+                "Your smart home is currently available to HKI 7 only while this device can reach your local Home Assistant network.",
+                "To use HKI 7 away from home, add a Nabu Casa or external URL later in Settings > Connection.",
+                "For now, you're securely connected to your local network."
+            )
+        )
+        HomeAssistantConnectionRoute.NABU_CASA -> ConnectionInfoContent(
+            title = "Remote access is ready.",
+            subtitle = "Connected through Home Assistant Cloud",
+            icon = Icons.Default.Cloud,
+            paragraphs = listOf(
+                "HKI 7 can reach your smart home both at home and while you're away through your Nabu Casa URL.",
+                "For a faster direct connection at home, you can also add an internal URL and your home Wi-Fi networks later in Settings > Connection."
+            )
+        )
+        HomeAssistantConnectionRoute.EXTERNAL -> ConnectionInfoContent(
+            title = "Remote access is ready.",
+            subtitle = "Connected through your external Home Assistant address",
+            icon = Icons.Default.Public,
+            paragraphs = listOf(
+                "HKI 7 can reach your smart home both at home and while you're away through the external URL you entered.",
+                "For a faster direct connection at home, you can also add an internal URL and your home Wi-Fi networks later in Settings > Connection."
+            )
+        )
+    }
+
+    OnboardingDialogFrame(
+        title = content.title,
+        subtitle = content.subtitle,
+        icon = content.icon,
+        footer = {
+            Button(
+                onClick = onContinue,
+                modifier = Modifier.fillMaxWidth().height(54.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) { Text("Got it", fontWeight = FontWeight.Bold) }
+        }
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Surface(
+                modifier = Modifier.size(112.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        content.icon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(58.dp)
+                    )
+                }
+            }
+            Spacer(Modifier.height(30.dp))
+            content.paragraphs.forEachIndexed { index, paragraph ->
+                if (index > 0) Spacer(Modifier.height(18.dp))
+                Text(
+                    paragraph,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = colors.onMuted,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+private data class ConnectionInfoContent(
+    val title: String,
+    val subtitle: String,
+    val icon: ImageVector,
+    val paragraphs: List<String>
+)
+
+/** Keeps each setup step on the same fixed, modern surface as the rest of the app's dialogs. */
+@Composable
+private fun OnboardingDialogFrame(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    onBack: (() -> Unit)? = null,
+    footer: (@Composable RowScope.() -> Unit)? = null,
+    content: @Composable () -> Unit
+) {
+    val colors = LocalHKIAppColors.current
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                        colors.background,
+                        colors.background
+                    )
+                )
+            )
+            .windowInsetsPadding(WindowInsets.safeDrawing)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 620.dp)
+                .fillMaxHeight(0.92f),
+            shape = RoundedCornerShape(32.dp),
+            color = colors.elevated,
+            contentColor = colors.onSurface,
+            shadowElevation = 18.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                                colors.elevated,
+                                colors.elevated
+                            )
+                        )
+                    )
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(18.dp)
+            ) {
+                ModernSettingsHeader(
+                    title = title,
+                    subtitle = subtitle,
+                    icon = icon,
+                    canGoBack = onBack != null,
+                    onBack = { onBack?.invoke() }
+                )
+                Box(modifier = Modifier.weight(1f).fillMaxWidth()) { content() }
+                footer?.let { footerContent ->
+                    HorizontalDivider(color = colors.onMuted.copy(alpha = 0.22f))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        footerContent()
+                    }
+                }
+            }
         }
     }
 }
@@ -130,132 +312,55 @@ private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit
             onComplete()
         }
     }
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    listOf(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                        colors.background,
-                        colors.background
-                    )
-                )
-            )
-            .windowInsetsPadding(WindowInsets.safeDrawing)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        contentAlignment = Alignment.Center
+    OnboardingDialogFrame(
+        title = "Choose your dashboard",
+        subtitle = "Pick a starting point; everything remains editable",
+        icon = Icons.Default.DashboardCustomize
     ) {
-        Surface(
-            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.96f).widthIn(max = 560.dp),
-            shape = RoundedCornerShape(32.dp),
-            color = colors.surface,
-            tonalElevation = 10.dp,
-            shadowElevation = 20.dp
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                                colors.surface,
-                                colors.surface
-                            )
-                        )
-                    )
-                    .verticalScroll(rememberScrollState())
-                    .padding(24.dp)
+            DashboardChoiceCard(
+                title = "Auto generate",
+                subtitle = "Let HKI 7 create the first version for you.",
+                icon = Icons.Default.AutoAwesome,
+                recommended = true,
+                bullets = listOf(
+                    "Creates rooms and floors from Home Assistant areas",
+                    "Finds suitable Climate, Security, Energy and Battery entities",
+                    "Everything can be changed afterward in Edit mode"
+                ),
+                buttonText = if (savingMode == true) "Building dashboard…" else "Auto generate",
+                enabled = savingMode == null,
+                onClick = { finish(true) }
+            )
+            DashboardChoiceCard(
+                title = "Start empty",
+                subtitle = "Build the interface entirely your way.",
+                icon = Icons.Default.DashboardCustomize,
+                recommended = false,
+                bullets = listOf(
+                    "Starts without imported rooms, widgets or view entities",
+                    "Add everything yourself using Edit mode"
+                ),
+                buttonText = if (savingMode == false) "Preparing dashboard…" else "Start empty",
+                enabled = savingMode == null,
+                onClick = { finish(false) }
+            )
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                color = colors.subtleSurface
             ) {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Surface(
-                        modifier = Modifier.size(52.dp),
-                        shape = RoundedCornerShape(18.dp),
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.17f)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                Icons.Default.DashboardCustomize,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(27.dp)
-                            )
-                        }
-                    }
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = colors.subtleSurface
-                    ) {
-                        Text(
-                            "FINAL STEP",
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                            color = colors.onMuted,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-                Spacer(Modifier.height(18.dp))
                 Text(
-                    "Choose your starting point",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = colors.onSurface
+                    "Auto generation is a one-time starting point. The Home page starts empty in either mode, and you can re-import Home Assistant data later from individual views.",
+                    modifier = Modifier.padding(14.dp),
+                    color = colors.onMuted,
+                    style = MaterialTheme.typography.bodySmall
                 )
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    "Both options stay fully editable. Pick the one that gets you closest to the dashboard you want.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = colors.onMuted
-                )
-                Spacer(Modifier.height(22.dp))
-
-                DashboardChoiceCard(
-                    title = "Auto generate",
-                    subtitle = "Let HKI 7 create the first version for you.",
-                    icon = Icons.Default.AutoAwesome,
-                    recommended = true,
-                    bullets = listOf(
-                        "Creates rooms and floors from Home Assistant areas",
-                        "Finds suitable Climate, Security, Energy and Battery entities",
-                        "Everything can be changed afterward in Edit mode"
-                    ),
-                    buttonText = if (savingMode == true) "Building dashboard…" else "Auto generate",
-                    enabled = savingMode == null,
-                    onClick = { finish(true) }
-                )
-                Spacer(Modifier.height(12.dp))
-                DashboardChoiceCard(
-                    title = "Start empty",
-                    subtitle = "Build the interface entirely your way.",
-                    icon = Icons.Default.DashboardCustomize,
-                    recommended = false,
-                    bullets = listOf(
-                        "Starts without imported rooms, widgets or view entities",
-                        "Add everything yourself using Edit mode"
-                    ),
-                    buttonText = if (savingMode == false) "Preparing dashboard…" else "Start empty",
-                    enabled = savingMode == null,
-                    onClick = { finish(false) }
-                )
-                Spacer(Modifier.height(14.dp))
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    color = colors.subtleSurface
-                ) {
-                    Text(
-                        "Auto generation is a one-time starting point. The Home page starts empty in either mode, and you can re-import Home Assistant data later from individual views.",
-                        modifier = Modifier.padding(14.dp),
-                        color = colors.onMuted,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
             }
         }
     }
@@ -412,90 +517,80 @@ private fun ServerStep(onBack: () -> Unit, onServerChosen: (String) -> Unit) {
     val discovered = rememberHaDiscovery(active = true)
     var manualUrl by remember { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(appColors.background)
-            .padding(24.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
-        Spacer(Modifier.height(8.dp))
-        Text("Find your server", style = MaterialTheme.typography.headlineMedium, color = appColors.onSurface)
-        Spacer(Modifier.height(6.dp))
-        Text("Home Assistant instances on your network appear automatically.", style = MaterialTheme.typography.bodyMedium, color = appColors.onMuted)
-
-        Spacer(Modifier.height(24.dp))
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Discovered", style = MaterialTheme.typography.titleSmall, color = appColors.onSurface)
-            Spacer(Modifier.width(8.dp))
-            if (discovered.isEmpty()) {
-                CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                Spacer(Modifier.width(8.dp))
-                Text("Scanning…", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
-            }
-        }
-        Spacer(Modifier.height(10.dp))
-
-        if (discovered.isEmpty()) {
-            Surface(shape = RoundedCornerShape(16.dp), color = appColors.subtleSurface, modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    "No servers found yet. Make sure you're on the same Wi-Fi, or enter the address below.",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = appColors.onMuted
-                )
-            }
-        } else {
-            discovered.forEach { server ->
-                Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = appColors.subtleSurface,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 10.dp)
-                        .clickable { onServerChosen(server.baseUrl) }
-                ) {
-                    Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Home, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                        Spacer(Modifier.width(14.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(server.name, style = MaterialTheme.typography.titleSmall, color = appColors.onSurface)
-                            Text(server.baseUrl, style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
-                        }
-                        Icon(Icons.Default.ChevronRight, contentDescription = null, tint = appColors.onMuted)
-                    }
-                }
-            }
-        }
-
-        Spacer(Modifier.height(24.dp))
-        Text("Or enter manually", style = MaterialTheme.typography.titleSmall, color = appColors.onSurface)
-        Spacer(Modifier.height(10.dp))
-        OutlinedTextField(
-            value = manualUrl,
-            onValueChange = { manualUrl = it },
-            label = { Text("Server URL") },
-            placeholder = { Text("http://homeassistant.local:8123") },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            singleLine = true
-        )
-
-        Spacer(Modifier.height(24.dp))
-        Row {
-            OutlinedButton(onClick = onBack, modifier = Modifier.height(52.dp)) { Text("Back") }
-            Spacer(Modifier.width(12.dp))
+    OnboardingDialogFrame(
+        title = "Find Home Assistant locally",
+        subtitle = "We'll check your home network first; you can also enter an address",
+        icon = Icons.Default.Home,
+        onBack = onBack,
+        footer = {
             Button(
                 onClick = { if (manualUrl.isNotBlank()) onServerChosen(manualUrl.trim()) },
                 enabled = manualUrl.isNotBlank(),
-                modifier = Modifier.weight(1f).height(52.dp),
+                modifier = Modifier.fillMaxWidth().height(54.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Text("Connect")
                 Spacer(Modifier.width(8.dp))
                 Icon(Icons.Default.ChevronRight, contentDescription = null)
             }
+        }
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Discovered", style = MaterialTheme.typography.titleSmall, color = appColors.onSurface)
+                Spacer(Modifier.width(8.dp))
+                if (discovered.isEmpty()) {
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Scanning…", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+                }
+            }
+
+            if (discovered.isEmpty()) {
+                Surface(shape = RoundedCornerShape(16.dp), color = appColors.subtleSurface, modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        "No servers found yet. Make sure you're on the same Wi-Fi, or enter the address below.",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = appColors.onMuted
+                    )
+                }
+            } else {
+                discovered.forEach { server ->
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = appColors.subtleSurface,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onServerChosen(server.baseUrl) }
+                    ) {
+                        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Home, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                            Spacer(Modifier.width(14.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(server.name, style = MaterialTheme.typography.titleSmall, color = appColors.onSurface)
+                                Text(server.baseUrl, style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+                            }
+                            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = appColors.onMuted)
+                        }
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+            Text("Enter an address manually", style = MaterialTheme.typography.titleSmall, color = appColors.onSurface)
+            OutlinedTextField(
+                value = manualUrl,
+                onValueChange = { manualUrl = it },
+                label = { Text("Server URL") },
+                placeholder = { Text("http://homeassistant.local:8123") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                singleLine = true
+            )
         }
     }
 }
@@ -516,33 +611,12 @@ private fun NameStep(prefs: PreferencesManager, onBack: () -> Unit, onNext: () -
     var name by remember { mutableStateOf(defaultName) }
     var saving by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(appColors.background)
-            .padding(24.dp)
-    ) {
-        Spacer(Modifier.height(8.dp))
-        Text("Name this device", style = MaterialTheme.typography.headlineMedium, color = appColors.onSurface)
-        Spacer(Modifier.height(6.dp))
-        Text(
-            "This is how the device appears in Home Assistant. It's set when the device registers, so pick something recognizable now.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = appColors.onMuted
-        )
-        Spacer(Modifier.height(24.dp))
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Device name") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp)
-        )
-        Spacer(Modifier.weight(1f))
-        Row {
-            OutlinedButton(onClick = onBack, modifier = Modifier.height(52.dp)) { Text("Back") }
-            Spacer(Modifier.width(12.dp))
+    OnboardingDialogFrame(
+        title = "Name this device",
+        subtitle = "Choose how this phone or tablet appears in Home Assistant",
+        icon = Icons.Default.PhoneAndroid,
+        onBack = onBack,
+        footer = {
             Button(
                 onClick = {
                     if (name.isNotBlank() && !saving) {
@@ -550,14 +624,57 @@ private fun NameStep(prefs: PreferencesManager, onBack: () -> Unit, onNext: () -
                         scope.launch { prefs.saveMobileDeviceName(name.trim()); onNext() }
                     }
                 },
-                enabled = name.isNotBlank(),
-                modifier = Modifier.weight(1f).height(52.dp),
+                enabled = name.isNotBlank() && !saving,
+                modifier = Modifier.fillMaxWidth().height(54.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Continue")
+                Text(if (saving) "Saving…" else "Continue")
                 Spacer(Modifier.width(8.dp))
                 Icon(Icons.Default.ChevronRight, contentDescription = null)
             }
+        }
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(18.dp)
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                color = appColors.subtleSurface,
+                contentColor = appColors.onSurface
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        modifier = Modifier.size(46.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(Icons.Default.PhoneAndroid, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                    Spacer(Modifier.width(13.dp))
+                    Text(
+                        "Use a recognizable name, such as ‘Kitchen tablet’ or ‘Jimmy’s phone’.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = appColors.onMuted,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Device name") },
+                supportingText = { Text("This name is used when the device registers with Home Assistant.") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            )
         }
     }
 }
@@ -567,7 +684,13 @@ private fun NameStep(prefs: PreferencesManager, onBack: () -> Unit, onNext: () -
 // ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
-private fun LoginStep(serverUrl: String, prefs: PreferencesManager, onBack: () -> Unit, onLoggedIn: () -> Unit) {
+private fun LoginStep(
+    serverUrl: String,
+    prefs: PreferencesManager,
+    initialConnection: Boolean,
+    onBack: () -> Unit,
+    onLoggedIn: () -> Unit
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -591,7 +714,11 @@ private fun LoginStep(serverUrl: String, prefs: PreferencesManager, onBack: () -
             scope.launch {
                 try {
                     val response = HomeAssistantClient.getAccessToken(serverUrl, code)
-                    prefs.saveConnectionDetails(serverUrl, response.access_token, response.refresh_token, response.expires_in)
+                    if (initialConnection) {
+                        prefs.saveInitialConnectionDetails(serverUrl, response.access_token, response.refresh_token, response.expires_in)
+                    } else {
+                        prefs.saveConnectionDetails(serverUrl, response.access_token, response.refresh_token, response.expires_in)
+                    }
                     val appCtx = context.applicationContext
                     LocationWork.schedule(appCtx)
                     LocationWork.syncNow(appCtx)
@@ -630,7 +757,11 @@ private fun LoginStep(serverUrl: String, prefs: PreferencesManager, onBack: () -
                                     scope.launch {
                                         try {
                                             val response = HomeAssistantClient.getAccessToken(serverUrl, code)
-                                            prefs.saveConnectionDetails(serverUrl, response.access_token, response.refresh_token, response.expires_in)
+                                            if (initialConnection) {
+                                                prefs.saveInitialConnectionDetails(serverUrl, response.access_token, response.refresh_token, response.expires_in)
+                                            } else {
+                                                prefs.saveConnectionDetails(serverUrl, response.access_token, response.refresh_token, response.expires_in)
+                                            }
                                             // Register with the mobile_app integration immediately after auth
                                             // (like the official app) — reads prefs directly, so it doesn't
                                             // depend on location permission or the websocket being up yet.
@@ -750,81 +881,160 @@ private fun PermissionsStep(onFinish: () -> Unit) {
         }
     }
 
-    Column(
+    val locationGranted = fineGranted && backgroundGranted
+    val enabledCount = listOf(notifGranted, locationGranted, batteryUnrestricted).count { it }
+    val permissionScroll = rememberScrollState()
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(appColors.background)
-            .padding(24.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
-        Spacer(Modifier.height(8.dp))
-        Text("Finishing up", style = MaterialTheme.typography.headlineMedium, color = appColors.onSurface)
-        Spacer(Modifier.height(6.dp))
-        Text("Grant a couple of permissions so HKI 7 can match the official app.", style = MaterialTheme.typography.bodyMedium, color = appColors.onMuted)
-
-        Spacer(Modifier.height(24.dp))
-
-        PermissionCard(
-            icon = Icons.Default.Notifications,
-            title = "Notifications",
-            description = "Let Home Assistant send alerts and actionable notifications to this device.",
-            granted = notifGranted,
-            actionLabel = "Enable",
-            onAction = { notifLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) }
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        PermissionCard(
-            icon = Icons.Default.LocationOn,
-            title = "Location — Allow all the time",
-            description = "Powers presence detection and zone automations. Choose \"Allow all the time\" so it works in the background, like the official app.",
-            granted = fineGranted && backgroundGranted,
-            actionLabel = when {
-                !fineGranted -> "Enable location"
-                !backgroundGranted -> "Set to Always"
-                else -> "Enabled"
-            },
-            onAction = {
-                when {
-                    !fineGranted -> foregroundLauncher.launch(
-                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                        appColors.background,
+                        appColors.background
                     )
-                    !backgroundGranted -> backgroundLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                    else -> {}
-                }
-            },
-            secondaryLabel = if (fineGranted && !backgroundGranted) "Open Settings" else null,
-            onSecondary = { openAppSettings() }
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        PermissionCard(
-            icon = Icons.Default.BatterySaver,
-            title = "Unrestricted background",
-            description = "Lets battery, charging and presence keep updating reliably in the background — the official app asks for this too. Without it, Android delays updates while idle.",
-            granted = batteryUnrestricted,
-            actionLabel = "Allow",
-            onAction = { requestBatteryUnrestricted() }
-        )
-
-        Spacer(Modifier.height(8.dp))
-        Text(
-            "You can change these anytime in Android Settings.",
-            style = MaterialTheme.typography.labelSmall,
-            color = appColors.onMuted
-        )
-
-        Spacer(Modifier.height(28.dp))
-        Button(
-            onClick = onFinish,
-            modifier = Modifier.fillMaxWidth().height(56.dp),
-            shape = RoundedCornerShape(16.dp)
+                )
+            )
+            .windowInsetsPadding(WindowInsets.safeDrawing)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 620.dp)
+                .fillMaxHeight(0.92f),
+            shape = RoundedCornerShape(32.dp),
+            color = appColors.elevated,
+            contentColor = appColors.onSurface,
+            shadowElevation = 18.dp
         ) {
-            Text(if (notifGranted && fineGranted && backgroundGranted) "Done" else "Continue")
-            Spacer(Modifier.width(8.dp))
-            Icon(Icons.Default.ChevronRight, contentDescription = null)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                                appColors.elevated,
+                                appColors.elevated
+                            )
+                        )
+                    )
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(18.dp)
+            ) {
+                ModernSettingsHeader(
+                    title = "Permissions",
+                    subtitle = "Enable the features HKI 7 may use in the background",
+                    icon = Icons.Default.Notifications
+                )
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(18.dp),
+                    color = appColors.subtleSurface,
+                    contentColor = appColors.onSurface
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                        verticalArrangement = Arrangement.spacedBy(9.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Setup progress", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                            Text("$enabledCount of 3 enabled", style = MaterialTheme.typography.labelMedium, color = appColors.onMuted)
+                        }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(7.dp)
+                                .background(appColors.onMuted.copy(alpha = 0.18f), CircleShape)
+                        ) {
+                            if (enabledCount > 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth(enabledCount / 3f)
+                                        .fillMaxHeight()
+                                        .background(MaterialTheme.colorScheme.primary, CircleShape)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .verticalScroll(permissionScroll),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    PermissionCard(
+                        icon = Icons.Default.Notifications,
+                        title = "Notifications",
+                        description = "Receive Home Assistant alerts and actionable notifications on this device.",
+                        granted = notifGranted,
+                        actionLabel = "Enable",
+                        onAction = { notifLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) }
+                    )
+
+                    PermissionCard(
+                        icon = Icons.Default.LocationOn,
+                        title = "Background location",
+                        description = "Keeps presence detection and zone automations working. Android should show ‘Allow all the time’.",
+                        granted = locationGranted,
+                        actionLabel = when {
+                            !fineGranted -> "Enable location"
+                            !backgroundGranted -> "Allow all the time"
+                            else -> "Enabled"
+                        },
+                        onAction = {
+                            when {
+                                !fineGranted -> foregroundLauncher.launch(
+                                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+                                )
+                                !backgroundGranted -> backgroundLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                                else -> {}
+                            }
+                        },
+                        secondaryLabel = if (fineGranted && !backgroundGranted) "Open Settings" else null,
+                        onSecondary = { openAppSettings() }
+                    )
+
+                    PermissionCard(
+                        icon = Icons.Default.BatterySaver,
+                        title = "Unrestricted background",
+                        description = "Prevents Android from delaying battery, charging, and presence updates while the device is idle.",
+                        granted = batteryUnrestricted,
+                        actionLabel = "Allow",
+                        onAction = { requestBatteryUnrestricted() }
+                    )
+
+                    Text(
+                        "These permissions are optional and can be changed later in Android Settings.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = appColors.onMuted,
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                    )
+                }
+
+                HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.22f))
+                Button(
+                    onClick = onFinish,
+                    modifier = Modifier.fillMaxWidth().height(54.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(if (notifGranted && locationGranted) "Done" else "Continue")
+                    Spacer(Modifier.width(8.dp))
+                    Icon(Icons.Default.ChevronRight, contentDescription = null)
+                }
+            }
         }
     }
 }
@@ -841,35 +1051,78 @@ private fun PermissionCard(
     onSecondary: () -> Unit = {}
 ) {
     val appColors = LocalHKIAppColors.current
-    Surface(shape = RoundedCornerShape(20.dp), color = appColors.subtleSurface, modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(18.dp)) {
+    val successColor = Color(0xFF4CAF50)
+    Surface(
+        shape = RoundedCornerShape(22.dp),
+        color = appColors.subtleSurface,
+        contentColor = appColors.onSurface,
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            if (granted) successColor.copy(alpha = 0.28f)
+            else MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+        ),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
-                    modifier = Modifier.size(40.dp),
-                    shape = CircleShape,
+                    modifier = Modifier.size(46.dp),
+                    shape = RoundedCornerShape(16.dp),
                     color = if (granted) Color(0xFF2E7D32).copy(alpha = 0.2f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             if (granted) Icons.Default.Check else icon,
                             contentDescription = null,
-                            tint = if (granted) Color(0xFF4CAF50) else MaterialTheme.colorScheme.primary
+                            tint = if (granted) successColor else MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
-                Spacer(Modifier.width(14.dp))
-                Text(title, style = MaterialTheme.typography.titleMedium, color = appColors.onSurface, modifier = Modifier.weight(1f))
+                Spacer(Modifier.width(13.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = appColors.onSurface
+                    )
+                    Text(
+                        if (granted) "Ready" else "Permission needed",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (granted) successColor else appColors.onMuted
+                    )
+                }
+                if (granted) {
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = successColor.copy(alpha = 0.14f)
+                    ) {
+                        Text(
+                            "ENABLED",
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = successColor
+                        )
+                    }
+                }
             }
-            Spacer(Modifier.height(10.dp))
             Text(description, style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
             if (!granted) {
-                Spacer(Modifier.height(14.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Button(onClick = onAction, shape = RoundedCornerShape(12.dp)) { Text(actionLabel) }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     if (secondaryLabel != null) {
-                        Spacer(Modifier.width(10.dp))
                         TextButton(onClick = onSecondary) { Text(secondaryLabel) }
+                        Spacer(Modifier.width(8.dp))
                     }
+                    Button(onClick = onAction, shape = RoundedCornerShape(12.dp)) { Text(actionLabel) }
                 }
             }
         }

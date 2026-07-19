@@ -1,5 +1,7 @@
 package com.example.hki7.ui.components
 
+import com.example.hki7.ui.components.ModernAlertDialog as AlertDialog
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -131,30 +133,24 @@ fun RoomConfigDialog(
         )
     }
 
-    AlertDialog(
-        onDismissRequest = {
-            onHeaderColorPreview(null)
-            onBadgeBarPreview(null)
-            onDismiss()
-        },
-        properties = androidx.compose.ui.window.DialogProperties(dismissOnBackPress = false),
-        title = {
-            androidx.activity.compose.BackHandler {
-                if (section == "menu") {
-                    onHeaderColorPreview(null)
-                    onBadgeBarPreview(null)
-                    onDismiss()
-                } else section = "menu"
-            }
-            Text(if (section == "menu") "Room Configuration" else section.replaceFirstChar { it.uppercase() })
-        },
-        text = {
+    val dismissSettings = {
+        onHeaderColorPreview(null)
+        onBadgeBarPreview(null)
+        onDismiss()
+    }
+    ModernSettingsDialogFrame(
+        title = if (section == "menu") "Room configuration" else section.replaceFirstChar { it.uppercase() },
+        subtitle = if (section == "menu") "Choose one room area to configure" else "Focused options for this room area",
+        onDismiss = dismissSettings,
+        onBack = if (section == "menu") null else {{ section = "menu" }},
+        content = {
             val scrollState = rememberScrollState()
             Column(
-                modifier = Modifier.heightIn(max = 560.dp).fadingEdges(scrollState).verticalScroll(scrollState),
+                modifier = Modifier.fillMaxSize().fadingEdges(scrollState).verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 if (section == "menu") {
+                    SettingsSubcategory("Room areas", "Identity, presentation, indicators, and maintenance")
                     RoomSettingsChoice(Icons.Default.Tune, "General", "Name and icon") { section = "general" }
                     RoomSettingsChoice(Icons.Default.Image, "Header", "Wallpaper and custom color") { section = "header" }
                     RoomSettingsChoice(Icons.Default.ViewStream, "Badge Bar", "Alignment and display options") { section = "badgebar" }
@@ -164,16 +160,11 @@ fun RoomConfigDialog(
                     RoomSettingsChoice(Icons.Default.DeleteSweep, "Clear Rooms View", "Remove imported rooms and floors") {
                         showClearRooms = true
                     }
-                } else {
-                    TextButton(onClick = { section = "menu" }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Back")
-                    }
                 }
 
                 if (section == "general") {
                     val appColors = LocalHKIAppColors.current
+                    SettingsSubcategory("Identity", "Name and icon used throughout the app")
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
@@ -201,6 +192,7 @@ fun RoomConfigDialog(
                 }
 
                 if (section == "header") {
+                    SettingsSubcategory("Header appearance", "Wallpaper and optional custom color")
                     OutlinedTextField(
                         value = wallpaper,
                         onValueChange = { wallpaper = it },
@@ -231,15 +223,16 @@ fun RoomConfigDialog(
                 }
 
                 if (section == "floor" && floors.isNotEmpty()) {
+                    SettingsSubcategory("Floor assignment", "Place this room in the correct floor group")
                     Text("Floor", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                        FilterChip(
+                        SettingsChoiceChip(
                             selected = floorId == null,
                             onClick = { floorId = null },
                             label = { Text("None") }
                         )
                         floors.take(3).forEach { floor ->
-                            FilterChip(
+                            SettingsChoiceChip(
                                 selected = floorId == floor.floor_id,
                                 onClick = { floorId = floor.floor_id },
                                 label = { Text(floor.name) }
@@ -250,6 +243,7 @@ fun RoomConfigDialog(
 
                 if (section == "room status") {
                     val appColors = LocalHKIAppColors.current
+                    SettingsSubcategory("Media", "Players summarized by the room header and card")
                     Text("Media players", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
                     Text(
                         "The room header and card show a single player's media, or an active-player count when multiple players are selected.",
@@ -273,6 +267,7 @@ fun RoomConfigDialog(
                         TextButton(onClick = { showMediaPicker = true }) { Text("Change") }
                     }
                     HorizontalDivider()
+                    SettingsSubcategory("Live indicators", "Entities that signal activity or safety states")
                     Text(
                         "Choose the Home Assistant entities that drive this room's live indicators. Indicators only appear while they are active.",
                         style = MaterialTheme.typography.bodySmall,
@@ -292,6 +287,7 @@ fun RoomConfigDialog(
                     }
 
                     HorizontalDivider()
+                    SettingsSubcategory("Climate summary", "Temperature and humidity sources for the room")
                     Text("Room climate", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
                     Text(
                         "Climate sources take priority and use their current_temperature and current_humidity values. " +
@@ -322,6 +318,7 @@ fun RoomConfigDialog(
                 }
 
                 if (section == "badgebar") {
+                    SettingsSubcategory("Badge bar layout", "Visibility, alignment, and overflow behavior")
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -339,7 +336,7 @@ fun RoomConfigDialog(
                     Text("Alignment", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                         listOf("split" to "Split", "left" to "Left", "center" to "Center", "right" to "Right").forEach { (value, label) ->
-                            FilterChip(
+                            SettingsChoiceChip(
                                 selected = badgeAlignment == value,
                                 onClick  = {
                                     badgeAlignment = value
@@ -398,7 +395,8 @@ fun RoomConfigDialog(
                 }
             }
         },
-        confirmButton = {
+        footer = {
+            TextButton(onClick = dismissSettings) { Text("Cancel") }
             Button(onClick = {
                 val normalizedMediaPlayerEntityIds = normalizeRoomEntityIds(mediaPlayerEntityIds)
                 val configuredMediaPlayerEntityIds = normalizeRoomEntityIds(
@@ -448,13 +446,6 @@ fun RoomConfigDialog(
                 onBadgeBarPreview(null)
                 onDismiss()
             }) { Text("Save") }
-        },
-        dismissButton = {
-            TextButton(onClick = {
-                onHeaderColorPreview(null)
-                onBadgeBarPreview(null)
-                onDismiss()
-            }) { Text("Cancel") }
         }
     )
 
@@ -491,22 +482,7 @@ fun RoomConfigDialog(
 
 @Composable
 private fun RoomSettingsChoice(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
-    val appColors = LocalHKIAppColors.current
-    Surface(
-        modifier = Modifier.fillMaxWidth().clickable { onClick() },
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp),
-        color = appColors.subtleSurface
-    ) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, null, tint = appColors.onSurface, modifier = Modifier.size(28.dp))
-            Spacer(Modifier.width(14.dp))
-            Column(Modifier.weight(1f)) {
-                Text(title, color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
-                Text(subtitle, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
-            }
-            Icon(Icons.Default.ChevronRight, null, tint = appColors.onMuted)
-        }
-    }
+    ModernSettingsMenuItem(icon = icon, title = title, subtitle = subtitle, onClick = onClick)
 }
 
 @Composable
@@ -635,7 +611,7 @@ fun WidgetWidthSelector(width: String, onWidthChange: (String) -> Unit, includeT
             if (includeThird) add("third" to "Third")
         }
         options.forEach { (value, label) ->
-            FilterChip(
+            SettingsChoiceChip(
                 selected = width == value,
                 onClick = { onWidthChange(value) },
                 label = { Text(label) }

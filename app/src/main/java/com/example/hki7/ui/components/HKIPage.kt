@@ -893,27 +893,25 @@ fun PageSettingsDialog(
             }
         )
     }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        properties = androidx.compose.ui.window.DialogProperties(dismissOnBackPress = false),
-        title = {
-            androidx.activity.compose.BackHandler { navigateBack() }
-            val extraIndex = section.removePrefix("extra:").toIntOrNull()
-            Text(
-                when (section) {
-                    "menu" -> title
-                    "page" -> "Page Settings"
-                    else -> extraIndex?.let { extraSections.getOrNull(it)?.first } ?: section.replaceFirstChar { it.uppercase() }
-                }
-            )
-        },
-        text = {
+    val extraIndex = section.removePrefix("extra:").toIntOrNull()
+    val currentTitle = when (section) {
+        "menu" -> title
+        "page" -> "Page settings"
+        else -> extraIndex?.let { extraSections.getOrNull(it)?.first } ?: section.replaceFirstChar { it.uppercase() }
+    }
+    ModernSettingsDialogFrame(
+        title = currentTitle,
+        subtitle = if (section == "menu") "Choose an area to configure" else "Focused options for this page area",
+        onDismiss = onDismiss,
+        onBack = if (section == "menu") null else ::navigateBack,
+        content = {
             val settingsScrollState = rememberScrollState()
             Column(
-                modifier = Modifier.heightIn(max = 460.dp).fadingEdges(settingsScrollState).verticalScroll(settingsScrollState),
+                modifier = Modifier.fillMaxSize().fadingEdges(settingsScrollState).verticalScroll(settingsScrollState),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 if (section == "menu") {
+                    SettingsSubcategory("Page areas", "Each group controls one part of this page")
                     SettingsMenuChoice(Icons.Default.Image, "Header", "Wallpaper and custom header color") { section = "header" }
                     if (customPage != null) {
                         SettingsMenuChoice(Icons.Default.DashboardCustomize, "Page Settings", "Name, subtitle and navigation icon") { section = "page" }
@@ -931,17 +929,9 @@ fun PageSettingsDialog(
                             if (extra.first.equals("Re-import", ignoreCase = true)) "Fetch from Home Assistant" else "Configure"
                         ) { section = "extra:$index" }
                     }
-                } else {
-                    // A single Back button: if the extra section owns an inner navigation
-                    // step, it goes back one level within that section first; otherwise it
-                    // returns to the settings menu. Never shows two Back buttons at once.
-                    TextButton(onClick = ::navigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Back")
-                    }
                 }
                 if (section == "page" && customPage != null) {
+                    SettingsSubcategory("Identity", "Name, subtitle, and navigation icon")
                     OutlinedTextField(
                         value = customPageName,
                         onValueChange = { customPageName = it },
@@ -973,6 +963,7 @@ fun PageSettingsDialog(
                     }
                 }
                 if (section == "header") {
+                    SettingsSubcategory("Header appearance", "Wallpaper and an optional custom color")
                     OutlinedTextField(
                         value = wallpaper,
                         onValueChange = { wallpaper = it },
@@ -1002,6 +993,7 @@ fun PageSettingsDialog(
                     )
                 }
                 if (section == "persons" && showPeopleSettings) {
+                    SettingsSubcategory("People", "Visibility and ordering in the page header")
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = showPeople, onCheckedChange = { showPeople = it })
                         Text("Show persons")
@@ -1088,6 +1080,7 @@ fun PageSettingsDialog(
                     }
                 }
                 if (section == "badgebar" && showBadgeBarSettings) {
+                    SettingsSubcategory("Badge bar layout", "Visibility, alignment, and overflow behavior")
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -1164,7 +1157,8 @@ fun PageSettingsDialog(
                 }
             }
         },
-        confirmButton = {
+        footer = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
             Button(onClick = {
                 customPage?.let {
                     onCustomPageSave(
@@ -1195,29 +1189,13 @@ fun PageSettingsDialog(
                     )
                 )
             }, enabled = customPage == null || customPageName.isNotBlank()) { Text("Save") }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        }
     )
 }
 
 @Composable
 private fun SettingsMenuChoice(icon: ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
-    val appColors = LocalHKIAppColors.current
-    Surface(
-        modifier = Modifier.fillMaxWidth().clickable { onClick() },
-        shape = itemCornerShape(),
-        color = appColors.subtleSurface
-    ) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, null, tint = appColors.onSurface, modifier = Modifier.size(28.dp))
-            Spacer(Modifier.width(14.dp))
-            Column(Modifier.weight(1f)) {
-                Text(title, color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
-                Text(subtitle, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
-            }
-            Icon(Icons.Default.ChevronRight, null, tint = appColors.onMuted)
-        }
-    }
+    ModernSettingsMenuItem(icon = icon, title = title, subtitle = subtitle, onClick = onClick)
 }
 
 @Composable

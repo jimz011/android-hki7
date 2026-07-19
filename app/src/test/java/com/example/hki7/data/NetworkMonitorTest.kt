@@ -10,6 +10,7 @@ class NetworkMonitorTest {
     @Test
     fun `recognizes local Home Assistant addresses`() {
         assertTrue(isLikelyLocalHomeAssistantUrl("http://homeassistant.local:8123"))
+        assertTrue(isLikelyLocalHomeAssistantUrl("http://homeassistant:8123"))
         assertTrue(isLikelyLocalHomeAssistantUrl("http://192.168.1.20:8123"))
         assertTrue(isLikelyLocalHomeAssistantUrl("http://172.20.0.5:8123"))
         assertTrue(isLikelyLocalHomeAssistantUrl("http://[fd12::20]:8123"))
@@ -20,6 +21,31 @@ class NetworkMonitorTest {
         assertFalse(isLikelyLocalHomeAssistantUrl("https://example.ui.nabu.casa"))
         assertFalse(isLikelyLocalHomeAssistantUrl("https://ha.example.com"))
         assertFalse(isLikelyLocalHomeAssistantUrl("http://172.32.0.5:8123"))
+    }
+
+    @Test
+    fun `local first setup works without an external URL or SSID permission`() {
+        assertEquals(
+            "http://homeassistant.local:8123",
+            resolveHomeAssistantUrl(
+                external = null,
+                internal = "http://homeassistant.local:8123",
+                homeSsids = emptyList(),
+                ssid = null
+            )
+        )
+    }
+
+    @Test
+    fun `onboarding stores local and remote endpoints in separate slots`() {
+        assertEquals(
+            HomeAssistantConnectionUrls(null, "http://192.168.1.20:8123"),
+            splitHomeAssistantConnectionUrl("http://192.168.1.20:8123/")
+        )
+        assertEquals(
+            HomeAssistantConnectionUrls("https://example.ui.nabu.casa", null),
+            splitHomeAssistantConnectionUrl("https://example.ui.nabu.casa/")
+        )
     }
 
     @Test

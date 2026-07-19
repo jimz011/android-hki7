@@ -55,4 +55,31 @@ class DashboardRegistrySnapshotTest {
     fun `empty states list is incomplete`() {
         assertFalse(isCompleteDashboardRegistrySnapshot(emptyList(), areas, floors, registry, devices))
     }
+
+    @Test
+    fun `mobile-only states are incomplete while direct room entities are registered`() {
+        val mobileStates = listOf(HAEntity(entity_id = "sensor.phone_battery", state = "80"))
+
+        assertFalse(isCompleteDashboardRegistrySnapshot(mobileStates, areas, floors, registry, devices))
+    }
+
+    @Test
+    fun `mobile-only states are incomplete while device room entities are registered`() {
+        val mobileStates = listOf(HAEntity(entity_id = "sensor.phone_battery", state = "80"))
+        val deviceRegistry = listOf(
+            HAEntityRegistryEntry(entity_id = "light.desk", device_id = "dev1")
+        )
+
+        assertFalse(isCompleteDashboardRegistrySnapshot(mobileStates, areas, floors, deviceRegistry, devices))
+    }
+
+    @Test
+    fun `rooms with no registered importable entities are complete`() {
+        val mobileStates = listOf(HAEntity(entity_id = "sensor.phone_battery", state = "80"))
+        val unrelatedRegistry = listOf(
+            HAEntityRegistryEntry(entity_id = "automation.office", area_id = "office")
+        )
+
+        assertTrue(isCompleteDashboardRegistrySnapshot(mobileStates, areas, floors, unrelatedRegistry, devices))
+    }
 }

@@ -21,7 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.AlertDialog
+import com.example.hki7.ui.components.ModernAlertDialog as AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -357,9 +357,6 @@ private fun WasteCollectionDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(widget.title ?: "Waste Collection", modifier = Modifier.weight(1f))
-                IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = "Close")
-                }
             }
         },
         text = {
@@ -506,6 +503,7 @@ fun WasteCollectionSettingsDialog(
     var showEntityPicker by remember { mutableStateOf(false) }
     var showCalendarPicker by remember { mutableStateOf(false) }
     var showIconPicker by remember { mutableStateOf(false) }
+    var settingsPage by remember(widget) { mutableStateOf("sources") }
 
     if (showEntityPicker) {
         AdvancedEntitySearchDialog(
@@ -537,13 +535,21 @@ fun WasteCollectionSettingsDialog(
 
     val scroll = rememberScrollState()
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text("Waste Collection Widget") },
+        title = { com.example.hki7.ui.components.ModernSettingsDialogTitle("Waste collection", "Sensors, calendar, and appearance") },
         text = {
             Column(
                 modifier = Modifier.heightIn(max = 480.dp).fadingEdges(scroll).verticalScroll(scroll),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                com.example.hki7.ui.components.SettingsTabRow(
+                    tabs = listOf("sources" to "Data sources", "appearance" to "Appearance"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "sources") {
+                com.example.hki7.ui.components.SettingsSubcategory("Data sources", "Sensors and an optional week calendar")
                 OutlinedTextField(
                     value = title, onValueChange = { title = it },
                     label = { Text("Title") }, singleLine = true, modifier = Modifier.fillMaxWidth()
@@ -570,6 +576,9 @@ fun WasteCollectionSettingsDialog(
                     TextButton(onClick = { showCalendarPicker = true }) { Text("Change") }
                     if (calendarEntityId != null) TextButton(onClick = { calendarEntityId = null }) { Text("Clear") }
                 }
+                }
+                if (settingsPage == "appearance") {
+                com.example.hki7.ui.components.SettingsSubcategory("Appearance", "Image style, size, shape, and background")
                 Text("Image", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(selected = imageStyle == "icon", onClick = { imageStyle = "icon" }, label = { Text("Type icon") })
@@ -592,6 +601,7 @@ fun WasteCollectionSettingsDialog(
                     TextButton(onClick = { showIconPicker = true }) { Text("Change") }
                 }
                 WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
+                }
             }
         },
         confirmButton = {

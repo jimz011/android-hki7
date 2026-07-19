@@ -1,5 +1,7 @@
 package com.example.hki7.ui.screens
 
+import com.example.hki7.ui.components.ModernAlertDialog as AlertDialog
+
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -3912,6 +3914,7 @@ fun EnergyCardWidgetSettingsDialog(
     var override by remember { mutableStateOf(widget.energyConfig) }
     var showPicker by remember { mutableStateOf(false) }
     var pickingRole by remember { mutableStateOf<EnergyRole?>(null) }
+    var settingsPage by remember(widget) { mutableStateOf("data") }
     if (showPicker) {
         EnergyCardPickerDialog(
             multiSelect = false, preselected = listOf(cardKey), title = "Select Energy Card",
@@ -3947,14 +3950,22 @@ fun EnergyCardWidgetSettingsDialog(
         return
     }
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text("Energy Card") },
+        title = { com.example.hki7.ui.components.ModernSettingsDialogTitle("Energy card", "Data sources and card appearance") },
         text = {
             val scroll = rememberScrollState()
             Column(
                 Modifier.heightIn(max = 480.dp).fadingEdges(scroll).verticalScroll(scroll),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                com.example.hki7.ui.components.SettingsTabRow(
+                    tabs = listOf("data" to "Card & data", "appearance" to "Appearance"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "data") {
+                com.example.hki7.ui.components.SettingsSubcategory("Card & data", "Choose the energy view and override its entities if needed")
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.weight(1f)) {
                         Text("Card", style = MaterialTheme.typography.labelLarge)
@@ -3972,9 +3983,13 @@ fun EnergyCardWidgetSettingsDialog(
                     onChange = { override = it },
                     onPickRole = { pickingRole = it }
                 )
+                }
+                if (settingsPage == "appearance") {
+                com.example.hki7.ui.components.SettingsSubcategory("Appearance", "Optional title and dashboard width")
                 OutlinedTextField(value = title, onValueChange = { title = it },
                     label = { Text("Title (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 com.example.hki7.ui.components.WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
+                }
             }
         },
         confirmButton = {
@@ -4007,6 +4022,7 @@ fun EnergyStackSettingsDialog(
     var override by remember { mutableStateOf(stack.energyConfig) }
     var showPicker by remember { mutableStateOf(false) }
     var pickingRole by remember { mutableStateOf<EnergyRole?>(null) }
+    var settingsPage by remember(stack) { mutableStateOf("cards") }
     if (showPicker) {
         EnergyCardPickerDialog(
             multiSelect = true, preselected = cardKeys, title = "Stack Cards",
@@ -4042,14 +4058,22 @@ fun EnergyStackSettingsDialog(
         return
     }
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text("Energy Stack") },
+        title = { com.example.hki7.ui.components.ModernSettingsDialogTitle("Energy stack", "Cards, data sources, and layout") },
         text = {
             val scroll = rememberScrollState()
             Column(
                 Modifier.heightIn(max = 480.dp).fadingEdges(scroll).verticalScroll(scroll),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                com.example.hki7.ui.components.SettingsTabRow(
+                    tabs = listOf("cards" to "Cards & data", "layout" to "Layout"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "cards") {
+                com.example.hki7.ui.components.SettingsSubcategory("Cards & data", "Choose included cards and shared entity overrides")
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.weight(1f)) {
                         Text("Cards", style = MaterialTheme.typography.labelLarge)
@@ -4070,6 +4094,9 @@ fun EnergyStackSettingsDialog(
                     onChange = { override = it },
                     onPickRole = { pickingRole = it }
                 )
+                }
+                if (settingsPage == "layout") {
+                com.example.hki7.ui.components.SettingsSubcategory("Stack layout", "Title, collapse behavior, and dashboard width")
                 OutlinedTextField(value = title, onValueChange = { title = it },
                     label = { Text("Title") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -4077,6 +4104,7 @@ fun EnergyStackSettingsDialog(
                     Switch(checked = collapsible, onCheckedChange = { collapsible = it })
                 }
                 com.example.hki7.ui.components.WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
+                }
             }
         },
         confirmButton = {

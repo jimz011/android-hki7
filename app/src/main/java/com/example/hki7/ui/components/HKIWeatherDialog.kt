@@ -35,8 +35,7 @@ import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -153,48 +152,61 @@ fun HKIWeatherDialog(
     }
     val (sun, moon, aqi, season, rain) = roleEntities
 
+    if (isEditMode) {
+        ModernSettingsDialogFrame(
+            title = settingsTitle,
+            subtitle = "Display, linked entities, and dialog layout",
+            icon = headerDisplayIcon(currentDisplayType, weather.state),
+            onDismiss = onDismiss,
+            content = {
+                WeatherConfigView(
+                    allEntities = allEntities,
+                    viewModel = viewModel,
+                    title = settingsTitle,
+                    displayType = displayType,
+                    alarmEntityIds = alarmEntityIds,
+                    onDisplayTypeSelected = onDisplayTypeSelected,
+                    onAlarmEntitiesSelected = onAlarmEntitiesSelected,
+                    onEntitySelected = { id -> viewModel.saveWeatherEntity(id) }
+                )
+            },
+            footer = { Button(onClick = onDismiss) { Text("Done") } }
+        )
+        return
+    }
+
     HKIDialog(
         entity = weather,
         onDismiss = onDismiss,
         viewModel = viewModel,
         icon = headerDisplayIcon(currentDisplayType, weather.state),
         iconTint = weatherStateColor(weather.state),
-        headerIconContent = if (currentDisplayType == "Weather" || currentDisplayType == "DateTime") {
-            { WeatherStateIcon(state = weather.state, size = 28.dp, contentDescription = formatWeatherState(weather.state)) }
-        } else null,
-        titleOverride = if (isEditMode) settingsTitle else "Weather",
-        statusText = if (isEditMode) "SETTINGS" else "${formatWeatherState(weather.state)} - ${season?.state ?: "Season"}",
-        allowInEditMode = true
-    ) {
-        if (isEditMode) {
-            WeatherConfigView(
-                allEntities = allEntities,
-                viewModel = viewModel,
-                title = settingsTitle,
-                displayType = displayType,
-                alarmEntityIds = alarmEntityIds,
-                onDisplayTypeSelected = onDisplayTypeSelected,
-                onAlarmEntitiesSelected = onAlarmEntitiesSelected,
-                onEntitySelected = { id -> viewModel.saveWeatherEntity(id) }
+        headerIconContent = {
+            WeatherStateIcon(
+                state = weather.state,
+                size = 28.dp,
+                contentDescription = formatWeatherState(weather.state)
             )
-        } else {
-            val weatherGridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(6),
-                state = weatherGridState,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 24.dp),
-                modifier = Modifier.weight(1f).fadingEdges(weatherGridState)
-            ) {
-                item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("current"))) }) { WeatherMainCard(weather) }
-                item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("forecast"))) }) { ForecastCard(dialogForecast) }
-                item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("horizon"))) }) { HorizonCard(sun, use24h) }
-                item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("moon"))) }) { MoonCard(moon) }
-                item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("aqi"))) }) { AqiCard(aqi) }
-                item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("rain"))) }) { RainCard(rain) }
-                item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("stats"))) }) { StatsCard(weather) }
-            }
+        },
+        titleOverride = "Weather",
+        statusText = "${formatWeatherState(weather.state)} - ${season?.state ?: "Season"}"
+    ) {
+        val weatherGridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(6),
+            state = weatherGridState,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 24.dp),
+            modifier = Modifier.weight(1f).fadingEdges(weatherGridState)
+        ) {
+            item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("current"))) }) { WeatherMainCard(weather) }
+            item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("forecast"))) }) { ForecastCard(dialogForecast) }
+            item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("horizon"))) }) { HorizonCard(sun, use24h) }
+            item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("moon"))) }) { MoonCard(moon) }
+            item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("aqi"))) }) { AqiCard(aqi) }
+            item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("rain"))) }) { RainCard(rain) }
+            item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("stats"))) }) { StatsCard(weather) }
         }
     }
 }
@@ -617,6 +629,7 @@ fun WeatherConfigView(
     val cardWidths = remember(savedCardWidths) { defaultWeatherCardWidths + savedCardWidths }
     var selectingForRole by remember { mutableStateOf<String?>(null) }
     var showDevicePicker by remember { mutableStateOf(false) }
+    var settingsPage by remember(title) { mutableStateOf("display") }
     val entityRegistry by viewModel.entityRegistry.collectAsState()
     val deviceRegistry by viewModel.deviceRegistry.collectAsState()
     LaunchedEffect(Unit) { viewModel.fetchRegistries() }
@@ -630,41 +643,49 @@ fun WeatherConfigView(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                Text(title, style = MaterialTheme.typography.titleMedium, color = appColors.onSurface)
-                Spacer(Modifier.height(4.dp))
-                Text("Display Mode", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
-                Row(modifier = Modifier.padding(vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                SettingsTabRow(
+                    tabs = buildList {
+                        add("display" to "Display")
+                        if (currentDisplayType in listOf("Weather", "DateTime", "Alarm")) add("entities" to "Entities")
+                        if (currentDisplayType in listOf("Weather", "DateTime")) add("layout" to "Dialog layout")
+                    },
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+            }
+
+            if (settingsPage == "display") item {
+                SettingsSubcategory("Display mode", "Choose what this header pill shows")
+                Row(
+                    modifier = Modifier.padding(vertical = 8.dp).horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     displayTypes.forEach { type ->
-                        FilterChip(
+                        SettingsChoiceChip(
                             selected = currentDisplayType == type,
                             onClick = { (onDisplayTypeSelected ?: viewModel::setWeatherDisplayType)(type) },
-                            label = { Text(type, fontSize = 10.sp) },
-                            colors = FilterChipDefaults.filterChipColors(
-                                labelColor = appColors.onSurface,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer
-                            )
+                            label = { Text(type, fontSize = 10.sp) }
                         )
                     }
                 }
             }
 
-            if (currentDisplayType in listOf("Time", "DateTime")) item {
+            if (settingsPage == "display" && currentDisplayType in listOf("Time", "DateTime")) item {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Text("24-Hour Format", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted, modifier = Modifier.weight(1f))
                     Switch(checked = use24h, onCheckedChange = { viewModel.setUse24hFormat(it) })
                 }
             }
 
-            if (currentDisplayType in listOf("Date", "DateTime")) item {
+            if (settingsPage == "display" && currentDisplayType in listOf("Date", "DateTime")) item {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Text("Full Day Name", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted, modifier = Modifier.weight(1f))
                     Switch(checked = useFullDayName, onCheckedChange = { viewModel.setUseFullDayName(it) })
                 }
             }
 
-            if (currentDisplayType in listOf("Weather", "DateTime")) item {
-                Text("Custom Entities", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
+            if (settingsPage == "entities" && currentDisplayType in listOf("Weather", "DateTime")) item {
+                SettingsSubcategory("Weather entities", "Pick a source device or fine-tune individual roles")
                 Spacer(Modifier.height(8.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     // Device-first setup: picking a weather station automatically fills the role entities
@@ -682,8 +703,8 @@ fun WeatherConfigView(
                 }
             }
 
-            if (currentDisplayType in listOf("Weather", "DateTime")) item {
-                Text("Weather dialog card sizes", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
+            if (settingsPage == "layout" && currentDisplayType in listOf("Weather", "DateTime")) item {
+                SettingsSubcategory("Weather dialog cards", "Choose how much horizontal space each card uses")
                 Spacer(Modifier.height(8.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     listOf(
@@ -704,8 +725,8 @@ fun WeatherConfigView(
                 }
             }
 
-            if (currentDisplayType == "Alarm") item {
-                Text("Custom Entities", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
+            if (settingsPage == "entities" && currentDisplayType == "Alarm") item {
+                SettingsSubcategory("Alarm entities", "Select the alarm panels summarized by this pill")
                 Spacer(Modifier.height(8.dp))
                 WeatherEntityRow(
                     "Alarms",
@@ -785,7 +806,7 @@ private fun WeatherCardWidthRow(label: String, width: String, onWidthChange: (St
         Text(label, color = appColors.onSurface, style = MaterialTheme.typography.bodyMedium)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             listOf("full" to "Full", "half" to "Half", "third" to "Third").forEach { (value, text) ->
-                FilterChip(
+                SettingsChoiceChip(
                     selected = width == value,
                     onClick = { onWidthChange(value) },
                     label = { Text(text, style = MaterialTheme.typography.labelSmall) }

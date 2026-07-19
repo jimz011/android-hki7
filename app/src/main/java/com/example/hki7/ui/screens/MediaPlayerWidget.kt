@@ -17,7 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.AlertDialog
+import com.example.hki7.ui.components.ModernAlertDialog as AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -154,6 +154,7 @@ fun MediaPlayerWidgetSettingsDialog(
     var radius by remember(widget) { mutableIntStateOf(widget.cornerRadius) }
     var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
     var picking by remember { mutableStateOf(false) }
+    var settingsPage by remember(widget) { mutableStateOf("content") }
     if (picking) {
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter { it.entity_id.startsWith("media_player.") },
@@ -167,10 +168,18 @@ fun MediaPlayerWidgetSettingsDialog(
         return
     }
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text("Media Player Widget") },
+        title = { com.example.hki7.ui.components.ModernSettingsDialogTitle("Media player", "Source, layout, and artwork") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                com.example.hki7.ui.components.SettingsTabRow(
+                    tabs = listOf("content" to "Content", "appearance" to "Appearance"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "content") {
+                com.example.hki7.ui.components.SettingsSubcategory("Content", "Choose the player and dashboard label")
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.weight(1f)) {
                         Text("Player", style = MaterialTheme.typography.labelLarge)
@@ -185,6 +194,9 @@ fun MediaPlayerWidgetSettingsDialog(
                 }
                 OutlinedTextField(value = title, onValueChange = { title = it },
                     label = { Text("Title (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                }
+                if (settingsPage == "appearance") {
+                com.example.hki7.ui.components.SettingsSubcategory("Appearance", "Size, shape, and artwork")
                 WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 Text("Shape", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -192,6 +204,7 @@ fun MediaPlayerWidgetSettingsDialog(
                     FilterChip(selected = square, onClick = { square = true }, label = { Text("Square") })
                 }
                 WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
+                }
             }
         },
         confirmButton = {

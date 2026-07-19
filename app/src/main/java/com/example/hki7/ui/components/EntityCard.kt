@@ -2,6 +2,8 @@
 
 package com.example.hki7.ui.components
 
+import com.example.hki7.ui.components.ModernAlertDialog as AlertDialog
+
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -106,10 +108,13 @@ fun RenameCardDialog(currentName: String, defaultName: String, onDismiss: () -> 
     var value by androidx.compose.runtime.remember(currentName) { androidx.compose.runtime.mutableStateOf(currentName) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Card settings") },
+        title = { ModernSettingsDialogTitle("Card", "Optional display name override") },
         text = {
-            OutlinedTextField(value = value, onValueChange = { value = it }, singleLine = true,
-                label = { Text("Name") }, placeholder = { Text(defaultName) })
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                SettingsSubcategory("Identity", "Leave empty to use the Home Assistant name")
+                OutlinedTextField(value = value, onValueChange = { value = it }, singleLine = true,
+                    label = { Text("Name") }, placeholder = { Text(defaultName) })
+            }
         },
         confirmButton = { TextButton(onClick = { onSave(value.trim().takeIf { it.isNotEmpty() }) }) { Text("Save") } },
         dismissButton = {

@@ -31,7 +31,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.AlertDialog
+import com.example.hki7.ui.components.ModernAlertDialog as AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -630,6 +630,7 @@ fun SensorGraphWidgetSettingsDialog(
     var square by remember(widget) { mutableStateOf(widget.isSquare) }
     var radius by remember(widget) { mutableIntStateOf(widget.cornerRadius) }
     var picking by remember { mutableStateOf(false) }
+    var settingsPage by remember(widget) { mutableStateOf("data") }
     if (picking) {
         val sensors = allEntities.filter { it.entity_id.startsWith("sensor.") || it.entity_id.startsWith("number.") || it.entity_id.startsWith("input_number.") }
         AdvancedEntitySearchDialog(
@@ -644,14 +645,26 @@ fun SensorGraphWidgetSettingsDialog(
         return
     }
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text("Sensor Graph") },
+        title = { com.example.hki7.ui.components.ModernSettingsDialogTitle("Sensor graph", "Entities, chart style, and appearance") },
         text = {
             val scroll = rememberScrollState()
             Column(
                 Modifier.heightIn(max = 480.dp).fadingEdges(scroll).verticalScroll(scroll),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                com.example.hki7.ui.components.SettingsTabRow(
+                    tabs = buildList {
+                        add("data" to "Data")
+                        add("chart" to "Chart")
+                        if (showLayoutOptions) add("appearance" to "Appearance")
+                    },
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "data") {
+                com.example.hki7.ui.components.SettingsSubcategory("Data series", "Choose the sensors plotted together")
                 Text("Sensors", style = MaterialTheme.typography.labelLarge)
                 entityIds.forEach { id ->
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -670,6 +683,9 @@ fun SensorGraphWidgetSettingsDialog(
                 }
                 OutlinedTextField(value = title, onValueChange = { title = it },
                     label = { Text("Title (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                }
+                if (settingsPage == "chart") {
+                com.example.hki7.ui.components.SettingsSubcategory("Chart", "Rendering style and history range")
                 Text("Graph Style", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(selected = style == "line", onClick = { style = "line" }, label = { Text("Lines") })
@@ -686,7 +702,9 @@ fun SensorGraphWidgetSettingsDialog(
                         )
                     }
                 }
-                if (showLayoutOptions) {
+                }
+                if (showLayoutOptions && settingsPage == "appearance") {
+                    com.example.hki7.ui.components.SettingsSubcategory("Appearance", "Dashboard width and card shape")
                     WidgetWidthSelector(width = width, onWidthChange = { width = it })
                     Text("Shape", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -722,6 +740,7 @@ fun SensorGraphStackSettingsDialog(
     var graphs by remember(stack) { mutableStateOf(stack.graphs) }
     var editingGraph by remember { mutableStateOf<HKISensorGraphWidget?>(null) }
     var addingGraph by remember { mutableStateOf(false) }
+    var settingsPage by remember(stack) { mutableStateOf("graphs") }
 
     if (addingGraph) {
         val sensors = allEntities.filter {
@@ -757,14 +776,22 @@ fun SensorGraphStackSettingsDialog(
         return
     }
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { Text("Sensor Graph Stack") },
+        title = { com.example.hki7.ui.components.ModernSettingsDialogTitle("Sensor graph stack", "Grouped charts and stack layout") },
         text = {
             val scroll = rememberScrollState()
             Column(
                 Modifier.heightIn(max = 480.dp).fadingEdges(scroll).verticalScroll(scroll),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                com.example.hki7.ui.components.SettingsTabRow(
+                    tabs = listOf("graphs" to "Graphs", "layout" to "Layout"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
+                )
+                if (settingsPage == "graphs") {
+                com.example.hki7.ui.components.SettingsSubcategory("Graphs", "Add and edit each chart in this stack")
                 Text("Graphs", style = MaterialTheme.typography.labelLarge)
                 graphs.forEachIndexed { index, graph ->
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -786,6 +813,9 @@ fun SensorGraphStackSettingsDialog(
                     Spacer(Modifier.width(6.dp))
                     Text("Add graph")
                 }
+                }
+                if (settingsPage == "layout") {
+                com.example.hki7.ui.components.SettingsSubcategory("Stack layout", "Title, collapse behavior, and width")
                 OutlinedTextField(value = title, onValueChange = { title = it },
                     label = { Text("Title") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -793,6 +823,7 @@ fun SensorGraphStackSettingsDialog(
                     Switch(checked = collapsible, onCheckedChange = { collapsible = it })
                 }
                 WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
+                }
             }
         },
         confirmButton = {
