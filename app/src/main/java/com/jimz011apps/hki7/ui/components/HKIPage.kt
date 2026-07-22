@@ -1,0 +1,1601 @@
+@file:Suppress("MoveLambdaOutsideParentheses", "SpellCheckingInspection")
+
+package com.jimz011apps.hki7.ui.components
+
+import android.app.Activity
+import androidx.navigation.NavController
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.core.graphics.toColorInt
+import androidx.core.view.WindowCompat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import coil3.compose.AsyncImage
+import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.HKIAreaConfig
+import com.jimz011apps.hki7.data.HKIBadgeBarConfig
+import com.jimz011apps.hki7.data.HKICustomPage
+import com.jimz011apps.hki7.data.HKIPageConfig
+import com.jimz011apps.hki7.ui.MainViewModel
+import com.jimz011apps.hki7.ui.ConnectionStatus
+import com.jimz011apps.hki7.ui.screens.SettingsDialog
+import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
+import com.jimz011apps.hki7.ui.utils.MdiIcon
+
+/** Lower = more urgent; the pill shows the most urgent of the selected alarms. */
+private fun alarmDisplayPriority(state: String): Int = when (state.lowercase()) {
+    "triggered" -> 0
+    "pending", "arming", "disarming" -> 1
+    "armed_home", "armed_away", "armed_night", "armed_vacation", "armed_custom_bypass" -> 2
+    "disarmed" -> 3
+    else -> 4
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+fun HKIPage(
+    viewModel: MainViewModel,
+    areaId: String? = null,
+    title: String? = null,
+    subtitle: String? = null,
+    subtitleIcon: ImageVector? = null,
+    showPeople: Boolean = false,
+    onPeopleClick: ((HAEntity) -> Unit)? = null,
+    backgroundImage: String? = null,
+    headerColor: String? = null,
+    pageKey: String? = null,
+    pageSettingsTitle: String? = null,
+    customPage: HKICustomPage? = null,
+    onCustomPageSave: (HKICustomPage) -> Unit = {},
+    extraPageSettingsSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit>? = null,
+    additionalPageSettingsSections: List<Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit>> = emptyList(),
+    onBack: (() -> Unit)? = null,
+    showBadgeBar: Boolean = true,
+    /** Whether the header summary and unread edge marker are shown on this page. */
+    showNotificationStatus: Boolean = true,
+    /** Pinned bar between the header and the scrolling content (e.g. the energy time filter). */
+    headerBar: (@Composable () -> Unit)? = null,
+    /** Optional compact content beside the title, rendered inside the header. */
+    headerTrailingContent: (@Composable (Color) -> Unit)? = null,
+    /** Optional secondary content below the subtitle, rendered inside the header. */
+    headerBottomContent: (@Composable (Color) -> Unit)? = null,
+    /** Optional NavController so badge actions can navigate within the app. */
+    navController: NavController? = null,
+    content: @Composable (PaddingValues) -> Unit
+) {
+    val weather by viewModel.weather.collectAsState()
+    val people by viewModel.people.collectAsState()
+    val displayName by viewModel.displayName.collectAsState()
+    val currentUrl by viewModel.currentUrl.collectAsState()
+    val isEditMode by viewModel.isEditMode.collectAsState()
+    val status by viewModel.status.collectAsState()
+    val notifications by viewModel.notifications.collectAsState()
+    val unreadNotificationCount = notifications.count { !it.read && !it.archived }
+    val appColors = LocalHKIAppColors.current
+    val pageConfigs by viewModel.pageConfigsMapping.collectAsState()
+    val pageConfig = pageKey?.let { pageConfigs[it] } ?: HKIPageConfig()
+    val areaConfigs by viewModel.areaConfigsMapping.collectAsState()
+    val areaConfig = areaId?.let { areaConfigs[it] }
+    val alarmEntityFlow = remember(viewModel) {
+        viewModel.entitiesMatching("domain:alarm_control_panel") { it.entity_id.startsWith("alarm_control_panel.") }
+    }
+    val allEntities by alarmEntityFlow.collectAsState()
+    var previewBadgeBarConfig by remember { mutableStateOf<HKIBadgeBarConfig?>(null) }
+    val savedBadgeBarConfig = areaConfig?.badgeBar ?: pageConfig.badgeBar
+    val badgeBarConfig: HKIBadgeBarConfig = previewBadgeBarConfig ?: savedBadgeBarConfig ?: HKIBadgeBarConfig()
+    val prefs = viewModel.prefs
+    val headerVisible by prefs.headerVisible.collectAsState(initial = true)
+    
+    var showWeatherDialog by remember { mutableStateOf(false) }
+    var showLeftPillSettings by remember { mutableStateOf(false) }
+    var showRightPillSettings by remember { mutableStateOf(false) }
+    var headerAlarmDialogEntityIds by remember { mutableStateOf<List<String>?>(null) }
+    var showRoomConfig by remember { mutableStateOf(false) }
+    var showPageConfig by remember { mutableStateOf(false) }
+    var previewHeaderColor by remember { mutableStateOf<String?>(null) }
+    var pullOffset by remember { mutableFloatStateOf(0f) }
+    var showSettings by remember { mutableStateOf(false) }
+    var showSearch by remember { mutableStateOf(false) }
+    var showFlows by remember { mutableStateOf(false) }
+    
+    val maxPull = 450f 
+    val pullOffsetDp = (pullOffset / 3f).dp
+    val menuVisible = pullOffset > 120f
+    val headerColorSource = previewHeaderColor ?: headerColor ?: pageConfig.headerColor
+    val headerColorValue = parseHexColor(headerColorSource)
+    val effectiveBackground = if (!headerColorSource.isNullOrBlank()) null else backgroundImage ?: pageConfig.wallpaper
+    val isDarkAppearance = appColors.background.luminance() < 0.5f
+    // Recreate the exact primary-container/header tint Theme.kt would generate if this custom
+    // color had been selected globally.
+    val customHeaderStart = headerColorValue?.copy(
+        alpha = if (isDarkAppearance) 0.45f else if (headerColorValue.luminance() < 0.35f) 0.28f else 0.18f
+    )
+    val headerTextColor = if (effectiveBackground != null) Color.White else appColors.onSurface
+    val headerMutedColor = if (effectiveBackground != null) Color.White.copy(alpha = 0.8f) else appColors.onMuted
+    // Use the same light/dark translucent surface family as room counters. A dedicated gradient is
+    // used below because the general surfaceGradient intentionally converts colors to opaque.
+    val pillColor = appColors.elevated.copy(alpha = 0.90f)
+    val pillContentColor = appColors.onSurface
+    // The saved false value now means compact rather than absent, preserving existing preferences
+    // while guaranteeing every page keeps a pull-down surface for Search, Flows, Edit, and Settings.
+    val headerHeight = if (headerVisible) 236.dp else 76.dp
+    val density = LocalDensity.current
+    var scrollingBadgeHeightPx by remember { mutableIntStateOf(0) }
+    var hiddenBadgeHeightPx by remember { mutableFloatStateOf(0f) }
+    LaunchedEffect(headerVisible, showBadgeBar) {
+        if (headerVisible || !showBadgeBar) hiddenBadgeHeightPx = 0f
+    }
+    val badgeScrollConnection = remember(headerVisible, showBadgeBar, scrollingBadgeHeightPx) {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (headerVisible || !showBadgeBar || scrollingBadgeHeightPx <= 0 || available.y >= 0f) return Offset.Zero
+                val consumed = (-available.y).coerceAtMost(scrollingBadgeHeightPx - hiddenBadgeHeightPx)
+                hiddenBadgeHeightPx += consumed
+                return Offset(0f, -consumed)
+            }
+
+            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                if (headerVisible || !showBadgeBar || available.y <= 0f || hiddenBadgeHeightPx <= 0f) return Offset.Zero
+                val revealed = available.y.coerceAtMost(hiddenBadgeHeightPx)
+                hiddenBadgeHeightPx -= revealed
+                return Offset(0f, revealed)
+            }
+        }
+    }
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as? Activity)?.window ?: return@SideEffect
+            val statusBarColor = when {
+                effectiveBackground != null -> Color.Transparent
+                else -> appColors.background
+            }
+            val useDarkStatusBarIcons = when {
+                effectiveBackground != null -> false
+                else -> appColors.background.luminance() > 0.5f
+            }
+            @Suppress("DEPRECATION")
+            window.statusBarColor = statusBarColor.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = useDarkStatusBarIcons
+            @Suppress("DEPRECATION")
+            window.isStatusBarContrastEnforced = false
+        }
+    }
+    val visiblePeople = remember(people, pageConfig) {
+        val sorted = when (pageConfig.peopleSort) {
+            "custom" -> people.sortedWith(
+                compareBy<HAEntity> {
+                    val index = pageConfig.customPeopleOrder.indexOf(it.entity_id)
+                    if (index == -1) Int.MAX_VALUE else index
+                }.thenBy { it.friendlyName ?: it.entity_id }
+            )
+            "name" -> people.sortedBy { it.friendlyName ?: it.entity_id }
+            "name_desc" -> people.sortedByDescending { it.friendlyName ?: it.entity_id }
+            else -> people.sortedWith(
+                compareBy<HAEntity> { if (it.state == "home") 0 else 1 }
+                    .thenByDescending { it.last_changed.orEmpty() }
+            )
+        }
+        if (pageConfig.showPeople) sorted.filterNot { it.entity_id in pageConfig.hiddenPeople } else emptyList()
+    }
+
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(appColors.background)
+        .pointerInput(Unit) {
+            detectVerticalDragGestures(
+                onDragEnd = {
+                    if (pullOffset < 400f) pullOffset = 0f
+                },
+                onVerticalDrag = { change, dragAmount ->
+                    val isHeaderGesture = change.position.y < 260.dp.toPx()
+                    val isPullingMenu = pullOffset > 0f || dragAmount > 0f
+                    if ((isHeaderGesture || pullOffset > 0f) && isPullingMenu) {
+                        change.consume()
+                        pullOffset = (pullOffset + dragAmount).coerceIn(0f, maxPull)
+                    }
+                }
+            )
+        }
+    ) {
+        if (effectiveBackground != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(headerHeight + pullOffsetDp)
+                    .align(Alignment.TopCenter)
+                    .clipToBounds()
+            ) {
+                AsyncImage(
+                    model = if (effectiveBackground.startsWith("http")) effectiveBackground else "$currentUrl$effectiveBackground",
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colorStops = arrayOf(
+                                    0.0f to Color.Black.copy(alpha = 0.42f),
+                                    0.5f to Color.Black.copy(alpha = 0.19f),
+                                    1.0f to Color.Transparent
+                                )
+                            )
+                        )
+                )
+            }
+        }
+
+        // The pull-down controls share the header artwork while it expands. Images have a dark
+        // scrim; solid/fallback headers can be light or dark, so derive a contrasting glass pair
+        // from the actual header source instead of locking the controls to the app theme surface.
+        val menuBackdropColor = (customHeaderStart ?: appColors.headerFallbackStart)
+            .compositeOver(appColors.background)
+        val menuUsesLightContent = effectiveBackground != null || menuBackdropColor.luminance() < 0.48f
+        val menuButtonSurfaceColor = if (menuUsesLightContent) {
+            Color.Black.copy(alpha = 0.46f)
+        } else {
+            Color.White.copy(alpha = 0.72f)
+        }
+        val menuButtonContentColor = if (menuUsesLightContent) Color.White else Color(0xFF1C1B1F)
+        val headerMenuActions = buildList {
+            add(HeaderMenuAction(Icons.Default.Search, "Search") {
+                showSearch = true
+                pullOffset = 0f
+            })
+            add(HeaderMenuAction(Icons.Default.AccountTree, "Flows") {
+                showFlows = true
+                pullOffset = 0f
+            })
+            add(HeaderMenuAction(
+                if (isEditMode) Icons.Default.CheckCircle else Icons.Default.Edit,
+                if (isEditMode) "Done" else "Edit"
+            ) {
+                viewModel.toggleEditMode()
+                pullOffset = 0f
+            })
+            if (pageKey != null && pageSettingsTitle != null) {
+                add(HeaderMenuAction(Icons.Default.Tune, pageSettingsTitle) {
+                    showPageConfig = true
+                    pullOffset = 0f
+                })
+            }
+            if (title != null && title != viewModel.greeting && areaId != null) {
+                add(HeaderMenuAction(Icons.Default.Tune, "Room Config") {
+                    showRoomConfig = true
+                    pullOffset = 0f
+                })
+            }
+            add(HeaderMenuAction(Icons.Default.Settings, "Settings") {
+                showSettings = true
+                pullOffset = 0f
+            })
+        }
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(144.dp)
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .padding(top = 12.dp)
+                .graphicsLayer {
+                    alpha = ((pullOffset - 90f) / 180f).coerceIn(0f, 1f)
+                }
+        ) {
+            val fitsWithoutScrolling = maxWidth >= 64.dp * headerMenuActions.size
+            Row(
+                modifier = if (fitsWithoutScrolling) {
+                    Modifier.fillMaxWidth()
+                } else {
+                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp)
+                },
+                horizontalArrangement = if (fitsWithoutScrolling) Arrangement.SpaceEvenly else Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                headerMenuActions.forEach { action ->
+                    MenuButton(
+                        icon = action.icon,
+                        label = action.label,
+                        enabled = menuVisible,
+                        surfaceColor = menuButtonSurfaceColor,
+                        contentColor = menuButtonContentColor,
+                        onClick = action.onClick
+                    )
+                }
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .offset(y = pullOffsetDp)
+                .nestedScroll(badgeScrollConnection)
+        ) {
+            // HKI Header
+            if (headerVisible) Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(headerHeight)
+                    .clipToBounds()
+                    .zIndex(1f)
+            ) {
+                if (effectiveBackground != null) {
+                    Spacer(Modifier.fillMaxSize())
+                }
+                
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    when {
+                                        effectiveBackground != null -> Color.Black.copy(alpha = 0.30f)
+                                        customHeaderStart != null -> customHeaderStart
+                                        else -> appColors.headerFallbackStart
+                                    },
+                                    when {
+                                        effectiveBackground != null -> Color.Black.copy(alpha = 0.135f)
+                                        customHeaderStart != null -> customHeaderStart.copy(alpha = customHeaderStart.alpha * 0.45f)
+                                        else -> appColors.headerFallbackStart.copy(alpha = appColors.headerFallbackStart.alpha * 0.45f)
+                                    },
+                                    appColors.background
+                                )
+                            )
+                        )
+                        .windowInsetsPadding(WindowInsets.statusBars)
+                        .padding(horizontal = 24.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        Spacer(Modifier.height(10.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (onBack != null) {
+                                val backShape = itemCornerShape()
+                                Surface(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(backShape)
+                                        .background(translucentHeaderControlGradient(pillColor))
+                                        .clickable(onClick = onBack),
+                                    color = Color.Transparent,
+                                    shape = backShape
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                            Icons.AutoMirrored.Filled.ArrowBack,
+                                            contentDescription = "Back",
+                                            tint = pillContentColor,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                }
+                            } else {
+                                val leftDisplayType by viewModel.headerLeftDisplayType.collectAsState()
+                                val leftAlarmIds by viewModel.headerLeftAlarmEntityIds.collectAsState()
+                                val leftAlarmEntities = leftAlarmIds.mapNotNull { id -> allEntities.find { it.entity_id == id } }
+                                    .ifEmpty { listOfNotNull(allEntities.firstOrNull { it.entity_id.startsWith("alarm_control_panel.") }) }
+                                // Show the most urgent alarm on the pill; tapping opens all of them.
+                                val leftAlarmEntity = leftAlarmEntities.minByOrNull { alarmDisplayPriority(it.state) }
+                                val use24h by viewModel.use24hFormat.collectAsState()
+                                val useFullDayName by viewModel.useFullDayName.collectAsState()
+                                HeaderStatusPill(
+                                    displayType = leftDisplayType,
+                                    weather = weather,
+                                    alarm = leftAlarmEntity,
+                                    use24hFormat = use24h,
+                                    useFullDayName = useFullDayName,
+                                    isEditMode = isEditMode,
+                                    pillColor = pillColor,
+                                    textColor = pillContentColor,
+                                    editSurfaceColor = appColors.surface.copy(alpha = 0.7f),
+                                    onSettingsClick = { showLeftPillSettings = true },
+                                    onClick = {
+                                        when (leftDisplayType) {
+                                            "Weather", "DateTime" -> showWeatherDialog = true
+                                            "Alarm" -> if (leftAlarmEntities.isNotEmpty())
+                                                headerAlarmDialogEntityIds = leftAlarmEntities.map { it.entity_id }
+                                        }
+                                    }
+                                )
+                            }
+
+                            val weatherDisplayType by viewModel.weatherDisplayType.collectAsState()
+                            val rightAlarmIds by viewModel.headerAlarmEntityIds.collectAsState()
+                            val rightAlarmEntities = rightAlarmIds.mapNotNull { id -> allEntities.find { it.entity_id == id } }
+                                .ifEmpty { listOfNotNull(allEntities.firstOrNull { it.entity_id.startsWith("alarm_control_panel.") }) }
+                            val rightAlarmEntity = rightAlarmEntities.minByOrNull { alarmDisplayPriority(it.state) }
+                            val showPill = weatherDisplayType != "None"
+                            Box(
+                                modifier = if (!showPill && isEditMode) Modifier.size(36.dp) else Modifier,
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (showPill) {
+                                    val pillShape = itemCornerShape()
+                                    Surface(
+                                        modifier = Modifier
+                                            .height(36.dp)
+                                            .clip(pillShape)
+                                            .background(translucentHeaderControlGradient(pillColor))
+                                            .clickable {
+                                                if (!isEditMode) {
+                                                    when (weatherDisplayType) {
+                                                        "Weather", "DateTime" -> showWeatherDialog = true
+                                                        "Alarm" -> if (rightAlarmEntities.isNotEmpty())
+                                                            headerAlarmDialogEntityIds = rightAlarmEntities.map { it.entity_id }
+                                                    }
+                                                }
+                                            },
+                                        color = Color.Transparent,
+                                        shape = pillShape
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(horizontal = 12.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            val now = LocalDateTime.now()
+                                            val use24h by viewModel.use24hFormat.collectAsState()
+                                            val useFullDayName by viewModel.useFullDayName.collectAsState()
+                                            val timePattern = if (use24h) "HH:mm" else "hh:mm a"
+                                            val dayPattern = if (useFullDayName) "EEEE" else "EEE"
+                                            
+                                            val displayStr = when(weatherDisplayType) {
+                                                "Date" -> now.format(DateTimeFormatter.ofPattern("$dayPattern, MMM d"))
+                                                "Time" -> now.format(DateTimeFormatter.ofPattern(timePattern))
+                                                "DateTime" -> now.format(DateTimeFormatter.ofPattern("$dayPattern d, $timePattern"))
+                                                "Alarm" -> rightAlarmEntity?.state?.replace("_", " ")?.replaceFirstChar { it.uppercase() } ?: "Alarm"
+                                                else -> "${weather?.state?.let { formatWeatherState(it) } ?: "Cloudy"} ${weather?.temperature?.toInt() ?: 12}°C"
+                                            }
+
+                                            if (weatherDisplayType == "Weather" || weatherDisplayType == "DateTime" || weatherDisplayType == "Alarm") {
+                                                if (weatherDisplayType == "Alarm") {
+                                                    MdiIcon(
+                                                        name = rightAlarmEntity?.let { defaultEntityIconSlug(it) } ?: "shield-home",
+                                                        contentDescription = null,
+                                                        tint = alarmStateColor(rightAlarmEntity?.state.orEmpty()),
+                                                        size = 18.dp
+                                                    )
+                                                } else {
+                                                    WeatherStateIcon(
+                                                        state = weather?.state,
+                                                        size = 20.dp,
+                                                        contentDescription = weather?.state?.let(::formatWeatherState)
+                                                    )
+                                                }
+                                                if (displayStr.isNotEmpty()) Spacer(Modifier.width(8.dp))
+                                            }
+                                            
+                                            if (displayStr.isNotEmpty()) {
+                                                Text(
+                                                    text = displayStr,
+                                                    color = pillContentColor,
+                                                    style = MaterialTheme.typography.bodyMedium
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                if (isEditMode) {
+                                    val overlayModifier = if (showPill) Modifier.matchParentSize() else Modifier.fillMaxSize()
+                                    val pillShape = itemCornerShape()
+                                    Surface(
+                                        modifier = overlayModifier
+                                            .clip(pillShape)
+                                            .clickable { showRightPillSettings = true },
+                                        color = appColors.surface.copy(alpha = 0.7f)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            EditSettingsButton(onClick = { showRightPillSettings = true })
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(Modifier.height(16.dp))
+
+                        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                            val showPeopleRow = showPeople && visiblePeople.isNotEmpty()
+                            val avatarSize = 44.dp
+                            val avatarOverlap = 8.dp
+                            val avatarStep = avatarSize - avatarOverlap
+                            fun avatarRowWidth(count: Int) = if (count <= 0) 0.dp else avatarSize + avatarStep * (count - 1)
+                            fun rowCapacity(availableWidth: androidx.compose.ui.unit.Dp): Int {
+                                if (!showPeopleRow || availableWidth <= 0.dp) return 0
+                                var count = 0
+                                for (candidate in 1..visiblePeople.size) {
+                                    if (avatarRowWidth(candidate) <= availableWidth) count = candidate
+                                }
+                                return count
+                            }
+                            val inlinePeopleCapacity = rowCapacity(maxWidth - 228.dp)
+                            val inlinePeople = if (showPeopleRow) visiblePeople.take(inlinePeopleCapacity) else emptyList()
+                            val wrappedPeople = if (showPeopleRow) visiblePeople.drop(inlinePeopleCapacity) else emptyList()
+                            val wrappedPeopleCapacity = rowCapacity(maxWidth).coerceAtLeast(1)
+                            val wrappedPeopleRows = wrappedPeople.chunked(if (inlinePeopleCapacity > 0) inlinePeopleCapacity else wrappedPeopleCapacity)
+
+                            if (inlinePeopleCapacity == 0) {
+                                Column(modifier = Modifier.fillMaxWidth()) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.Top
+                                    ) {
+                                        Column(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .padding(end = if (headerTrailingContent != null) 12.dp else 0.dp)
+                                        ) {
+                                            Text(
+                                                text = title ?: viewModel.greeting,
+                                                style = MaterialTheme.typography.headlineLarge,
+                                                color = headerTextColor,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 40.sp,
+                                                lineHeight = 44.sp
+                                            )
+                                            HeaderSubtitle(
+                                                text = subtitle ?: (if (title == null) displayName else (if (status == ConnectionStatus.ERROR) "Connection Error" else "All systems normal")),
+                                                icon = subtitleIcon,
+                                                color = headerMutedColor
+                                            )
+                                            if (headerBottomContent != null) {
+                                                Spacer(Modifier.height(6.dp))
+                                                headerBottomContent(headerMutedColor)
+                                            }
+                                            if (title == null && showNotificationStatus) {
+                                                Spacer(Modifier.height(8.dp))
+                                                HeaderNotificationSummary(unreadNotificationCount, headerMutedColor)
+                                            }
+                                        }
+                                        if (headerTrailingContent != null) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .widthIn(max = 168.dp)
+                                                    .padding(top = 4.dp),
+                                                contentAlignment = Alignment.TopEnd
+                                            ) {
+                                                headerTrailingContent(headerTextColor)
+                                            }
+                                        }
+                                    }
+                                    if (showPeopleRow) {
+                                        Spacer(Modifier.height(8.dp))
+                                        visiblePeople.chunked(wrappedPeopleCapacity).forEach { rowPeople ->
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.spacedBy((-8).dp, Alignment.End),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                rowPeople.forEach { person ->
+                                                    PersonAvatar(
+                                                        person = person,
+                                                        currentUrl = currentUrl,
+                                                        isEditMode = isEditMode,
+                                                        headerTextColor = headerTextColor,
+                                                        onClick = { onPeopleClick?.invoke(person) }
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.Top
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(end = if (showPeopleRow) 12.dp else 0.dp)
+                                    ) {
+                                        Text(
+                                            text = title ?: viewModel.greeting,
+                                            style = MaterialTheme.typography.headlineLarge,
+                                            color = headerTextColor,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 40.sp,
+                                            lineHeight = 44.sp
+                                        )
+                                        HeaderSubtitle(
+                                            text = subtitle ?: (if (title == null) displayName else (if (status == ConnectionStatus.ERROR) "Connection Error" else "All systems normal")),
+                                            icon = subtitleIcon,
+                                            color = headerMutedColor
+                                        )
+                                        if (headerBottomContent != null) {
+                                            Spacer(Modifier.height(6.dp))
+                                            headerBottomContent(headerMutedColor)
+                                        }
+                                        if (title == null && showNotificationStatus) {
+                                            Spacer(Modifier.height(8.dp))
+                                            HeaderNotificationSummary(unreadNotificationCount, headerMutedColor)
+                                        }
+                                    }
+
+                                    if (showPeopleRow) {
+                                        Column(
+                                            modifier = Modifier.width(avatarRowWidth(inlinePeopleCapacity)),
+                                            horizontalAlignment = Alignment.End
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
+                                                horizontalArrangement = Arrangement.spacedBy((-8).dp, Alignment.End),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                inlinePeople.forEach { person ->
+                                                    PersonAvatar(
+                                                        person = person,
+                                                        currentUrl = currentUrl,
+                                                        isEditMode = isEditMode,
+                                                        headerTextColor = headerTextColor,
+                                                        onClick = { onPeopleClick?.invoke(person) }
+                                                    )
+                                                }
+                                            }
+                                            wrappedPeopleRows.forEach { rowPeople ->
+                                                Spacer(Modifier.height(4.dp))
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.spacedBy((-8).dp, Alignment.End),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    rowPeople.forEach { person ->
+                                                        PersonAvatar(
+                                                            person = person,
+                                                            currentUrl = currentUrl,
+                                                            isEditMode = isEditMode,
+                                                            headerTextColor = headerTextColor,
+                                                            onClick = { onPeopleClick?.invoke(person) }
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(headerHeight)
+                    .clipToBounds()
+                    .zIndex(1f)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    when {
+                                        effectiveBackground != null -> Color.Black.copy(alpha = 0.30f)
+                                        customHeaderStart != null -> customHeaderStart
+                                        else -> appColors.headerFallbackStart
+                                    },
+                                    when {
+                                        effectiveBackground != null -> Color.Black.copy(alpha = 0.18f)
+                                        customHeaderStart != null -> customHeaderStart.copy(alpha = customHeaderStart.alpha * 0.62f)
+                                        else -> appColors.headerFallbackStart.copy(alpha = appColors.headerFallbackStart.alpha * 0.62f)
+                                    },
+                                    appColors.background
+                                )
+                            )
+                        )
+                        .windowInsetsPadding(WindowInsets.statusBars)
+                        .padding(horizontal = 16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        if (onBack != null) {
+                            val backShape = itemCornerShape()
+                            Surface(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(backShape)
+                                    .background(translucentHeaderControlGradient(pillColor))
+                                    .clickable(onClick = onBack),
+                                color = Color.Transparent,
+                                shape = backShape
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = "Back",
+                                        tint = pillContentColor,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        Text(
+                            text = title ?: viewModel.greeting,
+                            modifier = Modifier.weight(1f),
+                            color = headerTextColor,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        val compactRightDisplayType by viewModel.weatherDisplayType.collectAsState()
+                        val compactRightAlarmIds by viewModel.headerAlarmEntityIds.collectAsState()
+                        val compactRightAlarmEntities = compactRightAlarmIds
+                            .mapNotNull { id -> allEntities.find { it.entity_id == id } }
+                            .ifEmpty { listOfNotNull(allEntities.firstOrNull { it.entity_id.startsWith("alarm_control_panel.") }) }
+                        val compactRightAlarm = compactRightAlarmEntities.minByOrNull { alarmDisplayPriority(it.state) }
+                        val compactUse24h by viewModel.use24hFormat.collectAsState()
+                        val compactUseFullDayName by viewModel.useFullDayName.collectAsState()
+                        HeaderStatusPill(
+                            displayType = compactRightDisplayType,
+                            weather = weather,
+                            alarm = compactRightAlarm,
+                            use24hFormat = compactUse24h,
+                            useFullDayName = compactUseFullDayName,
+                            isEditMode = isEditMode,
+                            pillColor = pillColor,
+                            textColor = pillContentColor,
+                            editSurfaceColor = appColors.surface.copy(alpha = 0.7f),
+                            onSettingsClick = { showRightPillSettings = true },
+                            onClick = {
+                                when (compactRightDisplayType) {
+                                    "Weather", "DateTime" -> showWeatherDialog = true
+                                    "Alarm" -> if (compactRightAlarmEntities.isNotEmpty()) {
+                                        headerAlarmDialogEntityIds = compactRightAlarmEntities.map { it.entity_id }
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+
+            if (showBadgeBar) {
+                val badgeContent: @Composable () -> Unit = {
+                    HKIBadgeBar(
+                        badgeBarConfig = badgeBarConfig,
+                        isEditMode = isEditMode,
+                        viewModel = viewModel,
+                        navController = navController,
+                        onConfigChange = { newBarConfig ->
+                            if (areaId != null) {
+                                viewModel.updateAreaConfig(
+                                    areaId,
+                                    (areaConfig ?: HKIAreaConfig()).copy(badgeBar = newBarConfig)
+                                )
+                            } else if (pageKey != null) {
+                                viewModel.updatePageConfig(pageKey, pageConfig.copy(badgeBar = newBarConfig))
+                            }
+                        }
+                    )
+                }
+                if (headerVisible) {
+                    badgeContent()
+                } else {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        val visibleBadgeHeight = (scrollingBadgeHeightPx - hiddenBadgeHeightPx)
+                            .coerceAtLeast(0f)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .then(
+                                    if (scrollingBadgeHeightPx > 0) {
+                                        Modifier.height(with(density) { visibleBadgeHeight.toDp() })
+                                    } else Modifier
+                                )
+                                .clipToBounds()
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .then(
+                                        if (scrollingBadgeHeightPx > 0) {
+                                            Modifier.requiredHeight(with(density) { scrollingBadgeHeightPx.toDp() })
+                                        } else Modifier
+                                    )
+                                    .graphicsLayer { translationY = -hiddenBadgeHeightPx }
+                                    .onSizeChanged { size ->
+                                        if (size.height > scrollingBadgeHeightPx) scrollingBadgeHeightPx = size.height
+                                    }
+                            ) { badgeContent() }
+                        }
+                    }
+                }
+            }
+
+            headerBar?.invoke()
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) {
+                content(PaddingValues())
+            }
+        }
+
+        if (headerVisible && showNotificationStatus && unreadNotificationCount > 0 && onBack == null) {
+            val openNotifications = LocalOpenNotifications.current
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .offset(y = headerHeight / 2 - 32.dp)
+                    .width(8.dp)
+                    .height(64.dp)
+                    .clip(RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+                    .clickable { openNotifications?.invoke() }
+                    .zIndex(4f)
+            )
+        }
+        
+        // Done Editing FAB removed to avoid overlap with widget selector
+
+        if (showWeatherDialog && weather != null) {
+            HKIWeatherDialog(
+                weather = weather!!, 
+                onDismiss = { showWeatherDialog = false },
+                viewModel = viewModel
+            )
+        }
+
+        if (showLeftPillSettings && weather != null) {
+            val leftDisplayType by viewModel.headerLeftDisplayType.collectAsState()
+            val leftAlarmEntityIds by viewModel.headerLeftAlarmEntityIds.collectAsState()
+            HKIWeatherDialog(
+                weather = weather!!,
+                onDismiss = { showLeftPillSettings = false },
+                viewModel = viewModel,
+                settingsTitle = "Left Header Pill",
+                displayType = leftDisplayType,
+                alarmEntityIds = leftAlarmEntityIds,
+                onDisplayTypeSelected = { viewModel.setHeaderLeftDisplayType(it) },
+                onAlarmEntitiesSelected = { viewModel.setHeaderLeftAlarmEntities(it) }
+            )
+        }
+
+        if (showRightPillSettings && weather != null) {
+            val rightDisplayType by viewModel.weatherDisplayType.collectAsState()
+            val rightAlarmEntityIds by viewModel.headerAlarmEntityIds.collectAsState()
+            HKIWeatherDialog(
+                weather = weather!!,
+                onDismiss = { showRightPillSettings = false },
+                viewModel = viewModel,
+                settingsTitle = "Right Header Pill",
+                displayType = rightDisplayType,
+                alarmEntityIds = rightAlarmEntityIds,
+                onDisplayTypeSelected = { viewModel.setWeatherDisplayType(it) },
+                onAlarmEntitiesSelected = { viewModel.setHeaderAlarmEntities(it) }
+            )
+        }
+
+        headerAlarmDialogEntityIds?.let { ids ->
+            val alarmEntities = ids.mapNotNull { id -> allEntities.find { it.entity_id == id } }
+            if (alarmEntities.isNotEmpty()) {
+                HKIAlarmDialog(
+                    entity = alarmEntities.first(),
+                    entities = alarmEntities,
+                    viewModel = viewModel,
+                    onDismiss = { headerAlarmDialogEntityIds = null }
+                )
+            }
+        }
+        
+        if (showSettings) {
+            SettingsDialog(
+                prefs = prefs,
+                viewModel = viewModel,
+                onDismiss = { showSettings = false }
+            )
+        }
+
+        if (showSearch) {
+            GlobalSearchDialog(viewModel = viewModel, onDismiss = { showSearch = false })
+        }
+
+        if (showFlows) {
+            FlowsDialog(viewModel = viewModel, onDismiss = { showFlows = false })
+        }
+
+        if (showRoomConfig && areaId != null) {
+            RoomConfigDialog(
+                areaId = areaId,
+                viewModel = viewModel,
+                onHeaderColorPreview = { previewHeaderColor = it },
+                onBadgeBarPreview = { previewBadgeBarConfig = it },
+                onDismiss = {
+                    previewHeaderColor = null
+                    previewBadgeBarConfig = null
+                    showRoomConfig = false
+                }
+            )
+        }
+        if (showPageConfig && pageKey != null) {
+            PageSettingsDialog(
+                title = pageSettingsTitle ?: "Page Settings",
+                config = pageConfig,
+                people = people,
+                showPeopleSettings = showPeople,
+                showBadgeBarSettings = showBadgeBar,
+                customPage = customPage,
+                onCustomPageSave = onCustomPageSave,
+                extraSections = listOfNotNull(extraPageSettingsSection) + additionalPageSettingsSections,
+                onHeaderColorPreview = { previewHeaderColor = it },
+                onBadgeBarPreview = { previewBadgeBarConfig = it },
+                onDismiss = {
+                    previewHeaderColor = null
+                    previewBadgeBarConfig = null
+                    showPageConfig = false
+                },
+                onSave = { config ->
+                    viewModel.updatePageConfig(pageKey, config)
+                    previewHeaderColor = null
+                    previewBadgeBarConfig = null
+                    showPageConfig = false
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun PersonAvatar(
+    person: HAEntity,
+    currentUrl: String,
+    isEditMode: Boolean,
+    headerTextColor: Color,
+    onClick: () -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    val grayscaleFilter = remember {
+        ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
+    }
+    val imageUrl = person.entityPicture?.let {
+        if (it.startsWith("http") || it.startsWith("content:") || it.startsWith("file:")) it else "$currentUrl$it"
+    }
+    Box(contentAlignment = Alignment.Center) {
+        Surface(
+            modifier = Modifier
+                .size(44.dp)
+                .clickable { if (!isEditMode) onClick() },
+            shape = CircleShape,
+            border = BorderStroke(1.dp, headerTextColor.copy(alpha = 0.7f)),
+            color = appColors.elevated
+        ) {
+            if (imageUrl != null) {
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = person.friendlyName,
+                    contentScale = ContentScale.Crop,
+                    colorFilter = if (person.state != "home") grayscaleFilter else null,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                Icon(Icons.Default.Person, contentDescription = null, tint = appColors.onMuted)
+            }
+        }
+
+        if (isEditMode) {
+            Surface(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .clickable { onClick() },
+                color = appColors.surface.copy(alpha = 0.7f)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    EditSettingsButton(onClick = onClick)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PageSettingsDialog(
+    title: String,
+    config: HKIPageConfig,
+    people: List<HAEntity>,
+    showPeopleSettings: Boolean,
+    showBadgeBarSettings: Boolean = true,
+    customPage: HKICustomPage? = null,
+    onCustomPageSave: (HKICustomPage) -> Unit = {},
+    extraSections: List<Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit>> = emptyList(),
+    onHeaderColorPreview: (String?) -> Unit = {},
+    onBadgeBarPreview: (HKIBadgeBarConfig?) -> Unit = {},
+    onDismiss: () -> Unit,
+    onSave: (HKIPageConfig) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    var wallpaper by remember(config) { mutableStateOf(config.wallpaper ?: "") }
+    var headerColorText by remember(config) { mutableStateOf(config.headerColor ?: "") }
+    var headerRgb by remember(config) { mutableStateOf(hexToRgb(config.headerColor) ?: listOf(155, 83, 83)) }
+    var customPageName by remember(customPage) { mutableStateOf(customPage?.name.orEmpty()) }
+    var customPageSubtitle by remember(customPage) { mutableStateOf(customPage?.subtitle.orEmpty()) }
+    var customPageIcon by remember(customPage) { mutableStateOf(customPage?.icon ?: "view-dashboard") }
+    var showCustomPageIconPicker by remember { mutableStateOf(false) }
+    var showPeople by remember(config) { mutableStateOf(config.showPeople) }
+    var peopleSort by remember(config) { mutableStateOf(config.peopleSort) }
+    var hiddenPeople by remember(config) { mutableStateOf(config.hiddenPeople) }
+    var badgeBarEnabled by remember(config) { mutableStateOf(config.badgeBar?.visible ?: true) }
+    var badgeAlignment by remember(config) { mutableStateOf(config.badgeBar?.alignment ?: "split") }
+    var badgeSpanIcons by remember(config) { mutableStateOf(config.badgeBar?.spanIcons ?: false) }
+    var badgeLeftOverflow by remember(config) { mutableStateOf(config.badgeBar?.leftOverflow ?: false) }
+    var badgeRightOverflow by remember(config) { mutableStateOf(config.badgeBar?.rightOverflow ?: false) }
+    var section by remember { mutableStateOf("menu") }
+    var extraSectionInnerBack by remember { mutableStateOf<(() -> Unit)?>(null) }
+    var customOrder by remember(config, people) {
+        mutableStateOf(
+            (config.customPeopleOrder + people.map { it.entity_id })
+                .distinct()
+                .filter { id -> people.any { it.entity_id == id } }
+        )
+    }
+
+    fun navigateBack() {
+        val innerBack = extraSectionInnerBack
+        if (section.startsWith("extra:") && innerBack != null) innerBack()
+        else if (section != "menu") {
+            section = "menu"
+            extraSectionInnerBack = null
+        } else onDismiss()
+    }
+    if (showCustomPageIconPicker) {
+        MdiIconPickerDialog(
+            current = customPageIcon,
+            onDismiss = { showCustomPageIconPicker = false },
+            onSelect = { icon ->
+                customPageIcon = icon.ifBlank { "view-dashboard" }
+                showCustomPageIconPicker = false
+            }
+        )
+    }
+    val extraIndex = section.removePrefix("extra:").toIntOrNull()
+    val currentTitle = when (section) {
+        "menu" -> title
+        "page" -> "Page settings"
+        else -> extraIndex?.let { extraSections.getOrNull(it)?.first } ?: section.replaceFirstChar { it.uppercase() }
+    }
+    ModernSettingsDialogFrame(
+        title = currentTitle,
+        subtitle = if (section == "menu") "Choose an area to configure" else "Focused options for this page area",
+        onDismiss = onDismiss,
+        onBack = if (section == "menu") null else ::navigateBack,
+        content = {
+            val settingsScrollState = rememberScrollState()
+            Column(
+                modifier = Modifier.fillMaxSize().fadingEdges(settingsScrollState).verticalScroll(settingsScrollState),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                if (section == "menu") {
+                    SettingsSubcategory("Page areas", "Each group controls one part of this page")
+                    SettingsMenuChoice(Icons.Default.Image, "Header", "Wallpaper and custom header color") { section = "header" }
+                    if (customPage != null) {
+                        SettingsMenuChoice(Icons.Default.DashboardCustomize, "Page Settings", "Name, subtitle and navigation icon") { section = "page" }
+                    }
+                    if (showBadgeBarSettings) {
+                        SettingsMenuChoice(Icons.Default.ViewStream, "Badge Bar", "Visibility, alignment, and display options") { section = "badgebar" }
+                    }
+                    if (showPeopleSettings) {
+                        SettingsMenuChoice(Icons.Default.Person, "Persons", "Visibility and ordering") { section = "persons" }
+                    }
+                    extraSections.forEachIndexed { index, extra ->
+                        SettingsMenuChoice(
+                            if (extra.first.equals("Re-import", ignoreCase = true)) Icons.Default.CloudDownload else Icons.Default.Tune,
+                            extra.first,
+                            if (extra.first.equals("Re-import", ignoreCase = true)) "Fetch from Home Assistant" else "Configure"
+                        ) { section = "extra:$index" }
+                    }
+                }
+                if (section == "page" && customPage != null) {
+                    SettingsSubcategory("Identity", "Name, subtitle, and navigation icon")
+                    OutlinedTextField(
+                        value = customPageName,
+                        onValueChange = { customPageName = it },
+                        label = { Text("Page name") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = customPageSubtitle,
+                        onValueChange = { customPageSubtitle = it },
+                        label = { Text("Page subtitle") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().clickable { showCustomPageIconPicker = true },
+                        shape = itemCornerShape(),
+                        color = appColors.subtleSurface
+                    ) {
+                        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            MdiIcon(customPageIcon, contentDescription = null, tint = appColors.onSurface, size = 24.dp)
+                            Spacer(Modifier.width(12.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text("Page icon", color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
+                                Text(customPageIcon, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                            }
+                            Icon(Icons.Default.ChevronRight, null, tint = appColors.onMuted)
+                        }
+                    }
+                }
+                if (section == "header") {
+                    SettingsSubcategory("Header appearance", "Wallpaper and an optional custom color")
+                    OutlinedTextField(
+                        value = wallpaper,
+                        onValueChange = { wallpaper = it },
+                        label = { Text("Header wallpaper URL or path") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = headerColorText,
+                        onValueChange = {
+                            headerColorText = it
+                            onHeaderColorPreview(it.ifBlank { null })
+                        },
+                        label = { Text("Header custom color (#RRGGBB)") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    ColorWheel(
+                        selectedRgb = headerRgb,
+                        onColorSelected = { rgb ->
+                            headerRgb = rgb
+                            headerColorText = rgbToHex(rgb)
+                            onHeaderColorPreview(headerColorText)
+                        },
+                        onValueChangeFinished = {},
+                        modifier = Modifier.align(Alignment.CenterHorizontally).size(220.dp)
+                    )
+                }
+                if (section == "persons" && showPeopleSettings) {
+                    SettingsSubcategory("People", "Visibility and ordering in the page header")
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(checked = showPeople, onCheckedChange = { showPeople = it })
+                        Text("Show persons")
+                    }
+                    Text("Persons order", style = MaterialTheme.typography.labelLarge)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        FilterChip(
+                            selected = peopleSort == "custom",
+                            onClick = { peopleSort = "custom" },
+                            label = { Text("Custom") }
+                        )
+                    }
+                    if (peopleSort == "custom") {
+                        ReorderableGrid(
+                            items = customOrder,
+                            canReorder = true,
+                            onReorder = { from, to ->
+                                customOrder = customOrder.toMutableList().apply {
+                                    add(to, removeAt(from))
+                                }
+                            },
+                            key = { it },
+                            columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(1),
+                            modifier = Modifier.fillMaxWidth().heightIn(max = 220.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            isNested = true
+                        ) { personId, _ ->
+                            people.find { it.entity_id == personId }?.let { person ->
+                                Surface(
+                                    shape = itemCornerShape(),
+                                    color = appColors.subtleSurface
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().padding(10.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(Icons.Default.Person, null, tint = appColors.onSurface.copy(alpha = 0.75f))
+                                        Spacer(Modifier.width(10.dp))
+                                        Column(Modifier.weight(1f)) {
+                                            Text(person.friendlyName ?: person.entity_id, color = appColors.onSurface)
+                                            Text(person.state, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+                                        }
+                                        Icon(Icons.Default.DragIndicator, null, tint = appColors.onMuted)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (people.isNotEmpty()) {
+                        Text("Visible persons", style = MaterialTheme.typography.labelLarge)
+                        people.forEach { person ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Checkbox(
+                                    checked = person.entity_id !in hiddenPeople,
+                                    onCheckedChange = { checked ->
+                                        hiddenPeople = if (checked) hiddenPeople - person.entity_id else (hiddenPeople + person.entity_id).distinct()
+                                    }
+                                )
+                                Text(person.friendlyName ?: person.entity_id)
+                            }
+                        }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        FilterChip(
+                            selected = peopleSort == "changed",
+                            onClick = { peopleSort = "changed" },
+                            label = { Text("State") }
+                        )
+                        FilterChip(
+                            selected = peopleSort == "name",
+                            onClick = { peopleSort = "name" },
+                            label = { Text("Name") }
+                        )
+                        FilterChip(
+                            selected = peopleSort == "name_desc",
+                            onClick = { peopleSort = "name_desc" },
+                            label = { Text("Reverse") }
+                        )
+                    }
+                }
+                if (section.startsWith("extra:")) {
+                    section.removePrefix("extra:").toIntOrNull()?.let { index ->
+                        extraSections.getOrNull(index)?.second?.invoke(this) { extraSectionInnerBack = it }
+                    }
+                }
+                if (section == "badgebar" && showBadgeBarSettings) {
+                    SettingsSubcategory("Badge bar layout", "Visibility, alignment, and overflow behavior")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Show badge bar", style = MaterialTheme.typography.bodyMedium)
+                        Switch(
+                            checked = badgeBarEnabled,
+                            onCheckedChange = {
+                                badgeBarEnabled = it
+                                onBadgeBarPreview((config.badgeBar ?: HKIBadgeBarConfig()).copy(visible = it, alignment = badgeAlignment, spanIcons = badgeSpanIcons, leftOverflow = badgeLeftOverflow, rightOverflow = badgeRightOverflow))
+                            }
+                        )
+                    }
+                    Text("Alignment", style = MaterialTheme.typography.labelLarge)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        listOf("split" to "Split", "left" to "Left", "center" to "Center", "right" to "Right").forEach { (value, label) ->
+                            FilterChip(
+                                selected = badgeAlignment == value,
+                                onClick = {
+                                    badgeAlignment = value
+                                    onBadgeBarPreview((config.badgeBar ?: HKIBadgeBarConfig()).copy(visible = badgeBarEnabled, alignment = value, spanIcons = badgeSpanIcons, leftOverflow = badgeLeftOverflow, rightOverflow = badgeRightOverflow))
+                                },
+                                label = { Text(label) }
+                            )
+                        }
+                    }
+                    if (badgeAlignment == "center") {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Span badges", style = MaterialTheme.typography.bodyMedium)
+                            Switch(
+                                checked = badgeSpanIcons,
+                                onCheckedChange = {
+                                    badgeSpanIcons = it
+                                    onBadgeBarPreview((config.badgeBar ?: HKIBadgeBarConfig()).copy(visible = badgeBarEnabled, alignment = badgeAlignment, spanIcons = it, leftOverflow = badgeLeftOverflow, rightOverflow = badgeRightOverflow))
+                                }
+                            )
+                        }
+                    }
+                    if (badgeAlignment == "split") {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Left side overflows right", style = MaterialTheme.typography.bodyMedium)
+                            Switch(
+                                checked = badgeLeftOverflow,
+                                onCheckedChange = {
+                                    badgeLeftOverflow = it
+                                    onBadgeBarPreview((config.badgeBar ?: HKIBadgeBarConfig()).copy(visible = badgeBarEnabled, alignment = badgeAlignment, spanIcons = badgeSpanIcons, leftOverflow = it, rightOverflow = badgeRightOverflow))
+                                }
+                            )
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Right side overflows left", style = MaterialTheme.typography.bodyMedium)
+                            Switch(
+                                checked = badgeRightOverflow,
+                                onCheckedChange = {
+                                    badgeRightOverflow = it
+                                    onBadgeBarPreview((config.badgeBar ?: HKIBadgeBarConfig()).copy(visible = badgeBarEnabled, alignment = badgeAlignment, spanIcons = badgeSpanIcons, leftOverflow = badgeLeftOverflow, rightOverflow = it))
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        footer = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+            Button(onClick = {
+                customPage?.let {
+                    onCustomPageSave(
+                        it.copy(
+                            name = customPageName.trim(),
+                            subtitle = customPageSubtitle.trim(),
+                            icon = customPageIcon
+                        )
+                    )
+                }
+                onSave(
+                    config.copy(
+                        wallpaper = wallpaper.ifBlank { null },
+                        headerColor = headerColorText.ifBlank { null },
+                        showPeople = showPeople,
+                        peopleSort = peopleSort,
+                        customPeopleOrder = customOrder,
+                        hiddenPeople = hiddenPeople,
+                        badgeBar = if (showBadgeBarSettings) {
+                            (config.badgeBar ?: HKIBadgeBarConfig()).copy(
+                                visible = badgeBarEnabled,
+                                alignment = badgeAlignment,
+                                spanIcons = badgeSpanIcons,
+                                leftOverflow = badgeLeftOverflow,
+                                rightOverflow = badgeRightOverflow
+                            )
+                        } else config.badgeBar
+                    )
+                )
+            }, enabled = customPage == null || customPageName.isNotBlank()) { Text("Save") }
+        }
+    )
+}
+
+@Composable
+private fun SettingsMenuChoice(icon: ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
+    ModernSettingsMenuItem(icon = icon, title = title, subtitle = subtitle, onClick = onClick)
+}
+
+private data class HeaderMenuAction(val icon: ImageVector, val label: String, val onClick: () -> Unit)
+
+private fun translucentHeaderControlGradient(base: Color): Brush = Brush.verticalGradient(
+    listOf(
+        base.copy(alpha = (base.alpha + 0.04f).coerceAtMost(1f)),
+        base,
+        base.copy(alpha = (base.alpha - 0.06f).coerceAtLeast(0f))
+    )
+)
+
+@Composable
+fun MenuButton(
+    icon: ImageVector,
+    label: String,
+    enabled: Boolean = true,
+    surfaceColor: Color? = null,
+    contentColor: Color? = null,
+    onClick: () -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    val resolvedSurface = surfaceColor ?: appColors.subtleSurface
+    val resolvedContent = contentColor ?: appColors.onSurface
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.width(64.dp).clickable(enabled = enabled) { onClick() }
+    ) {
+        Surface(
+            modifier = Modifier.size(48.dp),
+            shape = CircleShape,
+            color = resolvedSurface
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(icon, contentDescription = label, tint = resolvedContent)
+            }
+        }
+        Spacer(Modifier.height(4.dp))
+        Text(
+            label,
+            color = resolvedContent,
+            style = MaterialTheme.typography.labelSmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun HeaderStatusPill(
+    displayType: String,
+    weather: HAEntity?,
+    alarm: HAEntity?,
+    use24hFormat: Boolean,
+    useFullDayName: Boolean,
+    isEditMode: Boolean,
+    pillColor: Color,
+    textColor: Color,
+    editSurfaceColor: Color,
+    onSettingsClick: () -> Unit,
+    onClick: () -> Unit
+) {
+    val showPill = displayType != "None"
+    Box(
+        modifier = if (!showPill && isEditMode) Modifier.size(36.dp) else Modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        if (showPill) {
+            val now = LocalDateTime.now()
+            val timePattern = if (use24hFormat) "HH:mm" else "hh:mm a"
+            val dayPattern = if (useFullDayName) "EEEE" else "EEE"
+            val displayText = when (displayType) {
+                "Date" -> now.format(DateTimeFormatter.ofPattern("$dayPattern, MMM d"))
+                "Time" -> now.format(DateTimeFormatter.ofPattern(timePattern))
+                "DateTime" -> now.format(DateTimeFormatter.ofPattern("$dayPattern d, $timePattern"))
+                "Alarm" -> alarm?.state?.replace("_", " ")?.replaceFirstChar { it.uppercase() } ?: "Alarm"
+                else -> "${weather?.state?.let { formatWeatherState(it) } ?: "Cloudy"} ${weather?.temperature?.toInt() ?: 12}°C"
+            }
+            val pillShape = itemCornerShape()
+            Surface(
+                modifier = Modifier
+                    .height(36.dp)
+                    .clip(pillShape)
+                    .background(translucentHeaderControlGradient(pillColor))
+                    .clickable { if (!isEditMode) onClick() },
+                color = Color.Transparent,
+                shape = pillShape
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (displayType == "Alarm") {
+                        MdiIcon(
+                            name = alarm?.let { defaultEntityIconSlug(it) } ?: "shield-home",
+                            contentDescription = null,
+                            tint = alarmStateColor(alarm?.state.orEmpty()),
+                            size = 18.dp
+                        )
+                        Spacer(Modifier.width(8.dp))
+                    } else {
+                        if (displayType == "Weather" || displayType == "DateTime") {
+                            WeatherStateIcon(
+                                state = weather?.state,
+                                size = 20.dp,
+                                contentDescription = weather?.state?.let(::formatWeatherState)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                        }
+                    }
+                    Text(displayText, color = textColor, style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        }
+
+        if (isEditMode) {
+            val overlayModifier = if (showPill) Modifier.matchParentSize() else Modifier.fillMaxSize()
+            val pillShape = itemCornerShape()
+            Surface(
+                modifier = overlayModifier
+                    .clip(pillShape)
+                    .clickable { onSettingsClick() },
+                color = editSurfaceColor
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    EditSettingsButton(onClick = onSettingsClick)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HeaderSubtitle(text: String, icon: ImageVector?, color: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        if (icon != null) {
+            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(6.dp))
+        }
+        Text(text = text, style = MaterialTheme.typography.bodyLarge, color = color)
+    }
+}
+
+@Composable
+private fun HeaderNotificationSummary(count: Int, color: Color) {
+    if (count == 0) {
+        Text("No Notifications", color = color, style = MaterialTheme.typography.labelMedium)
+        return
+    }
+    val openNotifications = LocalOpenNotifications.current
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Box(
+            modifier = Modifier
+                .height(22.dp)
+                .widthIn(min = 22.dp)
+                .background(MaterialTheme.colorScheme.primary, CircleShape)
+                .clip(CircleShape)
+                .clickable { openNotifications?.invoke() }
+                .padding(horizontal = 5.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                count.toString(),
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Text(if (count == 1) "Notification" else "Notifications", color = color, style = MaterialTheme.typography.labelMedium)
+    }
+}
+
+private fun parseHexColor(value: String?): Color? {
+    val hex = value?.takeIf { it.isNotBlank() } ?: return null
+    val normalized = if (hex.startsWith("#")) hex else "#$hex"
+    return runCatching { Color(normalized.toColorInt()) }.getOrNull()
+}
+
+private fun hexToRgb(value: String?): List<Int>? {
+    val hex = value?.removePrefix("#")?.takeIf { it.length == 6 } ?: return null
+    return runCatching {
+        listOf(hex.substring(0, 2).toInt(16), hex.substring(2, 4).toInt(16), hex.substring(4, 6).toInt(16))
+    }.getOrNull()
+}
+
+private fun rgbToHex(rgb: List<Int>): String {
+    val safe = List(3) { index -> rgb.getOrNull(index)?.coerceIn(0, 255) ?: 0 }
+    return "#%02X%02X%02X".format(safe[0], safe[1], safe[2])
+}

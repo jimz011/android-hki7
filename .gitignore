@@ -13,3 +13,8 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# IDE inspection report exports
+/index.html
+/script.js
+/styles.css

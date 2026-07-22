@@ -5,15 +5,15 @@ plugins {
 }
 
 android {
-    namespace = "com.example.hki7"
+    namespace = "com.jimz011apps.hki7"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.example.hki7"
+        applicationId = "com.jimz011apps.hki7"
         minSdk = 34
         targetSdk = 37
-        versionCode = 5
-        versionName = "1.0.0-alpha-05"
+        versionCode = 7
+        versionName = "1.0.0-beta.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

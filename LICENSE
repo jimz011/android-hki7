@@ -1,0 +1,55 @@
+HKI 7 OPEN-CORE LICENSE NOTICE
+
+Copyright (c) 2026 Jimz011
+
+COMMUNITY SOURCE CODE
+
+Unless a file or directory states otherwise, the HKI 7 community source code in this
+repository is licensed under the Mozilla Public License, version 2.0 (MPL-2.0).
+
+This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file, You can obtain one at:
+
+    https://www.mozilla.org/MPL/2.0/
+
+The MPL-2.0 permits use, study, modification, and redistribution, including commercial
+use. When MPL-covered files are distributed in executable or modified form, the source
+for those covered files must remain available under MPL-2.0. This notice is a summary;
+the full MPL-2.0 terms control.
+
+PREMIUM MATERIALS
+
+The following are not Community Source Code and are not licensed under MPL-2.0 unless
+they are explicitly marked otherwise:
+
+- premium icon packs and animated icon or artwork collections;
+- premium themes and other paid visual asset packs;
+- premium entitlement, storefront, or licensing services;
+- separately marked premium modules, source files, or binary components; and
+- credentials, signing material, private service configuration, and branding assets
+  that are explicitly marked as proprietary.
+
+These Premium Materials are proprietary and all rights are reserved. A valid Premium
+entitlement grants only the personal-use rights stated in the applicable purchase terms.
+Premium Materials may not be redistributed, sublicensed, resold, extracted as a
+standalone collection, or used to create a competing asset pack without written
+permission from the copyright holder.
+
+The open-source community core remains usable without Premium. No Premium term limits
+the rights granted by MPL-2.0 for Community Source Code.
+
+TRADEMARKS AND THIRD-PARTY MATERIALS
+
+The HKI 7 name and logos are project trademarks. This license does not grant permission
+to use them in a way that suggests an unofficial build is endorsed by the HKI 7 project.
+Accurate, non-misleading attribution and descriptions of compatibility are permitted.
+
+Home Assistant and other third-party names, libraries, fonts, images, and artwork remain
+subject to their respective licenses and trademarks. Their notices are not replaced by
+this document.
+
+NO WARRANTY
+
+The Community Source Code is provided without warranty under the terms of MPL-2.0.
+Premium Materials are also provided without warranty except where mandatory consumer
+law or separate written purchase terms require otherwise.
