@@ -68,6 +68,7 @@ import com.jimz011apps.hki7.data.PreferencesManager
 import com.jimz011apps.hki7.data.PushForegroundService
 import com.jimz011apps.hki7.data.classifyHomeAssistantConnectionRoute
 import com.jimz011apps.hki7.data.splitHomeAssistantConnectionUrl
+import com.jimz011apps.hki7.ui.components.LocationDisclosureDialog
 import com.jimz011apps.hki7.ui.components.ModernSettingsHeader
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.coroutines.launch
@@ -1011,8 +1012,22 @@ private fun PermissionsStep(onFinish: () -> Unit) {
     val foregroundLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
         refresh++
         // After foreground location is granted, immediately ask for the "Allow all the time" upgrade,
-        // exactly like the official app's flow.
+        // exactly like the official app's flow. The prominent disclosure was already accepted before
+        // the foreground request, and it covers background collection.
         if (result.values.any { it }) backgroundLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+    }
+
+    // Google Play prominent disclosure: location permission requests may only launch after the user
+    // accepts the disclosure dialog. Holds the request to run on "Agree".
+    var pendingLocationRequest by remember { mutableStateOf<(() -> Unit)?>(null) }
+    pendingLocationRequest?.let { request ->
+        LocationDisclosureDialog(
+            onAgree = {
+                pendingLocationRequest = null
+                request()
+            },
+            onDismiss = { pendingLocationRequest = null }
+        )
     }
 
     fun openAppSettings() {
@@ -1148,10 +1163,14 @@ private fun PermissionsStep(onFinish: () -> Unit) {
                         },
                         onAction = {
                             when {
-                                !fineGranted -> foregroundLauncher.launch(
-                                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
-                                )
-                                !backgroundGranted -> backgroundLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                                !fineGranted -> pendingLocationRequest = {
+                                    foregroundLauncher.launch(
+                                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+                                    )
+                                }
+                                !backgroundGranted -> pendingLocationRequest = {
+                                    backgroundLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                                }
                                 else -> {}
                             }
                         },

@@ -498,6 +498,21 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         ActivityResultContracts.RequestPermission()
     ) { }
 
+    // Google Play prominent disclosure: never launch a location permission prompt cold. If location
+    // reporting is enabled but the permission is missing, the disclosure dialog is shown first and
+    // the request only launches on "Agree".
+    var showLocationDisclosure by remember { mutableStateOf(false) }
+    val locationPermissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+    if (showLocationDisclosure) {
+        com.jimz011apps.hki7.ui.components.LocationDisclosureDialog(
+            onAgree = {
+                showLocationDisclosure = false
+                permissionLauncher.launch(locationPermissions)
+            },
+            onDismiss = { showLocationDisclosure = false }
+        )
+    }
+
     LaunchedEffect(Unit) {
         // Demo sessions have no server to report to and must not open with surprise permission
         // prompts (Google Play reviewers see the demo first).
@@ -505,11 +520,10 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             instance.locationEnabled && !isDemoServerUrl(instance.primaryUrl)
         }
         if (!needsRealLocation) return@LaunchedEffect
-        val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
-        val hasLocation = permissions.any {
+        val hasLocation = locationPermissions.any {
             ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
         }
-        if (hasLocation) viewModel.startLocationReporting(context) else permissionLauncher.launch(permissions)
+        if (hasLocation) viewModel.startLocationReporting(context) else showLocationDisclosure = true
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
