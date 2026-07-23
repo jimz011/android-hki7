@@ -25,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
@@ -157,13 +156,9 @@ fun HKI7Theme(
         SideEffect {
             val window = (view.context as Activity).window
             WindowCompat.setDecorFitsSystemWindows(window, false)
-            @Suppress("DEPRECATION")
-            window.statusBarColor = systemBarColor.toArgb()
-            @Suppress("DEPRECATION")
-            window.navigationBarColor = colorScheme.primary.toArgb()
-            @Suppress("DEPRECATION")
-            window.navigationBarDividerColor = systemBarColor.toArgb()
-            window.isNavigationBarContrastEnforced = false
+            // System-bar colors are no longer set here: under edge-to-edge (Android 15+ enforces
+            // transparent system bars and deprecates these setters) the app draws its own
+            // backgrounds behind the bars. Only the icon appearance still needs to be driven.
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = useDarkSystemBarIcons
             WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = useDarkSystemBarIcons
         }

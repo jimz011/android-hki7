@@ -123,7 +123,12 @@ fun HKILightDialog(
     ) {
         val appColors = LocalHKIAppColors.current
         val isOff = entity.state == "off"
-        Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+        BoxWithConstraints(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+            // Shrink the vertical slider/switch to fit short screens so the value text, caption, and
+            // adaptive-lighting chip can't overflow the centered column and overlap the tab bar.
+            // ~200dp is reserved for those surrounding elements; the control never exceeds its
+            // natural 300dp and never collapses below a usable 120dp.
+            val controlHeight = (maxHeight - 200.dp).coerceIn(120.dp, VerticalControlHeight)
             if (showAdaptiveLighting) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -187,10 +192,11 @@ fun HKILightDialog(
                         fontWeight = FontWeight.Normal
                     )
                     Spacer(Modifier.height(24.dp))
-                    Box(Modifier.height(VerticalControlHeight).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Box(Modifier.height(controlHeight).fillMaxWidth(), contentAlignment = Alignment.Center) {
                         VerticalMasterSwitch(
                             isOn = entity.state == "on",
-                            onToggle = { viewModel.toggleEntity(entity.entity_id) }
+                            onToggle = { viewModel.toggleEntity(entity.entity_id) },
+                            height = controlHeight
                         )
                     }
                     Spacer(Modifier.height(16.dp))
@@ -208,7 +214,7 @@ fun HKILightDialog(
                         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("${(sliderValue * 100).toInt()}%", color = appColors.onSurface, style = MaterialTheme.typography.displayMedium)
                             Spacer(Modifier.height(24.dp))
-                            Box(Modifier.height(VerticalControlHeight).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            Box(Modifier.height(controlHeight).fillMaxWidth(), contentAlignment = Alignment.Center) {
                                 VerticalSlider(
                                     value = sliderValue,
                                     onValueChange = {
@@ -216,7 +222,8 @@ fun HKILightDialog(
                                         viewModel.setOptimisticBrightness(entity.entity_id, it)
                                     },
                                     onValueChangeFinished = { viewModel.setBrightness(entity.entity_id, sliderValue) },
-                                    activeColor = lightAccent
+                                    activeColor = lightAccent,
+                                    height = controlHeight
                                 )
                             }
                             Spacer(Modifier.height(16.dp))
@@ -235,12 +242,13 @@ fun HKILightDialog(
                         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("${kelvinValue.toInt()}K", color = appColors.onSurface, style = MaterialTheme.typography.displayMedium)
                             Spacer(Modifier.height(24.dp))
-                            Box(Modifier.height(VerticalControlHeight).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            Box(Modifier.height(controlHeight).fillMaxWidth(), contentAlignment = Alignment.Center) {
                                 VerticalSlider(
                                     value = ((kelvinValue - minK) / (maxK - minK)).coerceIn(0f, 1f),
                                     onValueChange = { kelvinValue = minK + it * (maxK - minK) },
                                     onValueChangeFinished = { viewModel.setColorTemp(entity.entity_id, kelvinValue.toInt()) },
-                                    gradient = Brush.verticalGradient(listOf(Color(0xFFCCE6FF), Color(0xFFFFCC33)))
+                                    gradient = Brush.verticalGradient(listOf(Color(0xFFCCE6FF), Color(0xFFFFCC33))),
+                                    height = controlHeight
                                 )
                             }
                             Spacer(Modifier.height(16.dp))
@@ -374,7 +382,8 @@ fun VerticalMasterSwitch(
     isOn: Boolean,
     onToggle: () -> Unit,
     accentColor: Color? = null,
-    doorOpen: Boolean = false
+    doorOpen: Boolean = false,
+    height: androidx.compose.ui.unit.Dp = VerticalControlHeight
 ) {
     val accent = accentColor ?: MaterialTheme.colorScheme.primary
     val appColors = LocalHKIAppColors.current
@@ -391,7 +400,7 @@ fun VerticalMasterSwitch(
     // Swap knob to elevated so it's distinguishable from the surface background in all modes.
     Box(
         modifier = modifier
-            .height(VerticalControlHeight)
+            .height(height)
             .width(100.dp)
             .clip(itemCornerShape())
             .background(appColors.surface)
@@ -409,7 +418,7 @@ fun VerticalMasterSwitch(
             modifier = Modifier
                 .padding(8.dp)
                 .fillMaxWidth()
-                .height(116.dp)
+                .height(height * (116f / 300f))
                 .align(if (isOn) Alignment.TopCenter else Alignment.BottomCenter)
                 .border(1.dp, appColors.onMuted.copy(alpha = 0.18f), itemCornerShape())
                 .clip(itemCornerShape())

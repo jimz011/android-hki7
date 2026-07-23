@@ -81,6 +81,7 @@ import com.jimz011apps.hki7.data.HAMediaBrowseItem
 import com.jimz011apps.hki7.data.HAServiceCall
 import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
+import com.jimz011apps.hki7.ui.utils.MdiIcon
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.OffsetDateTime
@@ -323,7 +324,10 @@ fun HKIMediaPlayerDialog(
             }
 
             // Bottom pill: only the capabilities this player actually has.
-            val hasSources = entity.sourceList.isNotEmpty() && entity.supportsMedia(MP_SELECT_SOURCE)
+            // A published source_list is itself the capability signal: plenty of integrations expose
+            // selectable sources without ever setting the SELECT_SOURCE feature bit, and gating on
+            // that bit hid the source picker for those players entirely.
+            val hasSources = entity.sourceList.isNotEmpty()
             val hasBrowse = entity.supportsMedia(MP_BROWSE_MEDIA)
             val hasMute = entity.supportsMedia(MP_VOLUME_MUTE)
             val hasVolume = entity.supportsMedia(MP_VOLUME_SET)
@@ -630,6 +634,37 @@ private fun MediaBrowseDialog(
 // ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
+/**
+ * Material Design Icon slug for the service a player is currently using, derived from the HA
+ * `app_name` attribute (falling back to `source`, then the entity id). Brands the bundled MDI font
+ * has no glyph for — Sonos, Tidal, Deezer, Jellyfin — resolve to the closest sensible shape rather
+ * than nothing, and anything unrecognised lands on a plain music note.
+ */
+internal fun mediaAppIconName(entity: HAEntity): String {
+    val hint = listOfNotNull(entity.appName, entity.mediaSource, entity.entity_id)
+        .joinToString(" ")
+        .lowercase()
+    return when {
+        "spotify" in hint -> "spotify"
+        "plex" in hint -> "plex"
+        "netflix" in hint -> "netflix"
+        "youtube" in hint -> "youtube"
+        "soundcloud" in hint -> "soundcloud"
+        "pandora" in hint -> "pandora"
+        "kodi" in hint -> "kodi"
+        "emby" in hint || "jellyfin" in hint -> "emby"
+        "apple" in hint || "airplay" in hint || "itunes" in hint -> "apple"
+        "sonos" in hint -> "speaker-multiple"
+        "tidal" in hint || "deezer" in hint || "amazon" in hint -> "music-box-multiple"
+        "cast" in hint || "chromecast" in hint -> "cast"
+        "radio" in hint || "tuner" in hint -> "radio"
+        "podcast" in hint -> "podcast"
+        "tv" in hint || "television" in hint -> "television"
+        else -> "music-note"
+    }
+}
+
+@Composable
 fun MediaPlayerMiniBar(
     players: List<HAEntity>,
     currentUrl: String,
@@ -755,6 +790,19 @@ fun MediaPlayerMiniBar(
                                 modifier = Modifier.size(22.dp)
                             )
                         }
+                    }
+                    // Service badge to the right of the transport controls, so you can tell at a
+                    // glance whether this is Spotify, Plex, a Sonos group, and so on.
+                    Box(
+                        Modifier.size(30.dp).clip(RoundedCornerShape(9.dp)).background(barSubtle),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        MdiIcon(
+                            mediaAppIconName(player),
+                            contentDescription = player.appName ?: "Source",
+                            tint = barForeground,
+                            size = 18.dp
+                        )
                     }
                 }
                 // Elapsed / progress / remaining, when the player reports a duration.

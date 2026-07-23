@@ -32,7 +32,7 @@ class BootReceiver : BroadcastReceiver() {
                         val prefs = PreferencesManager(context)
                         prefs.ensureHomeAssistantInstanceStore()
                         if (prefs.shouldUsePushService.first()) {
-                            PushForegroundService.start(context)
+                            PushForegroundService.startFromBoot(context)
                         }
                     } finally {
                         result.finish()

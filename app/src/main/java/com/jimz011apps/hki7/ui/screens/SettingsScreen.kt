@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -1329,6 +1330,15 @@ fun SettingsDialog(
                                     color = appColors.onSurface,
                                     style = MaterialTheme.typography.bodyMedium
                                 )
+                                Button(
+                                    onClick = { openGitHub(context, HKI7_GITHUB_URL) },
+                                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                                    shape = itemCornerShape()
+                                ) {
+                                    MdiIcon("github", tint = MaterialTheme.colorScheme.onPrimary, size = 20.dp)
+                                    Spacer(Modifier.width(8.dp))
+                                    Text("View on GitHub")
+                                }
                             }
                         }
                         SettingsSection.LICENSE -> {
@@ -1917,10 +1927,25 @@ private fun SupportLinkCard(
                 shape = RoundedCornerShape(12.dp),
                 color = Color.White
             ) {
-                AsyncImage(
+                // These logos come from third-party CDNs, so they can fail to load (offline, a
+                // moved asset, a blocked request) and would otherwise leave a blank white card.
+                // Fall back to the brand name so the button always reads as a button.
+                coil3.compose.SubcomposeAsyncImage(
                     model = imageUrl,
                     contentDescription = imageDescription,
                     contentScale = ContentScale.Fit,
+                    error = {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(
+                                imageDescription,
+                                color = Color.Black,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(horizontal = 6.dp)
+                            )
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth().padding(6.dp)
                 )
             }
@@ -1942,6 +1967,21 @@ private fun openExternalUrl(context: android.content.Context, url: String) {
             Intent(Intent.ACTION_VIEW, url.toUri()).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         )
     }
+}
+
+const val HKI7_GITHUB_URL = "https://github.com/jimz011/android-hki7"
+
+/**
+ * Opens the repository in the GitHub app when it is installed, otherwise falls back to the normal
+ * browser intent. Targeting the package explicitly is what stops Android from showing a chooser (or
+ * silently preferring the browser) when GitHub is present.
+ */
+private fun openGitHub(context: android.content.Context, url: String) {
+    val appIntent = Intent(Intent.ACTION_VIEW, url.toUri())
+        .setPackage("com.github.android")
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    val opened = runCatching { context.startActivity(appIntent); true }.getOrDefault(false)
+    if (!opened) openExternalUrl(context, url)
 }
 
 @Composable

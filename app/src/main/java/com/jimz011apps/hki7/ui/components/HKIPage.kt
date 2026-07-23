@@ -30,7 +30,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -186,19 +185,14 @@ fun HKIPage(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as? Activity)?.window ?: return@SideEffect
-            val statusBarColor = when {
-                effectiveBackground != null -> Color.Transparent
-                else -> appColors.background
-            }
             val useDarkStatusBarIcons = when {
                 effectiveBackground != null -> false
                 else -> appColors.background.luminance() > 0.5f
             }
-            @Suppress("DEPRECATION")
-            window.statusBarColor = statusBarColor.toArgb()
+            // The status bar stays transparent under edge-to-edge (the page background/hero image
+            // draws behind it); only the icon tint is adjusted for contrast. The deprecated
+            // statusBarColor / isStatusBarContrastEnforced setters are no-ops on Android 15+.
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = useDarkStatusBarIcons
-            @Suppress("DEPRECATION")
-            window.isStatusBarContrastEnforced = false
         }
     }
     val visiblePeople = remember(people, pageConfig) {
@@ -557,13 +551,27 @@ fun HKIPage(
                                 }
                                 return count
                             }
-                            val inlinePeopleCapacity = rowCapacity(maxWidth - 228.dp)
-                            val inlinePeople = if (showPeopleRow) visiblePeople.take(inlinePeopleCapacity) else emptyList()
-                            val wrappedPeople = if (showPeopleRow) visiblePeople.drop(inlinePeopleCapacity) else emptyList()
+                            val rawInlineCapacity = rowCapacity(maxWidth - 228.dp)
+                            // Never degrade to a one-avatar-wide vertical stack: with 2+ people always
+                            // lay them out at least two across. A compact grid beside the greeting reads
+                            // far better than a tall column of single faces.
+                            val perRow = when {
+                                !showPeopleRow -> 0
+                                visiblePeople.size == 1 -> 1
+                                maxWidth >= 280.dp -> rawInlineCapacity.coerceAtLeast(2)
+                                else -> rawInlineCapacity
+                            }
+                            // Cap at two rows; anything beyond collapses into a "+N" bubble so a family
+                            // of 8-10 can't turn the header into a wall of faces.
+                            val maxAvatarRows = 2
+                            val avatarCapacity = (perRow * maxAvatarRows).coerceAtLeast(1)
+                            val overflowCount = (visiblePeople.size - avatarCapacity).coerceAtLeast(0)
+                            val shownPeople =
+                                if (overflowCount > 0) visiblePeople.take(avatarCapacity - 1) else visiblePeople
+                            val avatarRows = if (perRow > 0) shownPeople.chunked(perRow) else emptyList()
                             val wrappedPeopleCapacity = rowCapacity(maxWidth).coerceAtLeast(1)
-                            val wrappedPeopleRows = wrappedPeople.chunked(if (inlinePeopleCapacity > 0) inlinePeopleCapacity else wrappedPeopleCapacity)
 
-                            if (inlinePeopleCapacity == 0) {
+                            if (perRow == 0) {
                                 Column(modifier = Modifier.fillMaxWidth()) {
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
@@ -665,28 +673,15 @@ fun HKIPage(
 
                                     if (showPeopleRow) {
                                         Column(
-                                            modifier = Modifier.width(avatarRowWidth(inlinePeopleCapacity)),
+                                            modifier = Modifier.width(avatarRowWidth(perRow)),
                                             horizontalAlignment = Alignment.End
                                         ) {
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
-                                                horizontalArrangement = Arrangement.spacedBy((-8).dp, Alignment.End),
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                inlinePeople.forEach { person ->
-                                                    PersonAvatar(
-                                                        person = person,
-                                                        currentUrl = currentUrl,
-                                                        isEditMode = isEditMode,
-                                                        headerTextColor = headerTextColor,
-                                                        onClick = { onPeopleClick?.invoke(person) }
-                                                    )
-                                                }
-                                            }
-                                            wrappedPeopleRows.forEach { rowPeople ->
-                                                Spacer(Modifier.height(4.dp))
+                                            avatarRows.forEachIndexed { rowIndex, rowPeople ->
+                                                if (rowIndex > 0) Spacer(Modifier.height(4.dp))
                                                 Row(
-                                                    modifier = Modifier.fillMaxWidth(),
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .then(if (rowIndex == 0) Modifier.padding(top = 2.dp) else Modifier),
                                                     horizontalArrangement = Arrangement.spacedBy((-8).dp, Alignment.End),
                                                     verticalAlignment = Alignment.CenterVertically
                                                 ) {
@@ -698,6 +693,9 @@ fun HKIPage(
                                                             headerTextColor = headerTextColor,
                                                             onClick = { onPeopleClick?.invoke(person) }
                                                         )
+                                                    }
+                                                    if (overflowCount > 0 && rowIndex == avatarRows.lastIndex) {
+                                                        PersonOverflowAvatar(overflowCount, headerTextColor)
                                                     }
                                                 }
                                             }
@@ -990,6 +988,28 @@ fun HKIPage(
                     previewBadgeBarConfig = null
                     showPageConfig = false
                 }
+            )
+        }
+    }
+}
+
+/** "+N" bubble closing the avatar grid when more people exist than the two-row cap allows. */
+@Composable
+private fun PersonOverflowAvatar(count: Int, headerTextColor: Color) {
+    val appColors = LocalHKIAppColors.current
+    Surface(
+        modifier = Modifier.size(44.dp),
+        shape = CircleShape,
+        border = BorderStroke(1.dp, headerTextColor.copy(alpha = 0.7f)),
+        color = appColors.elevated
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(
+                "+$count",
+                style = MaterialTheme.typography.labelMedium,
+                color = appColors.onSurface,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1
             )
         }
     }

@@ -771,16 +771,18 @@ fun EnergyScreen(viewModel: MainViewModel) {
                             waterCurrentDisplay ?: (if (waterTodayL >= 100f) "%.0f %s today" else "%.1f %s today")
                                 .format(waterTodayL, waterDisplayUnit)) { page = "water" })
                     }
-                    Column(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        tiles.chunked(2).forEach { rowTiles ->
-                            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                                rowTiles.forEach { t ->
-                                    EnergyLiveTile(t.icon, t.color, t.title, t.status, Modifier.weight(1f), onClick = t.onClick)
+                    BoxWithConstraints(modifier = Modifier.padding(horizontal = 16.dp)) {
+                        // Auto-fit: 2 tiles across when there's room for a readable ~160dp tile,
+                        // dropping to 1 on narrow windows so labels never letter-wrap.
+                        val tileColumns = ((maxWidth + 10.dp) / 170.dp).toInt().coerceIn(1, 2)
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            tiles.chunked(tileColumns).forEach { rowTiles ->
+                                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                                    rowTiles.forEach { t ->
+                                        EnergyLiveTile(t.icon, t.color, t.title, t.status, Modifier.weight(1f), onClick = t.onClick)
+                                    }
+                                    repeat(tileColumns - rowTiles.size) { Spacer(Modifier.weight(1f)) }
                                 }
-                                if (rowTiles.size == 1) Spacer(Modifier.weight(1f))
                             }
                         }
                     }
@@ -795,7 +797,14 @@ fun EnergyScreen(viewModel: MainViewModel) {
                     ) {
                         Column(Modifier.padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.SpaceEvenly) {
+                                // FlowRow lets the stats keep their natural width and wrap onto a
+                                // second line on narrow screens, instead of a weighted SpaceEvenly
+                                // Row squeezing each label until it stacks one glyph per line.
+                                FlowRow(
+                                    modifier = Modifier.weight(1f),
+                                    horizontalArrangement = Arrangement.SpaceEvenly,
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
                                     TotalStat(Icons.Default.ArrowDownward, ElecBlue, "%.1f kWh".format(usedPeriod), "Used $periodLabel")
                                     TotalStat(Icons.Default.ArrowDownward, ImportRed, "%.1f kWh".format(importPeriod), "Imported")
                                     TotalStat(Icons.Default.ArrowUpward, ExportGreen, "%.1f kWh".format(exportPeriod), "Exported")
@@ -987,7 +996,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
                         shape = itemCornerShape(), color = Color.Transparent
                     ) {
                         Column(Modifier.padding(16.dp)) {
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                            FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                 TotalStat(Icons.Default.Bolt, SolarAmber, formatW(solarW.coerceAtLeast(0f)), "Now")
                                 TotalStat(Icons.Default.WbSunny, SolarAmber, "%.1f kWh".format(producedPeriod), "Produced $periodLabel")
                                 TotalStat(Icons.Default.Home, ExportGreen, "%.1f kWh".format(selfUsedPeriod),
@@ -997,7 +1006,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
                             val lifetime = entityDisplay(energyConfig.solarLifetimeEntityId)
                             if (last7 != null || lifetime != null) {
                                 Spacer(Modifier.height(12.dp))
-                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                                FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                     if (last7 != null) TotalStat(Icons.Default.DateRange, SolarAmber, last7, "Last 7 days")
                                     if (lifetime != null) TotalStat(Icons.Default.AllInclusive, SolarAmber, lifetime, "Lifetime")
                                 }
@@ -1131,7 +1140,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
                                 gridW < -10f -> "Exporting"
                                 else         -> "Grid idle"
                             }
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                            FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                 TotalStat(
                                     if (gridW < -10f) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
                                     if (gridW < -10f) ExportGreen else ElecBlue,
@@ -1200,7 +1209,11 @@ fun EnergyScreen(viewModel: MainViewModel) {
                         shape = itemCornerShape(), color = Color.Transparent
                     ) {
                         Column(Modifier.padding(16.dp)) {
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                            FlowRow(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
                                 TotalStat(Icons.Default.ArrowDownward, ElecBlue, "%.1f kWh".format(usedPeriod), "Used $periodLabel")
                                 TotalStat(Icons.Default.ArrowDownward, ImportRed, "%.1f kWh".format(importPeriod), "Imported")
                                 TotalStat(Icons.Default.ArrowUpward, ExportGreen, "%.1f kWh".format(exportPeriod), "Exported")
@@ -1235,7 +1248,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
                         shape = itemCornerShape(), color = Color.Transparent
                     ) {
                         Column(Modifier.padding(16.dp)) {
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                            FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                 if (gasCurrentDisplay != null)
                                     TotalStat(Icons.Default.Speed, GasPink, gasCurrentDisplay, "Now")
                                 TotalStat(Icons.Default.LocalFireDepartment, GasPink,
@@ -1260,7 +1273,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
                     ) {
                         Column(Modifier.padding(16.dp)) {
                             fun fmtWater(v: Float) = (if (v >= 100f) "%.0f %s" else "%.1f %s").format(v, waterDisplayUnit)
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                            FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                 if (waterCurrentDisplay != null)
                                     TotalStat(Icons.Default.Speed, WaterBlue, waterCurrentDisplay, "Now")
                                 TotalStat(Icons.Default.WaterDrop, WaterBlue, fmtWater(waterPeriod * waterFactor), "Used $periodLabel")
@@ -1307,7 +1320,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
                                 (batteryPct ?: 0) > 20 -> SolarAmber
                                 else -> ImportRed
                             }
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                            FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                 TotalStat(
                                     if (batteryW > 10f) Icons.Default.BatteryChargingFull else Icons.Default.BatteryStd,
                                     levelColor, batteryPct?.let { "$it%" } ?: "—", "Charge"
@@ -1455,7 +1468,7 @@ private fun EnergyHero(
                 }
             }
         }
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+        FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
             EnergyHeroStat(
                 Icons.Default.WbSunny,
                 if (hasSolar) SolarAmber else appColors.onMuted,
@@ -1489,9 +1502,9 @@ private fun EnergyHeroStat(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             Icon(icon, null, tint = color, modifier = Modifier.size(15.dp))
-            Text(value, color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text(value, color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
         }
-        Text(label, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+        Text(label, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, maxLines = 1, softWrap = false)
     }
 }
 
@@ -2333,9 +2346,11 @@ private fun TotalStat(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
             Icon(icon, null, tint = color, modifier = Modifier.size(14.dp))
-            Text(value, style = MaterialTheme.typography.titleSmall, color = appColors.onSurface, fontWeight = FontWeight.Bold)
+            // softWrap = false keeps a value like "20,9 kWh" on one line instead of stacking it
+            // one glyph per row when the column is squeezed on a narrow screen.
+            Text(value, style = MaterialTheme.typography.titleSmall, color = appColors.onSurface, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
         }
-        Text(label, style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = appColors.onMuted, maxLines = 1, softWrap = false)
     }
 }
 
@@ -3328,7 +3343,11 @@ fun EnergyCardWidgetView(
                 val usedPeriod = (importPeriod + producedPeriod - exportPeriod).coerceAtLeast(0f)
                 val selfUsed = (producedPeriod - exportPeriod).coerceIn(0f, producedPeriod)
                 val selfSufficiency = if (solarEnergyId != null && usedPeriod > 0.01f) (selfUsed / usedPeriod * 100f).toInt().coerceIn(0, 100) else null
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
                     TotalStat(Icons.Default.ArrowDownward, ElecBlue, "%.1f kWh".format(usedPeriod), "Used $periodLabel")
                     TotalStat(Icons.Default.ArrowDownward, ImportRed, "%.1f kWh".format(importPeriod), "Imported")
                     TotalStat(Icons.Default.ArrowUpward, ExportGreen, "%.1f kWh".format(exportPeriod), "Exported")
@@ -3392,7 +3411,7 @@ fun EnergyCardWidgetView(
             "solar" -> Column(Modifier.padding(16.dp)) {
                 val produced = total(solarEnergyId)
                 val selfUsed = (produced - total(exportId)).coerceIn(0f, produced)
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     TotalStat(Icons.Default.Bolt, SolarAmber, formatW(solarW.coerceAtLeast(0f)), "Now")
                     TotalStat(Icons.Default.WbSunny, SolarAmber, "%.1f kWh".format(produced), "Produced $periodLabel")
                     TotalStat(Icons.Default.Home, ExportGreen, "%.1f kWh".format(selfUsed), "Self-used")
@@ -3412,7 +3431,7 @@ fun EnergyCardWidgetView(
                 val battStatus = when {
                     batteryW > 10f -> "Charging"; batteryW < -10f -> "Discharging"; else -> "Idle"
                 }
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     TotalStat(
                         if (batteryW > 10f) Icons.Default.BatteryChargingFull else Icons.Default.BatteryStd,
                         BattPurple, batteryPct?.let { "$it%" } ?: "—", "Charge"
@@ -3431,7 +3450,7 @@ fun EnergyCardWidgetView(
             }
             "gas" -> Column(Modifier.padding(16.dp)) {
                 val gasUnit = byId.unitOf(gasId).ifBlank { "m³" }
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     byId.displayOf(cfg.gasCurrentEntityId)?.let { TotalStat(Icons.Default.Speed, GasPink, it, "Now") }
                     TotalStat(Icons.Default.LocalFireDepartment, GasPink,
                         "%.1f %s".format(total(gasId), gasUnit), "Used $periodLabel")
@@ -3448,7 +3467,7 @@ fun EnergyCardWidgetView(
                 val factor = if (isM3) 1000f else 1f
                 val unit = if (isM3) "L" else rawUnit
                 val used = total(waterId) * factor
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     byId.displayOf(cfg.waterCurrentEntityId)?.let { TotalStat(Icons.Default.Speed, WaterBlue, it, "Now") }
                     TotalStat(Icons.Default.WaterDrop, WaterBlue,
                         (if (used >= 100f) "%.0f %s" else "%.1f %s").format(used, unit), "Used $periodLabel")

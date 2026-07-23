@@ -92,7 +92,6 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
-import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
@@ -324,7 +323,10 @@ internal fun CameraFullscreenHost(
     // This host lives at MainApp level, above page dialogs and responsive screen content. Its
     // orientation permission therefore remains active while the fullscreen window is rebuilt.
     DisposableEffect(activity) {
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+        // FULL_USER (not FULL_SENSOR) honours the device's auto-rotate lock: with rotation locked
+        // the fullscreen view stays put and the system offers its rotate-suggestion button, exactly
+        // like Samsung's. With auto-rotate on it turns freely. Everywhere else the app is portrait.
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_USER
         onDispose {
             activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
@@ -445,7 +447,8 @@ private fun FullscreenCameraViewer(
                     title = title,
                     onWebViewChanged = onWebViewChanged,
                     fitToViewport = true,
-                    controlledScale = if (isLive) null else zoom,
+                    // Live streams are zoomable too now, so the zoom slider drives both renderers.
+                    controlledScale = zoom,
                     onScaleChanged = { zoom = it },
                     onLoadingChanged = { isLoading = it },
                     onTap = {
@@ -609,6 +612,81 @@ private fun FullscreenCameraViewer(
     }
 }
 
+/**
+ * Shared pinch-zoom / pan wrapper so a live stream zooms exactly like a snapshot. The transform is
+ * a Compose [graphicsLayer] rather than native WebView zoom: the fit-to-viewport fullscreen layout
+ * pins the document (`user-scalable=no`, `overflow:hidden`), so native zoom cannot work there at all.
+ *
+ * The gesture layer sits *on top* of the content. That matters for the live branch: an interop
+ * AndroidView (WebView) would otherwise swallow the touches before Compose ever saw the pinch.
+ */
+@Composable
+private fun CameraZoomContainer(
+    resetKey: Any?,
+    controlledScale: Float?,
+    onScaleChanged: ((Float) -> Unit)?,
+    onTap: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    var scale by remember(resetKey) { mutableFloatStateOf(1f) }
+    var offsetX by remember(resetKey) { mutableFloatStateOf(0f) }
+    var offsetY by remember(resetKey) { mutableFloatStateOf(0f) }
+    val currentOnTap by rememberUpdatedState(onTap)
+    LaunchedEffect(controlledScale) {
+        controlledScale?.let {
+            scale = it.coerceIn(1f, 4f)
+            if (scale == 1f) {
+                offsetX = 0f
+                offsetY = 0f
+            }
+        }
+    }
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .graphicsLayer(
+                    scaleX = scale,
+                    scaleY = scale,
+                    translationX = offsetX,
+                    translationY = offsetY
+                )
+        ) { content() }
+
+        Box(
+            Modifier
+                .matchParentSize()
+                .pointerInput(resetKey) { detectTapGestures(onTap = { currentOnTap() }) }
+                .pointerInput(resetKey) {
+                    awaitEachGesture {
+                        var pinching = false
+                        awaitFirstDown(requireUnconsumed = false)
+                        do {
+                            val event = awaitPointerEvent()
+                            if (event.changes.count { it.pressed } > 1) pinching = true
+                            if (pinching || scale > 1f) {
+                                scale = (scale * event.calculateZoom()).coerceIn(1f, 4f)
+                                onScaleChanged?.invoke(scale)
+                                if (scale == 1f) {
+                                    offsetX = 0f
+                                    offsetY = 0f
+                                } else {
+                                    val pan = event.calculatePan()
+                                    offsetX += pan.x
+                                    offsetY += pan.y
+                                }
+                                // Consume every change, not just moved ones: a surrounding
+                                // scrollable that already began dragging keeps consuming leftover
+                                // deltas otherwise, which is what flung the page to the bottom.
+                                event.changes.forEach { it.consume() }
+                            }
+                        } while (event.changes.any { it.pressed })
+                    }
+                }
+        )
+    }
+}
+
 @Composable
 private fun CameraViewer(
     imageUrl: String?,
@@ -625,6 +703,12 @@ private fun CameraViewer(
     val currentOnTap by rememberUpdatedState(onTap)
     val currentOnLoadingChanged by rememberUpdatedState(onLoadingChanged)
     if (!liveWebUrl.isNullOrBlank()) {
+        CameraZoomContainer(
+            resetKey = liveWebUrl,
+            controlledScale = controlledScale,
+            onScaleChanged = onScaleChanged,
+            onTap = { currentOnTap() }
+        ) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { context ->
@@ -650,8 +734,11 @@ private fun CameraViewer(
                     settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                     settings.useWideViewPort = true
                     settings.loadWithOverviewMode = true
-                    settings.setSupportZoom(!fitToViewport)
-                    settings.builtInZoomControls = !fitToViewport
+                    // Compose owns zoom now (CameraZoomContainer's graphicsLayer). Native WebView
+                    // zoom stays off everywhere: it cannot work under the fit-to-viewport layout
+                    // and would fight the pinch handler where it can.
+                    settings.setSupportZoom(false)
+                    settings.builtInZoomControls = false
                     settings.displayZoomControls = false
                     if (fitToViewport) {
                         setInitialScale(0)
@@ -753,6 +840,7 @@ private fun CameraViewer(
                 it.teardownStream()
             }
         )
+        }
     } else {
         ZoomableCameraImage(
             imageUrl = imageUrl,
@@ -877,7 +965,10 @@ fun ZoomableCameraImage(
                                 offsetX += pan.x
                                 offsetY += pan.y
                             }
-                            event.changes.forEach { if (it.positionChanged()) it.consume() }
+                            // Consume every change, not just moved ones: a surrounding scrollable
+                            // that already began dragging keeps consuming leftover deltas
+                            // otherwise, which is what flung the page to the bottom.
+                            event.changes.forEach { it.consume() }
                         }
                     } while (event.changes.any { it.pressed })
                 }

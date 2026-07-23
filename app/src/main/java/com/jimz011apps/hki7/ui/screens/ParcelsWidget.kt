@@ -821,7 +821,9 @@ fun ParcelsWidgetSettingsDialog(
     }
     AlertDialog(stableHeight = true, onDismissRequest = onDismiss, title = { com.jimz011apps.hki7.ui.components.ModernSettingsDialogTitle("Parcels", "Carrier accounts, aggregation, and appearance") }, text = {
         val scroll = rememberScrollState()
-        Column(Modifier.heightIn(max = 480.dp).fadingEdges(scroll).verticalScroll(scroll), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        // stableHeight gives the dialog a fixed tall frame; fill it so the scroll area spans the
+        // whole body instead of capping at 480dp and leaving the lower half empty.
+        Column(Modifier.fillMaxHeight().fadingEdges(scroll).verticalScroll(scroll), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             com.jimz011apps.hki7.ui.components.SettingsTabRow(
                 tabs = listOf("accounts" to "Accounts", "organization" to "Organization", "appearance" to "Appearance"),
                 selected = settingsPage,

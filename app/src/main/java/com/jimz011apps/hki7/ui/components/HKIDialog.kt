@@ -1,4 +1,4 @@
-@file:Suppress("DEPRECATION", "KotlinConstantConditions", "SpellCheckingInspection")
+@file:Suppress("KotlinConstantConditions", "SpellCheckingInspection")
 
 package com.jimz011apps.hki7.ui.components
 
@@ -55,7 +55,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -128,7 +127,6 @@ fun HKIDialog(
     val customEntitiesFlow = remember(viewModel, customButtonIds) { viewModel.entitiesFor(customButtonIds) }
     val customEntities by customEntitiesFlow.collectAsState()
     var moreInfoEntityId by remember { mutableStateOf<String?>(null) }
-    val dialogNavigationBarColor = MaterialTheme.colorScheme.primary.copy(alpha = 230 / 255f).toArgb()
     var showHistory by remember { mutableStateOf(false) }
     var showGroup by remember { mutableStateOf(false) }
     var showDevice by remember { mutableStateOf(false) }
@@ -158,8 +156,9 @@ fun HKIDialog(
                 window.addFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND)
                 window.setDimAmount(0.9f)
                 window.setWindowAnimations(com.jimz011apps.hki7.R.style.HKI7DialogBottomAnimation)
-                window.statusBarColor = android.graphics.Color.argb(230, 0, 0, 0)
-                window.navigationBarColor = dialogNavigationBarColor
+                // System-bar colors are deprecated no-ops under edge-to-edge (Android 15+). The
+                // dialog already dims and blurs everything behind it via FLAG_DIM_BEHIND /
+                // FLAG_BLUR_BEHIND below, so the bars read as darkened without setting their color.
                 window.decorView.setBackgroundColor(android.graphics.Color.TRANSPARENT)
                 window.addFlags(android.view.WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
                 window.setBackgroundBlurRadius(32)
@@ -176,6 +175,8 @@ fun HKIDialog(
             contentAlignment = Alignment.Center
         ) {
             val isPhone = maxWidth < 600.dp
+            // Captured here (BoxWithConstraints receiver) so the header can read it from deeper scopes.
+            val dialogMaxWidth = maxWidth
             AnimatedVisibility(
                 visible = dialogVisible,
                 enter = slideInVertically(animationSpec = tween(260), initialOffsetY = { it }) + fadeIn(tween(180))
@@ -220,10 +221,17 @@ fun HKIDialog(
                         val bottomRowCount = (if (tabs.isNotEmpty()) 1 else 0) + customRows.size
                         val showBottomControls = bottomRowCount > 0 && !showHistory && !showGroup && !showDevice
                         Column(modifier = Modifier.fillMaxSize()) {
-                            Row(
-                                modifier = Modifier.padding(24.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                            val secondaryButtonCount = (if (deviceId != null) 1 else 0) +
+                                (if (groupContent != null) 1 else 0) +
+                                (if (showHistoryButton) 1 else 0)
+                            // On a very narrow dialog (small/floating window, split screen) the icon +
+                            // title + up-to-four action buttons can't share one row without crushing the
+                            // title to an ellipsis and stacking the status text one glyph per line. There,
+                            // split into two rows: icon/title/close on top, the secondary actions beneath.
+                            val compactHeader = secondaryButtonCount > 0 &&
+                                dialogMaxWidth < (230.dp + 56.dp * (secondaryButtonCount + 1))
+
+                            val headerIcon: @Composable () -> Unit = {
                                 if (resolvedHeaderImage != null) {
                                     Surface(
                                         modifier = Modifier.size(50.dp),
@@ -266,94 +274,96 @@ fun HKIDialog(
                                         }
                                     }
                                 }
+                            }
 
-                                Spacer(Modifier.width(12.dp))
-                                Column(Modifier.weight(1f)) {
+                            val headerTitle: @Composable () -> Unit = {
+                                Text(
+                                    titleOverride?.takeUnless { it.isBlank() } ?: entity.friendlyName ?: entity.entity_id,
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    color = appColors.onSurface,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    statusText ?: entity.state.uppercase(),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = appColors.onMuted,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                formatLastSeen(entity.last_changed)?.let { lastSeen ->
                                     Text(
-                                        titleOverride?.takeUnless { it.isBlank() } ?: entity.friendlyName ?: entity.entity_id,
-                                        style = MaterialTheme.typography.headlineSmall,
-                                        color = appColors.onSurface,
-                                        fontWeight = FontWeight.Bold,
+                                        lastSeen,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = appColors.onMuted.copy(alpha = 0.7f),
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
-                                    Text(
-                                        statusText ?: entity.state.uppercase(),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = appColors.onMuted
+                                }
+                            }
+
+                            val deviceButton: @Composable () -> Unit = {
+                                IconButton(
+                                    onClick = { showDevice = !showDevice; if (showDevice) { showHistory = false; showGroup = false } },
+                                    modifier = Modifier
+                                        .background(
+                                            if (showDevice) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
+                                            else appColors.subtleSurface,
+                                            CircleShape
+                                        )
+                                        .size(48.dp)
+                                ) {
+                                    MdiIcon(
+                                        "devices",
+                                        contentDescription = "Device details",
+                                        tint = appColors.onSurface,
+                                        size = 24.dp
                                     )
-                                    formatLastSeen(entity.last_changed)?.let { lastSeen ->
-                                        Text(
-                                            lastSeen,
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = appColors.onMuted.copy(alpha = 0.7f)
-                                        )
-                                    }
                                 }
+                            }
 
-                                if (deviceId != null) {
-                                    IconButton(
-                                        onClick = { showDevice = !showDevice; if (showDevice) { showHistory = false; showGroup = false } },
-                                        modifier = Modifier
-                                            .background(
-                                                if (showDevice) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
-                                                else appColors.subtleSurface,
-                                                CircleShape
-                                            )
-                                            .size(48.dp)
-                                    ) {
-                                        MdiIcon(
-                                            "devices",
-                                            contentDescription = "Device details",
-                                            tint = appColors.onSurface,
-                                            size = 24.dp
+                            val groupButton: @Composable () -> Unit = {
+                                IconButton(
+                                    onClick = { showGroup = !showGroup; if (showGroup) { showHistory = false; showDevice = false } },
+                                    modifier = Modifier
+                                        .background(
+                                            if (showGroup) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
+                                            else appColors.subtleSurface,
+                                            CircleShape
                                         )
-                                    }
-                                    Spacer(Modifier.width(8.dp))
+                                        .size(48.dp)
+                                ) {
+                                    MdiIcon(
+                                        "view-list",
+                                        contentDescription = "Show group",
+                                        tint = appColors.onSurface,
+                                        size = 24.dp
+                                    )
                                 }
+                            }
 
-                                if (groupContent != null) {
-                                    IconButton(
-                                        onClick = { showGroup = !showGroup; if (showGroup) { showHistory = false; showDevice = false } },
-                                        modifier = Modifier
-                                            .background(
-                                                if (showGroup) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
-                                                else appColors.subtleSurface,
-                                                CircleShape
-                                            )
-                                            .size(48.dp)
-                                    ) {
-                                        MdiIcon(
-                                            "view-list",
-                                            contentDescription = "Show group",
-                                            tint = appColors.onSurface,
-                                            size = 24.dp
+                            val historyButton: @Composable () -> Unit = {
+                                IconButton(
+                                    onClick = { showHistory = !showHistory; if (showHistory) { showGroup = false; showDevice = false } },
+                                    modifier = Modifier
+                                        .background(
+                                            if (showHistory) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
+                                            else appColors.subtleSurface,
+                                            CircleShape
                                         )
-                                    }
-                                    Spacer(Modifier.width(8.dp))
+                                        .size(48.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.History,
+                                        contentDescription = "History",
+                                        tint = appColors.onSurface,
+                                        modifier = Modifier.size(24.dp)
+                                    )
                                 }
+                            }
 
-                                if (showHistoryButton) {
-                                    IconButton(
-                                        onClick = { showHistory = !showHistory; if (showHistory) { showGroup = false; showDevice = false } },
-                                        modifier = Modifier
-                                            .background(
-                                                if (showHistory) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
-                                                else appColors.subtleSurface,
-                                                CircleShape
-                                            )
-                                            .size(48.dp)
-                                    ) {
-                                        Icon(
-                                            Icons.Default.History,
-                                            contentDescription = "History",
-                                            tint = appColors.onSurface,
-                                            modifier = Modifier.size(24.dp)
-                                        )
-                                    }
-                                    Spacer(Modifier.width(8.dp))
-                                }
-
+                            val closeButton: @Composable () -> Unit = {
                                 IconButton(
                                     onClick = onDismiss,
                                     modifier = Modifier
@@ -366,6 +376,39 @@ fun HKIDialog(
                                         tint = appColors.onSurface,
                                         modifier = Modifier.size(24.dp)
                                     )
+                                }
+                            }
+
+                            if (compactHeader) {
+                                Column(Modifier.padding(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 12.dp)) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        headerIcon()
+                                        Spacer(Modifier.width(12.dp))
+                                        Column(Modifier.weight(1f)) { headerTitle() }
+                                        closeButton()
+                                    }
+                                    Spacer(Modifier.height(12.dp))
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+                                    ) {
+                                        if (deviceId != null) deviceButton()
+                                        if (groupContent != null) groupButton()
+                                        if (showHistoryButton) historyButton()
+                                    }
+                                }
+                            } else {
+                                Row(
+                                    modifier = Modifier.padding(24.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    headerIcon()
+                                    Spacer(Modifier.width(12.dp))
+                                    Column(Modifier.weight(1f)) { headerTitle() }
+                                    if (deviceId != null) { deviceButton(); Spacer(Modifier.width(8.dp)) }
+                                    if (groupContent != null) { groupButton(); Spacer(Modifier.width(8.dp)) }
+                                    if (showHistoryButton) { historyButton(); Spacer(Modifier.width(8.dp)) }
+                                    closeButton()
                                 }
                             }
 
@@ -401,14 +444,20 @@ fun HKIDialog(
                             ) {
                                 if (tabs.isNotEmpty()) {
                                     val denseTabs = tabs.size > 5
+                                    val tabsPadding = if (denseTabs) 16.dp else if (isPhone) 64.dp else 16.dp
+                                    // Once each tab would get less than ~64dp the labels start
+                                    // colliding, so switch to fixed-width scrolling tabs instead of
+                                    // squeezing further — that also brings the edge chevrons in.
+                                    val tabsScrollable =
+                                        (dialogMaxWidth * 0.95f - tabsPadding * 2) < 64.dp * tabs.size
                                     HKIBottomBar(
-                                        horizontalPadding = if (denseTabs) 16.dp else if (isPhone) 64.dp else 16.dp,
-                                        scrollable = false
+                                        horizontalPadding = tabsPadding,
+                                        scrollable = tabsScrollable
                                     ) {
                                         tabs.forEach { (label, tabIcon, action) ->
                                             val isSelected = currentTab == label
                                             Column(
-                                                modifier = Modifier.weight(1f)
+                                                modifier = (if (tabsScrollable) Modifier.width(68.dp) else Modifier.weight(1f))
                                                     .fillMaxHeight()
                                                     .clip(itemCornerShape())
                                                     .background(if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f) else Color.Transparent)

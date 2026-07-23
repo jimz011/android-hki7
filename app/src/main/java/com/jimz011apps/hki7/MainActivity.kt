@@ -99,6 +99,8 @@ import com.jimz011apps.hki7.ui.utils.MdiIcon
 import com.jimz011apps.hki7.ui.components.NotificationPanel
 import com.jimz011apps.hki7.ui.components.NotificationBannerHost
 import com.jimz011apps.hki7.ui.components.QuickStartGuideDialog
+import com.jimz011apps.hki7.ui.components.WhatsNewDialog
+import com.jimz011apps.hki7.ui.components.hasChangelogForCurrentVersion
 import com.jimz011apps.hki7.ui.components.CameraFullscreenHost
 import com.jimz011apps.hki7.ui.components.CameraFullscreenRequest
 import com.jimz011apps.hki7.ui.components.LocalCameraFullscreenLauncher
@@ -360,6 +362,37 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     if (quickStartGuidePending) {
         QuickStartGuideDialog(
             onComplete = { quickStartScope.launch { prefs.acknowledgeQuickStartGuide() } }
+        )
+    }
+
+    // "What's new": shown only to users who *updated*, and only once per release.
+    // firstInstallTime vs lastUpdateTime identifies a first install directly from the package
+    // manager, so a brand-new device can never see it — no matter what DataStore holds, and with
+    // no race against onboarding writing its own state.
+    val lastSeenVersionCode by prefs.lastSeenVersionCode.collectAsState(initial = -1)
+    var showWhatsNew by remember { mutableStateOf(false) }
+    LaunchedEffect(lastSeenVersionCode, quickStartGuidePending) {
+        if (lastSeenVersionCode < 0) return@LaunchedEffect            // DataStore not read yet
+        if (lastSeenVersionCode == BuildConfig.VERSION_CODE) return@LaunchedEffect  // already seen
+        if (quickStartGuidePending) return@LaunchedEffect             // never stack on the first-run guide
+        val packageInfo = runCatching {
+            appCtx.packageManager.getPackageInfo(appCtx.packageName, 0)
+        }.getOrNull()
+        val isUpdate = packageInfo != null && packageInfo.lastUpdateTime > packageInfo.firstInstallTime
+        if (isUpdate && hasChangelogForCurrentVersion()) {
+            showWhatsNew = true
+        } else {
+            // Fresh install, or nothing to announce: adopt this version as the baseline silently
+            // so the next update is the first one that actually shows notes.
+            prefs.saveLastSeenVersionCode(BuildConfig.VERSION_CODE)
+        }
+    }
+    if (showWhatsNew) {
+        WhatsNewDialog(
+            onDismiss = {
+                showWhatsNew = false
+                quickStartScope.launch { prefs.saveLastSeenVersionCode(BuildConfig.VERSION_CODE) }
+            }
         )
     }
     val mediaBarPlaybackKey = activeMediaPlayers.joinToString(separator = "|") { player ->

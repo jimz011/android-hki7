@@ -12,10 +12,22 @@ android {
         applicationId = "com.jimz011apps.hki7"
         minSdk = 34
         targetSdk = 37
-        versionCode = 7
-        versionName = "1.0.0-beta.1"
+        versionCode = 8
+        versionName = "1.0.0-beta.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            // R8 full-mode shrinking + obfuscation + resource shrinking. Keep rules that the
+            // serialization models rely on live in proguard-rules.pro.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
     }
     buildFeatures {
         compose = true
@@ -26,6 +38,13 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 }
+
+// Work around KT-83266: with AGP 9.2 + Kotlin 2.4 the Compose compiler plugin's release
+// "group mapping" tasks fail (they try to resolve org.jetbrains.kotlin:compose-group-mapping at
+// AGP's embedded 2.2.10, which isn't published). That mapping only helps deobfuscate Compose
+// frames in profilers/Layout Inspector — it is not part of the shipped APK — so disabling it is
+// safe. Revisit once the toolchain bug is fixed.
+tasks.matching { it.name.contains("ComposeMapping") }.configureEach { enabled = false }
 
 configurations.all {
     resolutionStrategy {

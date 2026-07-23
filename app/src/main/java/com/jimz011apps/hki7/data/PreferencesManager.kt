@@ -184,6 +184,7 @@ class PreferencesManager(
     private val pendingAutoTakeoverKey = booleanPreferencesKey("pending_auto_takeover")
     private val quickStartGuidePendingKey = booleanPreferencesKey("quick_start_guide_pending")
     private val cloudBackupEnabledKey = booleanPreferencesKey("cloud_backup_enabled")
+    private val lastSeenVersionCodeKey = intPreferencesKey("last_seen_version_code")
     private val homeAssistantInstancesKey = stringPreferencesKey("home_assistant_instances_v1")
     private val activeHomeAssistantInstanceIdKey = stringPreferencesKey("active_home_assistant_instance_id")
 
@@ -227,6 +228,13 @@ class PreferencesManager(
     val pendingAutoTakeover: Flow<Boolean> = context.dataStore.data.map { it[pendingAutoTakeoverKey] ?: false }
     val quickStartGuidePending: Flow<Boolean> = context.dataStore.data.map { it[quickStartGuidePendingKey] ?: false }
     val cloudBackupEnabled: Flow<Boolean> = context.dataStore.data.map { it[cloudBackupEnabledKey] ?: false }
+
+    /** Version code whose changelog the user has already seen; 0 until one has been acknowledged. */
+    val lastSeenVersionCode: Flow<Int> = context.dataStore.data.map { it[lastSeenVersionCodeKey] ?: 0 }
+
+    suspend fun saveLastSeenVersionCode(versionCode: Int) {
+        context.dataStore.edit { it[lastSeenVersionCodeKey] = versionCode }
+    }
 
     suspend fun saveCloudBackup(enabled: Boolean) {
         context.dataStore.edit { it[cloudBackupEnabledKey] = enabled }

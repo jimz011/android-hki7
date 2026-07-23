@@ -18,6 +18,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -475,6 +477,10 @@ fun BatteryScreen(
                 "This is an empty battery view. Swipe down on the header and open Battery Settings to add entities manually."
             )
         } else {
+        // Two tiles across like the Security/Energy/Climate pages, dropping to one when there
+        // isn't room for a readable ~160dp tile.
+        val windowWidth = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() }
+        val batteryColumns = if (windowWidth >= 360.dp) 2 else 1
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(top = 16.dp, bottom = 96.dp + com.jimz011apps.hki7.ui.components.LocalMediaPlayerBarInset.current),
@@ -496,20 +502,32 @@ fun BatteryScreen(
                                 BatteryCategoryHeader(category, grouped.size)
                             }
                         }
-                        items(grouped, key = { it.entity.entity_id }) { info ->
-                            Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-                                BatteryRow(
-                                    info,
-                                    showNotes = config.useBatteryNotes,
-                                    onClick = { if (!isEditMode) selected = info }
-                                )
-                                if (isEditMode) {
-                                    EditSettingsButton({ renameBattery = info }, Modifier.align(Alignment.Center))
-                                    EditRemoveBadge(
-                                        onClick = { viewModel.hideBatteryEntity(BATTERY_PAGE_KEY, info.entity.entity_id) },
-                                        modifier = Modifier.align(Alignment.TopEnd)
-                                    )
+                        val batteryRows = grouped.chunked(batteryColumns)
+                        items(
+                            batteryRows.size,
+                            key = { index -> batteryRows[index].joinToString("|") { it.entity.entity_id } }
+                        ) { rowIndex ->
+                            val rowItems = batteryRows[rowIndex]
+                            Row(
+                                Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                rowItems.forEach { info ->
+                                    Box(Modifier.weight(1f)) {
+                                        BatteryTile(
+                                            info,
+                                            onClick = { if (!isEditMode) selected = info }
+                                        )
+                                        if (isEditMode) {
+                                            EditSettingsButton({ renameBattery = info }, Modifier.align(Alignment.Center))
+                                            EditRemoveBadge(
+                                                onClick = { viewModel.hideBatteryEntity(BATTERY_PAGE_KEY, info.entity.entity_id) },
+                                                modifier = Modifier.align(Alignment.TopEnd)
+                                            )
+                                        }
+                                    }
                                 }
+                                repeat(batteryColumns - rowItems.size) { Spacer(Modifier.weight(1f)) }
                             }
                         }
                     }
@@ -734,7 +752,7 @@ private fun BatteryHero(batteries: List<BatteryInfo>, visibleCount: Int, battery
                 }
             }
         }
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+        FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
             BatteryHeroStat(
                 "battery-low",
                 weakest?.level?.let { batteryColor(it) } ?: appColors.onMuted,
@@ -873,9 +891,9 @@ private fun BatteryHeroStat(icon: String, color: Color, value: String, label: St
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             MdiIcon(icon, tint = color, size = 15.dp)
-            Text(value, color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text(value, color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
         }
-        Text(label, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+        Text(label, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, maxLines = 1, softWrap = false)
     }
 }
 @Composable
@@ -1048,8 +1066,11 @@ private fun BatteryEmptyState(useBatteryNotes: Boolean) {
     }
 }
 
+/** Half-width battery tile in the same visual language as the Security/Energy/Climate tiles:
+ *  tinted icon box, name, a "83% · Healthy" status line, and a thin level bar. Full details stay
+ *  one tap away in the battery dialog. */
 @Composable
-private fun BatteryRow(info: BatteryInfo, showNotes: Boolean, onClick: () -> Unit) {
+private fun BatteryTile(info: BatteryInfo, modifier: Modifier = Modifier, onClick: () -> Unit) {
     val appColors = LocalHKIAppColors.current
     val color = batteryColor(info.level)
     val levelLabel = when (info.level) {
@@ -1060,61 +1081,52 @@ private fun BatteryRow(info: BatteryInfo, showNotes: Boolean, onClick: () -> Uni
         else -> "Healthy"
     }
     Surface(
-        modifier = Modifier.fillMaxWidth().clip(itemCornerShape()).clickable(onClick = onClick),
+        modifier = modifier.fillMaxWidth().clip(itemCornerShape()).clickable(onClick = onClick),
         shape = itemCornerShape(),
         color = Color.Transparent,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.32f)),
         shadowElevation = 2.dp
     ) {
-        Box(
-            Modifier.background(surfaceGradient(appColors.elevated))
+        Column(
+            Modifier.background(surfaceGradient(appColors.elevated)).padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                Surface(shape = RoundedCornerShape(15.dp), color = color.copy(alpha = 0.13f)) {
-                    MdiIcon(info.entity.icon?.removePrefix("mdi:") ?: "battery", tint = color, size = 23.dp, modifier = Modifier.padding(9.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Box(
+                    Modifier.size(34.dp).background(color.copy(alpha = 0.15f), RoundedCornerShape(10.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    MdiIcon(info.entity.icon?.removePrefix("mdi:") ?: "battery", tint = color, size = 18.dp)
                 }
-                Spacer(Modifier.width(12.dp))
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Column(Modifier.weight(1f)) {
                     Text(
                         info.deviceName ?: info.entity.friendlyName ?: info.entity.entity_id,
+                        style = MaterialTheme.typography.labelLarge,
                         color = appColors.onSurface,
-                        style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        info.entity.friendlyName ?: info.entity.entity_id,
-                        color = appColors.onMuted,
+                        "${info.level?.let { "$it%" } ?: "--"} · $levelLabel",
                         style = MaterialTheme.typography.bodySmall,
+                        color = appColors.onMuted,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        info.level?.let { "$it%" } ?: "--",
-                        color = color,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(levelLabel.uppercase(), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
-                }
             }
             Box(Modifier.fillMaxWidth().height(5.dp).background(color.copy(alpha = 0.13f), RoundedCornerShape(5.dp))) {
-                Box(Modifier.fillMaxWidth(((info.level ?: 0) / 100f).coerceIn(0.015f, 1f)).fillMaxHeight().background(color, RoundedCornerShape(5.dp)))
+                Box(
+                    Modifier
+                        .fillMaxWidth(((info.level ?: 0) / 100f).coerceIn(0.015f, 1f))
+                        .fillMaxHeight()
+                        .background(color, RoundedCornerShape(5.dp))
+                )
             }
-            Row(
-                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                BatteryMetaChip(info.batteryType ?: "Unknown type", MaterialTheme.colorScheme.primary)
-                if (!info.quantity.isNullOrBlank()) BatteryMetaChip("Qty ${info.quantity}", MaterialTheme.colorScheme.secondary)
-                if (showNotes && info.fromBatteryPlus) BatteryMetaChip("Battery+", MaterialTheme.colorScheme.tertiary)
-            }
-        }
         }
     }
 }

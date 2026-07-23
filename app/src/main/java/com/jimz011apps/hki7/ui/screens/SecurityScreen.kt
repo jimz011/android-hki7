@@ -500,14 +500,19 @@ private fun SecurityOverview(
         item {
             // Cameras get their own full-width section below instead of a tile.
             val present = securityGroups.filter { it.key != "cameras" && grouped[it.key].orEmpty().isNotEmpty() }
-            Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                present.chunked(2).forEach { row ->
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        row.forEach { group ->
-                            val items = grouped[group.key].orEmpty()
-                            SecurityTile(group, items.size, items.count(HAEntity::isSecurityActive), Modifier.weight(1f)) { onOpen(group.key) }
+            BoxWithConstraints(Modifier.padding(horizontal = 16.dp)) {
+                // Auto-fit: 2 tiles across when there's room for a readable ~160dp tile,
+                // dropping to 1 on narrow windows so labels never letter-wrap.
+                val tileColumns = ((maxWidth + 10.dp) / 170.dp).toInt().coerceIn(1, 2)
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    present.chunked(tileColumns).forEach { row ->
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            row.forEach { group ->
+                                val items = grouped[group.key].orEmpty()
+                                SecurityTile(group, items.size, items.count(HAEntity::isSecurityActive), Modifier.weight(1f)) { onOpen(group.key) }
+                            }
+                            repeat(tileColumns - row.size) { Spacer(Modifier.weight(1f)) }
                         }
-                        if (row.size == 1) Spacer(Modifier.weight(1f))
                     }
                 }
             }
@@ -614,7 +619,7 @@ private fun SecurityHero(state: SecuritySceneState) {
                 }
             }
         }
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+        FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
             SecurityHeroStat(
                 Icons.Default.SensorDoor,
                 when {
@@ -661,9 +666,9 @@ private fun SecurityHeroStat(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             Icon(icon, null, tint = color, modifier = Modifier.size(15.dp))
-            Text(value, color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text(value, color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
         }
-        Text(label, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+        Text(label, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, maxLines = 1, softWrap = false)
     }
 }
 
@@ -1369,7 +1374,7 @@ private fun SecurityGroupSummary(group: SecurityGroup, items: List<HAEntity>) {
                 }
             }
             Spacer(Modifier.height(14.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 SummaryStat(group.icon, group.color, items.size.toString(), "Total")
                 SummaryStat(Icons.Default.NotificationsActive, if (active > 0) WarningOrange else c.onMuted, active.toString(), "Active")
                 SummaryStat(Icons.Default.VerifiedUser, SafeGreen, (items.size - active).toString(), "Clear")
@@ -1384,9 +1389,9 @@ private fun SummaryStat(icon: ImageVector, color: Color, value: String, label: S
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             Icon(icon, null, tint = color, modifier = Modifier.size(15.dp))
-            Text(value, style = MaterialTheme.typography.titleSmall, color = c.onSurface, fontWeight = FontWeight.Bold)
+            Text(value, style = MaterialTheme.typography.titleSmall, color = c.onSurface, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
         }
-        Text(label, style = MaterialTheme.typography.labelSmall, color = c.onMuted)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = c.onMuted, maxLines = 1, softWrap = false)
     }
 }
 

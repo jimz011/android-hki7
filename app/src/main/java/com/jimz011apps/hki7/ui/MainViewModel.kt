@@ -3334,6 +3334,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 id = UUID.randomUUID().toString(),
                 entityId = entityId,
                 kind = type,
+                // New tile/entity/button widgets default to a half-width square; cameras keep their
+                // full-width 16:9 so the picture isn't cropped into a tiny square.
+                width = if (type == "camera") "full" else "half",
                 isSquare = type != "camera",
                 config = config
             )

@@ -18,3 +18,8 @@ local.properties
 /index.html
 /script.js
 /styles.css
+# The same export also drops one XML per inspection in the project root (plus .xml and
+# .descriptions.xml). No tracked XML lives at the root, so ignoring them all is safe.
+/*.xml
+/.xml
+/.descriptions.xml

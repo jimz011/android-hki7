@@ -36,13 +36,14 @@ fun VerticalSlider(
     modifier: Modifier = Modifier,
     gradient: Brush? = null,
     activeColor: Color = MaterialTheme.colorScheme.primary,
-    trackColor: Color? = null
+    trackColor: Color? = null,
+    height: androidx.compose.ui.unit.Dp = VerticalControlHeight
 ) {
     val appColors = LocalHKIAppColors.current
     val resolvedTrackColor = trackColor ?: appColors.surface
     BoxWithConstraints(
         modifier = modifier
-            .height(VerticalControlHeight)
+            .height(height)
             .width(100.dp)
             .clip(itemCornerShape())
             .background(resolvedTrackColor)

@@ -190,7 +190,16 @@ class PushForegroundService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        startForeground(NOTIFICATION_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        try {
+            startForeground(NOTIFICATION_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        } catch (e: Exception) {
+            // Android 15+ forbids starting a dataSync foreground service from contexts like a
+            // BOOT_COMPLETED receiver (ForegroundServiceStartNotAllowedException). Rather than
+            // crash, bow out quietly: the connection re-establishes the next time the app is
+            // opened, which re-invokes start() from a foreground-allowed context.
+            stopSelf()
+            return START_NOT_STICKY
+        }
         if (loopJob?.isActive != true) {
             loopJob = scope.launch {
                 // Tear down immediately if the user turns the toggle off while we're running.
@@ -300,6 +309,16 @@ class PushForegroundService : Service() {
             runCatching {
                 ContextCompat.startForegroundService(context, Intent(context, PushForegroundService::class.java))
             }
+        }
+
+        /**
+         * Boot-time variant. On Android 15+ the OS forbids launching a dataSync foreground service
+         * from a BOOT_COMPLETED receiver, so we don't try — the connection comes up the next time
+         * the user opens the app. Pre-15 devices restore the persistent connection immediately.
+         */
+        fun startFromBoot(context: Context) {
+            if (android.os.Build.VERSION.SDK_INT >= 35) return
+            start(context)
         }
 
         fun stop(context: Context) {

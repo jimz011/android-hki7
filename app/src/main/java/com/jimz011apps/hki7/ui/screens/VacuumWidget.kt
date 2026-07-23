@@ -23,6 +23,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -369,6 +371,14 @@ fun VacuumStackDialog(
         currentTab = currentTab
     ) {
         val appColors = LocalHKIAppColors.current
+        val waterOptions = resolved.water?.let { w ->
+            (w.attributes?.get("options") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
+        }.orEmpty()
+        // Below this window height there isn't room for three stacked control rows plus a usable
+        // map, so fan/water/empty collapse onto one compact dropdown row (see below).
+        val windowHeight = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
+        val compactControls = windowHeight < 680.dp &&
+            (fanSpeedList.isNotEmpty() || waterOptions.isNotEmpty())
 
         Column(
             modifier = Modifier
@@ -416,67 +426,107 @@ fun VacuumStackDialog(
                 VacuumMapView(mapUrl = mapUrl)
             }
 
-            // Fan speed
-            if (fanSpeedList.isNotEmpty()) {
+            if (compactControls) {
+                // Short window: fan + water/mop as compact dropdowns and an inline Empty button, all
+                // on one row, so the map above keeps its height instead of being pushed small.
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.Air, "Fan speed", tint = appColors.onMuted, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        items(fanSpeedList) { speed ->
-                            FilterChip(
-                                selected = speed == fanSpeed,
-                                onClick = { viewModel.vacuumSetFanSpeed(entity.entity_id, speed) },
-                                label = { Text(speed.replaceFirstChar { it.uppercase() }, fontSize = 11.sp) }
-                            )
+                    if (fanSpeedList.isNotEmpty()) {
+                        VacuumControlDropdown(Icons.Default.Air, "Fan speed", fanSpeed, fanSpeedList) {
+                            viewModel.vacuumSetFanSpeed(entity.entity_id, it)
+                        }
+                    }
+                    resolved.water?.let { water ->
+                        if (waterOptions.isNotEmpty()) {
+                            VacuumControlDropdown(Icons.Default.WaterDrop, "Water level", water.state, waterOptions) {
+                                viewModel.callService(water.entity_id.substringBefore('.'), "select_option", com.jimz011apps.hki7.data.HAServiceCall(water.entity_id, option = it))
+                            }
+                        }
+                    }
+                    resolved.emptyBin?.let { empty ->
+                        FilledTonalButton(
+                            onClick = {
+                                val domain = empty.entity_id.substringBefore('.')
+                                viewModel.callService(domain, if (domain == "button") "press" else "turn_on", com.jimz011apps.hki7.data.HAServiceCall(empty.entity_id))
+                            },
+                            shape = itemCornerShape(),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Icon(Icons.Default.DeleteSweep, null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("Empty", fontSize = 11.sp)
                         }
                     }
                 }
-            }
 
-            resolved.water?.let { water ->
-                val options = (water.attributes?.get("options") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
-                if (options.isNotEmpty()) {
+                if (rooms.isNotEmpty()) {
+                    VacuumRoomsInDialog(rooms, entity, viewModel)
+                }
+            } else {
+                // Fan speed
+                if (fanSpeedList.isNotEmpty()) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp),
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Icon(Icons.Default.WaterDrop, "Water level", tint = appColors.onMuted, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.Air, "Fan speed", tint = appColors.onMuted, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            items(options) { option ->
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            items(fanSpeedList) { speed ->
                                 FilterChip(
-                                    selected = water.state == option,
-                                    onClick = { viewModel.callService(water.entity_id.substringBefore('.'), "select_option", com.jimz011apps.hki7.data.HAServiceCall(water.entity_id, option = option)) },
-                                    label = { Text(option.replaceFirstChar { it.uppercase() }, fontSize = 11.sp) }
+                                    selected = speed == fanSpeed,
+                                    onClick = { viewModel.vacuumSetFanSpeed(entity.entity_id, speed) },
+                                    label = { Text(speed.replaceFirstChar { it.uppercase() }, fontSize = 11.sp) }
                                 )
                             }
                         }
                     }
                 }
-            }
 
-            // Rooms
-            if (rooms.isNotEmpty()) {
-                VacuumRoomsInDialog(rooms, entity, viewModel)
-            }
+                resolved.water?.let { water ->
+                    if (waterOptions.isNotEmpty()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(Icons.Default.WaterDrop, "Water level", tint = appColors.onMuted, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                items(waterOptions) { option ->
+                                    FilterChip(
+                                        selected = water.state == option,
+                                        onClick = { viewModel.callService(water.entity_id.substringBefore('.'), "select_option", com.jimz011apps.hki7.data.HAServiceCall(water.entity_id, option = option)) },
+                                        label = { Text(option.replaceFirstChar { it.uppercase() }, fontSize = 11.sp) }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
 
-            resolved.emptyBin?.let { empty ->
-                FilledTonalButton(
-                    onClick = {
-                        val domain = empty.entity_id.substringBefore('.')
-                        viewModel.callService(domain, if (domain == "button") "press" else "turn_on", com.jimz011apps.hki7.data.HAServiceCall(empty.entity_id))
-                    },
-                    modifier = Modifier.padding(vertical = 4.dp),
-                    shape = itemCornerShape()
-                ) {
-                    Icon(Icons.Default.DeleteSweep, null, modifier = Modifier.size(16.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text("Empty bin")
+                // Rooms
+                if (rooms.isNotEmpty()) {
+                    VacuumRoomsInDialog(rooms, entity, viewModel)
+                }
+
+                resolved.emptyBin?.let { empty ->
+                    FilledTonalButton(
+                        onClick = {
+                            val domain = empty.entity_id.substringBefore('.')
+                            viewModel.callService(domain, if (domain == "button") "press" else "turn_on", com.jimz011apps.hki7.data.HAServiceCall(empty.entity_id))
+                        },
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        shape = itemCornerShape()
+                    ) {
+                        Icon(Icons.Default.DeleteSweep, null, modifier = Modifier.size(16.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("Empty bin")
+                    }
                 }
             }
 
@@ -494,6 +544,43 @@ fun VacuumStackDialog(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+/** Compact fan-speed / water-level selector: a chip that opens a dropdown, used when the vacuum
+ *  dialog is too short to stack full chip rows. */
+@Composable
+private fun VacuumControlDropdown(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String,
+    selected: String,
+    options: List<String>,
+    onSelect: (String) -> Unit
+) {
+    var open by remember { mutableStateOf(false) }
+    Box {
+        FilterChip(
+            selected = false,
+            onClick = { open = true },
+            leadingIcon = { Icon(icon, contentDescription, modifier = Modifier.size(16.dp)) },
+            label = {
+                Text(
+                    selected.ifBlank { "—" }.replaceFirstChar { it.uppercase() },
+                    fontSize = 11.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            },
+            trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, modifier = Modifier.size(16.dp)) }
+        )
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option.replaceFirstChar { it.uppercase() }) },
+                    onClick = { open = false; onSelect(option) }
+                )
             }
         }
     }

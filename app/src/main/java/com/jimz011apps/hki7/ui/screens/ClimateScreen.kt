@@ -27,6 +27,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -356,7 +358,11 @@ fun ClimateScreen(viewModel: MainViewModel) {
             .sortedBy { it.friendlyName ?: it.entity_id }
             .applyClimateOrder(climateConfig.entityOrder)
     }
-    val climateDeviceRows = remember(climateEntities, climateConfig.deviceCardWidths, climateConfig.defaultDeviceCardWidth, climateConfig.defaultDeviceCardStyle) {
+    // Below this width a half/third device card (especially a dial) is too cramped to read, so
+    // every card is forced to full width — one per row.
+    val narrowDeviceCards =
+        with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() } < 360.dp
+    val climateDeviceRows = remember(climateEntities, climateConfig.deviceCardWidths, climateConfig.defaultDeviceCardWidth, climateConfig.defaultDeviceCardStyle, narrowDeviceCards) {
         buildList<List<HAEntity>> {
             var row = mutableListOf<HAEntity>()
             var used = 0
@@ -364,7 +370,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
                 val configuredWidth = climateConfig.deviceCardWidths[entity.entity_id] ?: climateConfig.defaultDeviceCardWidth
                 val style = climateConfig.defaultDeviceCardStyle
                 val effectiveWidth = if (style == "dial" && configuredWidth == "third") "half" else configuredWidth
-                val span = when (effectiveWidth) {
+                val span = if (narrowDeviceCards) 6 else when (effectiveWidth) {
                     "third" -> 2
                     "half" -> 3
                     else -> 6
@@ -614,20 +620,22 @@ fun ClimateScreen(viewModel: MainViewModel) {
                                 "humidifiers"))
                         }
                     }
-                    Column(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        tiles.chunked(2).forEach { rowTiles ->
-                            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                                rowTiles.forEach { t ->
-                                    ClimateLiveTile(
-                                        icon = t.icon, color = t.color,
-                                        title = t.title, status = t.status,
-                                        modifier = Modifier.weight(1f)
-                                    ) { page = t.pageKey }
+                    BoxWithConstraints(modifier = Modifier.padding(horizontal = 16.dp)) {
+                        // Auto-fit: 2 tiles across when there's room for a readable ~160dp tile,
+                        // dropping to 1 on narrow windows so labels never letter-wrap.
+                        val tileColumns = ((maxWidth + 10.dp) / 170.dp).toInt().coerceIn(1, 2)
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            tiles.chunked(tileColumns).forEach { rowTiles ->
+                                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                                    rowTiles.forEach { t ->
+                                        ClimateLiveTile(
+                                            icon = t.icon, color = t.color,
+                                            title = t.title, status = t.status,
+                                            modifier = Modifier.weight(1f)
+                                        ) { page = t.pageKey }
+                                    }
+                                    repeat(tileColumns - rowTiles.size) { Spacer(Modifier.weight(1f)) }
                                 }
-                                if (rowTiles.size == 1) Spacer(Modifier.weight(1f))
                             }
                         }
                     }
@@ -662,7 +670,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
                                 val configuredWidth = climateConfig.deviceCardWidths[entity.entity_id] ?: climateConfig.defaultDeviceCardWidth
                                 val style = climateConfig.defaultDeviceCardStyle
                                 val width = if (style == "dial" && configuredWidth == "third") "half" else configuredWidth
-                                val span = when (width) { "third" -> 2; "half" -> 3; else -> 6 }
+                                val span = if (narrowDeviceCards) 6 else when (width) { "third" -> 2; "half" -> 3; else -> 6 }
                                 used += span
                                 val iconOverride = climateConfig.customIcons[entity.entity_id]
                                 val cardStyle = climateConfig.defaultDeviceCardStyle
@@ -948,7 +956,7 @@ private fun ClimateHero(
                 }
             }
         }
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+        FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
             HeroStat(Icons.Default.WaterDrop, HumidBlue,
                 avgHum?.let { "${formatValue(it)}%" } ?: "—", "Humidity")
             HeroStat(Icons.Default.Thermostat, TempWarm,
@@ -1438,9 +1446,9 @@ private fun HeroStat(icon: ImageVector, color: Color, value: String, label: Stri
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             Icon(icon, null, tint = color, modifier = Modifier.size(15.dp))
-            Text(value, style = MaterialTheme.typography.titleSmall, color = appColors.onSurface, fontWeight = FontWeight.Bold)
+            Text(value, style = MaterialTheme.typography.titleSmall, color = appColors.onSurface, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
         }
-        Text(label, style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = appColors.onMuted, maxLines = 1, softWrap = false)
     }
 }
 
@@ -1725,6 +1733,7 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
         shape = RoundedCornerShape(cornerRadius.dp),
         color = Color.Transparent
     ) {
+        Box(if (isSquare) Modifier.fillMaxSize() else Modifier.fillMaxWidth()) {
         Column(
             modifier = if (isSquare) Modifier.fillMaxSize().padding(12.dp) else Modifier.fillMaxWidth().padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -1764,6 +1773,10 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
             BoxWithConstraints(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 val dialSize = if (maxWidth < 300.dp) maxWidth else 300.dp
                 val ringWidth = dialSize * 0.17f
+                // Scale the inner-face fonts with the dial (1.0 at the 300dp reference size) so the
+                // big target value can't overflow the face and overlap the status/control zone on
+                // small half-width or dense-grid cards.
+                val dialScale = (dialSize.value / 300f).coerceIn(0.5f, 1f)
                 Box(Modifier.size(dialSize)) {
                     // Ring: 270° range arc (active portion in the mode color, rest muted) plus a
                     // darker 90° control zone at the bottom holding the − / + buttons.
@@ -1867,60 +1880,36 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(statusLabel, style = MaterialTheme.typography.labelMedium,
-                                    color = appColors.onMuted, fontWeight = FontWeight.SemiBold)
+                                // Capture then scale each style by dialScale (lineHeight tied to the
+                                // scaled fontSize so digits stay vertically tight inside the face).
+                                val statusStyle = MaterialTheme.typography.labelMedium
+                                val bigStyle = MaterialTheme.typography.displayLarge
+                                val unitStyle = MaterialTheme.typography.titleSmall
+                                val decStyle = MaterialTheme.typography.titleLarge
+                                val fallbackStyle = MaterialTheme.typography.displayMedium
+                                Text(statusLabel,
+                                    style = statusStyle.copy(fontSize = statusStyle.fontSize * dialScale, lineHeight = statusStyle.fontSize * dialScale),
+                                    color = appColors.onMuted, fontWeight = FontWeight.SemiBold, maxLines = 1)
                                 if (hasTarget) {
                                     val parts = "%.1f".format(Locale.US, localTarget).split(".")
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(parts[0], style = MaterialTheme.typography.displayLarge,
-                                            color = appColors.onSurface, fontWeight = FontWeight.Bold)
+                                        Text(parts[0],
+                                            style = bigStyle.copy(fontSize = bigStyle.fontSize * dialScale, lineHeight = bigStyle.fontSize * dialScale),
+                                            color = appColors.onSurface, fontWeight = FontWeight.Bold, maxLines = 1)
                                         Column {
-                                            Text("°C", style = MaterialTheme.typography.titleSmall,
-                                                color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                            Text("°C",
+                                                style = unitStyle.copy(fontSize = unitStyle.fontSize * dialScale, lineHeight = unitStyle.fontSize * dialScale),
+                                                color = appColors.onSurface, fontWeight = FontWeight.SemiBold, maxLines = 1)
                                             Text(".${parts.getOrElse(1) { "0" }}",
-                                                style = MaterialTheme.typography.titleLarge,
-                                                color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                                style = decStyle.copy(fontSize = decStyle.fontSize * dialScale, lineHeight = decStyle.fontSize * dialScale),
+                                                color = appColors.onSurface, fontWeight = FontWeight.SemiBold, maxLines = 1)
                                         }
                                     }
                                 } else {
                                     currentTemp?.let {
-                                        Text("%.1f°".format(locale, it), style = MaterialTheme.typography.displayMedium,
-                                            color = appColors.onSurface, fontWeight = FontWeight.Bold)
-                                    }
-                                }
-                            }
-                            // Mode pill at the top-right of the face, opens the HVAC mode menu.
-                            if (entity.hvacModes.isNotEmpty()) {
-                                Box(Modifier.align(Alignment.TopEnd).padding(top = 2.dp, end = 2.dp)) {
-                                    Surface(
-                                        shape = CircleShape,
-                                        color = appColors.surface,
-                                        shadowElevation = 5.dp,
-                                        modifier = Modifier.size(40.dp).clip(CircleShape).clickable { modesOpen = true }
-                                    ) {
-                                        Box(contentAlignment = Alignment.Center) {
-                                            Icon(hvacModeIcon(localMode), contentDescription = "Mode",
-                                                tint = accent, modifier = Modifier.size(20.dp))
-                                        }
-                                    }
-                                    DropdownMenu(expanded = modesOpen, onDismissRequest = { modesOpen = false }) {
-                                        entity.hvacModes.forEach { mode ->
-                                            DropdownMenuItem(
-                                                leadingIcon = {
-                                                    Icon(hvacModeIcon(mode), null, tint = hvacColor(mode),
-                                                        modifier = Modifier.size(18.dp))
-                                                },
-                                                text = {
-                                                    Text(hvacModeLabel(mode),
-                                                        fontWeight = if (mode == localMode) FontWeight.Bold else null)
-                                                },
-                                                onClick = {
-                                                    modesOpen = false
-                                                    localMode = mode
-                                                    viewModel.setHvacMode(entity.entity_id, mode)
-                                                }
-                                            )
-                                        }
+                                        Text("%.1f°".format(locale, it),
+                                            style = fallbackStyle.copy(fontSize = fallbackStyle.fontSize * dialScale, lineHeight = fallbackStyle.fontSize * dialScale),
+                                            color = appColors.onSurface, fontWeight = FontWeight.Bold, maxLines = 1)
                                     }
                                 }
                             }
@@ -1942,7 +1931,7 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
                                 },
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.Remove, "Lower target", tint = Color.White, modifier = Modifier.size(22.dp))
+                            Icon(Icons.Default.Remove, "Lower target", tint = Color.White, modifier = Modifier.size((22.dp * dialScale).coerceAtLeast(16.dp)))
                         }
                         Spacer(Modifier.width(ringWidth * 0.4f))
                         Box(
@@ -1953,7 +1942,7 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
                                 },
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.Add, "Raise target", tint = Color.White, modifier = Modifier.size(22.dp))
+                            Icon(Icons.Default.Add, "Raise target", tint = Color.White, modifier = Modifier.size((22.dp * dialScale).coerceAtLeast(16.dp)))
                         }
                     }
                 }
@@ -1965,6 +1954,44 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
                 Spacer(Modifier.height(14.dp))
                 HvacModePillsRow(entity, viewModel, localMode) { localMode = it }
             }
+        }
+
+        // Mode button pinned to the card's top-right. It used to sit inside the dial face, where it
+        // shifted around as the dial resized with the card; anchoring it here keeps it put.
+        if (entity.hvacModes.isNotEmpty()) {
+            Box(Modifier.align(Alignment.TopEnd).padding(10.dp)) {
+                Surface(
+                    shape = CircleShape,
+                    color = appColors.surface,
+                    shadowElevation = 5.dp,
+                    modifier = Modifier.size(40.dp).clip(CircleShape).clickable { modesOpen = true }
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            hvacModeIcon(localMode), contentDescription = "Mode",
+                            tint = accent, modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+                DropdownMenu(expanded = modesOpen, onDismissRequest = { modesOpen = false }) {
+                    entity.hvacModes.forEach { mode ->
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                Icon(hvacModeIcon(mode), null, tint = hvacColor(mode), modifier = Modifier.size(18.dp))
+                            },
+                            text = {
+                                Text(hvacModeLabel(mode), fontWeight = if (mode == localMode) FontWeight.Bold else null)
+                            },
+                            onClick = {
+                                modesOpen = false
+                                localMode = mode
+                                viewModel.setHvacMode(entity.entity_id, mode)
+                            }
+                        )
+                    }
+                }
+            }
+        }
         }
     }
 }
@@ -2390,7 +2417,7 @@ private fun ClimateSensorDetailPage(
                     }
                     if (values.isNotEmpty()) {
                         Spacer(Modifier.height(14.dp))
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                        FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             HeroStat(Icons.Default.ArrowDownward, CoolBlue,
                                 "${formatValue(values.min())}${if (unit.isNotBlank()) " $unit" else ""}", "Lowest")
                             HeroStat(group.icon, group.color,
@@ -2730,7 +2757,7 @@ private fun ClimateLiveTile(
                 Icon(icon, null, tint = color, modifier = Modifier.size(18.dp))
             }
             Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.labelLarge, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                Text(title, style = MaterialTheme.typography.labelLarge, color = appColors.onSurface, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(status, style = MaterialTheme.typography.bodySmall, color = appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             Icon(Icons.Default.ChevronRight, null, tint = appColors.onMuted, modifier = Modifier.size(16.dp))
@@ -2973,16 +3000,20 @@ fun ClimateCardWidgetView(
                 }
             }
             if (tiles.isEmpty()) { emptyCard("No climate sensors or devices found."); return }
-            Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                tiles.chunked(2).forEach { rowTiles ->
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                        rowTiles.forEach { t ->
-                            ClimateLiveTile(
-                                icon = t.icon, color = t.color, title = t.title, status = t.status,
-                                modifier = Modifier.weight(1f), cornerRadius = cornerRadius.coerceAtMost(18)
-                            )
+            BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+                // Auto-fit: 2 tiles across when there's room, dropping to 1 on narrow windows.
+                val tileColumns = ((maxWidth + 10.dp) / 170.dp).toInt().coerceIn(1, 2)
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    tiles.chunked(tileColumns).forEach { rowTiles ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                            rowTiles.forEach { t ->
+                                ClimateLiveTile(
+                                    icon = t.icon, color = t.color, title = t.title, status = t.status,
+                                    modifier = Modifier.weight(1f), cornerRadius = cornerRadius.coerceAtMost(18)
+                                )
+                            }
+                            repeat(tileColumns - rowTiles.size) { Spacer(Modifier.weight(1f)) }
                         }
-                        if (rowTiles.size == 1) Spacer(Modifier.weight(1f))
                     }
                 }
             }
@@ -3041,7 +3072,7 @@ fun ClimateCardWidgetView(
                     }
                     if (values.isNotEmpty()) {
                         Spacer(Modifier.height(14.dp))
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                        FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             HeroStat(Icons.Default.ArrowDownward, CoolBlue,
                                 "${formatValue(values.min())}${if (unit.isNotBlank()) " $unit" else ""}", "Lowest")
                             HeroStat(group.icon, group.color,
