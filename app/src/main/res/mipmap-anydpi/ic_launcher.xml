@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@android:color/transparent" />
-    <foreground android:drawable="@drawable/hki_logo" />
-    <monochrome android:drawable="@drawable/hki_logo" />
+    <!-- Opaque background + a transparent-background mark, rather than the pre-baked tile that was
+         previously used as the foreground (launcher masks clipped its own rounded corners).
+         The monochrome layer must be an alpha silhouette: pointing it at the full-colour tile made
+         themed icons render a solid blob, because that tile's alpha channel is a filled square. -->
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+    <monochrome android:drawable="@drawable/ic_launcher_monochrome" />
 </adaptive-icon>

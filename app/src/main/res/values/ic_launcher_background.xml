@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Averaged from the blue of the HKI mark tile. Adaptive icons need an opaque background
+         layer: a transparent one leaves launcher masks with nothing to fill. -->
+    <color name="ic_launcher_background">#185EB6</color>
+</resources>
