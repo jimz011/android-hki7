@@ -39,19 +39,18 @@ android {
     }
 }
 
-// Work around KT-83266: with AGP 9.2 + Kotlin 2.4 the Compose compiler plugin's release
-// "group mapping" tasks fail (they try to resolve org.jetbrains.kotlin:compose-group-mapping at
-// AGP's embedded 2.2.10, which isn't published). That mapping only helps deobfuscate Compose
-// frames in profilers/Layout Inspector — it is not part of the shipped APK — so disabling it is
-// safe. Revisit once the toolchain bug is fixed.
-tasks.matching { it.name.contains("ComposeMapping") }.configureEach { enabled = false }
-
 configurations.all {
     resolutionStrategy {
         // Newer libraries constrain kotlin-stdlib to 2.4.0, whose metadata AGP's built-in
         // Kotlin compiler (2.2.x, reads metadata <= 2.3.0) cannot parse. 2.3.0 is API-compatible
         // for everything on this classpath. Drop this once AGP's embedded Kotlin reaches 2.4.
         force("org.jetbrains.kotlin:kotlin-stdlib:2.3.0")
+        // The Compose "group mapping" tasks request this at AGP's embedded Kotlin version
+        // (2.2.10), which was never published — the artifact only exists from 2.3.0 onward, so
+        // resolution fails and the release mapping file never gets written. Pin it to the Kotlin
+        // version this project actually compiles with; without it :app:packageReleaseBundle fails
+        // with "Metadata file .../mapping/release/mapping.txt does not exist".
+        force("org.jetbrains.kotlin:compose-group-mapping:${libs.versions.kotlin.get()}")
     }
 }
 
