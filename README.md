@@ -34,3 +34,7 @@ The debug APK lands in `app/build/outputs/apk/debug/`.
 HKI 7 uses an open-core model: the community source code in this repository is licensed under the [Mozilla Public License 2.0](https://www.mozilla.org/MPL/2.0/), while separately marked premium assets remain proprietary. See [LICENSE](LICENSE) for details.
 
 Home Assistant is a trademark of its respective owners; this project is an independent client and is not affiliated with or endorsed by Home Assistant.
+
+## Other Information
+
+This project was created with help of AI like Claude and OpenAI. If you dislike AI being used in projects, then do not install this!
