@@ -12,7 +12,9 @@ android {
         applicationId = "com.jimz011apps.hki7"
         minSdk = 34
         targetSdk = 37
-        versionCode = 8
+        // 8 was consumed by an upload that was never released (Play reserves version codes
+        // permanently, even for bundles left inactive), so beta.2 ships as 9.
+        versionCode = 9
         versionName = "1.0.0-beta.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
