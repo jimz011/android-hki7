@@ -36,7 +36,11 @@ data class HKIDashboard(
     val pageConfigs: Map<String, HKIPageConfig> = emptyMap(),
     val customPages: List<HKICustomPage> = emptyList(),
     val navBarOrder: List<String> = emptyList(),
-    val navBarHidden: List<String> = emptyList()
+    val navBarHidden: List<String> = emptyList(),
+    // Per-dashboard media-player bar config, so each (shared) dashboard carries its own selection
+    // instead of one global list everyone must curate.
+    val mediaPlayerNames: Map<String, String> = emptyMap(),
+    val mediaPlayerBarHidden: List<String> = emptyList()
 )
 
 /** One independently authenticated Home Assistant server. The existing preference keys remain the
@@ -1067,7 +1071,9 @@ class PreferencesManager(
         pageConfigs = decodeBackup(p[pageConfigsKey], emptyMap()),
         customPages = decodeBackup(p[customPagesKey], emptyList()),
         navBarOrder = p[navBarOrderKey]?.split(',')?.filter(String::isNotBlank).orEmpty(),
-        navBarHidden = p[navBarHiddenKey]?.split(',')?.filter(String::isNotBlank).orEmpty()
+        navBarHidden = p[navBarHiddenKey]?.split(',')?.filter(String::isNotBlank).orEmpty(),
+        mediaPlayerNames = decodeBackup(p[mediaPlayerNamesKey], emptyMap()),
+        mediaPlayerBarHidden = p[mediaPlayerBarHiddenKey]?.split(',')?.filter(String::isNotBlank).orEmpty()
     )
 
     private fun saveLoadedDashboardInto(p: MutablePreferences, dashboards: MutableList<HKIDashboard>) {
@@ -1087,6 +1093,8 @@ class PreferencesManager(
         p[customPagesKey] = appJson.encodeToString(dashboard.customPages)
         p[navBarOrderKey] = dashboard.navBarOrder.joinToString(",")
         p[navBarHiddenKey] = dashboard.navBarHidden.joinToString(",")
+        p[mediaPlayerNamesKey] = appJson.encodeToString(dashboard.mediaPlayerNames)
+        p[mediaPlayerBarHiddenKey] = dashboard.mediaPlayerBarHidden.joinToString(",")
     }
 
     private fun manualOnlyPageConfigs(): Map<String, HKIPageConfig> = mapOf(

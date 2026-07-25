@@ -1094,6 +1094,20 @@ data class HKIMarkdownWidget(
 ) : HKIRoomWidget()
 
 @Serializable
+@SerialName("iframe")
+data class HKIIframeWidget(
+    override val id: String,
+    override val width: String = "full",
+    val url: String = "",
+    val title: String? = null,
+    val icon: String? = null,
+    /** Widget height as an aspect ratio of its width, like the camera widget (1:1, 4:3, 16:9, tall). */
+    val aspectRatio: Float = 16f / 9f,
+    val cornerRadius: Int = 28,
+    val isHidden: Boolean = false
+) : HKIRoomWidget()
+
+@Serializable
 @SerialName("weather")
 data class HKIWeatherWidget(
     override val id: String,

@@ -77,6 +77,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonPrimitive
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HAMediaBrowseItem
 import com.jimz011apps.hki7.data.HAServiceCall
@@ -646,6 +648,32 @@ internal data class MediaBrand(
     val packageName: String?,
 )
 
+/** Common Android TV / streaming app package ids → friendly names, for players that report only
+ *  an `app_id` (package) and no `app_name`. */
+private val ANDROID_APP_LABELS: Map<String, String> = mapOf(
+    "com.netflix.ninja" to "Netflix", "com.google.android.youtube.tv" to "YouTube",
+    "com.google.android.youtube.tvmusic" to "YouTube Music", "com.spotify.tv.android" to "Spotify",
+    "com.disney.disneyplus" to "Disney+", "com.amazon.amazonvideo.livingroom" to "Prime Video",
+    "com.plexapp.android" to "Plex", "com.wbd.stream" to "Max", "tv.twitch.android.app" to "Twitch",
+    "com.hbo.hbonow" to "Max", "com.apple.atve.androidtv.appletv" to "Apple TV",
+    "com.google.android.tvlauncher" to "Home", "com.viki.android" to "Viki",
+)
+
+/**
+ * A human label for what a player is currently running: the media title if present, otherwise the
+ * app name (`app_name`), otherwise a friendly name derived from `app_id`/`source` (Android TV often
+ * reports only a package). Null when nothing better than the raw state is available.
+ */
+internal fun HAEntity.mediaAppLabel(): String? {
+    mediaTitle?.takeIf { it.isNotBlank() }?.let { return it }
+    appName?.takeIf { it.isNotBlank() }?.let { return it }
+    val pkg = (attributes?.get("app_id")?.jsonPrimitive?.contentOrNull ?: mediaSource)?.takeIf { it.isNotBlank() }
+        ?: return null
+    ANDROID_APP_LABELS[pkg]?.let { return it }
+    // Prettify an unknown package: "com.netflix.ninja" → "Ninja"; leave non-package strings as-is.
+    return if ('.' in pkg) pkg.substringAfterLast('.').replaceFirstChar(Char::uppercase) else pkg
+}
+
 internal fun mediaBrandFor(entity: HAEntity): MediaBrand {
     val hint = listOfNotNull(entity.appName, entity.mediaSource, entity.entity_id)
         .joinToString(" ")
@@ -722,6 +750,7 @@ fun MediaPlayerMiniBar(
             HorizontalPager(state = pagerState) { page ->
             val player = players.getOrNull(page) ?: return@HorizontalPager
             val artwork = resolveMediaImage(player.entityPicture, currentUrl)
+            val brand = remember(player.appName, player.mediaSource, player.entity_id) { mediaBrandFor(player) }
             Column(Modifier.fillMaxSize().clickable { onOpen(player) }) {
                 Row(
                     Modifier.weight(1f).fillMaxWidth().padding(horizontal = 10.dp),
@@ -735,7 +764,9 @@ fun MediaPlayerMiniBar(
                         if (artwork != null) {
                             AsyncImage(artwork, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                         } else {
-                            Icon(Icons.Default.MusicNote, null, tint = barMuted, modifier = Modifier.size(20.dp))
+                            // No artwork (e.g. an Android TV app with no media metadata): show the
+                            // source's brand logo so it's clear which app is running.
+                            MdiIcon(brand.icon, tint = brand.color ?: barMuted, size = 22.dp)
                         }
                     }
                     Column(Modifier.weight(1f)) {
@@ -746,7 +777,9 @@ fun MediaPlayerMiniBar(
                             fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            player.mediaTitle ?: player.state.replaceFirstChar(Char::uppercase),
+                            // Media title → app name → friendly app-id → raw state, so "Playing" is a
+                            // last resort and Android TV apps (Netflix, YouTube…) are named.
+                            player.mediaAppLabel() ?: player.state.replaceFirstChar(Char::uppercase),
                             color = barForeground, style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis
                         )

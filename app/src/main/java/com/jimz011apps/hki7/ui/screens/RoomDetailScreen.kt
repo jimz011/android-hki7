@@ -63,6 +63,7 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.BatteryAlert
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.CheckCircle
@@ -165,6 +166,7 @@ import com.jimz011apps.hki7.data.HKIClimateStack
 import com.jimz011apps.hki7.data.HKIEnergyCardWidget
 import com.jimz011apps.hki7.data.HKIEnergyConfig
 import com.jimz011apps.hki7.data.HKIEnergyStack
+import com.jimz011apps.hki7.data.HKIIframeWidget
 import com.jimz011apps.hki7.data.HKIMarkdownWidget
 import com.jimz011apps.hki7.data.HKIMediaPlayerWidget
 import com.jimz011apps.hki7.data.HKISensorGraphStack
@@ -295,6 +297,7 @@ fun HKIRoomWidget.withStackChildStyle(isSquare: Boolean, cornerRadius: Int): HKI
     is HKIClimateStack -> copy(cornerRadius = cornerRadius)
     is HKIMediaPlayerWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKIMarkdownWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
+    is HKIIframeWidget -> copy(cornerRadius = cornerRadius)
     is HKISensorGraphWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKISensorGraphStack -> copy(cornerRadius = cornerRadius)
     is HKIEmptyStack -> copy(
@@ -380,6 +383,7 @@ fun RoomDetailScreen(
     var configuringClimateCards by remember { mutableStateOf<List<Pair<String?, HKIClimateCardWidget>>>(emptyList()) }
     var editingMediaPlayerWidget by remember { mutableStateOf<Pair<String?, HKIMediaPlayerWidget>?>(null) }
     var editingMarkdownWidget by remember { mutableStateOf<Pair<String?, HKIMarkdownWidget>?>(null) }
+    var editingIframeWidget by remember { mutableStateOf<Pair<String?, HKIIframeWidget>?>(null) }
     var editingSensorGraphWidget by remember { mutableStateOf<Pair<String?, HKISensorGraphWidget>?>(null) }
     var editingSensorGraphStack by remember { mutableStateOf<Pair<String?, HKISensorGraphStack>?>(null) }
     var pendingMediaPlayerWidgetContainerId by remember { mutableStateOf<String?>(null) }
@@ -508,6 +512,7 @@ fun RoomDetailScreen(
         id = UUID.randomUUID().toString(),
         content = "# Markdown\nOpen this widget's settings in **edit mode** to write your own content."
     )
+    fun newIframeWidget() = HKIIframeWidget(id = UUID.randomUUID().toString())
     fun addChildToSwipingStack(stackId: String, child: HKIRoomWidget) {
         val swipe = areaWidgets.filterIsInstance<HKISwipingStack>().find { it.id == stackId }
         val empty = areaWidgets.filterIsInstance<HKIEmptyStack>().find { it.id == stackId }
@@ -642,6 +647,12 @@ fun RoomDetailScreen(
                 onOpen = { entityId -> openEntityFromSingleWidget(entityId, "button") },
                 onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
                 onSettings = { editingMediaPlayerWidget = parent.id to child }
+            )
+            is HKIIframeWidget -> IframeWidgetItem(
+                widget = styleOverride?.let { child.copy(width = "full", cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                isEditMode = isEditMode,
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingIframeWidget = parent.id to child },
             )
             is HKIMarkdownWidget -> MarkdownWidgetItem(
                 widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
@@ -1033,6 +1044,9 @@ fun RoomDetailScreen(
                                     widget = widget, isEditMode = false,
                                     onDelete = {}, onSettings = {}, currentUrl = currentUrl
                                 )
+                                is HKIIframeWidget -> IframeWidgetItem(
+                                    widget = widget, isEditMode = false, onDelete = {}, onSettings = {}
+                                )
                                 is HKISensorGraphWidget -> SensorGraphWidgetItem(
                                     widget = widget, viewModel = viewModel, isEditMode = false,
                                     onDelete = {}, onSettings = {}
@@ -1257,6 +1271,11 @@ fun RoomDetailScreen(
                             onSettings = { editingMarkdownWidget = null to widget },
                             currentUrl = currentUrl
                         )
+                        is HKIIframeWidget -> IframeWidgetItem(
+                            widget = widget, isEditMode = isEditMode,
+                            onDelete = { viewModel.deleteWidget(areaId, widget.id) },
+                            onSettings = { editingIframeWidget = null to widget },
+                        )
                         is HKISensorGraphWidget -> SensorGraphWidgetItem(
                             widget = widget, viewModel = viewModel, isEditMode = isEditMode,
                             onDelete = { viewModel.deleteWidget(areaId, widget.id) },
@@ -1400,6 +1419,10 @@ fun RoomDetailScreen(
                 viewModel.addWidgetToArea(areaId, newMarkdownWidget())
                 showAddWidgetDialog = false
             },
+            onAddIframeWidget = {
+                viewModel.addWidgetToArea(areaId, newIframeWidget())
+                showAddWidgetDialog = false
+            },
             onAddSensorGraphWidget = {
                 pendingSensorGraphWidgetContainerId = "__top__"
                 showAddWidgetDialog = false
@@ -1513,6 +1536,13 @@ fun RoomDetailScreen(
             if (containerId == null) viewModel.updateWidget(areaId, updated)
             else updateChildInSwipingStack(containerId, updated)
             editingMediaPlayerWidget = null
+        }
+    }
+    editingIframeWidget?.let { (containerId, widget) ->
+        IframeWidgetSettingsDialog(widget, onDismiss = { editingIframeWidget = null }) { updated ->
+            if (containerId == null) viewModel.updateWidget(areaId, updated)
+            else updateChildInSwipingStack(containerId, updated)
+            editingIframeWidget = null
         }
     }
     editingMarkdownWidget?.let { (containerId, widget) ->
@@ -1751,6 +1781,10 @@ fun RoomDetailScreen(
             },
             onAddMarkdownWidget = {
                 addChildToSwipingStack(stackId, newMarkdownWidget())
+                addingToSwipingStackId = null
+            },
+            onAddIframeWidget = {
+                addChildToSwipingStack(stackId, newIframeWidget())
                 addingToSwipingStackId = null
             },
             onAddSensorGraphWidget = {
@@ -2631,6 +2665,7 @@ fun AddRoomWidgetDialog(
     onAddClimateStack: ((List<String>) -> Unit)? = null,
     onAddMediaPlayerWidget: (() -> Unit)? = null,
     onAddMarkdownWidget: (() -> Unit)? = null,
+    onAddIframeWidget: (() -> Unit)? = null,
     onAddSensorGraphWidget: (() -> Unit)? = null,
     onAddSensorGraphStack: (() -> Unit)? = null,
     onAddBatteryCard: ((Boolean) -> Unit)? = null,
@@ -2677,6 +2712,7 @@ fun AddRoomWidgetDialog(
         if (onAddBatteryCard != null) add(PickerWidget(Icons.Default.BatteryAlert, "Battery Levels", "Low batteries, or Battery+ only with type details", "battery notes charge level power") { widgetGroup = "battery_card" })
         add(PickerWidget(Icons.AutoMirrored.Filled.ShortText, "Header Text", "Add a section heading", "title subtitle label heading text divider") { configureWidget = "header" })
         if (onAddMarkdownWidget != null) add(PickerWidget(Icons.AutoMirrored.Filled.Notes, "Markdown", "A free-form card written in markdown", "text note markdown card content notes writing") { onAddMarkdownWidget.invoke(); onDismiss() })
+        if (onAddIframeWidget != null) add(PickerWidget(Icons.Default.Public, "iFrame", "Embed any web page on your dashboard", "web page website url embed browser iframe html") { onAddIframeWidget.invoke(); onDismiss() })
         if (onAddMediaPlayerWidget != null) add(PickerWidget(Icons.Default.MusicNote, "Media Player", "Now playing tile with the album art as background", "music speaker sonos spotify tv cast album art player") { onAddMediaPlayerWidget.invoke(); onDismiss() })
         if (onAddSensorGraphWidget != null) add(PickerWidget(Icons.AutoMirrored.Filled.ShowChart, "Sensor Graph", "History graph for one or more sensors, as lines or bars", "graph chart history sensor temperature humidity line bar plot statistics") { onAddSensorGraphWidget.invoke(); onDismiss() })
         add(PickerWidget(Icons.Default.CleaningServices, "Vacuum", "A single robot vacuum control", "robot cleaner mop hoover") { onAddVacuumWidget?.invoke() ?: run { vacuumTitle = ""; vacuumIcon = "None"; configureWidget = "vacuum" } })

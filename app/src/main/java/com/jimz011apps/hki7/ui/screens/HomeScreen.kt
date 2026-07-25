@@ -34,6 +34,7 @@ import com.jimz011apps.hki7.data.HKICustomPage
 import com.jimz011apps.hki7.data.HKIEnergyCardWidget
 import com.jimz011apps.hki7.data.HKIEnergyConfig
 import com.jimz011apps.hki7.data.HKIEnergyStack
+import com.jimz011apps.hki7.data.HKIIframeWidget
 import com.jimz011apps.hki7.data.HKIMarkdownWidget
 import com.jimz011apps.hki7.data.HKIMediaPlayerWidget
 import com.jimz011apps.hki7.data.HKISensorGraphStack
@@ -133,6 +134,7 @@ fun HAHomeScreen(
     var configuringClimateCards by remember { mutableStateOf<List<Pair<String?, HKIClimateCardWidget>>>(emptyList()) }
     var editingMediaPlayerWidget by remember { mutableStateOf<Pair<String?, HKIMediaPlayerWidget>?>(null) }
     var editingMarkdownWidget by remember { mutableStateOf<Pair<String?, HKIMarkdownWidget>?>(null) }
+    var editingIframeWidget by remember { mutableStateOf<Pair<String?, HKIIframeWidget>?>(null) }
     var editingSensorGraphWidget by remember { mutableStateOf<Pair<String?, HKISensorGraphWidget>?>(null) }
     var editingSensorGraphStack by remember { mutableStateOf<Pair<String?, HKISensorGraphStack>?>(null) }
     var pendingMediaPlayerWidgetContainerId by remember { mutableStateOf<String?>(null) }
@@ -204,6 +206,7 @@ fun HAHomeScreen(
         id = UUID.randomUUID().toString(),
         content = "# Markdown\nOpen this widget's settings in **edit mode** to write your own content."
     )
+    fun newIframeWidget() = HKIIframeWidget(id = UUID.randomUUID().toString())
     fun addChildToSwipingStack(stackId: String, child: HKIRoomWidget) {
         val swipe = homeWidgets.filterIsInstance<HKISwipingStack>().find { it.id == stackId }
         val empty = homeWidgets.filterIsInstance<HKIEmptyStack>().find { it.id == stackId }
@@ -404,6 +407,12 @@ fun HAHomeScreen(
                 onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
                 onSettings = { editingMarkdownWidget = parent.id to child },
                 currentUrl = currentUrl
+            )
+            is HKIIframeWidget -> IframeWidgetItem(
+                widget = styleOverride?.let { child.copy(width = "full", cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                isEditMode = isEditMode,
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingIframeWidget = parent.id to child },
             )
             is HKISensorGraphWidget -> SensorGraphWidgetItem(
                 widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
@@ -667,6 +676,9 @@ fun HAHomeScreen(
                                     widget = widget, isEditMode = false,
                                     onDelete = {}, onSettings = {}, currentUrl = currentUrl
                                 )
+                                is HKIIframeWidget -> IframeWidgetItem(
+                                    widget = widget, isEditMode = false, onDelete = {}, onSettings = {}
+                                )
                                 is HKISensorGraphWidget -> SensorGraphWidgetItem(
                                     widget = widget, viewModel = viewModel, isEditMode = false,
                                     onDelete = {}, onSettings = {}
@@ -859,6 +871,11 @@ fun HAHomeScreen(
                                 onSettings = { editingMarkdownWidget = null to widget },
                                 currentUrl = currentUrl
                             )
+                            is HKIIframeWidget -> IframeWidgetItem(
+                                widget = widget, isEditMode = isEditMode,
+                                onDelete = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
+                                onSettings = { editingIframeWidget = null to widget },
+                            )
                             is HKISensorGraphWidget -> SensorGraphWidgetItem(
                                 widget = widget, viewModel = viewModel, isEditMode = isEditMode,
                                 onDelete = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
@@ -996,6 +1013,10 @@ fun HAHomeScreen(
                 viewModel.addWidgetToArea(HOME_WIDGET_AREA, newMarkdownWidget())
                 showAddWidget = false
             },
+            onAddIframeWidget = {
+                viewModel.addWidgetToArea(HOME_WIDGET_AREA, newIframeWidget())
+                showAddWidget = false
+            },
             onAddSensorGraphWidget = {
                 pendingSensorGraphWidgetContainerId = "__top__"
                 showAddWidget = false
@@ -1057,6 +1078,10 @@ fun HAHomeScreen(
             },
             onAddMarkdownWidget = {
                 addChildToSwipingStack(stackId, newMarkdownWidget())
+                addingToSwipingStackId = null
+            },
+            onAddIframeWidget = {
+                addChildToSwipingStack(stackId, newIframeWidget())
                 addingToSwipingStackId = null
             },
             onAddSensorGraphWidget = {
@@ -1822,6 +1847,13 @@ fun HAHomeScreen(
             if (containerId == null) viewModel.updateWidget(HOME_WIDGET_AREA, updated)
             else updateChildInSwipingStack(containerId, updated)
             editingMarkdownWidget = null
+        }
+    }
+    editingIframeWidget?.let { (containerId, widget) ->
+        IframeWidgetSettingsDialog(widget, onDismiss = { editingIframeWidget = null }) { updated ->
+            if (containerId == null) viewModel.updateWidget(HOME_WIDGET_AREA, updated)
+            else updateChildInSwipingStack(containerId, updated)
+            editingIframeWidget = null
         }
     }
     editingSensorGraphWidget?.let { (containerId, widget) ->
