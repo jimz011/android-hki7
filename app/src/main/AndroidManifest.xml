@@ -15,6 +15,27 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+    <!-- Package visibility (Android 11+): lets the media-player source badge detect and open the
+         matching app when it's installed. Without these, getLaunchIntentForPackage always returns
+         null under the app's minSdk. -->
+    <queries>
+        <package android:name="com.spotify.music" />
+        <package android:name="com.plexapp.android" />
+        <package android:name="com.netflix.mediaclient" />
+        <package android:name="com.google.android.youtube" />
+        <package android:name="com.google.android.apps.youtube.music" />
+        <package android:name="com.soundcloud.android" />
+        <package android:name="com.pandora.android" />
+        <package android:name="org.xbmc.kodi" />
+        <package android:name="org.jellyfin.mobile" />
+        <package android:name="com.mb.android" />
+        <package android:name="com.apple.android.music" />
+        <package android:name="com.aspiro.tidal" />
+        <package android:name="deezer.android.app" />
+        <package android:name="com.sonos.acr2" />
+        <package android:name="com.amazon.mp3" />
+    </queries>
+
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"

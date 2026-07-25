@@ -123,3 +123,19 @@ val SI_COMMON: List<String> = listOf(
     "tasmota", "shelly", "raspberrypi", "arduino", "googlecalendar", "discord", "telegram",
     "whatsapp", "signal", "github",
 )
+
+/** Tabler slugs surfaced first in the picker (verified against `assets/tabler_codepoints.txt`). */
+val TABLER_COMMON: List<String> = listOf(
+    "bulb", "bulb-off", "home", "home-2", "temperature-sun", "snowflake", "air-conditioning",
+    "device-tv", "speakerphone", "lock", "lock-open", "door", "plug", "thermometer", "sun",
+    "moon-stars", "cloud", "droplet", "flame", "wind", "propeller", "wifi", "settings", "bell",
+    "star", "heart", "car", "battery", "bolt", "music", "player-play", "player-track-next",
+)
+
+/** Phosphor slugs surfaced first in the picker (verified against `assets/phosphor_codepoints.txt`). */
+val PHOSPHOR_COMMON: List<String> = listOf(
+    "lightbulb", "lightbulb-filament", "house", "thermometer", "thermometer-hot", "snowflake",
+    "television", "speaker-high", "lock", "lock-open", "door", "plug", "fan", "sun", "moon-stars",
+    "cloud", "drop", "flame", "wifi-high", "gear", "bell", "star", "heart", "car-profile",
+    "battery-full", "lightning", "music-note", "play", "skip-forward",
+)

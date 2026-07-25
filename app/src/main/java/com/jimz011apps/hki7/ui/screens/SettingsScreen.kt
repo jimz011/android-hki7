@@ -149,7 +149,6 @@ import androidx.compose.ui.text.font.FontWeight
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import com.jimz011apps.hki7.ui.theme.AppFontFamilyOptions
 import com.jimz011apps.hki7.ui.theme.appFontFamily
-import com.jimz011apps.hki7.ui.utils.IconPack
 import com.jimz011apps.hki7.ui.utils.MdiIcon
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
@@ -964,52 +963,6 @@ fun SettingsDialog(
                                     color = appColors.onMuted,
                                     style = MaterialTheme.typography.bodyMedium
                                 )
-
-                                // ── Default icon pack ────────────────────────────────
-                                val defaultIconPack by prefs.defaultIconPack.collectAsState(initial = "mdi")
-                                Text("Icon pack", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
-                                Text(
-                                    "The pack pre-selected when you add an icon. You can still switch packs per button while editing.",
-                                    color = appColors.onMuted,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                                var packMenuOpen by remember { mutableStateOf(false) }
-                                val selectedPack = IconPack.fromId(defaultIconPack)
-                                Box {
-                                    Surface(
-                                        modifier = Modifier.fillMaxWidth().clickable { packMenuOpen = true },
-                                        shape = itemCornerShape(),
-                                        color = appColors.subtleSurface
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                selectedPack.displayName,
-                                                color = appColors.onSurface,
-                                                modifier = Modifier.weight(1f)
-                                            )
-                                            Icon(Icons.Default.KeyboardArrowDown, null, tint = appColors.onMuted)
-                                        }
-                                    }
-                                    DropdownMenu(expanded = packMenuOpen, onDismissRequest = { packMenuOpen = false }) {
-                                        IconPack.entries.forEach { pack ->
-                                            DropdownMenuItem(
-                                                text = {
-                                                    Text(
-                                                        pack.displayName,
-                                                        fontWeight = if (pack == selectedPack) FontWeight.Bold else null
-                                                    )
-                                                },
-                                                onClick = {
-                                                    packMenuOpen = false
-                                                    scope.launch { prefs.saveDefaultIconPack(pack.id) }
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
                             }
                         }
                         SettingsSection.MEDIA_PLAYERS -> {
@@ -1524,7 +1477,7 @@ fun SettingsDialog(
                                 Spacer(Modifier.height(6.dp))
                                 Text("Back up to Home Assistant", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
                                 Text(
-                                    "Stores backups on your own Home Assistant instance using the HKI 7 Cloud component — an addition to Google Drive, not a replacement. Requires the HKI 7 Cloud custom component (install it via HACS).",
+                                    "Stores backups on your own Home Assistant instance using the HKI 7 Cloud component. Use Google Drive, Home Assistant, or both — they're independent. Requires the HKI 7 Cloud custom component (install it via HACS).",
                                     color = appColors.onMuted,
                                     style = MaterialTheme.typography.bodySmall
                                 )

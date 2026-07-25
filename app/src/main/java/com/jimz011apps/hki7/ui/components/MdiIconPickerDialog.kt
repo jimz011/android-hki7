@@ -41,7 +41,9 @@ import com.jimz011apps.hki7.ui.utils.IconPreferences
 import com.jimz011apps.hki7.ui.utils.MDI_COMMON
 import com.jimz011apps.hki7.ui.utils.MdiIcon
 import com.jimz011apps.hki7.ui.utils.MdiIconStore
+import com.jimz011apps.hki7.ui.utils.PHOSPHOR_COMMON
 import com.jimz011apps.hki7.ui.utils.SI_COMMON
+import com.jimz011apps.hki7.ui.utils.TABLER_COMMON
 
 /** Category name for the curated "common" icons shown by default. */
 private const val COMMON_CATEGORY = "Common"
@@ -93,7 +95,12 @@ fun MdiIconPickerDialog(
     val allNames = remember(pack) { MdiIconStore.allNames(context, pack) }
     val filtered = remember(query, category, pack, allNames) {
         val q = query.trim()
-        val common = if (pack == IconPack.SIMPLE) SI_COMMON else MDI_COMMON
+        val common = when (pack) {
+            IconPack.SIMPLE -> SI_COMMON
+            IconPack.TABLER -> TABLER_COMMON
+            IconPack.PHOSPHOR -> PHOSPHOR_COMMON
+            else -> MDI_COMMON
+        }
         when {
             // A search query overrides the category filter.
             q.isNotEmpty() -> MdiIconStore.search(context, q, pack)

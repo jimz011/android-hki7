@@ -68,6 +68,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -633,34 +634,46 @@ private fun MediaBrowseDialog(
 // Mini player bar: shown above the navigation bar while media plays
 // ─────────────────────────────────────────────────────────────────────────────
 
-@Composable
 /**
- * Material Design Icon slug for the service a player is currently using, derived from the HA
- * `app_name` attribute (falling back to `source`, then the entity id). Brands the bundled MDI font
- * has no glyph for — Sonos, Tidal, Deezer, Jellyfin — resolve to the closest sensible shape rather
- * than nothing, and anything unrecognised lands on a plain music note.
+ * The service a player is currently using, derived from the HA `app_name` attribute (falling back
+ * to `source`, then the entity id): a pack-qualified icon slug, the brand's own colour (or null to
+ * use the surrounding tint — e.g. for black brand marks that would vanish), and the Android package
+ * to open when the badge is tapped (or null when there is no app to open, like a TV input).
  */
-internal fun mediaAppIconName(entity: HAEntity): String {
+internal data class MediaBrand(
+    val icon: String,
+    val color: Color?,
+    val packageName: String?,
+)
+
+internal fun mediaBrandFor(entity: HAEntity): MediaBrand {
     val hint = listOfNotNull(entity.appName, entity.mediaSource, entity.entity_id)
         .joinToString(" ")
         .lowercase()
+    fun b(icon: String, color: Long?, pkg: String?) = MediaBrand(icon, color?.let(::Color), pkg)
     return when {
-        "spotify" in hint -> "spotify"
-        "plex" in hint -> "plex"
-        "netflix" in hint -> "netflix"
-        "youtube" in hint -> "youtube"
-        "soundcloud" in hint -> "soundcloud"
-        "pandora" in hint -> "pandora"
-        "kodi" in hint -> "kodi"
-        "emby" in hint || "jellyfin" in hint -> "emby"
-        "apple" in hint || "airplay" in hint || "itunes" in hint -> "apple"
-        "sonos" in hint -> "speaker-multiple"
-        "tidal" in hint || "deezer" in hint || "amazon" in hint -> "music-box-multiple"
-        "cast" in hint || "chromecast" in hint -> "cast"
-        "radio" in hint || "tuner" in hint -> "radio"
-        "podcast" in hint -> "podcast"
-        "tv" in hint || "television" in hint -> "television"
-        else -> "music-note"
+        "spotify" in hint -> b("si:spotify", 0xFF1DB954, "com.spotify.music")
+        "plex" in hint -> b("si:plex", 0xFFE5A00D, "com.plexapp.android")
+        "netflix" in hint -> b("si:netflix", 0xFFE50914, "com.netflix.mediaclient")
+        "youtube music" in hint || "youtubemusic" in hint || "yt music" in hint ->
+            b("si:youtubemusic", 0xFFFF0000, "com.google.android.apps.youtube.music")
+        "youtube" in hint -> b("si:youtube", 0xFFFF0000, "com.google.android.youtube")
+        "soundcloud" in hint -> b("si:soundcloud", 0xFFFF5500, "com.soundcloud.android")
+        "pandora" in hint -> b("si:pandora", 0xFF3668FF, "com.pandora.android")
+        "kodi" in hint -> b("si:kodi", 0xFF17B2E7, "org.xbmc.kodi")
+        "jellyfin" in hint -> b("si:jellyfin", 0xFF00A4DC, "org.jellyfin.mobile")
+        "emby" in hint -> b("si:emby", 0xFF52B54B, "com.mb.android")
+        "apple" in hint || "itunes" in hint -> b("si:applemusic", 0xFFFA243C, "com.apple.android.music")
+        "airplay" in hint -> b("mdi:apple", null, null)
+        "tidal" in hint -> b("si:tidal", null, "com.aspiro.tidal")            // black mark → default tint
+        "deezer" in hint -> b("si:deezer", 0xFFA238FF, "deezer.android.app")
+        "sonos" in hint -> b("si:sonos", null, "com.sonos.acr2")             // black mark → default tint
+        "amazon" in hint -> b("mdi:music-box-multiple", 0xFF00A8E1, "com.amazon.mp3")
+        "cast" in hint || "chromecast" in hint -> b("mdi:cast", null, null)
+        "radio" in hint || "tuner" in hint -> b("mdi:radio", null, null)
+        "podcast" in hint -> b("mdi:podcast", null, null)
+        "tv" in hint || "television" in hint -> b("mdi:television", null, null)
+        else -> b("mdi:music-note", null, null)
     }
 }
 
@@ -792,15 +805,28 @@ fun MediaPlayerMiniBar(
                         }
                     }
                     // Service badge to the right of the transport controls, so you can tell at a
-                    // glance whether this is Spotify, Plex, a Sonos group, and so on.
+                    // glance whether this is Spotify, Plex, a Sonos group, and so on. Tapping it
+                    // opens the matching phone app when one is installed; otherwise it does nothing.
+                    val brand = remember(player.appName, player.mediaSource, player.entity_id) {
+                        mediaBrandFor(player)
+                    }
+                    val badgeContext = LocalContext.current
+                    val launchIntent = remember(brand.packageName) {
+                        brand.packageName?.let { badgeContext.packageManager.getLaunchIntentForPackage(it) }
+                    }
                     Box(
-                        Modifier.size(30.dp).clip(RoundedCornerShape(9.dp)).background(barSubtle),
+                        Modifier.size(30.dp).clip(RoundedCornerShape(9.dp)).background(barSubtle)
+                            .then(
+                                if (launchIntent != null)
+                                    Modifier.clickable { runCatching { badgeContext.startActivity(launchIntent) } }
+                                else Modifier
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         MdiIcon(
-                            mediaAppIconName(player),
+                            brand.icon,
                             contentDescription = player.appName ?: "Source",
-                            tint = barForeground,
+                            tint = brand.color ?: barForeground,
                             size = 18.dp
                         )
                     }

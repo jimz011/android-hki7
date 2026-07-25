@@ -40,7 +40,9 @@ enum class IconPack(
     val hasCategories: Boolean,
 ) {
     MDI("mdi", "Material Design Icons", R.font.mdi_icons, "mdi_codepoints.txt", "mdi_keywords.txt", true),
-    SIMPLE("si", "Simple Icons", R.font.simple_icons, "simple_codepoints.txt", "simple_keywords.txt", false);
+    SIMPLE("si", "Simple Icons", R.font.simple_icons, "simple_codepoints.txt", "simple_keywords.txt", false),
+    TABLER("tb", "Tabler", R.font.tabler_icons, "tabler_codepoints.txt", null, false),
+    PHOSPHOR("ph", "Phosphor", R.font.phosphor_icons, "phosphor_codepoints.txt", null, false);
 
     val fontFamily: FontFamily by lazy { FontFamily(Font(fontRes)) }
 
