@@ -85,6 +85,7 @@ import com.jimz011apps.hki7.ui.connectionIssueGraceMillis
 import com.jimz011apps.hki7.ui.HomeAssistantRestartPhase
 import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.data.HaParentalControls
+import com.jimz011apps.hki7.ui.components.LocalIconAnimationsEnabled
 import com.jimz011apps.hki7.ui.NavBarConfig
 import com.jimz011apps.hki7.ui.homeAssistantConnectionStatusLabel
 import kotlinx.coroutines.flow.collectLatest
@@ -147,6 +148,7 @@ class MainActivity : ComponentActivity() {
             val fontScale by prefs.fontScale.collectAsState(initial = 1f)
             val fontWeightAdjust by prefs.fontWeightAdjust.collectAsState(initial = 0)
             val fontFamily by prefs.fontFamily.collectAsState(initial = "default")
+            val iconAnimationsEnabled by prefs.iconAnimationsEnabled.collectAsState(initial = true)
             val defaultIconPack by prefs.defaultIconPack.collectAsState(initial = "mdi")
             LaunchedEffect(defaultIconPack) {
                 IconPreferences.defaultPack = IconPack.fromId(defaultIconPack)
@@ -162,7 +164,10 @@ class MainActivity : ComponentActivity() {
                 fontFamily = fontFamily,
                 itemCornerRadius = itemCornerRadius
             ) {
-                CompositionLocalProvider(LocalItemCornerRadius provides itemCornerRadius) {
+                CompositionLocalProvider(
+                    LocalItemCornerRadius provides itemCornerRadius,
+                    LocalIconAnimationsEnabled provides iconAnimationsEnabled,
+                ) {
                 val appColors = LocalHKIAppColors.current
                 val loading = "__hki_loading__"
                 val serverUrl by prefs.serverUrl.collectAsState(initial = loading)

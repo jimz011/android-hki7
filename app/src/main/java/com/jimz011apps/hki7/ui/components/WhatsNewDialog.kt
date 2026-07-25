@@ -48,6 +48,7 @@ private val changelog: Map<String, List<String>> = mapOf(
         "New: back up to your own Home Assistant instead of only Google Drive, using the free HKI 7 Cloud companion component. Both can be enabled at once. Restore now lets you choose Local, Google Drive, or Home Assistant.",
         "New: family dashboard sharing. With HKI 7 Cloud installed, an admin can share a dashboard with specific family members (or everyone), and they can import it into their own app — no more passing backup files between phones.",
         "New: parental controls. Admins can hide certain views and rooms from specific people, right from Settings › Parental Controls. This keeps a dashboard simple for kids or guests (it's UX-level hiding, not a Home Assistant security restriction).",
+        "New: animated icons. Entity icons now gently glow, spin, or pulse while the device is active — lights glow, fans and vacuums spin, playing media and active climate pulse. Only active devices animate, and you can turn it all off under Settings › Appearance › Theme. (This replaces the old per-button 'spin icon' toggle.)",
     ),
     "1.0.0-beta.2" to listOf(
         "Fixed an issue with smaller displays when either the height was too small or the width too narrow (or both), the content would look bad. It now falls back to a single column design on smaller screens. This has been changed across all elements.",

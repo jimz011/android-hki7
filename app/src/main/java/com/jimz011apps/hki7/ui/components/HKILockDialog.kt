@@ -33,8 +33,7 @@ fun HKILockDialog(
     onDismiss: () -> Unit,
     viewModel: MainViewModel,
     titleOverrides: Map<String, String?> = emptyMap(),
-    iconNames: Map<String, String?> = emptyMap(),
-    spinIcons: Map<String, Boolean> = emptyMap()
+    iconNames: Map<String, String?> = emptyMap()
 ) {
     var page by remember(entities.map { it.entity_id }) { mutableIntStateOf(0) }
     var dragAmount by remember { mutableFloatStateOf(0f) }
@@ -69,7 +68,6 @@ fun HKILockDialog(
         titleOverride = titleOverrides[currentEntity.entity_id],
         iconName = iconNames[currentEntity.entity_id]?.takeUnless { it.isBlank() }
             ?: defaultEntityIconSlug(currentEntity, lockDoorOpen = isDoorOpen),
-        spinIcon = spinIcons[currentEntity.entity_id] == true,
         statusText = pageStatus,
         tabs = openDoorTab,
         currentTab = null

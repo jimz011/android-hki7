@@ -1683,7 +1683,6 @@ fun HAHomeScreen(
             viewModel = viewModel,
             titleOverride = selectedFanConfig?.name,
             iconName = selectedFanConfig?.icon,
-            spinIcon = selectedFanConfig?.spinIcon == true,
             onDismiss = { selectedFanEntity = null; selectedFanConfig = null }
         )
     }
@@ -1694,7 +1693,6 @@ fun HAHomeScreen(
             viewModel = viewModel,
             titleOverride = selectedHumidifierConfig?.name,
             iconName = selectedHumidifierConfig?.icon,
-            spinIcon = selectedHumidifierConfig?.spinIcon == true,
             onDismiss = { selectedHumidifierEntity = null; selectedHumidifierConfig = null }
         )
     }
@@ -1959,7 +1957,6 @@ fun HAHomeScreen(
                 viewModel = viewModel,
                 titleOverride = selectedAlarmConfig?.name,
                 iconName = selectedAlarmConfig?.icon,
-                spinIcon = selectedAlarmConfig?.spinIcon == true,
                 onDismiss = { selectedAlarmEntity = null; selectedAlarmConfig = null }
             )
         }

@@ -30,8 +30,7 @@ fun HKILightDialog(
     viewModel: MainViewModel,
     groupContent: (@Composable () -> Unit)? = null,
     titleOverride: String? = null,
-    iconName: String? = null,
-    spinIcon: Boolean = false
+    iconName: String? = null
 ) {
     val topAppColors = LocalHKIAppColors.current
     val entityRegistry by viewModel.entityRegistry.collectAsState()
@@ -115,7 +114,6 @@ fun HKILightDialog(
         iconTint = if (entity.state == "on") lightAccent else topAppColors.onMuted,
         titleOverride = titleOverride,
         iconName = iconName,
-        spinIcon = spinIcon,
         statusText = statusText,
         groupContent = groupContent,
         tabs = visibleTabs,

@@ -414,14 +414,13 @@ fun HKIBadgeBar(
                         entity = de,
                         onDismiss = dismiss,
                         viewModel = viewModel,
-                        iconName = badge?.customIcon,
-                        spinIcon = badge?.spinIcon == true
+                        iconName = badge?.customIcon
                     )
                 } else {
                     UniversalStackDialog(
                         entities = live, allEntities = allEntities, currentUrl = currentUrl,
                         buttonConfigs = live.associate { e ->
-                            e.entity_id to HKIButtonConfig(icon = badge?.customIcon, spinIcon = badge?.spinIcon == true)
+                            e.entity_id to HKIButtonConfig(icon = badge?.customIcon)
                         },
                         viewModel = viewModel, onDismiss = dismiss
                     )
@@ -435,7 +434,6 @@ fun HKIBadgeBar(
                 live.associate { e ->
                     e.entity_id to HKIButtonConfig(
                         icon = badge?.customIcon,
-                        spinIcon = badge?.spinIcon == true,
                         climateDialogControl = badge?.climateDialogControl ?: "slider"
                     )
                 }
@@ -447,36 +445,31 @@ fun HKIBadgeBar(
                 HKILockDialog(
                     entity = de, entities = live, doorEntities = doorEntities,
                     onDismiss = dismiss, viewModel = viewModel,
-                    iconNames = live.associate { it.entity_id to badge?.customIcon },
-                    spinIcons = live.associate { it.entity_id to (badge?.spinIcon == true) }
+                    iconNames = live.associate { it.entity_id to badge?.customIcon }
                 )
             }
             "cover" -> AggregatedCoverDialog(
                 entities = live,
                 viewModel = viewModel,
                 onDismiss = dismiss,
-                iconName = badge?.customIcon,
-                spinIcon = badge?.spinIcon == true
+                iconName = badge?.customIcon
             )
             "fan" -> HKIFanDialog(
                 entity = de,
                 viewModel = viewModel,
                 iconName = badge?.customIcon,
-                spinIcon = badge?.spinIcon == true,
                 onDismiss = dismiss
             )
             "humidifier" -> HKIHumidifierDialog(
                 entity = de,
                 viewModel = viewModel,
                 iconName = badge?.customIcon,
-                spinIcon = badge?.spinIcon == true,
                 onDismiss = dismiss
             )
             "alarm" -> HKIAlarmDialog(
                 entity = de,
                 viewModel = viewModel,
                 iconName = badge?.customIcon,
-                spinIcon = badge?.spinIcon == true,
                 onDismiss = dismiss
             )
             "person" -> PersonDetailDialog(person = de, viewModel = viewModel, onDismiss = dismiss)
@@ -484,7 +477,6 @@ fun HKIBadgeBar(
                 val buttonConfigs = live.associate { e ->
                     e.entity_id to HKIButtonConfig(
                         icon = badge?.customIcon,
-                        spinIcon = badge?.spinIcon == true,
                         vacuumDeviceId = badge?.vacuumDeviceIds?.get(e.entity_id),
                         vacuumMapEntityId = badge?.vacuumMapEntityIds?.get(e.entity_id),
                         vacuumBatteryEntityId = badge?.vacuumBatteryEntityIds?.get(e.entity_id),
@@ -518,7 +510,6 @@ fun HKIBadgeBar(
                 icon = domainIcon(de),
                 iconTint = MaterialTheme.colorScheme.primary,
                 iconName = badge?.customIcon,
-                spinIcon = badge?.spinIcon == true,
                 showHistoryButton = true
             ) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -695,9 +686,7 @@ private fun BadgeItem(
     val pictureUrl = if (customSlug == ENTITY_PICTURE_ICON && entity != null && currentUrl.isNotBlank())
         resolveEntityPictureUrl(entity, currentUrl) else null
     val iconSlug = if (effectiveSlug == ENTITY_PICTURE_ICON) defaultSlug else effectiveSlug
-    val spinIconModifier = Modifier.rotate(
-        rememberIconSpinRotation(badge.spinIcon && entity != null && entity.state.lowercase() != "off")
-    )
+    val iconEffect = entity?.let { iconEffectFor(it, LocalIconAnimationsEnabled.current) } ?: IconEffect.NONE
 
     // Outer Box: badge content + edit-mode overlays
     Box {
@@ -724,10 +713,12 @@ private fun BadgeItem(
         ) {
             if (isCircle) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                    when {
-                        pictureUrl != null -> AsyncImage(model = pictureUrl, contentDescription = null, contentScale = ContentScale.Crop, modifier = spinIconModifier.size(24.dp).clip(CircleShape))
-                        iconSlug != null -> MdiIcon(iconSlug, tint = colors.icon, size = 18.dp, modifier = spinIconModifier)
-                        else -> Icon(fallbackIcon, null, tint = colors.icon, modifier = spinIconModifier.size(18.dp))
+                    WithIconEffect(entity, iconEffect, glowColor = colors.icon) { fx ->
+                        when {
+                            pictureUrl != null -> AsyncImage(model = pictureUrl, contentDescription = null, contentScale = ContentScale.Crop, modifier = fx.size(24.dp).clip(CircleShape))
+                            iconSlug != null -> MdiIcon(iconSlug, tint = colors.icon, size = 18.dp, modifier = fx)
+                            else -> Icon(fallbackIcon, null, tint = colors.icon, modifier = fx.size(18.dp))
+                        }
                     }
                 }
             } else {
@@ -736,10 +727,12 @@ private fun BadgeItem(
                     modifier = Modifier.padding(horizontal = 10.dp)
                 ) {
                     if (badge.showIcon) {
-                        when {
-                            pictureUrl != null -> AsyncImage(model = pictureUrl, contentDescription = null, contentScale = ContentScale.Crop, modifier = spinIconModifier.size(22.dp).clip(CircleShape))
-                            iconSlug != null -> MdiIcon(iconSlug, tint = colors.icon, size = 16.dp, modifier = spinIconModifier)
-                            else -> Icon(fallbackIcon, null, tint = colors.icon, modifier = spinIconModifier.size(16.dp))
+                        WithIconEffect(entity, iconEffect, glowColor = colors.icon) { fx ->
+                            when {
+                                pictureUrl != null -> AsyncImage(model = pictureUrl, contentDescription = null, contentScale = ContentScale.Crop, modifier = fx.size(22.dp).clip(CircleShape))
+                                iconSlug != null -> MdiIcon(iconSlug, tint = colors.icon, size = 16.dp, modifier = fx)
+                                else -> Icon(fallbackIcon, null, tint = colors.icon, modifier = fx.size(16.dp))
+                            }
                         }
                     }
                     val showTwoLine = badge.showName && badge.showState && entity != null && entity.friendlyName != null
@@ -1048,7 +1041,6 @@ fun BadgeSettingsDialog(
     var showState   by remember { mutableStateOf(badge.showState) }
     var showIcon    by remember { mutableStateOf(badge.showIcon) }
     var customIcon  by remember { mutableStateOf(badge.customIcon ?: "") }
-    var spinIcon    by remember { mutableStateOf(badge.spinIcon) }
     // Badge "auto" preserves its dialog-first default, mapped to more_info for the structured editor.
     var tapAction   by remember { mutableStateOf(badge.tapActionEx ?: HKIAction(type = if (badge.tapAction == "auto") "more_info" else badge.tapAction)) }
     var holdAction  by remember { mutableStateOf(badge.holdActionEx ?: HKIAction(type = if (badge.holdAction == "auto") "more_info" else badge.holdAction)) }
@@ -1233,14 +1225,6 @@ fun BadgeSettingsDialog(
                     )
                     TextButton(onClick = { showIconPickerBadge = true }) { Text("Change") }
                 }
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Column(Modifier.weight(1f)) {
-                        Text("Spin icon", style = MaterialTheme.typography.labelLarge)
-                        Text("Rotates continuously while the entity isn't off", style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
-                    }
-                    Switch(checked = spinIcon, onCheckedChange = { spinIcon = it })
-                }
-
                 // Side (only in split mode)
                 if (showSidePicker) {
                     HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
@@ -1279,7 +1263,6 @@ fun BadgeSettingsDialog(
                     showState  = showState,
                     showIcon   = showIcon,
                     customIcon = customIcon.ifBlank { null },
-                    spinIcon   = spinIcon,
                     tapActionEx = tapAction,
                     holdActionEx = holdAction,
                     customButtons = customButtons,

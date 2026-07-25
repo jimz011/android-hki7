@@ -151,20 +151,6 @@ fun mediaPlayerStateIcon(entity: HAEntity?): ImageVector? {
     }
 }
 
-/** Continuous 0-360 rotation while [spin] is true, otherwise a fixed 0. Shared by entity tiles and badges. */
-@Composable
-fun rememberIconSpinRotation(spin: Boolean): Float {
-    if (!spin) return 0f
-    val infiniteTransition = rememberInfiniteTransition(label = "iconSpin")
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(animation = tween(1800, easing = LinearEasing), repeatMode = RepeatMode.Restart),
-        label = "iconSpinRotation"
-    )
-    return rotation
-}
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EntityCard(
@@ -176,7 +162,6 @@ fun EntityCard(
     displayName: String? = null,
     label: String? = null,
     iconName: String? = null,
-    spinIcon: Boolean = false,
     isSquare: Boolean = false,
     cornerRadius: Int = LocalItemCornerRadius.current,
     interactionsEnabled: Boolean = true,
@@ -457,29 +442,31 @@ fun EntityCard(
                 lockDoorOpen = isLockDoorOpen,
             )
             val effectiveSlug = iconName?.takeUnless { it.isBlank() } ?: defaultSlug
-            val spinRotation = rememberIconSpinRotation(spinIcon && !isUnavailable && entity.state.lowercase() != "off")
-            val spinModifier = Modifier.rotate(spinRotation)
+            // Live motion while the device is active (glow/spin/pulse), gated on the user setting.
+            val iconEffect = iconEffectFor(entity, LocalIconAnimationsEnabled.current)
             // "Use entity picture": render the HA picture when available, else fall back to the icon.
             val pictureUrl = if (effectiveSlug == ENTITY_PICTURE_ICON && !currentUrl.isNullOrBlank())
                 resolveEntityPictureUrl(entity, currentUrl) else null
-            if (pictureUrl != null) {
-                AsyncImage(
-                    model = pictureUrl,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.size(32.dp).clip(CircleShape).then(spinModifier)
-                )
-            } else {
-                val slugForIcon = if (effectiveSlug == ENTITY_PICTURE_ICON) defaultSlug else effectiveSlug
-                if (slugForIcon != null) {
-                    MdiIcon(name = slugForIcon, tint = iconTint, modifier = spinModifier)
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.DeviceUnknown,
+            WithIconEffect(entity, iconEffect, glowColor = iconTint) { fx ->
+                if (pictureUrl != null) {
+                    AsyncImage(
+                        model = pictureUrl,
                         contentDescription = null,
-                        tint = iconTint,
-                        modifier = spinModifier
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.size(32.dp).clip(CircleShape).then(fx)
                     )
+                } else {
+                    val slugForIcon = if (effectiveSlug == ENTITY_PICTURE_ICON) defaultSlug else effectiveSlug
+                    if (slugForIcon != null) {
+                        MdiIcon(name = slugForIcon, tint = iconTint, modifier = fx)
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.DeviceUnknown,
+                            contentDescription = null,
+                            tint = iconTint,
+                            modifier = fx
+                        )
+                    }
                 }
             }
             Column {

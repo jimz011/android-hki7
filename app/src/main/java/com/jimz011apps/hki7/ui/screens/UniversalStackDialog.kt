@@ -157,7 +157,6 @@ fun UniversalStackDialog(
         titleOverride = headerConfig?.name,
         iconName = headerConfig?.icon?.takeUnless { it.isBlank() }
             ?: defaultEntityIconSlug(entity, lockDoorOpen = doorEntity?.state == "on"),
-        spinIcon = headerConfig?.spinIcon == true,
         statusText = statusText,
         extraGraphEntityIds = extraGraphEntityIds,
         tabs = if (domain == "climate") tabs.takeIf { it.size > 1 } ?: emptyList() else tabs,

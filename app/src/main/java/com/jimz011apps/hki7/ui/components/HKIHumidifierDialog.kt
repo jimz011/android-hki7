@@ -31,8 +31,7 @@ fun HKIHumidifierDialog(
     viewModel: MainViewModel,
     onDismiss: () -> Unit,
     titleOverride: String? = null,
-    iconName: String? = null,
-    spinIcon: Boolean = false
+    iconName: String? = null
 ) {
     val appColors = LocalHKIAppColors.current
     val isOn = entity.state == "on"
@@ -56,7 +55,6 @@ fun HKIHumidifierDialog(
         iconTint = if (isOn) HumidifierCyan else appColors.onMuted,
         titleOverride = titleOverride,
         iconName = iconName,
-        spinIcon = spinIcon,
         statusText = statusText,
         tabs = navigationTabs,
         currentTab = currentTab

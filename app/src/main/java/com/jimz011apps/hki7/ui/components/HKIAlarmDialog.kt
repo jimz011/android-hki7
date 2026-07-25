@@ -62,7 +62,6 @@ fun HKIAlarmDialog(
     onDismiss: () -> Unit,
     titleOverride: String? = null,
     iconName: String? = null,
-    spinIcon: Boolean = false,
     /** When more than one alarm is given, the dialog becomes a pager to swipe between them. */
     entities: List<HAEntity> = emptyList()
 ) {
@@ -82,7 +81,6 @@ fun HKIAlarmDialog(
         iconTint = accent,
         titleOverride = if (alarms.size > 1) null else titleOverride,
         iconName = resolvedIconName,
-        spinIcon = spinIcon,
         statusText = alarmStateLabel(current.state)
     ) {
         if (alarms.size == 1) {

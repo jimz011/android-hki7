@@ -365,7 +365,6 @@ fun VacuumStackDialog(
         iconTint = stateColor,
         titleOverride = config?.name,
         iconName = config?.icon,
-        spinIcon = config?.spinIcon == true,
         statusText = if (entities.size > 1) "${page + 1}/${entities.size} - ${statusText.uppercase()}" else statusText.uppercase(),
         tabs = tabs,
         currentTab = currentTab

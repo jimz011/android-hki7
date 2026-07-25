@@ -1217,6 +1217,21 @@ fun SettingsDialog(
                                         )
                                     }
                                 }
+                                val iconAnimationsEnabled by prefs.iconAnimationsEnabled.collectAsState(initial = true)
+                                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                    Column(Modifier.weight(1f)) {
+                                        Text("Animated icons", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
+                                        Text(
+                                            "Entity icons gently glow, spin, or pulse while the device is on (lights glow, fans and vacuums spin, playing media and active climate pulse, and so on). Only active devices animate.",
+                                            color = appColors.onMuted,
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                    Switch(
+                                        checked = iconAnimationsEnabled,
+                                        onCheckedChange = { scope.launch { prefs.saveIconAnimationsEnabled(it) } }
+                                    )
+                                }
                             }
                         }
                         SettingsSection.DASHBOARD -> {

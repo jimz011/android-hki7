@@ -91,6 +91,7 @@ private data class HKIUiBackup(
     val fontWeightAdjust: Int = 0,
     val fontFamily: String = "default",
     val defaultIconPack: String = "mdi",
+    val iconAnimationsEnabled: Boolean = true,
     val itemCornerRadius: Int = 20,
     val forceHighRefreshRate: Boolean = false,
     val weatherEntityId: String? = "weather.home",
@@ -159,6 +160,7 @@ class PreferencesManager(
     private val fontWeightAdjustKey = intPreferencesKey("font_weight_adjust")
     private val fontFamilyKey = stringPreferencesKey("font_family")
     private val iconPackKey = stringPreferencesKey("default_icon_pack")
+    private val iconAnimationsKey = booleanPreferencesKey("icon_animations_enabled")
     private val itemCornerRadiusKey = intPreferencesKey("item_corner_radius")
     private val mobileAppWebhookIdKey = stringPreferencesKey("mobile_app_webhook_id")
     private val mobileAppCloudhookUrlKey = stringPreferencesKey("mobile_app_cloudhook_url")
@@ -333,6 +335,8 @@ class PreferencesManager(
     val fontFamily: Flow<String> = context.dataStore.data.map { it[fontFamilyKey] ?: "default" }
     /** The icon pack pre-selected in the icon picker when adding a new icon (id: "mdi"/"si"). */
     val defaultIconPack: Flow<String> = context.dataStore.data.map { it[iconPackKey] ?: "mdi" }
+    /** Whether entity icons animate while the device is active (glow/spin/pulse). */
+    val iconAnimationsEnabled: Flow<Boolean> = context.dataStore.data.map { it[iconAnimationsKey] ?: true }
     val itemCornerRadius: Flow<Int> = context.dataStore.data.map { it[itemCornerRadiusKey] ?: 20 }
 
     // mobile_app integration registration (persistent device_tracker + sensors via webhook).
@@ -777,6 +781,7 @@ class PreferencesManager(
             fontWeightAdjust = p[fontWeightAdjustKey] ?: 0,
             fontFamily = p[fontFamilyKey] ?: "default",
             defaultIconPack = p[iconPackKey] ?: "mdi",
+            iconAnimationsEnabled = p[iconAnimationsKey] ?: true,
             itemCornerRadius = p[itemCornerRadiusKey] ?: 20,
             forceHighRefreshRate = p[forceHighRefreshRateKey] ?: false,
             weatherEntityId = p[weatherEntityIdKey],
@@ -822,6 +827,7 @@ class PreferencesManager(
             p[fontWeightAdjustKey] = backup.fontWeightAdjust
             p[fontFamilyKey] = backup.fontFamily
             p[iconPackKey] = backup.defaultIconPack
+            p[iconAnimationsKey] = backup.iconAnimationsEnabled
             p[itemCornerRadiusKey] = backup.itemCornerRadius
             p[forceHighRefreshRateKey] = backup.forceHighRefreshRate
             fun setOptional(key: Preferences.Key<String>, value: String?) {
@@ -1104,6 +1110,7 @@ class PreferencesManager(
     suspend fun saveFontWeightAdjust(adjust: Int) { context.dataStore.edit { it[fontWeightAdjustKey] = adjust } }
     suspend fun saveFontFamily(family: String) { context.dataStore.edit { it[fontFamilyKey] = family } }
     suspend fun saveDefaultIconPack(pack: String) { context.dataStore.edit { it[iconPackKey] = pack } }
+    suspend fun saveIconAnimationsEnabled(enabled: Boolean) { context.dataStore.edit { it[iconAnimationsKey] = enabled } }
     suspend fun saveItemCornerRadius(radius: Int) { context.dataStore.edit { it[itemCornerRadiusKey] = radius.coerceIn(0, 48) } }
 
     suspend fun saveInternalUrl(url: String?) {

@@ -2402,7 +2402,6 @@ fun RoomDetailScreen(
             onDismiss = { showLightDialog = false; selectedLightConfig = null },
             titleOverride = selectedLightConfig?.name,
             iconName = selectedLightConfig?.icon,
-            spinIcon = selectedLightConfig?.spinIcon == true,
             groupContent = if (childEntities.isNotEmpty()) {
                 { GroupMembersContent(entities = childEntities, viewModel = viewModel) }
             } else null
@@ -2416,7 +2415,6 @@ fun RoomDetailScreen(
             viewModel = viewModel,
             titleOverride = selectedFanConfig?.name,
             iconName = selectedFanConfig?.icon,
-            spinIcon = selectedFanConfig?.spinIcon == true,
             onDismiss = { showFanDialog = false; selectedFanConfig = null }
         )
     }
@@ -2428,7 +2426,6 @@ fun RoomDetailScreen(
             viewModel = viewModel,
             titleOverride = selectedHumidifierConfig?.name,
             iconName = selectedHumidifierConfig?.icon,
-            spinIcon = selectedHumidifierConfig?.spinIcon == true,
             onDismiss = { showHumidifierDialog = false; selectedHumidifierConfig = null }
         )
     }
@@ -2440,7 +2437,6 @@ fun RoomDetailScreen(
             viewModel = viewModel,
             titleOverride = selectedAlarmConfig?.name,
             iconName = selectedAlarmConfig?.icon,
-            spinIcon = selectedAlarmConfig?.spinIcon == true,
             onDismiss = { showAlarmDialog = false; selectedAlarmConfig = null }
         )
     }
@@ -2526,7 +2522,6 @@ fun RoomDetailScreen(
             viewModel = viewModel,
             titleOverride = selectedGenericConfig?.name,
             iconName = selectedGenericConfig?.icon,
-            spinIcon = selectedGenericConfig?.spinIcon == true,
             onDismiss = { showGenericDialog = false; selectedGenericConfig = null }
         )
     }
@@ -3127,7 +3122,6 @@ fun ButtonConfigDialog(
     var cameraUrl by remember(config) { mutableStateOf(config.cameraUrl ?: "") }
     var refreshInterval by remember(config) { mutableIntStateOf(config.cameraRefreshInterval) }
     var iconName by remember(config) { mutableStateOf(config.icon ?: "None") }
-    var spinIcon by remember(config) { mutableStateOf(config.spinIcon) }
     val isLightEntity = entity?.entity_id?.startsWith("light.") == true
     var showBrightnessSlider by remember(config) { mutableStateOf(config.showBrightnessSlider) }
     var tapAction by remember(config) { mutableStateOf(config.tapActionEx ?: HKIAction(type = config.tapAction)) }
@@ -3315,13 +3309,6 @@ fun ButtonConfigDialog(
                         )
                         TextButton(onClick = { showIconPickerBtn = true }) { Text("Change") }
                     }
-                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Column(Modifier.weight(1f)) {
-                            Text("Spin icon", style = MaterialTheme.typography.labelLarge)
-                            Text("Rotates continuously while the entity isn't off", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Switch(checked = spinIcon, onCheckedChange = { spinIcon = it })
-                    }
                     if (isLightEntity) {
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Column(Modifier.weight(1f)) {
@@ -3475,7 +3462,6 @@ fun ButtonConfigDialog(
                             name = name.ifBlank { null },
                             label = if (isVacuumItem) config.label else label.ifBlank { null },
                             icon = if (isCameraItem || isVacuumItem) config.icon else iconName.takeUnless { it == "None" },
-                            spinIcon = if (isCameraItem || isVacuumItem) config.spinIcon else spinIcon,
                             showBrightnessSlider = if (isLightEntity) showBrightnessSlider else false,
                             cameraUrl = if (isCameraItem && config.isCustomUrl) cameraUrl.ifBlank { null } else config.cameraUrl,
                             cameraRefreshInterval = if (isCameraItem) refreshInterval else config.cameraRefreshInterval,
@@ -3681,7 +3667,6 @@ fun PagedRoleDialog(
         },
         titleOverride = headerConfig?.name,
         iconName = headerConfig?.icon?.takeUnless { it.isBlank() } ?: defaultEntityIconSlug(entity),
-        spinIcon = headerConfig?.spinIcon == true,
         statusText = if (role == "climate") {
             val optimisticState = climateModeLabel(selectedClimateMode).uppercase()
             if (entities.size > 1) "${page + 1}/${entities.size} - $optimisticState" else optimisticState
@@ -4462,7 +4447,6 @@ fun ButtonStackItem(
                                 displayName = cfg?.name,
                                 label = cfg?.label,
                                 iconName = cfg?.icon,
-                                spinIcon = cfg?.spinIcon == true,
                                 onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
                                 onLongClick = { handleButtonInteraction(entity.entity_id, cfg, "hold") { onEntityLongClick(entity.entity_id) } },
                                 onDoubleClick = { handleButtonInteraction(entity.entity_id, cfg, "double") { onEntityDoubleClick(entity.entity_id) } },
@@ -4548,7 +4532,6 @@ fun ButtonStackItem(
                                         displayName = cfg?.name,
                                         label = cfg?.label,
                                         iconName = cfg?.icon,
-                                        spinIcon = cfg?.spinIcon == true,
                                         onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
                                         onLongClick = { handleButtonInteraction(entity.entity_id, cfg, "hold") { onEntityLongClick(entity.entity_id) } },
                                         onDoubleClick = { handleButtonInteraction(entity.entity_id, cfg, "double") { onEntityDoubleClick(entity.entity_id) } },
@@ -4589,7 +4572,6 @@ fun ButtonStackItem(
                                         displayName = buttonConfigs[entity.entity_id]?.name,
                                         label = buttonConfigs[entity.entity_id]?.label,
                                         iconName = buttonConfigs[entity.entity_id]?.icon,
-                                        spinIcon = buttonConfigs[entity.entity_id]?.spinIcon == true,
                                         onClick = { onEntityClick(entity.entity_id) },
                                         onLongClick = { onEntityLongClick(entity.entity_id) },
                                         onDoubleClick = { onEntityDoubleClick(entity.entity_id) },
@@ -4756,7 +4738,6 @@ fun SingleEntityWidgetItem(
                         displayName = widget.config.name,
                         label = widget.config.label,
                         iconName = widget.config.icon,
-                        spinIcon = widget.config.spinIcon,
                         onClick = { handleSingleButtonInteraction("tap") { onEntityClick(widget.entityId) } },
                         onLongClick = { handleSingleButtonInteraction("hold") { onEntityLongClick(widget.entityId) } },
                         onDoubleClick = { handleSingleButtonInteraction("double") { onEntityDoubleClick(widget.entityId) } },
@@ -5887,8 +5868,7 @@ fun AggregatedCoverDialog(
     entities: List<HAEntity>,
     viewModel: MainViewModel,
     onDismiss: () -> Unit,
-    iconName: String? = null,
-    spinIcon: Boolean = false
+    iconName: String? = null
 ) {
     if (entities.isEmpty()) { onDismiss(); return }
     var page by remember(entities.map { it.entity_id }) { mutableIntStateOf(0) }
@@ -5915,7 +5895,6 @@ fun AggregatedCoverDialog(
         icon = Icons.Default.Window,
         iconTint = accent,
         iconName = iconName?.takeUnless { it.isBlank() } ?: defaultEntityIconSlug(entity),
-        spinIcon = spinIcon,
         statusText = status,
         tabs = tabs,
         currentTab = selectedAction
@@ -6464,8 +6443,7 @@ fun GenericEntityDialog(
     viewModel: MainViewModel,
     onDismiss: () -> Unit,
     titleOverride: String? = null,
-    iconName: String? = null,
-    spinIcon: Boolean = false
+    iconName: String? = null
 ) {
     val domain = entity.entity_id.substringBefore(".")
     val unit = entity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull
@@ -6497,7 +6475,6 @@ fun GenericEntityDialog(
         iconTint = if (isSwitchLike) Color(0xFFBE73CC) else Color(0xFF4A90E2),
         titleOverride = titleOverride,
         iconName = iconName,
-        spinIcon = spinIcon,
         showHistoryButton = !isGraphLike && !isBinary && !isSelectLike,
         statusText = valueText.uppercase()
     ) {

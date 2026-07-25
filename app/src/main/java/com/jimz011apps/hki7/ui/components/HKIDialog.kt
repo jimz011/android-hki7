@@ -95,7 +95,6 @@ fun HKIDialog(
     iconTint: Color = Color(0xFFFFA500),
     titleOverride: String? = null,
     iconName: String? = null,
-    spinIcon: Boolean = false,
     headerImageUrl: String? = null,
     headerIconContent: (@Composable () -> Unit)? = null,
     statusText: String? = null,
@@ -254,10 +253,7 @@ fun HKIDialog(
                                         Box(contentAlignment = Alignment.Center) { headerIconContent() }
                                     }
                                 } else {
-                                    val spinRotation = rememberIconSpinRotation(spinIcon && entity.state.lowercase() != "off")
-                                    val iconModifier = Modifier
-                                        .size(24.dp)
-                                        .rotate(spinRotation)
+                                    val dialogEffect = iconEffectFor(entity, LocalIconAnimationsEnabled.current)
                                     // Drop the picture sentinel here (no picture available) so it falls back to the icon.
                                     val effectiveIconName = iconName?.takeUnless { it.isBlank() || it == ENTITY_PICTURE_ICON }
                                     Surface(
@@ -266,10 +262,13 @@ fun HKIDialog(
                                         color = iconTint.copy(alpha = 0.16f)
                                     ) {
                                         Box(contentAlignment = Alignment.Center) {
-                                            if (effectiveIconName != null) {
-                                                MdiIcon(effectiveIconName, contentDescription = null, tint = iconTint, size = 24.dp, modifier = iconModifier)
-                                            } else {
-                                                Icon(icon, contentDescription = null, tint = iconTint, modifier = iconModifier)
+                                            WithIconEffect(entity, dialogEffect, glowColor = iconTint) { fx ->
+                                                val iconModifier = Modifier.size(24.dp).then(fx)
+                                                if (effectiveIconName != null) {
+                                                    MdiIcon(effectiveIconName, contentDescription = null, tint = iconTint, size = 24.dp, modifier = iconModifier)
+                                                } else {
+                                                    Icon(icon, contentDescription = null, tint = iconTint, modifier = iconModifier)
+                                                }
                                             }
                                         }
                                     }
