@@ -90,6 +90,7 @@ private data class HKIUiBackup(
     val fontScale: Float = 1f,
     val fontWeightAdjust: Int = 0,
     val fontFamily: String = "default",
+    val defaultIconPack: String = "mdi",
     val itemCornerRadius: Int = 20,
     val forceHighRefreshRate: Boolean = false,
     val weatherEntityId: String? = "weather.home",
@@ -157,6 +158,7 @@ class PreferencesManager(
     private val fontScaleKey = floatPreferencesKey("font_scale")
     private val fontWeightAdjustKey = intPreferencesKey("font_weight_adjust")
     private val fontFamilyKey = stringPreferencesKey("font_family")
+    private val iconPackKey = stringPreferencesKey("default_icon_pack")
     private val itemCornerRadiusKey = intPreferencesKey("item_corner_radius")
     private val mobileAppWebhookIdKey = stringPreferencesKey("mobile_app_webhook_id")
     private val mobileAppCloudhookUrlKey = stringPreferencesKey("mobile_app_cloudhook_url")
@@ -184,6 +186,7 @@ class PreferencesManager(
     private val pendingAutoTakeoverKey = booleanPreferencesKey("pending_auto_takeover")
     private val quickStartGuidePendingKey = booleanPreferencesKey("quick_start_guide_pending")
     private val cloudBackupEnabledKey = booleanPreferencesKey("cloud_backup_enabled")
+    private val haBackupEnabledKey = booleanPreferencesKey("ha_backup_enabled")
     private val lastSeenVersionCodeKey = intPreferencesKey("last_seen_version_code")
     private val homeAssistantInstancesKey = stringPreferencesKey("home_assistant_instances_v1")
     private val activeHomeAssistantInstanceIdKey = stringPreferencesKey("active_home_assistant_instance_id")
@@ -228,6 +231,8 @@ class PreferencesManager(
     val pendingAutoTakeover: Flow<Boolean> = context.dataStore.data.map { it[pendingAutoTakeoverKey] ?: false }
     val quickStartGuidePending: Flow<Boolean> = context.dataStore.data.map { it[quickStartGuidePendingKey] ?: false }
     val cloudBackupEnabled: Flow<Boolean> = context.dataStore.data.map { it[cloudBackupEnabledKey] ?: false }
+    /** Daily backup to the user's own Home Assistant instance via the hki7 companion component. */
+    val haBackupEnabled: Flow<Boolean> = context.dataStore.data.map { it[haBackupEnabledKey] ?: false }
 
     /** Version code whose changelog the user has already seen; 0 until one has been acknowledged. */
     val lastSeenVersionCode: Flow<Int> = context.dataStore.data.map { it[lastSeenVersionCodeKey] ?: 0 }
@@ -238,6 +243,10 @@ class PreferencesManager(
 
     suspend fun saveCloudBackup(enabled: Boolean) {
         context.dataStore.edit { it[cloudBackupEnabledKey] = enabled }
+    }
+
+    suspend fun saveHaBackup(enabled: Boolean) {
+        context.dataStore.edit { it[haBackupEnabledKey] = enabled }
     }
 
     val savedAreas: Flow<List<HAArea>> = context.dataStore.data.map { preferences ->
@@ -302,6 +311,8 @@ class PreferencesManager(
     val fontScale: Flow<Float> = context.dataStore.data.map { it[fontScaleKey] ?: 1f }
     val fontWeightAdjust: Flow<Int> = context.dataStore.data.map { it[fontWeightAdjustKey] ?: 0 }
     val fontFamily: Flow<String> = context.dataStore.data.map { it[fontFamilyKey] ?: "default" }
+    /** The icon pack pre-selected in the icon picker when adding a new icon (id: "mdi"/"si"). */
+    val defaultIconPack: Flow<String> = context.dataStore.data.map { it[iconPackKey] ?: "mdi" }
     val itemCornerRadius: Flow<Int> = context.dataStore.data.map { it[itemCornerRadiusKey] ?: 20 }
 
     // mobile_app integration registration (persistent device_tracker + sensors via webhook).
@@ -745,6 +756,7 @@ class PreferencesManager(
             fontScale = p[fontScaleKey] ?: 1f,
             fontWeightAdjust = p[fontWeightAdjustKey] ?: 0,
             fontFamily = p[fontFamilyKey] ?: "default",
+            defaultIconPack = p[iconPackKey] ?: "mdi",
             itemCornerRadius = p[itemCornerRadiusKey] ?: 20,
             forceHighRefreshRate = p[forceHighRefreshRateKey] ?: false,
             weatherEntityId = p[weatherEntityIdKey],
@@ -789,6 +801,7 @@ class PreferencesManager(
             p[fontScaleKey] = backup.fontScale
             p[fontWeightAdjustKey] = backup.fontWeightAdjust
             p[fontFamilyKey] = backup.fontFamily
+            p[iconPackKey] = backup.defaultIconPack
             p[itemCornerRadiusKey] = backup.itemCornerRadius
             p[forceHighRefreshRateKey] = backup.forceHighRefreshRate
             fun setOptional(key: Preferences.Key<String>, value: String?) {
@@ -1036,6 +1049,7 @@ class PreferencesManager(
     suspend fun saveFontScale(scale: Float) { context.dataStore.edit { it[fontScaleKey] = scale } }
     suspend fun saveFontWeightAdjust(adjust: Int) { context.dataStore.edit { it[fontWeightAdjustKey] = adjust } }
     suspend fun saveFontFamily(family: String) { context.dataStore.edit { it[fontFamilyKey] = family } }
+    suspend fun saveDefaultIconPack(pack: String) { context.dataStore.edit { it[iconPackKey] = pack } }
     suspend fun saveItemCornerRadius(radius: Int) { context.dataStore.edit { it[itemCornerRadiusKey] = radius.coerceIn(0, 48) } }
 
     suspend fun saveInternalUrl(url: String?) {

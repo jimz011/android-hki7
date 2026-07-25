@@ -116,6 +116,7 @@ import com.jimz011apps.hki7.data.HomeAssistantInstance
 import com.jimz011apps.hki7.data.CloudBackupStorage
 import com.jimz011apps.hki7.data.CloudBackupFile
 import com.jimz011apps.hki7.data.CloudBackupWork
+import com.jimz011apps.hki7.data.HaBackupStorage
 import com.jimz011apps.hki7.data.driveAuthorizationRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.jimz011apps.hki7.data.HKICustomPage
@@ -141,6 +142,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import com.jimz011apps.hki7.ui.theme.AppFontFamilyOptions
 import com.jimz011apps.hki7.ui.theme.appFontFamily
+import com.jimz011apps.hki7.ui.utils.IconPack
 import com.jimz011apps.hki7.ui.utils.MdiIcon
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
@@ -236,6 +238,7 @@ fun SettingsDialog(
     val homeAssistantInstances by prefs.homeAssistantInstances.collectAsState(initial = emptyList())
     val activeHomeAssistantInstanceId by prefs.activeHomeAssistantInstanceId.collectAsState(initial = null)
     val cloudBackupEnabled by prefs.cloudBackupEnabled.collectAsState(initial = false)
+    val haBackupEnabled by prefs.haBackupEnabled.collectAsState(initial = false)
     val hasForegroundLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
         ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
     val hasBackgroundLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -261,6 +264,9 @@ fun SettingsDialog(
     var showRestoreSource by remember { mutableStateOf(false) }
     var showCloudRestore by remember { mutableStateOf(false) }
     var cloudRestoreFiles by remember { mutableStateOf(emptyList<CloudBackupFile>()) }
+    var showHaRestore by remember { mutableStateOf(false) }
+    var haRestoreFiles by remember { mutableStateOf(emptyList<com.jimz011apps.hki7.data.Hki7BackupMeta>()) }
+    var haBackupBusy by remember { mutableStateOf(false) }
     val avatarPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let {
             runCatching { context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
@@ -926,6 +932,52 @@ fun SettingsDialog(
                                     color = appColors.onMuted,
                                     style = MaterialTheme.typography.bodyMedium
                                 )
+
+                                // ── Default icon pack ────────────────────────────────
+                                val defaultIconPack by prefs.defaultIconPack.collectAsState(initial = "mdi")
+                                Text("Icon pack", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
+                                Text(
+                                    "The pack pre-selected when you add an icon. You can still switch packs per button while editing.",
+                                    color = appColors.onMuted,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                var packMenuOpen by remember { mutableStateOf(false) }
+                                val selectedPack = IconPack.fromId(defaultIconPack)
+                                Box {
+                                    Surface(
+                                        modifier = Modifier.fillMaxWidth().clickable { packMenuOpen = true },
+                                        shape = itemCornerShape(),
+                                        color = appColors.subtleSurface
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                selectedPack.displayName,
+                                                color = appColors.onSurface,
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                            Icon(Icons.Default.KeyboardArrowDown, null, tint = appColors.onMuted)
+                                        }
+                                    }
+                                    DropdownMenu(expanded = packMenuOpen, onDismissRequest = { packMenuOpen = false }) {
+                                        IconPack.entries.forEach { pack ->
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(
+                                                        pack.displayName,
+                                                        fontWeight = if (pack == selectedPack) FontWeight.Bold else null
+                                                    )
+                                                },
+                                                onClick = {
+                                                    packMenuOpen = false
+                                                    scope.launch { prefs.saveDefaultIconPack(pack.id) }
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                         SettingsSection.MEDIA_PLAYERS -> {
@@ -1273,7 +1325,51 @@ fun SettingsDialog(
                                         onCheckedChange = { enabled ->
                                             if (enabled) requestDriveAuthorization() else scope.launch {
                                                 prefs.saveCloudBackup(false)
-                                                CloudBackupWork.cancel(context)
+                                                if (!haBackupEnabled) CloudBackupWork.cancel(context)
+                                            }
+                                        }
+                                    )
+                                }
+                                Spacer(Modifier.height(6.dp))
+                                Text("Back up to Home Assistant", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
+                                Text(
+                                    "Stores backups on your own Home Assistant instance using the HKI 7 Cloud component — an addition to Google Drive, not a replacement. Requires the HKI 7 Cloud custom component (install it via HACS).",
+                                    color = appColors.onMuted,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                    Column(Modifier.weight(1f)) {
+                                        Text("Enable Home Assistant backup", color = appColors.onSurface)
+                                        Text(
+                                            when {
+                                                haBackupBusy -> "Checking for the HKI 7 Cloud component…"
+                                                haBackupEnabled -> "Daily backup is active"
+                                                else -> "Home Assistant backup is off"
+                                            },
+                                            color = appColors.onMuted,
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                    Switch(
+                                        checked = haBackupEnabled,
+                                        enabled = !haBackupBusy,
+                                        onCheckedChange = { enabled ->
+                                            if (enabled) {
+                                                haBackupBusy = true
+                                                scope.launch {
+                                                    val available = runCatching { HaBackupStorage.isAvailable(context) }.getOrDefault(false)
+                                                    if (available) {
+                                                        prefs.saveHaBackup(true)
+                                                        CloudBackupWork.schedule(context)
+                                                        setupChangedMessage = "Home Assistant backup enabled."
+                                                    } else {
+                                                        setupChangedMessage = "HKI 7 Cloud component not found on your Home Assistant. Install it via HACS, then try again."
+                                                    }
+                                                    haBackupBusy = false
+                                                }
+                                            } else scope.launch {
+                                                prefs.saveHaBackup(false)
+                                                if (!cloudBackupEnabled) CloudBackupWork.cancel(context)
                                             }
                                         }
                                     )
@@ -1490,27 +1586,78 @@ fun SettingsDialog(
         AlertDialog(
             onDismissRequest = { showRestoreSource = false },
             title = { Text("Restore backup") },
-            text = { Text("Choose where to restore the dashboard configuration from.") },
-            confirmButton = {
-                Button(onClick = {
-                    showRestoreSource = false
-                    restoreLauncher.launch(arrayOf("application/json", "text/plain"))
-                }) { Text("Local") }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    showRestoreSource = false
-                    scope.launch {
-                        runCatching { CloudBackupStorage.backups(context) }
-                            .onSuccess { backups ->
-                                cloudRestoreFiles = backups
-                                if (backups.isEmpty()) setupChangedMessage = "No cloud backups were found."
-                                else showCloudRestore = true
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("Choose where to restore the dashboard configuration from.")
+                    TextButton(
+                        onClick = {
+                            showRestoreSource = false
+                            restoreLauncher.launch(arrayOf("application/json", "text/plain"))
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Local file") }
+                    TextButton(
+                        onClick = {
+                            showRestoreSource = false
+                            scope.launch {
+                                runCatching { CloudBackupStorage.backups(context) }
+                                    .onSuccess { backups ->
+                                        cloudRestoreFiles = backups
+                                        if (backups.isEmpty()) setupChangedMessage = "No Google Drive backups were found."
+                                        else showCloudRestore = true
+                                    }
+                                    .onFailure { setupChangedMessage = "Could not load Google Drive backups: ${it.message}" }
                             }
-                            .onFailure { setupChangedMessage = "Could not load cloud backups: ${it.message}" }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Google Drive") }
+                    TextButton(
+                        onClick = {
+                            showRestoreSource = false
+                            scope.launch {
+                                runCatching { HaBackupStorage.list(context) }
+                                    .onSuccess { backups ->
+                                        haRestoreFiles = backups
+                                        if (backups.isEmpty()) setupChangedMessage = "No Home Assistant backups were found (is the HKI 7 Cloud component installed?)."
+                                        else showHaRestore = true
+                                    }
+                                    .onFailure { setupChangedMessage = "Could not load Home Assistant backups: ${it.message}" }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Home Assistant") }
+                }
+            },
+            confirmButton = { TextButton(onClick = { showRestoreSource = false }) { Text("Cancel") } }
+        )
+    }
+
+    if (showHaRestore) {
+        AlertDialog(
+            onDismissRequest = { showHaRestore = false },
+            title = { Text("Restore from Home Assistant") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    haRestoreFiles.forEach { meta ->
+                        val label = meta.created.take(19).replace('T', ' ').ifBlank { meta.id }
+                        TextButton(
+                            onClick = {
+                                showHaRestore = false
+                                scope.launch {
+                                    runCatching {
+                                        val raw = HaBackupStorage.read(context, meta.id)
+                                            ?: error("Backup could not be read")
+                                        prefs.restoreUiBackup(raw)
+                                    }.onSuccess { setupChangedMessage = "Dashboard configuration restored." }
+                                        .onFailure { setupChangedMessage = "Restore failed: ${it.message}" }
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text(if (meta.label.isNotBlank()) "${meta.label} · $label" else label) }
                     }
-                }) { Text("Cloud") }
-            }
+                }
+            },
+            confirmButton = { TextButton(onClick = { showHaRestore = false }) { Text("Cancel") } }
         )
     }
 

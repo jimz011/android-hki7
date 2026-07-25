@@ -110,3 +110,16 @@ val LEGACY_ICON_MAP: Map<String, String> = mapOf(
     "wb-sunny" to "weather-sunny",
     "window" to "window-closed-variant",
 )
+
+/**
+ * Simple Icons brand slugs surfaced first in the picker when the Simple Icons pack is
+ * selected and the search box is empty. All entries are verified to exist in
+ * `assets/simple_codepoints.txt`; addressed with the `si:` prefix when stored.
+ */
+val SI_COMMON: List<String> = listOf(
+    "homeassistant", "googlehome", "googleassistant", "apple", "google", "googlechrome",
+    "android", "spotify", "youtube", "youtubemusic", "netflix", "plex", "sonos",
+    "philipshue", "ikea", "xiaomi", "samsung", "zigbee", "mqtt", "nodered", "esphome",
+    "tasmota", "shelly", "raspberrypi", "arduino", "googlecalendar", "discord", "telegram",
+    "whatsapp", "signal", "github",
+)

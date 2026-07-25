@@ -43,6 +43,9 @@ import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
  * future release needs.
  */
 private val changelog: Map<String, List<String>> = mapOf(
+    "1.0.0-beta.3" to listOf(
+        "Added a second icon pack: Simple Icons (brand & service logos like Home Assistant, Spotify, Philips Hue, and more). Pick your default pack under Settings › Appearance › Icon pack, or switch packs per button while choosing an icon.",
+    ),
     "1.0.0-beta.2" to listOf(
         "Fixed an issue with smaller displays when either the height was too small or the width too narrow (or both), the content would look bad. It now falls back to a single column design on smaller screens. This has been changed across all elements.",
         "Dialog headers now show 2 rows on narrower screens so that the title no longer cuts off.",

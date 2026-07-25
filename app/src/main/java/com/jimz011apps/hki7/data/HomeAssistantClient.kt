@@ -295,6 +295,57 @@ open class HomeAssistantClient(
         return response
     }
 
+    // ── HKI 7 Cloud companion component (hki7/*) ────────────────────────────
+    // These talk to the optional `hki7` custom component. When it isn't installed
+    // the websocket command is unknown and HA replies success=false, which we map
+    // to null/empty so callers can degrade gracefully rather than throw.
+
+    /** Current HA user's identity, or null if the companion component isn't installed. */
+    open suspend fun hki7WhoAmI(): Hki7Identity? = withWebSocket {
+        val response = sendCommand("hki7/whoami")
+        if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket null
+        val result = response["result"]?.jsonObject ?: return@withWebSocket null
+        Hki7Identity(
+            userId = result["user_id"]?.jsonPrimitive?.contentOrNull ?: return@withWebSocket null,
+            name = result["name"]?.jsonPrimitive?.contentOrNull ?: "",
+            isAdmin = result["is_admin"]?.jsonPrimitive?.booleanOrNull ?: false,
+            isOwner = result["is_owner"]?.jsonPrimitive?.booleanOrNull ?: false,
+        )
+    }
+
+    /** Stores a UI backup blob on the HA instance. [payload] is a parsed `exportUiBackup()` object. */
+    open suspend fun hki7PutBackup(payload: JsonObject, label: String? = null): Boolean = withWebSocket {
+        val data = buildMap<String, JsonElement> {
+            put("payload", payload)
+            if (!label.isNullOrBlank()) put("label", JsonPrimitive(label))
+        }
+        val response = sendCommand("hki7/backup/put", data)
+        response["success"]?.jsonPrimitive?.booleanOrNull == true
+    }
+
+    /** Metadata for the current user's HA-local backups, newest first (empty if unavailable). */
+    open suspend fun hki7ListBackups(): List<Hki7BackupMeta> = withWebSocket {
+        val response = sendCommand("hki7/backup/list")
+        if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket emptyList()
+        val arr = response["result"]?.jsonObject?.get("backups")?.jsonArray ?: return@withWebSocket emptyList()
+        arr.mapNotNull { element ->
+            val o = element.jsonObject
+            Hki7BackupMeta(
+                id = o["id"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null,
+                created = o["created"]?.jsonPrimitive?.contentOrNull ?: "",
+                label = o["label"]?.jsonPrimitive?.contentOrNull ?: "",
+                size = o["size"]?.jsonPrimitive?.intOrNull ?: 0,
+            )
+        }
+    }
+
+    /** The raw JSON payload of one HA-local backup (ready for `restoreUiBackup`), or null. */
+    open suspend fun hki7GetBackup(backupId: String): String? = withWebSocket {
+        val response = sendCommand("hki7/backup/get", mapOf("backup_id" to JsonPrimitive(backupId)))
+        if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket null
+        response["result"]?.jsonObject?.get("payload")?.jsonObject?.toString()
+    }
+
     open suspend fun getAreas(): List<HAArea> {
         return withWebSocket {
             val response = requireCommandSuccess(sendCommand("config/area_registry/list"), "config/area_registry/list")

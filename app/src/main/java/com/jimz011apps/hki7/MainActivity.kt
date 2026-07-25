@@ -97,6 +97,8 @@ import com.jimz011apps.hki7.ui.components.LocalMediaPlayerBarInset
 import com.jimz011apps.hki7.ui.components.LocalItemCornerRadius
 import com.jimz011apps.hki7.ui.components.LocalOpenNotifications
 import com.jimz011apps.hki7.ui.components.itemCornerShape
+import com.jimz011apps.hki7.ui.utils.IconPack
+import com.jimz011apps.hki7.ui.utils.IconPreferences
 import com.jimz011apps.hki7.ui.utils.MdiIcon
 import com.jimz011apps.hki7.ui.components.NotificationPanel
 import com.jimz011apps.hki7.ui.components.NotificationBannerHost
@@ -144,6 +146,10 @@ class MainActivity : ComponentActivity() {
             val fontScale by prefs.fontScale.collectAsState(initial = 1f)
             val fontWeightAdjust by prefs.fontWeightAdjust.collectAsState(initial = 0)
             val fontFamily by prefs.fontFamily.collectAsState(initial = "default")
+            val defaultIconPack by prefs.defaultIconPack.collectAsState(initial = "mdi")
+            LaunchedEffect(defaultIconPack) {
+                IconPreferences.defaultPack = IconPack.fromId(defaultIconPack)
+            }
             val itemCornerRadius by prefs.itemCornerRadius.collectAsState(initial = 20)
             HKI7Theme(
                 themeColor = themeColor,

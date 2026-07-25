@@ -1,0 +1,925 @@
+1and1	1&1
+1dot1dot1dot1	1.1.1.1
+30secondsofcode	30 seconds of code
+365datascience	365 Data Science
+abdownloadmanager	AB Download Manager ABDM
+aboutdotme	about.me
+abusedotch	abuse.ch
+activeloop	Activeloop Deep Lake
+actualbudget	Actual Budget
+adblockplus	Adblock Plus
+addydotio	addy.io
+adventofcode	Advent Of Code
+aegisauthenticator	Aegis Authenticator
+aeromexico	Aeroméxico
+aframe	A-Frame
+agentskills	Agent Skills
+aib	AIB Allied Irish Banks
+aidungeon	AI Dungeon
+aircanada	Air Canada
+airchina	Air China
+airfrance	Air France
+airindia	Air India
+airplayaudio	AirPlay Audio
+airplayvideo	AirPlay Video
+airserbia	Air Serbia
+airtransat	Air Transat
+akasaair	Akasa Air
+albertheijn	Albert Heijn
+aldinord	Aldi Nord
+aldisud	Aldi Süd
+alibabacloud	Alibaba Cloud
+alibabadotcom	Alibaba.com
+alpinedotjs	Alpine.js
+alpinelinux	Alpine Linux
+ameba	Ameba Ameba Blog Ameblo
+americanairlines	American Airlines
+americanexpress	American Express
+androidauto	Android Auto
+androidstudio	Android Studio
+animalplanet	Animal Planet
+animedotjs	Anime.js
+antdesign	Ant Design
+antena3	Antena 3
+apacheairflow	Apache Airflow
+apacheant	Apache Ant
+apachearrow	Apache Arrow
+apacheavro	Apache Avro
+apachecassandra	Apache Cassandra
+apachecloudstack	Apache CloudStack
+apachecordova	Apache Cordova
+apachecouchdb	Apache CouchDB
+apachedolphinscheduler	Apache DolphinScheduler
+apachedoris	Apache Doris
+apachedruid	Apache Druid
+apacheecharts	Apache ECharts
+apacheflink	Apache Flink
+apachefreemarker	Apache FreeMarker
+apachegroovy	Apache Groovy
+apacheguacamole	Apache Guacamole
+apachehadoop	Apache Hadoop
+apachehbase	Apache HBase
+apachehive	Apache Hive
+apachejmeter	Apache JMeter
+apachekafka	Apache Kafka
+apachekylin	Apache Kylin
+apachelucene	Apache Lucene
+apachemaven	Apache Maven
+apachenetbeanside	Apache NetBeans IDE
+apachenifi	Apache NiFi
+apacheopenoffice	Apache OpenOffice
+apacheparquet	Apache Parquet
+apachepdfbox	Apache PDFBox
+apachepulsar	Apache Pulsar
+apacherocketmq	Apache RocketMQ
+apachesolr	Apache Solr
+apachespark	Apache Spark
+apachestorm	Apache Storm
+apachesuperset	Apache Superset
+apachetomcat	Apache Tomcat
+apmterminals	APM Terminals
+apollographql	Apollo GraphQL
+appgallery	AppGallery HUAWEI AppGallery
+applearcade	Apple Arcade
+applemusic	Apple Music
+applenews	Apple News
+applepay	Apple Pay
+applepodcasts	Apple Podcasts
+appletv	Apple TV
+appstore	App Store
+archiveofourown	Archive of Our Own
+archlinux	Arch Linux
+arkecosystem	ARK Ecosystem
+armkeil	Arm Keil
+arstechnica	Ars Technica
+artifacthub	Artifact Hub
+artixlinux	Artix Linux
+asahilinux	Asahi Linux
+astonmartin	Aston Martin
+atandt	AT&T
+audiotechnica	Audio-Technica
+autodeskmaya	Autodesk Maya
+autodeskrevit	Autodesk Revit
+awesomelists	Awesome Lists
+axisbank	Axis Bank
+babylondotjs	Babylon.js
+backbonedotjs	Backbone.js
+bakalari	Bakaláři
+bambulab	Bambu Lab
+bandrautomation	B&R Automation
+bankofamerica	Bank of America
+baseui	Base UI
+basicattentiontoken	Basic Attention Token BAT
+bastyon	Bastyon pocketnet
+battledotnet	Battle.net
+beatsbydre	Beats by Dre
+beekeeperstudio	Beekeeper Studio
+beijingsubway	Beijing Subway
+betterauth	Better Auth
+betterstack	Better Stack
+bigcartel	Big Cartel
+biolink	Bio Link
+biome	Biome Rome
+bitcoincash	Bitcoin Cash
+bitcoinsv	Bitcoin SV
+blackmagicdesign	Blackmagic Design
+blockchaindotcom	Blockchain.com
+bluesky	Bluesky bsky
+bmcsoftware	BMC Software
+bnbchain	BNB Chain
+boehringeringelheim	Boehringer Ingelheim
+bohemiainteractive	Bohemia Interactive
+bookingdotcom	Booking.com
+botblecms	Botble CMS
+boxysvg	Boxy SVG
+britishairways	British Airways
+bunnydotnet	bunny.net
+burgerking	Burger King
+burpsuite	Burp Suite
+buymeacoffee	Buy Me A Coffee
+bvg	BVG Berliner Verkehrsbetriebe
+byjus	Byju's
+cairographics	Cairo Graphics
+cairometro	Cairo Metro
+caldotcom	Cal.com
+calibreweb	Calibre-Web
+campaignmonitor	Campaign Monitor
+carlsberggroup	Carlsberg Group
+carthrottle	Car Throttle
+cashapp	Cash App
+cbc	CBC Canadian Broadcasting Company Radio Canada
+ccc	CCC China Compulsory Certificate
+cdprojekt	CD Projekt
+chakraui	Chakra UI
+changedetection	Change Detection
+channel4	Channel 4
+chartdotjs	Chart.js
+chessdotcom	Chess.com
+chianetwork	Chia Network
+chinaeasternairlines	China Eastern Airlines
+chinarailway	China Railway
+chinasouthernairlines	China Southern Airlines
+chromewebstore	Chrome Web Store
+chupachups	Chupa Chups
+cinema4d	Cinema 4D
+cirrusci	Cirrus CI
+citroen	Citroën
+claudecode	Claude Code
+clevercloud	Clever Cloud
+cloud66	Cloud 66
+cloudflarepages	Cloudflare Pages
+cloudflareworkers	Cloudflare Workers
+cloudfoundry	Cloud Foundry
+cloudnativebuild	Cloud Native Build
+cocacola	Coca-Cola
+cockroachlabs	Cockroach Labs
+codeblocks	Code::Blocks
+codeclimate	Code Climate
+codingninjas	Coding Ninjas
+collaboraonline	Collabora Online Collabora Office Collabora Productivity
+commonlisp	Common Lisp
+commonworkflowlanguage	Common Workflow Language
+compilerexplorer	Compiler Explorer
+condaforge	Conda-Forge
+construct3	Construct 3
+contactlesspayment	Contactless Payment
+contributorcovenant	Contributor Covenant
+conventionalcommits	Conventional Commits
+coolermaster	Cooler Master
+coop	Co-op
+copaairlines	Copa Airlines
+coronaengine	Corona Engine
+coronarenderer	Corona Renderer
+counterstrike	Counter-Strike
+countingworkspro	CountingWorks PRO
+cplusplus	C++
+cplusplusbuilder	C++ Builder
+craftcms	Craft CMS
+createreactapp	Create React App
+creativecommons	Creative Commons
+creativetechnology	Creative Technology
+crewunited	Crew United
+criticalrole	Critical Role
+cssdesignawards	CSS Design Awards
+cssmodules	CSS Modules
+csswizardry	CSS Wizardry
+cts	CTS Compagnie des Transports Strasbourgeois
+customink	Custom Ink
+cycling74	Cycling '74
+cytoscapedotjs	Cytoscape.js
+d3	D3 D3.js
+dailydotdev	daily.dev
+darkreader	Dark Reader
+daserste	Das Erste
+dassaultsystemes	Dassault Systèmes SolidWorks
+datadotai	data.ai
+datefns	date-fns
+davinciresolve	DaVinci Resolve
+dazhongdianping	Dazhong Dianping
+dcentertainment	DC Entertainment
+debridlink	Debrid-Link
+decapcms	Decap CMS
+dedge	D-EDGE
+deepmind	DeepMind Google DeepMind
+delonghi	De'Longhi
+denodeploy	Deno Deploy
+dependencycheck	OWASP Dependency-Check
+derspiegel	Der Spiegel
+deutschebahn	Deutsche Bahn
+deutschebank	Deutsche Bank
+deutschepost	Deutsche Post
+deutschetelekom	Deutsche Telekom T-Mobile
+deutschewelle	Deutsche Welle
+devdotto	dev.to
+developmentcontainers	Development Containers devcontainers
+diagramsdotnet	diagrams.net draw.io
+dictionarydotcom	Dictionary.com
+digikeyelectronics	Digi-Key Electronics
+dinersclub	Diners Club
+discorddotjs	discord.js
+dm	dm dm-drogerie markt
+docsdotrs	Docs.rs
+dodopayments	Dodo Payments
+dota2	Dota 2
+dotenv	.ENV Dotenv
+dotnet	.NET
+doubanread	Douban Read
+draugiemdotlv	Draugiem.lv
+dsautomobiles	DS Automobiles
+dungeonsanddragons	Dungeons & Dragons D&D
+dvc	DVC Data Version Control
+dwavesystems	D-Wave Systems
+e	/e/
+e3	E3 Electronic Entertainment Expo
+eac	EAC Eurasian Conformity
+eclipseadoptium	Eclipse Adoptium
+eclipseche	Eclipse Che
+eclipseide	Eclipse IDE
+eclipsejetty	Eclipse Jetty
+eclipsemosquitto	Eclipse Mosquitto
+eclipsevertdotx	Eclipse Vert.x
+edgeimpulse	Edge Impulse
+edotleclerc	E.Leclerc
+eightsleep	Eight Sleep
+elasticcloud	Elastic Cloud
+elasticstack	Elastic Stack
+electronbuilder	electron-builder
+electronfiddle	Electron Fiddle
+eleventy	Eleventy 11ty
+emberdotjs	Ember.js
+envoyproxy	Envoy Proxy
+epicgames	Epic Games
+equinixmetal	Equinix Metal
+esotericsoftware	Esoteric Software
+ethiopianairlines	Ethiopian Airlines
+etihadairways	Etihad Airways
+europeanunion	European Union EU
+eventstore	Event Store
+everydotorg	Every.org
+expertsexchange	Experts Exchange
+express	Express Express.js
+expressdotcom	Express.com
+facebookgaming	Facebook Gaming
+facebooklive	Facebook Live
+fcc	FCC Federal Communications Commission
+fdroid	F-Droid
+ferrarinv	Ferrari N.V.
+fi	Fi epiFi Fi.Money
+fidoalliance	Fido Alliance
+filedotio	File.io
+fireflyiii	Firefly III
+firefoxbrowser	Firefox Browser
+fishaudio	Fish Audio
+fishshell	fish shell
+fluentbit	Fluent Bit
+flydotio	Fly.io
+fontawesome	Font Awesome
+fossilscm	Fossil SCM
+foundryvirtualtabletop	Foundry Virtual Tabletop
+fraunhofergesellschaft	Fraunhofer-Gesellschaft
+freedesktopdotorg	freedesktop.org
+fritz	FRITZ!
+frontendmentor	Frontend Mentor
+fsharp	F# F sharp
+fugacloud	Fuga Cloud
+furaffinity	Fur Affinity
+furrynetwork	Furry Network
+gamedeveloper	Game Developer Gamasutra
+gamejolt	Game Jolt
+gamescience	Game Science
+garudalinux	Garuda Linux
+generalelectric	General Electric
+generalmotors	General Motors
+gimp	GIMP GNU Image Manipulation Program
+gitextensions	Git Extensions
+gitforwindows	Git for Windows
+githubactions	GitHub Actions
+githubcopilot	GitHub Copilot
+githubpages	GitHub Pages
+githubsponsors	GitHub Sponsors
+gitignoredotio	gitignore.io
+gitlfs	Git LFS
+gldotinet	GL.iNet
+gnometerminal	GNOME Terminal
+gnubash	GNU Bash
+gnuemacs	GNU Emacs
+gnuicecat	GNU IceCat
+gnuprivacyguard	GNU Privacy Guard
+gnusocial	GNU social
+godotengine	Godot Engine
+gogdotcom	GOG.com
+goldmansachs	Goldman Sachs
+googleadmob	Google AdMob
+googleads	Google Ads
+googleadsense	Google AdSense
+googleanalytics	Google Analytics
+googleappsscript	Google Apps Script
+googleassistant	Google Assistant
+googleauthenticator	Google Authenticator
+googlebigquery	Google BigQuery
+googlebigtable	Google Bigtable
+googlecalendar	Google Calendar
+googlecampaignmanager360	Google Campaign Manager 360
+googlecardboard	Google Cardboard
+googlecast	Google Cast Chromecast
+googlechat	Google Chat
+googlechrome	Google Chrome
+googlechronicle	Google Chronicle
+googleclassroom	Google Classroom
+googlecloud	Google Cloud
+googlecloudcomposer	Google Cloud Composer
+googlecloudspanner	Google Cloud Spanner
+googlecloudstorage	Google Cloud Storage
+googlecolab	Google Colab
+googlecontaineroptimizedos	Google Container Optimized OS
+googledataflow	Google Dataflow
+googledataproc	Google Dataproc
+googledisplayandvideo360	Google Display & Video 360
+googledocs	Google Docs
+googledrive	Google Drive
+googleearth	Google Earth
+googleearthengine	Google Earth Engine
+googlefonts	Google Fonts
+googleforms	Google Forms
+googlegemini	Google Gemini Google Bard
+googlehome	Google Home
+googlejules	Google Jules
+googlekeep	Google Keep
+googlelens	Google Lens
+googlemaps	Google Maps
+googlemarketingplatform	Google Marketing Platform
+googlemeet	Google Meet
+googlemessages	Google Messages
+googlenearby	Google Nearby
+googlenews	Google News
+googlepay	Google Pay
+googlephotos	Google Photos
+googleplay	Google Play
+googlepubsub	Google Pub/Sub
+googlescholar	Google Scholar
+googlesearchconsole	Google Search Console
+googlesheets	Google Sheets
+googleslides	Google Slides
+googlestreetview	Google Street View
+googlesummerofcode	Google Summer of Code GSoC
+googletagmanager	Google Tag Manager
+googletasks	Google Tasks
+googletranslate	Google Translate
+googletv	Google TV
+gotomeeting	GoToMeeting GoToWebinar
+gradleplaypublisher	Gradle Play Publisher gpp Triple-T
+grandfrais	Grand Frais
+greasyfork	Greasy Fork
+greatlearning	Great Learning
+griddotai	Grid.ai
+gsap	GSAP GreenSock Animation Platform
+gsk	GSK GlaxoSmithKline
+gsmarenadotcom	GSMArena.com
+guangzhoumetro	Guangzhou Metro
+guitarpro	Guitar Pro
+h2database	H2 Database
+hackclub	Hack Club
+hackernoon	Hacker Noon
+hackthebox	Hack The Box
+handlebarsdotjs	Handlebars.js
+handm	H&M
+harmonyos	HarmonyOS HMOS
+hatenabookmark	Hatena Bookmark
+haveibeenpwned	Have I Been Pwned HIBP
+hbomax	HBO Max
+hdfcbank	HDFC Bank HDB
+headlessui	Headless UI
+headphonezone	Headphone Zone
+hearthisdotat	hearthis.at
+heliumbrowser	Helium Browser
+hellyhansen	Helly Hansen
+helpscout	Help Scout
+heroicgameslauncher	Heroic Games Launcher
+heroui	HeroUI NextUI
+hibob	Hi Bob Bob
+hiltonhotelsandresorts	Hilton Hotels & Resorts
+homeassistant	Home Assistant
+homeassistantcommunitystore	Home Assistant Community Store
+hotelsdotcom	Hotels.com
+htcvive	HTC Vive
+htmlacademy	HTML Academy
+huggingface	Hugging Face
+humblebundle	Humble Bundle
+hungryjacks	Hungry Jack's
+icicibank	ICICI Bank
+iledefrancemobilites	Île-de-France Mobilités
+ilovepdf	iLovePDF iLoveAPI iLoveIMG
+imagedotsc	Image.sc
+imagetoolbox	Image Toolbox
+immersivetranslate	Immersive Translate
+indiansuperleague	Indian Super League
+indiehackers	Indie Hackers
+inductiveautomation	Inductive Automation
+intellijidea	IntelliJ IDEA
+interactiondesignfoundation	Interaction Design Foundation
+internetarchive	Internet Archive
+internetcomputer	Internet Computer Internet Computer Protocol
+invoiceninja	Invoice Ninja
+isc2	ISC2 (ISC)²
+isro	ISRO Indian Space Research Organization
+itchdotio	Itch.io
+japanairlines	Japan Airlines
+jetpackcompose	Jetpack Compose
+jfrogpipelines	JFrog Pipelines
+jirasoftware	Jira Software
+johndeere	John Deere
+jrgroup	JR Group
+jsonwebtokens	JSON Web Tokens
+junipernetworks	Juniper Networks
+justeat	Just Eat Just Eat Takeaway.com
+k6	k6 Grafana k6
+kahoot	Kahoot!
+kalilinux	Kali Linux
+karlsruherverkehrsverbund	Karlsruher Verkehrsverbund
+kasasmart	Kasa Smart
+kde	KDE K Desktop Environment
+kdeneon	KDE neon
+kdeplasma	KDE Plasma
+keepachangelog	Keep a Changelog
+kfc	KFC Kentucky Fried Chicken
+khanacademy	Khan Academy
+khronosgroup	Khronos Group
+kingstontechnology	Kingston Technology Kingston
+kleinanzeigen	Kleinanzeigen eBay Kleinanzeigen
+knexdotjs	Knex.js
+kofi	Ko-fi
+langchaincorporate	LangChain Corporate
+laravelhorizon	Laravel Horizon
+laravelnova	Laravel Nova
+lastdotfm	Last.fm
+leaderprice	Leader Price
+leagueoflegends	League of Legends
+legacygames	Legacy Games
+lemonsqueezy	Lemon Squeezy
+lequipe	L'Équipe
+leroymerlin	Leroy Merlin
+leslibraires	Les libraires
+letsencrypt	Let's Encrypt
+levelsdotfyi	levels.fyi
+liberadotchat	Libera.Chat
+librariesdotio	Libraries.io
+libreofficebase	LibreOffice Base
+libreofficecalc	LibreOffice Calc
+libreofficedraw	LibreOffice Draw
+libreofficeimpress	LibreOffice Impress
+libreofficemath	LibreOffice Math
+libreofficewriter	LibreOffice Writer
+lining	Li-Ning
+linuxcontainers	Linux Containers
+linuxfoundation	Linux Foundation
+linuxmint	Linux Mint
+linuxprofessionalinstitute	Linux Professional Institute
+lionair	Lion Air
+lmstudio	LM Studio
+lootcrate	Loot Crate
+lotpolishairlines	LOT Polish Airlines
+luanti	Luanti Minetest
+lvgl	LVGL Light and Versatile Graphics Library
+macys	Macy's
+magasinsu	Magasins U
+maildotcom	mail.com
+maildotru	Mail.Ru
+majorleaguehacking	Major League Hacking
+mambaui	Mamba UI
+mangaupdates	MangaUpdates Baka-Updates Manga
+mariadbfoundation	MariaDB Foundation
+materialdesign	Material Design
+materialdesignicons	Material Design Icons
+materialformkdocs	Material for MkDocs
+matterdotjs	Matter.js
+maxplanckgesellschaft	Max-Planck-Gesellschaft
+mcdonalds	McDonald's
+mdnwebdocs	MDN Web Docs
+medibangpaint	MediBang Paint
+mercadopago	Mercado Pago
+metaai	Meta AI
+metrodelaciudaddemexico	Metro de la Ciudad de México
+metrodemadrid	Metro de Madrid
+metrodeparis	Métro de Paris
+mg	MG Morris Garages
+microbit	micro:bit
+microdotblog	Micro.blog
+microeditor	Micro Editor
+mingww64	MinGW-w64
+mistralai	Mistral AI
+mlb	MLB Major League Baseball
+mobxstatetree	MobX-State-Tree
+mockserviceworker	Mock Service Worker
+modelcontextprotocol	Model Context Protocol MCP
+mongoosedotws	Mongoose
+monkeytie	monkey tie
+moonshotai	Moonshot AI
+moscowmetro	Moscow Metro
+msi	MSI Micro-Star International
+msibusiness	MSI Business
+mui	MUI Material-UI
+muller	Müller
+mullvad	Mullvad Mullvad VPN
+muo	MUO MakeUseOf
+mxlinux	MX Linux
+myanimelist	MyAnimeList MAL
+namuwiki	Namu Wiki
+nanostores	Nano Stores
+nationalgrid	National Grid
+nationalrail	National Rail
+natsdotio	NATS.io
+nederlandsespoorwegen	Nederlandse Spoorwegen
+neteasecloudmusic	NetEase Cloud Music
+netlify	Netlify Netlify CMS
+newbalance	New Balance
+newjapanprowrestling	New Japan Pro-Wrestling NJPW NJPW World
+newrelic	New Relic
+newyorktimes	New York Times
+nextbilliondotai	NextBillion.ai
+nextdotjs	Next.js
+nfcore	nf-core
+nginxproxymanager	Nginx Proxy Manager
+nhl	NHL National Hockey League
+nobaralinux	Nobara Linux
+nodedotjs	Node.js
+nodered	Node-RED
+nordicsemiconductor	Nordic Semiconductor
+normalizedotcss	Normalize.css
+notepadplusplus	Notepad++
+nounproject	Noun Project
+nsis	NSIS Nullsoft Scriptable Install System
+nuxt	Nuxt Nuxt.js
+obb	ÖBB Österreichische Bundesbahnen
+obsstudio	OBS Studio
+octanerender	Octane Render otoy
+octobercms	October CMS
+octopusdeploy	Octopus Deploy
+ohdear	Oh Dear
+omadacloud	Omada Cloud
+openaccess	Open Access
+openaigym	OpenAI Gym
+openapiinitiative	OpenAPI Initiative
+openbadges	Open Badges
+openbugbounty	Open Bug Bounty
+opencollective	Open Collective
+opencontainersinitiative	Open Containers Initiative
+openjsfoundation	OpenJS Foundation
+opensourcehardware	Open Source Hardware OSHWA
+opensourceinitiative	Open Source Initiative
+opentelemetry	OpenTelemetry OTel
+opentext	OpenText Micro Focus
+opentofu	OpenTofu OpenTF Terraform
+operagx	Opera GX
+orchardcore	Orchard Core
+oreilly	O'Reilly
+organicmaps	Organic Maps
+osf	OSF Open Science Framework Center for Open Science
+osu	osu!
+p5dotjs	p5.js
+paddypower	Paddy Power
+pagespeedinsights	PageSpeed Insights
+paloaltonetworks	Palo Alto Networks
+paloaltosoftware	Palo Alto Software
+paperlessngx	Paperless-ngx
+paperswithcode	Papers With Code
+paradoxinteractive	Paradox Interactive
+paramountplus	Paramount+
+paritysubstrate	Parity Substrate
+parrotsecurity	Parrot Security
+parsedotly	Parse.ly
+payloadcms	Payload CMS
+paysafe	Paysafe PaysafeCard
+peakdesign	Peak Design
+pearson	Pearson Pearson VUE
+pegasusairlines	Pegasus Airlines
+petsathome	Pets at Home
+philipshue	Philips Hue
+phoenixframework	Phoenix Framework
+phosphoricons	Phosphor Icons
+piaggiogroup	Piaggio Group
+picardsurgeles	Picard Surgelés
+picartodottv	Picarto.TV
+pihole	Pi-hole
+pinescript	Pine Script
+pinetwork	Pi Network
+pioneerdj	Pioneer DJ
+pivotaltracker	Pivotal Tracker
+platformdotsh	Platform.sh
+plausibleanalytics	Plausible Analytics
+playerdotme	Player.me
+playerfm	Player FM
+playstation2	PlayStation 2
+playstation3	PlayStation 3
+playstation4	PlayStation 4
+playstation5	PlayStation 5
+playstationportable	PlayStation Portable PSP
+playstationvita	PlayStation Vita
+pocketcasts	Pocket Casts
+podcastaddict	Podcast Addict
+podcastindex	Podcast Index
+polygon	Polygon Matic
+polymerproject	Polymer Project
+popos	Pop!_OS
+portableappsdotcom	PortableApps.com
+posit	Posit RStudio
+prdotco	pr.co
+precommit	pre-commit
+premierleague	Premier League
+privatedivision	Private Division
+privateinternetaccess	Private Internet Access PIA
+processingfoundation	Processing Foundation
+producthunt	Product Hunt
+pronounsdotpage	Pronouns.page
+protocolsdotio	protocols.io
+protodotio	Proto.io
+protoncalendar	Proton Calendar
+protondrive	Proton Drive
+protonmail	Proton Mail
+protonvpn	Proton VPN
+protools	Pro Tools
+pwa	PWA Progressive Web Application
+pyg	PyG PyTorch Geometric
+qatarairways	Qatar Airways
+qnap	QNAP Quality Network Appliance Provider
+quad9	Quad9 9.9.9.9 Quad9 DNS
+qubesos	Qubes OS
+radiantearth	Radiant Earth
+radiofrance	Radio France Fip France Culture France Inter France Musique Mouv'
+radixui	Radix UI
+radstudio	RAD Studio
+rakutenkobo	Rakuten Kobo
+raspberrypi	Raspberry Pi
+react	React React Native
+reactbootstrap	React Bootstrap
+reacthookform	React Hook Form
+reactiveresume	Reactive Resume
+reactivex	ReactiveX RxJS
+reactquery	React Query
+reactrouter	React Router
+reacttable	React Table
+readdotcv	Read.cv
+readthedocs	Read the Docs
+reasonstudios	Reason Studios
+redbull	Red Bull
+redcandlegames	Red Candle Games
+redhat	Red Hat
+redhatopenshift	Red Hat Open Shift
+reduxsaga	Redux-Saga
+refinedgithub	Refined GitHub
+rekaui	Reka UI
+relianceindustrieslimited	Reliance Industries Limited
+remedyentertainment	Remedy Entertainment
+removedotbg	remove.bg
+renpy	Ren'Py
+republicofgamers	Republic of Gamers ASUS ROG ROG
+resurrectionremixos	Resurrection Remix OS
+retroachievements	Retro Achievements
+revealdotjs	reveal.js
+revoltdotchat	Revolt.chat revolt
+rimacautomobili	Rimac Automobili
+riotgames	Riot Games
+riscv	RISC-V
+ritzcarlton	Ritz Carlton
+roadmapdotsh	roadmap.sh
+roamresearch	Roam Research
+robloxstudio	Roblox Studio
+robotframework	Robot Framework
+rocketdotchat	Rocket.Chat
+rockstargames	Rockstar Games
+rockwellautomation	Rockwell Automation
+rockylinux	Rocky Linux
+rollsroyce	Rolls-Royce
+rollupdotjs	rollup.js
+rootme	Root Me
+rootsbedrock	Roots Bedrock
+rootssage	Roots Sage
+rotaryinternational	Rotary International
+rottentomatoes	Rotten Tomatoes
+rstudioide	RStudio IDE
+rte	RTÉ
+rtm	RTM Régie des Transports Métropolitains Régie des Transports de Marseille
+rubyonrails	Ruby on Rails
+rubysinatra	Ruby Sinatra
+runrundotit	Runrun.it
+s7airlines	S7 Airlines
+sailfishos	Sailfish OS
+sailsdotjs	Sails.js
+saltproject	Salt Project
+samsclub	Sam's Club
+samsungpay	Samsung Pay
+sanfranciscomunicipalrailway	San Francisco Municipal Railway
+saopaulometro	São Paulo Metro
+sat1	Sat.1
+saucelabs	Sauce Labs
+schneiderelectric	Schneider Electric
+scikitlearn	scikit-learn
+scpfoundation	SCP Foundation
+scrumalliance	Scrum Alliance
+scrutinizerci	Scrutinizer CI
+semanticrelease	semantic-release
+semanticscholar	Semantic Scholar
+semanticui	Semantic UI
+semanticuireact	Semantic UI React
+semanticweb	Semantic Web
+semaphoreci	Semaphore CI
+serverfault	Server Fault
+shadcnui	shadcn/ui
+shanghaimetro	Shanghai Metro
+shenzhenmetro	Shenzhen Metro
+shieldsdotio	Shields.io
+silverairways	Silver Airways
+simpleanalytics	Simple Analytics
+simpleicons	Simple Icons
+sinaweibo	Sina Weibo
+singaporeairlines	Singapore Airlines
+siyuan	SiYuan sy
+skoda	ŠKODA
+smashingmagazine	Smashing Magazine
+snapdragon	Snapdragon Qualcomm Snapdragon
+socialblade	Social Blade
+socketdotio	Socket.io
+softcatala	Softcatalà
+sololearn	Sololearn SoloLearn
+solveddotac	solved.ac
+sonarqubecloud	SonarQube Cloud SonarCloud
+sonarqubeforide	SonarQube for IDE SonarLint
+sonarqubeserver	SonarQube Server SonarQube
+sourceengine	Source Engine
+southwestairlines	Southwest Airlines
+sparkar	Spark AR
+speakerdeck	Speaker Deck
+spoj	Sphere Online Judge SPOJ
+spreadshirt	Spreadshirt Spreadshop
+springboot	Spring Boot
+springsecurity	Spring Security
+spyderide	Spyder IDE
+squareenix	Square Enix
+srgssr	SRG SSR
+stackexchange	Stack Exchange
+stackoverflow	Stack Overflow
+standardresume	Standard Resume
+starlingbank	Starling Bank
+startdotgg	start.gg
+startrek	Star Trek
+steamdeck	Steam Deck
+studio3t	Studio 3T
+styledcomponents	styled-components
+sublimetext	Sublime Text
+subtitleedit	Subtitle Edit
+sumologic	Sumo Logic
+superuser	Super User
+svelte	Svelte Sapper
+svgdotjs	SVG.js
+sway	Sway SwayWM
+tacobell	Taco Bell
+tado	tado°
+taichigraphics	Taichi Graphics
+taichilang	Taichi Lang
+tailwindcss	Tailwind CSS
+taketwointeractivesoftware	Take-Two Interactive Software
+tcs	Tata Consultancy Services TCS
+tele5	TELE 5
+telefonica	Telefónica
+telequebec	Télé-Québec
+testinglibrary	Testing Library
+tether	Tether USDt
+tga	TGA The Game Awards
+thealgorithms	The Algorithms
+theboringcompany	The Boring Company
+theconversation	The Conversation
+thefinals	THE FINALS
+theguardian	The Guardian
+theirishtimes	The Irish Times
+themighty	The Mighty
+themodelsresource	The Models Resource
+themoviedatabase	The Movie Database TMDB
+thenorthface	The North Face
+theodinproject	The Odin Project
+theplanetarysociety	The Planetary Society
+theregister	The Register
+thesoundsresource	The Sounds Resource
+thespritersresource	The Spriters Resource
+thestorygraph	The StoryGraph
+thewashingtonpost	The Washington Post
+theweatherchannel	The Weather Channel weather.com
+threedotjs	Three.js
+thurgauerkantonalbank	Thurgauer Kantonalbank
+tickettailor	Ticket Tailor
+tildapublishing	Tilda Publishing
+toggltrack	Toggl Track
+tokyometro	Tokyo Metro
+topdotgg	Top.gg
+torbrowser	Tor Browser
+torproject	Tor Project
+tplink	TP-Link
+traefikmesh	Traefik Mesh
+traefikproxy	Traefik Proxy
+transportforireland	Transport for Ireland
+transportforlondon	Transport for London
+travisci	Travis CI
+trendmicro	Trend Micro
+trillertv	TrillerTV FITE
+tripdotcom	Trip.com
+trustedshops	Trusted Shops
+tryitonline	Try It Online
+tsnode	ts-node
+turkishairlines	Turkish Airlines
+tuta	Tuta Tutanota
+tuxedocomputers	TUXEDO Computers
+tv4play	TV4 Play
+tvtime	TV Time
+ubereats	Uber Eats
+ublockorigin	uBlock Origin
+ubuntumate	Ubuntu MATE
+udotsdotnews	U.S. News
+uml	UML Unified Modelling Language
+underarmour	Under Armour
+underscoredotjs	Underscore.js
+unitedairlines	United Airlines
+unitednations	United Nations
+unjs	UnJS Unified JavaScript
+unrealengine	Unreal Engine
+uptimekuma	Uptime Kuma
+vanillaextract	Vanilla Extract
+vectorlogozone	Vector Logo Zone
+victoriametrics	VictoriaMetrics VM
+victronenergy	Victron Energy
+vimeolivestream	Vimeo Livestream
+virgin	Virgin Virgin Group
+virginatlantic	Virgin Atlantic
+virginmedia	Virgin Media
+virtualbox	VirtualBox Oracle VirtualBox
+visualparadigm	Visual Paradigm
+vivawallet	Viva Wallet
+vlcmediaplayer	VLC media player
+voidlinux	Void Linux
+voipdotms	VoIP.ms
+vorondesign	Voron Design
+vowpalwabbit	Vowpal Wabbit
+vuedotjs	Vue.js
+wearos	Wear OS
+web3dotjs	Web3.js
+webassembly	WebAssembly Wasm
+webawesome	Web Awesome
+webcomponentsdotorg	webcomponents.org
+webdotde	WEB.DE
+weightsandbiases	Weights & Biases
+welcometothejungle	Welcome to the Jungle WTTJ
+wellsfargo	Wells Fargo
+westernunion	Western Union
+wheniwork	When I Work
+wikidotgg	wiki.gg
+wikidotjs	Wiki.js
+wikimediacommons	Wikimedia Commons
+wikimediafoundation	Wikimedia Foundation
+windsurf	Windsurf Codeium
+wizzair	Wizz Air
+wolframlanguage	Wolfram Language
+wolframmathematica	Wolfram Mathematica
+wondersharefilmora	Wondershare Filmora
+worldhealthorganization	World Health Organization
+wpengine	WP Engine
+wprocket	WP Rocket
+writedotas	Write.as
+x	X Twitter
+xdadevelopers	XDA Developers
+xdotorg	X.Org
+xml	XML Extensible Markup Language
+xyflow	xyflow reactflow svelteflow
+yamahacorporation	Yamaha Corporation
+yamahamotorcorporation	Yamaha Motor Corporation
+yandexcloud	Yandex Cloud
+ycombinator	Y Combinator
+youtubegaming	YouTube Gaming
+youtubekids	YouTube Kids
+youtubemusic	YouTube Music
+youtubeshorts	YouTube Shorts
+youtubestudio	YouTube Studio
+youtubetv	YouTube TV
+zabka	Żabka
+zap	ZAP Zed Attack Proxy
+zcash	Zcash ZEC
+zdotai	Z.ai
+zebratechnologies	Zebra Technologies
+zedindustries	Zed Industries
+zenbrowser	Zen Browser

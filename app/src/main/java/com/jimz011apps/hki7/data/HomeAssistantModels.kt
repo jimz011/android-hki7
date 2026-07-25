@@ -1174,3 +1174,19 @@ data class HKIParcelsWidget(
     val backgroundUrl: String? = null,
     val isHidden: Boolean = false
 ) : HKIRoomWidget()
+
+/** Identity of the current HA user, as reported by the `hki7/whoami` companion command. */
+data class Hki7Identity(
+    val userId: String,
+    val name: String,
+    val isAdmin: Boolean,
+    val isOwner: Boolean,
+)
+
+/** Metadata for one HA-local backup stored by the `hki7` companion component. */
+data class Hki7BackupMeta(
+    val id: String,
+    val created: String,
+    val label: String,
+    val size: Int,
+)

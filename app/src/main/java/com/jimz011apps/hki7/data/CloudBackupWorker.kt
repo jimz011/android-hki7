@@ -49,10 +49,21 @@ class CloudBackupWorker(appContext: Context, params: WorkerParameters) :
 
     override suspend fun doWork(): Result {
         val prefs = PreferencesManager(applicationContext)
-        if (!prefs.cloudBackupEnabled.first()) return Result.success()
-        return runCatching {
-            CloudBackupStorage.write(applicationContext, prefs.exportUiBackup())
-        }.fold(onSuccess = { Result.success() }, onFailure = { Result.retry() })
+        val googleOn = prefs.cloudBackupEnabled.first()
+        val haOn = prefs.haBackupEnabled.first()
+        if (!googleOn && !haOn) return Result.success()
+
+        // Write to every enabled destination independently; one failing must not skip the other.
+        var allOk = true
+        if (googleOn) {
+            allOk = runCatching {
+                CloudBackupStorage.write(applicationContext, prefs.exportUiBackup())
+            }.isSuccess && allOk
+        }
+        if (haOn) {
+            allOk = runCatching { HaBackupStorage.write(applicationContext) }.getOrDefault(false) && allOk
+        }
+        return if (allOk) Result.success() else Result.retry()
     }
 }
 

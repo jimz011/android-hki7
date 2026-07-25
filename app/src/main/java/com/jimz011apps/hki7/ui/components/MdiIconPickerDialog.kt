@@ -36,9 +36,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
+import com.jimz011apps.hki7.ui.utils.IconPack
+import com.jimz011apps.hki7.ui.utils.IconPreferences
 import com.jimz011apps.hki7.ui.utils.MDI_COMMON
 import com.jimz011apps.hki7.ui.utils.MdiIcon
 import com.jimz011apps.hki7.ui.utils.MdiIconStore
+import com.jimz011apps.hki7.ui.utils.SI_COMMON
 
 /** Category name for the curated "common" icons shown by default. */
 private const val COMMON_CATEGORY = "Common"
@@ -75,22 +78,29 @@ fun MdiIconPickerDialog(
     onDismiss: () -> Unit,
     onSelect: (String) -> Unit,
     // When true, offers a "Use entity picture" option that selects the ENTITY_PICTURE_ICON sentinel.
-    allowEntityPicture: Boolean = false
+    allowEntityPicture: Boolean = false,
+    // The icon pack pre-selected when the picker opens. For an existing icon, open to its pack;
+    // for a new/blank icon, open to the appearance-settings default. The user can still switch
+    // packs here — the returned slug is always qualified to the pack it came from.
+    initialPack: IconPack =
+        if (current.isBlank()) IconPreferences.defaultPack else IconPack.parse(current).first
 ) {
     val appColors = LocalHKIAppColors.current
     val context = LocalContext.current
     var query by remember { mutableStateOf("") }
+    var pack by remember { mutableStateOf(initialPack) }
     var category by remember { mutableStateOf(ICON_CATEGORIES.first().first) }
-    val allNames = remember { MdiIconStore.allNames(context) }
-    val filtered = remember(query, category, allNames) {
+    val allNames = remember(pack) { MdiIconStore.allNames(context, pack) }
+    val filtered = remember(query, category, pack, allNames) {
         val q = query.trim()
+        val common = if (pack == IconPack.SIMPLE) SI_COMMON else MDI_COMMON
         when {
             // A search query overrides the category filter.
-            q.isNotEmpty() -> MdiIconStore.search(context, q)
-            category == COMMON_CATEGORY -> {
-                // Common icons first, then the full library (deduped).
-                val commonSet = MDI_COMMON.toHashSet()
-                MDI_COMMON + allNames.filterNot { it in commonSet }
+            q.isNotEmpty() -> MdiIconStore.search(context, q, pack)
+            // Non-MDI packs have no category tags: show common-first, then the full library.
+            !pack.hasCategories || category == COMMON_CATEGORY -> {
+                val commonSet = common.toHashSet()
+                common.filter { allNames.contains(it) } + allNames.filterNot { it in commonSet }
             }
             else -> {
                 val tag = ICON_CATEGORIES.firstOrNull { it.first == category }?.second
@@ -129,6 +139,25 @@ fun MdiIconPickerDialog(
 
                 Spacer(Modifier.height(12.dp))
 
+                // ── Icon pack selector ───────────────────────────────────────
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    IconPack.entries.forEach { p ->
+                        SettingsChoiceChip(
+                            selected = pack == p,
+                            onClick = { pack = p; category = ICON_CATEGORIES.first().first },
+                            label = { Text(p.displayName) }
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(8.dp))
+
                 // ── "None / Auto" + optional "Entity picture" chips ──────────
                 Row(
                     modifier = Modifier.padding(horizontal = 16.dp),
@@ -151,24 +180,26 @@ fun MdiIconPickerDialog(
 
                 Spacer(Modifier.height(8.dp))
 
-                // ── Category filters ─────────────────────────────────────────
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState())
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    ICON_CATEGORIES.forEach { (label, _) ->
-                        SettingsChoiceChip(
-                            selected = query.isBlank() && category == label,
-                            onClick = { category = label; query = "" },
-                            label = { Text(label) }
-                        )
+                // ── Category filters (MDI only — other packs aren't tagged) ──
+                if (pack.hasCategories) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState())
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        ICON_CATEGORIES.forEach { (label, _) ->
+                            SettingsChoiceChip(
+                                selected = query.isBlank() && category == label,
+                                onClick = { category = label; query = "" },
+                                label = { Text(label) }
+                            )
+                        }
                     }
-                }
 
-                Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(8.dp))
+                }
 
                 // ── Icon grid ─────────────────────────────────────────────────
                 val gridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
@@ -182,7 +213,8 @@ fun MdiIconPickerDialog(
                 ) {
                     items(filtered.size, key = { filtered[it] }) { i ->
                         val slug = filtered[i]
-                        val isSelected = slug == current
+                        val qualified = IconPack.qualify(pack, slug)
+                        val isSelected = qualified == current
                         Surface(
                             shape = RoundedCornerShape(14.dp),
                             color = if (isSelected)
@@ -191,11 +223,11 @@ fun MdiIconPickerDialog(
                                 appColors.subtleSurface,
                             modifier = Modifier
                                 .aspectRatio(1f)
-                                .clickable { onSelect(slug) }
+                                .clickable { onSelect(qualified) }
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 MdiIcon(
-                                    name = slug,
+                                    name = qualified,
                                     contentDescription = slug,
                                     tint = if (isSelected)
                                         MaterialTheme.colorScheme.onPrimary
