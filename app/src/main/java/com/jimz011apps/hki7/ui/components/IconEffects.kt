@@ -1,9 +1,11 @@
 package com.jimz011apps.hki7.ui.components
 
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
@@ -53,13 +55,26 @@ fun isEntityActive(entity: HAEntity): Boolean {
     }
 }
 
-/** The effect for an entity, or [IconEffect.NONE] when animations are off or the device is idle. */
-fun iconEffectFor(entity: HAEntity, enabled: Boolean): IconEffect {
-    if (!enabled || !isEntityActive(entity)) return IconEffect.NONE
-    return when (entity.entity_id.substringBefore('.')) {
-        "light", "switch", "input_boolean" -> IconEffect.GLOW
-        "fan", "vacuum" -> IconEffect.SPIN
-        else -> IconEffect.PULSE  // media playing, climate heating, motion, sirens, moving covers, …
+/** The domain-appropriate effect for an active entity. */
+private fun domainEffect(entity: HAEntity): IconEffect = when (entity.entity_id.substringBefore('.')) {
+    "light", "switch", "input_boolean" -> IconEffect.GLOW
+    "fan", "vacuum" -> IconEffect.SPIN
+    else -> IconEffect.PULSE  // media playing, climate heating, motion, sirens, moving covers, …
+}
+
+/**
+ * The effect for an entity. [override] is a per-icon setting: "auto" follows the global [enabled]
+ * flag and the domain default; "off" never animates; "glow"/"spin"/"pulse" force that effect. Any
+ * effect is still suppressed while the device is idle.
+ */
+fun iconEffectFor(entity: HAEntity, enabled: Boolean, override: String = "auto"): IconEffect {
+    if (override == "off") return IconEffect.NONE
+    if (!isEntityActive(entity)) return IconEffect.NONE
+    return when (override) {
+        "glow" -> IconEffect.GLOW
+        "spin" -> IconEffect.SPIN
+        "pulse" -> IconEffect.PULSE
+        else -> if (enabled) domainEffect(entity) else IconEffect.NONE
     }
 }
 
@@ -101,40 +116,50 @@ fun WithIconEffect(
         }
 
         IconEffect.PULSE -> {
+            // A "heartbeat": two quick beats then a rest, so it reads as alive rather than a dull throb.
             val t = rememberInfiniteTransition(label = "pulse")
             val scale by t.animateFloat(
-                1f, 1.08f,
-                infiniteRepeatable(tween(900, easing = LinearEasing), RepeatMode.Reverse),
+                1f, 1f,
+                infiniteRepeatable(
+                    keyframes {
+                        durationMillis = 1600
+                        1f at 0
+                        1.16f at 130 using FastOutSlowInEasing
+                        1f at 320 using FastOutSlowInEasing
+                        1.11f at 460 using FastOutSlowInEasing
+                        1f at 640 using FastOutSlowInEasing
+                        1f at 1600
+                    },
+                    RepeatMode.Restart,
+                ),
                 label = "pulseScale",
             )
-            val alpha by t.animateFloat(
-                0.65f, 1f,
-                infiniteRepeatable(tween(900, easing = LinearEasing), RepeatMode.Reverse),
-                label = "pulseAlpha",
-            )
-            content(Modifier.graphicsLayer { scaleX = scale; scaleY = scale; this.alpha = alpha })
+            content(Modifier.graphicsLayer { scaleX = scale; scaleY = scale })
         }
 
         IconEffect.GLOW -> {
+            // A breathing light halo: a soft, wide bloom that swells and fades, with the glyph itself
+            // subtly brightening — not a hard pulsing disc.
             val t = rememberInfiniteTransition(label = "glow")
-            val scale by t.animateFloat(
-                1f, 1.05f,
-                infiniteRepeatable(tween(1400, easing = LinearEasing), RepeatMode.Reverse),
-                label = "glowScale",
+            val phase by t.animateFloat(
+                0f, 1f,
+                infiniteRepeatable(tween(1600, easing = FastOutSlowInEasing), RepeatMode.Reverse),
+                label = "glowPhase",
             )
-            val glowAlpha by t.animateFloat(
-                0.10f, 0.42f,
-                infiniteRepeatable(tween(1400, easing = LinearEasing), RepeatMode.Reverse),
-                label = "glowAlpha",
-            )
+            val glowAlpha = 0.12f + 0.5f * phase
+            val scale = 1f + 0.06f * phase
             content(
                 Modifier
                     .drawBehind {
                         drawCircle(
                             brush = Brush.radialGradient(
-                                colors = listOf(glowColor.copy(alpha = glowAlpha), Color.Transparent),
+                                colors = listOf(
+                                    glowColor.copy(alpha = glowAlpha),
+                                    glowColor.copy(alpha = glowAlpha * 0.35f),
+                                    Color.Transparent,
+                                ),
                                 center = center,
-                                radius = size.maxDimension * 0.75f,
+                                radius = size.maxDimension * (0.85f + 0.35f * phase),
                             ),
                         )
                     }

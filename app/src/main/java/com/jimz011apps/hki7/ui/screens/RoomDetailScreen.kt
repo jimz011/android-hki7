@@ -27,6 +27,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -3122,6 +3123,7 @@ fun ButtonConfigDialog(
     var cameraUrl by remember(config) { mutableStateOf(config.cameraUrl ?: "") }
     var refreshInterval by remember(config) { mutableIntStateOf(config.cameraRefreshInterval) }
     var iconName by remember(config) { mutableStateOf(config.icon ?: "None") }
+    var iconAnimation by remember(config) { mutableStateOf(config.iconAnimation) }
     val isLightEntity = entity?.entity_id?.startsWith("light.") == true
     var showBrightnessSlider by remember(config) { mutableStateOf(config.showBrightnessSlider) }
     var tapAction by remember(config) { mutableStateOf(config.tapActionEx ?: HKIAction(type = config.tapAction)) }
@@ -3303,11 +3305,26 @@ fun ButtonConfigDialog(
                             MdiIcon(iconName, size = 24.dp)
                         }
                         Text(
-                            iconName.takeUnless { it == "None" } ?: "None",
+                            iconName.takeUnless { it == "None" } ?: "Auto",
                             modifier = Modifier.weight(1f),
                             style = MaterialTheme.typography.bodyMedium
                         )
                         TextButton(onClick = { showIconPickerBtn = true }) { Text("Change") }
+                    }
+                    Text("Icon animation", style = MaterialTheme.typography.labelLarge)
+                    Text(
+                        "How this icon animates while the device is active. \"Auto\" follows the global setting; the rest override it for this icon.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf("auto" to "Auto", "off" to "Off", "glow" to "Glow", "spin" to "Spin", "pulse" to "Pulse").forEach { (value, label) ->
+                            FilterChip(
+                                selected = iconAnimation == value,
+                                onClick = { iconAnimation = value },
+                                label = { Text(label) }
+                            )
+                        }
                     }
                     if (isLightEntity) {
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -3462,6 +3479,7 @@ fun ButtonConfigDialog(
                             name = name.ifBlank { null },
                             label = if (isVacuumItem) config.label else label.ifBlank { null },
                             icon = if (isCameraItem || isVacuumItem) config.icon else iconName.takeUnless { it == "None" },
+                            iconAnimation = iconAnimation,
                             showBrightnessSlider = if (isLightEntity) showBrightnessSlider else false,
                             cameraUrl = if (isCameraItem && config.isCustomUrl) cameraUrl.ifBlank { null } else config.cameraUrl,
                             cameraRefreshInterval = if (isCameraItem) refreshInterval else config.cameraRefreshInterval,
@@ -4447,6 +4465,7 @@ fun ButtonStackItem(
                                 displayName = cfg?.name,
                                 label = cfg?.label,
                                 iconName = cfg?.icon,
+                                iconAnimation = cfg?.iconAnimation ?: "auto",
                                 onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
                                 onLongClick = { handleButtonInteraction(entity.entity_id, cfg, "hold") { onEntityLongClick(entity.entity_id) } },
                                 onDoubleClick = { handleButtonInteraction(entity.entity_id, cfg, "double") { onEntityDoubleClick(entity.entity_id) } },
@@ -4532,6 +4551,7 @@ fun ButtonStackItem(
                                         displayName = cfg?.name,
                                         label = cfg?.label,
                                         iconName = cfg?.icon,
+                                        iconAnimation = cfg?.iconAnimation ?: "auto",
                                         onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
                                         onLongClick = { handleButtonInteraction(entity.entity_id, cfg, "hold") { onEntityLongClick(entity.entity_id) } },
                                         onDoubleClick = { handleButtonInteraction(entity.entity_id, cfg, "double") { onEntityDoubleClick(entity.entity_id) } },
@@ -4572,6 +4592,7 @@ fun ButtonStackItem(
                                         displayName = buttonConfigs[entity.entity_id]?.name,
                                         label = buttonConfigs[entity.entity_id]?.label,
                                         iconName = buttonConfigs[entity.entity_id]?.icon,
+                                        iconAnimation = buttonConfigs[entity.entity_id]?.iconAnimation ?: "auto",
                                         onClick = { onEntityClick(entity.entity_id) },
                                         onLongClick = { onEntityLongClick(entity.entity_id) },
                                         onDoubleClick = { onEntityDoubleClick(entity.entity_id) },
@@ -4738,6 +4759,7 @@ fun SingleEntityWidgetItem(
                         displayName = widget.config.name,
                         label = widget.config.label,
                         iconName = widget.config.icon,
+                        iconAnimation = widget.config.iconAnimation,
                         onClick = { handleSingleButtonInteraction("tap") { onEntityClick(widget.entityId) } },
                         onLongClick = { handleSingleButtonInteraction("hold") { onEntityLongClick(widget.entityId) } },
                         onDoubleClick = { handleSingleButtonInteraction("double") { onEntityDoubleClick(widget.entityId) } },

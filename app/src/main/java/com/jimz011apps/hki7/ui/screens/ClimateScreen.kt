@@ -1959,17 +1959,17 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
         // Mode button pinned to the card's top-right. It used to sit inside the dial face, where it
         // shifted around as the dial resized with the card; anchoring it here keeps it put.
         if (entity.hvacModes.isNotEmpty()) {
-            Box(Modifier.align(Alignment.TopEnd).padding(10.dp)) {
+            Box(Modifier.align(Alignment.TopEnd).padding(6.dp)) {
                 Surface(
                     shape = CircleShape,
                     color = appColors.surface,
-                    shadowElevation = 5.dp,
-                    modifier = Modifier.size(40.dp).clip(CircleShape).clickable { modesOpen = true }
+                    shadowElevation = 3.dp,
+                    modifier = Modifier.size(24.dp).clip(CircleShape).clickable { modesOpen = true }
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             hvacModeIcon(localMode), contentDescription = "Mode",
-                            tint = accent, modifier = Modifier.size(20.dp)
+                            tint = accent, modifier = Modifier.size(14.dp)
                         )
                     }
                 }

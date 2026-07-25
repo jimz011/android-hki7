@@ -162,6 +162,7 @@ fun EntityCard(
     displayName: String? = null,
     label: String? = null,
     iconName: String? = null,
+    iconAnimation: String = "auto",
     isSquare: Boolean = false,
     cornerRadius: Int = LocalItemCornerRadius.current,
     interactionsEnabled: Boolean = true,
@@ -442,8 +443,9 @@ fun EntityCard(
                 lockDoorOpen = isLockDoorOpen,
             )
             val effectiveSlug = iconName?.takeUnless { it.isBlank() } ?: defaultSlug
-            // Live motion while the device is active (glow/spin/pulse), gated on the user setting.
-            val iconEffect = iconEffectFor(entity, LocalIconAnimationsEnabled.current)
+            // Live motion while the device is active (glow/spin/pulse), gated on the user setting
+            // and the per-icon override.
+            val iconEffect = iconEffectFor(entity, LocalIconAnimationsEnabled.current, iconAnimation)
             // "Use entity picture": render the HA picture when available, else fall back to the icon.
             val pictureUrl = if (effectiveSlug == ENTITY_PICTURE_ICON && !currentUrl.isNullOrBlank())
                 resolveEntityPictureUrl(entity, currentUrl) else null

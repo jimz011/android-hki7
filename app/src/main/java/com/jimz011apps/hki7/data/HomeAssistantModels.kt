@@ -604,6 +604,9 @@ data class HKIBadge(
     val showState: Boolean = true,
     val showIcon: Boolean = true,
     val customIcon: String? = null,
+    // Per-icon animation override: "auto" (follow the global setting + domain default), "off",
+    // or a forced effect: "glow", "spin", "pulse".
+    val iconAnimation: String = "auto",
     val tapAction: String = "auto",    // "auto", "toggle", "more_info"
     val holdAction: String = "auto",   // "auto", "toggle", "more_info"
     // Structured action overrides (win over the legacy string fields above when non-null).
@@ -903,6 +906,9 @@ data class HKISingleEntityWidget(
 data class HKIButtonConfig(
     val name: String? = null,
     val icon: String? = null,
+    // Per-icon animation override: "auto" (follow the global setting + domain default), "off",
+    // or a forced effect: "glow", "spin", "pulse".
+    val iconAnimation: String = "auto",
     val label: String? = null,
     /** Light-only Google Home-style full-height brightness control. */
     val showBrightnessSlider: Boolean = false,

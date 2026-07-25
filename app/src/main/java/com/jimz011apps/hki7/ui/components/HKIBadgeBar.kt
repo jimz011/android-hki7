@@ -686,7 +686,7 @@ private fun BadgeItem(
     val pictureUrl = if (customSlug == ENTITY_PICTURE_ICON && entity != null && currentUrl.isNotBlank())
         resolveEntityPictureUrl(entity, currentUrl) else null
     val iconSlug = if (effectiveSlug == ENTITY_PICTURE_ICON) defaultSlug else effectiveSlug
-    val iconEffect = entity?.let { iconEffectFor(it, LocalIconAnimationsEnabled.current) } ?: IconEffect.NONE
+    val iconEffect = entity?.let { iconEffectFor(it, LocalIconAnimationsEnabled.current, badge.iconAnimation) } ?: IconEffect.NONE
 
     // Outer Box: badge content + edit-mode overlays
     Box {
@@ -1041,6 +1041,7 @@ fun BadgeSettingsDialog(
     var showState   by remember { mutableStateOf(badge.showState) }
     var showIcon    by remember { mutableStateOf(badge.showIcon) }
     var customIcon  by remember { mutableStateOf(badge.customIcon ?: "") }
+    var iconAnimation by remember { mutableStateOf(badge.iconAnimation) }
     // Badge "auto" preserves its dialog-first default, mapped to more_info for the structured editor.
     var tapAction   by remember { mutableStateOf(badge.tapActionEx ?: HKIAction(type = if (badge.tapAction == "auto") "more_info" else badge.tapAction)) }
     var holdAction  by remember { mutableStateOf(badge.holdActionEx ?: HKIAction(type = if (badge.holdAction == "auto") "more_info" else badge.holdAction)) }
@@ -1225,6 +1226,16 @@ fun BadgeSettingsDialog(
                     )
                     TextButton(onClick = { showIconPickerBadge = true }) { Text("Change") }
                 }
+                Text("Icon animation", style = MaterialTheme.typography.labelLarge)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("auto" to "Auto", "off" to "Off", "glow" to "Glow", "spin" to "Spin", "pulse" to "Pulse").forEach { (value, label) ->
+                        FilterChip(
+                            selected = iconAnimation == value,
+                            onClick = { iconAnimation = value },
+                            label = { Text(label) }
+                        )
+                    }
+                }
                 // Side (only in split mode)
                 if (showSidePicker) {
                     HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
@@ -1263,6 +1274,7 @@ fun BadgeSettingsDialog(
                     showState  = showState,
                     showIcon   = showIcon,
                     customIcon = customIcon.ifBlank { null },
+                    iconAnimation = iconAnimation,
                     tapActionEx = tapAction,
                     holdActionEx = holdAction,
                     customButtons = customButtons,
