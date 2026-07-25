@@ -402,6 +402,36 @@ open class HomeAssistantClient(
         response["result"]?.jsonObject?.get("payload")?.jsonObject?.toString()
     }
 
+    /** The current user's own parental-control policy (empty if none set or component absent). */
+    open suspend fun hki7GetMyPolicy(): Hki7Policy = withWebSocket {
+        val response = sendCommand("hki7/policy/get")
+        if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket Hki7Policy()
+        response["result"]?.jsonObject?.let(::parsePolicy) ?: Hki7Policy()
+    }
+
+    /** Sets a user's hidden views/rooms. Admin only. Returns true on success. */
+    open suspend fun hki7SetPolicy(userId: String, hiddenViews: List<String>, hiddenRooms: List<String>): Boolean = withWebSocket {
+        val data = mapOf<String, JsonElement>(
+            "user_id" to JsonPrimitive(userId),
+            "hidden_views" to JsonArray(hiddenViews.map { JsonPrimitive(it) }),
+            "hidden_rooms" to JsonArray(hiddenRooms.map { JsonPrimitive(it) }),
+        )
+        sendCommand("hki7/policy/set", data)["success"]?.jsonPrimitive?.booleanOrNull == true
+    }
+
+    /** Every stored policy keyed by user id (admin only). Empty if not permitted. */
+    open suspend fun hki7ListPolicies(): Map<String, Hki7Policy> = withWebSocket {
+        val response = sendCommand("hki7/policy/list")
+        if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket emptyMap()
+        val obj = response["result"]?.jsonObject?.get("policies")?.jsonObject ?: return@withWebSocket emptyMap()
+        obj.mapValues { (_, v) -> parsePolicy(v.jsonObject) }
+    }
+
+    private fun parsePolicy(o: JsonObject): Hki7Policy = Hki7Policy(
+        hiddenViews = o["hidden_views"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty(),
+        hiddenRooms = o["hidden_rooms"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty(),
+    )
+
     private fun parseDashboardMeta(o: JsonObject): Hki7SharedDashboardMeta? {
         val id = o["id"]?.jsonPrimitive?.contentOrNull ?: return null
         return Hki7SharedDashboardMeta(

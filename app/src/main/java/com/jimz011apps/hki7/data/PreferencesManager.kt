@@ -187,6 +187,10 @@ class PreferencesManager(
     private val quickStartGuidePendingKey = booleanPreferencesKey("quick_start_guide_pending")
     private val cloudBackupEnabledKey = booleanPreferencesKey("cloud_backup_enabled")
     private val haBackupEnabledKey = booleanPreferencesKey("ha_backup_enabled")
+    // Parental-control policy enforced for THIS signed-in user (routes / area ids), cached from the
+    // hki7 component so the UI can filter synchronously and keep hiding while briefly offline.
+    private val parentalHiddenViewsKey = stringPreferencesKey("parental_hidden_views")
+    private val parentalHiddenRoomsKey = stringPreferencesKey("parental_hidden_rooms")
     private val lastSeenVersionCodeKey = intPreferencesKey("last_seen_version_code")
     private val homeAssistantInstancesKey = stringPreferencesKey("home_assistant_instances_v1")
     private val activeHomeAssistantInstanceIdKey = stringPreferencesKey("active_home_assistant_instance_id")
@@ -233,6 +237,22 @@ class PreferencesManager(
     val cloudBackupEnabled: Flow<Boolean> = context.dataStore.data.map { it[cloudBackupEnabledKey] ?: false }
     /** Daily backup to the user's own Home Assistant instance via the hki7 companion component. */
     val haBackupEnabled: Flow<Boolean> = context.dataStore.data.map { it[haBackupEnabledKey] ?: false }
+    /** Routes hidden from the current user by an admin's parental-control policy. */
+    val parentalHiddenViews: Flow<List<String>> = context.dataStore.data.map {
+        it[parentalHiddenViewsKey]?.split(",")?.filter { r -> r.isNotBlank() } ?: emptyList()
+    }
+    /** Area ids hidden from the current user by an admin's parental-control policy. */
+    val parentalHiddenRooms: Flow<List<String>> = context.dataStore.data.map {
+        it[parentalHiddenRoomsKey]?.split(",")?.filter { r -> r.isNotBlank() } ?: emptyList()
+    }
+
+    /** Caches the enforced policy for the signed-in user (cleared for admins/owners). */
+    suspend fun saveEnforcedPolicy(hiddenViews: List<String>, hiddenRooms: List<String>) {
+        context.dataStore.edit {
+            it[parentalHiddenViewsKey] = hiddenViews.joinToString(",")
+            it[parentalHiddenRoomsKey] = hiddenRooms.joinToString(",")
+        }
+    }
 
     /** Version code whose changelog the user has already seen; 0 until one has been acknowledged. */
     val lastSeenVersionCode: Flow<Int> = context.dataStore.data.map { it[lastSeenVersionCodeKey] ?: 0 }

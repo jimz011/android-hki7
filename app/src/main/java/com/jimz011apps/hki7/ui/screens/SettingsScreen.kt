@@ -40,7 +40,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BatterySaver
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Dashboard
@@ -120,6 +123,7 @@ import com.jimz011apps.hki7.data.CloudBackupFile
 import com.jimz011apps.hki7.data.CloudBackupWork
 import com.jimz011apps.hki7.data.HaBackupStorage
 import com.jimz011apps.hki7.data.HaDashboardSharing
+import com.jimz011apps.hki7.data.HaParentalControls
 import com.jimz011apps.hki7.data.driveAuthorizationRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.jimz011apps.hki7.data.HKICustomPage
@@ -154,7 +158,7 @@ import java.util.UUID
 import coil3.compose.AsyncImage
 
 private enum class SettingsSection {
-    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, NAV_BAR, MEDIA_PLAYERS, DASHBOARD, BACKUP_RESTORE, ACCOUNT, ABOUT, LICENSE, SUPPORT
+    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, NAV_BAR, MEDIA_PLAYERS, DASHBOARD, PARENTAL_CONTROLS, BACKUP_RESTORE, ACCOUNT, ABOUT, LICENSE, SUPPORT
 }
 
 private fun sectionTitle(section: SettingsSection): String = when (section) {
@@ -164,6 +168,7 @@ private fun sectionTitle(section: SettingsSection): String = when (section) {
     SettingsSection.HEADER -> "Header"
     SettingsSection.MEDIA_PLAYERS -> "Media Players"
     SettingsSection.BACKUP_RESTORE -> "Backup and Restore"
+    SettingsSection.PARENTAL_CONTROLS -> "Parental Controls"
     SettingsSection.ABOUT -> "About HKI 7"
     SettingsSection.LICENSE -> "License"
     SettingsSection.SUPPORT -> "Support"
@@ -185,6 +190,7 @@ private fun sectionSubtitle(section: SettingsSection): String = when (section) {
     SettingsSection.MEDIA_PLAYERS -> "Names and mini-player visibility"
     SettingsSection.NOTIFICATIONS -> "Push delivery, history, and service behavior"
     SettingsSection.BACKUP_RESTORE -> "Protect or move your dashboard configuration"
+    SettingsSection.PARENTAL_CONTROLS -> "Hide views and rooms from certain people"
     SettingsSection.ABOUT -> "The project, technology, and people behind HKI 7"
     SettingsSection.LICENSE -> "Open-source community core and optional premium materials"
     SettingsSection.SUPPORT -> "Ways to help HKI 7 grow without buying Premium"
@@ -203,6 +209,7 @@ private fun sectionIcon(section: SettingsSection): ImageVector = when (section) 
     SettingsSection.MEDIA_PLAYERS -> Icons.Default.MusicNote
     SettingsSection.NOTIFICATIONS -> Icons.Default.Notifications
     SettingsSection.BACKUP_RESTORE -> Icons.Default.Backup
+    SettingsSection.PARENTAL_CONTROLS -> Icons.Default.Shield
     SettingsSection.ABOUT -> Icons.Default.Info
     SettingsSection.LICENSE -> Icons.Default.Description
     SettingsSection.SUPPORT -> Icons.Default.Favorite
@@ -279,6 +286,16 @@ fun SettingsDialog(
     var sharedWithMe by remember { mutableStateOf(emptyList<com.jimz011apps.hki7.data.Hki7SharedDashboardMeta>()) }
     var sharingAvailable by remember { mutableStateOf(false) }
     var isHaAdmin by remember { mutableStateOf(false) }
+    // ── Parental controls (admin editor) ──
+    var parentalUsers by remember { mutableStateOf(emptyList<com.jimz011apps.hki7.data.Hki7User>()) }
+    var parentalPolicies by remember { mutableStateOf(emptyMap<String, com.jimz011apps.hki7.data.Hki7Policy>()) }
+    var parentalExpandedUser by remember { mutableStateOf<String?>(null) }
+    // Probe the hki7 component once so the menu can show admin-only entries (Parental Controls).
+    LaunchedEffect(Unit) {
+        val id = runCatching { HaDashboardSharing.whoami(context) }.getOrNull()
+        sharingAvailable = id != null
+        isHaAdmin = id?.isAdmin == true
+    }
     val avatarPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let {
             runCatching { context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
@@ -405,6 +422,9 @@ fun SettingsDialog(
                             SettingsSubcategory("Services & data", "Messages, safety, and portability")
                             SettingsChoice(Icons.Default.Notifications, "Notifications", "Push delivery and history") { section = SettingsSection.NOTIFICATIONS }
                             SettingsChoice(Icons.Default.Backup, "Backup and Restore", "Save or restore dashboard configuration") { section = SettingsSection.BACKUP_RESTORE }
+                            if (sharingAvailable && isHaAdmin) {
+                                SettingsChoice(Icons.Default.Shield, "Parental Controls", "Hide views and rooms per person") { section = SettingsSection.PARENTAL_CONTROLS }
+                            }
                             SettingsSubcategory("HKI 7", "Project information, licensing, and community support")
                             SettingsChoice(Icons.Default.Info, "About", "What HKI 7 is and how it is built") { section = SettingsSection.ABOUT }
                             SettingsChoice(Icons.Default.Description, "License", "Open-source and premium licensing") { section = SettingsSection.LICENSE }
@@ -1345,6 +1365,103 @@ fun SettingsDialog(
                                                     Icon(Icons.Default.Download, null)
                                                     Spacer(Modifier.width(6.dp))
                                                     Text("Import")
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        SettingsSection.PARENTAL_CONTROLS -> {
+                            val pcAreas by viewModel.areas.collectAsState()
+                            val pcCustomPages by prefs.customPages.collectAsState(initial = emptyList())
+                            // (route, label) — Home is always visible; Settings is not a nav tab.
+                            val viewOptions = remember(pcCustomPages) {
+                                listOf(
+                                    "rooms" to "Rooms", "climate" to "Climate", "security" to "Security",
+                                    "energy" to "Energy", "battery" to "Battery"
+                                ) + pcCustomPages.map { "custom_page/${it.id}" to it.name }
+                            }
+                            LaunchedEffect(Unit) {
+                                parentalUsers = runCatching { HaDashboardSharing.listUsers(context) }.getOrDefault(emptyList())
+                                parentalPolicies = runCatching { HaParentalControls.listPolicies(context) }.getOrDefault(emptyMap())
+                            }
+                            val savePolicy: (String, List<String>, List<String>) -> Unit = { uid, v, r ->
+                                scope.launch {
+                                    val ok = runCatching { HaParentalControls.setPolicy(context, uid, v, r) }.getOrDefault(false)
+                                    if (ok) parentalPolicies = parentalPolicies + (uid to com.jimz011apps.hki7.data.Hki7Policy(v, r))
+                                    else setupChangedMessage = "Could not update the policy."
+                                }
+                            }
+                            SettingsPanel {
+                                Text("Parental controls", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                                Text(
+                                    "Hide certain views or rooms from specific people to keep their dashboard simple. This is UX-level hiding — it does not restrict what they can do in Home Assistant itself.",
+                                    color = appColors.onMuted,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                val nonAdmin = parentalUsers.filter { !it.isAdmin }
+                                if (nonAdmin.isEmpty()) {
+                                    Text("No non-admin users found on this Home Assistant.", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                                }
+                                nonAdmin.forEach { user ->
+                                    val policy = parentalPolicies[user.id] ?: com.jimz011apps.hki7.data.Hki7Policy()
+                                    val expanded = parentalExpandedUser == user.id
+                                    val hiddenCount = policy.hiddenViews.size + policy.hiddenRooms.size
+                                    Surface(
+                                        Modifier.fillMaxWidth(),
+                                        shape = itemCornerShape(),
+                                        color = appColors.subtleSurface
+                                    ) {
+                                        Column(Modifier.padding(12.dp)) {
+                                            Row(
+                                                Modifier.fillMaxWidth().clickable {
+                                                    parentalExpandedUser = if (expanded) null else user.id
+                                                },
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Column(Modifier.weight(1f)) {
+                                                    Text(user.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                                    Text(
+                                                        if (hiddenCount == 0) "Nothing hidden" else "$hiddenCount hidden",
+                                                        color = appColors.onMuted,
+                                                        style = MaterialTheme.typography.bodySmall
+                                                    )
+                                                }
+                                                Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null, tint = appColors.onMuted)
+                                            }
+                                            if (expanded) {
+                                                Spacer(Modifier.height(8.dp))
+                                                Text("Hidden views", color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
+                                                viewOptions.forEach { (route, label) ->
+                                                    val hidden = route in policy.hiddenViews
+                                                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                                        Text(label, color = appColors.onSurface, modifier = Modifier.weight(1f))
+                                                        Switch(
+                                                            checked = hidden,
+                                                            onCheckedChange = {
+                                                                val nv = if (hidden) policy.hiddenViews - route else policy.hiddenViews + route
+                                                                savePolicy(user.id, nv, policy.hiddenRooms)
+                                                            }
+                                                        )
+                                                    }
+                                                }
+                                                if (pcAreas.isNotEmpty()) {
+                                                    Spacer(Modifier.height(4.dp))
+                                                    Text("Hidden rooms", color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
+                                                    pcAreas.forEach { area ->
+                                                        val hidden = area.area_id in policy.hiddenRooms
+                                                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                                            Text(area.name, color = appColors.onSurface, modifier = Modifier.weight(1f))
+                                                            Switch(
+                                                                checked = hidden,
+                                                                onCheckedChange = {
+                                                                    val nr = if (hidden) policy.hiddenRooms - area.area_id else policy.hiddenRooms + area.area_id
+                                                                    savePolicy(user.id, policy.hiddenViews, nr)
+                                                                }
+                                                            )
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }

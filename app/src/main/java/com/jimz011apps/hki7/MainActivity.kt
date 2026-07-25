@@ -84,6 +84,7 @@ import com.jimz011apps.hki7.ui.ConnectionStatus
 import com.jimz011apps.hki7.ui.connectionIssueGraceMillis
 import com.jimz011apps.hki7.ui.HomeAssistantRestartPhase
 import com.jimz011apps.hki7.ui.MainViewModel
+import com.jimz011apps.hki7.data.HaParentalControls
 import com.jimz011apps.hki7.ui.NavBarConfig
 import com.jimz011apps.hki7.ui.homeAssistantConnectionStatusLabel
 import kotlinx.coroutines.flow.collectLatest
@@ -440,8 +441,17 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     val navBarOrder by prefs.navBarOrder.collectAsState(initial = emptyList())
     val navBarHidden by prefs.navBarHidden.collectAsState(initial = emptyList())
     val customPages by prefs.customPages.collectAsState(initial = emptyList())
-    val screens = remember(navBarOrder, navBarHidden, customPages) {
+    // Parental controls: routes an admin hid from this user. `home` is never removed so the
+    // user always lands somewhere. This is UX-level hiding, not a security boundary.
+    val parentalHiddenViews by prefs.parentalHiddenViews.collectAsState(initial = emptyList())
+    val screens = remember(navBarOrder, navBarHidden, customPages, parentalHiddenViews) {
+        val hiddenByParent = parentalHiddenViews.toSet() - Screen.Home.route
         NavBarConfig.visibleTabs(navBarOrder, navBarHidden, customPages)
+            .filter { it.route !in hiddenByParent }
+    }
+    // Refresh this user's policy from the hki7 component whenever we're authenticated.
+    LaunchedEffect(Unit) {
+        runCatching { HaParentalControls.refreshForCurrentUser(appCtx, prefs) }
     }
     val isEditMode by viewModel.isEditMode.collectAsState()
     val canUndo by viewModel.canUndo.collectAsState()

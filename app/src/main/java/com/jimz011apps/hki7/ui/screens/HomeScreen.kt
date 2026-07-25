@@ -81,7 +81,13 @@ fun HAHomeScreen(
     @Suppress("LocalVariableName")
     val HOME_WIDGET_AREA = widgetAreaId
     val context = LocalContext.current
-    val areas by viewModel.areas.collectAsState()
+    val allAreas by viewModel.areas.collectAsState()
+    // Parental controls: hide rooms an admin has restricted for this user (UX-level, not security).
+    val parentalHiddenRooms by viewModel.prefs.parentalHiddenRooms.collectAsState(initial = emptyList())
+    val areas = remember(allAreas, parentalHiddenRooms) {
+        if (parentalHiddenRooms.isEmpty()) allAreas
+        else allAreas.filterNot { it.area_id in parentalHiddenRooms.toSet() }
+    }
     var selectedPerson by remember { mutableStateOf<HAEntity?>(null) }
     val widgets by viewModel.areaWidgetsMapping.collectAsState()
     val currentUrl by viewModel.currentUrl.collectAsState()

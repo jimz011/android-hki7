@@ -1206,3 +1206,11 @@ data class Hki7SharedDashboardMeta(
     val updated: String,
     val sharedWith: List<String>,
 )
+
+/** A parental-control policy: the view/room identifiers hidden from a given user. */
+data class Hki7Policy(
+    val hiddenViews: List<String> = emptyList(),
+    val hiddenRooms: List<String> = emptyList(),
+) {
+    val isEmpty: Boolean get() = hiddenViews.isEmpty() && hiddenRooms.isEmpty()
+}

@@ -103,7 +103,13 @@ import kotlin.math.max
 
 @Composable
 fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
-    val areas by viewModel.areas.collectAsState()
+    val allAreas by viewModel.areas.collectAsState()
+    // Parental controls: hide rooms an admin has restricted for this user (UX-level, not security).
+    val parentalHiddenRooms by viewModel.prefs.parentalHiddenRooms.collectAsState(initial = emptyList())
+    val areas = remember(allAreas, parentalHiddenRooms) {
+        if (parentalHiddenRooms.isEmpty()) allAreas
+        else allAreas.filterNot { it.area_id in parentalHiddenRooms.toSet() }
+    }
     val floors by viewModel.floors.collectAsState()
     val configs by viewModel.areaConfigsMapping.collectAsState()
     val widgetsByArea by viewModel.areaWidgetsMapping.collectAsState()
