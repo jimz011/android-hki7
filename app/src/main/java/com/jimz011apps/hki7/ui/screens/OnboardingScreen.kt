@@ -44,6 +44,7 @@ import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -105,8 +106,10 @@ fun OnboardingScreen(prefs: PreferencesManager, startAtLogin: Boolean = false, o
     LaunchedEffect(loginOnly) {
         if (!loginOnly) prefs.prepareForInitialDashboardChoice()
     }
-    var step by remember { mutableStateOf(if (loginOnly) OnboardStep.LOGIN else OnboardStep.WELCOME) }
-    var serverUrl by remember {
+    // Saveable so that backgrounding mid-onboarding (e.g. on the permission step) and returning to a
+    // recreated Activity resumes the same step instead of being lost.
+    var step by rememberSaveable { mutableStateOf(if (loginOnly) OnboardStep.LOGIN else OnboardStep.WELCOME) }
+    var serverUrl by rememberSaveable {
         mutableStateOf(if (loginOnly) savedLoginUrl.orEmpty().removeSuffix("/") else "")
     }
     val scope = rememberCoroutineScope()

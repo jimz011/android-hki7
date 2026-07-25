@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.Modifier
@@ -176,7 +177,7 @@ class MainActivity : ComponentActivity() {
                 val refreshToken by prefs.refreshToken.collectAsState(initial = loading)
                 val instances by prefs.homeAssistantInstances.collectAsState(initial = emptyList())
                 val activeInstanceId by prefs.activeHomeAssistantInstanceId.collectAsState(initial = null)
-                var forceLogin by remember { mutableStateOf(false) }
+                var forceLogin by rememberSaveable { mutableStateOf(false) }
                 val snackbarHostState = remember { SnackbarHostState() }
 
                 // Create viewModel early to observe forced logout
@@ -215,8 +216,11 @@ class MainActivity : ComponentActivity() {
                 val loggedIn = hasConnectionUrl && (!accessToken.isNullOrBlank() || !refreshToken.isNullOrBlank())
                 // Latch onboarding on once we know the user needs to log in, and keep it on through the
                 // login + permission steps (saving the token mid-flow would otherwise jump to the app).
-                var onboardingActive by remember { mutableStateOf(false) }
-                var onboardingStartsAtLogin by remember { mutableStateOf(false) }
+                // rememberSaveable so backgrounding on the permission step and returning to a recreated
+                // Activity doesn't drop the latch — with the token already saved, loggedIn would be true
+                // and onboarding would be silently skipped (no permissions, no dashboard choice, no guide).
+                var onboardingActive by rememberSaveable { mutableStateOf(false) }
+                var onboardingStartsAtLogin by rememberSaveable { mutableStateOf(false) }
                 LaunchedEffect(isLoading, loggedIn, forceLogin, instances, activeInstanceId) {
                     val fallback = instances.firstOrNull {
                         it.id != activeInstanceId && it.isAuthenticated
