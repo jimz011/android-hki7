@@ -421,8 +421,12 @@ fun SettingsDialog(
                             SettingsSubcategory("Services & data", "Messages, safety, and portability")
                             SettingsChoice(Icons.Default.Notifications, "Notifications", "Push delivery and history") { section = SettingsSection.NOTIFICATIONS }
                             SettingsChoice(Icons.Default.Backup, "Backup and Restore", "Save or restore dashboard configuration") { section = SettingsSection.BACKUP_RESTORE }
-                            if (sharingAvailable && isHaAdmin) {
-                                SettingsChoice(Icons.Default.Shield, "Parental Controls", "Hide views and rooms per person") { section = SettingsSection.PARENTAL_CONTROLS }
+                            if (!sharingAvailable || isHaAdmin) {
+                                SettingsChoice(
+                                    Icons.Default.Shield,
+                                    "Parental Controls",
+                                    if (sharingAvailable) "Hide views and rooms per person" else "Hide views and rooms — needs the HKI 7 Cloud component"
+                                ) { section = SettingsSection.PARENTAL_CONTROLS }
                             }
                             SettingsSubcategory("HKI 7", "Project information, licensing, and community support")
                             SettingsChoice(Icons.Default.Info, "About", "What HKI 7 is and how it is built") { section = SettingsSection.ABOUT }
@@ -1252,6 +1256,16 @@ fun SettingsDialog(
                                         Text(if (dashboardEditMode) "Done" else "Edit")
                                     }
                                 }
+                                if (sharingAvailable && isHaAdmin) {
+                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        Icon(Icons.Default.Share, null, tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+                                        Text(
+                                            "Tap Edit, then the share icon on a dashboard to share it with your family.",
+                                            color = appColors.onMuted,
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                }
                                 dashboards.forEach { dashboard ->
                                     Surface(
                                         Modifier.fillMaxWidth().clickable(enabled = dashboard.id != activeDashboardId) { viewModel.switchDashboard(dashboard.id) },
@@ -1339,6 +1353,17 @@ fun SettingsDialog(
                                     }
                                 }
                             }
+                            if (!sharingAvailable) {
+                                SettingsPanel {
+                                    Text("Family dashboard sharing", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                                    Text(
+                                        "Share a dashboard with your family so everyone gets the same layout — no more sending backup files between phones. Parental controls (hiding views and rooms per person) use the same add-on.",
+                                        color = appColors.onMuted,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                    Hki7CloudInstallCard()
+                                }
+                            }
                         }
                         SettingsSection.PARENTAL_CONTROLS -> {
                             val pcAreas by viewModel.areas.collectAsState()
@@ -1368,8 +1393,11 @@ fun SettingsDialog(
                                     color = appColors.onMuted,
                                     style = MaterialTheme.typography.bodySmall
                                 )
+                                if (!sharingAvailable) {
+                                    Hki7CloudInstallCard()
+                                }
                                 val nonAdmin = parentalUsers.filter { !it.isAdmin }
-                                if (nonAdmin.isEmpty()) {
+                                if (sharingAvailable && nonAdmin.isEmpty()) {
                                     Text("No non-admin users found on this Home Assistant.", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
                                 }
                                 nonAdmin.forEach { user ->
@@ -2353,6 +2381,52 @@ private fun openExternalUrl(context: android.content.Context, url: String) {
 }
 
 const val HKI7_GITHUB_URL = "https://github.com/jimz011/android-hki7"
+const val HKI7_CLOUD_GITHUB_URL = "https://github.com/jimz011/HKI7-Cloud-Component"
+
+/**
+ * Setup steps shown wherever a family feature (sharing, parental controls) needs the optional
+ * HKI 7 Cloud custom component, which isn't in the default HACS list yet.
+ */
+@Composable
+private fun Hki7CloudInstallCard() {
+    val appColors = LocalHKIAppColors.current
+    val context = LocalContext.current
+    val steps = listOf(
+        "In Home Assistant, open HACS → the ⋮ menu (top-right) → Custom repositories.",
+        "Paste $HKI7_CLOUD_GITHUB_URL, choose the \"Integration\" category, and add it.",
+        "Open the new \"HKI 7 Cloud\" entry, install it, and restart Home Assistant.",
+        "Go to Settings → Devices & Services → Add Integration → \"HKI 7 Cloud\" and confirm.",
+        "Reopen this screen — the features appear automatically."
+    )
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = itemCornerShape(),
+        color = appColors.subtleSurface
+    ) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                "This runs on a small, free Home Assistant add-on (the HKI 7 Cloud component). It isn't on HACS by default yet, so add it as a custom repository — the app then handles everything else.",
+                color = appColors.onMuted,
+                style = MaterialTheme.typography.bodySmall
+            )
+            steps.forEachIndexed { i, step ->
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("${i + 1}.", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                    Text(step, color = appColors.onSurface, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+            OutlinedButton(
+                onClick = { openGitHub(context, HKI7_CLOUD_GITHUB_URL) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = itemCornerShape()
+            ) {
+                MdiIcon("github", size = 18.dp)
+                Spacer(Modifier.width(8.dp))
+                Text("Open the component on GitHub")
+            }
+        }
+    }
+}
 
 /**
  * Opens the repository in the GitHub app when it is installed, otherwise falls back to the normal

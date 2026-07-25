@@ -67,6 +67,47 @@ private val ICON_CATEGORIES: List<Pair<String, String?>> = listOf(
     "Navigation" to "navigation",
 )
 
+/** Tabler category chips: label → Tabler `category` (matched as `#category`). */
+private val TABLER_CATEGORIES: List<Pair<String, String?>> = listOf(
+    COMMON_CATEGORY to null,
+    "Devices" to "devices",
+    "Weather" to "weather",
+    "Nature" to "nature",
+    "Map" to "map",
+    "Media" to "media",
+    "Communication" to "communication",
+    "Food" to "food",
+    "Health" to "health",
+    "Vehicles" to "vehicles",
+    "Buildings" to "buildings",
+    "Electrical" to "electrical",
+    "Sport" to "sport",
+)
+
+/** Phosphor category chips: label → Phosphor `IconCategory` (matched as `#category`). */
+private val PHOSPHOR_CATEGORIES: List<Pair<String, String?>> = listOf(
+    COMMON_CATEGORY to null,
+    "Objects" to "objects",
+    "Weather" to "weather",
+    "Nature" to "nature",
+    "Map" to "map",
+    "Media" to "media",
+    "Communication" to "communication",
+    "Commerce" to "commerce",
+    "Health" to "health",
+    "Games" to "games",
+    "People" to "people",
+    "Finance" to "finance",
+)
+
+/** The category chip list for [pack]; empty-of-categories packs use the common-only list. */
+private fun categoriesFor(pack: IconPack): List<Pair<String, String?>> = when (pack) {
+    IconPack.MDI -> ICON_CATEGORIES
+    IconPack.TABLER -> TABLER_CATEGORIES
+    IconPack.PHOSPHOR -> PHOSPHOR_CATEGORIES
+    else -> listOf(COMMON_CATEGORY to null)
+}
+
 /**
  * Full-screen icon picker backed by the MDI icon registry.
  *
@@ -104,14 +145,14 @@ fun MdiIconPickerDialog(
         when {
             // A search query overrides the category filter.
             q.isNotEmpty() -> MdiIconStore.search(context, q, pack)
-            // Non-MDI packs have no category tags: show common-first, then the full library.
+            // Packs without category tags (Simple Icons): show common-first, then the full library.
             !pack.hasCategories || category == COMMON_CATEGORY -> {
                 val commonSet = common.toHashSet()
                 common.filter { allNames.contains(it) } + allNames.filterNot { it in commonSet }
             }
             else -> {
-                val tag = ICON_CATEGORIES.firstOrNull { it.first == category }?.second
-                if (tag == null) allNames else MdiIconStore.byCategory(context, tag)
+                val tag = categoriesFor(pack).firstOrNull { it.first == category }?.second
+                if (tag == null) allNames else MdiIconStore.byCategory(context, tag, pack)
             }
         }
     }
@@ -187,7 +228,7 @@ fun MdiIconPickerDialog(
 
                 Spacer(Modifier.height(8.dp))
 
-                // ── Category filters (MDI only — other packs aren't tagged) ──
+                // ── Category filters (packs that ship category tags) ──────────
                 if (pack.hasCategories) {
                     Row(
                         modifier = Modifier
@@ -196,7 +237,7 @@ fun MdiIconPickerDialog(
                             .padding(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        ICON_CATEGORIES.forEach { (label, _) ->
+                        categoriesFor(pack).forEach { (label, _) ->
                             SettingsChoiceChip(
                                 selected = query.isBlank() && category == label,
                                 onClick = { category = label; query = "" },

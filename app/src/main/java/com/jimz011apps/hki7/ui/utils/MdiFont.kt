@@ -41,8 +41,8 @@ enum class IconPack(
 ) {
     MDI("mdi", "Material Design Icons", R.font.mdi_icons, "mdi_codepoints.txt", "mdi_keywords.txt", true),
     SIMPLE("si", "Simple Icons", R.font.simple_icons, "simple_codepoints.txt", "simple_keywords.txt", false),
-    TABLER("tb", "Tabler", R.font.tabler_icons, "tabler_codepoints.txt", null, false),
-    PHOSPHOR("ph", "Phosphor", R.font.phosphor_icons, "phosphor_codepoints.txt", null, false);
+    TABLER("tb", "Tabler", R.font.tabler_icons, "tabler_codepoints.txt", "tabler_keywords.txt", true),
+    PHOSPHOR("ph", "Phosphor", R.font.phosphor_icons, "phosphor_codepoints.txt", "phosphor_keywords.txt", true);
 
     val fontFamily: FontFamily by lazy { FontFamily(Font(fontRes)) }
 
@@ -175,9 +175,8 @@ object MdiIconStore {
         return ord.filter { it.contains(q) || (kw[it]?.contains(q) == true) }
     }
 
-    /** Slugs tagged with the MDI category [tag] (e.g. "home automation", "weather"). MDI only. */
-    fun byCategory(context: Context, tag: String): List<String> {
-        val pack = IconPack.MDI
+    /** Slugs in [pack] tagged with category [tag] (e.g. "weather", "devices"), matched on `#tag`. */
+    fun byCategory(context: Context, tag: String, pack: IconPack = IconPack.MDI): List<String> {
         val ord = allNames(context, pack)
         val kw = ensureKeywords(context, pack)
         val needle = "#" + tag.lowercase()
