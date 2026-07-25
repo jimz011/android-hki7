@@ -933,6 +933,40 @@ class PreferencesManager(
         return id
     }
 
+    /** Serialises one stored dashboard to JSON for family sharing. Snapshots the live-loaded state
+     * first so the currently-open dashboard is captured up to date. Null if the id is unknown. */
+    suspend fun exportDashboard(id: String): String? {
+        var result: String? = null
+        context.dataStore.edit { p ->
+            val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
+            saveLoadedDashboardInto(p, dashboards)
+            p[dashboardsKey] = appJson.encodeToString(dashboards)
+            result = dashboards.firstOrNull { it.id == id }?.let { appJson.encodeToString(it) }
+        }
+        return result
+    }
+
+    /** Imports a shared dashboard JSON as a local dashboard. Keyed on [sharedId] so re-importing the
+     * same shared dashboard updates it in place instead of creating duplicates. Returns the local
+     * dashboard id, or null if the JSON is invalid. Never switches the active dashboard. */
+    suspend fun importSharedDashboard(sharedId: String, json: String, nameOverride: String? = null): String? {
+        val decoded = runCatching { appJson.decodeFromString<HKIDashboard>(json) }.getOrNull() ?: return null
+        val localId = "shared-$sharedId"
+        context.dataStore.edit { p ->
+            val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
+            saveLoadedDashboardInto(p, dashboards)
+            val imported = decoded.copy(
+                id = localId,
+                name = (nameOverride ?: decoded.name).trim().ifBlank { decoded.name }
+            )
+            val idx = dashboards.indexOfFirst { it.id == localId }
+            if (idx >= 0) dashboards[idx] = imported else dashboards += imported
+            p[dashboardsKey] = appJson.encodeToString(dashboards)
+            if (p[defaultDashboardIdKey].isNullOrBlank()) p[defaultDashboardIdKey] = localId
+        }
+        return localId
+    }
+
     suspend fun switchDashboard(id: String): Boolean {
         var switched = false
         context.dataStore.edit { p ->

@@ -346,6 +346,73 @@ open class HomeAssistantClient(
         response["result"]?.jsonObject?.get("payload")?.jsonObject?.toString()
     }
 
+    /** Home Assistant users (admin only), for the "share with" picker. Empty if not permitted. */
+    open suspend fun hki7ListUsers(): List<Hki7User> = withWebSocket {
+        val response = sendCommand("hki7/users/list")
+        if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket emptyList()
+        val arr = response["result"]?.jsonObject?.get("users")?.jsonArray ?: return@withWebSocket emptyList()
+        arr.mapNotNull { element ->
+            val o = element.jsonObject
+            Hki7User(
+                id = o["id"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null,
+                name = o["name"]?.jsonPrimitive?.contentOrNull ?: "",
+                isAdmin = o["is_admin"]?.jsonPrimitive?.booleanOrNull ?: false,
+            )
+        }
+    }
+
+    /** Publishes (or updates, when [dashboardId] is given) a shared dashboard. Admin only.
+     *  [sharedWith] is a list of HA user ids, or `["*"]` for everyone. Returns metadata or null. */
+    open suspend fun hki7PublishDashboard(
+        name: String,
+        payload: JsonObject,
+        sharedWith: List<String>,
+        dashboardId: String? = null,
+    ): Hki7SharedDashboardMeta? = withWebSocket {
+        val data = buildMap<String, JsonElement> {
+            put("name", JsonPrimitive(name))
+            put("payload", payload)
+            put("shared_with", JsonArray(sharedWith.map { JsonPrimitive(it) }))
+            if (!dashboardId.isNullOrBlank()) put("dashboard_id", JsonPrimitive(dashboardId))
+        }
+        val response = sendCommand("hki7/dashboard/publish", data)
+        if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket null
+        response["result"]?.jsonObject?.let(::parseDashboardMeta)
+    }
+
+    /** Removes a shared dashboard. Admin only. Returns true if it was removed. */
+    open suspend fun hki7UnpublishDashboard(dashboardId: String): Boolean = withWebSocket {
+        val response = sendCommand("hki7/dashboard/unpublish", mapOf("dashboard_id" to JsonPrimitive(dashboardId)))
+        response["success"]?.jsonPrimitive?.booleanOrNull == true &&
+            response["result"]?.jsonObject?.get("removed")?.jsonPrimitive?.booleanOrNull == true
+    }
+
+    /** Dashboards visible to the current user (metadata only), newest first. Empty if unavailable. */
+    open suspend fun hki7ListSharedDashboards(): List<Hki7SharedDashboardMeta> = withWebSocket {
+        val response = sendCommand("hki7/dashboard/list")
+        if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket emptyList()
+        val arr = response["result"]?.jsonObject?.get("dashboards")?.jsonArray ?: return@withWebSocket emptyList()
+        arr.mapNotNull { element -> parseDashboardMeta(element.jsonObject) }
+    }
+
+    /** The raw JSON of one shared dashboard (a serialised HKIDashboard), or null if not permitted. */
+    open suspend fun hki7GetDashboard(dashboardId: String): String? = withWebSocket {
+        val response = sendCommand("hki7/dashboard/get", mapOf("dashboard_id" to JsonPrimitive(dashboardId)))
+        if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket null
+        response["result"]?.jsonObject?.get("payload")?.jsonObject?.toString()
+    }
+
+    private fun parseDashboardMeta(o: JsonObject): Hki7SharedDashboardMeta? {
+        val id = o["id"]?.jsonPrimitive?.contentOrNull ?: return null
+        return Hki7SharedDashboardMeta(
+            id = id,
+            ownerId = o["owner_id"]?.jsonPrimitive?.contentOrNull ?: "",
+            name = o["name"]?.jsonPrimitive?.contentOrNull ?: "Shared dashboard",
+            updated = o["updated"]?.jsonPrimitive?.contentOrNull ?: "",
+            sharedWith = o["shared_with"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty(),
+        )
+    }
+
     open suspend fun getAreas(): List<HAArea> {
         return withWebSocket {
             val response = requireCommandSuccess(sendCommand("config/area_registry/list"), "config/area_registry/list")

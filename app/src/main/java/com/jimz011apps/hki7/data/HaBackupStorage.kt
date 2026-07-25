@@ -15,9 +15,12 @@ import kotlinx.serialization.json.JsonObject
  * stored credentials (mirroring [GeofenceManager]) and closes it afterwards, so this
  * works from a background WorkManager job with no live view-model client.
  */
-object HaBackupStorage {
-    private val json = Json { ignoreUnknownKeys = true }
-
+/**
+ * Builds short-lived [HomeAssistantClient]s from the active instance's stored
+ * credentials (mirroring [GeofenceManager]) so the `hki7` companion features work
+ * from background jobs and settings screens without a live view-model client.
+ */
+internal object Hki7Endpoint {
     private data class Endpoint(val url: String, val token: String)
 
     private suspend fun endpoint(context: Context): Endpoint? {
@@ -31,7 +34,8 @@ object HaBackupStorage {
         return Endpoint(url, token)
     }
 
-    private suspend fun <T> withClient(context: Context, block: suspend (HomeAssistantClient) -> T): T? {
+    /** Runs [block] with a fresh client, closing it afterwards. Null if no credentials. */
+    suspend fun <T> withClient(context: Context, block: suspend (HomeAssistantClient) -> T): T? {
         val endpoint = endpoint(context) ?: return null
         val client = HomeAssistantClient(endpoint.url, endpoint.token)
         return try {
@@ -40,6 +44,13 @@ object HaBackupStorage {
             client.closeSession()
         }
     }
+}
+
+object HaBackupStorage {
+    private val json = Json { ignoreUnknownKeys = true }
+
+    private suspend fun <T> withClient(context: Context, block: suspend (HomeAssistantClient) -> T): T? =
+        Hki7Endpoint.withClient(context, block)
 
     /** True if the companion component answered `hki7/whoami` on this instance. */
     suspend fun isAvailable(context: Context): Boolean =

@@ -1190,3 +1190,19 @@ data class Hki7BackupMeta(
     val label: String,
     val size: Int,
 )
+
+/** A Home Assistant user, as reported by `hki7/users/list` (admin only). */
+data class Hki7User(
+    val id: String,
+    val name: String,
+    val isAdmin: Boolean,
+)
+
+/** Metadata for a shared dashboard stored by the `hki7` companion component. */
+data class Hki7SharedDashboardMeta(
+    val id: String,
+    val ownerId: String,
+    val name: String,
+    val updated: String,
+    val sharedWith: List<String>,
+)

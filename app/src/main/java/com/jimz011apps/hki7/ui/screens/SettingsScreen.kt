@@ -39,6 +39,8 @@ import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BatterySaver
 import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Dashboard
@@ -117,6 +119,7 @@ import com.jimz011apps.hki7.data.CloudBackupStorage
 import com.jimz011apps.hki7.data.CloudBackupFile
 import com.jimz011apps.hki7.data.CloudBackupWork
 import com.jimz011apps.hki7.data.HaBackupStorage
+import com.jimz011apps.hki7.data.HaDashboardSharing
 import com.jimz011apps.hki7.data.driveAuthorizationRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.jimz011apps.hki7.data.HKICustomPage
@@ -267,6 +270,15 @@ fun SettingsDialog(
     var showHaRestore by remember { mutableStateOf(false) }
     var haRestoreFiles by remember { mutableStateOf(emptyList<com.jimz011apps.hki7.data.Hki7BackupMeta>()) }
     var haBackupBusy by remember { mutableStateOf(false) }
+    // ── Family dashboard sharing ──
+    var shareDashboard by remember { mutableStateOf<com.jimz011apps.hki7.data.HKIDashboard?>(null) }
+    var shareUsers by remember { mutableStateOf(emptyList<com.jimz011apps.hki7.data.Hki7User>()) }
+    var shareSelected by remember { mutableStateOf(setOf<String>()) }
+    var shareEveryone by remember { mutableStateOf(false) }
+    var shareBusy by remember { mutableStateOf(false) }
+    var sharedWithMe by remember { mutableStateOf(emptyList<com.jimz011apps.hki7.data.Hki7SharedDashboardMeta>()) }
+    var sharingAvailable by remember { mutableStateOf(false) }
+    var isHaAdmin by remember { mutableStateOf(false) }
     val avatarPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let {
             runCatching { context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
@@ -1235,6 +1247,14 @@ fun SettingsDialog(
                             }
                         }
                         SettingsSection.DASHBOARD -> {
+                            LaunchedEffect(Unit) {
+                                val id = runCatching { HaDashboardSharing.whoami(context) }.getOrNull()
+                                sharingAvailable = id != null
+                                isHaAdmin = id?.isAdmin == true
+                                sharedWithMe = if (id != null)
+                                    runCatching { HaDashboardSharing.listSharedForMe(context) }.getOrDefault(emptyList())
+                                else emptyList()
+                            }
                             SettingsPanel {
                                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                     Text("Dashboards", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
@@ -1259,6 +1279,14 @@ fun SettingsDialog(
                                                 Icon(if (dashboard.id == defaultDashboardId) Icons.Default.Star else Icons.Default.StarBorder, "Set as default")
                                             }
                                             if (dashboardEditMode) {
+                                                if (sharingAvailable && isHaAdmin) {
+                                                    IconButton(onClick = {
+                                                        shareDashboard = dashboard
+                                                        shareSelected = emptySet()
+                                                        shareEveryone = false
+                                                        shareUsers = emptyList()
+                                                    }) { Icon(Icons.Default.Share, "Share with family") }
+                                                }
                                                 IconButton(onClick = { renameDashboard = dashboard }) { Icon(Icons.Default.Edit, "Rename") }
                                                 IconButton(onClick = { deleteDashboard = dashboard }, enabled = dashboards.size > 1) {
                                                     Icon(Icons.Default.Delete, "Delete", tint = MaterialTheme.colorScheme.error)
@@ -1275,6 +1303,52 @@ fun SettingsDialog(
                                     Icon(Icons.Default.Add, null)
                                     Spacer(Modifier.width(8.dp))
                                     Text("New Dashboard")
+                                }
+                            }
+                            if (sharingAvailable && sharedWithMe.isNotEmpty()) {
+                                SettingsPanel {
+                                    Text("Shared with me", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                                    Text(
+                                        "Dashboards shared by your family. Import to add a copy to your dashboards; import again later to pull updates.",
+                                        color = appColors.onMuted,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                    sharedWithMe.forEach { meta ->
+                                        Surface(
+                                            Modifier.fillMaxWidth(),
+                                            shape = itemCornerShape(),
+                                            color = appColors.subtleSurface
+                                        ) {
+                                            Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                                Column(Modifier.weight(1f)) {
+                                                    Text(meta.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                                    val updated = meta.updated.take(19).replace('T', ' ')
+                                                    Text(
+                                                        if (updated.isNotBlank()) "Updated $updated" else "Shared dashboard",
+                                                        color = appColors.onMuted,
+                                                        style = MaterialTheme.typography.bodySmall
+                                                    )
+                                                }
+                                                TextButton(
+                                                    enabled = !shareBusy,
+                                                    onClick = {
+                                                        shareBusy = true
+                                                        scope.launch {
+                                                            val localId = runCatching { HaDashboardSharing.import(context, prefs, meta) }.getOrNull()
+                                                            setupChangedMessage = if (localId != null)
+                                                                "\"${meta.name}\" imported into your dashboards."
+                                                            else "Could not import \"${meta.name}\"."
+                                                            shareBusy = false
+                                                        }
+                                                    }
+                                                ) {
+                                                    Icon(Icons.Default.Download, null)
+                                                    Spacer(Modifier.width(6.dp))
+                                                    Text("Import")
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1658,6 +1732,83 @@ fun SettingsDialog(
                 }
             },
             confirmButton = { TextButton(onClick = { showHaRestore = false }) { Text("Cancel") } }
+        )
+    }
+
+    shareDashboard?.let { dash ->
+        LaunchedEffect(dash.id) {
+            shareUsers = runCatching { HaDashboardSharing.listUsers(context) }.getOrDefault(emptyList())
+        }
+        AlertDialog(
+            onDismissRequest = { if (!shareBusy) shareDashboard = null },
+            title = { Text("Share \"${dash.name}\"") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        "Choose who can see this dashboard. They can import it into their own app.",
+                        color = appColors.onMuted,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Surface(
+                        Modifier.fillMaxWidth().clickable { shareEveryone = !shareEveryone },
+                        shape = itemCornerShape(),
+                        color = if (shareEveryone) MaterialTheme.colorScheme.primaryContainer else appColors.subtleSurface
+                    ) {
+                        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text("Everyone", color = appColors.onSurface, modifier = Modifier.weight(1f))
+                            if (shareEveryone) Icon(Icons.Default.CheckCircle, null, tint = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                    if (!shareEveryone) {
+                        shareUsers.forEach { user ->
+                            val selected = user.id in shareSelected
+                            Surface(
+                                Modifier.fillMaxWidth().clickable {
+                                    shareSelected = if (selected) shareSelected - user.id else shareSelected + user.id
+                                },
+                                shape = itemCornerShape(),
+                                color = if (selected) MaterialTheme.colorScheme.primaryContainer else appColors.subtleSurface
+                            ) {
+                                Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        if (user.isAdmin) "${user.name} (admin)" else user.name,
+                                        color = appColors.onSurface,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    if (selected) Icon(Icons.Default.CheckCircle, null, tint = MaterialTheme.colorScheme.primary)
+                                }
+                            }
+                        }
+                        if (shareUsers.isEmpty()) {
+                            Text("No other users found on this Home Assistant.", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    enabled = !shareBusy && (shareEveryone || shareSelected.isNotEmpty()),
+                    onClick = {
+                        shareBusy = true
+                        val recipients = if (shareEveryone) listOf(HaDashboardSharing.EVERYONE) else shareSelected.toList()
+                        scope.launch {
+                            val meta = runCatching {
+                                HaDashboardSharing.publish(
+                                    context, prefs,
+                                    localDashboardId = dash.id,
+                                    name = dash.name,
+                                    sharedWith = recipients,
+                                    existingSharedId = dash.id,
+                                )
+                            }.getOrNull()
+                            setupChangedMessage = if (meta != null) "\"${dash.name}\" shared." else "Sharing failed."
+                            shareBusy = false
+                            shareDashboard = null
+                        }
+                    }
+                ) { Text(if (shareBusy) "Sharing…" else "Share") }
+            },
+            dismissButton = { TextButton(enabled = !shareBusy, onClick = { shareDashboard = null }) { Text("Cancel") } }
         )
     }
 

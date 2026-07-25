@@ -45,6 +45,8 @@ import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 private val changelog: Map<String, List<String>> = mapOf(
     "1.0.0-beta.3" to listOf(
         "Added a second icon pack: Simple Icons (brand & service logos like Home Assistant, Spotify, Philips Hue, and more). Pick your default pack under Settings › Appearance › Icon pack, or switch packs per button while choosing an icon.",
+        "New: back up to your own Home Assistant instead of only Google Drive, using the free HKI 7 Cloud companion component. Both can be enabled at once. Restore now lets you choose Local, Google Drive, or Home Assistant.",
+        "New: family dashboard sharing. With HKI 7 Cloud installed, an admin can share a dashboard with specific family members (or everyone), and they can import it into their own app — no more passing backup files between phones.",
     ),
     "1.0.0-beta.2" to listOf(
         "Fixed an issue with smaller displays when either the height was too small or the width too narrow (or both), the content would look bad. It now falls back to a single column design on smaller screens. This has been changed across all elements.",
