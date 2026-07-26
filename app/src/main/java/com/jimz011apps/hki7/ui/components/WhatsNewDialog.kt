@@ -44,11 +44,18 @@ import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
  */
 private val changelog: Map<String, List<String>> = mapOf(
     "1.0.0-beta.3" to listOf(
-        "Added three new icon packs alongside Material Design Icons: Simple Icons (brand & service logos like Spotify and Philips Hue), Tabler, and Phosphor. When choosing an icon for any button, switch packs right in the icon picker.",
-        "New: back up to your own Home Assistant instead of only Google Drive, using the free HKI 7 Cloud companion component. Both can be enabled at once. Restore now lets you choose Local, Google Drive, or Home Assistant.",
-        "New: family dashboard sharing. With HKI 7 Cloud installed, an admin can share a dashboard with specific family members (or everyone), and they can import it into their own app — no more passing backup files between phones.",
-        "New: parental controls. Admins can hide certain views and rooms from specific people, right from Settings › Parental Controls. This keeps a dashboard simple for kids or guests (it's UX-level hiding, not a Home Assistant security restriction).",
-        "New: animated icons. Entity icons now gently glow, spin, or pulse while the device is active — lights glow, fans and vacuums spin, playing media and active climate pulse. Only active devices animate, and you can turn it all off under Settings › Appearance › Theme. (This replaces the old per-button 'spin icon' toggle.)",
+        "Added 3 new icon packs: Simple Icons, Tabler, and Phosphor icons.",
+        "Icons can now have animation effects.",
+        "Family dashboard sharing*",
+        "Parental controls*",
+        "Local HA Cloud backup*",
+        "Media player icons are now colored, and clicking the app icon attempts to open the installed app (e.g. if music plays from Spotify, clicking the logo in the media player bar will open the Spotify app).",
+        "New widget: iFrame.",
+        "Fixed bug: Energy views wouldn't show negative values when exporting power.",
+        "Fixed bug: Onboarding would auto-complete when exiting/tabbing out of the app prematurely.",
+        "Fixed bug: the thermostat dial's mode-selection button was too large and overlapping items.",
+        "Many other smaller bug fixes.",
+        "* (HKI 7 Cloud Component integration required)",
     ),
     "1.0.0-beta.2" to listOf(
         "Fixed an issue with smaller displays when either the height was too small or the width too narrow (or both), the content would look bad. It now falls back to a single column design on smaller screens. This has been changed across all elements.",
@@ -148,18 +155,27 @@ fun WhatsNewDialog(onDismiss: () -> Unit) {
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         entries.forEach { entry ->
-                            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                                Box(
-                                    Modifier
-                                        .padding(top = 7.dp)
-                                        .size(6.dp)
-                                        .background(MaterialTheme.colorScheme.primary, CircleShape)
-                                )
+                            // Entries starting with "*" are footnotes: no bullet, muted style.
+                            if (entry.startsWith("*")) {
                                 Text(
                                     entry,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = appColors.onSurface
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = appColors.onMuted
                                 )
+                            } else {
+                                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    Box(
+                                        Modifier
+                                            .padding(top = 7.dp)
+                                            .size(6.dp)
+                                            .background(MaterialTheme.colorScheme.primary, CircleShape)
+                                    )
+                                    Text(
+                                        entry,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = appColors.onSurface
+                                    )
+                                }
                             }
                         }
                     }
