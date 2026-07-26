@@ -62,7 +62,9 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.RoundedCorner
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.PowerSettingsNew
@@ -123,7 +125,10 @@ import com.jimz011apps.hki7.data.CloudBackupFile
 import com.jimz011apps.hki7.data.CloudBackupWork
 import com.jimz011apps.hki7.data.HaBackupStorage
 import com.jimz011apps.hki7.data.HaDashboardSharing
+import androidx.compose.foundation.layout.FlowRow
 import com.jimz011apps.hki7.data.HaParentalControls
+import com.jimz011apps.hki7.ui.components.DefaultIconEffectByGroup
+import com.jimz011apps.hki7.ui.components.IconEffectGroups
 import com.jimz011apps.hki7.data.driveAuthorizationRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.jimz011apps.hki7.data.HKICustomPage
@@ -157,13 +162,15 @@ import java.util.UUID
 import coil3.compose.AsyncImage
 
 private enum class SettingsSection {
-    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, NAV_BAR, MEDIA_PLAYERS, DASHBOARD, PARENTAL_CONTROLS, BACKUP_RESTORE, ACCOUNT, ABOUT, LICENSE, SUPPORT
+    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, CORNERS, ICONS, NAV_BAR, MEDIA_PLAYERS, DASHBOARD, PARENTAL_CONTROLS, BACKUP_RESTORE, ACCOUNT, ABOUT, LICENSE, SUPPORT
 }
 
 private fun sectionTitle(section: SettingsSection): String = when (section) {
     SettingsSection.MENU -> "Settings"
     SettingsSection.NAV_BAR -> "Navigation Bar"
     SettingsSection.APPEARANCE -> "Appearance"
+    SettingsSection.CORNERS -> "Corners"
+    SettingsSection.ICONS -> "Icons"
     SettingsSection.HEADER -> "Header"
     SettingsSection.MEDIA_PLAYERS -> "Media Players"
     SettingsSection.BACKUP_RESTORE -> "Backup and Restore"
@@ -182,6 +189,8 @@ private fun sectionSubtitle(section: SettingsSection): String = when (section) {
     SettingsSection.LOCATION -> "Presence updates and background access"
     SettingsSection.DASHBOARD -> "Create, switch, rename, and organize dashboards"
     SettingsSection.APPEARANCE -> "Make the dashboard feel like yours"
+    SettingsSection.CORNERS -> "Roundness of buttons, cards, and widgets"
+    SettingsSection.ICONS -> "Icon animations and per-domain effects"
     SettingsSection.HEADER -> "Choose whether the dashboard header is shown"
     SettingsSection.THEME -> "Color, contrast, mode, and corner styling"
     SettingsSection.FONTS -> "Size, weight, and typeface readability"
@@ -202,6 +211,8 @@ private fun sectionIcon(section: SettingsSection): ImageVector = when (section) 
     SettingsSection.LOCATION -> Icons.Default.MyLocation
     SettingsSection.DASHBOARD -> Icons.Default.Dashboard
     SettingsSection.APPEARANCE, SettingsSection.THEME -> Icons.Default.Palette
+    SettingsSection.CORNERS -> Icons.Default.RoundedCorner
+    SettingsSection.ICONS -> Icons.Default.AutoAwesome
     SettingsSection.HEADER -> Icons.Default.Tune
     SettingsSection.FONTS -> Icons.Default.TextFields
     SettingsSection.NAV_BAR -> Icons.Default.Menu
@@ -411,12 +422,12 @@ fun SettingsDialog(
                 ) {
                     when (section) {
                         SettingsSection.MENU -> {
-                            SettingsSubcategory("Your home", "Identity, connection, and dashboard management")
+                            SettingsSubcategory("Your home", "Identity and connection")
                             SettingsChoice(Icons.Default.Person, "Account", displayName) { section = SettingsSection.ACCOUNT }
                             SettingsChoice(Icons.Default.SettingsEthernet, "Connection", connectionText(status, currentConnectionRoute)) { section = SettingsSection.CONNECTION }
                             SettingsChoice(Icons.Default.MyLocation, "Location", "Device tracker and geocoded location") { section = SettingsSection.LOCATION }
+                            SettingsSubcategory("Personalize", "Dashboards, visual style, and everyday navigation")
                             SettingsChoice(Icons.Default.Dashboard, "Dashboard", dashboardMode.replaceFirstChar { it.uppercase() }) { section = SettingsSection.DASHBOARD }
-                            SettingsSubcategory("Personalize", "Visual style and everyday navigation")
                             SettingsChoice(Icons.Default.Palette, "Appearance", "Theme and navigation bar") { section = SettingsSection.APPEARANCE }
                             SettingsSubcategory("Services & data", "Messages, safety, and portability")
                             SettingsChoice(Icons.Default.Notifications, "Notifications", "Push delivery and history") { section = SettingsSection.NOTIFICATIONS }
@@ -854,6 +865,8 @@ fun SettingsDialog(
                             SettingsSubcategory("Visual style", "Color, typography, and component shape")
                             SettingsChoice(Icons.Default.Palette, "Theme", "Colors and light/dark mode") { section = SettingsSection.THEME }
                             SettingsChoice(Icons.Default.TextFields, "Fonts", "Text size, boldness and font family") { section = SettingsSection.FONTS }
+                            SettingsChoice(Icons.Default.RoundedCorner, "Corners", "Roundness of buttons, cards and widgets") { section = SettingsSection.CORNERS }
+                            SettingsChoice(Icons.Default.AutoAwesome, "Icons", "Icon animations and effects") { section = SettingsSection.ICONS }
                             SettingsChoice(Icons.Default.Tune, "Header", "Choose an expanded or compact dashboard header") { section = SettingsSection.HEADER }
                             SettingsSubcategory("Everyday navigation", "Tabs and media controls shown throughout the app")
                             SettingsChoice(Icons.Default.Menu, "Navigation Bar", "Reorder and hide tabs") { section = SettingsSection.NAV_BAR }
@@ -1206,6 +1219,11 @@ fun SettingsDialog(
                                         )
                                     }
                                 }
+                            }
+                        }
+                        SettingsSection.CORNERS -> {
+                            val itemCornerRadius by prefs.itemCornerRadius.collectAsState(initial = 20)
+                            SettingsPanel {
                                 Text("Item corner roundness", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
                                 Text(
                                     "Applies to all dashboard buttons, widgets, stacks, rooms, and cards.",
@@ -1221,12 +1239,17 @@ fun SettingsDialog(
                                         )
                                     }
                                 }
-                                val iconAnimationsEnabled by prefs.iconAnimationsEnabled.collectAsState(initial = true)
+                            }
+                        }
+                        SettingsSection.ICONS -> {
+                            val iconAnimationsEnabled by prefs.iconAnimationsEnabled.collectAsState(initial = false)
+                            val iconEffectDefaults by prefs.iconEffectDefaults.collectAsState(initial = emptyMap())
+                            SettingsPanel {
                                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                     Column(Modifier.weight(1f)) {
                                         Text("Animated icons", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
                                         Text(
-                                            "Entity icons gently glow, spin, or pulse while the device is on (lights glow, fans and vacuums spin, playing media and active climate pulse, and so on). Only active devices animate.",
+                                            "Entity icons gently glow, spin, or pulse while the device is on. Only active devices animate.",
                                             color = appColors.onMuted,
                                             style = MaterialTheme.typography.bodySmall
                                         )
@@ -1235,6 +1258,29 @@ fun SettingsDialog(
                                         checked = iconAnimationsEnabled,
                                         onCheckedChange = { scope.launch { prefs.saveIconAnimationsEnabled(it) } }
                                     )
+                                }
+                            }
+                            if (iconAnimationsEnabled) {
+                                SettingsPanel {
+                                    Text("Default effect per type", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
+                                    Text(
+                                        "The effect used when a button's animation is set to \"Auto\". You can still override any individual button.",
+                                        color = appColors.onMuted,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                    IconEffectGroups.forEach { (group, label) ->
+                                        Text(label, color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
+                                        val current = iconEffectDefaults[group] ?: DefaultIconEffectByGroup.getValue(group)
+                                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            listOf("glow" to "Glow", "spin" to "Spin", "pulse" to "Pulse", "none" to "None").forEach { (value, chip) ->
+                                                SettingsChoiceChip(
+                                                    selected = current == value,
+                                                    onClick = { scope.launch { prefs.saveIconEffectDefault(group, value) } },
+                                                    label = { Text(chip) }
+                                                )
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

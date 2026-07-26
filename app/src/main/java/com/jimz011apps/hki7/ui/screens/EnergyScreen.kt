@@ -295,7 +295,9 @@ fun EnergyScreen(viewModel: MainViewModel) {
 
     val solarW   = entityWatts(energyConfig.solarPowerEntityId) ?: 0f
     val gridW    = entityWatts(energyConfig.gridPowerEntityId) ?: 0f
-    val homeW    = entityWatts(energyConfig.homePowerEntityId) ?: (solarW + gridW).coerceAtLeast(0f)
+    // Not clamped to ≥ 0: a net home-power sensor reports negative while the house is net-exporting,
+    // and the tiles/stats surface that (see formatW, which is sign-aware).
+    val homeW    = entityWatts(energyConfig.homePowerEntityId) ?: (solarW + gridW)
     val batteryW = entityWatts(energyConfig.batteryPowerEntityId) ?: 0f
     val solarKwh   = entityFloat(energyConfig.solarEnergyEntityId) ?: 0f
     val costVal    = entityFloat(energyConfig.energyCostEntityId) ?: 0f
@@ -760,7 +762,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
                             "${formatW(solarW.coerceAtLeast(0f))} · ${if (solarW > 10f) "Producing" else "Idle"}",
                             if (hasSolar) ({ page = "solar" }) else null))
                         add(TileSpec(Icons.Default.Home, primaryColor, "Home",
-                            "${formatW(homeW)} · ${if (homeW > 10f) "Consuming" else "Idle"}", null))
+                            "${formatW(homeW)} · ${when { homeW > 10f -> "Consuming"; homeW < -10f -> "Exporting"; else -> "Idle" }}", null))
                         if (hasBattery) add(TileSpec(
                             if (batteryW > 10f) Icons.Default.BatteryChargingFull else Icons.Default.BatteryStd,
                             when { (batteryPct ?: 0) > 50 -> ExportGreen; (batteryPct ?: 0) > 20 -> SolarAmber; else -> ImportRed },
@@ -1447,7 +1449,7 @@ private fun EnergyHero(
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    formatW(homeW.coerceAtLeast(0f)),
+                    formatW(homeW),
                     style = MaterialTheme.typography.headlineMedium,
                     color = appColors.onSurface,
                     fontWeight = FontWeight.Bold
@@ -2411,7 +2413,15 @@ private fun UtilityCard(
     }
 }
 
-private fun formatW(w: Float) = when { w < 1f -> "0 W"; w < 1000f -> "${w.toInt()} W"; else -> "${"%.1f".format(w / 1000f)} kW" }
+private fun formatW(w: Float): String {
+    val a = abs(w)
+    val sign = if (w <= -1f) "-" else ""
+    return when {
+        a < 1f -> "0 W"
+        a < 1000f -> "$sign${a.toInt()} W"
+        else -> "$sign${"%.1f".format(a / 1000f)} kW"
+    }
+}
 
 private fun formatCarbonIntensity(value: Float, rawUnit: String): String {
     if (rawUnit.trim() == "%") {
@@ -3158,7 +3168,7 @@ fun EnergyCardWidgetView(
 
     val solarW = byId.wattsOf(cfg.solarPowerEntityId) ?: 0f
     val gridW = byId.wattsOf(cfg.gridPowerEntityId) ?: 0f
-    val homeW = byId.wattsOf(cfg.homePowerEntityId) ?: (solarW + gridW).coerceAtLeast(0f)
+    val homeW = byId.wattsOf(cfg.homePowerEntityId) ?: (solarW + gridW)
     val batteryW = byId.wattsOf(cfg.batteryPowerEntityId) ?: 0f
     val batteryPct = cfg.batteryEntityId?.let { byId[it] }?.state?.toIntOrNull()
     val hasBattery = !cfg.batteryEntityId.isNullOrBlank()
@@ -3319,7 +3329,7 @@ fun EnergyCardWidgetView(
                         "${formatW(abs(gridW))} · $gridStatus", Modifier.weight(1f),
                         onClick = onNavigate?.let { navigate -> { navigate("electricity") } })
                     EnergyLiveTile(Icons.Default.Home, MaterialTheme.colorScheme.primary, "Home",
-                        "${formatW(homeW)} · ${if (homeW > 10f) "Consuming" else "Idle"}", Modifier.weight(1f))
+                        "${formatW(homeW)} · ${when { homeW > 10f -> "Consuming"; homeW < -10f -> "Exporting"; else -> "Idle" }}", Modifier.weight(1f))
                 }
                 if (hasSolar || hasBattery) {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {

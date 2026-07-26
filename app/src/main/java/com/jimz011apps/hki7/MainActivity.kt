@@ -86,6 +86,7 @@ import com.jimz011apps.hki7.ui.connectionIssueGraceMillis
 import com.jimz011apps.hki7.ui.HomeAssistantRestartPhase
 import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.data.HaParentalControls
+import com.jimz011apps.hki7.ui.components.IconEffectDefaults
 import com.jimz011apps.hki7.ui.components.LocalIconAnimationsEnabled
 import com.jimz011apps.hki7.ui.NavBarConfig
 import com.jimz011apps.hki7.ui.homeAssistantConnectionStatusLabel
@@ -149,7 +150,9 @@ class MainActivity : ComponentActivity() {
             val fontScale by prefs.fontScale.collectAsState(initial = 1f)
             val fontWeightAdjust by prefs.fontWeightAdjust.collectAsState(initial = 0)
             val fontFamily by prefs.fontFamily.collectAsState(initial = "default")
-            val iconAnimationsEnabled by prefs.iconAnimationsEnabled.collectAsState(initial = true)
+            val iconAnimationsEnabled by prefs.iconAnimationsEnabled.collectAsState(initial = false)
+            val iconEffectDefaults by prefs.iconEffectDefaults.collectAsState(initial = emptyMap())
+            LaunchedEffect(iconEffectDefaults) { IconEffectDefaults.byGroup = iconEffectDefaults }
             val defaultIconPack by prefs.defaultIconPack.collectAsState(initial = "mdi")
             LaunchedEffect(defaultIconPack) {
                 IconPreferences.defaultPack = IconPack.fromId(defaultIconPack)

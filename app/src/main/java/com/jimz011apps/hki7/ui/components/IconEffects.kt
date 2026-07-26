@@ -55,11 +55,52 @@ fun isEntityActive(entity: HAEntity): Boolean {
     }
 }
 
-/** The domain-appropriate effect for an active entity. */
-private fun domainEffect(entity: HAEntity): IconEffect = when (entity.entity_id.substringBefore('.')) {
-    "light", "switch", "input_boolean" -> IconEffect.GLOW
-    "fan", "vacuum" -> IconEffect.SPIN
-    else -> IconEffect.PULSE  // media playing, climate heating, motion, sirens, moving covers, …
+/** Editable groups (id → label) shown in Settings › Appearance › Icons for per-type defaults. */
+val IconEffectGroups: List<Pair<String, String>> = listOf(
+    "lights" to "Lights & switches",
+    "fans" to "Fans & vacuums",
+    "media" to "Media players",
+    "climate" to "Climate & humidity",
+    "alerts" to "Sensors & alarms",
+    "other" to "Everything else",
+)
+
+/** Built-in default effect (string id) per group, used until the user overrides it. */
+val DefaultIconEffectByGroup: Map<String, String> = mapOf(
+    "lights" to "glow",
+    "fans" to "spin",
+    "media" to "pulse",
+    "climate" to "pulse",
+    "alerts" to "pulse",
+    "other" to "pulse",
+)
+
+/** The user's chosen default effect per group, mirrored from preferences (see MainActivity). */
+object IconEffectDefaults {
+    @Volatile var byGroup: Map<String, String> = emptyMap()
+}
+
+private fun groupForDomain(domain: String): String = when (domain) {
+    "light", "switch", "input_boolean" -> "lights"
+    "fan", "vacuum" -> "fans"
+    "media_player" -> "media"
+    "climate", "humidifier", "water_heater" -> "climate"
+    "binary_sensor", "siren", "alarm_control_panel" -> "alerts"
+    else -> "other"
+}
+
+private fun effectFromId(id: String): IconEffect = when (id) {
+    "glow" -> IconEffect.GLOW
+    "spin" -> IconEffect.SPIN
+    "pulse" -> IconEffect.PULSE
+    else -> IconEffect.NONE
+}
+
+/** The domain-appropriate effect for an active entity, honouring the user's per-group defaults. */
+private fun domainEffect(entity: HAEntity): IconEffect {
+    val group = groupForDomain(entity.entity_id.substringBefore('.'))
+    val id = IconEffectDefaults.byGroup[group] ?: DefaultIconEffectByGroup.getValue(group)
+    return effectFromId(id)
 }
 
 /**
