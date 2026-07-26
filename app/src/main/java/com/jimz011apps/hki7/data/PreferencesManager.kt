@@ -360,7 +360,9 @@ class PreferencesManager(
     val fontFamily: Flow<String> = context.dataStore.data.map { it[fontFamilyKey] ?: "default" }
     /** The icon pack pre-selected in the icon picker when adding a new icon (id: "mdi"/"si"). */
     val defaultIconPack: Flow<String> = context.dataStore.data.map { it[iconPackKey] ?: "mdi" }
-    /** Whether entity icons animate while the device is active (glow/spin/pulse). Off by default. */
+    /** Whether entity icons animate while the device is active (glow/spin/pulse). New installs are
+     * seeded on during onboarding (see saveInitialConnectionDetails); the fallback stays false so
+     * pre-existing users who never opted in are not flipped on. */
     val iconAnimationsEnabled: Flow<Boolean> = context.dataStore.data.map { it[iconAnimationsKey] ?: false }
     /** User-chosen default effect per icon group (group id → "glow"/"spin"/"pulse"/"none"). */
     val iconEffectDefaults: Flow<Map<String, String>> = context.dataStore.data.map {
@@ -904,6 +906,10 @@ class PreferencesManager(
             if (expiresInSeconds != null) {
                 preferences[accessTokenExpiryKey] = System.currentTimeMillis() + expiresInSeconds * 1000L
             }
+            // New installs default to animated icon effects. This runs only during first-time
+            // onboarding (re-login uses saveConnectionDetails), so existing users who left the
+            // toggle off are never flipped on.
+            if (!preferences.contains(iconAnimationsKey)) preferences[iconAnimationsKey] = true
             snapshotActiveInstance(preferences)
         }
     }

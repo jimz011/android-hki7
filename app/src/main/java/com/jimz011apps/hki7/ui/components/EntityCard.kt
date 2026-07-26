@@ -644,9 +644,9 @@ fun defaultEntityIconSlug(
         "light" -> lightIconSlug(entity, state)
         "lock" -> when {
             lockDoorOpen                       -> "door-open"
-            state == "locked"                  -> "lock"
-            state == "unavailable" || state == "unknown" -> "lock"
-            else                               -> "lock-open-alert"
+            state == "locked"                  -> "door-closed-lock"
+            state == "unavailable" || state == "unknown" -> "door-closed-lock"
+            else                               -> "door-open"
         }
         "media_player" -> "speaker"
         "person" -> "account"

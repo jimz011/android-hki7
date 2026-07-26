@@ -51,7 +51,19 @@ private val beta4Through6Notes = listOf(
     "Fixed: the app icon looked oversized after the recent themed-icon (monochrome) update. The mark now sits with proper padding, matching other app icons on your home screen and in the themed-icon style.",
 )
 
+// beta.7 leads with its own feature/fix notes, then carries the backup/icon notes forward so anyone
+// updating straight from beta.3 still sees them.
+private val beta7Notes = listOf(
+    "Automatic room import is tidier: when a device's main job is a light, climate, cover, fan, humidifier, lock, or vacuum, its extra helper switches (child locks, sleep or display toggles, a smart light's paired relay) are no longer added as separate room switches.",
+    "Automatic import now keeps climate devices from different integrations apart — your Tado thermostats and a Tuya AC each get their own control instead of being merged into one aggregated tile.",
+    "Door locks now use clear door icons: a closed, locked door when locked and an open door when unlocked, instead of a plain padlock.",
+    "Header badges that summarize several entities can now be reordered — choose which entity leads from the badge's settings.",
+    "Animated icon effects are now on by default for new installs. Existing setups keep your current choice; toggle it under Settings › Appearance › Icons.",
+    "Fixed: the \"Unable to connect\" screen (with Refresh and Log in again) now appears reliably when Home Assistant becomes unreachable — for example after a trusted-network login when you leave Wi-Fi — instead of leaving a stale dashboard on screen.",
+)
+
 private val changelog: Map<String, List<String>> = mapOf(
+    "1.0.0-beta.7" to beta7Notes + beta4Through6Notes,
     "1.0.0-beta.6" to listOf(
         "Fixed: in edit mode, the Add Widget and Add Room / Floor bars no longer overlap the system navigation buttons when you use three-button navigation instead of gesture navigation.",
     ) + beta4Through6Notes,

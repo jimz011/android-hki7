@@ -92,6 +92,11 @@ internal fun connectionIssueGraceMillis(
  * connection that failed three consecutive attempts. */
 internal const val CONNECTION_FAILURES_BEFORE_ERROR = 3
 
+/** A live dashboard is kept on screen through short-lived refresh failures, but a connection that is
+ * really gone must not stay masked forever. After this many consecutive silent failures while still
+ * nominally CONNECTED, the actionable error overlay is shown instead. */
+internal const val SILENT_REFRESH_FAILURES_BEFORE_ERROR = 2
+
 internal fun connectionStatusAfterFailures(failedAttempts: Int): ConnectionStatus =
     if (failedAttempts < CONNECTION_FAILURES_BEFORE_ERROR) {
         ConnectionStatus.CONNECTING
@@ -181,6 +186,25 @@ private val CAMERA_DEVICE_AUTO_CONTROL_DOMAINS = setOf(
     "lock",
     "climate"
 )
+
+/** Domains whose entity defines a device's primary room function. When a device already contributes
+ * one of these controls, any [PRIMARY_DEVICE_AUXILIARY_DOMAINS] siblings it also exposes are
+ * configuration toggles for that device (child lock, sleep mode, a light's paired relay) rather than
+ * standalone room controls, and are omitted from auto import. */
+private val PRIMARY_DEVICE_CONTROL_DOMAINS = setOf(
+    "light",
+    "climate",
+    "cover",
+    "fan",
+    "humidifier",
+    "lock",
+    "vacuum"
+)
+
+/** Auxiliary control domains suppressed on a device that already owns a primary control. Only
+ * switches are hidden: a device's real secondary controls (a fan on a climate unit, a second light)
+ * live in their own primary domain and must stay. */
+private val PRIMARY_DEVICE_AUXILIARY_DOMAINS = setOf("switch")
 
 /** Sensor-backed room counters whose owning device may also expose configuration controls that
  * should not become regular room lights or switches. LIGHTS and DEVICES are deliberately excluded: those
@@ -310,6 +334,31 @@ internal fun cameraDeviceSiblingEntityIdsToExclude(
     return areaIds.asSequence()
         .filter { it.substringBefore('.') in CAMERA_DEVICE_AUTO_CONTROL_DOMAINS }
         .filter { registryById[it]?.device_id in cameraDeviceIds }
+        .toSet()
+}
+
+/** Returns switch entities that belong to a device whose primary function is already represented by
+ * a light, climate, cover, fan, humidifier, lock, or vacuum entity in the same room. Manufacturers
+ * expose these as child-lock, sleep-mode, or paired-relay toggles (a Tuya light's bundled switch, a
+ * thermostat's screen lock); importing them as standalone room switches clutters the room and
+ * duplicates the primary control. Registry device ownership is the only association considered, so
+ * an independent switch that merely shares a name with a light is never hidden. */
+internal fun primaryDeviceAuxiliarySwitchEntityIdsToExclude(
+    areaEntityIds: Collection<String>,
+    registry: List<HAEntityRegistryEntry>
+): Set<String> {
+    if (areaEntityIds.isEmpty()) return emptySet()
+    val areaIds = areaEntityIds.toHashSet()
+    val registryById = registry.associateBy(HAEntityRegistryEntry::entity_id)
+    val primaryDeviceIds = areaIds.asSequence()
+        .filter { it.substringBefore('.') in PRIMARY_DEVICE_CONTROL_DOMAINS }
+        .mapNotNull { registryById[it]?.device_id }
+        .toHashSet()
+    if (primaryDeviceIds.isEmpty()) return emptySet()
+
+    return areaIds.asSequence()
+        .filter { it.substringBefore('.') in PRIMARY_DEVICE_AUXILIARY_DOMAINS }
+        .filter { registryById[it]?.device_id in primaryDeviceIds }
         .toSet()
 }
 
@@ -1225,6 +1274,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private var activeConnectionKey: String? = null
     private var observedHomeAssistantInstanceId: String? = null
     private var startupRefreshAttemptedFor: String? = null
+    // Consecutive silent-refresh failures while the UI still shows CONNECTED. Brief websocket blips
+    // are kept invisible, but a sustained outage (e.g. trusted-network login taken off Wi-Fi, where
+    // the socket can stall without throwing) must eventually surface the connection-error overlay.
+    private var consecutiveSilentRefreshFailures = 0
     private var protectExistingRoomsOnNextImport = false
     // Touched from both the background poll (Dispatchers.Default) and main-thread optimistic
     // setters, so these must be concurrency-safe.
@@ -1754,6 +1807,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         )
         val previous = _connectionRoute.value
         _connectionRoute.value = route
+        consecutiveSilentRefreshFailures = 0
         _status.value = ConnectionStatus.CONNECTED
         // Manual dashboards do not otherwise need registries during startup. Fetch them here too
         // so entity-registry automations and Adaptive Lighting membership are warm before a dialog
@@ -1957,7 +2011,19 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     return@launch
                 }
                 if (preserveConnectedUiAfterRefreshFailure(isSilent, _status.value)) {
-                    addLog("Silent Home Assistant refresh failed: ${e.message}. Keeping the live dashboard connected.")
+                    consecutiveSilentRefreshFailures += 1
+                    if (consecutiveSilentRefreshFailures < SILENT_REFRESH_FAILURES_BEFORE_ERROR) {
+                        addLog(
+                            "Silent Home Assistant refresh failed: ${e.message}. " +
+                                "Keeping the live dashboard connected " +
+                                "(attempt $consecutiveSilentRefreshFailures)."
+                        )
+                        return@launch
+                    }
+                    // The connection has stayed unreachable across repeated silent refreshes; stop
+                    // masking it so the user gets the refresh/re-login overlay.
+                    addLog("Home Assistant unreachable after $consecutiveSilentRefreshFailures silent refreshes; showing connection error.")
+                    _status.value = ConnectionStatus.ERROR
                     return@launch
                 }
                 val failureCount = failedConnectionAttempts + 1
@@ -3829,6 +3895,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         )
         val entitiesByArea = entities.groupBy { areaByEntity[it.entity_id] }
         val climateWindowEntityIds = climateOwnedWindowEntityIds(entities, registry)
+        // Integration (platform) per entity, so aggregated auto badges never merge entities from
+        // different integrations (e.g. all Tado together, all Tuya together, never mixed).
+        val platformByEntityId = registry.associate { it.entity_id to it.platform }
 
         areas.forEach { area ->
             val rawAreaEntities = entitiesByArea[area.area_id]
@@ -3853,9 +3922,14 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 roomStatusEntityIds = discoveredRoomStatus.entityIds,
                 registry = registry
             )
+            val primaryDeviceSwitchExclusions = primaryDeviceAuxiliarySwitchEntityIdsToExclude(
+                areaEntityIds = areaEntities.map(HAEntity::entity_id),
+                registry = registry
+            )
             val autoControlEntities = areaEntities.filterNot {
                 it.entity_id in cameraDeviceSiblingExclusions ||
-                    it.entity_id in roomCounterDeviceControlExclusions
+                    it.entity_id in roomCounterDeviceControlExclusions ||
+                    it.entity_id in primaryDeviceSwitchExclusions
             }
             val mediaPlayerIds = areaEntities
                 .filter { it.entity_id.startsWith("media_player.") }
@@ -3909,6 +3983,27 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 )
             }
 
+            // Climate badges are split per integration so, for example, a Tado thermostat and a Tuya
+            // AC never merge into one aggregated pill. Entities are grouped by their registry platform
+            // (unknown-platform entities form a single fallback group); known platforms sort first and
+            // alphabetically so re-imports stay stable.
+            fun climateBadges(): List<HKIBadge> {
+                val ids = entityIdsByDomain["climate"].orEmpty()
+                if (ids.isEmpty()) return emptyList()
+                return ids.groupBy { platformByEntityId[it] }
+                    .entries
+                    .sortedWith(compareBy({ it.key == null }, { it.key ?: "" }))
+                    .map { (platform, groupIds) ->
+                        HKIBadge(
+                            id = "auto_${area.area_id}_climate_${platform ?: "unknown"}",
+                            entityId = groupIds.first(),
+                            entityIds = groupIds,
+                            shape = "pill",
+                            side = "right"
+                        )
+                    }
+            }
+
             val importedBadges = buildList {
                 // Left lane: cameras only.
                 autoBadge("camera", side = "left", shape = "circle")?.let(::add)
@@ -3919,7 +4014,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 autoBadge("humidifier", side = "right", shape = "circle")?.let(::add)
                 autoBadge("cover", side = "right", shape = "circle")?.let(::add)
                 autoBadge("lock", side = "right", shape = "circle")?.let(::add)
-                autoBadge("climate", side = "right", shape = "pill")?.let(::add)
+                addAll(climateBadges())
             }
 
             val current = existingConfigs[area.area_id] ?: HKIAreaConfig()

@@ -1118,6 +1118,39 @@ fun BadgeSettingsDialog(
                     TextButton(onClick = { showEntityPicker = true }) { Text("Change") }
                 }
 
+                // Aggregated badges summarize several entities; the first one drives the badge's
+                // icon, its state text, and the top of the pop-up list. Let the user reorder them.
+                if (editingEntityIds.size > 1) {
+                    HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
+                    Text("Display order", style = MaterialTheme.typography.labelLarge)
+                    editingEntityIds.forEachIndexed { index, id ->
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                "${index + 1}. ${nameOf(id)}",
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = appColors.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            IconButton(
+                                enabled = index > 0,
+                                onClick = {
+                                    editingEntityIds = editingEntityIds.toMutableList()
+                                        .apply { add(index - 1, removeAt(index)) }
+                                }
+                            ) { Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Move up") }
+                            IconButton(
+                                enabled = index < editingEntityIds.lastIndex,
+                                onClick = {
+                                    editingEntityIds = editingEntityIds.toMutableList()
+                                        .apply { add(index + 1, removeAt(index)) }
+                                }
+                            ) { Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Move down") }
+                        }
+                    }
+                }
+
                 if (lockIds.isNotEmpty() || vacuumIds.isNotEmpty() || climateIds.isNotEmpty()) {
                     SettingsSubcategory("Entity integrations", "Optional controls and sensors for richer dialogs")
                 }
