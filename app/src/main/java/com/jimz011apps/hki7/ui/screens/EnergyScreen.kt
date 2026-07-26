@@ -1449,7 +1449,9 @@ private fun EnergyHero(
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    formatW(homeW),
+                    // Show the signed grid flow here (negative while exporting) rather than total
+                    // home consumption, so the hero reflects import/export at a glance.
+                    formatW(gridW),
                     style = MaterialTheme.typography.headlineMedium,
                     color = appColors.onSurface,
                     fontWeight = FontWeight.Bold
