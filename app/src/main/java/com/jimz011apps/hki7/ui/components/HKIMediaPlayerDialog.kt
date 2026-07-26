@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -149,6 +150,15 @@ fun HKIMediaPlayerDialog(
     val duration = entity.mediaDuration
     val accent = MaterialTheme.colorScheme.primary
 
+    // Header icon = the source's brand logo (in its own colour), tappable to open the app. Falls back
+    // to the default speaker icon when no source is recognised.
+    val dialogCtx = LocalContext.current
+    val headerBrand = remember(entity.appName, entity.mediaSource, entity.entity_id) { mediaBrandFor(entity) }
+    val headerBrandDetected = headerBrand.icon != "mdi:music-note"
+    val headerLaunch = remember(headerBrand.packageName) {
+        headerBrand.packageName?.let { dialogCtx.packageManager.getLaunchIntentForPackage(it) }
+    }
+
     // 1s ticker so the progress bar advances between HA updates.
     var nowMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(isPlaying) {
@@ -201,6 +211,15 @@ fun HKIMediaPlayerDialog(
         icon = Icons.Default.MusicNote,
         iconTint = accent,
         iconName = "speaker",
+        headerIconContent = if (headerBrandDetected) {
+            {
+                val clickMod = if (headerLaunch != null)
+                    Modifier.clickable { runCatching { dialogCtx.startActivity(headerLaunch) } } else Modifier
+                Box(clickMod, contentAlignment = Alignment.Center) {
+                    MdiIcon(headerBrand.icon, tint = headerBrand.color ?: appColors.onSurface, size = 28.dp)
+                }
+            }
+        } else null,
         statusText = entity.state.replace('_', ' ').uppercase()
     ) { _ ->
         Column(
@@ -209,30 +228,31 @@ fun HKIMediaPlayerDialog(
         ) {
             // Keep the artwork width-constrained. A height-first aspect ratio can grow wider
             // than the dialog on tall phones and visually touch the screen edges.
-            Box(
+            // Largest square that fits the available space (both width AND height), so the artwork
+            // never overflows its rounded tile and bleeds over the title below.
+            BoxWithConstraints(
                 Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
                 contentAlignment = Alignment.Center
             ) {
-                val headerCtx = LocalContext.current
-                val headerBrand = remember(entity.appName, entity.mediaSource, entity.entity_id) { mediaBrandFor(entity) }
-                val brandDetected = headerBrand.icon != "mdi:music-note"
-                val headerLaunch = remember(headerBrand.packageName) {
-                    headerBrand.packageName?.let { headerCtx.packageManager.getLaunchIntentForPackage(it) }
-                }
+                val side = minOf(maxWidth, maxHeight)
                 Box(
-                    Modifier.fillMaxWidth().aspectRatio(1f)
+                    Modifier.size(side)
                         .clip(itemCornerShape()).background(appColors.subtleSurface),
                     contentAlignment = Alignment.Center
                 ) {
                     if (artwork != null) {
-                        AsyncImage(artwork, entity.mediaTitle, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-                    } else if (brandDetected) {
-                        // Show the source's brand logo (in its own colour). Tapping opens the matching
-                        // phone app when installed; otherwise the icon is just shown.
+                        AsyncImage(
+                            artwork, entity.mediaTitle,
+                            Modifier.fillMaxSize().clip(itemCornerShape()),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else if (headerBrandDetected) {
+                        // No artwork: show the source's brand logo (in its own colour), tappable to
+                        // open the matching phone app when installed.
                         Box(
                             Modifier.fillMaxSize().then(
                                 if (headerLaunch != null)
-                                    Modifier.clickable { runCatching { headerCtx.startActivity(headerLaunch) } }
+                                    Modifier.clickable { runCatching { dialogCtx.startActivity(headerLaunch) } }
                                 else Modifier
                             ),
                             contentAlignment = Alignment.Center
@@ -872,19 +892,19 @@ fun MediaPlayerMiniBar(
                         brand.packageName?.let { badgeContext.packageManager.getLaunchIntentForPackage(it) }
                     }
                     Box(
-                        Modifier.size(30.dp).clip(RoundedCornerShape(9.dp)).background(barSubtle)
-                            .then(
-                                if (launchIntent != null)
-                                    Modifier.clickable { runCatching { badgeContext.startActivity(launchIntent) } }
-                                else Modifier
-                            ),
+                        // Bare logo (no framing square); tap opens the app when one is installed.
+                        Modifier.size(30.dp).then(
+                            if (launchIntent != null)
+                                Modifier.clickable { runCatching { badgeContext.startActivity(launchIntent) } }
+                            else Modifier
+                        ),
                         contentAlignment = Alignment.Center
                     ) {
                         MdiIcon(
                             brand.icon,
                             contentDescription = player.appName ?: "Source",
                             tint = brand.color ?: barForeground,
-                            size = 18.dp
+                            size = 24.dp
                         )
                     }
                 }

@@ -1293,17 +1293,6 @@ fun SettingsDialog(
                                     runCatching { HaDashboardSharing.listSharedForMe(context) }.getOrDefault(emptyList())
                                 else emptyList()
                             }
-                            if (!sharingAvailable) {
-                                SettingsPanel {
-                                    Text("Family dashboard sharing", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
-                                    Text(
-                                        "Share a dashboard with your family so everyone gets the same layout — no more sending backup files between phones. Parental controls (hiding views and rooms per person) use the same add-on.",
-                                        color = appColors.onMuted,
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                    Hki7CloudInstallCard()
-                                }
-                            }
                             SettingsPanel {
                                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                     Text("Dashboards", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
@@ -1408,6 +1397,17 @@ fun SettingsDialog(
                                             }
                                         }
                                     }
+                                }
+                            }
+                            if (!sharingAvailable) {
+                                SettingsPanel {
+                                    Text("Family dashboard sharing", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                                    Text(
+                                        "Share a dashboard with your family so everyone gets the same layout — no more sending backup files between phones. Parental controls (hiding views and rooms per person) use the same add-on.",
+                                        color = appColors.onMuted,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                    Hki7CloudInstallCard()
                                 }
                             }
                         }
@@ -1570,6 +1570,9 @@ fun SettingsDialog(
                                     color = appColors.onMuted,
                                     style = MaterialTheme.typography.bodySmall
                                 )
+                                if (!sharingAvailable) {
+                                    Hki7CloudInstallCard()
+                                }
                                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                     Column(Modifier.weight(1f)) {
                                         Text("Enable Home Assistant backup", color = appColors.onSurface)
