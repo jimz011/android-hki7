@@ -14,8 +14,8 @@ android {
         targetSdk = 37
         // 8 was consumed by an upload that was never released (Play reserves version codes
         // permanently, even for bundles left inactive), so beta.2 ships as 9.
-        versionCode = 10
-        versionName = "1.0.0-beta.3"
+        versionCode = 11
+        versionName = "1.0.0-beta.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -195,6 +195,11 @@ class PreferencesManager(
     private val quickStartGuidePendingKey = booleanPreferencesKey("quick_start_guide_pending")
     private val cloudBackupEnabledKey = booleanPreferencesKey("cloud_backup_enabled")
     private val haBackupEnabledKey = booleanPreferencesKey("ha_backup_enabled")
+    // Wall-clock time (epoch millis) of the most recent successful backup to each destination,
+    // recorded by CloudBackupWorker so the settings screen can show "Last backup …" without a
+    // network round-trip. 0/absent means none has completed on this device yet.
+    private val cloudBackupLastAtKey = longPreferencesKey("cloud_backup_last_at")
+    private val haBackupLastAtKey = longPreferencesKey("ha_backup_last_at")
     // Parental-control policy enforced for THIS signed-in user (routes / area ids), cached from the
     // hki7 component so the UI can filter synchronously and keep hiding while briefly offline.
     private val parentalHiddenViewsKey = stringPreferencesKey("parental_hidden_views")
@@ -245,6 +250,10 @@ class PreferencesManager(
     val cloudBackupEnabled: Flow<Boolean> = context.dataStore.data.map { it[cloudBackupEnabledKey] ?: false }
     /** Daily backup to the user's own Home Assistant instance via the hki7 companion component. */
     val haBackupEnabled: Flow<Boolean> = context.dataStore.data.map { it[haBackupEnabledKey] ?: false }
+    /** Epoch millis of the last successful Google Drive backup, or null if none yet. */
+    val cloudBackupLastAt: Flow<Long?> = context.dataStore.data.map { it[cloudBackupLastAtKey]?.takeIf { at -> at > 0 } }
+    /** Epoch millis of the last successful Home Assistant backup, or null if none yet. */
+    val haBackupLastAt: Flow<Long?> = context.dataStore.data.map { it[haBackupLastAtKey]?.takeIf { at -> at > 0 } }
     /** Routes hidden from the current user by an admin's parental-control policy. */
     val parentalHiddenViews: Flow<List<String>> = context.dataStore.data.map {
         it[parentalHiddenViewsKey]?.split(",")?.filter { r -> r.isNotBlank() } ?: emptyList()
@@ -275,6 +284,16 @@ class PreferencesManager(
 
     suspend fun saveHaBackup(enabled: Boolean) {
         context.dataStore.edit { it[haBackupEnabledKey] = enabled }
+    }
+
+    /** Records the wall-clock time a Google Drive backup last completed successfully. */
+    suspend fun saveCloudBackupLastAt(epochMillis: Long) {
+        context.dataStore.edit { it[cloudBackupLastAtKey] = epochMillis }
+    }
+
+    /** Records the wall-clock time a Home Assistant backup last completed successfully. */
+    suspend fun saveHaBackupLastAt(epochMillis: Long) {
+        context.dataStore.edit { it[haBackupLastAtKey] = epochMillis }
     }
 
     val savedAreas: Flow<List<HAArea>> = context.dataStore.data.map { preferences ->

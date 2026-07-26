@@ -7,6 +7,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.provider.Settings as AndroidSettings
+import android.text.format.DateUtils
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -165,6 +166,15 @@ private enum class SettingsSection {
     MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, CORNERS, ICONS, NAV_BAR, MEDIA_PLAYERS, DASHBOARD, PARENTAL_CONTROLS, BACKUP_RESTORE, ACCOUNT, ABOUT, LICENSE, SUPPORT
 }
 
+/** Human-friendly "5 minutes ago" / "yesterday" label for the last-backup subtitle. */
+private fun relativeBackupTime(epochMillis: Long): String {
+    val now = System.currentTimeMillis()
+    if (now - epochMillis < DateUtils.MINUTE_IN_MILLIS) return "just now"
+    return DateUtils.getRelativeTimeSpanString(
+        epochMillis, now, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE
+    ).toString().replaceFirstChar { it.lowercase() }
+}
+
 private fun sectionTitle(section: SettingsSection): String = when (section) {
     SettingsSection.MENU -> "Settings"
     SettingsSection.NAV_BAR -> "Navigation Bar"
@@ -259,6 +269,8 @@ fun SettingsDialog(
     val activeHomeAssistantInstanceId by prefs.activeHomeAssistantInstanceId.collectAsState(initial = null)
     val cloudBackupEnabled by prefs.cloudBackupEnabled.collectAsState(initial = false)
     val haBackupEnabled by prefs.haBackupEnabled.collectAsState(initial = false)
+    val cloudBackupLastAt by prefs.cloudBackupLastAt.collectAsState(initial = null)
+    val haBackupLastAt by prefs.haBackupLastAt.collectAsState(initial = null)
     val hasForegroundLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
         ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
     val hasBackgroundLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -1548,7 +1560,11 @@ fun SettingsDialog(
                                     Column(Modifier.weight(1f)) {
                                         Text("Enable cloud backup", color = appColors.onSurface)
                                         Text(
-                                            if (cloudBackupEnabled) "Daily backup is active" else "Cloud backup is off",
+                                            when {
+                                                !cloudBackupEnabled -> "Cloud backup is off"
+                                                cloudBackupLastAt != null -> "Last backup ${relativeBackupTime(cloudBackupLastAt!!)}"
+                                                else -> "Daily backup is active"
+                                            },
                                             color = appColors.onMuted,
                                             style = MaterialTheme.typography.bodySmall
                                         )
@@ -1579,6 +1595,7 @@ fun SettingsDialog(
                                         Text(
                                             when {
                                                 haBackupBusy -> "Checking for the HKI 7 Cloud component…"
+                                                haBackupEnabled && haBackupLastAt != null -> "Last backup ${relativeBackupTime(haBackupLastAt!!)}"
                                                 haBackupEnabled -> "Daily backup is active"
                                                 else -> "Home Assistant backup is off"
                                             },

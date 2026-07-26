@@ -54,14 +54,19 @@ class CloudBackupWorker(appContext: Context, params: WorkerParameters) :
         if (!googleOn && !haOn) return Result.success()
 
         // Write to every enabled destination independently; one failing must not skip the other.
+        // Record the completion time per destination so the settings screen can show "Last backup …".
         var allOk = true
         if (googleOn) {
-            allOk = runCatching {
+            val ok = runCatching {
                 CloudBackupStorage.write(applicationContext, prefs.exportUiBackup())
-            }.isSuccess && allOk
+            }.isSuccess
+            if (ok) prefs.saveCloudBackupLastAt(System.currentTimeMillis())
+            allOk = ok && allOk
         }
         if (haOn) {
-            allOk = runCatching { HaBackupStorage.write(applicationContext) }.getOrDefault(false) && allOk
+            val ok = runCatching { HaBackupStorage.write(applicationContext) }.getOrDefault(false)
+            if (ok) prefs.saveHaBackupLastAt(System.currentTimeMillis())
+            allOk = ok && allOk
         }
         return if (allOk) Result.success() else Result.retry()
     }
