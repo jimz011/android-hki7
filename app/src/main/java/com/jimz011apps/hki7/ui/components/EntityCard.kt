@@ -633,7 +633,14 @@ fun defaultEntityIconSlug(
         "automation" -> "robot"
         "button", "input_button" -> "gesture-tap-button"
         "camera" -> "cctv"
-        "climate" -> "thermostat"
+        "climate" -> when {
+            // Cooling-capable units that cannot heat (mini-split / window AC exposing cool, dry,
+            // and/or fan_only but no heat mode) read as air conditioners. Dual heat+cool thermostats
+            // and heat pumps stay on the thermostat icon.
+            entity.hvacModes.any { it == "cool" || it == "dry" } &&
+                entity.hvacModes.none { it == "heat" || it == "heat_cool" } -> "air-conditioner"
+            else -> "thermostat"
+        }
         "device_tracker" -> "map-marker"
         "fan" -> "fan"
         "humidifier" -> "air-humidifier"

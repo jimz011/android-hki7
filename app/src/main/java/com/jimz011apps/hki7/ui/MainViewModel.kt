@@ -187,24 +187,21 @@ private val CAMERA_DEVICE_AUTO_CONTROL_DOMAINS = setOf(
     "climate"
 )
 
-/** Domains whose entity defines a device's primary room function. When a device already contributes
- * one of these controls, any [PRIMARY_DEVICE_AUXILIARY_DOMAINS] siblings it also exposes are
- * configuration toggles for that device (child lock, sleep mode, a light's paired relay) rather than
- * standalone room controls, and are omitted from auto import. */
-private val PRIMARY_DEVICE_CONTROL_DOMAINS = setOf(
-    "light",
-    "climate",
-    "cover",
-    "fan",
-    "humidifier",
-    "lock",
-    "vacuum"
+/** For each "appliance" primary domain, the sibling control domains it exposes purely as features of
+ * that device rather than standalone room controls: a panel/status light, a sleep/display switch, and
+ * a child lock. When a device already owns one of these primaries, its listed siblings are dropped
+ * from auto import (mirrors [CAMERA_DEVICE_AUTO_CONTROL_DOMAINS] for non-camera appliances).
+ *
+ * `fan` deliberately does NOT suppress `light`, so a ceiling fan's separate light stays a room
+ * control; only appliances whose light is a panel indicator (climate, cover) suppress lights. */
+private val DEVICE_PRIMARY_SIBLING_SUPPRESSION: Map<String, Set<String>> = mapOf(
+    "climate" to setOf("light", "switch", "lock"),
+    "cover" to setOf("light", "switch", "lock"),
+    "fan" to setOf("switch", "lock"),
+    "humidifier" to setOf("switch", "lock"),
+    "vacuum" to setOf("switch", "lock"),
+    "light" to setOf("switch")
 )
-
-/** Auxiliary control domains suppressed on a device that already owns a primary control. Only
- * switches are hidden: a device's real secondary controls (a fan on a climate unit, a second light)
- * live in their own primary domain and must stay. */
-private val PRIMARY_DEVICE_AUXILIARY_DOMAINS = setOf("switch")
 
 /** Sensor-backed room counters whose owning device may also expose configuration controls that
  * should not become regular room lights or switches. LIGHTS and DEVICES are deliberately excluded: those
@@ -337,29 +334,58 @@ internal fun cameraDeviceSiblingEntityIdsToExclude(
         .toSet()
 }
 
-/** Returns switch entities that belong to a device whose primary function is already represented by
- * a light, climate, cover, fan, humidifier, lock, or vacuum entity in the same room. Manufacturers
- * expose these as child-lock, sleep-mode, or paired-relay toggles (a Tuya light's bundled switch, a
- * thermostat's screen lock); importing them as standalone room switches clutters the room and
- * duplicates the primary control. Registry device ownership is the only association considered, so
- * an independent switch that merely shares a name with a light is never hidden. */
-internal fun primaryDeviceAuxiliarySwitchEntityIdsToExclude(
+/** Returns control entities that are features of an appliance device rather than standalone room
+ * controls: a climate/cover panel light, an appliance's sleep/display switch, or a child lock on an
+ * air conditioner, valve, purifier, or blind. For every device in the room, each primary it owns
+ * ([DEVICE_PRIMARY_SIBLING_SUPPRESSION]) contributes the sibling domains to suppress on that same
+ * device; a sibling is excluded when its domain falls in that set.
+ *
+ * Registry device ownership is the only association used, so a standalone door lock (a device that
+ * owns only a lock) or an independent switch is never hidden — it has no appliance primary suppressing
+ * its own domain. A ceiling fan's light is likewise kept, since `fan` does not suppress `light`. */
+internal fun applianceDeviceSiblingControlEntityIdsToExclude(
     areaEntityIds: Collection<String>,
     registry: List<HAEntityRegistryEntry>
 ): Set<String> {
     if (areaEntityIds.isEmpty()) return emptySet()
-    val areaIds = areaEntityIds.toHashSet()
+    val areaIds = areaEntityIds.toList()
     val registryById = registry.associateBy(HAEntityRegistryEntry::entity_id)
-    val primaryDeviceIds = areaIds.asSequence()
-        .filter { it.substringBefore('.') in PRIMARY_DEVICE_CONTROL_DOMAINS }
-        .mapNotNull { registryById[it]?.device_id }
-        .toHashSet()
-    if (primaryDeviceIds.isEmpty()) return emptySet()
+    val deviceIdByEntity = areaIds.associateWith { registryById[it]?.device_id }
+
+    // Per device, the union of sibling domains its appliance primaries want suppressed.
+    val suppressedDomainsByDevice = HashMap<String, MutableSet<String>>()
+    for (id in areaIds) {
+        val deviceId = deviceIdByEntity[id] ?: continue
+        val suppression = DEVICE_PRIMARY_SIBLING_SUPPRESSION[id.substringBefore('.')] ?: continue
+        suppressedDomainsByDevice.getOrPut(deviceId) { mutableSetOf() }.addAll(suppression)
+    }
+    if (suppressedDomainsByDevice.isEmpty()) return emptySet()
 
     return areaIds.asSequence()
-        .filter { it.substringBefore('.') in PRIMARY_DEVICE_AUXILIARY_DOMAINS }
-        .filter { registryById[it]?.device_id in primaryDeviceIds }
+        .filter { id ->
+            val deviceId = deviceIdByEntity[id] ?: return@filter false
+            id.substringBefore('.') in suppressedDomainsByDevice[deviceId].orEmpty()
+        }
         .toSet()
+}
+
+/** Fans carry no device_class, so air purifiers are recognized heuristically from the fan entity's
+ * name or its device's model/name. Used only to choose the air-purifier icon over the generic fan
+ * icon; it never changes what is imported. */
+internal fun isLikelyAirPurifierFan(
+    entityId: String,
+    friendlyName: String?,
+    registry: List<HAEntityRegistryEntry>,
+    devices: List<HADeviceRegistryEntry>
+): Boolean {
+    if (entityId.substringBefore('.') != "fan") return false
+    fun String?.mentionsPurifier() = this?.contains("purifier", ignoreCase = true) == true
+    if (entityId.mentionsPurifier() || friendlyName.mentionsPurifier()) return true
+    val device = registry.firstOrNull { it.entity_id == entityId }?.device_id
+        ?.let { deviceId -> devices.firstOrNull { it.id == deviceId } }
+    return device?.model.mentionsPurifier() ||
+        device?.name.mentionsPurifier() ||
+        device?.name_by_user.mentionsPurifier()
 }
 
 /** Returns lights and switches owned by devices that already contribute a sensor to a room counter.
@@ -3922,14 +3948,14 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 roomStatusEntityIds = discoveredRoomStatus.entityIds,
                 registry = registry
             )
-            val primaryDeviceSwitchExclusions = primaryDeviceAuxiliarySwitchEntityIdsToExclude(
+            val applianceSiblingExclusions = applianceDeviceSiblingControlEntityIdsToExclude(
                 areaEntityIds = areaEntities.map(HAEntity::entity_id),
                 registry = registry
             )
             val autoControlEntities = areaEntities.filterNot {
                 it.entity_id in cameraDeviceSiblingExclusions ||
                     it.entity_id in roomCounterDeviceControlExclusions ||
-                    it.entity_id in primaryDeviceSwitchExclusions
+                    it.entity_id in applianceSiblingExclusions
             }
             val mediaPlayerIds = areaEntities
                 .filter { it.entity_id.startsWith("media_player.") }
@@ -3983,6 +4009,25 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 )
             }
 
+            // Air purifiers are fans without a device_class; when every aggregated fan looks like a
+            // purifier (by name or device model) the badge shows the air-purifier icon instead of the
+            // generic fan icon. Mixed rooms keep the default fan icon.
+            fun fanBadge(): HKIBadge? {
+                val ids = entityIdsByDomain["fan"].orEmpty()
+                if (ids.isEmpty()) return null
+                val allPurifiers = ids.all { id ->
+                    isLikelyAirPurifierFan(id, entitiesById[id]?.friendlyName, registry, devices)
+                }
+                return HKIBadge(
+                    id = "auto_${area.area_id}_fan",
+                    entityId = ids.first(),
+                    entityIds = ids,
+                    shape = "circle",
+                    side = "right",
+                    customIcon = if (allPurifiers) "air-purifier" else null
+                )
+            }
+
             // Climate badges are split per integration so, for example, a Tado thermostat and a Tuya
             // AC never merge into one aggregated pill. Entities are grouped by their registry platform
             // (unknown-platform entities form a single fallback group); known platforms sort first and
@@ -4010,7 +4055,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
                 // Right lane is ordered from left to right. Climate is deliberately appended last,
                 // with lock (or cover when there is no lock) immediately before it when available.
-                autoBadge("fan", side = "right", shape = "circle")?.let(::add)
+                fanBadge()?.let(::add)
                 autoBadge("humidifier", side = "right", shape = "circle")?.let(::add)
                 autoBadge("cover", side = "right", shape = "circle")?.let(::add)
                 autoBadge("lock", side = "right", shape = "circle")?.let(::add)
