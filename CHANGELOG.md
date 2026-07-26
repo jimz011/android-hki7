@@ -5,6 +5,10 @@ file in sync with `app/src/main/java/com/jimz011apps/hki7/ui/components/WhatsNew
 
 Items marked with \* require the HKI 7 Cloud Component integration.
 
+## 1.0.0-beta.6
+
+- Fixed: in edit mode, the Add Widget and Add Room / Floor bars no longer overlap the system navigation buttons when you use three-button navigation instead of gesture navigation.
+
 ## 1.0.0-beta.5
 
 Icon and branding refresh only — the notes below repeat beta.4 so anyone updating

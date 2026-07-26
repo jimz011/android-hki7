@@ -258,7 +258,14 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 87.dp),
+                        // Lift clear of the system three-button nav bar (0 under gesture nav) so the
+                        // bar never overlaps it — matching the mini-media-player fix on the nav bar.
+                        .padding(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = 87.dp,
+                            bottom = 87.dp + com.jimz011apps.hki7.ui.components.LocalMediaPlayerBarInset.current
+                        ),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     AddAreaCard(

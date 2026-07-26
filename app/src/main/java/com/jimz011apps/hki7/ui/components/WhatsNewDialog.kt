@@ -51,6 +51,9 @@ private val beta4And5Notes = listOf(
 )
 
 private val changelog: Map<String, List<String>> = mapOf(
+    "1.0.0-beta.6" to listOf(
+        "Fixed: in edit mode, the Add Widget and Add Room / Floor bars no longer overlap the system navigation buttons when you use three-button navigation instead of gesture navigation.",
+    ),
     "1.0.0-beta.5" to beta4And5Notes,
     "1.0.0-beta.4" to beta4And5Notes,
     "1.0.0-beta.3" to listOf(
