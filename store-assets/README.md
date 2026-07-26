@@ -11,10 +11,16 @@ launcher icon in `app/src/main/res` does not change what the store shows.
   ~60% of the tile so it matches the on-device launcher icon's visible size
   (the launcher crops to the central 72dp of the adaptive icon, but Play shows
   the full square).
+- `play_feature_graphic_1024x500.png` — the Play Store feature graphic (the
+  banner at the top of the listing / used for promos). 1024×500, 24-bit PNG,
+  no alpha. Uses the same blue gradient as the icon, with the house mark and the
+  "HKI 7" wordmark + tagline. Keep important content away from the edges — Play
+  can crop it and may overlay a play button when a promo video is set.
 
 ## Updating the store icon
 
 Play Console → the app → **Grow → Store presence → Main store listing** →
-**App icon** → upload `play_store_icon_512.png` → **Save**. Keep this file in
-sync with `app/src/main/res/drawable-*/ic_launcher_foreground.png` whenever the
-launcher mark changes.
+**App icon** → upload `play_store_icon_512.png` → **Save**. The feature graphic
+lives on the same screen under **Feature graphic**. Keep both in sync with
+`app/src/main/res/drawable-*/ic_launcher_foreground.png` and
+`ic_launcher_background.xml` whenever the launcher mark or gradient changes.
