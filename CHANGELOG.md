@@ -7,7 +7,13 @@ Items marked with \* require the HKI 7 Cloud Component integration.
 
 ## 1.0.0-beta.6
 
+The notes below repeat beta.4/beta.5 so anyone updating straight from beta.3
+still sees those changes.
+
 - Fixed: in edit mode, the Add Widget and Add Room / Floor bars no longer overlap the system navigation buttons when you use three-button navigation instead of gesture navigation.
+- The Backup and Restore screen now shows when each automatic backup last ran — both Google Drive and Home Assistant — so you can tell at a glance that your latest changes are safely saved.
+- Added a "Back up now" button to each cloud backup, so you can create an immediate backup any time without waiting for the daily schedule.
+- Fixed: the app icon looked oversized after the recent themed-icon (monochrome) update. The mark now sits with proper padding, matching other app icons on your home screen and in the themed-icon style.
 
 ## 1.0.0-beta.5
 
