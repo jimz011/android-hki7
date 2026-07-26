@@ -1293,6 +1293,17 @@ fun SettingsDialog(
                                     runCatching { HaDashboardSharing.listSharedForMe(context) }.getOrDefault(emptyList())
                                 else emptyList()
                             }
+                            if (!sharingAvailable) {
+                                SettingsPanel {
+                                    Text("Family dashboard sharing", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                                    Text(
+                                        "Share a dashboard with your family so everyone gets the same layout — no more sending backup files between phones. Parental controls (hiding views and rooms per person) use the same add-on.",
+                                        color = appColors.onMuted,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                    Hki7CloudInstallCard()
+                                }
+                            }
                             SettingsPanel {
                                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                     Text("Dashboards", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
@@ -1397,17 +1408,6 @@ fun SettingsDialog(
                                             }
                                         }
                                     }
-                                }
-                            }
-                            if (!sharingAvailable) {
-                                SettingsPanel {
-                                    Text("Family dashboard sharing", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
-                                    Text(
-                                        "Share a dashboard with your family so everyone gets the same layout — no more sending backup files between phones. Parental controls (hiding views and rooms per person) use the same add-on.",
-                                        color = appColors.onMuted,
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                    Hki7CloudInstallCard()
                                 }
                             }
                         }
@@ -1564,9 +1564,9 @@ fun SettingsDialog(
                                     )
                                 }
                                 Spacer(Modifier.height(6.dp))
-                                Text("Back up to Home Assistant", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
+                                Text("Automatic local cloud backup", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
                                 Text(
-                                    "Stores backups on your own Home Assistant instance using the HKI 7 Cloud component. Use Google Drive, Home Assistant, or both — they're independent. Requires the HKI 7 Cloud custom component (install it via HACS).",
+                                    "Automatically backs up your dashboard and appearance settings to your own Home Assistant every day, so you can restore them any time. Requires the HKI 7 Cloud custom component (install it via HACS).",
                                     color = appColors.onMuted,
                                     style = MaterialTheme.typography.bodySmall
                                 )
