@@ -4,7 +4,7 @@
          previously used as the foreground (launcher masks clipped its own rounded corners).
          The monochrome layer must be an alpha silhouette: pointing it at the full-colour tile made
          themed icons render a solid blob, because that tile's alpha channel is a filled square. -->
-    <background android:drawable="@color/ic_launcher_background" />
+    <background android:drawable="@drawable/ic_launcher_background" />
     <foreground android:drawable="@drawable/ic_launcher_foreground" />
     <monochrome android:drawable="@drawable/ic_launcher_monochrome" />
 </adaptive-icon>
