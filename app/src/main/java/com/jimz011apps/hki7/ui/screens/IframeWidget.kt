@@ -127,38 +127,50 @@ fun IframeWidgetSettingsDialog(
     var title by remember(widget) { mutableStateOf(widget.title ?: "") }
     var width by remember(widget) { mutableStateOf(widget.width) }
     var aspect by remember(widget) { androidx.compose.runtime.mutableFloatStateOf(widget.aspectRatio) }
+    var settingsPage by remember(widget) { mutableStateOf("content") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { com.jimz011apps.hki7.ui.components.ModernSettingsDialogTitle("iFrame", "Embed a web page on your dashboard") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = url,
-                    onValueChange = { url = it },
-                    label = { Text("Web address (URL)") },
-                    placeholder = { Text("example.com or https://…") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-                    modifier = Modifier.fillMaxWidth()
+                com.jimz011apps.hki7.ui.components.SettingsTabRow(
+                    tabs = listOf("content" to "Content", "appearance" to "Appearance"),
+                    selected = settingsPage,
+                    onSelect = { settingsPage = it }
                 )
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    label = { Text("Title (optional)") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Text("Width", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
-                WidgetWidthSelector(width = width, onWidthChange = { width = it })
-                Text("Height", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
-                androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    IFRAME_RATIOS.forEach { (label, ratio) ->
-                        androidx.compose.material3.FilterChip(
-                            selected = kotlin.math.abs(aspect - ratio) < 0.001f,
-                            onClick = { aspect = ratio },
-                            label = { Text(label) }
-                        )
+                if (settingsPage == "content") {
+                    com.jimz011apps.hki7.ui.components.SettingsSubcategory("Content", "The web page shown on this card")
+                    OutlinedTextField(
+                        value = url,
+                        onValueChange = { url = it },
+                        label = { Text("Web address (URL)") },
+                        placeholder = { Text("example.com or https://…") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = title,
+                        onValueChange = { title = it },
+                        label = { Text("Title (optional)") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                if (settingsPage == "appearance") {
+                    com.jimz011apps.hki7.ui.components.SettingsSubcategory("Appearance", "Width and height")
+                    Text("Width", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+                    WidgetWidthSelector(width = width, onWidthChange = { width = it })
+                    Text("Height", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+                    androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        IFRAME_RATIOS.forEach { (label, ratio) ->
+                            androidx.compose.material3.FilterChip(
+                                selected = kotlin.math.abs(aspect - ratio) < 0.001f,
+                                onClick = { aspect = ratio },
+                                label = { Text(label) }
+                            )
+                        }
                     }
                 }
             }

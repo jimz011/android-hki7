@@ -453,14 +453,15 @@ fun ModernAlertDialog(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .windowInsetsPadding(WindowInsets.safeDrawing)
-                    .padding(16.dp),
+                    .windowInsetsPadding(WindowInsets.safeDrawing),
                 contentAlignment = Alignment.Center
             ) {
                 Surface(
+                    // Match the width of HKIDialog / ModernSettingsDialogFrame (0.95f, up to 620dp) so
+                    // dialogs like the media library browser aren't visibly narrower than the rest.
                     modifier = modifier
-                        .fillMaxWidth(0.94f)
-                        .widthIn(max = 560.dp)
+                        .fillMaxWidth(0.95f)
+                        .widthIn(max = 620.dp)
                         .then(
                             if (stableHeight) Modifier.fillMaxHeight(0.88f).heightIn(max = 720.dp)
                             else Modifier

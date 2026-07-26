@@ -404,10 +404,11 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         if (lastSeenVersionCode < 0) return@LaunchedEffect            // DataStore not read yet
         if (lastSeenVersionCode == BuildConfig.VERSION_CODE) return@LaunchedEffect  // already seen
         if (quickStartGuidePending) return@LaunchedEffect             // never stack on the first-run guide
-        val packageInfo = runCatching {
-            appCtx.packageManager.getPackageInfo(appCtx.packageName, 0)
-        }.getOrNull()
-        val isUpdate = packageInfo != null && packageInfo.lastUpdateTime > packageInfo.firstInstallTime
+        // Only a previously-recorded version proves this is a genuine update. A fresh install has
+        // lastSeenVersionCode 0 (nothing recorded yet), so it adopts the current version silently and
+        // never sees the notes. This is more reliable than package first-install/last-update times,
+        // which can differ by a few ms even on a first Play install.
+        val isUpdate = lastSeenVersionCode in 1 until BuildConfig.VERSION_CODE
         if (isUpdate && hasChangelogForCurrentVersion()) {
             showWhatsNew = true
         } else {

@@ -126,7 +126,7 @@ fun QuickStartGuideDialog(onComplete: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(0.96f)
-                    .widthIn(max = 560.dp),
+                    .widthIn(max = 620.dp),
                 shape = RoundedCornerShape(32.dp),
                 color = colors.surface,
                 tonalElevation = 10.dp,
