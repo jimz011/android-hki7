@@ -299,6 +299,8 @@ fun SettingsDialog(
     var showHaRestore by remember { mutableStateOf(false) }
     var haRestoreFiles by remember { mutableStateOf(emptyList<com.jimz011apps.hki7.data.Hki7BackupMeta>()) }
     var haBackupBusy by remember { mutableStateOf(false) }
+    var cloudBackupNowBusy by remember { mutableStateOf(false) }
+    var haBackupNowBusy by remember { mutableStateOf(false) }
     // ── Family dashboard sharing ──
     var shareDashboard by remember { mutableStateOf<com.jimz011apps.hki7.data.HKIDashboard?>(null) }
     var shareUsers by remember { mutableStateOf(emptyList<com.jimz011apps.hki7.data.Hki7User>()) }
@@ -1579,6 +1581,29 @@ fun SettingsDialog(
                                         }
                                     )
                                 }
+                                if (cloudBackupEnabled) {
+                                    OutlinedButton(
+                                        onClick = {
+                                            scope.launch {
+                                                cloudBackupNowBusy = true
+                                                runCatching { CloudBackupStorage.write(context, prefs.exportUiBackup()) }
+                                                    .onSuccess {
+                                                        prefs.saveCloudBackupLastAt(System.currentTimeMillis())
+                                                        setupChangedMessage = "Cloud backup created."
+                                                    }
+                                                    .onFailure { setupChangedMessage = "Cloud backup failed: ${it.message}" }
+                                                cloudBackupNowBusy = false
+                                            }
+                                        },
+                                        enabled = !cloudBackupNowBusy,
+                                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                                        shape = itemCornerShape()
+                                    ) {
+                                        Icon(Icons.Default.Backup, null)
+                                        Spacer(Modifier.width(8.dp))
+                                        Text(if (cloudBackupNowBusy) "Backing up…" else "Back up now")
+                                    }
+                                }
                                 Spacer(Modifier.height(6.dp))
                                 Text("Automatic local cloud backup", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
                                 Text(
@@ -1626,6 +1651,30 @@ fun SettingsDialog(
                                             }
                                         }
                                     )
+                                }
+                                if (haBackupEnabled) {
+                                    OutlinedButton(
+                                        onClick = {
+                                            scope.launch {
+                                                haBackupNowBusy = true
+                                                val ok = runCatching { HaBackupStorage.write(context) }.getOrDefault(false)
+                                                if (ok) {
+                                                    prefs.saveHaBackupLastAt(System.currentTimeMillis())
+                                                    setupChangedMessage = "Home Assistant backup created."
+                                                } else {
+                                                    setupChangedMessage = "Home Assistant backup failed. Is the HKI 7 Cloud component reachable?"
+                                                }
+                                                haBackupNowBusy = false
+                                            }
+                                        },
+                                        enabled = !haBackupNowBusy,
+                                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                                        shape = itemCornerShape()
+                                    ) {
+                                        Icon(Icons.Default.Backup, null)
+                                        Spacer(Modifier.width(8.dp))
+                                        Text(if (haBackupNowBusy) "Backing up…" else "Back up now")
+                                    }
                                 }
                             }
                         }

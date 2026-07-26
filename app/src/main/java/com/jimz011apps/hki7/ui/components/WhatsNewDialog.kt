@@ -45,6 +45,7 @@ import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 private val changelog: Map<String, List<String>> = mapOf(
     "1.0.0-beta.4" to listOf(
         "The Backup and Restore screen now shows when each automatic backup last ran — both Google Drive and Home Assistant — so you can tell at a glance that your latest changes are safely saved.",
+        "Added a \"Back up now\" button to each cloud backup, so you can create an immediate backup any time without waiting for the daily schedule.",
         "Fixed: the app icon looked oversized after the recent themed-icon (monochrome) update. The mark now sits with proper padding, matching other app icons on your home screen and in the themed-icon style.",
     ),
     "1.0.0-beta.3" to listOf(
