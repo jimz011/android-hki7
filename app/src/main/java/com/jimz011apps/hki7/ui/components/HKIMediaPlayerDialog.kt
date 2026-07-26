@@ -213,6 +213,12 @@ fun HKIMediaPlayerDialog(
                 Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
                 contentAlignment = Alignment.Center
             ) {
+                val headerCtx = LocalContext.current
+                val headerBrand = remember(entity.appName, entity.mediaSource, entity.entity_id) { mediaBrandFor(entity) }
+                val brandDetected = headerBrand.icon != "mdi:music-note"
+                val headerLaunch = remember(headerBrand.packageName) {
+                    headerBrand.packageName?.let { headerCtx.packageManager.getLaunchIntentForPackage(it) }
+                }
                 Box(
                     Modifier.fillMaxWidth().aspectRatio(1f)
                         .clip(itemCornerShape()).background(appColors.subtleSurface),
@@ -220,7 +226,21 @@ fun HKIMediaPlayerDialog(
                 ) {
                     if (artwork != null) {
                         AsyncImage(artwork, entity.mediaTitle, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                    } else if (brandDetected) {
+                        // Show the source's brand logo (in its own colour). Tapping opens the matching
+                        // phone app when installed; otherwise the icon is just shown.
+                        Box(
+                            Modifier.fillMaxSize().then(
+                                if (headerLaunch != null)
+                                    Modifier.clickable { runCatching { headerCtx.startActivity(headerLaunch) } }
+                                else Modifier
+                            ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            MdiIcon(headerBrand.icon, tint = headerBrand.color ?: appColors.onMuted, size = 80.dp)
+                        }
                     } else {
+                        // No app logo detected: fall back to the default media icon.
                         Icon(Icons.Default.MusicNote, null, tint = appColors.onMuted, modifier = Modifier.size(64.dp))
                     }
                 }
@@ -758,7 +778,11 @@ fun MediaPlayerMiniBar(
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Box(
-                        Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(barSubtle),
+                        // Only frame album art in a rounded tile; the brand logo shows bare (no square).
+                        Modifier.size(40.dp).then(
+                            if (artwork != null) Modifier.clip(RoundedCornerShape(12.dp)).background(barSubtle)
+                            else Modifier
+                        ),
                         contentAlignment = Alignment.Center
                     ) {
                         if (artwork != null) {
@@ -766,7 +790,7 @@ fun MediaPlayerMiniBar(
                         } else {
                             // No artwork (e.g. an Android TV app with no media metadata): show the
                             // source's brand logo so it's clear which app is running.
-                            MdiIcon(brand.icon, tint = brand.color ?: barMuted, size = 22.dp)
+                            MdiIcon(brand.icon, tint = brand.color ?: barMuted, size = 30.dp)
                         }
                     }
                     Column(Modifier.weight(1f)) {

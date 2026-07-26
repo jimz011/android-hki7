@@ -227,7 +227,7 @@ private fun sectionIcon(section: SettingsSection): ImageVector = when (section) 
 
 // Subsections nested under Appearance return there on back; everything else returns to the menu.
 private fun parentSection(section: SettingsSection): SettingsSection = when (section) {
-    SettingsSection.HEADER, SettingsSection.THEME, SettingsSection.FONTS, SettingsSection.NAV_BAR, SettingsSection.MEDIA_PLAYERS -> SettingsSection.APPEARANCE
+    SettingsSection.HEADER, SettingsSection.THEME, SettingsSection.FONTS, SettingsSection.CORNERS, SettingsSection.ICONS, SettingsSection.NAV_BAR, SettingsSection.MEDIA_PLAYERS -> SettingsSection.APPEARANCE
     SettingsSection.PROFILE -> SettingsSection.ACCOUNT
     else -> SettingsSection.MENU
 }
