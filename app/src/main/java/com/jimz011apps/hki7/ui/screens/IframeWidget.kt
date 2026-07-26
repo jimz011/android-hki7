@@ -130,6 +130,7 @@ fun IframeWidgetSettingsDialog(
     var settingsPage by remember(widget) { mutableStateOf("content") }
 
     AlertDialog(
+        stableHeight = true,
         onDismissRequest = onDismiss,
         title = { com.jimz011apps.hki7.ui.components.ModernSettingsDialogTitle("iFrame", "Embed a web page on your dashboard") },
         text = {
