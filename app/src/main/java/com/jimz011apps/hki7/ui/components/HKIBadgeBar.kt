@@ -686,7 +686,9 @@ private fun BadgeItem(
     val pictureUrl = if (customSlug == ENTITY_PICTURE_ICON && entity != null && currentUrl.isNotBlank())
         resolveEntityPictureUrl(entity, currentUrl) else null
     val iconSlug = if (effectiveSlug == ENTITY_PICTURE_ICON) defaultSlug else effectiveSlug
-    val iconEffect = entity?.let { iconEffectFor(it, LocalIconAnimationsEnabled.current, badge.iconAnimation) } ?: IconEffect.NONE
+    val iconEffect = entity?.let {
+        iconEffectFor(it, LocalIconAnimationsEnabled.current, badge.iconAnimation).forIconSlug(iconSlug)
+    } ?: IconEffect.NONE
 
     // Outer Box: badge content + edit-mode overlays
     Box {

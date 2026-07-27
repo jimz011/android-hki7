@@ -119,6 +119,17 @@ fun iconEffectFor(entity: HAEntity, enabled: Boolean, override: String = "auto")
     }
 }
 
+/** Icons that depict a static appliance rather than a rotating blade. A spin animation on these
+ * reads as wrong (an air purifier or humidifier glyph tumbling end over end), so spin is softened to
+ * the calmer pulse used elsewhere for climate/humidity devices. */
+private val NON_SPINNING_ICON_SLUGS = setOf("air-purifier", "air-humidifier", "air-conditioner")
+
+/** Downgrades a SPIN effect to PULSE for [iconSlug] glyphs that should not rotate; every other effect
+ * and every other icon is returned unchanged. Applied where the final icon slug is known, so it works
+ * regardless of how the device (a purifier fan, say) was classified. */
+fun IconEffect.forIconSlug(iconSlug: String?): IconEffect =
+    if (this == IconEffect.SPIN && iconSlug in NON_SPINNING_ICON_SLUGS) IconEffect.PULSE else this
+
 /** Milliseconds per full rotation for a spinning entity — faster for higher fan speeds. */
 private fun spinPeriodMillis(entity: HAEntity?): Int {
     return when (entity?.entity_id?.substringBefore('.')) {

@@ -253,9 +253,10 @@ fun HKIDialog(
                                         Box(contentAlignment = Alignment.Center) { headerIconContent() }
                                     }
                                 } else {
-                                    val dialogEffect = iconEffectFor(entity, LocalIconAnimationsEnabled.current)
                                     // Drop the picture sentinel here (no picture available) so it falls back to the icon.
                                     val effectiveIconName = iconName?.takeUnless { it.isBlank() || it == ENTITY_PICTURE_ICON }
+                                    val dialogEffect = iconEffectFor(entity, LocalIconAnimationsEnabled.current)
+                                        .forIconSlug(effectiveIconName)
                                     Surface(
                                         modifier = Modifier.size(50.dp),
                                         shape = RoundedCornerShape(17.dp),

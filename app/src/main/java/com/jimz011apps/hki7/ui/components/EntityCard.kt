@@ -446,6 +446,7 @@ fun EntityCard(
             // Live motion while the device is active (glow/spin/pulse), gated on the user setting
             // and the per-icon override.
             val iconEffect = iconEffectFor(entity, LocalIconAnimationsEnabled.current, iconAnimation)
+                .forIconSlug(effectiveSlug)
             // "Use entity picture": render the HA picture when available, else fall back to the icon.
             val pictureUrl = if (effectiveSlug == ENTITY_PICTURE_ICON && !currentUrl.isNullOrBlank())
                 resolveEntityPictureUrl(entity, currentUrl) else null
