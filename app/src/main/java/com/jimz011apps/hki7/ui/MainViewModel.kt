@@ -1134,6 +1134,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private val _isEditMode = MutableStateFlow(false)
     val isEditMode: StateFlow<Boolean> = _isEditMode
 
+    // When an admin restricts this user to aesthetics-only editing (Family Sharing permission),
+    // structural changes — adding/removing widgets, buttons, and rooms — are blocked while visual
+    // edits (icon, name, theme, wallpaper) stay available. Mirrors prefs.enforcedAestheticsOnly.
+    private val _aestheticsOnlyEditing = MutableStateFlow(false)
+    val aestheticsOnlyEditing: StateFlow<Boolean> = _aestheticsOnlyEditing
+
     private val _dashboardMode = MutableStateFlow("auto")
     val dashboardMode: StateFlow<String> = _dashboardMode
 
@@ -1323,6 +1329,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     _adaptiveLightingOptionsForms.value = cached
                 }
             }
+        }
+        viewModelScope.launch {
+            prefs.enforcedAestheticsOnly.collect { _aestheticsOnlyEditing.value = it }
         }
         networkMonitor?.let { monitor ->
             viewModelScope.launch {
@@ -1769,6 +1778,8 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             if (client != null) scheduleProactiveRefreshFromStoredExpiry()
             setBatteryMonitoring(true)
             appContext?.let { reportDeviceTelemetry(it) }
+            // Pull any updates the owner pushed to shared dashboards this user is using.
+            syncSharedDashboards()
         } else {
             internalUrlRetryJob?.cancel()
             internalUrlRetryJob = null
@@ -3556,6 +3567,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     fun addManualArea(name: String, floorId: String? = null) {
         if (_dashboardMode.value == "auto") return
+        if (_aestheticsOnlyEditing.value) return
         takeSnapshot()
         val area = HAArea(area_id = "manual_area_${UUID.randomUUID()}", name = name, floor_id = floorId)
         val updated = _areas.value + area
@@ -3598,6 +3610,25 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun copyDashboard(id: String, name: String) { viewModelScope.launch { prefs.copyDashboard(id, name) } }
+
+    private var sharedSyncJob: Job? = null
+    /** Pull-and-merge any updates to shared dashboards this user imported, keeping their own aesthetic
+     * changes. Runs on foreground return; reloads the live view if the active dashboard was updated. */
+    fun syncSharedDashboards() {
+        val ctx = appContext ?: return
+        if (sharedSyncJob?.isActive == true) return
+        sharedSyncJob = viewModelScope.launch(Dispatchers.IO) {
+            val activeChanged = runCatching { HaDashboardSharing.syncUpdates(ctx, prefs) }.getOrDefault(false)
+            if (activeChanged) {
+                _areas.value = prefs.savedAreas.first()
+                _floors.value = prefs.savedFloors.first()
+                _areaWidgetsMapping.value = prefs.areaWidgets.first()
+                _areaConfigsMapping.value = prefs.areaConfigs.first()
+                _pageConfigsMapping.value = prefs.pageConfigs.first()
+                if (_dashboardMode.value == "auto") refreshEntities(isSilent = true)
+            }
+        }
+    }
     fun renameDashboard(id: String, name: String) { viewModelScope.launch { prefs.renameDashboard(id, name) } }
     fun deleteDashboard(id: String) { viewModelScope.launch { prefs.deleteDashboard(id) } }
     fun setDefaultDashboard(id: String) { viewModelScope.launch { prefs.setDefaultDashboard(id) } }
@@ -3790,6 +3821,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     /** Appends any prebuilt widget (used by the energy card/stack widgets). */
     fun addWidgetToArea(areaId: String, widget: HKIRoomWidget) {
+        if (_aestheticsOnlyEditing.value) return
         takeSnapshot()
         bumpWidgetUi()
         val currentMapping = _areaWidgetsMapping.value.toMutableMap()
@@ -3801,6 +3833,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun addSubtitleToArea(areaId: String, text: String, icon: String? = null) {
+        if (_aestheticsOnlyEditing.value) return
         takeSnapshot()
         bumpWidgetUi()
         val currentMapping = _areaWidgetsMapping.value.toMutableMap()
@@ -3812,6 +3845,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun addWeatherToArea(areaId: String, entityId: String?, style: String, title: String? = null) {
+        if (_aestheticsOnlyEditing.value) return
         takeSnapshot()
         bumpWidgetUi()
         val currentMapping = _areaWidgetsMapping.value.toMutableMap()
@@ -3823,6 +3857,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun updateWidget(areaId: String, updatedWidget: HKIRoomWidget) {
+        // Aesthetics-only users may retune visuals but not change structure. Block updates that add
+        // or remove buttons in a stack or children in a container; membership is compared as a set so
+        // reordering (a layout tweak) is still permitted.
+        if (_aestheticsOnlyEditing.value && isStructuralWidgetChange(areaId, updatedWidget)) return
         takeSnapshot()
         bumpWidgetUi()
         ignoreWidgetPrefsUntil = SystemClock.elapsedRealtime() + 2500
@@ -3837,7 +3875,25 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         }
     }
 
+    /** True when [updated] adds or removes buttons/children versus the stored widget of the same id
+     * (membership compared as a set, so a pure reorder is not considered structural). An unknown id
+     * counts as structural — it would be a new insertion. Used to gate aesthetics-only editing. */
+    private fun isStructuralWidgetChange(areaId: String, updated: HKIRoomWidget): Boolean {
+        val existing = _areaWidgetsMapping.value[areaId]?.firstOrNull { it.id == updated.id } ?: return true
+        if (existing::class != updated::class) return true
+        fun ids(widgets: List<HKIRoomWidget>) = widgets.mapTo(HashSet()) { it.id }
+        return when (existing) {
+            is HKIButtonStack -> existing.entityIds.toSet() != (updated as HKIButtonStack).entityIds.toSet()
+            is HKIEmptyStack -> ids(existing.widgets) != ids((updated as HKIEmptyStack).widgets)
+            is HKISwipingStack -> ids(existing.widgets) != ids((updated as HKISwipingStack).widgets)
+            is HKISensorGraphStack -> existing.graphs.mapTo(HashSet()) { it.id } !=
+                (updated as HKISensorGraphStack).graphs.mapTo(HashSet()) { it.id }
+            else -> false
+        }
+    }
+
     fun deleteWidget(areaId: String, widgetId: String) {
+        if (_aestheticsOnlyEditing.value) return
         takeSnapshot()
         bumpWidgetUi()
         ignoreWidgetPrefsUntil = SystemClock.elapsedRealtime() + 2500
@@ -4240,6 +4296,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     fun deleteArea(areaId: String) {
         if (_dashboardMode.value == "auto") return
+        if (_aestheticsOnlyEditing.value) return
         takeSnapshot()
         val currentList = _areas.value.toMutableList()
         currentList.removeAll { it.area_id == areaId }

@@ -1,6 +1,7 @@
 package com.jimz011apps.hki7.data
 
 import android.content.Context
+import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
@@ -57,6 +58,24 @@ object HaDashboardSharing {
         meta: Hki7SharedDashboardMeta,
     ): String? {
         val raw = Hki7Endpoint.withClient(context) { it.hki7GetDashboard(meta.id) } ?: return null
-        return prefs.importSharedDashboard(meta.id, raw, nameOverride = meta.name)
+        return prefs.importSharedDashboard(meta.id, raw, nameOverride = meta.name, updatedAt = meta.updated)
+    }
+
+    /** Pulls newer versions of every locally-imported shared dashboard and merges them in, preserving
+     * the recipient's own aesthetic changes. Unchanged dashboards (same `updated` timestamp) are
+     * skipped. Returns true when the currently-active dashboard was refreshed, so the caller can
+     * reload its in-memory view. */
+    suspend fun syncUpdates(context: Context, prefs: PreferencesManager): Boolean {
+        val locals = prefs.dashboards.first().filter { it.id.startsWith("shared-") }
+        if (locals.isEmpty()) return false
+        val sharedByLocalId = listSharedForMe(context).associateBy { "shared-${it.id}" }
+        var activeChanged = false
+        for (local in locals) {
+            val meta = sharedByLocalId[local.id] ?: continue
+            if (meta.updated.isNotBlank() && meta.updated == local.sharedUpdatedAt) continue
+            val raw = Hki7Endpoint.withClient(context) { it.hki7GetDashboard(meta.id) } ?: continue
+            if (prefs.applySharedDashboardUpdate(local.id, raw, meta.updated)) activeChanged = true
+        }
+        return activeChanged
     }
 }

@@ -346,6 +346,9 @@ fun RoomDetailScreen(
     val areaWidgetsMapping by viewModel.areaWidgetsMapping.collectAsState()
     val areaConfigsMapping by viewModel.areaConfigsMapping.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
+    // Aesthetics-only recipients (Family Sharing) keep visual edits but can't add/remove structure.
+    val aestheticsOnly by viewModel.aestheticsOnlyEditing.collectAsState()
+    val structuralEditing = isEditMode && !aestheticsOnly
     val dashboardMode by viewModel.dashboardMode.collectAsState()
     val uiRevision by viewModel.uiRevision.collectAsState()
 
@@ -517,6 +520,7 @@ fun RoomDetailScreen(
     )
     fun newIframeWidget() = HKIIframeWidget(id = UUID.randomUUID().toString())
     fun addChildToSwipingStack(stackId: String, child: HKIRoomWidget) {
+        if (aestheticsOnly) return
         val swipe = areaWidgets.filterIsInstance<HKISwipingStack>().find { it.id == stackId }
         val empty = areaWidgets.filterIsInstance<HKIEmptyStack>().find { it.id == stackId }
         when {
@@ -533,6 +537,7 @@ fun RoomDetailScreen(
         }
     }
     fun deleteChildFromSwipingStack(stackId: String, childId: String) {
+        if (aestheticsOnly) return
         val swipe = areaWidgets.filterIsInstance<HKISwipingStack>().find { it.id == stackId }
         val empty = areaWidgets.filterIsInstance<HKIEmptyStack>().find { it.id == stackId }
         when {
@@ -1296,7 +1301,7 @@ fun RoomDetailScreen(
             }
         }
 
-            if (isEditMode) {
+            if (structuralEditing) {
                 GradientActionButton(
                     onClick = {
                         if (dashboardMode == "auto") showAutoWidgetInfo = true else showAddWidgetDialog = true

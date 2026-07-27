@@ -40,7 +40,10 @@ data class HKIDashboard(
     // Per-dashboard media-player bar config, so each (shared) dashboard carries its own selection
     // instead of one global list everyone must curate.
     val mediaPlayerNames: Map<String, String> = emptyMap(),
-    val mediaPlayerBarHidden: List<String> = emptyList()
+    val mediaPlayerBarHidden: List<String> = emptyList(),
+    // For an imported shared dashboard ("shared-<id>"): the source's `updated` timestamp last merged
+    // in, so auto-update can skip re-fetching an unchanged shared dashboard.
+    val sharedUpdatedAt: String? = null
 )
 
 /** One independently authenticated Home Assistant server. The existing preference keys remain the
@@ -1042,7 +1045,12 @@ class PreferencesManager(
     /** Imports a shared dashboard JSON as a local dashboard. Keyed on [sharedId] so re-importing the
      * same shared dashboard updates it in place instead of creating duplicates. Returns the local
      * dashboard id, or null if the JSON is invalid. Never switches the active dashboard. */
-    suspend fun importSharedDashboard(sharedId: String, json: String, nameOverride: String? = null): String? {
+    suspend fun importSharedDashboard(
+        sharedId: String,
+        json: String,
+        nameOverride: String? = null,
+        updatedAt: String? = null,
+    ): String? {
         val decoded = runCatching { appJson.decodeFromString<HKIDashboard>(json) }.getOrNull() ?: return null
         val localId = "shared-$sharedId"
         context.dataStore.edit { p ->
@@ -1050,7 +1058,8 @@ class PreferencesManager(
             saveLoadedDashboardInto(p, dashboards)
             val imported = decoded.copy(
                 id = localId,
-                name = (nameOverride ?: decoded.name).trim().ifBlank { decoded.name }
+                name = (nameOverride ?: decoded.name).trim().ifBlank { decoded.name },
+                sharedUpdatedAt = updatedAt
             )
             val idx = dashboards.indexOfFirst { it.id == localId }
             if (idx >= 0) dashboards[idx] = imported else dashboards += imported
@@ -1058,6 +1067,32 @@ class PreferencesManager(
             if (p[defaultDashboardIdKey].isNullOrBlank()) p[defaultDashboardIdKey] = localId
         }
         return localId
+    }
+
+    /** Merges a fresh shared-dashboard payload onto the local copy (preserving the recipient's
+     * aesthetics) and stores it. When the merged dashboard is the active one, its live-loaded state is
+     * refreshed too. Returns true when the active dashboard was the one updated, so the caller can
+     * reload the in-memory view. No-op if [localId] isn't a stored dashboard or the JSON is invalid. */
+    suspend fun applySharedDashboardUpdate(localId: String, json: String, updatedAt: String): Boolean {
+        val incoming = runCatching { appJson.decodeFromString<HKIDashboard>(json) }.getOrNull() ?: return false
+        var activeUpdated = false
+        context.dataStore.edit { p ->
+            val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
+            val idx = dashboards.indexOfFirst { it.id == localId }
+            if (idx < 0) return@edit
+            val isActive = p[activeDashboardIdKey] == localId
+            // Snapshot the live-loaded active dashboard so its latest local aesthetics feed the merge.
+            if (isActive) saveLoadedDashboardInto(p, dashboards)
+            val local = dashboards[idx]
+            val merged = mergeSharedDashboardAesthetics(local, incoming).copy(sharedUpdatedAt = updatedAt)
+            dashboards[idx] = merged
+            p[dashboardsKey] = appJson.encodeToString(dashboards)
+            if (isActive) {
+                loadDashboardIntoPreferences(p, merged)
+                activeUpdated = true
+            }
+        }
+        return activeUpdated
     }
 
     /** Duplicates a stored dashboard as a new one, copying every widget, area, and page config. The

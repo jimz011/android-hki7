@@ -114,6 +114,8 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
     val configs by viewModel.areaConfigsMapping.collectAsState()
     val widgetsByArea by viewModel.areaWidgetsMapping.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
+    // Aesthetics-only recipients (Family Sharing) can't add or remove rooms/floors.
+    val aestheticsOnly by viewModel.aestheticsOnlyEditing.collectAsState()
     val currentUrl by viewModel.currentUrl.collectAsState()
     val dashboardMode by viewModel.dashboardMode.collectAsState()
     val autoGenerationPending by viewModel.prefs.pendingAutoTakeover.collectAsState(initial = false)
@@ -253,7 +255,7 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                 }
             }
 
-            if (isEditMode) {
+            if (isEditMode && !aestheticsOnly) {
                 Row(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
