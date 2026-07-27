@@ -3347,6 +3347,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun addStackToArea(areaId: String, title: String?, icon: String? = null) {
+        if (_aestheticsOnlyEditing.value) return
         takeSnapshot()
         bumpWidgetUi()
         val currentMapping = _areaWidgetsMapping.value.toMutableMap()
@@ -3366,6 +3367,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun addVacuumStackToArea(areaId: String, title: String? = "Vacuum", icon: String? = "CleaningServices") {
+        if (_aestheticsOnlyEditing.value) return
         takeSnapshot()
         bumpWidgetUi()
         val currentMapping = _areaWidgetsMapping.value.toMutableMap()
@@ -3387,6 +3389,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun addCameraStackToArea(areaId: String, title: String? = "Cameras", icon: String? = "CameraAlt") {
+        if (_aestheticsOnlyEditing.value) return
         takeSnapshot()
         bumpWidgetUi()
         val currentMapping = _areaWidgetsMapping.value.toMutableMap()
@@ -3408,6 +3411,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun addWeatherStackToArea(areaId: String, title: String? = "Weather", icon: String? = null) {
+        if (_aestheticsOnlyEditing.value) return
         takeSnapshot()
         bumpWidgetUi()
         val currentMapping = _areaWidgetsMapping.value.toMutableMap()
@@ -3431,6 +3435,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun addSwipingStackToArea(areaId: String) {
+        if (_aestheticsOnlyEditing.value) return
         takeSnapshot()
         bumpWidgetUi()
         val currentMapping = _areaWidgetsMapping.value.toMutableMap()
@@ -3442,6 +3447,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun addEmptyStackToArea(areaId: String) {
+        if (_aestheticsOnlyEditing.value) return
         takeSnapshot()
         bumpWidgetUi()
         val currentMapping = _areaWidgetsMapping.value.toMutableMap()
@@ -3458,6 +3464,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         entityId: String,
         config: HKIButtonConfig = HKIButtonConfig()
     ) {
+        if (_aestheticsOnlyEditing.value) return
         takeSnapshot()
         bumpWidgetUi()
         val currentMapping = _areaWidgetsMapping.value.toMutableMap()
@@ -3664,6 +3671,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     fun setDefaultDashboard(id: String) { viewModelScope.launch { prefs.setDefaultDashboard(id) } }
 
     fun reimportRooms(fromScratch: Boolean) {
+        if (_aestheticsOnlyEditing.value) return
         viewModelScope.launch {
             val currentClient = client ?: return@launch
             try {
@@ -3733,6 +3741,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun reimportClimate(fromScratch: Boolean) {
+        if (_aestheticsOnlyEditing.value) return
         val current = _pageConfigsMapping.value["climate"] ?: HKIPageConfig()
         val old = if (fromScratch) HKIClimateConfig() else current.climateConfig ?: HKIClimateConfig()
         val all = _entities.value
@@ -3762,6 +3771,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun reimportSecurity(fromScratch: Boolean) {
+        if (_aestheticsOnlyEditing.value) return
         val current = _pageConfigsMapping.value["security"] ?: HKIPageConfig()
         val old = if (fromScratch) HKISecurityConfig() else current.securityConfig ?: HKISecurityConfig()
         val keys = AUTO_SECURITY_GROUP_KEYS
@@ -3779,6 +3789,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun reimportEnergy(fromScratch: Boolean) {
+        if (_aestheticsOnlyEditing.value) return
         val current = _pageConfigsMapping.value["energy"] ?: HKIPageConfig()
         val retained = if (fromScratch) HKIEnergyConfig() else (current.energyConfig ?: HKIEnergyConfig()).copy(manualOnly = false)
         updatePageConfig("energy", current.copy(energyConfig = retained))
@@ -3791,6 +3802,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun reimportBattery(fromScratch: Boolean) {
+        if (_aestheticsOnlyEditing.value) return
         val current = _pageConfigsMapping.value["battery"] ?: HKIPageConfig()
         val old = if (fromScratch) HKIBatteryConfig() else current.batteryConfig ?: HKIBatteryConfig()
         val imported = _entities.value.filter { it.isBatteryPercentageSensor() }.map { it.entity_id }

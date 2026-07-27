@@ -96,6 +96,8 @@ fun HAHomeScreen(
     val entityRegistry by viewModel.entityRegistry.collectAsState()
     val deviceRegistry by viewModel.deviceRegistry.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
+    // Aesthetics-only recipients (Family Sharing) keep visual edits but can't add/remove structure.
+    val aestheticsOnly by viewModel.aestheticsOnlyEditing.collectAsState()
     val itemCornerRadius = LocalItemCornerRadius.current
     val homeWidgets = remember(widgets, itemCornerRadius) {
         widgets[HOME_WIDGET_AREA].orEmpty().map { it.withGlobalCornerRadius(itemCornerRadius) }
@@ -891,7 +893,7 @@ fun HAHomeScreen(
                     }
                 }
             }
-            if (isEditMode) {
+            if (isEditMode && !aestheticsOnly) {
                 GradientActionButton(
                     onClick = { showAddWidget = true },
                     modifier = Modifier

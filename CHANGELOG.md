@@ -19,6 +19,8 @@ Items marked with \* require the HKI 7 Cloud Component integration.
 - New Settings › Family Sharing section brings parental controls, family dashboard sharing, and per-user permissions together under three tabs. Admins can set per person whether they can edit at all, whether they're limited to aesthetic changes only (icons, names, layout, wallpaper — no adding or removing widgets, buttons or rooms), and whether they see the global search and flows buttons. Everyone else sees it locked, and can choose to use a dashboard an admin shared with them — including during onboarding.
 - Shared dashboards now update automatically. When the owner pushes a change, it's pulled in the next time you open the app — while keeping your own aesthetic tweaks (icons, names, layout, wallpaper) intact.
 - Non-admin family members now get the automatic per-room Adaptive Lighting controls too (previously only admins saw them), when the HKI 7 Cloud component is installed.
+- Fixed: the dashboard header title and subtitle now pick a readable color based on the actual header background (wallpaper, custom color, or theme), instead of following the app's light/dark mode — so a light header no longer shows near-white, unreadable text.
+- The Energy view's hero card label now reads "Power" instead of "Home Power".
 - Fixed: the "Unable to connect" screen — with its Refresh and Log in again buttons — now appears reliably when Home Assistant can't be reached. In some cases, such as signing in on a trusted network and then leaving Wi-Fi, the app used to keep showing a stale dashboard instead of offering to reconnect.
 
 ## 1.0.0-beta.6

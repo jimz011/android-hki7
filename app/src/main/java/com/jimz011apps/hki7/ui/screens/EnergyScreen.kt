@@ -1443,7 +1443,7 @@ private fun EnergyHero(
                 modifier = Modifier.align(Alignment.TopStart).padding(start = 14.dp, top = 8.dp)
             ) {
                 Text(
-                    "HOME POWER",
+                    "POWER",
                     style = MaterialTheme.typography.labelSmall,
                     color = appColors.onMuted,
                     fontWeight = FontWeight.SemiBold

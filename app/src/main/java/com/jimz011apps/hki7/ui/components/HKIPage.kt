@@ -149,8 +149,14 @@ fun HKIPage(
     val customHeaderStart = headerColorValue?.copy(
         alpha = if (isDarkAppearance) 0.45f else if (headerColorValue.luminance() < 0.35f) 0.28f else 0.18f
     )
-    val headerTextColor = if (effectiveBackground != null) Color.White else appColors.onSurface
-    val headerMutedColor = if (effectiveBackground != null) Color.White.copy(alpha = 0.8f) else appColors.onMuted
+    // Contrast the header text against the actual header backdrop (image, custom color, or the
+    // fallback tint) rather than the app's light/dark mode — otherwise a light custom/fallback header
+    // in dark mode (or a dark one in light mode) leaves the title unreadable. Mirrors the same
+    // luminance check used for the pull-down header menu below.
+    val headerBackdrop = (customHeaderStart ?: appColors.headerFallbackStart).compositeOver(appColors.background)
+    val headerUsesLightText = effectiveBackground != null || headerBackdrop.luminance() < 0.5f
+    val headerTextColor = if (headerUsesLightText) Color.White else Color(0xFF1C1B1F)
+    val headerMutedColor = headerTextColor.copy(alpha = if (headerUsesLightText) 0.8f else 0.7f)
     // Use the same light/dark translucent surface family as room counters. A dedicated gradient is
     // used below because the general surfaceGradient intentionally converts colors to opaque.
     val pillColor = appColors.elevated.copy(alpha = 0.90f)
