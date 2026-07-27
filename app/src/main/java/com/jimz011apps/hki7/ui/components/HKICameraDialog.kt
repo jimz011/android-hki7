@@ -17,11 +17,16 @@ import androidx.activity.compose.BackHandler
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -214,12 +219,6 @@ fun HKICameraDialog(
                         onFullscreen = { isFullscreen = true }
                     )
                 }
-                CameraPagingOverlay(
-                    onPrevious = onPrevious,
-                    onNext = onNext,
-                    positionText = positionText,
-                    modifier = Modifier.matchParentSize()
-                )
             }
         }
         return
@@ -307,12 +306,6 @@ fun HKICameraDialog(
                                     onFullscreen = { isFullscreen = true }
                                 )
                             }
-                            CameraPagingOverlay(
-                                onPrevious = onPrevious,
-                                onNext = onNext,
-                                positionText = positionText,
-                                modifier = Modifier.matchParentSize()
-                            )
                         }
                     }
                 }
@@ -322,55 +315,128 @@ fun HKICameraDialog(
 }
 
 /**
- * Left/right paging arrows and a position chip overlaid on the (non-fullscreen) camera surface.
- * Renders nothing when there's only one camera (both callbacks null). Lets the aggregated camera
- * badge flip between cameras without having to enter fullscreen first.
+ * Aggregated-camera dialog: shows every camera in the badge as swipeable pages with the same
+ * animated slide + page-dot indicator as the covers/vacuum stacks, while each page keeps the full
+ * live WebView stream and a fullscreen button (fullscreen paging via prev/next stays available too).
  */
 @Composable
-private fun CameraPagingOverlay(
-    onPrevious: (() -> Unit)?,
-    onNext: (() -> Unit)?,
-    positionText: String?,
-    modifier: Modifier = Modifier,
+fun CameraStackDialog(
+    cameras: List<HAEntity>,
+    startIndex: Int = 0,
+    currentUrl: String,
+    authToken: String?,
+    viewModel: MainViewModel,
+    onDismiss: () -> Unit,
 ) {
-    if (onPrevious == null && onNext == null) return
-    Box(modifier = modifier) {
-        val chipColor = Color.Black.copy(alpha = 0.45f)
-        if (onPrevious != null) {
-            IconButton(
-                onClick = onPrevious,
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(start = 6.dp)
-                    .background(chipColor, CircleShape)
-                    .size(44.dp)
-            ) {
-                Icon(Icons.Default.SkipPrevious, contentDescription = "Previous camera", tint = Color.White)
-            }
-        }
-        if (onNext != null) {
-            IconButton(
-                onClick = onNext,
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 6.dp)
-                    .background(chipColor, CircleShape)
-                    .size(44.dp)
-            ) {
-                Icon(Icons.Default.SkipNext, contentDescription = "Next camera", tint = Color.White)
-            }
-        }
-        positionText?.let {
-            Text(
-                it,
-                color = Color.White,
-                style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 8.dp)
-                    .background(chipColor, RoundedCornerShape(10.dp))
-                    .padding(horizontal = 10.dp, vertical = 4.dp)
+    if (cameras.isEmpty()) { onDismiss(); return }
+
+    var page by remember(cameras.map { it.entity_id }) {
+        mutableIntStateOf(startIndex.coerceIn(0, cameras.lastIndex))
+    }
+    var dragAmount by remember { mutableFloatStateOf(0f) }
+    var isFullscreen by rememberSaveable { mutableStateOf(false) }
+    val many = cameras.size > 1
+    val n = cameras.size
+
+    val cam = cameras[page.coerceIn(0, cameras.lastIndex)]
+    val title = cam.friendlyName ?: cam.entity_id
+    val fullscreenLauncher = LocalCameraFullscreenLauncher.current
+
+    // Drive the app-owned fullscreen overlay off the current page, so prev/next in fullscreen swaps
+    // the stream and the pager lands on the same camera when fullscreen closes.
+    LaunchedEffect(isFullscreen, page, fullscreenLauncher) {
+        if (isFullscreen && fullscreenLauncher != null) {
+            val url = resolveEntityCameraUrl(cam, currentUrl, preferLive = true)
+            fullscreenLauncher(
+                CameraFullscreenRequest(
+                    title = title,
+                    imageUrl = buildCameraRefreshModel(url, 0, 0),
+                    liveWebUrl = url,
+                    authToken = authToken,
+                    onPrevious = if (many) ({ page = (page - 1 + n) % n }) else null,
+                    onNext = if (many) ({ page = (page + 1) % n }) else null,
+                    positionText = if (many) "${page + 1}/$n" else null,
+                    onClosed = { isFullscreen = false }
+                )
             )
+        }
+    }
+    // The app renders fullscreen above everything; hide the windowed dialog so two WebViews for the
+    // same stream never run at once.
+    if (isFullscreen && fullscreenLauncher != null) return
+
+    HKIDialog(
+        entity = cam,
+        onDismiss = onDismiss,
+        viewModel = viewModel,
+        icon = Icons.Default.CameraAlt,
+        titleOverride = title,
+        statusText = if (many) "${page + 1}/$n • Live" else "Live",
+        showHistoryButton = true,
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .pointerInput(n) {
+                    detectHorizontalDragGestures(
+                        onDragEnd = {
+                            if (dragAmount > 80f && page > 0) page--
+                            if (dragAmount < -80f && page < cameras.lastIndex) page++
+                            dragAmount = 0f
+                        },
+                        onHorizontalDrag = { change, amount -> change.consume(); dragAmount += amount }
+                    )
+                },
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AnimatedContent(
+                targetState = page,
+                transitionSpec = {
+                    val dir = if (targetState > initialState) -1 else 1
+                    (slideInHorizontally(tween(220)) { it * -dir } + fadeIn(tween(180))) togetherWith
+                        (slideOutHorizontally(tween(220)) { it * dir } + fadeOut(tween(150)))
+                },
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                label = "camera_page"
+            ) { pg ->
+                val c = cameras[pg.coerceIn(0, cameras.lastIndex)]
+                val url = resolveEntityCameraUrl(c, currentUrl, preferLive = true)
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f),
+                        shape = itemCornerShape(),
+                        color = Color.Black
+                    ) {
+                        CameraViewerWithFullscreenButton(
+                            imageUrl = buildCameraRefreshModel(url, 0, 0),
+                            liveWebUrl = url,
+                            authToken = authToken,
+                            title = c.friendlyName ?: c.entity_id,
+                            onWebViewChanged = {},
+                            onFullscreen = { page = pg; isFullscreen = true }
+                        )
+                    }
+                }
+            }
+
+            if (many) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                ) {
+                    cameras.indices.forEach { i ->
+                        Box(
+                            modifier = Modifier
+                                .size(if (i == page) 8.dp else 6.dp)
+                                .background(if (i == page) Color.White else Color.Gray, CircleShape)
+                        )
+                    }
+                }
+            }
         }
     }
 }

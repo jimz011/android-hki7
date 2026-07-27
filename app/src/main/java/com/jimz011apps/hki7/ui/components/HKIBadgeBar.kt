@@ -491,24 +491,14 @@ fun HKIBadgeBar(
                 )
             }
             "camera" -> {
-                // Multiple cameras page through the same full camera dialog (live view + fullscreen),
-                // rather than a stripped-down snapshot, so every feature keeps working when aggregated.
-                var cameraPage by remember(live.size) { mutableIntStateOf(0) }
-                val idx = cameraPage.coerceIn(0, live.lastIndex)
-                val cam = live[idx]
-                val streamUrl = resolveEntityCameraUrl(cam, currentUrl, preferLive = true)
-                val many = live.size > 1
-                HKICameraDialog(
-                    title = cam.friendlyName ?: cam.entity_id,
-                    imageUrl = buildCameraRefreshModel(streamUrl, 0, 0),
-                    liveWebUrl = streamUrl,
+                // Swipeable pages with page dots (like the covers/vacuum stacks), where each page keeps
+                // the full live stream + fullscreen button — instead of a stripped-down snapshot.
+                CameraStackDialog(
+                    cameras = live,
+                    startIndex = 0,
+                    currentUrl = currentUrl,
                     authToken = accessToken,
-                    statusText = "Live",
-                    entity = cam,
                     viewModel = viewModel,
-                    onPrevious = if (many) { { cameraPage = (idx - 1 + live.size) % live.size } } else null,
-                    onNext = if (many) { { cameraPage = (idx + 1) % live.size } } else null,
-                    positionText = if (many) "${idx + 1}/${live.size}" else null,
                     onDismiss = dismiss
                 )
             }

@@ -55,7 +55,7 @@ private val beta8Notes = listOf(
     "Child locks are never auto-imported. A washer, air conditioner, or valve's keypad/child-lock is a safety toggle, not a room control, so it no longer shows up among your switches.",
     "Vacuums now appear in a room's badge bar — on the left next to your cameras (or on their own on the left when there's no camera). Tap one to open its controls.",
     "You can hide or schedule individual buttons in a multi-item widget. In a stack's \"Manage items\" screen, each item has a visibility button: hide it until you unhide it, or pick a date/time window (with a graphical picker) for when it shows or hides. The window can repeat daily, weekly, monthly, or yearly — so a set of Christmas buttons appears every 24–26 December without touching the year. The schedule travels with the dashboard, so cloud backups and family sharing keep it.",
-    "Header badges with several cameras now open one paged dialog to flip through them, matching how blinds and vacuums already aggregate.",
+    "Header badges with several cameras now aggregate into one swipeable dialog with page dots, just like the blinds and vacuum stacks. Each page keeps its live stream and fullscreen button, and you can page in fullscreen too.",
     "Family Sharing › Dashboards now lists every dashboard you've published to your family — they live in the cloud, so they're still there after a reinstall. Import one to edit or re-share it, or delete it to remove it from everyone. Anyone still using a deleted dashboard falls back to an auto-generated one the next time they open the app.",
 )
 
