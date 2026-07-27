@@ -409,6 +409,18 @@ open class HomeAssistantClient(
         response["result"]?.jsonObject?.let(::parsePolicy) ?: Hki7Policy()
     }
 
+    /** Each Adaptive Lighting profile's light membership (config-entry id -> light entity ids), read
+     * via the hki7 component so non-admins get it too. Null when the command is unavailable (older or
+     * absent component), so the caller can fall back to the admin-only options flow. */
+    open suspend fun hki7AdaptiveLightingLights(): Map<String, List<String>>? = withWebSocket {
+        val response = sendCommand("hki7/adaptive_lighting/list")
+        if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket null
+        val profiles = response["result"]?.jsonObject?.get("profiles")?.jsonObject ?: return@withWebSocket null
+        profiles.mapValues { (_, value) ->
+            (value as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull } ?: emptyList()
+        }
+    }
+
     /** Sets a user's full policy (hidden views/rooms plus edit and visibility permissions). Admin
      * only. Returns true on success.
      *

@@ -32,6 +32,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.put
@@ -1043,7 +1044,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         adaptiveLightingOptionsEntryIds = entryIds
         adaptiveLightingOptionsRefreshJob?.cancel()
         adaptiveLightingOptionsRefreshJob = viewModelScope.launch(Dispatchers.IO) {
-            val fetched = getConfigEntryOptionsForms(entryIds).mapValues { (_, form) ->
+            val fetched = fetchAdaptiveLightingLightForms(entryIds).mapValues { (_, form) ->
                 // flow_id identifies the temporary options-flow session that was already aborted.
                 JsonObject(form.filterKeys { it !in setOf("flow_id", "handler") })
             }
@@ -2986,6 +2987,35 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     /** Reads current integration options without changing them. Entries that do not expose an
      * options form (or require permissions the current user lacks) are omitted. */
+    /** Adaptive Lighting membership as options-flow-shaped forms. Prefers the hki7 component (which
+     * any user may read); falls back to the admin-only options flow when the component is absent, so
+     * non-admins get the room Adaptive Lighting sections only when the component is installed. */
+    private suspend fun fetchAdaptiveLightingLightForms(entryIds: Collection<String>): Map<String, JsonObject> {
+        val currentClient = client ?: return emptyMap()
+        val viaComponent = runCatching { currentClient.hki7AdaptiveLightingLights() }.getOrNull()
+        if (viaComponent != null) {
+            return entryIds.distinct().mapNotNull { id ->
+                viaComponent[id]?.let { lights -> id to adaptiveLightingLightsForm(lights) }
+            }.toMap()
+        }
+        return getConfigEntryOptionsForms(entryIds)
+    }
+
+    private fun adaptiveLightingLightsForm(lights: List<String>): JsonObject = JsonObject(
+        mapOf(
+            "data_schema" to JsonArray(
+                listOf(
+                    JsonObject(
+                        mapOf(
+                            "name" to JsonPrimitive("lights"),
+                            "suggested_value" to JsonArray(lights.map { JsonPrimitive(it) })
+                        )
+                    )
+                )
+            )
+        )
+    )
+
     suspend fun getConfigEntryOptionsForms(entryIds: Collection<String>): Map<String, JsonObject> {
         val currentClient = client ?: return emptyMap()
         return buildMap {

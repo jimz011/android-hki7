@@ -18,6 +18,7 @@ Items marked with \* require the HKI 7 Cloud Component integration.
 - You can now copy a dashboard. In Settings › Dashboards, tap the copy icon on any dashboard to create a full duplicate — every room, widget, and page setting included — as a starting point for a new layout.
 - New Settings › Family Sharing section brings parental controls, family dashboard sharing, and per-user permissions together under three tabs. Admins can set per person whether they can edit at all, whether they're limited to aesthetic changes only (icons, names, layout, wallpaper — no adding or removing widgets, buttons or rooms), and whether they see the global search and flows buttons. Everyone else sees it locked, and can choose to use a dashboard an admin shared with them — including during onboarding.
 - Shared dashboards now update automatically. When the owner pushes a change, it's pulled in the next time you open the app — while keeping your own aesthetic tweaks (icons, names, layout, wallpaper) intact.
+- Non-admin family members now get the automatic per-room Adaptive Lighting controls too (previously only admins saw them), when the HKI 7 Cloud component is installed.
 - Fixed: the "Unable to connect" screen — with its Refresh and Log in again buttons — now appears reliably when Home Assistant can't be reached. In some cases, such as signing in on a trusted network and then leaving Wi-Fi, the app used to keep showing a stale dashboard instead of offering to reconnect.
 
 ## 1.0.0-beta.6
