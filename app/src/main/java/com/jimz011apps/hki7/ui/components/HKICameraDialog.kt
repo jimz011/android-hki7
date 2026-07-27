@@ -214,6 +214,12 @@ fun HKICameraDialog(
                         onFullscreen = { isFullscreen = true }
                     )
                 }
+                CameraPagingOverlay(
+                    onPrevious = onPrevious,
+                    onNext = onNext,
+                    positionText = positionText,
+                    modifier = Modifier.matchParentSize()
+                )
             }
         }
         return
@@ -301,10 +307,70 @@ fun HKICameraDialog(
                                     onFullscreen = { isFullscreen = true }
                                 )
                             }
+                            CameraPagingOverlay(
+                                onPrevious = onPrevious,
+                                onNext = onNext,
+                                positionText = positionText,
+                                modifier = Modifier.matchParentSize()
+                            )
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * Left/right paging arrows and a position chip overlaid on the (non-fullscreen) camera surface.
+ * Renders nothing when there's only one camera (both callbacks null). Lets the aggregated camera
+ * badge flip between cameras without having to enter fullscreen first.
+ */
+@Composable
+private fun CameraPagingOverlay(
+    onPrevious: (() -> Unit)?,
+    onNext: (() -> Unit)?,
+    positionText: String?,
+    modifier: Modifier = Modifier,
+) {
+    if (onPrevious == null && onNext == null) return
+    Box(modifier = modifier) {
+        val chipColor = Color.Black.copy(alpha = 0.45f)
+        if (onPrevious != null) {
+            IconButton(
+                onClick = onPrevious,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 6.dp)
+                    .background(chipColor, CircleShape)
+                    .size(44.dp)
+            ) {
+                Icon(Icons.Default.SkipPrevious, contentDescription = "Previous camera", tint = Color.White)
+            }
+        }
+        if (onNext != null) {
+            IconButton(
+                onClick = onNext,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 6.dp)
+                    .background(chipColor, CircleShape)
+                    .size(44.dp)
+            ) {
+                Icon(Icons.Default.SkipNext, contentDescription = "Next camera", tint = Color.White)
+            }
+        }
+        positionText?.let {
+            Text(
+                it,
+                color = Color.White,
+                style = MaterialTheme.typography.labelMedium,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 8.dp)
+                    .background(chipColor, RoundedCornerShape(10.dp))
+                    .padding(horizontal = 10.dp, vertical = 4.dp)
+            )
         }
     }
 }
