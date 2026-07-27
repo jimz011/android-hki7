@@ -635,11 +635,15 @@ fun defaultEntityIconSlug(
         "button", "input_button" -> "gesture-tap-button"
         "camera" -> "cctv"
         "climate" -> when {
-            // Cooling-capable units that cannot heat (mini-split / window AC exposing cool, dry,
-            // and/or fan_only but no heat mode) read as air conditioners. Dual heat+cool thermostats
-            // and heat pumps stay on the thermostat icon.
-            entity.hvacModes.any { it == "cool" || it == "dry" } &&
+            // Cooling units that cannot heat (mini-split / window AC with a cool mode but no heat)
+            // read as air conditioners. Dual heat+cool thermostats and heat pumps stay on the
+            // thermostat icon. "cool" is required: "dry" alone is a (de)humidifier, not an AC.
+            "cool" in entity.hvacModes &&
                 entity.hvacModes.none { it == "heat" || it == "heat_cool" } -> "air-conditioner"
+            // Humidity-only climate devices (a dehumidifier/humidifier exposed as climate: dry mode,
+            // no cool and no heat) get the humidifier icon rather than a thermostat or AC icon.
+            "dry" in entity.hvacModes && "cool" !in entity.hvacModes &&
+                entity.hvacModes.none { it == "heat" || it == "heat_cool" } -> "air-humidifier"
             else -> "thermostat"
         }
         "device_tracker" -> "map-marker"
