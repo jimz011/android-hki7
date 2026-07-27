@@ -61,14 +61,21 @@ object HaDashboardSharing {
         return prefs.importSharedDashboard(meta.id, raw, nameOverride = meta.name, updatedAt = meta.updated)
     }
 
-    /** Pulls newer versions of every locally-imported shared dashboard and merges them in, preserving
-     * the recipient's own aesthetic changes. Unchanged dashboards (same `updated` timestamp) are
-     * skipped. Returns true when the currently-active dashboard was refreshed, so the caller can
-     * reload its in-memory view. */
-    suspend fun syncUpdates(context: Context, prefs: PreferencesManager): Boolean {
+    /** Outcome of a shared-dashboard sync. */
+    data class SyncResult(val activeChanged: Boolean, val needsAutoGenerate: Boolean)
+
+    /** Reconciles this user's imported shared dashboards with the cloud: merges newer versions in
+     * (preserving the recipient's aesthetic changes) and removes any the admin unpublished. If the
+     * cloud can't be reached the local dashboards are left completely untouched, so a transient outage
+     * never deletes anything. When the removal empties the dashboard list, [SyncResult.needsAutoGenerate]
+     * asks the caller to build the app's default dashboard. */
+    suspend fun syncUpdates(context: Context, prefs: PreferencesManager): SyncResult {
         val locals = prefs.dashboards.first().filter { it.id.startsWith("shared-") }
-        if (locals.isEmpty()) return false
-        val sharedByLocalId = listSharedForMe(context).associateBy { "shared-${it.id}" }
+        if (locals.isEmpty()) return SyncResult(activeChanged = false, needsAutoGenerate = false)
+        // null (not empty) means the component is unreachable — do not prune on a failed call.
+        val shared = Hki7Endpoint.withClient(context) { it.hki7ListSharedDashboards() }
+            ?: return SyncResult(activeChanged = false, needsAutoGenerate = false)
+        val sharedByLocalId = shared.associateBy { "shared-${it.id}" }
         var activeChanged = false
         for (local in locals) {
             val meta = sharedByLocalId[local.id] ?: continue
@@ -76,6 +83,13 @@ object HaDashboardSharing {
             val raw = Hki7Endpoint.withClient(context) { it.hki7GetDashboard(meta.id) } ?: continue
             if (prefs.applySharedDashboardUpdate(local.id, raw, meta.updated)) activeChanged = true
         }
-        return activeChanged
+        val prune = prefs.pruneUnpublishedSharedDashboards(sharedByLocalId.keys)
+        return SyncResult(
+            activeChanged = activeChanged || prune.activeReplaced,
+            needsAutoGenerate = prune.needsAutoGenerate,
+        )
     }
+
+    /** Deletes a published dashboard from the cloud (admin only). Alias of [unpublish] for clarity. */
+    suspend fun delete(context: Context, sharedId: String): Boolean = unpublish(context, sharedId)
 }

@@ -46,6 +46,14 @@ data class HKIDashboard(
     val sharedUpdatedAt: String? = null
 )
 
+/** Outcome of pruning shared dashboards that were unpublished in the cloud. */
+data class SharedPruneResult(
+    val removed: Boolean,
+    val activeReplaced: Boolean,
+    /** No dashboards remain, so the caller should build the app's default (auto-generated) one. */
+    val needsAutoGenerate: Boolean,
+)
+
 /** One independently authenticated Home Assistant server. The existing preference keys remain the
  * active-instance compatibility layer used by the UI; this record owns the durable credentials,
  * mobile_app registration, routing preferences, and dashboard collection for every home. */
@@ -1093,6 +1101,45 @@ class PreferencesManager(
             }
         }
         return activeUpdated
+    }
+
+    /** Removes imported shared dashboards ("shared-*") whose source is no longer among [presentLocalIds]
+     * (the admin unpublished them, or stopped sharing them with this user). If the active dashboard was
+     * one of them, switches to a surviving dashboard; if none survive, clears the active dashboard and
+     * signals [SharedPruneResult.needsAutoGenerate] so the caller can build the app's default instead. */
+    suspend fun pruneUnpublishedSharedDashboards(presentLocalIds: Set<String>): SharedPruneResult {
+        var result = SharedPruneResult(removed = false, activeReplaced = false, needsAutoGenerate = false)
+        context.dataStore.edit { p ->
+            val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
+            val removedIds = dashboards
+                .filter { it.id.startsWith("shared-") && it.id !in presentLocalIds }
+                .map { it.id }
+                .toSet()
+            if (removedIds.isEmpty()) return@edit
+            val activeId = p[activeDashboardIdKey]
+            // Keep a surviving active dashboard's latest local edits before rewriting the list.
+            saveLoadedDashboardInto(p, dashboards)
+            dashboards.removeAll { it.id in removedIds }
+            val removedActive = activeId != null && activeId in removedIds
+            if (dashboards.isEmpty()) {
+                p.remove(activeDashboardIdKey)
+                p.remove(defaultDashboardIdKey)
+                p[dashboardsKey] = appJson.encodeToString(dashboards)
+                result = SharedPruneResult(removed = true, activeReplaced = removedActive, needsAutoGenerate = true)
+                return@edit
+            }
+            if (p[defaultDashboardIdKey] in removedIds) p[defaultDashboardIdKey] = dashboards.first().id
+            var activeReplaced = false
+            if (removedActive) {
+                val replacement = dashboards.firstOrNull { it.id == p[defaultDashboardIdKey] } ?: dashboards.first()
+                p[activeDashboardIdKey] = replacement.id
+                loadDashboardIntoPreferences(p, replacement)
+                activeReplaced = true
+            }
+            p[dashboardsKey] = appJson.encodeToString(dashboards)
+            result = SharedPruneResult(removed = true, activeReplaced = activeReplaced, needsAutoGenerate = false)
+        }
+        return result
     }
 
     /** Duplicates a stored dashboard as a new one, copying every widget, area, and page config. The

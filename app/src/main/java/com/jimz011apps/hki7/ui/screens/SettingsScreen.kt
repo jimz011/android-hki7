@@ -290,6 +290,7 @@ fun SettingsDialog(
     var renameDashboard by remember { mutableStateOf<com.jimz011apps.hki7.data.HKIDashboard?>(null) }
     var copyDashboard by remember { mutableStateOf<com.jimz011apps.hki7.data.HKIDashboard?>(null) }
     var showWhatsNew by remember { mutableStateOf(false) }
+    var pendingUnpublish by remember { mutableStateOf<com.jimz011apps.hki7.data.Hki7SharedDashboardMeta?>(null) }
     var deleteDashboard by remember { mutableStateOf<com.jimz011apps.hki7.data.HKIDashboard?>(null) }
     var setupChangedMessage by remember { mutableStateOf<String?>(null) }
     var showRestartConfirm by remember { mutableStateOf(false) }
@@ -1644,6 +1645,53 @@ fun SettingsDialog(
                                                 }
                                             }
                                         }
+                                        // Already-published dashboards live in the cloud, so they show up
+                                        // here even after a reinstall — the admin can re-import them to
+                                        // edit, or delete them from the cloud entirely.
+                                        SettingsPanel {
+                                            Text("Published to your family", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                                            if (sharedWithMe.isEmpty()) {
+                                                Text("Nothing is shared yet.", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                                            } else {
+                                                Text(
+                                                    "These are stored in the cloud. Import one to edit or re-share it, or delete it to remove it from everyone.",
+                                                    color = appColors.onMuted,
+                                                    style = MaterialTheme.typography.bodySmall
+                                                )
+                                            }
+                                            sharedWithMe.forEach { meta ->
+                                                Surface(Modifier.fillMaxWidth(), shape = itemCornerShape(), color = appColors.subtleSurface) {
+                                                    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                                        Column(Modifier.weight(1f)) {
+                                                            Text(meta.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                                            val updated = meta.updated.take(19).replace('T', ' ')
+                                                            Text(
+                                                                if (updated.isNotBlank()) "Updated $updated" else "Shared dashboard",
+                                                                color = appColors.onMuted,
+                                                                style = MaterialTheme.typography.bodySmall
+                                                            )
+                                                        }
+                                                        TextButton(
+                                                            enabled = !shareBusy,
+                                                            onClick = {
+                                                                shareBusy = true
+                                                                scope.launch {
+                                                                    val localId = runCatching { HaDashboardSharing.import(context, prefs, meta) }.getOrNull()
+                                                                    setupChangedMessage = if (localId != null)
+                                                                        "\"${meta.name}\" imported into your dashboards."
+                                                                    else "Could not import \"${meta.name}\"."
+                                                                    shareBusy = false
+                                                                }
+                                                            }
+                                                        ) { Text("Import") }
+                                                        TextButton(
+                                                            enabled = !shareBusy,
+                                                            onClick = { pendingUnpublish = meta }
+                                                        ) { Text("Delete", color = MaterialTheme.colorScheme.error) }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                     if (familyTab == "permissions") {
                                         SettingsPanel {
@@ -2326,6 +2374,30 @@ fun SettingsDialog(
 
     if (showWhatsNew) {
         WhatsNewDialog(onDismiss = { showWhatsNew = false })
+    }
+
+    pendingUnpublish?.let { meta ->
+        AlertDialog(
+            onDismissRequest = { pendingUnpublish = null },
+            title = { Text("Delete \"${meta.name}\"?") },
+            text = { Text("This removes the shared dashboard from the cloud for everyone. People currently using it fall back to an auto-generated dashboard. Their local copies aren't touched until they next open the app.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val target = meta
+                        pendingUnpublish = null
+                        shareBusy = true
+                        scope.launch {
+                            val ok = runCatching { HaDashboardSharing.delete(context, target.id) }.getOrDefault(false)
+                            sharedWithMe = runCatching { HaDashboardSharing.listSharedForMe(context) }.getOrDefault(sharedWithMe)
+                            setupChangedMessage = if (ok) "\"${target.name}\" deleted from the cloud." else "Could not delete \"${target.name}\"."
+                            shareBusy = false
+                        }
+                    }
+                ) { Text("Delete") }
+            },
+            dismissButton = { TextButton(onClick = { pendingUnpublish = null }) { Text("Cancel") } }
+        )
     }
 
     deleteDashboard?.let { dashboard ->

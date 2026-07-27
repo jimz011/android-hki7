@@ -3669,8 +3669,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val ctx = appContext ?: return
         if (sharedSyncJob?.isActive == true) return
         sharedSyncJob = viewModelScope.launch(Dispatchers.IO) {
-            val activeChanged = runCatching { HaDashboardSharing.syncUpdates(ctx, prefs) }.getOrDefault(false)
-            if (activeChanged) {
+            val result = runCatching { HaDashboardSharing.syncUpdates(ctx, prefs) }.getOrNull() ?: return@launch
+            if (result.needsAutoGenerate) {
+                // Every dashboard this user had was an unpublished shared one; fall back to the app's
+                // default auto-generated dashboard.
+                createDashboard("Default", auto = true)
+            } else if (result.activeChanged) {
                 _areas.value = prefs.savedAreas.first()
                 _floors.value = prefs.savedFloors.first()
                 _areaWidgetsMapping.value = prefs.areaWidgets.first()
