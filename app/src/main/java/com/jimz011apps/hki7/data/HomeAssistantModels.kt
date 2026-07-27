@@ -602,6 +602,8 @@ data class HKIBadge(
     val side: String = "right",        // "left" or "right" (only used in split alignment)
     val showName: Boolean = false,
     val showState: Boolean = true,
+    /** When set, the badge shows this attribute's value instead of the entity state. */
+    val stateAttribute: String? = null,
     val showIcon: Boolean = true,
     val customIcon: String? = null,
     // Per-icon animation override: "auto" (follow the global setting + domain default), "off",
@@ -909,7 +911,9 @@ data class HKIButtonConfig(
     // Per-icon animation override: "auto" (follow the global setting + domain default), "off",
     // or a forced effect: "glow", "spin", "pulse".
     val iconAnimation: String = "auto",
-    val label: String? = null,
+    /** When set, the button's secondary line shows this entity attribute's value instead of the
+     *  state. Null shows the state (the default). */
+    val stateAttribute: String? = null,
     /** Light-only Google Home-style full-height brightness control. */
     val showBrightnessSlider: Boolean = false,
     val cameraUrl: String? = null,

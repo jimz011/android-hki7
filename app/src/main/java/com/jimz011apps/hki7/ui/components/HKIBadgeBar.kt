@@ -689,6 +689,9 @@ private fun BadgeItem(
     val iconEffect = entity?.let {
         iconEffectFor(it, LocalIconAnimationsEnabled.current, badge.iconAnimation).forIconSlug(iconSlug)
     } ?: IconEffect.NONE
+    // When configured, the badge shows an attribute value instead of the state (falling back to the
+    // state if the attribute is missing).
+    val attributeText = badge.stateAttribute?.let { attr -> entity?.let { entityAttributeDisplay(it, attr) } }
 
     // Outer Box: badge content + edit-mode overlays
     Box {
@@ -751,7 +754,7 @@ private fun BadgeItem(
                                 overflow = TextOverflow.Ellipsis
                             )
                             Text(
-                                if (isDoorOpen) "Open" else formatBadgeState(entity),
+                                if (isDoorOpen) "Open" else (attributeText ?: formatBadgeState(entity)),
                                 color = colors.content,
                                 style = MaterialTheme.typography.labelSmall,
                                 fontSize = 10.sp,
@@ -773,7 +776,7 @@ private fun BadgeItem(
                             )
                         }
                         if (badge.showState && entity != null) {
-                            val stateText = if (isDoorOpen) "Open" else formatBadgeState(entity)
+                            val stateText = if (isDoorOpen) "Open" else (attributeText ?: formatBadgeState(entity))
                             if ((badge.showIcon || badge.showName) && stateText.isNotEmpty()) Spacer(Modifier.width(4.dp))
                             Text(
                                 stateText,
@@ -1041,6 +1044,7 @@ fun BadgeSettingsDialog(
     var side        by remember { mutableStateOf(badge.side) }
     var showName    by remember { mutableStateOf(badge.showName) }
     var showState   by remember { mutableStateOf(badge.showState) }
+    var stateAttribute by remember { mutableStateOf(badge.stateAttribute) }
     var showIcon    by remember { mutableStateOf(badge.showIcon) }
     var customIcon  by remember { mutableStateOf(badge.customIcon ?: "") }
     var iconAnimation by remember { mutableStateOf(badge.iconAnimation) }
@@ -1241,6 +1245,34 @@ fun BadgeSettingsDialog(
                         FilterChip(selected = showName,  onClick = { showName = !showName },   label = { Text("Name") })
                         FilterChip(selected = showState, onClick = { showState = !showState }, label = { Text("State") })
                     }
+                    if (showState) {
+                        val attributes = remember(editingEntityIds, allEntities) {
+                            selectableEntityAttributes(allEntities.find { it.entity_id == editingEntityIds.firstOrNull() })
+                        }
+                        Text("State text", style = MaterialTheme.typography.labelLarge)
+                        Text(
+                            "Show the entity's state, or one of its attributes instead.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = appColors.onMuted
+                        )
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            FilterChip(
+                                selected = stateAttribute == null,
+                                onClick = { stateAttribute = null },
+                                label = { Text("State") }
+                            )
+                            attributes.forEach { attr ->
+                                FilterChip(
+                                    selected = stateAttribute == attr,
+                                    onClick = { stateAttribute = attr },
+                                    label = { Text(attr.replace('_', ' ')) }
+                                )
+                            }
+                        }
+                    }
                 }
 
                 // Custom icon
@@ -1307,6 +1339,7 @@ fun BadgeSettingsDialog(
                     side       = side,
                     showName   = showName,
                     showState  = showState,
+                    stateAttribute = stateAttribute,
                     showIcon   = showIcon,
                     customIcon = customIcon.ifBlank { null },
                     iconAnimation = iconAnimation,

@@ -199,6 +199,7 @@ import com.jimz011apps.hki7.ui.components.SettingsTabRow
 import com.jimz011apps.hki7.ui.components.fadingEdges
 import com.jimz011apps.hki7.ui.components.mediaPlayerStateIcon
 import com.jimz011apps.hki7.ui.components.defaultEntityIconSlug
+import com.jimz011apps.hki7.ui.components.selectableEntityAttributes
 import com.jimz011apps.hki7.ui.components.coverAccentColor
 import com.jimz011apps.hki7.ui.components.entityStateIconColor
 import com.jimz011apps.hki7.ui.components.HKIDialog
@@ -3162,7 +3163,7 @@ fun ButtonConfigDialog(
     var appearRadius by remember(widgetAppearance) { mutableIntStateOf(widgetAppearance?.cornerRadius ?: 28) }
     var appearWidth by remember(widgetAppearance) { mutableStateOf(widgetAppearance?.width ?: "half") }
     var name by remember(config) { mutableStateOf(config.name ?: entity?.friendlyName ?: entity?.entity_id ?: "") }
-    var label by remember(config) { mutableStateOf(config.label ?: "") }
+    var stateAttribute by remember(config) { mutableStateOf(config.stateAttribute) }
     var cameraUrl by remember(config) { mutableStateOf(config.cameraUrl ?: "") }
     var refreshInterval by remember(config) { mutableIntStateOf(config.cameraRefreshInterval) }
     var iconName by remember(config) { mutableStateOf(config.icon ?: "None") }
@@ -3261,8 +3262,33 @@ fun ButtonConfigDialog(
                 if (settingsPage == "general") {
                     SettingsSubcategory("Identity", "The text shown on the dashboard")
                     OutlinedTextField(name, { name = it }, label = { Text("Name") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                    if (!isVacuumItem) {
-                        OutlinedTextField(label, { label = it }, label = { Text("Label") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    if (!isCameraItem && !isVacuumItem) {
+                        val attributes = remember(entity) { selectableEntityAttributes(entity) }
+                        SettingsSubcategory("Secondary line", "Show the entity's state, or one of its attributes instead")
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            FilterChip(
+                                selected = stateAttribute == null,
+                                onClick = { stateAttribute = null },
+                                label = { Text("State") }
+                            )
+                            attributes.forEach { attr ->
+                                FilterChip(
+                                    selected = stateAttribute == attr,
+                                    onClick = { stateAttribute = attr },
+                                    label = { Text(attr.replace('_', ' ')) }
+                                )
+                            }
+                        }
+                        if (attributes.isEmpty()) {
+                            Text(
+                                "This entity has no attributes to show.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
                 if (settingsPage == "camera" && isCameraItem) {
@@ -3520,7 +3546,7 @@ fun ButtonConfigDialog(
                     save(
                         config.copy(
                             name = name.ifBlank { null },
-                            label = if (isVacuumItem) config.label else label.ifBlank { null },
+                            stateAttribute = if (isCameraItem || isVacuumItem) config.stateAttribute else stateAttribute,
                             icon = if (isCameraItem || isVacuumItem) config.icon else iconName.takeUnless { it == "None" },
                             iconAnimation = iconAnimation,
                             showBrightnessSlider = if (isLightEntity) showBrightnessSlider else false,
@@ -4204,7 +4230,6 @@ private fun StackOrderRow(
         ?: if (config?.isCustomUrl == true) "Custom Camera" else entityId
     val secondary = buildList {
         add(entity?.entity_id ?: entityId)
-        config?.label?.takeIf { it.isNotBlank() }?.let { add(it) }
         entity?.state?.takeIf { it.isNotBlank() && it != "unknown" && it != "unavailable" }?.let { add(it) }
     }.joinToString(" - ")
     val iconName = config?.icon?.takeIf { it.isNotBlank() } ?: entity?.let { defaultEntityIconSlug(it) }
@@ -4506,7 +4531,7 @@ fun ButtonStackItem(
                             EntityCard(
                                 entity = entity,
                                 displayName = cfg?.name,
-                                label = cfg?.label,
+                                stateAttribute = cfg?.stateAttribute,
                                 iconName = cfg?.icon,
                                 iconAnimation = cfg?.iconAnimation ?: "auto",
                                 onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
@@ -4592,7 +4617,7 @@ fun ButtonStackItem(
                                     EntityCard(
                                         entity = entity,
                                         displayName = cfg?.name,
-                                        label = cfg?.label,
+                                        stateAttribute = cfg?.stateAttribute,
                                         iconName = cfg?.icon,
                                         iconAnimation = cfg?.iconAnimation ?: "auto",
                                         onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
@@ -4633,7 +4658,7 @@ fun ButtonStackItem(
                                     EntityCard(
                                         entity = entity,
                                         displayName = buttonConfigs[entity.entity_id]?.name,
-                                        label = buttonConfigs[entity.entity_id]?.label,
+                                        stateAttribute = buttonConfigs[entity.entity_id]?.stateAttribute,
                                         iconName = buttonConfigs[entity.entity_id]?.icon,
                                         iconAnimation = buttonConfigs[entity.entity_id]?.iconAnimation ?: "auto",
                                         onClick = { onEntityClick(entity.entity_id) },
@@ -4800,7 +4825,7 @@ fun SingleEntityWidgetItem(
                     EntityCard(
                         entity = entity,
                         displayName = widget.config.name,
-                        label = widget.config.label,
+                        stateAttribute = widget.config.stateAttribute,
                         iconName = widget.config.icon,
                         iconAnimation = widget.config.iconAnimation,
                         onClick = { handleSingleButtonInteraction("tap") { onEntityClick(widget.entityId) } },

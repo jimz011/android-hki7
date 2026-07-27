@@ -151,6 +151,23 @@ fun mediaPlayerStateIcon(entity: HAEntity?): ImageVector? {
     }
 }
 
+/** Attribute keys that are noise in a state/attribute picker (internal, or already shown elsewhere). */
+val HIDDEN_ATTRIBUTE_KEYS = setOf(
+    "friendly_name", "icon", "entity_picture", "supported_features",
+    "supported_color_modes", "attribution"
+)
+
+/** Attribute keys worth offering as a button/badge secondary value, in a stable display order. */
+fun selectableEntityAttributes(entity: HAEntity?): List<String> =
+    entity?.attributes?.keys.orEmpty().filter { it !in HIDDEN_ATTRIBUTE_KEYS }.sorted()
+
+/** The display value of an entity attribute, or null when the attribute is absent or blank. */
+fun entityAttributeDisplay(entity: HAEntity, attribute: String): String? {
+    val element = entity.attributes?.get(attribute) ?: return null
+    val raw = runCatching { element.jsonPrimitive.contentOrNull }.getOrNull() ?: element.toString()
+    return raw.trim().ifBlank { null }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EntityCard(
@@ -160,7 +177,7 @@ fun EntityCard(
     modifier: Modifier = Modifier,
     onDoubleClick: () -> Unit = onLongClick,
     displayName: String? = null,
-    label: String? = null,
+    stateAttribute: String? = null,
     iconName: String? = null,
     iconAnimation: String = "auto",
     isSquare: Boolean = false,
@@ -223,7 +240,9 @@ fun EntityCard(
         }
     } else Modifier
 
-    val statusText = run {
+    // An explicit attribute (when configured and present) replaces the state on the secondary line.
+    val attributeText = stateAttribute?.let { entityAttributeDisplay(entity, it) }
+    val statusText = attributeText ?: run {
         val brightnessPercent = (
             if (brightnessVisible) localBrightness * 100f
             else (entity.brightness ?: 0) / 255f * 100f
@@ -238,7 +257,7 @@ fun EntityCard(
                 val temp = entity.attributes?.get("temperature")?.jsonPrimitive?.content?.toDoubleOrNull()
                 if (temp != null && isClimateNotOff) "$mode - ${temp.toInt()}\u00B0C" else mode
             }
-            else -> label ?: entity.state.split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+            else -> entity.state.split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
         }
     }
 
