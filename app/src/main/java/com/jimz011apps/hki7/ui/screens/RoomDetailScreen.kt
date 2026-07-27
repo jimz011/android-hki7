@@ -220,6 +220,7 @@ import com.jimz011apps.hki7.ui.components.InteractiveLineGraph
 import com.jimz011apps.hki7.ui.components.parseHistoryMillis
 import com.jimz011apps.hki7.ui.components.HKICameraDialog
 import com.jimz011apps.hki7.ui.components.ZoomableCameraImage
+import com.jimz011apps.hki7.ui.components.DateTimePickerDialog
 import com.jimz011apps.hki7.ui.components.MdiIconPickerDialog
 import com.jimz011apps.hki7.ui.utils.MdiIcon
 import com.jimz011apps.hki7.ui.utils.handleActionOutcome
@@ -4287,6 +4288,8 @@ private fun ButtonVisibilityDialog(
     var rangeMode by remember { mutableStateOf(config.visibilityRangeMode.ifBlank { "show" }) }
     var start by remember { mutableStateOf(config.visibilityStart ?: "") }
     var end by remember { mutableStateOf(config.visibilityEnd ?: "") }
+    var pickingStart by remember { mutableStateOf(false) }
+    var pickingEnd by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -4305,10 +4308,18 @@ private fun ButtonVisibilityDialog(
                         FilterChip(selected = rangeMode == "show", onClick = { rangeMode = "show" }, label = { Text("Visible during") })
                         FilterChip(selected = rangeMode == "hide", onClick = { rangeMode = "hide" }, label = { Text("Hidden during") })
                     }
-                    OutlinedTextField(start, { start = it }, label = { Text("Start") }, placeholder = { Text("2026-12-24T00:00") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                    OutlinedTextField(end, { end = it }, label = { Text("End") }, placeholder = { Text("2026-12-26T23:59") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    OutlinedButton(onClick = { pickingStart = true }, modifier = Modifier.fillMaxWidth()) {
+                        Icon(Icons.Default.Schedule, null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Start: ${formatScheduleLabel(start)}", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    OutlinedButton(onClick = { pickingEnd = true }, modifier = Modifier.fillMaxWidth()) {
+                        Icon(Icons.Default.Schedule, null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("End: ${formatScheduleLabel(end)}", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
                     Text(
-                        "Format YYYY-MM-DDTHH:MM (24-hour). Leave one blank for an open-ended range. This travels with the dashboard, so it's kept by cloud backups and family sharing.",
+                        "Leave a bound as \"Any\" for an open-ended range. This travels with the dashboard, so it's kept by cloud backups and family sharing.",
                         style = MaterialTheme.typography.bodySmall,
                         color = appColors.onMuted
                     )
@@ -4332,6 +4343,32 @@ private fun ButtonVisibilityDialog(
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
+
+    if (pickingStart) {
+        DateTimePickerDialog(
+            initial = start.takeIf { it.isNotBlank() }?.let { runCatching { java.time.LocalDateTime.parse(it) }.getOrNull() },
+            onDismiss = { pickingStart = false },
+            onClear = { start = ""; pickingStart = false },
+            onConfirm = { start = it.toString(); pickingStart = false }
+        )
+    }
+    if (pickingEnd) {
+        DateTimePickerDialog(
+            initial = end.takeIf { it.isNotBlank() }?.let { runCatching { java.time.LocalDateTime.parse(it) }.getOrNull() },
+            onDismiss = { pickingEnd = false },
+            onClear = { end = ""; pickingEnd = false },
+            onConfirm = { end = it.toString(); pickingEnd = false }
+        )
+    }
+}
+
+/** Human-readable label for a scheduled bound stored as an ISO local date-time, or "Any" if blank. */
+private fun formatScheduleLabel(iso: String): String {
+    if (iso.isBlank()) return "Any"
+    return runCatching {
+        java.time.LocalDateTime.parse(iso)
+            .format(java.time.format.DateTimeFormatter.ofPattern("d MMM yyyy, HH:mm"))
+    }.getOrDefault(iso)
 }
 
 @Composable
