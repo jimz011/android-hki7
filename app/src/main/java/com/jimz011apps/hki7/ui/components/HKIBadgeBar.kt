@@ -690,8 +690,10 @@ private fun BadgeItem(
         iconEffectFor(it, LocalIconAnimationsEnabled.current, badge.iconAnimation).forIconSlug(iconSlug)
     } ?: IconEffect.NONE
     // When configured, the badge shows an attribute value instead of the state (falling back to the
-    // state if the attribute is missing).
-    val attributeText = badge.stateAttribute?.let { attr -> entity?.let { entityAttributeDisplay(it, attr) } }
+    // state if the attribute is missing), with an optional unit suffix.
+    val attributeText = badge.stateAttribute
+        ?.let { attr -> entity?.let { entityAttributeDisplay(it, attr) } }
+        ?.let { appendUnit(it, badge.stateUnit) }
 
     // Outer Box: badge content + edit-mode overlays
     Box {
@@ -1045,6 +1047,7 @@ fun BadgeSettingsDialog(
     var showName    by remember { mutableStateOf(badge.showName) }
     var showState   by remember { mutableStateOf(badge.showState) }
     var stateAttribute by remember { mutableStateOf(badge.stateAttribute) }
+    var stateUnit by remember { mutableStateOf(badge.stateUnit) }
     var showIcon    by remember { mutableStateOf(badge.showIcon) }
     var customIcon  by remember { mutableStateOf(badge.customIcon ?: "") }
     var iconAnimation by remember { mutableStateOf(badge.iconAnimation) }
@@ -1255,9 +1258,9 @@ fun BadgeSettingsDialog(
                             style = MaterialTheme.typography.bodySmall,
                             color = appColors.onMuted
                         )
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        Row(
+                            modifier = Modifier.horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             FilterChip(
                                 selected = stateAttribute == null,
@@ -1270,6 +1273,21 @@ fun BadgeSettingsDialog(
                                     onClick = { stateAttribute = attr },
                                     label = { Text(attr.replace('_', ' ')) }
                                 )
+                            }
+                        }
+                        if (stateAttribute != null) {
+                            Text("Unit", style = MaterialTheme.typography.labelLarge)
+                            Row(
+                                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                COMMON_STATE_UNITS.forEach { unit ->
+                                    FilterChip(
+                                        selected = (stateUnit ?: "") == unit,
+                                        onClick = { stateUnit = unit.ifBlank { null } },
+                                        label = { Text(if (unit.isBlank()) "None" else unit) }
+                                    )
+                                }
                             }
                         }
                     }
@@ -1340,6 +1358,7 @@ fun BadgeSettingsDialog(
                     showName   = showName,
                     showState  = showState,
                     stateAttribute = stateAttribute,
+                    stateUnit  = stateUnit,
                     showIcon   = showIcon,
                     customIcon = customIcon.ifBlank { null },
                     iconAnimation = iconAnimation,

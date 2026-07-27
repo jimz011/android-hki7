@@ -39,6 +39,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BatterySaver
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.ExpandLess
@@ -149,6 +150,8 @@ import com.jimz011apps.hki7.ui.components.ModernSettingsMenuItem
 import com.jimz011apps.hki7.ui.components.SettingsGroup
 import com.jimz011apps.hki7.ui.components.SettingsChoiceChip
 import com.jimz011apps.hki7.ui.components.SettingsSubcategory
+import com.jimz011apps.hki7.ui.components.SettingsTabRow
+import com.jimz011apps.hki7.data.Hki7Policy
 import com.jimz011apps.hki7.ui.components.fadingEdges
 import com.jimz011apps.hki7.ui.components.itemCornerShape
 import androidx.compose.ui.text.font.FontWeight
@@ -163,7 +166,7 @@ import java.util.UUID
 import coil3.compose.AsyncImage
 
 private enum class SettingsSection {
-    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, CORNERS, ICONS, NAV_BAR, MEDIA_PLAYERS, DASHBOARD, PARENTAL_CONTROLS, BACKUP_RESTORE, ACCOUNT, ABOUT, LICENSE, SUPPORT
+    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, CORNERS, ICONS, NAV_BAR, MEDIA_PLAYERS, DASHBOARD, FAMILY_SHARING, BACKUP_RESTORE, ACCOUNT, ABOUT, LICENSE, SUPPORT
 }
 
 /** Human-friendly "5 minutes ago" / "yesterday" label for the last-backup subtitle. */
@@ -184,7 +187,7 @@ private fun sectionTitle(section: SettingsSection): String = when (section) {
     SettingsSection.HEADER -> "Header"
     SettingsSection.MEDIA_PLAYERS -> "Media Players"
     SettingsSection.BACKUP_RESTORE -> "Backup and Restore"
-    SettingsSection.PARENTAL_CONTROLS -> "Parental Controls"
+    SettingsSection.FAMILY_SHARING -> "Family Sharing"
     SettingsSection.ABOUT -> "About HKI 7"
     SettingsSection.LICENSE -> "License"
     SettingsSection.SUPPORT -> "Support"
@@ -208,7 +211,7 @@ private fun sectionSubtitle(section: SettingsSection): String = when (section) {
     SettingsSection.MEDIA_PLAYERS -> "Names and mini-player visibility"
     SettingsSection.NOTIFICATIONS -> "Push delivery, history, and service behavior"
     SettingsSection.BACKUP_RESTORE -> "Protect or move your dashboard configuration"
-    SettingsSection.PARENTAL_CONTROLS -> "Hide views and rooms from certain people"
+    SettingsSection.FAMILY_SHARING -> "Parental controls, dashboard sharing, and recipient permissions"
     SettingsSection.ABOUT -> "The project, technology, and people behind HKI 7"
     SettingsSection.LICENSE -> "Open-source community core and optional premium materials"
     SettingsSection.SUPPORT -> "Ways to help HKI 7 grow without buying Premium"
@@ -229,7 +232,7 @@ private fun sectionIcon(section: SettingsSection): ImageVector = when (section) 
     SettingsSection.MEDIA_PLAYERS -> Icons.Default.MusicNote
     SettingsSection.NOTIFICATIONS -> Icons.Default.Notifications
     SettingsSection.BACKUP_RESTORE -> Icons.Default.Backup
-    SettingsSection.PARENTAL_CONTROLS -> Icons.Default.Shield
+    SettingsSection.FAMILY_SHARING -> Icons.Default.Shield
     SettingsSection.ABOUT -> Icons.Default.Info
     SettingsSection.LICENSE -> Icons.Default.Description
     SettingsSection.SUPPORT -> Icons.Default.Favorite
@@ -284,6 +287,7 @@ fun SettingsDialog(
     var newDashboardName by remember { mutableStateOf("") }
     var dashboardEditMode by remember { mutableStateOf(false) }
     var renameDashboard by remember { mutableStateOf<com.jimz011apps.hki7.data.HKIDashboard?>(null) }
+    var copyDashboard by remember { mutableStateOf<com.jimz011apps.hki7.data.HKIDashboard?>(null) }
     var deleteDashboard by remember { mutableStateOf<com.jimz011apps.hki7.data.HKIDashboard?>(null) }
     var setupChangedMessage by remember { mutableStateOf<String?>(null) }
     var showRestartConfirm by remember { mutableStateOf(false) }
@@ -446,13 +450,13 @@ fun SettingsDialog(
                             SettingsSubcategory("Services & data", "Messages, safety, and portability")
                             SettingsChoice(Icons.Default.Notifications, "Notifications", "Push delivery and history") { section = SettingsSection.NOTIFICATIONS }
                             SettingsChoice(Icons.Default.Backup, "Backup and Restore", "Save or restore dashboard configuration") { section = SettingsSection.BACKUP_RESTORE }
-                            if (!sharingAvailable || isHaAdmin) {
-                                SettingsChoice(
-                                    Icons.Default.Shield,
-                                    "Parental Controls",
-                                    if (sharingAvailable) "Hide views and rooms per person" else "Hide views and rooms — needs the HKI 7 Cloud component"
-                                ) { section = SettingsSection.PARENTAL_CONTROLS }
-                            }
+                            SettingsChoice(
+                                Icons.Default.Shield,
+                                "Family Sharing",
+                                if (!sharingAvailable) "Parental controls & sharing — needs the HKI 7 Cloud component"
+                                else if (isHaAdmin) "Parental controls, dashboard sharing, and permissions"
+                                else "Managed by an admin"
+                            ) { section = SettingsSection.FAMILY_SHARING }
                             SettingsSubcategory("HKI 7", "Project information, licensing, and community support")
                             SettingsChoice(Icons.Default.Info, "About", "What HKI 7 is and how it is built") { section = SettingsSection.ABOUT }
                             SettingsChoice(Icons.Default.Description, "License", "Open-source and premium licensing") { section = SettingsSection.LICENSE }
@@ -1316,16 +1320,6 @@ fun SettingsDialog(
                                         Text(if (dashboardEditMode) "Done" else "Edit")
                                     }
                                 }
-                                if (sharingAvailable && isHaAdmin) {
-                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                        Icon(Icons.Default.Share, null, tint = appColors.onMuted, modifier = Modifier.size(16.dp))
-                                        Text(
-                                            "Tap Edit, then the share icon on a dashboard to share it with your family.",
-                                            color = appColors.onMuted,
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-                                    }
-                                }
                                 dashboards.forEach { dashboard ->
                                     Surface(
                                         Modifier.fillMaxWidth().clickable(enabled = dashboard.id != activeDashboardId) { viewModel.switchDashboard(dashboard.id) },
@@ -1341,15 +1335,8 @@ fun SettingsDialog(
                                                 Icon(if (dashboard.id == defaultDashboardId) Icons.Default.Star else Icons.Default.StarBorder, "Set as default")
                                             }
                                             if (dashboardEditMode) {
-                                                if (sharingAvailable && isHaAdmin) {
-                                                    IconButton(onClick = {
-                                                        shareDashboard = dashboard
-                                                        shareSelected = emptySet()
-                                                        shareEveryone = false
-                                                        shareUsers = emptyList()
-                                                    }) { Icon(Icons.Default.Share, "Share with family") }
-                                                }
                                                 IconButton(onClick = { renameDashboard = dashboard }) { Icon(Icons.Default.Edit, "Rename") }
+                                                IconButton(onClick = { copyDashboard = dashboard }) { Icon(Icons.Default.ContentCopy, "Copy") }
                                                 IconButton(onClick = { deleteDashboard = dashboard }, enabled = dashboards.size > 1) {
                                                     Icon(Icons.Default.Delete, "Delete", tint = MaterialTheme.colorScheme.error)
                                                 }
@@ -1413,19 +1400,8 @@ fun SettingsDialog(
                                     }
                                 }
                             }
-                            if (!sharingAvailable) {
-                                SettingsPanel {
-                                    Text("Family dashboard sharing", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
-                                    Text(
-                                        "Share a dashboard with your family so everyone gets the same layout — no more sending backup files between phones. Parental controls (hiding views and rooms per person) use the same add-on.",
-                                        color = appColors.onMuted,
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                    Hki7CloudInstallCard()
-                                }
-                            }
                         }
-                        SettingsSection.PARENTAL_CONTROLS -> {
+                        SettingsSection.FAMILY_SHARING -> {
                             val pcAreas by viewModel.areas.collectAsState()
                             val pcCustomPages by prefs.customPages.collectAsState(initial = emptyList())
                             // (route, label) — Home is always visible; Settings is not a nav tab.
@@ -1435,88 +1411,281 @@ fun SettingsDialog(
                                     "energy" to "Energy", "battery" to "Battery"
                                 ) + pcCustomPages.map { "custom_page/${it.id}" to it.name }
                             }
+                            var familyTab by remember { mutableStateOf("parental") }
                             LaunchedEffect(Unit) {
+                                val id = runCatching { HaDashboardSharing.whoami(context) }.getOrNull()
+                                sharingAvailable = id != null
+                                isHaAdmin = id?.isAdmin == true
+                                sharedWithMe = if (id != null)
+                                    runCatching { HaDashboardSharing.listSharedForMe(context) }.getOrDefault(emptyList())
+                                else emptyList()
                                 parentalUsers = runCatching { HaDashboardSharing.listUsers(context) }.getOrDefault(emptyList())
                                 parentalPolicies = runCatching { HaParentalControls.listPolicies(context) }.getOrDefault(emptyMap())
                             }
-                            val savePolicy: (String, List<String>, List<String>) -> Unit = { uid, v, r ->
+                            val savePolicy: (String, Hki7Policy) -> Unit = { uid, policy ->
                                 scope.launch {
-                                    val ok = runCatching { HaParentalControls.setPolicy(context, uid, v, r) }.getOrDefault(false)
-                                    if (ok) parentalPolicies = parentalPolicies + (uid to com.jimz011apps.hki7.data.Hki7Policy(v, r))
+                                    val ok = runCatching { HaParentalControls.setPolicy(context, uid, policy) }.getOrDefault(false)
+                                    if (ok) parentalPolicies = parentalPolicies + (uid to policy)
                                     else setupChangedMessage = "Could not update the policy."
                                 }
                             }
-                            SettingsPanel {
-                                Text("Parental controls", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
-                                Text(
-                                    "Hide certain views or rooms from specific people to keep their dashboard simple. This is UX-level hiding — it does not restrict what they can do in Home Assistant itself.",
-                                    color = appColors.onMuted,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                                if (!sharingAvailable) {
-                                    Hki7CloudInstallCard()
+                            when {
+                                !sharingAvailable -> {
+                                    // The component isn't installed. The option is still shown so people
+                                    // know it exists; it just explains what an admin needs to do first.
+                                    SettingsPanel {
+                                        Text("Use a family shared dashboard", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                                        Text(
+                                            "An admin can share one dashboard with the whole family so everyone gets the same layout. To use it, an admin needs to install the HKI 7 Cloud component and share a dashboard first.",
+                                            color = appColors.onMuted,
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                        OutlinedButton(
+                                            onClick = {},
+                                            enabled = false,
+                                            modifier = Modifier.fillMaxWidth().height(52.dp),
+                                            shape = itemCornerShape()
+                                        ) {
+                                            Icon(Icons.Default.Download, null)
+                                            Spacer(Modifier.width(8.dp))
+                                            Text("Use family shared dashboard")
+                                        }
+                                        Hki7CloudInstallCard()
+                                    }
                                 }
-                                val nonAdmin = parentalUsers.filter { !it.isAdmin }
-                                if (sharingAvailable && nonAdmin.isEmpty()) {
-                                    Text("No non-admin users found on this Home Assistant.", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
-                                }
-                                nonAdmin.forEach { user ->
-                                    val policy = parentalPolicies[user.id] ?: com.jimz011apps.hki7.data.Hki7Policy()
-                                    val expanded = parentalExpandedUser == user.id
-                                    val hiddenCount = policy.hiddenViews.size + policy.hiddenRooms.size
-                                    Surface(
-                                        Modifier.fillMaxWidth(),
-                                        shape = itemCornerShape(),
-                                        color = appColors.subtleSurface
-                                    ) {
-                                        Column(Modifier.padding(12.dp)) {
-                                            Row(
-                                                Modifier.fillMaxWidth().clickable {
-                                                    parentalExpandedUser = if (expanded) null else user.id
-                                                },
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Column(Modifier.weight(1f)) {
-                                                    Text(user.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
-                                                    Text(
-                                                        if (hiddenCount == 0) "Nothing hidden" else "$hiddenCount hidden",
-                                                        color = appColors.onMuted,
-                                                        style = MaterialTheme.typography.bodySmall
-                                                    )
-                                                }
-                                                Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null, tint = appColors.onMuted)
+                                !isHaAdmin -> {
+                                    // Sibling (non-admin) users can't author family sharing — it's admin-only —
+                                    // but they can choose to use a dashboard an admin shared with them, which
+                                    // applies that dashboard's admin-set permissions to their app.
+                                    SettingsPanel {
+                                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                            Icon(Icons.Default.Lock, null, tint = appColors.onMuted)
+                                            Column(Modifier.weight(1f)) {
+                                                Text("Managed by an admin", color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                                Text(
+                                                    "Family Sharing settings are controlled by a Home Assistant admin. You can use a dashboard shared with you below.",
+                                                    color = appColors.onMuted,
+                                                    style = MaterialTheme.typography.bodySmall
+                                                )
                                             }
-                                            if (expanded) {
-                                                Spacer(Modifier.height(8.dp))
-                                                Text("Hidden views", color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
-                                                viewOptions.forEach { (route, label) ->
-                                                    val hidden = route in policy.hiddenViews
-                                                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                                        Text(label, color = appColors.onSurface, modifier = Modifier.weight(1f))
-                                                        Switch(
-                                                            checked = hidden,
-                                                            onCheckedChange = {
-                                                                val nv = if (hidden) policy.hiddenViews - route else policy.hiddenViews + route
-                                                                savePolicy(user.id, nv, policy.hiddenRooms)
-                                                            }
-                                                        )
-                                                    }
-                                                }
-                                                if (pcAreas.isNotEmpty()) {
-                                                    Spacer(Modifier.height(4.dp))
-                                                    Text("Hidden rooms", color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
-                                                    pcAreas.forEach { area ->
-                                                        val hidden = area.area_id in policy.hiddenRooms
-                                                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                                            Text(area.name, color = appColors.onSurface, modifier = Modifier.weight(1f))
-                                                            Switch(
-                                                                checked = hidden,
-                                                                onCheckedChange = {
-                                                                    val nr = if (hidden) policy.hiddenRooms - area.area_id else policy.hiddenRooms + area.area_id
-                                                                    savePolicy(user.id, policy.hiddenViews, nr)
-                                                                }
+                                        }
+                                    }
+                                    SettingsPanel {
+                                        Text("Use a family shared dashboard", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                                        if (sharedWithMe.isEmpty()) {
+                                            Text(
+                                                "No dashboards have been shared with you yet. Ask an admin to share one.",
+                                                color = appColors.onMuted,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                        } else {
+                                            Text(
+                                                "Using a shared dashboard applies the permissions the admin set for it.",
+                                                color = appColors.onMuted,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                            sharedWithMe.forEach { meta ->
+                                                Surface(Modifier.fillMaxWidth(), shape = itemCornerShape(), color = appColors.subtleSurface) {
+                                                    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                                        Column(Modifier.weight(1f)) {
+                                                            Text(meta.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                                            val updated = meta.updated.take(19).replace('T', ' ')
+                                                            Text(
+                                                                if (updated.isNotBlank()) "Updated $updated" else "Shared dashboard",
+                                                                color = appColors.onMuted,
+                                                                style = MaterialTheme.typography.bodySmall
                                                             )
                                                         }
+                                                        TextButton(
+                                                            enabled = !shareBusy,
+                                                            onClick = {
+                                                                shareBusy = true
+                                                                scope.launch {
+                                                                    val localId = runCatching { HaDashboardSharing.import(context, prefs, meta) }.getOrNull()
+                                                                    if (localId != null) {
+                                                                        viewModel.switchDashboard(localId)
+                                                                        setupChangedMessage = "Now using \"${meta.name}\"."
+                                                                    } else setupChangedMessage = "Could not use \"${meta.name}\"."
+                                                                    shareBusy = false
+                                                                }
+                                                            }
+                                                        ) {
+                                                            Icon(Icons.Default.Download, null)
+                                                            Spacer(Modifier.width(6.dp))
+                                                            Text("Use")
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                else -> {
+                                    SettingsPanel {
+                                        SettingsTabRow(
+                                            tabs = listOf(
+                                                "parental" to "Parental Controls",
+                                                "dashboards" to "Dashboards",
+                                                "permissions" to "Permissions"
+                                            ),
+                                            selected = familyTab,
+                                            onSelect = { familyTab = it }
+                                        )
+                                    }
+                                    if (familyTab == "parental") {
+                                        SettingsPanel {
+                                            Text("Parental controls", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                                            Text(
+                                                "Hide certain views or rooms from specific people to keep their dashboard simple. This is UX-level hiding — it does not restrict what they can do in Home Assistant itself.",
+                                                color = appColors.onMuted,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                            val nonAdmin = parentalUsers.filter { !it.isAdmin }
+                                            if (nonAdmin.isEmpty()) {
+                                                Text("No non-admin users found on this Home Assistant.", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                                            }
+                                            nonAdmin.forEach { user ->
+                                                val policy = parentalPolicies[user.id] ?: com.jimz011apps.hki7.data.Hki7Policy()
+                                                val expanded = parentalExpandedUser == user.id
+                                                val hiddenCount = policy.hiddenViews.size + policy.hiddenRooms.size
+                                                Surface(
+                                                    Modifier.fillMaxWidth(),
+                                                    shape = itemCornerShape(),
+                                                    color = appColors.subtleSurface
+                                                ) {
+                                                    Column(Modifier.padding(12.dp)) {
+                                                        Row(
+                                                            Modifier.fillMaxWidth().clickable {
+                                                                parentalExpandedUser = if (expanded) null else user.id
+                                                            },
+                                                            verticalAlignment = Alignment.CenterVertically
+                                                        ) {
+                                                            Column(Modifier.weight(1f)) {
+                                                                Text(user.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                                                Text(
+                                                                    if (hiddenCount == 0) "Nothing hidden" else "$hiddenCount hidden",
+                                                                    color = appColors.onMuted,
+                                                                    style = MaterialTheme.typography.bodySmall
+                                                                )
+                                                            }
+                                                            Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null, tint = appColors.onMuted)
+                                                        }
+                                                        if (expanded) {
+                                                            Spacer(Modifier.height(8.dp))
+                                                            Text("Hidden views", color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
+                                                            viewOptions.forEach { (route, label) ->
+                                                                val hidden = route in policy.hiddenViews
+                                                                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                                                    Text(label, color = appColors.onSurface, modifier = Modifier.weight(1f))
+                                                                    Switch(
+                                                                        checked = hidden,
+                                                                        onCheckedChange = {
+                                                                            val nv = if (hidden) policy.hiddenViews - route else policy.hiddenViews + route
+                                                                            savePolicy(user.id, policy.copy(hiddenViews = nv))
+                                                                        }
+                                                                    )
+                                                                }
+                                                            }
+                                                            if (pcAreas.isNotEmpty()) {
+                                                                Spacer(Modifier.height(4.dp))
+                                                                Text("Hidden rooms", color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
+                                                                pcAreas.forEach { area ->
+                                                                    val hidden = area.area_id in policy.hiddenRooms
+                                                                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                                                        Text(area.name, color = appColors.onSurface, modifier = Modifier.weight(1f))
+                                                                        Switch(
+                                                                            checked = hidden,
+                                                                            onCheckedChange = {
+                                                                                val nr = if (hidden) policy.hiddenRooms - area.area_id else policy.hiddenRooms + area.area_id
+                                                                                savePolicy(user.id, policy.copy(hiddenRooms = nr))
+                                                                            }
+                                                                        )
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (familyTab == "dashboards") {
+                                        SettingsPanel {
+                                            Text("Share dashboards", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                                            Text(
+                                                "Publish one of your dashboards to your family. Recipients import it from Settings › Dashboard and can pull updates later. Set what they may change under Permissions.",
+                                                color = appColors.onMuted,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                            dashboards.forEach { dashboard ->
+                                                Surface(
+                                                    Modifier.fillMaxWidth(),
+                                                    shape = itemCornerShape(),
+                                                    color = appColors.subtleSurface
+                                                ) {
+                                                    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                                        Column(Modifier.weight(1f)) {
+                                                            Text(dashboard.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                                            Text("Tap Share to publish or update", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                                                        }
+                                                        TextButton(onClick = {
+                                                            shareDashboard = dashboard
+                                                            shareSelected = emptySet()
+                                                            shareEveryone = false
+                                                            shareUsers = emptyList()
+                                                        }) {
+                                                            Icon(Icons.Default.Share, null)
+                                                            Spacer(Modifier.width(6.dp))
+                                                            Text("Share")
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (familyTab == "permissions") {
+                                        SettingsPanel {
+                                            Text("Permissions", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                                            Text(
+                                                "Set what each person may do — per user, like the hidden views above. These apply when they use a dashboard you shared.",
+                                                color = appColors.onMuted,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                            val nonAdmin = parentalUsers.filter { !it.isAdmin }
+                                            if (nonAdmin.isEmpty()) {
+                                                Text("No non-admin users found on this Home Assistant.", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                                            }
+                                            nonAdmin.forEach { user ->
+                                                val policy = parentalPolicies[user.id] ?: Hki7Policy()
+                                                Surface(
+                                                    Modifier.fillMaxWidth(),
+                                                    shape = itemCornerShape(),
+                                                    color = appColors.subtleSurface
+                                                ) {
+                                                    Column(Modifier.padding(12.dp)) {
+                                                        Text(user.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                                        FamilyPermissionRow(
+                                                            title = "Allow editing",
+                                                            subtitle = "Let this person enter edit mode",
+                                                            checked = policy.allowEdit
+                                                        ) { savePolicy(user.id, policy.copy(allowEdit = it)) }
+                                                        if (policy.allowEdit) {
+                                                            FamilyPermissionRow(
+                                                                title = "Aesthetic changes only",
+                                                                subtitle = "Allow theme, colors, icons, names and wallpaper — but not adding or removing widgets, buttons or rooms",
+                                                                checked = policy.aestheticsOnly
+                                                            ) { savePolicy(user.id, policy.copy(aestheticsOnly = it)) }
+                                                        }
+                                                        FamilyPermissionRow(
+                                                            title = "Show global search",
+                                                            subtitle = "Show the global search button",
+                                                            checked = policy.showGlobalSearch
+                                                        ) { savePolicy(user.id, policy.copy(showGlobalSearch = it)) }
+                                                        FamilyPermissionRow(
+                                                            title = "Show flows button",
+                                                            subtitle = "Show the automations (flows) button",
+                                                            checked = policy.showFlows
+                                                        ) { savePolicy(user.id, policy.copy(showFlows = it)) }
                                                     }
                                                 }
                                             }
@@ -2112,6 +2281,29 @@ fun SettingsDialog(
 
     LaunchedEffect(renameDashboard?.id) { renameDashboard?.let { newDashboardName = it.name } }
 
+    copyDashboard?.let { dashboard ->
+        AlertDialog(
+            onDismissRequest = { copyDashboard = null },
+            title = { Text("Copy dashboard") },
+            text = {
+                Column {
+                    Text("Creates a full duplicate of \"${dashboard.name}\", including all rooms, widgets, and page settings. The copy is added to your dashboards without switching to it.")
+                    Spacer(Modifier.height(12.dp))
+                    OutlinedTextField(newDashboardName, { newDashboardName = it }, label = { Text("Name") }, singleLine = true)
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    viewModel.copyDashboard(dashboard.id, newDashboardName)
+                    copyDashboard = null
+                }) { Text("Copy") }
+            },
+            dismissButton = { TextButton(onClick = { copyDashboard = null }) { Text("Cancel") } }
+        )
+    }
+
+    LaunchedEffect(copyDashboard?.id) { copyDashboard?.let { newDashboardName = "${it.name} copy" } }
+
     deleteDashboard?.let { dashboard ->
         AlertDialog(
             onDismissRequest = { deleteDashboard = null },
@@ -2267,6 +2459,27 @@ private fun SettingsHeader(
 @Composable
 private fun SettingsChoice(icon: ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
     ModernSettingsMenuItem(icon = icon, title = title, subtitle = subtitle, onClick = onClick)
+}
+
+@Composable
+private fun FamilyPermissionRow(
+    title: String,
+    subtitle: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(title, color = appColors.onSurface, style = MaterialTheme.typography.bodyMedium)
+            Text(subtitle, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+        }
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
+    }
 }
 
 @Composable

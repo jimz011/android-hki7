@@ -26,7 +26,7 @@ object HaParentalControls {
             val identity = client.hki7WhoAmI() ?: return@withClient null
             if (identity.isAdmin || identity.isOwner) Hki7Policy() else client.hki7GetMyPolicy()
         } ?: return
-        prefs.saveEnforcedPolicy(result.hiddenViews, result.hiddenRooms)
+        prefs.saveEnforcedPolicy(result)
     }
 
     // ── Admin editor ────────────────────────────────────────────────────
@@ -35,13 +35,12 @@ object HaParentalControls {
     suspend fun listPolicies(context: Context): Map<String, Hki7Policy> =
         Hki7Endpoint.withClient(context) { it.hki7ListPolicies() } ?: emptyMap()
 
-    /** Sets one user's hidden views/rooms (admin only). */
+    /** Sets one user's full policy — hidden views/rooms and edit/visibility permissions (admin only). */
     suspend fun setPolicy(
         context: Context,
         userId: String,
-        hiddenViews: List<String>,
-        hiddenRooms: List<String>,
+        policy: Hki7Policy,
     ): Boolean = Hki7Endpoint.withClient(context) {
-        it.hki7SetPolicy(userId, hiddenViews, hiddenRooms)
+        it.hki7SetPolicy(userId, policy)
     } ?: false
 }

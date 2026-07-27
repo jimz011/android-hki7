@@ -168,6 +168,20 @@ fun entityAttributeDisplay(entity: HAEntity, attribute: String): String? {
     return raw.trim().ifBlank { null }
 }
 
+/** Common unit suffixes offered for a button/badge attribute value. Empty string means "no unit". */
+val COMMON_STATE_UNITS = listOf(
+    "", "°C", "°F", "%", "W", "kW", "Wh", "kWh", "V", "A", "Hz",
+    "lx", "ppm", "µg/m³", "hPa", "km/h", "m/s", "dB", "L", "m³"
+)
+
+/** Appends a unit suffix to a value, spacing everything except percent and degree units. */
+fun appendUnit(value: String, unit: String?): String {
+    val u = unit?.trim().orEmpty()
+    if (u.isEmpty()) return value
+    val noSpace = u == "%" || u.startsWith("°")
+    return if (noSpace) "$value$u" else "$value $u"
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EntityCard(
@@ -178,6 +192,7 @@ fun EntityCard(
     onDoubleClick: () -> Unit = onLongClick,
     displayName: String? = null,
     stateAttribute: String? = null,
+    stateUnit: String? = null,
     iconName: String? = null,
     iconAnimation: String = "auto",
     isSquare: Boolean = false,
@@ -240,8 +255,11 @@ fun EntityCard(
         }
     } else Modifier
 
-    // An explicit attribute (when configured and present) replaces the state on the secondary line.
-    val attributeText = stateAttribute?.let { entityAttributeDisplay(entity, it) }
+    // An explicit attribute (when configured and present) replaces the state on the secondary line,
+    // with an optional unit suffix.
+    val attributeText = stateAttribute
+        ?.let { entityAttributeDisplay(entity, it) }
+        ?.let { appendUnit(it, stateUnit) }
     val statusText = attributeText ?: run {
         val brightnessPercent = (
             if (brightnessVisible) localBrightness * 100f

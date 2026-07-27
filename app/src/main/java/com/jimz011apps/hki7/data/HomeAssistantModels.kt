@@ -604,6 +604,8 @@ data class HKIBadge(
     val showState: Boolean = true,
     /** When set, the badge shows this attribute's value instead of the entity state. */
     val stateAttribute: String? = null,
+    /** Optional unit suffix appended to the shown attribute value (e.g. "°C", "%", "W", "kW"). */
+    val stateUnit: String? = null,
     val showIcon: Boolean = true,
     val customIcon: String? = null,
     // Per-icon animation override: "auto" (follow the global setting + domain default), "off",
@@ -914,6 +916,8 @@ data class HKIButtonConfig(
     /** When set, the button's secondary line shows this entity attribute's value instead of the
      *  state. Null shows the state (the default). */
     val stateAttribute: String? = null,
+    /** Optional unit suffix appended to the shown attribute value (e.g. "°C", "%", "W", "kW"). */
+    val stateUnit: String? = null,
     /** Light-only Google Home-style full-height brightness control. */
     val showBrightnessSlider: Boolean = false,
     val cameraUrl: String? = null,
@@ -1233,6 +1237,17 @@ data class Hki7SharedDashboardMeta(
 data class Hki7Policy(
     val hiddenViews: List<String> = emptyList(),
     val hiddenRooms: List<String> = emptyList(),
+    /** Whether this user may enter dashboard edit mode at all. */
+    val allowEdit: Boolean = true,
+    /** When editing is allowed, restrict this user to aesthetic changes (theme, colors, icons,
+     * names, wallpaper) and block adding/removing widgets, buttons, and rooms. */
+    val aestheticsOnly: Boolean = false,
+    /** Whether this user sees the global search action. */
+    val showGlobalSearch: Boolean = true,
+    /** Whether this user sees the flows (automations) action. */
+    val showFlows: Boolean = true,
 ) {
-    val isEmpty: Boolean get() = hiddenViews.isEmpty() && hiddenRooms.isEmpty()
+    val isEmpty: Boolean
+        get() = hiddenViews.isEmpty() && hiddenRooms.isEmpty() &&
+            allowEdit && !aestheticsOnly && showGlobalSearch && showFlows
 }

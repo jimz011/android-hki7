@@ -274,22 +274,33 @@ fun HKIPage(
             Color.White.copy(alpha = 0.72f)
         }
         val menuButtonContentColor = if (menuUsesLightContent) Color.White else Color(0xFF1C1B1F)
+        // Admin-set per-user permissions (Settings › Family Sharing). Defaults allow everything, so
+        // these only restrict when an admin has locked something down for this user.
+        val allowEdit by prefs.enforcedAllowEdit.collectAsState(initial = true)
+        val showGlobalSearchAllowed by prefs.enforcedShowGlobalSearch.collectAsState(initial = true)
+        val showFlowsAllowed by prefs.enforcedShowFlows.collectAsState(initial = true)
         val headerMenuActions = buildList {
-            add(HeaderMenuAction(Icons.Default.Search, "Search") {
-                showSearch = true
-                pullOffset = 0f
-            })
-            add(HeaderMenuAction(Icons.Default.AccountTree, "Flows") {
-                showFlows = true
-                pullOffset = 0f
-            })
-            add(HeaderMenuAction(
-                if (isEditMode) Icons.Default.CheckCircle else Icons.Default.Edit,
-                if (isEditMode) "Done" else "Edit"
-            ) {
-                viewModel.toggleEditMode()
-                pullOffset = 0f
-            })
+            if (showGlobalSearchAllowed) {
+                add(HeaderMenuAction(Icons.Default.Search, "Search") {
+                    showSearch = true
+                    pullOffset = 0f
+                })
+            }
+            if (showFlowsAllowed) {
+                add(HeaderMenuAction(Icons.Default.AccountTree, "Flows") {
+                    showFlows = true
+                    pullOffset = 0f
+                })
+            }
+            if (allowEdit) {
+                add(HeaderMenuAction(
+                    if (isEditMode) Icons.Default.CheckCircle else Icons.Default.Edit,
+                    if (isEditMode) "Done" else "Edit"
+                ) {
+                    viewModel.toggleEditMode()
+                    pullOffset = 0f
+                })
+            }
             if (pageKey != null && pageSettingsTitle != null) {
                 add(HeaderMenuAction(Icons.Default.Tune, pageSettingsTitle) {
                     showPageConfig = true

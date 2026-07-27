@@ -17,6 +17,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
@@ -198,6 +199,7 @@ import com.jimz011apps.hki7.ui.components.SettingsSubcategory
 import com.jimz011apps.hki7.ui.components.SettingsTabRow
 import com.jimz011apps.hki7.ui.components.fadingEdges
 import com.jimz011apps.hki7.ui.components.mediaPlayerStateIcon
+import com.jimz011apps.hki7.ui.components.COMMON_STATE_UNITS
 import com.jimz011apps.hki7.ui.components.defaultEntityIconSlug
 import com.jimz011apps.hki7.ui.components.selectableEntityAttributes
 import com.jimz011apps.hki7.ui.components.coverAccentColor
@@ -3164,6 +3166,7 @@ fun ButtonConfigDialog(
     var appearWidth by remember(widgetAppearance) { mutableStateOf(widgetAppearance?.width ?: "half") }
     var name by remember(config) { mutableStateOf(config.name ?: entity?.friendlyName ?: entity?.entity_id ?: "") }
     var stateAttribute by remember(config) { mutableStateOf(config.stateAttribute) }
+    var stateUnit by remember(config) { mutableStateOf(config.stateUnit) }
     var cameraUrl by remember(config) { mutableStateOf(config.cameraUrl ?: "") }
     var refreshInterval by remember(config) { mutableIntStateOf(config.cameraRefreshInterval) }
     var iconName by remember(config) { mutableStateOf(config.icon ?: "None") }
@@ -3265,9 +3268,9 @@ fun ButtonConfigDialog(
                     if (!isCameraItem && !isVacuumItem) {
                         val attributes = remember(entity) { selectableEntityAttributes(entity) }
                         SettingsSubcategory("Secondary line", "Show the entity's state, or one of its attributes instead")
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        Row(
+                            modifier = Modifier.horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             FilterChip(
                                 selected = stateAttribute == null,
@@ -3288,6 +3291,22 @@ fun ButtonConfigDialog(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                        }
+                        if (stateAttribute != null) {
+                            Text("Unit", style = MaterialTheme.typography.labelLarge)
+                            Row(
+                                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                COMMON_STATE_UNITS.forEach { unit ->
+                                    val selected = (stateUnit ?: "") == unit
+                                    FilterChip(
+                                        selected = selected,
+                                        onClick = { stateUnit = unit.ifBlank { null } },
+                                        label = { Text(if (unit.isBlank()) "None" else unit) }
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -3547,6 +3566,7 @@ fun ButtonConfigDialog(
                         config.copy(
                             name = name.ifBlank { null },
                             stateAttribute = if (isCameraItem || isVacuumItem) config.stateAttribute else stateAttribute,
+                            stateUnit = if (isCameraItem || isVacuumItem) config.stateUnit else stateUnit,
                             icon = if (isCameraItem || isVacuumItem) config.icon else iconName.takeUnless { it == "None" },
                             iconAnimation = iconAnimation,
                             showBrightnessSlider = if (isLightEntity) showBrightnessSlider else false,

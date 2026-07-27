@@ -36,6 +36,8 @@ import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DashboardCustomize
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
@@ -62,6 +64,8 @@ import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.jimz011apps.hki7.data.HaDashboardSharing
+import com.jimz011apps.hki7.data.Hki7SharedDashboardMeta
 import com.jimz011apps.hki7.data.HomeAssistantClient
 import com.jimz011apps.hki7.data.HomeAssistantConnectionRoute
 import com.jimz011apps.hki7.data.LocationWork
@@ -374,14 +378,42 @@ private fun OnboardingDialogFrame(
 @Composable
 private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit) {
     val colors = LocalHKIAppColors.current
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var savingMode by remember { mutableStateOf<Boolean?>(null) }
+    // Family-shared dashboards: null while probing the cloud component, then the list shared with me.
+    var cloudAvailable by remember { mutableStateOf<Boolean?>(null) }
+    var sharedList by remember { mutableStateOf<List<Hki7SharedDashboardMeta>>(emptyList()) }
+    var usingSharedId by remember { mutableStateOf<String?>(null) }
+    var familyError by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(Unit) {
+        val id = runCatching { HaDashboardSharing.whoami(context) }.getOrNull()
+        cloudAvailable = id != null
+        sharedList = if (id != null)
+            runCatching { HaDashboardSharing.listSharedForMe(context) }.getOrDefault(emptyList())
+        else emptyList()
+    }
     fun finish(auto: Boolean) {
         if (savingMode != null) return
         savingMode = auto
         scope.launch {
             prefs.configureInitialDashboard(auto)
             onComplete()
+        }
+    }
+    fun useShared(meta: Hki7SharedDashboardMeta) {
+        if (savingMode != null || usingSharedId != null) return
+        usingSharedId = meta.id
+        familyError = null
+        scope.launch {
+            val localId = runCatching { HaDashboardSharing.import(context, prefs, meta) }.getOrNull()
+            if (localId != null) {
+                prefs.useSharedDashboardAsInitial(localId)
+                onComplete()
+            } else {
+                familyError = "Could not import \"${meta.name}\". Try again."
+                usingSharedId = null
+            }
         }
     }
     OnboardingDialogFrame(
@@ -422,6 +454,86 @@ private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit
                 enabled = savingMode == null,
                 onClick = { finish(false) }
             )
+            // Import from family: shown whenever the option is relevant, with guidance when the
+            // cloud component isn't set up yet.
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(22.dp),
+                color = colors.subtleSurface
+            ) {
+                Column(Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Surface(
+                            modifier = Modifier.size(44.dp),
+                            shape = RoundedCornerShape(15.dp),
+                            color = colors.surface
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.Groups, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(23.dp))
+                            }
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text("Import from family", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = colors.onSurface)
+                            Text("Use a dashboard an admin has shared with you.", style = MaterialTheme.typography.bodySmall, color = colors.onMuted)
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    when {
+                        cloudAvailable == null -> {
+                            Text("Checking for shared dashboards…", style = MaterialTheme.typography.bodySmall, color = colors.onMuted)
+                        }
+                        cloudAvailable == false -> {
+                            Text(
+                                "An admin needs to install the HKI 7 Cloud component and share a dashboard first.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = colors.onMuted
+                            )
+                        }
+                        sharedList.isEmpty() -> {
+                            Text(
+                                "No dashboards have been shared with you yet. Ask an admin to share one, or pick another option above.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = colors.onMuted
+                            )
+                        }
+                        else -> {
+                            sharedList.forEach { meta ->
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                                    shape = RoundedCornerShape(14.dp),
+                                    color = colors.surface
+                                ) {
+                                    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                        Column(Modifier.weight(1f)) {
+                                            Text(meta.name, color = colors.onSurface, fontWeight = FontWeight.SemiBold)
+                                            val updated = meta.updated.take(19).replace('T', ' ')
+                                            Text(
+                                                if (updated.isNotBlank()) "Updated $updated" else "Shared dashboard",
+                                                color = colors.onMuted,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                        }
+                                        Button(
+                                            enabled = savingMode == null && usingSharedId == null,
+                                            onClick = { useShared(meta) },
+                                            shape = RoundedCornerShape(14.dp)
+                                        ) {
+                                            Icon(Icons.Default.Download, null, modifier = Modifier.size(18.dp))
+                                            Spacer(Modifier.width(6.dp))
+                                            Text(if (usingSharedId == meta.id) "Importing…" else "Use")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    familyError?.let {
+                        Spacer(Modifier.height(8.dp))
+                        Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),

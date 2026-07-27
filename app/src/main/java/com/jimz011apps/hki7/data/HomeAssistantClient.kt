@@ -409,14 +409,29 @@ open class HomeAssistantClient(
         response["result"]?.jsonObject?.let(::parsePolicy) ?: Hki7Policy()
     }
 
-    /** Sets a user's hidden views/rooms. Admin only. Returns true on success. */
-    open suspend fun hki7SetPolicy(userId: String, hiddenViews: List<String>, hiddenRooms: List<String>): Boolean = withWebSocket {
-        val data = mapOf<String, JsonElement>(
+    /** Sets a user's full policy (hidden views/rooms plus edit and visibility permissions). Admin
+     * only. Returns true on success.
+     *
+     * Older companion components accept only hidden_views/hidden_rooms and reject unknown keys with a
+     * schema error, so the extra permission fields are attempted first and, if that call is rejected,
+     * we retry with just the hidden lists. That keeps parental controls working on an un-updated
+     * component; the new permission fields take effect once the component understands them. */
+    open suspend fun hki7SetPolicy(userId: String, policy: Hki7Policy): Boolean = withWebSocket {
+        val base = mapOf<String, JsonElement>(
             "user_id" to JsonPrimitive(userId),
-            "hidden_views" to JsonArray(hiddenViews.map { JsonPrimitive(it) }),
-            "hidden_rooms" to JsonArray(hiddenRooms.map { JsonPrimitive(it) }),
+            "hidden_views" to JsonArray(policy.hiddenViews.map { JsonPrimitive(it) }),
+            "hidden_rooms" to JsonArray(policy.hiddenRooms.map { JsonPrimitive(it) }),
         )
-        sendCommand("hki7/policy/set", data)["success"]?.jsonPrimitive?.booleanOrNull == true
+        val full = base + mapOf<String, JsonElement>(
+            "allow_edit" to JsonPrimitive(policy.allowEdit),
+            "aesthetics_only" to JsonPrimitive(policy.aestheticsOnly),
+            "show_global_search" to JsonPrimitive(policy.showGlobalSearch),
+            "show_flows" to JsonPrimitive(policy.showFlows),
+        )
+        if (sendCommand("hki7/policy/set", full)["success"]?.jsonPrimitive?.booleanOrNull == true) {
+            return@withWebSocket true
+        }
+        sendCommand("hki7/policy/set", base)["success"]?.jsonPrimitive?.booleanOrNull == true
     }
 
     /** Every stored policy keyed by user id (admin only). Empty if not permitted. */
@@ -430,6 +445,10 @@ open class HomeAssistantClient(
     private fun parsePolicy(o: JsonObject): Hki7Policy = Hki7Policy(
         hiddenViews = o["hidden_views"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty(),
         hiddenRooms = o["hidden_rooms"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty(),
+        allowEdit = o["allow_edit"]?.jsonPrimitive?.booleanOrNull ?: true,
+        aestheticsOnly = o["aesthetics_only"]?.jsonPrimitive?.booleanOrNull ?: false,
+        showGlobalSearch = o["show_global_search"]?.jsonPrimitive?.booleanOrNull ?: true,
+        showFlows = o["show_flows"]?.jsonPrimitive?.booleanOrNull ?: true,
     )
 
     private fun parseDashboardMeta(o: JsonObject): Hki7SharedDashboardMeta? {

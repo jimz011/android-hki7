@@ -3597,6 +3597,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         }
     }
 
+    fun copyDashboard(id: String, name: String) { viewModelScope.launch { prefs.copyDashboard(id, name) } }
     fun renameDashboard(id: String, name: String) { viewModelScope.launch { prefs.renameDashboard(id, name) } }
     fun deleteDashboard(id: String) { viewModelScope.launch { prefs.deleteDashboard(id) } }
     fun setDefaultDashboard(id: String) { viewModelScope.launch { prefs.setDefaultDashboard(id) } }

@@ -204,6 +204,10 @@ class PreferencesManager(
     // hki7 component so the UI can filter synchronously and keep hiding while briefly offline.
     private val parentalHiddenViewsKey = stringPreferencesKey("parental_hidden_views")
     private val parentalHiddenRoomsKey = stringPreferencesKey("parental_hidden_rooms")
+    private val parentalAllowEditKey = booleanPreferencesKey("parental_allow_edit")
+    private val parentalAestheticsOnlyKey = booleanPreferencesKey("parental_aesthetics_only")
+    private val parentalShowSearchKey = booleanPreferencesKey("parental_show_search")
+    private val parentalShowFlowsKey = booleanPreferencesKey("parental_show_flows")
     private val lastSeenVersionCodeKey = intPreferencesKey("last_seen_version_code")
     private val homeAssistantInstancesKey = stringPreferencesKey("home_assistant_instances_v1")
     private val activeHomeAssistantInstanceIdKey = stringPreferencesKey("active_home_assistant_instance_id")
@@ -262,12 +266,24 @@ class PreferencesManager(
     val parentalHiddenRooms: Flow<List<String>> = context.dataStore.data.map {
         it[parentalHiddenRoomsKey]?.split(",")?.filter { r -> r.isNotBlank() } ?: emptyList()
     }
+    /** Whether the current user may enter dashboard edit mode (admin policy; default allowed). */
+    val enforcedAllowEdit: Flow<Boolean> = context.dataStore.data.map { it[parentalAllowEditKey] ?: true }
+    /** Whether the current user is restricted to aesthetic-only edits (admin policy). */
+    val enforcedAestheticsOnly: Flow<Boolean> = context.dataStore.data.map { it[parentalAestheticsOnlyKey] ?: false }
+    /** Whether the current user sees the global search action (admin policy; default shown). */
+    val enforcedShowGlobalSearch: Flow<Boolean> = context.dataStore.data.map { it[parentalShowSearchKey] ?: true }
+    /** Whether the current user sees the flows action (admin policy; default shown). */
+    val enforcedShowFlows: Flow<Boolean> = context.dataStore.data.map { it[parentalShowFlowsKey] ?: true }
 
-    /** Caches the enforced policy for the signed-in user (cleared for admins/owners). */
-    suspend fun saveEnforcedPolicy(hiddenViews: List<String>, hiddenRooms: List<String>) {
+    /** Caches the enforced policy for the signed-in user (reset to defaults for admins/owners). */
+    suspend fun saveEnforcedPolicy(policy: Hki7Policy) {
         context.dataStore.edit {
-            it[parentalHiddenViewsKey] = hiddenViews.joinToString(",")
-            it[parentalHiddenRoomsKey] = hiddenRooms.joinToString(",")
+            it[parentalHiddenViewsKey] = policy.hiddenViews.joinToString(",")
+            it[parentalHiddenRoomsKey] = policy.hiddenRooms.joinToString(",")
+            it[parentalAllowEditKey] = policy.allowEdit
+            it[parentalAestheticsOnlyKey] = policy.aestheticsOnly
+            it[parentalShowSearchKey] = policy.showGlobalSearch
+            it[parentalShowFlowsKey] = policy.showFlows
         }
     }
 
@@ -996,6 +1012,20 @@ class PreferencesManager(
         return id
     }
 
+    /** Onboarding: adopt an already-imported shared dashboard as the initial active + default
+     * dashboard and finish first-run setup. */
+    suspend fun useSharedDashboardAsInitial(localId: String) {
+        context.dataStore.edit { p ->
+            val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList())
+            val target = dashboards.firstOrNull { it.id == localId } ?: return@edit
+            p[activeDashboardIdKey] = localId
+            p[defaultDashboardIdKey] = localId
+            p.remove(pendingAutoTakeoverKey)
+            p[quickStartGuidePendingKey] = true
+            loadDashboardIntoPreferences(p, target)
+        }
+    }
+
     /** Serialises one stored dashboard to JSON for family sharing. Snapshots the live-loaded state
      * first so the currently-open dashboard is captured up to date. Null if the id is unknown. */
     suspend fun exportDashboard(id: String): String? {
@@ -1028,6 +1058,28 @@ class PreferencesManager(
             if (p[defaultDashboardIdKey].isNullOrBlank()) p[defaultDashboardIdKey] = localId
         }
         return localId
+    }
+
+    /** Duplicates a stored dashboard as a new one, copying every widget, area, and page config. The
+     * live-loaded active dashboard is snapshotted first so duplicating it (or duplicating while it has
+     * unsaved edits) captures its current state. The active dashboard is left unchanged. Returns the
+     * new dashboard id, or null if the source id is unknown. */
+    suspend fun copyDashboard(id: String, name: String): String? {
+        var newId: String? = null
+        context.dataStore.edit { p ->
+            val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
+            saveLoadedDashboardInto(p, dashboards)
+            val source = dashboards.firstOrNull { it.id == id } ?: return@edit
+            val copyId = UUID.randomUUID().toString()
+            val copy = source.copy(
+                id = copyId,
+                name = name.trim().ifBlank { "${source.name} copy" }
+            )
+            dashboards += copy
+            p[dashboardsKey] = appJson.encodeToString(dashboards)
+            newId = copyId
+        }
+        return newId
     }
 
     suspend fun switchDashboard(id: String): Boolean {
