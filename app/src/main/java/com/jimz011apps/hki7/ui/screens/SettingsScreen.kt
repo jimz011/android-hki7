@@ -151,6 +151,7 @@ import com.jimz011apps.hki7.ui.components.SettingsGroup
 import com.jimz011apps.hki7.ui.components.SettingsChoiceChip
 import com.jimz011apps.hki7.ui.components.SettingsSubcategory
 import com.jimz011apps.hki7.ui.components.SettingsTabRow
+import com.jimz011apps.hki7.ui.components.WhatsNewDialog
 import com.jimz011apps.hki7.data.Hki7Policy
 import com.jimz011apps.hki7.ui.components.fadingEdges
 import com.jimz011apps.hki7.ui.components.itemCornerShape
@@ -288,6 +289,7 @@ fun SettingsDialog(
     var dashboardEditMode by remember { mutableStateOf(false) }
     var renameDashboard by remember { mutableStateOf<com.jimz011apps.hki7.data.HKIDashboard?>(null) }
     var copyDashboard by remember { mutableStateOf<com.jimz011apps.hki7.data.HKIDashboard?>(null) }
+    var showWhatsNew by remember { mutableStateOf(false) }
     var deleteDashboard by remember { mutableStateOf<com.jimz011apps.hki7.data.HKIDashboard?>(null) }
     var setupChangedMessage by remember { mutableStateOf<String?>(null) }
     var showRestartConfirm by remember { mutableStateOf(false) }
@@ -1906,6 +1908,24 @@ fun SettingsDialog(
                                     Spacer(Modifier.width(8.dp))
                                     Text("View on GitHub")
                                 }
+                                OutlinedButton(
+                                    onClick = { showWhatsNew = true },
+                                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                                    shape = itemCornerShape()
+                                ) {
+                                    Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(20.dp))
+                                    Spacer(Modifier.width(8.dp))
+                                    Text("What's new")
+                                }
+                                OutlinedButton(
+                                    onClick = { openGitHub(context, HKI7_CHANGELOG_URL) },
+                                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                                    shape = itemCornerShape()
+                                ) {
+                                    Icon(Icons.AutoMirrored.Filled.OpenInNew, null, modifier = Modifier.size(20.dp))
+                                    Spacer(Modifier.width(8.dp))
+                                    Text("Full changelog")
+                                }
                             }
                         }
                         SettingsSection.LICENSE -> {
@@ -2303,6 +2323,10 @@ fun SettingsDialog(
     }
 
     LaunchedEffect(copyDashboard?.id) { copyDashboard?.let { newDashboardName = "${it.name} copy" } }
+
+    if (showWhatsNew) {
+        WhatsNewDialog(onDismiss = { showWhatsNew = false })
+    }
 
     deleteDashboard?.let { dashboard ->
         AlertDialog(
@@ -2709,6 +2733,7 @@ private fun openExternalUrl(context: android.content.Context, url: String) {
 }
 
 const val HKI7_GITHUB_URL = "https://github.com/jimz011/android-hki7"
+const val HKI7_CHANGELOG_URL = "https://github.com/jimz011/android-hki7/blob/main/CHANGELOG.md"
 const val HKI7_CLOUD_GITHUB_URL = "https://github.com/jimz011/HKI7-Cloud-Component"
 
 /**
