@@ -51,8 +51,7 @@ private val beta4Through6Notes = listOf(
     "Fixed: the app icon looked oversized after the recent themed-icon (monochrome) update. The mark now sits with proper padding, matching other app icons on your home screen and in the themed-icon style.",
 )
 
-// beta.7 leads with its own feature/fix notes, then carries the backup/icon notes forward so anyone
-// updating straight from beta.3 still sees them.
+// beta.7 shows only its own notes — the beta.4–6 backup/icon notes have had plenty of exposure.
 private val beta7Notes = listOf(
     "Automatic room import is tidier: when a device's main job is a light, climate, cover, fan, humidifier, lock, or vacuum, its extra helper controls are no longer added as separate room items — including a device's own child lock, a panel/status light on an air conditioner or blind, and sleep or display switches. A ceiling fan's separate light and a standalone door lock are kept.",
     "Automatic import now keeps climate devices from different integrations apart — your Tado thermostats and a Tuya AC each get their own control instead of being merged into one aggregated tile.",
@@ -65,7 +64,7 @@ private val beta7Notes = listOf(
 )
 
 private val changelog: Map<String, List<String>> = mapOf(
-    "1.0.0-beta.7" to beta7Notes + beta4Through6Notes,
+    "1.0.0-beta.7" to beta7Notes,
     "1.0.0-beta.6" to listOf(
         "Fixed: in edit mode, the Add Widget and Add Room / Floor bars no longer overlap the system navigation buttons when you use three-button navigation instead of gesture navigation.",
     ) + beta4Through6Notes,

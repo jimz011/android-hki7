@@ -16,9 +16,6 @@ Items marked with \* require the HKI 7 Cloud Component integration.
 - Animated icon effects are now on by default for new installs. Existing setups keep your current choice; toggle it under Settings › Appearance › Icons.
 - Fixed: the "Unable to connect" screen (with Refresh and Log in again) now appears reliably when Home Assistant becomes unreachable — for example after a trusted-network login when you leave Wi-Fi — instead of leaving a stale dashboard on screen.
 
-The notes below repeat beta.4/beta.5 so anyone updating straight from beta.3
-still sees those changes.
-
 ## 1.0.0-beta.6
 
 The notes below repeat beta.4/beta.5 so anyone updating straight from beta.3
