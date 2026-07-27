@@ -53,14 +53,14 @@ private val beta4Through6Notes = listOf(
 
 // beta.7 shows only its own notes — the beta.4–6 backup/icon notes have had plenty of exposure.
 private val beta7Notes = listOf(
-    "Automatic room import is tidier: when a device's main job is a light, climate, cover, fan, humidifier, lock, or vacuum, its extra helper controls are no longer added as separate room items — including a device's own child lock, a panel/status light on an air conditioner or blind, and sleep or display switches. A ceiling fan's separate light and a standalone door lock are kept.",
-    "Automatic import now keeps climate devices from different integrations apart — your Tado thermostats and a Tuya AC each get their own control instead of being merged into one aggregated tile.",
-    "Climate icons now match the device: air conditioners (cooling units that don't heat) show an AC icon, humidifiers show a humidifier icon, and fans detected as air purifiers show a purifier icon.",
-    "Air purifier and humidifier icons now pulse gently instead of spinning when the device is on — a spinning purifier or humidifier glyph looked wrong.",
-    "Door locks now use clear door icons: a closed, locked door when locked and an open door when unlocked, instead of a plain padlock.",
-    "Header badges that summarize several entities can now be reordered — choose which entity leads from the badge's settings.",
-    "Animated icon effects are now on by default for new installs. Existing setups keep your current choice; toggle it under Settings › Appearance › Icons.",
-    "Fixed: the \"Unable to connect\" screen (with Refresh and Log in again) now appears reliably when Home Assistant becomes unreachable — for example after a trusted-network login when you leave Wi-Fi — instead of leaving a stale dashboard on screen.",
+    "Cleaner automatic room import. When a device's main purpose is a light, thermostat, blind, fan, humidifier, lock, or vacuum, HKI no longer clutters the room with the device's built-in helper controls — its own child lock, the little status light on an air conditioner or blind, and its sleep or display switches are all skipped. Genuine extras are still kept, like a ceiling fan's separate light or a standalone smart door lock.",
+    "Climate devices from different integrations are no longer merged together. A room that used to collapse every thermostat and AC into one combined tile now gives each integration its own control — your Tado thermostats stay together, and a Tuya AC gets its own tile — so you can operate them separately.",
+    "Climate devices now show an icon that matches what they actually are: air conditioners (units that cool but don't heat) get an AC icon, humidifiers and dehumidifiers get a humidifier icon, and fans recognised as air purifiers get a purifier icon — instead of everything sharing the generic thermostat or fan icon.",
+    "Air purifier and humidifier icons now pulse gently instead of spinning while the device is running. A spinning purifier or humidifier looked wrong, so they use the same calm pulse as other climate devices.",
+    "Door locks now use door-shaped icons — a closed, locked door when locked and an open door when unlocked — instead of a plain padlock, so a room's lock state is clearer at a glance.",
+    "Header badges that summarise several devices at once can now be reordered. Open the badge's settings to choose which entity leads — it decides the badge's icon, the state it shows, and the order of the pop-up list.",
+    "Animated icon effects are now on by default for new installs, so a fresh setup feels alive out of the box. Existing setups keep whatever you already chose, and you can turn effects on or off any time under Settings › Appearance › Icons.",
+    "Fixed: the \"Unable to connect\" screen — with its Refresh and Log in again buttons — now appears reliably when Home Assistant can't be reached. In some cases, such as signing in on a trusted network and then leaving Wi-Fi, the app used to keep showing a stale dashboard instead of offering to reconnect.",
 )
 
 private val changelog: Map<String, List<String>> = mapOf(
