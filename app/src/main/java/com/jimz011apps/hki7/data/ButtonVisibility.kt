@@ -17,8 +17,34 @@ fun isButtonVisibleAt(config: HKIButtonConfig, now: LocalDateTime): Boolean {
     val start = config.visibilityStart?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
     val end = config.visibilityEnd?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
     if (start == null && end == null) return true
-    val inRange = (start == null || !now.isBefore(start)) && (end == null || !now.isAfter(end))
+
+    val inRange = when (config.visibilityRecurrence.ifBlank { "none" }) {
+        "none" -> (start == null || !now.isBefore(start)) && (end == null || !now.isAfter(end))
+        else -> {
+            // Compare only the part of the timestamp that repeats (time of day, day of week/month, or
+            // month-day), so a window can recur. Ranges may wrap the cycle boundary (e.g. 24 Dec–2 Jan).
+            val ordinal = recurringOrdinal(config.visibilityRecurrence)
+            val s = start?.let(ordinal)
+            val e = end?.let(ordinal)
+            val n = ordinal(now)
+            when {
+                s != null && e != null -> if (s <= e) n in s..e else (n >= s || n <= e)
+                s != null -> n >= s
+                e != null -> n <= e
+                else -> true
+            }
+        }
+    }
     return if (config.visibilityRangeMode == "hide") !inRange else inRange
+}
+
+/** A sortable position within the repeat cycle for [recurrence]; higher fields drop out so the
+ * window recurs (yearly ignores year, monthly ignores year+month, and so on). */
+private fun recurringOrdinal(recurrence: String): (LocalDateTime) -> Long = when (recurrence) {
+    "daily" -> { dt -> dt.hour * 100L + dt.minute }
+    "weekly" -> { dt -> dt.dayOfWeek.value * 10000L + dt.hour * 100L + dt.minute }
+    "monthly" -> { dt -> dt.dayOfMonth * 10000L + dt.hour * 100L + dt.minute }
+    else -> { dt -> (dt.monthValue * 100L + dt.dayOfMonth) * 10000L + dt.hour * 100L + dt.minute } // yearly
 }
 
 /** True when [config] has any visibility restriction (a plain hide or a scheduled window). */

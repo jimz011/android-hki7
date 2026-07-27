@@ -926,6 +926,10 @@ data class HKIButtonConfig(
     val visibilityStart: String? = null,
     val visibilityEnd: String? = null,
     val visibilityRangeMode: String = "show",
+    /** How the window repeats: "none" (the exact dates), or "daily"/"weekly"/"monthly"/"yearly",
+     * where only the relevant part of the bounds matters (e.g. yearly ignores the year, so a
+     * Christmas button recurs every 24–26 Dec). */
+    val visibilityRecurrence: String = "none",
     /** Light-only Google Home-style full-height brightness control. */
     val showBrightnessSlider: Boolean = false,
     val cameraUrl: String? = null,

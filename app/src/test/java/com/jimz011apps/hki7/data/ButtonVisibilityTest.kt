@@ -54,4 +54,43 @@ class ButtonVisibilityTest {
         val bad = HKIButtonConfig(visibilityStart = "not-a-date", visibilityRangeMode = "show")
         assertTrue(isButtonVisibleAt(bad, dec25))
     }
+
+    @Test
+    fun `yearly recurrence ignores the year`() {
+        // Window authored in 2020 still applies in 2026.
+        val xmas = HKIButtonConfig(
+            visibilityStart = "2020-12-24T00:00",
+            visibilityEnd = "2020-12-26T23:59",
+            visibilityRangeMode = "show",
+            visibilityRecurrence = "yearly"
+        )
+        assertTrue(isButtonVisibleAt(xmas, LocalDateTime.parse("2026-12-25T10:00")))
+        assertTrue(isButtonVisibleAt(xmas, LocalDateTime.parse("2030-12-25T10:00")))
+        assertFalse(isButtonVisibleAt(xmas, LocalDateTime.parse("2026-07-01T10:00")))
+    }
+
+    @Test
+    fun `yearly recurrence handles a window that wraps new year`() {
+        val newYear = HKIButtonConfig(
+            visibilityStart = "2020-12-30T00:00",
+            visibilityEnd = "2020-01-02T23:59", // month-day only; wraps the year boundary
+            visibilityRangeMode = "show",
+            visibilityRecurrence = "yearly"
+        )
+        assertTrue(isButtonVisibleAt(newYear, LocalDateTime.parse("2026-12-31T12:00")))
+        assertTrue(isButtonVisibleAt(newYear, LocalDateTime.parse("2027-01-01T12:00")))
+        assertFalse(isButtonVisibleAt(newYear, LocalDateTime.parse("2026-06-15T12:00")))
+    }
+
+    @Test
+    fun `daily recurrence uses only the time of day`() {
+        val nightly = HKIButtonConfig(
+            visibilityStart = "2020-01-01T22:00",
+            visibilityEnd = "2020-01-01T23:30",
+            visibilityRangeMode = "show",
+            visibilityRecurrence = "daily"
+        )
+        assertTrue(isButtonVisibleAt(nightly, LocalDateTime.parse("2026-07-15T22:30")))
+        assertFalse(isButtonVisibleAt(nightly, LocalDateTime.parse("2026-07-15T09:00")))
+    }
 }

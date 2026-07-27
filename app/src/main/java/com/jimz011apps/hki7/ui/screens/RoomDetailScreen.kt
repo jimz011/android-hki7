@@ -4286,6 +4286,7 @@ private fun ButtonVisibilityDialog(
         )
     }
     var rangeMode by remember { mutableStateOf(config.visibilityRangeMode.ifBlank { "show" }) }
+    var recurrence by remember { mutableStateOf(config.visibilityRecurrence.ifBlank { "none" }) }
     var start by remember { mutableStateOf(config.visibilityStart ?: "") }
     var end by remember { mutableStateOf(config.visibilityEnd ?: "") }
     var pickingStart by remember { mutableStateOf(false) }
@@ -4308,6 +4309,15 @@ private fun ButtonVisibilityDialog(
                         FilterChip(selected = rangeMode == "show", onClick = { rangeMode = "show" }, label = { Text("Visible during") })
                         FilterChip(selected = rangeMode == "hide", onClick = { rangeMode = "hide" }, label = { Text("Hidden during") })
                     }
+                    Text("Repeat", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        listOf(
+                            "none" to "Once", "daily" to "Daily", "weekly" to "Weekly",
+                            "monthly" to "Monthly", "yearly" to "Yearly"
+                        ).forEach { (value, txt) ->
+                            FilterChip(selected = recurrence == value, onClick = { recurrence = value }, label = { Text(txt) })
+                        }
+                    }
                     OutlinedButton(onClick = { pickingStart = true }, modifier = Modifier.fillMaxWidth()) {
                         Icon(Icons.Default.Schedule, null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
@@ -4319,7 +4329,13 @@ private fun ButtonVisibilityDialog(
                         Text("End: ${formatScheduleLabel(end)}", maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     Text(
-                        "Leave a bound as \"Any\" for an open-ended range. This travels with the dashboard, so it's kept by cloud backups and family sharing.",
+                        when (recurrence) {
+                            "none" -> "The exact dates you pick. Leave a bound as \"Any\" for an open-ended range."
+                            "daily" -> "Repeats every day — only the time of day is used."
+                            "weekly" -> "Repeats every week — only the weekday and time are used."
+                            "monthly" -> "Repeats every month — only the day of the month and time are used."
+                            else -> "Repeats every year — the year is ignored, so e.g. 24–26 Dec recurs each Christmas."
+                        } + " This travels with the dashboard, so cloud backups and family sharing keep it.",
                         style = MaterialTheme.typography.bodySmall,
                         color = appColors.onMuted
                     )
@@ -4334,9 +4350,10 @@ private fun ButtonVisibilityDialog(
                         hidden = false,
                         visibilityStart = start.trim().ifBlank { null },
                         visibilityEnd = end.trim().ifBlank { null },
-                        visibilityRangeMode = rangeMode
+                        visibilityRangeMode = rangeMode,
+                        visibilityRecurrence = recurrence
                     )
-                    else -> config.copy(hidden = false, visibilityStart = null, visibilityEnd = null)
+                    else -> config.copy(hidden = false, visibilityStart = null, visibilityEnd = null, visibilityRecurrence = "none")
                 }
                 onSave(updated)
             }) { Text("Save") }
