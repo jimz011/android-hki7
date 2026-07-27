@@ -1478,12 +1478,12 @@ fun HAHomeScreen(
             stack = stack,
             allEntities = entities,
             onDismiss = { orderingStack = null },
-            onSave = { orderedIds ->
+            onSave = { orderedIds, updatedConfigs ->
                 if (containerId == null) {
                     val latest = homeWidgets.filterIsInstance<HKIButtonStack>().find { it.id == stack.id } ?: stack
-                    viewModel.updateWidget(HOME_WIDGET_AREA, latest.copy(entityIds = orderedIds))
+                    viewModel.updateWidget(HOME_WIDGET_AREA, latest.copy(entityIds = orderedIds, buttonConfigs = updatedConfigs))
                 } else {
-                    updateChildInSwipingStack(containerId, stack.copy(entityIds = orderedIds))
+                    updateChildInSwipingStack(containerId, stack.copy(entityIds = orderedIds, buttonConfigs = updatedConfigs))
                 }
                 orderingStack = null
             }

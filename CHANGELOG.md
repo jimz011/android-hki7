@@ -5,6 +5,13 @@ file in sync with `app/src/main/java/com/jimz011apps/hki7/ui/components/WhatsNew
 
 Items marked with \* require the HKI 7 Cloud Component integration.
 
+## 1.0.0-beta.8
+
+- Child locks are never auto-imported. A washer, air conditioner, or valve's keypad/child-lock is a safety toggle, not a room control, so it no longer shows up among your switches.
+- Vacuums now appear in a room's badge bar. They sit on the left next to your cameras (or on their own on the left when there's no camera), and tapping one opens its controls.
+- Hide or schedule individual buttons in a multi-item widget. In a stack's "Manage items" screen, each item has a visibility button: hide it until you unhide it, or set a date/time window for when it should show or hide — so, for example, a set of Christmas buttons can appear only around Christmas. The schedule travels with the dashboard, so it's kept by cloud backups and family sharing.
+- Header badges with several cameras now open one paged dialog to flip through them, matching how blinds and vacuums already aggregate.
+
 ## 1.0.0-beta.7
 
 - Cleaner automatic room import. When a device's main purpose is a light, thermostat, blind, fan, humidifier, lock, or vacuum, HKI no longer clutters the room with the device's built-in helper controls — its own child lock, the little status light on an air conditioner or blind, and its sleep or display switches are all skipped. Genuine extras are still kept, like a ceiling fan's separate light or a standalone smart door lock.

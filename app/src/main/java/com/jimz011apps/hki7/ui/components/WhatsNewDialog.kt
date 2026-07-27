@@ -51,6 +51,13 @@ private val beta4Through6Notes = listOf(
     "Fixed: the app icon looked oversized after the recent themed-icon (monochrome) update. The mark now sits with proper padding, matching other app icons on your home screen and in the themed-icon style.",
 )
 
+private val beta8Notes = listOf(
+    "Child locks are never auto-imported. A washer, air conditioner, or valve's keypad/child-lock is a safety toggle, not a room control, so it no longer shows up among your switches.",
+    "Vacuums now appear in a room's badge bar — on the left next to your cameras (or on their own on the left when there's no camera). Tap one to open its controls.",
+    "You can hide or schedule individual buttons in a multi-item widget. In a stack's \"Manage items\" screen, each item has a visibility button: hide it until you unhide it, or set a date/time window for when it should show or hide — so a set of Christmas buttons can appear only around Christmas. The schedule travels with the dashboard, so it's kept by cloud backups and family sharing.",
+    "Header badges with several cameras now open one paged dialog to flip through them, matching how blinds and vacuums already aggregate.",
+)
+
 // beta.7 shows only its own notes — the beta.4–6 backup/icon notes have had plenty of exposure.
 private val beta7Notes = listOf(
     "Cleaner automatic room import. When a device's main purpose is a light, thermostat, blind, fan, humidifier, lock, or vacuum, HKI no longer clutters the room with the device's built-in helper controls — its own child lock, the little status light on an air conditioner or blind, and its sleep or display switches are all skipped. Genuine extras are still kept, like a ceiling fan's separate light or a standalone smart door lock.",
@@ -71,6 +78,7 @@ private val beta7Notes = listOf(
 )
 
 private val changelog: Map<String, List<String>> = mapOf(
+    "1.0.0-beta.8" to beta8Notes,
     "1.0.0-beta.7" to beta7Notes,
     "1.0.0-beta.6" to listOf(
         "Fixed: in edit mode, the Add Widget and Add Room / Floor bars no longer overlap the system navigation buttons when you use three-button navigation instead of gesture navigation.",

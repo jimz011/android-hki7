@@ -918,6 +918,14 @@ data class HKIButtonConfig(
     val stateAttribute: String? = null,
     /** Optional unit suffix appended to the shown attribute value (e.g. "°C", "%", "W", "kW"). */
     val stateUnit: String? = null,
+    /** Per-item visibility inside a multi-item widget. [hidden] hides it until unhidden. When
+     * [visibilityStart]/[visibilityEnd] (ISO-8601 local date-time, e.g. "2026-12-24T00:00") are set,
+     * [visibilityRangeMode] decides whether that window is when the item is shown ("show") or hidden
+     * ("hide") — e.g. a Christmas button set to "show" for 24–26 Dec. */
+    val hidden: Boolean = false,
+    val visibilityStart: String? = null,
+    val visibilityEnd: String? = null,
+    val visibilityRangeMode: String = "show",
     /** Light-only Google Home-style full-height brightness control. */
     val showBrightnessSlider: Boolean = false,
     val cameraUrl: String? = null,

@@ -91,6 +91,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.Thermostat
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.WbSunny
@@ -155,6 +156,7 @@ import com.jimz011apps.hki7.data.HAServiceCall
 import com.jimz011apps.hki7.data.HKIAction
 import com.jimz011apps.hki7.data.HKIButtonStack
 import com.jimz011apps.hki7.data.HKIButtonConfig
+import com.jimz011apps.hki7.data.isButtonVisibleNow
 import com.jimz011apps.hki7.data.HKIBatteryCardWidget
 import com.jimz011apps.hki7.data.HKICalendarWidget
 import com.jimz011apps.hki7.data.HKIWasteCollectionWidget
@@ -2198,12 +2200,12 @@ fun RoomDetailScreen(
             stack = stack,
             allEntities = allEntities,
             onDismiss = { orderingStack = null },
-            onSave = { orderedIds ->
+            onSave = { orderedIds, updatedConfigs ->
                 if (containerId == null) {
                     val latest = areaWidgets.filterIsInstance<HKIButtonStack>().find { it.id == stack.id } ?: stack
-                    viewModel.updateWidget(areaId, latest.copy(entityIds = orderedIds))
+                    viewModel.updateWidget(areaId, latest.copy(entityIds = orderedIds, buttonConfigs = updatedConfigs))
                 } else {
-                    updateChildInSwipingStack(containerId, stack.copy(entityIds = orderedIds))
+                    updateChildInSwipingStack(containerId, stack.copy(entityIds = orderedIds, buttonConfigs = updatedConfigs))
                 }
                 orderingStack = null
             }
@@ -4190,47 +4192,57 @@ fun StackOrderDialog(
     stack: HKIButtonStack,
     allEntities: List<HAEntity>,
     onDismiss: () -> Unit,
-    onSave: (List<String>) -> Unit
+    onSave: (List<String>, Map<String, HKIButtonConfig>) -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
     val entityById = remember(allEntities) { allEntities.associateBy { it.entity_id } }
     var orderedIds by remember(stack.id, stack.entityIds) { mutableStateOf(stack.entityIds) }
-    val listHeight = ((orderedIds.size * 72).coerceIn(96, 420)).dp
+    var configs by remember(stack.id) { mutableStateOf(stack.buttonConfigs) }
+    var visibilityForEntity by remember { mutableStateOf<String?>(null) }
+    val listHeight = ((orderedIds.size * 76).coerceIn(96, 460)).dp
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Manage order") },
+        title = { Text("Manage items") },
         text = {
             if (orderedIds.isEmpty()) {
                 Text("This stack has no items.", color = appColors.onMuted)
             } else {
-                ReorderableGrid(
-                    items = orderedIds,
-                    canReorder = true,
-                    onReorder = { from, to ->
-                        orderedIds = orderedIds.toMutableList().apply {
-                            add(to.coerceIn(0, size - 1), removeAt(from))
-                        }
-                    },
-                    key = { it },
-                    columns = GridCells.Fixed(1),
-                    axis = ReorderAxis.Vertical,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(listHeight)
-                ) { entityId, isDragging ->
-                    StackOrderRow(
-                        entityId = entityId,
-                        entity = entityById[entityId],
-                        config = stack.buttonConfigs[entityId],
-                        isDragging = isDragging
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        "Drag to reorder. Use the eye button to hide an item or schedule when it shows.",
+                        color = appColors.onMuted,
+                        style = MaterialTheme.typography.bodySmall
                     )
+                    ReorderableGrid(
+                        items = orderedIds,
+                        canReorder = true,
+                        onReorder = { from, to ->
+                            orderedIds = orderedIds.toMutableList().apply {
+                                add(to.coerceIn(0, size - 1), removeAt(from))
+                            }
+                        },
+                        key = { it },
+                        columns = GridCells.Fixed(1),
+                        axis = ReorderAxis.Vertical,
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(listHeight)
+                    ) { entityId, isDragging ->
+                        StackOrderRow(
+                            entityId = entityId,
+                            entity = entityById[entityId],
+                            config = configs[entityId],
+                            isDragging = isDragging,
+                            onVisibility = { visibilityForEntity = entityId }
+                        )
+                    }
                 }
             }
         },
         confirmButton = {
-            Button(onClick = { onSave(orderedIds) }) {
+            Button(onClick = { onSave(orderedIds, configs) }) {
                 Text("Save")
             }
         },
@@ -4240,6 +4252,86 @@ fun StackOrderDialog(
             }
         }
     )
+
+    visibilityForEntity?.let { entityId ->
+        ButtonVisibilityDialog(
+            label = configs[entityId]?.name?.takeIf { it.isNotBlank() }
+                ?: entityById[entityId]?.friendlyName ?: entityId,
+            config = configs[entityId] ?: HKIButtonConfig(),
+            onDismiss = { visibilityForEntity = null },
+            onSave = { updated ->
+                configs = configs + (entityId to updated)
+                visibilityForEntity = null
+            }
+        )
+    }
+}
+
+@Composable
+private fun ButtonVisibilityDialog(
+    label: String,
+    config: HKIButtonConfig,
+    onDismiss: () -> Unit,
+    onSave: (HKIButtonConfig) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    var mode by remember {
+        mutableStateOf(
+            when {
+                !config.visibilityStart.isNullOrBlank() || !config.visibilityEnd.isNullOrBlank() -> "scheduled"
+                config.hidden -> "hidden"
+                else -> "always"
+            }
+        )
+    }
+    var rangeMode by remember { mutableStateOf(config.visibilityRangeMode.ifBlank { "show" }) }
+    var start by remember { mutableStateOf(config.visibilityStart ?: "") }
+    var end by remember { mutableStateOf(config.visibilityEnd ?: "") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Visibility") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(label, color = appColors.onSurface, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = mode == "always", onClick = { mode = "always" }, label = { Text("Always") })
+                    FilterChip(selected = mode == "hidden", onClick = { mode = "hidden" }, label = { Text("Hidden") })
+                    FilterChip(selected = mode == "scheduled", onClick = { mode = "scheduled" }, label = { Text("Scheduled") })
+                }
+                if (mode == "scheduled") {
+                    Text("When", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(selected = rangeMode == "show", onClick = { rangeMode = "show" }, label = { Text("Visible during") })
+                        FilterChip(selected = rangeMode == "hide", onClick = { rangeMode = "hide" }, label = { Text("Hidden during") })
+                    }
+                    OutlinedTextField(start, { start = it }, label = { Text("Start") }, placeholder = { Text("2026-12-24T00:00") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(end, { end = it }, label = { Text("End") }, placeholder = { Text("2026-12-26T23:59") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    Text(
+                        "Format YYYY-MM-DDTHH:MM (24-hour). Leave one blank for an open-ended range. This travels with the dashboard, so it's kept by cloud backups and family sharing.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = appColors.onMuted
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                val updated = when (mode) {
+                    "hidden" -> config.copy(hidden = true, visibilityStart = null, visibilityEnd = null)
+                    "scheduled" -> config.copy(
+                        hidden = false,
+                        visibilityStart = start.trim().ifBlank { null },
+                        visibilityEnd = end.trim().ifBlank { null },
+                        visibilityRangeMode = rangeMode
+                    )
+                    else -> config.copy(hidden = false, visibilityStart = null, visibilityEnd = null)
+                }
+                onSave(updated)
+            }) { Text("Save") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+    )
 }
 
 @Composable
@@ -4247,9 +4339,12 @@ private fun StackOrderRow(
     entityId: String,
     entity: HAEntity?,
     config: HKIButtonConfig?,
-    isDragging: Boolean
+    isDragging: Boolean,
+    onVisibility: (() -> Unit)? = null
 ) {
     val appColors = LocalHKIAppColors.current
+    val scheduled = !config?.visibilityStart.isNullOrBlank() || !config?.visibilityEnd.isNullOrBlank()
+    val plainHidden = config?.hidden == true
     val label = config?.name?.takeIf { it.isNotBlank() }
         ?: entity?.friendlyName
         ?: if (config?.isCustomUrl == true) "Custom Camera" else entityId
@@ -4294,19 +4389,36 @@ private fun StackOrderRow(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     label,
-                    color = appColors.onSurface,
+                    color = if (plainHidden) appColors.onMuted else appColors.onSurface,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    secondary,
+                    when {
+                        plainHidden -> "Hidden"
+                        scheduled -> "Scheduled"
+                        else -> secondary
+                    },
                     color = appColors.onMuted,
                     style = MaterialTheme.typography.labelSmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+            }
+            if (onVisibility != null) {
+                IconButton(onClick = onVisibility) {
+                    Icon(
+                        when {
+                            plainHidden -> Icons.Default.VisibilityOff
+                            scheduled -> Icons.Default.Schedule
+                            else -> Icons.Default.Visibility
+                        },
+                        contentDescription = "Visibility",
+                        tint = if (plainHidden || scheduled) MaterialTheme.colorScheme.primary else appColors.onMuted
+                    )
+                }
             }
         }
     }
@@ -4367,7 +4479,13 @@ fun ButtonStackItem(
     }
     val allEntities by dependencyFlow.collectAsState()
     val entityById = remember(allEntities) { allEntities.associateBy { it.entity_id } }
-    val entities = remember(stack.entityIds, entityById) { stack.entityIds.mapNotNull(entityById::get) }
+    // Outside edit mode, drop buttons hidden or outside their scheduled window; in edit mode show them
+    // all so the user can still reach the visibility settings.
+    val entities = remember(stack.entityIds, stack.buttonConfigs, entityById, isEditMode) {
+        stack.entityIds
+            .filter { isEditMode || isButtonVisibleNow(stack.buttonConfigs[it] ?: HKIButtonConfig()) }
+            .mapNotNull(entityById::get)
+    }
     val buttonConfigs = stack.buttonConfigs
     var unlockedUntilByEntity by remember(stack.id) { mutableStateOf<Map<String, Long>>(emptyMap()) }
     var lockNow by remember(stack.id) { mutableLongStateOf(System.currentTimeMillis()) }

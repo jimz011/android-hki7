@@ -164,6 +164,7 @@ private val AUTO_ROOM_IMPORT_DOMAINS = setOf(
     "switch",
     "lock",
     "camera",
+    "vacuum",
     "cover",
     "climate",
     "humidifier",
@@ -368,6 +369,19 @@ internal fun applianceDeviceSiblingControlEntityIdsToExclude(
             id.substringBefore('.') in suppressedDomainsByDevice[deviceId].orEmpty()
         }
         .toSet()
+}
+
+/** Child locks are appliance safety toggles (an AC/valve/washer keypad lock), never useful as a
+ * standalone room control — so they are never auto-imported. Matched by name/entity id on switch and
+ * lock entities, independent of any device link, since some integrations expose a child lock without
+ * a shared device. */
+internal fun isChildLockEntity(entityId: String, friendlyName: String?): Boolean {
+    val domain = entityId.substringBefore('.')
+    if (domain != "switch" && domain != "lock") return false
+    val haystack = "$entityId ${friendlyName.orEmpty()}".lowercase()
+    return haystack.contains("child lock") ||
+        haystack.contains("child_lock") ||
+        haystack.contains("childlock")
 }
 
 /** Fans carry no device_class, so air purifiers are recognized heuristically from the fan entity's
@@ -4054,7 +4068,8 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             val autoControlEntities = areaEntities.filterNot {
                 it.entity_id in cameraDeviceSiblingExclusions ||
                     it.entity_id in roomCounterDeviceControlExclusions ||
-                    it.entity_id in applianceSiblingExclusions
+                    it.entity_id in applianceSiblingExclusions ||
+                    isChildLockEntity(it.entity_id, it.friendlyName)
             }
             val mediaPlayerIds = areaEntities
                 .filter { it.entity_id.startsWith("media_player.") }
@@ -4149,8 +4164,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             }
 
             val importedBadges = buildList {
-                // Left lane: cameras only.
+                // Left lane: cameras, then vacuums beside them (a vacuum alone still sits on the left).
                 autoBadge("camera", side = "left", shape = "circle")?.let(::add)
+                autoBadge("vacuum", side = "left", shape = "circle")?.let(::add)
 
                 // Right lane is ordered from left to right. Climate is deliberately appended last,
                 // with lock (or cover when there is no lock) immediately before it when available.

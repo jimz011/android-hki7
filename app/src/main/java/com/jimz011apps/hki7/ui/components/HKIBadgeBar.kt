@@ -491,17 +491,28 @@ fun HKIBadgeBar(
                 )
             }
             "camera" -> {
-                val streamUrl = resolveEntityCameraUrl(de, currentUrl, preferLive = true)
-                HKICameraDialog(
-                    title = de.friendlyName ?: de.entity_id,
-                    imageUrl = buildCameraRefreshModel(streamUrl, 0, 0),
-                    liveWebUrl = streamUrl,
-                    authToken = accessToken,
-                    statusText = "Live",
-                    entity = de,
-                    viewModel = viewModel,
-                    onDismiss = dismiss
-                )
+                if (live.size == 1) {
+                    val streamUrl = resolveEntityCameraUrl(de, currentUrl, preferLive = true)
+                    HKICameraDialog(
+                        title = de.friendlyName ?: de.entity_id,
+                        imageUrl = buildCameraRefreshModel(streamUrl, 0, 0),
+                        liveWebUrl = streamUrl,
+                        authToken = accessToken,
+                        statusText = "Live",
+                        entity = de,
+                        viewModel = viewModel,
+                        onDismiss = dismiss
+                    )
+                } else {
+                    // Multiple cameras aggregate into one paged dialog, like covers and vacuums do.
+                    UniversalStackDialog(
+                        entities = live, allEntities = allEntities, currentUrl = currentUrl,
+                        buttonConfigs = live.associate { e ->
+                            e.entity_id to HKIButtonConfig(icon = badge?.customIcon)
+                        },
+                        viewModel = viewModel, onDismiss = dismiss
+                    )
+                }
             }
             else -> HKIDialog(
                 entity = de,
