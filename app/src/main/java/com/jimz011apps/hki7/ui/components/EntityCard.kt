@@ -193,6 +193,7 @@ fun EntityCard(
     displayName: String? = null,
     stateAttribute: String? = null,
     stateUnit: String? = null,
+    stateAsTimer: Boolean = false,
     iconName: String? = null,
     iconAnimation: String = "auto",
     isSquare: Boolean = false,
@@ -207,7 +208,11 @@ fun EntityCard(
     currentUrl: String? = null
 ) {
     val appColors = LocalHKIAppColors.current
-    val isActive = entity.state == "on"
+    // Timer mode: the value (attribute if set, else state) is a completion timestamp. While it's in
+    // the future the entity reads as active with a live countdown; once it passes it reads as OFF.
+    val timerText = if (stateAsTimer) rememberCountdownText(stateAttribute?.let { entityAttributeDisplay(entity, it) } ?: entity.state) else null
+    val timerRunning = stateAsTimer && timerText != null && timerText != "Done"
+    val isActive = if (stateAsTimer) timerRunning else entity.state == "on"
     val isUnavailable = entity.state.equals("unavailable", ignoreCase = true)
     val domain = entity.entity_id.substringBefore(".")
     val isLockDoorOpen = doorOpen && domain == "lock"
@@ -260,7 +265,12 @@ fun EntityCard(
     val attributeText = stateAttribute
         ?.let { entityAttributeDisplay(entity, it) }
         ?.let { appendUnit(it, stateUnit) }
-    val statusText = attributeText ?: run {
+    val statusText = when {
+        // Timer mode: countdown while running, plain "Off" once it reaches zero.
+        timerRunning -> timerText!!
+        stateAsTimer -> "Off"
+        else -> attributeText
+    } ?: run {
         val brightnessPercent = (
             if (brightnessVisible) localBrightness * 100f
             else (entity.brightness ?: 0) / 255f * 100f

@@ -3175,6 +3175,7 @@ fun ButtonConfigDialog(
     var name by remember(config) { mutableStateOf(config.name ?: entity?.friendlyName ?: entity?.entity_id ?: "") }
     var stateAttribute by remember(config) { mutableStateOf(config.stateAttribute) }
     var stateUnit by remember(config) { mutableStateOf(config.stateUnit) }
+    var stateAsTimer by remember(config) { mutableStateOf(config.stateAsTimer) }
     var cameraUrl by remember(config) { mutableStateOf(config.cameraUrl ?: "") }
     var refreshInterval by remember(config) { mutableIntStateOf(config.cameraRefreshInterval) }
     var iconName by remember(config) { mutableStateOf(config.icon ?: "None") }
@@ -3307,6 +3308,17 @@ fun ButtonConfigDialog(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                        }
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text("Countdown timer", style = MaterialTheme.typography.labelLarge)
+                                Text(
+                                    "When the value is a completion time (e.g. a washer/dryer finish time), show a descending timer. The button reads active while counting and turns off at zero.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Switch(checked = stateAsTimer, onCheckedChange = { stateAsTimer = it })
                         }
                         if (stateAttribute != null) {
                             Text("Unit", style = MaterialTheme.typography.labelLarge)
@@ -3586,6 +3598,7 @@ fun ButtonConfigDialog(
                             name = name.ifBlank { null },
                             stateAttribute = if (isCameraItem || isVacuumItem) config.stateAttribute else stateAttribute,
                             stateUnit = if (isCameraItem || isVacuumItem) config.stateUnit else stateUnit,
+                            stateAsTimer = if (isCameraItem || isVacuumItem) config.stateAsTimer else stateAsTimer,
                             icon = if (isCameraItem || isVacuumItem) config.icon else iconName.takeUnless { it == "None" },
                             iconAnimation = iconAnimation,
                             showBrightnessSlider = if (isLightEntity) showBrightnessSlider else false,
@@ -4731,6 +4744,7 @@ fun ButtonStackItem(
                                 entity = entity,
                                 displayName = cfg?.name,
                                 stateAttribute = cfg?.stateAttribute,
+                                stateAsTimer = cfg?.stateAsTimer ?: false,
                                 iconName = cfg?.icon,
                                 iconAnimation = cfg?.iconAnimation ?: "auto",
                                 onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
@@ -4817,6 +4831,7 @@ fun ButtonStackItem(
                                         entity = entity,
                                         displayName = cfg?.name,
                                         stateAttribute = cfg?.stateAttribute,
+                                        stateAsTimer = cfg?.stateAsTimer ?: false,
                                         iconName = cfg?.icon,
                                         iconAnimation = cfg?.iconAnimation ?: "auto",
                                         onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
@@ -4858,6 +4873,7 @@ fun ButtonStackItem(
                                         entity = entity,
                                         displayName = buttonConfigs[entity.entity_id]?.name,
                                         stateAttribute = buttonConfigs[entity.entity_id]?.stateAttribute,
+                                        stateAsTimer = buttonConfigs[entity.entity_id]?.stateAsTimer ?: false,
                                         iconName = buttonConfigs[entity.entity_id]?.icon,
                                         iconAnimation = buttonConfigs[entity.entity_id]?.iconAnimation ?: "auto",
                                         onClick = { onEntityClick(entity.entity_id) },
@@ -5025,6 +5041,7 @@ fun SingleEntityWidgetItem(
                         entity = entity,
                         displayName = widget.config.name,
                         stateAttribute = widget.config.stateAttribute,
+                        stateAsTimer = widget.config.stateAsTimer,
                         iconName = widget.config.icon,
                         iconAnimation = widget.config.iconAnimation,
                         onClick = { handleSingleButtonInteraction("tap") { onEntityClick(widget.entityId) } },

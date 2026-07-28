@@ -698,6 +698,14 @@ private fun BadgeItem(
     val attributeText = badge.stateAttribute
         ?.let { attr -> entity?.let { entityAttributeDisplay(it, attr) } }
         ?.let { appendUnit(it, badge.stateUnit) }
+    // Timer mode: interpret the shown value (attribute if set, else the state) as a completion
+    // timestamp and render a live countdown. Falls back to the raw value if it isn't a timestamp.
+    val timerSource = if (badge.stateAsTimer) {
+        badge.stateAttribute?.let { attr -> entity?.let { entityAttributeDisplay(it, attr) } } ?: entity?.state
+    } else null
+    val rawTimer = if (badge.stateAsTimer) rememberCountdownText(timerSource) else null
+    // While counting show the countdown; once finished (or the value isn't a timestamp) show "Off".
+    val timerText = if (badge.stateAsTimer) (rawTimer?.takeIf { it != "Done" } ?: "Off") else null
 
     // Outer Box: badge content + edit-mode overlays
     Box {
@@ -761,7 +769,7 @@ private fun BadgeItem(
                                 overflow = TextOverflow.Ellipsis
                             )
                             Text(
-                                if (isDoorOpen) "Open" else (attributeText ?: formatBadgeState(entity)),
+                                timerText ?: if (isDoorOpen) "Open" else (attributeText ?: formatBadgeState(entity)),
                                 color = colors.content,
                                 style = MaterialTheme.typography.labelSmall,
                                 fontSize = 10.sp,
@@ -783,7 +791,7 @@ private fun BadgeItem(
                             )
                         }
                         if (badge.showState && entity != null) {
-                            val stateText = if (isDoorOpen) "Open" else (attributeText ?: formatBadgeState(entity))
+                            val stateText = timerText ?: if (isDoorOpen) "Open" else (attributeText ?: formatBadgeState(entity))
                             if ((badge.showIcon || badge.showName) && stateText.isNotEmpty()) Spacer(Modifier.width(4.dp))
                             Text(
                                 stateText,
@@ -837,6 +845,14 @@ private fun badgeStateColors(badge: HKIBadge, entities: List<HAEntity>, allEntit
     val activeFg = MaterialTheme.colorScheme.onPrimary
     val defaultActive = BadgeColors(activeBg, activeFg, activeFg)
     if (entities.isEmpty()) return BadgeColors(offBg, offFg, offFg)
+
+    // Timer mode: active while the completion timestamp is in the future, off once it passes. The
+    // ticking countdown recomposes the badge every second, so this flips to off exactly at zero.
+    if (badge.stateAsTimer) {
+        val value = badge.stateAttribute?.let { attr -> entities.first().let { entityAttributeDisplay(it, attr) } } ?: entities.first().state
+        val running = parseTimestampToInstant(value)?.isAfter(java.time.Instant.now()) == true
+        return if (running) defaultActive else BadgeColors(offBg, offFg, offFg)
+    }
 
     // ── Multi-entity lock: aggregate with per-lock door sensors (worst state wins) ──
     if (entities.size > 1 && entities.all { it.entity_id.startsWith("lock.") }) {
@@ -1060,6 +1076,7 @@ fun BadgeSettingsDialog(
     var showState   by remember { mutableStateOf(badge.showState) }
     var stateAttribute by remember { mutableStateOf(badge.stateAttribute) }
     var stateUnit by remember { mutableStateOf(badge.stateUnit) }
+    var stateAsTimer by remember { mutableStateOf(badge.stateAsTimer) }
     var showIcon    by remember { mutableStateOf(badge.showIcon) }
     var customIcon  by remember { mutableStateOf(badge.customIcon ?: "") }
     var iconAnimation by remember { mutableStateOf(badge.iconAnimation) }
@@ -1307,6 +1324,16 @@ fun BadgeSettingsDialog(
                                 }
                             }
                         }
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text("Countdown timer", style = MaterialTheme.typography.labelLarge)
+                                Text(
+                                    "Show a descending timer when the value is a completion time (e.g. a washer/dryer finish time).",
+                                    style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
+                                )
+                            }
+                            Switch(checked = stateAsTimer, onCheckedChange = { stateAsTimer = it })
+                        }
                     }
                 }
 
@@ -1403,6 +1430,7 @@ fun BadgeSettingsDialog(
                     showState  = showState,
                     stateAttribute = stateAttribute,
                     stateUnit  = stateUnit,
+                    stateAsTimer = stateAsTimer,
                     showIcon   = showIcon,
                     customIcon = customIcon.ifBlank { null },
                     iconAnimation = iconAnimation,

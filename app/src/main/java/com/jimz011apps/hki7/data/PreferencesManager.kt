@@ -161,6 +161,8 @@ class PreferencesManager(
     private val aqiEntityKey = stringPreferencesKey("aqi_entity_id")
     private val seasonEntityKey = stringPreferencesKey("season_entity_id")
     private val rainEntityKey = stringPreferencesKey("rain_entity_id")
+    private val rainMapEntityKey = stringPreferencesKey("weather_rainmap_entity_id")
+    private val rainMapUrlKey = stringPreferencesKey("weather_rainmap_url")
     private val weatherDeviceKey = stringPreferencesKey("weather_device_id")
     private val weatherCardWidthsKey = stringPreferencesKey("weather_card_widths")
     private val alarmEntityKey = stringPreferencesKey("header_alarm_entity_id")
@@ -358,6 +360,9 @@ class PreferencesManager(
     val aqiEntityId: Flow<String?> = context.dataStore.data.map { it[aqiEntityKey] }
     val seasonEntityId: Flow<String?> = context.dataStore.data.map { it[seasonEntityKey] ?: "sensor.season" }
     val rainEntityId: Flow<String?> = context.dataStore.data.map { it[rainEntityKey] }
+    /** Optional camera entity + web (iframe) URL shown as the weather dialog's rain-map card. */
+    val rainMapEntityId: Flow<String?> = context.dataStore.data.map { it[rainMapEntityKey] }
+    val rainMapUrl: Flow<String?> = context.dataStore.data.map { it[rainMapUrlKey] }
     /** HA device from which the weather page's role entities were filled automatically. */
     val weatherDeviceId: Flow<String?> = context.dataStore.data.map { it[weatherDeviceKey] }
     /** Widths for the cards in the global weather dialog: "third", "half", or "full". */
@@ -1512,6 +1517,8 @@ class PreferencesManager(
                 "aqi" -> aqiEntityKey
                 "season" -> seasonEntityKey
                 "rain" -> rainEntityKey
+                "rainmap" -> rainMapEntityKey
+                "rainmap_url" -> rainMapUrlKey
                 "device" -> weatherDeviceKey
                 else -> return@edit
             }

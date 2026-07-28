@@ -116,4 +116,5 @@ private fun mergeButtonConfig(incoming: HKIButtonConfig, local: HKIButtonConfig)
         iconAnimation = local.iconAnimation,
         stateAttribute = local.stateAttribute,
         stateUnit = local.stateUnit,
+        stateAsTimer = local.stateAsTimer,
     )

@@ -621,6 +621,9 @@ data class HKIBadge(
     val stateAttribute: String? = null,
     /** Optional unit suffix appended to the shown attribute value (e.g. "°C", "%", "W", "kW"). */
     val stateUnit: String? = null,
+    /** Renders the shown value (state or attribute) as a live descending countdown, for entities
+     *  whose value is a completion timestamp (washer/dryer/dishwasher "finished at" time). */
+    val stateAsTimer: Boolean = false,
     val showIcon: Boolean = true,
     val customIcon: String? = null,
     // Per-icon animation override: "auto" (follow the global setting + domain default), "off",
@@ -933,6 +936,9 @@ data class HKIButtonConfig(
     val stateAttribute: String? = null,
     /** Optional unit suffix appended to the shown attribute value (e.g. "°C", "%", "W", "kW"). */
     val stateUnit: String? = null,
+    /** Renders the shown value (state or attribute) as a live descending countdown, for entities
+     *  whose value is a completion timestamp (washer/dryer/dishwasher "finished at" time). */
+    val stateAsTimer: Boolean = false,
     /** Per-item visibility inside a multi-item widget. [hidden] hides it until unhidden. When
      * [visibilityStart]/[visibilityEnd] (ISO-8601 local date-time, e.g. "2026-12-24T00:00") are set,
      * [visibilityRangeMode] decides whether that window is when the item is shown ("show") or hidden

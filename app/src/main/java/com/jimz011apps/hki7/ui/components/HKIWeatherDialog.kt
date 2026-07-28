@@ -1144,6 +1144,7 @@ fun WeatherConfigView(
             "aqi" -> { e -> e.entity_id.contains("aqi") || e.entity_id.startsWith("sensor.") }
             "season" -> { e -> e.entity_id.contains("season") || e.entity_id.startsWith("sensor.") }
             "rain" -> { e -> e.entity_id.contains("rain") || e.entity_id.contains("precipitation") || e.entity_id.startsWith("sensor.") }
+            "rainmap" -> { e -> e.entity_id.startsWith("camera.") }
             "alarm" -> { e -> e.entity_id.startsWith("alarm_control_panel.") }
             else -> { _ -> true }
         }
