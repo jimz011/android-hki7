@@ -253,7 +253,9 @@ private fun WasteCollectionCard(
     val appColors = LocalHKIAppColors.current
     val next = categories.firstOrNull { it.date != null }
     val nextDate = next?.date
-    val nextNames = categories.filter { it.date != null && it.date == nextDate }.joinToString(" · ") { it.name }
+    // Every fraction collected on the soonest upcoming day — shown as overlapping icons when > 1.
+    val todays = categories.filter { it.date != null && it.date == nextDate }
+    val nextNames = todays.joinToString(" · ") { it.name }
     val accent = next?.let { wasteCategoryColor(it.name) } ?: appColors.onMuted
     val stateText = when {
         widget.entityIds.isEmpty() -> "No waste sensors selected"
@@ -275,6 +277,13 @@ private fun WasteCollectionCard(
             // A configured background image replaces the default artwork.
             if (!widget.backgroundUrl.isNullOrBlank()) {
                 WidgetBackground(widget.backgroundUrl, currentUrl)
+            } else if (todays.size > 1) {
+                // Multiple fractions on the same day: overlap their icons, like the Parcels widget.
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Row(horizontalArrangement = Arrangement.spacedBy((-16).dp), verticalAlignment = Alignment.CenterVertically) {
+                        todays.take(4).forEach { WasteFractionBadge(it, widget.imageStyle == "picture", currentUrl, 68) }
+                    }
+                }
             } else {
                 // Artwork: the upcoming fraction's entity_picture, or its type icon.
                 val picture = if (widget.imageStyle == "picture") next?.entity?.let { wasteEntityPicture(it, currentUrl) } else null
@@ -321,6 +330,29 @@ private fun WasteCollectionCard(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+/** One overlapping fraction badge for a same-day collection: the entity picture (when using picture
+ * artwork) on a white tile, otherwise the fraction's coloured type icon. Mirrors the Parcels widget's
+ * carrier logos so multiple collections on one day read at a glance. */
+@Composable
+private fun WasteFractionBadge(category: WasteCategory, usePicture: Boolean, currentUrl: String, size: Int) {
+    val color = wasteCategoryColor(category.name)
+    val picture = if (usePicture) category.entity?.let { wasteEntityPicture(it, currentUrl) } else null
+    Surface(
+        shape = RoundedCornerShape((size / 4).dp),
+        color = if (picture != null) Color.White else color.copy(alpha = 0.18f),
+        shadowElevation = 3.dp,
+        modifier = Modifier.size(size.dp)
+    ) {
+        if (picture != null) {
+            AsyncImage(picture, category.name, Modifier.fillMaxSize().padding((size / 10).dp), contentScale = ContentScale.Fit)
+        } else {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                MdiIcon(wasteCategoryIcon(category.name), tint = color, size = (size / 2).dp)
             }
         }
     }
