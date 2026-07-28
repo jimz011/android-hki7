@@ -304,6 +304,12 @@ data class HAEntityRegistryEntry(
     val unique_id: String? = null,
     /** Unit recorded in the entity registry. May be null on older Home Assistant versions. */
     val unit_of_measurement: String? = null,
+    /** The user's explicit icon override, stored in the registry rather than the entity state.
+     * Home Assistant only exposes this here (state attributes carry an `icon` only for
+     * customize:-based overrides), so it must be merged in to honour icons set in HA. */
+    val icon: String? = null,
+    /** The integration-provided default icon (HA's fallback when there is no user override). */
+    val original_icon: String? = null,
     /** "config" | "diagnostic" | null (= primary control/sensor). */
     val entity_category: String? = null,
     val disabled_by: String? = null,

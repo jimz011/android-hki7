@@ -784,7 +784,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         MutableStateFlow(_entitiesById.value.values.filter(predicate))
 
     private fun publishEntities(value: List<HAEntity>) {
-        val profiled = value.map(::applyProfileOverride)
+        val profiled = value.map(::applyProfileOverride).map(::applyRegistryIcon)
         val alarmIds = profiled.asSequence()
             .map { it.entity_id }
             .filter { it.startsWith("alarm_control_panel.") }
@@ -828,6 +828,30 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 ?.let { put("birthday", JsonPrimitive(it)) }
         }
         return entity.copy(attributes = attributes)
+    }
+
+    /** Surfaces the entity registry's icon override (which HA does not put in state attributes) as the
+     * `icon` attribute, so [defaultEntityIconSlug] and every badge/button honour the icon set in Home
+     * Assistant for all domains. A customize:-based `icon` attribute, when present, is left untouched. */
+    private fun applyRegistryIcon(entity: HAEntity): HAEntity {
+        if (registryIconById.isEmpty()) return entity
+        val existing = entity.attributes?.get("icon")?.jsonPrimitive?.contentOrNull
+        if (!existing.isNullOrBlank()) return entity
+        val regIcon = registryIconById[entity.entity_id] ?: return entity
+        val merged = buildJsonObject {
+            entity.attributes?.forEach { (key, value) -> put(key, value) }
+            put("icon", JsonPrimitive(regIcon))
+        }
+        return entity.copy(attributes = merged)
+    }
+
+    /** Rebuilds the entity-registry icon lookup and re-publishes entities so the override is applied
+     * even when the registry loads after the first state batch. */
+    private fun refreshRegistryIcons() {
+        registryIconById = _entityRegistry.value
+            .mapNotNull { e -> e.icon?.takeIf { it.isNotBlank() }?.let { e.entity_id to it } }
+            .toMap()
+        if (_entities.value.isNotEmpty()) publishEntities(_entities.value)
     }
 
     private val _areas = MutableStateFlow<List<HAArea>>(emptyList())
@@ -980,6 +1004,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     // Entity/device registries, fetched on demand (used by the energy view's inverter device picker).
     private val _entityRegistry = MutableStateFlow<List<HAEntityRegistryEntry>>(emptyList())
     val entityRegistry: StateFlow<List<HAEntityRegistryEntry>> = _entityRegistry
+    // entity_id -> HA-configured icon override from the entity registry (e.g. "mdi:washing-machine").
+    // Merged into entity state attributes in publishEntities so every button/badge honours the icon
+    // set in Home Assistant, for all domains — not just the ones with a name-based default.
+    @Volatile private var registryIconById: Map<String, String> = emptyMap()
     private val _deviceRegistry = MutableStateFlow<List<HADeviceRegistryEntry>>(emptyList())
     val deviceRegistry: StateFlow<List<HADeviceRegistryEntry>> = _deviceRegistry
     private val _adaptiveLightingOptionsForms = MutableStateFlow<Map<String, JsonObject>>(emptyMap())
@@ -1347,6 +1375,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         }
         viewModelScope.launch {
             prefs.enforcedAestheticsOnly.collect { _aestheticsOnlyEditing.value = it }
+        }
+        viewModelScope.launch {
+            _entityRegistry.collect { refreshRegistryIcons() }
         }
         networkMonitor?.let { monitor ->
             viewModelScope.launch {
