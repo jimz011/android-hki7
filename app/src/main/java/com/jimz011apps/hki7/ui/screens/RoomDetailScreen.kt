@@ -5911,7 +5911,8 @@ private fun CameraStackCard(
             Surface(
                 modifier = Modifier.align(Alignment.BottomStart).padding(10.dp),
                 color = Color.Black.copy(alpha = 0.55f),
-                shape = RoundedCornerShape(14.dp)
+                // Match the name/state pill on the vacuum/waste/parcel widgets (global item corner).
+                shape = itemCornerShape()
             ) {
                 Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
                     Text(source.label, color = Color.White, style = MaterialTheme.typography.labelMedium)

@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toUri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -1936,12 +1937,23 @@ fun SettingsDialog(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
-                                Image(
-                                    painter = painterResource(R.drawable.hki_logo_round),
-                                    contentDescription = "HKI 7 logo",
-                                    modifier = Modifier.size(96.dp),
-                                    contentScale = ContentScale.Fit
-                                )
+                                // The current app logo — the adaptive launcher icon composed as a
+                                // rounded tile (blue gradient background + the house/7/HKI foreground),
+                                // replacing the older standalone hki_logo_round artwork.
+                                Box(
+                                    modifier = Modifier
+                                        .size(96.dp)
+                                        .clip(RoundedCornerShape(22.dp))
+                                        .background(Brush.linearGradient(listOf(Color(0xFF2B72D4), Color(0xFF123A96)))),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Image(
+                                        painter = painterResource(R.drawable.ic_launcher_foreground),
+                                        contentDescription = "HKI 7 logo",
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Fit
+                                    )
+                                }
                                 Text(
                                     "HKI 7",
                                     color = appColors.onSurface,

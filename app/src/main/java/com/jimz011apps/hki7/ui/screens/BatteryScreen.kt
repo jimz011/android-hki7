@@ -618,8 +618,9 @@ fun BatteryCardWidgetItem(
                     WidgetBackground(widget.backgroundUrl, currentUrl)
                 } else {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        // Rounded-square tile matching the Parcels/Waste widget artwork, not a circle.
                         Box(
-                            Modifier.size(84.dp).background(accent.copy(alpha = 0.14f), CircleShape),
+                            Modifier.size(84.dp).background(accent.copy(alpha = 0.16f), RoundedCornerShape(21.dp)),
                             contentAlignment = Alignment.Center
                         ) {
                             MdiIcon(widget.icon ?: "battery-heart", tint = accent, size = 44.dp)

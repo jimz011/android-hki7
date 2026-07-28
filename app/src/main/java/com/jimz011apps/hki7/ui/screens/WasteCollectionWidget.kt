@@ -291,8 +291,9 @@ private fun WasteCollectionCard(
                     AsyncImage(picture, next?.name, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                 } else {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        // Rounded-square tile, matching the overlapping multi-fraction badges above.
                         Box(
-                            Modifier.size(84.dp).background(accent.copy(alpha = 0.14f), CircleShape),
+                            Modifier.size(84.dp).background(accent.copy(alpha = 0.16f), RoundedCornerShape(21.dp)),
                             contentAlignment = Alignment.Center
                         ) {
                             MdiIcon(next?.let { wasteCategoryIcon(it.name) } ?: widget.icon ?: "trash-can-outline", tint = accent, size = 44.dp)
