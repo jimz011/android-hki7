@@ -3700,6 +3700,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val ctx = appContext ?: return
         if (sharedSyncJob?.isActive == true) return
         sharedSyncJob = viewModelScope.launch(Dispatchers.IO) {
+            // Owner side: push this user's local edits to any dashboards they've shared, so recipients
+            // pick them up. Runs first so a recipient's pull below sees the freshest content.
+            runCatching { HaDashboardSharing.pushOwnedUpdates(ctx, prefs) }
             val result = runCatching { HaDashboardSharing.syncUpdates(ctx, prefs) }.getOrNull() ?: return@launch
             if (result.needsAutoGenerate) {
                 // Every dashboard this user had was an unpublished shared one; fall back to the app's

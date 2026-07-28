@@ -92,4 +92,31 @@ object HaDashboardSharing {
 
     /** Deletes a published dashboard from the cloud (admin only). Alias of [unpublish] for clarity. */
     suspend fun delete(context: Context, sharedId: String): Boolean = unpublish(context, sharedId)
+
+    /** Re-publishes every dashboard the current user owns and has shared, so recipients pick up the
+     * owner's latest edits. Only dashboards whose local content actually changed are pushed (their
+     * recipient list is preserved), so unchanged dashboards don't needlessly bump their timestamp or
+     * trigger re-merges. Returns the number pushed, or 0 if the component is unreachable. */
+    suspend fun pushOwnedUpdates(context: Context, prefs: PreferencesManager): Int {
+        val me = Hki7Endpoint.withClient(context) { it.hki7WhoAmI() } ?: return 0
+        val shared = Hki7Endpoint.withClient(context) { it.hki7ListSharedDashboards() } ?: return 0
+        val localById = prefs.dashboards.first().associateBy { it.id }
+        var pushed = 0
+        for (meta in shared) {
+            if (meta.ownerId != me.userId) continue
+            val local = localById[meta.id] ?: continue
+            val currentRaw = prefs.exportDashboard(meta.id) ?: continue
+            val currentJson = runCatching { json.parseToJsonElement(currentRaw) }.getOrNull() as? JsonObject ?: continue
+            // Skip when the cloud copy already matches the local content (structural comparison, so
+            // formatting differences from the round-trip don't cause a spurious push).
+            val cloudRaw = Hki7Endpoint.withClient(context) { it.hki7GetDashboard(meta.id) }
+            val cloudJson = cloudRaw?.let { runCatching { json.parseToJsonElement(it) }.getOrNull() }
+            if (cloudJson != null && cloudJson == currentJson) continue
+            val result = Hki7Endpoint.withClient(context) { client ->
+                client.hki7PublishDashboard(local.name, currentJson, meta.sharedWith, meta.id)
+            }
+            if (result != null) pushed++
+        }
+        return pushed
+    }
 }

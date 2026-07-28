@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BatterySaver
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -177,6 +178,18 @@ private fun relativeBackupTime(epochMillis: Long): String {
     return DateUtils.getRelativeTimeSpanString(
         epochMillis, now, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE
     ).toString().replaceFirstChar { it.lowercase() }
+}
+
+/** Formats a shared-dashboard "updated" timestamp (stored by the component as a UTC ISO-8601 string,
+ * e.g. "2026-07-29T11:38:01+00:00") in the device's local time zone, so it matches the wall clock —
+ * the previous raw first-19-chars display always showed UTC, off by the local offset (incl. DST). */
+private fun formatSharedUpdated(iso: String): String {
+    if (iso.isBlank()) return ""
+    return runCatching {
+        java.time.OffsetDateTime.parse(iso)
+            .atZoneSameInstant(java.time.ZoneId.systemDefault())
+            .format(java.time.format.DateTimeFormatter.ofPattern("d MMM yyyy, HH:mm"))
+    }.getOrElse { iso.take(19).replace('T', ' ') }
 }
 
 private fun sectionTitle(section: SettingsSection): String = when (section) {
@@ -1374,7 +1387,7 @@ fun SettingsDialog(
                                             Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                                                 Column(Modifier.weight(1f)) {
                                                     Text(meta.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
-                                                    val updated = meta.updated.take(19).replace('T', ' ')
+                                                    val updated = formatSharedUpdated(meta.updated)
                                                     Text(
                                                         if (updated.isNotBlank()) "Updated $updated" else "Shared dashboard",
                                                         color = appColors.onMuted,
@@ -1492,7 +1505,7 @@ fun SettingsDialog(
                                                     Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                                                         Column(Modifier.weight(1f)) {
                                                             Text(meta.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
-                                                            val updated = meta.updated.take(19).replace('T', ' ')
+                                                            val updated = formatSharedUpdated(meta.updated)
                                                             Text(
                                                                 if (updated.isNotBlank()) "Updated $updated" else "Shared dashboard",
                                                                 color = appColors.onMuted,
@@ -1654,17 +1667,37 @@ fun SettingsDialog(
                                                 Text("Nothing is shared yet.", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
                                             } else {
                                                 Text(
-                                                    "These are stored in the cloud. Import one to edit or re-share it, or delete it to remove it from everyone.",
+                                                    "These are stored in the cloud. Import one to edit or re-share it, or delete it to remove it from everyone. Your edits are also pushed automatically when you open the app.",
                                                     color = appColors.onMuted,
                                                     style = MaterialTheme.typography.bodySmall
                                                 )
+                                                Button(
+                                                    enabled = !shareBusy,
+                                                    onClick = {
+                                                        shareBusy = true
+                                                        scope.launch {
+                                                            val pushed = runCatching { HaDashboardSharing.pushOwnedUpdates(context, prefs) }.getOrDefault(0)
+                                                            sharedWithMe = runCatching { HaDashboardSharing.listSharedForMe(context) }.getOrDefault(sharedWithMe)
+                                                            setupChangedMessage = when {
+                                                                pushed > 0 -> "Pushed changes to $pushed shared dashboard${if (pushed == 1) "" else "s"}."
+                                                                else -> "Shared dashboards are already up to date."
+                                                            }
+                                                            shareBusy = false
+                                                        }
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                ) {
+                                                    Icon(Icons.Default.CloudUpload, null)
+                                                    Spacer(Modifier.width(8.dp))
+                                                    Text(if (shareBusy) "Pushing…" else "Push my changes now")
+                                                }
                                             }
                                             sharedWithMe.forEach { meta ->
                                                 Surface(Modifier.fillMaxWidth(), shape = itemCornerShape(), color = appColors.subtleSurface) {
                                                     Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                                                         Column(Modifier.weight(1f)) {
                                                             Text(meta.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
-                                                            val updated = meta.updated.take(19).replace('T', ' ')
+                                                            val updated = formatSharedUpdated(meta.updated)
                                                             Text(
                                                                 if (updated.isNotBlank()) "Updated $updated" else "Shared dashboard",
                                                                 color = appColors.onMuted,
