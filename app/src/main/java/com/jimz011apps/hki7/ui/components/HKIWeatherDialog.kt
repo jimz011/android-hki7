@@ -2,6 +2,7 @@ package com.jimz011apps.hki7.ui.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -57,8 +58,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -70,6 +75,7 @@ import com.jimz011apps.hki7.ui.screens.HourlyForecastCard
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.floatOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import java.time.LocalDateTime
 import java.time.LocalDate
@@ -88,6 +94,7 @@ private val defaultWeatherCardWidths = mapOf(
     "season" to "half",
     "aqi" to "half",
     "rain" to "half",
+    "wind" to "half",
     "stats" to "half"
 )
 
@@ -172,6 +179,10 @@ fun HKIWeatherDialog(
         )
     }
     val (sun, moon, aqi, season, rain) = roleEntities
+    val rainMapCamera = extraEntities["rainmap"]?.let { id -> allEntities.find { it.entity_id == id } }
+    val rainMapUrl = extraEntities["rainmap_url"]?.takeIf { it.isNotBlank() }
+    val currentUrl by viewModel.currentUrl.collectAsState()
+    val accessToken by viewModel.accessToken.collectAsState()
 
     if (isEditMode) {
         ModernSettingsDialogFrame(
@@ -233,7 +244,11 @@ fun HKIWeatherDialog(
             item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("season"))) }) { SeasonCard(season) }
             item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("aqi"))) }) { AqiCard(aqi) }
             item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("rain"))) }) { RainCard(rain) }
+            item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("wind"))) }) { WindCard(weather) }
             item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("stats"))) }) { StatsCard(weather) }
+            if (rainMapCamera != null || rainMapUrl != null) {
+                item(span = { GridItemSpan(6) }) { RainMapCard(rainMapCamera, rainMapUrl, currentUrl) }
+            }
         }
     }
 }
@@ -455,6 +470,13 @@ fun MoonCard(moon: HAEntity?) {
 @Composable
 fun SeasonCard(season: HAEntity?) {
     var showMeteorological by remember(season?.entity_id) { mutableStateOf(false) }
+    // Autoplay: gently flip between the astronomical and meteorological face every 3 seconds.
+    LaunchedEffect(season?.entity_id) {
+        while (true) {
+            kotlinx.coroutines.delay(3000)
+            showMeteorological = !showMeteorological
+        }
+    }
     val rotation by animateFloatAsState(
         targetValue = if (showMeteorological) 180f else 0f,
         animationSpec = tween(durationMillis = 420),
@@ -712,6 +734,131 @@ fun StatsCard(weather: HAEntity) {
     }
 }
 
+private fun cardinalFromBearing(deg: Float): String {
+    val dirs = listOf("N", "NE", "E", "SE", "S", "SW", "W", "NW")
+    val idx = (((deg % 360f) + 360f) % 360f / 45f).let { Math.round(it) } % 8
+    return dirs[idx]
+}
+
+/** Wind card: a compass windrose with an arrow showing the direction the wind blows from, plus speed. */
+@Composable
+fun WindCard(weather: HAEntity) {
+    val appColors = LocalHKIAppColors.current
+    val accent = Color(0xFF4FC3F7)
+    val bearing = weather.attributes?.get("wind_bearing")?.jsonPrimitive?.floatOrNull
+    val speed = weather.windSpeed
+    val unit = weather.attributes?.get("wind_speed_unit")?.jsonPrimitive?.contentOrNull ?: "km/h"
+    val cardinal = bearing?.let { cardinalFromBearing(it) }
+    val onSurface = appColors.onSurface
+    val muted = appColors.onMuted
+    Card(
+        modifier = Modifier.fillMaxWidth().height(150.dp),
+        shape = itemCornerShape(),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+    ) {
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Brush.linearGradient(listOf(accent.copy(alpha = 0.22f), appColors.elevated.copy(alpha = 0.96f))))
+        ) {
+            val compact = maxWidth < 160.dp
+            Column(
+                modifier = Modifier.fillMaxSize().padding(if (compact) 12.dp else 16.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Wind", style = MaterialTheme.typography.labelLarge, color = muted)
+                    Box(
+                        modifier = Modifier.size(34.dp).background(accent.copy(alpha = 0.16f), itemCornerShape()),
+                        contentAlignment = Alignment.Center
+                    ) { Icon(Icons.Default.Air, null, tint = accent, modifier = Modifier.size(19.dp)) }
+                }
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Canvas(modifier = Modifier.size(if (compact) 58.dp else 66.dp)) {
+                        val r = size.minDimension / 2f
+                        val c = Offset(size.width / 2f, size.height / 2f)
+                        drawCircle(color = muted.copy(alpha = 0.28f), radius = r, center = c, style = Stroke(width = 2f))
+                        // N/E/S/W ticks
+                        listOf(0f, 90f, 180f, 270f).forEach { a ->
+                            val rad = Math.toRadians((a - 90).toDouble())
+                            val outer = Offset(c.x + (r) * kotlin.math.cos(rad).toFloat(), c.y + (r) * kotlin.math.sin(rad).toFloat())
+                            val inner = Offset(c.x + (r - 6f) * kotlin.math.cos(rad).toFloat(), c.y + (r - 6f) * kotlin.math.sin(rad).toFloat())
+                            drawLine(muted.copy(alpha = 0.5f), inner, outer, strokeWidth = 2f)
+                        }
+                        if (bearing != null) {
+                            // Arrow points FROM the origin bearing toward the centre (incoming wind).
+                            rotate(degrees = bearing, pivot = c) {
+                                val tip = Offset(c.x, c.y - r + 3f)
+                                val baseL = Offset(c.x - r * 0.18f, c.y - r * 0.25f)
+                                val baseR = Offset(c.x + r * 0.18f, c.y - r * 0.25f)
+                                val path = Path().apply { moveTo(tip.x, tip.y); lineTo(baseL.x, baseL.y); lineTo(baseR.x, baseR.y); close() }
+                                drawPath(path, accent)
+                                drawLine(accent, Offset(c.x, c.y - r * 0.25f), Offset(c.x, c.y + r * 0.55f), strokeWidth = 3f)
+                            }
+                        }
+                    }
+                    Column(verticalArrangement = Arrangement.Center) {
+                        Text(
+                            speed?.let { "${it.toInt()} $unit" } ?: "--",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = onSurface, fontWeight = FontWeight.SemiBold, maxLines = 1
+                        )
+                        Text(
+                            cardinal?.let { "From $it" } ?: "Direction —",
+                            color = muted, style = MaterialTheme.typography.labelSmall, maxLines = 1
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Rain/radar map card: renders a camera stream or an embedded web page (iframe) in a WebView. */
+@Composable
+fun RainMapCard(camera: HAEntity?, iframeUrl: String?, currentUrl: String) {
+    val appColors = LocalHKIAppColors.current
+    val url = when {
+        camera != null -> resolveEntityCameraUrl(camera, currentUrl, preferLive = true)
+        else -> iframeUrl?.trim()
+    }?.takeIf { it.isNotBlank() } ?: return
+    var webView by remember { mutableStateOf<android.webkit.WebView?>(null) }
+    WebViewLifecyclePause { webView }
+    Card(
+        modifier = Modifier.fillMaxWidth().height(240.dp),
+        shape = itemCornerShape(),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+    ) {
+        Column(Modifier.fillMaxSize().background(appColors.elevated.copy(alpha = 0.96f))) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Rain map", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
+                Icon(Icons.Default.CloudQueue, null, tint = Color(0xFF4FC3F7), modifier = Modifier.size(19.dp))
+            }
+            androidx.compose.ui.viewinterop.AndroidView(
+                factory = { ctx ->
+                    android.webkit.WebView(ctx).apply {
+                        settings.javaScriptEnabled = true
+                        settings.domStorageEnabled = true
+                        settings.mediaPlaybackRequiresUserGesture = false
+                        settings.useWideViewPort = true
+                        settings.loadWithOverviewMode = true
+                        webViewClient = android.webkit.WebViewClient()
+                        loadUrl(url)
+                        webView = this
+                    }
+                },
+                update = { if (it.url != url) it.loadUrl(url) },
+                onRelease = { it.teardownStream() },
+                modifier = Modifier.fillMaxWidth().weight(1f)
+            )
+        }
+    }
+}
+
 @Composable
 private fun WeatherInfoCard(
     title: String,
@@ -876,7 +1023,6 @@ fun WeatherConfigView(
                     tabs = buildList {
                         add("display" to "Display")
                         if (currentDisplayType in listOf("Weather", "DateTime", "Alarm")) add("entities" to "Entities")
-                        if (currentDisplayType in listOf("Weather", "DateTime")) add("layout" to "Dialog layout")
                     },
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
@@ -930,29 +1076,25 @@ fun WeatherConfigView(
                     WeatherEntityRow("Season", extraEntities["season"]) { selectingForRole = "season" }
                     WeatherEntityRow("Rain", extraEntities["rain"]) { selectingForRole = "rain" }
                 }
-            }
-
-            if (settingsPage == "layout" && currentDisplayType in listOf("Weather", "DateTime")) item {
-                SettingsSubcategory("Weather dialog cards", "Choose how much horizontal space each card uses")
+                Spacer(Modifier.height(16.dp))
+                SettingsSubcategory("Rain map", "Show a live radar/rain map card — a camera entity or an embedded web page (iframe)")
                 Spacer(Modifier.height(8.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    listOf(
-                        "current" to "Current weather",
-                        "forecast" to "Forecast",
-                        "hourly" to "Hourly forecast",
-                        "horizon" to "Sun horizon",
-                        "moon" to "Moon",
-                        "season" to "Astronomical season",
-                        "aqi" to "Air quality",
-                        "rain" to "Rain",
-                        "stats" to "Weather details"
-                    ).forEach { (key, label) ->
-                        WeatherCardWidthRow(
-                            label = label,
-                            width = cardWidths.getValue(key),
-                            onWidthChange = { viewModel.setWeatherCardWidth(key, it) }
-                        )
-                    }
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    WeatherEntityRow("Rain map camera", extraEntities["rainmap"]) { selectingForRole = "rainmap" }
+                    var rainUrl by remember(extraEntities["rainmap_url"]) { mutableStateOf(extraEntities["rainmap_url"].orEmpty()) }
+                    androidx.compose.material3.OutlinedTextField(
+                        value = rainUrl,
+                        onValueChange = { rainUrl = it },
+                        label = { Text("Rain map URL (iframe)") },
+                        placeholder = { Text("https://…") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        trailingIcon = {
+                            androidx.compose.material3.TextButton(onClick = {
+                                viewModel.setWeatherExtraEntity("rainmap_url", rainUrl.trim().takeIf { it.isNotBlank() })
+                            }) { Text("Save") }
+                        }
+                    )
                 }
             }
 

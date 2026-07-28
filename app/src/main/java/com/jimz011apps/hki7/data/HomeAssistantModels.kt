@@ -607,6 +607,15 @@ data class HKIBadge(
     val shape: String = "pill",        // "pill" or "circle"
     val side: String = "right",        // "left" or "right" (only used in split alignment)
     val showName: Boolean = false,
+    /** Optional custom label shown in place of the entity's friendly name when [showName] is on. */
+    val customName: String? = null,
+    /** Hidden outright until unhidden (edit-mode still shows it so it can be restored). */
+    val hidden: Boolean = false,
+    /** Optional visibility schedule, same semantics as buttons (see [isVisibleAt]). */
+    val visibilityStart: String? = null,
+    val visibilityEnd: String? = null,
+    val visibilityRangeMode: String = "show",   // "show" (visible within) or "hide" (hidden within)
+    val visibilityRecurrence: String = "none",   // none | daily | weekly | monthly | yearly
     val showState: Boolean = true,
     /** When set, the badge shows this attribute's value instead of the entity state. */
     val stateAttribute: String? = null,
@@ -870,8 +879,8 @@ data class HKISwipingStack(
     val collapsible: Boolean = true,
     val defaultCollapsed: Boolean = false,
     val isCollapsed: Boolean? = null,
-    val autoplay: Boolean = false,
-    val autoplayIntervalSeconds: Int = 5,
+    val autoplay: Boolean = true,
+    val autoplayIntervalSeconds: Int = 3,
     val animationDurationMs: Int = 450,
     val animation: String = "swipe"
 ) : HKIRoomWidget()

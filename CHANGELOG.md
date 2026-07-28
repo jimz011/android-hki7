@@ -5,6 +5,18 @@ file in sync with `app/src/main/java/com/jimz011apps/hki7/ui/components/WhatsNew
 
 Items marked with \* require the HKI 7 Cloud Component integration.
 
+## 1.0.0-beta.9
+
+- Drag to reorder cameras, thermostats, and energy cards. In edit mode each of the Security, Climate, and Energy views now has a "Reorder" button that opens a drag-to-sort list — cameras on Security, thermostats/AC units on Climate, and the cards below the house (live tiles, Electricity, Solar, Gas, Water, Top consumers, and more) on Energy.
+- New Climate "Outside" tile. Add your outside temperature, humidity, and air-pressure sensors under Climate settings (they're never auto-imported, since HKI can't tell which sensors are outdoors). When set, the climate hero shows the averaged outside temperature as a subtitle beneath the indoor average.
+- Hide/schedule moved onto the item itself. Instead of a separate control in the reorder list, open a button's (or header badge's) settings and use the new "Visibility" section under Appearance to hide it or schedule when it shows — one-off or recurring daily/weekly/monthly/yearly.
+- Header badges can be renamed. Give a badge a custom label instead of the entity's name, in its Appearance settings.
+- Swipe cards autoplay by default, advancing every 3 seconds.
+- Weather dialog: the Season card now autoplays (flipping every 3 seconds), a new Wind card shows a compass windrose with speed and direction, and you can add a Rain map card backed by a camera entity or an embedded web page (iframe) — great for live radar. The per-card "dialog layout" settings were removed.
+- Camera widgets now fill their whole tile (no more black bars top and bottom) and use the same corner radius as every other widget.
+- Waste collection dialog now opens at the same size as the Calendar and Parcels dialogs and can be dismissed by tapping outside it.
+- Restricted (aesthetic-only) editors can no longer add, remove, or reconfigure header badges — only visual tweaks (name, icon, visibility) to existing ones.
+
 ## 1.0.0-beta.8
 
 - Child locks are never auto-imported. A washer, air conditioner, or valve's keypad/child-lock is a safety toggle, not a room control, so it no longer shows up among your switches.

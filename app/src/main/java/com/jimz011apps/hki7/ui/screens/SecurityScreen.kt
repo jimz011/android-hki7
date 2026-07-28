@@ -357,6 +357,20 @@ fun SecurityScreen(viewModel: MainViewModel) {
         val ids = items.map { it.entity_id }.toMutableList().apply { add(to, removeAt(from)) }
         viewModel.updateSecurityConfig(SECURITY_PAGE_KEY, config.copy(entityOrder = ids + config.entityOrder.filterNot(ids::contains)))
     }
+    fun applyOrder(newIds: List<String>) {
+        viewModel.updateSecurityConfig(SECURITY_PAGE_KEY, config.copy(entityOrder = newIds + config.entityOrder.filterNot(newIds::contains)))
+    }
+    var showReorderCameras by remember { mutableStateOf(false) }
+    if (showReorderCameras) {
+        val cams = grouped["cameras"].orEmpty()
+        ReorderItemsDialog(
+            title = "Reorder cameras",
+            subtitle = "Drag to set the order cameras appear on the Security view.",
+            items = cams.map { ReorderItem(it.entity_id, config.customNames[it.entity_id]?.takeIf(String::isNotBlank) ?: it.friendlyName ?: it.entity_id, "cctv") },
+            onDismiss = { showReorderCameras = false },
+            onSave = { applyOrder(it); showReorderCameras = false }
+        )
+    }
 
     val activeGroup = securityGroups.find { it.key == page }
     fun filteredEntities(source: List<HAEntity>): List<HAEntity> {
@@ -429,7 +443,7 @@ fun SecurityScreen(viewModel: MainViewModel) {
                 { if (it.entity_id.startsWith("camera.")) cameraSettingsEntity = it else renameEntity = it },
                 { from, to -> reorder(filteredEntities(grouped[activeGroup.key].orEmpty()), from, to) }, padding)
         } else {
-            SecurityOverview(grouped, viewModel, currentUrl, config.cameraConfigs, isEditMode, ::remove, { cameraSettingsEntity = it }, { page = it }, padding)
+            SecurityOverview(grouped, viewModel, currentUrl, config.cameraConfigs, isEditMode, ::remove, { cameraSettingsEntity = it }, { page = it }, { showReorderCameras = true }, padding)
         }
     } }
 }
@@ -486,7 +500,7 @@ private fun SecurityEntitySearchBar(
 private fun SecurityOverview(
     grouped: Map<String, List<HAEntity>>, viewModel: MainViewModel, currentUrl: String,
     cameraConfigs: Map<String, HKIButtonConfig>, isEditMode: Boolean, onRemove: (String) -> Unit,
-    onCameraSettings: (HAEntity) -> Unit, onOpen: (String) -> Unit, padding: PaddingValues
+    onCameraSettings: (HAEntity) -> Unit, onOpen: (String) -> Unit, onReorderCameras: () -> Unit, padding: PaddingValues
 ) {
     val all = grouped.filterKeys { it != "cameras" }.values.flatten().distinctBy { it.entity_id }
     val cameras = grouped["cameras"].orEmpty()
@@ -519,6 +533,15 @@ private fun SecurityOverview(
         }
         if (cameras.isNotEmpty()) {
             item { SecuritySectionHeader(cameras.size.toString()) }
+            if (isEditMode && cameras.size > 1) {
+                item {
+                    Box(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+                        OutlinedButton(onClick = onReorderCameras, modifier = Modifier.fillMaxWidth()) {
+                            Icon(Icons.Default.SwapVert, null); Spacer(Modifier.width(8.dp)); Text("Reorder cameras")
+                        }
+                    }
+                }
+            }
             items(cameras.size, key = { cameras[it].entity_id }) { index ->
                 Box(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
                     SecurityCameraCard(cameras[index], viewModel, currentUrl, cameraConfigs[cameras[index].entity_id])

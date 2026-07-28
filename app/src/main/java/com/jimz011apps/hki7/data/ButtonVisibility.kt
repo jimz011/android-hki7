@@ -12,18 +12,29 @@ import java.time.LocalDateTime
  * - An open-ended window (only a start, or only an end) is treated as a half-open range.
  * - Unparseable bounds are ignored so a bad value never permanently hides an item.
  */
-fun isButtonVisibleAt(config: HKIButtonConfig, now: LocalDateTime): Boolean {
-    if (config.hidden) return false
-    val start = config.visibilityStart?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
-    val end = config.visibilityEnd?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
+fun isButtonVisibleAt(config: HKIButtonConfig, now: LocalDateTime): Boolean =
+    isVisibleAt(config.hidden, config.visibilityStart, config.visibilityEnd, config.visibilityRangeMode, config.visibilityRecurrence, now)
+
+/** Raw visibility rule shared by buttons and badges (same hide/schedule semantics). */
+fun isVisibleAt(
+    hidden: Boolean,
+    visibilityStart: String?,
+    visibilityEnd: String?,
+    visibilityRangeMode: String,
+    visibilityRecurrence: String,
+    now: LocalDateTime,
+): Boolean {
+    if (hidden) return false
+    val start = visibilityStart?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
+    val end = visibilityEnd?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
     if (start == null && end == null) return true
 
-    val inRange = when (config.visibilityRecurrence.ifBlank { "none" }) {
+    val inRange = when (visibilityRecurrence.ifBlank { "none" }) {
         "none" -> (start == null || !now.isBefore(start)) && (end == null || !now.isAfter(end))
         else -> {
             // Compare only the part of the timestamp that repeats (time of day, day of week/month, or
             // month-day), so a window can recur. Ranges may wrap the cycle boundary (e.g. 24 Dec–2 Jan).
-            val ordinal = recurringOrdinal(config.visibilityRecurrence)
+            val ordinal = recurringOrdinal(visibilityRecurrence)
             val s = start?.let(ordinal)
             val e = end?.let(ordinal)
             val n = ordinal(now)
@@ -35,7 +46,7 @@ fun isButtonVisibleAt(config: HKIButtonConfig, now: LocalDateTime): Boolean {
             }
         }
     }
-    return if (config.visibilityRangeMode == "hide") !inRange else inRange
+    return if (visibilityRangeMode == "hide") !inRange else inRange
 }
 
 /** A sortable position within the repeat cycle for [recurrence]; higher fields drop out so the
@@ -52,3 +63,10 @@ fun HKIButtonConfig.hasVisibilityRule(): Boolean =
     hidden || !visibilityStart.isNullOrBlank() || !visibilityEnd.isNullOrBlank()
 
 fun isButtonVisibleNow(config: HKIButtonConfig): Boolean = isButtonVisibleAt(config, LocalDateTime.now())
+
+/** True when [badge] has any visibility restriction (a plain hide or a scheduled window). */
+fun HKIBadge.hasVisibilityRule(): Boolean =
+    hidden || !visibilityStart.isNullOrBlank() || !visibilityEnd.isNullOrBlank()
+
+fun isBadgeVisibleNow(badge: HKIBadge): Boolean =
+    isVisibleAt(badge.hidden, badge.visibilityStart, badge.visibilityEnd, badge.visibilityRangeMode, badge.visibilityRecurrence, LocalDateTime.now())

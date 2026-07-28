@@ -113,6 +113,11 @@ fun HKIBadgeBar(
     val currentUrl by viewModel.currentUrl.collectAsState()
     val config = badgeBarConfig ?: HKIBadgeBarConfig()
     val badges = config.badges
+    // Hidden/scheduled badges are dropped outside edit mode; edit mode keeps them so they can be restored.
+    val renderBadges = if (isEditMode) badges else badges.filter { com.jimz011apps.hki7.data.isBadgeVisibleNow(it) }
+    // When an admin restricts a user to aesthetic-only editing, adding/removing badges is a structural
+    // change and stays locked — only visual tweaks to existing badges are allowed.
+    val aestheticsOnly by viewModel.aestheticsOnlyEditing.collectAsState()
     val alignment = config.alignment
     val dependencyIds = remember(badges) {
         buildSet {
@@ -187,7 +192,7 @@ fun HKIBadgeBar(
     fun handleHold(badge: HKIBadge) = dispatchBadge(badge, "hold")
 
     // ── nothing to show ───────────────────────────────────────────────────────
-    if (!config.visible || (!isEditMode && badges.isEmpty())) return
+    if (!config.visible || (!isEditMode && renderBadges.isEmpty())) return
 
     // ── layout ────────────────────────────────────────────────────────────────
     Row(
@@ -199,12 +204,12 @@ fun HKIBadgeBar(
         when {
             badges.isEmpty() && isEditMode -> {
                 // Empty bar in edit mode: + Add pill + × Remove (if config exists)
-                AddBadgePill { addBadge(if (alignment == "split") "left" else "right") }
+                if (!aestheticsOnly) AddBadgePill { addBadge(if (alignment == "split") "left" else "right") }
             }
 
             alignment == "split" -> {
-                val leftBadges  = badges.filter { it.side == "left" }
-                val rightBadges = badges.filter { it.side == "right" }
+                val leftBadges  = renderBadges.filter { it.side == "left" }
+                val rightBadges = renderBadges.filter { it.side == "right" }
 
                 if (isEditMode) {
                     BoxWithConstraints(modifier = Modifier.weight(1f)) {
@@ -238,7 +243,7 @@ fun HKIBadgeBar(
                                     onRemove = { b -> saveBadges(badges.filter { it.id != b.id }) },
                                     onNewOrder = { ordered -> saveBadges(ordered + rightBadges) }
                                 )
-                                AddBadgePill { addBadge("left") }
+                                if (!aestheticsOnly) AddBadgePill { addBadge("left") }
                                 Spacer(Modifier.width(6.dp))
                             }
                         }
@@ -254,7 +259,7 @@ fun HKIBadgeBar(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                AddBadgePill { addBadge("right") }
+                                if (!aestheticsOnly) AddBadgePill { addBadge("right") }
                                 BadgeDraggableRow(
                                     badges = rightBadges,
                                     allEntities = allEntities,
@@ -339,7 +344,7 @@ fun HKIBadgeBar(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     BadgeDraggableRow(
-                        badges = badges,
+                        badges = renderBadges,
                         allEntities = allEntities,
                         isEditMode = isEditMode,
                         currentUrl = currentUrl,
@@ -352,7 +357,7 @@ fun HKIBadgeBar(
                     )
                     if (isEditMode) {
                         Spacer(Modifier.width(8.dp))
-                        AddBadgePill { addBadge("right") }
+                        if (!aestheticsOnly) AddBadgePill { addBadge("right") }
                     }
                 }
             }
@@ -741,12 +746,13 @@ private fun BadgeItem(
                             }
                         }
                     }
-                    val showTwoLine = badge.showName && badge.showState && entity != null && entity.friendlyName != null
+                    val badgeName = badge.customName?.takeIf { it.isNotBlank() } ?: entity?.friendlyName
+                    val showTwoLine = badge.showName && badge.showState && entity != null && badgeName != null
                     if (showTwoLine) {
                         if (badge.showIcon) Spacer(Modifier.width(4.dp))
                         Column(verticalArrangement = Arrangement.Center, modifier = Modifier.height(34.dp)) {
                             Text(
-                                entity.friendlyName!!,
+                                badgeName!!,
                                 color = colors.content,
                                 style = MaterialTheme.typography.labelSmall,
                                 fontSize = 10.sp,
@@ -766,10 +772,10 @@ private fun BadgeItem(
                             )
                         }
                     } else {
-                        if (badge.showName && entity?.friendlyName != null) {
+                        if (badge.showName && badgeName != null) {
                             if (badge.showIcon) Spacer(Modifier.width(4.dp))
                             Text(
-                                entity.friendlyName!!,
+                                badgeName,
                                 color = colors.content,
                                 style = MaterialTheme.typography.labelSmall,
                                 maxLines = 1,
@@ -1039,11 +1045,18 @@ fun BadgeSettingsDialog(
     onRemove: () -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
-    var settingsPage by remember { mutableStateOf("entities") }
+    val aestheticsOnlyBadge by viewModel.aestheticsOnlyEditing.collectAsState()
+    var settingsPage by remember { mutableStateOf(if (aestheticsOnlyBadge) "appearance" else "entities") }
 
     var shape       by remember { mutableStateOf(badge.shape) }
     var side        by remember { mutableStateOf(badge.side) }
     var showName    by remember { mutableStateOf(badge.showName) }
+    var customName  by remember { mutableStateOf(badge.customName ?: "") }
+    var hidden      by remember { mutableStateOf(badge.hidden) }
+    var visStart    by remember { mutableStateOf(badge.visibilityStart) }
+    var visEnd      by remember { mutableStateOf(badge.visibilityEnd) }
+    var visRangeMode by remember { mutableStateOf(badge.visibilityRangeMode) }
+    var visRecurrence by remember { mutableStateOf(badge.visibilityRecurrence) }
     var showState   by remember { mutableStateOf(badge.showState) }
     var stateAttribute by remember { mutableStateOf(badge.stateAttribute) }
     var stateUnit by remember { mutableStateOf(badge.stateUnit) }
@@ -1100,8 +1113,13 @@ fun BadgeSettingsDialog(
                 modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
+                // Aesthetic-only editors get just the Appearance tab (name, icon, visibility); entity
+                // bindings and interactions are structural and stay locked.
+                val badgeTabs = if (aestheticsOnlyBadge) listOf("appearance" to "Appearance")
+                    else listOf("entities" to "Entities", "appearance" to "Appearance", "actions" to "Actions")
+                LaunchedEffect(aestheticsOnlyBadge) { if (aestheticsOnlyBadge) settingsPage = "appearance" }
                 SettingsTabRow(
-                    tabs = listOf("entities" to "Entities", "appearance" to "Appearance", "actions" to "Actions"),
+                    tabs = badgeTabs,
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
                 )
@@ -1320,6 +1338,27 @@ fun BadgeSettingsDialog(
                         )
                     }
                 }
+                HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
+                SettingsSubcategory("Name", "Optional label shown when \"Name\" is enabled above")
+                androidx.compose.material3.OutlinedTextField(
+                    value = customName,
+                    onValueChange = { customName = it },
+                    singleLine = true,
+                    label = { Text("Custom name") },
+                    placeholder = { Text(editingEntityIds.firstOrNull()?.let { nameOf(it) } ?: "Entity name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
+                SettingsSubcategory("Visibility", "Hide this badge, or schedule when it appears")
+                VisibilityEditor(
+                    spec = VisibilitySpec(hidden, visStart, visEnd, visRangeMode.ifBlank { "show" }, visRecurrence.ifBlank { "none" }),
+                    onChange = {
+                        hidden = it.hidden; visStart = it.start; visEnd = it.end
+                        visRangeMode = it.rangeMode; visRecurrence = it.recurrence
+                    }
+                )
+
                 // Side (only in split mode)
                 if (showSidePicker) {
                     HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
@@ -1344,7 +1383,7 @@ fun BadgeSettingsDialog(
             }
         },
         footer = {
-            TextButton(onClick = onRemove) { Text("Remove", color = MaterialTheme.colorScheme.error) }
+            if (!aestheticsOnlyBadge) TextButton(onClick = onRemove) { Text("Remove", color = MaterialTheme.colorScheme.error) }
             Spacer(Modifier.weight(1f))
             TextButton(onClick = onDismiss) { Text("Cancel") }
             Button(onClick = {
@@ -1355,6 +1394,12 @@ fun BadgeSettingsDialog(
                     shape      = shape,
                     side       = side,
                     showName   = showName,
+                    customName = customName.trim().ifBlank { null },
+                    hidden     = hidden,
+                    visibilityStart = visStart,
+                    visibilityEnd = visEnd,
+                    visibilityRangeMode = visRangeMode,
+                    visibilityRecurrence = visRecurrence,
                     showState  = showState,
                     stateAttribute = stateAttribute,
                     stateUnit  = stateUnit,

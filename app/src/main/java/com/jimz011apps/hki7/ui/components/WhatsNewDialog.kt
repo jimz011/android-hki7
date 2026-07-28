@@ -51,6 +51,18 @@ private val beta4Through6Notes = listOf(
     "Fixed: the app icon looked oversized after the recent themed-icon (monochrome) update. The mark now sits with proper padding, matching other app icons on your home screen and in the themed-icon style.",
 )
 
+private val beta9Notes = listOf(
+    "Drag to reorder cameras, thermostats, and energy cards. In edit mode the Security, Climate, and Energy views each get a \"Reorder\" button that opens a drag-to-sort list — cameras on Security, thermostats/AC units on Climate, and the cards below the house (live tiles, Electricity, Solar, Gas, Water, Top consumers, and more) on Energy.",
+    "New Climate \"Outside\" tile. Add your outside temperature, humidity, and air-pressure sensors under Climate settings — they're never auto-imported, since HKI can't tell which sensors are outdoors. When set, the climate hero shows the averaged outside temperature as a subtitle beneath the indoor average. Add several and it averages them, just like indoor.",
+    "Hide and schedule are now on the item itself. Instead of a control tucked into the reorder list, open a button's — or a header badge's — settings and use the new \"Visibility\" section under Appearance to hide it or schedule when it shows (one-off, or recurring daily/weekly/monthly/yearly).",
+    "Header badges can be renamed. Give a badge a custom label instead of the entity's name, in its Appearance settings.",
+    "Swipe cards autoplay by default, advancing every 3 seconds.",
+    "Weather dialog improvements: the Season card autoplays (flipping every 3 seconds), a new Wind card shows a compass windrose with wind speed and direction, and you can add a Rain map card backed by a camera entity or an embedded web page (iframe) — perfect for a live rain radar. The per-card dialog-layout settings were removed.",
+    "Camera widgets now fill their whole tile — no more black bars at the top and bottom — and use the same corner radius as every other widget.",
+    "The Waste collection dialog now opens at the same size as the Calendar and Parcels dialogs, and closes when you tap outside it.",
+    "Restricted (aesthetic-only) editors can no longer add, remove, or reconfigure header badges — only visual tweaks (name, icon, visibility) to existing ones.",
+)
+
 private val beta8Notes = listOf(
     "Child locks are never auto-imported. A washer, air conditioner, or valve's keypad/child-lock is a safety toggle, not a room control, so it no longer shows up among your switches.",
     "Every button now honours the icon you set in Home Assistant, not just lights. HKI reads each entity's icon override from the HA entity registry (where HA keeps it) and applies it across all buttons and badges, for every domain.",
@@ -80,6 +92,7 @@ private val beta7Notes = listOf(
 )
 
 private val changelog: Map<String, List<String>> = mapOf(
+    "1.0.0-beta.9" to beta9Notes,
     "1.0.0-beta.8" to beta8Notes,
     "1.0.0-beta.7" to beta7Notes,
     "1.0.0-beta.6" to listOf(

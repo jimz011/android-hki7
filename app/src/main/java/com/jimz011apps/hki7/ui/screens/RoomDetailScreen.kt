@@ -3179,6 +3179,14 @@ fun ButtonConfigDialog(
     var refreshInterval by remember(config) { mutableIntStateOf(config.cameraRefreshInterval) }
     var iconName by remember(config) { mutableStateOf(config.icon ?: "None") }
     var iconAnimation by remember(config) { mutableStateOf(config.iconAnimation) }
+    var visSpec by remember(config) {
+        mutableStateOf(
+            com.jimz011apps.hki7.ui.components.VisibilitySpec(
+                config.hidden, config.visibilityStart, config.visibilityEnd,
+                config.visibilityRangeMode.ifBlank { "show" }, config.visibilityRecurrence.ifBlank { "none" }
+            )
+        )
+    }
     val isLightEntity = entity?.entity_id?.startsWith("light.") == true
     var showBrightnessSlider by remember(config) { mutableStateOf(config.showBrightnessSlider) }
     var tapAction by remember(config) { mutableStateOf(config.tapActionEx ?: HKIAction(type = config.tapAction)) }
@@ -3431,6 +3439,9 @@ fun ButtonConfigDialog(
                             Switch(checked = showBrightnessSlider, onCheckedChange = { showBrightnessSlider = it })
                         }
                     }
+                    androidx.compose.material3.HorizontalDivider(color = LocalHKIAppColors.current.onMuted.copy(alpha = 0.15f))
+                    SettingsSubcategory("Visibility", "Hide this button, or schedule when it appears")
+                    com.jimz011apps.hki7.ui.components.VisibilityEditor(visSpec) { visSpec = it }
                 }
                 if (settingsPage == "entity" && isLockEntity) {
                     SettingsSubcategory("Lock integration", "Optional context shown by the lock card")
@@ -3599,7 +3610,12 @@ fun ButtonConfigDialog(
                             vacuumImageUrl = if (isVacuumItem && vacuumDisplayMode == "external") vacuumImageUrl.ifBlank { null } else if (isVacuumItem) null else config.vacuumImageUrl,
                             climateTempSensorEntityId = if (isClimateEntity) climateTempSensorEntityId else config.climateTempSensorEntityId,
                             climateHumiditySensorEntityId = if (isClimateEntity) climateHumiditySensorEntityId else config.climateHumiditySensorEntityId,
-                            climateDialogControl = if (isClimateEntity) climateDialogControl else config.climateDialogControl
+                            climateDialogControl = if (isClimateEntity) climateDialogControl else config.climateDialogControl,
+                            hidden = if (isCameraItem || isVacuumItem) config.hidden else visSpec.hidden,
+                            visibilityStart = if (isCameraItem || isVacuumItem) config.visibilityStart else visSpec.start,
+                            visibilityEnd = if (isCameraItem || isVacuumItem) config.visibilityEnd else visSpec.end,
+                            visibilityRangeMode = if (isCameraItem || isVacuumItem) config.visibilityRangeMode else visSpec.rangeMode,
+                            visibilityRecurrence = if (isCameraItem || isVacuumItem) config.visibilityRecurrence else visSpec.recurrence
                         )
                     )
                 }
@@ -4199,7 +4215,6 @@ fun StackOrderDialog(
     val entityById = remember(allEntities) { allEntities.associateBy { it.entity_id } }
     var orderedIds by remember(stack.id, stack.entityIds) { mutableStateOf(stack.entityIds) }
     var configs by remember(stack.id) { mutableStateOf(stack.buttonConfigs) }
-    var visibilityForEntity by remember { mutableStateOf<String?>(null) }
     val listHeight = ((orderedIds.size * 76).coerceIn(96, 460)).dp
 
     AlertDialog(
@@ -4235,8 +4250,7 @@ fun StackOrderDialog(
                             entityId = entityId,
                             entity = entityById[entityId],
                             config = configs[entityId],
-                            isDragging = isDragging,
-                            onVisibility = { visibilityForEntity = entityId }
+                            isDragging = isDragging
                         )
                     }
                 }
@@ -4254,18 +4268,6 @@ fun StackOrderDialog(
         }
     )
 
-    visibilityForEntity?.let { entityId ->
-        ButtonVisibilityDialog(
-            label = configs[entityId]?.name?.takeIf { it.isNotBlank() }
-                ?: entityById[entityId]?.friendlyName ?: entityId,
-            config = configs[entityId] ?: HKIButtonConfig(),
-            onDismiss = { visibilityForEntity = null },
-            onSave = { updated ->
-                configs = configs + (entityId to updated)
-                visibilityForEntity = null
-            }
-        )
-    }
 }
 
 @Composable
@@ -5808,7 +5810,8 @@ private fun CameraStackCard(
             modifier = Modifier
                 .fillMaxSize()
                 .clickable(enabled = !isEditMode) { onEntityClick(source.id) },
-            shape = RoundedCornerShape(stack.cornerRadius.dp),
+            // Match the corner radius of every other widget instead of the camera's own default.
+            shape = itemCornerShape(),
             color = Color.Black
         ) {
             Box {
@@ -5864,7 +5867,16 @@ private fun CameraStackCard(
                                 }
                                 false
                             }
-                            webViewClient = WebViewClient()
+                            // Crop the stream to fill the tile (no letterbox bars) by forcing the
+                            // MJPEG <img>/<video> to cover the viewport once the page has loaded.
+                            webViewClient = object : WebViewClient() {
+                                override fun onPageFinished(view: WebView, url: String?) {
+                                    view.evaluateJavascript(
+                                        "(function(){document.documentElement.style.height='100%';document.body.style.height='100%';document.body.style.margin='0';document.body.style.background='#000';document.querySelectorAll('img,video').forEach(function(e){e.style.width='100%';e.style.height='100%';e.style.objectFit='cover';});})();",
+                                        null
+                                    )
+                                }
+                            }
                             val headers = if (!accessToken.isNullOrBlank()) {
                                 mapOf("Authorization" to "Bearer $accessToken")
                             } else {
@@ -5888,7 +5900,8 @@ private fun CameraStackCard(
                 ZoomableCameraImage(
                     imageUrl = displayedModel,
                     contentDescription = source.label,
-                    onTap = { if (!isEditMode) currentOnEntityClick(currentSourceId) }
+                    onTap = { if (!isEditMode) currentOnEntityClick(currentSourceId) },
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
                 )
             } else {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

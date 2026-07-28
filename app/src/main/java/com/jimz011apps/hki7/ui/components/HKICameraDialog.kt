@@ -1036,7 +1036,8 @@ fun ZoomableCameraImage(
     controlledScale: Float? = null,
     onScaleChanged: ((Float) -> Unit)? = null,
     onLoadingChanged: (Boolean) -> Unit = {},
-    onTap: () -> Unit = {}
+    onTap: () -> Unit = {},
+    contentScale: ContentScale = ContentScale.Fit
 ) {
     val hostView = LocalView.current
     val currentOnTap by rememberUpdatedState(onTap)
@@ -1126,14 +1127,14 @@ fun ZoomableCameraImage(
                         model = fallback,
                         contentDescription = contentDescription,
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit
+                        contentScale = contentScale
                     )
                 }
                 AsyncImage(
                     model = imageUrl,
                     contentDescription = contentDescription,
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit,
+                    contentScale = contentScale,
                     onSuccess = {
                         lastSuccessfulModel = imageUrl
                         onLoadingChanged(false)

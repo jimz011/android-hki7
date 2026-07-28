@@ -253,6 +253,34 @@ fun EnergyScreen(viewModel: MainViewModel) {
             renameEntity = null
         }
     }
+    var showReorderEnergyCards by remember { mutableStateOf(false) }
+    if (showReorderEnergyCards) {
+        val cardLabels = mapOf(
+            "tiles" to ("Live source tiles" to "view-grid"),
+            "electricity_total" to ("Electricity Total" to "transmission-tower"),
+            "solar" to ("Solar" to "solar-power"),
+            "gas" to ("Gas" to "fire"),
+            "water" to ("Water" to "water"),
+            "top_consumers" to ("Top consumers" to "power-plug"),
+            "device_energy" to ("Device energy" to "chart-bar"),
+            "water_devices" to ("Individual water usage" to "water-pump")
+        )
+        val defaults = listOf("tiles", "electricity_total", "solar", "gas", "water", "top_consumers", "device_energy", "water_devices")
+        val current = energyConfig.cardOrder.filter { it in defaults } + defaults.filterNot { it in energyConfig.cardOrder }
+        com.jimz011apps.hki7.ui.components.ReorderItemsDialog(
+            title = "Reorder cards",
+            subtitle = "Drag to set the order the cards appear below the house on the Energy view.",
+            items = current.map { key ->
+                val (label, icon) = cardLabels[key] ?: (key to null)
+                com.jimz011apps.hki7.ui.components.ReorderItem(key, label, icon)
+            },
+            onDismiss = { showReorderEnergyCards = false },
+            onSave = {
+                viewModel.updateEnergyConfig(ENERGY_PAGE_KEY, energyConfig.copy(cardOrder = it))
+                showReorderEnergyCards = false
+            }
+        )
+    }
     val entities = remember(rawEntities, energyConfig.customNames) {
         rawEntities.map { it.withDisplayName(energyConfig.customNames[it.entity_id]) }
     }
@@ -733,8 +761,9 @@ fun EnergyScreen(viewModel: MainViewModel) {
                     )
                 }
 
-                // ── live source tiles (each opens its own tab) ────────────────
-                item {
+                // ── movable data cards (order set via the "Reorder cards" dialog in edit mode) ──
+                val movableCards = buildList<Pair<String, @Composable () -> Unit>> {
+                    add("tiles" to {
                     val primaryColor = MaterialTheme.colorScheme.primary
                     class TileSpec(
                         val icon: androidx.compose.ui.graphics.vector.ImageVector,
@@ -788,10 +817,9 @@ fun EnergyScreen(viewModel: MainViewModel) {
                             }
                         }
                     }
-                }
+                    })
 
-                // ── Electricity Total (phases/tariffs live on the Electricity tab) ─
-                item {
+                    add("electricity_total" to {
                     SectionHeader("Electricity Total", if (!energyConfig.energyCostEntityId.isNullOrBlank()) "€ ${"%.2f".format(costVal)}" else null)
                     Surface(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
@@ -832,11 +860,9 @@ fun EnergyScreen(viewModel: MainViewModel) {
                             }
                         }
                     }
-                }
+                    })
 
-                // ── Solar summary ─────────────────────────────────────────────
-                if (hasSolar) {
-                    item {
+                    if (hasSolar) add("solar" to {
                         SectionHeader("Solar", null)
                         Surface(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
@@ -865,12 +891,9 @@ fun EnergyScreen(viewModel: MainViewModel) {
                                 EnergyBarChart(solarSeries, SolarAmber, "W", axisLabels, tooltipLabels, nowIndex = nowIndex)
                             }
                         }
-                    }
-                }
+                    })
 
-                // ── Gas ───────────────────────────────────────────────────────
-                if (gasId != null) {
-                    item {
+                    if (gasId != null) add("gas" to {
                         SectionHeader("Gas", gasCost?.let { "€ ${"%.2f".format(it)}" })
                         UtilityCard(
                             icon = Icons.Default.LocalFireDepartment, color = GasPink,
@@ -879,12 +902,9 @@ fun EnergyScreen(viewModel: MainViewModel) {
                         ) {
                             EnergyBarChart(gasSeries, GasPink, gasUnit, axisLabels, tooltipLabels, nowIndex = nowIndex)
                         }
-                    }
-                }
+                    })
 
-                // ── Water ─────────────────────────────────────────────────────
-                if (waterId != null) {
-                    item {
+                    if (waterId != null) add("water" to {
                         val waterUsed = waterPeriod * waterFactor
                         SectionHeader("Water", waterCost?.let { "€ ${"%.2f".format(it)}" })
                         UtilityCard(
@@ -894,12 +914,9 @@ fun EnergyScreen(viewModel: MainViewModel) {
                         ) {
                             EnergyBarChart(waterSeries, WaterBlue, waterDisplayUnit, axisLabels, tooltipLabels, nowIndex = nowIndex)
                         }
-                    }
-                }
+                    })
 
-                // ── Top consumers (last) ──────────────────────────────────────
-                if (topConsumers.isNotEmpty()) {
-                    item {
+                    if (topConsumers.isNotEmpty()) add("top_consumers" to {
                         SectionHeader("Top consumers", null)
                         Surface(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
@@ -919,12 +936,9 @@ fun EnergyScreen(viewModel: MainViewModel) {
                                 }
                             }
                         }
-                    }
+                    })
 
-                    // ── Energy per device: horizontal bars over the window ────
-                }
-                if (deviceEnergyEntities.isNotEmpty()) {
-                    item {
+                    if (deviceEnergyEntities.isNotEmpty()) add("device_energy" to {
                         val deviceEnergies = deviceEnergyEntities
                             .map { e -> e to deviceEnergyKwh(e) }
                             .sortedByDescending { it.second }
@@ -971,10 +985,9 @@ fun EnergyScreen(viewModel: MainViewModel) {
                                 }
                             }
                         }
-                    }
-                }
-                if (waterDeviceEntities.isNotEmpty()) {
-                    item {
+                    })
+
+                    if (waterDeviceEntities.isNotEmpty()) add("water_devices" to {
                         SectionHeader("Individual water usage", "Used $periodLabel")
                         Surface(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -987,8 +1000,22 @@ fun EnergyScreen(viewModel: MainViewModel) {
                                 modifier = Modifier.padding(16.dp)
                             )
                         }
+                    })
+                }
+                val defaultCardOrder = movableCards.map { it.first }
+                val effectiveCardOrder = energyConfig.cardOrder.filter { it in defaultCardOrder } +
+                    defaultCardOrder.filterNot { it in energyConfig.cardOrder }
+                val cardByKey = movableCards.toMap()
+                if (isEditMode && movableCards.size > 1) {
+                    item {
+                        Box(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+                            OutlinedButton(onClick = { showReorderEnergyCards = true }, modifier = Modifier.fillMaxWidth()) {
+                                Icon(Icons.Default.SwapVert, null); Spacer(Modifier.width(8.dp)); Text("Reorder cards")
+                            }
+                        }
                     }
                 }
+                effectiveCardOrder.forEach { k -> cardByKey[k]?.let { body -> item(k) { body() } } }
             } else if (page == "solar") {
                 // ═══ SOLAR PAGE ═══════════════════════════════════════════════
                 item {

@@ -344,6 +344,12 @@ private fun WasteCollectionDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        stableHeight = true,
+        properties = androidx.compose.ui.window.DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnClickOutside = true,
+            dismissOnBackPress = true
+        ),
         title = {
             Row(
                 modifier = Modifier.fillMaxWidth(),

@@ -118,7 +118,11 @@ private val climateSensorGroups = listOf(
         Icons.Default.Air, AirGreen, setOf(
             "pm1", "pm25", "pm10", "aqi", "volatile_organic_compounds",
             "volatile_organic_compounds_parts", "nitrogen_dioxide", "carbon_monoxide"
-        ))
+        )),
+    // Outside conditions are never auto-discovered (empty device-class set) — we can't tell which
+    // sensors are outdoors — so users add outside temperature/humidity/pressure here manually.
+    ClimateSensorGroup("outside", "Outside", "Outside temperature, humidity & pressure",
+        Icons.Default.WbSunny, TempWarm, emptySet())
 )
 
 private val weatherSensorPlatforms = setOf(
@@ -348,6 +352,13 @@ fun ClimateScreen(viewModel: MainViewModel) {
             climateConfig.copy(entityOrder = visibleIds + climateConfig.entityOrder.filterNot { it in visibleIds })
         )
     }
+    fun applyClimateEntityOrder(newIds: List<String>) {
+        viewModel.updateClimateConfig(
+            CLIMATE_PAGE_KEY,
+            climateConfig.copy(entityOrder = newIds + climateConfig.entityOrder.filterNot { it in newIds })
+        )
+    }
+    var showReorderDevices by remember { mutableStateOf(false) }
 
     // Thermostats & air conditioners: every climate.* entity, plus manual additions, minus removed.
     val climateEntities = remember(entities, climateConfig) {
@@ -430,6 +441,22 @@ fun ClimateScreen(viewModel: MainViewModel) {
                 .sortedBy { it.friendlyName ?: it.entity_id }
                 .applyClimateOrder(climateConfig.entityOrder)
         }
+    }
+
+    if (showReorderDevices) {
+        com.jimz011apps.hki7.ui.components.ReorderItemsDialog(
+            title = "Reorder devices",
+            subtitle = "Drag to set the order thermostats and AC units appear on the Climate view.",
+            items = climateEntities.map {
+                com.jimz011apps.hki7.ui.components.ReorderItem(
+                    it.entity_id,
+                    climateConfig.customNames[it.entity_id]?.takeIf(String::isNotBlank) ?: it.friendlyName ?: it.entity_id,
+                    climateConfig.customIcons[it.entity_id] ?: com.jimz011apps.hki7.ui.components.defaultEntityIconSlug(it)
+                )
+            },
+            onDismiss = { showReorderDevices = false },
+            onSave = { applyClimateEntityOrder(it); showReorderDevices = false }
+        )
     }
 
     var page by rememberSaveable { mutableStateOf("climate") }
@@ -578,7 +605,8 @@ fun ClimateScreen(viewModel: MainViewModel) {
                         climateEntities = climateEntities,
                         fanEntities = fanEntities,
                         humidifierEntities = humidifierEntities,
-                        openingState = openingState
+                        openingState = openingState,
+                        outsideTempSensors = groupSensors["outside"].orEmpty().filter { it.deviceClass == "temperature" }
                     )
                 }
 
@@ -592,8 +620,13 @@ fun ClimateScreen(viewModel: MainViewModel) {
                         climateSensorGroups.forEach { group ->
                             val sensors = groupSensors[group.key].orEmpty()
                             if (sensors.isEmpty()) return@forEach
-                            val values = sensors.mapNotNull { it.numericState() }
-                            val unit = sensors.firstOrNull()?.unit() ?: ""
+                            // Outside mixes temp/humidity/pressure, so summarise its temperature sensors
+                            // (falling back to whatever it has) instead of averaging across unlike units.
+                            val summarySensors = if (group.key == "outside") {
+                                sensors.filter { it.deviceClass == "temperature" }.ifEmpty { sensors }
+                            } else sensors
+                            val values = summarySensors.mapNotNull { it.numericState() }
+                            val unit = summarySensors.firstOrNull()?.unit() ?: ""
                             val avg = if (values.isNotEmpty()) values.average().toFloat() else null
                             val status = buildString {
                                 append("${sensors.size} sensor${if (sensors.size == 1) "" else "s"}")
@@ -658,6 +691,15 @@ fun ClimateScreen(viewModel: MainViewModel) {
                     }
                 } else {
                     item { ClimateSectionHeader("${climateEntities.size}") }
+                    if (isEditMode && climateEntities.size > 1) {
+                        item {
+                            Box(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+                                OutlinedButton(onClick = { showReorderDevices = true }, modifier = Modifier.fillMaxWidth()) {
+                                    Icon(Icons.Default.SwapVert, null); Spacer(Modifier.width(8.dp)); Text("Reorder devices")
+                                }
+                            }
+                        }
+                    }
                     items(count = climateDeviceRows.size, key = { row -> climateDeviceRows[row].joinToString("|") { it.entity_id } }) { rowIndex ->
                         val row = climateDeviceRows[rowIndex]
                         Row(
@@ -855,12 +897,16 @@ private fun ClimateHero(
     fanEntities: List<HAEntity>,
     humidifierEntities: List<HAEntity>,
     openingState: ClimateOpeningState,
+    outsideTempSensors: List<HAEntity> = emptyList(),
     modifier: Modifier = Modifier
 ) {
     val appColors = LocalHKIAppColors.current
     val temps = tempSensors.mapNotNull { it.numericState() }
     val hums = humiditySensors.mapNotNull { it.numericState() }
     val avgTemp = if (temps.isNotEmpty()) temps.average().toFloat() else null
+    val outsideTemps = outsideTempSensors.mapNotNull { it.numericState() }
+    val avgOutside = if (outsideTemps.isNotEmpty()) outsideTemps.average().toFloat() else null
+    val outsideUnit = outsideTempSensors.firstOrNull()?.unit()?.ifBlank { "°C" } ?: "°C"
     val avgHum = if (hums.isNotEmpty()) hums.average().toFloat() else null
     val tempUnit = tempSensors.firstOrNull()?.unit()?.ifBlank { "°C" } ?: "°C"
     val activities = climateEntities.mapNotNull(HAEntity::climateSceneActivity)
@@ -943,6 +989,13 @@ private fun ClimateHero(
                 Row(verticalAlignment = Alignment.Top) {
                     Text(avgTemp?.let { "%.1f".format(Locale.getDefault(), it) } ?: "—", style = MaterialTheme.typography.headlineMedium, color = appColors.onSurface, fontWeight = FontWeight.Bold)
                     if (avgTemp != null) Text(tempUnit, style = MaterialTheme.typography.labelLarge, color = sceneAccent, modifier = Modifier.padding(top = 4.dp, start = 2.dp))
+                }
+                if (avgOutside != null) {
+                    Text(
+                        "Outside ${"%.1f".format(Locale.getDefault(), avgOutside)}$outsideUnit",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = appColors.onMuted
+                    )
                 }
             }
             Surface(
