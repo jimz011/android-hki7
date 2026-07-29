@@ -76,9 +76,14 @@ object HaDashboardSharing {
         val shared = Hki7Endpoint.withClient(context) { it.hki7ListSharedDashboards() }
             ?: return SyncResult(activeChanged = false, needsAutoGenerate = false)
         val sharedByLocalId = shared.associateBy { "shared-${it.id}" }
+        // The current user owns some of these; those are the source of truth and are pushed by
+        // pushOwnedUpdates, never pulled — pulling would merge the (older) cloud copy back over a
+        // fresh local edit and appear to "revert" the dashboard. Only pull dashboards owned by others.
+        val myUserId = Hki7Endpoint.withClient(context) { it.hki7WhoAmI() }?.userId
         var activeChanged = false
         for (local in locals) {
             val meta = sharedByLocalId[local.id] ?: continue
+            if (myUserId != null && meta.ownerId == myUserId) continue
             if (meta.updated.isNotBlank() && meta.updated == local.sharedUpdatedAt) continue
             val raw = Hki7Endpoint.withClient(context) { it.hki7GetDashboard(meta.id) } ?: continue
             if (prefs.applySharedDashboardUpdate(local.id, raw, meta.updated)) activeChanged = true

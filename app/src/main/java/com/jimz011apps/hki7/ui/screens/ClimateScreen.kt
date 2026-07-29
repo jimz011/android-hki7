@@ -606,7 +606,12 @@ fun ClimateScreen(viewModel: MainViewModel) {
                         fanEntities = fanEntities,
                         humidifierEntities = humidifierEntities,
                         openingState = openingState,
-                        outsideTempSensors = groupSensors["outside"].orEmpty().filter { it.deviceClass == "temperature" }
+                        // Outside temperature = device_class temperature, or (for template/helper
+                        // sensors that carry no class) anything reporting a temperature unit. With a
+                        // single unclassified outside sensor this still finds it.
+                        outsideTempSensors = groupSensors["outside"].orEmpty().filter {
+                            it.deviceClass == "temperature" || it.unit() in setOf("°C", "°F", "℃", "℉")
+                        }
                     )
                 }
 
@@ -991,11 +996,12 @@ private fun ClimateHero(
                     if (avgTemp != null) Text(tempUnit, style = MaterialTheme.typography.labelLarge, color = sceneAccent, modifier = Modifier.padding(top = 4.dp, start = 2.dp))
                 }
                 if (avgOutside != null) {
-                    Text(
-                        "Outside ${"%.1f".format(Locale.getDefault(), avgOutside)}$outsideUnit",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = appColors.onMuted
-                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text("OUTSIDE", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted, fontWeight = FontWeight.SemiBold)
+                    Row(verticalAlignment = Alignment.Top) {
+                        Text("%.1f".format(Locale.getDefault(), avgOutside), style = MaterialTheme.typography.titleMedium, color = appColors.onSurface, fontWeight = FontWeight.Bold)
+                        Text(outsideUnit, style = MaterialTheme.typography.labelSmall, color = sceneAccent, modifier = Modifier.padding(top = 2.dp, start = 2.dp))
+                    }
                 }
             }
             Surface(

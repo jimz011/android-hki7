@@ -163,6 +163,7 @@ class PreferencesManager(
     private val rainEntityKey = stringPreferencesKey("rain_entity_id")
     private val rainMapEntityKey = stringPreferencesKey("weather_rainmap_entity_id")
     private val rainMapUrlKey = stringPreferencesKey("weather_rainmap_url")
+    private val rainMapAspectKey = stringPreferencesKey("weather_rainmap_aspect")
     private val weatherDeviceKey = stringPreferencesKey("weather_device_id")
     private val weatherCardWidthsKey = stringPreferencesKey("weather_card_widths")
     private val alarmEntityKey = stringPreferencesKey("header_alarm_entity_id")
@@ -363,6 +364,7 @@ class PreferencesManager(
     /** Optional camera entity + web (iframe) URL shown as the weather dialog's rain-map card. */
     val rainMapEntityId: Flow<String?> = context.dataStore.data.map { it[rainMapEntityKey] }
     val rainMapUrl: Flow<String?> = context.dataStore.data.map { it[rainMapUrlKey] }
+    val rainMapAspect: Flow<String?> = context.dataStore.data.map { it[rainMapAspectKey] }
     /** HA device from which the weather page's role entities were filled automatically. */
     val weatherDeviceId: Flow<String?> = context.dataStore.data.map { it[weatherDeviceKey] }
     /** Widths for the cards in the global weather dialog: "third", "half", or "full". */
@@ -1098,6 +1100,14 @@ class PreferencesManager(
             if (isActive) saveLoadedDashboardInto(p, dashboards)
             val local = dashboards[idx]
             val merged = mergeSharedDashboardAesthetics(local, incoming).copy(sharedUpdatedAt = updatedAt)
+            // No-op when the merge changes nothing but the timestamp: just record the timestamp so we
+            // stop re-fetching, without rewriting/reloading the active dashboard (which would flash a
+            // needless "revert" even though the content is identical).
+            if (merged.copy(sharedUpdatedAt = null) == local.copy(sharedUpdatedAt = null)) {
+                dashboards[idx] = local.copy(sharedUpdatedAt = updatedAt)
+                p[dashboardsKey] = appJson.encodeToString(dashboards)
+                return@edit
+            }
             dashboards[idx] = merged
             p[dashboardsKey] = appJson.encodeToString(dashboards)
             if (isActive) {
@@ -1519,6 +1529,7 @@ class PreferencesManager(
                 "rain" -> rainEntityKey
                 "rainmap" -> rainMapEntityKey
                 "rainmap_url" -> rainMapUrlKey
+                "rainmap_aspect" -> rainMapAspectKey
                 "device" -> weatherDeviceKey
                 else -> return@edit
             }

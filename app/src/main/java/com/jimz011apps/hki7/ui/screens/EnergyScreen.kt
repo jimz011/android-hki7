@@ -256,7 +256,6 @@ fun EnergyScreen(viewModel: MainViewModel) {
     var showReorderEnergyCards by remember { mutableStateOf(false) }
     if (showReorderEnergyCards) {
         val cardLabels = mapOf(
-            "tiles" to ("Live source tiles" to "view-grid"),
             "electricity_total" to ("Electricity Total" to "transmission-tower"),
             "solar" to ("Solar" to "solar-power"),
             "gas" to ("Gas" to "fire"),
@@ -265,7 +264,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
             "device_energy" to ("Device energy" to "chart-bar"),
             "water_devices" to ("Individual water usage" to "water-pump")
         )
-        val defaults = listOf("tiles", "electricity_total", "solar", "gas", "water", "top_consumers", "device_energy", "water_devices")
+        val defaults = listOf("electricity_total", "solar", "gas", "water", "top_consumers", "device_energy", "water_devices")
         val current = energyConfig.cardOrder.filter { it in defaults } + defaults.filterNot { it in energyConfig.cardOrder }
         com.jimz011apps.hki7.ui.components.ReorderItemsDialog(
             title = "Reorder cards",
@@ -1002,11 +1001,15 @@ fun EnergyScreen(viewModel: MainViewModel) {
                         }
                     })
                 }
-                val defaultCardOrder = movableCards.map { it.first }
+                // The live source tiles stay pinned directly under the hero; only the data cards below
+                // them are reorderable.
+                movableCards.firstOrNull { it.first == "tiles" }?.let { item("tiles") { it.second() } }
+                val reorderableCards = movableCards.filter { it.first != "tiles" }
+                val defaultCardOrder = reorderableCards.map { it.first }
                 val effectiveCardOrder = energyConfig.cardOrder.filter { it in defaultCardOrder } +
                     defaultCardOrder.filterNot { it in energyConfig.cardOrder }
-                val cardByKey = movableCards.toMap()
-                if (isEditMode && movableCards.size > 1) {
+                val cardByKey = reorderableCards.toMap()
+                if (isEditMode && reorderableCards.size > 1) {
                     item {
                         Box(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
                             OutlinedButton(onClick = { showReorderEnergyCards = true }, modifier = Modifier.fillMaxWidth()) {

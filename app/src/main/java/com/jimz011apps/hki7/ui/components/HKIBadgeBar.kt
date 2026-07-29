@@ -703,8 +703,12 @@ private fun BadgeItem(
     val timerSource = if (badge.stateAsTimer) {
         badge.stateAttribute?.let { attr -> entity?.let { entityAttributeDisplay(it, attr) } } ?: entity?.state
     } else null
-    val rawTimer = if (badge.stateAsTimer) rememberCountdownText(timerSource) else null
-    // While counting show the countdown; once finished (or the value isn't a timestamp) show "Off".
+    // Some integrations keep a stale future finish time while the appliance is off, so gate on the
+    // optional machine-state entity: if it isn't running, the timer reads "Off" regardless of the time.
+    val timerMachineRunning = badge.timerStateEntityId
+        ?.let { id -> isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true
+    val rawTimer = if (badge.stateAsTimer && timerMachineRunning) rememberCountdownText(timerSource) else null
+    // While counting show the countdown; once finished/off (or the value isn't a timestamp) show "Off".
     val timerText = if (badge.stateAsTimer) (rawTimer?.takeIf { it != "Done" } ?: "Off") else null
 
     // Outer Box: badge content + edit-mode overlays
@@ -850,7 +854,9 @@ private fun badgeStateColors(badge: HKIBadge, entities: List<HAEntity>, allEntit
     // ticking countdown recomposes the badge every second, so this flips to off exactly at zero.
     if (badge.stateAsTimer) {
         val value = badge.stateAttribute?.let { attr -> entities.first().let { entityAttributeDisplay(it, attr) } } ?: entities.first().state
-        val running = parseTimestampToInstant(value)?.isAfter(java.time.Instant.now()) == true
+        val machineRunning = badge.timerStateEntityId
+            ?.let { id -> isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true
+        val running = machineRunning && parseTimestampToInstant(value)?.isAfter(java.time.Instant.now()) == true
         return if (running) defaultActive else BadgeColors(offBg, offFg, offFg)
     }
 
@@ -1077,6 +1083,8 @@ fun BadgeSettingsDialog(
     var stateAttribute by remember { mutableStateOf(badge.stateAttribute) }
     var stateUnit by remember { mutableStateOf(badge.stateUnit) }
     var stateAsTimer by remember { mutableStateOf(badge.stateAsTimer) }
+    var timerStateEntityId by remember { mutableStateOf(badge.timerStateEntityId) }
+    var showTimerStatePickerBadge by remember { mutableStateOf(false) }
     var showIcon    by remember { mutableStateOf(badge.showIcon) }
     var customIcon  by remember { mutableStateOf(badge.customIcon ?: "") }
     var iconAnimation by remember { mutableStateOf(badge.iconAnimation) }
@@ -1328,11 +1336,31 @@ fun BadgeSettingsDialog(
                             Column(Modifier.weight(1f)) {
                                 Text("Countdown timer", style = MaterialTheme.typography.labelLarge)
                                 Text(
-                                    "Show a descending timer when the value is a completion time (e.g. a washer/dryer finish time).",
+                                    "Show a descending timer when the value is a completion time (e.g. a washer/dryer finish time). Active while counting, off at zero.",
                                     style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
                                 )
                             }
-                            Switch(checked = stateAsTimer, onCheckedChange = { stateAsTimer = it })
+                            Switch(checked = stateAsTimer, onCheckedChange = {
+                                stateAsTimer = it
+                                if (it && timerStateEntityId == null) {
+                                    timerStateEntityId = com.jimz011apps.hki7.ui.components.guessMachineStateEntityId(editingEntityIds.firstOrNull(), allEntities, entityRegistry)
+                                }
+                            })
+                        }
+                        if (stateAsTimer) {
+                            val stateName = timerStateEntityId?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
+                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Column(Modifier.weight(1f)) {
+                                    Text("Running-state entity", style = MaterialTheme.typography.labelLarge)
+                                    Text(
+                                        stateName ?: "None — timer follows the completion time only",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = if (stateName != null) MaterialTheme.colorScheme.primary else appColors.onMuted
+                                    )
+                                }
+                                TextButton(onClick = { showTimerStatePickerBadge = true }) { Text("Change") }
+                                if (timerStateEntityId != null) TextButton(onClick = { timerStateEntityId = null }) { Text("Clear") }
+                            }
                         }
                     }
                 }
@@ -1431,6 +1459,7 @@ fun BadgeSettingsDialog(
                     stateAttribute = stateAttribute,
                     stateUnit  = stateUnit,
                     stateAsTimer = stateAsTimer,
+                    timerStateEntityId = timerStateEntityId,
                     showIcon   = showIcon,
                     customIcon = customIcon.ifBlank { null },
                     iconAnimation = iconAnimation,
@@ -1461,6 +1490,17 @@ fun BadgeSettingsDialog(
                 if (ids.isNotEmpty()) editingEntityIds = ids
                 showEntityPicker = false
             }
+        )
+    }
+
+    if (showTimerStatePickerBadge) {
+        AdvancedEntitySearchDialog(
+            allEntities = allEntities,
+            title = "Select running-state entity",
+            singleSelect = true,
+            preselectedIds = setOfNotNull(timerStateEntityId?.takeIf { it.isNotBlank() }),
+            onDismiss = { showTimerStatePickerBadge = false },
+            onEntitiesSelected = { ids -> timerStateEntityId = ids.firstOrNull(); showTimerStatePickerBadge = false }
         )
     }
 

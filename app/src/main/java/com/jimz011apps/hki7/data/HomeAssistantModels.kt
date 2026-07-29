@@ -624,6 +624,9 @@ data class HKIBadge(
     /** Renders the shown value (state or attribute) as a live descending countdown, for entities
      *  whose value is a completion timestamp (washer/dryer/dishwasher "finished at" time). */
     val stateAsTimer: Boolean = false,
+    /** Optional machine/operation-state entity gating [stateAsTimer] (only counts down while it reads
+     *  running); null gates on the timestamp alone. */
+    val timerStateEntityId: String? = null,
     val showIcon: Boolean = true,
     val customIcon: String? = null,
     // Per-icon animation override: "auto" (follow the global setting + domain default), "off",
@@ -939,6 +942,10 @@ data class HKIButtonConfig(
     /** Renders the shown value (state or attribute) as a live descending countdown, for entities
      *  whose value is a completion timestamp (washer/dryer/dishwasher "finished at" time). */
     val stateAsTimer: Boolean = false,
+    /** Optional machine/operation-state entity gating [stateAsTimer]: some integrations keep a stale
+     *  future completion time while the appliance is off, so the timer only shows when this entity
+     *  reads as running. Null means gate on the timestamp alone. */
+    val timerStateEntityId: String? = null,
     /** Per-item visibility inside a multi-item widget. [hidden] hides it until unhidden. When
      * [visibilityStart]/[visibilityEnd] (ISO-8601 local date-time, e.g. "2026-12-24T00:00") are set,
      * [visibilityRangeMode] decides whether that window is when the item is shown ("show") or hidden

@@ -1420,8 +1420,8 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         viewModelScope.launch { prefs.alarmPendingSeconds.collect { _alarmPendingSeconds.value = it } }
         viewModelScope.launch { prefs.weatherCardWidths.collect { _weatherCardWidths.value = it } }
         viewModelScope.launch {
-            combine(prefs.sunEntityId, prefs.moonEntityId, prefs.aqiEntityId, prefs.seasonEntityId, prefs.rainEntityId, prefs.weatherDeviceId, prefs.rainMapEntityId, prefs.rainMapUrl) { args: Array<String?> ->
-                mapOf("sun" to args[0], "moon" to args[1], "aqi" to args[2], "season" to args[3], "rain" to args[4], "device" to args[5], "rainmap" to args[6], "rainmap_url" to args[7])
+            combine(prefs.sunEntityId, prefs.moonEntityId, prefs.aqiEntityId, prefs.seasonEntityId, prefs.rainEntityId, prefs.weatherDeviceId, prefs.rainMapEntityId, prefs.rainMapUrl, prefs.rainMapAspect) { args: Array<String?> ->
+                mapOf("sun" to args[0], "moon" to args[1], "aqi" to args[2], "season" to args[3], "rain" to args[4], "device" to args[5], "rainmap" to args[6], "rainmap_url" to args[7], "rainmap_aspect" to args[8])
             }.collect { _weatherExtraEntities.value = it }
         }
     }

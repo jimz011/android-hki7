@@ -3176,6 +3176,8 @@ fun ButtonConfigDialog(
     var stateAttribute by remember(config) { mutableStateOf(config.stateAttribute) }
     var stateUnit by remember(config) { mutableStateOf(config.stateUnit) }
     var stateAsTimer by remember(config) { mutableStateOf(config.stateAsTimer) }
+    var timerStateEntityId by remember(config) { mutableStateOf(config.timerStateEntityId) }
+    var showTimerStatePicker by remember { mutableStateOf(false) }
     var cameraUrl by remember(config) { mutableStateOf(config.cameraUrl ?: "") }
     var refreshInterval by remember(config) { mutableIntStateOf(config.cameraRefreshInterval) }
     var iconName by remember(config) { mutableStateOf(config.icon ?: "None") }
@@ -3318,7 +3320,28 @@ fun ButtonConfigDialog(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
-                            Switch(checked = stateAsTimer, onCheckedChange = { stateAsTimer = it })
+                            Switch(checked = stateAsTimer, onCheckedChange = {
+                                stateAsTimer = it
+                                // Try to auto-pick a machine/operation-state sibling the first time it's enabled.
+                                if (it && timerStateEntityId == null) {
+                                    timerStateEntityId = com.jimz011apps.hki7.ui.components.guessMachineStateEntityId(entity?.entity_id, allEntities, entityRegistry)
+                                }
+                            })
+                        }
+                        if (stateAsTimer) {
+                            val stateName = timerStateEntityId?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
+                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Column(Modifier.weight(1f)) {
+                                    Text("Running-state entity", style = MaterialTheme.typography.labelLarge)
+                                    Text(
+                                        stateName ?: "None — timer follows the completion time only",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = if (stateName != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                TextButton(onClick = { showTimerStatePicker = true }) { Text("Change") }
+                                if (timerStateEntityId != null) TextButton(onClick = { timerStateEntityId = null }) { Text("Clear") }
+                            }
                         }
                         if (stateAttribute != null) {
                             Text("Unit", style = MaterialTheme.typography.labelLarge)
@@ -3599,6 +3622,7 @@ fun ButtonConfigDialog(
                             stateAttribute = if (isCameraItem || isVacuumItem) config.stateAttribute else stateAttribute,
                             stateUnit = if (isCameraItem || isVacuumItem) config.stateUnit else stateUnit,
                             stateAsTimer = if (isCameraItem || isVacuumItem) config.stateAsTimer else stateAsTimer,
+                            timerStateEntityId = if (isCameraItem || isVacuumItem) config.timerStateEntityId else timerStateEntityId,
                             icon = if (isCameraItem || isVacuumItem) config.icon else iconName.takeUnless { it == "None" },
                             iconAnimation = iconAnimation,
                             showBrightnessSlider = if (isLightEntity) showBrightnessSlider else false,
@@ -3638,6 +3662,16 @@ fun ButtonConfigDialog(
     )
 
     // ── Entity pickers hoisted AFTER the AlertDialog so they render on top of it ──
+    if (showTimerStatePicker) {
+        AdvancedEntitySearchDialog(
+            allEntities = allEntities,
+            title = "Select running-state entity",
+            singleSelect = true,
+            preselectedIds = setOfNotNull(timerStateEntityId?.takeIf { it.isNotBlank() }),
+            onDismiss = { showTimerStatePicker = false },
+            onEntitiesSelected = { ids -> timerStateEntityId = ids.firstOrNull(); showTimerStatePicker = false }
+        )
+    }
     if (showDoorPicker) {
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter { it.entity_id.startsWith("binary_sensor.") },
@@ -4745,6 +4779,7 @@ fun ButtonStackItem(
                                 displayName = cfg?.name,
                                 stateAttribute = cfg?.stateAttribute,
                                 stateAsTimer = cfg?.stateAsTimer ?: false,
+                                timerMachineRunning = cfg?.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                                 iconName = cfg?.icon,
                                 iconAnimation = cfg?.iconAnimation ?: "auto",
                                 onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
@@ -4832,6 +4867,7 @@ fun ButtonStackItem(
                                         displayName = cfg?.name,
                                         stateAttribute = cfg?.stateAttribute,
                                         stateAsTimer = cfg?.stateAsTimer ?: false,
+                                        timerMachineRunning = cfg?.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                                         iconName = cfg?.icon,
                                         iconAnimation = cfg?.iconAnimation ?: "auto",
                                         onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
@@ -4874,6 +4910,7 @@ fun ButtonStackItem(
                                         displayName = buttonConfigs[entity.entity_id]?.name,
                                         stateAttribute = buttonConfigs[entity.entity_id]?.stateAttribute,
                                         stateAsTimer = buttonConfigs[entity.entity_id]?.stateAsTimer ?: false,
+                                        timerMachineRunning = buttonConfigs[entity.entity_id]?.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                                         iconName = buttonConfigs[entity.entity_id]?.icon,
                                         iconAnimation = buttonConfigs[entity.entity_id]?.iconAnimation ?: "auto",
                                         onClick = { onEntityClick(entity.entity_id) },
@@ -5042,6 +5079,7 @@ fun SingleEntityWidgetItem(
                         displayName = widget.config.name,
                         stateAttribute = widget.config.stateAttribute,
                         stateAsTimer = widget.config.stateAsTimer,
+                        timerMachineRunning = widget.config.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                         iconName = widget.config.icon,
                         iconAnimation = widget.config.iconAnimation,
                         onClick = { handleSingleButtonInteraction("tap") { onEntityClick(widget.entityId) } },

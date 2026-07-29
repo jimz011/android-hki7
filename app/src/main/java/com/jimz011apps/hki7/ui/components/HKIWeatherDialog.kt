@@ -5,6 +5,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -247,7 +249,7 @@ fun HKIWeatherDialog(
             item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("wind"))) }) { WindCard(weather) }
             item(span = { GridItemSpan(weatherCardSpan(cardWidths.getValue("stats"))) }) { StatsCard(weather) }
             if (rainMapCamera != null || rainMapUrl != null) {
-                item(span = { GridItemSpan(6) }) { RainMapCard(rainMapCamera, rainMapUrl, currentUrl) }
+                item(span = { GridItemSpan(6) }) { RainMapCard(rainMapCamera, rainMapUrl, currentUrl, extraEntities["rainmap_aspect"]) }
             }
         }
     }
@@ -814,49 +816,55 @@ fun WindCard(weather: HAEntity) {
     }
 }
 
-/** Rain/radar map card: renders a camera stream or an embedded web page (iframe) in a WebView. */
+/** Rain/radar map card: renders a camera stream or an embedded web page (iframe) in a WebView,
+ * clipped to the app's card rounding, at the configured aspect ratio (e.g. "16:9"). */
 @Composable
-fun RainMapCard(camera: HAEntity?, iframeUrl: String?, currentUrl: String) {
+fun RainMapCard(camera: HAEntity?, iframeUrl: String?, currentUrl: String, aspect: String?) {
     val appColors = LocalHKIAppColors.current
     val url = when {
         camera != null -> resolveEntityCameraUrl(camera, currentUrl, preferLive = true)
         else -> iframeUrl?.trim()
     }?.takeIf { it.isNotBlank() } ?: return
+    val ratio = parseAspectRatio(aspect)
     var webView by remember { mutableStateOf<android.webkit.WebView?>(null) }
     WebViewLifecyclePause { webView }
-    Card(
-        modifier = Modifier.fillMaxWidth().height(240.dp),
-        shape = itemCornerShape(),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+    Column(
+        Modifier.fillMaxWidth()
+            .clip(itemCornerShape())
+            .background(appColors.elevated.copy(alpha = 0.96f))
     ) {
-        Column(Modifier.fillMaxSize().background(appColors.elevated.copy(alpha = 0.96f))) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Rain map", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
-                Icon(Icons.Default.CloudQueue, null, tint = Color(0xFF4FC3F7), modifier = Modifier.size(19.dp))
-            }
-            androidx.compose.ui.viewinterop.AndroidView(
-                factory = { ctx ->
-                    android.webkit.WebView(ctx).apply {
-                        settings.javaScriptEnabled = true
-                        settings.domStorageEnabled = true
-                        settings.mediaPlaybackRequiresUserGesture = false
-                        settings.useWideViewPort = true
-                        settings.loadWithOverviewMode = true
-                        webViewClient = android.webkit.WebViewClient()
-                        loadUrl(url)
-                        webView = this
-                    }
-                },
-                update = { if (it.url != url) it.loadUrl(url) },
-                onRelease = { it.teardownStream() },
-                modifier = Modifier.fillMaxWidth().weight(1f)
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Rain map", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
+            Icon(Icons.Default.CloudQueue, null, tint = Color(0xFF4FC3F7), modifier = Modifier.size(19.dp))
         }
+        androidx.compose.ui.viewinterop.AndroidView(
+            factory = { ctx ->
+                android.webkit.WebView(ctx).apply {
+                    settings.javaScriptEnabled = true
+                    settings.domStorageEnabled = true
+                    settings.mediaPlaybackRequiresUserGesture = false
+                    settings.useWideViewPort = true
+                    settings.loadWithOverviewMode = true
+                    webViewClient = android.webkit.WebViewClient()
+                    loadUrl(url)
+                    webView = this
+                }
+            },
+            update = { if (it.url != url) it.loadUrl(url) },
+            onRelease = { it.teardownStream() },
+            modifier = Modifier.fillMaxWidth().aspectRatio(ratio)
+        )
     }
+}
+
+/** Parses an "W:H" aspect string (e.g. "16:9") to a width/height ratio, defaulting to 16:9. */
+private fun parseAspectRatio(aspect: String?): Float {
+    val parts = aspect?.split(":", "/")?.mapNotNull { it.trim().toFloatOrNull() }
+    return if (parts != null && parts.size == 2 && parts[1] != 0f) (parts[0] / parts[1]) else 16f / 9f
 }
 
 @Composable
@@ -1095,6 +1103,20 @@ fun WeatherConfigView(
                             }) { Text("Save") }
                         }
                     )
+                    Text("Aspect ratio", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
+                    val currentAspect = extraEntities["rainmap_aspect"] ?: "16:9"
+                    Row(
+                        modifier = Modifier.horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf("16:9", "4:3", "1:1", "3:4", "21:9").forEach { ratio ->
+                            SettingsChoiceChip(
+                                selected = currentAspect == ratio,
+                                onClick = { viewModel.setWeatherExtraEntity("rainmap_aspect", ratio) },
+                                label = { Text(ratio) }
+                            )
+                        }
+                    }
                 }
             }
 

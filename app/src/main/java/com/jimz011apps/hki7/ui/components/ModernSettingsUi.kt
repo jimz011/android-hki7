@@ -53,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.Brush
@@ -441,7 +442,11 @@ fun ModernAlertDialog(
     title: (@Composable () -> Unit)? = null,
     text: (@Composable () -> Unit)? = null,
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
-    stableHeight: Boolean = false
+    stableHeight: Boolean = false,
+    // The dialog fills the whole window (usePlatformDefaultWidth = false), so the platform's
+    // dismiss-on-outside-tap never fires. Opt in here to dismiss when the scrim around the card is
+    // tapped, matching a normal centered dialog.
+    dismissOnTapOutside: Boolean = false
 ) {
     val colors = LocalHKIAppColors.current
     var tabSwipeRegistration by remember { mutableStateOf<DialogTabSwipeRegistration?>(null) }
@@ -453,13 +458,22 @@ fun ModernAlertDialog(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .windowInsetsPadding(WindowInsets.safeDrawing),
+                    .windowInsetsPadding(WindowInsets.safeDrawing)
+                    .then(
+                        if (dismissOnTapOutside) Modifier.pointerInput(Unit) {
+                            detectTapGestures { onDismissRequest() }
+                        } else Modifier
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Surface(
                     // Match the width of HKIDialog / ModernSettingsDialogFrame (0.95f, up to 620dp) so
                     // dialogs like the media library browser aren't visibly narrower than the rest.
                     modifier = modifier
+                        // Swallow taps on the card so only taps on the surrounding scrim dismiss.
+                        .then(
+                            if (dismissOnTapOutside) Modifier.pointerInput(Unit) { detectTapGestures { } } else Modifier
+                        )
                         .fillMaxWidth(0.95f)
                         .widthIn(max = 620.dp)
                         .then(
