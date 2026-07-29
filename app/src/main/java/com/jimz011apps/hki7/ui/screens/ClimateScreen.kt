@@ -60,6 +60,7 @@ import com.jimz011apps.hki7.ui.components.EditRemoveBadge
 import com.jimz011apps.hki7.ui.components.EditSettingsButton
 import com.jimz011apps.hki7.ui.components.MdiIconPickerDialog
 import com.jimz011apps.hki7.ui.components.EntitySensorGraphCard
+import com.jimz011apps.hki7.ui.components.HKIDialog
 import com.jimz011apps.hki7.ui.components.HKIPage
 import com.jimz011apps.hki7.ui.components.HKISlider
 import com.jimz011apps.hki7.ui.components.HistoryRangeChips
@@ -74,6 +75,7 @@ import com.jimz011apps.hki7.ui.components.surfaceGradient
 import com.jimz011apps.hki7.ui.components.LocalItemCornerRadius
 import com.jimz011apps.hki7.ui.components.itemCornerShape
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.jsonPrimitive
@@ -2206,6 +2208,11 @@ private fun ClimateDeviceListPage(
     humidifierFans: Map<String, HAEntity> = emptyMap()
 ) {
     val appColors = LocalHKIAppColors.current
+    var dialogHumidifier by remember { mutableStateOf<HAEntity?>(null) }
+    dialogHumidifier?.let { h ->
+        val live = devices.firstOrNull { it.entity_id == h.entity_id } ?: h
+        HumidifierDialog(live, viewModel, humidifierFans[h.entity_id]) { dialogHumidifier = null }
+    }
     if (isEditMode && devices.isNotEmpty()) {
         ReorderableGrid(
             items = devices,
@@ -2251,7 +2258,7 @@ private fun ClimateDeviceListPage(
             items(count = devices.size, key = { devices[it].entity_id }) { idx ->
                 val entity = devices[idx]
                 Box(Modifier.padding(horizontal = 16.dp, vertical = 5.dp)) {
-                    if (deviceType == "humidifiers") HumidifierCard(entity, viewModel, humidifierFans[entity.entity_id]) else FanCard(entity, viewModel)
+                    if (deviceType == "humidifiers") HumidifierCard(entity, viewModel, humidifierFans[entity.entity_id], onClick = if (!isEditMode) ({ dialogHumidifier = entity }) else null) else FanCard(entity, viewModel)
                     if (isEditMode) {
                         EditSettingsButton(onClick = { onRename(entity) }, modifier = Modifier.align(Alignment.Center))
                         EditRemoveBadge(
@@ -2329,12 +2336,11 @@ private fun FanCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: In
 }
 
 @Composable
-private fun HumidifierCard(entity: HAEntity, viewModel: MainViewModel, fanEntity: HAEntity? = null, cornerRadius: Int = LocalItemCornerRadius.current) {
+private fun HumidifierCard(entity: HAEntity, viewModel: MainViewModel, fanEntity: HAEntity? = null, cornerRadius: Int = LocalItemCornerRadius.current, onClick: (() -> Unit)? = null) {
     val appColors = LocalHKIAppColors.current
     val isOn = entity.state == "on"
     val isDehumidifier = entity.deviceClass == "dehumidifier"
     val color = if (isOn) MistCyan else appColors.onMuted
-    var modesMenuOpen by remember { mutableStateOf(false) }
     val modes = entity.humidifierAvailableModes
     val target = entity.humidity  // target humidity, like climate's "temperature"
     val current = entity.currentHumidity
@@ -2342,7 +2348,12 @@ private fun HumidifierCard(entity: HAEntity, viewModel: MainViewModel, fanEntity
     val maxHum = (entity.maxHumidity ?: 100).toFloat()
     var localTarget by remember(target) { mutableFloatStateOf((target ?: 50.0).toFloat()) }
 
-    Surface(modifier = Modifier.fillMaxWidth().background(surfaceGradient(appColors.elevated), RoundedCornerShape(cornerRadius.dp)), shape = RoundedCornerShape(cornerRadius.dp), color = Color.Transparent) {
+    Surface(
+        modifier = Modifier.fillMaxWidth()
+            .background(surfaceGradient(appColors.elevated), RoundedCornerShape(cornerRadius.dp))
+            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier),
+        shape = RoundedCornerShape(cornerRadius.dp), color = Color.Transparent
+    ) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(
@@ -2379,24 +2390,6 @@ private fun HumidifierCard(entity: HAEntity, viewModel: MainViewModel, fanEntity
                         Text("Current", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
                     }
                 }
-                // With a linked fan taking the inline space for speed, the humidifier's own modes move
-                // into this overflow menu (nav-bar style), like the climate dialog's hvac modes.
-                if (fanEntity != null && modes.isNotEmpty()) {
-                    Box {
-                        IconButton(onClick = { modesMenuOpen = true }) {
-                            Icon(Icons.Default.Tune, "Modes", tint = appColors.onMuted)
-                        }
-                        DropdownMenu(expanded = modesMenuOpen, onDismissRequest = { modesMenuOpen = false }) {
-                            modes.forEach { mode ->
-                                DropdownMenuItem(
-                                    text = { Text(mode.replaceFirstChar(Char::uppercase)) },
-                                    trailingIcon = { if (mode == entity.humidifierMode) Icon(Icons.Default.Check, null, tint = MaterialTheme.colorScheme.primary) },
-                                    onClick = { viewModel.setHumidifierMode(entity.entity_id, mode); modesMenuOpen = false }
-                                )
-                            }
-                        }
-                    }
-                }
                 Switch(checked = isOn, onCheckedChange = { viewModel.toggleEntity(entity.entity_id) })
             }
             if (target != null && isOn) {
@@ -2428,35 +2421,111 @@ private fun HumidifierCard(entity: HAEntity, viewModel: MainViewModel, fanEntity
                 }
             }
             if (fanEntity != null) {
-                // A linked fan supplies the speed controls, replacing the humidifier's mode chips.
-                val fanPct = fanEntity.fanPercentage
-                var localPct by remember(fanPct) { mutableFloatStateOf((fanPct ?: 0).toFloat()) }
-                if (fanPct != null) {
-                    Spacer(Modifier.height(10.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Icon(Icons.Default.Speed, null, tint = appColors.onMuted, modifier = Modifier.size(16.dp))
-                        HKISlider(
-                            value = localPct,
-                            onValueChange = { localPct = it },
-                            onValueChangeFinished = { viewModel.setFanPercentage(fanEntity.entity_id, localPct.toInt()) },
-                            valueRange = 0f..100f,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Text("${localPct.toInt()}%", style = MaterialTheme.typography.labelMedium, color = appColors.onSurface, fontWeight = FontWeight.SemiBold, modifier = Modifier.widthIn(min = 38.dp))
-                    }
-                }
-                if (fanEntity.fanPresetModes.isNotEmpty()) {
-                    Spacer(Modifier.height(10.dp))
-                    ClimateChipGroup("Fan speed", fanEntity.fanPresetModes, fanEntity.fanPresetMode) {
-                        viewModel.setFanPresetMode(fanEntity.entity_id, it)
-                    }
-                }
+                HumidifierSpeedControl(fanEntity, viewModel)
             } else if (modes.isNotEmpty()) {
                 Spacer(Modifier.height(10.dp))
                 ClimateChipGroup("Mode", modes, entity.humidifierMode) {
                     viewModel.setHumidifierMode(entity.entity_id, it)
                 }
             }
+        }
+    }
+}
+
+/** Speed control for a humidifier's linked entity — a fan (percentage slider + preset chips) or a
+ *  select / input_select (option chips via select_option). Used by the card and the dialog. */
+@Composable
+private fun HumidifierSpeedControl(fanEntity: HAEntity, viewModel: MainViewModel) {
+    val appColors = LocalHKIAppColors.current
+    val domain = fanEntity.entity_id.substringBefore('.')
+    if (domain == "fan") {
+        val fanPct = fanEntity.fanPercentage
+        if (fanPct != null) {
+            var localPct by remember(fanPct) { mutableFloatStateOf(fanPct.toFloat()) }
+            Spacer(Modifier.height(10.dp))
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Icon(Icons.Default.Speed, null, tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+                HKISlider(
+                    value = localPct,
+                    onValueChange = { localPct = it },
+                    onValueChangeFinished = { viewModel.setFanPercentage(fanEntity.entity_id, localPct.toInt()) },
+                    valueRange = 0f..100f,
+                    modifier = Modifier.weight(1f)
+                )
+                Text("${localPct.toInt()}%", style = MaterialTheme.typography.labelMedium, color = appColors.onSurface, fontWeight = FontWeight.SemiBold, modifier = Modifier.widthIn(min = 38.dp))
+            }
+        }
+        if (fanEntity.fanPresetModes.isNotEmpty()) {
+            Spacer(Modifier.height(10.dp))
+            ClimateChipGroup("Fan speed", fanEntity.fanPresetModes, fanEntity.fanPresetMode) {
+                viewModel.setFanPresetMode(fanEntity.entity_id, it)
+            }
+        }
+    } else {
+        // select / input_select: its options are the speed steps, set via select_option.
+        val options = (fanEntity.attributes?.get("options") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
+        if (options.isNotEmpty()) {
+            Spacer(Modifier.height(10.dp))
+            ClimateChipGroup("Speed", options, fanEntity.state) {
+                viewModel.callService(domain, "select_option", HAServiceCall(entity_id = fanEntity.entity_id, option = it))
+            }
+        }
+    }
+}
+
+/** Full humidifier dialog: target humidity + current, the linked speed control, and the humidifier's
+ *  own modes as nav-bar tabs (mirroring the climate dialog's hvac modes). */
+@Composable
+private fun HumidifierDialog(entity: HAEntity, viewModel: MainViewModel, fanEntity: HAEntity?, onDismiss: () -> Unit) {
+    val appColors = LocalHKIAppColors.current
+    val isDehumidifier = entity.deviceClass == "dehumidifier"
+    val isOn = entity.state == "on"
+    val modes = entity.humidifierAvailableModes
+    val current = entity.currentHumidity
+    val target = entity.humidity
+    val minHum = (entity.minHumidity ?: 0).toFloat()
+    val maxHum = (entity.maxHumidity ?: 100).toFloat()
+    var localTarget by remember(target) { mutableFloatStateOf((target ?: 50.0).toFloat()) }
+    val tabs: List<Triple<String, ImageVector, () -> Unit>> = modes.map { mode ->
+        Triple(mode.replaceFirstChar(Char::uppercase), Icons.Default.Tune) { viewModel.setHumidifierMode(entity.entity_id, mode) }
+    }
+    HKIDialog(
+        entity = entity,
+        onDismiss = onDismiss,
+        viewModel = viewModel,
+        icon = if (isDehumidifier) Icons.Default.Opacity else Icons.Default.WaterDrop,
+        iconTint = MistCyan,
+        statusText = buildString {
+            append(if (isOn) (if (isDehumidifier) "Drying" else "Humidifying") else entity.state.replaceFirstChar(Char::uppercase))
+            if (current != null) append(" · ${current.toInt()}% now")
+        },
+        tabs = if (tabs.size > 1) tabs else emptyList(),
+        currentTab = entity.humidifierMode?.replaceFirstChar(Char::uppercase)
+    ) {
+        Column(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 8.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                TempStepButton(Icons.Default.Remove, enabled = target != null && localTarget > minHum) {
+                    localTarget = (localTarget - 5f).coerceAtLeast(minHum); viewModel.setHumidifierTarget(entity.entity_id, localTarget.toInt())
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.widthIn(min = 130.dp)) {
+                    Text("${localTarget.toInt()}%", style = MaterialTheme.typography.displayMedium, color = if (isOn) MistCyan else appColors.onMuted, fontWeight = FontWeight.Bold)
+                    Text("Target humidity", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+                }
+                TempStepButton(Icons.Default.Add, enabled = target != null && localTarget < maxHum) {
+                    localTarget = (localTarget + 5f).coerceAtMost(maxHum); viewModel.setHumidifierTarget(entity.entity_id, localTarget.toInt())
+                }
+            }
+            if (current != null) {
+                Spacer(Modifier.height(8.dp))
+                Text("Currently ${current.toInt()}%", style = MaterialTheme.typography.bodyMedium, color = appColors.onMuted)
+            }
+            Spacer(Modifier.height(16.dp))
+            Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                Text(if (isOn) "On" else "Off", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
+                Spacer(Modifier.width(10.dp))
+                Switch(checked = isOn, onCheckedChange = { viewModel.toggleEntity(entity.entity_id) })
+            }
+            if (fanEntity != null) HumidifierSpeedControl(fanEntity, viewModel)
         }
     }
 }
@@ -2749,8 +2818,9 @@ private fun ClimateSensorSection(
 
     fanPickerForHumidifier?.let { humId ->
         AdvancedEntitySearchDialog(
-            allEntities = allEntities.filter { it.entity_id.startsWith("fan.") },
-            title = "Link a fan",
+            // A humidifier's speed source can be a fan, or a select / input_select of speed options.
+            allEntities = allEntities.filter { it.entity_id.startsWith("fan.") || it.entity_id.startsWith("select.") || it.entity_id.startsWith("input_select.") },
+            title = "Link a speed control",
             singleSelect = true,
             preselectedIds = setOfNotNull(cfg.humidifierFanEntityIds[humId]),
             onDismiss = { fanPickerForHumidifier = null },
@@ -2915,14 +2985,14 @@ private fun ClimateSensorSection(
         val humidifiers = (allEntities.filter { it.entity_id.startsWith("humidifier.") }.map { it.entity_id } + cfg.extraHumidifierIds).distinct()
         if (humidifiers.isNotEmpty()) {
             Spacer(Modifier.height(6.dp))
-            Text("Linked fan (optional)", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
-            Text("Give a humidifier a fan to control its speed; the fan's speed options replace the humidifier's mode chips.", style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
+            Text("Linked speed control (optional)", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+            Text("Give a humidifier a fan / select / input_select to control its speed; its options replace the humidifier's mode chips, and modes move to the dialog's nav bar.", style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
             humidifiers.forEach { humId ->
                 Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Column(Modifier.weight(1f)) {
                         Text(entityName(humId), style = MaterialTheme.typography.labelMedium, color = appColors.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         val fanId = cfg.humidifierFanEntityIds[humId]
-                        Text(fanId?.let { entityName(it) } ?: "No fan linked", style = MaterialTheme.typography.bodySmall, color = if (fanId != null) MaterialTheme.colorScheme.primary else appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(fanId?.let { entityName(it) } ?: "No speed control linked", style = MaterialTheme.typography.bodySmall, color = if (fanId != null) MaterialTheme.colorScheme.primary else appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     TextButton(onClick = { fanPickerForHumidifier = humId }) { Text("Change") }
                     if (cfg.humidifierFanEntityIds[humId] != null) TextButton(onClick = { saveLinkedFan(humId, null) }) { Text("Clear") }

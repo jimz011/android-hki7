@@ -43,7 +43,24 @@ data class HKIDashboard(
     val mediaPlayerBarHidden: List<String> = emptyList(),
     // For an imported shared dashboard ("shared-<id>"): the source's `updated` timestamp last merged
     // in, so auto-update can skip re-fetching an unchanged shared dashboard.
-    val sharedUpdatedAt: String? = null
+    val sharedUpdatedAt: String? = null,
+    /** Header pill settings (weather/alarm/date-time display + their linked entities and rain map).
+     * These are otherwise global, so bundling them per-dashboard lets them travel with family sharing.
+     * Null on dashboards created before this existed — global prefs are then left untouched. */
+    val headerPill: HeaderPillConfig? = null,
+)
+
+/** The header display pills (left + right) and their linked entities, captured per-dashboard so they
+ * carry across cloud/family sharing (they are otherwise global preferences). */
+@Serializable
+data class HeaderPillConfig(
+    val rightDisplayType: String = "Weather",
+    val leftDisplayType: String = "None",
+    /** Weather role -> entity id / value: sun, moon, aqi, season, rain, device, rainmap, rainmap_url,
+     *  rainmap_aspect. */
+    val weatherEntities: Map<String, String> = emptyMap(),
+    val rightAlarmEntityIds: List<String> = emptyList(),
+    val leftAlarmEntityIds: List<String> = emptyList(),
 )
 
 /** Outcome of pruning shared dashboards that were unpublished in the cloud. */
@@ -1255,8 +1272,36 @@ class PreferencesManager(
         navBarOrder = p[navBarOrderKey]?.split(',')?.filter(String::isNotBlank).orEmpty(),
         navBarHidden = p[navBarHiddenKey]?.split(',')?.filter(String::isNotBlank).orEmpty(),
         mediaPlayerNames = decodeBackup(p[mediaPlayerNamesKey], emptyMap()),
-        mediaPlayerBarHidden = p[mediaPlayerBarHiddenKey]?.split(',')?.filter(String::isNotBlank).orEmpty()
+        mediaPlayerBarHidden = p[mediaPlayerBarHiddenKey]?.split(',')?.filter(String::isNotBlank).orEmpty(),
+        headerPill = headerPillFromPreferences(p)
     )
+
+    /** Role -> preference key for the header weather pill's linked entities and rain map. */
+    private val headerWeatherRoleKeys: Map<String, androidx.datastore.preferences.core.Preferences.Key<String>>
+        get() = mapOf(
+            "sun" to sunEntityKey, "moon" to moonEntityKey, "aqi" to aqiEntityKey,
+            "season" to seasonEntityKey, "rain" to rainEntityKey, "device" to weatherDeviceKey,
+            "rainmap" to rainMapEntityKey, "rainmap_url" to rainMapUrlKey, "rainmap_aspect" to rainMapAspectKey
+        )
+
+    private fun headerPillFromPreferences(p: Preferences): HeaderPillConfig = HeaderPillConfig(
+        rightDisplayType = p[weatherDisplayKey] ?: "Weather",
+        leftDisplayType = p[headerLeftDisplayKey] ?: "None",
+        weatherEntities = headerWeatherRoleKeys.mapNotNull { (role, key) -> p[key]?.let { role to it } }.toMap(),
+        rightAlarmEntityIds = p[alarmEntityKey]?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty(),
+        leftAlarmEntityIds = p[headerLeftAlarmEntityKey]?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
+    )
+
+    private fun applyHeaderPill(p: MutablePreferences, hp: HeaderPillConfig) {
+        p[weatherDisplayKey] = hp.rightDisplayType
+        p[headerLeftDisplayKey] = hp.leftDisplayType
+        headerWeatherRoleKeys.forEach { (role, key) ->
+            val value = hp.weatherEntities[role]
+            if (value.isNullOrBlank()) p.remove(key) else p[key] = value
+        }
+        p[alarmEntityKey] = hp.rightAlarmEntityIds.joinToString(",")
+        p[headerLeftAlarmEntityKey] = hp.leftAlarmEntityIds.joinToString(",")
+    }
 
     private fun saveLoadedDashboardInto(p: MutablePreferences, dashboards: MutableList<HKIDashboard>) {
         val activeId = p[activeDashboardIdKey] ?: return
@@ -1277,6 +1322,8 @@ class PreferencesManager(
         p[navBarHiddenKey] = dashboard.navBarHidden.joinToString(",")
         p[mediaPlayerNamesKey] = appJson.encodeToString(dashboard.mediaPlayerNames)
         p[mediaPlayerBarHiddenKey] = dashboard.mediaPlayerBarHidden.joinToString(",")
+        // Only dashboards that captured a header pill re-apply it; older ones leave global prefs alone.
+        dashboard.headerPill?.let { applyHeaderPill(p, it) }
     }
 
     private fun manualOnlyPageConfigs(): Map<String, HKIPageConfig> = mapOf(
