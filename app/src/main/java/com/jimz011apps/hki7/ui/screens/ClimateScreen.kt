@@ -108,6 +108,10 @@ private data class ClimateSensorGroup(
 private val climateSensorGroups = listOf(
     ClimateSensorGroup("temperature", "Temperature", "All temperature sensors",
         Icons.Default.Thermostat, TempWarm, setOf("temperature")),
+    // Outside sits right next to Temperature. Never auto-discovered — its sensors are set manually
+    // (temperature/humidity/pressure) in Climate settings.
+    ClimateSensorGroup("outside", "Outside", "Outside temperature, humidity & pressure",
+        Icons.Default.WbSunny, TempWarm, emptySet()),
     ClimateSensorGroup("humidity", "Humidity", "All humidity sensors",
         Icons.Default.WaterDrop, HumidBlue, setOf("humidity")),
     ClimateSensorGroup("pressure", "Air pressure", "All pressure sensors",
@@ -118,11 +122,7 @@ private val climateSensorGroups = listOf(
         Icons.Default.Air, AirGreen, setOf(
             "pm1", "pm25", "pm10", "aqi", "volatile_organic_compounds",
             "volatile_organic_compounds_parts", "nitrogen_dioxide", "carbon_monoxide"
-        )),
-    // Outside conditions are never auto-discovered (empty device-class set) — we can't tell which
-    // sensors are outdoors — so users add outside temperature/humidity/pressure here manually.
-    ClimateSensorGroup("outside", "Outside", "Outside temperature, humidity & pressure",
-        Icons.Default.WbSunny, TempWarm, emptySet())
+        ))
 )
 
 private val weatherSensorPlatforms = setOf(
@@ -434,7 +434,15 @@ fun ClimateScreen(viewModel: MainViewModel) {
             val auto = if (climateConfig.manualOnly) emptyList() else entities.filter { e ->
                 e.isAutoClimateSensorFor(group.key, registryById[e.entity_id])
             }
-            val extras = climateConfig.extraSensorIds[group.key].orEmpty().mapNotNull { entityById[it] }
+            // Outside pulls from its three dedicated (temperature/humidity/pressure) lists, not the
+            // generic extraSensorIds map (kept as a legacy fallback for any previously-added ids).
+            val extras = if (group.key == "outside") {
+                (climateConfig.outsideTemperatureIds + climateConfig.outsideHumidityIds +
+                    climateConfig.outsidePressureIds + climateConfig.extraSensorIds["outside"].orEmpty())
+                    .mapNotNull { entityById[it] }
+            } else {
+                climateConfig.extraSensorIds[group.key].orEmpty().mapNotNull { entityById[it] }
+            }
             group.key to (auto + extras)
                 .distinctBy { it.entity_id }
                 .filter { it.entity_id !in hidden }
@@ -586,7 +594,10 @@ fun ClimateScreen(viewModel: MainViewModel) {
                     })
                     reorderClimateEntities(visible, from, to)
                 },
-                padding = padding
+                padding = padding,
+                humidifierFans = humidifierEntities.mapNotNull { h ->
+                    climateConfig.humidifierFanEntityIds[h.entity_id]?.let { fanId -> entityById[fanId]?.let { h.entity_id to it } }
+                }.toMap()
             )
             else -> if (climateConfig.manualOnly && climateEntities.isEmpty() && groupSensors.values.all { it.isEmpty() } && fanEntities.isEmpty() && humidifierEntities.isEmpty()) {
                 EmptyEditHint(
@@ -606,12 +617,15 @@ fun ClimateScreen(viewModel: MainViewModel) {
                         fanEntities = fanEntities,
                         humidifierEntities = humidifierEntities,
                         openingState = openingState,
-                        // Outside temperature = device_class temperature, or (for template/helper
-                        // sensors that carry no class) anything reporting a temperature unit. With a
-                        // single unclassified outside sensor this still finds it.
-                        outsideTempSensors = groupSensors["outside"].orEmpty().filter {
-                            it.deviceClass == "temperature" || it.unit() in setOf("°C", "°F", "℃", "℉")
-                        }
+                        // Outside temperature comes from its dedicated list; fall back to any legacy
+                        // outside sensor with a temperature class/unit.
+                        outsideTempSensors = climateConfig.outsideTemperatureIds.mapNotNull { entityById[it] }
+                            .filter { it.entity_id !in hidden }
+                            .ifEmpty {
+                                groupSensors["outside"].orEmpty().filter {
+                                    it.deviceClass == "temperature" || it.unit() in setOf("°C", "°F", "℃", "℉")
+                                }
+                            }
                     )
                 }
 
@@ -626,9 +640,11 @@ fun ClimateScreen(viewModel: MainViewModel) {
                             val sensors = groupSensors[group.key].orEmpty()
                             if (sensors.isEmpty()) return@forEach
                             // Outside mixes temp/humidity/pressure, so summarise its temperature sensors
-                            // (falling back to whatever it has) instead of averaging across unlike units.
+                            // (its dedicated list, falling back to class/unit) instead of averaging unlike units.
                             val summarySensors = if (group.key == "outside") {
-                                sensors.filter { it.deviceClass == "temperature" }.ifEmpty { sensors }
+                                climateConfig.outsideTemperatureIds.mapNotNull { entityById[it] }
+                                    .ifEmpty { sensors.filter { it.deviceClass == "temperature" || it.unit() in setOf("°C", "°F", "℃", "℉") } }
+                                    .ifEmpty { sensors }
                             } else sensors
                             val values = summarySensors.mapNotNull { it.numericState() }
                             val unit = summarySensors.firstOrNull()?.unit() ?: ""
@@ -2186,7 +2202,8 @@ private fun ClimateDeviceListPage(
     onRemove: (String) -> Unit,
     onRename: (HAEntity) -> Unit,
     onReorder: (Int, Int) -> Unit,
-    padding: PaddingValues
+    padding: PaddingValues,
+    humidifierFans: Map<String, HAEntity> = emptyMap()
 ) {
     val appColors = LocalHKIAppColors.current
     if (isEditMode && devices.isNotEmpty()) {
@@ -2202,7 +2219,7 @@ private fun ClimateDeviceListPage(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) { entity, _ ->
             Box {
-                if (deviceType == "humidifiers") HumidifierCard(entity, viewModel) else FanCard(entity, viewModel)
+                if (deviceType == "humidifiers") HumidifierCard(entity, viewModel, humidifierFans[entity.entity_id]) else FanCard(entity, viewModel)
                 EditSettingsButton(onClick = { onRename(entity) }, modifier = Modifier.align(Alignment.Center))
                 EditRemoveBadge(onClick = { onRemove(entity.entity_id) }, modifier = Modifier.align(Alignment.TopEnd))
             }
@@ -2234,7 +2251,7 @@ private fun ClimateDeviceListPage(
             items(count = devices.size, key = { devices[it].entity_id }) { idx ->
                 val entity = devices[idx]
                 Box(Modifier.padding(horizontal = 16.dp, vertical = 5.dp)) {
-                    if (deviceType == "humidifiers") HumidifierCard(entity, viewModel) else FanCard(entity, viewModel)
+                    if (deviceType == "humidifiers") HumidifierCard(entity, viewModel, humidifierFans[entity.entity_id]) else FanCard(entity, viewModel)
                     if (isEditMode) {
                         EditSettingsButton(onClick = { onRename(entity) }, modifier = Modifier.align(Alignment.Center))
                         EditRemoveBadge(
@@ -2312,11 +2329,13 @@ private fun FanCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: In
 }
 
 @Composable
-private fun HumidifierCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: Int = LocalItemCornerRadius.current) {
+private fun HumidifierCard(entity: HAEntity, viewModel: MainViewModel, fanEntity: HAEntity? = null, cornerRadius: Int = LocalItemCornerRadius.current) {
     val appColors = LocalHKIAppColors.current
     val isOn = entity.state == "on"
     val isDehumidifier = entity.deviceClass == "dehumidifier"
     val color = if (isOn) MistCyan else appColors.onMuted
+    var modesMenuOpen by remember { mutableStateOf(false) }
+    val modes = entity.humidifierAvailableModes
     val target = entity.humidity  // target humidity, like climate's "temperature"
     val current = entity.currentHumidity
     val minHum = (entity.minHumidity ?: 0).toFloat()
@@ -2360,6 +2379,24 @@ private fun HumidifierCard(entity: HAEntity, viewModel: MainViewModel, cornerRad
                         Text("Current", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
                     }
                 }
+                // With a linked fan taking the inline space for speed, the humidifier's own modes move
+                // into this overflow menu (nav-bar style), like the climate dialog's hvac modes.
+                if (fanEntity != null && modes.isNotEmpty()) {
+                    Box {
+                        IconButton(onClick = { modesMenuOpen = true }) {
+                            Icon(Icons.Default.Tune, "Modes", tint = appColors.onMuted)
+                        }
+                        DropdownMenu(expanded = modesMenuOpen, onDismissRequest = { modesMenuOpen = false }) {
+                            modes.forEach { mode ->
+                                DropdownMenuItem(
+                                    text = { Text(mode.replaceFirstChar(Char::uppercase)) },
+                                    trailingIcon = { if (mode == entity.humidifierMode) Icon(Icons.Default.Check, null, tint = MaterialTheme.colorScheme.primary) },
+                                    onClick = { viewModel.setHumidifierMode(entity.entity_id, mode); modesMenuOpen = false }
+                                )
+                            }
+                        }
+                    }
+                }
                 Switch(checked = isOn, onCheckedChange = { viewModel.toggleEntity(entity.entity_id) })
             }
             if (target != null && isOn) {
@@ -2390,9 +2427,33 @@ private fun HumidifierCard(entity: HAEntity, viewModel: MainViewModel, cornerRad
                     }
                 }
             }
-            if (entity.humidifierAvailableModes.isNotEmpty()) {
+            if (fanEntity != null) {
+                // A linked fan supplies the speed controls, replacing the humidifier's mode chips.
+                val fanPct = fanEntity.fanPercentage
+                var localPct by remember(fanPct) { mutableFloatStateOf((fanPct ?: 0).toFloat()) }
+                if (fanPct != null) {
+                    Spacer(Modifier.height(10.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Icon(Icons.Default.Speed, null, tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+                        HKISlider(
+                            value = localPct,
+                            onValueChange = { localPct = it },
+                            onValueChangeFinished = { viewModel.setFanPercentage(fanEntity.entity_id, localPct.toInt()) },
+                            valueRange = 0f..100f,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text("${localPct.toInt()}%", style = MaterialTheme.typography.labelMedium, color = appColors.onSurface, fontWeight = FontWeight.SemiBold, modifier = Modifier.widthIn(min = 38.dp))
+                    }
+                }
+                if (fanEntity.fanPresetModes.isNotEmpty()) {
+                    Spacer(Modifier.height(10.dp))
+                    ClimateChipGroup("Fan speed", fanEntity.fanPresetModes, fanEntity.fanPresetMode) {
+                        viewModel.setFanPresetMode(fanEntity.entity_id, it)
+                    }
+                }
+            } else if (modes.isNotEmpty()) {
                 Spacer(Modifier.height(10.dp))
-                ClimateChipGroup("Mode", entity.humidifierAvailableModes, entity.humidifierMode) {
+                ClimateChipGroup("Mode", modes, entity.humidifierMode) {
                     viewModel.setHumidifierMode(entity.entity_id, it)
                 }
             }
@@ -2597,9 +2658,33 @@ private fun ClimateSensorSection(
     var cfg by remember(climateConfig) { mutableStateOf(climateConfig) }
     var category by remember { mutableStateOf<String?>(null) }
     var showPicker by remember { mutableStateOf(false) }
+    // Outside has three dedicated sub-lists (temperature/humidity/pressure); this holds which one the
+    // picker is editing.
+    var outsidePickerType by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(category) { setBack(if (category != null) { { category = null } } else null) }
 
     fun entityName(id: String): String = allEntities.find { it.entity_id == id }?.friendlyName ?: id
+
+    fun outsideIds(type: String): List<String> = when (type) {
+        "temperature" -> cfg.outsideTemperatureIds
+        "humidity" -> cfg.outsideHumidityIds
+        else -> cfg.outsidePressureIds
+    }
+    fun saveOutsideIds(type: String, ids: List<String>) {
+        cfg = when (type) {
+            "temperature" -> cfg.copy(outsideTemperatureIds = ids)
+            "humidity" -> cfg.copy(outsideHumidityIds = ids)
+            else -> cfg.copy(outsidePressureIds = ids)
+        }
+        onSave(cfg)
+    }
+
+    // Optional fan linked to a humidifier (its speed options replace the humidifier's mode chips).
+    var fanPickerForHumidifier by remember { mutableStateOf<String?>(null) }
+    fun saveLinkedFan(humId: String, fanId: String?) {
+        cfg = cfg.copy(humidifierFanEntityIds = if (fanId == null) cfg.humidifierFanEntityIds - humId else cfg.humidifierFanEntityIds + (humId to fanId))
+        onSave(cfg)
+    }
 
     // Per-category manual list accessors: which ids the picker manages and how to store them.
     fun manualIds(cat: String): List<String> = when (cat) {
@@ -2636,7 +2721,7 @@ private fun ClimateSensorSection(
         put("hidden", "Removed entities")
     }
 
-    if (showPicker && category != null && category != "hidden") {
+    if (showPicker && category != null && category != "hidden" && category != "outside") {
         val cat = category!!
         AdvancedEntitySearchDialog(
             allEntities = pickerEntities(cat),
@@ -2648,6 +2733,28 @@ private fun ClimateSensorSection(
                 saveManualIds(cat, ids)
                 showPicker = false
             }
+        )
+    }
+
+    outsidePickerType?.let { type ->
+        AdvancedEntitySearchDialog(
+            allEntities = allEntities.filter { it.entity_id.startsWith("sensor.") },
+            title = "Select outside ${type}",
+            singleSelect = false,
+            preselectedIds = outsideIds(type).toSet(),
+            onDismiss = { outsidePickerType = null },
+            onEntitiesSelected = { ids -> saveOutsideIds(type, ids); outsidePickerType = null }
+        )
+    }
+
+    fanPickerForHumidifier?.let { humId ->
+        AdvancedEntitySearchDialog(
+            allEntities = allEntities.filter { it.entity_id.startsWith("fan.") },
+            title = "Link a fan",
+            singleSelect = true,
+            preselectedIds = setOfNotNull(cfg.humidifierFanEntityIds[humId]),
+            onDismiss = { fanPickerForHumidifier = null },
+            onEntitiesSelected = { ids -> saveLinkedFan(humId, ids.firstOrNull()); fanPickerForHumidifier = null }
         )
     }
 
@@ -2677,12 +2784,17 @@ private fun ClimateSensorSection(
 
     if (category == null) {
         climateSensorGroups.forEach { group ->
-            val extraCount = cfg.extraSensorIds[group.key].orEmpty().size
-            categoryButton(
-                group.key, group.title,
-                if (extraCount > 0) "Auto-discovered + $extraCount manual" else "Auto-discovered by device class",
-                group.icon, group.color
-            )
+            if (group.key == "outside") {
+                val count = cfg.outsideTemperatureIds.size + cfg.outsideHumidityIds.size + cfg.outsidePressureIds.size
+                categoryButton(group.key, group.title,
+                    if (count > 0) "$count outside sensors set" else "Set outdoor temp / humidity / pressure",
+                    group.icon, group.color)
+            } else {
+                val extraCount = cfg.extraSensorIds[group.key].orEmpty().size
+                categoryButton(group.key, group.title,
+                    if (extraCount > 0) "Auto-discovered + $extraCount manual" else "Auto-discovered by device class",
+                    group.icon, group.color)
+            }
         }
         categoryButton("climate", "Thermostats & AC",
             if (cfg.extraClimateIds.isEmpty()) "Auto-discovered climate devices" else "Auto + ${cfg.extraClimateIds.size} manual",
@@ -2738,6 +2850,32 @@ private fun ClimateSensorSection(
         return
     }
 
+    // Outside: three dedicated sensor pickers (temperature / humidity / pressure). Never
+    // auto-discovered, since we can't know which sensors are outdoors.
+    if (category == "outside") {
+        Text(
+            "Outside sensors are never auto-detected. Pick your outdoor temperature, humidity and air-pressure sensors — the temperature feeds the Outside tile and the hero's outside reading.",
+            style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
+        )
+        listOf("temperature" to "Outside temperature", "humidity" to "Outside humidity", "pressure" to "Outside air pressure").forEach { (type, label) ->
+            Text(label, style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+            outsideIds(type).forEach { id ->
+                Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(entityName(id), style = MaterialTheme.typography.labelMedium, color = appColors.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                    IconButton(onClick = { saveOutsideIds(type, outsideIds(type) - id) }, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.Default.Close, "Remove", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+                    }
+                }
+            }
+            TextButton(onClick = { outsidePickerType = type }) {
+                Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(6.dp))
+                Text(if (outsideIds(type).isEmpty()) "Add sensors" else "Edit sensors")
+            }
+            HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
+        }
+        return
+    }
+
     // Manual entity list for the selected category
     val cat = category!!
     Text(
@@ -2770,6 +2908,28 @@ private fun ClimateSensorSection(
         Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp))
         Spacer(Modifier.width(6.dp))
         Text(if (manualIds(cat).isEmpty()) "Add entities" else "Edit entities")
+    }
+
+    // Per-humidifier linked fan: its speed options replace the humidifier's mode chips on the card.
+    if (cat == "humidifiers") {
+        val humidifiers = (allEntities.filter { it.entity_id.startsWith("humidifier.") }.map { it.entity_id } + cfg.extraHumidifierIds).distinct()
+        if (humidifiers.isNotEmpty()) {
+            Spacer(Modifier.height(6.dp))
+            Text("Linked fan (optional)", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+            Text("Give a humidifier a fan to control its speed; the fan's speed options replace the humidifier's mode chips.", style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
+            humidifiers.forEach { humId ->
+                Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(Modifier.weight(1f)) {
+                        Text(entityName(humId), style = MaterialTheme.typography.labelMedium, color = appColors.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        val fanId = cfg.humidifierFanEntityIds[humId]
+                        Text(fanId?.let { entityName(it) } ?: "No fan linked", style = MaterialTheme.typography.bodySmall, color = if (fanId != null) MaterialTheme.colorScheme.primary else appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    TextButton(onClick = { fanPickerForHumidifier = humId }) { Text("Change") }
+                    if (cfg.humidifierFanEntityIds[humId] != null) TextButton(onClick = { saveLinkedFan(humId, null) }) { Text("Clear") }
+                }
+                HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
+            }
+        }
     }
 }
 
@@ -3104,7 +3264,7 @@ fun ClimateCardWidgetView(
         "humidifiers" -> deviceList(
             data.humidifierEntities,
             "No humidifiers found. Humidifier entities from Home Assistant appear here automatically."
-        ) { HumidifierCard(it, viewModel, cornerRadius) }
+        ) { HumidifierCard(it, viewModel, cornerRadius = cornerRadius) }
         else -> {
             val group = climateSensorGroups.find { it.key == cardKey }
             if (group == null) { emptyCard("Unknown climate card: $cardKey"); return }

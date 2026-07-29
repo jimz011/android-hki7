@@ -731,6 +731,14 @@ data class HKIClimateConfig(
     val purifierEntityIds: List<String> = emptyList(),
     /** Extra humidifier/dehumidifier entities beyond the auto-discovered humidifier.* domain. */
     val extraHumidifierIds: List<String> = emptyList(),
+    /** Optional fan entity linked to a humidifier (keyed by humidifier entity id): supplies the fan
+     *  speed options shown in place of the humidifier's modes button. */
+    val humidifierFanEntityIds: Map<String, String> = emptyMap(),
+    /** Outside sensors (never auto-discovered — we can't tell which sensors are outdoors). These feed
+     *  the "Outside" tile/detail page and the hero's outside-temperature subtitle. */
+    val outsideTemperatureIds: List<String> = emptyList(),
+    val outsideHumidityIds: List<String> = emptyList(),
+    val outsidePressureIds: List<String> = emptyList(),
     /** Fan entities captured by one-time auto generation. */
     val extraFanIds: List<String> = emptyList(),
     /** Entities removed via edit mode; excluded from cards, tiles, graphs and averages. */

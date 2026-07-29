@@ -4,8 +4,11 @@ package com.jimz011apps.hki7.ui.screens
 
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.res.painterResource
+import com.jimz011apps.hki7.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -212,12 +215,20 @@ private fun carrierKey(text: String): String = when {
 
 private fun carrierName(domain: String) = PARCEL_CARRIERS[domain] ?: "Carrier"
 
-/** The carrier's own brand logo, served straight from its ha-parcel-integrations repo (every
- *  integration ships custom_components/<domain>/brand/icon.png), so all carriers get a logo. */
-private fun carrierLogo(domain: String): String? {
-    if (domain !in PARCEL_CARRIERS) return null
-    val repo = "ha-" + domain.replace('_', '-')
-    return "https://raw.githubusercontent.com/ha-parcel-integrations/$repo/main/custom_components/$domain/brand/icon.png"
+/** Each carrier's brand logo, bundled in-app (vendored from every integration's
+ *  custom_components/<domain>/brand/icon.png), so logos work offline for all carriers. */
+private fun carrierLogoRes(domain: String): Int? = when (domain) {
+    "postnl" -> R.drawable.parcel_postnl
+    "dhl_nl" -> R.drawable.parcel_dhl_nl
+    "dpd" -> R.drawable.parcel_dpd
+    "gls" -> R.drawable.parcel_gls
+    "dragonfly" -> R.drawable.parcel_dragonfly
+    "cainiao" -> R.drawable.parcel_cainiao
+    "correos" -> R.drawable.parcel_correos
+    "packeta" -> R.drawable.parcel_packeta
+    "hermes" -> R.drawable.parcel_hermes
+    "trunkrs" -> R.drawable.parcel_trunkrs
+    else -> null
 }
 
 /** Combines multiple integration devices for the same known carrier while retaining first-seen
@@ -300,8 +311,10 @@ private fun resolveParcelCarriers(
                 entity.attributes?.get("id")?.jsonPrimitive?.contentOrNull != null
             matchesSensorPrefix || isPostNlLetterImage
         }).distinctBy { it.entity_id }
-        val configured = customImages[deviceId]?.takeIf { it.isNotBlank() }
-        val image = (configured ?: carrierLogo(key))?.let { if (it.startsWith("http")) it else "${currentUrl.removeSuffix("/")}/${it.removePrefix("/")}" }
+        // Only a user-set custom image lives in logoUrl; the built-in per-carrier logo is a bundled
+        // drawable resolved by domain in CarrierLogo.
+        val image = customImages[deviceId]?.takeIf { it.isNotBlank() }
+            ?.let { if (it.startsWith("http")) it else "${currentUrl.removeSuffix("/")}/${it.removePrefix("/")}" }
         ParcelCarrier(key, customNames[deviceId]?.takeIf { it.isNotBlank() } ?: carrierName(domain), deviceId, deviceEntities,
             countEntity(deviceEntities, "incoming"), countEntity(deviceEntities, "outgoing"), image, currentUrl, accessToken, domain = domain)
     }
@@ -395,8 +408,12 @@ fun ParcelsWidgetItem(
 private fun CarrierLogo(carrier: ParcelCarrier, size: Int) {
     Surface(shape = RoundedCornerShape((size / 4).dp), color = Color.White, shadowElevation = 3.dp, modifier = Modifier.size(size.dp)) {
         val logoUrl = carrier.logoUrl
-        if (logoUrl != null) ParcelAsyncImage(carrier, logoUrl, carrier.name, Modifier.fillMaxSize().padding(7.dp), ContentScale.Fit)
-        else Box(contentAlignment = Alignment.Center) { Icon(Icons.Default.LocalShipping, null) }
+        val logoRes = carrierLogoRes(carrier.domain)
+        when {
+            logoUrl != null -> ParcelAsyncImage(carrier, logoUrl, carrier.name, Modifier.fillMaxSize().padding(7.dp), ContentScale.Fit)
+            logoRes != null -> Image(painterResource(logoRes), carrier.name, Modifier.fillMaxSize().padding(7.dp), contentScale = ContentScale.Fit)
+            else -> Box(contentAlignment = Alignment.Center) { Icon(Icons.Default.LocalShipping, null) }
+        }
     }
 }
 
@@ -709,8 +726,19 @@ private fun ParcelHero(carrier: ParcelCarrier, parcel: JsonObject?, history: Jso
     fun JsonObject.attr(name: String) = this[name]?.jsonPrimitive?.contentOrNull
     val status = history?.attr("status") ?: parcel?.attr("status") ?: "unknown"
     val rawStatus = history?.attr("raw_status") ?: parcel?.attr("raw_status") ?: status.replace('_', ' ')
+    val delivered = parcel?.isDeliveredParcel() == true
+    // Best available ETA/delivery moment. A planned window wins; otherwise any single expected-time
+    // field; otherwise (for delivered parcels) the last history timestamp.
+    val plannedWindow = listOfNotNull(parcel?.attr("planned_from")?.let(::formatParcelTime), parcel?.attr("planned_to")?.let(::formatParcelTime)).joinToString(" – ")
+    val singleEta = listOf("expected_delivery", "delivery_date", "eta", "expected", "delivery", "planned_date")
+        .firstNotNullOfOrNull { parcel?.attr(it) }?.let(::formatParcelTime)
+    val deliveredMoment = if (delivered) (parcel?.get("history") as? JsonArray)?.mapNotNull { (it as? JsonObject)?.get("timestamp")?.jsonPrimitive?.contentOrNull }?.lastOrNull()?.let(::formatParcelTime) else null
     val moment = history?.attr("timestamp")?.let(::formatParcelTime)
-        ?: listOfNotNull(parcel?.attr("planned_from")?.let(::formatParcelTime), parcel?.attr("planned_to")?.let(::formatParcelTime)).joinToString(" – ")
+        ?: plannedWindow.ifBlank { null }
+        ?: singleEta
+        ?: deliveredMoment
+        ?: ""
+    val momentLabel = when { history != null -> "History"; delivered -> "Delivered"; else -> "Expected delivery" }
     val stage = when (status) { "registered" -> 0; "in_transit" -> 1; "out_for_delivery", "at_pickup_point" -> 2; "delivered" -> 3; else -> 1 }
     Surface(shape = itemCornerShape(), color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = Modifier.fillMaxWidth().height(190.dp)) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.SpaceBetween) {
@@ -721,8 +749,8 @@ private fun ParcelHero(carrier: ParcelCarrier, parcel: JsonObject?, history: Jso
                     Text(rawStatus.replaceFirstChar(Char::uppercase), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall, maxLines = 2)
                 }
                 if (moment.isNotBlank()) Column(horizontalAlignment = Alignment.End) {
-                    Text(if (history != null) "History" else "Expected delivery", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall)
-                    Text(moment, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)
+                    Text(momentLabel, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall)
+                    Text(moment, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.End)
                 }
             }
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

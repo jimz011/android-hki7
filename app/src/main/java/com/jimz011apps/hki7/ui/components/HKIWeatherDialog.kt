@@ -828,36 +828,50 @@ fun RainMapCard(camera: HAEntity?, iframeUrl: String?, currentUrl: String, aspec
     val ratio = parseAspectRatio(aspect)
     var webView by remember { mutableStateOf<android.webkit.WebView?>(null) }
     WebViewLifecyclePause { webView }
-    Column(
-        Modifier.fillMaxWidth()
-            .clip(itemCornerShape())
-            .background(appColors.elevated.copy(alpha = 0.96f))
+    val corner = LocalItemCornerRadius.current.dp
+    Surface(
+        modifier = Modifier.fillMaxWidth().clip(itemCornerShape()),
+        shape = itemCornerShape(),
+        color = appColors.elevated.copy(alpha = 0.96f)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Rain map", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
-            Icon(Icons.Default.CloudQueue, null, tint = Color(0xFF4FC3F7), modifier = Modifier.size(19.dp))
+        Column(Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Rain map", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
+                Icon(Icons.Default.CloudQueue, null, tint = Color(0xFF4FC3F7), modifier = Modifier.size(19.dp))
+            }
+            androidx.compose.ui.viewinterop.AndroidView(
+                factory = { ctx ->
+                    android.webkit.WebView(ctx).apply {
+                        settings.javaScriptEnabled = true
+                        settings.domStorageEnabled = true
+                        settings.mediaPlaybackRequiresUserGesture = false
+                        settings.useWideViewPort = true
+                        settings.loadWithOverviewMode = true
+                        webViewClient = android.webkit.WebViewClient()
+                        // Native WebView surfaces can ignore the Compose parent clip, so round the
+                        // view's own bottom corners to match the card.
+                        clipToOutline = true
+                        outlineProvider = object : android.view.ViewOutlineProvider() {
+                            override fun getOutline(view: android.view.View, outline: android.graphics.Outline) {
+                                val r = corner.value * resources.displayMetrics.density
+                                outline.setRoundRect(0, (-r).toInt(), view.width, view.height, r)
+                            }
+                        }
+                        loadUrl(url)
+                        webView = this
+                    }
+                },
+                update = { if (it.url != url) it.loadUrl(url) },
+                onRelease = { it.teardownStream() },
+                modifier = Modifier.fillMaxWidth().aspectRatio(ratio).clip(
+                    RoundedCornerShape(bottomStart = corner, bottomEnd = corner)
+                )
+            )
         }
-        androidx.compose.ui.viewinterop.AndroidView(
-            factory = { ctx ->
-                android.webkit.WebView(ctx).apply {
-                    settings.javaScriptEnabled = true
-                    settings.domStorageEnabled = true
-                    settings.mediaPlaybackRequiresUserGesture = false
-                    settings.useWideViewPort = true
-                    settings.loadWithOverviewMode = true
-                    webViewClient = android.webkit.WebViewClient()
-                    loadUrl(url)
-                    webView = this
-                }
-            },
-            update = { if (it.url != url) it.loadUrl(url) },
-            onRelease = { it.teardownStream() },
-            modifier = Modifier.fillMaxWidth().aspectRatio(ratio)
-        )
     }
 }
 
