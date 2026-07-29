@@ -650,7 +650,11 @@ data class HKIBadge(
     val vacuumMapEntityIds: Map<String, String> = emptyMap(),
     val vacuumBatteryEntityIds: Map<String, String> = emptyMap(),
     val vacuumWaterEntityIds: Map<String, String> = emptyMap(),
-    val vacuumEmptyBinEntityIds: Map<String, String> = emptyMap()
+    val vacuumEmptyBinEntityIds: Map<String, String> = emptyMap(),
+    // Humidifier: linked speed control + device-autofilled auxiliary entities (see HKIButtonConfig).
+    val humidifierFanEntityId: String? = null,
+    val humidifierDeviceId: String? = null,
+    val humidifierAuxEntityIds: Map<String, String> = emptyMap()
 ) {
     /** All entity ids this badge represents (falls back to the single [entityId]). */
     val effectiveEntityIds: List<String>
@@ -960,6 +964,12 @@ data class HKIButtonConfig(
     /** Optional fan / select / input_select entity that supplies a humidifier's speed options in its
      *  dialog (its modes then live in the dialog's nav bar). */
     val humidifierFanEntityId: String? = null,
+    /** Optional HA device whose related entities auto-fill [humidifierAuxEntityIds]. */
+    val humidifierDeviceId: String? = null,
+    /** Auxiliary humidifier entities shown in its dialog, keyed by slot
+     *  (current_humidity, tank_level, pm25, error, bucket_full, clean_filter, defrost, ionizer,
+     *  pump, sleep, beep). Auto-filled from [humidifierDeviceId] or set manually. */
+    val humidifierAuxEntityIds: Map<String, String> = emptyMap(),
     /** Per-item visibility inside a multi-item widget. [hidden] hides it until unhidden. When
      * [visibilityStart]/[visibilityEnd] (ISO-8601 local date-time, e.g. "2026-12-24T00:00") are set,
      * [visibilityRangeMode] decides whether that window is when the item is shown ("show") or hidden

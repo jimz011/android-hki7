@@ -469,6 +469,8 @@ fun HKIBadgeBar(
                 entity = de,
                 viewModel = viewModel,
                 iconName = badge?.customIcon,
+                fanEntity = badge?.humidifierFanEntityId?.let { id -> allEntities.find { it.entity_id == id } },
+                auxEntities = badge?.humidifierAuxEntityIds.orEmpty().mapNotNull { (k, id) -> allEntities.find { it.entity_id == id }?.let { k to it } }.toMap(),
                 onDismiss = dismiss
             )
             "alarm" -> HKIAlarmDialog(
@@ -1093,6 +1095,9 @@ fun BadgeSettingsDialog(
     var holdAction  by remember { mutableStateOf(badge.holdActionEx ?: HKIAction(type = if (badge.holdAction == "auto") "more_info" else badge.holdAction)) }
     var customButtons by remember { mutableStateOf(badge.customButtons) }
     var climateDialogControl by remember { mutableStateOf(badge.climateDialogControl) }
+    var humidifierFanEntityId by remember { mutableStateOf(badge.humidifierFanEntityId) }
+    var humidifierDeviceId by remember { mutableStateOf(badge.humidifierDeviceId) }
+    var humidifierAuxEntityIds by remember { mutableStateOf(badge.humidifierAuxEntityIds) }
     val areas by viewModel.areas.collectAsState()
     var editingEntityIds by remember { mutableStateOf(badge.effectiveEntityIds) }
     // Per-entity settings
@@ -1117,6 +1122,7 @@ fun BadgeSettingsDialog(
     val lockIds   = editingEntityIds.filter { it.startsWith("lock.") }
     val vacuumIds = editingEntityIds.filter { it.startsWith("vacuum.") }
     val climateIds = editingEntityIds.filter { it.startsWith("climate.") }
+    val humidifierIds = editingEntityIds.filter { it.startsWith("humidifier.") }
 
     fun nameOf(id: String) = allEntities.find { it.entity_id == id }?.friendlyName ?: id
 
@@ -1268,6 +1274,23 @@ fun BadgeSettingsDialog(
                             label = { Text("Thermostat dial") }
                         )
                     }
+                }
+
+                if (humidifierIds.isNotEmpty()) {
+                    HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
+                    HumidifierIntegrationSettings(
+                        deviceId = humidifierDeviceId,
+                        fanEntityId = humidifierFanEntityId,
+                        auxEntityIds = humidifierAuxEntityIds,
+                        allEntities = allEntities,
+                        devices = devices,
+                        entityRegistry = entityRegistry,
+                        onChange = { dev, fan, aux ->
+                            humidifierDeviceId = dev
+                            humidifierFanEntityId = fan
+                            humidifierAuxEntityIds = aux
+                        }
+                    )
                 }
 
                 }
@@ -1473,7 +1496,10 @@ fun BadgeSettingsDialog(
                     vacuumBatteryEntityIds = vacuumBattIds.filterKeys { it in vacuumIds },
                     vacuumDeviceIds = vacuumDeviceIds.filterKeys { it in vacuumIds },
                     vacuumWaterEntityIds = vacuumWaterIds.filterKeys { it in vacuumIds },
-                    vacuumEmptyBinEntityIds = vacuumEmptyIds.filterKeys { it in vacuumIds }
+                    vacuumEmptyBinEntityIds = vacuumEmptyIds.filterKeys { it in vacuumIds },
+                    humidifierFanEntityId = if (humidifierIds.isNotEmpty()) humidifierFanEntityId else null,
+                    humidifierDeviceId = if (humidifierIds.isNotEmpty()) humidifierDeviceId else null,
+                    humidifierAuxEntityIds = if (humidifierIds.isNotEmpty()) humidifierAuxEntityIds else emptyMap()
                 ))
             }) { Text("Save") }
         }

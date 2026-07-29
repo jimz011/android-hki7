@@ -2783,9 +2783,9 @@ private fun ClimateSensorSection(
 
     fanPickerForHumidifier?.let { humId ->
         AdvancedEntitySearchDialog(
-            // A humidifier's speed source can be a fan, or a select / input_select of speed options.
-            allEntities = allEntities.filter { it.entity_id.startsWith("fan.") || it.entity_id.startsWith("select.") || it.entity_id.startsWith("input_select.") },
-            title = "Link a speed control",
+            // Climate humidifier cards only support a linked fan for speed control.
+            allEntities = allEntities.filter { it.entity_id.startsWith("fan.") },
+            title = "Link a fan",
             singleSelect = true,
             preselectedIds = setOfNotNull(cfg.humidifierFanEntityIds[humId]),
             onDismiss = { fanPickerForHumidifier = null },
@@ -2957,14 +2957,14 @@ private fun ClimateSensorSection(
         val humidifiers = (allEntities.filter { it.entity_id.startsWith("humidifier.") }.map { it.entity_id } + cfg.extraHumidifierIds).distinct()
         if (humidifiers.isNotEmpty()) {
             Spacer(Modifier.height(6.dp))
-            Text("Linked speed control (optional)", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
-            Text("Give a humidifier a fan / select / input_select to control its speed; its options replace the humidifier's mode chips, and modes move to the dialog's nav bar.", style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
+            Text("Linked fan (optional)", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+            Text("Give a humidifier a fan to control its speed; its speed replaces the humidifier's mode chips, and modes move to the dialog's nav bar.", style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
             humidifiers.forEach { humId ->
                 Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Column(Modifier.weight(1f)) {
                         Text(entityName(humId), style = MaterialTheme.typography.labelMedium, color = appColors.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         val fanId = cfg.humidifierFanEntityIds[humId]
-                        Text(fanId?.let { entityName(it) } ?: "No speed control linked", style = MaterialTheme.typography.bodySmall, color = if (fanId != null) MaterialTheme.colorScheme.primary else appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(fanId?.let { entityName(it) } ?: "No fan linked", style = MaterialTheme.typography.bodySmall, color = if (fanId != null) MaterialTheme.colorScheme.primary else appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     TextButton(onClick = { fanPickerForHumidifier = humId }) { Text("Change") }
                     if (cfg.humidifierFanEntityIds[humId] != null) TextButton(onClick = { saveLinkedFan(humId, null) }) { Text("Clear") }

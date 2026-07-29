@@ -58,8 +58,8 @@ internal fun RoomStatusIndicators(
     compact: Boolean,
     modifier: Modifier = Modifier,
     visibleRoles: Set<String>? = null,
-    /** Invoked with the active entity ids behind a tapped counter. */
-    onIndicatorClick: ((List<String>) -> Unit)? = null
+    /** Invoked with the tapped counter's role and the active entity ids behind it. */
+    onIndicatorClick: ((role: String, ids: List<String>) -> Unit)? = null
 ) {
     val indicators = summary.indicators
         .asSequence()
@@ -83,7 +83,7 @@ internal fun RoomStatusIndicators(
                 indicator = indicator,
                 contentColor = statusColor(indicator.role),
                 compact = compact,
-                onClick = onIndicatorClick?.takeIf { indicator.entityIds.isNotEmpty() }?.let { cb -> { cb(indicator.entityIds) } }
+                onClick = onIndicatorClick?.takeIf { indicator.entityIds.isNotEmpty() }?.let { cb -> { cb(indicator.role, indicator.entityIds) } }
             )
         }
     }
@@ -185,6 +185,34 @@ private fun statusOrder(role: String): Int = when (role) {
     RoomStatusRoles.GAS -> 7
     RoomStatusRoles.FIRE -> 8
     else -> 9
+}
+
+/** Group-dialog title for a room-status role (e.g. "Lights", "Open doors"). */
+fun roomStatusGroupTitle(role: String): String = when (role) {
+    RoomStatusRoles.DOORS -> "Open doors"
+    RoomStatusRoles.WINDOWS -> "Open windows"
+    RoomStatusRoles.MOTION -> "Motion"
+    RoomStatusRoles.PRESENCE -> "Presence"
+    RoomStatusRoles.LIGHTS -> "Lights on"
+    RoomStatusRoles.DEVICES -> "Devices on"
+    RoomStatusRoles.SMOKE -> "Smoke"
+    RoomStatusRoles.GAS -> "Gas"
+    RoomStatusRoles.FIRE -> "Fire"
+    else -> "Active"
+}
+
+/** MDI icon slug for a room-status role, used by the tapped-counter group dialog header. */
+fun roomStatusMdiSlug(role: String): String = when (role) {
+    RoomStatusRoles.DOORS -> "door-open"
+    RoomStatusRoles.WINDOWS -> "window-open"
+    RoomStatusRoles.MOTION -> "motion-sensor"
+    RoomStatusRoles.PRESENCE -> "account"
+    RoomStatusRoles.LIGHTS -> "lightbulb-group"
+    RoomStatusRoles.DEVICES -> "power-plug"
+    RoomStatusRoles.SMOKE -> "smoke-detector"
+    RoomStatusRoles.GAS -> "gas-cylinder"
+    RoomStatusRoles.FIRE -> "fire"
+    else -> "power-plug"
 }
 
 private fun statusLabel(role: String, count: Int): String {

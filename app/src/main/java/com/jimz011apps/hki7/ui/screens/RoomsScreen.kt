@@ -120,18 +120,31 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
     val entities by viewModel.entities.collectAsState()
     // Tapping a room-status counter lists exactly the entities it counts (the currently-active ones)
     // in the same aggregated dialog a badge uses.
-    var activityEntities by remember { mutableStateOf<List<com.jimz011apps.hki7.data.HAEntity>>(emptyList()) }
-    val openActivity: (List<String>) -> Unit = { ids ->
-        activityEntities = ids.mapNotNull { id -> entities.find { it.entity_id == id } }
+    var activityRole by remember { mutableStateOf<String?>(null) }
+    var activityEntityIds by remember { mutableStateOf<List<String>>(emptyList()) }
+    val openActivity: (String, List<String>) -> Unit = { role, ids ->
+        activityRole = role; activityEntityIds = ids
     }
-    if (activityEntities.isNotEmpty()) {
-        UniversalStackDialog(
-            entities = activityEntities,
-            allEntities = entities,
-            currentUrl = currentUrl,
-            viewModel = viewModel,
-            onDismiss = { activityEntities = emptyList() }
-        )
+    if (activityRole != null && activityEntityIds.isNotEmpty()) {
+        val role = activityRole!!
+        val groupEntities = activityEntityIds.mapNotNull { id -> entities.find { it.entity_id == id } }
+        val syntheticStack = remember(role, activityEntityIds) {
+            com.jimz011apps.hki7.data.HKIButtonStack(
+                id = "room-status-$role",
+                title = com.jimz011apps.hki7.ui.components.roomStatusGroupTitle(role),
+                icon = com.jimz011apps.hki7.ui.components.roomStatusMdiSlug(role),
+                entityIds = activityEntityIds
+            )
+        }
+        val closeActivity = { activityRole = null; activityEntityIds = emptyList() }
+        if (groupEntities.isNotEmpty()) {
+            GroupEntityDialog(
+                stack = syntheticStack,
+                entities = groupEntities,
+                viewModel = viewModel,
+                onDismiss = closeActivity
+            )
+        } else closeActivity()
     }
     val dashboardMode by viewModel.dashboardMode.collectAsState()
     val autoGenerationPending by viewModel.prefs.pendingAutoTakeover.collectAsState(initial = false)
@@ -466,7 +479,7 @@ private fun FloorSection(
     onDeleteArea: (String) -> Unit,
     onSettingsArea: (String) -> Unit,
     onClickArea: (String) -> Unit,
-    onActivityClick: ((List<String>) -> Unit)? = null,
+    onActivityClick: ((String, List<String>) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val appColors = LocalHKIAppColors.current
@@ -565,7 +578,7 @@ fun AreaCard(
     onDelete: () -> Unit,
     onSettings: () -> Unit,
     onClick: () -> Unit,
-    onActivityClick: ((List<String>) -> Unit)? = null
+    onActivityClick: ((String, List<String>) -> Unit)? = null
 ) {
     val appColors = LocalHKIAppColors.current
     val headerColor = remember(config.headerColor) { parseRoomHeaderColor(config.headerColor) }

@@ -1727,6 +1727,8 @@ fun HAHomeScreen(
             viewModel = viewModel,
             titleOverride = selectedHumidifierConfig?.name,
             iconName = selectedHumidifierConfig?.icon,
+            fanEntity = selectedHumidifierConfig?.humidifierFanEntityId?.let { id -> entities.find { it.entity_id == id } },
+            auxEntities = selectedHumidifierConfig?.humidifierAuxEntityIds.orEmpty().mapNotNull { (k, id) -> entities.find { it.entity_id == id }?.let { k to it } }.toMap(),
             onDismiss = { selectedHumidifierEntity = null; selectedHumidifierConfig = null }
         )
     }

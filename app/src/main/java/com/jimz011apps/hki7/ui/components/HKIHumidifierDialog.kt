@@ -24,6 +24,23 @@ import kotlinx.serialization.json.jsonPrimitive
 
 val HumidifierCyan = Color(0xFF00BCD4)
 
+/** A distinct icon per humidifier preset mode so the nav-bar tabs are visually distinguishable. */
+fun humidifierModeIcon(mode: String): androidx.compose.ui.graphics.vector.ImageVector = when (mode.lowercase()) {
+    "normal" -> Icons.Default.WaterDrop
+    "eco" -> Icons.Default.Eco
+    "away" -> Icons.Default.Luggage
+    "boost", "turbo", "max" -> Icons.Default.Bolt
+    "comfort" -> Icons.Default.Weekend
+    "home" -> Icons.Default.Home
+    "sleep", "night" -> Icons.Default.Bedtime
+    "auto" -> Icons.Default.AutoMode
+    "baby" -> Icons.Default.ChildCare
+    "quiet", "silent" -> Icons.Default.VolumeOff
+    "continuous" -> Icons.Default.AllInclusive
+    "manual" -> Icons.Default.PanTool
+    else -> Icons.Default.Tune
+}
+
 /**
  * Home Assistant's humidifier domain only exposes a single settable target (`humidity`), plus
  * read-only `min_humidity`/`max_humidity` capability bounds from the device — there is no native
@@ -36,7 +53,9 @@ fun HKIHumidifierDialog(
     onDismiss: () -> Unit,
     titleOverride: String? = null,
     iconName: String? = null,
-    fanEntity: HAEntity? = null
+    fanEntity: HAEntity? = null,
+    /** Auxiliary humidifier helper entities keyed by slot (see HumidifierAuxSlots). */
+    auxEntities: Map<String, HAEntity> = emptyMap()
 ) {
     val appColors = LocalHKIAppColors.current
     val isOn = entity.state == "on"
@@ -46,7 +65,7 @@ fun HKIHumidifierDialog(
     // than a modes button + list.
     val modes = entity.humidifierAvailableModes
     val navigationTabs: List<Triple<String, androidx.compose.ui.graphics.vector.ImageVector, () -> Unit>> =
-        if (modes.size > 1) modes.map { m -> Triple(label(m), Icons.Default.Tune) { viewModel.setHumidifierMode(entity.entity_id, m) } } else emptyList()
+        if (modes.size > 1) modes.map { m -> Triple(label(m), humidifierModeIcon(m)) { viewModel.setHumidifierMode(entity.entity_id, m) } } else emptyList()
 
     val statusText = if (isOn) {
         entity.humidity?.let { "${it.toInt()}% • ON" } ?: "ON"
@@ -65,7 +84,7 @@ fun HKIHumidifierDialog(
         currentTab = entity.humidifierMode?.let(::label)
     ) {
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            HumidifierContent(entity = entity, viewModel = viewModel, isOn = isOn, fanEntity = fanEntity)
+            HumidifierContent(entity = entity, viewModel = viewModel, isOn = isOn, fanEntity = fanEntity, auxEntities = auxEntities)
         }
     }
 }
@@ -75,7 +94,8 @@ private fun HumidifierContent(
     entity: HAEntity,
     viewModel: MainViewModel,
     isOn: Boolean,
-    fanEntity: HAEntity?
+    fanEntity: HAEntity?,
+    auxEntities: Map<String, HAEntity>
 ) {
     val appColors = LocalHKIAppColors.current
     val minH = entity.minHumidity ?: 0
@@ -87,8 +107,10 @@ private fun HumidifierContent(
     LaunchedEffect(entity.humidity) { sliderValue = fractionFor(entity.humidity?.toInt() ?: minH) }
     val displayValue = minH + (sliderValue * (maxH - minH)).toInt()
 
+    // Prefer a configured current-humidity sensor; fall back to the humidifier's own attribute.
+    val currentHumidity = auxEntities["current_humidity"]?.state?.toDoubleOrNull() ?: entity.currentHumidity
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -98,7 +120,7 @@ private fun HumidifierContent(
             style = if (isOn) MaterialTheme.typography.displayMedium else MaterialTheme.typography.headlineLarge
         )
         if (isOn) {
-            entity.currentHumidity?.let { current ->
+            currentHumidity?.let { current ->
                 Spacer(Modifier.height(4.dp))
                 Text("Current ${current.toInt()}%", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
             }
@@ -125,6 +147,62 @@ private fun HumidifierContent(
             if (fanEntity != null) {
                 Spacer(Modifier.height(14.dp))
                 HumidifierSpeedControl(fanEntity, viewModel)
+            }
+        }
+        HumidifierAuxSection(auxEntities, viewModel)
+    }
+}
+
+/** Read-only status chips (tank, PM2.5, error, filter, defrost, bucket) plus toggle chips for the
+ *  switch-domain helpers (ionizer, pump, sleep, beep) configured for this humidifier. */
+@Composable
+private fun HumidifierAuxSection(auxEntities: Map<String, HAEntity>, viewModel: MainViewModel) {
+    val appColors = LocalHKIAppColors.current
+    // Info chips: value/state shown for these slots when set.
+    val infoSlots = listOf(
+        "tank_level" to "Tank",
+        "pm25" to "PM2.5",
+        "error" to "Error",
+        "bucket_full" to "Bucket",
+        "clean_filter" to "Filter",
+        "defrost" to "Defrost"
+    )
+    val infoEntries = infoSlots.mapNotNull { (key, label) -> auxEntities[key]?.let { label to it } }
+    val toggleSlots = listOf("ionizer" to "Ionizer", "pump" to "Pump", "sleep" to "Sleep", "beep" to "Beep")
+    val toggleEntries = toggleSlots.mapNotNull { (key, label) -> auxEntities[key]?.let { label to it } }
+    if (infoEntries.isEmpty() && toggleEntries.isEmpty()) return
+
+    Spacer(Modifier.height(18.dp))
+    if (infoEntries.isNotEmpty()) {
+        androidx.compose.foundation.layout.FlowRow(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            infoEntries.forEach { (label, e) ->
+                val unit = e.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull.orEmpty()
+                val value = e.state.replaceFirstChar(Char::uppercase)
+                AssistChip(
+                    onClick = {},
+                    enabled = false,
+                    label = { Text("$label: $value$unit", style = MaterialTheme.typography.labelMedium) }
+                )
+            }
+        }
+    }
+    if (toggleEntries.isNotEmpty()) {
+        Spacer(Modifier.height(10.dp))
+        androidx.compose.foundation.layout.FlowRow(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            toggleEntries.forEach { (label, e) ->
+                FilterChip(
+                    selected = e.state == "on",
+                    onClick = { viewModel.toggleEntity(e.entity_id) },
+                    label = { Text(label) }
+                )
             }
         }
     }
