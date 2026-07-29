@@ -42,6 +42,7 @@ import com.jimz011apps.hki7.data.*
 import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.ui.components.DevicePickerDialog
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.launch
 import com.jimz011apps.hki7.ui.components.EditRemoveBadge
 import com.jimz011apps.hki7.ui.components.EditSettingsButton
 import com.jimz011apps.hki7.ui.components.WidgetWidthSelector
@@ -69,8 +70,15 @@ internal data class ParcelCarrier(
     val outgoing: Int,
     val logoUrl: String?,
     val baseUrl: String,
-    val accessToken: String
+    val accessToken: String,
+    /** The Home Assistant integration domain (e.g. "gls", "postnl"), from the entity registry
+     *  platform. Determines the brand logo and whether manual parcel-adding is supported. */
+    val domain: String = key
 ) {
+    val deliveredCount: Int get() = parcels.count { it.isDeliveredParcel() }
+    /** True when this carrier's integration exposes `<domain>.track_parcel` (manual add by number). */
+    val supportsManualAdd: Boolean get() = domain in TRACK_PARCEL_DOMAINS
+
     val supportsLetters: Boolean get() = entities.any { entity ->
         val label = "${entity.entity_id} ${entity.friendlyName.orEmpty()}"
         !entity.entity_id.startsWith("image.") &&
@@ -172,24 +180,44 @@ private fun isCurrentOrFutureLetter(letter: JsonObject, today: LocalDate = Local
 private fun HAEntity.parcelAttribute(name: String): String? =
     attributes?.get(name)?.jsonPrimitive?.contentOrNull
 
+/** Every supported ha-parcel-integrations carrier: HA integration domain -> display name. */
+private val PARCEL_CARRIERS = linkedMapOf(
+    "postnl" to "PostNL", "dhl_nl" to "DHL", "dpd" to "DPD", "gls" to "GLS",
+    "dragonfly" to "Dragonfly", "cainiao" to "Cainiao", "correos" to "Correos",
+    "packeta" to "Packeta", "hermes" to "Hermes", "trunkrs" to "Trunkrs"
+)
+
+/** Carriers whose integration exposes `<domain>.track_parcel` — a manual add-by-tracking-number
+ *  service (account-based carriers like PostNL/DPD/DHL only track what's already in the account). */
+internal val TRACK_PARCEL_DOMAINS = setOf(
+    "gls", "dragonfly", "cainiao", "correos", "packeta", "hermes", "trunkrs"
+)
+
+/** Carriers whose `track_parcel` also accepts an optional postal_code to pick the right hub. */
+internal val TRACK_PARCEL_POSTCODE_DOMAINS = setOf("gls", "trunkrs")
+
 private fun carrierKey(text: String): String = when {
     text.contains("postnl", true) -> "postnl"
     text.contains("dhl", true) -> "dhl_nl"
     text.contains("dpd", true) -> "dpd"
     text.contains("gls", true) -> "gls"
+    text.contains("dragonfly", true) -> "dragonfly"
+    text.contains("cainiao", true) || text.contains("aliexpress", true) || text.contains("temu", true) -> "cainiao"
+    text.contains("correos", true) -> "correos"
+    text.contains("packeta", true) || text.contains("zasilkovna", true) -> "packeta"
+    text.contains("hermes", true) -> "hermes"
+    text.contains("trunkrs", true) -> "trunkrs"
     else -> "parcel"
 }
 
-private fun carrierName(key: String) = when (key) {
-    "postnl" -> "PostNL"; "dhl_nl" -> "DHL"; "dpd" -> "DPD"; "gls" -> "GLS"; else -> "Carrier"
-}
+private fun carrierName(domain: String) = PARCEL_CARRIERS[domain] ?: "Carrier"
 
-private fun carrierLogo(key: String): String? = when (key) {
-    "postnl" -> "https://raw.githubusercontent.com/jonisnet/hki-parcels-card/main/images/postnl/postnl-logo.png"
-    "dhl_nl" -> "https://raw.githubusercontent.com/jonisnet/hki-parcels-card/main/images/dhl/DHL_logo.png"
-    "dpd" -> "https://raw.githubusercontent.com/jonisnet/hki-parcels-card/main/images/dpd/DPD_logo.png"
-    "gls" -> "https://raw.githubusercontent.com/jonisnet/hki-parcels-card/main/images/gls/GLS_logo.png"
-    else -> null
+/** The carrier's own brand logo, served straight from its ha-parcel-integrations repo (every
+ *  integration ships custom_components/<domain>/brand/icon.png), so all carriers get a logo. */
+private fun carrierLogo(domain: String): String? {
+    if (domain !in PARCEL_CARRIERS) return null
+    val repo = "ha-" + domain.replace('_', '-')
+    return "https://raw.githubusercontent.com/ha-parcel-integrations/$repo/main/custom_components/$domain/brand/icon.png"
 }
 
 /** Combines multiple integration devices for the same known carrier while retaining first-seen
@@ -206,14 +234,15 @@ internal fun aggregateParcelCarriers(carriers: List<ParcelCarrier>): List<Parcel
         val first = accounts.first()
         ParcelCarrier(
             key = first.key,
-            name = carrierName(first.key),
+            name = carrierName(first.domain),
             deviceId = "aggregate:${first.key}",
             entities = accounts.flatMap { it.entities }.distinctBy { it.entity_id },
             incoming = accounts.sumOf { it.incoming },
             outgoing = accounts.sumOf { it.outgoing },
             logoUrl = accounts.firstNotNullOfOrNull { it.logoUrl },
             baseUrl = first.baseUrl,
-            accessToken = first.accessToken
+            accessToken = first.accessToken,
+            domain = first.domain
         )
     }
 }
@@ -254,7 +283,11 @@ private fun resolveParcelCarriers(
         }
         if (directEntities.isEmpty()) return@mapNotNull null
         val hint = listOfNotNull(device?.name_by_user, device?.name, device?.manufacturer, directEntities.firstOrNull()?.friendlyName).joinToString(" ")
-        val key = carrierKey(hint)
+        // The integration domain (registry platform) is the reliable carrier identity; fall back to a
+        // name hint only when the registry hasn't loaded it. This drives the logo and add support.
+        val platform = directEntities.firstNotNullOfOrNull { e -> registry.firstOrNull { it.entity_id == e.entity_id }?.platform }
+        val domain = platform?.takeIf { it in PARCEL_CARRIERS } ?: carrierKey(hint)
+        val key = domain
         val deviceEntities = (directEntities + entities.filter { entity ->
             if (!entity.entity_id.startsWith("image.")) return@filter false
             val matchesSensorPrefix = letterPrefixes.any { prefix ->
@@ -269,8 +302,8 @@ private fun resolveParcelCarriers(
         }).distinctBy { it.entity_id }
         val configured = customImages[deviceId]?.takeIf { it.isNotBlank() }
         val image = (configured ?: carrierLogo(key))?.let { if (it.startsWith("http")) it else "${currentUrl.removeSuffix("/")}/${it.removePrefix("/")}" }
-        ParcelCarrier(key, customNames[deviceId]?.takeIf { it.isNotBlank() } ?: carrierName(key), deviceId, deviceEntities,
-            countEntity(deviceEntities, "incoming"), countEntity(deviceEntities, "outgoing"), image, currentUrl, accessToken)
+        ParcelCarrier(key, customNames[deviceId]?.takeIf { it.isNotBlank() } ?: carrierName(domain), deviceId, deviceEntities,
+            countEntity(deviceEntities, "incoming"), countEntity(deviceEntities, "outgoing"), image, currentUrl, accessToken, domain = domain)
     }
 }
 
@@ -355,7 +388,7 @@ fun ParcelsWidgetItem(
             EditSettingsButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center))
         }
     }
-    if (showDialog) ParcelDialog(carriers, onDismiss = { showDialog = false })
+    if (showDialog) ParcelDialog(carriers, viewModel, onDismiss = { showDialog = false })
 }
 
 @Composable
@@ -387,8 +420,10 @@ private fun ParcelAsyncImage(
 }
 
 @Composable
-private fun ParcelDialog(carriers: List<ParcelCarrier>, onDismiss: () -> Unit) {
+private fun ParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel, onDismiss: () -> Unit) {
     val appColors = LocalHKIAppColors.current
+    var showAddParcel by remember { mutableStateOf(false) }
+    val canAddParcel = remember(carriers) { carriers.any { it.supportsManualAdd } }
     var selectedCarrierId by remember(carriers) { mutableStateOf(if (carriers.size == 1) carriers.firstOrNull()?.deviceId else null) }
     val carrier = carriers.firstOrNull { it.deviceId == selectedCarrierId }
     var tab by remember(selectedCarrierId) { mutableStateOf(ParcelTab.Incoming) }
@@ -447,6 +482,16 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, onDismiss: () -> Unit) {
                     carrier == null -> {
                         val scroll = rememberScrollState()
                         Column(Modifier.weight(1f).fadingEdges(scroll).verticalScroll(scroll), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            // Totals across every configured carrier.
+                            val anyLetters = carriers.any { it.supportsLetters }
+                            Surface(shape = itemCornerShape(), color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = Modifier.fillMaxWidth()) {
+                                Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    SummaryPill("Incoming", carriers.sumOf { it.incoming }, Modifier.weight(1f))
+                                    SummaryPill("Delivered", carriers.sumOf { it.deliveredCount }, Modifier.weight(1f))
+                                    SummaryPill("Outgoing", carriers.sumOf { it.outgoing }, Modifier.weight(1f))
+                                    if (anyLetters) SummaryPill("Letters", carriers.sumOf { it.currentLetterCount }, Modifier.weight(1f))
+                                }
+                            }
                             carriers.forEach { item ->
                                 Surface(shape = itemCornerShape(), color = appColors.subtleSurface, contentColor = appColors.onSurface,
                                     modifier = Modifier.fillMaxWidth().clickable { selectedCarrierId = item.deviceId }) {
@@ -539,9 +584,93 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, onDismiss: () -> Unit) {
                 }
             }
         },
-        footer = { TextButton(onClick = onDismiss) { Text("Done") } }
+        footer = {
+            if (canAddParcel && !parcelDetail) {
+                Button(onClick = { showAddParcel = true }) {
+                    Icon(Icons.Default.Add, null); Spacer(Modifier.width(6.dp)); Text("Add Parcel")
+                }
+                Spacer(Modifier.weight(1f))
+            }
+            TextButton(onClick = onDismiss) { Text("Done") }
+        }
     )
     selectedLetter?.let { letter -> LetterViewerDialog(carrier, letter) { selectedLetter = null } }
+    if (showAddParcel) AddParcelDialog(carriers, viewModel) { showAddParcel = false }
+}
+
+@Composable
+private fun AddParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel, onDismiss: () -> Unit) {
+    val appColors = LocalHKIAppColors.current
+    val scope = rememberCoroutineScope()
+    // Only carriers whose integration supports track_parcel; dedupe by domain since the service is
+    // domain-level (it resolves the config entry itself, so aggregated/multiple accounts collapse).
+    val addable = remember(carriers) { carriers.filter { it.supportsManualAdd }.distinctBy { it.domain } }
+    var selectedDomain by remember { mutableStateOf(if (addable.size == 1) addable.first().domain else null) }
+    val selected = addable.firstOrNull { it.domain == selectedDomain }
+    var tracking by remember(selectedDomain) { mutableStateOf("") }
+    var postcode by remember(selectedDomain) { mutableStateOf("") }
+    var busy by remember { mutableStateOf(false) }
+    var message by remember(selectedDomain) { mutableStateOf<String?>(null) }
+    val needsPostcode = selected?.domain in TRACK_PARCEL_POSTCODE_DOMAINS
+
+    com.jimz011apps.hki7.ui.components.ModernSettingsDialogFrame(
+        title = "Add parcel",
+        subtitle = selected?.let { "Track a new ${it.name} parcel by number" } ?: "Choose a carrier",
+        icon = Icons.Default.Add,
+        onDismiss = onDismiss,
+        onBack = if (selected != null && addable.size > 1) ({ selectedDomain = null }) else null,
+        content = {
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                when {
+                    addable.isEmpty() -> Text(
+                        "None of your configured carriers support adding a parcel by tracking number. Account-based carriers (PostNL, DPD, DHL) only track what's already in your account.",
+                        color = appColors.onMuted
+                    )
+                    selected == null -> addable.forEach { c ->
+                        Surface(shape = itemCornerShape(), color = appColors.subtleSurface, contentColor = appColors.onSurface,
+                            modifier = Modifier.fillMaxWidth().clickable { selectedDomain = c.domain }) {
+                            Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                CarrierLogo(c, 48)
+                                Text(c.name, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                            }
+                        }
+                    }
+                    else -> {
+                        OutlinedTextField(
+                            value = tracking, onValueChange = { tracking = it; message = null },
+                            label = { Text("Tracking number") }, singleLine = true, modifier = Modifier.fillMaxWidth()
+                        )
+                        if (needsPostcode) OutlinedTextField(
+                            value = postcode, onValueChange = { postcode = it },
+                            label = { Text("Postal code (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth()
+                        )
+                        message?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+                    }
+                }
+            }
+        },
+        footer = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+            Spacer(Modifier.weight(1f))
+            if (selected != null) Button(
+                enabled = !busy && tracking.isNotBlank(),
+                onClick = {
+                    val domain = selected.domain
+                    busy = true; message = null
+                    scope.launch {
+                        val payload = buildJsonObject {
+                            put("tracking_code", tracking.trim())
+                            if (needsPostcode && postcode.isNotBlank()) put("postal_code", postcode.trim())
+                        }
+                        val result = runCatching { viewModel.callServiceRawAwait(domain, "track_parcel", payload) }
+                        busy = false
+                        if (result.isSuccess) onDismiss()
+                        else message = "Could not add the parcel. Check the number and try again."
+                    }
+                }
+            ) { Text(if (busy) "Adding…" else "Add") }
+        }
+    )
 }
 
 @Composable
