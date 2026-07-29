@@ -15,8 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.HAServiceCall
 import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonPrimitive
 
 val HumidifierCyan = Color(0xFF00BCD4)
 
@@ -31,17 +35,18 @@ fun HKIHumidifierDialog(
     viewModel: MainViewModel,
     onDismiss: () -> Unit,
     titleOverride: String? = null,
-    iconName: String? = null
+    iconName: String? = null,
+    fanEntity: HAEntity? = null
 ) {
     val appColors = LocalHKIAppColors.current
     val isOn = entity.state == "on"
+    fun label(mode: String) = mode.split("_").joinToString(" ") { it.replaceFirstChar(Char::uppercase) }
 
-    var currentTab by remember(entity.entity_id) { mutableStateOf("Humidity") }
-    var showModes by remember(entity.entity_id) { mutableStateOf(false) }
-    val tabs = buildList {
-        add(Triple("Humidity", Icons.Default.WaterDrop) { currentTab = "Humidity" })
-    }
-    val navigationTabs = tabs.takeIf { it.size > 1 } ?: emptyList()
+    // Humidifier modes are the dialog's nav-bar tabs (like the climate dialog's hvac modes), rather
+    // than a modes button + list.
+    val modes = entity.humidifierAvailableModes
+    val navigationTabs: List<Triple<String, androidx.compose.ui.graphics.vector.ImageVector, () -> Unit>> =
+        if (modes.size > 1) modes.map { m -> Triple(label(m), Icons.Default.Tune) { viewModel.setHumidifierMode(entity.entity_id, m) } } else emptyList()
 
     val statusText = if (isOn) {
         entity.humidity?.let { "${it.toInt()}% • ON" } ?: "ON"
@@ -57,32 +62,20 @@ fun HKIHumidifierDialog(
         iconName = iconName,
         statusText = statusText,
         tabs = navigationTabs,
-        currentTab = currentTab
+        currentTab = entity.humidifierMode?.let(::label)
     ) {
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            HumidifierContent(
-                entity = entity,
-                viewModel = viewModel,
-                isOn = isOn,
-                showModes = showModes,
-                onToggleModes = { showModes = it }
-            )
+            HumidifierContent(entity = entity, viewModel = viewModel, isOn = isOn, fanEntity = fanEntity)
         }
     }
 }
 
-/**
- * The value title sits above the control, and the target slider / off state / modes list centers
- * as a block together with the label and button below it, within the space left under the title —
- * matching the original dialog layout.
- */
 @Composable
 private fun HumidifierContent(
     entity: HAEntity,
     viewModel: MainViewModel,
     isOn: Boolean,
-    showModes: Boolean,
-    onToggleModes: (Boolean) -> Unit
+    fanEntity: HAEntity?
 ) {
     val appColors = LocalHKIAppColors.current
     val minH = entity.minHumidity ?: 0
@@ -93,25 +86,18 @@ private fun HumidifierContent(
     var sliderValue by remember(entity.entity_id) { mutableFloatStateOf(fractionFor(entity.humidity?.toInt() ?: minH)) }
     LaunchedEffect(entity.humidity) { sliderValue = fractionFor(entity.humidity?.toInt() ?: minH) }
     val displayValue = minH + (sliderValue * (maxH - minH)).toInt()
-    val hasModes = entity.humidifierAvailableModes.isNotEmpty()
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = if (showModes) 32.dp else 0.dp),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = when {
-                showModes -> "Modes"
-                isOn -> "$displayValue%"
-                else -> "Off"
-            },
+            text = if (isOn) "$displayValue%" else "Off",
             color = appColors.onSurface,
-            style = if (showModes || isOn) MaterialTheme.typography.displayMedium else MaterialTheme.typography.headlineLarge
+            style = if (isOn) MaterialTheme.typography.displayMedium else MaterialTheme.typography.headlineLarge
         )
-        if (isOn && !showModes) {
+        if (isOn) {
             entity.currentHumidity?.let { current ->
                 Spacer(Modifier.height(4.dp))
                 Text("Current ${current.toInt()}%", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
@@ -119,85 +105,67 @@ private fun HumidifierContent(
         }
         Spacer(Modifier.height(24.dp))
         Box(Modifier.height(VerticalControlHeight).fillMaxWidth(), contentAlignment = Alignment.Center) {
-            when {
-                showModes -> HumidifierModesList(entity, viewModel)
-                isOn -> VerticalSlider(
-                    value = sliderValue,
-                    onValueChange = { sliderValue = it },
-                    onValueChangeFinished = {
-                        viewModel.setHumidifierTarget(entity.entity_id, minH + (sliderValue * (maxH - minH)).toInt())
-                    },
-                    activeColor = HumidifierCyan
-                )
-                else -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Default.WaterDrop, contentDescription = null, modifier = Modifier.size(64.dp), tint = appColors.onMuted.copy(alpha = 0.5f))
-                    Spacer(Modifier.height(16.dp))
-                    Button(onClick = { viewModel.toggleEntity(entity.entity_id) }) { Text("Turn On") }
-                }
+            if (isOn) VerticalSlider(
+                value = sliderValue,
+                onValueChange = { sliderValue = it },
+                onValueChangeFinished = {
+                    viewModel.setHumidifierTarget(entity.entity_id, minH + (sliderValue * (maxH - minH)).toInt())
+                },
+                activeColor = HumidifierCyan
+            ) else Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(Icons.Default.WaterDrop, contentDescription = null, modifier = Modifier.size(64.dp), tint = appColors.onMuted.copy(alpha = 0.5f))
+                Spacer(Modifier.height(16.dp))
+                Button(onClick = { viewModel.toggleEntity(entity.entity_id) }) { Text("Turn On") }
             }
         }
-        Spacer(Modifier.height(16.dp))
-        val label = if (showModes) "MODES" else if (isOn) "TARGET ($minH–$maxH%)" else null
-        if (label != null) {
-            Text(label, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+        if (isOn) {
+            Spacer(Modifier.height(16.dp))
+            Text("TARGET ($minH–$maxH%)", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+            // A linked fan / select / input_select supplies the speed options.
+            if (fanEntity != null) {
+                Spacer(Modifier.height(14.dp))
+                HumidifierSpeedControl(fanEntity, viewModel)
+            }
         }
-        ModesButton(hasModes, onClick = { onToggleModes(!showModes) }, selected = showModes)
     }
 }
 
+/** Speed control for the humidifier's linked entity: a fan (percentage slider + preset chips) or a
+ *  select / input_select (option chips set via select_option). */
 @Composable
-private fun ModesButton(visible: Boolean, onClick: () -> Unit, selected: Boolean = false) {
-    if (!visible) return
-
-    Spacer(Modifier.height(14.dp))
-    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        FilterChip(
-            selected = selected,
-            onClick = onClick,
-            label = { Text(if (selected) "Back" else "Modes") },
-            leadingIcon = { Icon(if (selected) Icons.AutoMirrored.Filled.ArrowBack else Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(18.dp)) }
-        )
-    }
-}
-
-@Composable
-private fun HumidifierModesList(entity: HAEntity, viewModel: MainViewModel) {
+private fun HumidifierSpeedControl(fanEntity: HAEntity, viewModel: MainViewModel) {
     val appColors = LocalHKIAppColors.current
-    val scrollState = rememberScrollState()
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .fadingEdges(scrollState)
-            .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        entity.humidifierAvailableModes.forEach { mode ->
-            val selected = mode == entity.humidifierMode
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        viewModel.setHumidifierMode(entity.entity_id, mode)
-                    },
-                shape = itemCornerShape(),
-                color = if (selected) HumidifierCyan.copy(alpha = 0.22f) else appColors.surface,
-                border = BorderStroke(1.dp, if (selected) HumidifierCyan.copy(alpha = 0.7f) else appColors.onMuted.copy(alpha = 0.16f))
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Default.WaterDrop, contentDescription = null, tint = if (selected) HumidifierCyan else appColors.onMuted, modifier = Modifier.size(22.dp))
-                    Spacer(Modifier.width(12.dp))
-                    Text(
-                        text = mode.split("_").joinToString(" ") { it.replaceFirstChar(Char::uppercase) },
-                        color = if (selected) appColors.onSurface else appColors.onMuted,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.weight(1f)
-                    )
-                    if (selected) Icon(Icons.Default.CheckCircle, contentDescription = null, tint = HumidifierCyan)
+    val domain = fanEntity.entity_id.substringBefore('.')
+    Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (domain == "fan") {
+            fanEntity.fanPercentage?.let { pct ->
+                var v by remember(pct) { mutableFloatStateOf(pct.toFloat()) }
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Icon(Icons.Default.Speed, null, tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+                    HKISlider(value = v, onValueChange = { v = it }, onValueChangeFinished = { viewModel.setFanPercentage(fanEntity.entity_id, v.toInt()) }, valueRange = 0f..100f, modifier = Modifier.weight(1f))
+                    Text("${v.toInt()}%", style = MaterialTheme.typography.labelMedium, color = appColors.onSurface)
                 }
             }
+            SpeedChips("Fan speed", fanEntity.fanPresetModes, fanEntity.fanPresetMode) { viewModel.setFanPresetMode(fanEntity.entity_id, it) }
+        } else {
+            val options = (fanEntity.attributes?.get("options") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
+            SpeedChips("Speed", options, fanEntity.state) { viewModel.callService(domain, "select_option", HAServiceCall(entity_id = fanEntity.entity_id, option = it)) }
+        }
+    }
+}
+
+@Composable
+private fun SpeedChips(label: String, options: List<String>, current: String?, onSelect: (String) -> Unit) {
+    if (options.isEmpty()) return
+    val appColors = LocalHKIAppColors.current
+    Text(label, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+    androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        options.forEach { option ->
+            FilterChip(
+                selected = option == current,
+                onClick = { onSelect(option) },
+                label = { Text(option.split("_").joinToString(" ") { it.replaceFirstChar(Char::uppercase) }) }
+            )
         }
     }
 }

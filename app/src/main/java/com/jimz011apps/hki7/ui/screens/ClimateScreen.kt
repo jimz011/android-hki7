@@ -321,6 +321,14 @@ fun ClimateScreen(viewModel: MainViewModel) {
     val hidden = remember(climateConfig) { climateConfig.hiddenEntityIds.toSet() }
     val entityById = remember(entities) { entities.associateBy { it.entity_id } }
     val registryById = remember(entityRegistry) { entityRegistry.associateBy { it.entity_id } }
+    // Outside weather: an explicit choice wins; otherwise, when no outside sensors are configured,
+    // auto-use the same weather entity as the header pill (first weather.* entity).
+    val effectiveOutsideWeatherId = remember(climateConfig, entities) {
+        climateConfig.outsideWeatherEntityId
+            ?: entities.firstOrNull { it.entity_id.startsWith("weather.") }?.entity_id?.takeIf {
+                climateConfig.outsideTemperatureIds.isEmpty() && climateConfig.outsideHumidityIds.isEmpty() && climateConfig.outsidePressureIds.isEmpty()
+            }
+    }
 
     fun hideEntity(id: String) {
         viewModel.hideClimateEntity(CLIMATE_PAGE_KEY, id)
@@ -441,7 +449,8 @@ fun ClimateScreen(viewModel: MainViewModel) {
             val extras = if (group.key == "outside") {
                 (climateConfig.outsideTemperatureIds + climateConfig.outsideHumidityIds +
                     climateConfig.outsidePressureIds + climateConfig.extraSensorIds["outside"].orEmpty())
-                    .mapNotNull { entityById[it] }
+                    .mapNotNull { entityById[it] } +
+                    listOfNotNull(effectiveOutsideWeatherId?.let { entityById[it] })
             } else {
                 climateConfig.extraSensorIds[group.key].orEmpty().mapNotNull { entityById[it] }
             }
@@ -619,15 +628,20 @@ fun ClimateScreen(viewModel: MainViewModel) {
                         fanEntities = fanEntities,
                         humidifierEntities = humidifierEntities,
                         openingState = openingState,
-                        // Outside temperature comes from its dedicated list; fall back to any legacy
-                        // outside sensor with a temperature class/unit.
-                        outsideTempSensors = climateConfig.outsideTemperatureIds.mapNotNull { entityById[it] }
-                            .filter { it.entity_id !in hidden }
-                            .ifEmpty {
-                                groupSensors["outside"].orEmpty().filter {
-                                    it.deviceClass == "temperature" || it.unit() in setOf("°C", "°F", "℃", "℉")
-                                }
+                        // Outside temperature: the linked weather entity's attribute wins, else the
+                        // dedicated sensor list, else any legacy outside sensor with a temp class/unit.
+                        outsideTemp = run {
+                            val weather = effectiveOutsideWeatherId?.let { entityById[it] }
+                            weather?.temperature?.toFloat() ?: run {
+                                val sensors = climateConfig.outsideTemperatureIds.mapNotNull { entityById[it] }
+                                    .filter { it.entity_id !in hidden }
+                                    .ifEmpty { groupSensors["outside"].orEmpty().filter { it.deviceClass == "temperature" || it.unit() in setOf("°C", "°F", "℃", "℉") } }
+                                sensors.mapNotNull { it.numericState() }.takeIf { it.isNotEmpty() }?.average()?.toFloat()
                             }
+                        },
+                        outsideUnit = effectiveOutsideWeatherId?.let { entityById[it]?.attributes?.get("temperature_unit")?.jsonPrimitive?.contentOrNull }
+                            ?: climateConfig.outsideTemperatureIds.firstOrNull()?.let { entityById[it]?.unit() }?.ifBlank { "°C" }
+                            ?: "°C"
                     )
                 }
 
@@ -643,13 +657,15 @@ fun ClimateScreen(viewModel: MainViewModel) {
                             if (sensors.isEmpty()) return@forEach
                             // Outside mixes temp/humidity/pressure, so summarise its temperature sensors
                             // (its dedicated list, falling back to class/unit) instead of averaging unlike units.
+                            val outsideWeather = if (group.key == "outside") effectiveOutsideWeatherId?.let { entityById[it] } else null
                             val summarySensors = if (group.key == "outside") {
                                 climateConfig.outsideTemperatureIds.mapNotNull { entityById[it] }
                                     .ifEmpty { sensors.filter { it.deviceClass == "temperature" || it.unit() in setOf("°C", "°F", "℃", "℉") } }
                                     .ifEmpty { sensors }
                             } else sensors
-                            val values = summarySensors.mapNotNull { it.numericState() }
-                            val unit = summarySensors.firstOrNull()?.unit() ?: ""
+                            // A linked weather entity provides the outside temperature directly.
+                            val values = if (outsideWeather?.temperature != null) listOf(outsideWeather.temperature!!) else summarySensors.mapNotNull { it.numericState().let { v -> v?.toDouble() } }
+                            val unit = outsideWeather?.attributes?.get("temperature_unit")?.jsonPrimitive?.contentOrNull ?: summarySensors.firstOrNull()?.unit() ?: ""
                             val avg = if (values.isNotEmpty()) values.average().toFloat() else null
                             val status = buildString {
                                 append("${sensors.size} sensor${if (sensors.size == 1) "" else "s"}")
@@ -920,16 +936,15 @@ private fun ClimateHero(
     fanEntities: List<HAEntity>,
     humidifierEntities: List<HAEntity>,
     openingState: ClimateOpeningState,
-    outsideTempSensors: List<HAEntity> = emptyList(),
+    outsideTemp: Float? = null,
+    outsideUnit: String = "°C",
     modifier: Modifier = Modifier
 ) {
     val appColors = LocalHKIAppColors.current
     val temps = tempSensors.mapNotNull { it.numericState() }
     val hums = humiditySensors.mapNotNull { it.numericState() }
     val avgTemp = if (temps.isNotEmpty()) temps.average().toFloat() else null
-    val outsideTemps = outsideTempSensors.mapNotNull { it.numericState() }
-    val avgOutside = if (outsideTemps.isNotEmpty()) outsideTemps.average().toFloat() else null
-    val outsideUnit = outsideTempSensors.firstOrNull()?.unit()?.ifBlank { "°C" } ?: "°C"
+    val avgOutside = outsideTemp
     val avgHum = if (hums.isNotEmpty()) hums.average().toFloat() else null
     val tempUnit = tempSensors.firstOrNull()?.unit()?.ifBlank { "°C" } ?: "°C"
     val activities = climateEntities.mapNotNull(HAEntity::climateSceneActivity)
@@ -2208,11 +2223,6 @@ private fun ClimateDeviceListPage(
     humidifierFans: Map<String, HAEntity> = emptyMap()
 ) {
     val appColors = LocalHKIAppColors.current
-    var dialogHumidifier by remember { mutableStateOf<HAEntity?>(null) }
-    dialogHumidifier?.let { h ->
-        val live = devices.firstOrNull { it.entity_id == h.entity_id } ?: h
-        HumidifierDialog(live, viewModel, humidifierFans[h.entity_id]) { dialogHumidifier = null }
-    }
     if (isEditMode && devices.isNotEmpty()) {
         ReorderableGrid(
             items = devices,
@@ -2258,7 +2268,7 @@ private fun ClimateDeviceListPage(
             items(count = devices.size, key = { devices[it].entity_id }) { idx ->
                 val entity = devices[idx]
                 Box(Modifier.padding(horizontal = 16.dp, vertical = 5.dp)) {
-                    if (deviceType == "humidifiers") HumidifierCard(entity, viewModel, humidifierFans[entity.entity_id], onClick = if (!isEditMode) ({ dialogHumidifier = entity }) else null) else FanCard(entity, viewModel)
+                    if (deviceType == "humidifiers") HumidifierCard(entity, viewModel, humidifierFans[entity.entity_id]) else FanCard(entity, viewModel)
                     if (isEditMode) {
                         EditSettingsButton(onClick = { onRename(entity) }, modifier = Modifier.align(Alignment.Center))
                         EditRemoveBadge(
@@ -2473,63 +2483,6 @@ private fun HumidifierSpeedControl(fanEntity: HAEntity, viewModel: MainViewModel
     }
 }
 
-/** Full humidifier dialog: target humidity + current, the linked speed control, and the humidifier's
- *  own modes as nav-bar tabs (mirroring the climate dialog's hvac modes). */
-@Composable
-private fun HumidifierDialog(entity: HAEntity, viewModel: MainViewModel, fanEntity: HAEntity?, onDismiss: () -> Unit) {
-    val appColors = LocalHKIAppColors.current
-    val isDehumidifier = entity.deviceClass == "dehumidifier"
-    val isOn = entity.state == "on"
-    val modes = entity.humidifierAvailableModes
-    val current = entity.currentHumidity
-    val target = entity.humidity
-    val minHum = (entity.minHumidity ?: 0).toFloat()
-    val maxHum = (entity.maxHumidity ?: 100).toFloat()
-    var localTarget by remember(target) { mutableFloatStateOf((target ?: 50.0).toFloat()) }
-    val tabs: List<Triple<String, ImageVector, () -> Unit>> = modes.map { mode ->
-        Triple(mode.replaceFirstChar(Char::uppercase), Icons.Default.Tune) { viewModel.setHumidifierMode(entity.entity_id, mode) }
-    }
-    HKIDialog(
-        entity = entity,
-        onDismiss = onDismiss,
-        viewModel = viewModel,
-        icon = if (isDehumidifier) Icons.Default.Opacity else Icons.Default.WaterDrop,
-        iconTint = MistCyan,
-        statusText = buildString {
-            append(if (isOn) (if (isDehumidifier) "Drying" else "Humidifying") else entity.state.replaceFirstChar(Char::uppercase))
-            if (current != null) append(" · ${current.toInt()}% now")
-        },
-        tabs = if (tabs.size > 1) tabs else emptyList(),
-        currentTab = entity.humidifierMode?.replaceFirstChar(Char::uppercase)
-    ) {
-        Column(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 8.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                TempStepButton(Icons.Default.Remove, enabled = target != null && localTarget > minHum) {
-                    localTarget = (localTarget - 5f).coerceAtLeast(minHum); viewModel.setHumidifierTarget(entity.entity_id, localTarget.toInt())
-                }
-                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.widthIn(min = 130.dp)) {
-                    Text("${localTarget.toInt()}%", style = MaterialTheme.typography.displayMedium, color = if (isOn) MistCyan else appColors.onMuted, fontWeight = FontWeight.Bold)
-                    Text("Target humidity", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
-                }
-                TempStepButton(Icons.Default.Add, enabled = target != null && localTarget < maxHum) {
-                    localTarget = (localTarget + 5f).coerceAtMost(maxHum); viewModel.setHumidifierTarget(entity.entity_id, localTarget.toInt())
-                }
-            }
-            if (current != null) {
-                Spacer(Modifier.height(8.dp))
-                Text("Currently ${current.toInt()}%", style = MaterialTheme.typography.bodyMedium, color = appColors.onMuted)
-            }
-            Spacer(Modifier.height(16.dp))
-            Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                Text(if (isOn) "On" else "Off", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
-                Spacer(Modifier.width(10.dp))
-                Switch(checked = isOn, onCheckedChange = { viewModel.toggleEntity(entity.entity_id) })
-            }
-            if (fanEntity != null) HumidifierSpeedControl(fanEntity, viewModel)
-        }
-    }
-}
-
 // ═══ SENSOR DETAIL PAGE (gradient graphs) ═══════════════════════════════════
 
 @Composable
@@ -2730,6 +2683,7 @@ private fun ClimateSensorSection(
     // Outside has three dedicated sub-lists (temperature/humidity/pressure); this holds which one the
     // picker is editing.
     var outsidePickerType by remember { mutableStateOf<String?>(null) }
+    var outsideWeatherPicker by remember { mutableStateOf(false) }
     LaunchedEffect(category) { setBack(if (category != null) { { category = null } } else null) }
 
     fun entityName(id: String): String = allEntities.find { it.entity_id == id }?.friendlyName ?: id
@@ -2813,6 +2767,17 @@ private fun ClimateSensorSection(
             preselectedIds = outsideIds(type).toSet(),
             onDismiss = { outsidePickerType = null },
             onEntitiesSelected = { ids -> saveOutsideIds(type, ids); outsidePickerType = null }
+        )
+    }
+
+    if (outsideWeatherPicker) {
+        AdvancedEntitySearchDialog(
+            allEntities = allEntities.filter { it.entity_id.startsWith("weather.") },
+            title = "Outside weather entity",
+            singleSelect = true,
+            preselectedIds = setOfNotNull(cfg.outsideWeatherEntityId),
+            onDismiss = { outsideWeatherPicker = false },
+            onEntitiesSelected = { ids -> cfg = cfg.copy(outsideWeatherEntityId = ids.firstOrNull()); onSave(cfg); outsideWeatherPicker = false }
         )
     }
 
@@ -2924,9 +2889,16 @@ private fun ClimateSensorSection(
     // auto-discovered, since we can't know which sensors are outdoors.
     if (category == "outside") {
         Text(
-            "Outside sensors are never auto-detected. Pick your outdoor temperature, humidity and air-pressure sensors — the temperature feeds the Outside tile and the hero's outside reading.",
+            "Outside is never auto-detected. Either link a weather entity (it usually carries temperature, humidity and pressure) or pick individual outdoor sensors below. The temperature feeds the Outside tile and the hero's outside reading.",
             style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
         )
+        Text("Weather entity", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+        Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(cfg.outsideWeatherEntityId?.let { entityName(it) } ?: "None", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = if (cfg.outsideWeatherEntityId != null) MaterialTheme.colorScheme.primary else appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            TextButton(onClick = { outsideWeatherPicker = true }) { Text("Change") }
+            if (cfg.outsideWeatherEntityId != null) TextButton(onClick = { cfg = cfg.copy(outsideWeatherEntityId = null); onSave(cfg) }) { Text("Clear") }
+        }
+        HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
         listOf("temperature" to "Outside temperature", "humidity" to "Outside humidity", "pressure" to "Outside air pressure").forEach { (type, label) ->
             Text(label, style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
             outsideIds(type).forEach { id ->

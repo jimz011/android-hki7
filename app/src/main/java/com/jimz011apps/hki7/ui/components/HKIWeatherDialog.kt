@@ -861,16 +861,6 @@ fun RainMapCard(camera: HAEntity?, iframeUrl: String?, currentUrl: String, aspec
             onRelease = { it.teardownStream() },
             modifier = Modifier.fillMaxSize()
         )
-        Surface(
-            modifier = Modifier.align(Alignment.TopStart).padding(10.dp),
-            color = Color.Black.copy(alpha = 0.55f),
-            shape = itemCornerShape()
-        ) {
-            Row(Modifier.padding(horizontal = 10.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Icon(Icons.Default.CloudQueue, null, tint = Color(0xFF4FC3F7), modifier = Modifier.size(16.dp))
-                Text("Rain map", style = MaterialTheme.typography.labelMedium, color = Color.White)
-            }
-        }
     }
 }
 

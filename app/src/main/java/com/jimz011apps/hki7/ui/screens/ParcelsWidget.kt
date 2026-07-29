@@ -373,11 +373,20 @@ fun ParcelsWidgetItem(
                     WidgetBackground(widget.backgroundUrl, currentUrl)
                 } else {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Row(horizontalArrangement = Arrangement.spacedBy((-8).dp), verticalAlignment = Alignment.CenterVertically) {
-                            carriers.take(4).forEach { CarrierLogo(it, 56) }
-                            if (carriers.isEmpty()) {
-                                Box(Modifier.size(84.dp).background(Color(0xFF60A5FA).copy(alpha = .15f), CircleShape), contentAlignment = Alignment.Center) {
-                                    MdiIcon(widget.icon, tint = Color(0xFF60A5FA), size = 44.dp)
+                        if (carriers.isEmpty()) {
+                            Box(Modifier.size(84.dp).background(Color(0xFF60A5FA).copy(alpha = .15f), CircleShape), contentAlignment = Alignment.Center) {
+                                MdiIcon(widget.icon, tint = Color(0xFF60A5FA), size = 44.dp)
+                            }
+                        } else {
+                            // Overlap the carrier logos, wrapping onto extra rows when they no longer fit
+                            // one line (e.g. 4 carriers show as 2 + 2 rather than a squashed row of 4).
+                            val shown = carriers.take(6)
+                            val perRow = when { shown.size <= 3 -> shown.size; shown.size == 4 -> 2; else -> 3 }
+                            Column(verticalArrangement = Arrangement.spacedBy((-8).dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                                shown.chunked(perRow).forEach { rowCarriers ->
+                                    Row(horizontalArrangement = Arrangement.spacedBy((-8).dp), verticalAlignment = Alignment.CenterVertically) {
+                                        rowCarriers.forEach { CarrierLogo(it, 56) }
+                                    }
                                 }
                             }
                         }

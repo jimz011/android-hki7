@@ -739,6 +739,9 @@ data class HKIClimateConfig(
     val outsideTemperatureIds: List<String> = emptyList(),
     val outsideHumidityIds: List<String> = emptyList(),
     val outsidePressureIds: List<String> = emptyList(),
+    /** Optional weather.* entity for Outside: its temperature/humidity/pressure attributes are used
+     *  directly. Auto-generation fills this with the header pill's weather entity. */
+    val outsideWeatherEntityId: String? = null,
     /** Fan entities captured by one-time auto generation. */
     val extraFanIds: List<String> = emptyList(),
     /** Entities removed via edit mode; excluded from cards, tiles, graphs and averages. */
@@ -954,6 +957,9 @@ data class HKIButtonConfig(
      *  future completion time while the appliance is off, so the timer only shows when this entity
      *  reads as running. Null means gate on the timestamp alone. */
     val timerStateEntityId: String? = null,
+    /** Optional fan / select / input_select entity that supplies a humidifier's speed options in its
+     *  dialog (its modes then live in the dialog's nav bar). */
+    val humidifierFanEntityId: String? = null,
     /** Per-item visibility inside a multi-item widget. [hidden] hides it until unhidden. When
      * [visibilityStart]/[visibilityEnd] (ISO-8601 local date-time, e.g. "2026-12-24T00:00") are set,
      * [visibilityRangeMode] decides whether that window is when the item is shown ("show") or hidden

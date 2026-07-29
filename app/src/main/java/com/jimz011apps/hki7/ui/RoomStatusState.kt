@@ -45,7 +45,9 @@ internal data class RoomStatusDiscovery(
 
 internal data class RoomStatusIndicator(
     val role: String,
-    val count: Int
+    val count: Int,
+    /** The entities actually counted (currently active), so a tap can list exactly those. */
+    val entityIds: List<String> = emptyList()
 )
 
 internal data class RoomStatusSummary(
@@ -127,13 +129,13 @@ internal fun resolveRoomStatus(
 ): RoomStatusSummary {
     val entitiesById = entities.associateBy { it.entity_id }
     val indicators = RoomStatusRoles.ORDERED.mapNotNull { role ->
-        val count = config.roomStatusEntityIds[role]
+        val active = config.roomStatusEntityIds[role]
             .orEmpty()
             .distinct()
             .filter { role !in setOf(RoomStatusRoles.LIGHTS, RoomStatusRoles.DEVICES) || displayedControlEntityIds == null || it in displayedControlEntityIds }
             .mapNotNull(entitiesById::get)
-            .count { it.isActiveForRoomRole(role) }
-        count.takeIf { it > 0 }?.let { RoomStatusIndicator(role, it) }
+            .filter { it.isActiveForRoomRole(role) }
+        active.size.takeIf { it > 0 }?.let { RoomStatusIndicator(role, it, active.map(HAEntity::entity_id)) }
     }
 
     return RoomStatusSummary(
@@ -159,13 +161,14 @@ internal fun resolveWholeHomeStatus(
 ): RoomStatusSummary {
     val entitiesById = entities.associateBy { it.entity_id }
     val indicators = RoomStatusRoles.ORDERED.mapNotNull { role ->
-        val count = configs.asSequence()
+        val active = configs.asSequence()
             .flatMap { it.roomStatusEntityIds[role].orEmpty() }
             .distinct()
             .filter { role !in setOf(RoomStatusRoles.LIGHTS, RoomStatusRoles.DEVICES) || displayedControlEntityIds == null || it in displayedControlEntityIds }
             .mapNotNull(entitiesById::get)
-            .count { it.isActiveForRoomRole(role) }
-        count.takeIf { it > 0 }?.let { RoomStatusIndicator(role, it) }
+            .filter { it.isActiveForRoomRole(role) }
+            .toList()
+        active.size.takeIf { it > 0 }?.let { RoomStatusIndicator(role, it, active.map(HAEntity::entity_id)) }
     }
 
     return RoomStatusSummary(

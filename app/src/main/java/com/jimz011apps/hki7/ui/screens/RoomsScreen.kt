@@ -117,6 +117,22 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
     // Aesthetics-only recipients (Family Sharing) can't add or remove rooms/floors.
     val aestheticsOnly by viewModel.aestheticsOnlyEditing.collectAsState()
     val currentUrl by viewModel.currentUrl.collectAsState()
+    val entities by viewModel.entities.collectAsState()
+    // Tapping a room-status counter lists exactly the entities it counts (the currently-active ones)
+    // in the same aggregated dialog a badge uses.
+    var activityEntities by remember { mutableStateOf<List<com.jimz011apps.hki7.data.HAEntity>>(emptyList()) }
+    val openActivity: (List<String>) -> Unit = { ids ->
+        activityEntities = ids.mapNotNull { id -> entities.find { it.entity_id == id } }
+    }
+    if (activityEntities.isNotEmpty()) {
+        UniversalStackDialog(
+            entities = activityEntities,
+            allEntities = entities,
+            currentUrl = currentUrl,
+            viewModel = viewModel,
+            onDismiss = { activityEntities = emptyList() }
+        )
+    }
     val dashboardMode by viewModel.dashboardMode.collectAsState()
     val autoGenerationPending by viewModel.prefs.pendingAutoTakeover.collectAsState(initial = false)
     val collapsedFloorIds by viewModel.collapsedFloorIds.collectAsState()
@@ -175,7 +191,8 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
             { _ ->
                 RoomStatusIndicators(
                     summary = wholeHomeSummary,
-                    compact = false
+                    compact = false,
+                    onIndicatorClick = openActivity
                 )
             }
         } else null,
@@ -245,6 +262,7 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                                 onClickArea = { areaId ->
                                     if (!isEditMode) navController.navigate(Screen.RoomDetail.createRoute(areaId))
                                 },
+                                onActivityClick = openActivity,
                                     modifier = Modifier.weight(units)
                                 )
                             }
@@ -448,6 +466,7 @@ private fun FloorSection(
     onDeleteArea: (String) -> Unit,
     onSettingsArea: (String) -> Unit,
     onClickArea: (String) -> Unit,
+    onActivityClick: ((List<String>) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val appColors = LocalHKIAppColors.current
@@ -522,7 +541,8 @@ private fun FloorSection(
                     cornerRadius = LocalItemCornerRadius.current,
                     onDelete = { onDeleteArea(area.area_id) },
                     onSettings = { onSettingsArea(area.area_id) },
-                    onClick = { onClickArea(area.area_id) }
+                    onClick = { onClickArea(area.area_id) },
+                    onActivityClick = onActivityClick
                 )
             }
         }
@@ -544,7 +564,8 @@ fun AreaCard(
     cornerRadius: Int = LocalItemCornerRadius.current,
     onDelete: () -> Unit,
     onSettings: () -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onActivityClick: ((List<String>) -> Unit)? = null
 ) {
     val appColors = LocalHKIAppColors.current
     val headerColor = remember(config.headerColor) { parseRoomHeaderColor(config.headerColor) }
@@ -695,6 +716,7 @@ fun AreaCard(
                         summary = roomSummary,
                         compact = true,
                         visibleRoles = ROOM_CARD_TOP_STATUS_ROLES,
+                        onIndicatorClick = onActivityClick,
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .widthIn(max = 108.dp)
@@ -704,6 +726,7 @@ fun AreaCard(
                         summary = roomSummary,
                         compact = true,
                         visibleRoles = ROOM_CARD_BOTTOM_STATUS_ROLES,
+                        onIndicatorClick = onActivityClick,
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .widthIn(max = 108.dp)

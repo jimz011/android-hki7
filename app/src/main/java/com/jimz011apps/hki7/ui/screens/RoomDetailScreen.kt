@@ -420,6 +420,8 @@ fun RoomDetailScreen(
     var selectedHumidifierEntity by remember { mutableStateOf<HAEntity?>(null) }
     var selectedHumidifierConfig by remember { mutableStateOf<HKIButtonConfig?>(null) }
     var showHumidifierDialog by remember { mutableStateOf(false) }
+    // Entities behind a tapped room-status counter, listed in the aggregated (badge-style) dialog.
+    var activityDialogEntities by remember { mutableStateOf<List<HAEntity>>(emptyList()) }
     var selectedAlarmEntity by remember { mutableStateOf<HAEntity?>(null) }
     var selectedAlarmConfig by remember { mutableStateOf<HKIButtonConfig?>(null) }
     var showAlarmDialog by remember { mutableStateOf(false) }
@@ -845,7 +847,8 @@ fun RoomDetailScreen(
             { _ ->
                 RoomStatusIndicators(
                     summary = roomSummary,
-                    compact = false
+                    compact = false,
+                    onIndicatorClick = { ids -> activityDialogEntities = ids.mapNotNull { id -> allEntities.find { it.entity_id == id } } }
                 )
             }
         } else null,
@@ -2472,6 +2475,16 @@ fun RoomDetailScreen(
         )
     }
 
+    if (activityDialogEntities.isNotEmpty()) {
+        UniversalStackDialog(
+            entities = activityDialogEntities,
+            allEntities = allEntities,
+            currentUrl = currentUrl,
+            viewModel = viewModel,
+            onDismiss = { activityDialogEntities = emptyList() }
+        )
+    }
+
     if (showHumidifierDialog && selectedHumidifierEntity != null) {
         val entity = allEntities.find { it.entity_id == selectedHumidifierEntity!!.entity_id } ?: selectedHumidifierEntity!!
         HKIHumidifierDialog(
@@ -2479,6 +2492,7 @@ fun RoomDetailScreen(
             viewModel = viewModel,
             titleOverride = selectedHumidifierConfig?.name,
             iconName = selectedHumidifierConfig?.icon,
+            fanEntity = selectedHumidifierConfig?.humidifierFanEntityId?.let { id -> allEntities.find { it.entity_id == id } },
             onDismiss = { showHumidifierDialog = false; selectedHumidifierConfig = null }
         )
     }
@@ -3206,6 +3220,9 @@ fun ButtonConfigDialog(
     }
     // Lock door sensor
     val isLockEntity = entity?.entity_id?.startsWith("lock.") == true
+    val isHumidifierEntity = entity?.entity_id?.startsWith("humidifier.") == true
+    var humidifierFanEntityId by remember(config) { mutableStateOf(config.humidifierFanEntityId) }
+    var showHumidifierFanPicker by remember { mutableStateOf(false) }
     var doorEntityId by remember(config) { mutableStateOf(config.doorEntityId) }
     var showDoorPicker by remember { mutableStateOf(false) }
     var showIconPickerBtn by remember { mutableStateOf(false) }
@@ -3252,7 +3269,7 @@ fun ButtonConfigDialog(
         if (isCameraItem) add("camera" to "Camera")
         if (isVacuumItem) add("vacuum" to "Vacuum")
         if (!isCameraItem && !isVacuumItem || widgetAppearance != null) add("appearance" to "Appearance")
-        if (isLockEntity || isClimateEntity) add("entity" to "Entity")
+        if (isLockEntity || isClimateEntity || isHumidifierEntity) add("entity" to "Entity")
         if (!isVacuumItem) add("actions" to "Actions")
         if (showButtonLockSettings) add("protection" to "Protection")
     }
@@ -3527,6 +3544,18 @@ fun ButtonConfigDialog(
                         if (!climateHumiditySensorEntityId.isNullOrBlank()) { TextButton(onClick = { climateHumiditySensorEntityId = null }) { Text("Clear") } }
                     }
                 }
+                if (settingsPage == "entity" && isHumidifierEntity) {
+                    SettingsSubcategory("Humidifier speed", "Link a fan / select / input_select whose options set the humidifier's speed")
+                    val fanName = humidifierFanEntityId?.takeIf { it.isNotBlank() }?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
+                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Column(Modifier.weight(1f)) {
+                            Text("Speed control entity", style = MaterialTheme.typography.labelLarge)
+                            Text(fanName ?: "None — modes stay as the only control", style = MaterialTheme.typography.bodySmall, color = if (fanName != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        TextButton(onClick = { showHumidifierFanPicker = true }) { Text("Change") }
+                        if (!humidifierFanEntityId.isNullOrBlank()) { TextButton(onClick = { humidifierFanEntityId = null }) { Text("Clear") } }
+                    }
+                }
                 if (settingsPage == "actions" && !isVacuumItem) {
                     SettingsSubcategory("Interactions", "Choose what tap, double tap, and hold should do")
                     ActionEditor("Tap", tapAction, allEntities, areas, viewModel) { tapAction = it }
@@ -3638,6 +3667,7 @@ fun ButtonConfigDialog(
                             lockPin = if (showButtonLockSettings) lockPin.ifBlank { null } else config.lockPin,
                             lockRelockSeconds = if (showButtonLockSettings) lockRelockSeconds else config.lockRelockSeconds,
                             doorEntityId = if (isLockEntity) doorEntityId else config.doorEntityId,
+                            humidifierFanEntityId = if (isHumidifierEntity) humidifierFanEntityId else config.humidifierFanEntityId,
                             vacuumDisplayMode = if (isVacuumItem) vacuumDisplayMode else config.vacuumDisplayMode,
                             vacuumDeviceId = if (isVacuumItem) vacuumDeviceId else config.vacuumDeviceId,
                             vacuumMapEntityId = if (isVacuumItem) vacuumMapEntityId else config.vacuumMapEntityId,
@@ -3670,6 +3700,16 @@ fun ButtonConfigDialog(
             preselectedIds = setOfNotNull(timerStateEntityId?.takeIf { it.isNotBlank() }),
             onDismiss = { showTimerStatePicker = false },
             onEntitiesSelected = { ids -> timerStateEntityId = ids.firstOrNull(); showTimerStatePicker = false }
+        )
+    }
+    if (showHumidifierFanPicker) {
+        AdvancedEntitySearchDialog(
+            allEntities = allEntities.filter { it.entity_id.startsWith("fan.") || it.entity_id.startsWith("select.") || it.entity_id.startsWith("input_select.") },
+            title = "Select speed control",
+            singleSelect = true,
+            preselectedIds = setOfNotNull(humidifierFanEntityId?.takeIf { it.isNotBlank() }),
+            onDismiss = { showHumidifierFanPicker = false },
+            onEntitiesSelected = { ids -> humidifierFanEntityId = ids.firstOrNull(); showHumidifierFanPicker = false }
         )
     }
     if (showDoorPicker) {

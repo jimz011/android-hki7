@@ -50,10 +50,10 @@ class RoomStatusStateTest {
         assertEquals(setOf("light.visible", "switch.visible"), displayed)
         assertEquals(
             listOf(
-                RoomStatusIndicator(RoomStatusRoles.LIGHTS, 1),
-                RoomStatusIndicator(RoomStatusRoles.DEVICES, 1)
+                RoomStatusRoles.LIGHTS to 1,
+                RoomStatusRoles.DEVICES to 1
             ),
-            summary.indicators
+            summary.indicators.map { it.role to it.count }
         )
     }
 
@@ -213,12 +213,12 @@ class RoomStatusStateTest {
 
         assertEquals(
             listOf(
-                RoomStatusIndicator(RoomStatusRoles.DOORS, 1),
-                RoomStatusIndicator(RoomStatusRoles.PRESENCE, 1),
-                RoomStatusIndicator(RoomStatusRoles.LIGHTS, 1),
-                RoomStatusIndicator(RoomStatusRoles.FIRE, 1)
+                RoomStatusRoles.DOORS to 1,
+                RoomStatusRoles.PRESENCE to 1,
+                RoomStatusRoles.LIGHTS to 1,
+                RoomStatusRoles.FIRE to 1
             ),
-            summary.indicators
+            summary.indicators.map { it.role to it.count }
         )
     }
 
@@ -260,7 +260,7 @@ class RoomStatusStateTest {
             )
         )
 
-        assertEquals(listOf(RoomStatusIndicator(RoomStatusRoles.DOORS, 2)), summary.indicators)
+        assertEquals(listOf(RoomStatusRoles.DOORS to 2), summary.indicators.map { it.role to it.count })
     }
 
     @Test
@@ -306,10 +306,10 @@ class RoomStatusStateTest {
 
         assertEquals(
             listOf(
-                RoomStatusIndicator(RoomStatusRoles.LIGHTS, 1),
-                RoomStatusIndicator(RoomStatusRoles.DEVICES, 1)
+                RoomStatusRoles.LIGHTS to 1,
+                RoomStatusRoles.DEVICES to 1
             ),
-            summary.indicators
+            summary.indicators.map { it.role to it.count }
         )
     }
 
@@ -514,7 +514,7 @@ class RoomStatusStateTest {
             )
         )
 
-        assertEquals(listOf(RoomStatusIndicator(RoomStatusRoles.LIGHTS, 2)), summary.indicators)
+        assertEquals(listOf(RoomStatusRoles.LIGHTS to 2), summary.indicators.map { it.role to it.count })
         assertEquals("22\u00B0C", summary.temperature)
         assertEquals("45%", summary.humidity)
     }

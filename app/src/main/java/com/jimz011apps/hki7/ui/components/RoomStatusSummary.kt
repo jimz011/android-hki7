@@ -3,6 +3,7 @@ package com.jimz011apps.hki7.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -56,7 +57,9 @@ internal fun RoomStatusIndicators(
     summary: RoomStatusSummary,
     compact: Boolean,
     modifier: Modifier = Modifier,
-    visibleRoles: Set<String>? = null
+    visibleRoles: Set<String>? = null,
+    /** Invoked with the active entity ids behind a tapped counter. */
+    onIndicatorClick: ((List<String>) -> Unit)? = null
 ) {
     val indicators = summary.indicators
         .asSequence()
@@ -79,7 +82,8 @@ internal fun RoomStatusIndicators(
             RoomStatusIndicatorPill(
                 indicator = indicator,
                 contentColor = statusColor(indicator.role),
-                compact = compact
+                compact = compact,
+                onClick = onIndicatorClick?.takeIf { indicator.entityIds.isNotEmpty() }?.let { cb -> { cb(indicator.entityIds) } }
             )
         }
     }
@@ -109,7 +113,8 @@ internal fun RoomEnvironmentSummary(
 private fun RoomStatusIndicatorPill(
     indicator: RoomStatusIndicator,
     contentColor: Color,
-    compact: Boolean
+    compact: Boolean,
+    onClick: (() -> Unit)? = null
 ) {
     val appColors = LocalHKIAppColors.current
     val label = statusLabel(indicator.role, indicator.count)
@@ -120,6 +125,7 @@ private fun RoomStatusIndicatorPill(
             .semantics(mergeDescendants = true) { contentDescription = label }
             .background(backingColor, RoundedCornerShape(50))
             .border(BorderStroke(0.5.dp, contentColor.copy(alpha = 0.72f)), RoundedCornerShape(50))
+            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
             .padding(horizontal = horizontalPadding, vertical = if (compact) 3.dp else 4.dp),
         horizontalArrangement = Arrangement.spacedBy(if (compact) 3.dp else 4.dp),
         verticalAlignment = Alignment.CenterVertically
