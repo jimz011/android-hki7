@@ -192,7 +192,7 @@ private fun HumidifierAuxSection(auxEntities: Map<String, HAEntity>, viewModel: 
     val toggleEntries = toggleSlots.mapNotNull { (key, label) -> auxEntities[key]?.let { label to it } }
     if (infoEntries.isEmpty() && toggleEntries.isEmpty()) return
 
-    Spacer(Modifier.height(18.dp))
+    Spacer(Modifier.height(6.dp))
     if (infoEntries.isNotEmpty()) {
         androidx.compose.foundation.layout.FlowRow(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
@@ -211,7 +211,7 @@ private fun HumidifierAuxSection(auxEntities: Map<String, HAEntity>, viewModel: 
         }
     }
     if (toggleEntries.isNotEmpty()) {
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(4.dp))
         androidx.compose.foundation.layout.FlowRow(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),

@@ -175,16 +175,16 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
     val activeRoomConfigs = remember(areas, configs) {
         areas.map { area -> configs[area.area_id] ?: HKIAreaConfig() }
     }
-    val wholeHomeDependencyIds = remember(activeRoomConfigs) {
-        activeRoomConfigs.flatMap(HKIAreaConfig::roomEntityIds).distinct()
+    val wholeHomeDisplayedControlIds = remember(areas, widgetsByArea) {
+        areas.flatMap { displayedRoomControlEntityIds(widgetsByArea[it.area_id].orEmpty()) }.toSet()
+    }
+    val wholeHomeDependencyIds = remember(activeRoomConfigs, wholeHomeDisplayedControlIds) {
+        (activeRoomConfigs.flatMap(HKIAreaConfig::roomEntityIds) + wholeHomeDisplayedControlIds).distinct()
     }
     val wholeHomeEntityFlow = remember(viewModel, wholeHomeDependencyIds) {
         viewModel.entitiesFor(wholeHomeDependencyIds)
     }
     val wholeHomeEntities by wholeHomeEntityFlow.collectAsState()
-    val wholeHomeDisplayedControlIds = remember(areas, widgetsByArea) {
-        areas.flatMap { displayedRoomControlEntityIds(widgetsByArea[it.area_id].orEmpty()) }.toSet()
-    }
     val wholeHomeSummary = remember(activeRoomConfigs, wholeHomeEntities, wholeHomeDisplayedControlIds) {
         resolveWholeHomeStatus(activeRoomConfigs, wholeHomeEntities, wholeHomeDisplayedControlIds)
     }
@@ -661,8 +661,11 @@ fun AreaCard(
             }
 
             val mediaPlayerIds = remember(config) { config.roomMediaPlayerIds() }
-            val dependencyIds = remember(config, mediaPlayerIds) {
-                (config.roomEntityIds() + mediaPlayerIds).distinct()
+            val displayedControlIds = remember(widgets) { displayedRoomControlEntityIds(widgets) }
+            val dependencyIds = remember(config, mediaPlayerIds, displayedControlIds) {
+                // Lights/devices counters auto-count every light/switch shown in the room, so their
+                // live state must be subscribed here too — not just the manually configured extras.
+                (config.roomEntityIds() + mediaPlayerIds + displayedControlIds).distinct()
             }
             val dependencyFlow = remember(viewModel, dependencyIds) { viewModel.entitiesFor(dependencyIds) }
             val roomEntities by dependencyFlow.collectAsState()
@@ -673,7 +676,6 @@ fun AreaCard(
             val mediaSummary = remember(mediaPlayers) { resolveRoomMediaStatus(mediaPlayers) }
             val mediaStatus = mediaSummary.text
             val mediaIcon = mediaPlayerStateIcon(mediaSummary.representative)
-            val displayedControlIds = remember(widgets) { displayedRoomControlEntityIds(widgets) }
             val roomSummary = remember(config, roomEntities, displayedControlIds) {
                 resolveRoomStatus(config, roomEntities, displayedControlIds)
             }

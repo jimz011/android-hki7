@@ -41,10 +41,6 @@ fun HKIBottomBar(
     containerColor: Color? = null,
     scrollable: Boolean = false,
     showContainer: Boolean = true,
-    /** When true (and not [scrollable]), items are laid out at their own width and centered with a
-     *  fixed gap instead of being stretched edge-to-edge — keeps a handful of tabs from looking
-     *  needlessly spread out across a wide bar. */
-    centered: Boolean = false,
     content: @Composable RowScope.() -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
@@ -76,11 +72,7 @@ fun HKIBottomBar(
             } else {
                 Modifier.fillMaxSize()
             },
-            horizontalArrangement = when {
-                scrollable -> Arrangement.spacedBy(4.dp)
-                centered   -> Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
-                else       -> Arrangement.SpaceEvenly
-            },
+            horizontalArrangement = if (scrollable) Arrangement.spacedBy(4.dp) else Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
             content = content
         )

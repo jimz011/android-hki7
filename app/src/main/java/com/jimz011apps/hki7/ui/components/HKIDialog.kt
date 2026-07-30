@@ -450,19 +450,14 @@ fun HKIDialog(
                                     // squeezing further — that also brings the edge chevrons in.
                                     val tabsScrollable =
                                         (dialogMaxWidth * 0.95f - tabsPadding * 2) < 64.dp * tabs.size
-                                    // A handful of tabs (e.g. a humidifier's 2-3 modes) stretched
-                                    // SpaceEvenly across the full bar end up looking needlessly far
-                                    // apart; keep them fixed-width and clustered near the center instead.
-                                    val tabsCentered = !tabsScrollable && tabs.size <= 3
                                     HKIBottomBar(
                                         horizontalPadding = tabsPadding,
-                                        scrollable = tabsScrollable,
-                                        centered = tabsCentered
+                                        scrollable = tabsScrollable
                                     ) {
                                         tabs.forEach { (label, tabIcon, action) ->
                                             val isSelected = currentTab == label
                                             Column(
-                                                modifier = (if (tabsScrollable || tabsCentered) Modifier.width(68.dp) else Modifier.weight(1f))
+                                                modifier = (if (tabsScrollable) Modifier.width(68.dp) else Modifier.weight(1f))
                                                     .fillMaxHeight()
                                                     .clip(itemCornerShape())
                                                     .background(if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f) else Color.Transparent)
