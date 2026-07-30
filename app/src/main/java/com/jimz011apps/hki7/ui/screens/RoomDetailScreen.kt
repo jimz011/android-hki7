@@ -6795,6 +6795,7 @@ fun GroupEntityDialog(
                                         val temp = entity.attributes?.get("temperature")?.jsonPrimitive?.doubleOrNull
                                         if (temp != null && isItemActive) "$mode - ${temp.toInt()}\u00B0C" else mode
                                     }
+                                    "binary_sensor" -> binarySensorFriendlyState(entity)
                                     else -> entity.state.split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
                                 }
                                 Surface(
@@ -6855,6 +6856,27 @@ fun GroupEntityDialog(
     }
 }
 
+/** Home Assistant's binary_sensor device classes translate raw on/off state into class-appropriate
+ *  wording in HA's own frontend (e.g. a door reads "Open"/"Closed", not "On"/"Off"). */
+fun binarySensorFriendlyState(entity: HAEntity): String {
+    if (entity.state != "on" && entity.state != "off") {
+        return entity.state.split("_").joinToString(" ") { it.replaceFirstChar(Char::uppercase) }
+    }
+    val on = entity.state == "on"
+    return when (entity.deviceClass) {
+        "door", "garage_door", "window", "opening" -> if (on) "Open" else "Closed"
+        "lock" -> if (on) "Unlocked" else "Locked"
+        "moisture" -> if (on) "Wet" else "Dry"
+        "motion", "moving", "occupancy", "presence" -> if (on) "Detected" else "Clear"
+        "problem", "safety", "tamper" -> if (on) "Problem" else "OK"
+        "smoke", "gas", "co" -> if (on) "Detected" else "Clear"
+        "battery" -> if (on) "Low" else "Normal"
+        "connectivity" -> if (on) "Connected" else "Disconnected"
+        "plug", "power" -> if (on) "Plugged in" else "Unplugged"
+        else -> if (on) "On" else "Off"
+    }
+}
+
 @Composable
 fun GenericEntityDialog(
     entity: HAEntity,
@@ -6865,7 +6887,11 @@ fun GenericEntityDialog(
 ) {
     val domain = entity.entity_id.substringBefore(".")
     val unit = entity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull
-    val valueText = listOfNotNull(entity.state, unit).joinToString(" ")
+    val valueText = if (domain == "binary_sensor") {
+        binarySensorFriendlyState(entity)
+    } else {
+        listOfNotNull(entity.state, unit).joinToString(" ")
+    }
     val isSwitchLike = domain in listOf("light", "switch", "input_boolean", "fan", "automation", "group", "remote", "siren", "humidifier")
     val isGraphLike = domain == "sensor"
     val isBinary = domain == "binary_sensor"

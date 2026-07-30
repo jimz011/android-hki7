@@ -165,17 +165,28 @@ fun EntitySensorGraphCard(
     viewModel: MainViewModel,
     lineColor: Color,
     modifier: Modifier = Modifier,
-    titleOverride: String? = null
+    titleOverride: String? = null,
+    /** When set, each history point's value comes from this attribute instead of the entity's own
+     *  `state` — for entities like weather.* whose state is a non-numeric condition string but whose
+     *  attributes (temperature, humidity, pressure...) are the graphable values. */
+    attributeKey: String? = null,
+    /** Unit shown alongside the value; falls back to the entity's own `unit_of_measurement` attribute
+     *  when graphing state, since attribute-graphed entities (e.g. weather) don't carry one. */
+    unitOverride: String? = null
 ) {
     val appColors = LocalHKIAppColors.current
     val historyMapping by viewModel.historyMapping.collectAsState()
     val history = historyMapping[sensorEntity.entity_id].orEmpty()
-    val unit = sensorEntity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull.orEmpty()
+    val unit = unitOverride ?: sensorEntity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull.orEmpty()
 
-    val graphPoints = remember(history, unit) {
+    val graphPoints = remember(history, unit, attributeKey) {
         history.mapNotNull { entry ->
             val millis = parseHistoryMillis(entry.last_changed) ?: return@mapNotNull null
-            val value = entry.state.toFloatOrNull() ?: return@mapNotNull null
+            val value = if (attributeKey != null) {
+                entry.attributes?.get(attributeKey)?.jsonPrimitive?.contentOrNull?.toFloatOrNull()
+            } else {
+                entry.state.toFloatOrNull()
+            } ?: return@mapNotNull null
             HistoryPoint(millis, value, trimSensorGraphValue(value) + if (unit.isNotBlank()) " $unit" else "")
         }.sortedBy { it.timeMillis }
     }

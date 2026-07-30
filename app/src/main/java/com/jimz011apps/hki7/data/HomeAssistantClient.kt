@@ -683,7 +683,7 @@ open class HomeAssistantClient(
         }
     }
 
-    open suspend fun getEntityHistory(entityId: String, hours: Long = 24): List<HAHistoryEntry> {
+    open suspend fun getEntityHistory(entityId: String, hours: Long = 24, significantChangesOnly: Boolean = true): List<HAHistoryEntry> {
         val end = OffsetDateTime.now(ZoneOffset.UTC)
         val start = end.minusHours(hours.coerceAtLeast(1))
         val responseText: String = withAuthHandling {
@@ -691,7 +691,10 @@ open class HomeAssistantClient(
                 header(HttpHeaders.Authorization, "Bearer $accessToken")
                 parameter("filter_entity_id", entityId)
                 parameter("end_time", end.toString())
-                parameter("significant_changes_only", "1")
+                // Weather (and other attribute-graphed) entities rarely change their own `state`, so a
+                // significant-changes filter starves attribute history; callers graphing an attribute
+                // instead of the state ask for the full, unfiltered history.
+                if (significantChangesOnly) parameter("significant_changes_only", "1")
             }.body()
         }
 

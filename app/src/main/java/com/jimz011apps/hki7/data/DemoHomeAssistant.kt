@@ -150,7 +150,7 @@ class DemoHomeAssistantClient : HomeAssistantClient(DEMO_SERVER_URL, DEMO_ACCESS
 
     // ── History & statistics (synthesized, deterministic per entity) ────────
 
-    override suspend fun getEntityHistory(entityId: String, hours: Long): List<HAHistoryEntry> {
+    override suspend fun getEntityHistory(entityId: String, hours: Long, significantChangesOnly: Boolean): List<HAHistoryEntry> {
         val entity = synchronized(lock) { states[entityId] } ?: return emptyList()
         val end = OffsetDateTime.now(ZoneOffset.UTC)
         val span = hours.coerceAtLeast(1)

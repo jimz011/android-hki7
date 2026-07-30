@@ -522,7 +522,10 @@ fun HKIBadgeBar(
             ) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(de.state.uppercase(), style = MaterialTheme.typography.headlineMedium, color = LocalHKIAppColors.current.onSurface)
+                        val text = if (de.entity_id.startsWith("binary_sensor."))
+                            com.jimz011apps.hki7.ui.screens.binarySensorFriendlyState(de).uppercase()
+                        else de.state.uppercase()
+                        Text(text, style = MaterialTheme.typography.headlineMedium, color = LocalHKIAppColors.current.onSurface)
                     }
                 }
             }
@@ -999,6 +1002,7 @@ private fun formatBadgeState(entity: HAEntity): String {
                 ?.let { runCatching { it.toString().trim('"') }.getOrNull() } ?: ""
             "${entity.state}$unit"
         }
+        entity.entity_id.startsWith("binary_sensor.") -> com.jimz011apps.hki7.ui.screens.binarySensorFriendlyState(entity)
         entity.state in listOf("on", "off", "locked", "unlocked", "open", "closed") ->
             entity.state.replaceFirstChar { it.uppercase() }
         else -> entity.state.split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }.take(16)

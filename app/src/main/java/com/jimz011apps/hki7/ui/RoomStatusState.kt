@@ -129,8 +129,11 @@ internal fun resolveRoomStatus(
 ): RoomStatusSummary {
     val entitiesById = entities.associateBy { it.entity_id }
     val indicators = RoomStatusRoles.ORDERED.mapNotNull { role ->
-        val active = config.roomStatusEntityIds[role]
-            .orEmpty()
+        val configuredIds = config.roomStatusEntityIds[role].orEmpty()
+        // Lights/devices auto-count every light/switch currently shown in the room (so adding a new
+        // light button counts it immediately), plus any manually configured extras.
+        val autoIds = autoRoleEntityIds(role, displayedControlEntityIds, entitiesById)
+        val active = (configuredIds + autoIds)
             .distinct()
             .filter { role !in setOf(RoomStatusRoles.LIGHTS, RoomStatusRoles.DEVICES) || displayedControlEntityIds == null || it in displayedControlEntityIds }
             .mapNotNull(entitiesById::get)
@@ -161,8 +164,9 @@ internal fun resolveWholeHomeStatus(
 ): RoomStatusSummary {
     val entitiesById = entities.associateBy { it.entity_id }
     val indicators = RoomStatusRoles.ORDERED.mapNotNull { role ->
-        val active = configs.asSequence()
-            .flatMap { it.roomStatusEntityIds[role].orEmpty() }
+        val configuredIds = configs.asSequence().flatMap { it.roomStatusEntityIds[role].orEmpty() }
+        val autoIds = autoRoleEntityIds(role, displayedControlEntityIds, entitiesById)
+        val active = (configuredIds + autoIds)
             .distinct()
             .filter { role !in setOf(RoomStatusRoles.LIGHTS, RoomStatusRoles.DEVICES) || displayedControlEntityIds == null || it in displayedControlEntityIds }
             .mapNotNull(entitiesById::get)
@@ -184,6 +188,24 @@ internal fun resolveWholeHomeStatus(
             type = RoomMeasurementType.HUMIDITY
         )
     )
+}
+
+/** Lights/devices ids to fold into the counter beyond what's manually configured: every light/switch
+ *  entity currently shown in the room (from [displayedControlEntityIds]), so adding a new light or
+ *  switch button counts it immediately without a separate manual step. Other roles have no
+ *  auto-discovery source here (doors/windows/motion/etc. still rely on explicit configuration). */
+private fun autoRoleEntityIds(
+    role: String,
+    displayedControlEntityIds: Set<String>?,
+    entitiesById: Map<String, HAEntity>
+): List<String> {
+    if (displayedControlEntityIds == null) return emptyList()
+    val wantedDomain = when (role) {
+        RoomStatusRoles.LIGHTS -> "light"
+        RoomStatusRoles.DEVICES -> "switch"
+        else -> return emptyList()
+    }
+    return displayedControlEntityIds.filter { entitiesById[it]?.domain == wantedDomain }
 }
 
 /** Light and switch controls reachable from the visible room widget tree. */

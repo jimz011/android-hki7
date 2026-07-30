@@ -448,10 +448,12 @@ fun ClimateScreen(viewModel: MainViewModel) {
             // Outside pulls from its three dedicated (temperature/humidity/pressure) lists, not the
             // generic extraSensorIds map (kept as a legacy fallback for any previously-added ids).
             val extras = if (group.key == "outside") {
+                // The linked weather entity is graphed separately as its temperature/humidity/pressure
+                // attributes (see ClimateSensorDetailPage) rather than as a plain sensor row — its own
+                // `state` is a non-numeric condition string ("cloudy"), not a graphable value.
                 (climateConfig.outsideTemperatureIds + climateConfig.outsideHumidityIds +
                     climateConfig.outsidePressureIds + climateConfig.extraSensorIds["outside"].orEmpty())
-                    .mapNotNull { entityById[it] } +
-                    listOfNotNull(effectiveOutsideWeatherId?.let { entityById[it] })
+                    .mapNotNull { entityById[it] }
             } else {
                 climateConfig.extraSensorIds[group.key].orEmpty().mapNotNull { entityById[it] }
             }
@@ -580,6 +582,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
             activeGroup != null -> ClimateSensorDetailPage(
                 group = activeGroup,
                 sensors = filteredEntities(groupSensors[activeGroup.key].orEmpty()),
+                weatherEntity = if (activeGroup.key == "outside") effectiveOutsideWeatherId?.let { entityById[it] } else null,
                 viewModel = viewModel,
                 isEditMode = isEditMode,
                 onRemove = ::hideEntity,
@@ -2495,14 +2498,36 @@ private fun ClimateSensorDetailPage(
     onRemove: (String) -> Unit,
     onRename: (HAEntity) -> Unit,
     onReorder: (Int, Int) -> Unit,
-    padding: PaddingValues
+    padding: PaddingValues,
+    /** Optional linked weather.* entity (outside group only): graphed as separate attribute cards
+     *  (temperature/humidity/pressure) instead of as a plain sensor, since its own state is a
+     *  non-numeric condition string. */
+    weatherEntity: HAEntity? = null
 ) {
     val appColors = LocalHKIAppColors.current
     var selectedHours by rememberSaveable(group.key) { mutableIntStateOf(24) }
 
-    // Pull raw history for every sensor in the group; graphs update as results stream in.
-    LaunchedEffect(group.key, selectedHours, sensors.map { it.entity_id }.toSet()) {
+    // Pull raw history for every sensor in the group; graphs update as results stream in. The
+    // weather entity needs the unfiltered history (no significant-changes filter) since its own
+    // `state` rarely changes even as the attributes we actually graph keep updating.
+    LaunchedEffect(group.key, selectedHours, sensors.map { it.entity_id }.toSet(), weatherEntity?.entity_id) {
         sensors.forEach { viewModel.fetchEntityHistory(it.entity_id, selectedHours.toLong()) }
+        weatherEntity?.let { viewModel.fetchEntityHistory(it.entity_id, selectedHours.toLong(), significantChangesOnly = false) }
+    }
+
+    data class WeatherAttrSpec(val key: String, val label: String, val unit: String, val color: Color)
+    val weatherAttrSpecs = remember(weatherEntity) {
+        if (weatherEntity == null) emptyList() else buildList {
+            if (weatherEntity.temperature != null) add(
+                WeatherAttrSpec("temperature", "Outside temperature", weatherEntity.attributes?.get("temperature_unit")?.jsonPrimitive?.contentOrNull ?: "°C", TempWarm)
+            )
+            if (weatherEntity.humidity != null) add(
+                WeatherAttrSpec("humidity", "Outside humidity", "%", CoolBlue)
+            )
+            if (weatherEntity.pressure != null) add(
+                WeatherAttrSpec("pressure", "Outside pressure", weatherEntity.attributes?.get("pressure_unit")?.jsonPrimitive?.contentOrNull ?: "hPa", group.color)
+            )
+        }
     }
 
     val values = sensors.mapNotNull { it.numericState() }
@@ -2580,7 +2605,23 @@ private fun ClimateSensorDetailPage(
             }
         }
 
-        if (sensors.isEmpty()) {
+        if (weatherAttrSpecs.isNotEmpty()) {
+            items(count = weatherAttrSpecs.size, key = { "weather-${weatherAttrSpecs[it].key}" }) { idx ->
+                val spec = weatherAttrSpecs[idx]
+                Box(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
+                    EntitySensorGraphCard(
+                        sensorEntity = weatherEntity!!,
+                        viewModel = viewModel,
+                        lineColor = spec.color,
+                        titleOverride = spec.label,
+                        attributeKey = spec.key,
+                        unitOverride = spec.unit
+                    )
+                }
+            }
+        }
+
+        if (sensors.isEmpty() && weatherAttrSpecs.isEmpty()) {
             item {
                 Surface(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -2593,7 +2634,7 @@ private fun ClimateSensorDetailPage(
                     )
                 }
             }
-        } else {
+        } else if (sensors.isNotEmpty()) {
             // One gradient graph per sensor (colors follow the sensor's device_class palette)
             items(count = sensors.size, key = { sensors[it].entity_id }) { idx ->
                 val sensor = sensors[idx]

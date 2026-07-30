@@ -36,7 +36,7 @@ private fun namedHumidifierModeIcon(mode: String): androidx.compose.ui.graphics.
     "auto", "smart" -> Icons.Default.AutoMode
     "baby" -> Icons.Default.ChildCare
     "quiet", "silent", "low" -> Icons.Default.VolumeOff
-    "continuous" -> Icons.Default.AllInclusive
+    "continuous", "cont", "continuously" -> Icons.Default.AllInclusive
     "manual" -> Icons.Default.PanTool
     "dry", "dryer", "drying" -> Icons.Default.DryCleaning
     "laundry" -> Icons.Default.LocalLaundryService

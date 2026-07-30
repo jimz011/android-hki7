@@ -2257,11 +2257,11 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         }
     }
 
-    fun fetchEntityHistory(entityId: String, hours: Long = 24) {
+    fun fetchEntityHistory(entityId: String, hours: Long = 24, significantChangesOnly: Boolean = true) {
         val currentClient = client ?: return
         viewModelScope.launch {
             try {
-                val history = currentClient.getEntityHistory(entityId, hours)
+                val history = currentClient.getEntityHistory(entityId, hours, significantChangesOnly)
                 val current = _historyMapping.value.toMutableMap()
                 current[entityId] = history
                 _historyMapping.value = current
