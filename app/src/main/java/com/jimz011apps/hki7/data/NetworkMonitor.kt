@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.net.wifi.WifiManager
 import java.net.InetAddress
 import java.net.URI
@@ -24,20 +23,19 @@ class NetworkMonitor(context: Context) {
     val currentSsid: StateFlow<String?> = _currentSsid
 
     // An SSID value cannot distinguish a live connection from disconnecting and reconnecting to
-    // that same Wi-Fi. Track the actual Network object so stale sockets can be replaced immediately.
+    // that same Wi-Fi. More importantly, a connection can move between cellular networks or through
+    // a VPN without the SSID changing at all. Track Android's actual default Network so every
+    // transport handoff invalidates sockets that remain bound to the old route.
     private val _networkGeneration = MutableStateFlow(0L)
     val networkGeneration: StateFlow<Long> = _networkGeneration
     private val _networkChangeGeneration = MutableStateFlow(0L)
     val networkChangeGeneration: StateFlow<Long> = _networkChangeGeneration
-    private var activeWifiNetwork: Network? = connectivityManager?.activeNetwork?.takeIf { network ->
-        connectivityManager.getNetworkCapabilities(network)
-            ?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
-    }
+    private var activeDefaultNetwork: Network? = connectivityManager?.activeNetwork
 
     @Synchronized
-    private fun updateWifiNetwork(network: Network?) {
-        if (activeWifiNetwork == network) return
-        activeWifiNetwork = network
+    private fun updateDefaultNetwork(network: Network?) {
+        if (activeDefaultNetwork == network) return
+        activeDefaultNetwork = network
         _networkGeneration.value += 1
     }
 
@@ -49,13 +47,13 @@ class NetworkMonitor(context: Context) {
     private val callback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             _currentSsid.value = readSsid()
-            updateWifiNetwork(network)
+            updateDefaultNetwork(network)
             signalNetworkChange()
         }
         override fun onLost(network: Network) {
-            if (network == activeWifiNetwork) {
+            if (network == activeDefaultNetwork) {
                 _currentSsid.value = null
-                updateWifiNetwork(null)
+                updateDefaultNetwork(null)
             } else {
                 _currentSsid.value = readSsid()
             }
@@ -69,11 +67,12 @@ class NetworkMonitor(context: Context) {
 
     init {
         runCatching {
-            connectivityManager?.registerNetworkCallback(
-                NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_WIFI).build(),
-                callback
-            )
+            connectivityManager?.registerDefaultNetworkCallback(callback)
         }
+    }
+
+    fun close() {
+        runCatching { connectivityManager?.unregisterNetworkCallback(callback) }
     }
 
     private fun readSsid(): String? = currentWifiSsid(appContext)

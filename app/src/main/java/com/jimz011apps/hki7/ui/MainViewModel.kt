@@ -37,12 +37,17 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.put
 import android.os.SystemClock
+import java.net.ConnectException
+import java.net.NoRouteToHostException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import java.time.LocalTime
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import javax.net.ssl.SSLException
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -63,17 +68,51 @@ enum class HomeAssistantRestartPhase {
 internal fun homeAssistantConnectionStatusLabel(
     status: ConnectionStatus,
     restartPhase: HomeAssistantRestartPhase,
-    isAutoGenerating: Boolean
+    isAutoGenerating: Boolean,
+    connectionError: String? = null
 ): String = when {
-    isAutoGenerating -> "Auto-generating rooms and widgets…"
     restartPhase == HomeAssistantRestartPhase.STOPPING -> "Stopping for restart…"
     restartPhase == HomeAssistantRestartPhase.STARTING -> "Home Assistant is starting…"
     restartPhase == HomeAssistantRestartPhase.RESTORING -> "Restoring your dashboard…"
     restartPhase == HomeAssistantRestartPhase.RESTARTING -> "Home Assistant is restarting…"
+    status != ConnectionStatus.CONNECTED && !connectionError.isNullOrBlank() -> connectionError
+    isAutoGenerating -> "Auto-generating rooms and widgets…"
     status == ConnectionStatus.CONNECTING -> "Reconnecting to Home Assistant…"
     status == ConnectionStatus.ERROR -> "Unavailable · Retrying…"
     status == ConnectionStatus.IDLE -> "Connection paused"
     else -> "Connected"
+}
+
+/** Converts network-stack exceptions into concise text suitable for the connection banner. */
+internal fun homeAssistantConnectionErrorLabel(error: Throwable): String {
+    val causes = generateSequence(error) { it.cause }.take(8).toList()
+    val message = causes.asSequence()
+        .mapNotNull { it.message?.trim()?.takeIf(String::isNotBlank) }
+        .firstOrNull()
+        .orEmpty()
+    return when {
+        causes.any { it is UnknownHostException } ->
+            "Server address could not be found"
+        causes.any { it is SocketTimeoutException } ||
+            message.contains("timed out", ignoreCase = true) ||
+            message.contains("timeout", ignoreCase = true) ->
+            "Connection timed out"
+        causes.any { it is NoRouteToHostException } ->
+            "No network route to Home Assistant"
+        causes.any { it is ConnectException } ->
+            "Could not connect to Home Assistant"
+        causes.any { it is SSLException } ->
+            "Secure connection failed"
+        message == "AUTH_EXPIRED" ->
+            "Session expired · Refreshing login…"
+        message.contains("channel", ignoreCase = true) &&
+            message.contains("clos", ignoreCase = true) ->
+            "Connection was interrupted"
+        message.isNotBlank() ->
+            message.replace(Regex("\\s+"), " ").take(140)
+        else ->
+            "Connection was interrupted"
+    }
 }
 
 /** Delay before a temporary connection problem becomes a blocking reconnect screen. Dashboard
@@ -979,6 +1018,8 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     private val _status = MutableStateFlow(ConnectionStatus.IDLE)
     val status: StateFlow<ConnectionStatus> = _status
+    private val _connectionError = MutableStateFlow<String?>(null)
+    val connectionError: StateFlow<String?> = _connectionError
 
     private val _homeAssistantRestartPhase = MutableStateFlow(HomeAssistantRestartPhase.NONE)
     val homeAssistantRestartPhase: StateFlow<HomeAssistantRestartPhase> =
@@ -1562,6 +1603,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 when {
                     settings.url.isNullOrBlank() -> {
                         addLog("Logged out or settings cleared.")
+                        _connectionError.value = null
                         clearInternalUrlFallback()
                         stopSync()
                         tokenRefreshJob?.cancel()
@@ -1628,6 +1670,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                         client = null
                         activeConnectionKey = null
                         _connectionRoute.value = null
+                        _connectionError.value = null
                         _status.value = ConnectionStatus.IDLE
                     }
                 }
@@ -1755,6 +1798,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                         _status.value = ConnectionStatus.CONNECTING
                     }
                 } catch (e: Exception) {
+                    _connectionError.value = homeAssistantConnectionErrorLabel(e)
                     if (e.message == "AUTH_EXPIRED") tryTokenRefresh()
                     else {
                         if (appVisible && _status.value != ConnectionStatus.ERROR) {
@@ -1891,6 +1935,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val previous = _connectionRoute.value
         _connectionRoute.value = route
         consecutiveSilentRefreshFailures = 0
+        _connectionError.value = null
         _status.value = ConnectionStatus.CONNECTED
         // Manual dashboards do not otherwise need registries during startup. Fetch them here too
         // so entity-registry automations and Adaptive Lighting membership are warm before a dialog
@@ -2078,6 +2123,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
+                _connectionError.value = homeAssistantConnectionErrorLabel(e)
                 if (!baseConnectionEstablished && e.message != "AUTH_EXPIRED" && activateExternalFallback(attemptedUrl)) {
                     _status.value = ConnectionStatus.CONNECTING
                     return@launch
@@ -2204,6 +2250,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     addLog("Token refreshed successfully")
                     return@withLock true
                 } catch (e: Exception) {
+                    _connectionError.value = homeAssistantConnectionErrorLabel(e)
                     addLog("Token refresh attempt ${attempt + 1} failed: ${e.message}")
                     // Only force re-login when the server explicitly rejected the refresh token.
                     if (e is TokenRefreshException && e.invalidGrant) {
@@ -3291,6 +3338,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         client?.dispose()
         client = null
         activeConnectionKey = null
+        _connectionError.value = null
         _status.value = ConnectionStatus.CONNECTING
         publishEntities(emptyList())
         _people.value = emptyList()
@@ -3381,6 +3429,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         stopSync()
         client?.dispose()
         client = null
+        networkMonitor?.close()
         setBatteryMonitoring(false)
     }
 

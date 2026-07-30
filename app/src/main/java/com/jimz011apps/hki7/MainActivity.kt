@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -334,6 +335,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     })
     
     val connectionStatus by viewModel.status.collectAsState()
+    val connectionError by viewModel.connectionError.collectAsState()
     val homeAssistantRestartPhase by viewModel.homeAssistantRestartPhase.collectAsState()
     var hasConnectedOnce by remember { mutableStateOf(false) }
     LaunchedEffect(connectionStatus) { if (connectionStatus == ConnectionStatus.CONNECTED) hasConnectedOnce = true }
@@ -807,6 +809,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                     status = connectionStatus,
                     restartPhase = homeAssistantRestartPhase,
                     isAutoGenerating = autoGenerationPending,
+                    connectionError = connectionError,
                     modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 6.dp)
                 )
                 switchedConnectionRoute != null -> HomeAssistantConnectionSwitchBar(
@@ -1121,6 +1124,7 @@ private fun InstanceSwitcherPanel(
 private fun ConnectionErrorOverlay(viewModel: MainViewModel) {
     val appColors = LocalHKIAppColors.current
     val currentUrl by viewModel.currentUrl.collectAsState()
+    val connectionError by viewModel.connectionError.collectAsState()
     val scope = rememberCoroutineScope()
     var retrying by remember { mutableStateOf(false) }
     Box(
@@ -1142,6 +1146,15 @@ private fun ConnectionErrorOverlay(viewModel: MainViewModel) {
                 color = appColors.onMuted,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
+            connectionError?.takeIf { it.isNotBlank() }?.let { error ->
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    error,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+            }
             Spacer(Modifier.height(24.dp))
             Button(
                 enabled = !retrying,
@@ -1195,35 +1208,54 @@ private fun HomeAssistantConnectionBar(
     status: ConnectionStatus,
     restartPhase: HomeAssistantRestartPhase,
     isAutoGenerating: Boolean,
+    connectionError: String?,
     modifier: Modifier = Modifier
 ) {
     val appColors = LocalHKIAppColors.current
-    val label = homeAssistantConnectionStatusLabel(status, restartPhase, isAutoGenerating)
+    val label = homeAssistantConnectionStatusLabel(
+        status,
+        restartPhase,
+        isAutoGenerating,
+        connectionError
+    )
     val title = if (isAutoGenerating) "Building your dashboard" else "Home Assistant"
+    val showingError = restartPhase == HomeAssistantRestartPhase.NONE &&
+        status != ConnectionStatus.CONNECTED &&
+        !connectionError.isNullOrBlank()
     val statusColor = if (
         isAutoGenerating ||
         restartPhase != HomeAssistantRestartPhase.NONE ||
-        status == ConnectionStatus.CONNECTING
+        (status == ConnectionStatus.CONNECTING && !showingError)
     ) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
     Surface(
-        modifier = modifier.fillMaxWidth().height(56.dp),
+        modifier = modifier.fillMaxWidth().heightIn(min = 56.dp),
         shape = itemCornerShape(),
         color = appColors.surface.copy(alpha = .96f),
         shadowElevation = 8.dp
     ) {
         Row(
-            Modifier.padding(horizontal = 16.dp),
+            Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            CircularProgressIndicator(modifier = Modifier.size(22.dp), strokeWidth = 2.5.dp)
-            Column {
+            if (showingError) {
+                Icon(
+                    Icons.Default.ErrorOutline,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(24.dp)
+                )
+            } else {
+                CircularProgressIndicator(modifier = Modifier.size(22.dp), strokeWidth = 2.5.dp)
+            }
+            Column(Modifier.weight(1f)) {
                 Text(title, color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
                 Text(
                     label,
                     color = statusColor,
                     style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1
+                    maxLines = 2,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
             }
         }

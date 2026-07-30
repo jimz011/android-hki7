@@ -7,15 +7,24 @@ Items marked with \* require the HKI 7 Cloud Component integration.
 
 ## 1.0.0-beta.9
 
-- Drag to reorder cameras, thermostats, and energy cards. In edit mode each of the Security, Climate, and Energy views now has a "Reorder" button that opens a drag-to-sort list — cameras on Security, thermostats/AC units on Climate, and the cards below the house (live tiles, Electricity, Solar, Gas, Water, Top consumers, and more) on Energy.
-- New Climate "Outside" tile. Add your outside temperature, humidity, and air-pressure sensors under Climate settings (they're never auto-imported, since HKI can't tell which sensors are outdoors). When set, the climate hero shows the averaged outside temperature as a subtitle beneath the indoor average.
+- Drag to reorder cameras, thermostats, and energy cards. In edit mode the Security, Climate, and Energy views each get a "Reorder" button that opens a drag-to-sort list — cameras on Security, thermostats/AC units on Climate, and the data cards below the pinned live-source tiles (Electricity, Solar, Gas, Water, Top consumers, and more) on Energy.
+- New Climate "Outside" tile. Link a weather entity or choose outside temperature, humidity, and air-pressure sensors under Climate settings. The climate hero shows the outside temperature beneath the indoor average, and opening Outside gives each value its own history graph.
 - Hide/schedule moved onto the item itself. Instead of a separate control in the reorder list, open a button's (or header badge's) settings and use the new "Visibility" section under Appearance to hide it or schedule when it shows — one-off or recurring daily/weekly/monthly/yearly.
 - Header badges can be renamed. Give a badge a custom label instead of the entity's name, in its Appearance settings.
 - Swipe cards autoplay by default, advancing every 3 seconds.
-- Weather dialog: the Season card now autoplays (flipping every 3 seconds), a new Wind card shows a compass windrose with speed and direction, and you can add a Rain map card backed by a camera entity or an embedded web page (iframe) — great for live radar. The per-card "dialog layout" settings were removed.
+- Weather dialog: the Season card now autoplays (flipping every 3 seconds), a new Wind card shows a compass windrose with speed and direction, and you can add a Rain map card backed by a camera entity or embedded web page (iframe), with selectable aspect ratios and full-bleed rounded presentation. The per-card "dialog layout" settings were removed.
+- The Parcels widget has been rebuilt around your carriers. It shows bundled carrier logos, totals across every account, incoming/delivered/outgoing/mail sections, delivery estimates, and tracking history. Supported carrier integrations can also add a parcel directly by tracking number.
+- Humidifiers and dehumidifiers now get full native controls from Climate, room buttons, and header badges: power, target/current humidity, distinct mode tabs, linked fan/select speed controls, and optional tank, filter, error, PM2.5, ionizer, pump, sleep, and beep helpers. Related entities are filled automatically from the same Home Assistant device.
+- Room status counters are now interactive. Tap a counter to see the lights, switches, doors, windows, motion sensors, or other entities behind it. Visible room lights and switches are counted automatically, and controls owned by counter devices no longer clutter the room as duplicate buttons.
+- Buttons and badges backed by a completion-time entity now show a live countdown while the appliance is running, making washing machines, dryers, ovens, and similar devices easier to follow.
+- Shared dashboards now publish the owner's latest edits automatically when the app opens. Recipients get those updates on their next sync while keeping their own allowed appearance changes.
+- Header display settings — including weather/alarm/date-time pills, linked entities, and the rain map — now belong to each dashboard, so they travel correctly through backups and family sharing.
 - Camera widgets now fill their whole tile (no more black bars top and bottom) and use the same corner radius as every other widget.
-- Waste collection dialog now opens at the same size as the Calendar and Parcels dialogs and can be dismissed by tapping outside it.
+- Waste collection is easier to scan: collections on the same day use overlapping fraction icons instead of hiding one another, the widget icon styling now matches the rest of the app, and its larger dialog can be dismissed by tapping outside.
+- More visual consistency: Battery and Waste artwork use matching rounded icon tiles, camera and weather overlays follow the configured item corners, and About now shows the current HKI 7 app icon.
+- Binary sensors now use Home Assistant-style labels such as Open/Closed, Wet/Dry, Detected/Clear, and Connected/Disconnected instead of generic On/Off text.
 - Restricted (aesthetic-only) editors can no longer add, remove, or reconfigure header badges — only visual tweaks (name, icon, visibility) to existing ones.
+- Fixed: switching between Wi-Fi, mobile data, or a VPN now discards sockets tied to the old Android network and reconnects with the saved Home Assistant session, instead of unnecessarily requiring another login. While reconnecting, the connection toast now shows the actual failure reason instead of only a generic status.
 
 ## 1.0.0-beta.8
 

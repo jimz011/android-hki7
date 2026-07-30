@@ -1,5 +1,7 @@
 package com.jimz011apps.hki7.ui
 
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -64,6 +66,44 @@ class ConnectionRetryPolicyTest {
         assertEquals(
             "Restoring your dashboard…",
             homeAssistantConnectionStatusLabel(ConnectionStatus.CONNECTED, HomeAssistantRestartPhase.RESTORING, false)
+        )
+    }
+
+    @Test
+    fun `connection error replaces generic reconnecting label`() {
+        assertEquals(
+            "Server address could not be found",
+            homeAssistantConnectionStatusLabel(
+                ConnectionStatus.CONNECTING,
+                HomeAssistantRestartPhase.NONE,
+                isAutoGenerating = false,
+                connectionError = "Server address could not be found"
+            )
+        )
+    }
+
+    @Test
+    fun `restart progress takes precedence over stale connection error`() {
+        assertEquals(
+            "Home Assistant is starting…",
+            homeAssistantConnectionStatusLabel(
+                ConnectionStatus.CONNECTING,
+                HomeAssistantRestartPhase.STARTING,
+                isAutoGenerating = false,
+                connectionError = "Connection timed out"
+            )
+        )
+    }
+
+    @Test
+    fun `network exceptions get concise user facing labels`() {
+        assertEquals(
+            "Server address could not be found",
+            homeAssistantConnectionErrorLabel(UnknownHostException("ha.invalid"))
+        )
+        assertEquals(
+            "Connection timed out",
+            homeAssistantConnectionErrorLabel(SocketTimeoutException("socket timed out"))
         )
     }
 }
