@@ -6593,9 +6593,14 @@ fun GroupEntityDialog(
             else      -> s == "on"
         }
     }
+    // Read-only domains (sensors, presence trackers) have no turn-off service; hide the controls
+    // entirely rather than show a button that does nothing.
+    fun isControllable(e: HAEntity) = e.entity_id.substringBefore(".") !in setOf("binary_sensor", "sensor", "person", "device_tracker")
     val displayEntities = entities.filter { isActive(it) }
     val activeCount = displayEntities.size
-    // Auto-dismiss when every entity in the group has been turned off.
+    val anyControllable = displayEntities.any(::isControllable)
+    // Auto-dismiss when every entity in the group is no longer active (turned off here, or a
+    // read-only sensor like an open door going back to closed on its own).
     LaunchedEffect(displayEntities.isEmpty()) {
         if (displayEntities.isEmpty()) onDismiss()
     }
@@ -6691,14 +6696,16 @@ fun GroupEntityDialog(
                             Icon(Icons.Default.Close, contentDescription = "Close", tint = appColors.onSurface, modifier = Modifier.size(24.dp))
                         }
                     }
-                    Spacer(Modifier.height(16.dp))
-                    Button(
-                        onClick = { displayEntities.forEach { turnOff(it) } },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp)
-                    ) {
-                        Text("Turn off all")
+                    if (anyControllable) {
+                        Spacer(Modifier.height(16.dp))
+                        Button(
+                            onClick = { displayEntities.filter(::isControllable).forEach { turnOff(it) } },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp)
+                        ) {
+                            Text("Turn off all")
+                        }
                     }
                     Spacer(Modifier.height(16.dp))
                     val groupListState = androidx.compose.foundation.lazy.rememberLazyListState()
@@ -6812,18 +6819,20 @@ fun GroupEntityDialog(
                                                 style = MaterialTheme.typography.labelSmall
                                             )
                                         }
-                                        IconButton(
-                                            onClick = { turnOff(entity) },
-                                            modifier = Modifier
-                                                .size(40.dp)
-                                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.18f), CircleShape)
-                                        ) {
-                                            Icon(
-                                                Icons.Default.PowerSettingsNew,
-                                                contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.primary,
-                                                modifier = Modifier.size(20.dp)
-                                            )
+                                        if (isControllable(entity)) {
+                                            IconButton(
+                                                onClick = { turnOff(entity) },
+                                                modifier = Modifier
+                                                    .size(40.dp)
+                                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.18f), CircleShape)
+                                            ) {
+                                                Icon(
+                                                    Icons.Default.PowerSettingsNew,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.primary,
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                            }
                                         }
                                     }
                                 }

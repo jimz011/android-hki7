@@ -24,21 +24,41 @@ import kotlinx.serialization.json.jsonPrimitive
 
 val HumidifierCyan = Color(0xFF00BCD4)
 
-/** A distinct icon per humidifier preset mode so the nav-bar tabs are visually distinguishable. */
-fun humidifierModeIcon(mode: String): androidx.compose.ui.graphics.vector.ImageVector = when (mode.lowercase()) {
+/** Known humidifier/dehumidifier preset modes mapped to a distinct icon each. */
+private fun namedHumidifierModeIcon(mode: String): androidx.compose.ui.graphics.vector.ImageVector? = when (mode.lowercase()) {
     "normal" -> Icons.Default.WaterDrop
     "eco" -> Icons.Default.Eco
     "away" -> Icons.Default.Luggage
-    "boost", "turbo", "max" -> Icons.Default.Bolt
+    "boost", "turbo", "max", "high" -> Icons.Default.Bolt
     "comfort" -> Icons.Default.Weekend
     "home" -> Icons.Default.Home
     "sleep", "night" -> Icons.Default.Bedtime
-    "auto" -> Icons.Default.AutoMode
+    "auto", "smart" -> Icons.Default.AutoMode
     "baby" -> Icons.Default.ChildCare
-    "quiet", "silent" -> Icons.Default.VolumeOff
+    "quiet", "silent", "low" -> Icons.Default.VolumeOff
     "continuous" -> Icons.Default.AllInclusive
     "manual" -> Icons.Default.PanTool
-    else -> Icons.Default.Tune
+    "dry", "dryer", "drying" -> Icons.Default.DryCleaning
+    "laundry" -> Icons.Default.LocalLaundryService
+    "clothes_dry", "clothes" -> Icons.Default.Checkroom
+    "purify", "purifier" -> Icons.Default.FilterAlt
+    "medium" -> Icons.Default.Speed
+    else -> null
+}
+
+/** Fallback icons cycled for modes with no named match, so unrecognized modes still look distinct
+ *  from each other instead of all sharing a single generic icon. */
+private val FallbackModeIcons = listOf(
+    Icons.Default.Tune, Icons.Default.Star, Icons.Default.Circle, Icons.Default.Square,
+    Icons.Default.Hexagon, Icons.Default.ChangeHistory, Icons.Default.Diamond, Icons.Default.Adjust
+)
+
+/** A distinct icon per humidifier preset mode across the full [allModes] list, so nav-bar tabs are
+ *  visually distinguishable even for modes this app doesn't recognize by name. */
+fun humidifierModeIcon(mode: String, allModes: List<String>): androidx.compose.ui.graphics.vector.ImageVector {
+    namedHumidifierModeIcon(mode)?.let { return it }
+    val unnamedIndex = allModes.filter { namedHumidifierModeIcon(it) == null }.indexOf(mode).coerceAtLeast(0)
+    return FallbackModeIcons[unnamedIndex % FallbackModeIcons.size]
 }
 
 /**
@@ -65,7 +85,7 @@ fun HKIHumidifierDialog(
     // than a modes button + list.
     val modes = entity.humidifierAvailableModes
     val navigationTabs: List<Triple<String, androidx.compose.ui.graphics.vector.ImageVector, () -> Unit>> =
-        if (modes.size > 1) modes.map { m -> Triple(label(m), humidifierModeIcon(m)) { viewModel.setHumidifierMode(entity.entity_id, m) } } else emptyList()
+        if (modes.size > 1) modes.map { m -> Triple(label(m), humidifierModeIcon(m, modes)) { viewModel.setHumidifierMode(entity.entity_id, m) } } else emptyList()
 
     val statusText = if (isOn) {
         entity.humidity?.let { "${it.toInt()}% • ON" } ?: "ON"

@@ -129,6 +129,8 @@ fun HKIBadgeBar(
                 addAll(badge.vacuumBatteryEntityIds.values)
                 addAll(badge.vacuumWaterEntityIds.values)
                 addAll(badge.vacuumEmptyBinEntityIds.values)
+                badge.humidifierFanEntityId?.let(::add)
+                addAll(badge.humidifierAuxEntityIds.values)
             }
         }.toList()
     }
