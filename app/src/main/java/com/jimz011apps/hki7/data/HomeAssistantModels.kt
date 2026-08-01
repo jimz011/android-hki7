@@ -1233,7 +1233,10 @@ data class HKISensorGraphWidget(
     override val visibilityRecurrence: String = "none",
     override val visibilityConditionEntityId: String? = null,
     override val visibilityConditionState: String? = null,
-    override val visibilityConditionNegate: Boolean = false
+    override val visibilityConditionNegate: Boolean = false,
+    /** Per-line visibility (hide/schedule/condition), keyed by entity id — same rule shape and
+     * evaluator as [HKIButtonStack.buttonConfigs]. */
+    val itemConfigs: Map<String, HKIButtonConfig> = emptyMap()
 ) : HKIRoomWidget()
 
 /** A collapsible stack of sensor graphs, like the energy/climate stacks. */
@@ -1341,7 +1344,9 @@ data class HKICalendarWidget(
     override val visibilityRecurrence: String = "none",
     override val visibilityConditionEntityId: String? = null,
     override val visibilityConditionState: String? = null,
-    override val visibilityConditionNegate: Boolean = false
+    override val visibilityConditionNegate: Boolean = false,
+    /** Per-calendar visibility (hide/schedule/condition), keyed by entity id. */
+    val itemConfigs: Map<String, HKIButtonConfig> = emptyMap()
 ) : HKIRoomWidget()
 
 /** Waste collection widget (e.g. Afvalbeheer): waste-type sensors whose state/attributes hold the
@@ -1369,7 +1374,9 @@ data class HKIWasteCollectionWidget(
     override val visibilityRecurrence: String = "none",
     override val visibilityConditionEntityId: String? = null,
     override val visibilityConditionState: String? = null,
-    override val visibilityConditionNegate: Boolean = false
+    override val visibilityConditionNegate: Boolean = false,
+    /** Per-category visibility (hide/schedule/condition), keyed by sensor entity id. */
+    val itemConfigs: Map<String, HKIButtonConfig> = emptyMap()
 ) : HKIRoomWidget()
 
 @Serializable
@@ -1419,7 +1426,9 @@ data class HKIParcelsWidget(
     override val visibilityRecurrence: String = "none",
     override val visibilityConditionEntityId: String? = null,
     override val visibilityConditionState: String? = null,
-    override val visibilityConditionNegate: Boolean = false
+    override val visibilityConditionNegate: Boolean = false,
+    /** Per-carrier-account visibility (hide/schedule/condition), keyed by HA device id. */
+    val itemConfigs: Map<String, HKIButtonConfig> = emptyMap()
 ) : HKIRoomWidget()
 
 /** Identity of the current HA user, as reported by the `hki7/whoami` companion command. */

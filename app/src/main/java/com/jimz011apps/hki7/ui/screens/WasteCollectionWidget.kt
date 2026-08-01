@@ -25,9 +25,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -54,6 +60,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.jimz011apps.hki7.data.HACalendarEvent
+import com.jimz011apps.hki7.data.HKIButtonConfig
+import com.jimz011apps.hki7.data.isButtonVisibleNow
 import com.jimz011apps.hki7.data.isWidgetVisibleNow
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HKIWasteCollectionWidget
@@ -229,8 +237,10 @@ fun WasteCollectionWidgetItem(
         if (isEditMode) viewModel.entitySnapshotFor(widget.entityIds) else viewModel.entitiesFor(widget.entityIds)
     }
     val entities by entityFlow.collectAsState()
-    val resolved = remember(entities, widget.entityIds) {
-        widget.entityIds.mapNotNull { id -> entities.find { it.entity_id == id } }
+    val resolved = remember(entities, widget.entityIds, widget.itemConfigs) {
+        widget.entityIds
+            .filter { isButtonVisibleNow(widget.itemConfigs[it] ?: HKIButtonConfig()) }
+            .mapNotNull { id -> entities.find { it.entity_id == id } }
     }
     val rawNames = resolved.map { it.friendlyName ?: it.entity_id.substringAfter('.') }
     val strippedNames = remember(rawNames) { stripCommonPrefix(rawNames) }
@@ -553,6 +563,8 @@ fun WasteCollectionSettingsDialog(
     var showCalendarPicker by remember { mutableStateOf(false) }
     var showIconPicker by remember { mutableStateOf(false) }
     var settingsPage by remember(widget) { mutableStateOf("sources") }
+    var itemConfigs by remember(widget) { mutableStateOf(widget.itemConfigs) }
+    var editingItemVisibility by remember { mutableStateOf<String?>(null) }
     var visSpec by remember(widget) {
         mutableStateOf(
             com.jimz011apps.hki7.ui.components.VisibilitySpec(
@@ -622,16 +634,32 @@ fun WasteCollectionSettingsDialog(
                     label = { Text(stringResource(R.string.ui_title_768e0c1)) }, singleLine = true, modifier = Modifier.fillMaxWidth()
                 )
                 Text(stringResource(R.string.ui_waste_sensors_8bfd3ec), style = MaterialTheme.typography.labelLarge)
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                if (entityIds.isEmpty()) {
                     Text(
-                        if (entityIds.isEmpty()) stringResource(R.string.ui_none_selected_5798946)
-                        else entityIds.joinToString(", ") { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id },
+                        stringResource(R.string.ui_none_selected_5798946),
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (entityIds.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary,
-                        maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    TextButton(onClick = { showEntityPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
                 }
+                entityIds.forEach { id ->
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            allEntities.find { it.entity_id == id }?.friendlyName ?: id,
+                            modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        IconButton(onClick = { editingItemVisibility = id }) {
+                            Icon(
+                                if (isButtonVisibleNow(itemConfigs[id] ?: HKIButtonConfig())) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                contentDescription = stringResource(R.string.ui_visibility_7d9ff4f)
+                            )
+                        }
+                        IconButton(onClick = { entityIds = entityIds - id; itemConfigs = itemConfigs - id }) {
+                            Icon(Icons.Filled.Close, stringResource(R.string.action_remove))
+                        }
+                    }
+                }
+                TextButton(onClick = { showEntityPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
                 Text(stringResource(R.string.ui_week_calendar_shown_in_the_dialog_6d4f28b), style = MaterialTheme.typography.labelLarge)
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text(
@@ -695,11 +723,20 @@ fun WasteCollectionSettingsDialog(
                         visibilityRecurrence = visSpec.recurrence,
                         visibilityConditionEntityId = visSpec.conditionEntityId,
                         visibilityConditionState = visSpec.conditionState,
-                        visibilityConditionNegate = visSpec.conditionNegate
+                        visibilityConditionNegate = visSpec.conditionNegate,
+                        itemConfigs = itemConfigs
                     )
                 )
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
     )
+    editingItemVisibility?.let { id ->
+        com.jimz011apps.hki7.ui.components.ItemVisibilityDialog(
+            label = allEntities.find { it.entity_id == id }?.friendlyName ?: id,
+            config = itemConfigs[id] ?: HKIButtonConfig(),
+            onDismiss = { editingItemVisibility = null },
+            onSave = { itemConfigs = itemConfigs + (id to it) }
+        )
+    }
 }

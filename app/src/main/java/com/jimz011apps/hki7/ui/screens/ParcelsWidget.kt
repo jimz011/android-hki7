@@ -27,6 +27,8 @@ import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Warehouse
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -647,8 +649,11 @@ fun ParcelsWidgetItem(
             }
         }
     }
-    val carriers = remember(widget.deviceIds, widget.carrierImageUrls, widget.carrierNames, widget.aggregateCarriers, entities, registry, devices, currentUrl, accessToken, fallbackCarrierName) {
-        val resolved = resolveParcelCarriers(widget.deviceIds, entities, registry, devices, widget.carrierImageUrls, widget.carrierNames, currentUrl, accessToken.orEmpty(), fallbackCarrierName)
+    val visibleDeviceIds = remember(widget.deviceIds, widget.itemConfigs) {
+        widget.deviceIds.filter { isButtonVisibleNow(widget.itemConfigs[it] ?: HKIButtonConfig()) }
+    }
+    val carriers = remember(visibleDeviceIds, widget.carrierImageUrls, widget.carrierNames, widget.aggregateCarriers, entities, registry, devices, currentUrl, accessToken, fallbackCarrierName) {
+        val resolved = resolveParcelCarriers(visibleDeviceIds, entities, registry, devices, widget.carrierImageUrls, widget.carrierNames, currentUrl, accessToken.orEmpty(), fallbackCarrierName)
         if (widget.aggregateCarriers) aggregateParcelCarriers(resolved) else resolved
     }
     val incoming = carriers.sumOf { it.incomingCount }
@@ -1350,6 +1355,8 @@ fun ParcelsWidgetSettingsDialog(
     var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
     var picking by remember { mutableStateOf(false) }
     var settingsPage by remember(widget) { mutableStateOf("accounts") }
+    var itemConfigs by remember(widget) { mutableStateOf(widget.itemConfigs) }
+    var editingItemVisibility by remember { mutableStateOf<String?>(null) }
     var visSpec by remember(widget) {
         mutableStateOf(
             com.jimz011apps.hki7.ui.components.VisibilitySpec(
@@ -1407,7 +1414,13 @@ fun ParcelsWidgetSettingsDialog(
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         val device = devices.firstOrNull { it.id == id }
                         Text(device?.let { it.name_by_user ?: it.name } ?: stringResource(R.string.ui_loading_device_a3fda88), modifier = Modifier.weight(1f), maxLines = 1)
-                        IconButton(onClick = { deviceIds = deviceIds - id; imageUrls = imageUrls - id; carrierNames = carrierNames - id }) { Icon(Icons.Default.Close, stringResource(R.string.action_remove)) }
+                        IconButton(onClick = { editingItemVisibility = id }) {
+                            Icon(
+                                if (isButtonVisibleNow(itemConfigs[id] ?: HKIButtonConfig())) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                contentDescription = stringResource(R.string.ui_visibility_7d9ff4f)
+                            )
+                        }
+                        IconButton(onClick = { deviceIds = deviceIds - id; imageUrls = imageUrls - id; carrierNames = carrierNames - id; itemConfigs = itemConfigs - id }) { Icon(Icons.Default.Close, stringResource(R.string.action_remove)) }
                     }
                     OutlinedTextField(
                         value = carrierNames[id].orEmpty(),
@@ -1473,7 +1486,15 @@ fun ParcelsWidgetSettingsDialog(
         visibilityRangeMode = visSpec.rangeMode, visibilityRecurrence = visSpec.recurrence,
  visibilityConditionEntityId = visSpec.conditionEntityId,
  visibilityConditionState = visSpec.conditionState,
- visibilityConditionNegate = visSpec.conditionNegate
+ visibilityConditionNegate = visSpec.conditionNegate, itemConfigs = itemConfigs
     )) }) { Text(stringResource(R.string.ui_save_efc007a)) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } })
+    editingItemVisibility?.let { id ->
+        com.jimz011apps.hki7.ui.components.ItemVisibilityDialog(
+            label = devices.firstOrNull { it.id == id }?.let { it.name_by_user ?: it.name } ?: id,
+            config = itemConfigs[id] ?: HKIButtonConfig(),
+            onDismiss = { editingItemVisibility = null },
+            onSave = { itemConfigs = itemConfigs + (id to it) }
+        )
+    }
 }

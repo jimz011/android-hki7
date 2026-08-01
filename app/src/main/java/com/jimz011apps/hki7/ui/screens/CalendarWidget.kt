@@ -31,9 +31,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -71,6 +74,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import com.jimz011apps.hki7.data.HACalendarEvent
+import com.jimz011apps.hki7.data.HKIButtonConfig
+import com.jimz011apps.hki7.data.isButtonVisibleNow
 import com.jimz011apps.hki7.data.isWidgetVisibleNow
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HKICalendarWidget
@@ -215,9 +220,10 @@ private fun CalendarWidgetCard(
         }
     }
     val calendarEntities by calendarEntityFlow.collectAsState()
-    val entityIds = remember(widget.entityIds, calendarEntities) {
+    val entityIds = remember(widget.entityIds, calendarEntities, widget.itemConfigs) {
         widget.entityIds.filter { id -> calendarEntities.any { it.entity_id == id } }
             .ifEmpty { calendarEntities.map { it.entity_id } }
+            .filter { isButtonVisibleNow(widget.itemConfigs[it] ?: HKIButtonConfig()) }
     }
     val calendarNames = remember(calendarEntities) {
         calendarEntities.associate { it.entity_id to (it.friendlyName ?: it.entity_id.substringAfter(".")) }
@@ -1048,6 +1054,8 @@ fun CalendarWidgetSettingsDialog(
     var showEntityPicker by remember { mutableStateOf(false) }
     var showIconPicker by remember { mutableStateOf(false) }
     var settingsPage by remember(widget) { mutableStateOf("content") }
+    var itemConfigs by remember(widget) { mutableStateOf(widget.itemConfigs) }
+    var editingItemVisibility by remember { mutableStateOf<String?>(null) }
     var visSpec by remember(widget) {
         mutableStateOf(
             com.jimz011apps.hki7.ui.components.VisibilitySpec(
@@ -1121,17 +1129,32 @@ fun CalendarWidgetSettingsDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Text(stringResource(R.string.ui_calendars_9444501), style = MaterialTheme.typography.labelLarge)
-                val selectedNames = entityIds.map { id -> calendarEntities.find { it.entity_id == id }?.friendlyName ?: id }
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Column(Modifier.weight(1f)) {
+                if (entityIds.isEmpty()) {
+                    Text(
+                        stringResource(R.string.ui_all_calendar_entities_bffb01d),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                entityIds.forEach { id ->
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            selectedNames.takeIf { it.isNotEmpty() }?.joinToString(", ") ?: stringResource(R.string.ui_all_calendar_entities_bffb01d),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = if (selectedNames.isNotEmpty()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
+                            calendarEntities.find { it.entity_id == id }?.friendlyName ?: id,
+                            modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.bodySmall
                         )
+                        IconButton(onClick = { editingItemVisibility = id }) {
+                            Icon(
+                                if (isButtonVisibleNow(itemConfigs[id] ?: HKIButtonConfig())) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                contentDescription = stringResource(R.string.ui_visibility_7d9ff4f)
+                            )
+                        }
+                        IconButton(onClick = { entityIds = entityIds - id; itemConfigs = itemConfigs - id }) {
+                            Icon(Icons.Default.Close, stringResource(R.string.widgets_remove))
+                        }
                     }
+                }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextButton(onClick = { showEntityPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
                     if (entityIds.isNotEmpty()) {
                         TextButton(onClick = { entityIds = emptyList() }) { Text(stringResource(R.string.ui_all_6a72085)) }
@@ -1192,7 +1215,8 @@ fun CalendarWidgetSettingsDialog(
                             visibilityRecurrence = visSpec.recurrence,
                             visibilityConditionEntityId = visSpec.conditionEntityId,
                             visibilityConditionState = visSpec.conditionState,
-                            visibilityConditionNegate = visSpec.conditionNegate
+                            visibilityConditionNegate = visSpec.conditionNegate,
+                            itemConfigs = itemConfigs
                         )
                     )
                 }
@@ -1200,6 +1224,14 @@ fun CalendarWidgetSettingsDialog(
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
     )
+    editingItemVisibility?.let { id ->
+        com.jimz011apps.hki7.ui.components.ItemVisibilityDialog(
+            label = calendarEntities.find { it.entity_id == id }?.friendlyName ?: id,
+            config = itemConfigs[id] ?: HKIButtonConfig(),
+            onDismiss = { editingItemVisibility = null },
+            onSave = { itemConfigs = itemConfigs + (id to it) }
+        )
+    }
 }
 
 @Composable

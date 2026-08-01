@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,6 +28,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import com.jimz011apps.hki7.data.HKIButtonConfig
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
@@ -244,4 +246,35 @@ fun VisibilityEditor(spec: VisibilitySpec, onChange: (VisibilitySpec) -> Unit) {
             onConfirm = { onChange(spec.copy(end = it.toString())); pickingEnd = false }
         )
     }
+}
+
+fun HKIButtonConfig.toVisibilitySpec(): VisibilitySpec = VisibilitySpec(
+    hidden, visibilityStart, visibilityEnd, visibilityRangeMode.ifBlank { "show" }, visibilityRecurrence.ifBlank { "none" },
+    visibilityConditionEntityId, visibilityConditionState, visibilityConditionNegate
+)
+
+fun HKIButtonConfig.withVisibilitySpec(spec: VisibilitySpec): HKIButtonConfig = copy(
+    hidden = spec.hidden, visibilityStart = spec.start, visibilityEnd = spec.end,
+    visibilityRangeMode = spec.rangeMode, visibilityRecurrence = spec.recurrence,
+    visibilityConditionEntityId = spec.conditionEntityId, visibilityConditionState = spec.conditionState,
+    visibilityConditionNegate = spec.conditionNegate
+)
+
+/** Small standalone dialog for editing one item's hide/schedule/condition rule inside a multi-item
+ * widget (e.g. one sensor line, one calendar, one carrier account) — reuses [VisibilityEditor]. */
+@Composable
+fun ItemVisibilityDialog(
+    label: String,
+    config: HKIButtonConfig,
+    onDismiss: () -> Unit,
+    onSave: (HKIButtonConfig) -> Unit,
+) {
+    var spec by remember(config) { mutableStateOf(config.toVisibilitySpec()) }
+    ModernAlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(label) },
+        text = { VisibilityEditor(spec) { spec = it } },
+        confirmButton = { Button(onClick = { onSave(config.withVisibilitySpec(spec)); onDismiss() }) { Text(stringResource(R.string.ui_done_e9b450d)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.dlg_cancel)) } }
+    )
 }

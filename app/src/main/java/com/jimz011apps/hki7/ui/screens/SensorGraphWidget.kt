@@ -35,6 +35,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
@@ -72,6 +74,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Switch
 import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.HKIButtonConfig
+import com.jimz011apps.hki7.data.isButtonVisibleNow
 import com.jimz011apps.hki7.data.isWidgetVisibleNow
 import com.jimz011apps.hki7.data.HKISensorGraphStack
 import com.jimz011apps.hki7.data.HKISensorGraphWidget
@@ -200,7 +204,9 @@ private fun SensorGraphCardView(
     modifier: Modifier = Modifier
 ) {
     val appColors = LocalHKIAppColors.current
-    val ids = widget.entityIds
+    val ids = remember(widget.entityIds, widget.itemConfigs) {
+        widget.entityIds.filter { isButtonVisibleNow(widget.itemConfigs[it] ?: HKIButtonConfig()) }
+    }
     val entityFlow = remember(viewModel, ids) {
         viewModel.entitiesMatching("sensor_graph:${ids.joinToString(",")}") { it.entity_id in ids }
     }
@@ -628,6 +634,8 @@ fun SensorGraphWidgetSettingsDialog(
     onSave: (HKISensorGraphWidget) -> Unit
 ) {
     var entityIds by remember(widget) { mutableStateOf(widget.entityIds) }
+    var itemConfigs by remember(widget) { mutableStateOf(widget.itemConfigs) }
+    var editingItemVisibility by remember { mutableStateOf<String?>(null) }
     var title by remember(widget) { mutableStateOf(widget.title.orEmpty()) }
     var style by remember(widget) { mutableStateOf(widget.style) }
     var hours by remember(widget) { mutableIntStateOf(widget.hours) }
@@ -693,7 +701,13 @@ fun SensorGraphWidgetSettingsDialog(
                             modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.bodySmall
                         )
-                        IconButton(onClick = { entityIds = entityIds - id }) {
+                        IconButton(onClick = { editingItemVisibility = id }) {
+                            Icon(
+                                if (com.jimz011apps.hki7.data.isButtonVisibleNow(itemConfigs[id] ?: HKIButtonConfig())) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                contentDescription = stringResource(R.string.ui_visibility_7d9ff4f)
+                            )
+                        }
+                        IconButton(onClick = { entityIds = entityIds - id; itemConfigs = itemConfigs - id }) {
                             Icon(Icons.Default.Close, stringResource(R.string.widgets_remove))
                         }
                     }
@@ -747,14 +761,23 @@ fun SensorGraphWidgetSettingsDialog(
                     hours = hours, width = width, isSquare = square, cornerRadius = radius,
                     isHidden = visSpec.hidden, visibilityStart = visSpec.start, visibilityEnd = visSpec.end,
                     visibilityRangeMode = visSpec.rangeMode, visibilityRecurrence = visSpec.recurrence,
- visibilityConditionEntityId = visSpec.conditionEntityId,
- visibilityConditionState = visSpec.conditionState,
- visibilityConditionNegate = visSpec.conditionNegate
+                    visibilityConditionEntityId = visSpec.conditionEntityId,
+                    visibilityConditionState = visSpec.conditionState,
+                    visibilityConditionNegate = visSpec.conditionNegate,
+                    itemConfigs = itemConfigs
                 ))
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
     )
+    editingItemVisibility?.let { id ->
+        com.jimz011apps.hki7.ui.components.ItemVisibilityDialog(
+            label = allEntities.find { it.entity_id == id }?.friendlyName ?: id,
+            config = itemConfigs[id] ?: HKIButtonConfig(),
+            onDismiss = { editingItemVisibility = null },
+            onSave = { itemConfigs = itemConfigs + (id to it) }
+        )
+    }
 }
 
 @Composable
