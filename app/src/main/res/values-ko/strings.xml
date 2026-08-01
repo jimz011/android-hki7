@@ -1714,6 +1714,8 @@
     <string name="ui_hidden_d4c2792">숨김</string>
     <string name="ui_hidden_during_c0afbbc">숨김 기간</string>
     <string name="ui_hidden_rooms_f621ba4">숨겨진 방</string>
+    <string name="ui_hidden_items_advanced_title">숨겨진 항목(고급)</string>
+    <string name="ui_hidden_items_advanced_hint">이 사람에게 구체적으로 숨길 버튼 엔터티 ID 또는 배지/위젯 ID의 쉼표로 구분된 목록입니다. 버튼의 ID는 해당 엔터티 ID입니다. 배지나 위젯의 ID는 자체 모양 설정에 표시됩니다.</string>
     <string name="ui_hidden_views_3e16d85">숨겨진 화면</string>
     <string name="ui_hide_certain_views_or_rooms_from_specific_people_to_f10458c">특정 사용자에게서 특정 화면 또는 방을 숨겨 대시보드를 간단하게 유지하세요. 이는 UX 수준의 숨김이며, Home Assistant 자체에서 할 수 있는 작업을 제한하지 않습니다.</string>
     <string name="ui_hide_connection_notification_dcee06a">연결 알림 숨기기</string>

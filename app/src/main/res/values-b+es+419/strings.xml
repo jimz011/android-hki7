@@ -3312,4 +3312,6 @@
     <string name="dlg_condition_is">Es</string>
     <string name="dlg_condition_is_not">no es</string>
     <string name="dlg_condition_state">Estado</string>
+    <string name="ui_hidden_items_advanced_title">Elementos ocultos (avanzado)</string>
+    <string name="ui_hidden_items_advanced_hint">Lista separada por comas de identificadores de entidades de botones o identificadores de insignias/widgets para ocultarlos específicamente a esta persona. La identificación de un botón es su identificación de entidad; La identificación de una insignia o widget se muestra en su propia configuración de Apariencia.</string>
 </resources>

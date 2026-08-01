@@ -146,10 +146,11 @@ fun HKIBadgeBar(
     }
     val allEntities by entityFlow.collectAsState()
     val badgeEntityById = remember(allEntities) { allEntities.associateBy { it.entity_id } }
-    // Hidden/scheduled/conditional badges are dropped outside edit mode; edit mode keeps them so they
-    // can be restored.
+    val parentalHiddenItemIds by viewModel.prefs.parentalHiddenItemIds.collectAsState(initial = emptyList())
+    // Hidden/scheduled/conditional/per-user-hidden badges are dropped outside edit mode; edit mode
+    // keeps them so they can be restored.
     val renderBadges = if (isEditMode) badges else badges.filter {
-        com.jimz011apps.hki7.data.isBadgeVisibleNow(it) { id -> badgeEntityById[id]?.state }
+        it.id !in parentalHiddenItemIds && com.jimz011apps.hki7.data.isBadgeVisibleNow(it) { id -> badgeEntityById[id]?.state }
     }
 
     // ── dialog state ──────────────────────────────────────────────────────────

@@ -628,6 +628,8 @@
     <string name="ui_hidden_d4c2792">Nascosto</string>
     <string name="ui_hidden_during_c0afbbc">Nascosto durante</string>
     <string name="ui_hidden_rooms_f621ba4">Stanze nascoste</string>
+    <string name="ui_hidden_items_advanced_title">Oggetti nascosti (avanzati)</string>
+    <string name="ui_hidden_items_advanced_hint">Elenco separato da virgole di ID entità pulsante o ID badge/widget da nascondere specificatamente a questa persona. L\'ID di un pulsante è il suo ID entità; l\'ID di un badge o di un widget viene mostrato nelle relative impostazioni di Aspetto.</string>
     <string name="ui_hidden_views_3e16d85">Viste nascoste</string>
     <string name="ui_hide_certain_views_or_rooms_from_specific_people_to_f10458c">Nascondi determinate viste o stanze a persone specifiche per mantenere semplice la loro dashboard. Questo è un nascondiglio a livello UX: non limita ciò che possono fare nello stesso Home Assistant.</string>
     <string name="ui_hide_connection_notification_dcee06a">Nascondi notifica di connessione</string>

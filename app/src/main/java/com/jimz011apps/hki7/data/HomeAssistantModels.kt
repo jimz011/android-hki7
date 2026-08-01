@@ -1458,6 +1458,10 @@ data class Hki7SharedDashboardMeta(
 data class Hki7Policy(
     val hiddenViews: List<String> = emptyList(),
     val hiddenRooms: List<String> = emptyList(),
+    /** Individual button entity ids and badge/widget ids hidden from this user, on top of
+     * [hiddenViews]/[hiddenRooms]. A button's id is its entity id; a badge's or widget's id is its
+     * own [HKIBadge.id]/[HKIRoomWidget.id] (visible in its Appearance settings). */
+    val hiddenItemIds: List<String> = emptyList(),
     /** Whether this user may enter dashboard edit mode at all. */
     val allowEdit: Boolean = true,
     /** When editing is allowed, restrict this user to aesthetic changes (theme, colors, icons,
@@ -1469,6 +1473,6 @@ data class Hki7Policy(
     val showFlows: Boolean = true,
 ) {
     val isEmpty: Boolean
-        get() = hiddenViews.isEmpty() && hiddenRooms.isEmpty() &&
+        get() = hiddenViews.isEmpty() && hiddenRooms.isEmpty() && hiddenItemIds.isEmpty() &&
             allowEdit && !aestheticsOnly && showGlobalSearch && showFlows
 }

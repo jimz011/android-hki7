@@ -1714,6 +1714,8 @@
     <string name="ui_hidden_d4c2792">非表示</string>
     <string name="ui_hidden_during_c0afbbc">非表示期間</string>
     <string name="ui_hidden_rooms_f621ba4">非表示の部屋</string>
+    <string name="ui_hidden_items_advanced_title">隠しアイテム (上級)</string>
+    <string name="ui_hidden_items_advanced_hint">この人に対して特に非表示にするボタン エンティティ ID またはバッジ/ウィジェット ID のカンマ区切りのリスト。ボタンの ID はそのエンティティ ID です。バッジまたはウィジェットの ID は、独自の外観設定に表示されます。</string>
     <string name="ui_hidden_views_3e16d85">非表示のビュー</string>
     <string name="ui_hide_certain_views_or_rooms_from_specific_people_to_f10458c">特定のビューや部屋を特定の人物から非表示にして、ダッシュボードをシンプルに保てます。これは表示上の非表示であり、Home Assistant自体での操作を制限するものではありません。</string>
     <string name="ui_hide_connection_notification_dcee06a">接続通知を非表示</string>

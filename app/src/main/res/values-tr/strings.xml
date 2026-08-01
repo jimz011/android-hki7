@@ -628,6 +628,8 @@
     <string name="ui_hidden_d4c2792">Gizlenmiş</string>
     <string name="ui_hidden_during_c0afbbc">sırasında gizli</string>
     <string name="ui_hidden_rooms_f621ba4">Gizli odalar</string>
+    <string name="ui_hidden_items_advanced_title">Gizli öğeler (gelişmiş)</string>
+    <string name="ui_hidden_items_advanced_hint">Bu kişiden özel olarak gizlenecek düğme varlık kimliklerinin veya rozet/widget kimliklerinin virgülle ayrılmış listesi. Bir düğmenin kimliği onun varlık kimliğidir; bir rozetin veya widget\'ın kimliği kendi Görünüm ayarlarında gösterilir.</string>
     <string name="ui_hidden_views_3e16d85">Gizli görünümler</string>
     <string name="ui_hide_certain_views_or_rooms_from_specific_people_to_f10458c">Kontrol panelini basit tutmak için belirli görünümleri veya odaları belirli kişilerden gizleyin. Bu, UX düzeyinde gizlemedir; Home Assistant\'ta yapabileceklerini kısıtlamaz.</string>
     <string name="ui_hide_connection_notification_dcee06a">Bağlantı Bildirimini Gizle</string>

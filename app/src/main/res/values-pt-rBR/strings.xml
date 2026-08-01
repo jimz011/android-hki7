@@ -3312,4 +3312,6 @@
     <string name="dlg_condition_is">É</string>
     <string name="dlg_condition_is_not">Não é</string>
     <string name="dlg_condition_state">Estado</string>
+    <string name="ui_hidden_items_advanced_title">Itens ocultos (avançado)</string>
+    <string name="ui_hidden_items_advanced_hint">Lista separada por vírgulas de IDs de entidades de botão ou IDs de crachás/widgets para ocultar especificamente dessa pessoa. O id de um botão é o seu id de entidade; o ID de um emblema ou widget é mostrado em suas próprias configurações de Aparência.</string>
 </resources>

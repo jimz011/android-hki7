@@ -628,6 +628,8 @@
     <string name="ui_hidden_d4c2792">Caché</string>
     <string name="ui_hidden_during_c0afbbc">Caché pendant</string>
     <string name="ui_hidden_rooms_f621ba4">Pièces cachées</string>
+    <string name="ui_hidden_items_advanced_title">Objets cachés (avancé)</string>
+    <string name="ui_hidden_items_advanced_hint">Liste séparée par des virgules d\'identifiants d\'entité de bouton ou d\'identifiants de badge/widget à masquer spécifiquement à cette personne. L\'identifiant d\'un bouton est son identifiant d\'entité ; l\'identifiant d\'un badge ou d\'un widget est affiché dans ses propres paramètres d\'apparence.</string>
     <string name="ui_hidden_views_3e16d85">Vues cachées</string>
     <string name="ui_hide_certain_views_or_rooms_from_specific_people_to_f10458c">Masquez certaines vues ou pièces à des personnes spécifiques pour conserver la simplicité de leur tableau de bord. Il s’agit d’un masquage au niveau UX – cela ne restreint pas ce qu’ils peuvent faire dans Home Assistant lui-même.</string>
     <string name="ui_hide_connection_notification_dcee06a">Masquer la notification de connexion</string>

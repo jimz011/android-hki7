@@ -628,6 +628,8 @@
     <string name="ui_hidden_d4c2792">Oculto</string>
     <string name="ui_hidden_during_c0afbbc">Oculto durante</string>
     <string name="ui_hidden_rooms_f621ba4">Habitaciones ocultas</string>
+    <string name="ui_hidden_items_advanced_title">Elementos ocultos (avanzado)</string>
+    <string name="ui_hidden_items_advanced_hint">Lista separada por comas de identificadores de entidades de botones o identificadores de insignias/widgets para ocultarlos específicamente a esta persona. La identificación de un botón es su identificación de entidad; La identificación de una insignia o widget se muestra en su propia configuración de Apariencia.</string>
     <string name="ui_hidden_views_3e16d85">Vistas ocultas</string>
     <string name="ui_hide_certain_views_or_rooms_from_specific_people_to_f10458c">Oculte ciertas vistas o salas de personas específicas para mantener su panel simple. Esto es ocultación a nivel de UX: no restringe lo que pueden hacer en Home Assistant.</string>
     <string name="ui_hide_connection_notification_dcee06a">Ocultar notificación de conexión</string>

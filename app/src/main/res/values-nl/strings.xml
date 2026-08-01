@@ -861,6 +861,8 @@
     <string name="ui_hidden_d4c2792">Verborgen</string>
     <string name="ui_hidden_during_c0afbbc">Verborgen tijdens</string>
     <string name="ui_hidden_rooms_f621ba4">Verborgen kamers</string>
+    <string name="ui_hidden_items_advanced_title">Verborgen items (geavanceerd)</string>
+    <string name="ui_hidden_items_advanced_hint">Door komma\'s gescheiden lijst met knopentiteits-ID\'s of badge-/widget-ID\'s die specifiek voor deze persoon moeten worden verborgen. De ID van een knop is de entiteits-ID; de ID van een badge of widget wordt weergegeven in zijn eigen weergave-instellingen.</string>
     <string name="ui_hidden_views_3e16d85">Verborgen uitzichten</string>
     <string name="ui_hide_certain_views_or_rooms_from_specific_people_to_f10458c">Verberg bepaalde weergaven of kamers voor specifieke mensen om hun dashboard eenvoudig te houden. Dit is verbergen op UX-niveau – het beperkt niet wat ze in Home Assistant zelf kunnen doen.</string>
     <string name="ui_hide_connection_notification_dcee06a">Verbindingsmelding verbergen</string>

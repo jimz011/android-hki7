@@ -628,6 +628,8 @@
     <string name="ui_hidden_d4c2792">Versteckt</string>
     <string name="ui_hidden_during_c0afbbc">Versteckt während</string>
     <string name="ui_hidden_rooms_f621ba4">Versteckte Räume</string>
+    <string name="ui_hidden_items_advanced_title">Versteckte Gegenstände (erweitert)</string>
+    <string name="ui_hidden_items_advanced_hint">Durch Kommas getrennte Liste von Schaltflächen-Entitäts-IDs oder Abzeichen-/Widget-IDs, die speziell vor dieser Person verborgen werden sollen. Die ID einer Schaltfläche ist ihre Entitäts-ID. Die ID eines Abzeichens oder Widgets wird in den eigenen Darstellungseinstellungen angezeigt.</string>
     <string name="ui_hidden_views_3e16d85">Versteckte Ansichten</string>
     <string name="ui_hide_certain_views_or_rooms_from_specific_people_to_f10458c">Verstecken Sie bestimmte Ansichten oder Räume vor bestimmten Personen, um deren Dashboard übersichtlich zu halten. Dies ist ein Verstecken auf UX-Ebene – es schränkt nicht ein, was sie im Home Assistant selbst tun können.</string>
     <string name="ui_hide_connection_notification_dcee06a">Verbindungsbenachrichtigung ausblenden</string>

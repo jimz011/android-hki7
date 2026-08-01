@@ -1836,6 +1836,27 @@ fun SettingsDialog(
                                                                     }
                                                                 }
                                                             }
+                                                            Spacer(Modifier.height(4.dp))
+                                                            Text(stringResource(R.string.ui_hidden_items_advanced_title), color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
+                                                            Text(
+                                                                stringResource(R.string.ui_hidden_items_advanced_hint),
+                                                                color = appColors.onMuted,
+                                                                style = MaterialTheme.typography.bodySmall
+                                                            )
+                                                            var hiddenItemsText by remember(user.id, policy.hiddenItemIds) {
+                                                                mutableStateOf(policy.hiddenItemIds.joinToString(", "))
+                                                            }
+                                                            OutlinedTextField(
+                                                                value = hiddenItemsText,
+                                                                onValueChange = { value ->
+                                                                    hiddenItemsText = value
+                                                                    val ids = value.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                                                                    savePolicy(user.id, policy.copy(hiddenItemIds = ids))
+                                                                },
+                                                                placeholder = { Text("light.living_room, badge-a1b2c3") },
+                                                                singleLine = false,
+                                                                modifier = Modifier.fillMaxWidth()
+                                                            )
                                                         }
                                                     }
                                                 }

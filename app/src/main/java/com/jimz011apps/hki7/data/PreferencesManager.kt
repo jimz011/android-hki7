@@ -235,6 +235,7 @@ class PreferencesManager(
     // hki7 component so the UI can filter synchronously and keep hiding while briefly offline.
     private val parentalHiddenViewsKey = stringPreferencesKey("parental_hidden_views")
     private val parentalHiddenRoomsKey = stringPreferencesKey("parental_hidden_rooms")
+    private val parentalHiddenItemIdsKey = stringPreferencesKey("parental_hidden_item_ids")
     private val parentalAllowEditKey = booleanPreferencesKey("parental_allow_edit")
     private val parentalAestheticsOnlyKey = booleanPreferencesKey("parental_aesthetics_only")
     private val parentalShowSearchKey = booleanPreferencesKey("parental_show_search")
@@ -297,6 +298,10 @@ class PreferencesManager(
     val parentalHiddenRooms: Flow<List<String>> = context.dataStore.data.map {
         it[parentalHiddenRoomsKey]?.split(",")?.filter { r -> r.isNotBlank() } ?: emptyList()
     }
+    /** Individual button/badge/widget ids hidden from the current user by an admin's policy. */
+    val parentalHiddenItemIds: Flow<List<String>> = context.dataStore.data.map {
+        it[parentalHiddenItemIdsKey]?.split(",")?.filter { r -> r.isNotBlank() } ?: emptyList()
+    }
     /** Whether the current user may enter dashboard edit mode (admin policy; default allowed). */
     val enforcedAllowEdit: Flow<Boolean> = context.dataStore.data.map { it[parentalAllowEditKey] ?: true }
     /** Whether the current user is restricted to aesthetic-only edits (admin policy). */
@@ -311,6 +316,7 @@ class PreferencesManager(
         context.dataStore.edit {
             it[parentalHiddenViewsKey] = policy.hiddenViews.joinToString(",")
             it[parentalHiddenRoomsKey] = policy.hiddenRooms.joinToString(",")
+            it[parentalHiddenItemIdsKey] = policy.hiddenItemIds.joinToString(",")
             it[parentalAllowEditKey] = policy.allowEdit
             it[parentalAestheticsOnlyKey] = policy.aestheticsOnly
             it[parentalShowSearchKey] = policy.showGlobalSearch

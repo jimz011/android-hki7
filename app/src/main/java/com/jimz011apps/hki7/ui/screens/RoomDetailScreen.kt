@@ -4810,11 +4810,18 @@ fun ButtonStackItem(
     }
     val allEntities by dependencyFlow.collectAsState()
     val entityById = remember(allEntities) { allEntities.associateBy { it.entity_id } }
-    // Outside edit mode, drop buttons hidden or outside their scheduled window; in edit mode show them
-    // all so the user can still reach the visibility settings.
-    val entities = remember(stack.entityIds, stack.buttonConfigs, entityById, isEditMode) {
+    // A button's own id is its entity id, so a per-user hide targets it the same way.
+    val parentalHiddenItemIds by viewModel.prefs.parentalHiddenItemIds.collectAsState(initial = emptyList())
+    // Outside edit mode, drop buttons hidden, outside their scheduled window, or hidden from this
+    // user; in edit mode show them all so the user can still reach the visibility settings.
+    val entities = remember(stack.entityIds, stack.buttonConfigs, entityById, isEditMode, parentalHiddenItemIds) {
         stack.entityIds
-            .filter { isEditMode || isButtonVisibleNow(stack.buttonConfigs[it] ?: HKIButtonConfig()) { id -> entityById[id]?.state } }
+            .filter {
+                isEditMode || (
+                    it !in parentalHiddenItemIds &&
+                        isButtonVisibleNow(stack.buttonConfigs[it] ?: HKIButtonConfig()) { id -> entityById[id]?.state }
+                    )
+            }
             .mapNotNull(entityById::get)
     }
     val buttonConfigs = stack.buttonConfigs

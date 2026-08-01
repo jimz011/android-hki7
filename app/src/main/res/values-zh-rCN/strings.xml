@@ -3267,4 +3267,6 @@
     <string name="dlg_condition_is">是</string>
     <string name="dlg_condition_is_not">不是</string>
     <string name="dlg_condition_state">状态</string>
+    <string name="ui_hidden_items_advanced_title">隐藏物品（高级）</string>
+    <string name="ui_hidden_items_advanced_hint">以逗号分隔的按钮实体 ID 或徽章/小部件 ID 列表，专门向此人隐藏。按钮的 id 是其实体 id；徽章或小部件的 ID 显示在其自己的外观设置中。</string>
 </resources>

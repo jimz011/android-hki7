@@ -558,6 +558,8 @@
     <string name="ui_hidden_d4c2792">Hidden</string>
     <string name="ui_hidden_during_c0afbbc">Hidden during</string>
     <string name="ui_hidden_rooms_f621ba4">Hidden rooms</string>
+    <string name="ui_hidden_items_advanced_title">Hidden items (advanced)</string>
+    <string name="ui_hidden_items_advanced_hint">Comma-separated list of button entity ids or badge/widget ids to hide from this person specifically. A button\'s id is its entity id; a badge or widget\'s id is shown in its own Appearance settings.</string>
     <string name="ui_hidden_views_3e16d85">Hidden views</string>
     <string name="ui_hide_certain_views_or_rooms_from_specific_people_to_f10458c">Hide certain views or rooms from specific people to keep their dashboard simple. This is UX-level hiding — it does not restrict what they can do in Home Assistant itself.</string>
     <string name="ui_hide_connection_notification_dcee06a">Hide Connection Notification</string>
