@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="cr_whats_new_beta_10">
+        <item>PostNL 및 현재 소포 통합 파서를 수정하여 수신 배송이 다시 전체 추적 정보와 배달 상태를 표시하도록 했습니다. 택배사 지원도 최신화되었습니다.</item>
+        <item>네덜란드어, 독일어, 프랑스어, 스페인어, 이탈리아어, 터키어를 폭넓게 지원하는 앱 내 언어 선택 기능을 추가하고, 네덜란드어 문구를 대폭 개선했습니다.</item>
+        <item>재연결 상태에 실제 연결 오류가 표시되어 Wi-Fi, 모바일 데이터, VPN 전환 시 문제를 훨씬 쉽게 진단할 수 있습니다.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_2">
+        <item>짧고 좁은 화면의 레이아웃을 개선했으며, 앱 전체에 단일 열 대체 레이아웃을 적용했습니다.</item>
+        <item>좁은 화면에서는 대화상자 제목이 잘리지 않도록 헤더가 두 줄로 표시됩니다.</item>
+        <item>Adaptive Lighting 슬라이더가 다른 요소와 겹치는 문제를 수정했습니다.</item>
+        <item>화면 밖에 더 많은 항목이 있을 때 탐색 바에 표시가 나타납니다.</item>
+        <item>카메라가 화면 방향 잠금을 무시하던 문제를 수정했습니다.</item>
+        <item>카메라 대화상자 및 전체 화면 카메라의 확대/축소 문제를 수정했습니다.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_3">
+        <item>Material Design Icons와 함께 Simple Icons, Tabler, Phosphor 아이콘 팩을 추가했습니다.</item>
+        <item>활성 상태일 때 빛나거나 회전하거나 맥동하는 애니메이션 엔티티 아이콘을 추가했습니다.</item>
+        <item>관리자를 위한 가족 대시보드 공유 기능을 추가했습니다.*</item>
+        <item>특정 사용자에 대해 선택한 화면과 방을 숨길 수 있는 자녀 보호 기능을 추가했습니다.*</item>
+        <item>자체 Home Assistant로의 자동 일일 백업 기능을 추가했습니다.*</item>
+        <item>미디어 소스 아이콘에 색상이 적용되며 설치된 소스 앱을 열 수 있습니다.</item>
+        <item>웹 페이지를 삽입하기 위한 새로운 iFrame 위젯입니다.</item>
+        <item>에너지 화면이 전력을 내보낼 때 음수 값을 표시합니다.</item>
+        <item>완료 전에 다른 화면으로 전환할 때 온보딩이 완료 처리되던 문제를 수정했습니다.</item>
+        <item>온도 조절 다이얼의 모드 버튼이 인접 항목과 겹치던 문제를 수정했습니다.</item>
+        <item>여러 자잘한 버그를 수정했습니다.</item>
+        <item>* HKI 7 Cloud Component 통합이 필요합니다.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_4_to_5">
+        <item>백업 및 복원 화면에 각 자동 클라우드 백업이 마지막으로 실행된 시점이 표시됩니다.</item>
+        <item>각 클라우드 백업에 지금 백업 버튼이 추가되었습니다.</item>
+        <item>테마 아이콘 업데이트 이후 앱 아이콘이 커지던 문제를 수정했습니다.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_6">
+        <item>편집 모드 작업 바가 안드로이드 3버튼 탐색과 겹치던 문제를 수정했습니다.</item>
+        <item>백업 및 복원 화면에 각 자동 클라우드 백업이 마지막으로 실행된 시점이 표시됩니다.</item>
+        <item>각 클라우드 백업에 지금 백업 버튼이 추가되었습니다.</item>
+        <item>테마 아이콘 업데이트 이후 앱 아이콘이 커지던 문제를 수정했습니다.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_7">
+        <item>자동 방 가져오기가 내장 헬퍼 컨트롤은 건너뛰고 실제 추가 컨트롤은 유지합니다.</item>
+        <item>서로 다른 통합의 냉난방 기기가 더 이상 하나의 컨트롤로 병합되지 않습니다.</item>
+        <item>냉난방 기기 아이콘이 에어컨, 가습기, 제습기, 공기청정기에 맞게 표시됩니다.</item>
+        <item>공기청정기 및 가습기 아이콘이 회전 대신 부드럽게 맥동합니다.</item>
+        <item>도어락이 이제 닫힘/열림 문 아이콘을 사용합니다.</item>
+        <item>여러 기기 헤더 배지의 순서를 변경하여 대표 엔티티를 선택할 수 있습니다.</item>
+        <item>새로 설치한 경우 애니메이션 아이콘 효과가 기본적으로 활성화됩니다.</item>
+        <item>버튼과 배지가 상태 대신 엔티티 속성과 선택적 단위를 표시할 수 있습니다.</item>
+        <item>이제 모든 방, 위젯, 페이지 설정과 함께 대시보드를 복사할 수 있습니다.</item>
+        <item>가족 공유가 이제 자녀 보호, 대시보드 공유, 사용자별 권한을 통합합니다.</item>
+        <item>공유 대시보드가 허용된 로컬 시각적 변경 사항을 유지하면서 자동으로 업데이트됩니다.</item>
+        <item>HKI 7 Cloud 구성 요소가 설치된 경우 관리자가 아닌 가족 구성원도 방별 자동 Adaptive Lighting 컨트롤을 사용할 수 있습니다.</item>
+        <item>라이트 모드 및 사용자 지정 테마에서 헤더와 풀다운 레이블을 읽기 어렵던 문제를 수정했습니다.</item>
+        <item>정보 화면에 새로운 소식 및 전체 변경 내역 버튼이 추가되었습니다.</item>
+        <item>Home Assistant에 연결할 수 없을 때 연결할 수 없음 화면이 안정적으로 표시되도록 수정했습니다.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_8">
+        <item>자녀 보호 잠금이 더 이상 방 컨트롤로 자동 가져오기되지 않습니다.</item>
+        <item>모든 버튼과 배지가 이제 Home Assistant 엔티티 아이콘 재정의를 따릅니다.</item>
+        <item>청소기가 이제 방 배지 바에 표시되며 탭하면 컨트롤이 열립니다.</item>
+        <item>여러 항목 위젯의 개별 버튼을 숨기거나 연간 반복 날짜 범위를 포함해 예약할 수 있습니다.</item>
+        <item>여러 카메라 배지가 이제 전체 화면 페이징이 가능한 하나의 스와이프 가능한 대화상자에서 열립니다.</item>
+        <item>가족 공유에 클라우드에 게시된 대시보드가 표시되어 재설치 후 가져오거나 다시 공유하거나 삭제할 수 있습니다.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_9">
+        <item>카메라, 온도 조절기, 에너지 카드를 드래그하여 순서를 변경할 수 있습니다. 편집 모드에서 보안, 냉난방, 에너지 화면 각각에 해당 카드용 순서 변경 버튼이 추가됩니다.</item>
+        <item>새로운 냉난방 실외 타일. 날씨 엔티티 또는 실외 온도, 습도, 기압 센서를 연결한 다음 타일을 열어 개별 기록 그래프를 확인하세요.</item>
+        <item>표시 여부가 이제 각 버튼과 헤더 배지에 속합니다. 항목을 숨기거나 한 번 또는 매일, 매주, 매월, 매년 반복으로 예약하세요.</item>
+        <item>모양 설정에서 헤더 배지의 이름을 바꿀 수 있습니다.</item>
+        <item>스와이프 카드는 기본적으로 3초마다 자동 재생됩니다.</item>
+        <item>날씨 대화상자에 계절 자동 재생, 풍향계 카드, 카메라 또는 삽입된 웹 페이지의 선택적 강수 지도 카드가 추가되었습니다.</item>
+        <item>소포 위젯이 로고, 계정 총계, 배송 섹션, 예상 도착, 추적 기록, 가능한 경우 추적 번호로 추가하기 기능을 중심으로 재구성되었습니다.</item>
+        <item>가습기와 제습기에 이제 앱 전체에서 네이티브 전원, 습도, 모드, 속도, 헬퍼 컨트롤이 제공됩니다.</item>
+        <item>방 상태 카운터가 상호작용 가능하며 각 개수 뒤의 엔티티를 엽니다.</item>
+        <item>버튼과 배지가 완료 시간 엔티티로부터 실시간 카운트다운을 표시할 수 있습니다.</item>
+        <item>공유 대시보드는 소유자의 편집 내용을 자동으로 게시하며 수신자는 다음 동기화 시 이를 받습니다.</item>
+        <item>헤더 표시 설정이 이제 각 대시보드에 속하며 백업 및 가족 공유를 통해 전달됩니다.</item>
+        <item>카메라 위젯이 타일 전체를 채우며 구성된 모서리 반경을 따릅니다.</item>
+        <item>같은 날 여러 폐기물 수거가 있을 경우 이제 명확히 겹쳐 표시되며, 큰 대화상자는 바깥을 탭하여 닫을 수 있습니다.</item>
+        <item>배터리, 폐기물, 카메라, 날씨, 정보 화면의 시각적 표현이 더 일관되게 개선되었습니다.</item>
+        <item>이진 센서가 Home Assistant 스타일의 열림/닫힘, 습함/건조, 감지됨/해제됨, 연결됨/연결 끊김 레이블을 사용합니다.</item>
+        <item>외관 전용 편집자는 기존 배지 시각 요소를 변경할 수 있지만 배지를 추가, 제거, 재구성할 수는 없습니다.</item>
+        <item>네트워크 전환 문제를 수정했습니다. 이전 안드로이드 네트워크에 연결된 소켓은 폐기되고 저장된 Home Assistant 세션이 불필요한 로그인 없이 재연결됩니다. 재연결 상태에도 실패 이유가 표시됩니다.</item>
+    </string-array>
+    <string-array name="widgets_compass_directions">
+        <item>N</item><item>NNE</item><item>NE</item><item>ENE</item>
+        <item>E</item><item>ESE</item><item>SE</item><item>SSE</item>
+        <item>S</item><item>SSW</item><item>SW</item><item>WSW</item>
+        <item>W</item><item>WNW</item><item>NW</item><item>NNW</item>
+    </string-array>
+</resources>

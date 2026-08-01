@@ -20,8 +20,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 RES = ROOT / "app/src/main/res"
 CACHE_FILE = Path(__file__).with_name("translation_cache.json")
-LOCALES = ("nl", "de", "fr", "es", "it", "tr")
-SOURCE_FILES = (RES / "values/strings.xml", RES / "values/strings_generated_ui.xml")
+LOCALES = ("ja", "ko")
+SOURCE_FILES = tuple(sorted((RES / "values").glob("strings*.xml")))
 FORMAT_ARGUMENT = re.compile(r"%\d+\$[a-zA-Z]")
 NONPOSITIONAL_FORMAT = re.compile(r"%(?!\d+\$)[.\d]*[a-zA-Z]")
 ZERO_WIDTH = re.compile("[\u200b-\u200d\ufeff]")
@@ -157,7 +157,12 @@ def main() -> None:
                 print(f"Translated {completed}/{len(jobs)}", flush=True)
     CACHE_FILE.write_text(json.dumps(cache, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-    english_placeholders = {name: FORMAT_ARGUMENT.findall(value) for name, value in source.items()}
+    # Positional placeholders (%1$s, %2$d, ...) may legitimately appear reordered or repeated once
+    # translated (different word order, or the same argument needed twice for grammatical
+    # agreement), so compare the set of distinct placeholders used, not order or count.
+    english_placeholders = {
+        name: frozenset(FORMAT_ARGUMENT.findall(value)) for name, value in source.items()
+    }
     for locale in LOCALES:
         output_dir = RES / f"values-{locale}"
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -176,7 +181,7 @@ def main() -> None:
             if name in supplied_elsewhere:
                 continue
             translated = cache[f"{locale}\0{value}"]
-            if FORMAT_ARGUMENT.findall(translated) != english_placeholders[name]:
+            if frozenset(FORMAT_ARGUMENT.findall(translated)) != english_placeholders[name]:
                 raise RuntimeError(f"Placeholder mismatch for {locale}/{name}")
             formatted = ' formatted="false"' if NONPOSITIONAL_FORMAT.search(translated) else ""
             lines.append(f'    <string name="{name}"{formatted}>{android_escape(translated)}</string>')

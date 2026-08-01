@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="core_last_seen_days">
+        <item quantity="other">%1$d일 전에 마지막으로 확인되었습니다.</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="other">%1$d시간 전에 마지막으로 확인되었습니다.</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="other">마지막으로 확인된 시간: %1$d분 전</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="other">마지막으로 확인된 날짜: %1$d주 전</item>
+    </plurals>
+    <plurals name="core_media_players_playing">
+        <item quantity="other">%1$d 미디어 플레이어가 재생 중입니다.</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="other">자동 + %d 수동</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="other">%d개의 구성된 조명</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="other">%1$d 장치 · %2$d 켜짐</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="other">%d개의 외부 센서가 설정되었습니다.</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="other">%d개 삭제됨</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="other">%d개 선택됨</item>
+    </plurals>
+    <plurals name="cr_sensor_count">
+        <item quantity="other">%d개의 센서</item>
+    </plurals>
+    <plurals name="cr_widget_option_count">
+        <item quantity="other">%d개의 옵션</item>
+    </plurals>
+    <plurals name="dlg_action_data_value_summary">
+        <item quantity="other">%1$s · %2$d 데이터 값</item>
+    </plurals>
+    <plurals name="dlg_arming_in_seconds">
+        <item quantity="other">%d초 후에 무장 설정</item>
+    </plurals>
+    <plurals name="dlg_seconds_short">
+        <item quantity="other">%d초</item>
+    </plurals>
+    <plurals name="dlg_selected_entities_summary">
+        <item quantity="other">%1$d 선택됨 · %2$s</item>
+    </plurals>
+    <plurals name="global_search_browse_entities">
+        <item quantity="other">이 기기에서 %1$d 항목을 찾아보세요.</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="other">%1$d 엔터티</item>
+    </plurals>
+    <plurals name="parcel_letter_count">
+        <item quantity="other">%1$d 글자</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="other">%1$d 객실</item>
+    </plurals>
+    <plurals name="security_entity_count">
+        <item quantity="other">%1$d 엔터티</item>
+    </plurals>
+    <plurals name="settings_extra_days_ago">
+        <item quantity="other">%1$d일 전</item>
+    </plurals>
+    <plurals name="settings_extra_hours_ago">
+        <item quantity="other">%1$d시간 전</item>
+    </plurals>
+    <plurals name="settings_extra_minutes_ago">
+        <item quantity="other">%1$d분 전</item>
+    </plurals>
+    <plurals name="settings_extra_shared_dashboards_pushed">
+        <item quantity="other">%1$d 공유 대시보드에 변경 사항을 푸시했습니다.</item>
+    </plurals>
+    <plurals name="uif_active_device_count">
+        <item quantity="other">%1$d 활성 장치</item>
+    </plurals>
+    <plurals name="uif_adaptive_group_paused_count">
+        <item quantity="other">%1$d 그룹 조명은 수동 제어를 위해 일시 중지되었습니다.</item>
+    </plurals>
+    <plurals name="uif_adaptive_profile_light_count">
+        <item quantity="other">이 프로필의 %1$d 조명을 제어합니다.</item>
+    </plurals>
+    <plurals name="uif_days_to_season">
+        <item quantity="other">%1$d일 ~ %2$s</item>
+    </plurals>
+    <plurals name="uif_device_on_count">
+        <item quantity="other">%1$d 장치 켜짐</item>
+    </plurals>
+    <plurals name="uif_fire_detector_count">
+        <item quantity="other">%1$d 화재 감지기 활성화됨</item>
+    </plurals>
+    <plurals name="uif_flow_advanced_block_count">
+        <item quantity="other">%1$d 고급 단축 블록(변경되지 않은 상태로 유지됨)</item>
+    </plurals>
+    <plurals name="uif_gas_detector_count">
+        <item quantity="other">%1$d 가스 감지기가 활성화되었습니다.</item>
+    </plurals>
+    <plurals name="uif_light_on_count">
+        <item quantity="other">%1$d 표시등이 켜짐</item>
+    </plurals>
+    <plurals name="uif_media_item_count">
+        <item quantity="other">%1$d 항목</item>
+    </plurals>
+    <plurals name="uif_motion_sensor_count">
+        <item quantity="other">%1$d 동작 센서가 활성화되었습니다.</item>
+    </plurals>
+    <plurals name="uif_open_door_count">
+        <item quantity="other">%1$d 문을 열다</item>
+    </plurals>
+    <plurals name="uif_open_window_count">
+        <item quantity="other">%1$d 창 열기</item>
+    </plurals>
+    <plurals name="uif_presence_sensor_count">
+        <item quantity="other">%1$d 존재 센서 활성화</item>
+    </plurals>
+    <plurals name="uif_smoke_detector_count">
+        <item quantity="other">%1$d 연기 감지기 활성화됨</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="other">%1$d 배터리에 주의가 필요합니다</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="other">%1$d 중요 배터리</item>
+    </plurals>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="other">%1$d 배터리 부족</item>
+    </plurals>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="other">그래프 %1$d · %2$d 센서</item>
+    </plurals>
+</resources>

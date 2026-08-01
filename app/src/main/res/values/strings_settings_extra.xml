@@ -84,6 +84,22 @@
     <string name="settings_extra_language_korean">한국어</string>
     <string name="settings_extra_language_chinese_simplified">中文（简体）</string>
     <string name="settings_extra_language_chinese_traditional">中文（繁體）</string>
+
+    <!-- Always shown in English, regardless of app language, so someone who picked the wrong
+         language can still recognize their way back. -->
+    <string name="settings_extra_language_dutch_hint" translatable="false">Dutch</string>
+    <string name="settings_extra_language_french_hint" translatable="false">French</string>
+    <string name="settings_extra_language_german_hint" translatable="false">German</string>
+    <string name="settings_extra_language_italian_hint" translatable="false">Italian</string>
+    <string name="settings_extra_language_spanish_hint" translatable="false">Spanish</string>
+    <string name="settings_extra_language_turkish_hint" translatable="false">Turkish</string>
+    <string name="settings_extra_language_portuguese_hint" translatable="false">Portuguese</string>
+    <string name="settings_extra_language_portuguese_brazil_hint" translatable="false">Portuguese, Brazil</string>
+    <string name="settings_extra_language_spanish_latam_hint" translatable="false">Spanish, Latin America</string>
+    <string name="settings_extra_language_japanese_hint" translatable="false">Japanese</string>
+    <string name="settings_extra_language_korean_hint" translatable="false">Korean</string>
+    <string name="settings_extra_language_chinese_simplified_hint" translatable="false">Chinese, Simplified</string>
+    <string name="settings_extra_language_chinese_traditional_hint" translatable="false">Chinese, Traditional</string>
     <string name="settings_extra_no_drive_backups">No Google Drive backups were found.</string>
     <string name="settings_extra_no_ha_backups">No Home Assistant backups were found. Is the HKI 7 Cloud component installed?</string>
     <string name="settings_extra_notifications_multi_home_required">Required while multiple homes receive notifications. Manage each home under Connection.</string>

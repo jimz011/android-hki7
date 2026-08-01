@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="core_last_seen_days">
+        <item quantity="other">最後に見たのは %1$d 日前です</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="other">最後に見たのは %1$d 時間前</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="other">最後に見たのは %1$d 分前</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="other">最後に見たのは %1$d 週間前</item>
+    </plurals>
+    <plurals name="core_media_players_playing">
+        <item quantity="other">%1$d メディア プレーヤーが再生中です</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="other">自動 + %d 手動</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="other">%d 個の設定されたライト</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="other">%1$d デバイス · %2$d 上</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="other">%d 個の外部センサー セット</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="other">%d 個が削除されました</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="other">%d 個が選択されました</item>
+    </plurals>
+    <plurals name="cr_sensor_count">
+        <item quantity="other">%d 個のセンサー</item>
+    </plurals>
+    <plurals name="cr_widget_option_count">
+        <item quantity="other">%d 個のオプション</item>
+    </plurals>
+    <plurals name="dlg_action_data_value_summary">
+        <item quantity="other">%1$s · %2$d データ値</item>
+    </plurals>
+    <plurals name="dlg_arming_in_seconds">
+        <item quantity="other">%d 秒後に作動します</item>
+    </plurals>
+    <plurals name="dlg_seconds_short">
+        <item quantity="other">%d 秒</item>
+    </plurals>
+    <plurals name="dlg_selected_entities_summary">
+        <item quantity="other">%1$d が選択されました · %2$s</item>
+    </plurals>
+    <plurals name="global_search_browse_entities">
+        <item quantity="other">このデバイス上の %1$d エンティティを参照します</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="other">%1$d エンティティ</item>
+    </plurals>
+    <plurals name="parcel_letter_count">
+        <item quantity="other">%1$d 文字</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="other">%1$d 部屋</item>
+    </plurals>
+    <plurals name="security_entity_count">
+        <item quantity="other">%1$d エンティティ</item>
+    </plurals>
+    <plurals name="settings_extra_days_ago">
+        <item quantity="other">%1$d 日前</item>
+    </plurals>
+    <plurals name="settings_extra_hours_ago">
+        <item quantity="other">%1$d 時間前</item>
+    </plurals>
+    <plurals name="settings_extra_minutes_ago">
+        <item quantity="other">%1$d 分前</item>
+    </plurals>
+    <plurals name="settings_extra_shared_dashboards_pushed">
+        <item quantity="other">%1$d 共有ダッシュボードに変更をプッシュしました。</item>
+    </plurals>
+    <plurals name="uif_active_device_count">
+        <item quantity="other">%1$d アクティブなデバイス</item>
+    </plurals>
+    <plurals name="uif_adaptive_group_paused_count">
+        <item quantity="other">%1$d グループ ライトは手動制御のために一時停止されています。</item>
+    </plurals>
+    <plurals name="uif_adaptive_profile_light_count">
+        <item quantity="other">このプロファイルの %1$d ライトを制御します。</item>
+    </plurals>
+    <plurals name="uif_days_to_season">
+        <item quantity="other">%2$s まで %1$d 日</item>
+    </plurals>
+    <plurals name="uif_device_on_count">
+        <item quantity="other">%1$d デバイス</item>
+    </plurals>
+    <plurals name="uif_fire_detector_count">
+        <item quantity="other">%1$d 火災感知器が作動中</item>
+    </plurals>
+    <plurals name="uif_flow_advanced_block_count">
+        <item quantity="other">%1$d 高度な短縮ブロック (変更されないまま)</item>
+    </plurals>
+    <plurals name="uif_gas_detector_count">
+        <item quantity="other">%1$d ガス検知器がアクティブです</item>
+    </plurals>
+    <plurals name="uif_light_on_count">
+        <item quantity="other">%1$d が点灯</item>
+    </plurals>
+    <plurals name="uif_media_item_count">
+        <item quantity="other">%1$d アイテム</item>
+    </plurals>
+    <plurals name="uif_motion_sensor_count">
+        <item quantity="other">%1$d モーション センサーがアクティブです</item>
+    </plurals>
+    <plurals name="uif_open_door_count">
+        <item quantity="other">%1$d ドアを開けます</item>
+    </plurals>
+    <plurals name="uif_open_window_count">
+        <item quantity="other">%1$d ウィンドウを開きます</item>
+    </plurals>
+    <plurals name="uif_presence_sensor_count">
+        <item quantity="other">%1$d 存在センサーがアクティブです</item>
+    </plurals>
+    <plurals name="uif_smoke_detector_count">
+        <item quantity="other">%1$d 煙感知器がアクティブです</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="other">%1$d バッテリーには注意が必要です</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="other">%1$d 重要なバッテリー</item>
+    </plurals>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="other">%1$d バッテリー残量が少なくなっています</item>
+    </plurals>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="other">%1$d · %2$d センサーのグラフ</item>
+    </plurals>
+</resources>

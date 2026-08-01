@@ -77,6 +77,13 @@
     <string name="settings_extra_language_italian">Italiano</string>
     <string name="settings_extra_language_spanish">Español</string>
     <string name="settings_extra_language_turkish">Türkçe</string>
+    <string name="settings_extra_language_portuguese">Português</string>
+    <string name="settings_extra_language_portuguese_brazil">Português (Brasil)</string>
+    <string name="settings_extra_language_spanish_latam">Español (Latinoamérica)</string>
+    <string name="settings_extra_language_japanese">日本語</string>
+    <string name="settings_extra_language_korean">한국어</string>
+    <string name="settings_extra_language_chinese_simplified">中文（简体）</string>
+    <string name="settings_extra_language_chinese_traditional">中文（繁體）</string>
     <string name="settings_extra_no_drive_backups">Keine Google Drive-Sicherungen gefunden.</string>
     <string name="settings_extra_no_ha_backups">Keine Home Assistant-Sicherungen gefunden. Ist die Komponente HKI 7 Cloud installiert?</string>
     <string name="settings_extra_notifications_multi_home_required">Erforderlich, wenn mehrere Zuhause Benachrichtigungen empfangen. Verwalte jedes Zuhause unter Verbindung.</string>

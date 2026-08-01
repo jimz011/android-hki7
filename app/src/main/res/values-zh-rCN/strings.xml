@@ -2770,6 +2770,13 @@
     <string name="settings_extra_language_italian">意大利语</string>
     <string name="settings_extra_language_spanish">西班牙语</string>
     <string name="settings_extra_language_turkish">土耳其语</string>
+    <string name="settings_extra_language_portuguese">Português</string>
+    <string name="settings_extra_language_portuguese_brazil">Português (Brasil)</string>
+    <string name="settings_extra_language_spanish_latam">Español (Latinoamérica)</string>
+    <string name="settings_extra_language_japanese">日本語</string>
+    <string name="settings_extra_language_korean">한국어</string>
+    <string name="settings_extra_language_chinese_simplified">中文（简体）</string>
+    <string name="settings_extra_language_chinese_traditional">中文（繁體）</string>
     <string name="settings_extra_location_allowed_always">始终允许</string>
     <string name="settings_extra_location_allowed_foreground">仅在使用应用时允许</string>
     <string name="settings_extra_location_not_allowed">不允许</string>

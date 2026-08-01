@@ -11,7 +11,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 RES = ROOT / "app/src/main/res"
-LOCALES = ("nl", "de", "fr", "es", "it", "tr")
+LOCALES = (
+    "nl", "de", "fr", "es", "it", "tr",
+    "pt", "pt-rBR", "b+es+419", "ja", "ko", "zh-rCN", "zh-rTW",
+)
+# CLDR defines only the "other" plural category for these languages, so a plurals resource with
+# just that one item is complete, not missing "one"/"few"/etc.
+NO_GRAMMATICAL_PLURAL_LOCALES = {"ja", "ko", "zh-rCN", "zh-rTW"}
 PLACEHOLDER = re.compile(r"%\d+\$[a-zA-Z]")
 ZERO_WIDTH = re.compile("[\u200b-\u200d\ufeff]")
 LOCALIZED_COMPARISON = re.compile(
@@ -26,8 +32,11 @@ class Resource:
     values: tuple[str, ...]
 
     @property
-    def placeholders(self) -> tuple[tuple[str, ...], ...]:
-        return tuple(tuple(sorted(PLACEHOLDER.findall(value))) for value in self.values)
+    def placeholders(self) -> tuple[frozenset[str], ...]:
+        # A positional placeholder (%1$s, %2$d, ...) may legitimately be repeated in a translation
+        # (e.g. grammatical agreement requiring the same argument twice), so compare the set of
+        # distinct placeholders used, not how many times each appears.
+        return tuple(frozenset(PLACEHOLDER.findall(value)) for value in self.values)
 
 
 def element_text(element: ET.Element) -> str:
@@ -74,6 +83,13 @@ def main() -> int:
             actual = translated[name]
             if actual.kind != expected.kind:
                 failures.append(f"{locale}/{name}: {actual.kind} should be {expected.kind}")
+            elif actual.kind == "plurals" and locale in NO_GRAMMATICAL_PLURAL_LOCALES:
+                other = next((v for v in actual.values if v.startswith("other\0")), None)
+                expected_other = next((v for v in expected.values if v.startswith("other\0")), None)
+                if other is None:
+                    failures.append(f"{locale}/{name}: missing 'other' quantity")
+                elif frozenset(PLACEHOLDER.findall(other)) != frozenset(PLACEHOLDER.findall(expected_other or "")):
+                    failures.append(f"{locale}/{name}: placeholders in 'other' item don't match")
             elif actual.placeholders != expected.placeholders:
                 failures.append(
                     f"{locale}/{name}: placeholders {actual.placeholders} "

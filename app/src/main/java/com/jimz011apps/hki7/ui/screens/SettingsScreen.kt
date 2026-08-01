@@ -1283,33 +1283,37 @@ fun SettingsDialog(
                         }
                         SettingsSection.LANGUAGE -> {
                             val selectedLanguage = currentAppLanguage(context)
+                            val selectedSuffix = stringResource(R.string.language_selected)
                             val languages = listOf(
-                                SYSTEM_LANGUAGE_TAG to stringResource(R.string.language_system),
-                                "en" to stringResource(R.string.settings_extra_language_english),
-                                "nl" to stringResource(R.string.settings_extra_language_dutch),
-                                "de" to stringResource(R.string.settings_extra_language_german),
-                                "fr" to stringResource(R.string.settings_extra_language_french),
-                                "es" to stringResource(R.string.settings_extra_language_spanish),
-                                "it" to stringResource(R.string.settings_extra_language_italian),
-                                "tr" to stringResource(R.string.settings_extra_language_turkish),
-                                "pt" to stringResource(R.string.settings_extra_language_portuguese),
-                                "pt-BR" to stringResource(R.string.settings_extra_language_portuguese_brazil),
-                                "es-419" to stringResource(R.string.settings_extra_language_spanish_latam),
-                                "ja" to stringResource(R.string.settings_extra_language_japanese),
-                                "ko" to stringResource(R.string.settings_extra_language_korean),
-                                "zh-CN" to stringResource(R.string.settings_extra_language_chinese_simplified),
-                                "zh-TW" to stringResource(R.string.settings_extra_language_chinese_traditional)
+                                Triple(SYSTEM_LANGUAGE_TAG, stringResource(R.string.language_system), ""),
+                                Triple("en", stringResource(R.string.settings_extra_language_english), ""),
+                                Triple("nl", stringResource(R.string.settings_extra_language_dutch), stringResource(R.string.settings_extra_language_dutch_hint)),
+                                Triple("de", stringResource(R.string.settings_extra_language_german), stringResource(R.string.settings_extra_language_german_hint)),
+                                Triple("fr", stringResource(R.string.settings_extra_language_french), stringResource(R.string.settings_extra_language_french_hint)),
+                                Triple("es", stringResource(R.string.settings_extra_language_spanish), stringResource(R.string.settings_extra_language_spanish_hint)),
+                                Triple("it", stringResource(R.string.settings_extra_language_italian), stringResource(R.string.settings_extra_language_italian_hint)),
+                                Triple("tr", stringResource(R.string.settings_extra_language_turkish), stringResource(R.string.settings_extra_language_turkish_hint)),
+                                Triple("pt", stringResource(R.string.settings_extra_language_portuguese), stringResource(R.string.settings_extra_language_portuguese_hint)),
+                                Triple("pt-BR", stringResource(R.string.settings_extra_language_portuguese_brazil), stringResource(R.string.settings_extra_language_portuguese_brazil_hint)),
+                                Triple("es-419", stringResource(R.string.settings_extra_language_spanish_latam), stringResource(R.string.settings_extra_language_spanish_latam_hint)),
+                                Triple("ja", stringResource(R.string.settings_extra_language_japanese), stringResource(R.string.settings_extra_language_japanese_hint)),
+                                Triple("ko", stringResource(R.string.settings_extra_language_korean), stringResource(R.string.settings_extra_language_korean_hint)),
+                                Triple("zh-CN", stringResource(R.string.settings_extra_language_chinese_simplified), stringResource(R.string.settings_extra_language_chinese_simplified_hint)),
+                                Triple("zh-TW", stringResource(R.string.settings_extra_language_chinese_traditional), stringResource(R.string.settings_extra_language_chinese_traditional_hint))
                             )
                             SettingsSubcategory(
                                 stringResource(R.string.language_display_title),
                                 stringResource(R.string.language_display_subtitle)
                             )
-                            languages.forEach { (tag, label) ->
-                                SettingsChoice(
-                                    Icons.Default.Language,
-                                    label,
-                                    if (tag == selectedLanguage) stringResource(R.string.language_selected) else ""
-                                ) {
+                            languages.forEach { (tag, label, hint) ->
+                                val subtitle = buildString {
+                                    append(hint)
+                                    if (tag == selectedLanguage) {
+                                        if (isNotEmpty()) append(" · ")
+                                        append(selectedSuffix)
+                                    }
+                                }
+                                SettingsChoice(Icons.Default.Language, label, subtitle) {
                                     setAppLanguage(context, tag)
                                 }
                             }
