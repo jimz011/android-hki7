@@ -173,6 +173,21 @@ private fun localizedParcelStatus(status: String): String =
         else -> status.replace('_', ' ').replaceFirstChar(Char::uppercase)
     }
 
+/**
+ * Carrier integrations sometimes expose `raw_status` as an untranslated machine code (e.g.
+ * PostNL/DHL's `PARCEL_ARRIVED_AT_LOCAL_DEPOT`) rather than prose. Turn SCREAMING_SNAKE_CASE codes
+ * into a normal sentence; leave anything that already reads like prose untouched.
+ */
+private fun normalizeRawStatus(text: String): String {
+    val looksLikeCode = (text.contains('_') || text.contains('-')) && text.none(Char::isLowerCase)
+    val normalized = if (looksLikeCode) {
+        text.replace('_', ' ').replace('-', ' ').lowercase(Locale.ROOT)
+    } else {
+        text
+    }
+    return normalized.trim().replaceFirstChar(Char::uppercase)
+}
+
 private fun JsonObject.isDeliveredParcel(): Boolean {
     val explicitlyDelivered = this["delivered"]?.jsonPrimitive?.let { value ->
         value.booleanOrNull ?: (value.contentOrNull?.let { it == "1" || it.equals("true", ignoreCase = true) })
@@ -1014,7 +1029,7 @@ private fun ParcelHistoryList(parcel: JsonObject, selected: JsonObject?, onSelec
     }
     history.reversed().forEach { item ->
         val event = item as? JsonObject ?: return@forEach
-        val eventTitle = event["raw_status"]?.jsonPrimitive?.contentOrNull
+        val eventTitle = event["raw_status"]?.jsonPrimitive?.contentOrNull?.let(::normalizeRawStatus)
             ?: event["status"]?.jsonPrimitive?.contentOrNull?.let { localizedParcelStatus(it) }
             ?: stringResource(R.string.ui_update_fb91e24)
         val eventTime = event["timestamp"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime).orEmpty()
@@ -1041,14 +1056,13 @@ private fun ParcelHistoryList(parcel: JsonObject, selected: JsonObject?, onSelec
 private fun ParcelHero(carrier: ParcelCarrier, parcel: JsonObject?, history: JsonObject?) {
     fun JsonObject.attr(name: String) = this[name]?.jsonPrimitive?.contentOrNull
     val status = history?.attr("status") ?: parcel?.attr("status") ?: "unknown"
-    val rawStatus = history?.attr("raw_status")
-        ?: parcel?.attr("raw_status")
+    val rawStatus = (history?.attr("raw_status") ?: parcel?.attr("raw_status"))?.let(::normalizeRawStatus)
         ?: parcel?.attr("status")?.let { localizedParcelStatus(it) }
         ?: stringResource(R.string.parcel_unknown_status)
     val delivered = parcel?.isDeliveredParcel() == true
     // Best available ETA/delivery moment. A planned window wins; otherwise any single expected-time
     // field; otherwise (for delivered parcels) the last history timestamp.
-    val plannedWindow = listOfNotNull(parcel?.attr("planned_from")?.let(::formatParcelTime), parcel?.attr("planned_to")?.let(::formatParcelTime)).joinToString(" – ")
+    val plannedWindow = formatParcelWindow(parcel?.attr("planned_from"), parcel?.attr("planned_to"))
     val singleEta = listOf("expected_delivery", "delivery_date", "eta", "expected", "delivery", "planned_date")
         .firstNotNullOfOrNull { parcel?.attr(it) }?.let(::formatParcelTime)
     val deliveredMoment = if (delivered) (parcel?.get("history") as? JsonArray)?.mapNotNull { (it as? JsonObject)?.get("timestamp")?.jsonPrimitive?.contentOrNull }?.lastOrNull()?.let(::formatParcelTime) else null
@@ -1096,10 +1110,10 @@ private fun ParcelHero(carrier: ParcelCarrier, parcel: JsonObject?, history: Jso
 private fun InteractiveParcelRow(parcel: JsonObject, selected: Boolean, onClick: () -> Unit) {
     fun attr(name: String) = parcel[name]?.jsonPrimitive?.contentOrNull
     val title = attr("sender") ?: attr("receiver") ?: attr("barcode") ?: stringResource(R.string.ui_parcel_9ddaaee)
-    val status = attr("raw_status")
+    val status = attr("raw_status")?.let(::normalizeRawStatus)
         ?: attr("status")?.let { localizedParcelStatus(it) }
         ?: stringResource(R.string.parcel_unknown_status)
-    val schedule = listOfNotNull(attr("planned_from")?.let(::formatParcelTime), attr("planned_to")?.let(::formatParcelTime)).joinToString(" – ")
+    val schedule = formatParcelWindow(attr("planned_from"), attr("planned_to"))
     Surface(shape = itemCornerShape(), color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
@@ -1194,13 +1208,13 @@ private fun ParcelDialogLegacy(carriers: List<ParcelCarrier>, onDismiss: () -> U
 @Composable private fun ParcelRow(parcel: JsonObject) {
     fun attr(name: String) = parcel[name]?.jsonPrimitive?.contentOrNull
     val title = attr("sender") ?: attr("receiver") ?: attr("barcode") ?: stringResource(R.string.ui_parcel_9ddaaee)
-    val status = attr("raw_status")
+    val status = attr("raw_status")?.let(::normalizeRawStatus)
         ?: attr("status")?.let { localizedParcelStatus(it) }
         ?: stringResource(R.string.parcel_unknown_status)
     val direction = attr("_direction")
     val from = attr("planned_from")
     val to = attr("planned_to")
-    val schedule = listOfNotNull(from?.let(::formatParcelTime), to?.let(::formatParcelTime)).joinToString(" – ")
+    val schedule = formatParcelWindow(from, to)
     Surface(shape = itemCornerShape(), color = MaterialTheme.colorScheme.surfaceContainerHigh) {
         Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(title, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -1217,7 +1231,7 @@ private fun ParcelDialogLegacy(carriers: List<ParcelCarrier>, onDismiss: () -> U
                 Text(stringResource(R.string.ui_history_90ccd64), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)
                 history.takeLast(4).reversed().forEach { item ->
                     val obj = item as? JsonObject ?: return@forEach
-                    DetailRow(obj["raw_status"]?.jsonPrimitive?.contentOrNull
+                    DetailRow(obj["raw_status"]?.jsonPrimitive?.contentOrNull?.let(::normalizeRawStatus)
                         ?: obj["status"]?.jsonPrimitive?.contentOrNull?.let { localizedParcelStatus(it) }
                         ?: stringResource(R.string.ui_update_fb91e24),
                         obj["timestamp"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime).orEmpty())
@@ -1242,6 +1256,19 @@ private fun formatParcelTime(value: String): String = runCatching {
             .withLocale(Locale.getDefault())
     )
 }.getOrDefault(value)
+
+private fun formatParcelTimeOnly(value: OffsetDateTime): String =
+    value.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.getDefault()))
+
+/** Formats a planned delivery window. Same-day windows show the date once, not on both ends. */
+private fun formatParcelWindow(from: String?, to: String?): String {
+    val fromMoment = from?.let { runCatching { OffsetDateTime.parse(it) }.getOrNull() }
+    val toMoment = to?.let { runCatching { OffsetDateTime.parse(it) }.getOrNull() }
+    if (fromMoment != null && toMoment != null && fromMoment.toLocalDate() == toMoment.toLocalDate()) {
+        return "${formatParcelTime(from)} – ${formatParcelTimeOnly(toMoment)}"
+    }
+    return listOfNotNull(from?.let(::formatParcelTime), to?.let(::formatParcelTime)).joinToString(" – ")
+}
 
 /** Device picker that waits for the HA registries instead of presenting an empty search list. */
 @Composable

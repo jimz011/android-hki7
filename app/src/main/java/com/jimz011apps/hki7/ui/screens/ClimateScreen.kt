@@ -665,10 +665,18 @@ fun ClimateScreen(viewModel: MainViewModel) {
                     val tiles = buildList {
                         climateSensorGroups.forEach { group ->
                             val sensors = groupSensors[group.key].orEmpty()
-                            if (sensors.isEmpty()) return@forEach
                             // Outside mixes temp/humidity/pressure, so summarise its temperature sensors
                             // (its dedicated list, falling back to class/unit) instead of averaging unlike units.
                             val outsideWeather = if (group.key == "outside") effectiveOutsideWeatherId?.let { entityById[it] } else null
+                            // A linked weather entity is graphed as its own temperature/humidity/pressure
+                            // attribute cards (see ClimateSensorDetailPage), so the tile must stay visible
+                            // even when no dedicated outside sensors are configured.
+                            val weatherAttrCount = listOfNotNull(
+                                outsideWeather?.temperature,
+                                outsideWeather?.humidity,
+                                outsideWeather?.pressure
+                            ).size
+                            if (sensors.isEmpty() && weatherAttrCount == 0) return@forEach
                             val summarySensors = if (group.key == "outside") {
                                 climateConfig.outsideTemperatureIds.mapNotNull { entityById[it] }
                                     .ifEmpty { sensors.filter { it.deviceClass == "temperature" || it.unit() in setOf("°C", "°F", "℃", "℉") } }
@@ -678,7 +686,8 @@ fun ClimateScreen(viewModel: MainViewModel) {
                             val values = if (outsideWeather?.temperature != null) listOf(outsideWeather.temperature!!) else summarySensors.mapNotNull { it.numericState().let { v -> v?.toDouble() } }
                             val unit = outsideWeather?.attributes?.get("temperature_unit")?.jsonPrimitive?.contentOrNull ?: summarySensors.firstOrNull()?.unit() ?: ""
                             val avg = if (values.isNotEmpty()) values.average().toFloat() else null
-                            val countLabel = pluralStringResource(R.plurals.cr_sensor_count, sensors.size, sensors.size)
+                            val itemCount = sensors.size + weatherAttrCount
+                            val countLabel = pluralStringResource(R.plurals.cr_sensor_count, itemCount, itemCount)
                             val status = if (avg == null) countLabel else stringResource(
                                 R.string.cr_count_with_average,
                                 countLabel,

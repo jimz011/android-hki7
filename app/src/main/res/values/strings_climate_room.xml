@@ -338,9 +338,11 @@
     <!-- Current release -->
     <string-array name="cr_whats_new_beta_10">
         <item>Fixed PostNL and the current parcel-integration parser, so incoming shipments once again show their complete tracking details and delivered state. Carrier support has also been brought up to date.</item>
-        <item>Added an in-app language selector with broad Dutch, German, French, Spanish, Italian, and Turkish coverage, plus a major wording pass for Dutch.</item>
+        <item>Added an in-app language selector with full coverage in 13 languages: Dutch, German, French, Spanish (plus Latin American Spanish), Italian, Turkish, Portuguese (plus Brazilian Portuguese), Japanese, Korean, and Chinese (Simplified and Traditional). Each language shows its native name with an English hint beneath it.</item>
         <item>The reconnect status now shows the actual connection error, making Wi-Fi, mobile-data, and VPN handovers much easier to diagnose.</item>
         <item>Screen rotation now follows your device’s auto-rotate setting instead of staying locked to portrait.</item>
+        <item>The Climate "Outside" tile now shows up as soon as a weather device is linked, even without dedicated temperature/humidity/pressure sensors, and graphs its attributes.</item>
+        <item>Parcel status text from carriers (e.g. "PARCEL_ARRIVED_AT_LOCAL_DEPOT") is now shown as normal sentences, and a same-day delivery window shows its date once instead of twice.</item>
     </string-array>
 
     <!-- Earlier releases are kept so a build from an older tag still has a valid resource. -->

@@ -5,6 +5,15 @@ file in sync with `app/src/main/java/com/jimz011apps/hki7/ui/components/WhatsNew
 
 Items marked with \* require the HKI 7 Cloud Component integration.
 
+## 1.0.0-beta.10
+
+- Fixed PostNL and the current parcel-integration parser, so incoming shipments once again show their complete tracking details and delivered state. Carrier support has also been brought up to date.
+- Added an in-app language selector with full coverage in 13 languages: Dutch, German, French, Spanish (plus Latin American Spanish), Italian, Turkish, Portuguese (plus Brazilian Portuguese), Japanese, Korean, and Chinese (Simplified and Traditional). Each language shows its native name with an English hint beneath it.
+- The reconnect status now shows the actual connection error, making Wi-Fi, mobile-data, and VPN handovers much easier to diagnose.
+- Screen rotation now follows your device's auto-rotate setting instead of staying locked to portrait.
+- The Climate "Outside" tile now shows up as soon as a weather device is linked, even without dedicated temperature/humidity/pressure sensors, and graphs its attributes.
+- Parcel status text from carriers (e.g. "PARCEL_ARRIVED_AT_LOCAL_DEPOT") is now shown as normal sentences, and a same-day delivery window shows its date once instead of twice.
+
 ## 1.0.0-beta.9
 
 - Drag to reorder cameras, thermostats, and energy cards. In edit mode the Security, Climate, and Energy views each get a "Reorder" button that opens a drag-to-sort list — cameras on Security, thermostats/AC units on Climate, and the data cards below the pinned live-source tiles (Electricity, Solar, Gas, Water, Top consumers, and more) on Energy.
