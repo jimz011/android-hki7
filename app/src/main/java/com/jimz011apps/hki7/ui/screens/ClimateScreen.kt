@@ -2583,8 +2583,14 @@ private fun ClimateSensorDetailPage(
         }
     }
 
+    // A linked weather entity contributes its graphed attributes as readings of their own, so the
+    // summary counts and averages them instead of reporting "0 sensors" beside three live graphs.
     val values = sensors.mapNotNull { it.numericState() }
-    val unit = sensors.firstOrNull()?.unit() ?: ""
+        .ifEmpty { listOfNotNull(weatherEntity?.temperature?.toFloat()) }
+    val unit = sensors.firstOrNull()?.unit()
+        ?: weatherEntity?.attributes?.get("temperature_unit")?.jsonPrimitive?.contentOrNull.takeIf { sensors.isEmpty() }
+        ?: ""
+    val summaryItemCount = sensors.size + weatherAttrSpecs.size
 
     if (isEditMode && sensors.isNotEmpty()) {
         ReorderableGrid(
@@ -2631,7 +2637,7 @@ private fun ClimateSensorDetailPage(
                             Icon(group.icon, null, tint = group.color, modifier = Modifier.size(18.dp))
                         }
                         Text(
-                            pluralStringResource(R.plurals.cr_sensor_count, sensors.size, sensors.size),
+                            pluralStringResource(R.plurals.cr_sensor_count, summaryItemCount, summaryItemCount),
                             style = MaterialTheme.typography.titleSmall, color = appColors.onSurface,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -2668,7 +2674,10 @@ private fun ClimateSensorDetailPage(
                         lineColor = spec.color,
                         titleOverride = stringResource(spec.labelRes),
                         attributeKey = spec.key,
-                        unitOverride = spec.unit
+                        unitOverride = spec.unit,
+                        // The attribute keys are the matching device-class names, so each graph gets
+                        // the same value-hue gradient a dedicated sensor of that class would.
+                        gradientDeviceClass = spec.key
                     )
                 }
             }

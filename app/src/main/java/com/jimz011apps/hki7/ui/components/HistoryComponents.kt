@@ -193,7 +193,12 @@ fun EntitySensorGraphCard(
     attributeKey: String? = null,
     /** Unit shown alongside the value; falls back to the entity's own `unit_of_measurement` attribute
      *  when graphing state, since attribute-graphed entities (e.g. weather) don't carry one. */
-    unitOverride: String? = null
+    unitOverride: String? = null,
+    /** Device class used to pick the value-hue gradient. Defaults to the entity's own, but
+     *  attribute-graphed entities (e.g. weather.*) carry no device class of their own, so the caller
+     *  passes the attribute's equivalent ("temperature"/"humidity"/"pressure") to get the same
+     *  gradient a dedicated sensor of that class would draw. */
+    gradientDeviceClass: String? = null
 ) {
     val appColors = LocalHKIAppColors.current
     val historyMapping by viewModel.historyMapping.collectAsState()
@@ -253,7 +258,7 @@ fun EntitySensorGraphCard(
                     lineColor = lineColor,
                     stepped = false,
                     modifier = Modifier.fillMaxSize(),
-                    gradientColors = sensorGradientColors(sensorEntity.deviceClass)
+                    gradientColors = sensorGradientColors(gradientDeviceClass ?: sensorEntity.deviceClass)
                 )
             }
         }
