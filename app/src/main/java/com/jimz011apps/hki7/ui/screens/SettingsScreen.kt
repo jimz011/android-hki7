@@ -1291,7 +1291,14 @@ fun SettingsDialog(
                                 "fr" to stringResource(R.string.settings_extra_language_french),
                                 "es" to stringResource(R.string.settings_extra_language_spanish),
                                 "it" to stringResource(R.string.settings_extra_language_italian),
-                                "tr" to stringResource(R.string.settings_extra_language_turkish)
+                                "tr" to stringResource(R.string.settings_extra_language_turkish),
+                                "pt" to stringResource(R.string.settings_extra_language_portuguese),
+                                "pt-BR" to stringResource(R.string.settings_extra_language_portuguese_brazil),
+                                "es-419" to stringResource(R.string.settings_extra_language_spanish_latam),
+                                "ja" to stringResource(R.string.settings_extra_language_japanese),
+                                "ko" to stringResource(R.string.settings_extra_language_korean),
+                                "zh-CN" to stringResource(R.string.settings_extra_language_chinese_simplified),
+                                "zh-TW" to stringResource(R.string.settings_extra_language_chinese_traditional)
                             )
                             SettingsSubcategory(
                                 stringResource(R.string.language_display_title),

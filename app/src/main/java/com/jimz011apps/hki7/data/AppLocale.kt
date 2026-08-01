@@ -6,14 +6,19 @@ import android.os.LocaleList
 
 const val SYSTEM_LANGUAGE_TAG = "system"
 
-val supportedAppLanguageTags = listOf("en", "nl", "de", "fr", "es", "it", "tr")
+val supportedAppLanguageTags = listOf(
+    "en", "nl", "de", "fr", "es", "it", "tr",
+    "pt", "pt-BR", "es-419", "ja", "ko", "zh-CN", "zh-TW"
+)
 
 /** Returns the explicit app override, or [SYSTEM_LANGUAGE_TAG] when Android follows the device. */
 fun currentAppLanguage(context: Context): String {
     val locales = context.getSystemService(LocaleManager::class.java).applicationLocales
     if (locales.isEmpty) return SYSTEM_LANGUAGE_TAG
+    val tag = locales[0].toLanguageTag()
+    if (tag in supportedAppLanguageTags) return tag
     val language = locales[0].language
-    return language.takeIf { it in supportedAppLanguageTags } ?: locales[0].toLanguageTag()
+    return language.takeIf { it in supportedAppLanguageTags } ?: tag
 }
 
 /** Applies a platform-managed per-app locale. Android recreates the Activity and persists it. */
