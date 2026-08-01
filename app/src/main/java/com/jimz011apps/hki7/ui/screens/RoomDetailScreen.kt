@@ -5188,7 +5188,10 @@ fun SingleEntityWidgetItem(
     onSettingsClick: () -> Unit = {}
 ) {
     val appColors = LocalHKIAppColors.current
-    if (!isWidgetVisibleNow(widget) && !isEditMode) return
+    // Two independent visibility entry points: the widget-level quick hide/schedule toggle, and the
+    // per-button visibility editor inside its ButtonConfigDialog (config.hidden/schedule) — either
+    // one hiding it is enough.
+    if ((!isWidgetVisibleNow(widget) || !isButtonVisibleNow(widget.config)) && !isEditMode) return
     val dependencyIds = remember(widget.entityId, widget.config) {
         listOfNotNull(
             widget.entityId,
@@ -5550,6 +5553,14 @@ fun SwipingStackSettingsDialog(
     }
     var settingsPage by remember(stack) { mutableStateOf("identity") }
     var showIconPicker by remember { mutableStateOf(false) }
+    var visSpec by remember(stack) {
+        mutableStateOf(
+            com.jimz011apps.hki7.ui.components.VisibilitySpec(
+                stack.isHidden, stack.visibilityStart, stack.visibilityEnd,
+                stack.visibilityRangeMode.ifBlank { "show" }, stack.visibilityRecurrence.ifBlank { "none" }
+            )
+        )
+    }
 
     if (showIconPicker) {
         MdiIconPickerDialog(
@@ -5577,7 +5588,8 @@ fun SwipingStackSettingsDialog(
                     tabs = listOf(
                         "identity" to stringResource(R.string.cr_identity),
                         "layout" to stringResource(R.string.cr_layout),
-                        "playback" to stringResource(R.string.cr_playback)
+                        "playback" to stringResource(R.string.cr_playback),
+                        "visibility" to stringResource(R.string.ui_visibility_7d9ff4f)
                     ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
@@ -5650,6 +5662,10 @@ fun SwipingStackSettingsDialog(
                         )
                     }
                 }
+                if (settingsPage == "visibility") {
+                    SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
+                    com.jimz011apps.hki7.ui.components.VisibilityEditor(visSpec) { visSpec = it }
+                }
                 }
             }
         },
@@ -5667,7 +5683,12 @@ fun SwipingStackSettingsDialog(
                         isCollapsed = defaultCollapsed,
                         autoplay = autoplay,
                         autoplayIntervalSeconds = intervalText.toIntOrNull()?.coerceIn(1, 120) ?: 5,
-                        animation = animation
+                        animation = animation,
+                        isHidden = visSpec.hidden,
+                        visibilityStart = visSpec.start,
+                        visibilityEnd = visSpec.end,
+                        visibilityRangeMode = visSpec.rangeMode,
+                        visibilityRecurrence = visSpec.recurrence
                     )
                 )
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
@@ -5822,6 +5843,14 @@ fun EmptyStackSettingsDialog(
     var defaultCollapsed by remember(stack) { mutableStateOf(stack.defaultCollapsed) }
     var settingsPage by remember(stack) { mutableStateOf("identity") }
     var showIconPicker by remember { mutableStateOf(false) }
+    var visSpec by remember(stack) {
+        mutableStateOf(
+            com.jimz011apps.hki7.ui.components.VisibilitySpec(
+                stack.isHidden, stack.visibilityStart, stack.visibilityEnd,
+                stack.visibilityRangeMode.ifBlank { "show" }, stack.visibilityRecurrence.ifBlank { "none" }
+            )
+        )
+    }
 
     if (showIconPicker) {
         MdiIconPickerDialog(
@@ -5849,7 +5878,8 @@ fun EmptyStackSettingsDialog(
                     tabs = listOf(
                         "identity" to stringResource(R.string.cr_identity),
                         "layout" to stringResource(R.string.cr_layout),
-                        "behavior" to stringResource(R.string.cr_behavior)
+                        "behavior" to stringResource(R.string.cr_behavior),
+                        "visibility" to stringResource(R.string.ui_visibility_7d9ff4f)
                     ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
@@ -5912,6 +5942,10 @@ fun EmptyStackSettingsDialog(
                         Text(stringResource(R.string.ui_collapsed_by_default_65a57c6))
                     }
                 }
+                if (settingsPage == "visibility") {
+                    SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
+                    com.jimz011apps.hki7.ui.components.VisibilityEditor(visSpec) { visSpec = it }
+                }
                 }
             }
         },
@@ -5928,7 +5962,12 @@ fun EmptyStackSettingsDialog(
                         cornerRadius = cornerRadius,
                         collapsible = collapsible,
                         defaultCollapsed = defaultCollapsed,
-                        isCollapsed = defaultCollapsed
+                        isCollapsed = defaultCollapsed,
+                        isHidden = visSpec.hidden,
+                        visibilityStart = visSpec.start,
+                        visibilityEnd = visSpec.end,
+                        visibilityRangeMode = visSpec.rangeMode,
+                        visibilityRecurrence = visSpec.recurrence
                     )
                 )
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
@@ -7472,6 +7511,7 @@ fun SubtitleWidget(
     onSettings: () -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
+    if (!isWidgetVisibleNow(widget) && !isEditMode) return
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 2.dp)) {
         if (!widget.icon.isNullOrBlank()) {
             MdiIcon(widget.icon, tint = appColors.onMuted, size = 22.dp)
@@ -7504,6 +7544,14 @@ fun HeaderTextSettingsDialog(
     var width by remember(widget) { mutableStateOf(widget.width) }
     var showIconPickerHeader by remember { mutableStateOf(false) }
     var settingsPage by remember(widget) { mutableStateOf("content") }
+    var visSpec by remember(widget) {
+        mutableStateOf(
+            com.jimz011apps.hki7.ui.components.VisibilitySpec(
+                widget.isHidden, widget.visibilityStart, widget.visibilityEnd,
+                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" }
+            )
+        )
+    }
     val defaultHeaderText = stringResource(R.string.cr_widget_header_text)
 
     if (showIconPickerHeader) {
@@ -7528,7 +7576,8 @@ fun HeaderTextSettingsDialog(
                 SettingsTabRow(
                     tabs = listOf(
                         "content" to stringResource(R.string.cr_content),
-                        "appearance" to stringResource(R.string.cr_appearance)
+                        "appearance" to stringResource(R.string.cr_appearance),
+                        "visibility" to stringResource(R.string.ui_visibility_7d9ff4f)
                     ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
@@ -7553,6 +7602,10 @@ fun HeaderTextSettingsDialog(
                     if (iconName.isNotEmpty()) TextButton(onClick = { iconName = "" }) { Text(stringResource(R.string.ui_none_6eef664)) }
                 }
                 }
+                if (settingsPage == "visibility") {
+                    SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
+                    com.jimz011apps.hki7.ui.components.VisibilityEditor(visSpec) { visSpec = it }
+                }
             }
         },
         confirmButton = {
@@ -7561,7 +7614,12 @@ fun HeaderTextSettingsDialog(
                     widget.copy(
                         text = text.ifBlank { defaultHeaderText },
                         width = width,
-                        icon = iconName.ifEmpty { null }
+                        icon = iconName.ifEmpty { null },
+                        isHidden = visSpec.hidden,
+                        visibilityStart = visSpec.start,
+                        visibilityEnd = visSpec.end,
+                        visibilityRangeMode = visSpec.rangeMode,
+                        visibilityRecurrence = visSpec.recurrence
                     )
                 )
             }) { Text(stringResource(R.string.ui_save_efc007a)) }

@@ -636,6 +636,14 @@ fun SensorGraphWidgetSettingsDialog(
     var radius by remember(widget) { mutableIntStateOf(widget.cornerRadius) }
     var picking by remember { mutableStateOf(false) }
     var settingsPage by remember(widget) { mutableStateOf("data") }
+    var visSpec by remember(widget) {
+        mutableStateOf(
+            com.jimz011apps.hki7.ui.components.VisibilitySpec(
+                widget.isHidden, widget.visibilityStart, widget.visibilityEnd,
+                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" }
+            )
+        )
+    }
     if (picking) {
         val sensors = allEntities.filter { it.entity_id.startsWith("sensor.") || it.entity_id.startsWith("number.") || it.entity_id.startsWith("input_number.") }
         AdvancedEntitySearchDialog(
@@ -669,6 +677,7 @@ fun SensorGraphWidgetSettingsDialog(
                         add("data" to stringResource(R.string.widgets_tab_data))
                         add("chart" to stringResource(R.string.widgets_tab_chart))
                         if (showLayoutOptions) add("appearance" to stringResource(R.string.widgets_tab_appearance))
+                        add("visibility" to stringResource(R.string.ui_visibility_7d9ff4f))
                     },
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
@@ -724,13 +733,19 @@ fun SensorGraphWidgetSettingsDialog(
                         FilterChip(selected = square, onClick = { square = true }, label = { Text(stringResource(R.string.ui_square_82810cb)) })
                     }
                 }
+                if (settingsPage == "visibility") {
+                    com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
+                    com.jimz011apps.hki7.ui.components.VisibilityEditor(visSpec) { visSpec = it }
+                }
             }
         },
         confirmButton = {
             Button(onClick = {
                 onSave(widget.copy(
                     entityIds = entityIds, title = title.ifBlank { null }, style = style,
-                    hours = hours, width = width, isSquare = square, cornerRadius = radius
+                    hours = hours, width = width, isSquare = square, cornerRadius = radius,
+                    isHidden = visSpec.hidden, visibilityStart = visSpec.start, visibilityEnd = visSpec.end,
+                    visibilityRangeMode = visSpec.rangeMode, visibilityRecurrence = visSpec.recurrence
                 ))
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
@@ -753,6 +768,14 @@ fun SensorGraphStackSettingsDialog(
     var editingGraph by remember { mutableStateOf<HKISensorGraphWidget?>(null) }
     var addingGraph by remember { mutableStateOf(false) }
     var settingsPage by remember(stack) { mutableStateOf("graphs") }
+    var visSpec by remember(stack) {
+        mutableStateOf(
+            com.jimz011apps.hki7.ui.components.VisibilitySpec(
+                stack.isHidden, stack.visibilityStart, stack.visibilityEnd,
+                stack.visibilityRangeMode.ifBlank { "show" }, stack.visibilityRecurrence.ifBlank { "none" }
+            )
+        )
+    }
 
     if (addingGraph) {
         val sensors = allEntities.filter {
@@ -805,7 +828,8 @@ fun SensorGraphStackSettingsDialog(
                 com.jimz011apps.hki7.ui.components.SettingsTabRow(
                     tabs = listOf(
                         "graphs" to stringResource(R.string.widgets_tab_graphs),
-                        "layout" to stringResource(R.string.widgets_tab_layout)
+                        "layout" to stringResource(R.string.widgets_tab_layout),
+                        "visibility" to stringResource(R.string.ui_visibility_7d9ff4f)
                     ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
@@ -849,13 +873,19 @@ fun SensorGraphStackSettingsDialog(
                 }
                 WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
                 }
+                if (settingsPage == "visibility") {
+                    com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
+                    com.jimz011apps.hki7.ui.components.VisibilityEditor(visSpec) { visSpec = it }
+                }
             }
         },
         confirmButton = {
             Button(onClick = {
                 onSave(stack.copy(
                     title = title.ifBlank { null }, width = width, cornerRadius = radius,
-                    collapsible = collapsible, graphs = graphs
+                    collapsible = collapsible, graphs = graphs,
+                    isHidden = visSpec.hidden, visibilityStart = visSpec.start, visibilityEnd = visSpec.end,
+                    visibilityRangeMode = visSpec.rangeMode, visibilityRecurrence = visSpec.recurrence
                 ))
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },

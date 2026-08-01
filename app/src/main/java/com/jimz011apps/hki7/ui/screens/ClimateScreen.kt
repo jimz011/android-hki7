@@ -3833,6 +3833,14 @@ fun ClimateCardWidgetSettingsDialog(
     var showPicker by remember { mutableStateOf(false) }
     var pickingEntities by remember { mutableStateOf(false) }
     var settingsPage by remember(widget) { mutableStateOf("data") }
+    var visSpec by remember(widget) {
+        mutableStateOf(
+            com.jimz011apps.hki7.ui.components.VisibilitySpec(
+                widget.isHidden, widget.visibilityStart, widget.visibilityEnd,
+                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" }
+            )
+        )
+    }
     if (showPicker) {
         ClimateCardPickerDialog(
             multiSelect = false, preselected = listOf(cardKey), title = stringResource(R.string.ui_select_climate_card_18f3b6e),
@@ -3866,7 +3874,8 @@ fun ClimateCardWidgetSettingsDialog(
                 com.jimz011apps.hki7.ui.components.SettingsTabRow(
                     tabs = listOf(
                         "data" to stringResource(R.string.cr_card_and_data),
-                        "appearance" to stringResource(R.string.cr_appearance)
+                        "appearance" to stringResource(R.string.cr_appearance),
+                        "visibility" to stringResource(R.string.ui_visibility_7d9ff4f)
                     ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
@@ -3903,6 +3912,10 @@ fun ClimateCardWidgetSettingsDialog(
                         FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text(stringResource(R.string.ui_square_82810cb)) })
                     }
                 }
+                if (settingsPage == "visibility") {
+                    com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
+                    com.jimz011apps.hki7.ui.components.VisibilityEditor(visSpec) { visSpec = it }
+                }
                 }
             }
         },
@@ -3911,7 +3924,9 @@ fun ClimateCardWidgetSettingsDialog(
                 onSave(widget.copy(
                     cardKey = cardKey, title = title.ifBlank { null }, width = width,
                     cornerRadius = radius, entityIds = entityIds,
-                    isSquare = isSquare && cardKey == "dial"
+                    isSquare = isSquare && cardKey == "dial",
+                    isHidden = visSpec.hidden, visibilityStart = visSpec.start, visibilityEnd = visSpec.end,
+                    visibilityRangeMode = visSpec.rangeMode, visibilityRecurrence = visSpec.recurrence
                 ))
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
@@ -3936,6 +3951,14 @@ fun ClimateStackSettingsDialog(
     var showPicker by remember { mutableStateOf(false) }
     var pickingEntities by remember { mutableStateOf(false) }
     var settingsPage by remember(stack) { mutableStateOf("cards") }
+    var visSpec by remember(stack) {
+        mutableStateOf(
+            com.jimz011apps.hki7.ui.components.VisibilitySpec(
+                stack.isHidden, stack.visibilityStart, stack.visibilityEnd,
+                stack.visibilityRangeMode.ifBlank { "show" }, stack.visibilityRecurrence.ifBlank { "none" }
+            )
+        )
+    }
     val selectedCardNames = cardKeys.map { key ->
         climateCardCatalog.find { it.key == key }
             ?.let { stringResource(it.labelRes) }
@@ -3974,7 +3997,8 @@ fun ClimateStackSettingsDialog(
                 com.jimz011apps.hki7.ui.components.SettingsTabRow(
                     tabs = listOf(
                         "cards" to stringResource(R.string.cr_cards_and_data),
-                        "layout" to stringResource(R.string.cr_layout)
+                        "layout" to stringResource(R.string.cr_layout),
+                        "visibility" to stringResource(R.string.ui_visibility_7d9ff4f)
                     ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
@@ -4009,13 +4033,19 @@ fun ClimateStackSettingsDialog(
                 }
                 WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
                 }
+                if (settingsPage == "visibility") {
+                    com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
+                    com.jimz011apps.hki7.ui.components.VisibilityEditor(visSpec) { visSpec = it }
+                }
             }
         },
         confirmButton = {
             Button(onClick = {
                 onSave(stack.copy(
                     title = title.ifBlank { null }, width = width, cornerRadius = radius,
-                    cardKeys = cardKeys, collapsible = collapsible, entityIds = entityIds
+                    cardKeys = cardKeys, collapsible = collapsible, entityIds = entityIds,
+                    isHidden = visSpec.hidden, visibilityStart = visSpec.start, visibilityEnd = visSpec.end,
+                    visibilityRangeMode = visSpec.rangeMode, visibilityRecurrence = visSpec.recurrence
                 ))
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },

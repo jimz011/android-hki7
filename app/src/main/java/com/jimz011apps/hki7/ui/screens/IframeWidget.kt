@@ -136,6 +136,14 @@ fun IframeWidgetSettingsDialog(
     var width by remember(widget) { mutableStateOf(widget.width) }
     var aspect by remember(widget) { androidx.compose.runtime.mutableFloatStateOf(widget.aspectRatio) }
     var settingsPage by remember(widget) { mutableStateOf("content") }
+    var visSpec by remember(widget) {
+        mutableStateOf(
+            com.jimz011apps.hki7.ui.components.VisibilitySpec(
+                widget.isHidden, widget.visibilityStart, widget.visibilityEnd,
+                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" }
+            )
+        )
+    }
 
     AlertDialog(
         stableHeight = true,
@@ -151,7 +159,8 @@ fun IframeWidgetSettingsDialog(
                 com.jimz011apps.hki7.ui.components.SettingsTabRow(
                     tabs = listOf(
                         "content" to stringResource(R.string.widgets_tab_content),
-                        "appearance" to stringResource(R.string.widgets_tab_appearance)
+                        "appearance" to stringResource(R.string.widgets_tab_appearance),
+                        "visibility" to stringResource(R.string.ui_visibility_7d9ff4f)
                     ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
@@ -190,6 +199,10 @@ fun IframeWidgetSettingsDialog(
                         }
                     }
                 }
+                if (settingsPage == "visibility") {
+                    com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
+                    com.jimz011apps.hki7.ui.components.VisibilityEditor(visSpec) { visSpec = it }
+                }
             }
         },
         confirmButton = {
@@ -200,6 +213,11 @@ fun IframeWidgetSettingsDialog(
                         title = title.trim().ifBlank { null },
                         width = width,
                         aspectRatio = aspect,
+                        isHidden = visSpec.hidden,
+                        visibilityStart = visSpec.start,
+                        visibilityEnd = visSpec.end,
+                        visibilityRangeMode = visSpec.rangeMode,
+                        visibilityRecurrence = visSpec.recurrence,
                     )
                 )
             }) { Text(stringResource(R.string.ui_save_efc007a)) }

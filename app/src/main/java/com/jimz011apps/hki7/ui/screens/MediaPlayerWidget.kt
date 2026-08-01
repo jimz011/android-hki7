@@ -154,6 +154,14 @@ fun MediaPlayerWidgetSettingsDialog(
     var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
     var picking by remember { mutableStateOf(false) }
     var settingsPage by remember(widget) { mutableStateOf("content") }
+    var visSpec by remember(widget) {
+        mutableStateOf(
+            com.jimz011apps.hki7.ui.components.VisibilitySpec(
+                widget.isHidden, widget.visibilityStart, widget.visibilityEnd,
+                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" }
+            )
+        )
+    }
     if (picking) {
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter { it.entity_id.startsWith("media_player.") },
@@ -180,7 +188,8 @@ fun MediaPlayerWidgetSettingsDialog(
                 com.jimz011apps.hki7.ui.components.SettingsTabRow(
                     tabs = listOf(
                         "content" to stringResource(R.string.widgets_tab_content),
-                        "appearance" to stringResource(R.string.widgets_tab_appearance)
+                        "appearance" to stringResource(R.string.widgets_tab_appearance),
+                        "visibility" to stringResource(R.string.ui_visibility_7d9ff4f)
                     ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
@@ -212,11 +221,19 @@ fun MediaPlayerWidgetSettingsDialog(
                 }
                 WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
                 }
+                if (settingsPage == "visibility") {
+                    com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
+                    com.jimz011apps.hki7.ui.components.VisibilityEditor(visSpec) { visSpec = it }
+                }
             }
         },
         confirmButton = {
             Button(onClick = {
-                onSave(widget.copy(entityId = entityId, title = title.ifBlank { null }, width = width, isSquare = square, cornerRadius = radius, backgroundUrl = backgroundUrl))
+                onSave(widget.copy(
+                    entityId = entityId, title = title.ifBlank { null }, width = width, isSquare = square, cornerRadius = radius, backgroundUrl = backgroundUrl,
+                    isHidden = visSpec.hidden, visibilityStart = visSpec.start, visibilityEnd = visSpec.end,
+                    visibilityRangeMode = visSpec.rangeMode, visibilityRecurrence = visSpec.recurrence
+                ))
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }

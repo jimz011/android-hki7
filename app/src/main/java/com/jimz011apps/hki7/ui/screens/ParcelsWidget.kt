@@ -1350,6 +1350,14 @@ fun ParcelsWidgetSettingsDialog(
     var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
     var picking by remember { mutableStateOf(false) }
     var settingsPage by remember(widget) { mutableStateOf("accounts") }
+    var visSpec by remember(widget) {
+        mutableStateOf(
+            com.jimz011apps.hki7.ui.components.VisibilitySpec(
+                widget.isHidden, widget.visibilityStart, widget.visibilityEnd,
+                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" }
+            )
+        )
+    }
     val defaultTitle = stringResource(R.string.parcel_title)
     val hasUnresolvedDevices = deviceIds.any { id -> devices.none { it.id == id } }
     LaunchedEffect(deviceIds, hasUnresolvedDevices) {
@@ -1383,7 +1391,8 @@ fun ParcelsWidgetSettingsDialog(
                 tabs = listOf(
                     "accounts" to stringResource(R.string.parcel_settings_accounts),
                     "organization" to stringResource(R.string.parcel_settings_organization),
-                    "appearance" to stringResource(R.string.parcel_settings_appearance)
+                    "appearance" to stringResource(R.string.parcel_settings_appearance),
+                    "visibility" to stringResource(R.string.ui_visibility_7d9ff4f)
                 ),
                 selected = settingsPage,
                 onSelect = { settingsPage = it }
@@ -1451,7 +1460,16 @@ fun ParcelsWidgetSettingsDialog(
             }
             WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
             }
+            if (settingsPage == "visibility") {
+                com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
+                com.jimz011apps.hki7.ui.components.VisibilityEditor(visSpec) { visSpec = it }
+            }
         }
-    }, confirmButton = { Button(onClick = { onSave(widget.copy(deviceIds = deviceIds, carrierImageUrls = imageUrls, carrierNames = carrierNames, aggregateCarriers = aggregateCarriers, title = title.ifBlank { defaultTitle }, width = width, isSquare = square, cornerRadius = radius, backgroundUrl = backgroundUrl)) }) { Text(stringResource(R.string.ui_save_efc007a)) } },
+    }, confirmButton = { Button(onClick = { onSave(widget.copy(
+        deviceIds = deviceIds, carrierImageUrls = imageUrls, carrierNames = carrierNames, aggregateCarriers = aggregateCarriers,
+        title = title.ifBlank { defaultTitle }, width = width, isSquare = square, cornerRadius = radius, backgroundUrl = backgroundUrl,
+        isHidden = visSpec.hidden, visibilityStart = visSpec.start, visibilityEnd = visSpec.end,
+        visibilityRangeMode = visSpec.rangeMode, visibilityRecurrence = visSpec.recurrence
+    )) }) { Text(stringResource(R.string.ui_save_efc007a)) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } })
 }

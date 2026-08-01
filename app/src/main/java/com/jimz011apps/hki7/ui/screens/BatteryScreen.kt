@@ -1484,6 +1484,14 @@ fun BatteryCardWidgetSettingsDialog(
     var width by remember(widget) { mutableStateOf(widget.width) }
     var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
     var settingsPage by remember(widget) { mutableStateOf("rules") }
+    var visSpec by remember(widget) {
+        mutableStateOf(
+            com.jimz011apps.hki7.ui.components.VisibilitySpec(
+                widget.isHidden, widget.visibilityStart, widget.visibilityEnd,
+                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" }
+            )
+        )
+    }
     val defaultTitle = stringResource(R.string.widgets_battery_levels_title)
     AlertDialog(
         stableHeight = true,
@@ -1503,7 +1511,8 @@ fun BatteryCardWidgetSettingsDialog(
                 com.jimz011apps.hki7.ui.components.SettingsTabRow(
                     tabs = listOf(
                         "rules" to stringResource(R.string.widgets_battery_rules),
-                        "appearance" to stringResource(R.string.widgets_tab_appearance)
+                        "appearance" to stringResource(R.string.widgets_tab_appearance),
+                        "visibility" to stringResource(R.string.ui_visibility_7d9ff4f)
                     ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
@@ -1527,6 +1536,10 @@ fun BatteryCardWidgetSettingsDialog(
                 WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
                 WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
                 }
+                if (settingsPage == "visibility") {
+                    com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
+                    com.jimz011apps.hki7.ui.components.VisibilityEditor(visSpec) { visSpec = it }
+                }
             }
         },
         confirmButton = {
@@ -1538,7 +1551,12 @@ fun BatteryCardWidgetSettingsDialog(
                     isSquare = isSquare,
                     cornerRadius = radius,
                     width = width,
-                    backgroundUrl = backgroundUrl
+                    backgroundUrl = backgroundUrl,
+                    isHidden = visSpec.hidden,
+                    visibilityStart = visSpec.start,
+                    visibilityEnd = visSpec.end,
+                    visibilityRangeMode = visSpec.rangeMode,
+                    visibilityRecurrence = visSpec.recurrence
                 ))
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },

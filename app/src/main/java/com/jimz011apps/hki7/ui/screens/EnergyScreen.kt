@@ -4171,6 +4171,14 @@ fun EnergyCardWidgetSettingsDialog(
     var showPicker by remember { mutableStateOf(false) }
     var pickingRole by remember { mutableStateOf<EnergyRole?>(null) }
     var settingsPage by remember(widget) { mutableStateOf("data") }
+    var visSpec by remember(widget) {
+        mutableStateOf(
+            com.jimz011apps.hki7.ui.components.VisibilitySpec(
+                widget.isHidden, widget.visibilityStart, widget.visibilityEnd,
+                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" }
+            )
+        )
+    }
     if (showPicker) {
         EnergyCardPickerDialog(
             multiSelect = false, preselected = listOf(cardKey), title = stringResource(R.string.ui_select_energy_card_9b5bf0c),
@@ -4223,7 +4231,8 @@ fun EnergyCardWidgetSettingsDialog(
                 com.jimz011apps.hki7.ui.components.SettingsTabRow(
                     tabs = listOf(
                         "data" to stringResource(R.string.energy_extra_card_and_data),
-                        "appearance" to stringResource(R.string.widgets_tab_appearance)
+                        "appearance" to stringResource(R.string.widgets_tab_appearance),
+                        "visibility" to stringResource(R.string.ui_visibility_7d9ff4f)
                     ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
@@ -4257,13 +4266,19 @@ fun EnergyCardWidgetSettingsDialog(
                     label = { Text(stringResource(R.string.ui_title_optional_932fc13)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 com.jimz011apps.hki7.ui.components.WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
                 }
+                if (settingsPage == "visibility") {
+                    com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
+                    com.jimz011apps.hki7.ui.components.VisibilityEditor(visSpec) { visSpec = it }
+                }
             }
         },
         confirmButton = {
             Button(onClick = {
                 onSave(widget.copy(
                     cardKey = cardKey, title = title.ifBlank { null }, width = width,
-                    cornerRadius = radius, energyConfig = override
+                    cornerRadius = radius, energyConfig = override,
+                    isHidden = visSpec.hidden, visibilityStart = visSpec.start, visibilityEnd = visSpec.end,
+                    visibilityRangeMode = visSpec.rangeMode, visibilityRecurrence = visSpec.recurrence
                 ))
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
@@ -4290,6 +4305,14 @@ fun EnergyStackSettingsDialog(
     var showPicker by remember { mutableStateOf(false) }
     var pickingRole by remember { mutableStateOf<EnergyRole?>(null) }
     var settingsPage by remember(stack) { mutableStateOf("cards") }
+    var visSpec by remember(stack) {
+        mutableStateOf(
+            com.jimz011apps.hki7.ui.components.VisibilitySpec(
+                stack.isHidden, stack.visibilityStart, stack.visibilityEnd,
+                stack.visibilityRangeMode.ifBlank { "show" }, stack.visibilityRecurrence.ifBlank { "none" }
+            )
+        )
+    }
     val cardLabels = energyCardCatalog
         .map { it.key to stringResource(it.labelRes) }
         .toMap()
@@ -4345,7 +4368,8 @@ fun EnergyStackSettingsDialog(
                 com.jimz011apps.hki7.ui.components.SettingsTabRow(
                     tabs = listOf(
                         "cards" to stringResource(R.string.energy_extra_cards_and_data),
-                        "layout" to stringResource(R.string.widgets_tab_layout)
+                        "layout" to stringResource(R.string.widgets_tab_layout),
+                        "visibility" to stringResource(R.string.ui_visibility_7d9ff4f)
                     ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
@@ -4383,13 +4407,19 @@ fun EnergyStackSettingsDialog(
                 }
                 com.jimz011apps.hki7.ui.components.WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
                 }
+                if (settingsPage == "visibility") {
+                    com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
+                    com.jimz011apps.hki7.ui.components.VisibilityEditor(visSpec) { visSpec = it }
+                }
             }
         },
         confirmButton = {
             Button(onClick = {
                 onSave(stack.copy(
                     title = title.ifBlank { null }, width = width, cornerRadius = radius,
-                    cardKeys = cardKeys, collapsible = collapsible, energyConfig = override
+                    cardKeys = cardKeys, collapsible = collapsible, energyConfig = override,
+                    isHidden = visSpec.hidden, visibilityStart = visSpec.start, visibilityEnd = visSpec.end,
+                    visibilityRangeMode = visSpec.rangeMode, visibilityRecurrence = visSpec.recurrence
                 ))
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
