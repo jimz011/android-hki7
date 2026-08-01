@@ -70,3 +70,12 @@ fun HKIBadge.hasVisibilityRule(): Boolean =
 
 fun isBadgeVisibleNow(badge: HKIBadge): Boolean =
     isVisibleAt(badge.hidden, badge.visibilityStart, badge.visibilityEnd, badge.visibilityRangeMode, badge.visibilityRecurrence, LocalDateTime.now())
+
+/** True when [widget] has any visibility restriction (a plain hide or a scheduled window). */
+fun HKIRoomWidget.hasVisibilityRule(): Boolean =
+    isHidden || !visibilityStart.isNullOrBlank() || !visibilityEnd.isNullOrBlank()
+
+fun isWidgetVisibleAt(widget: HKIRoomWidget, now: LocalDateTime): Boolean =
+    isVisibleAt(widget.isHidden, widget.visibilityStart, widget.visibilityEnd, widget.visibilityRangeMode, widget.visibilityRecurrence, now)
+
+fun isWidgetVisibleNow(widget: HKIRoomWidget): Boolean = isWidgetVisibleAt(widget, LocalDateTime.now())

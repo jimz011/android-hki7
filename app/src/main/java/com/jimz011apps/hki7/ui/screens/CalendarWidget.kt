@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import com.jimz011apps.hki7.data.HACalendarEvent
+import com.jimz011apps.hki7.data.isWidgetVisibleNow
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HKICalendarWidget
 import com.jimz011apps.hki7.ui.MainViewModel
@@ -147,7 +148,7 @@ fun CalendarWidgetItem(
     onDelete: () -> Unit,
     onSettings: () -> Unit
 ) {
-    if (widget.isHidden && !isEditMode) return
+    if (!isWidgetVisibleNow(widget) && !isEditMode) return
     var showFullDialog by remember(widget.id) { mutableStateOf(false) }
     val compact = widget.width == "half"
     Box(modifier = Modifier.fillMaxWidth()) {

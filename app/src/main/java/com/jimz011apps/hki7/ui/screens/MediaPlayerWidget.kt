@@ -43,6 +43,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.isWidgetVisibleNow
 import com.jimz011apps.hki7.data.HKIMediaPlayerWidget
 import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.ui.components.AdvancedEntitySearchDialog
@@ -68,7 +69,7 @@ fun MediaPlayerWidgetItem(
     onDelete: () -> Unit,
     onSettings: () -> Unit
 ) {
-    if (widget.isHidden && !isEditMode) return
+    if (!isWidgetVisibleNow(widget) && !isEditMode) return
     val appColors = LocalHKIAppColors.current
     val entityFlow = remember(viewModel, widget.entityId) {
         viewModel.entitiesMatching("id:${widget.entityId}") { it.entity_id == widget.entityId }

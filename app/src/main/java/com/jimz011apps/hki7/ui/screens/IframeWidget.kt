@@ -35,6 +35,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.jimz011apps.hki7.data.HKIIframeWidget
+import com.jimz011apps.hki7.data.isWidgetVisibleNow
 import com.jimz011apps.hki7.ui.components.EditRemoveBadge
 import com.jimz011apps.hki7.ui.components.EditSettingsButton
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
@@ -57,7 +58,7 @@ fun IframeWidgetItem(
     onDelete: () -> Unit,
     onSettings: () -> Unit,
 ) {
-    if (widget.isHidden && !isEditMode) return
+    if (!isWidgetVisibleNow(widget) && !isEditMode) return
     val appColors = LocalHKIAppColors.current
     val url = remember(widget.url) { normalizeUrl(widget.url) }
     Box {

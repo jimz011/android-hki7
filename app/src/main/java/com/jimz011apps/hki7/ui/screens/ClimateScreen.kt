@@ -52,6 +52,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.isWidgetVisibleNow
 import com.jimz011apps.hki7.data.HAEntityRegistryEntry
 import com.jimz011apps.hki7.data.HAServiceCall
 import com.jimz011apps.hki7.data.HKIClimateCardWidget
@@ -3583,7 +3584,7 @@ fun ClimateCardWidgetItem(
     onDelete: () -> Unit,
     onSettings: () -> Unit
 ) {
-    if (widget.isHidden && !isEditMode) return
+    if (!isWidgetVisibleNow(widget) && !isEditMode) return
     val headerColor = LocalHKIAppColors.current.onMuted
     Box(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -3621,7 +3622,7 @@ fun ClimateStackWidgetItem(
     onDelete: () -> Unit,
     onSettings: () -> Unit
 ) {
-    if (stack.isHidden && !isEditMode) return
+    if (!isWidgetVisibleNow(stack) && !isEditMode) return
     val appColors = LocalHKIAppColors.current
     val collapsed = stack.collapsible && (stack.isCollapsed ?: stack.defaultCollapsed)
     Box(modifier = Modifier.fillMaxWidth()) {

@@ -625,7 +625,7 @@ fun ParcelsWidgetItem(
     onDelete: () -> Unit,
     onSettings: () -> Unit
 ) {
-    if (widget.isHidden && !isEditMode) return
+    if (!isWidgetVisibleNow(widget) && !isEditMode) return
     val appColors = LocalHKIAppColors.current
     val entities by viewModel.entities.collectAsState()
     val registry by viewModel.entityRegistry.collectAsState()

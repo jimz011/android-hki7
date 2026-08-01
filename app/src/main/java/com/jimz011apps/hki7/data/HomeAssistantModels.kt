@@ -846,6 +846,13 @@ data class HKIEnergyConfig(
 sealed class HKIRoomWidget {
     abstract val id: String
     abstract val width: String
+    /** Whole-widget visibility: the same hide/schedule/recurrence rule buttons and badges use (see
+     * [HKIButtonConfig.hidden] and friends, evaluated by [isVisibleAt]/[isWidgetVisibleNow]). */
+    abstract val isHidden: Boolean
+    abstract val visibilityStart: String?
+    abstract val visibilityEnd: String?
+    abstract val visibilityRangeMode: String
+    abstract val visibilityRecurrence: String
 }
 
 @Serializable
@@ -862,7 +869,11 @@ data class HKIButtonStack(
     val showName: Boolean = true,
     val isSquare: Boolean = true,
     val cornerRadius: Int = 28,
-    val isHidden: Boolean = false,
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none",
     val collapsible: Boolean = true,
     val defaultCollapsed: Boolean = false,
     val isCollapsed: Boolean? = null,
@@ -894,7 +905,11 @@ data class HKISwipingStack(
     /** Optional Material Design Icon slug displayed beside the heading. */
     val icon: String? = null,
     val widgets: List<HKIRoomWidget> = emptyList(),
-    val isHidden: Boolean = false,
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none",
     val isSquare: Boolean = false,
     val cornerRadius: Int = 28,
     val collapsible: Boolean = true,
@@ -920,7 +935,11 @@ data class HKIEmptyStack(
     val showBadge: Boolean = true,
     val isSquare: Boolean = true,
     val cornerRadius: Int = 28,
-    val isHidden: Boolean = false,
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none",
     val collapsible: Boolean = true,
     val defaultCollapsed: Boolean = false,
     val isCollapsed: Boolean? = null
@@ -935,7 +954,11 @@ data class HKISingleEntityWidget(
     val kind: String = "button",       // "button" | "camera" | "vacuum"
     val isSquare: Boolean = kind != "camera",
     val cornerRadius: Int = 28,
-    val isHidden: Boolean = false,
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none",
     val cameraAspectRatio: Float = 16f / 9f,
     /** Empty preserves the legacy isSquare behavior; otherwise "standard", "square", or "tile". */
     val buttonStyle: String = "",
@@ -1027,7 +1050,12 @@ data class HKISubtitleWidget(
     override val id: String,
     override val width: String = "full",
     val text: String,
-    val icon: String? = null
+    val icon: String? = null,
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none"
 ) : HKIRoomWidget()
 
 /** One card from the Energy view, embeddable on any page. cardKey selects the card (see
@@ -1042,7 +1070,11 @@ data class HKIEnergyCardWidget(
     val icon: String? = null,
     val cornerRadius: Int = 28,
     val backgroundUrl: String? = null,
-    val isHidden: Boolean = false,
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none",
     /** Per-card entity bindings; null inherits the Energy view's settings. */
     val energyConfig: HKIEnergyConfig? = null
 ) : HKIRoomWidget()
@@ -1057,7 +1089,11 @@ data class HKIEnergyStack(
     val icon: String? = null,
     val cardKeys: List<String> = emptyList(),
     val cornerRadius: Int = 28,
-    val isHidden: Boolean = false,
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none",
     val collapsible: Boolean = true,
     val defaultCollapsed: Boolean = false,
     val isCollapsed: Boolean? = null,
@@ -1078,7 +1114,11 @@ data class HKIClimateCardWidget(
     val cornerRadius: Int = 28,
     val isSquare: Boolean = false,
     val backgroundUrl: String? = null,
-    val isHidden: Boolean = false,
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none",
     /** Per-card entities; empty inherits the Climate view's auto-discovered entities. */
     val entityIds: List<String> = emptyList()
 ) : HKIRoomWidget()
@@ -1093,7 +1133,11 @@ data class HKIClimateStack(
     val icon: String? = null,
     val cardKeys: List<String> = emptyList(),
     val cornerRadius: Int = 28,
-    val isHidden: Boolean = false,
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none",
     val collapsible: Boolean = true,
     val defaultCollapsed: Boolean = false,
     val isCollapsed: Boolean? = null,
@@ -1114,7 +1158,11 @@ data class HKIMediaPlayerWidget(
     val cornerRadius: Int = 28,
     /** Optional background image (URL or HA path); drawn behind the card content. */
     val backgroundUrl: String? = null,
-    val isHidden: Boolean = false
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none"
 ) : HKIRoomWidget()
 
 /** History graph for one or more (numeric) sensors, drawn as lines or bars. */
@@ -1133,7 +1181,11 @@ data class HKISensorGraphWidget(
     val isSquare: Boolean = false,
     val cornerRadius: Int = 28,
     val backgroundUrl: String? = null,
-    val isHidden: Boolean = false
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none"
 ) : HKIRoomWidget()
 
 /** A collapsible stack of sensor graphs, like the energy/climate stacks. */
@@ -1146,7 +1198,11 @@ data class HKISensorGraphStack(
     val icon: String? = null,
     val graphs: List<HKISensorGraphWidget> = emptyList(),
     val cornerRadius: Int = 28,
-    val isHidden: Boolean = false,
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none",
     val collapsible: Boolean = true,
     val defaultCollapsed: Boolean = false,
     val isCollapsed: Boolean? = null
@@ -1162,7 +1218,11 @@ data class HKIMarkdownWidget(
     val isSquare: Boolean = false,
     val cornerRadius: Int = 28,
     val backgroundUrl: String? = null,
-    val isHidden: Boolean = false
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none"
 ) : HKIRoomWidget()
 
 @Serializable
@@ -1176,7 +1236,11 @@ data class HKIIframeWidget(
     /** Widget height as an aspect ratio of its width, like the camera widget (1:1, 4:3, 16:9, tall). */
     val aspectRatio: Float = 16f / 9f,
     val cornerRadius: Int = 28,
-    val isHidden: Boolean = false
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none"
 ) : HKIRoomWidget()
 
 @Serializable
@@ -1190,7 +1254,12 @@ data class HKIWeatherWidget(
     val title: String? = null,
     val icon: String? = null,
     val cornerRadius: Int = 28,
-    val backgroundUrl: String? = null
+    val backgroundUrl: String? = null,
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none"
 ) : HKIRoomWidget()
 
 @Serializable
@@ -1205,7 +1274,11 @@ data class HKICalendarWidget(
     val icon: String? = "calendar-month",
     val cornerRadius: Int = 28,
     val backgroundUrl: String? = null,
-    val isHidden: Boolean = false
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none"
 ) : HKIRoomWidget()
 
 /** Waste collection widget (e.g. Afvalbeheer): waste-type sensors whose state/attributes hold the
@@ -1226,7 +1299,11 @@ data class HKIWasteCollectionWidget(
     val isSquare: Boolean = false,
     val cornerRadius: Int = 28,
     val backgroundUrl: String? = null,
-    val isHidden: Boolean = false
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none"
 ) : HKIRoomWidget()
 
 @Serializable
@@ -1241,7 +1318,11 @@ data class HKIBatteryCardWidget(
     val isSquare: Boolean = false,
     val cornerRadius: Int = 28,
     val backgroundUrl: String? = null,
-    val isHidden: Boolean = false
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none"
 ) : HKIRoomWidget()
 
 /** Carrier-agnostic parcel widget for PostNL, DHL NL, DPD and GLS integration devices. */
@@ -1262,7 +1343,11 @@ data class HKIParcelsWidget(
     val isSquare: Boolean = false,
     val cornerRadius: Int = 28,
     val backgroundUrl: String? = null,
-    val isHidden: Boolean = false
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none"
 ) : HKIRoomWidget()
 
 /** Identity of the current HA user, as reported by the `hki7/whoami` companion command. */

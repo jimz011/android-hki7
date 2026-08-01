@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.jimz011apps.hki7.data.HACalendarEvent
+import com.jimz011apps.hki7.data.isWidgetVisibleNow
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HKIWasteCollectionWidget
 import com.jimz011apps.hki7.ui.MainViewModel
@@ -222,7 +223,7 @@ fun WasteCollectionWidgetItem(
     onSettings: () -> Unit,
     onUpdate: (HKIWasteCollectionWidget) -> Unit
 ) {
-    if (widget.isHidden && !isEditMode) return
+    if (!isWidgetVisibleNow(widget) && !isEditMode) return
     val zone = ZoneId.systemDefault()
     val entityFlow = remember(viewModel, widget.entityIds, isEditMode) {
         if (isEditMode) viewModel.entitySnapshotFor(widget.entityIds) else viewModel.entitiesFor(widget.entityIds)

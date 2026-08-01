@@ -55,6 +55,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jimz011apps.hki7.data.HADeviceRegistryEntry
+import com.jimz011apps.hki7.data.isWidgetVisibleNow
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HAEntityRegistryEntry
 import com.jimz011apps.hki7.data.HKIBatteryCardWidget
@@ -554,7 +555,7 @@ fun BatteryCardWidgetItem(
     onDelete: () -> Unit,
     onSettings: () -> Unit
 ) {
-    if (widget.isHidden && !isEditMode) return
+    if (!isWidgetVisibleNow(widget) && !isEditMode) return
     val appColors = LocalHKIAppColors.current
     val currentUrl by viewModel.currentUrl.collectAsState()
     val pageConfigs by viewModel.pageConfigsMapping.collectAsState()

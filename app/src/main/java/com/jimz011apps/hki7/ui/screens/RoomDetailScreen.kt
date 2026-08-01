@@ -155,6 +155,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.isWidgetVisibleNow
 import com.jimz011apps.hki7.data.HAArea
 import com.jimz011apps.hki7.data.HAEntityRegistryEntry
 import com.jimz011apps.hki7.data.HADeviceRegistryEntry
@@ -4100,6 +4101,14 @@ fun StackSettingsDialog(
     var cameraAspect by remember(stack) { mutableFloatStateOf(stack.cameraAspectRatio) }
     var showIconPickerStack by remember { mutableStateOf(false) }
     var settingsPage by remember(stack) { mutableStateOf("identity") }
+    var visSpec by remember(stack) {
+        mutableStateOf(
+            com.jimz011apps.hki7.ui.components.VisibilitySpec(
+                stack.isHidden, stack.visibilityStart, stack.visibilityEnd,
+                stack.visibilityRangeMode.ifBlank { "show" }, stack.visibilityRecurrence.ifBlank { "none" }
+            )
+        )
+    }
     val adaptiveProfiles = rememberAdaptiveLightingProfiles(viewModel)
     val selectableAdaptiveProfiles = remember(stack.adaptiveLightingRoomScoped, stack.adaptiveLightingProfileIds, adaptiveProfiles) {
         if (stack.adaptiveLightingRoomScoped) {
@@ -4157,6 +4166,7 @@ fun StackSettingsDialog(
                         if (isAdaptiveLighting) add("profiles" to stringResource(R.string.cr_profiles))
                         add("layout" to stringResource(R.string.cr_layout))
                         if (!isAdaptiveLighting) add("behavior" to stringResource(R.string.cr_behavior))
+                        add("visibility" to stringResource(R.string.ui_visibility_7d9ff4f))
                     },
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
@@ -4298,6 +4308,10 @@ fun StackSettingsDialog(
                     }
                 }
                 }
+                if (settingsPage == "visibility") {
+                    SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
+                    com.jimz011apps.hki7.ui.components.VisibilityEditor(visSpec) { visSpec = it }
+                }
                 if (settingsPage == "layout" && stack.stackType == "camera") {
                     SettingsSubcategory(stringResource(R.string.ui_camera_display_20a9c82), stringResource(R.string.ui_aspect_ratio_used_by_every_stream_275bb52))
                     Text(stringResource(R.string.ui_camera_aspect_ratio_928bf09), style = MaterialTheme.typography.labelLarge)
@@ -4327,7 +4341,11 @@ fun StackSettingsDialog(
                             isSquare = if (stack.stackType == "weather") false else isSquare,
                             buttonStyle = if (stack.stackType in listOf("weather", "camera", "vacuum")) stack.buttonStyle else buttonStyle,
                             cornerRadius = cornerRadius,
-                            isHidden = if (isAdaptiveLighting) false else stack.isHidden,
+                            isHidden = if (isAdaptiveLighting) false else visSpec.hidden,
+                            visibilityStart = if (isAdaptiveLighting) null else visSpec.start,
+                            visibilityEnd = if (isAdaptiveLighting) null else visSpec.end,
+                            visibilityRangeMode = if (isAdaptiveLighting) "show" else visSpec.rangeMode,
+                            visibilityRecurrence = if (isAdaptiveLighting) "none" else visSpec.recurrence,
                             collapsible = collapsible,
                             defaultCollapsed = defaultCollapsed,
                             isCollapsed = defaultCollapsed,
@@ -4750,7 +4768,7 @@ fun ButtonStackItem(
     onReorderEntities: (Int, Int) -> Unit,
     onManageOrder: () -> Unit = {}
 ) {
-    if (stack.isHidden && stack.stackType != "adaptive_lighting" && !isEditMode) return
+    if (!isWidgetVisibleNow(stack) && stack.stackType != "adaptive_lighting" && !isEditMode) return
     if (stack.stackType == "adaptive_lighting") {
         AdaptiveLightingWidget(
             stack = stack,
@@ -5170,7 +5188,7 @@ fun SingleEntityWidgetItem(
     onSettingsClick: () -> Unit = {}
 ) {
     val appColors = LocalHKIAppColors.current
-    if (widget.isHidden && !isEditMode) return
+    if (!isWidgetVisibleNow(widget) && !isEditMode) return
     val dependencyIds = remember(widget.entityId, widget.config) {
         listOfNotNull(
             widget.entityId,
@@ -5348,7 +5366,7 @@ fun SwipingStackItem(
     content: @Composable (HKIRoomWidget) -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
-    if (stack.isHidden && !isEditMode) return
+    if (!isWidgetVisibleNow(stack) && !isEditMode) return
     // An unconfigured (childless) container only matters in edit mode; hide it entirely otherwise.
     if (stack.widgets.isEmpty() && !isEditMode) return
     val canCollapse = stack.collapsible
@@ -5670,7 +5688,7 @@ fun EmptyStackItem(
     content: @Composable (HKIRoomWidget, Modifier) -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
-    if (stack.isHidden && !isEditMode) return
+    if (!isWidgetVisibleNow(stack) && !isEditMode) return
     // An unconfigured (childless) container only matters in edit mode; hide it entirely otherwise.
     if (stack.widgets.isEmpty() && !isEditMode) return
     val canCollapse = stack.collapsible

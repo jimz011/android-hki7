@@ -53,6 +53,7 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.jimz011apps.hki7.data.HKIMarkdownWidget
+import com.jimz011apps.hki7.data.isWidgetVisibleNow
 import com.jimz011apps.hki7.ui.components.EditRemoveBadge
 import com.jimz011apps.hki7.ui.components.EditSettingsButton
 import com.jimz011apps.hki7.ui.components.WidgetWidthSelector
@@ -72,7 +73,7 @@ fun MarkdownWidgetItem(
     onSettings: () -> Unit,
     currentUrl: String = ""
 ) {
-    if (widget.isHidden && !isEditMode) return
+    if (!isWidgetVisibleNow(widget) && !isEditMode) return
     val appColors = LocalHKIAppColors.current
     Box {
         Surface(
