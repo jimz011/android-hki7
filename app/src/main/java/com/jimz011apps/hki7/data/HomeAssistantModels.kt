@@ -866,6 +866,8 @@ data class HKIEnergyConfig(
 @Serializable
 data class HKIVisibilityCondition(
     val type: String = VISIBILITY_TYPE_ENTITY,
+    /** Operator joining this block to the previous one. Null preserves the legacy global match mode. */
+    val connector: String? = null,
     /** Entity rule: passes while [entityId]'s state does (or, with [negate], doesn't) equal [state]. */
     val entityId: String? = null,
     val state: String? = null,
@@ -879,6 +881,8 @@ data class HKIVisibilityCondition(
 
 const val VISIBILITY_TYPE_ENTITY = "entity"
 const val VISIBILITY_TYPE_TIME = "time"
+const val VISIBILITY_CONNECTOR_AND = "and"
+const val VISIBILITY_CONNECTOR_OR = "or"
 /** Every block must pass. */
 const val VISIBILITY_MATCH_ALL = "all"
 /** At least one block must pass. */

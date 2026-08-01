@@ -593,7 +593,10 @@ fun HKIPage(
                                         if (headerTrailingContent != null) {
                                             Box(
                                                 modifier = Modifier
-                                                    .widthIn(max = 168.dp)
+                                                    // Three regular room-status pills need 171dp
+                                                    // (3 x 53dp plus two 6dp gaps). Keep a little
+                                                    // breathing room so the header does not wrap at two.
+                                                    .widthIn(max = 180.dp)
                                                     .padding(top = 4.dp),
                                                 contentAlignment = Alignment.TopEnd
                                             ) {

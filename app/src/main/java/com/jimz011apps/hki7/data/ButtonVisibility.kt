@@ -131,11 +131,24 @@ fun isVisibleAt(
         conditionEntityId, conditionState, conditionNegate,
     )
     if (blocks.isEmpty()) return true
-    return if (match == VISIBILITY_MATCH_ANY) {
-        blocks.any { isConditionMet(it, now, resolveEntityState) }
-    } else {
-        blocks.all { isConditionMet(it, now, resolveEntityState) }
+    val values = blocks.map { isConditionMet(it, now, resolveEntityState) }
+    // AND binds tighter than OR: each OR starts a new all-must-pass group.
+    var groupPasses = values.first()
+    var anyCompletedGroupPasses = false
+    blocks.indices.drop(1).forEach { index ->
+        val connector = blocks[index].connector ?: if (match == VISIBILITY_MATCH_ANY) {
+            VISIBILITY_CONNECTOR_OR
+        } else {
+            VISIBILITY_CONNECTOR_AND
+        }
+        if (connector == VISIBILITY_CONNECTOR_OR) {
+            anyCompletedGroupPasses = anyCompletedGroupPasses || groupPasses
+            groupPasses = values[index]
+        } else {
+            groupPasses = groupPasses && values[index]
+        }
     }
+    return anyCompletedGroupPasses || groupPasses
 }
 
 /** A sortable position within the repeat cycle for [recurrence]; higher fields drop out so the
@@ -162,38 +175,52 @@ fun HKIButtonConfig.hasVisibilityRule(): Boolean =
     hidden || visibilityConditions.isNotEmpty() || !visibilityStart.isNullOrBlank() ||
         !visibilityEnd.isNullOrBlank() || !visibilityConditionEntityId.isNullOrBlank()
 
-fun isButtonVisibleNow(config: HKIButtonConfig, resolveEntityState: ((String) -> String?)? = null): Boolean =
-    isButtonVisibleAt(config, LocalDateTime.now(), resolveEntityState)
+fun isButtonVisibleNow(
+    config: HKIButtonConfig,
+    resolveEntityState: ((String) -> String?)? = null,
+): Boolean = isButtonVisibleAt(config, LocalDateTime.now(), resolveEntityState)
 
 /** True when [this] has any visibility restriction (a hide, a schedule, or a condition). */
 fun HKIBadge.hasVisibilityRule(): Boolean =
     hidden || visibilityConditions.isNotEmpty() || !visibilityStart.isNullOrBlank() ||
         !visibilityEnd.isNullOrBlank() || !visibilityConditionEntityId.isNullOrBlank()
 
-fun isBadgeVisibleAt(badge: HKIBadge, now: LocalDateTime, resolveEntityState: ((String) -> String?)? = null): Boolean =
+fun isBadgeVisibleAt(
+    badge: HKIBadge,
+    now: LocalDateTime,
+    resolveEntityState: ((String) -> String?)? = null,
+): Boolean =
     isVisibleAt(
         badge.hidden, badge.visibilityStart, badge.visibilityEnd, badge.visibilityRangeMode, badge.visibilityRecurrence, now,
         badge.visibilityConditionEntityId, badge.visibilityConditionState, badge.visibilityConditionNegate, resolveEntityState,
         badge.visibilityConditions, badge.visibilityMatch,
     )
 
-fun isBadgeVisibleNow(badge: HKIBadge, resolveEntityState: ((String) -> String?)? = null): Boolean =
-    isBadgeVisibleAt(badge, LocalDateTime.now(), resolveEntityState)
+fun isBadgeVisibleNow(
+    badge: HKIBadge,
+    resolveEntityState: ((String) -> String?)? = null,
+): Boolean = isBadgeVisibleAt(badge, LocalDateTime.now(), resolveEntityState)
 
 /** True when [this] has any visibility restriction (a hide, a schedule, or a condition). */
 fun HKIRoomWidget.hasVisibilityRule(): Boolean =
     isHidden || visibilityConditions.isNotEmpty() || !visibilityStart.isNullOrBlank() ||
         !visibilityEnd.isNullOrBlank() || !visibilityConditionEntityId.isNullOrBlank()
 
-fun isWidgetVisibleAt(widget: HKIRoomWidget, now: LocalDateTime, resolveEntityState: ((String) -> String?)? = null): Boolean =
+fun isWidgetVisibleAt(
+    widget: HKIRoomWidget,
+    now: LocalDateTime,
+    resolveEntityState: ((String) -> String?)? = null,
+): Boolean =
     isVisibleAt(
         widget.isHidden, widget.visibilityStart, widget.visibilityEnd, widget.visibilityRangeMode, widget.visibilityRecurrence, now,
         widget.visibilityConditionEntityId, widget.visibilityConditionState, widget.visibilityConditionNegate, resolveEntityState,
         widget.visibilityConditions, widget.visibilityMatch,
     )
 
-fun isWidgetVisibleNow(widget: HKIRoomWidget, resolveEntityState: ((String) -> String?)? = null): Boolean =
-    isWidgetVisibleAt(widget, LocalDateTime.now(), resolveEntityState)
+fun isWidgetVisibleNow(
+    widget: HKIRoomWidget,
+    resolveEntityState: ((String) -> String?)? = null,
+): Boolean = isWidgetVisibleAt(widget, LocalDateTime.now(), resolveEntityState)
 
 /** Entity ids referenced by [this]'s visibility rules, so renderers can observe them. */
 fun HKIRoomWidget.visibilityConditionEntityIds(): List<String> =

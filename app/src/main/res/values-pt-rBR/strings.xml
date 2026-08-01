@@ -3218,14 +3218,15 @@
         <item quantity="other">Gráfico %1$d · %2$d sensores</item>
     </plurals>
     <string-array name="cr_whats_new_beta_10">
-        <item>As regras de visibilidade agora funcionam em todos os widgets e seus itens, com horários, condições de estado de entidades, várias regras E/OU e ocultação por usuário. Novas condições começam vazias para você escolher Hora ou Entidade.</item>
+        <item>As regras de visibilidade agora funcionam em todos os widgets e seus itens, com horários, condições de estado de entidades, ocultação por usuário e operadores E e OU combinados livremente no mesmo conjunto. Novas condições começam vazias para você escolher Hora ou Entidade.</item>
+        <item>Os selos de contagem do status dos cômodos agora mantêm uma largura estável para dois dígitos, e o cabeçalho acomoda três contadores por linha antes da quebra.</item>
         <item>A configuração de Energia reconhece sensores MQTT do SmartGateways e DSMR Reader. Escolher um dispositivo de origem volta a preencher os sensores separados. O aquecimento urbano ganhou configurações, bloco, aba de detalhes e estimativa do gás equivalente para leituras em J/GJ.</item>
         <item>As janelas do widget Calendário agora usam corretamente toda a altura disponível; o conteúdo não ocupa mais apenas metade nem fica cortado.</item>
         <item>A rotação da tela agora segue a rotação automática do dispositivo em vez de permanecer bloqueada no modo retrato.</item>
-        <item>O bloco Exterior em Clima aparece assim que um dispositivo meteorológico é vinculado, mesmo sem sensores próprios de temperatura, umidade ou pressão, e exibe gráficos dos atributos.</item>
-        <item>Os status de encomendas das transportadoras são exibidos como frases normais e uma janela de entrega no mesmo dia não repete mais a data.</item>
+        <item>O bloco Exterior em Clima aparece com um dispositivo meteorológico mesmo sem sensores próprios, inclui os atributos de temperatura, umidade e pressão no resumo e os exibe com as cores de sensor correspondentes.</item>
+        <item>Os códigos de status das encomendas aparecem como frases normais. Datas e horários seguem o idioma e o formato de 12/24 horas, entregas próximas usam dias da semana, o ano atual é omitido e a mesma data não é repetida.</item>
         <item>Corrigido o PostNL e o analisador de integração de encomendas atual, para que os envios recebidos voltem a exibir seus detalhes completos de rastreamento e status de entrega. O suporte a transportadoras também foi atualizado.</item>
-        <item>Adicionado um seletor de idioma no aplicativo com ampla cobertura de holandês, alemão, francês, espanhol, italiano e turco, além de uma grande revisão de textos em holandês.</item>
+        <item>O seletor de idioma do aplicativo agora oferece cobertura completa para todos os 13 idiomas compatíveis. Cada idioma mostra seu nome nativo com uma indicação em inglês abaixo.</item>
         <item>O status de reconexão agora exibe o erro de conexão real, facilitando muito o diagnóstico de transições entre Wi-Fi, dados móveis e VPN.</item>
     </string-array>
     <string-array name="cr_whats_new_beta_2">

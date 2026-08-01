@@ -331,14 +331,15 @@
     <string name="cr_quick_make_it_yours_instruction">Im Bearbeitungsmodus Räume, Etagen und Widgets hinzufügen oder neu anordnen. Tippe auf ein Element, um es einzurichten.</string>
 
     <string-array name="cr_whats_new_beta_10">
-        <item>Sichtbarkeitsregeln gelten jetzt für alle Widgets und einzelne Widget-Elemente – mit Zeitplänen, Entitätsstatus-Bedingungen, mehreren UND/ODER-Regeln und benutzerspezifischem Ausblenden. Neue Bedingungen starten leer, sodass du Zeit oder Entität selbst auswählst.</item>
+        <item>Sichtbarkeitsregeln gelten jetzt für alle Widgets und einzelne Widget-Elemente – mit Zeitplänen, Entitätsstatus-Bedingungen, benutzerspezifischem Ausblenden und frei gemischten UND- und ODER-Verknüpfungen im selben Regelsatz. Neue Bedingungen starten leer, sodass du Zeit oder Entität selbst auswählst.</item>
+        <item>Raumstatus-Zähler behalten jetzt eine einheitliche Breite für zwei Ziffern, und in der Kopfzeile passen drei Zähler in eine Reihe, bevor sie umbrechen.</item>
         <item>Die Energieeinrichtung erkennt jetzt MQTT-Sensornamen von SmartGateways und DSMR Reader. Die Auswahl eines Quellgeräts füllt die einzelnen Sensorrollen wieder aus. Fernwärme erhält eigene Einstellungen, eine Quellenkachel, eine Detailseite und ein geschätztes Erdgasäquivalent für J/GJ-Werte.</item>
         <item>Kalender-Widget-Dialoge nutzen die verfügbare Höhe jetzt korrekt; Inhalte belegen nicht mehr nur die Hälfte und werden nicht mehr abgeschnitten.</item>
         <item>Die Bildschirmdrehung folgt jetzt der automatischen Drehung des Geräts, statt im Hochformat gesperrt zu bleiben.</item>
-        <item>Die Klima-Kachel „Außen“ erscheint jetzt, sobald ein Wettergerät verknüpft ist – auch ohne eigene Temperatur-, Feuchtigkeits- oder Drucksensoren – und zeichnet dessen Attribute auf.</item>
-        <item>Paketstatus der Versanddienste werden als normale Sätze angezeigt; bei einem Zustellfenster am selben Tag erscheint das Datum nur noch einmal.</item>
+        <item>Die Klima-Kachel „Außen“ erscheint mit einem verknüpften Wettergerät auch ohne eigene Sensoren, zählt dessen Temperatur-, Feuchtigkeits- und Druckattribute in der Übersicht und zeichnet sie in den passenden Sensorfarben auf.</item>
+        <item>Paketstatuscodes erscheinen jetzt als normale Sätze. Datum und Uhrzeit folgen Sprache und 12/24-Stunden-Einstellung, nahe Lieferungen verwenden Wochentage, das aktuelle Jahr entfällt und dasselbe Datum wird nicht wiederholt.</item>
         <item>PostNL und der Parser der aktuellen Paketintegration wurden repariert. Eingehende Sendungen zeigen wieder vollständige Trackingdaten und den richtigen Zustellstatus. Auch die Unterstützung der Versanddienste wurde aktualisiert.</item>
-        <item>Neu ist eine Sprachauswahl in der App mit breiter Unterstützung für Niederländisch, Deutsch, Französisch, Spanisch, Italienisch und Türkisch sowie einer gründlichen Überarbeitung der niederländischen Texte.</item>
+        <item>Die Sprachauswahl in der App deckt jetzt alle 13 unterstützten Sprachen vollständig ab. Jede Sprache zeigt ihren eigenen Namen mit einem englischen Hinweis darunter.</item>
         <item>Der Verbindungsstatus zeigt beim erneuten Verbinden jetzt den tatsächlichen Fehler. Wechsel zwischen WLAN, mobilen Daten und VPN lassen sich dadurch leichter diagnostizieren.</item>
     </string-array>
     <string-array name="cr_whats_new_beta_9">

@@ -7,15 +7,16 @@ Items marked with \* require the HKI 7 Cloud Component integration.
 
 ## 1.0.0-beta.10
 
-- Visibility rules now work across every widget and individual widget items, with one-off or recurring time schedules, entity-state conditions, multiple AND/OR blocks, and per-user hiding. The visibility editor has its own tab, and a new conditional setup starts empty so you can explicitly choose Time or Entity.
+- Visibility rules now work across every widget and individual widget items, with one-off or recurring time schedules, entity-state conditions, per-user hiding, and AND plus OR freely mixed in the same rule set. The visibility editor has its own tab, and a new conditional setup starts empty so you can explicitly choose Time or Entity.
+- Room-status counter badges now reserve a consistent two-digit width instead of resizing when a count passes nine. The Rooms and individual-room headers also fit three counters per row before wrapping.
 - Energy setup now recognises SmartGateways and DSMR Reader MQTT naming, including consumption/production, delivered/returned, Dutch terminology, and alternate tariff spellings. Selecting a source device refills empty sensor roles while retaining existing overrides. City heating now has separate settings, a live source tile and detail tab, accepts J/kJ/MJ/GJ/Wh/kWh/MWh readings, and shows an estimated natural-gas equivalent based on 35.17 MJ per m³.
 - Calendar widget dialogs now use the full available height, fixing agenda and settings content that previously occupied only part of the dialog or was cut off.
 - Fixed PostNL and the current parcel-integration parser, so incoming shipments once again show their complete tracking details and delivered state. Carrier support has also been brought up to date.
 - Added an in-app language selector with full coverage in 13 languages: Dutch, German, French, Spanish (plus Latin American Spanish), Italian, Turkish, Portuguese (plus Brazilian Portuguese), Japanese, Korean, and Chinese (Simplified and Traditional). Each language shows its native name with an English hint beneath it.
 - The reconnect status now shows the actual connection error, making Wi-Fi, mobile-data, and VPN handovers much easier to diagnose.
 - Screen rotation now follows your device's auto-rotate setting instead of staying locked to portrait.
-- The Climate "Outside" tile now shows up as soon as a weather device is linked, even without dedicated temperature/humidity/pressure sensors, and graphs its attributes.
-- Parcel status text from carriers (e.g. "PARCEL_ARRIVED_AT_LOCAL_DEPOT") is now shown as normal sentences, and a same-day delivery window shows its date once instead of twice.
+- The Climate "Outside" tile now shows up as soon as a weather device is linked, even without dedicated temperature/humidity/pressure sensors, counts those weather attributes in its summary, and graphs them with matching sensor colors.
+- Parcel status codes from carriers (e.g. "PARCEL_ARRIVED_AT_LOCAL_DEPOT") are now shown as normal sentences. Parcel dates and times follow the selected language and 12/24-hour preference, nearby deliveries use weekday names, the current year is omitted, and same-day windows no longer repeat the date.
 
 ## 1.0.0-beta.9
 

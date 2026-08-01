@@ -4818,7 +4818,10 @@ fun ButtonStackItem(
             .filter {
                 isEditMode || (
                     it !in parentalHiddenItemIds &&
-                        isButtonVisibleNow(stack.buttonConfigs[it] ?: HKIButtonConfig()) { id -> entityById[id]?.state }
+                        isButtonVisibleNow(
+                            stack.buttonConfigs[it] ?: HKIButtonConfig(),
+                            resolveEntityState = { id -> entityById[id]?.state }
+                        )
                     )
             }
             .mapNotNull(entityById::get)

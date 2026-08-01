@@ -151,7 +151,10 @@ fun HKIBadgeBar(
     // Hidden/scheduled/conditional/per-user-hidden badges are dropped outside edit mode; edit mode
     // keeps them so they can be restored.
     val renderBadges = if (isEditMode) badges else badges.filter {
-        it.id !in parentalHiddenItemIds && com.jimz011apps.hki7.data.isBadgeVisibleNow(it) { id -> badgeEntityById[id]?.state }
+        it.id !in parentalHiddenItemIds && com.jimz011apps.hki7.data.isBadgeVisibleNow(
+            it,
+            resolveEntityState = { id -> badgeEntityById[id]?.state }
+        )
     }
 
     // ── dialog state ──────────────────────────────────────────────────────────

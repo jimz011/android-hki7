@@ -337,14 +337,15 @@
 
     <!-- Version actuelle -->
     <string-array name="cr_whats_new_beta_10">
-        <item>Les règles de visibilité fonctionnent désormais pour tous les widgets et leurs éléments, avec horaires, conditions d’état d’entité, plusieurs règles ET/OU et masquage par utilisateur. Une nouvelle condition est vide afin de choisir soi-même Heure ou Entité.</item>
+        <item>Les règles de visibilité fonctionnent désormais pour tous les widgets et leurs éléments, avec horaires, conditions d’état d’entité, masquage par utilisateur et opérateurs ET et OU librement combinés dans un même ensemble. Une nouvelle condition est vide afin de choisir soi-même Heure ou Entité.</item>
+        <item>Les badges de compteur d’état des pièces conservent maintenant une largeur stable pour deux chiffres, et l’en-tête en place trois par ligne avant de revenir à la ligne.</item>
         <item>La configuration Énergie reconnaît maintenant les capteurs MQTT SmartGateways et DSMR Reader. Choisir un appareil source remplit de nouveau les capteurs séparés. Le chauffage urbain dispose de réglages, d’une tuile, d’un onglet détaillé et d’une estimation en équivalent gaz pour les valeurs J/GJ.</item>
         <item>Les fenêtres du widget Calendrier utilisent correctement toute la hauteur disponible : leur contenu n’occupe plus seulement la moitié et n’est plus coupé.</item>
         <item>La rotation de l’écran suit désormais le réglage de rotation automatique de l’appareil au lieu de rester bloquée en portrait.</item>
-        <item>La tuile Climat « Extérieur » apparaît dès qu’un appareil météo est associé, même sans capteurs dédiés de température, d’humidité ou de pression, et trace ses attributs.</item>
-        <item>Les états de colis des transporteurs sont affichés sous forme de phrases normales et une fenêtre de livraison le jour même n’affiche plus la date deux fois.</item>
+        <item>La tuile Climat « Extérieur » apparaît avec un appareil météo même sans capteurs dédiés, compte ses attributs de température, d’humidité et de pression dans le résumé et les trace avec les couleurs de capteur correspondantes.</item>
+        <item>Les codes d’état des colis deviennent des phrases normales. Dates et heures suivent la langue et le format 12/24 h, les livraisons proches utilisent les jours de la semaine, l’année en cours est omise et une même date n’est plus répétée.</item>
         <item>Correction de PostNL et de l’analyseur actuel des intégrations de colis : les envois entrants affichent de nouveau toutes les informations de suivi et leur état de livraison. La prise en charge des transporteurs a également été mise à jour.</item>
-        <item>Ajout d’un sélecteur de langue dans l’application, avec une large couverture en néerlandais, allemand, français, espagnol, italien et turc, ainsi qu’une révision approfondie des textes néerlandais.</item>
+        <item>Le sélecteur de langue intégré couvre désormais entièrement les 13 langues prises en charge. Chacune affiche son nom natif avec une indication en anglais dessous.</item>
         <item>L’état de reconnexion affiche désormais l’erreur de connexion réelle, ce qui facilite le diagnostic lors du passage entre Wi-Fi, données mobiles et VPN.</item>
     </string-array>
 

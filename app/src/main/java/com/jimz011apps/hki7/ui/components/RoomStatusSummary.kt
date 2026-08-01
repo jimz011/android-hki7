@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
@@ -130,8 +131,13 @@ private fun RoomStatusIndicatorPill(
             .background(backingColor, RoundedCornerShape(50))
             .border(BorderStroke(0.5.dp, contentColor.copy(alpha = 0.72f)), RoundedCornerShape(50))
             .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
+            // Reserve the two-digit footprint so a counter changing from 9 to 10 never resizes.
+            .width(if (compact) 45.dp else 53.dp)
             .padding(horizontal = horizontalPadding, vertical = if (compact) 3.dp else 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(if (compact) 3.dp else 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(
+            if (compact) 3.dp else 4.dp,
+            Alignment.CenterHorizontally
+        ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(

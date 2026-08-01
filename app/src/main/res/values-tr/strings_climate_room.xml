@@ -331,14 +331,15 @@
     <string name="cr_quick_make_it_yours_instruction">Düzenleme modunda odaları, katları ve widget’ları ekleyip sırala. Yapılandırmak için bir öğeye dokun.</string>
 
     <string-array name="cr_whats_new_beta_10">
-        <item>Görünürlük kuralları artık tüm widget’larda ve tek tek widget öğelerinde çalışıyor; zaman planları, varlık durumu koşulları, birden fazla VE/VEYA kuralı ve kullanıcıya göre gizleme destekleniyor. Yeni koşullar, Zaman veya Varlık seçebilmeniz için boş başlar.</item>
+        <item>Görünürlük kuralları artık tüm widget’larda ve tek tek widget öğelerinde çalışıyor; zaman planları, varlık durumu koşulları, kullanıcıya göre gizleme ve aynı kural kümesinde serbestçe karıştırılabilen VE ile VEYA bağlantıları destekleniyor. Yeni koşullar, Zaman veya Varlık seçebilmeniz için boş başlar.</item>
+        <item>Oda durumu sayaç rozetleri artık iki basamak için sabit genişliğini koruyor ve başlık, alt satıra geçmeden önce her satıra üç sayaç sığdırıyor.</item>
         <item>Enerji kurulumu artık SmartGateways ve DSMR Reader MQTT sensör adlarını tanıyor. Bir kaynak cihaz seçildiğinde ayrı sensör rolleri yeniden dolduruluyor. Bölgesel ısıtma için ayarlar, kaynak kutucuğu, ayrıntı sekmesi ve J/GJ değerlerinden tahmini doğal gaz eşdeğeri eklendi.</item>
         <item>Takvim widget pencereleri artık kullanılabilir yüksekliğin tamamını doğru kullanıyor; içerik yarım alanda kalmıyor veya kesilmiyor.</item>
         <item>Ekran döndürme artık dikey moda kilitlenmek yerine cihazın otomatik döndürme ayarını izliyor.</item>
-        <item>İklim Dış ortam kutucuğu, ayrı sıcaklık, nem veya basınç sensörleri olmasa bile bir hava durumu cihazı bağlanır bağlanmaz görünür ve özniteliklerini grafikte gösterir.</item>
-        <item>Taşıyıcıların paket durumları normal cümleler olarak gösteriliyor ve aynı gün teslimat aralığında tarih artık iki kez görünmüyor.</item>
+        <item>İklim Dış ortam kutucuğu, ayrı sensörler olmasa bile bir hava durumu cihazı bağlandığında görünür; sıcaklık, nem ve basınç özniteliklerini özete katar ve eşleşen sensör renkleriyle grafikte gösterir.</item>
+        <item>Paket durum kodları normal cümleler olarak gösterilir. Tarih ve saatler dil ile 12/24 saat tercihine uyar, yakın teslimatlarda hafta günleri kullanılır, geçerli yıl atlanır ve aynı tarih tekrarlanmaz.</item>
         <item>PostNL ve güncel paket entegrasyonu ayrıştırıcısı düzeltildi; gelen gönderiler artık eksiksiz takip ayrıntılarını ve teslim durumunu yeniden gösteriyor. Taşıyıcı desteği de güncellendi.</item>
-        <item>Uygulamaya Felemenkçe, Almanca, Fransızca, İspanyolca, İtalyanca ve Türkçe için geniş kapsamlı bir dil seçici eklendi; Felemenkçe metinler de baştan sona iyileştirildi.</item>
+        <item>Uygulama içi dil seçici artık desteklenen 13 dilin tamamını eksiksiz kapsıyor. Her dil kendi adını ve altında İngilizce açıklamasını gösteriyor.</item>
         <item>Yeniden bağlanma durumu artık gerçek bağlantı hatasını gösteriyor; böylece Wi-Fi, mobil veri ve VPN geçişlerindeki sorunları teşhis etmek çok daha kolay.</item>
     </string-array>
     <string-array name="cr_whats_new_beta_9">

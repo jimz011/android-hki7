@@ -40,6 +40,8 @@ import com.jimz011apps.hki7.data.HKIBadge
 import com.jimz011apps.hki7.data.HKIButtonConfig
 import com.jimz011apps.hki7.data.HKIRoomWidget
 import com.jimz011apps.hki7.data.HKIVisibilityCondition
+import com.jimz011apps.hki7.data.VISIBILITY_CONNECTOR_AND
+import com.jimz011apps.hki7.data.VISIBILITY_CONNECTOR_OR
 import com.jimz011apps.hki7.data.VISIBILITY_MATCH_ALL
 import com.jimz011apps.hki7.data.VISIBILITY_MATCH_ANY
 import com.jimz011apps.hki7.data.VISIBILITY_TYPE_ENTITY
@@ -214,6 +216,16 @@ fun VisibilityEditor(spec: VisibilitySpec, onChange: (VisibilitySpec) -> Unit) {
     fun addBlock(block: HKIVisibilityCondition) {
         onChange(spec.copy(hidden = false, conditions = spec.conditions + block))
     }
+    fun updateConnector(index: Int, connector: String) {
+        val legacyConnector = if (spec.match == VISIBILITY_MATCH_ANY) VISIBILITY_CONNECTOR_OR else VISIBILITY_CONNECTOR_AND
+        onChange(spec.copy(conditions = spec.conditions.mapIndexed { i, condition ->
+            when {
+                i == 0 -> condition.copy(connector = null)
+                i == index -> condition.copy(connector = connector)
+                else -> condition.copy(connector = condition.connector ?: legacyConnector)
+            }
+        }))
+    }
     fun newTimeBlock() = HKIVisibilityCondition(type = VISIBILITY_TYPE_TIME)
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -229,32 +241,21 @@ fun VisibilityEditor(spec: VisibilitySpec, onChange: (VisibilitySpec) -> Unit) {
         }
 
         if (mode == "conditional") {
-            // Only meaningful once two blocks can disagree.
-            if (spec.conditions.size > 1) {
-                Text(stringResource(R.string.dlg_vis_match), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(
-                        selected = spec.match != VISIBILITY_MATCH_ANY,
-                        onClick = { onChange(spec.copy(match = VISIBILITY_MATCH_ALL)) },
-                        label = { Text(stringResource(R.string.dlg_vis_match_all)) }
-                    )
-                    FilterChip(
-                        selected = spec.match == VISIBILITY_MATCH_ANY,
-                        onClick = { onChange(spec.copy(match = VISIBILITY_MATCH_ANY)) },
-                        label = { Text(stringResource(R.string.dlg_vis_match_any)) }
-                    )
-                }
-            }
-
             spec.conditions.forEachIndexed { index, block ->
                 if (index > 0) {
-                    Text(
-                        stringResource(
-                            if (spec.match == VISIBILITY_MATCH_ANY) R.string.dlg_vis_or else R.string.dlg_vis_and
-                        ),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = appColors.onMuted
-                    )
+                    val connector = block.connector ?: if (spec.match == VISIBILITY_MATCH_ANY) VISIBILITY_CONNECTOR_OR else VISIBILITY_CONNECTOR_AND
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = connector == VISIBILITY_CONNECTOR_AND,
+                            onClick = { updateConnector(index, VISIBILITY_CONNECTOR_AND) },
+                            label = { Text(stringResource(R.string.dlg_vis_and)) }
+                        )
+                        FilterChip(
+                            selected = connector == VISIBILITY_CONNECTOR_OR,
+                            onClick = { updateConnector(index, VISIBILITY_CONNECTOR_OR) },
+                            label = { Text(stringResource(R.string.dlg_vis_or)) }
+                        )
+                    }
                 }
                 Surface(shape = itemCornerShape(), color = appColors.subtleSurface, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
