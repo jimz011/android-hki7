@@ -340,7 +340,7 @@
         <item>Fixed PostNL and the current parcel-integration parser, so incoming shipments once again show their complete tracking details and delivered state. Carrier support has also been brought up to date.</item>
         <item>Added an in-app language selector with broad Dutch, German, French, Spanish, Italian, and Turkish coverage, plus a major wording pass for Dutch.</item>
         <item>The reconnect status now shows the actual connection error, making Wi-Fi, mobile-data, and VPN handovers much easier to diagnose.</item>
-        <item>Screen rotation now follows your device's auto-rotate setting instead of staying locked to portrait.</item>
+        <item>Screen rotation now follows your device’s auto-rotate setting instead of staying locked to portrait.</item>
     </string-array>
 
     <!-- Earlier releases are kept so a build from an older tag still has a valid resource. -->
