@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -294,10 +295,21 @@ private fun CalendarWidgetCard(
     ) {
       Box {
         WidgetBackground(widget.backgroundUrl, currentUrl)
+        // Agenda is a lazy list that scrolls itself, so in the full-height dialog it takes the
+        // remaining space rather than sitting inside the column's scroll — a lazy list in a
+        // scrolling parent gets unbounded height, which is what forced its fixed cap. Week and
+        // month are plain columns that can outgrow the dialog, so those keep the outer scroll.
+        val agendaFillsHeight = fillHeight && activeView != "week" && activeView != "month"
         Column(
             modifier = Modifier
                 .padding(16.dp)
-                .then(if (fillHeight) Modifier.verticalScroll(rememberScrollState()) else Modifier),
+                .then(
+                    when {
+                        !fillHeight -> Modifier
+                        agendaFillsHeight -> Modifier.fillMaxSize()
+                        else -> Modifier.verticalScroll(rememberScrollState())
+                    }
+                ),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             CalendarHeader(
@@ -341,7 +353,9 @@ private fun CalendarWidgetCard(
                         events = events,
                         colorsByEntity = colorsByEntity,
                         calendarNames = calendarNames,
-                        zone = zone
+                        zone = zone,
+                        modifier = if (agendaFillsHeight) Modifier.weight(1f) else Modifier,
+                        fillHeight = agendaFillsHeight
                     )
                 }
             }
@@ -795,7 +809,11 @@ private fun AgendaCalendarView(
     events: List<HACalendarEvent>,
     colorsByEntity: Map<String, Color>,
     calendarNames: Map<String, String>,
-    zone: ZoneId
+    zone: ZoneId,
+    modifier: Modifier = Modifier,
+    /** Fill the height the caller allots instead of the compact card's fixed cap, so the
+     *  full-screen dialog shows a long agenda over its whole height. */
+    fillHeight: Boolean = false
 ) {
     val visibleEvents = events.filter { event ->
         val day = event.startDate(zone)
@@ -807,8 +825,8 @@ private fun AgendaCalendarView(
     }
     val listState = rememberLazyListState()
     LazyColumn(
-        modifier = Modifier
-            .heightIn(max = 330.dp)
+        modifier = modifier
+            .then(if (fillHeight) Modifier.fillMaxHeight() else Modifier.heightIn(max = 330.dp))
             .fadingEdges(listState),
         state = listState,
         verticalArrangement = Arrangement.spacedBy(12.dp)
