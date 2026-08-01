@@ -2569,14 +2569,14 @@ private fun ClimateSensorDetailPage(
                 )
             )
             if (weatherEntity.humidity != null) add(
-                WeatherAttrSpec("humidity", R.string.cr_outside_humidity, "%", CoolBlue)
+                WeatherAttrSpec("humidity", R.string.cr_outside_humidity, "%", HumidBlue)
             )
             if (weatherEntity.pressure != null) add(
                 WeatherAttrSpec(
                     "pressure",
                     R.string.cr_outside_pressure,
                     weatherEntity.attributes?.get("pressure_unit")?.jsonPrimitive?.contentOrNull ?: "hPa",
-                    group.color
+                    PressPurple
                 )
             )
         }
