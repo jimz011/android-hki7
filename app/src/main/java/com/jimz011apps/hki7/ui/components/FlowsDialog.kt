@@ -1125,7 +1125,7 @@ private fun FlowTextField(label: String, value: String, onValueChange: (String) 
 }
 
 @Composable
-private fun StateSelectorField(
+internal fun StateSelectorField(
     label: String,
     selected: String,
     options: List<String>,

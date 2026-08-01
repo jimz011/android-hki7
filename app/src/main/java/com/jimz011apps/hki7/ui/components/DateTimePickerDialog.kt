@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
@@ -26,9 +27,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.staticCompositionLocalOf
+import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HKIButtonConfig
+import com.jimz011apps.hki7.data.suggestedAutomationStates
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
@@ -133,103 +138,192 @@ fun formatVisibilityBound(iso: String?): String {
 }
 
 /**
- * Inline hide/schedule editor embedded in a button's or badge's Appearance settings. Mode chips
- * (Always / Hidden / Scheduled); the scheduled mode exposes a visible/hidden window with optional
- * daily/weekly/monthly/yearly recurrence via the graphical [DateTimePickerDialog].
+ * Supplies the full entity catalog on demand to shared editors that embed an entity picker (see
+ * [VisibilityEditor]). Deliberately a lambda rather than the list itself: the value is read only
+ * when a picker actually opens, so providing it never recomposes the tree as entity states change.
+ */
+val LocalEntityCatalogProvider = staticCompositionLocalOf<() -> List<HAEntity>> { { emptyList() } }
+
+/**
+ * Inline visibility editor embedded in a button's, badge's, or widget's settings.
+ *
+ * Three mutually exclusive modes: Always, Hidden, or Conditional. Conditional holds two independent,
+ * individually toggleable rules — a time schedule and an entity-state match — which are ANDed, so an
+ * item shows only when every enabled rule passes. Both rules are optional; enabling neither is the
+ * same as Always.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun VisibilityEditor(spec: VisibilitySpec, onChange: (VisibilitySpec) -> Unit) {
     val appColors = LocalHKIAppColors.current
+    val hasSchedule = !spec.start.isNullOrBlank() || !spec.end.isNullOrBlank()
+    val hasCondition = !spec.conditionEntityId.isNullOrBlank()
     val mode = when {
-        !spec.start.isNullOrBlank() || !spec.end.isNullOrBlank() -> "scheduled"
         spec.hidden -> "hidden"
+        hasSchedule || hasCondition -> "conditional"
         else -> "always"
     }
     var pickingStart by remember { mutableStateOf(false) }
     var pickingEnd by remember { mutableStateOf(false) }
+    var pickingEntity by remember { mutableStateOf(false) }
+
+    val catalogProvider = LocalEntityCatalogProvider.current
+    // Snapshotted when the picker opens rather than observed, so the editor doesn't recompose on
+    // every unrelated Home Assistant state change while it is on screen.
+    var catalog by remember { mutableStateOf<List<HAEntity>>(emptyList()) }
+    val conditionEntity = catalog.firstOrNull { it.entity_id == spec.conditionEntityId }
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             FilterChip(selected = mode == "always", onClick = { onChange(VisibilitySpec()) }, label = { Text(stringResource(R.string.dlg_always)) })
             FilterChip(selected = mode == "hidden", onClick = { onChange(VisibilitySpec(hidden = true)) }, label = { Text(stringResource(R.string.dlg_hidden)) })
             FilterChip(
-                selected = mode == "scheduled",
-                onClick = { onChange(spec.copy(hidden = false, start = spec.start ?: LocalDateTime.now().withSecond(0).withNano(0).toString())) },
-                label = { Text(stringResource(R.string.dlg_scheduled)) }
+                selected = mode == "conditional",
+                // Start with the time rule enabled: it is the common case and gives the mode
+                // something visible to configure straight away.
+                onClick = {
+                    onChange(
+                        if (hasSchedule || hasCondition) spec.copy(hidden = false)
+                        else spec.copy(hidden = false, start = LocalDateTime.now().withSecond(0).withNano(0).toString())
+                    )
+                },
+                label = { Text(stringResource(R.string.dlg_vis_conditional)) }
             )
         }
-        if (mode == "scheduled") {
-            Text(stringResource(R.string.dlg_when), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(selected = spec.rangeMode == "show", onClick = { onChange(spec.copy(rangeMode = "show")) }, label = { Text(stringResource(R.string.dlg_visible_during)) })
-                FilterChip(selected = spec.rangeMode == "hide", onClick = { onChange(spec.copy(rangeMode = "hide")) }, label = { Text(stringResource(R.string.dlg_hidden_during)) })
-            }
-            Text(stringResource(R.string.dlg_repeat), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                listOf(
-                    "none" to stringResource(R.string.dlg_once),
-                    "daily" to stringResource(R.string.dlg_daily),
-                    "weekly" to stringResource(R.string.dlg_weekly),
-                    "monthly" to stringResource(R.string.dlg_monthly),
-                    "yearly" to stringResource(R.string.dlg_yearly),
-                ).forEach { (value, txt) ->
-                    FilterChip(selected = spec.recurrence == value, onClick = { onChange(spec.copy(recurrence = value)) }, label = { Text(txt) })
-                }
-            }
-            OutlinedButton(onClick = { pickingStart = true }, modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Default.Schedule, null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(stringResource(R.string.dlg_start, formatVisibilityBound(spec.start)), maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
-            OutlinedButton(onClick = { pickingEnd = true }, modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Default.Schedule, null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(stringResource(R.string.dlg_end, formatVisibilityBound(spec.end)), maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
+        if (mode == "conditional") {
             Text(
-                when (spec.recurrence) {
-                    "daily" -> stringResource(R.string.dlg_repeats_every_day_only_the_time_of_day_is)
-                    "weekly" -> stringResource(R.string.dlg_repeats_every_week_only_the_weekday_and_time_are)
-                    "monthly" -> stringResource(R.string.dlg_repeats_every_month_only_the_day_of_the_month)
-                    "yearly" -> stringResource(R.string.dlg_repeats_every_year_the_year_is_ignored_so_e)
-                    else -> stringResource(R.string.dlg_the_exact_dates_you_pick_leave_a_bound_as)
-                },
+                stringResource(R.string.dlg_vis_conditional_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = appColors.onMuted
             )
-        }
-        androidx.compose.material3.HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
-        Text(stringResource(R.string.dlg_condition), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
-        Text(
-            stringResource(R.string.dlg_condition_hint),
-            style = MaterialTheme.typography.bodySmall,
-            color = appColors.onMuted
-        )
-        OutlinedTextField(
-            value = spec.conditionEntityId.orEmpty(),
-            onValueChange = { onChange(spec.copy(conditionEntityId = it.ifBlank { null })) },
-            label = { Text(stringResource(R.string.dlg_condition_entity_id)) },
-            placeholder = { Text("light.living_room") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-        if (!spec.conditionEntityId.isNullOrBlank()) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(selected = !spec.conditionNegate, onClick = { onChange(spec.copy(conditionNegate = false)) }, label = { Text(stringResource(R.string.dlg_condition_is)) })
-                FilterChip(selected = spec.conditionNegate, onClick = { onChange(spec.copy(conditionNegate = true)) }, label = { Text(stringResource(R.string.dlg_condition_is_not)) })
+
+            // ── Rule 1: time schedule ─────────────────────────────────────────
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    stringResource(R.string.dlg_vis_time_schedule),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = appColors.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+                Switch(
+                    checked = hasSchedule,
+                    onCheckedChange = { on ->
+                        onChange(
+                            if (on) spec.copy(start = LocalDateTime.now().withSecond(0).withNano(0).toString())
+                            else spec.copy(start = null, end = null)
+                        )
+                    }
+                )
             }
-            OutlinedTextField(
-                value = spec.conditionState.orEmpty(),
-                onValueChange = { onChange(spec.copy(conditionState = it.ifBlank { null })) },
-                label = { Text(stringResource(R.string.dlg_condition_state)) },
-                placeholder = { Text("on") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (hasSchedule) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = spec.rangeMode == "show", onClick = { onChange(spec.copy(rangeMode = "show")) }, label = { Text(stringResource(R.string.dlg_visible_during)) })
+                    FilterChip(selected = spec.rangeMode == "hide", onClick = { onChange(spec.copy(rangeMode = "hide")) }, label = { Text(stringResource(R.string.dlg_hidden_during)) })
+                }
+                Text(stringResource(R.string.dlg_repeat), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    listOf(
+                        "none" to stringResource(R.string.dlg_once),
+                        "daily" to stringResource(R.string.dlg_daily),
+                        "weekly" to stringResource(R.string.dlg_weekly),
+                        "monthly" to stringResource(R.string.dlg_monthly),
+                        "yearly" to stringResource(R.string.dlg_yearly),
+                    ).forEach { (value, txt) ->
+                        FilterChip(selected = spec.recurrence == value, onClick = { onChange(spec.copy(recurrence = value)) }, label = { Text(txt) })
+                    }
+                }
+                OutlinedButton(onClick = { pickingStart = true }, modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.Default.Schedule, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.dlg_start, formatVisibilityBound(spec.start)), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+                OutlinedButton(onClick = { pickingEnd = true }, modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.Default.Schedule, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.dlg_end, formatVisibilityBound(spec.end)), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+                Text(
+                    when (spec.recurrence) {
+                        "daily" -> stringResource(R.string.dlg_repeats_every_day_only_the_time_of_day_is)
+                        "weekly" -> stringResource(R.string.dlg_repeats_every_week_only_the_weekday_and_time_are)
+                        "monthly" -> stringResource(R.string.dlg_repeats_every_month_only_the_day_of_the_month)
+                        "yearly" -> stringResource(R.string.dlg_repeats_every_year_the_year_is_ignored_so_e)
+                        else -> stringResource(R.string.dlg_the_exact_dates_you_pick_leave_a_bound_as)
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = appColors.onMuted
+                )
+            }
+
+            androidx.compose.material3.HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
+
+            // ── Rule 2: entity state ──────────────────────────────────────────
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    stringResource(R.string.dlg_vis_entity_state),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = appColors.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+                Switch(
+                    checked = hasCondition,
+                    onCheckedChange = { on ->
+                        if (on) {
+                            catalog = catalogProvider()
+                            pickingEntity = true
+                        } else {
+                            onChange(spec.copy(conditionEntityId = null, conditionState = null, conditionNegate = false))
+                        }
+                    }
+                )
+            }
+            if (hasCondition) {
+                OutlinedButton(
+                    onClick = { catalog = catalogProvider(); pickingEntity = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        conditionEntity?.friendlyName ?: spec.conditionEntityId.orEmpty(),
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Icon(Icons.Default.KeyboardArrowDown, null)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = !spec.conditionNegate, onClick = { onChange(spec.copy(conditionNegate = false)) }, label = { Text(stringResource(R.string.dlg_condition_is)) })
+                    FilterChip(selected = spec.conditionNegate, onClick = { onChange(spec.copy(conditionNegate = true)) }, label = { Text(stringResource(R.string.dlg_condition_is_not)) })
+                }
+                // Known states for the picked entity, with a "Custom state" escape hatch for values
+                // the catalog can't enumerate (numbers, integration-specific strings).
+                StateSelectorField(
+                    label = stringResource(R.string.dlg_condition_state),
+                    selected = spec.conditionState.orEmpty(),
+                    options = suggestedAutomationStates(conditionEntity),
+                    enabled = true,
+                    onSelected = { onChange(spec.copy(conditionState = it.ifBlank { null } )) }
+                )
+            }
         }
     }
 
+    if (pickingEntity) {
+        AdvancedEntitySearchDialog(
+            allEntities = catalog,
+            title = stringResource(R.string.uif_choose_entity),
+            singleSelect = true,
+            preselectedIds = setOfNotNull(spec.conditionEntityId),
+            onDismiss = { pickingEntity = false },
+            onEntitiesSelected = { ids ->
+                val picked = ids.firstOrNull()
+                // Switching entity clears a state that likely doesn't apply to the new one.
+                if (picked != null && picked != spec.conditionEntityId) {
+                    onChange(spec.copy(conditionEntityId = picked, conditionState = null))
+                }
+                pickingEntity = false
+            }
+        )
+    }
     if (pickingStart) {
         DateTimePickerDialog(
             initial = spec.start?.takeIf { it.isNotBlank() }?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() },

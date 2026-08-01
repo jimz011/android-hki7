@@ -3307,11 +3307,13 @@
     <string name="widgets_weather_title">Clima</string>
     <string name="widgets_yesterday">Ayer</string>
     <string name="dlg_condition">Condición</string>
-    <string name="dlg_condition_entity_id">ID de entidad (opcional)</string>
-    <string name="dlg_condition_hint">También oculte esto a menos que una entidad esté (o no esté) en un estado determinado, como una tarjeta condicional de Home Assistant. Combina con el horario anterior.</string>
     <string name="dlg_condition_is">Es</string>
     <string name="dlg_condition_is_not">no es</string>
     <string name="dlg_condition_state">Estado</string>
     <string name="ui_hidden_items_advanced_title">Elementos ocultos (avanzado)</string>
     <string name="ui_hidden_items_advanced_hint">Lista separada por comas de identificadores de entidades de botones o identificadores de insignias/widgets para ocultarlos específicamente a esta persona. La identificación de un botón es su identificación de entidad; La identificación de una insignia o widget se muestra en su propia configuración de Apariencia.</string>
+    <string name="dlg_vis_conditional">Condicional</string>
+    <string name="dlg_vis_conditional_hint">Muestre esto solo cuando se cumplan las reglas siguientes. Active un cronograma, un estado de entidad o ambos; cuando ambos están activados, ambos deben pasar.</string>
+    <string name="dlg_vis_entity_state">Estado de la entidad</string>
+    <string name="dlg_vis_time_schedule">Horario</string>
 </resources>

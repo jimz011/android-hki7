@@ -645,11 +645,13 @@
     <string name="dlg_choose_a_side_when_the_badge_bar_is_split">배지 바가 분할될 때의 방향 선택</string>
     <string name="dlg_choose_a_state">상태 선택</string>
     <string name="dlg_condition">상태</string>
-    <string name="dlg_condition_entity_id">엔터티 ID(선택사항)</string>
-    <string name="dlg_condition_hint">또한 홈어시스턴트 조건부 카드와 같이 엔터티가 특정 상태에 있거나 있지 않는 한 이를 숨깁니다. 위의 일정과 결합됩니다.</string>
     <string name="dlg_condition_is">~이다</string>
     <string name="dlg_condition_is_not">아니다</string>
     <string name="dlg_condition_state">상태</string>
+    <string name="dlg_vis_conditional">가정 어구</string>
+    <string name="dlg_vis_conditional_hint">아래 규칙이 통과되는 경우에만 표시됩니다. 시간 일정, 엔터티 상태 또는 둘 다를 켜십시오. 둘 다 켜져 있으면 둘 다 통과해야 합니다.</string>
+    <string name="dlg_vis_entity_state">엔터티 상태</string>
+    <string name="dlg_vis_time_schedule">시간표</string>
     <string name="dlg_choose_a_visual_home_assistant_block">시각적 Home Assistant 블록 선택</string>
     <string name="dlg_choose_action">작업 선택</string>
     <string name="dlg_choose_an_action">작업 선택</string>

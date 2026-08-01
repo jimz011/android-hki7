@@ -65,11 +65,13 @@
     <string name="core_greeting_evening">Guten Abend</string>
     <string name="core_greeting_night">Gute Nacht</string>
     <string name="dlg_condition">Zustand</string>
-    <string name="dlg_condition_entity_id">Entitäts-ID (optional)</string>
-    <string name="dlg_condition_hint">Blenden Sie dies auch aus, es sei denn, eine Entität befindet sich in einem bestimmten Zustand (oder nicht), wie z. B. eine bedingte Home Assistant-Karte. Kombinierbar mit dem obigen Zeitplan.</string>
     <string name="dlg_condition_is">Ist</string>
     <string name="dlg_condition_is_not">Ist nicht</string>
     <string name="dlg_condition_state">Zustand</string>
+    <string name="dlg_vis_conditional">Bedingt</string>
+    <string name="dlg_vis_conditional_hint">Zeigen Sie dies nur an, wenn die folgenden Regeln erfüllt sind. Aktivieren Sie einen Zeitplan, einen Entitätsstatus oder beides – wenn beide aktiviert sind, müssen beide bestehen.</string>
+    <string name="dlg_vis_entity_state">Entitätszustand</string>
+    <string name="dlg_vis_time_schedule">Zeitplan</string>
     <string name="ui_0f_s_788ca6f" formatted="false">%.0f %s</string>
     <string name="ui_1_advanced_shorthand_block_kept_unchanged_d4dcbd7">1 erweiterter Kurzschriftblock (unverändert beibehalten)</string>
     <string name="ui_1f_16b5d7d" formatted="false">%.1f</string>

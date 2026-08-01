@@ -65,11 +65,13 @@
     <string name="core_greeting_evening">Buonasera</string>
     <string name="core_greeting_night">Buonanotte</string>
     <string name="dlg_condition">Condizione</string>
-    <string name="dlg_condition_entity_id">ID entità (facoltativo)</string>
-    <string name="dlg_condition_hint">Nascondilo anche a meno che un\'entità non sia (o non sia) in un determinato stato, come una carta condizionale dell\'Assistente domestico. Si combina con il programma sopra.</string>
     <string name="dlg_condition_is">È</string>
     <string name="dlg_condition_is_not">Non lo è</string>
     <string name="dlg_condition_state">Stato</string>
+    <string name="dlg_vis_conditional">Condizionale</string>
+    <string name="dlg_vis_conditional_hint">Mostralo solo quando vengono rispettate le regole seguenti. Attiva una pianificazione temporale, uno stato dell\'entità o entrambi: quando entrambi sono attivi, devono passare entrambi.</string>
+    <string name="dlg_vis_entity_state">Stato entità</string>
+    <string name="dlg_vis_time_schedule">Orario</string>
     <string name="ui_0f_s_788ca6f" formatted="false">%.0f %s</string>
     <string name="ui_1_advanced_shorthand_block_kept_unchanged_d4dcbd7">1 blocco abbreviato avanzato (mantenuto invariato)</string>
     <string name="ui_1f_16b5d7d" formatted="false">%.1f</string>

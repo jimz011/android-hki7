@@ -298,11 +298,13 @@
     <string name="core_greeting_evening">Goedenavond</string>
     <string name="core_greeting_night">Goedenacht</string>
     <string name="dlg_condition">Voorwaarde</string>
-    <string name="dlg_condition_entity_id">Entiteits-ID (optioneel)</string>
-    <string name="dlg_condition_hint">Verberg dit ook tenzij een entiteit zich in een bepaalde staat bevindt (of niet bevindt), zoals een voorwaardelijke kaart van Home Assistant. Te combineren met bovenstaand schema.</string>
     <string name="dlg_condition_is">Is</string>
     <string name="dlg_condition_is_not">Is dat niet het geval?</string>
     <string name="dlg_condition_state">Status</string>
+    <string name="dlg_vis_conditional">Voorwaardelijk</string>
+    <string name="dlg_vis_conditional_hint">Laat dit pas zien als onderstaande regels gelden. Schakel een tijdschema, een entiteitsstatus of beide in: als beide zijn ingeschakeld, moeten beide passeren.</string>
+    <string name="dlg_vis_entity_state">Entiteitsstatus</string>
+    <string name="dlg_vis_time_schedule">Tijdschema</string>
     <string name="ui_0f_s_788ca6f" formatted="false">%.0f %s</string>
     <string name="ui_1_advanced_shorthand_block_kept_unchanged_d4dcbd7">1 geavanceerd stenoblok (ongewijzigd gehouden)</string>
     <string name="ui_1f_16b5d7d" formatted="false">%.1f</string>

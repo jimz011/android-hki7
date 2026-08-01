@@ -92,6 +92,7 @@ import com.jimz011apps.hki7.ui.HomeAssistantRestartPhase
 import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.data.HaParentalControls
 import com.jimz011apps.hki7.ui.components.IconEffectDefaults
+import com.jimz011apps.hki7.ui.components.LocalEntityCatalogProvider
 import com.jimz011apps.hki7.ui.components.LocalIconAnimationsEnabled
 import com.jimz011apps.hki7.ui.NavBarConfig
 import kotlinx.coroutines.flow.collectLatest
@@ -269,7 +270,11 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     else -> {
-                        MainApp(prefs, viewModel)
+                        CompositionLocalProvider(
+                            LocalEntityCatalogProvider provides { viewModel.entities.value }
+                        ) {
+                            MainApp(prefs, viewModel)
+                        }
                     }
                 }
                 }

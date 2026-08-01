@@ -65,11 +65,13 @@
     <string name="core_greeting_evening">Bonsoir</string>
     <string name="core_greeting_night">Bonne nuit</string>
     <string name="dlg_condition">Condition</string>
-    <string name="dlg_condition_entity_id">ID d\'entité (facultatif)</string>
-    <string name="dlg_condition_hint">Masquez également cela sauf si une entité est (ou n\'est pas) dans un état donné, comme une carte conditionnelle Home Assistant. Se combine avec l\'horaire ci-dessus.</string>
     <string name="dlg_condition_is">Est</string>
     <string name="dlg_condition_is_not">N\'est-ce pas</string>
     <string name="dlg_condition_state">État</string>
+    <string name="dlg_vis_conditional">Conditionnel</string>
+    <string name="dlg_vis_conditional_hint">Montrez-le uniquement lorsque les règles ci-dessous sont respectées. Activez un calendrier, un état d\'entité ou les deux : lorsque les deux sont activés, les deux doivent réussir.</string>
+    <string name="dlg_vis_entity_state">État de l’entité</string>
+    <string name="dlg_vis_time_schedule">Horaire</string>
     <string name="ui_0f_s_788ca6f" formatted="false">%.0f %s</string>
     <string name="ui_1_advanced_shorthand_block_kept_unchanged_d4dcbd7">1 bloc de sténographie avancé (conservé inchangé)</string>
     <string name="ui_1f_16b5d7d" formatted="false">%.1f</string>

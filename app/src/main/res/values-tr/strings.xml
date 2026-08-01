@@ -65,11 +65,13 @@
     <string name="core_greeting_evening">İyi akşamlar</string>
     <string name="core_greeting_night">İyi geceler</string>
     <string name="dlg_condition">Durum</string>
-    <string name="dlg_condition_entity_id">Varlık Kimliği (isteğe bağlı)</string>
-    <string name="dlg_condition_hint">Ayrıca, bir varlık Ev Asistanı koşullu kartı gibi belirli bir durumda olmadığı (veya olmadığı) sürece bunu da gizleyin. Yukarıdaki programla birleştirilir.</string>
     <string name="dlg_condition_is">öyle mi</string>
     <string name="dlg_condition_is_not">değil mi</string>
     <string name="dlg_condition_state">Durum</string>
+    <string name="dlg_vis_conditional">Koşullu</string>
+    <string name="dlg_vis_conditional_hint">Bunu yalnızca aşağıdaki kurallar geçerli olduğunda gösterin. Bir zaman çizelgesini, varlık durumunu veya her ikisini birden açın; her ikisi de açık olduğunda her ikisinin de geçmesi gerekir.</string>
+    <string name="dlg_vis_entity_state">Varlık durumu</string>
+    <string name="dlg_vis_time_schedule">Zaman çizelgesi</string>
     <string name="ui_0f_s_788ca6f" formatted="false">%.0f %s</string>
     <string name="ui_1_advanced_shorthand_block_kept_unchanged_d4dcbd7">1 gelişmiş kısayol bloğu (değişmeden tutulur)</string>
     <string name="ui_1f_16b5d7d" formatted="false">%.1f</string>

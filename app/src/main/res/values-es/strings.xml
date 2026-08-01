@@ -65,11 +65,13 @@
     <string name="core_greeting_evening">Buenas noches</string>
     <string name="core_greeting_night">Buenas noches</string>
     <string name="dlg_condition">Condición</string>
-    <string name="dlg_condition_entity_id">ID de entidad (opcional)</string>
-    <string name="dlg_condition_hint">También oculte esto a menos que una entidad esté (o no esté) en un estado determinado, como una tarjeta condicional de Home Assistant. Combina con el horario anterior.</string>
     <string name="dlg_condition_is">Es</string>
     <string name="dlg_condition_is_not">no es</string>
     <string name="dlg_condition_state">Estado</string>
+    <string name="dlg_vis_conditional">Condicional</string>
+    <string name="dlg_vis_conditional_hint">Muestre esto solo cuando se cumplan las reglas siguientes. Active un cronograma, un estado de entidad o ambos; cuando ambos están activados, ambos deben pasar.</string>
+    <string name="dlg_vis_entity_state">Estado de la entidad</string>
+    <string name="dlg_vis_time_schedule">Horario</string>
     <string name="ui_0f_s_788ca6f" formatted="false">%.0f %s</string>
     <string name="ui_1_advanced_shorthand_block_kept_unchanged_d4dcbd7">1 bloque taquigráfico avanzado (se mantiene sin cambios)</string>
     <string name="ui_1f_16b5d7d" formatted="false">%.1f</string>
