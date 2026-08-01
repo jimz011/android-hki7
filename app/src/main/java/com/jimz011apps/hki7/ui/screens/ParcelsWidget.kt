@@ -65,8 +65,10 @@ import kotlinx.serialization.json.*
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
+import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 internal data class ParcelCarrier(
@@ -916,7 +918,7 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel
                                             if (image != null) ParcelAsyncImage(carrier, image, null, Modifier.size(58.dp).clip(itemCornerShape()), ContentScale.Crop)
                                             Column(Modifier.weight(1f)) {
                                                 Text(letter["title"]?.jsonPrimitive?.contentOrNull ?: stringResource(R.string.ui_mail_92379cb), fontWeight = FontWeight.SemiBold)
-                                                Text(letter["date"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime) ?: stringResource(R.string.ui_announced_letter_3a7ac05), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                                                Text(letter["date"]?.jsonPrimitive?.contentOrNull?.let { formatParcelTime(it) } ?: stringResource(R.string.ui_announced_letter_3a7ac05), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
                                             }
                                         }
                                     }
@@ -1032,7 +1034,7 @@ private fun ParcelHistoryList(parcel: JsonObject, selected: JsonObject?, onSelec
         val eventTitle = event["raw_status"]?.jsonPrimitive?.contentOrNull?.let(::normalizeRawStatus)
             ?: event["status"]?.jsonPrimitive?.contentOrNull?.let { localizedParcelStatus(it) }
             ?: stringResource(R.string.ui_update_fb91e24)
-        val eventTime = event["timestamp"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime).orEmpty()
+        val eventTime = event["timestamp"]?.jsonPrimitive?.contentOrNull?.let { formatParcelTime(it) }.orEmpty()
         val selectedColors = if (event == selected) {
             MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
         } else {
@@ -1064,9 +1066,9 @@ private fun ParcelHero(carrier: ParcelCarrier, parcel: JsonObject?, history: Jso
     // field; otherwise (for delivered parcels) the last history timestamp.
     val plannedWindow = formatParcelWindow(parcel?.attr("planned_from"), parcel?.attr("planned_to"))
     val singleEta = listOf("expected_delivery", "delivery_date", "eta", "expected", "delivery", "planned_date")
-        .firstNotNullOfOrNull { parcel?.attr(it) }?.let(::formatParcelTime)
-    val deliveredMoment = if (delivered) (parcel?.get("history") as? JsonArray)?.mapNotNull { (it as? JsonObject)?.get("timestamp")?.jsonPrimitive?.contentOrNull }?.lastOrNull()?.let(::formatParcelTime) else null
-    val moment = history?.attr("timestamp")?.let(::formatParcelTime)
+        .firstNotNullOfOrNull { parcel?.attr(it) }?.let { formatParcelTime(it) }
+    val deliveredMoment = if (delivered) (parcel?.get("history") as? JsonArray)?.mapNotNull { (it as? JsonObject)?.get("timestamp")?.jsonPrimitive?.contentOrNull }?.lastOrNull()?.let { formatParcelTime(it) } else null
+    val moment = history?.attr("timestamp")?.let { formatParcelTime(it) }
         ?: plannedWindow.ifBlank { null }
         ?: singleEta
         ?: deliveredMoment
@@ -1129,7 +1131,7 @@ private fun LetterViewerDialog(carrier: ParcelCarrier?, letter: JsonObject, onDi
     val image = carrier?.letterImage(letter)
     com.jimz011apps.hki7.ui.components.ModernSettingsDialogFrame(
         title = letter["title"]?.jsonPrimitive?.contentOrNull ?: stringResource(R.string.parcel_mail),
-        subtitle = letter["date"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime) ?: stringResource(R.string.parcel_letter_preview),
+        subtitle = letter["date"]?.jsonPrimitive?.contentOrNull?.let { formatParcelTime(it) } ?: stringResource(R.string.parcel_letter_preview),
         icon = Icons.Default.Email,
         onDismiss = onDismiss,
         content = {
@@ -1185,7 +1187,7 @@ private fun ParcelDialogLegacy(carriers: List<ParcelCarrier>, onDismiss: () -> U
                             if (image != null) AsyncImage(image, null, Modifier.size(52.dp).clip(itemCornerShape()), contentScale = ContentScale.Crop)
                             Box(Modifier.weight(1f)) {
                                 DetailRow(letter["title"]?.jsonPrimitive?.contentOrNull ?: stringResource(R.string.parcel_mail),
-                                    letter["date"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime) ?: stringResource(R.string.ui_announced_letter_3a7ac05))
+                                    letter["date"]?.jsonPrimitive?.contentOrNull?.let { formatParcelTime(it) } ?: stringResource(R.string.ui_announced_letter_3a7ac05))
                             }
                         }
                     }
@@ -1234,7 +1236,7 @@ private fun ParcelDialogLegacy(carriers: List<ParcelCarrier>, onDismiss: () -> U
                     DetailRow(obj["raw_status"]?.jsonPrimitive?.contentOrNull?.let(::normalizeRawStatus)
                         ?: obj["status"]?.jsonPrimitive?.contentOrNull?.let { localizedParcelStatus(it) }
                         ?: stringResource(R.string.ui_update_fb91e24),
-                        obj["timestamp"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime).orEmpty())
+                        obj["timestamp"]?.jsonPrimitive?.contentOrNull?.let { formatParcelTime(it) }.orEmpty())
                 }
             } else {
                 Text(stringResource(R.string.ui_no_status_history_enable_parcel_history_in_the_integration_302ca4a), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall)
@@ -1250,24 +1252,50 @@ private fun ParcelDialogLegacy(carriers: List<ParcelCarrier>, onDismiss: () -> U
     }
 }
 
-private fun formatParcelTime(value: String): String = runCatching {
-    OffsetDateTime.parse(value).format(
-        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
-            .withLocale(Locale.getDefault())
-    )
-}.getOrDefault(value)
+private fun parseParcelMoment(value: String): ZonedDateTime? =
+    runCatching { OffsetDateTime.parse(value).atZoneSameInstant(ZoneId.systemDefault()) }.getOrNull()
 
-private fun formatParcelTimeOnly(value: OffsetDateTime): String =
-    value.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.getDefault()))
+/**
+ * Date portion of a parcel timestamp: the weekday name for anything in the next 6 days (avoids
+ * colliding with the same weekday a week out), otherwise a locale-ordered date that only includes
+ * the year when it differs from the current year.
+ */
+private fun formatParcelDatePart(moment: ZonedDateTime): String {
+    val daysAhead = ChronoUnit.DAYS.between(LocalDate.now(), moment.toLocalDate())
+    if (daysAhead in 0..5) {
+        return moment.format(DateTimeFormatter.ofPattern("EEEE", Locale.getDefault()))
+            .replaceFirstChar { it.titlecase(Locale.getDefault()) }
+    }
+    val skeleton = if (moment.year == LocalDate.now().year) "MMMd" else "yMMMd"
+    val pattern = android.text.format.DateFormat.getBestDateTimePattern(Locale.getDefault(), skeleton)
+    return moment.format(DateTimeFormatter.ofPattern(pattern, Locale.getDefault()))
+}
+
+/** Time portion, honoring the device's 12/24-hour clock setting rather than only the locale default. */
+@Composable
+private fun formatParcelTimePart(moment: ZonedDateTime): String {
+    val is24Hour = android.text.format.DateFormat.is24HourFormat(LocalContext.current)
+    val pattern = android.text.format.DateFormat.getBestDateTimePattern(
+        Locale.getDefault(), if (is24Hour) "Hm" else "hm"
+    )
+    return moment.format(DateTimeFormatter.ofPattern(pattern, Locale.getDefault()))
+}
+
+@Composable
+private fun formatParcelTime(value: String): String {
+    val moment = parseParcelMoment(value) ?: return value
+    return "${formatParcelDatePart(moment)}, ${formatParcelTimePart(moment)}"
+}
 
 /** Formats a planned delivery window. Same-day windows show the date once, not on both ends. */
+@Composable
 private fun formatParcelWindow(from: String?, to: String?): String {
-    val fromMoment = from?.let { runCatching { OffsetDateTime.parse(it) }.getOrNull() }
-    val toMoment = to?.let { runCatching { OffsetDateTime.parse(it) }.getOrNull() }
+    val fromMoment = from?.let(::parseParcelMoment)
+    val toMoment = to?.let(::parseParcelMoment)
     if (fromMoment != null && toMoment != null && fromMoment.toLocalDate() == toMoment.toLocalDate()) {
-        return "${formatParcelTime(from)} – ${formatParcelTimeOnly(toMoment)}"
+        return "${formatParcelDatePart(fromMoment)}, ${formatParcelTimePart(fromMoment)} – ${formatParcelTimePart(toMoment)}"
     }
-    return listOfNotNull(from?.let(::formatParcelTime), to?.let(::formatParcelTime)).joinToString(" – ")
+    return listOfNotNull(from?.let { formatParcelTime(it) }, to?.let { formatParcelTime(it) }).joinToString(" – ")
 }
 
 /** Device picker that waits for the HA registries instead of presenting an empty search list. */
