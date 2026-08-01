@@ -3316,7 +3316,11 @@
     <string name="ui_hidden_items_advanced_title">Itens ocultos (avançado)</string>
     <string name="ui_hidden_items_advanced_hint">Lista separada por vírgulas de IDs de entidades de botão ou IDs de crachás/widgets para ocultar especificamente dessa pessoa. O id de um botão é o seu id de entidade; o ID de um emblema ou widget é mostrado em suas próprias configurações de Aparência.</string>
     <string name="dlg_vis_conditional">Condicional</string>
-    <string name="dlg_vis_conditional_hint">Mostre isso apenas quando as regras abaixo forem aprovadas. Ative um cronograma, um estado de entidade ou ambos — quando ambos estão ativados, ambos devem ser aprovados.</string>
     <string name="dlg_vis_entity_state">Estado da entidade</string>
     <string name="dlg_vis_time_schedule">Cronograma</string>
+    <string name="dlg_vis_and">E</string>
+    <string name="dlg_vis_match">Corresponder</string>
+    <string name="dlg_vis_match_all">Todas as regras</string>
+    <string name="dlg_vis_match_any">Qualquer regra</string>
+    <string name="dlg_vis_or">OU</string>
 </resources>

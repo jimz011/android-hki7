@@ -108,6 +108,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import com.jimz011apps.hki7.ui.components.toVisibilitySpec
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -163,7 +164,9 @@ import com.jimz011apps.hki7.data.HAServiceCall
 import com.jimz011apps.hki7.data.HKIAction
 import com.jimz011apps.hki7.data.HKIButtonStack
 import com.jimz011apps.hki7.data.HKIButtonConfig
+import com.jimz011apps.hki7.data.VISIBILITY_MATCH_ALL
 import com.jimz011apps.hki7.data.isButtonVisibleNow
+import com.jimz011apps.hki7.data.visibilityConditionEntityIds
 import com.jimz011apps.hki7.data.HKIBatteryCardWidget
 import com.jimz011apps.hki7.data.HKICalendarWidget
 import com.jimz011apps.hki7.data.HKIWasteCollectionWidget
@@ -3290,15 +3293,7 @@ fun ButtonConfigDialog(
     var refreshInterval by remember(config) { mutableIntStateOf(config.cameraRefreshInterval) }
     var iconName by remember(config) { mutableStateOf(config.icon ?: "None") }
     var iconAnimation by remember(config) { mutableStateOf(config.iconAnimation) }
-    var visSpec by remember(config) {
-        mutableStateOf(
-            com.jimz011apps.hki7.ui.components.VisibilitySpec(
-                config.hidden, config.visibilityStart, config.visibilityEnd,
-                config.visibilityRangeMode.ifBlank { "show" }, config.visibilityRecurrence.ifBlank { "none" },
-                config.visibilityConditionEntityId, config.visibilityConditionState, config.visibilityConditionNegate
-            )
-        )
-    }
+    var visSpec by remember(config) { mutableStateOf(config.toVisibilitySpec()) }
     val isLightEntity = entity?.entity_id?.startsWith("light.") == true
     var showBrightnessSlider by remember(config) { mutableStateOf(config.showBrightnessSlider) }
     var tapAction by remember(config) { mutableStateOf(config.tapActionEx ?: HKIAction(type = config.tapAction)) }
@@ -3375,6 +3370,9 @@ fun ButtonConfigDialog(
         }
         if (!isVacuumItem) add("actions" to stringResource(R.string.cr_actions))
         if (showButtonLockSettings) add("protection" to stringResource(R.string.cr_protection))
+        // Its own tab (and always last) so buttons match every other item type. Camera and vacuum
+        // items keep their owning widget's visibility rule instead of one of their own.
+        if (!isCameraItem && !isVacuumItem) add("visibility" to stringResource(R.string.ui_visibility_7d9ff4f))
     }
 
     AlertDialog(
@@ -3676,7 +3674,8 @@ fun ButtonConfigDialog(
                             Switch(checked = showBrightnessSlider, onCheckedChange = { showBrightnessSlider = it })
                         }
                     }
-                    androidx.compose.material3.HorizontalDivider(color = LocalHKIAppColors.current.onMuted.copy(alpha = 0.15f))
+                }
+                if (settingsPage == "visibility") {
                     SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
                     com.jimz011apps.hki7.ui.components.VisibilityEditor(visSpec) { visSpec = it }
                 }
@@ -3811,7 +3810,9 @@ fun ButtonConfigDialog(
                             visibilityRecurrence = if (isCameraItem || isVacuumItem) config.visibilityRecurrence else visSpec.recurrence,
                             visibilityConditionEntityId = if (isCameraItem || isVacuumItem) config.visibilityConditionEntityId else visSpec.conditionEntityId,
                             visibilityConditionState = if (isCameraItem || isVacuumItem) config.visibilityConditionState else visSpec.conditionState,
-                            visibilityConditionNegate = if (isCameraItem || isVacuumItem) config.visibilityConditionNegate else visSpec.conditionNegate
+                            visibilityConditionNegate = if (isCameraItem || isVacuumItem) config.visibilityConditionNegate else visSpec.conditionNegate,
+                            visibilityConditions = if (isCameraItem || isVacuumItem) config.visibilityConditions else visSpec.conditions,
+                            visibilityMatch = if (isCameraItem || isVacuumItem) config.visibilityMatch else visSpec.match
                         )
                     )
                 }
@@ -4107,11 +4108,7 @@ fun StackSettingsDialog(
     var settingsPage by remember(stack) { mutableStateOf("identity") }
     var visSpec by remember(stack) {
         mutableStateOf(
-            com.jimz011apps.hki7.ui.components.VisibilitySpec(
-                stack.isHidden, stack.visibilityStart, stack.visibilityEnd,
-                stack.visibilityRangeMode.ifBlank { "show" }, stack.visibilityRecurrence.ifBlank { "none" },
-                stack.visibilityConditionEntityId, stack.visibilityConditionState, stack.visibilityConditionNegate
-            )
+            stack.toVisibilitySpec()
         )
     }
     val adaptiveProfiles = rememberAdaptiveLightingProfiles(viewModel)
@@ -4354,6 +4351,8 @@ fun StackSettingsDialog(
                             visibilityConditionEntityId = if (isAdaptiveLighting) null else visSpec.conditionEntityId,
                             visibilityConditionState = if (isAdaptiveLighting) null else visSpec.conditionState,
                             visibilityConditionNegate = if (isAdaptiveLighting) false else visSpec.conditionNegate,
+                            visibilityConditions = if (isAdaptiveLighting) emptyList() else visSpec.conditions,
+                            visibilityMatch = if (isAdaptiveLighting) VISIBILITY_MATCH_ALL else visSpec.match,
                             collapsible = collapsible,
                             defaultCollapsed = defaultCollapsed,
                             isCollapsed = defaultCollapsed,
@@ -4799,9 +4798,9 @@ fun ButtonStackItem(
                     config.vacuumBatteryEntityId,
                     config.climateTempSensorEntityId,
                     config.climateHumiditySensorEntityId,
-                    config.weatherEntityId,
-                    config.visibilityConditionEntityId
+                    config.weatherEntityId
                 ).forEach(::add)
+                addAll(config.visibilityConditionEntityIds())
             }
         }.toList()
     }
@@ -5571,11 +5570,7 @@ fun SwipingStackSettingsDialog(
     var showIconPicker by remember { mutableStateOf(false) }
     var visSpec by remember(stack) {
         mutableStateOf(
-            com.jimz011apps.hki7.ui.components.VisibilitySpec(
-                stack.isHidden, stack.visibilityStart, stack.visibilityEnd,
-                stack.visibilityRangeMode.ifBlank { "show" }, stack.visibilityRecurrence.ifBlank { "none" },
-                stack.visibilityConditionEntityId, stack.visibilityConditionState, stack.visibilityConditionNegate
-            )
+            stack.toVisibilitySpec()
         )
     }
 
@@ -5708,7 +5703,9 @@ fun SwipingStackSettingsDialog(
                         visibilityRecurrence = visSpec.recurrence,
                         visibilityConditionEntityId = visSpec.conditionEntityId,
                         visibilityConditionState = visSpec.conditionState,
-                        visibilityConditionNegate = visSpec.conditionNegate
+                        visibilityConditionNegate = visSpec.conditionNegate,
+                        visibilityConditions = visSpec.conditions,
+                        visibilityMatch = visSpec.match
                     )
                 )
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
@@ -5865,11 +5862,7 @@ fun EmptyStackSettingsDialog(
     var showIconPicker by remember { mutableStateOf(false) }
     var visSpec by remember(stack) {
         mutableStateOf(
-            com.jimz011apps.hki7.ui.components.VisibilitySpec(
-                stack.isHidden, stack.visibilityStart, stack.visibilityEnd,
-                stack.visibilityRangeMode.ifBlank { "show" }, stack.visibilityRecurrence.ifBlank { "none" },
-                stack.visibilityConditionEntityId, stack.visibilityConditionState, stack.visibilityConditionNegate
-            )
+            stack.toVisibilitySpec()
         )
     }
 
@@ -5991,7 +5984,9 @@ fun EmptyStackSettingsDialog(
                         visibilityRecurrence = visSpec.recurrence,
                         visibilityConditionEntityId = visSpec.conditionEntityId,
                         visibilityConditionState = visSpec.conditionState,
-                        visibilityConditionNegate = visSpec.conditionNegate
+                        visibilityConditionNegate = visSpec.conditionNegate,
+                        visibilityConditions = visSpec.conditions,
+                        visibilityMatch = visSpec.match
                     )
                 )
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
@@ -7570,11 +7565,7 @@ fun HeaderTextSettingsDialog(
     var settingsPage by remember(widget) { mutableStateOf("content") }
     var visSpec by remember(widget) {
         mutableStateOf(
-            com.jimz011apps.hki7.ui.components.VisibilitySpec(
-                widget.isHidden, widget.visibilityStart, widget.visibilityEnd,
-                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" },
-                widget.visibilityConditionEntityId, widget.visibilityConditionState, widget.visibilityConditionNegate
-            )
+            widget.toVisibilitySpec()
         )
     }
     val defaultHeaderText = stringResource(R.string.cr_widget_header_text)
@@ -7647,7 +7638,9 @@ fun HeaderTextSettingsDialog(
                         visibilityRecurrence = visSpec.recurrence,
                         visibilityConditionEntityId = visSpec.conditionEntityId,
                         visibilityConditionState = visSpec.conditionState,
-                        visibilityConditionNegate = visSpec.conditionNegate
+                        visibilityConditionNegate = visSpec.conditionNegate,
+                        visibilityConditions = visSpec.conditions,
+                        visibilityMatch = visSpec.match
                     )
                 )
             }) { Text(stringResource(R.string.ui_save_efc007a)) }

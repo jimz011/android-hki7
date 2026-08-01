@@ -24,6 +24,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import com.jimz011apps.hki7.ui.components.toVisibilitySpec
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -567,11 +568,7 @@ fun WasteCollectionSettingsDialog(
     var editingItemVisibility by remember { mutableStateOf<String?>(null) }
     var visSpec by remember(widget) {
         mutableStateOf(
-            com.jimz011apps.hki7.ui.components.VisibilitySpec(
-                widget.isHidden, widget.visibilityStart, widget.visibilityEnd,
-                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" },
-                widget.visibilityConditionEntityId, widget.visibilityConditionState, widget.visibilityConditionNegate
-            )
+            widget.toVisibilitySpec()
         )
     }
 
@@ -724,6 +721,8 @@ fun WasteCollectionSettingsDialog(
                         visibilityConditionEntityId = visSpec.conditionEntityId,
                         visibilityConditionState = visSpec.conditionState,
                         visibilityConditionNegate = visSpec.conditionNegate,
+                        visibilityConditions = visSpec.conditions,
+                        visibilityMatch = visSpec.match,
                         itemConfigs = itemConfigs
                     )
                 )

@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.jimz011apps.hki7.data.HKIIframeWidget
 import com.jimz011apps.hki7.data.isWidgetVisibleNow
+import com.jimz011apps.hki7.ui.components.toVisibilitySpec
 import com.jimz011apps.hki7.ui.components.EditRemoveBadge
 import com.jimz011apps.hki7.ui.components.EditSettingsButton
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
@@ -138,11 +139,7 @@ fun IframeWidgetSettingsDialog(
     var settingsPage by remember(widget) { mutableStateOf("content") }
     var visSpec by remember(widget) {
         mutableStateOf(
-            com.jimz011apps.hki7.ui.components.VisibilitySpec(
-                widget.isHidden, widget.visibilityStart, widget.visibilityEnd,
-                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" },
-                widget.visibilityConditionEntityId, widget.visibilityConditionState, widget.visibilityConditionNegate
-            )
+            widget.toVisibilitySpec()
         )
     }
 
@@ -221,7 +218,9 @@ fun IframeWidgetSettingsDialog(
                         visibilityRecurrence = visSpec.recurrence,
                         visibilityConditionEntityId = visSpec.conditionEntityId,
                         visibilityConditionState = visSpec.conditionState,
-                        visibilityConditionNegate = visSpec.conditionNegate
+                        visibilityConditionNegate = visSpec.conditionNegate,
+                        visibilityConditions = visSpec.conditions,
+                        visibilityMatch = visSpec.match
                     )
                 )
             }) { Text(stringResource(R.string.ui_save_efc007a)) }

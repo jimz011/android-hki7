@@ -301,9 +301,13 @@
     <string name="dlg_condition_is">Is</string>
     <string name="dlg_condition_is_not">Is dat niet het geval?</string>
     <string name="dlg_condition_state">Status</string>
+    <string name="dlg_vis_and">EN</string>
     <string name="dlg_vis_conditional">Voorwaardelijk</string>
-    <string name="dlg_vis_conditional_hint">Laat dit pas zien als onderstaande regels gelden. Schakel een tijdschema, een entiteitsstatus of beide in: als beide zijn ingeschakeld, moeten beide passeren.</string>
     <string name="dlg_vis_entity_state">Entiteitsstatus</string>
+    <string name="dlg_vis_match">Overeenkomst</string>
+    <string name="dlg_vis_match_all">Alle regels</string>
+    <string name="dlg_vis_match_any">Elke regel</string>
+    <string name="dlg_vis_or">OF</string>
     <string name="dlg_vis_time_schedule">Tijdschema</string>
     <string name="ui_0f_s_788ca6f" formatted="false">%.0f %s</string>
     <string name="ui_1_advanced_shorthand_block_kept_unchanged_d4dcbd7">1 geavanceerd stenoblok (ongewijzigd gehouden)</string>

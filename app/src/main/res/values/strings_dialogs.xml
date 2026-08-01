@@ -49,9 +49,13 @@
     <string name="dlg_condition_is">Is</string>
     <string name="dlg_condition_is_not">Is not</string>
     <string name="dlg_condition_state">State</string>
+    <string name="dlg_vis_and">AND</string>
     <string name="dlg_vis_conditional">Conditional</string>
-    <string name="dlg_vis_conditional_hint">Show this only when the rules below pass. Turn on a time schedule, an entity state, or both — when both are on, both must pass.</string>
     <string name="dlg_vis_entity_state">Entity state</string>
+    <string name="dlg_vis_match">Match</string>
+    <string name="dlg_vis_match_all">All rules</string>
+    <string name="dlg_vis_match_any">Any rule</string>
+    <string name="dlg_vis_or">OR</string>
     <string name="dlg_vis_time_schedule">Time schedule</string>
     <string name="dlg_choose_a_visual_home_assistant_block">Choose a visual Home Assistant block</string>
     <string name="dlg_choose_action">Choose action</string>

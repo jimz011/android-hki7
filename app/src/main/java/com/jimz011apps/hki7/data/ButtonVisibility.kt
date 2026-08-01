@@ -3,27 +3,114 @@ package com.jimz011apps.hki7.data
 import java.time.LocalDateTime
 
 /**
- * Whether a button/card inside a multi-item widget is visible at [now].
+ * Visibility rules for a button, badge, or widget.
  *
- * - [HKIButtonConfig.hidden] hides it outright (until unhidden).
- * - A [HKIButtonConfig.visibilityStart]/[HKIButtonConfig.visibilityEnd] window (ISO-8601 local
- *   date-time) is interpreted by [HKIButtonConfig.visibilityRangeMode]: "show" means visible only
- *   within the window (hidden outside), "hide" means hidden within the window (visible outside).
- * - An open-ended window (only a start, or only an end) is treated as a half-open range.
- * - Unparseable bounds are ignored so a bad value never permanently hides an item.
- * - [resolveEntityState] resolves the current state of [HKIButtonConfig.visibilityConditionEntityId]
- *   when a condition is configured; pass null to skip condition evaluation entirely (treated as met).
+ * An item is hidden outright when its `hidden`/`isHidden` flag is set. Otherwise it is shown when
+ * its [HKIVisibilityCondition] blocks pass, combined with [VISIBILITY_MATCH_ALL] (AND) or
+ * [VISIBILITY_MATCH_ANY] (OR). No blocks means always visible.
+ *
+ * Blocks replaced an earlier flat "one schedule plus one entity check" layout. Items saved under
+ * that layout still carry the flat fields and no blocks, so [normalizedVisibilityConditions]
+ * projects them into the block form on read — nothing is migrated on disk and old configs keep
+ * behaving exactly as before.
  */
-fun isButtonVisibleAt(
-    config: HKIButtonConfig,
-    now: LocalDateTime,
-    resolveEntityState: ((String) -> String?)? = null,
-): Boolean = isVisibleAt(
-    config.hidden, config.visibilityStart, config.visibilityEnd, config.visibilityRangeMode, config.visibilityRecurrence, now,
-    config.visibilityConditionEntityId, config.visibilityConditionState, config.visibilityConditionNegate, resolveEntityState
-)
 
-/** Raw visibility rule shared by buttons, badges, and widgets (same hide/schedule/condition semantics). */
+/** Legacy flat fields expressed as blocks, used when an item carries no explicit block list. */
+fun normalizedVisibilityConditions(
+    conditions: List<HKIVisibilityCondition>,
+    visibilityStart: String?,
+    visibilityEnd: String?,
+    visibilityRangeMode: String,
+    visibilityRecurrence: String,
+    conditionEntityId: String?,
+    conditionState: String?,
+    conditionNegate: Boolean,
+): List<HKIVisibilityCondition> {
+    if (conditions.isNotEmpty()) return conditions
+    return buildList {
+        if (!visibilityStart.isNullOrBlank() || !visibilityEnd.isNullOrBlank()) {
+            add(
+                HKIVisibilityCondition(
+                    type = VISIBILITY_TYPE_TIME,
+                    start = visibilityStart,
+                    end = visibilityEnd,
+                    rangeMode = visibilityRangeMode.ifBlank { "show" },
+                    recurrence = visibilityRecurrence.ifBlank { "none" },
+                )
+            )
+        }
+        if (!conditionEntityId.isNullOrBlank()) {
+            add(
+                HKIVisibilityCondition(
+                    type = VISIBILITY_TYPE_ENTITY,
+                    entityId = conditionEntityId,
+                    state = conditionState,
+                    negate = conditionNegate,
+                )
+            )
+        }
+    }
+}
+
+/** Whether one block passes at [now]. Entity blocks pass when no state resolver is available. */
+private fun isConditionMet(
+    condition: HKIVisibilityCondition,
+    now: LocalDateTime,
+    resolveEntityState: ((String) -> String?)?,
+): Boolean = when (condition.type) {
+    VISIBILITY_TYPE_TIME -> isWithinSchedule(
+        condition.start, condition.end, condition.rangeMode, condition.recurrence, now
+    )
+    else -> {
+        if (condition.entityId.isNullOrBlank() || resolveEntityState == null) {
+            true
+        } else {
+            val current = resolveEntityState(condition.entityId)
+            val matches = current != null && current.equals(condition.state, ignoreCase = true)
+            if (condition.negate) !matches else matches
+        }
+    }
+}
+
+/**
+ * Whether a schedule window contains [now].
+ *
+ * - An open-ended window (only a start, or only an end) is a half-open range.
+ * - [rangeMode] "show" means visible inside the window, "hide" means hidden inside it.
+ * - Unparseable bounds are ignored so a bad value never permanently hides an item.
+ */
+private fun isWithinSchedule(
+    start: String?,
+    end: String?,
+    rangeMode: String,
+    recurrence: String,
+    now: LocalDateTime,
+): Boolean {
+    val from = start?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
+    val to = end?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
+    if (from == null && to == null) return true
+
+    val inRange = when (recurrence.ifBlank { "none" }) {
+        "none" -> (from == null || !now.isBefore(from)) && (to == null || !now.isAfter(to))
+        else -> {
+            // Compare only the part of the timestamp that repeats (time of day, day of week/month, or
+            // month-day), so a window can recur. Ranges may wrap the cycle boundary (e.g. 24 Dec–2 Jan).
+            val ordinal = recurringOrdinal(recurrence)
+            val s = from?.let(ordinal)
+            val e = to?.let(ordinal)
+            val n = ordinal(now)
+            when {
+                s != null && e != null -> if (s <= e) n in s..e else (n >= s || n <= e)
+                s != null -> n >= s
+                e != null -> n <= e
+                else -> true
+            }
+        }
+    }
+    return if (rangeMode == "hide") !inRange else inRange
+}
+
+/** Raw visibility rule shared by buttons, badges, and widgets. */
 fun isVisibleAt(
     hidden: Boolean,
     visibilityStart: String?,
@@ -35,40 +122,20 @@ fun isVisibleAt(
     conditionState: String? = null,
     conditionNegate: Boolean = false,
     resolveEntityState: ((String) -> String?)? = null,
+    conditions: List<HKIVisibilityCondition> = emptyList(),
+    match: String = VISIBILITY_MATCH_ALL,
 ): Boolean {
     if (hidden) return false
-    val start = visibilityStart?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
-    val end = visibilityEnd?.let { runCatching { LocalDateTime.parse(it) }.getOrNull() }
-    val scheduleVisible = if (start == null && end == null) {
-        true
+    val blocks = normalizedVisibilityConditions(
+        conditions, visibilityStart, visibilityEnd, visibilityRangeMode, visibilityRecurrence,
+        conditionEntityId, conditionState, conditionNegate,
+    )
+    if (blocks.isEmpty()) return true
+    return if (match == VISIBILITY_MATCH_ANY) {
+        blocks.any { isConditionMet(it, now, resolveEntityState) }
     } else {
-        val inRange = when (visibilityRecurrence.ifBlank { "none" }) {
-            "none" -> (start == null || !now.isBefore(start)) && (end == null || !now.isAfter(end))
-            else -> {
-                // Compare only the part of the timestamp that repeats (time of day, day of week/month, or
-                // month-day), so a window can recur. Ranges may wrap the cycle boundary (e.g. 24 Dec–2 Jan).
-                val ordinal = recurringOrdinal(visibilityRecurrence)
-                val s = start?.let(ordinal)
-                val e = end?.let(ordinal)
-                val n = ordinal(now)
-                when {
-                    s != null && e != null -> if (s <= e) n in s..e else (n >= s || n <= e)
-                    s != null -> n >= s
-                    e != null -> n <= e
-                    else -> true
-                }
-            }
-        }
-        if (visibilityRangeMode == "hide") !inRange else inRange
+        blocks.all { isConditionMet(it, now, resolveEntityState) }
     }
-    if (!scheduleVisible) return false
-
-    // Conditional visibility (like a Home Assistant conditional card): only evaluated when both a
-    // condition entity is configured and the caller supplied a way to resolve live entity state.
-    if (conditionEntityId.isNullOrBlank() || resolveEntityState == null) return true
-    val currentState = resolveEntityState(conditionEntityId)
-    val matches = currentState != null && currentState.equals(conditionState, ignoreCase = true)
-    return if (conditionNegate) !matches else matches
 }
 
 /** A sortable position within the repeat cycle for [recurrence]; higher fields drop out so the
@@ -80,35 +147,71 @@ private fun recurringOrdinal(recurrence: String): (LocalDateTime) -> Long = when
     else -> { dt -> (dt.monthValue * 100L + dt.dayOfMonth) * 10000L + dt.hour * 100L + dt.minute } // yearly
 }
 
-/** True when [config] has any visibility restriction (a hide, a scheduled window, or a condition). */
+fun isButtonVisibleAt(
+    config: HKIButtonConfig,
+    now: LocalDateTime,
+    resolveEntityState: ((String) -> String?)? = null,
+): Boolean = isVisibleAt(
+    config.hidden, config.visibilityStart, config.visibilityEnd, config.visibilityRangeMode, config.visibilityRecurrence, now,
+    config.visibilityConditionEntityId, config.visibilityConditionState, config.visibilityConditionNegate, resolveEntityState,
+    config.visibilityConditions, config.visibilityMatch,
+)
+
+/** True when [this] has any visibility restriction (a hide, a schedule, or a condition). */
 fun HKIButtonConfig.hasVisibilityRule(): Boolean =
-    hidden || !visibilityStart.isNullOrBlank() || !visibilityEnd.isNullOrBlank() || !visibilityConditionEntityId.isNullOrBlank()
+    hidden || visibilityConditions.isNotEmpty() || !visibilityStart.isNullOrBlank() ||
+        !visibilityEnd.isNullOrBlank() || !visibilityConditionEntityId.isNullOrBlank()
 
 fun isButtonVisibleNow(config: HKIButtonConfig, resolveEntityState: ((String) -> String?)? = null): Boolean =
     isButtonVisibleAt(config, LocalDateTime.now(), resolveEntityState)
 
-/** True when [badge] has any visibility restriction (a hide, a scheduled window, or a condition). */
+/** True when [this] has any visibility restriction (a hide, a schedule, or a condition). */
 fun HKIBadge.hasVisibilityRule(): Boolean =
-    hidden || !visibilityStart.isNullOrBlank() || !visibilityEnd.isNullOrBlank() || !visibilityConditionEntityId.isNullOrBlank()
+    hidden || visibilityConditions.isNotEmpty() || !visibilityStart.isNullOrBlank() ||
+        !visibilityEnd.isNullOrBlank() || !visibilityConditionEntityId.isNullOrBlank()
 
 fun isBadgeVisibleAt(badge: HKIBadge, now: LocalDateTime, resolveEntityState: ((String) -> String?)? = null): Boolean =
     isVisibleAt(
         badge.hidden, badge.visibilityStart, badge.visibilityEnd, badge.visibilityRangeMode, badge.visibilityRecurrence, now,
-        badge.visibilityConditionEntityId, badge.visibilityConditionState, badge.visibilityConditionNegate, resolveEntityState
+        badge.visibilityConditionEntityId, badge.visibilityConditionState, badge.visibilityConditionNegate, resolveEntityState,
+        badge.visibilityConditions, badge.visibilityMatch,
     )
 
 fun isBadgeVisibleNow(badge: HKIBadge, resolveEntityState: ((String) -> String?)? = null): Boolean =
     isBadgeVisibleAt(badge, LocalDateTime.now(), resolveEntityState)
 
-/** True when [widget] has any visibility restriction (a hide, a scheduled window, or a condition). */
+/** True when [this] has any visibility restriction (a hide, a schedule, or a condition). */
 fun HKIRoomWidget.hasVisibilityRule(): Boolean =
-    isHidden || !visibilityStart.isNullOrBlank() || !visibilityEnd.isNullOrBlank() || !visibilityConditionEntityId.isNullOrBlank()
+    isHidden || visibilityConditions.isNotEmpty() || !visibilityStart.isNullOrBlank() ||
+        !visibilityEnd.isNullOrBlank() || !visibilityConditionEntityId.isNullOrBlank()
 
 fun isWidgetVisibleAt(widget: HKIRoomWidget, now: LocalDateTime, resolveEntityState: ((String) -> String?)? = null): Boolean =
     isVisibleAt(
         widget.isHidden, widget.visibilityStart, widget.visibilityEnd, widget.visibilityRangeMode, widget.visibilityRecurrence, now,
-        widget.visibilityConditionEntityId, widget.visibilityConditionState, widget.visibilityConditionNegate, resolveEntityState
+        widget.visibilityConditionEntityId, widget.visibilityConditionState, widget.visibilityConditionNegate, resolveEntityState,
+        widget.visibilityConditions, widget.visibilityMatch,
     )
 
 fun isWidgetVisibleNow(widget: HKIRoomWidget, resolveEntityState: ((String) -> String?)? = null): Boolean =
     isWidgetVisibleAt(widget, LocalDateTime.now(), resolveEntityState)
+
+/** Entity ids referenced by [this]'s visibility rules, so renderers can observe them. */
+fun HKIRoomWidget.visibilityConditionEntityIds(): List<String> =
+    normalizedVisibilityConditions(
+        visibilityConditions, visibilityStart, visibilityEnd, visibilityRangeMode, visibilityRecurrence,
+        visibilityConditionEntityId, visibilityConditionState, visibilityConditionNegate,
+    ).mapNotNull { it.entityId?.takeIf(String::isNotBlank) }
+
+/** Entity ids referenced by [this]'s visibility rules, so renderers can observe them. */
+fun HKIButtonConfig.visibilityConditionEntityIds(): List<String> =
+    normalizedVisibilityConditions(
+        visibilityConditions, visibilityStart, visibilityEnd, visibilityRangeMode, visibilityRecurrence,
+        visibilityConditionEntityId, visibilityConditionState, visibilityConditionNegate,
+    ).mapNotNull { it.entityId?.takeIf(String::isNotBlank) }
+
+/** Entity ids referenced by [this]'s visibility rules, so renderers can observe them. */
+fun HKIBadge.visibilityConditionEntityIds(): List<String> =
+    normalizedVisibilityConditions(
+        visibilityConditions, visibilityStart, visibilityEnd, visibilityRangeMode, visibilityRecurrence,
+        visibilityConditionEntityId, visibilityConditionState, visibilityConditionNegate,
+    ).mapNotNull { it.entityId?.takeIf(String::isNotBlank) }

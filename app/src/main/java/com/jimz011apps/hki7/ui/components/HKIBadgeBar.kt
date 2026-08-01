@@ -49,6 +49,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.visibilityConditionEntityIds
 import com.jimz011apps.hki7.data.HKIAction
 import com.jimz011apps.hki7.data.HKIBadge
 import com.jimz011apps.hki7.data.HKIBadgeBarConfig
@@ -134,7 +135,7 @@ fun HKIBadgeBar(
                 addAll(badge.vacuumEmptyBinEntityIds.values)
                 badge.humidifierFanEntityId?.let(::add)
                 addAll(badge.humidifierAuxEntityIds.values)
-                badge.visibilityConditionEntityId?.let(::add)
+                addAll(badge.visibilityConditionEntityIds())
             }
         }.toList()
     }
@@ -1094,14 +1095,7 @@ fun BadgeSettingsDialog(
     var side        by remember { mutableStateOf(badge.side) }
     var showName    by remember { mutableStateOf(badge.showName) }
     var customName  by remember { mutableStateOf(badge.customName ?: "") }
-    var hidden      by remember { mutableStateOf(badge.hidden) }
-    var visStart    by remember { mutableStateOf(badge.visibilityStart) }
-    var visEnd      by remember { mutableStateOf(badge.visibilityEnd) }
-    var visRangeMode by remember { mutableStateOf(badge.visibilityRangeMode) }
-    var visRecurrence by remember { mutableStateOf(badge.visibilityRecurrence) }
-    var visConditionEntityId by remember { mutableStateOf(badge.visibilityConditionEntityId) }
-    var visConditionState by remember { mutableStateOf(badge.visibilityConditionState) }
-    var visConditionNegate by remember { mutableStateOf(badge.visibilityConditionNegate) }
+    var visSpec by remember { mutableStateOf(badge.toVisibilitySpec()) }
     var showState   by remember { mutableStateOf(badge.showState) }
     var stateAttribute by remember { mutableStateOf(badge.stateAttribute) }
     var stateUnit by remember { mutableStateOf(badge.stateUnit) }
@@ -1167,13 +1161,18 @@ fun BadgeSettingsDialog(
             ) {
                 // Aesthetic-only editors get just the Appearance tab (name, icon, visibility); entity
                 // bindings and interactions are structural and stay locked.
+                // Visibility is its own tab (and always last) so badges match every other item type.
                 val badgeTabs = if (aestheticsOnlyBadge) {
-                    listOf("appearance" to stringResource(R.string.uif_appearance))
+                    listOf(
+                        "appearance" to stringResource(R.string.uif_appearance),
+                        "visibility" to stringResource(R.string.dlg_visibility),
+                    )
                 } else {
                     listOf(
                         "entities" to stringResource(R.string.uif_entities),
                         "appearance" to stringResource(R.string.uif_appearance),
                         "actions" to stringResource(R.string.uif_actions),
+                        "visibility" to stringResource(R.string.dlg_visibility),
                     )
                 }
                 LaunchedEffect(aestheticsOnlyBadge) { if (aestheticsOnlyBadge) settingsPage = "appearance" }
@@ -1464,20 +1463,6 @@ fun BadgeSettingsDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
-                SettingsSubcategory(stringResource(R.string.dlg_visibility), stringResource(R.string.dlg_hide_this_badge_or_schedule_when_it_appears))
-                VisibilityEditor(
-                    spec = VisibilitySpec(
-                        hidden, visStart, visEnd, visRangeMode.ifBlank { "show" }, visRecurrence.ifBlank { "none" },
-                        visConditionEntityId, visConditionState, visConditionNegate
-                    ),
-                    onChange = {
-                        hidden = it.hidden; visStart = it.start; visEnd = it.end
-                        visRangeMode = it.rangeMode; visRecurrence = it.recurrence
-                        visConditionEntityId = it.conditionEntityId; visConditionState = it.conditionState
-                        visConditionNegate = it.conditionNegate
-                    }
-                )
 
                 // Side (only in split mode)
                 if (showSidePicker) {
@@ -1500,6 +1485,11 @@ fun BadgeSettingsDialog(
                 HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
                 CustomButtonsEditor(customButtons, allEntities, areas, viewModel) { customButtons = it }
                 }
+
+                if (settingsPage == "visibility") {
+                SettingsSubcategory(stringResource(R.string.dlg_visibility), stringResource(R.string.dlg_hide_this_badge_or_schedule_when_it_appears))
+                VisibilityEditor(visSpec) { visSpec = it }
+                }
             }
         },
         footer = {
@@ -1515,14 +1505,17 @@ fun BadgeSettingsDialog(
                     side       = side,
                     showName   = showName,
                     customName = customName.trim().ifBlank { null },
-                    hidden     = hidden,
-                    visibilityStart = visStart,
-                    visibilityEnd = visEnd,
-                    visibilityRangeMode = visRangeMode,
-                    visibilityRecurrence = visRecurrence,
-                    visibilityConditionEntityId = visConditionEntityId,
-                    visibilityConditionState = visConditionState,
-                    visibilityConditionNegate = visConditionNegate,
+                    hidden     = visSpec.hidden,
+                    visibilityConditions = visSpec.conditions,
+                    visibilityMatch = visSpec.match,
+                    // Clear the superseded flat fields so the rule lives only in the block list.
+                    visibilityStart = null,
+                    visibilityEnd = null,
+                    visibilityRangeMode = "show",
+                    visibilityRecurrence = "none",
+                    visibilityConditionEntityId = null,
+                    visibilityConditionState = null,
+                    visibilityConditionNegate = false,
                     showState  = showState,
                     stateAttribute = stateAttribute,
                     stateUnit  = stateUnit,

@@ -648,9 +648,13 @@
     <string name="dlg_condition_is">~이다</string>
     <string name="dlg_condition_is_not">아니다</string>
     <string name="dlg_condition_state">상태</string>
+    <string name="dlg_vis_and">그리고</string>
     <string name="dlg_vis_conditional">가정 어구</string>
-    <string name="dlg_vis_conditional_hint">아래 규칙이 통과되는 경우에만 표시됩니다. 시간 일정, 엔터티 상태 또는 둘 다를 켜십시오. 둘 다 켜져 있으면 둘 다 통과해야 합니다.</string>
     <string name="dlg_vis_entity_state">엔터티 상태</string>
+    <string name="dlg_vis_match">성냥</string>
+    <string name="dlg_vis_match_all">모든 규칙</string>
+    <string name="dlg_vis_match_any">모든 규칙</string>
+    <string name="dlg_vis_or">또는</string>
     <string name="dlg_vis_time_schedule">시간표</string>
     <string name="dlg_choose_a_visual_home_assistant_block">시각적 Home Assistant 블록 선택</string>
     <string name="dlg_choose_action">작업 선택</string>

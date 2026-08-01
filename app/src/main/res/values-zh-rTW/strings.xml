@@ -3313,7 +3313,11 @@
     <string name="ui_hidden_items_advanced_title">隱藏物品（高級）</string>
     <string name="ui_hidden_items_advanced_hint">以逗號分隔的按鈕實體 ID 或徽章/小部件 ID 列表，專門向此人隱藏。按鈕的 id 是其實體 id；徽章或小部件的 ID 顯示在其自己的外觀設定中。</string>
     <string name="dlg_vis_conditional">有條件的</string>
-    <string name="dlg_vis_conditional_hint">僅當滿足以下規則時才顯示此內容。開啟時間表、實體狀態或兩者 — 當兩者都開啟時，兩者都必須通過。</string>
     <string name="dlg_vis_entity_state">實體狀態</string>
     <string name="dlg_vis_time_schedule">時間表</string>
+    <string name="dlg_vis_and">和</string>
+    <string name="dlg_vis_match">匹配</string>
+    <string name="dlg_vis_match_all">所有規則</string>
+    <string name="dlg_vis_match_any">任何規則</string>
+    <string name="dlg_vis_or">或者</string>
 </resources>

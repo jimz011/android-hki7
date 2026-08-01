@@ -68,9 +68,13 @@
     <string name="dlg_condition_is">Ist</string>
     <string name="dlg_condition_is_not">Ist nicht</string>
     <string name="dlg_condition_state">Zustand</string>
+    <string name="dlg_vis_and">UND</string>
     <string name="dlg_vis_conditional">Bedingt</string>
-    <string name="dlg_vis_conditional_hint">Zeigen Sie dies nur an, wenn die folgenden Regeln erfüllt sind. Aktivieren Sie einen Zeitplan, einen Entitätsstatus oder beides – wenn beide aktiviert sind, müssen beide bestehen.</string>
     <string name="dlg_vis_entity_state">Entitätszustand</string>
+    <string name="dlg_vis_match">Übereinstimmen</string>
+    <string name="dlg_vis_match_all">Alle Regeln</string>
+    <string name="dlg_vis_match_any">Irgendeine Regel</string>
+    <string name="dlg_vis_or">ODER</string>
     <string name="dlg_vis_time_schedule">Zeitplan</string>
     <string name="ui_0f_s_788ca6f" formatted="false">%.0f %s</string>
     <string name="ui_1_advanced_shorthand_block_kept_unchanged_d4dcbd7">1 erweiterter Kurzschriftblock (unverändert beibehalten)</string>

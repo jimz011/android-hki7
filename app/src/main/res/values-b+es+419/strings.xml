@@ -3313,7 +3313,11 @@
     <string name="ui_hidden_items_advanced_title">Elementos ocultos (avanzado)</string>
     <string name="ui_hidden_items_advanced_hint">Lista separada por comas de identificadores de entidades de botones o identificadores de insignias/widgets para ocultarlos específicamente a esta persona. La identificación de un botón es su identificación de entidad; La identificación de una insignia o widget se muestra en su propia configuración de Apariencia.</string>
     <string name="dlg_vis_conditional">Condicional</string>
-    <string name="dlg_vis_conditional_hint">Muestre esto solo cuando se cumplan las reglas siguientes. Active un cronograma, un estado de entidad o ambos; cuando ambos están activados, ambos deben pasar.</string>
     <string name="dlg_vis_entity_state">Estado de la entidad</string>
     <string name="dlg_vis_time_schedule">Horario</string>
+    <string name="dlg_vis_and">Y</string>
+    <string name="dlg_vis_match">Fósforo</string>
+    <string name="dlg_vis_match_all">Todas las reglas</string>
+    <string name="dlg_vis_match_any">cualquier regla</string>
+    <string name="dlg_vis_or">O</string>
 </resources>

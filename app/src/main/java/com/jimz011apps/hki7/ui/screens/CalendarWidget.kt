@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import com.jimz011apps.hki7.ui.components.toVisibilitySpec
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -1076,11 +1077,7 @@ fun CalendarWidgetSettingsDialog(
     var editingItemVisibility by remember { mutableStateOf<String?>(null) }
     var visSpec by remember(widget) {
         mutableStateOf(
-            com.jimz011apps.hki7.ui.components.VisibilitySpec(
-                widget.isHidden, widget.visibilityStart, widget.visibilityEnd,
-                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" },
-                widget.visibilityConditionEntityId, widget.visibilityConditionState, widget.visibilityConditionNegate
-            )
+            widget.toVisibilitySpec()
         )
     }
     val calendarEntities = remember(allEntities) { allEntities.filter { it.entity_id.startsWith("calendar.") } }
@@ -1234,6 +1231,8 @@ fun CalendarWidgetSettingsDialog(
                             visibilityConditionEntityId = visSpec.conditionEntityId,
                             visibilityConditionState = visSpec.conditionState,
                             visibilityConditionNegate = visSpec.conditionNegate,
+                            visibilityConditions = visSpec.conditions,
+                            visibilityMatch = visSpec.match,
                             itemConfigs = itemConfigs
                         )
                     )

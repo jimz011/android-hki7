@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 
+import com.jimz011apps.hki7.ui.components.toVisibilitySpec
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 
 import androidx.compose.foundation.Image
@@ -1359,11 +1360,7 @@ fun ParcelsWidgetSettingsDialog(
     var editingItemVisibility by remember { mutableStateOf<String?>(null) }
     var visSpec by remember(widget) {
         mutableStateOf(
-            com.jimz011apps.hki7.ui.components.VisibilitySpec(
-                widget.isHidden, widget.visibilityStart, widget.visibilityEnd,
-                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" },
-                widget.visibilityConditionEntityId, widget.visibilityConditionState, widget.visibilityConditionNegate
-            )
+            widget.toVisibilitySpec()
         )
     }
     val defaultTitle = stringResource(R.string.parcel_title)
@@ -1486,7 +1483,9 @@ fun ParcelsWidgetSettingsDialog(
         visibilityRangeMode = visSpec.rangeMode, visibilityRecurrence = visSpec.recurrence,
  visibilityConditionEntityId = visSpec.conditionEntityId,
  visibilityConditionState = visSpec.conditionState,
- visibilityConditionNegate = visSpec.conditionNegate, itemConfigs = itemConfigs
+        visibilityConditionNegate = visSpec.conditionNegate,
+        visibilityConditions = visSpec.conditions, visibilityMatch = visSpec.match,
+        itemConfigs = itemConfigs
     )) }) { Text(stringResource(R.string.ui_save_efc007a)) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } })
     editingItemVisibility?.let { id ->

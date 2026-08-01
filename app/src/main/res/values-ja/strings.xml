@@ -648,9 +648,13 @@
     <string name="dlg_condition_is">は</string>
     <string name="dlg_condition_is_not">そうではありません</string>
     <string name="dlg_condition_state">状態</string>
+    <string name="dlg_vis_and">そして</string>
     <string name="dlg_vis_conditional">条件付き</string>
-    <string name="dlg_vis_conditional_hint">以下のルールが合格した場合にのみ表示します。タイム スケジュール、エンティティの状態、またはその両方をオンにします。両方がオンの場合は、両方とも通過する必要があります。</string>
     <string name="dlg_vis_entity_state">エンティティの状態</string>
+    <string name="dlg_vis_match">マッチ</string>
+    <string name="dlg_vis_match_all">すべてのルール</string>
+    <string name="dlg_vis_match_any">任意のルール</string>
+    <string name="dlg_vis_or">または</string>
     <string name="dlg_vis_time_schedule">タイムスケジュール</string>
     <string name="dlg_choose_a_visual_home_assistant_block">視覚的なHome Assistantブロックを選択</string>
     <string name="dlg_choose_action">アクションを選択</string>

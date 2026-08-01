@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import com.jimz011apps.hki7.ui.components.toVisibilitySpec
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
@@ -156,11 +157,7 @@ fun MediaPlayerWidgetSettingsDialog(
     var settingsPage by remember(widget) { mutableStateOf("content") }
     var visSpec by remember(widget) {
         mutableStateOf(
-            com.jimz011apps.hki7.ui.components.VisibilitySpec(
-                widget.isHidden, widget.visibilityStart, widget.visibilityEnd,
-                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" },
-                widget.visibilityConditionEntityId, widget.visibilityConditionState, widget.visibilityConditionNegate
-            )
+            widget.toVisibilitySpec()
         )
     }
     if (picking) {
@@ -236,7 +233,9 @@ fun MediaPlayerWidgetSettingsDialog(
                     visibilityRangeMode = visSpec.rangeMode, visibilityRecurrence = visSpec.recurrence,
  visibilityConditionEntityId = visSpec.conditionEntityId,
  visibilityConditionState = visSpec.conditionState,
- visibilityConditionNegate = visSpec.conditionNegate
+ visibilityConditionNegate = visSpec.conditionNegate,
+ visibilityConditions = visSpec.conditions,
+ visibilityMatch = visSpec.match
                 ))
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
