@@ -7,6 +7,9 @@ Items marked with \* require the HKI 7 Cloud Component integration.
 
 ## 1.0.0-beta.10
 
+- Visibility rules now work across every widget and individual widget items, with one-off or recurring time schedules, entity-state conditions, multiple AND/OR blocks, and per-user hiding. The visibility editor has its own tab, and a new conditional setup starts empty so you can explicitly choose Time or Entity.
+- Energy setup now recognises SmartGateways and DSMR Reader MQTT naming, including consumption/production, delivered/returned, Dutch terminology, and alternate tariff spellings. Selecting a source device refills empty sensor roles while retaining existing overrides. City heating now has separate settings, a live source tile and detail tab, accepts J/kJ/MJ/GJ/Wh/kWh/MWh readings, and shows an estimated natural-gas equivalent based on 35.17 MJ per m³.
+- Calendar widget dialogs now use the full available height, fixing agenda and settings content that previously occupied only part of the dialog or was cut off.
 - Fixed PostNL and the current parcel-integration parser, so incoming shipments once again show their complete tracking details and delivered state. Carrier support has also been brought up to date.
 - Added an in-app language selector with full coverage in 13 languages: Dutch, German, French, Spanish (plus Latin American Spanish), Italian, Turkish, Portuguese (plus Brazilian Portuguese), Japanese, Korean, and Chinese (Simplified and Traditional). Each language shows its native name with an English hint beneath it.
 - The reconnect status now shows the actual connection error, making Wi-Fi, mobile-data, and VPN handovers much easier to diagnose.

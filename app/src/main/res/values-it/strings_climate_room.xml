@@ -331,6 +331,12 @@
     <string name="cr_quick_make_it_yours_instruction">In modalità modifica, aggiungi e riordina stanze, piani e widget. Tocca un elemento per configurarlo.</string>
 
     <string-array name="cr_whats_new_beta_10">
+        <item>Le regole di visibilità ora funzionano per tutti i widget e i singoli elementi, con orari, condizioni sullo stato delle entità, più regole AND/OR e occultamento per utente. Le nuove condizioni partono vuote per scegliere Ora o Entità.</item>
+        <item>La configurazione Energia riconosce ora i sensori MQTT di SmartGateways e DSMR Reader. La scelta di un dispositivo sorgente compila nuovamente i sensori separati. Il teleriscaldamento dispone di impostazioni, riquadro, scheda dettagli e stima del gas equivalente per valori J/GJ.</item>
+        <item>Le finestre del widget Calendario usano correttamente tutta l’altezza disponibile: il contenuto non occupa più solo metà finestra e non viene tagliato.</item>
+        <item>La rotazione dello schermo segue ora l’impostazione di rotazione automatica del dispositivo invece di restare bloccata in verticale.</item>
+        <item>Il riquadro Esterno di Clima appare appena viene collegato un dispositivo meteo, anche senza sensori dedicati di temperatura, umidità o pressione, e ne mostra i grafici.</item>
+        <item>Gli stati dei pacchi dei corrieri vengono mostrati come frasi normali e una finestra di consegna nello stesso giorno non ripete più la data.</item>
         <item>Corretti PostNL e l’attuale parser delle integrazioni per i pacchi: le spedizioni in arrivo mostrano di nuovo tutti i dettagli di tracciamento e lo stato di consegna. È stato aggiornato anche il supporto ai corrieri.</item>
         <item>Aggiunto un selettore della lingua nell’app, con ampia copertura in olandese, tedesco, francese, spagnolo, italiano e turco, oltre a una revisione approfondita dei testi in olandese.</item>
         <item>Lo stato di riconnessione mostra ora l’errore di connessione effettivo, rendendo più semplice diagnosticare i passaggi tra Wi-Fi, rete mobile e VPN.</item>

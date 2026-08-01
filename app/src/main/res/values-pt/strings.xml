@@ -3218,6 +3218,12 @@
         <item quantity="other">%1$d baterias precisam de atenção</item>
     </plurals>
     <string-array name="cr_whats_new_beta_10">
+        <item>As regras de visibilidade funcionam agora em todos os widgets e respetivos itens, com horários, condições de estado de entidades, várias regras E/OU e ocultação por utilizador. As novas condições começam vazias para poder escolher Hora ou Entidade.</item>
+        <item>A configuração de Energia reconhece sensores MQTT do SmartGateways e DSMR Reader. Escolher um dispositivo de origem volta a preencher os sensores separados. O aquecimento urbano tem definições, bloco, separador de detalhes e uma estimativa do gás equivalente para leituras em J/GJ.</item>
+        <item>As janelas do widget Calendário usam agora corretamente toda a altura disponível; o conteúdo deixou de ocupar apenas metade ou de ficar cortado.</item>
+        <item>A rotação do ecrã segue agora a rotação automática do dispositivo, em vez de permanecer bloqueada no modo vertical.</item>
+        <item>O bloco Exterior em Clima aparece assim que um dispositivo meteorológico é associado, mesmo sem sensores próprios de temperatura, humidade ou pressão, e apresenta gráficos dos seus atributos.</item>
+        <item>Os estados de encomendas das transportadoras são apresentados como frases normais e uma janela de entrega no próprio dia já não repete a data.</item>
         <item>Corrigidos o PostNL e o analisador de integração de encomendas atual, pelo que as remessas recebidas voltam a mostrar os detalhes completos de rastreio e o estado de entrega. O suporte de transportadoras também foi atualizado.</item>
         <item>Adicionado um seletor de idioma na aplicação com ampla cobertura de neerlandês, alemão, francês, espanhol, italiano e turco, além de uma grande revisão de texto em neerlandês.</item>
         <item>O estado de reconexão agora mostra o erro de ligação real, tornando muito mais fácil diagnosticar transições de Wi-Fi, dados móveis e VPN.</item>

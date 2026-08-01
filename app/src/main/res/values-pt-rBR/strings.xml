@@ -3218,6 +3218,12 @@
         <item quantity="other">Gráfico %1$d · %2$d sensores</item>
     </plurals>
     <string-array name="cr_whats_new_beta_10">
+        <item>As regras de visibilidade agora funcionam em todos os widgets e seus itens, com horários, condições de estado de entidades, várias regras E/OU e ocultação por usuário. Novas condições começam vazias para você escolher Hora ou Entidade.</item>
+        <item>A configuração de Energia reconhece sensores MQTT do SmartGateways e DSMR Reader. Escolher um dispositivo de origem volta a preencher os sensores separados. O aquecimento urbano ganhou configurações, bloco, aba de detalhes e estimativa do gás equivalente para leituras em J/GJ.</item>
+        <item>As janelas do widget Calendário agora usam corretamente toda a altura disponível; o conteúdo não ocupa mais apenas metade nem fica cortado.</item>
+        <item>A rotação da tela agora segue a rotação automática do dispositivo em vez de permanecer bloqueada no modo retrato.</item>
+        <item>O bloco Exterior em Clima aparece assim que um dispositivo meteorológico é vinculado, mesmo sem sensores próprios de temperatura, umidade ou pressão, e exibe gráficos dos atributos.</item>
+        <item>Os status de encomendas das transportadoras são exibidos como frases normais e uma janela de entrega no mesmo dia não repete mais a data.</item>
         <item>Corrigido o PostNL e o analisador de integração de encomendas atual, para que os envios recebidos voltem a exibir seus detalhes completos de rastreamento e status de entrega. O suporte a transportadoras também foi atualizado.</item>
         <item>Adicionado um seletor de idioma no aplicativo com ampla cobertura de holandês, alemão, francês, espanhol, italiano e turco, além de uma grande revisão de textos em holandês.</item>
         <item>O status de reconexão agora exibe o erro de conexão real, facilitando muito o diagnóstico de transições entre Wi-Fi, dados móveis e VPN.</item>

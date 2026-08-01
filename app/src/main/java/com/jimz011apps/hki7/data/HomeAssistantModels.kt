@@ -796,6 +796,11 @@ data class HKIEnergyConfig(
     val solarForecastEntityId: String? = null,
     val gasEntityId: String? = null,
     val gasCostEntityId: String? = null,
+    /** District/city-heating energy meter. Typically reported in J, MJ, or GJ. */
+    val cityHeatingEntityId: String? = null,
+    /** Optional live district-heating power/flow sensor. */
+    val cityHeatingCurrentEntityId: String? = null,
+    val cityHeatingCostEntityId: String? = null,
     val waterEntityId: String? = null,
     val waterCostEntityId: String? = null,
     /** Optional user order for the cards on the main Energy page. */
@@ -844,6 +849,7 @@ data class HKIEnergyConfig(
     val batteryDeviceId: String? = null,
     val carbonDeviceId: String? = null,
     val gasDeviceId: String? = null,
+    val cityHeatingDeviceId: String? = null,
     val waterDeviceId: String? = null,
     /** Energy sensor roles explicitly changed by the user; source-device guesses must preserve them. */
     val customizedEntityRoles: Set<String> = emptySet()

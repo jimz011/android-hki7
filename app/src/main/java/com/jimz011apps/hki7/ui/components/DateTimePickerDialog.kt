@@ -191,9 +191,11 @@ val LocalEntityCatalogProvider = staticCompositionLocalOf<() -> List<HAEntity>> 
 @Composable
 fun VisibilityEditor(spec: VisibilitySpec, onChange: (VisibilitySpec) -> Unit) {
     val appColors = LocalHKIAppColors.current
+    var emptyConditional by remember { mutableStateOf(false) }
     val mode = when {
         spec.hidden -> "hidden"
         spec.conditions.isNotEmpty() -> "conditional"
+        emptyConditional -> "conditional"
         else -> "always"
     }
     // Index of the block whose picker/date dialog is currently open.
@@ -212,19 +214,16 @@ fun VisibilityEditor(spec: VisibilitySpec, onChange: (VisibilitySpec) -> Unit) {
     fun addBlock(block: HKIVisibilityCondition) {
         onChange(spec.copy(hidden = false, conditions = spec.conditions + block))
     }
-    fun newTimeBlock() = HKIVisibilityCondition(
-        type = VISIBILITY_TYPE_TIME,
-        start = LocalDateTime.now().withSecond(0).withNano(0).toString(),
-    )
+    fun newTimeBlock() = HKIVisibilityCondition(type = VISIBILITY_TYPE_TIME)
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(selected = mode == "always", onClick = { onChange(VisibilitySpec()) }, label = { Text(stringResource(R.string.dlg_always)) })
-            FilterChip(selected = mode == "hidden", onClick = { onChange(VisibilitySpec(hidden = true)) }, label = { Text(stringResource(R.string.dlg_hidden)) })
+            FilterChip(selected = mode == "always", onClick = { emptyConditional = false; onChange(VisibilitySpec()) }, label = { Text(stringResource(R.string.dlg_always)) })
+            FilterChip(selected = mode == "hidden", onClick = { emptyConditional = false; onChange(VisibilitySpec(hidden = true)) }, label = { Text(stringResource(R.string.dlg_hidden)) })
             FilterChip(
                 selected = mode == "conditional",
-                // Seed a time block so the mode has something to configure straight away.
-                onClick = { if (spec.conditions.isEmpty()) addBlock(newTimeBlock()) else onChange(spec.copy(hidden = false)) },
+                // Conditional starts empty; the user explicitly chooses a time or entity rule.
+                onClick = { emptyConditional = true; onChange(spec.copy(hidden = false)) },
                 label = { Text(stringResource(R.string.dlg_vis_conditional)) }
             )
         }

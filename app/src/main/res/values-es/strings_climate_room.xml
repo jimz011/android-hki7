@@ -331,6 +331,12 @@
     <string name="cr_quick_make_it_yours_instruction">En el modo de edición, añade y reordena habitaciones, plantas y widgets. Toca un elemento para configurarlo.</string>
 
     <string-array name="cr_whats_new_beta_10">
+        <item>Las reglas de visibilidad ya funcionan en todos los widgets y sus elementos, con horarios, condiciones de estado de entidad, varias reglas Y/O y ocultación por usuario. Las condiciones nuevas empiezan vacías para que elijas Hora o Entidad.</item>
+        <item>La configuración de Energía reconoce ahora sensores MQTT de SmartGateways y DSMR Reader. Elegir un dispositivo de origen vuelve a rellenar los sensores separados. La calefacción urbana incluye ajustes, tarjeta de origen, pestaña detallada y una estimación del gas equivalente para lecturas en J/GJ.</item>
+        <item>Los diálogos del widget Calendario usan correctamente toda la altura disponible; el contenido ya no ocupa solo la mitad ni queda cortado.</item>
+        <item>La rotación de pantalla sigue ahora el ajuste de giro automático del dispositivo en vez de permanecer bloqueada en vertical.</item>
+        <item>La tarjeta Exterior de Clima aparece al vincular un dispositivo meteorológico, incluso sin sensores dedicados de temperatura, humedad o presión, y muestra gráficas de sus atributos.</item>
+        <item>Los estados de paquetes de los transportistas se muestran como frases normales y una ventana de entrega del mismo día ya no repite la fecha.</item>
         <item>Se han corregido PostNL y el analizador actual de integraciones de paquetería, por lo que los envíos entrantes vuelven a mostrar todos sus datos de seguimiento y el estado de entrega. También se ha actualizado la compatibilidad con transportistas.</item>
         <item>Se ha añadido un selector de idioma en la aplicación, con una amplia cobertura en neerlandés, alemán, francés, español, italiano y turco, además de una revisión profunda de los textos en neerlandés.</item>
         <item>El estado de reconexión muestra ahora el error real de conexión, lo que facilita diagnosticar los cambios entre Wi-Fi, datos móviles y VPN.</item>

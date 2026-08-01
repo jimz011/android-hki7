@@ -4,6 +4,8 @@ import com.jimz011apps.hki7.data.HAConfigEntry
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HAEntityRegistryEntry
 import com.jimz011apps.hki7.data.HKIEnergyConfig
+import com.jimz011apps.hki7.ui.screens.gigajoulesToEstimatedGasM3
+import com.jimz011apps.hki7.ui.screens.heatEnergyToGigajoules
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.Assert.assertEquals
@@ -11,6 +13,45 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 class EnergyCarbonImportTest {
+    @Test
+    fun `mqtt p1 names from smart gateways and dsmr reader are imported`() {
+        fun entity(id: String, name: String, deviceClass: String, unit: String) = HAEntity(
+            entity_id = id,
+            state = "1",
+            attributes = buildJsonObject {
+                put("friendly_name", name)
+                put("device_class", deviceClass)
+                put("unit_of_measurement", unit)
+            }
+        )
+        val source = entity("sensor.energy_consumption", "Energy consumption", "energy", "kWh")
+        val power = entity("sensor.power_consumption", "Power consumption", "power", "W")
+        val usedT1 = entity("sensor.energy_consumption_tarif_1", "Energy consumption tarif 1", "energy", "kWh")
+        val usedT2 = entity("sensor.electricity_used_tariff_2", "Electricity used tariff 2", "energy", "kWh")
+        val returnedT1 = entity("sensor.electricity_delivered_tariff_1", "Electricity delivered tariff 1", "energy", "kWh")
+        val live = listOf(source, power, usedT1, usedT2, returnedT1)
+
+        val result = importRelatedHomeAssistantEnergyEntities(
+            HKIEnergyConfig(),
+            mapOf("electricity" to listOf(source.entity_id)),
+            live.map { HAEntityRegistryEntry(it.entity_id, device_id = "mqtt-p1") },
+            live
+        )
+
+        assertEquals(power.entity_id, result.gridPowerEntityId)
+        assertEquals(source.entity_id, result.gridImportEntityId)
+        assertEquals(usedT1.entity_id, result.gridImportTariff1EntityId)
+        assertEquals(usedT2.entity_id, result.gridImportTariff2EntityId)
+        assertEquals(returnedT1.entity_id, result.gridExportTariff1EntityId)
+    }
+
+    @Test
+    fun `city heating converts joules and estimates natural gas`() {
+        assertEquals(1f, heatEnergyToGigajoules(1_000_000_000f, "J"), 0.0001f)
+        assertEquals(3.6f, heatEnergyToGigajoules(1_000f, "kWh"), 0.0001f)
+        assertEquals(28.43f, gigajoulesToEstimatedGasM3(1f), 0.01f)
+    }
+
     @Test
     fun `energy preference source imports related entities from the same device`() {
         fun entity(id: String, name: String, deviceClass: String, unit: String) = HAEntity(

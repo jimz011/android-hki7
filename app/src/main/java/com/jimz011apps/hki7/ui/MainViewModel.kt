@@ -604,6 +604,10 @@ internal fun importRelatedHomeAssistantEnergyEntities(
         entity.deviceClass == "power" || unit(entity) in setOf("W", "kW")
     fun isEnergy(entity: HAEntity) =
         entity.deviceClass == "energy" || unit(entity).contains("Wh", ignoreCase = true)
+    fun HAEntity.hasAny(vararg terms: String) = terms.any(normalizedName()::contains)
+    fun isImport(entity: HAEntity) = entity.hasAny("import", "consumption", "consumed", "used", "afname")
+    fun isExport(entity: HAEntity) = entity.hasAny("export", "production", "produced", "delivered", "returned", "teruglever")
+    fun isTariff(entity: HAEntity, tariff: Int) = entity.hasAny("tariff $tariff", "tariff_$tariff", "tarif $tariff", "tarif_$tariff", "t$tariff")
     fun isCost(entity: HAEntity) =
         entity.deviceClass == "monetary" || entity.normalizedName().contains("cost")
     fun HAEntity.matchesPhase(phase: Int): Boolean {
@@ -633,10 +637,10 @@ internal fun importRelatedHomeAssistantEnergyEntities(
                 isPower(it) && listOf("home", "house", "load").any(it.normalizedName()::contains)
             }),
             gridImportEntityId = fill("import_kwh", result.gridImportEntityId, entities.pick {
-                isEnergy(it) && it.normalizedName().contains("import") && !it.normalizedName().contains("tariff")
+                isEnergy(it) && isImport(it) && !isTariff(it, 1) && !isTariff(it, 2)
             }),
             gridExportEntityId = fill("export_kwh", result.gridExportEntityId, entities.pick {
-                isEnergy(it) && it.normalizedName().contains("export") && !it.normalizedName().contains("tariff")
+                isEnergy(it) && isExport(it) && !isTariff(it, 1) && !isTariff(it, 2)
             }),
             energyCostEntityId = fill("cost", result.energyCostEntityId, entities.pick { isCost(it) }),
             powerPhase1EntityId = fill("phase1", result.powerPhase1EntityId, phasePower(1)),
@@ -649,16 +653,16 @@ internal fun importRelatedHomeAssistantEnergyEntities(
             voltagePhase2EntityId = fill("voltage2", result.voltagePhase2EntityId, phaseClass("voltage", "V", 2)),
             voltagePhase3EntityId = fill("voltage3", result.voltagePhase3EntityId, phaseClass("voltage", "V", 3)),
             gridImportTariff1EntityId = fill("import_t1", result.gridImportTariff1EntityId, entities.pick {
-                isEnergy(it) && it.normalizedName().contains("import") && it.normalizedName().contains("tariff 1")
+                isEnergy(it) && isImport(it) && isTariff(it, 1)
             }),
             gridImportTariff2EntityId = fill("import_t2", result.gridImportTariff2EntityId, entities.pick {
-                isEnergy(it) && it.normalizedName().contains("import") && it.normalizedName().contains("tariff 2")
+                isEnergy(it) && isImport(it) && isTariff(it, 2)
             }),
             gridExportTariff1EntityId = fill("export_t1", result.gridExportTariff1EntityId, entities.pick {
-                isEnergy(it) && it.normalizedName().contains("export") && it.normalizedName().contains("tariff 1")
+                isEnergy(it) && isExport(it) && isTariff(it, 1)
             }),
             gridExportTariff2EntityId = fill("export_t2", result.gridExportTariff2EntityId, entities.pick {
-                isEnergy(it) && it.normalizedName().contains("export") && it.normalizedName().contains("tariff 2")
+                isEnergy(it) && isExport(it) && isTariff(it, 2)
             })
         )
     }

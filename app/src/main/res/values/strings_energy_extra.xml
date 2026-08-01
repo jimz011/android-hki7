@@ -11,6 +11,7 @@
     <string name="energy_extra_home">Home</string>
     <string name="energy_extra_battery">Battery</string>
     <string name="energy_extra_gas">Gas</string>
+    <string name="energy_extra_city_heating">City heating</string>
     <string name="energy_extra_water">Water</string>
     <string name="energy_extra_energy">Energy</string>
     <string name="energy_extra_power">Power</string>
@@ -71,11 +72,13 @@
     <string name="energy_extra_category_carbon_subtitle">Grid carbon-footprint device</string>
     <string name="energy_extra_category_usage_cost_subtitle">Usage and cost</string>
     <string name="energy_extra_category_devices_subtitle">Power, energy, and individual water devices</string>
+    <string name="energy_extra_category_city_heating_subtitle">Heat energy, current output, and cost</string>
 
     <string name="energy_extra_card_live_source_tiles">Live source tiles</string>
     <string name="energy_extra_card_electricity_totals_usage">Electricity totals and usage</string>
     <string name="energy_extra_card_home_battery">Home battery</string>
     <string name="energy_extra_card_gas_usage">Gas usage</string>
+    <string name="energy_extra_card_city_heating_usage">City-heating usage</string>
     <string name="energy_extra_card_water_usage">Water usage</string>
     <string name="energy_extra_card_device_energy_bars">Device energy bars</string>
     <string name="energy_extra_select_energy_cards">Select energy cards</string>
@@ -132,6 +135,11 @@
     <string name="energy_extra_sensor_gas_used_today">Gas used today (m³)</string>
     <string name="energy_extra_sensor_current_gas_flow">Current gas flow (m³/h, optional)</string>
     <string name="energy_extra_sensor_gas_cost_today">Gas cost today</string>
+    <string name="energy_extra_sensor_city_heating_total">Heat energy total (J/MJ/GJ/kWh)</string>
+    <string name="energy_extra_sensor_city_heating_current">Current heat output (optional)</string>
+    <string name="energy_extra_sensor_city_heating_cost">City-heating cost</string>
+    <string name="energy_extra_estimated_gas_equivalent">Estimated gas equivalent</string>
+    <string name="energy_extra_estimated_gas_note">Based on 35.17 MJ per m³ of natural gas</string>
     <string name="energy_extra_sensor_water_used_today">Water used today (L/m³)</string>
     <string name="energy_extra_sensor_current_water_flow">Current water flow (L/min, optional)</string>
     <string name="energy_extra_sensor_water_cost_today">Water cost today</string>

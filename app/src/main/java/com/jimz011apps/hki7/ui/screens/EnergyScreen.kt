@@ -77,6 +77,7 @@ private val ExportGreen = Color(0xFF66BB6A)
 private val ImportRed   = Color(0xFFEF5350)
 private val BattPurple  = Color(0xFF7E57C2)
 private val GasPink     = Color(0xFFEC407A)
+private val HeatOrange  = Color(0xFFFF7043)
 private val WaterBlue   = Color(0xFF29B6F6)
 private val DodgerBlue  = Color(0xFF1E90FF)
 private val WindowWarm  = Color(0xFFFFDF9E)
@@ -289,12 +290,13 @@ fun EnergyScreen(viewModel: MainViewModel) {
             "electricity_total" to (stringResource(R.string.ui_electricity_total_c81c63f) to "transmission-tower"),
             "solar" to (stringResource(R.string.ui_solar_0e26539) to "solar-power"),
             "gas" to (stringResource(R.string.ui_gas_ead9650) to "fire"),
+            "city_heating" to (stringResource(R.string.energy_extra_city_heating) to "heat-wave"),
             "water" to (stringResource(R.string.ui_water_de9b1be) to "water"),
             "top_consumers" to (stringResource(R.string.ui_top_consumers_0199dbf) to "power-plug"),
             "device_energy" to (stringResource(R.string.ui_device_energy_79de3d8) to "chart-bar"),
             "water_devices" to (stringResource(R.string.ui_individual_water_usage_21dd78c) to "water-pump")
         )
-        val defaults = listOf("electricity_total", "solar", "gas", "water", "top_consumers", "device_energy", "water_devices")
+        val defaults = listOf("electricity_total", "solar", "gas", "city_heating", "water", "top_consumers", "device_energy", "water_devices")
         val current = energyConfig.cardOrder.filter { it in defaults } + defaults.filterNot { it in energyConfig.cardOrder }
         com.jimz011apps.hki7.ui.components.ReorderItemsDialog(
             title = stringResource(R.string.ui_reorder_cards_147ed64),
@@ -367,6 +369,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
     val gasCost  = entityFloat(energyConfig.gasCostEntityId)
     val waterVal = entityFloat(energyConfig.waterEntityId)
     val waterCost = entityFloat(energyConfig.waterCostEntityId)
+    val cityHeatingVal = entityFloat(energyConfig.cityHeatingEntityId)
+    val cityHeatingCost = entityFloat(energyConfig.cityHeatingCostEntityId)
     val gasUnit   = entityUnit(energyConfig.gasEntityId, "m³")
     val waterUnit = entityUnit(energyConfig.waterEntityId, "L")
     // Water is always shown in liters, even when the sensor reports m³.
@@ -376,6 +380,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
     // Live flow rate for the tiles; when absent the tiles fall back to the meter total.
     val gasCurrentDisplay   = entityDisplay(energyConfig.gasCurrentEntityId)
     val waterCurrentDisplay = entityDisplay(energyConfig.waterCurrentEntityId)
+    val cityHeatingCurrentDisplay = entityDisplay(energyConfig.cityHeatingCurrentEntityId)
+    val cityHeatingUnit = entityUnit(energyConfig.cityHeatingEntityId, "GJ")
 
     val phaseIds = listOf(
         energyConfig.powerPhase1EntityId, energyConfig.powerPhase2EntityId, energyConfig.powerPhase3EntityId
@@ -441,6 +447,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
     val solarPowerId = energyConfig.solarPowerEntityId?.takeIf { it.isNotBlank() }
     val gasId    = energyConfig.gasEntityId?.takeIf { it.isNotBlank() }
     val waterId  = energyConfig.waterEntityId?.takeIf { it.isNotBlank() }
+    val cityHeatingId = energyConfig.cityHeatingEntityId?.takeIf { it.isNotBlank() }
     val importId = energyConfig.gridImportEntityId?.takeIf { it.isNotBlank() }
     val exportId = energyConfig.gridExportEntityId?.takeIf { it.isNotBlank() }
     val solarEnergyId = energyConfig.solarEnergyEntityId?.takeIf { it.isNotBlank() }
@@ -449,15 +456,15 @@ fun EnergyScreen(viewModel: MainViewModel) {
     }
     val batteryPowerId = energyConfig.batteryPowerEntityId?.takeIf { it.isNotBlank() }
     val statIds = (listOfNotNull(
-        chartPowerId, solarPowerId, gasId, waterId, importId, exportId, solarEnergyId, batteryPowerId
+        chartPowerId, solarPowerId, gasId, waterId, cityHeatingId, importId, exportId, solarEnergyId, batteryPowerId
     ) + phaseIds.filterNotNull()).distinct()
     LaunchedEffect(statIds, window) {
         viewModel.fetchEnergyStatistics(statIds, window.startMs, window.statPeriod(), window.key(), window.endMs)
     }
     // Today's gas/water usage for the live tiles — always the current day, whatever the filter.
     val todayWindow = remember(locale) { energyWindow(EnergyRange.DAY, 0, locale) }
-    LaunchedEffect(gasId, waterId) {
-        val ids = listOfNotNull(gasId, waterId)
+    LaunchedEffect(gasId, waterId, cityHeatingId) {
+        val ids = listOfNotNull(gasId, waterId, cityHeatingId)
         if (ids.isNotEmpty())
             viewModel.fetchEnergyStatistics(ids, todayWindow.startMs, "hour", "TODAY", todayWindow.endMs)
     }
@@ -515,6 +522,10 @@ fun EnergyScreen(viewModel: MainViewModel) {
         val raw = statChanges(waterId)
         if (waterIsM3) FloatArray(raw.size) { raw[it] * 1000f } else raw
     }
+    val cityHeatingSeriesGJ = remember(energyStats, cityHeatingId, cityHeatingUnit, window) {
+        val raw = statChanges(cityHeatingId)
+        FloatArray(raw.size) { heatEnergyToGigajoules(raw[it], cityHeatingUnit) }
+    }
     val battSeries  = remember(energyStats, batteryPowerId, window) { statMeans(batteryPowerId) }
     // HA-style electricity usage layers (kWh per bucket): import + consumed solar stack up,
     // export stacks down. Consumed solar = production - export, clamped per bucket.
@@ -554,6 +565,9 @@ fun EnergyScreen(viewModel: MainViewModel) {
     val usedPeriod = (importPeriod + producedPeriod - exportPeriod).coerceAtLeast(0f)
     val gasPeriod   = statTotal(gasId)
     val waterPeriod = statTotal(waterId)
+    val cityHeatingPeriodGJ = heatEnergyToGigajoules(statTotal(cityHeatingId), cityHeatingUnit)
+    val cityHeatingTodayGJ = heatEnergyToGigajoules(todayTotal(cityHeatingId), cityHeatingUnit)
+    val cityHeatingTotalGJ = cityHeatingVal?.let { heatEnergyToGigajoules(it, cityHeatingUnit) }
     // Self-used solar: whatever was produced but not exported stayed in the house.
     val selfUsedPeriod = (producedPeriod - exportPeriod).coerceIn(0f, producedPeriod)
     val selfUsedPct = if (producedPeriod > 0.01f) (selfUsedPeriod / producedPeriod * 100).toInt() else null
@@ -727,11 +741,13 @@ fun EnergyScreen(viewModel: MainViewModel) {
 
     val pageTitle = when (page) {
         "solar" -> stringResource(R.string.ui_solar_0e26539); "electricity" -> stringResource(R.string.ui_electricity_925cf7f); "gas" -> stringResource(R.string.ui_gas_ead9650)
+        "city_heating" -> stringResource(R.string.energy_extra_city_heating)
         "water" -> stringResource(R.string.ui_water_de9b1be); "battery" -> stringResource(R.string.ui_battery_4a9be04); else -> stringResource(R.string.ui_energy_437bcb1)
     }
     val pageSubtitle = when (page) {
         "solar" -> stringResource(R.string.ui_production_overview_fbbfc38); "electricity" -> stringResource(R.string.ui_grid_phases_0a5eae5)
         "gas" -> stringResource(R.string.ui_usage_overview_fc2eefc); "water" -> stringResource(R.string.ui_usage_overview_fc2eefc)
+        "city_heating" -> stringResource(R.string.ui_usage_overview_fc2eefc)
         "battery" -> stringResource(R.string.ui_charge_flow_ceb6c62); else -> stringResource(R.string.ui_power_overview_a204dd7)
     }
     HKIPage(
@@ -868,6 +884,15 @@ fun EnergyScreen(viewModel: MainViewModel) {
                                 "%.1f %s".format(gasToday, gasUnit)
                             )
                         ) { page = "gas" })
+                        if (cityHeatingId != null) add(TileSpec(
+                            Icons.Default.HeatPump,
+                            HeatOrange,
+                            stringResource(R.string.energy_extra_city_heating),
+                            cityHeatingCurrentDisplay ?: stringResource(
+                                R.string.energy_extra_today_value,
+                                "%.3f GJ".format(cityHeatingTodayGJ)
+                            )
+                        ) { page = "city_heating" })
                         if (waterId != null) add(TileSpec(
                             Icons.Default.WaterDrop,
                             WaterBlue,
@@ -981,6 +1006,17 @@ fun EnergyScreen(viewModel: MainViewModel) {
                             label = stringResource(R.string.ui_used_6a4ebbf, periodLabel)
                         ) {
                             EnergyBarChart(gasSeries, GasPink, gasUnit, axisLabels, tooltipLabels, nowIndex = nowIndex)
+                        }
+                    })
+
+                    if (cityHeatingId != null) add("city_heating" to {
+                        SectionHeader(stringResource(R.string.energy_extra_city_heating), cityHeatingCost?.let { "€ ${"%.2f".format(it)}" })
+                        UtilityCard(
+                            icon = Icons.Default.HeatPump, color = HeatOrange,
+                            value = "%.3f".format(cityHeatingPeriodGJ), unit = "GJ",
+                            label = stringResource(R.string.ui_used_6a4ebbf, periodLabel)
+                        ) {
+                            EnergyBarChart(cityHeatingSeriesGJ, HeatOrange, "GJ", axisLabels, tooltipLabels, nowIndex = nowIndex)
                         }
                     })
 
@@ -1400,6 +1436,35 @@ fun EnergyScreen(viewModel: MainViewModel) {
                             }
                             Spacer(Modifier.height(14.dp))
                             EnergyBarChart(gasSeries, GasPink, gasUnit, axisLabels, tooltipLabels, nowIndex = nowIndex)
+                        }
+                    }
+                }
+            } else if (page == "city_heating") {
+                item {
+                    SectionHeader(stringResource(R.string.energy_extra_usage), cityHeatingCost?.let { "€ ${"%.2f".format(it)}" })
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                        shape = itemCornerShape(), color = Color.Transparent
+                    ) {
+                        Column(Modifier.padding(16.dp)) {
+                            FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                cityHeatingCurrentDisplay?.let {
+                                    TotalStat(Icons.Default.Speed, HeatOrange, it, stringResource(R.string.energy_extra_now))
+                                }
+                                TotalStat(Icons.Default.HeatPump, HeatOrange, "%.3f GJ".format(cityHeatingPeriodGJ), stringResource(R.string.energy_extra_used_period, periodLabel))
+                                TotalStat(
+                                    Icons.Default.LocalFireDepartment, GasPink,
+                                    "%.1f m³".format(gigajoulesToEstimatedGasM3(cityHeatingPeriodGJ)),
+                                    stringResource(R.string.energy_extra_estimated_gas_equivalent)
+                                )
+                                cityHeatingTotalGJ?.let {
+                                    TotalStat(Icons.Default.HeatPump, HeatOrange, "%.3f GJ".format(it), stringResource(R.string.energy_extra_total))
+                                }
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            Text(stringResource(R.string.energy_extra_estimated_gas_note), style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
+                            Spacer(Modifier.height(14.dp))
+                            EnergyBarChart(cityHeatingSeriesGJ, HeatOrange, "GJ", axisLabels, tooltipLabels, nowIndex = nowIndex)
                         }
                     }
                 }
@@ -2567,6 +2632,24 @@ private fun formatW(w: Float): String {
     }
 }
 
+/** Converts common heat-meter energy units to GJ. */
+internal fun heatEnergyToGigajoules(value: Float, rawUnit: String): Float {
+    val unit = rawUnit.trim().lowercase().replace(" ", "")
+    return when (unit) {
+        "gj" -> value
+        "mj" -> value / 1_000f
+        "kj" -> value / 1_000_000f
+        "j" -> value / 1_000_000_000f
+        "mwh" -> value * 3.6f
+        "kwh" -> value * 0.0036f
+        "wh" -> value * 0.0000036f
+        else -> value // Heat meters most commonly expose GJ; retain a useful fallback.
+    }
+}
+
+/** Dutch standard natural-gas equivalent: 1 m³ ≈ 35.17 MJ. This is an estimate, not billing data. */
+internal fun gigajoulesToEstimatedGasM3(gigajoules: Float): Float = gigajoules * 1_000f / 35.17f
+
 @Composable
 private fun formatCarbonIntensity(value: Float, rawUnit: String): String {
     if (rawUnit.trim() == "%") {
@@ -2612,12 +2695,17 @@ private fun autoMapDeviceEntities(
     fun pick(pred: (HAEntity) -> Boolean): String? = dev.firstOrNull(pred)?.entity_id
     fun pickUnique(predicate: (HAEntity) -> Boolean): String? = dev.singleOrNull(predicate)?.entity_id
     fun keep(role: String, current: String?, guessed: String?): String? =
-        if (role in cfg.customizedEntityRoles) current else guessed ?: current
+        if (role in cfg.customizedEntityRoles && !current.isNullOrBlank()) current else guessed ?: current
     val isPower  = { e: HAEntity -> e.deviceClass == "power" || unit(e) == "W" || unit(e) == "kW" }
-    val isEnergy = { e: HAEntity -> e.deviceClass == "energy" || unit(e).contains("Wh") }
+    val isEnergy = { e: HAEntity -> e.deviceClass == "energy" || unit(e).contains("Wh", ignoreCase = true) }
     val isCurrent = { e: HAEntity -> e.deviceClass == "current" || unit(e) == "A" }
     val isVoltage = { e: HAEntity -> e.deviceClass == "voltage" || unit(e) == "V" }
+    val isCost = { e: HAEntity -> e.deviceClass == "monetary" || name(e).contains("cost") || name(e).contains("kosten") }
     fun phaseMatch(e: HAEntity, n: Int) = name(e).contains("phase $n") || name(e).contains(" l$n")
+    fun hasAny(e: HAEntity, vararg terms: String) = terms.any(name(e)::contains)
+    fun isImport(e: HAEntity) = hasAny(e, "import", "consumption", "consumed", "used", "afname")
+    fun isExport(e: HAEntity) = hasAny(e, "export", "production", "produced", "delivered", "returned", "teruglever")
+    fun isTariff(e: HAEntity, n: Int) = hasAny(e, "tariff $n", "tariff_$n", "tarif $n", "tarif_$n", "t$n")
     fun isCarbon(e: HAEntity): Boolean {
         val u = unit(e).lowercase()
         val n = name(e)
@@ -2649,12 +2737,13 @@ private fun autoMapDeviceEntities(
             voltagePhase1EntityId = keep("voltage1", cfg.voltagePhase1EntityId, pick { isVoltage(it) && phaseMatch(it, 1) } ?: pick { isVoltage(it) }),
             voltagePhase2EntityId = keep("voltage2", cfg.voltagePhase2EntityId, pick { isVoltage(it) && phaseMatch(it, 2) }),
             voltagePhase3EntityId = keep("voltage3", cfg.voltagePhase3EntityId, pick { isVoltage(it) && phaseMatch(it, 3) }),
-            gridImportEntityId = keep("import_kwh", cfg.gridImportEntityId, pick { isEnergy(it) && name(it).contains("import") && !name(it).contains("tariff") }),
-            gridImportTariff1EntityId = keep("import_t1", cfg.gridImportTariff1EntityId, pick { isEnergy(it) && name(it).contains("import") && name(it).contains("tariff 1") }),
-            gridImportTariff2EntityId = keep("import_t2", cfg.gridImportTariff2EntityId, pick { isEnergy(it) && name(it).contains("import") && name(it).contains("tariff 2") }),
-            gridExportEntityId = keep("export_kwh", cfg.gridExportEntityId, pick { isEnergy(it) && name(it).contains("export") && !name(it).contains("tariff") }),
-            gridExportTariff1EntityId = keep("export_t1", cfg.gridExportTariff1EntityId, pick { isEnergy(it) && name(it).contains("export") && name(it).contains("tariff 1") }),
-            gridExportTariff2EntityId = keep("export_t2", cfg.gridExportTariff2EntityId, pick { isEnergy(it) && name(it).contains("export") && name(it).contains("tariff 2") })
+            gridImportEntityId = keep("import_kwh", cfg.gridImportEntityId, pick { isEnergy(it) && isImport(it) && !isTariff(it, 1) && !isTariff(it, 2) }),
+            gridImportTariff1EntityId = keep("import_t1", cfg.gridImportTariff1EntityId, pick { isEnergy(it) && isImport(it) && isTariff(it, 1) }),
+            gridImportTariff2EntityId = keep("import_t2", cfg.gridImportTariff2EntityId, pick { isEnergy(it) && isImport(it) && isTariff(it, 2) }),
+            gridExportEntityId = keep("export_kwh", cfg.gridExportEntityId, pick { isEnergy(it) && isExport(it) && !isTariff(it, 1) && !isTariff(it, 2) }),
+            gridExportTariff1EntityId = keep("export_t1", cfg.gridExportTariff1EntityId, pick { isEnergy(it) && isExport(it) && isTariff(it, 1) }),
+            gridExportTariff2EntityId = keep("export_t2", cfg.gridExportTariff2EntityId, pick { isEnergy(it) && isExport(it) && isTariff(it, 2) }),
+            energyCostEntityId = keep("cost", cfg.energyCostEntityId, pick(isCost))
         )
         "carbon" -> cfg.copy(
             carbonDeviceId = deviceId,
@@ -2681,6 +2770,18 @@ private fun autoMapDeviceEntities(
                 ?: pick { unit(it).contains("m³") }
             ),
             gasCurrentEntityId = keep("gas_current", cfg.gasCurrentEntityId, pick { unit(it).contains("m³/h") })
+        )
+        "city_heating" -> cfg.copy(
+            cityHeatingDeviceId = deviceId,
+            cityHeatingEntityId = keep("city_heating", cfg.cityHeatingEntityId, pick {
+                isEnergy(it) && hasAny(it, "heat", "heating", "warmte", "kamstrup", "multical")
+            } ?: pick { isEnergy(it) && unit(it).contains("J", ignoreCase = true) }),
+            cityHeatingCurrentEntityId = keep("city_heating_current", cfg.cityHeatingCurrentEntityId, pick {
+                isPower(it) && hasAny(it, "heat", "heating", "warmte", "power", "vermogen")
+            }),
+            cityHeatingCostEntityId = keep("city_heating_cost", cfg.cityHeatingCostEntityId, pick {
+                isCost(it)
+            })
         )
         "water" -> cfg.copy(
             waterDeviceId = deviceId,
@@ -2747,6 +2848,9 @@ private fun EnergySensorSection(
         "gas"            -> cfg.gasEntityId
         "gas_current"    -> cfg.gasCurrentEntityId
         "gas_cost"       -> cfg.gasCostEntityId
+        "city_heating"         -> cfg.cityHeatingEntityId
+        "city_heating_current" -> cfg.cityHeatingCurrentEntityId
+        "city_heating_cost"    -> cfg.cityHeatingCostEntityId
         "water"          -> cfg.waterEntityId
         "water_current"  -> cfg.waterCurrentEntityId
         "water_cost"     -> cfg.waterCostEntityId
@@ -2783,6 +2887,9 @@ private fun EnergySensorSection(
             "gas"            -> cfg.copy(gasEntityId = id)
             "gas_current"    -> cfg.copy(gasCurrentEntityId = id)
             "gas_cost"       -> cfg.copy(gasCostEntityId = id)
+            "city_heating"         -> cfg.copy(cityHeatingEntityId = id)
+            "city_heating_current" -> cfg.copy(cityHeatingCurrentEntityId = id)
+            "city_heating_cost"    -> cfg.copy(cityHeatingCostEntityId = id)
             "water"          -> cfg.copy(waterEntityId = id)
             "water_current"  -> cfg.copy(waterCurrentEntityId = id)
             "water_cost"     -> cfg.copy(waterCostEntityId = id)
@@ -2815,6 +2922,7 @@ private fun EnergySensorSection(
                 "battery"     -> cfg.batteryDeviceId
                 "carbon"      -> cfg.carbonDeviceId
                 "gas"         -> cfg.gasDeviceId
+                "city_heating" -> cfg.cityHeatingDeviceId
                 "water"       -> cfg.waterDeviceId
                 else -> null
             },
@@ -2829,6 +2937,7 @@ private fun EnergySensorSection(
                             "battery"     -> cfg.copy(batteryDeviceId = null)
                             "carbon"      -> cfg.copy(carbonDeviceId = null, gridCarbonFootprintEntityId = null)
                             "gas"         -> cfg.copy(gasDeviceId = null)
+                            "city_heating" -> cfg.copy(cityHeatingDeviceId = null)
                             "water"       -> cfg.copy(waterDeviceId = null)
                             else -> cfg
                         }
@@ -2961,6 +3070,13 @@ private fun EnergySensorSection(
             GasPink
         )
         categoryButton(
+            "city_heating",
+            stringResource(R.string.energy_extra_city_heating),
+            stringResource(R.string.energy_extra_category_city_heating_subtitle),
+            Icons.Default.HeatPump,
+            HeatOrange
+        )
+        categoryButton(
             "water",
             stringResource(R.string.energy_extra_water),
             stringResource(R.string.energy_extra_category_usage_cost_subtitle),
@@ -3073,6 +3189,12 @@ private fun EnergySensorSection(
             sensorRow("gas", stringResource(R.string.energy_extra_sensor_gas_used_today))
             sensorRow("gas_current", stringResource(R.string.energy_extra_sensor_current_gas_flow))
             sensorRow("gas_cost", stringResource(R.string.energy_extra_sensor_gas_cost_today))
+        }
+        "city_heating" -> {
+            deviceRow("city_heating", cfg.cityHeatingDeviceId)
+            sensorRow("city_heating", stringResource(R.string.energy_extra_sensor_city_heating_total))
+            sensorRow("city_heating_current", stringResource(R.string.energy_extra_sensor_city_heating_current))
+            sensorRow("city_heating_cost", stringResource(R.string.energy_extra_sensor_city_heating_cost))
         }
         "water" -> {
             deviceRow("water", cfg.waterDeviceId)

@@ -331,6 +331,12 @@
     <string name="cr_quick_make_it_yours_instruction">Düzenleme modunda odaları, katları ve widget’ları ekleyip sırala. Yapılandırmak için bir öğeye dokun.</string>
 
     <string-array name="cr_whats_new_beta_10">
+        <item>Görünürlük kuralları artık tüm widget’larda ve tek tek widget öğelerinde çalışıyor; zaman planları, varlık durumu koşulları, birden fazla VE/VEYA kuralı ve kullanıcıya göre gizleme destekleniyor. Yeni koşullar, Zaman veya Varlık seçebilmeniz için boş başlar.</item>
+        <item>Enerji kurulumu artık SmartGateways ve DSMR Reader MQTT sensör adlarını tanıyor. Bir kaynak cihaz seçildiğinde ayrı sensör rolleri yeniden dolduruluyor. Bölgesel ısıtma için ayarlar, kaynak kutucuğu, ayrıntı sekmesi ve J/GJ değerlerinden tahmini doğal gaz eşdeğeri eklendi.</item>
+        <item>Takvim widget pencereleri artık kullanılabilir yüksekliğin tamamını doğru kullanıyor; içerik yarım alanda kalmıyor veya kesilmiyor.</item>
+        <item>Ekran döndürme artık dikey moda kilitlenmek yerine cihazın otomatik döndürme ayarını izliyor.</item>
+        <item>İklim Dış ortam kutucuğu, ayrı sıcaklık, nem veya basınç sensörleri olmasa bile bir hava durumu cihazı bağlanır bağlanmaz görünür ve özniteliklerini grafikte gösterir.</item>
+        <item>Taşıyıcıların paket durumları normal cümleler olarak gösteriliyor ve aynı gün teslimat aralığında tarih artık iki kez görünmüyor.</item>
         <item>PostNL ve güncel paket entegrasyonu ayrıştırıcısı düzeltildi; gelen gönderiler artık eksiksiz takip ayrıntılarını ve teslim durumunu yeniden gösteriyor. Taşıyıcı desteği de güncellendi.</item>
         <item>Uygulamaya Felemenkçe, Almanca, Fransızca, İspanyolca, İtalyanca ve Türkçe için geniş kapsamlı bir dil seçici eklendi; Felemenkçe metinler de baştan sona iyileştirildi.</item>
         <item>Yeniden bağlanma durumu artık gerçek bağlantı hatasını gösteriyor; böylece Wi-Fi, mobil veri ve VPN geçişlerindeki sorunları teşhis etmek çok daha kolay.</item>

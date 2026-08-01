@@ -1970,6 +1970,12 @@
     <string name="cr_weekly">Semanal</string>
     <string name="cr_wet">Húmedo</string>
     <string-array name="cr_whats_new_beta_10">
+        <item>Las reglas de visibilidad ya funcionan en todos los widgets y sus elementos, con horarios, condiciones de estado de entidad, varias reglas Y/O y ocultación por usuario. Las condiciones nuevas empiezan vacías para que elijas Hora o Entidad.</item>
+        <item>La configuración de Energía reconoce ahora sensores MQTT de SmartGateways y DSMR Reader. Elegir un dispositivo de origen vuelve a completar los sensores separados. La calefacción urbana incluye ajustes, tarjeta, pestaña de detalles y una estimación del gas equivalente para lecturas en J/GJ.</item>
+        <item>Los diálogos del widget Calendario ahora usan correctamente toda la altura disponible; el contenido ya no ocupa solo la mitad ni queda cortado.</item>
+        <item>La rotación de pantalla ahora sigue el giro automático del dispositivo en vez de permanecer bloqueada en vertical.</item>
+        <item>La tarjeta Exterior de Clima aparece al vincular un dispositivo meteorológico, incluso sin sensores dedicados de temperatura, humedad o presión, y grafica sus atributos.</item>
+        <item>Los estados de paquetes de los transportistas se muestran como frases normales y una ventana de entrega del mismo día ya no repite la fecha.</item>
         <item>Se corrigió PostNL y el analizador de integración de paquetes actual, por lo que los envíos entrantes vuelven a mostrar sus detalles de seguimiento completos y su estado de entrega. También se actualizó la compatibilidad con transportistas.</item>
         <item>Se agregó un selector de idioma dentro de la app con amplia cobertura de neerlandés, alemán, francés, español, italiano y turco, además de una revisión importante del texto en neerlandés.</item>
         <item>El estado de reconexión ahora muestra el error de conexión real, lo que facilita mucho el diagnóstico de cambios entre Wi-Fi, datos móviles y VPN.</item>

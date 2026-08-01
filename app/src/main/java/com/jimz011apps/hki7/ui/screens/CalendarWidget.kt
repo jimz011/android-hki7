@@ -1120,7 +1120,7 @@ fun CalendarWidgetSettingsDialog(
         text = {
             Column(
                 modifier = Modifier
-                    .heightIn(max = 520.dp)
+                    .fillMaxSize()
                     .fadingEdges(settingsScroll)
                     .verticalScroll(settingsScroll),
                 verticalArrangement = Arrangement.spacedBy(12.dp)

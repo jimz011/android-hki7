@@ -331,6 +331,12 @@
     <string name="cr_quick_make_it_yours_instruction">Voeg in de bewerkmodus kamers, verdiepingen en widgets toe of wijzig hun volgorde. Tik op een onderdeel om het in te stellen.</string>
 
     <string-array name="cr_whats_new_beta_10">
+        <item>Zichtbaarheidsregels werken nu voor alle widgets en afzonderlijke widgetonderdelen, met tijdschema’s, entiteitsstatusvoorwaarden, meerdere EN/OF-regels en verbergen per gebruiker. Nieuwe voorwaarden beginnen leeg, zodat je zelf Tijd of Entiteit kiest.</item>
+        <item>Energie-instellingen herkennen nu MQTT-sensornamen van SmartGateways en DSMR Reader. Het kiezen van een bronapparaat vult de afzonderlijke sensoren weer in. Stadsverwarming heeft eigen instellingen, een brontegel en detailtab, plus een geschat aardgasequivalent voor warmte in J/GJ.</item>
+        <item>Kalenderwidgetvensters gebruiken nu de beschikbare hoogte correct, zodat inhoud niet meer slechts de helft van het instellingenvenster gebruikt of wordt afgesneden.</item>
+        <item>Schermrotatie volgt nu de instelling voor automatisch draaien van je apparaat in plaats van vast te blijven staan in portretstand.</item>
+        <item>De tegel Buiten in Klimaat verschijnt nu zodra een weerapparaat is gekoppeld, ook zonder losse temperatuur-, luchtvochtigheids- of luchtdruksensoren, en toont grafieken van de kenmerken.</item>
+        <item>Pakketstatussen van vervoerders worden nu als normale zinnen weergegeven en bij een bezorgvenster op dezelfde dag wordt de datum niet meer dubbel getoond.</item>
         <item>PostNL en de parser voor de huidige pakkettenintegratie zijn hersteld. Inkomende zendingen tonen weer alle track-en-tracegegevens en de juiste bezorgstatus. Ook de ondersteuning voor vervoerders is bijgewerkt.</item>
         <item>Je kunt nu in de app een taal kiezen. Nederlands, Duits, Frans, Spaans, Italiaans en Turks worden breed ondersteund. De Nederlandse teksten zijn bovendien grondig herschreven.</item>
         <item>De verbindingsmelding toont nu de echte fout tijdens het opnieuw verbinden. Daardoor zijn wisselingen tussen wifi, mobiele data en VPN veel makkelijker te beoordelen.</item>
