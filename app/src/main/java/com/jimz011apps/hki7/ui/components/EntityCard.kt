@@ -2,6 +2,10 @@
 
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 
 import androidx.compose.animation.core.LinearEasing
@@ -53,6 +57,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil3.compose.AsyncImage
 import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.ui.localizedHvacModeLabel
+import com.jimz011apps.hki7.ui.localizedStateLabel
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import com.jimz011apps.hki7.ui.utils.MdiIcon
 import kotlinx.serialization.json.contentOrNull
@@ -76,7 +82,7 @@ fun EditRemoveBadge(onClick: () -> Unit, modifier: Modifier = Modifier) {
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        Icon(Icons.Default.Close, contentDescription = "Remove", tint = Color.White, modifier = Modifier.size(12.dp))
+        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.ui_remove_e963907), tint = Color.White, modifier = Modifier.size(12.dp))
     }
 }
 
@@ -96,7 +102,7 @@ fun EditSettingsButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     ) {
         Icon(
             Icons.Default.Settings,
-            contentDescription = "Card settings",
+            contentDescription = stringResource(R.string.ui_card_settings_1a3b62a),
             tint = Color.White,
             modifier = Modifier.size(12.dp)
         )
@@ -108,19 +114,24 @@ fun RenameCardDialog(currentName: String, defaultName: String, onDismiss: () -> 
     var value by androidx.compose.runtime.remember(currentName) { androidx.compose.runtime.mutableStateOf(currentName) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { ModernSettingsDialogTitle("Card", "Optional display name override") },
+        title = {
+            ModernSettingsDialogTitle(
+                stringResource(R.string.ui_card_4d4ce73),
+                stringResource(R.string.core_optional_display_name)
+            )
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                SettingsSubcategory("Identity", "Leave empty to use the Home Assistant name")
+                SettingsSubcategory(stringResource(R.string.ui_identity_7e5a975), stringResource(R.string.ui_leave_empty_to_use_the_home_assistant_name_f769e92))
                 OutlinedTextField(value = value, onValueChange = { value = it }, singleLine = true,
-                    label = { Text("Name") }, placeholder = { Text(defaultName) })
+                    label = { Text(stringResource(R.string.ui_name_709a232)) }, placeholder = { Text(defaultName) })
             }
         },
-        confirmButton = { TextButton(onClick = { onSave(value.trim().takeIf { it.isNotEmpty() }) }) { Text("Save") } },
+        confirmButton = { TextButton(onClick = { onSave(value.trim().takeIf { it.isNotEmpty() }) }) { Text(stringResource(R.string.ui_save_efc007a)) } },
         dismissButton = {
             Row {
-                TextButton(onClick = { onSave(null) }) { Text("Reset") }
-                TextButton(onClick = onDismiss) { Text("Cancel") }
+                TextButton(onClick = { onSave(null) }) { Text(stringResource(R.string.ui_reset_44c57ab)) }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
             }
         }
     )
@@ -130,15 +141,20 @@ fun RenameCardDialog(currentName: String, defaultName: String, onDismiss: () -> 
  * One-line status for a room's configured media player: track/artist while playing or paused,
  * otherwise the capitalized state. Null only when no media player is configured.
  */
+@Composable
 fun mediaPlayerStatus(entity: HAEntity?): String? {
     entity ?: return null
     val title = entity.mediaTitle
     return if ((entity.state == "playing" || entity.state == "paused") && !title.isNullOrBlank()) {
         val artist = entity.mediaArtist
-        val prefix = if (entity.state == "paused") "Paused: " else ""
-        if (!artist.isNullOrBlank()) "$prefix$title • $artist" else "$prefix$title"
+        val track = if (!artist.isNullOrBlank()) "$title • $artist" else title
+        if (entity.state == "paused") {
+            stringResource(R.string.core_media_paused_track, track)
+        } else {
+            track
+        }
     } else {
-        entity.state.replaceFirstChar { it.uppercase() }
+        entity.localizedStateLabel()
     }
 }
 
@@ -214,7 +230,7 @@ fun EntityCard(
     // Timer mode: the value (attribute if set, else state) is a completion timestamp. While it's in
     // the future the entity reads as active with a live countdown; once it passes it reads as OFF.
     val timerText = if (stateAsTimer && timerMachineRunning) rememberCountdownText(stateAttribute?.let { entityAttributeDisplay(entity, it) } ?: entity.state) else null
-    val timerRunning = stateAsTimer && timerMachineRunning && timerText != null && timerText != "Done"
+    val timerRunning = stateAsTimer && timerMachineRunning && timerText != null
     val isActive = if (stateAsTimer) timerRunning else entity.state == "on"
     val isUnavailable = entity.state.equals("unavailable", ignoreCase = true)
     val domain = entity.entity_id.substringBefore(".")
@@ -239,8 +255,13 @@ fun EntityCard(
     val unavailableStateColor = if (primary.isRedShade()) primary else Color(0xFFEF5350)
     val brightnessVisible = showBrightnessSlider && domain == "light" && entity.supportsBrightness
     val brightnessEnabled = brightnessVisible && interactionsEnabled
+    val brightnessContentDescription = stringResource(R.string.ui_brightness_222d6d5, name)
     val entityBrightness = if (isActive) (entity.brightness ?: 255) / 255f else 0f
     var localBrightness by remember(entity.entity_id) { mutableFloatStateOf(entityBrightness) }
+    val brightnessStateDescription = stringResource(
+        R.string.core_percent_value,
+        (localBrightness * 100f).toInt().coerceIn(0, 100)
+    )
     LaunchedEffect(entity.brightness, entity.state) { localBrightness = entityBrightness }
 
     val sliderModifier = if (brightnessEnabled) {
@@ -269,9 +290,9 @@ fun EntityCard(
         ?.let { entityAttributeDisplay(entity, it) }
         ?.let { appendUnit(it, stateUnit) }
     val statusText = when {
-        // Timer mode: countdown while running, plain "Off" once it reaches zero.
+        // Timer mode: countdown while running, plain stringResource(R.string.ui_off_e3de5ab) once it reaches zero.
         timerRunning -> timerText!!
-        stateAsTimer -> "Off"
+        stateAsTimer -> stringResource(R.string.ui_off_e3de5ab)
         else -> attributeText
     } ?: run {
         val brightnessPercent = (
@@ -279,16 +300,17 @@ fun EntityCard(
             else (entity.brightness ?: 0) / 255f * 100f
         ).toInt().coerceIn(0, 100)
         when {
-            isLockDoorOpen -> "Open"
-            domain == "light" && entity.supportsBrightness && isActive -> "On - ${brightnessPercent}%"
+            isLockDoorOpen -> stringResource(R.string.ui_open_cf9b770)
+            domain == "light" && entity.supportsBrightness && isActive -> stringResource(R.string.ui_on_12469c7, brightnessPercent)
             domain == "climate" -> {
-                val mode = (entity.attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
+                val rawMode = (entity.attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
                     ?: entity.attributes?.get("hvac_mode")?.jsonPrimitive?.contentOrNull
-                    ?: entity.state).split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+                    ?: entity.state)
+                val mode = localizedHvacModeLabel(rawMode)
                 val temp = entity.attributes?.get("temperature")?.jsonPrimitive?.content?.toDoubleOrNull()
-                if (temp != null && isClimateNotOff) "$mode - ${temp.toInt()}\u00B0C" else mode
+                if (temp != null && isClimateNotOff) stringResource(R.string.ui_c_3d3c16f, mode, temp.toInt()) else mode
             }
-            else -> entity.state.split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+            else -> entity.localizedStateLabel()
         }
     }
 
@@ -412,8 +434,8 @@ fun EntityCard(
                         Modifier
                             .matchParentSize()
                             .semantics {
-                                contentDescription = "$name brightness"
-                                stateDescription = "${(localBrightness * 100f).toInt().coerceIn(0, 100)} percent"
+                                contentDescription = brightnessContentDescription
+                                stateDescription = brightnessStateDescription
                                 progressBarRangeInfo = ProgressBarRangeInfo(localBrightness, 0f..1f)
                                 setProgress { requested ->
                                     val value = requested.coerceIn(0f, 1f)
@@ -861,17 +883,6 @@ fun hvacColor(mode: String?): Color {
 fun hvacGradient(mode: String?): Brush {
     val color = hvacColor(mode)
     return Brush.verticalGradient(listOf(color.copy(alpha = 0.35f), color))
-}
-
-fun climateModeLabel(mode: String): String = when (mode.lowercase()) {
-    "off" -> "Off"
-    "heat" -> "Heat"
-    "cool" -> "Cool"
-    "heat_cool" -> "Heat/Cool"
-    "auto" -> "Auto"
-    "dry" -> "Dry"
-    "fan_only" -> "Fan"
-    else -> mode.split("_").joinToString(" ") { it.replaceFirstChar(Char::uppercase) }
 }
 
 fun climateModeIcon(mode: String): ImageVector = when (mode.lowercase()) {

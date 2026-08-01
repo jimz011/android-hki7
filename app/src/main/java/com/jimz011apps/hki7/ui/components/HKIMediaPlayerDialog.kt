@@ -2,6 +2,11 @@
 
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -318,7 +323,7 @@ fun HKIMediaPlayerDialog(
                     onClick = { service("shuffle_set", HAServiceCall(entity.entity_id, shuffle = !shuffleOn)) },
                     enabled = entity.supportsMedia(MP_SHUFFLE)
                 ) {
-                    Icon(Icons.Default.Shuffle, "Shuffle",
+                        Icon(Icons.Default.Shuffle, stringResource(R.string.uif_shuffle),
                         tint = if (shuffleOn) accent
                             else appColors.onMuted.copy(alpha = if (entity.supportsMedia(MP_SHUFFLE)) 1f else 0.35f))
                 }
@@ -326,7 +331,7 @@ fun HKIMediaPlayerDialog(
                     onClick = { service("media_previous_track", HAServiceCall(entity.entity_id)) },
                     enabled = entity.supportsMedia(MP_PREVIOUS)
                 ) {
-                    Icon(Icons.Default.SkipPrevious, "Previous", tint = appColors.onSurface, modifier = Modifier.size(32.dp))
+                        Icon(Icons.Default.SkipPrevious, stringResource(R.string.uif_previous), tint = appColors.onSurface, modifier = Modifier.size(32.dp))
                 }
                 Surface(
                     shape = CircleShape,
@@ -339,7 +344,7 @@ fun HKIMediaPlayerDialog(
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                            if (isPlaying) "Pause" else "Play",
+                            if (isPlaying) stringResource(R.string.uif_pause) else stringResource(R.string.uif_play),
                             tint = Color.Black, modifier = Modifier.size(34.dp)
                         )
                     }
@@ -348,7 +353,7 @@ fun HKIMediaPlayerDialog(
                     onClick = { service("media_next_track", HAServiceCall(entity.entity_id)) },
                     enabled = entity.supportsMedia(MP_NEXT)
                 ) {
-                    Icon(Icons.Default.SkipNext, "Next", tint = appColors.onSurface, modifier = Modifier.size(32.dp))
+                        Icon(Icons.Default.SkipNext, stringResource(R.string.uif_next), tint = appColors.onSurface, modifier = Modifier.size(32.dp))
                 }
                 val repeatMode = entity.mediaRepeat ?: "off"
                 IconButton(
@@ -359,7 +364,8 @@ fun HKIMediaPlayerDialog(
                     enabled = entity.supportsMedia(MP_REPEAT)
                 ) {
                     Icon(
-                        if (repeatMode == "one") Icons.Default.RepeatOne else Icons.Default.Repeat, "Repeat",
+                            if (repeatMode == "one") Icons.Default.RepeatOne else Icons.Default.Repeat,
+                            stringResource(R.string.uif_repeat),
                         tint = if (repeatMode != "off") accent
                             else appColors.onMuted.copy(alpha = if (entity.supportsMedia(MP_REPEAT)) 1f else 0.35f)
                     )
@@ -384,12 +390,12 @@ fun HKIMediaPlayerDialog(
                     ) {
                         if (hasBrowse) {
                             IconButton(onClick = { showBrowser = true }, modifier = Modifier.size(36.dp)) {
-                                Icon(Icons.AutoMirrored.Filled.QueueMusic, "Playlists", tint = appColors.onMuted, modifier = Modifier.size(20.dp))
+                        Icon(Icons.AutoMirrored.Filled.QueueMusic, stringResource(R.string.uif_playlists), tint = appColors.onMuted, modifier = Modifier.size(20.dp))
                             }
                         }
                         if (hasSources) {
                             IconButton(onClick = { showSources = !showSources }, modifier = Modifier.size(36.dp)) {
-                                Icon(Icons.Default.Speaker, "Source",
+                        Icon(Icons.Default.Speaker, stringResource(R.string.uif_source),
                                     tint = if (showSources) accent else appColors.onMuted,
                                     modifier = Modifier.size(20.dp))
                             }
@@ -402,7 +408,7 @@ fun HKIMediaPlayerDialog(
                             ) {
                                 Icon(
                                     if (muted) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
-                                    "Mute", tint = appColors.onMuted, modifier = Modifier.size(20.dp)
+                            stringResource(R.string.uif_mute), tint = appColors.onMuted, modifier = Modifier.size(20.dp)
                                 )
                             }
                         }
@@ -491,11 +497,11 @@ private fun MediaBrowseDialog(
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 if (stack.size > 1) {
                     IconButton(onClick = { stack = stack.dropLast(1) }, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", modifier = Modifier.size(18.dp))
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.uif_back), modifier = Modifier.size(18.dp))
                     }
                     Spacer(Modifier.width(6.dp))
                 }
-                Text(current?.title?.takeIf { it.isNotBlank() } ?: "Media library",
+                Text(current?.title?.takeIf { it.isNotBlank() } ?: stringResource(R.string.dlg_media_library),
                     maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
             }
         },
@@ -504,7 +510,7 @@ private fun MediaBrowseDialog(
                 loading && current == null -> Box(Modifier.fillMaxWidth().height(160.dp), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
-                failed -> Text("Media browsing isn't available for this player.", color = colors.onSurfaceVariant,
+                failed -> Text(stringResource(R.string.dlg_media_browsing_isn_t_available_for_this_player), color = colors.onSurfaceVariant,
                     style = MaterialTheme.typography.bodySmall)
                 else -> {
                     val listState = androidx.compose.foundation.lazy.rememberLazyListState()
@@ -536,7 +542,7 @@ private fun MediaBrowseDialog(
                                         }
                                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                                             Text(
-                                                current.title ?: "Media",
+                                                current.title ?: stringResource(R.string.dlg_media),
                                                 color = colors.onSurface,
                                                 style = MaterialTheme.typography.titleMedium,
                                                 fontWeight = FontWeight.Bold,
@@ -546,7 +552,9 @@ private fun MediaBrowseDialog(
                                             Text(
                                                 listOfNotNull(
                                                     current.media_class?.replace('_', ' ')?.replaceFirstChar(Char::uppercase),
-                                                    children.takeIf { it.isNotEmpty() }?.let { "${it.size} items" }
+                                                    children.takeIf { it.isNotEmpty() }?.let {
+                                                        pluralStringResource(R.plurals.uif_media_item_count, it.size, it.size)
+                                                    }
                                                 ).joinToString(" • "),
                                                 color = colors.onSurfaceVariant,
                                                 style = MaterialTheme.typography.bodySmall
@@ -554,8 +562,8 @@ private fun MediaBrowseDialog(
                                             if (current.can_play) {
                                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                                     listOf(
-                                                        Triple(Icons.Default.PlayArrow, "Play", onPlay),
-                                                        Triple(Icons.Default.Shuffle, "Shuffle", onShufflePlay)
+                                            Triple(Icons.Default.PlayArrow, stringResource(R.string.uif_play), onPlay),
+                                            Triple(Icons.Default.Shuffle, stringResource(R.string.uif_shuffle), onShufflePlay),
                                                     ).forEach { (icon, label, action) ->
                                                         Surface(
                                                             shape = RoundedCornerShape(50),
@@ -580,7 +588,7 @@ private fun MediaBrowseDialog(
                             }
                             if (children.isEmpty() && !loading) {
                                 item {
-                                    Text("Nothing here.", color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodySmall,
+                                    Text(stringResource(R.string.dlg_nothing_here), color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodySmall,
                                         modifier = Modifier.padding(vertical = 16.dp))
                                 }
                             }
@@ -625,7 +633,7 @@ private fun MediaBrowseDialog(
                                         )
                                         Column(Modifier.weight(1f)) {
                                             Text(
-                                                child.title?.takeIf { it.isNotBlank() } ?: child.media_content_id ?: "Untitled",
+                                                child.title?.takeIf { it.isNotBlank() } ?: child.media_content_id ?: stringResource(R.string.dlg_untitled),
                                                 color = colors.onSurface, style = MaterialTheme.typography.labelLarge,
                                                 fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis
                                             )
@@ -652,7 +660,11 @@ private fun MediaBrowseDialog(
                                             Box(contentAlignment = Alignment.Center) {
                                                 Icon(
                                                     if (child.can_expand) Icons.Default.ChevronRight else Icons.Default.PlayArrow,
-                                                    if (child.can_expand) "Open" else "Play",
+                                                if (child.can_expand) {
+                                                    stringResource(R.string.uif_open)
+                                                } else {
+                                                    stringResource(R.string.uif_play)
+                                                },
                                                     tint = colors.onSurface, modifier = Modifier.size(20.dp)
                                                 )
                                             }
@@ -837,7 +849,7 @@ fun MediaPlayerMiniBar(
                     }
                     if (players.size > 1) {
                         Text(
-                            "${page + 1}/${players.size}",
+                            stringResource(R.string.dlg_page_of_pages, page + 1, players.size),
                             color = barMuted, style = MaterialTheme.typography.labelSmall
                         )
                     }
@@ -849,7 +861,7 @@ fun MediaPlayerMiniBar(
                         ) {
                             Icon(
                                 Icons.Default.SkipPrevious,
-                                "Previous",
+                            stringResource(R.string.uif_previous),
                                 tint = barForeground.copy(alpha = if (player.supportsMedia(MP_PREVIOUS)) 1f else 0.35f),
                                 modifier = Modifier.size(22.dp)
                             )
@@ -861,7 +873,7 @@ fun MediaPlayerMiniBar(
                         ) {
                             Icon(
                                 if (player.state == "playing") Icons.Default.Pause else Icons.Default.PlayArrow,
-                                if (player.state == "playing") "Pause" else "Play",
+                            if (player.state == "playing") stringResource(R.string.uif_pause) else stringResource(R.string.uif_play),
                                 tint = barForeground.copy(
                                     alpha = if (player.supportsMedia(MP_PLAY) || player.supportsMedia(MP_PAUSE)) 1f else 0.35f
                                 ),
@@ -875,7 +887,7 @@ fun MediaPlayerMiniBar(
                         ) {
                             Icon(
                                 Icons.Default.SkipNext,
-                                "Next",
+                            stringResource(R.string.uif_next),
                                 tint = barForeground.copy(alpha = if (player.supportsMedia(MP_NEXT)) 1f else 0.35f),
                                 modifier = Modifier.size(22.dp)
                             )
@@ -902,7 +914,7 @@ fun MediaPlayerMiniBar(
                     ) {
                         MdiIcon(
                             brand.icon,
-                            contentDescription = player.appName ?: "Source",
+                            contentDescription = player.appName ?: stringResource(R.string.uif_source),
                             tint = brand.color ?: barForeground,
                             size = 24.dp
                         )
@@ -937,7 +949,7 @@ fun MediaPlayerMiniBar(
                                 )
                             }
                         }
-                        Text("-${formatMediaTime((duration - position).toLong())}", color = barMuted,
+                        Text(stringResource(R.string.dlg_negative_value, formatMediaTime((duration - position).toLong())), color = barMuted,
                             style = MaterialTheme.typography.labelSmall, fontSize = 9.sp)
                     }
                 }

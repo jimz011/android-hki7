@@ -9,6 +9,12 @@
 
 package com.jimz011apps.hki7.ui.screens
 
+import com.jimz011apps.hki7.R
+
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+
 import android.annotation.SuppressLint
 import android.webkit.WebSettings
 import android.webkit.WebView
@@ -182,6 +188,7 @@ import com.jimz011apps.hki7.ui.components.DevicePickerDialog
 import androidx.compose.animation.core.tween
 import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.ui.resolveRoomMediaStatus
+import com.jimz011apps.hki7.ui.localizedText
 import com.jimz011apps.hki7.ui.resolveRoomStatus
 import com.jimz011apps.hki7.ui.displayedRoomControlEntityIds
 import com.jimz011apps.hki7.ui.roomMediaPlayerIds
@@ -242,7 +249,7 @@ import com.jimz011apps.hki7.ui.components.VerticalSlider
 import com.jimz011apps.hki7.ui.components.VerticalControlHeight
 import com.jimz011apps.hki7.ui.components.hvacColor
 import com.jimz011apps.hki7.ui.components.hvacGradient
-import com.jimz011apps.hki7.ui.components.climateModeLabel
+import com.jimz011apps.hki7.ui.components.localizedClimateModeLabel
 import com.jimz011apps.hki7.ui.components.climateModeIcon
 import com.jimz011apps.hki7.ui.components.ClimateModesButton
 import com.jimz011apps.hki7.ui.components.ClimateModesList
@@ -279,12 +286,12 @@ data class WidgetStyleOverride(
 )
 
 val swipingStackAnimationTypes = listOf(
-    "swipe" to "Swipe",
-    "fade" to "Fade",
-    "zoom" to "Zoom",
-    "slide_fade" to "Slide + fade",
-    "cube" to "Cube",
-    "instant" to "Instant"
+    "swipe" to R.string.cr_animation_swipe,
+    "fade" to R.string.cr_animation_fade,
+    "zoom" to R.string.cr_animation_zoom,
+    "slide_fade" to R.string.cr_animation_slide_fade,
+    "cube" to R.string.cr_animation_cube,
+    "instant" to R.string.cr_animation_instant
 )
 
 private const val BUTTON_LOCK_DOUBLE_TAP = "double_tap"
@@ -361,6 +368,7 @@ fun RoomDetailScreen(
     }
     val widgetGridState = rememberLazyGridState()
     val areaConfig = areaConfigsMapping[areaId] ?: HKIAreaConfig()
+    val defaultMarkdownContent = stringResource(R.string.cr_default_markdown_content)
 
     var showClimateDialog by remember { mutableStateOf(false) }
     var selectedClimateEntity by remember { mutableStateOf<HAEntity?>(null) }
@@ -493,9 +501,10 @@ fun RoomDetailScreen(
         cornerRadius = 24,
         stackType = "weather"
     )
+    val adaptiveLightingTitle = stringResource(R.string.ui_adaptive_lighting_e2cffbd)
     fun newAdaptiveLightingWidget() = HKIButtonStack(
         id = UUID.randomUUID().toString(),
-        title = "Adaptive Lighting",
+        title = adaptiveLightingTitle,
         icon = "auto-awesome",
         isSquare = false,
         stackType = "adaptive_lighting",
@@ -522,7 +531,7 @@ fun RoomDetailScreen(
     )
     fun newMarkdownWidget() = HKIMarkdownWidget(
         id = UUID.randomUUID().toString(),
-        content = "# Markdown\nOpen this widget's settings in **edit mode** to write your own content."
+        content = defaultMarkdownContent
     )
     fun newIframeWidget() = HKIIframeWidget(id = UUID.randomUUID().toString())
     fun addChildToSwipingStack(stackId: String, child: HKIRoomWidget) {
@@ -832,14 +841,15 @@ fun RoomDetailScreen(
         mediaPlayerIds.map { id -> byId[id] ?: HAEntity(entity_id = id, state = "unavailable") }
     }
     val mediaSummary = remember(mediaPlayers) { resolveRoomMediaStatus(mediaPlayers) }
+    val mediaStatus = mediaSummary.localizedText()
     val roomSummary = remember(areaConfig, allEntities, areaWidgets) {
         resolveRoomStatus(areaConfig, allEntities, displayedRoomControlEntityIds(areaWidgets))
     }
     HKIPage(
         viewModel = viewModel,
         areaId = areaId,
-        title = areaConfig.name ?: area?.name ?: "Room",
-        subtitle = mediaSummary.text ?: "Room Details",
+        title = areaConfig.name ?: area?.name ?: stringResource(R.string.cr_room),
+        subtitle = mediaStatus ?: stringResource(R.string.cr_room_details),
         subtitleIcon = mediaPlayerStateIcon(mediaSummary.representative),
         backgroundImage = if (!areaConfig.headerColor.isNullOrBlank()) null else areaConfig.wallpaper ?: area?.picture,
         headerColor = areaConfig.headerColor,
@@ -886,7 +896,7 @@ fun RoomDetailScreen(
                     if (areaWidgets.isEmpty()) {
                         EmptyEditHint(
                             Modifier.fillMaxSize(),
-                            "This is an empty room. You can add widgets, buttons, and tiles by swiping down on the header and enabling edit mode."
+                            stringResource(R.string.cr_empty_room)
                         )
                     } else {
                     LazyVerticalGrid(
@@ -1329,7 +1339,7 @@ fun RoomDetailScreen(
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Add Widget")
+                    Text(stringResource(R.string.ui_add_widget_a9df350))
                 }
             }
         }
@@ -1338,18 +1348,18 @@ fun RoomDetailScreen(
     if (showAutoWidgetInfo) {
         AlertDialog(
             onDismissRequest = { showAutoWidgetInfo = false },
-            title = { Text("Auto dashboard") },
-            text = { Text("Rooms in auto mode are imported from Home Assistant. Switch to manual or take over the current dashboard to add widgets by hand.") },
-            confirmButton = { Button(onClick = { showAutoWidgetInfo = false }) { Text("OK") } }
+            title = { Text(stringResource(R.string.ui_auto_dashboard_c7a509a)) },
+            text = { Text(stringResource(R.string.ui_rooms_in_auto_mode_are_imported_from_home_assistant_c583d84)) },
+            confirmButton = { Button(onClick = { showAutoWidgetInfo = false }) { Text(stringResource(R.string.ui_ok_9ce3bd4)) } }
         )
     }
 
     if (showAutoDeleteStackInfo) {
         AlertDialog(
             onDismissRequest = { showAutoDeleteStackInfo = false },
-            title = { Text("Auto dashboard") },
-            text = { Text("Imported stacks cannot be removed in auto mode. Hide the stack instead, or take over / switch to manual mode to delete it permanently.") },
-            confirmButton = { Button(onClick = { showAutoDeleteStackInfo = false }) { Text("OK") } }
+            title = { Text(stringResource(R.string.ui_auto_dashboard_c7a509a)) },
+            text = { Text(stringResource(R.string.ui_imported_stacks_cannot_be_removed_in_auto_mode_hide_608f9ed)) },
+            confirmButton = { Button(onClick = { showAutoDeleteStackInfo = false }) { Text(stringResource(R.string.ui_ok_9ce3bd4)) } }
         )
     }
 
@@ -1594,7 +1604,7 @@ fun RoomDetailScreen(
         }
         AdvancedEntitySearchDialog(
             allEntities = sensors.ifEmpty { allEntities },
-            title = "Select Sensors",
+            title = stringResource(R.string.ui_select_sensors_5141d75),
             singleSelect = false,
             preselectedIds = emptySet(),
             onDismiss = {
@@ -1622,7 +1632,7 @@ fun RoomDetailScreen(
         }
         AdvancedEntitySearchDialog(
             allEntities = sensors.ifEmpty { allEntities },
-            title = "Select Sensors",
+            title = stringResource(R.string.ui_select_sensors_5141d75),
             singleSelect = false,
             preselectedIds = emptySet(),
             onDismiss = {
@@ -1644,7 +1654,7 @@ fun RoomDetailScreen(
     pendingMediaPlayerWidgetContainerId?.let { target ->
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter { it.entity_id.startsWith("media_player.") },
-            title = "Select Media Player",
+            title = stringResource(R.string.ui_select_media_player_73f4f5b),
             singleSelect = true,
             preselectedIds = emptySet(),
             onDismiss = {
@@ -1857,8 +1867,8 @@ fun RoomDetailScreen(
         AdvancedEntitySearchDialog(
             allEntities = candidates,
             title = when (kind) {
-                "camera" -> "Select Camera"
-                else -> "Select Entity"
+                "camera" -> stringResource(R.string.cr_select_camera)
+                else -> stringResource(R.string.cr_select_entity)
             },
             singleSelect = true,
             preselectedIds = emptySet(),
@@ -1890,7 +1900,7 @@ fun RoomDetailScreen(
         val weatherEntities = allEntities.filter { it.entity_id.startsWith("weather.") }
         AdvancedEntitySearchDialog(
             allEntities = weatherEntities.ifEmpty { allEntities },
-            title = "Select Weather",
+            title = stringResource(R.string.ui_select_weather_2357e9d),
             singleSelect = true,
             preselectedIds = emptySet(),
             onDismiss = {
@@ -1917,10 +1927,13 @@ fun RoomDetailScreen(
                 choosingWeatherWidgetStyle = false
                 pendingWeatherWidgetEntityId = null
             },
-            title = { Text("Weather Type") },
+            title = { Text(stringResource(R.string.ui_weather_type_fe0b7cc)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    weatherWidgetStyles.sortedBy { it.second }.forEach { (style, label) ->
+                    weatherWidgetStyleIds
+                        .map { style -> style to weatherStyleLabel(style) }
+                        .sortedBy { it.second }
+                        .forEach { (style, label) ->
                         WidgetChoice(
                             icon = Icons.Default.WbSunny,
                             title = label,
@@ -1948,7 +1961,7 @@ fun RoomDetailScreen(
                 OutlinedButton(onClick = {
                     choosingWeatherWidgetStyle = false
                     pendingWeatherWidgetEntityId = null
-                }) { Text("Back") }
+                }) { Text(stringResource(R.string.ui_back_b52b36b)) }
             }
         )
     }
@@ -2004,7 +2017,7 @@ fun RoomDetailScreen(
         if (targetStack?.stackType == "vacuum") {
             AdvancedEntitySearchDialog(
                 allEntities = allEntities.filter { it.entity_id.startsWith("vacuum.") },
-                title = "Select Vacuums",
+                title = stringResource(R.string.ui_select_vacuums_7c2d22a),
                 preselectedIds = targetStack.entityIds.toSet(),
                 onDismiss = { addingToStackId = null },
                 onEntitiesSelected = { entityIds ->
@@ -2019,13 +2032,13 @@ fun RoomDetailScreen(
             // Show choice dialog for camera stacks
             AlertDialog(
                 onDismissRequest = { addingToStackId = null },
-                title = { Text("Add Camera") },
-                text = { Text("Would you like to add an existing camera entity or a custom URL?") },
+                title = { Text(stringResource(R.string.ui_add_camera_cf03528)) },
+                text = { Text(stringResource(R.string.ui_would_you_like_to_add_an_existing_camera_entity_00d5bc3)) },
                 confirmButton = {
-                    Button(onClick = { cameraAddMode = "entity" }) { Text("Existing Camera") }
+                    Button(onClick = { cameraAddMode = "entity" }) { Text(stringResource(R.string.ui_existing_camera_5fb3653)) }
                 },
                 dismissButton = {
-                    TextButton(onClick = { cameraAddMode = "custom" }) { Text("Custom URL") }
+                    TextButton(onClick = { cameraAddMode = "custom" }) { Text(stringResource(R.string.ui_custom_url_9c155e9)) }
                 }
             )
         } else if (targetStack?.stackType == "single_camera") {
@@ -2111,19 +2124,20 @@ fun RoomDetailScreen(
         )
     } else if (addingToStackId != null && cameraAddMode == "custom") {
         val targetStack = areaWidgets.find { it.id == addingToStackId } as? HKIButtonStack
+        val customCameraLabel = stringResource(R.string.cr_custom_camera)
         AlertDialog(
             onDismissRequest = { cameraAddMode = null; customCameraUrl = "" },
-            title = { Text("Add Custom Camera URL") },
+            title = { Text(stringResource(R.string.ui_add_custom_camera_url_aab29ef)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(
                         value = customCameraUrl,
                         onValueChange = { customCameraUrl = it },
-                        label = { Text("Camera URL") },
+                        label = { Text(stringResource(R.string.ui_camera_url_0eebe87)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Text("Enter HTTP URL, relative path, or WebRTC ID (e.g., poort_hd)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.ui_enter_http_url_relative_path_or_webrtc_id_e_bb736eb), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             },
             confirmButton = {
@@ -2136,7 +2150,7 @@ fun RoomDetailScreen(
                                 stack.copy(
                                     entityIds = stack.entityIds + customId,
                                     buttonConfigs = stack.buttonConfigs + (customId to HKIButtonConfig(
-                                        name = "Custom Camera",
+                                        name = customCameraLabel,
                                         cameraUrl = customCameraUrl,
                                         isCustomUrl = true,
                                         cameraRefreshInterval = 5
@@ -2148,9 +2162,9 @@ fun RoomDetailScreen(
                     addingToStackId = null
                     cameraAddMode = null
                     customCameraUrl = ""
-                }) { Text("Add") }
+                }) { Text(stringResource(R.string.ui_add_61cc55a)) }
             },
-            dismissButton = { OutlinedButton(onClick = { cameraAddMode = null; customCameraUrl = "" }) { Text("Back") } }
+            dismissButton = { OutlinedButton(onClick = { cameraAddMode = null; customCameraUrl = "" }) { Text(stringResource(R.string.ui_back_b52b36b)) } }
         )
     }
 
@@ -2405,7 +2419,7 @@ fun RoomDetailScreen(
         val streamUrl = config?.cameraUrl?.takeIf { it.isNotBlank() }
             ?: resolveEntityCameraUrl(entity, currentUrl, preferLive = true)
             ?: fallbackEntityUrl
-        val label = config?.name ?: entity?.friendlyName ?: selectedCameraId ?: "Camera"
+        val label = config?.name ?: entity?.friendlyName ?: selectedCameraId ?: stringResource(R.string.ui_camera_4da9c9a)
         val liveWebUrl = when {
             entity != null -> resolveEntityCameraUrl(entity, currentUrl, preferLive = true)
             fallbackEntityUrl != null -> fallbackEntityUrl
@@ -2420,7 +2434,7 @@ fun RoomDetailScreen(
             imageUrl = resolveCameraUrl(streamUrl, currentUrl),
             liveWebUrl = liveWebUrl,
             authToken = accessToken,
-            statusText = "Live",
+            statusText = stringResource(R.string.cr_live),
             entity = entity,
             viewModel = viewModel,
             onPrevious = if (hasCameraNavigation) {
@@ -2479,10 +2493,11 @@ fun RoomDetailScreen(
     if (activityDialogRole != null && activityDialogEntityIds.isNotEmpty()) {
         val role = activityDialogRole!!
         val groupEntities = activityDialogEntityIds.mapNotNull { id -> allEntities.find { it.entity_id == id } }
-        val syntheticStack = remember(role, activityDialogEntityIds) {
+        val groupTitle = com.jimz011apps.hki7.ui.components.roomStatusGroupTitle(role)
+        val syntheticStack = remember(role, activityDialogEntityIds, groupTitle) {
             HKIButtonStack(
                 id = "room-status-$role",
-                title = com.jimz011apps.hki7.ui.components.roomStatusGroupTitle(role),
+                title = groupTitle,
                 icon = com.jimz011apps.hki7.ui.components.roomStatusMdiSlug(role),
                 entityIds = activityDialogEntityIds
             )
@@ -2589,7 +2604,7 @@ fun RoomDetailScreen(
             imageUrl = buildCameraRefreshModel(streamUrl, 0, 0),
             liveWebUrl = streamUrl,
             authToken = accessToken,
-            statusText = "Live",
+            statusText = stringResource(R.string.cr_live),
             entity = entity,
             viewModel = viewModel,
             onDismiss = { showCameraDialog = false }
@@ -2645,12 +2660,14 @@ fun RoomDetailScreen(
 /** One entry in the Add-Widget picker; [keywords] add extra terms that the search field matches on. */
 private data class PickerWidget(
     val icon: ImageVector,
-    val title: String,
-    val subtitle: String,
+    @StringRes val titleRes: Int,
+    @StringRes val subtitleRes: Int,
     val keywords: String,
+    val category: WidgetPickerCategory,
+    val isStack: Boolean = false,
     val onSelect: () -> Unit
 ) {
-    fun matches(query: String): Boolean =
+    fun matches(query: String, title: String, subtitle: String): Boolean =
         title.contains(query, ignoreCase = true) ||
             subtitle.contains(query, ignoreCase = true) ||
             keywords.contains(query, ignoreCase = true)
@@ -2658,26 +2675,46 @@ private data class PickerWidget(
 
 private enum class WidgetPickerCategory(
     val key: String,
-    val label: String,
-    val description: String,
+    @StringRes val labelRes: Int,
+    @StringRes val descriptionRes: Int,
     val icon: ImageVector
 ) {
-    CONTROLS("controls", "Controls", "Buttons, vacuums, and their grouped controls", Icons.Default.Lightbulb),
-    CAMERAS("cameras", "Cameras", "Live camera tiles and multi-camera views", Icons.Default.CameraAlt),
-    CLIMATE("climate", "Climate & weather", "Temperature, comfort, forecasts, and conditions", Icons.Default.WbSunny),
-    ENERGY("energy", "Energy & batteries", "Consumption, production, and device health", Icons.Default.ElectricBolt),
-    INFORMATION("information", "Information & media", "Calendars, deliveries, graphs, notes, and playback", Icons.AutoMirrored.Filled.Notes),
-    LAYOUT("layout", "Layout & structure", "Headings and flexible widget containers", Icons.AutoMirrored.Filled.ViewQuilt)
-}
-
-private fun PickerWidget.category(): WidgetPickerCategory = when {
-    title.contains("Button", ignoreCase = true) || title.contains("Vacuum", ignoreCase = true) ||
-        title.contains("Adaptive Lighting", ignoreCase = true) -> WidgetPickerCategory.CONTROLS
-    title.contains("Camera", ignoreCase = true) -> WidgetPickerCategory.CAMERAS
-    title.contains("Climate", ignoreCase = true) || title.contains("Weather", ignoreCase = true) -> WidgetPickerCategory.CLIMATE
-    title.contains("Energy", ignoreCase = true) || title.contains("Battery", ignoreCase = true) -> WidgetPickerCategory.ENERGY
-    title.contains("Header", ignoreCase = true) || title.contains("Empty Stack", ignoreCase = true) || title.contains("Swiping Stack", ignoreCase = true) -> WidgetPickerCategory.LAYOUT
-    else -> WidgetPickerCategory.INFORMATION
+    CONTROLS(
+        "controls",
+        R.string.cr_widget_category_controls,
+        R.string.cr_widget_category_controls_description,
+        Icons.Default.Lightbulb
+    ),
+    CAMERAS(
+        "cameras",
+        R.string.cr_widget_category_cameras,
+        R.string.cr_widget_category_cameras_description,
+        Icons.Default.CameraAlt
+    ),
+    CLIMATE(
+        "climate",
+        R.string.cr_widget_category_climate,
+        R.string.cr_widget_category_climate_description,
+        Icons.Default.WbSunny
+    ),
+    ENERGY(
+        "energy",
+        R.string.cr_widget_category_energy,
+        R.string.cr_widget_category_energy_description,
+        Icons.Default.ElectricBolt
+    ),
+    INFORMATION(
+        "information",
+        R.string.cr_widget_category_information,
+        R.string.cr_widget_category_information_description,
+        Icons.AutoMirrored.Filled.Notes
+    ),
+    LAYOUT(
+        "layout",
+        R.string.cr_widget_category_layout,
+        R.string.cr_widget_category_layout_description,
+        Icons.AutoMirrored.Filled.ViewQuilt
+    )
 }
 
 private fun categoryGroup(category: WidgetPickerCategory): String = "category:${category.key}"
@@ -2718,17 +2755,23 @@ fun AddRoomWidgetDialog(
     allEntities: List<HAEntity> = emptyList()
 ) {
     val appColors = LocalHKIAppColors.current
-    var stackTitle by remember { mutableStateOf("Buttons") }
+    val context = LocalContext.current
+    val buttonsDefault = stringResource(R.string.cr_widget_buttons)
+    val camerasDefault = stringResource(R.string.cr_widget_cameras)
+    val vacuumDefault = stringResource(R.string.cr_widget_vacuum)
+    val headerTextDefault = stringResource(R.string.cr_widget_header_text)
+    val weatherDefault = stringResource(R.string.cr_widget_weather)
+    var stackTitle by remember { mutableStateOf(buttonsDefault) }
     var stackIcon by remember { mutableStateOf("Lightbulb") }
-    var cameraTitle by remember { mutableStateOf("Cameras") }
+    var cameraTitle by remember { mutableStateOf(camerasDefault) }
     var cameraIcon by remember { mutableStateOf("CameraAlt") }
     var energyPickerSelection by remember { mutableStateOf<List<String>>(emptyList()) }
     var climatePickerSelection by remember { mutableStateOf<List<String>>(emptyList()) }
-    var vacuumTitle by remember { mutableStateOf("Vacuum") }
+    var vacuumTitle by remember { mutableStateOf(vacuumDefault) }
     var vacuumIcon by remember { mutableStateOf("CleaningServices") }
-    var headerText by remember { mutableStateOf("Header Text") }
+    var headerText by remember { mutableStateOf(headerTextDefault) }
     var headerIcon by remember { mutableStateOf("None") }
-    var weatherTitle by remember { mutableStateOf("Weather") }
+    var weatherTitle by remember { mutableStateOf(weatherDefault) }
     var weatherIcon by remember { mutableStateOf("weather-partly-cloudy") }
     var batteryNotesInstalled by remember { mutableStateOf(false) }
     var configureWidget by remember { mutableStateOf<String?>(null) }
@@ -2743,38 +2786,39 @@ fun AddRoomWidgetDialog(
         if (onAddAdaptiveLightingWidget != null) add(
             PickerWidget(
                 Icons.Default.LightMode,
-                "Adaptive Lighting",
-                "Control any installed Adaptive Lighting profile",
-                "circadian profile brightness color temperature sleep adapt"
+                R.string.cr_widget_adaptive_lighting,
+                R.string.cr_widget_adaptive_lighting_description,
+                "circadian profile brightness color temperature sleep adapt",
+                WidgetPickerCategory.CONTROLS
             ) { onAddAdaptiveLightingWidget.invoke(); onDismiss() }
         )
-        add(PickerWidget(Icons.Default.Lightbulb, "Button", "A single configurable entity control", "toggle switch control single entity light") { onAddButtonWidget?.invoke() ?: run { stackTitle = ""; stackIcon = "None"; configureWidget = "button" } })
-        if (onAddCalendarWidget != null) add(PickerWidget(Icons.Default.CalendarMonth, "Calendar", "Agenda, week, and month views from HA calendars", "events schedule date agenda month week appointments") { onAddCalendarWidget.invoke(); onDismiss() })
-        if (onAddWasteWidget != null) add(PickerWidget(Icons.Default.DeleteSweep, "Waste Collection", "Upcoming pickups from waste sensors (e.g. Afvalbeheer)", "waste afval trash garbage gft pmd papier rest collection pickup afvalbeheer") { onAddWasteWidget.invoke(); onDismiss() })
-        if (onAddParcelsWidget != null) add(PickerWidget(Icons.Default.LocalShipping, "Parcels", "Incoming and outgoing parcels across PostNL, DHL, DPD and GLS", "packages delivery mail carrier tracking shipment") { onAddParcelsWidget.invoke(); onDismiss() })
-        add(PickerWidget(Icons.Default.CameraAlt, "Camera", "A single live camera tile or stream URL", "video stream live cctv feed") { onAddCameraWidget?.invoke() ?: run { cameraTitle = ""; cameraIcon = "None"; configureWidget = "camera" } })
-        if (onAddClimateCard != null) add(PickerWidget(Icons.Default.Thermostat, "Climate Card", "Any card from the Climate view", "climate temperature humidity thermostat heating cooling sensors air") { climatePickerSelection = emptyList(); widgetGroup = "climate_card" })
-        if (onAddEnergyCard != null) add(PickerWidget(Icons.Default.ElectricBolt, "Energy Card", "Any card from the Energy view", "power usage solar gas water consumption electricity") { energyPickerSelection = emptyList(); widgetGroup = "energy_card" })
-        if (onAddBatteryCard != null) add(PickerWidget(Icons.Default.BatteryAlert, "Battery Levels", "Low batteries, or Battery+ only with type details", "battery notes charge level power") { widgetGroup = "battery_card" })
-        add(PickerWidget(Icons.AutoMirrored.Filled.ShortText, "Header Text", "Add a section heading", "title subtitle label heading text divider") { configureWidget = "header" })
-        if (onAddMarkdownWidget != null) add(PickerWidget(Icons.AutoMirrored.Filled.Notes, "Markdown", "A free-form card written in markdown", "text note markdown card content notes writing") { onAddMarkdownWidget.invoke(); onDismiss() })
-        if (onAddIframeWidget != null) add(PickerWidget(Icons.Default.Public, "iFrame", "Embed any web page on your dashboard", "web page website url embed browser iframe html") { onAddIframeWidget.invoke(); onDismiss() })
-        if (onAddMediaPlayerWidget != null) add(PickerWidget(Icons.Default.MusicNote, "Media Player", "Now playing tile with the album art as background", "music speaker sonos spotify tv cast album art player") { onAddMediaPlayerWidget.invoke(); onDismiss() })
-        if (onAddSensorGraphWidget != null) add(PickerWidget(Icons.AutoMirrored.Filled.ShowChart, "Sensor Graph", "History graph for one or more sensors, as lines or bars", "graph chart history sensor temperature humidity line bar plot statistics") { onAddSensorGraphWidget.invoke(); onDismiss() })
-        add(PickerWidget(Icons.Default.CleaningServices, "Vacuum", "A single robot vacuum control", "robot cleaner mop hoover") { onAddVacuumWidget?.invoke() ?: run { vacuumTitle = ""; vacuumIcon = "None"; configureWidget = "vacuum" } })
-        add(PickerWidget(Icons.Default.WbSunny, "Weather", "A single weather card", "forecast temperature conditions rain sun") { onAddWeatherWidget?.invoke() ?: run { weatherTitle = ""; weatherIcon = "None"; configureWidget = "weather" } })
-    }.sortedBy { it.title.lowercase() }
+        add(PickerWidget(Icons.Default.Lightbulb, R.string.cr_widget_button, R.string.cr_widget_button_description, "toggle switch control single entity light", WidgetPickerCategory.CONTROLS) { onAddButtonWidget?.invoke() ?: run { stackTitle = ""; stackIcon = "None"; configureWidget = "button" } })
+        if (onAddCalendarWidget != null) add(PickerWidget(Icons.Default.CalendarMonth, R.string.cr_widget_calendar, R.string.cr_widget_calendar_description, "events schedule date agenda month week appointments", WidgetPickerCategory.INFORMATION) { onAddCalendarWidget.invoke(); onDismiss() })
+        if (onAddWasteWidget != null) add(PickerWidget(Icons.Default.DeleteSweep, R.string.cr_widget_waste_collection, R.string.cr_widget_waste_collection_description, "waste afval trash garbage gft pmd papier rest collection pickup afvalbeheer", WidgetPickerCategory.INFORMATION) { onAddWasteWidget.invoke(); onDismiss() })
+        if (onAddParcelsWidget != null) add(PickerWidget(Icons.Default.LocalShipping, R.string.cr_widget_parcels, R.string.cr_widget_parcels_description, "packages delivery mail carrier tracking shipment", WidgetPickerCategory.INFORMATION) { onAddParcelsWidget.invoke(); onDismiss() })
+        add(PickerWidget(Icons.Default.CameraAlt, R.string.cr_widget_camera, R.string.cr_widget_camera_description, "video stream live cctv feed", WidgetPickerCategory.CAMERAS) { onAddCameraWidget?.invoke() ?: run { cameraTitle = ""; cameraIcon = "None"; configureWidget = "camera" } })
+        if (onAddClimateCard != null) add(PickerWidget(Icons.Default.Thermostat, R.string.cr_widget_climate_card, R.string.cr_widget_climate_card_description, "climate temperature humidity thermostat heating cooling sensors air", WidgetPickerCategory.CLIMATE) { climatePickerSelection = emptyList(); widgetGroup = "climate_card" })
+        if (onAddEnergyCard != null) add(PickerWidget(Icons.Default.ElectricBolt, R.string.cr_widget_energy_card, R.string.cr_widget_energy_card_description, "power usage solar gas water consumption electricity", WidgetPickerCategory.ENERGY) { energyPickerSelection = emptyList(); widgetGroup = "energy_card" })
+        if (onAddBatteryCard != null) add(PickerWidget(Icons.Default.BatteryAlert, R.string.cr_widget_battery_levels, R.string.cr_widget_battery_levels_description, "battery notes charge level power", WidgetPickerCategory.ENERGY) { widgetGroup = "battery_card" })
+        add(PickerWidget(Icons.AutoMirrored.Filled.ShortText, R.string.cr_widget_header_text, R.string.cr_widget_header_text_description, "title subtitle label heading text divider", WidgetPickerCategory.LAYOUT) { configureWidget = "header" })
+        if (onAddMarkdownWidget != null) add(PickerWidget(Icons.AutoMirrored.Filled.Notes, R.string.cr_widget_markdown, R.string.cr_widget_markdown_description, "text note markdown card content notes writing", WidgetPickerCategory.INFORMATION) { onAddMarkdownWidget.invoke(); onDismiss() })
+        if (onAddIframeWidget != null) add(PickerWidget(Icons.Default.Public, R.string.cr_widget_iframe, R.string.cr_widget_iframe_description, "web page website url embed browser iframe html", WidgetPickerCategory.INFORMATION) { onAddIframeWidget.invoke(); onDismiss() })
+        if (onAddMediaPlayerWidget != null) add(PickerWidget(Icons.Default.MusicNote, R.string.cr_widget_media_player, R.string.cr_widget_media_player_description, "music speaker sonos spotify tv cast album art player", WidgetPickerCategory.INFORMATION) { onAddMediaPlayerWidget.invoke(); onDismiss() })
+        if (onAddSensorGraphWidget != null) add(PickerWidget(Icons.AutoMirrored.Filled.ShowChart, R.string.cr_widget_sensor_graph, R.string.cr_widget_sensor_graph_description, "graph chart history sensor temperature humidity line bar plot statistics", WidgetPickerCategory.INFORMATION) { onAddSensorGraphWidget.invoke(); onDismiss() })
+        add(PickerWidget(Icons.Default.CleaningServices, R.string.cr_widget_vacuum, R.string.cr_widget_vacuum_description, "robot cleaner mop hoover", WidgetPickerCategory.CONTROLS) { onAddVacuumWidget?.invoke() ?: run { vacuumTitle = ""; vacuumIcon = "None"; configureWidget = "vacuum" } })
+        add(PickerWidget(Icons.Default.WbSunny, R.string.cr_widget_weather, R.string.cr_widget_weather_description, "forecast temperature conditions rain sun", WidgetPickerCategory.CLIMATE) { onAddWeatherWidget?.invoke() ?: run { weatherTitle = ""; weatherIcon = "None"; configureWidget = "weather" } })
+    }.sortedBy { context.getString(it.titleRes).lowercase(Locale.getDefault()) }
     val stackWidgets = buildList {
-        if (onAddEmptyStack != null) add(PickerWidget(Icons.AutoMirrored.Filled.ViewQuilt, "Empty Stack", "Place widgets inside a configurable stack", "container group blank custom") { onAddEmptyStack.invoke(); onDismiss() })
-        add(PickerWidget(Icons.AutoMirrored.Filled.ViewQuilt, "Button Stack", "Group entities into configurable controls", "buttons group entities controls") { stackTitle = "Buttons"; stackIcon = "Lightbulb"; configureWidget = "button_stack" })
-        add(PickerWidget(Icons.Default.CameraAlt, "Camera Stack", "Show live camera tiles or a custom stream URL", "cameras group video stream") { cameraTitle = "Cameras"; cameraIcon = "CameraAlt"; configureWidget = "camera_stack" })
-        if (onAddClimateStack != null) add(PickerWidget(Icons.Default.Thermostat, "Climate Stack", "Group climate cards: overview, thermostats, sensors, ...", "climate group temperature humidity thermostat sensors") { climatePickerSelection = emptyList(); widgetGroup = "climate_stack" })
-        if (onAddEnergyStack != null) add(PickerWidget(Icons.AutoMirrored.Filled.ViewQuilt, "Energy Stack", "Group energy cards: usage, solar, gas, water, ...", "power group solar gas water usage") { energyPickerSelection = emptyList(); widgetGroup = "energy_stack" })
-        if (onAddSensorGraphStack != null) add(PickerWidget(Icons.AutoMirrored.Filled.ShowChart, "Sensor Graph Stack", "Group several sensor history graphs", "graph chart group history sensor statistics") { onAddSensorGraphStack.invoke(); onDismiss() })
-        if (onAddSwipingStack != null) add(PickerWidget(Icons.AutoMirrored.Filled.ViewQuilt, "Swiping Stack", "Swipe horizontally through nested widgets", "carousel swipe pager horizontal nested") { onAddSwipingStack.invoke(); onDismiss() })
-        add(PickerWidget(Icons.Default.CleaningServices, "Vacuum Stack", "Control robot vacuums with map and battery", "robot cleaner group map") { vacuumTitle = "Vacuum"; vacuumIcon = "CleaningServices"; configureWidget = "vacuum_stack" })
-        add(PickerWidget(Icons.Default.WbSunny, "Weather Stack", "Group weather cards: conditions, forecast, wind, or rain map", "forecast group wind rain conditions") { weatherTitle = "Weather"; weatherIcon = "weather-partly-cloudy"; configureWidget = "weather_stack" })
-    }.sortedBy { it.title.lowercase() }
+        if (onAddEmptyStack != null) add(PickerWidget(Icons.AutoMirrored.Filled.ViewQuilt, R.string.cr_widget_empty_stack, R.string.cr_widget_empty_stack_description, "container group blank custom", WidgetPickerCategory.LAYOUT, isStack = true) { onAddEmptyStack.invoke(); onDismiss() })
+        add(PickerWidget(Icons.AutoMirrored.Filled.ViewQuilt, R.string.cr_widget_button_stack, R.string.cr_widget_button_stack_description, "buttons group entities controls", WidgetPickerCategory.CONTROLS, isStack = true) { stackTitle = buttonsDefault; stackIcon = "Lightbulb"; configureWidget = "button_stack" })
+        add(PickerWidget(Icons.Default.CameraAlt, R.string.cr_widget_camera_stack, R.string.cr_widget_camera_stack_description, "cameras group video stream", WidgetPickerCategory.CAMERAS, isStack = true) { cameraTitle = camerasDefault; cameraIcon = "CameraAlt"; configureWidget = "camera_stack" })
+        if (onAddClimateStack != null) add(PickerWidget(Icons.Default.Thermostat, R.string.cr_widget_climate_stack, R.string.cr_widget_climate_stack_description, "climate group temperature humidity thermostat sensors", WidgetPickerCategory.CLIMATE, isStack = true) { climatePickerSelection = emptyList(); widgetGroup = "climate_stack" })
+        if (onAddEnergyStack != null) add(PickerWidget(Icons.AutoMirrored.Filled.ViewQuilt, R.string.cr_widget_energy_stack, R.string.cr_widget_energy_stack_description, "power group solar gas water usage", WidgetPickerCategory.ENERGY, isStack = true) { energyPickerSelection = emptyList(); widgetGroup = "energy_stack" })
+        if (onAddSensorGraphStack != null) add(PickerWidget(Icons.AutoMirrored.Filled.ShowChart, R.string.cr_widget_sensor_graph_stack, R.string.cr_widget_sensor_graph_stack_description, "graph chart group history sensor statistics", WidgetPickerCategory.INFORMATION, isStack = true) { onAddSensorGraphStack.invoke(); onDismiss() })
+        if (onAddSwipingStack != null) add(PickerWidget(Icons.AutoMirrored.Filled.ViewQuilt, R.string.cr_widget_swiping_stack, R.string.cr_widget_swiping_stack_description, "carousel swipe pager horizontal nested", WidgetPickerCategory.LAYOUT, isStack = true) { onAddSwipingStack.invoke(); onDismiss() })
+        add(PickerWidget(Icons.Default.CleaningServices, R.string.cr_widget_vacuum_stack, R.string.cr_widget_vacuum_stack_description, "robot cleaner group map", WidgetPickerCategory.CONTROLS, isStack = true) { vacuumTitle = vacuumDefault; vacuumIcon = "CleaningServices"; configureWidget = "vacuum_stack" })
+        add(PickerWidget(Icons.Default.WbSunny, R.string.cr_widget_weather_stack, R.string.cr_widget_weather_stack_description, "forecast group wind rain conditions", WidgetPickerCategory.CLIMATE, isStack = true) { weatherTitle = weatherDefault; weatherIcon = "weather-partly-cloudy"; configureWidget = "weather_stack" })
+    }.sortedBy { context.getString(it.titleRes).lowercase(Locale.getDefault()) }
 
     if (showIconPicker) {
         val currentForPicker = when (configureWidget) {
@@ -2838,16 +2882,18 @@ fun AddRoomWidgetDialog(
             ) {
                 ModernSettingsHeader(
                     title = when {
-                        configureWidget != null -> "Configure widget"
-                        categoryFromGroup(widgetGroup) != null -> categoryFromGroup(widgetGroup)!!.label
-                        widgetGroup != null -> "Widget options"
-                        else -> "Add widget"
+                        configureWidget != null -> stringResource(R.string.cr_configure_widget)
+                        categoryFromGroup(widgetGroup) != null ->
+                            stringResource(categoryFromGroup(widgetGroup)!!.labelRes)
+                        widgetGroup != null -> stringResource(R.string.cr_widget_options)
+                        else -> stringResource(R.string.cr_add_widget)
                     },
                     subtitle = when {
-                        configureWidget != null -> "Set the essentials before adding it"
-                        categoryFromGroup(widgetGroup) != null -> categoryFromGroup(widgetGroup)!!.description
-                        widgetGroup != null -> "Choose what this widget should display"
-                        else -> "Browse by purpose, or search every widget"
+                        configureWidget != null -> stringResource(R.string.cr_configure_widget_subtitle)
+                        categoryFromGroup(widgetGroup) != null ->
+                            stringResource(categoryFromGroup(widgetGroup)!!.descriptionRes)
+                        widgetGroup != null -> stringResource(R.string.cr_widget_options_subtitle)
+                        else -> stringResource(R.string.cr_add_widget_subtitle)
                     },
                     icon = categoryFromGroup(widgetGroup)?.icon ?: Icons.Default.Add,
                     canGoBack = configureWidget != null || widgetGroup != null,
@@ -2866,12 +2912,12 @@ fun AddRoomWidgetDialog(
                     OutlinedTextField(
                         value = search,
                         onValueChange = { search = it },
-                        placeholder = { Text("Search widgets") },
+                        placeholder = { Text(stringResource(R.string.ui_search_widgets_9525879)) },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = appColors.onMuted) },
                         trailingIcon = {
                             if (search.isNotEmpty()) {
                                 IconButton(onClick = { search = "" }) {
-                                    Icon(Icons.Default.Close, contentDescription = "Clear search", tint = appColors.onMuted)
+                                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.ui_clear_search_67300d0), tint = appColors.onMuted)
                                 }
                             }
                         },
@@ -2902,34 +2948,53 @@ fun AddRoomWidgetDialog(
                     if (query.isEmpty()) {
                         val availableWidgets = topWidgets + stackWidgets
                         WidgetPickerCategory.entries.forEach { category ->
-                            val count = availableWidgets.count { it.category() == category }
+                            val count = availableWidgets.count { it.category == category }
                             if (count > 0) {
                             WidgetChoice(
                                     icon = category.icon,
-                                    title = category.label,
-                                    subtitle = "${category.description} — $count ${if (count == 1) "option" else "options"}",
+                                    title = stringResource(category.labelRes),
+                                    subtitle = stringResource(
+                                        R.string.cr_category_with_options,
+                                        stringResource(category.descriptionRes),
+                                        pluralStringResource(R.plurals.cr_widget_option_count, count, count)
+                                    ),
                                     onClick = { widgetGroup = categoryGroup(category) }
                             )
                             }
                         }
                     } else {
-                        val results = (topWidgets + stackWidgets).filter { it.matches(query) }.sortedBy { it.title.lowercase() }
+                        val results = (topWidgets + stackWidgets)
+                            .filter {
+                                it.matches(
+                                    query,
+                                    context.getString(it.titleRes),
+                                    context.getString(it.subtitleRes)
+                                )
+                            }
+                            .sortedBy { context.getString(it.titleRes).lowercase(Locale.getDefault()) }
                         if (results.isEmpty()) {
                             Text(
-                                "No widgets match \"$query\"",
+                                stringResource(R.string.ui_no_widgets_match_73a3c20, query),
                                 color = appColors.onMuted,
                                 style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)
                             )
                         } else {
-                            results.forEach { w -> WidgetChoice(w.icon, w.title, w.subtitle, w.onSelect) }
+                            results.forEach { w ->
+                                WidgetChoice(
+                                    w.icon,
+                                    stringResource(w.titleRes),
+                                    stringResource(w.subtitleRes),
+                                    w.onSelect
+                                )
+                            }
                         }
                     }
                         }
                 } else if (categoryFromGroup(widgetGroup) != null && configureWidget == null) {
                         val category = categoryFromGroup(widgetGroup)!!
-                        val categoryWidgets = (topWidgets + stackWidgets).filter { it.category() == category }
-                        val (stacks, individual) = categoryWidgets.partition { it.title.endsWith("Stack") }
+                        val categoryWidgets = (topWidgets + stackWidgets).filter { it.category == category }
+                        val (stacks, individual) = categoryWidgets.partition(PickerWidget::isStack)
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -2938,12 +3003,26 @@ fun AddRoomWidgetDialog(
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             if (individual.isNotEmpty()) {
-                                SettingsSubcategory("Individual widgets", "Add one focused card")
-                                individual.forEach { widget -> WidgetChoice(widget.icon, widget.title, widget.subtitle, widget.onSelect) }
+                                SettingsSubcategory(stringResource(R.string.ui_individual_widgets_ff1526f), stringResource(R.string.ui_add_one_focused_card_c2f2ed8))
+                                individual.forEach { widget ->
+                                    WidgetChoice(
+                                        widget.icon,
+                                        stringResource(widget.titleRes),
+                                        stringResource(widget.subtitleRes),
+                                        widget.onSelect
+                                    )
+                                }
                             }
                             if (stacks.isNotEmpty()) {
-                                SettingsSubcategory("Stacks", "Group related cards in one section")
-                                stacks.forEach { widget -> WidgetChoice(widget.icon, widget.title, widget.subtitle, widget.onSelect) }
+                                SettingsSubcategory(stringResource(R.string.ui_stacks_249f056), stringResource(R.string.ui_group_related_cards_in_one_section_f978d2b))
+                                stacks.forEach { widget ->
+                                    WidgetChoice(
+                                        widget.icon,
+                                        stringResource(widget.titleRes),
+                                        stringResource(widget.subtitleRes),
+                                        widget.onSelect
+                                    )
+                                }
                             }
                         }
                 } else if (widgetGroup == "energy_card" && configureWidget == null) {
@@ -2951,7 +3030,7 @@ fun AddRoomWidgetDialog(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                    Text("Energy Cards", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.ui_energy_cards_c84abda), color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
                     EnergyCardPickerList(
                         selected = energyPickerSelection,
                         onToggle = { key ->
@@ -2965,7 +3044,7 @@ fun AddRoomWidgetDialog(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                    Text("Energy Stack Cards", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.ui_energy_stack_cards_5ac4b4c), color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
                     EnergyCardPickerList(
                         selected = energyPickerSelection,
                         onToggle = { key ->
@@ -2979,7 +3058,7 @@ fun AddRoomWidgetDialog(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                    Text("Climate Cards", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.ui_climate_cards_f4996fd), color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
                     ClimateCardPickerList(
                         selected = climatePickerSelection,
                         onToggle = { key ->
@@ -2993,7 +3072,7 @@ fun AddRoomWidgetDialog(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                    Text("Climate Stack Cards", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.ui_climate_stack_cards_dcff178), color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
                     ClimateCardPickerList(
                         selected = climatePickerSelection,
                         onToggle = { key ->
@@ -3010,11 +3089,11 @@ fun AddRoomWidgetDialog(
                                 .verticalScroll(widgetPickerScroll),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                    Text("Battery Levels", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.ui_battery_levels_7c61b65), color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text("Battery+ / Battery Notes only", color = appColors.onSurface)
-                            Text("Only show Battery+ entities and include battery type details", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                            Text(stringResource(R.string.ui_battery_battery_notes_only_14e5936), color = appColors.onSurface)
+                            Text(stringResource(R.string.ui_only_show_battery_entities_and_include_battery_type_detail_b216867), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
                         }
                         Switch(checked = batteryNotesInstalled, onCheckedChange = { batteryNotesInstalled = it })
                     }
@@ -3029,11 +3108,11 @@ fun AddRoomWidgetDialog(
                         ) {
                     Text(
                         when (configureWidget) {
-                            "button", "button_stack" -> if (configureWidget == "button") "Button" else "Button Stack"
-                            "camera", "camera_stack" -> if (configureWidget == "camera") "Camera" else "Camera Stack"
-                            "vacuum", "vacuum_stack" -> if (configureWidget == "vacuum") "Vacuum" else "Vacuum Stack"
-                            "weather", "weather_stack" -> if (configureWidget == "weather") "Weather" else "Weather Stack"
-                            else -> "Header Text"
+                            "button", "button_stack" -> if (configureWidget == "button") stringResource(R.string.ui_button_794145f) else stringResource(R.string.ui_button_stack_ee9e7f8)
+                            "camera", "camera_stack" -> if (configureWidget == "camera") stringResource(R.string.ui_camera_4da9c9a) else stringResource(R.string.ui_camera_stack_645ea0f)
+                            "vacuum", "vacuum_stack" -> if (configureWidget == "vacuum") stringResource(R.string.ui_vacuum_5fe15df) else stringResource(R.string.ui_vacuum_stack_b93d3b7)
+                            "weather", "weather_stack" -> if (configureWidget == "weather") stringResource(R.string.ui_weather_284af3e) else stringResource(R.string.ui_weather_stack_4d4f763)
+                            else -> stringResource(R.string.ui_header_text_f7593e7)
                         },
                         color = appColors.onSurface,
                         style = MaterialTheme.typography.titleMedium
@@ -3055,7 +3134,7 @@ fun AddRoomWidgetDialog(
                                 else -> headerText = it
                             }
                         },
-                        label = { Text(if (configureWidget == "header") "Header text" else "Stack title") },
+                        label = { Text(if (configureWidget == "header") stringResource(R.string.ui_header_text_7f71314) else stringResource(R.string.ui_stack_title_46ccc2d)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -3068,7 +3147,7 @@ fun AddRoomWidgetDialog(
                             unfocusedBorderColor = appColors.onMuted
                         )
                     )
-                    Text("Icon", color = appColors.onMuted, style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.ui_icon_716f63b), color = appColors.onMuted, style = MaterialTheme.typography.labelLarge)
                     val currentWidgetIcon = when (configureWidget) {
                         "button", "button_stack" -> stackIcon; "camera", "camera_stack" -> cameraIcon
                         "vacuum", "vacuum_stack" -> vacuumIcon; "weather", "weather_stack" -> weatherIcon; else -> headerIcon
@@ -3082,12 +3161,12 @@ fun AddRoomWidgetDialog(
                             MdiIcon(currentWidgetIcon, size = 24.dp, tint = appColors.onSurface)
                         }
                         Text(
-                            currentWidgetIcon.takeUnless { it == "None" } ?: "None",
+                            currentWidgetIcon.takeUnless { it == "None" } ?: stringResource(R.string.cr_none),
                             modifier = Modifier.weight(1f),
                             style = MaterialTheme.typography.bodyMedium,
                             color = appColors.onSurface
                         )
-                        TextButton(onClick = { showIconPicker = true }) { Text("Change") }
+                        TextButton(onClick = { showIconPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
                     }
                         }
                     }
@@ -3098,35 +3177,35 @@ fun AddRoomWidgetDialog(
                         onClick = { onAddEnergyCard?.invoke(energyPickerSelection); onDismiss() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Add")
+                        Text(stringResource(R.string.ui_add_61cc55a))
                     }
                 } else if (widgetGroup == "energy_stack" && configureWidget == null) {
                     Button(
                         onClick = { onAddEnergyStack?.invoke(energyPickerSelection); onDismiss() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Add")
+                        Text(stringResource(R.string.ui_add_61cc55a))
                     }
                 } else if (widgetGroup == "climate_card" && configureWidget == null) {
                     Button(
                         onClick = { onAddClimateCard?.invoke(climatePickerSelection); onDismiss() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Add")
+                        Text(stringResource(R.string.ui_add_61cc55a))
                     }
                 } else if (widgetGroup == "climate_stack" && configureWidget == null) {
                     Button(
                         onClick = { onAddClimateStack?.invoke(climatePickerSelection); onDismiss() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Add")
+                        Text(stringResource(R.string.ui_add_61cc55a))
                     }
                 } else if (widgetGroup == "battery_card" && configureWidget == null) {
                     Button(
                         onClick = { onAddBatteryCard?.invoke(batteryNotesInstalled); onDismiss() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Add")
+                        Text(stringResource(R.string.ui_add_61cc55a))
                     }
                 } else if (configureWidget != null) {
                     Button(
@@ -3140,12 +3219,12 @@ fun AddRoomWidgetDialog(
                             } else if (configureWidget == "weather" || configureWidget == "weather_stack") {
                                 onAddWeatherStack(weatherTitle.ifBlank { null } to weatherIcon.takeUnless { it == "None" })
                             } else {
-                                onAddSubtitle(headerText.ifBlank { "Header Text" }, headerIcon.takeUnless { it == "None" })
+                                onAddSubtitle(headerText.ifBlank { headerTextDefault }, headerIcon.takeUnless { it == "None" })
                             }
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Add")
+                        Text(stringResource(R.string.ui_add_61cc55a))
                     }
                 }
             }
@@ -3167,9 +3246,9 @@ private fun VacuumBindingRow(
 ) {
     val name = entityId?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(name ?: "Auto / unavailable", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
-        TextButton(onClick = onChange) { Text("Change") }
-        if (entityId != null) TextButton(onClick = onClear) { Text("Clear") }
+        Text(name ?: stringResource(R.string.ui_auto_unavailable_33737ba), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+        TextButton(onClick = onChange) { Text(stringResource(R.string.ui_change_64fbd99)) }
+        if (entityId != null) TextButton(onClick = onClear) { Text(stringResource(R.string.ui_clear_719ea39)) }
     }
 }
 
@@ -3274,18 +3353,26 @@ fun ButtonConfigDialog(
     var showVacuumDevicePicker by remember { mutableStateOf(false) }
     var showWaterPicker by remember { mutableStateOf(false) }
     var showEmptyBinPicker by remember { mutableStateOf(false) }
-    val refreshOptions = listOf("Live" to 0, "5s" to 5, "10s" to 10, "15s" to 15, "30s" to 30)
+    val refreshOptions = listOf(
+        stringResource(R.string.cr_live) to 0,
+        "5s" to 5,
+        "10s" to 10,
+        "15s" to 15,
+        "30s" to 30
+    )
     val lockRelockSeconds = lockRelockSecondsText.toIntOrNull()?.coerceIn(5, 86400) ?: DEFAULT_BUTTON_RELOCK_SECONDS
     val showButtonLockSettings = !isCameraItem && !isVacuumItem
     val lockPinMissing = showButtonLockSettings && lockEnabled && lockUnlockMode == BUTTON_LOCK_PIN && lockPin.isBlank()
     var settingsPage by remember(isCameraItem, isVacuumItem) { mutableStateOf("general") }
     val settingsTabs = buildList {
-        add("general" to "General")
-        if (isCameraItem) add("camera" to "Camera")
-        if (isVacuumItem) add("vacuum" to "Vacuum")
-        if (!isCameraItem && !isVacuumItem || widgetAppearance != null) add("appearance" to "Appearance")
-        if (!isVacuumItem) add("actions" to "Actions")
-        if (showButtonLockSettings) add("protection" to "Protection")
+        add("general" to stringResource(R.string.cr_general))
+        if (isCameraItem) add("camera" to stringResource(R.string.cr_widget_camera))
+        if (isVacuumItem) add("vacuum" to stringResource(R.string.cr_widget_vacuum))
+        if (!isCameraItem && !isVacuumItem || widgetAppearance != null) {
+            add("appearance" to stringResource(R.string.cr_appearance))
+        }
+        if (!isVacuumItem) add("actions" to stringResource(R.string.cr_actions))
+        if (showButtonLockSettings) add("protection" to stringResource(R.string.cr_protection))
     }
 
     AlertDialog(
@@ -3294,11 +3381,11 @@ fun ButtonConfigDialog(
         title = {
             ModernSettingsDialogTitle(
                 title = when {
-                    isCameraItem -> "Camera settings"
-                    isVacuumItem -> "Vacuum settings"
-                    else -> "Button settings"
+                    isCameraItem -> stringResource(R.string.cr_camera_settings)
+                    isVacuumItem -> stringResource(R.string.cr_vacuum_settings)
+                    else -> stringResource(R.string.cr_button_settings)
                 },
-                subtitle = "Focused groups keep advanced options easy to find",
+                subtitle = stringResource(R.string.ui_focused_groups_keep_advanced_options_easy_to_find_44ac86e),
                 icon = when {
                     isCameraItem -> Icons.Default.CameraAlt
                     isVacuumItem -> Icons.Default.CleaningServices
@@ -3313,11 +3400,11 @@ fun ButtonConfigDialog(
             ) {
                 SettingsTabRow(tabs = settingsTabs, selected = settingsPage, onSelect = { settingsPage = it })
                 if (settingsPage == "general") {
-                    SettingsSubcategory("Identity", "The text shown on the dashboard")
-                    OutlinedTextField(name, { name = it }, label = { Text("Name") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    SettingsSubcategory(stringResource(R.string.ui_identity_7e5a975), stringResource(R.string.ui_the_text_shown_on_the_dashboard_fff5c98))
+                    OutlinedTextField(name, { name = it }, label = { Text(stringResource(R.string.ui_name_709a232)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     if (!isCameraItem && !isVacuumItem) {
                         val attributes = remember(entity) { selectableEntityAttributes(entity) }
-                        SettingsSubcategory("Secondary line", "Show the entity's state, or one of its attributes instead")
+                        SettingsSubcategory(stringResource(R.string.ui_secondary_line_ca81690), stringResource(R.string.ui_show_the_entity_s_state_or_one_of_its_1008a4d))
                         Row(
                             modifier = Modifier.horizontalScroll(rememberScrollState()),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -3325,7 +3412,7 @@ fun ButtonConfigDialog(
                             FilterChip(
                                 selected = stateAttribute == null,
                                 onClick = { stateAttribute = null },
-                                label = { Text("State") }
+                                label = { Text(stringResource(R.string.ui_state_a725020)) }
                             )
                             attributes.forEach { attr ->
                                 FilterChip(
@@ -3337,16 +3424,16 @@ fun ButtonConfigDialog(
                         }
                         if (attributes.isEmpty()) {
                             Text(
-                                "This entity has no attributes to show.",
+                                stringResource(R.string.ui_this_entity_has_no_attributes_to_show_b09f4c9),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) {
-                                Text("Countdown timer", style = MaterialTheme.typography.labelLarge)
+                                Text(stringResource(R.string.ui_countdown_timer_282cb17), style = MaterialTheme.typography.labelLarge)
                                 Text(
-                                    "When the value is a completion time (e.g. a washer/dryer finish time), show a descending timer. The button reads active while counting and turns off at zero.",
+                                    stringResource(R.string.ui_when_the_value_is_a_completion_time_e_g_7dce367),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -3363,19 +3450,19 @@ fun ButtonConfigDialog(
                             val stateName = timerStateEntityId?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Column(Modifier.weight(1f)) {
-                                    Text("Running-state entity", style = MaterialTheme.typography.labelLarge)
+                                    Text(stringResource(R.string.ui_running_state_entity_3c8ffde), style = MaterialTheme.typography.labelLarge)
                                     Text(
-                                        stateName ?: "None — timer follows the completion time only",
+                                        stateName ?: stringResource(R.string.ui_none_timer_follows_the_completion_time_only_09d470a),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = if (stateName != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                                TextButton(onClick = { showTimerStatePicker = true }) { Text("Change") }
-                                if (timerStateEntityId != null) TextButton(onClick = { timerStateEntityId = null }) { Text("Clear") }
+                                TextButton(onClick = { showTimerStatePicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
+                                if (timerStateEntityId != null) TextButton(onClick = { timerStateEntityId = null }) { Text(stringResource(R.string.ui_clear_719ea39)) }
                             }
                         }
                         if (stateAttribute != null) {
-                            Text("Unit", style = MaterialTheme.typography.labelLarge)
+                            Text(stringResource(R.string.ui_unit_f6b935a), style = MaterialTheme.typography.labelLarge)
                             Row(
                                 modifier = Modifier.horizontalScroll(rememberScrollState()),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -3385,7 +3472,7 @@ fun ButtonConfigDialog(
                                     FilterChip(
                                         selected = selected,
                                         onClick = { stateUnit = unit.ifBlank { null } },
-                                        label = { Text(if (unit.isBlank()) "None" else unit) }
+                                        label = { Text(if (unit.isBlank()) stringResource(R.string.ui_none_6eef664) else unit) }
                                     )
                                 }
                             }
@@ -3394,53 +3481,53 @@ fun ButtonConfigDialog(
                     // ── Entity integrations (moved here from the former "Entity" tab) ──
                     if (isLockEntity) {
                         androidx.compose.material3.HorizontalDivider(color = LocalHKIAppColors.current.onMuted.copy(alpha = 0.15f))
-                        SettingsSubcategory("Entity integrations", "Optional context shown by the lock card")
-                        Text("Door sensor (turns lock card red when open)", style = MaterialTheme.typography.labelLarge)
+                        SettingsSubcategory(stringResource(R.string.ui_entity_integrations_852a3e0), stringResource(R.string.ui_optional_context_shown_by_the_lock_card_03f6814))
+                        Text(stringResource(R.string.ui_door_sensor_turns_lock_card_red_when_open_9bc1372), style = MaterialTheme.typography.labelLarge)
                         val doorName = doorEntityId?.takeIf { it.isNotBlank() }
                             ?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Column(Modifier.weight(1f)) {
-                                Text(doorName ?: "None", style = MaterialTheme.typography.bodySmall, color = if (doorName != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(doorName ?: stringResource(R.string.ui_none_6eef664), style = MaterialTheme.typography.bodySmall, color = if (doorName != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                            TextButton(onClick = { showDoorPicker = true }) { Text("Change") }
-                            if (!doorEntityId.isNullOrBlank()) { TextButton(onClick = { doorEntityId = null }) { Text("Clear") } }
+                            TextButton(onClick = { showDoorPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
+                            if (!doorEntityId.isNullOrBlank()) { TextButton(onClick = { doorEntityId = null }) { Text(stringResource(R.string.ui_clear_719ea39)) } }
                         }
                     }
                     if (isClimateEntity) {
                         androidx.compose.material3.HorizontalDivider(color = LocalHKIAppColors.current.onMuted.copy(alpha = 0.15f))
-                        SettingsSubcategory("Entity integrations", "Controls and history sensors used by the dialog")
-                        Text("Dialog control", style = MaterialTheme.typography.labelLarge)
+                        SettingsSubcategory(stringResource(R.string.ui_entity_integrations_852a3e0), stringResource(R.string.ui_controls_and_history_sensors_used_by_the_dialog_f71675d))
+                        Text(stringResource(R.string.ui_dialog_control_63e18cf), style = MaterialTheme.typography.labelLarge)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             FilterChip(
                                 selected = climateDialogControl != "dial",
                                 onClick = { climateDialogControl = "slider" },
-                                label = { Text("Vertical slider") }
+                                label = { Text(stringResource(R.string.ui_vertical_slider_e09cef1)) }
                             )
                             FilterChip(
                                 selected = climateDialogControl == "dial",
                                 onClick = { climateDialogControl = "dial" },
-                                label = { Text("Thermostat dial") }
+                                label = { Text(stringResource(R.string.ui_thermostat_dial_e6af91b)) }
                             )
                         }
-                        Text("Temperature sensor (graphed in Activity)", style = MaterialTheme.typography.labelLarge)
+                        Text(stringResource(R.string.ui_temperature_sensor_graphed_in_activity_1088c3d), style = MaterialTheme.typography.labelLarge)
                         val tempName = climateTempSensorEntityId?.takeIf { it.isNotBlank() }
                             ?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Column(Modifier.weight(1f)) {
-                                Text(tempName ?: "None", style = MaterialTheme.typography.bodySmall, color = if (tempName != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(tempName ?: stringResource(R.string.ui_none_6eef664), style = MaterialTheme.typography.bodySmall, color = if (tempName != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                            TextButton(onClick = { showTempSensorPicker = true }) { Text("Change") }
-                            if (!climateTempSensorEntityId.isNullOrBlank()) { TextButton(onClick = { climateTempSensorEntityId = null }) { Text("Clear") } }
+                            TextButton(onClick = { showTempSensorPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
+                            if (!climateTempSensorEntityId.isNullOrBlank()) { TextButton(onClick = { climateTempSensorEntityId = null }) { Text(stringResource(R.string.ui_clear_719ea39)) } }
                         }
-                        Text("Humidity sensor (graphed in Activity)", style = MaterialTheme.typography.labelLarge)
+                        Text(stringResource(R.string.ui_humidity_sensor_graphed_in_activity_5b792e1), style = MaterialTheme.typography.labelLarge)
                         val humidityName = climateHumiditySensorEntityId?.takeIf { it.isNotBlank() }
                             ?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Column(Modifier.weight(1f)) {
-                                Text(humidityName ?: "None", style = MaterialTheme.typography.bodySmall, color = if (humidityName != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(humidityName ?: stringResource(R.string.ui_none_6eef664), style = MaterialTheme.typography.bodySmall, color = if (humidityName != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                            TextButton(onClick = { showHumiditySensorPicker = true }) { Text("Change") }
-                            if (!climateHumiditySensorEntityId.isNullOrBlank()) { TextButton(onClick = { climateHumiditySensorEntityId = null }) { Text("Clear") } }
+                            TextButton(onClick = { showHumiditySensorPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
+                            if (!climateHumiditySensorEntityId.isNullOrBlank()) { TextButton(onClick = { climateHumiditySensorEntityId = null }) { Text(stringResource(R.string.ui_clear_719ea39)) } }
                         }
                     }
                     if (isHumidifierEntity) {
@@ -3461,18 +3548,18 @@ fun ButtonConfigDialog(
                     }
                 }
                 if (settingsPage == "camera" && isCameraItem) {
-                    SettingsSubcategory("Stream", "Source and card refresh behavior")
+                    SettingsSubcategory(stringResource(R.string.ui_stream_df06386), stringResource(R.string.ui_source_and_card_refresh_behavior_0a26324))
                     if (config.isCustomUrl) {
                         OutlinedTextField(
                             value = cameraUrl,
                             onValueChange = { cameraUrl = it },
-                            label = { Text("Custom camera URL") },
+                            label = { Text(stringResource(R.string.ui_custom_camera_url_8191b15)) },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
-                        Text("HTTP URL, relative path, or WebRTC name (e.g., url: poort_hd)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.ui_http_url_relative_path_or_webrtc_name_e_g_dfc56c4), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Text("Refresh interval", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.ui_refresh_interval_f086d9d), style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         refreshOptions.forEach { (label, seconds) ->
                             FilterChip(
@@ -3485,55 +3572,63 @@ fun ButtonConfigDialog(
                     }
                 }
                 if (settingsPage == "vacuum" && isVacuumItem) {
-                    SettingsSubcategory("Device & helpers", "Map, status sensors, and control bindings")
-                    Text("Vacuum device", style = MaterialTheme.typography.labelLarge)
+                    SettingsSubcategory(stringResource(R.string.ui_device_helpers_6a8b199), stringResource(R.string.ui_map_status_sensors_and_control_bindings_8cc2dbd))
+                    Text(stringResource(R.string.ui_vacuum_device_3deae52), style = MaterialTheme.typography.labelLarge)
                     val deviceName = vacuumDeviceId?.let { id -> deviceRegistry.find { it.id == id }?.let { it.name_by_user ?: it.name } ?: id }
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Text(deviceName ?: "Select to auto-detect map, battery and controls", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
-                        TextButton(onClick = { showVacuumDevicePicker = true }) { Text("Change") }
+                        Text(deviceName ?: stringResource(R.string.ui_select_to_auto_detect_map_battery_and_controls_72bc9d7), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                        TextButton(onClick = { showVacuumDevicePicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
                     }
-                    Text("Button image", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.ui_button_image_2483e32), style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf("static" to "Robot image", "camera" to "Map camera", "external" to "External URL").forEach { (v, l) ->
-                            FilterChip(selected = vacuumDisplayMode == v, onClick = { vacuumDisplayMode = v }, label = { Text(l) })
+                        listOf(
+                            "static" to R.string.cr_robot_image,
+                            "camera" to R.string.cr_map_camera,
+                            "external" to R.string.cr_external_url
+                        ).forEach { (value, labelRes) ->
+                            FilterChip(
+                                selected = vacuumDisplayMode == value,
+                                onClick = { vacuumDisplayMode = value },
+                                label = { Text(stringResource(labelRes)) }
+                            )
                         }
                     }
                     if (vacuumDisplayMode == "external") {
                         OutlinedTextField(
                             value = vacuumImageUrl,
                             onValueChange = { vacuumImageUrl = it },
-                            label = { Text("Image URL or path") },
+                            label = { Text(stringResource(R.string.ui_image_url_or_path_ddd8d74)) },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
-                        Text("Full URL or a path on your Home Assistant server (e.g. /local/vacuum.png)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.ui_full_url_or_a_path_on_your_home_assistant_66f9c59), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Text("Map camera (for dialog)", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.ui_map_camera_for_dialog_2bc4344), style = MaterialTheme.typography.labelLarge)
                     val mapName = vacuumMapEntityId?.takeIf { it.isNotBlank() }?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Column(Modifier.weight(1f)) {
-                            Text(mapName ?: "Not set", style = MaterialTheme.typography.bodySmall, color = if (mapName != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(mapName ?: stringResource(R.string.ui_not_set_93039e6), style = MaterialTheme.typography.bodySmall, color = if (mapName != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        TextButton(onClick = { showMapPicker = true }) { Text("Change") }
-                        if (!vacuumMapEntityId.isNullOrBlank()) { TextButton(onClick = { vacuumMapEntityId = null }) { Text("Clear") } }
+                        TextButton(onClick = { showMapPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
+                        if (!vacuumMapEntityId.isNullOrBlank()) { TextButton(onClick = { vacuumMapEntityId = null }) { Text(stringResource(R.string.ui_clear_719ea39)) } }
                     }
-                    Text("Water level (optional fallback)", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.ui_water_level_optional_fallback_61b2be5), style = MaterialTheme.typography.labelLarge)
                     VacuumBindingRow(vacuumWaterEntityId, allEntities, { showWaterPicker = true }, { vacuumWaterEntityId = null })
-                    Text("Empty bin (optional fallback)", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.ui_empty_bin_optional_fallback_e40b857), style = MaterialTheme.typography.labelLarge)
                     VacuumBindingRow(vacuumEmptyBinEntityId, allEntities, { showEmptyBinPicker = true }, { vacuumEmptyBinEntityId = null })
-                    Text("Battery sensor (optional)", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.ui_battery_sensor_optional_0e261e6), style = MaterialTheme.typography.labelLarge)
                     val battName = vacuumBatteryEntityId?.takeIf { it.isNotBlank() }?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Column(Modifier.weight(1f)) {
-                            Text(battName ?: "Built-in", style = MaterialTheme.typography.bodySmall, color = if (battName != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(battName ?: stringResource(R.string.ui_built_in_20f409c), style = MaterialTheme.typography.bodySmall, color = if (battName != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        TextButton(onClick = { showBattPicker = true }) { Text("Change") }
-                        if (!vacuumBatteryEntityId.isNullOrBlank()) { TextButton(onClick = { vacuumBatteryEntityId = null }) { Text("Clear") } }
+                        TextButton(onClick = { showBattPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
+                        if (!vacuumBatteryEntityId.isNullOrBlank()) { TextButton(onClick = { vacuumBatteryEntityId = null }) { Text(stringResource(R.string.ui_clear_719ea39)) } }
                     }
                 }
                 if (settingsPage == "appearance" && !isCameraItem && !isVacuumItem) {
-                    SettingsSubcategory("Icon & feedback", "How this control communicates state")
-                    Text("Icon", style = MaterialTheme.typography.labelLarge)
+                    SettingsSubcategory(stringResource(R.string.ui_icon_feedback_180b871), stringResource(R.string.ui_how_this_control_communicates_state_ad17a3d))
+                    Text(stringResource(R.string.ui_icon_716f63b), style = MaterialTheme.typography.labelLarge)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -3543,74 +3638,80 @@ fun ButtonConfigDialog(
                             MdiIcon(iconName, size = 24.dp)
                         }
                         Text(
-                            iconName.takeUnless { it == "None" } ?: "Auto",
+                            iconName.takeUnless { it == "None" } ?: stringResource(R.string.ui_auto_c614ba7),
                             modifier = Modifier.weight(1f),
                             style = MaterialTheme.typography.bodyMedium
                         )
-                        TextButton(onClick = { showIconPickerBtn = true }) { Text("Change") }
+                        TextButton(onClick = { showIconPickerBtn = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
                     }
-                    Text("Icon animation", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.ui_icon_animation_5b1faae), style = MaterialTheme.typography.labelLarge)
                     Text(
-                        "How this icon animates while the device is active. \"Auto\" follows the global setting; the rest override it for this icon.",
+                        stringResource(R.string.ui_how_this_icon_animates_while_the_device_is_active_dffdaf5),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf("auto" to "Auto", "off" to "Off", "glow" to "Glow", "spin" to "Spin", "pulse" to "Pulse").forEach { (value, label) ->
+                        listOf(
+                            "auto" to R.string.cr_mode_auto,
+                            "off" to R.string.cr_state_off,
+                            "glow" to R.string.cr_animation_glow,
+                            "spin" to R.string.cr_animation_spin,
+                            "pulse" to R.string.cr_animation_pulse
+                        ).forEach { (value, labelRes) ->
                             FilterChip(
                                 selected = iconAnimation == value,
                                 onClick = { iconAnimation = value },
-                                label = { Text(label) }
+                                label = { Text(stringResource(labelRes)) }
                             )
                         }
                     }
                     if (isLightEntity) {
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Column(Modifier.weight(1f)) {
-                                Text("Brightness slider", style = MaterialTheme.typography.labelLarge)
-                                Text("Drag horizontally across the full button", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.ui_brightness_slider_a427c80), style = MaterialTheme.typography.labelLarge)
+                                Text(stringResource(R.string.ui_drag_horizontally_across_the_full_button_547ea8c), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Switch(checked = showBrightnessSlider, onCheckedChange = { showBrightnessSlider = it })
                         }
                     }
                     androidx.compose.material3.HorizontalDivider(color = LocalHKIAppColors.current.onMuted.copy(alpha = 0.15f))
-                    SettingsSubcategory("Visibility", "Hide this button, or schedule when it appears")
+                    SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
                     com.jimz011apps.hki7.ui.components.VisibilityEditor(visSpec) { visSpec = it }
                 }
                 if (settingsPage == "actions" && !isVacuumItem) {
-                    SettingsSubcategory("Interactions", "Choose what tap, double tap, and hold should do")
-                    ActionEditor("Tap", tapAction, allEntities, areas, viewModel) { tapAction = it }
-                    ActionEditor("Double", doubleAction, allEntities, areas, viewModel) { doubleAction = it }
-                    ActionEditor("Hold", holdAction, allEntities, areas, viewModel) { holdAction = it }
+                    SettingsSubcategory(stringResource(R.string.ui_interactions_0b3583e), stringResource(R.string.ui_choose_what_tap_double_tap_and_hold_should_do_0bbe9c8))
+                    ActionEditor(stringResource(R.string.cr_action_tap), tapAction, allEntities, areas, viewModel) { tapAction = it }
+                    ActionEditor(stringResource(R.string.cr_action_double_tap), doubleAction, allEntities, areas, viewModel) { doubleAction = it }
+                    ActionEditor(stringResource(R.string.cr_action_hold), holdAction, allEntities, areas, viewModel) { holdAction = it }
                     CustomButtonsEditor(customButtons, allEntities, areas, viewModel) { customButtons = it }
                 }
                 if (settingsPage == "protection" && showButtonLockSettings) {
-                    SettingsSubcategory("Accidental-touch protection", "Require an extra gesture or PIN before actions run")
+                    SettingsSubcategory(stringResource(R.string.ui_accidental_touch_protection_e2683f4), stringResource(R.string.ui_require_an_extra_gesture_or_pin_before_actions_run_19ae393))
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Column(Modifier.weight(1f)) {
-                            Text("Button lock", style = MaterialTheme.typography.labelLarge)
+                            Text(stringResource(R.string.ui_button_lock_28d87b1), style = MaterialTheme.typography.labelLarge)
                         }
                         Switch(checked = lockEnabled, onCheckedChange = { lockEnabled = it })
                     }
                     if (lockEnabled) {
-                        Text("Unlock method", style = MaterialTheme.typography.labelLarge)
+                        Text(stringResource(R.string.ui_unlock_method_dff380e), style = MaterialTheme.typography.labelLarge)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             FilterChip(
                                 selected = lockUnlockMode == BUTTON_LOCK_DOUBLE_TAP,
                                 onClick = { lockUnlockMode = BUTTON_LOCK_DOUBLE_TAP },
-                                label = { Text("Double tap") }
+                                label = { Text(stringResource(R.string.ui_double_tap_a268e89)) }
                             )
                             FilterChip(
                                 selected = lockUnlockMode == BUTTON_LOCK_PIN,
                                 onClick = { lockUnlockMode = BUTTON_LOCK_PIN },
-                                label = { Text("PIN") }
+                                label = { Text(stringResource(R.string.ui_pin_3adadd3)) }
                             )
                         }
                         if (lockUnlockMode == BUTTON_LOCK_PIN) {
                             OutlinedTextField(
                                 value = lockPin,
                                 onValueChange = { lockPin = it.filter { c -> c.isDigit() }.take(12) },
-                                label = { Text("PIN") },
+                                label = { Text(stringResource(R.string.ui_pin_3adadd3)) },
                                 singleLine = true,
                                 isError = lockPinMissing,
                                 visualTransformation = PasswordVisualTransformation(),
@@ -3618,10 +3719,10 @@ fun ButtonConfigDialog(
                                 modifier = Modifier.fillMaxWidth()
                             )
                             if (lockPinMissing) {
-                                Text("Enter a PIN", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
+                                Text(stringResource(R.string.ui_enter_a_pin_4e6a960), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
                             }
                         }
-                        Text("Relock after", style = MaterialTheme.typography.labelLarge)
+                        Text(stringResource(R.string.ui_relock_after_4db5c55), style = MaterialTheme.typography.labelLarge)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             listOf(15 to "15s", 30 to "30s", 60 to "1m", 300 to "5m").forEach { (seconds, label) ->
                                 FilterChip(
@@ -3635,7 +3736,7 @@ fun ButtonConfigDialog(
                         OutlinedTextField(
                             value = lockRelockSecondsText,
                             onValueChange = { lockRelockSecondsText = it.filter { c -> c.isDigit() }.take(5) },
-                            label = { Text("Seconds") },
+                            label = { Text(stringResource(R.string.ui_seconds_5fb1db5)) },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.fillMaxWidth()
@@ -3643,12 +3744,12 @@ fun ButtonConfigDialog(
                     }
                 }
                 if (settingsPage == "appearance" && widgetAppearance != null) {
-                    SettingsSubcategory("Card layout", "Shape and width on the dashboard")
-                    Text("Type", style = MaterialTheme.typography.labelLarge)
+                    SettingsSubcategory(stringResource(R.string.ui_card_layout_f83b655), stringResource(R.string.ui_shape_and_width_on_the_dashboard_c89fefa))
+                    Text(stringResource(R.string.ui_type_3deb745), style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(selected = appearButtonStyle == "standard", onClick = { appearButtonStyle = "standard"; appearIsSquare = false }, label = { Text("Standard") })
-                        FilterChip(selected = appearButtonStyle == "square", onClick = { appearButtonStyle = "square"; appearIsSquare = true }, label = { Text("Square") })
-                        FilterChip(selected = appearButtonStyle == "tile", onClick = { appearButtonStyle = "tile"; appearIsSquare = false }, label = { Text("Tile") })
+                        FilterChip(selected = appearButtonStyle == "standard", onClick = { appearButtonStyle = "standard"; appearIsSquare = false }, label = { Text(stringResource(R.string.ui_standard_2dfa660)) })
+                        FilterChip(selected = appearButtonStyle == "square", onClick = { appearButtonStyle = "square"; appearIsSquare = true }, label = { Text(stringResource(R.string.ui_square_82810cb)) })
+                        FilterChip(selected = appearButtonStyle == "tile", onClick = { appearButtonStyle = "tile"; appearIsSquare = false }, label = { Text(stringResource(R.string.ui_tile_2dd2c66)) })
                     }
                     WidgetWidthSelector(width = appearWidth, onWidthChange = { appearWidth = it })
                 }
@@ -3709,16 +3810,16 @@ fun ButtonConfigDialog(
                         )
                     )
                 }
-            ) { Text("Save") }
+            ) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
     )
 
     // ── Entity pickers hoisted AFTER the AlertDialog so they render on top of it ──
     if (showTimerStatePicker) {
         AdvancedEntitySearchDialog(
             allEntities = allEntities,
-            title = "Select running-state entity",
+            title = stringResource(R.string.ui_select_running_state_entity_136482a),
             singleSelect = true,
             preselectedIds = setOfNotNull(timerStateEntityId?.takeIf { it.isNotBlank() }),
             onDismiss = { showTimerStatePicker = false },
@@ -3728,7 +3829,7 @@ fun ButtonConfigDialog(
     if (showDoorPicker) {
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter { it.entity_id.startsWith("binary_sensor.") },
-            title = "Select Door Sensor",
+            title = stringResource(R.string.ui_select_door_sensor_f345fbf),
             singleSelect = true,
             preselectedIds = setOfNotNull(doorEntityId?.takeIf { it.isNotBlank() }),
             onDismiss = { showDoorPicker = false },
@@ -3738,7 +3839,7 @@ fun ButtonConfigDialog(
     if (showMapPicker) {
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter { it.entity_id.startsWith("camera.") },
-            title = "Select Map Camera",
+            title = stringResource(R.string.ui_select_map_camera_d5ae262),
             singleSelect = true,
             preselectedIds = setOfNotNull(vacuumMapEntityId?.takeIf { it.isNotBlank() }),
             onDismiss = { showMapPicker = false },
@@ -3748,7 +3849,7 @@ fun ButtonConfigDialog(
     if (showBattPicker) {
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter { it.entity_id.startsWith("sensor.") },
-            title = "Select Battery Sensor",
+            title = stringResource(R.string.ui_select_battery_sensor_51f1222),
             singleSelect = true,
             preselectedIds = setOfNotNull(vacuumBatteryEntityId?.takeIf { it.isNotBlank() }),
             onDismiss = { showBattPicker = false },
@@ -3772,14 +3873,14 @@ fun ButtonConfigDialog(
     if (showWaterPicker) {
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter { it.entity_id.startsWith("select.") || it.entity_id.startsWith("input_select.") },
-            title = "Select Water Level", singleSelect = true, preselectedIds = setOfNotNull(vacuumWaterEntityId),
+            title = stringResource(R.string.ui_select_water_level_562845a), singleSelect = true, preselectedIds = setOfNotNull(vacuumWaterEntityId),
             onDismiss = { showWaterPicker = false }, onEntitiesSelected = { vacuumWaterEntityId = it.firstOrNull(); showWaterPicker = false }
         )
     }
     if (showEmptyBinPicker) {
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter { it.entity_id.startsWith("button.") || it.entity_id.startsWith("switch.") },
-            title = "Select Empty Bin Control", singleSelect = true, preselectedIds = setOfNotNull(vacuumEmptyBinEntityId),
+            title = stringResource(R.string.ui_select_empty_bin_control_d992252), singleSelect = true, preselectedIds = setOfNotNull(vacuumEmptyBinEntityId),
             onDismiss = { showEmptyBinPicker = false }, onEntitiesSelected = { vacuumEmptyBinEntityId = it.firstOrNull(); showEmptyBinPicker = false }
         )
     }
@@ -3787,7 +3888,7 @@ fun ButtonConfigDialog(
         val sensors = allEntities.filter { it.entity_id.startsWith("sensor.") }
         AdvancedEntitySearchDialog(
             allEntities = sensors.filter { it.deviceClass == "temperature" }.ifEmpty { sensors },
-            title = "Select Temperature Sensor",
+            title = stringResource(R.string.ui_select_temperature_sensor_821f54c),
             singleSelect = true,
             preselectedIds = setOfNotNull(climateTempSensorEntityId?.takeIf { it.isNotBlank() }),
             onDismiss = { showTempSensorPicker = false },
@@ -3798,7 +3899,7 @@ fun ButtonConfigDialog(
         val sensors = allEntities.filter { it.entity_id.startsWith("sensor.") }
         AdvancedEntitySearchDialog(
             allEntities = sensors.filter { it.deviceClass == "humidity" }.ifEmpty { sensors },
-            title = "Select Humidity Sensor",
+            title = stringResource(R.string.ui_select_humidity_sensor_8192d0e),
             singleSelect = true,
             preselectedIds = setOfNotNull(climateHumiditySensorEntityId?.takeIf { it.isNotBlank() }),
             onDismiss = { showHumiditySensorPicker = false },
@@ -3849,32 +3950,35 @@ fun PagedRoleDialog(
     var showClimateModes by remember(entity.entity_id) { mutableStateOf(false) }
     val climateTabs = buildList {
         entity.hvacModes.ifEmpty { listOf("cool", "heat", "auto", "off") }.forEach { mode ->
-            add(Triple(climateModeLabel(mode), climateModeIcon(mode), {
+            add(Triple(localizedClimateModeLabel(mode), climateModeIcon(mode), {
                 selectedClimateMode = mode
                 viewModel.setHvacMode(entity.entity_id, mode)
             }))
         }
     }
-    var selectedCoverAction by remember(entity.entity_id) {
+    val openLabel = stringResource(R.string.cr_open)
+    val stopLabel = stringResource(R.string.cr_stop)
+    val closeLabel = stringResource(R.string.cr_close)
+    var selectedCoverAction by remember(entity.entity_id, openLabel, stopLabel, closeLabel) {
         mutableStateOf(
             when (entity.state) {
-                "opening", "open" -> "Open"
-                "closing", "closed" -> "Close"
-                else -> "Stop"
+                "opening", "open" -> openLabel
+                "closing", "closed" -> closeLabel
+                else -> stopLabel
             }
         )
     }
     val coverTabs = listOf(
-        Triple("Open", Icons.Default.ArrowUpward, {
-            selectedCoverAction = "Open"
+        Triple(openLabel, Icons.Default.ArrowUpward, {
+            selectedCoverAction = openLabel
             viewModel.controlCover(entity.entity_id, "open_cover")
         }),
-        Triple("Stop", Icons.Default.Stop, {
-            selectedCoverAction = "Stop"
+        Triple(stopLabel, Icons.Default.Stop, {
+            selectedCoverAction = stopLabel
             viewModel.controlCover(entity.entity_id, "stop_cover")
         }),
-        Triple("Close", Icons.Default.ArrowDownward, {
-            selectedCoverAction = "Close"
+        Triple(closeLabel, Icons.Default.ArrowDownward, {
+            selectedCoverAction = closeLabel
             viewModel.controlCover(entity.entity_id, "close_cover")
         })
     )
@@ -3899,11 +4003,18 @@ fun PagedRoleDialog(
         titleOverride = headerConfig?.name,
         iconName = headerConfig?.icon?.takeUnless { it.isBlank() } ?: defaultEntityIconSlug(entity),
         statusText = if (role == "climate") {
-            val optimisticState = climateModeLabel(selectedClimateMode).uppercase()
+            val optimisticState = localizedClimateModeLabel(selectedClimateMode).uppercase(Locale.getDefault())
             if (entities.size > 1) "${page + 1}/${entities.size} - $optimisticState" else optimisticState
         } else if (entities.size > 1) {
-            "${page + 1}/${entities.size} - ${entity.state.uppercase()}"
-        } else entity.state.uppercase(),
+            stringResource(
+                R.string.cr_paged_status,
+                page + 1,
+                entities.size,
+                localizedEntityState(entity).uppercase(Locale.getDefault())
+            )
+        } else {
+            localizedEntityState(entity).uppercase(Locale.getDefault())
+        },
         extraGraphEntityIds = extraGraphEntityIds,
         tabs = when (role) {
             "climate" -> climateTabs.takeIf { it.size > 1 } ?: emptyList()
@@ -3911,7 +4022,7 @@ fun PagedRoleDialog(
             else -> emptyList()
         },
         currentTab = when (role) {
-            "climate" -> climateModeLabel(selectedClimateMode)
+            "climate" -> localizedClimateModeLabel(selectedClimateMode)
             "cover" -> selectedCoverAction
             else -> null
         }
@@ -4022,8 +4133,16 @@ fun StackSettingsDialog(
         onDismissRequest = onDismiss,
         title = {
             ModernSettingsDialogTitle(
-                if (isAdaptiveLighting) "Adaptive Lighting widget" else "Button stack",
-                if (isAdaptiveLighting) "Profiles, size, and appearance" else "Layout, appearance, and entity order"
+                if (isAdaptiveLighting) {
+                    stringResource(R.string.cr_adaptive_lighting_widget)
+                } else {
+                    stringResource(R.string.cr_widget_button_stack)
+                },
+                if (isAdaptiveLighting) {
+                    stringResource(R.string.cr_adaptive_lighting_widget_subtitle)
+                } else {
+                    stringResource(R.string.cr_button_stack_dialog_subtitle)
+                }
             )
         },
         text = {
@@ -4034,28 +4153,28 @@ fun StackSettingsDialog(
             ) {
                 SettingsTabRow(
                     tabs = buildList {
-                        add("identity" to "Identity")
-                        if (isAdaptiveLighting) add("profiles" to "Profiles")
-                        add("layout" to "Layout")
-                        if (!isAdaptiveLighting) add("behavior" to "Behavior")
+                        add("identity" to stringResource(R.string.cr_identity))
+                        if (isAdaptiveLighting) add("profiles" to stringResource(R.string.cr_profiles))
+                        add("layout" to stringResource(R.string.cr_layout))
+                        if (!isAdaptiveLighting) add("behavior" to stringResource(R.string.cr_behavior))
                     },
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
                 )
                 if (settingsPage == "identity") {
                 SettingsSubcategory(
-                    "Identity",
-                    if (isAdaptiveLighting) "Name, width, and icon" else "Title, width, and icon"
+                    stringResource(R.string.ui_identity_7e5a975),
+                    if (isAdaptiveLighting) stringResource(R.string.ui_name_width_and_icon_a4d694b) else stringResource(R.string.ui_title_width_and_icon_41ec073)
                 )
                 if (isAdaptiveLighting) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = showName, onCheckedChange = { showName = it })
-                        Text("Show widget name")
+                        Text(stringResource(R.string.ui_show_widget_name_5ad7fc9))
                     }
                     OutlinedTextField(
                         value = title,
                         onValueChange = { title = it },
-                        label = { Text("Widget name") },
+                        label = { Text(stringResource(R.string.ui_widget_name_55e5340)) },
                         enabled = showName,
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -4064,12 +4183,12 @@ fun StackSettingsDialog(
                     OutlinedTextField(
                         value = title,
                         onValueChange = { title = it },
-                        label = { Text("Stack Title") },
+                        label = { Text(stringResource(R.string.ui_stack_title_cc2f1ed)) },
                         singleLine = true
                     )
                 }
                 WidgetWidthSelector(width = width, onWidthChange = { width = it })
-                Text("Icon", style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.ui_icon_716f63b), style = MaterialTheme.typography.labelLarge)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -4079,17 +4198,17 @@ fun StackSettingsDialog(
                         MdiIcon(iconName, size = 24.dp)
                     }
                     Text(
-                        iconName.takeUnless { it == "None" } ?: "None",
+                        iconName.takeUnless { it == "None" } ?: stringResource(R.string.cr_none),
                         modifier = Modifier.weight(1f),
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    TextButton(onClick = { showIconPickerStack = true }) { Text("Change") }
+                    TextButton(onClick = { showIconPickerStack = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
                 }
                 }
                 if (settingsPage == "profiles" && isAdaptiveLighting) {
-                    SettingsSubcategory("Profiles", "Choose which profiles this widget can control")
+                    SettingsSubcategory(stringResource(R.string.ui_profiles_0c2a930), stringResource(R.string.ui_choose_which_profiles_this_widget_can_control_2cd9b2b))
                     if (selectableAdaptiveProfiles.isEmpty()) {
-                        Text("No Adaptive Lighting profiles are currently available.", color = LocalHKIAppColors.current.onMuted)
+                        Text(stringResource(R.string.ui_no_adaptive_lighting_profiles_are_currently_available_6d29642), color = LocalHKIAppColors.current.onMuted)
                     } else {
                         selectableAdaptiveProfiles.forEach { profile ->
                             Row(
@@ -4109,7 +4228,11 @@ fun StackSettingsDialog(
                                 Column(Modifier.weight(1f)) {
                                     Text(profile.name, color = LocalHKIAppColors.current.onSurface)
                                     Text(
-                                        "${profile.configuredLightIds.size} configured light${if (profile.configuredLightIds.size == 1) "" else "s"}",
+                                        pluralStringResource(
+                                            R.plurals.cr_configured_lights,
+                                            profile.configuredLightIds.size,
+                                            profile.configuredLightIds.size
+                                        ),
                                         color = LocalHKIAppColors.current.onMuted,
                                         style = MaterialTheme.typography.labelSmall
                                     )
@@ -4119,65 +4242,65 @@ fun StackSettingsDialog(
                     }
                 }
                 if (settingsPage == "layout") {
-                SettingsSubcategory("Layout", if (isAdaptiveLighting) "Widget presentation" else "Grid density and button presentation")
+                SettingsSubcategory(stringResource(R.string.ui_layout_972ad8d), if (isAdaptiveLighting) stringResource(R.string.ui_widget_presentation_a3a8cdc) else stringResource(R.string.ui_grid_density_and_button_presentation_b7907e5))
                 if (isAdaptiveLighting) {
-                    Text("Control layout", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.ui_control_layout_4c3b047), style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(
                             selected = adaptiveLayout != "double_row",
                             onClick = { adaptiveLayout = "full" },
-                            label = { Text("Full controls") }
+                            label = { Text(stringResource(R.string.ui_full_controls_68749a5)) }
                         )
                         FilterChip(
                             selected = adaptiveLayout == "double_row",
                             onClick = { adaptiveLayout = "double_row"; isSquare = false },
-                            label = { Text("Two rows") }
+                            label = { Text(stringResource(R.string.ui_two_rows_1b1737f)) }
                         )
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = adaptiveCenterActions, onCheckedChange = { adaptiveCenterActions = it })
-                        Text("Center Adapt now and Pause buttons")
+                        Text(stringResource(R.string.ui_center_adapt_now_and_pause_buttons_81074b2))
                     }
                 }
                 if (!isAdaptiveLighting) {
-                    Text("Columns", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.ui_columns_cf723c5), style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         (1..3).forEach { count ->
-                            FilterChip(selected = columns == count, onClick = { columns = count }, label = { Text("$count") })
+                            FilterChip(selected = columns == count, onClick = { columns = count }, label = { Text(stringResource(R.string.ui_text_c79f712, count)) })
                         }
                     }
                 }
                 if (stack.stackType != "weather") {
-                    Text(if (isAdaptiveLighting) "Widget height" else "Button type", style = MaterialTheme.typography.labelLarge)
+                    Text(if (isAdaptiveLighting) stringResource(R.string.ui_widget_height_b26de24) else stringResource(R.string.ui_button_type_890a578), style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(selected = buttonStyle == "standard", onClick = { buttonStyle = "standard"; isSquare = false }, label = { Text("Standard") })
-                        FilterChip(selected = buttonStyle == "square", onClick = { buttonStyle = "square"; isSquare = true }, label = { Text("Square") })
-                        FilterChip(selected = buttonStyle == "tile", onClick = { buttonStyle = "tile"; isSquare = false }, label = { Text("Compact") })
+                        FilterChip(selected = buttonStyle == "standard", onClick = { buttonStyle = "standard"; isSquare = false }, label = { Text(stringResource(R.string.ui_standard_2dfa660)) })
+                        FilterChip(selected = buttonStyle == "square", onClick = { buttonStyle = "square"; isSquare = true }, label = { Text(stringResource(R.string.ui_square_82810cb)) })
+                        FilterChip(selected = buttonStyle == "tile", onClick = { buttonStyle = "tile"; isSquare = false }, label = { Text(stringResource(R.string.ui_compact_1df39aa)) })
                     }
                 }
                 }
                 if (settingsPage == "behavior") {
-                SettingsSubcategory("Behavior", "Activity indication and collapsing")
+                SettingsSubcategory(stringResource(R.string.ui_behavior_70cb647), stringResource(R.string.ui_activity_indication_and_collapsing_0764a94))
                 if (stack.stackType !in listOf("camera", "weather", "adaptive_lighting")) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = showBadge, onCheckedChange = { showBadge = it })
-                        Text("Show activity badge")
+                        Text(stringResource(R.string.ui_show_activity_badge_f5d56bb))
                     }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = collapsible, onCheckedChange = { collapsible = it })
-                    Text("Collapsible")
+                    Text(stringResource(R.string.ui_collapsible_c932fac))
                 }
                 if (collapsible) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = defaultCollapsed, onCheckedChange = { defaultCollapsed = it })
-                        Text("Collapsed by default")
+                        Text(stringResource(R.string.ui_collapsed_by_default_65a57c6))
                     }
                 }
                 }
                 if (settingsPage == "layout" && stack.stackType == "camera") {
-                    SettingsSubcategory("Camera display", "Aspect ratio used by every stream")
-                    Text("Camera aspect ratio", style = MaterialTheme.typography.labelLarge)
+                    SettingsSubcategory(stringResource(R.string.ui_camera_display_20a9c82), stringResource(R.string.ui_aspect_ratio_used_by_every_stream_275bb52))
+                    Text(stringResource(R.string.ui_camera_aspect_ratio_928bf09), style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf("16:9" to (16f / 9f), "4:3" to (4f / 3f), "1:1" to 1f).forEach { (label, value) ->
                             FilterChip(
@@ -4216,9 +4339,9 @@ fun StackSettingsDialog(
                         )
                     )
                 }
-            ) { Text("Save") }
+            ) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
-        dismissButton = { Button(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { Button(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
     )
 }
 
@@ -4249,7 +4372,11 @@ private fun ButtonLockBadge(
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
-                contentDescription = if (locked) "Locked" else "Unlocked",
+                contentDescription = if (locked) {
+                    stringResource(R.string.cr_locked)
+                } else {
+                    stringResource(R.string.cr_unlocked)
+                },
                 tint = if (locked) Color.White else MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier.size(13.dp)
             )
@@ -4268,7 +4395,7 @@ private fun ButtonUnlockPinDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Unlock button") },
+        title = { Text(stringResource(R.string.ui_unlock_button_ad521c4)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
@@ -4277,7 +4404,7 @@ private fun ButtonUnlockPinDialog(
                         pin = it.filter { c -> c.isDigit() }.take(12)
                         hasError = false
                     },
-                    label = { Text("PIN") },
+                    label = { Text(stringResource(R.string.ui_pin_3adadd3)) },
                     singleLine = true,
                     isError = hasError,
                     visualTransformation = PasswordVisualTransformation(),
@@ -4285,7 +4412,7 @@ private fun ButtonUnlockPinDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
                 if (hasError) {
-                    Text("Incorrect PIN", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(R.string.ui_incorrect_pin_2de1d18), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
                 }
             }
         },
@@ -4298,9 +4425,9 @@ private fun ButtonUnlockPinDialog(
                         hasError = true
                     }
                 }
-            ) { Text("Unlock") }
+            ) { Text(stringResource(R.string.ui_unlock_1526a17)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
     )
 }
 
@@ -4319,14 +4446,14 @@ fun StackOrderDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Manage items") },
+        title = { Text(stringResource(R.string.ui_manage_items_d854c4b)) },
         text = {
             if (orderedIds.isEmpty()) {
-                Text("This stack has no items.", color = appColors.onMuted)
+                Text(stringResource(R.string.ui_this_stack_has_no_items_0f92c8d), color = appColors.onMuted)
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        "Drag to reorder. Use the eye button to hide an item or schedule when it shows.",
+                        stringResource(R.string.ui_drag_to_reorder_use_the_eye_button_to_hide_cd28b4c),
                         color = appColors.onMuted,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -4358,12 +4485,12 @@ fun StackOrderDialog(
         },
         confirmButton = {
             Button(onClick = { onSave(orderedIds, configs) }) {
-                Text("Save")
+                Text(stringResource(R.string.ui_save_efc007a))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.ui_cancel_77dfd21))
             }
         }
     )
@@ -4396,48 +4523,69 @@ private fun ButtonVisibilityDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Visibility") },
+        title = { Text(stringResource(R.string.ui_visibility_7d9ff4f)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(label, color = appColors.onSurface, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = mode == "always", onClick = { mode = "always" }, label = { Text("Always") })
-                    FilterChip(selected = mode == "hidden", onClick = { mode = "hidden" }, label = { Text("Hidden") })
-                    FilterChip(selected = mode == "scheduled", onClick = { mode = "scheduled" }, label = { Text("Scheduled") })
+                    FilterChip(selected = mode == "always", onClick = { mode = "always" }, label = { Text(stringResource(R.string.ui_always_a91bcce)) })
+                    FilterChip(selected = mode == "hidden", onClick = { mode = "hidden" }, label = { Text(stringResource(R.string.ui_hidden_d4c2792)) })
+                    FilterChip(selected = mode == "scheduled", onClick = { mode = "scheduled" }, label = { Text(stringResource(R.string.ui_scheduled_1cd1bda)) })
                 }
                 if (mode == "scheduled") {
-                    Text("When", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+                    Text(stringResource(R.string.ui_when_769bb19), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(selected = rangeMode == "show", onClick = { rangeMode = "show" }, label = { Text("Visible during") })
-                        FilterChip(selected = rangeMode == "hide", onClick = { rangeMode = "hide" }, label = { Text("Hidden during") })
+                        FilterChip(selected = rangeMode == "show", onClick = { rangeMode = "show" }, label = { Text(stringResource(R.string.ui_visible_during_791f42c)) })
+                        FilterChip(selected = rangeMode == "hide", onClick = { rangeMode = "hide" }, label = { Text(stringResource(R.string.ui_hidden_during_c0afbbc)) })
                     }
-                    Text("Repeat", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+                    Text(stringResource(R.string.ui_repeat_659eba1), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         listOf(
-                            "none" to "Once", "daily" to "Daily", "weekly" to "Weekly",
-                            "monthly" to "Monthly", "yearly" to "Yearly"
-                        ).forEach { (value, txt) ->
-                            FilterChip(selected = recurrence == value, onClick = { recurrence = value }, label = { Text(txt) })
+                            "none" to R.string.cr_once,
+                            "daily" to R.string.cr_daily,
+                            "weekly" to R.string.cr_weekly,
+                            "monthly" to R.string.cr_monthly,
+                            "yearly" to R.string.cr_yearly
+                        ).forEach { (value, labelRes) ->
+                            FilterChip(
+                                selected = recurrence == value,
+                                onClick = { recurrence = value },
+                                label = { Text(stringResource(labelRes)) }
+                            )
                         }
                     }
                     OutlinedButton(onClick = { pickingStart = true }, modifier = Modifier.fillMaxWidth()) {
                         Icon(Icons.Default.Schedule, null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Start: ${formatScheduleLabel(start)}", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(
+                            stringResource(
+                                R.string.ui_start_24758a5,
+                                formatScheduleLabel(start, stringResource(R.string.cr_any))
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
                     OutlinedButton(onClick = { pickingEnd = true }, modifier = Modifier.fillMaxWidth()) {
                         Icon(Icons.Default.Schedule, null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("End: ${formatScheduleLabel(end)}", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(
+                            stringResource(
+                                R.string.ui_end_2a002eb,
+                                formatScheduleLabel(end, stringResource(R.string.cr_any))
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
                     Text(
                         when (recurrence) {
-                            "none" -> "The exact dates you pick. Leave a bound as \"Any\" for an open-ended range."
-                            "daily" -> "Repeats every day — only the time of day is used."
-                            "weekly" -> "Repeats every week — only the weekday and time are used."
-                            "monthly" -> "Repeats every month — only the day of the month and time are used."
-                            else -> "Repeats every year — the year is ignored, so e.g. 24–26 Dec recurs each Christmas."
-                        } + " This travels with the dashboard, so cloud backups and family sharing keep it.",
+                            "none" -> stringResource(R.string.ui_the_exact_dates_you_pick_leave_a_bound_as_19357e8)
+                            "daily" -> stringResource(R.string.ui_repeats_every_day_only_the_time_of_day_is_a71f502)
+                            "weekly" -> stringResource(R.string.ui_repeats_every_week_only_the_weekday_and_time_are_8f36757)
+                            "monthly" -> stringResource(R.string.ui_repeats_every_month_only_the_day_of_the_month_93ca445)
+                            else -> stringResource(R.string.ui_repeats_every_year_the_year_is_ignored_so_e_a661f32)
+                        } + stringResource(R.string.ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d),
                         style = MaterialTheme.typography.bodySmall,
                         color = appColors.onMuted
                     )
@@ -4458,9 +4606,9 @@ private fun ButtonVisibilityDialog(
                     else -> config.copy(hidden = false, visibilityStart = null, visibilityEnd = null, visibilityRecurrence = "none")
                 }
                 onSave(updated)
-            }) { Text("Save") }
+            }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
     )
 
     if (pickingStart) {
@@ -4482,8 +4630,8 @@ private fun ButtonVisibilityDialog(
 }
 
 /** Human-readable label for a scheduled bound stored as an ISO local date-time, or "Any" if blank. */
-private fun formatScheduleLabel(iso: String): String {
-    if (iso.isBlank()) return "Any"
+private fun formatScheduleLabel(iso: String, anyLabel: String): String {
+    if (iso.isBlank()) return anyLabel
     return runCatching {
         java.time.LocalDateTime.parse(iso)
             .format(java.time.format.DateTimeFormatter.ofPattern("d MMM yyyy, HH:mm"))
@@ -4503,7 +4651,7 @@ private fun StackOrderRow(
     val plainHidden = config?.hidden == true
     val label = config?.name?.takeIf { it.isNotBlank() }
         ?: entity?.friendlyName
-        ?: if (config?.isCustomUrl == true) "Custom Camera" else entityId
+        ?: if (config?.isCustomUrl == true) stringResource(R.string.cr_custom_camera) else entityId
     val secondary = buildList {
         add(entity?.entity_id ?: entityId)
         entity?.state?.takeIf { it.isNotBlank() && it != "unknown" && it != "unavailable" }?.let { add(it) }
@@ -4553,8 +4701,8 @@ private fun StackOrderRow(
                 )
                 Text(
                     when {
-                        plainHidden -> "Hidden"
-                        scheduled -> "Scheduled"
+                        plainHidden -> stringResource(R.string.ui_hidden_d4c2792)
+                        scheduled -> stringResource(R.string.ui_scheduled_1cd1bda)
                         else -> secondary
                     },
                     color = appColors.onMuted,
@@ -4571,7 +4719,7 @@ private fun StackOrderRow(
                             scheduled -> Icons.Default.Schedule
                             else -> Icons.Default.Visibility
                         },
-                        contentDescription = "Visibility",
+                        contentDescription = stringResource(R.string.ui_visibility_7d9ff4f),
                         tint = if (plainHidden || scheduled) MaterialTheme.colorScheme.primary else appColors.onMuted
                     )
                 }
@@ -4726,33 +4874,41 @@ fun ButtonStackItem(
                     Spacer(Modifier.width(6.dp))
                     Icon(
                         if (isCollapsed) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
-                        contentDescription = if (isCollapsed) "Expand stack" else "Collapse stack",
+                        contentDescription = if (isCollapsed) {
+                            stringResource(R.string.cr_expand_stack)
+                        } else {
+                            stringResource(R.string.cr_collapse_stack)
+                        },
                         tint = Color.Gray,
                         modifier = Modifier.size(18.dp)
                     )
                 }
                 if (stack.isHidden) {
                     Spacer(Modifier.width(8.dp))
-                    Text("Hidden", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(R.string.ui_hidden_d4c2792), color = Color.Gray, style = MaterialTheme.typography.labelSmall)
                 }
                 }
 
                 if (isEditMode) {
                     IconButton(onClick = onDeleteClick, modifier = Modifier.size(24.dp)) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.ui_delete_f6fdbe4), tint = Color.Gray, modifier = Modifier.size(16.dp))
                     }
                     Spacer(Modifier.width(8.dp))
                     IconButton(onClick = onHideClick, modifier = Modifier.size(24.dp)) {
                         Icon(
                             if (stack.isHidden) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = if (stack.isHidden) "Unhide stack" else "Hide stack",
+                            contentDescription = if (stack.isHidden) {
+                                stringResource(R.string.cr_unhide_stack)
+                            } else {
+                                stringResource(R.string.cr_hide_stack)
+                            },
                             tint = Color.Gray,
                             modifier = Modifier.size(16.dp)
                         )
                     }
                     Spacer(Modifier.width(8.dp))
                     IconButton(onClick = onSettingsClick, modifier = Modifier.size(24.dp)) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.ui_settings_c7f73bb), tint = Color.Gray, modifier = Modifier.size(16.dp))
                     }
                     Spacer(Modifier.width(8.dp))
                     IconButton(
@@ -4762,14 +4918,14 @@ fun ButtonStackItem(
                     ) {
                         Icon(
                             Icons.Default.SwapVert,
-                            contentDescription = "Manage order",
+                            contentDescription = stringResource(R.string.ui_manage_order_411f2d9),
                             tint = Color.Gray.copy(alpha = if (stack.entityIds.size > 1) 1f else 0.38f),
                             modifier = Modifier.size(16.dp)
                         )
                     }
                     Spacer(Modifier.width(8.dp))
                     IconButton(onClick = onAddClick, modifier = Modifier.size(24.dp)) {
-                        Icon(Icons.Default.Add, contentDescription = "Add entity", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.ui_add_entity_f99dc1d), tint = Color.Gray, modifier = Modifier.size(16.dp))
                     }
                 } else if (stack.showBadge && activeCount > 0) {
                     Surface(
@@ -4778,7 +4934,7 @@ fun ButtonStackItem(
                         modifier = Modifier.clickable { onBadgeClick() }
                     ) {
                         Text(
-                            "$activeCount",
+                            stringResource(R.string.ui_text_c79f712, activeCount),
                             color = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                             style = MaterialTheme.typography.labelSmall
@@ -5041,7 +5197,7 @@ fun SingleEntityWidgetItem(
                 border = BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.16f))
             ) {
                 Text(
-                    "Entity unavailable",
+                    stringResource(R.string.ui_entity_unavailable_3974ddb),
                     color = appColors.onMuted,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(18.dp)
@@ -5239,7 +5395,8 @@ fun SwipingStackItem(
                         }
                     }
                     val headerTitle = stack.title?.takeIf(String::isNotBlank)
-                        ?: "Swiping Stack".takeIf { isEditMode || isCollapsed || stack.isHidden }
+                        ?: stringResource(R.string.cr_widget_swiping_stack)
+                            .takeIf { isEditMode || isCollapsed || stack.isHidden }
                     headerTitle?.let {
                         Text(it, color = Color.Gray, style = MaterialTheme.typography.labelMedium)
                     }
@@ -5247,36 +5404,44 @@ fun SwipingStackItem(
                         Spacer(Modifier.width(6.dp))
                         Icon(
                             if (isCollapsed) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
-                            contentDescription = if (isCollapsed) "Expand stack" else "Collapse stack",
+                            contentDescription = if (isCollapsed) {
+                                stringResource(R.string.cr_expand_stack)
+                            } else {
+                                stringResource(R.string.cr_collapse_stack)
+                            },
                             tint = Color.Gray,
                             modifier = Modifier.size(18.dp)
                         )
                     }
                     if (stack.isHidden) {
                         Spacer(Modifier.width(8.dp))
-                        Text("Hidden", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
+                        Text(stringResource(R.string.ui_hidden_d4c2792), color = Color.Gray, style = MaterialTheme.typography.labelSmall)
                     }
                 }
                 if (isEditMode) {
                     IconButton(onClick = onDeleteClick, modifier = Modifier.size(24.dp)) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.ui_delete_f6fdbe4), tint = Color.Gray, modifier = Modifier.size(16.dp))
                     }
                     Spacer(Modifier.width(8.dp))
                     IconButton(onClick = onHideClick, modifier = Modifier.size(24.dp)) {
                         Icon(
                             if (stack.isHidden) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = if (stack.isHidden) "Unhide stack" else "Hide stack",
+                            contentDescription = if (stack.isHidden) {
+                                stringResource(R.string.cr_unhide_stack)
+                            } else {
+                                stringResource(R.string.cr_hide_stack)
+                            },
                             tint = Color.Gray,
                             modifier = Modifier.size(16.dp)
                         )
                     }
                     Spacer(Modifier.width(8.dp))
                     IconButton(onClick = onSettingsClick, modifier = Modifier.size(24.dp)) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.ui_settings_c7f73bb), tint = Color.Gray, modifier = Modifier.size(16.dp))
                     }
                     Spacer(Modifier.width(8.dp))
                     IconButton(onClick = onAddClick, modifier = Modifier.size(24.dp)) {
-                        Icon(Icons.Default.Add, contentDescription = "Add widget", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.ui_add_widget_dd4416e), tint = Color.Gray, modifier = Modifier.size(16.dp))
                     }
                 }
             }
@@ -5297,7 +5462,7 @@ fun SwipingStackItem(
                         Icon(Icons.Default.Add, contentDescription = null, tint = appColors.onMuted, modifier = Modifier.size(22.dp))
                         Spacer(Modifier.width(12.dp))
                         Text(
-                            "Tap here or use the + button while edit mode is active to add widgets to this stack.",
+                            stringResource(R.string.ui_tap_here_or_use_the_button_while_edit_mode_8baf490),
                             color = appColors.onMuted,
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -5382,25 +5547,34 @@ fun SwipingStackSettingsDialog(
     AlertDialog(
         stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { ModernSettingsDialogTitle("Swiping stack", "Pages, height, and card appearance") },
+        title = {
+            ModernSettingsDialogTitle(
+                stringResource(R.string.cr_widget_swiping_stack),
+                stringResource(R.string.cr_swiping_stack_dialog_subtitle)
+            )
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 SettingsTabRow(
-                    tabs = listOf("identity" to "Identity", "layout" to "Layout", "playback" to "Playback"),
+                    tabs = listOf(
+                        "identity" to stringResource(R.string.cr_identity),
+                        "layout" to stringResource(R.string.cr_layout),
+                        "playback" to stringResource(R.string.cr_playback)
+                    ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
                 )
                 if (settingsPage == "identity") {
-                    SettingsSubcategory("Identity", "Optional name and icon shown above this stack")
+                    SettingsSubcategory(stringResource(R.string.ui_identity_7e5a975), stringResource(R.string.ui_optional_name_and_icon_shown_above_this_stack_272f237))
                     OutlinedTextField(
                         value = title,
                         onValueChange = { title = it },
-                        label = { Text("Stack name") },
-                        placeholder = { Text("No heading") },
+                        label = { Text(stringResource(R.string.ui_stack_name_7507e93)) },
+                        placeholder = { Text(stringResource(R.string.ui_no_heading_162947f)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Text("Icon", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.ui_icon_716f63b), style = MaterialTheme.typography.labelLarge)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -5410,51 +5584,51 @@ fun SwipingStackSettingsDialog(
                             MdiIcon(iconName, size = 24.dp)
                         }
                         Text(
-                            iconName.takeUnless { it == "None" } ?: "None",
+                            iconName.takeUnless { it == "None" } ?: stringResource(R.string.cr_none),
                             modifier = Modifier.weight(1f),
                             style = MaterialTheme.typography.bodyMedium
                         )
-                        TextButton(onClick = { showIconPicker = true }) { Text("Change") }
+                        TextButton(onClick = { showIconPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
                     }
                 }
                 if (settingsPage == "layout") {
-                SettingsSubcategory("Layout", "Width, shape, and collapse behavior")
+                SettingsSubcategory(stringResource(R.string.ui_layout_972ad8d), stringResource(R.string.ui_width_shape_and_collapse_behavior_7abc6f4))
                 WidgetWidthSelector(width = width, onWidthChange = { width = it })
-                Text("Shape", style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.ui_shape_ea5c1a2), style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
-                    FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text("Square") })
+                    FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text(stringResource(R.string.ui_standard_2dfa660)) })
+                    FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text(stringResource(R.string.ui_square_82810cb)) })
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = collapsible, onCheckedChange = { collapsible = it })
-                    Text("Collapsible")
+                    Text(stringResource(R.string.ui_collapsible_c932fac))
                 }
                 if (collapsible) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = defaultCollapsed, onCheckedChange = { defaultCollapsed = it })
-                        Text("Collapsed by default")
+                        Text(stringResource(R.string.ui_collapsed_by_default_65a57c6))
                     }
                 }
                 }
                 if (settingsPage == "playback") {
-                SettingsSubcategory("Playback", "Automatic paging and transition style")
+                SettingsSubcategory(stringResource(R.string.ui_playback_c8e3087), stringResource(R.string.ui_automatic_paging_and_transition_style_792709a))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = autoplay, onCheckedChange = { autoplay = it })
-                    Text("Autoplay")
+                    Text(stringResource(R.string.ui_autoplay_95619b5))
                 }
                 OutlinedTextField(
                     value = intervalText,
                     onValueChange = { intervalText = it.filter(Char::isDigit).take(3) },
-                    label = { Text("Interval seconds") },
+                    label = { Text(stringResource(R.string.ui_interval_seconds_eaeeb46)) },
                     singleLine = true
                 )
-                Text("Animation", style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.ui_animation_62afd21), style = MaterialTheme.typography.labelLarge)
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    swipingStackAnimationTypes.forEach { (value, label) ->
+                    swipingStackAnimationTypes.forEach { (value, labelRes) ->
                         FilterChip(
                             selected = animation == value,
                             onClick = { animation = value },
-                            label = { Text(label) }
+                            label = { Text(stringResource(labelRes)) }
                         )
                     }
                 }
@@ -5478,9 +5652,9 @@ fun SwipingStackSettingsDialog(
                         animation = animation
                     )
                 )
-            }) { Text("Save") }
+            }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
-        dismissButton = { Button(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { Button(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
     )
 }
 
@@ -5522,7 +5696,8 @@ fun EmptyStackItem(
                     }
                 }
                 val headerTitle = stack.title?.takeIf(String::isNotBlank)
-                    ?: "Empty Stack".takeIf { isEditMode || isCollapsed || stack.isHidden }
+                    ?: stringResource(R.string.cr_widget_empty_stack)
+                        .takeIf { isEditMode || isCollapsed || stack.isHidden }
                 headerTitle?.let {
                     Text(it, color = Color.Gray, style = MaterialTheme.typography.labelMedium)
                 }
@@ -5530,36 +5705,44 @@ fun EmptyStackItem(
                     Spacer(Modifier.width(6.dp))
                     Icon(
                         if (isCollapsed) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
-                        contentDescription = if (isCollapsed) "Expand stack" else "Collapse stack",
+                        contentDescription = if (isCollapsed) {
+                            stringResource(R.string.cr_expand_stack)
+                        } else {
+                            stringResource(R.string.cr_collapse_stack)
+                        },
                         tint = Color.Gray,
                         modifier = Modifier.size(18.dp)
                     )
                 }
                 if (stack.isHidden) {
                     Spacer(Modifier.width(8.dp))
-                    Text("Hidden", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(R.string.ui_hidden_d4c2792), color = Color.Gray, style = MaterialTheme.typography.labelSmall)
                 }
             }
             if (isEditMode) {
                 IconButton(onClick = onDeleteClick, modifier = Modifier.size(24.dp)) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.ui_delete_f6fdbe4), tint = Color.Gray, modifier = Modifier.size(16.dp))
                 }
                 Spacer(Modifier.width(8.dp))
                 IconButton(onClick = onHideClick, modifier = Modifier.size(24.dp)) {
                     Icon(
                         if (stack.isHidden) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = if (stack.isHidden) "Unhide stack" else "Hide stack",
+                        contentDescription = if (stack.isHidden) {
+                            stringResource(R.string.cr_unhide_stack)
+                        } else {
+                            stringResource(R.string.cr_hide_stack)
+                        },
                         tint = Color.Gray,
                         modifier = Modifier.size(16.dp)
                     )
                 }
                 Spacer(Modifier.width(8.dp))
                 IconButton(onClick = onSettingsClick, modifier = Modifier.size(24.dp)) {
-                    Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.ui_settings_c7f73bb), tint = Color.Gray, modifier = Modifier.size(16.dp))
                 }
                 Spacer(Modifier.width(8.dp))
                 IconButton(onClick = onAddClick, modifier = Modifier.size(24.dp)) {
-                    Icon(Icons.Default.Add, contentDescription = "Add widget", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Add, contentDescription = stringResource(R.string.ui_add_widget_dd4416e), tint = Color.Gray, modifier = Modifier.size(16.dp))
                 }
             }
         }
@@ -5579,7 +5762,7 @@ fun EmptyStackItem(
                         Icon(Icons.Default.Add, contentDescription = null, tint = appColors.onMuted, modifier = Modifier.size(22.dp))
                         Spacer(Modifier.width(12.dp))
                         Text(
-                            "Tap here or use the + button while edit mode is active to add widgets to this stack.",
+                            stringResource(R.string.ui_tap_here_or_use_the_button_while_edit_mode_8baf490),
                             color = appColors.onMuted,
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -5636,25 +5819,34 @@ fun EmptyStackSettingsDialog(
     AlertDialog(
         stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { ModernSettingsDialogTitle("Empty stack", "Container layout and appearance") },
+        title = {
+            ModernSettingsDialogTitle(
+                stringResource(R.string.cr_widget_empty_stack),
+                stringResource(R.string.cr_empty_stack_dialog_subtitle)
+            )
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 SettingsTabRow(
-                    tabs = listOf("identity" to "Identity", "layout" to "Layout", "behavior" to "Behavior"),
+                    tabs = listOf(
+                        "identity" to stringResource(R.string.cr_identity),
+                        "layout" to stringResource(R.string.cr_layout),
+                        "behavior" to stringResource(R.string.cr_behavior)
+                    ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
                 )
                 if (settingsPage == "identity") {
-                    SettingsSubcategory("Identity", "Name and icon shown above this container")
+                    SettingsSubcategory(stringResource(R.string.ui_identity_7e5a975), stringResource(R.string.ui_name_and_icon_shown_above_this_container_9076bde))
                     OutlinedTextField(
                         value = title,
                         onValueChange = { title = it },
-                        label = { Text("Stack name") },
-                        placeholder = { Text("Empty Stack") },
+                        label = { Text(stringResource(R.string.ui_stack_name_7507e93)) },
+                        placeholder = { Text(stringResource(R.string.ui_empty_stack_79d38d5)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Text("Icon", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.ui_icon_716f63b), style = MaterialTheme.typography.labelLarge)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -5664,42 +5856,42 @@ fun EmptyStackSettingsDialog(
                             MdiIcon(iconName, size = 24.dp)
                         }
                         Text(
-                            iconName.takeUnless { it == "None" } ?: "None",
+                            iconName.takeUnless { it == "None" } ?: stringResource(R.string.cr_none),
                             modifier = Modifier.weight(1f),
                             style = MaterialTheme.typography.bodyMedium
                         )
-                        TextButton(onClick = { showIconPicker = true }) { Text("Change") }
+                        TextButton(onClick = { showIconPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
                     }
                 }
                 if (settingsPage == "layout") {
-                SettingsSubcategory("Layout", "Width, columns, and container shape")
+                SettingsSubcategory(stringResource(R.string.ui_layout_972ad8d), stringResource(R.string.ui_width_columns_and_container_shape_984a191))
                 WidgetWidthSelector(width = width, onWidthChange = { width = it })
-                Text("Columns", style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.ui_columns_cf723c5), style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     (1..3).forEach { count ->
-                        FilterChip(selected = columns == count, onClick = { columns = count }, label = { Text("$count") })
+                        FilterChip(selected = columns == count, onClick = { columns = count }, label = { Text(stringResource(R.string.ui_text_c79f712, count)) })
                     }
                 }
-                Text("Shape", style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.ui_shape_ea5c1a2), style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
-                    FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text("Square") })
+                    FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text(stringResource(R.string.ui_standard_2dfa660)) })
+                    FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text(stringResource(R.string.ui_square_82810cb)) })
                 }
                 }
                 if (settingsPage == "behavior") {
-                SettingsSubcategory("Behavior", "Activity indication and collapsing")
+                SettingsSubcategory(stringResource(R.string.ui_behavior_70cb647), stringResource(R.string.ui_activity_indication_and_collapsing_0764a94))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = showBadge, onCheckedChange = { showBadge = it })
-                    Text("Show activity badge")
+                    Text(stringResource(R.string.ui_show_activity_badge_f5d56bb))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = collapsible, onCheckedChange = { collapsible = it })
-                    Text("Collapsible")
+                    Text(stringResource(R.string.ui_collapsible_c932fac))
                 }
                 if (collapsible) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = defaultCollapsed, onCheckedChange = { defaultCollapsed = it })
-                        Text("Collapsed by default")
+                        Text(stringResource(R.string.ui_collapsed_by_default_65a57c6))
                     }
                 }
                 }
@@ -5721,9 +5913,9 @@ fun EmptyStackSettingsDialog(
                         isCollapsed = defaultCollapsed
                     )
                 )
-            }) { Text("Save") }
+            }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
-        dismissButton = { Button(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { Button(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
     )
 }
 
@@ -5745,7 +5937,7 @@ internal fun EmptyStackHint(
             Icon(Icons.Default.Add, contentDescription = null, tint = appColors.onMuted, modifier = Modifier.size(22.dp))
             Spacer(Modifier.width(12.dp))
             Text(
-                "Tap here or use the + button while edit mode is active to add entities to this stack.",
+                stringResource(R.string.ui_tap_here_or_use_the_button_while_edit_mode_b06aac5),
                 color = appColors.onMuted,
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -5766,7 +5958,8 @@ fun CameraStackContent(
     onReorderEntities: (Int, Int) -> Unit
 ) {
     val entityById = remember(entities) { entities.associateBy { it.entity_id } }
-    val cameraSources = remember(stack.entityIds, stack.buttonConfigs, entityById, currentUrl) {
+    val customCameraLabel = stringResource(R.string.ui_custom_camera_ada9096)
+    val cameraSources = remember(stack.entityIds, stack.buttonConfigs, entityById, currentUrl, customCameraLabel) {
         stack.entityIds.mapNotNull { entityId ->
             val entity = entityById[entityId]
             val config = stack.buttonConfigs[entityId]
@@ -5784,7 +5977,7 @@ fun CameraStackContent(
                 else -> null
             }
             val resolvedUrl = resolveCameraUrl(rawUrl, currentUrl) ?: return@mapNotNull null
-            val label = config?.name ?: entity?.friendlyName ?: if (config?.isCustomUrl == true) "Custom Camera" else entityId
+            val label = config?.name ?: entity?.friendlyName ?: if (config?.isCustomUrl == true) customCameraLabel else entityId
             val liveWebUrl = when {
                 refreshInterval > 0 -> null
                 entity != null -> resolveEntityCameraUrl(entity, currentUrl, preferLive = true)
@@ -5809,7 +6002,7 @@ fun CameraStackContent(
             color = Color.Black
         ) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("No camera selected", color = Color.Gray)
+                Text(stringResource(R.string.ui_no_camera_selected_717ad35), color = Color.Gray)
             }
         }
         return
@@ -5925,7 +6118,7 @@ private fun CameraStackCard(
             Box {
             if (!mediaReady) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Loading camera…", color = Color.Gray)
+                    Text(stringResource(R.string.ui_loading_camera_50a8065), color = Color.Gray)
                 }
             } else if (!isEditMode && !source.liveWebUrl.isNullOrBlank()) {
                 AndroidView(
@@ -6013,7 +6206,7 @@ private fun CameraStackCard(
                 )
             } else {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No Stream Available", color = Color.Gray)
+                    Text(stringResource(R.string.ui_no_stream_available_6bfd14a), color = Color.Gray)
                 }
             }
             Surface(
@@ -6033,8 +6226,8 @@ private fun CameraStackCard(
                         }
                         Text(
                             buildString {
-                                if (recording) append("Recording · ")
-                                append(if (source.refreshIntervalSeconds > 0) "${source.refreshIntervalSeconds}s refresh" else "Live")
+                                if (recording) append(stringResource(R.string.ui_recording_09b5b61))
+                                append(if (source.refreshIntervalSeconds > 0) stringResource(R.string.ui_s_refresh_10a9b0b, source.refreshIntervalSeconds) else stringResource(R.string.ui_live_65c821a))
                             },
                             color = Color.White.copy(alpha = 0.7f),
                             style = MaterialTheme.typography.labelSmall
@@ -6085,7 +6278,7 @@ private fun ClimateControlContent(entity: HAEntity, viewModel: MainViewModel, sh
     ) {
         if (showModes || !useDial) {
             Text(
-                text = if (showModes) "Modes" else String.format(locale, "%.1f\u00B0", localTarget),
+                text = if (showModes) stringResource(R.string.ui_modes_79f5b22) else String.format(locale, "%.1f\u00B0", localTarget),
                 color = appColors.onSurface,
                 style = if (showModes) MaterialTheme.typography.displayMedium else MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Normal
@@ -6116,7 +6309,7 @@ private fun ClimateControlContent(entity: HAEntity, viewModel: MainViewModel, sh
             }
         }
         Spacer(Modifier.height(16.dp))
-        Text(if (showModes) "MODES" else "TARGET", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+        Text(if (showModes) stringResource(R.string.ui_modes_6fc3ca8) else stringResource(R.string.ui_target_f762108), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
         ClimateModesButton(entity, onClick = { onToggleModes(!showModes) }, selected = showModes)
     }
 }
@@ -6188,8 +6381,8 @@ private fun ClimateDialogDial(
         Surface(shape = CircleShape, color = appColors.surface, shadowElevation = 8.dp, modifier = Modifier.fillMaxSize(0.58f)) {
             Box(contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("TARGET", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
-                    Text("%.1f\u00B0".format(value), style = MaterialTheme.typography.displayMedium, color = appColors.onSurface, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.ui_target_f762108), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+                    Text(stringResource(R.string.ui_1f_b07a377).format(value), style = MaterialTheme.typography.displayMedium, color = appColors.onSurface, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -6205,7 +6398,7 @@ private fun LockControlContent(
     val appColors = LocalHKIAppColors.current
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            text = if (entity.state == "locked") "Door\nLocked" else "Door\nOpen",
+            text = if (entity.state == "locked") stringResource(R.string.ui_door_locked_4b46012) else stringResource(R.string.ui_door_open_74899a4),
             color = appColors.onSurface,
             style = MaterialTheme.typography.displaySmall,
             textAlign = TextAlign.Center
@@ -6219,7 +6412,7 @@ private fun LockControlContent(
             )
         }
         Spacer(Modifier.height(16.dp))
-        Text("LOCK", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+        Text(stringResource(R.string.ui_lock_c37eb4c), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
     }
 }
 
@@ -6233,7 +6426,7 @@ internal fun BlindControlContent(entity: HAEntity, viewModel: MainViewModel, act
     val trackColor = activeColor.copy(alpha = 0.18f)
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            text = "${(localPosition * 100).toInt()}%",
+            text = stringResource(R.string.ui_text_fc9db15, (localPosition * 100).toInt()),
             color = appColors.onSurface,
             style = MaterialTheme.typography.displayMedium
         )
@@ -6262,8 +6455,8 @@ internal fun BlindControlContent(entity: HAEntity, viewModel: MainViewModel, act
         }
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(if (hasTilt) 44.dp else 0.dp)) {
-            Text("POSITION", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
-            if (hasTilt) Text("TILT", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+            Text(stringResource(R.string.ui_position_d0b0314), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+            if (hasTilt) Text(stringResource(R.string.ui_tilt_aceae6f), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
         }
     }
 }
@@ -6285,17 +6478,30 @@ fun AggregatedCoverDialog(
     val entity = entities[page.coerceIn(0, entities.lastIndex)]
     val pos = entity.attributes?.get("current_position")?.jsonPrimitive?.intOrNull ?: 0
     val accent = coverAccentColor(entity)
+    val openLabel = stringResource(R.string.cr_open)
+    val stopLabel = stringResource(R.string.cr_stop)
+    val closeLabel = stringResource(R.string.cr_close)
 
-    var selectedAction by remember(entity.entity_id) {
-        mutableStateOf(when (entity.state) { "opening", "open" -> "Open"; "closing", "closed" -> "Close"; else -> "Stop" })
+    var selectedAction by remember(entity.entity_id, openLabel, stopLabel, closeLabel) {
+        mutableStateOf(
+            when (entity.state) {
+                "opening", "open" -> openLabel
+                "closing", "closed" -> closeLabel
+                else -> stopLabel
+            }
+        )
     }
     val tabs = listOf(
-        Triple("Open", Icons.Default.ArrowUpward, { selectedAction = "Open"; viewModel.controlCover(entity.entity_id, "open_cover") }),
-        Triple("Stop", Icons.Default.Stop, { selectedAction = "Stop"; viewModel.controlCover(entity.entity_id, "stop_cover") }),
-        Triple("Close", Icons.Default.ArrowDownward, { selectedAction = "Close"; viewModel.controlCover(entity.entity_id, "close_cover") })
+        Triple(openLabel, Icons.Default.ArrowUpward, { selectedAction = openLabel; viewModel.controlCover(entity.entity_id, "open_cover") }),
+        Triple(stopLabel, Icons.Default.Stop, { selectedAction = stopLabel; viewModel.controlCover(entity.entity_id, "stop_cover") }),
+        Triple(closeLabel, Icons.Default.ArrowDownward, { selectedAction = closeLabel; viewModel.controlCover(entity.entity_id, "close_cover") })
     )
-    val status = if (entities.size > 1) "${page + 1}/${entities.size} - ${pos}% - ${entity.state.uppercase()}"
-                 else "${pos}% - ${entity.state.uppercase()}"
+    val localizedState = localizedEntityState(entity).uppercase(Locale.getDefault())
+    val status = if (entities.size > 1) {
+        stringResource(R.string.cr_paged_cover_status, page + 1, entities.size, pos, localizedState)
+    } else {
+        stringResource(R.string.cr_cover_status, pos, localizedState)
+    }
 
     HKIDialog(
         entity = entity,
@@ -6358,13 +6564,13 @@ private fun CameraFrame(streamUrl: String?) {
         if (streamUrl != null) {
             AsyncImage(
                 model = streamUrl,
-                contentDescription = "Camera Feed",
+                contentDescription = stringResource(R.string.ui_camera_feed_cc1f19e),
                 modifier = Modifier.fillMaxSize(),
                 contentScale = androidx.compose.ui.layout.ContentScale.Fit
             )
         } else {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("No Stream Available", color = Color.Gray)
+                Text(stringResource(R.string.ui_no_stream_available_6bfd14a), color = Color.Gray)
             }
         }
     }
@@ -6384,15 +6590,21 @@ fun GroupMembersContent(
     val hasColorTemp = remember(lightEntities) { lightEntities.any { it.supportsColorTemp } }
     val hasColor = remember(lightEntities) { lightEntities.any { it.supportsColor } }
 
-    val tabs = remember(lightEntities, hasColorTemp, hasColor) {
-        buildList {
-            add("Power" to Icons.Default.Power)
-            if (lightEntities.isNotEmpty()) add("Bright" to Icons.Default.LightMode)
-            if (hasColorTemp) add("Temp" to Icons.Default.Thermostat)
-            if (hasColor) add("Color" to Icons.Default.Palette)
+    val tabs = buildList {
+        add(GroupDialogTab("power", stringResource(R.string.cr_power), Icons.Default.Power))
+        if (lightEntities.isNotEmpty()) {
+            add(GroupDialogTab("brightness", stringResource(R.string.cr_brightness), Icons.Default.LightMode))
+        }
+        if (hasColorTemp) {
+            add(GroupDialogTab("temperature", stringResource(R.string.cr_temperature), Icons.Default.Thermostat))
+        }
+        if (hasColor) {
+            add(GroupDialogTab("color", stringResource(R.string.cr_color), Icons.Default.Palette))
         }
     }
-    var currentTab by remember(entities.map { it.entity_id }) { mutableStateOf(if (lightEntities.isNotEmpty()) "Bright" else "Power") }
+    var currentTab by remember(entities.map { it.entity_id }) {
+        mutableStateOf(if (lightEntities.isNotEmpty()) "brightness" else "power")
+    }
 
     fun labelFor(entity: HAEntity) = entity.friendlyName ?: entity.entity_id
     @Composable
@@ -6405,7 +6617,7 @@ fun GroupMembersContent(
         modifier = Modifier
             .fillMaxSize()
             .swipeToAdjacentTab(
-                tabs = tabs.map { it.first },
+                tabs = tabs.map(GroupDialogTab::key),
                 selected = currentTab,
                 onSelect = { currentTab = it }
             )
@@ -6421,7 +6633,7 @@ fun GroupMembersContent(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             when (currentTab) {
-                "Bright" -> items(lightEntities.size) { index ->
+                "brightness" -> items(lightEntities.size) { index ->
                     val entity = lightEntities[index]
                     GroupLightControlRow(label = labelFor(entity), icon = defaultEntityIconSlug(entity), iconTint = tintFor(entity)) {
                         HorizontalLightBar(
@@ -6431,7 +6643,7 @@ fun GroupMembersContent(
                         )
                     }
                 }
-                "Temp" -> {
+                "temperature" -> {
                     val list = lightEntities.filter { it.supportsColorTemp }
                     items(list.size) { index ->
                         val entity = list[index]
@@ -6444,7 +6656,7 @@ fun GroupMembersContent(
                         }
                     }
                 }
-                "Color" -> {
+                "color" -> {
                     val list = lightEntities.filter { it.supportsColor }
                     items(list.size) { index ->
                         val entity = list[index]
@@ -6477,7 +6689,7 @@ fun GroupMembersContent(
                                 val rowTextColor = appColors.onSurface
                                 Text(labelFor(entity), color = rowTextColor, style = MaterialTheme.typography.bodyLarge)
                                 Text(
-                                    if (isOn) "On" else "Off",
+                                    if (isOn) stringResource(R.string.ui_on_e0049a6) else stringResource(R.string.ui_off_e3de5ab),
                                     color = rowTextColor,
                                     style = MaterialTheme.typography.labelSmall
                                 )
@@ -6514,7 +6726,7 @@ fun GroupMembersContent(
 
 @Composable
 private fun GroupDialogTabBar(
-    tabs: List<Pair<String, ImageVector>>,
+    tabs: List<GroupDialogTab>,
     currentTab: String,
     onSelect: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -6526,25 +6738,25 @@ private fun GroupDialogTabBar(
         horizontalPadding = if (denseTabs) 16.dp else 32.dp,
         scrollable = false
     ) {
-        tabs.forEach { (tabLabel, tabIcon) ->
-            val isSelected = currentTab == tabLabel
+        tabs.forEach { tab ->
+            val isSelected = currentTab == tab.key
             Column(
                 modifier = Modifier.weight(1f)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(16.dp))
                     .background(if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f) else Color.Transparent)
-                    .clickable { onSelect(tabLabel) }
+                    .clickable { onSelect(tab.key) }
                     .padding(vertical = if (denseTabs) 10.dp else 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Icon(
-                    tabIcon,
+                    tab.icon,
                     contentDescription = null,
                     tint = if (isSelected) MaterialTheme.colorScheme.primary else appColors.onMuted,
                     modifier = Modifier.size(if (denseTabs) 22.dp else 24.dp)
                 )
                 Text(
-                    tabLabel,
+                    tab.label,
                     color = if (isSelected) appColors.onSurface else appColors.onMuted,
                     style = if (denseTabs) MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp) else MaterialTheme.typography.labelSmall,
                     maxLines = 1
@@ -6553,6 +6765,12 @@ private fun GroupDialogTabBar(
         }
     }
 }
+
+private data class GroupDialogTab(
+    val key: String,
+    val label: String,
+    val icon: ImageVector
+)
 
 @Composable
 private fun GroupLightControlRow(label: String, icon: String?, iconTint: Color, content: @Composable () -> Unit) {
@@ -6615,15 +6833,19 @@ fun GroupEntityDialog(
     val lightEntities = remember(displayEntities) { displayEntities.filter { it.entity_id.startsWith("light.") } }
     val hasColorTemp = remember(lightEntities) { lightEntities.any { it.supportsColorTemp } }
     val hasColor = remember(lightEntities) { lightEntities.any { it.supportsColor } }
-    val tabs = remember(lightEntities, hasColorTemp, hasColor) {
-        buildList {
-            add("Power" to Icons.Default.Power)
-            if (lightEntities.isNotEmpty()) add("Bright" to Icons.Default.LightMode)
-            if (hasColorTemp) add("Temp" to Icons.Default.Thermostat)
-            if (hasColor) add("Color" to Icons.Default.Palette)
+    val tabs = buildList {
+        add(GroupDialogTab("power", stringResource(R.string.cr_power), Icons.Default.Power))
+        if (lightEntities.isNotEmpty()) {
+            add(GroupDialogTab("brightness", stringResource(R.string.cr_brightness), Icons.Default.LightMode))
+        }
+        if (hasColorTemp) {
+            add(GroupDialogTab("temperature", stringResource(R.string.cr_temperature), Icons.Default.Thermostat))
+        }
+        if (hasColor) {
+            add(GroupDialogTab("color", stringResource(R.string.cr_color), Icons.Default.Palette))
         }
     }
-    var currentTab by remember(stack.id) { mutableStateOf("Power") }
+    var currentTab by remember(stack.id) { mutableStateOf("power") }
 
     fun labelFor(entity: HAEntity) = stack.buttonConfigs[entity.entity_id]?.name ?: entity.friendlyName ?: entity.entity_id
     @Composable
@@ -6650,7 +6872,7 @@ fun GroupEntityDialog(
                 modifier = Modifier
                     .fillMaxSize()
                     .swipeToAdjacentTab(
-                        tabs = tabs.map { it.first },
+                        tabs = tabs.map(GroupDialogTab::key),
                         selected = currentTab,
                         onSelect = { currentTab = it }
                     )
@@ -6680,9 +6902,9 @@ fun GroupEntityDialog(
                         }
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
-                            Text(stack.title ?: "Entities", style = MaterialTheme.typography.headlineSmall, color = appColors.onSurface, fontWeight = FontWeight.Bold)
+                            Text(stack.title ?: stringResource(R.string.ui_entities_f7638a2), style = MaterialTheme.typography.headlineSmall, color = appColors.onSurface, fontWeight = FontWeight.Bold)
                             Text(
-                                if (activeCount > 0) "$activeCount/${entities.size} active" else "All off",
+                                if (activeCount > 0) stringResource(R.string.ui_active_25ff32f, activeCount, entities.size) else stringResource(R.string.ui_all_off_97b7833),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = appColors.onMuted
                             )
@@ -6693,7 +6915,7 @@ fun GroupEntityDialog(
                                 .background(appColors.subtleSurface, CircleShape)
                                 .size(48.dp)
                         ) {
-                            Icon(Icons.Default.Close, contentDescription = "Close", tint = appColors.onSurface, modifier = Modifier.size(24.dp))
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.ui_close_bbfa773), tint = appColors.onSurface, modifier = Modifier.size(24.dp))
                         }
                     }
                     if (anyControllable) {
@@ -6704,7 +6926,7 @@ fun GroupEntityDialog(
                                 .fillMaxWidth()
                                 .padding(horizontal = 24.dp)
                         ) {
-                            Text("Turn off all")
+                            Text(stringResource(R.string.ui_turn_off_all_3a7a2b0))
                         }
                     }
                     Spacer(Modifier.height(16.dp))
@@ -6720,7 +6942,7 @@ fun GroupEntityDialog(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         when (currentTab) {
-                            "Bright" -> items(lightEntities.size) { index ->
+                            "brightness" -> items(lightEntities.size) { index ->
                                 val entity = lightEntities[index]
                                 GroupLightControlRow(label = labelFor(entity), icon = stack.buttonConfigs[entity.entity_id]?.icon ?: defaultEntityIconSlug(entity), iconTint = tintFor(entity)) {
                                     HorizontalLightBar(
@@ -6730,7 +6952,7 @@ fun GroupEntityDialog(
                                     )
                                 }
                             }
-                            "Temp" -> {
+                            "temperature" -> {
                                 val list = lightEntities.filter { it.supportsColorTemp }
                                 items(list.size) { index ->
                                     val entity = list[index]
@@ -6743,7 +6965,7 @@ fun GroupEntityDialog(
                                     }
                                 }
                             }
-                            "Color" -> {
+                            "color" -> {
                                 val list = lightEntities.filter { it.supportsColor }
                                 items(list.size) { index ->
                                     val entity = list[index]
@@ -6783,20 +7005,21 @@ fun GroupEntityDialog(
                                 val stateLabel = when (dom) {
                                     "light" -> if (isItemActive) {
                                         val bp = ((entity.brightness ?: 0) / 255f * 100).toInt()
-                                        if (entity.supportsBrightness) "On - ${bp}%" else "On"
+                                        if (entity.supportsBrightness) stringResource(R.string.ui_on_12469c7, bp) else stringResource(R.string.ui_on_e0049a6)
                                     } else {
-                                        entity.state.split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+                                        localizedEntityState(entity)
                                     }
                                     "climate" -> {
-                                        val mode = (entity.attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
+                                        val mode = localizedClimateModeLabel(
+                                            entity.attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
                                             ?: entity.attributes?.get("hvac_mode")?.jsonPrimitive?.contentOrNull
-                                            ?: entity.state)
-                                            .split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+                                            ?: entity.state
+                                        )
                                         val temp = entity.attributes?.get("temperature")?.jsonPrimitive?.doubleOrNull
-                                        if (temp != null && isItemActive) "$mode - ${temp.toInt()}\u00B0C" else mode
+                                        if (temp != null && isItemActive) stringResource(R.string.ui_c_3d3c16f, mode, temp.toInt()) else mode
                                     }
-                                    "binary_sensor" -> binarySensorFriendlyState(entity)
-                                    else -> entity.state.split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+                                    "binary_sensor" -> localizedBinarySensorFriendlyState(entity)
+                                    else -> localizedEntityState(entity)
                                 }
                                 Surface(
                                     shape = itemCornerShape(),
@@ -6858,24 +7081,67 @@ fun GroupEntityDialog(
 
 /** Home Assistant's binary_sensor device classes translate raw on/off state into class-appropriate
  *  wording in HA's own frontend (e.g. a door reads "Open"/"Closed", not "On"/"Off"). */
-fun binarySensorFriendlyState(entity: HAEntity): String {
+@Composable
+private fun localizedBinarySensorFriendlyState(entity: HAEntity): String {
     if (entity.state != "on" && entity.state != "off") {
-        return entity.state.split("_").joinToString(" ") { it.replaceFirstChar(Char::uppercase) }
+        return localizedStateToken(entity.state)
     }
     val on = entity.state == "on"
     return when (entity.deviceClass) {
-        "door", "garage_door", "window", "opening" -> if (on) "Open" else "Closed"
-        "lock" -> if (on) "Unlocked" else "Locked"
-        "moisture" -> if (on) "Wet" else "Dry"
-        "motion", "moving", "occupancy", "presence" -> if (on) "Detected" else "Clear"
-        "problem", "safety", "tamper" -> if (on) "Problem" else "OK"
-        "smoke", "gas", "co" -> if (on) "Detected" else "Clear"
-        "battery" -> if (on) "Low" else "Normal"
-        "connectivity" -> if (on) "Connected" else "Disconnected"
-        "plug", "power" -> if (on) "Plugged in" else "Unplugged"
-        else -> if (on) "On" else "Off"
+        "door", "garage_door", "window", "opening" ->
+            stringResource(if (on) R.string.cr_open else R.string.cr_closed)
+        "lock" -> stringResource(if (on) R.string.cr_unlocked else R.string.cr_locked)
+        "moisture" -> stringResource(if (on) R.string.cr_wet else R.string.cr_dry)
+        "motion", "moving", "occupancy", "presence" ->
+            stringResource(if (on) R.string.cr_detected else R.string.cr_clear)
+        "problem", "safety", "tamper" ->
+            stringResource(if (on) R.string.cr_problem else R.string.cr_ok)
+        "smoke", "gas", "co" ->
+            stringResource(if (on) R.string.cr_detected else R.string.cr_clear)
+        "battery" -> stringResource(if (on) R.string.cr_low else R.string.cr_normal)
+        "connectivity" ->
+            stringResource(if (on) R.string.cr_connected else R.string.cr_disconnected)
+        "plug", "power" ->
+            stringResource(if (on) R.string.cr_plugged_in else R.string.cr_unplugged)
+        else -> stringResource(if (on) R.string.cr_state_on else R.string.cr_state_off)
     }
 }
+
+@Composable
+private fun localizedEntityState(entity: HAEntity): String {
+    if (entity.entity_id.startsWith("binary_sensor.")) {
+        return localizedBinarySensorFriendlyState(entity)
+    }
+    return localizedStateToken(entity.state)
+}
+
+@Composable
+private fun localizedStateToken(state: String): String =
+    when (state.trim().lowercase(Locale.ROOT)) {
+        "on" -> stringResource(R.string.cr_state_on)
+        "off" -> stringResource(R.string.cr_state_off)
+        "open" -> stringResource(R.string.cr_open)
+        "closed" -> stringResource(R.string.cr_closed)
+        "opening" -> stringResource(R.string.cr_opening)
+        "closing" -> stringResource(R.string.cr_closing)
+        "locked" -> stringResource(R.string.cr_locked)
+        "unlocked" -> stringResource(R.string.cr_unlocked)
+        "unavailable" -> stringResource(R.string.cr_unavailable)
+        "unknown" -> stringResource(R.string.cr_unknown)
+        "idle" -> stringResource(R.string.cr_idle)
+        "home" -> stringResource(R.string.cr_home)
+        "not_home", "away" -> stringResource(R.string.cr_away)
+        "cleaning" -> stringResource(R.string.cr_cleaning)
+        "returning" -> stringResource(R.string.cr_returning)
+        "paused" -> stringResource(R.string.cr_paused)
+        "error" -> stringResource(R.string.cr_error)
+        "playing" -> stringResource(R.string.cr_playing)
+        "buffering" -> stringResource(R.string.cr_buffering)
+        "standby" -> stringResource(R.string.cr_standby)
+        "humidifying" -> stringResource(R.string.cr_humidifying)
+        "drying" -> stringResource(R.string.cr_drying)
+        else -> state.replace('_', ' ').replaceFirstChar(Char::uppercase)
+    }
 
 @Composable
 fun GenericEntityDialog(
@@ -6888,9 +7154,9 @@ fun GenericEntityDialog(
     val domain = entity.entity_id.substringBefore(".")
     val unit = entity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull
     val valueText = if (domain == "binary_sensor") {
-        binarySensorFriendlyState(entity)
+        localizedBinarySensorFriendlyState(entity)
     } else {
-        listOfNotNull(entity.state, unit).joinToString(" ")
+        listOfNotNull(localizedEntityState(entity), unit).joinToString(" ")
     }
     val isSwitchLike = domain in listOf("light", "switch", "input_boolean", "fan", "automation", "group", "remote", "siren", "humidifier")
     val isGraphLike = domain == "sensor"
@@ -6938,7 +7204,7 @@ fun GenericEntityDialog(
             } else if (isSwitchLike) {
                 Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = if (entity.state == "on") "On" else "Off",
+                        text = if (entity.state == "on") stringResource(R.string.ui_on_e0049a6) else stringResource(R.string.ui_off_e3de5ab),
                         color = appColors.onSurface,
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Normal
@@ -6951,7 +7217,7 @@ fun GenericEntityDialog(
                         )
                     }
                     Spacer(Modifier.height(16.dp))
-                    Text("SWITCH", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(R.string.ui_switch_b02cbd9), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
                 }
             } else if (isBinary) {
                 HistoryView(entity = entity, viewModel = viewModel)
@@ -6979,7 +7245,7 @@ fun GenericEntityDialog(
                         border = BorderStroke(1.dp, appColors.onMuted.copy(alpha = 0.16f))
                     ) {
                         Box(contentAlignment = Alignment.Center) {
-                            Text("Open history for graph", color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.ui_open_history_for_graph_ae801d5), color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 }
@@ -7005,11 +7271,11 @@ private fun SelectOptionsContent(
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Text("Options", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
-        Text("Select an option", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+        Text(stringResource(R.string.ui_options_6bf5da9), color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.ui_select_an_option_08d7aa3), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
         Spacer(Modifier.height(6.dp))
         if (options.isEmpty()) {
-            Text("No options available", color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.ui_no_options_available_7a19b6d), color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
         }
         options.forEach { option ->
             val selected = option == activeOption
@@ -7057,6 +7323,8 @@ private fun SensorGraphContent(entity: HAEntity, viewModel: MainViewModel, value
     val unit = entity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull.orEmpty()
     val lineColor = if (isBinary) Color(0xFFBE73CC) else Color(0xFF4A90E2)
     val appColors = LocalHKIAppColors.current
+    val onLabel = stringResource(R.string.ui_on_e0049a6)
+    val offLabel = stringResource(R.string.ui_off_e3de5ab)
 
     var selectedHours by remember { mutableIntStateOf(24) }
     var loadedHours by remember { mutableStateOf<Int?>(null) }
@@ -7066,7 +7334,7 @@ private fun SensorGraphContent(entity: HAEntity, viewModel: MainViewModel, value
         loadedHours = selectedHours
     }
 
-    val graphPoints = remember(history, selectedHours, isBinary, unit) {
+    val graphPoints = remember(history, selectedHours, isBinary, unit, onLabel, offLabel) {
         history.mapNotNull { entry ->
             val millis = parseHistoryMillis(entry.last_changed) ?: return@mapNotNull null
             val value = if (isBinary) {
@@ -7076,7 +7344,7 @@ private fun SensorGraphContent(entity: HAEntity, viewModel: MainViewModel, value
                     else -> return@mapNotNull null
                 }
             } else entry.state.toFloatOrNull() ?: return@mapNotNull null
-            val label = if (isBinary) (if (value == 1f) "On" else "Off")
+            val label = if (isBinary) (if (value == 1f) onLabel else offLabel)
             else trimGraphValue(value) + if (unit.isNotBlank()) " $unit" else ""
             HistoryPoint(millis, value, label)
         }.sortedBy { it.timeMillis }
@@ -7096,7 +7364,7 @@ private fun SensorGraphContent(entity: HAEntity, viewModel: MainViewModel, value
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = if (isBinary) "STATE" else "SENSOR",
+            text = if (isBinary) stringResource(R.string.ui_state_bef84bb) else stringResource(R.string.ui_sensor_efb9fbf),
             color = appColors.onMuted,
             style = MaterialTheme.typography.labelSmall
         )
@@ -7116,7 +7384,7 @@ private fun SensorGraphContent(entity: HAEntity, viewModel: MainViewModel, value
             if (graphPoints.size < 2) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     if (loadedHours == selectedHours) {
-                        Text("Not enough data in this period", color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.ui_not_enough_data_in_this_period_48188c4), color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
                     } else {
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
@@ -7143,15 +7411,17 @@ private fun SensorGraphContent(entity: HAEntity, viewModel: MainViewModel, value
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.weight(1f)
             )
-            Text("Last ${selectedHours}h", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+            Text(stringResource(R.string.ui_last_h_3faaee1, selectedHours), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
         }
         if (!isBinary && minValue != null && maxValue != null) {
             Spacer(Modifier.height(10.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                GraphStat("Min", trimGraphValue(minValue), unit)
-                avgValue?.let { GraphStat("Avg", trimGraphValue(it), unit) }
-                GraphStat("Max", trimGraphValue(maxValue), unit)
-                graphPoints.lastOrNull()?.let { GraphStat("Now", trimGraphValue(it.value), unit) }
+                GraphStat(stringResource(R.string.cr_min), trimGraphValue(minValue), unit)
+                avgValue?.let { GraphStat(stringResource(R.string.cr_avg), trimGraphValue(it), unit) }
+                GraphStat(stringResource(R.string.cr_max), trimGraphValue(maxValue), unit)
+                graphPoints.lastOrNull()?.let {
+                    GraphStat(stringResource(R.string.cr_now), trimGraphValue(it.value), unit)
+                }
             }
         }
     }
@@ -7164,7 +7434,7 @@ private fun GraphStat(label: String, value: String, unit: String) {
         Text(label, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
         Spacer(Modifier.height(2.dp))
         Text(
-            text = if (unit.isNotBlank()) "$value $unit" else value,
+            text = if (unit.isNotBlank()) stringResource(R.string.ui_text_78c505f, value, unit) else value,
             color = appColors.onSurface,
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.SemiBold
@@ -7199,7 +7469,7 @@ fun SubtitleWidget(
             Spacer(Modifier.weight(1f))
             EditSettingsButton(onClick = onSettings)
             IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = appColors.onMuted, modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.ui_delete_f6fdbe4), tint = appColors.onMuted, modifier = Modifier.size(18.dp))
             }
         }
     }
@@ -7216,6 +7486,7 @@ fun HeaderTextSettingsDialog(
     var width by remember(widget) { mutableStateOf(widget.width) }
     var showIconPickerHeader by remember { mutableStateOf(false) }
     var settingsPage by remember(widget) { mutableStateOf("content") }
+    val defaultHeaderText = stringResource(R.string.cr_widget_header_text)
 
     if (showIconPickerHeader) {
         MdiIconPickerDialog(
@@ -7228,41 +7499,55 @@ fun HeaderTextSettingsDialog(
     AlertDialog(
         stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { ModernSettingsDialogTitle("Header text", "Heading content and visual style") },
+        title = {
+            ModernSettingsDialogTitle(
+                stringResource(R.string.cr_widget_header_text),
+                stringResource(R.string.cr_header_text_dialog_subtitle)
+            )
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 SettingsTabRow(
-                    tabs = listOf("content" to "Content", "appearance" to "Appearance"),
+                    tabs = listOf(
+                        "content" to stringResource(R.string.cr_content),
+                        "appearance" to stringResource(R.string.cr_appearance)
+                    ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
                 )
                 if (settingsPage == "content") {
-                SettingsSubcategory("Content", "The heading shown between dashboard sections")
+                SettingsSubcategory(stringResource(R.string.ui_content_4f9be05), stringResource(R.string.ui_the_heading_shown_between_dashboard_sections_b03805f))
                 OutlinedTextField(
                     value = text,
                     onValueChange = { text = it },
-                    label = { Text("Text") },
+                    label = { Text(stringResource(R.string.ui_text_c3328c3)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
                 }
                 if (settingsPage == "appearance") {
-                SettingsSubcategory("Appearance", "Width and optional icon")
+                SettingsSubcategory(stringResource(R.string.ui_appearance_41def7a), stringResource(R.string.ui_width_and_optional_icon_671e2ef))
                 WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Icon", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.ui_icon_716f63b), style = MaterialTheme.typography.labelLarge)
                     if (iconName.isNotEmpty()) MdiIcon(iconName, size = 20.dp)
-                    TextButton(onClick = { showIconPickerHeader = true }) { Text(if (iconName.isEmpty()) "Choose" else "Change") }
-                    if (iconName.isNotEmpty()) TextButton(onClick = { iconName = "" }) { Text("None") }
+                    TextButton(onClick = { showIconPickerHeader = true }) { Text(if (iconName.isEmpty()) stringResource(R.string.ui_choose_78b7c9f) else stringResource(R.string.ui_change_64fbd99)) }
+                    if (iconName.isNotEmpty()) TextButton(onClick = { iconName = "" }) { Text(stringResource(R.string.ui_none_6eef664)) }
                 }
                 }
             }
         },
         confirmButton = {
             Button(onClick = {
-                onSave(widget.copy(text = text.ifBlank { "Header Text" }, width = width, icon = iconName.ifEmpty { null }))
-            }) { Text("Save") }
+                onSave(
+                    widget.copy(
+                        text = text.ifBlank { defaultHeaderText },
+                        width = width,
+                        icon = iconName.ifEmpty { null }
+                    )
+                )
+            }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
     )
 }

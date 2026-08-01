@@ -2,6 +2,10 @@
 
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -198,7 +202,11 @@ fun HKICameraDialog(
             onDismiss = onDismiss,
             icon = Icons.Default.CameraAlt,
             titleOverride = title,
-            statusText = statusText ?: if (imageUrl.isNullOrBlank()) "No stream available" else "Live",
+            statusText = statusText ?: if (imageUrl.isNullOrBlank()) {
+                stringResource(R.string.dlg_no_stream_available)
+            } else {
+                stringResource(R.string.dlg_live)
+            },
             showHistoryButton = true
         ) {
             Box(
@@ -275,7 +283,7 @@ fun HKICameraDialog(
                             Spacer(Modifier.width(12.dp))
                             Column(Modifier.weight(1f)) {
                                 Text(title, style = MaterialTheme.typography.headlineSmall, color = appColors.onSurface, fontWeight = FontWeight.Bold)
-                                Text(statusText ?: if (imageUrl.isNullOrBlank()) "No stream available" else "Live", style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
+                                Text(statusText ?: if (imageUrl.isNullOrBlank()) stringResource(R.string.dlg_no_stream_available) else stringResource(R.string.dlg_live), style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
                             }
                             IconButton(
                                 onClick = onDismiss,
@@ -283,7 +291,7 @@ fun HKICameraDialog(
                                     .background(appColors.subtleSurface, CircleShape)
                                     .size(48.dp)
                             ) {
-                                Icon(Icons.Default.Close, contentDescription = "Close", tint = appColors.onSurface)
+                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.dlg_close), tint = appColors.onSurface)
                             }
                         }
 
@@ -371,7 +379,11 @@ fun CameraStackDialog(
         viewModel = viewModel,
         icon = Icons.Default.CameraAlt,
         titleOverride = title,
-        statusText = if (many) "${page + 1}/$n • Live" else "Live",
+        statusText = if (many) {
+            stringResource(R.string.dlg_camera_live_page, page + 1, n)
+        } else {
+            stringResource(R.string.dlg_live)
+        },
         showHistoryButton = true,
     ) {
         Column(
@@ -457,10 +469,10 @@ internal fun CameraFullscreenHost(
     DisposableEffect(activity) {
         // FULL_USER (not FULL_SENSOR) honours the device's auto-rotate lock: with rotation locked
         // the fullscreen view stays put and the system offers its rotate-suggestion button, exactly
-        // like Samsung's. With auto-rotate on it turns freely. Everywhere else the app is portrait.
+        // like Samsung's. With auto-rotate on it turns freely. Same setting the rest of the app uses.
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_USER
         onDispose {
-            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_USER
         }
     }
 
@@ -499,7 +511,7 @@ private fun CameraViewerWithFullscreenButton(
                 .background(Color.Black.copy(alpha = 0.68f), CircleShape)
                 .size(48.dp)
         ) {
-            Icon(Icons.Default.Fullscreen, contentDescription = "Open camera full screen", tint = Color.White)
+            Icon(Icons.Default.Fullscreen, contentDescription = stringResource(R.string.dlg_open_camera_full_screen), tint = Color.White)
         }
     }
 }
@@ -671,7 +683,7 @@ private fun FullscreenCameraViewer(
                                     modifier = Modifier.weight(1f).padding(horizontal = 10.dp)
                                 )
                                 Text(
-                                    "${((zoom * 10).roundToInt() / 10f)}×",
+                                    stringResource(R.string.dlg_zoom_multiplier, ((zoom * 10).roundToInt() / 10f)),
                                     color = Color.White,
                                     style = MaterialTheme.typography.labelMedium,
                                     modifier = Modifier.width(42.dp)
@@ -688,7 +700,7 @@ private fun FullscreenCameraViewer(
                                     },
                                     modifier = Modifier.size(48.dp)
                                 ) {
-                                    Icon(Icons.Default.SkipPrevious, contentDescription = "Previous camera", tint = Color.White)
+                                    Icon(Icons.Default.SkipPrevious, contentDescription = stringResource(R.string.dlg_previous_camera), tint = Color.White)
                                 }
                             }
                             if (onNext != null) {
@@ -699,7 +711,7 @@ private fun FullscreenCameraViewer(
                                     },
                                     modifier = Modifier.size(48.dp)
                                 ) {
-                                    Icon(Icons.Default.SkipNext, contentDescription = "Next camera", tint = Color.White)
+                                    Icon(Icons.Default.SkipNext, contentDescription = stringResource(R.string.dlg_next_camera), tint = Color.White)
                                 }
                             }
 
@@ -712,7 +724,7 @@ private fun FullscreenCameraViewer(
                                     Spacer(Modifier.width(7.dp))
                                 }
                                 Text(
-                                    if (isLive) "LIVE" else "Snapshot",
+                                    if (isLive) stringResource(R.string.dlg_live_uppercase) else stringResource(R.string.dlg_snapshot),
                                     color = Color.White,
                                     style = MaterialTheme.typography.labelMedium
                                 )
@@ -732,7 +744,7 @@ private fun FullscreenCameraViewer(
                             ) {
                                 Icon(
                                     Icons.Default.FullscreenExit,
-                                    contentDescription = "Exit full screen",
+                                    contentDescription = stringResource(R.string.dlg_exit_full_screen),
                                     tint = Color.White
                                 )
                             }
@@ -1143,7 +1155,7 @@ fun ZoomableCameraImage(
                 )
             }
         } else {
-            Text("No Stream Available", color = Color.Gray)
+            Text(stringResource(R.string.dlg_no_stream_available), color = Color.Gray)
         }
     }
 }

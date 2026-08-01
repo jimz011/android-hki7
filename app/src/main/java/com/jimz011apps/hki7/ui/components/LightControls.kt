@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -259,7 +263,7 @@ fun HorizontalLightBar(
         }
         if (!isOn) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Off", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.ui_off_e3de5ab), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium)
             }
         }
     }

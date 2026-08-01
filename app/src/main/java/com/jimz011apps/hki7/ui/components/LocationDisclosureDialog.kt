@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.AlertDialog
@@ -24,22 +28,22 @@ fun LocationDisclosureDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Default.LocationOn, contentDescription = null) },
-        title = { Text("Location access") },
+        title = { Text(stringResource(R.string.ui_location_access_3b68001)) },
         text = {
             Text(
-                "HKI 7 collects location data to enable presence detection and zone-based " +
-                    "automations, even when the app is closed or not in use.\n\n" +
-                    "Your location is shared only with your own Home Assistant server. It is " +
-                    "never sent to the developer or to any third party, and you can turn this " +
-                    "off at any time in Android settings.",
+                stringResource(R.string.ui_hki_7_collects_location_data_to_enable_presence_detection_2dda033) +
+                    stringResource(R.string.ui_automations_even_when_the_app_is_closed_or_not_d27e5b1) +
+                    stringResource(R.string.ui_your_location_is_shared_only_with_your_own_home_c75bd6d) +
+                    stringResource(R.string.ui_never_sent_to_the_developer_or_to_any_third_f0479e9) +
+                    stringResource(R.string.ui_off_at_any_time_in_android_settings_4607e2c),
                 style = MaterialTheme.typography.bodyMedium
             )
         },
         confirmButton = {
-            TextButton(onClick = onAgree) { Text("Agree") }
+            TextButton(onClick = onAgree) { Text(stringResource(R.string.ui_agree_ee68d34)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("No thanks") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_no_thanks_6d745b3)) }
         }
     )
 }

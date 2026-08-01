@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -58,7 +62,7 @@ fun ReorderItemsDialog(
         title = { Text(title) },
         text = {
             if (ordered.isEmpty()) {
-                Text("Nothing to reorder yet.", color = appColors.onMuted)
+                Text(stringResource(R.string.ui_nothing_to_reorder_yet_cdcbb36), color = appColors.onMuted)
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(subtitle, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
@@ -105,7 +109,7 @@ fun ReorderItemsDialog(
                 }
             }
         },
-        confirmButton = { Button(onClick = { onSave(ordered.map { it.key }) }) { Text("Save") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        confirmButton = { Button(onClick = { onSave(ordered.map { it.key }) }) { Text(stringResource(R.string.ui_save_efc007a)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
     )
 }

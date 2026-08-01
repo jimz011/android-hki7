@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeOut
@@ -140,14 +144,14 @@ fun NotificationBannerHost(
                         exitMode = "dismiss"
                         visible = false
                     }) {
-                        Text("Dismiss", color = bannerForeground)
+                        Text(stringResource(R.string.ui_dismiss_70afe9e), color = bannerForeground)
                     }
                     IconButton(onClick = {
                         exitMode = "delete"
                         visible = false
                         viewModel.deleteNotification(notification.id)
                     }) {
-                        Icon(Icons.Default.Close, "Delete notification", tint = bannerForeground)
+                        Icon(Icons.Default.Close, stringResource(R.string.notification_delete), tint = bannerForeground)
                     }
                 }
             }
@@ -181,7 +185,7 @@ fun NotificationBellButton(
                 .clickable { open?.invoke() },
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Default.Notifications, contentDescription = "Notifications", tint = iconTint, modifier = Modifier.size(18.dp))
+            Icon(Icons.Default.Notifications, contentDescription = stringResource(R.string.ui_notifications_753a22b), tint = iconTint, modifier = Modifier.size(18.dp))
         }
         if (unread > 0) {
             val label = if (unread > 99) "99+" else "$unread"
@@ -251,7 +255,7 @@ fun NotificationPanel(viewModel: MainViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "Notifications",
+                stringResource(R.string.ui_notifications_753a22b),
                 style = MaterialTheme.typography.titleLarge,
                 color = appColors.onSurface,
                 fontWeight = FontWeight.Bold,
@@ -259,22 +263,22 @@ fun NotificationPanel(viewModel: MainViewModel) {
             )
             if (tab == "inbox" && notifications.any { !it.archived && !it.read }) {
                 IconButton(onClick = { viewModel.markAllNotificationsRead() }) {
-                    Icon(Icons.Default.DoneAll, "Mark all as read", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.DoneAll, stringResource(R.string.notification_mark_all_read), tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                 }
             }
             if (tab == "inbox" && notifications.any { !it.archived && it.read }) {
                 IconButton(onClick = { viewModel.markAllNotificationsUnread() }) {
-                    Icon(Icons.Default.MarkEmailUnread, "Mark all as unread", tint = appColors.onMuted, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.MarkEmailUnread, stringResource(R.string.notification_mark_all_unread), tint = appColors.onMuted, modifier = Modifier.size(20.dp))
                 }
             }
             if (tab == "inbox" && notifications.any { !it.archived }) {
                 IconButton(onClick = { viewModel.clearNotifications() }) {
-                    Icon(Icons.Default.DeleteSweep, "Delete all", tint = appColors.onMuted, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.DeleteSweep, stringResource(R.string.notification_delete_all), tint = appColors.onMuted, modifier = Modifier.size(20.dp))
                 }
             }
             if (tab == "archive" && notifications.any { it.archived }) {
                 IconButton(onClick = { viewModel.clearArchivedNotifications() }) {
-                    Icon(Icons.Default.DeleteSweep, "Delete all archived", tint = appColors.onMuted, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.DeleteSweep, stringResource(R.string.notification_delete_all_archived), tint = appColors.onMuted, modifier = Modifier.size(20.dp))
                 }
             }
         }
@@ -284,7 +288,7 @@ fun NotificationPanel(viewModel: MainViewModel) {
             value = query,
             onValueChange = { query = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Search", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall) },
+            placeholder = { Text(stringResource(R.string.ui_search_bce0641), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall) },
             leadingIcon = { Icon(Icons.Default.Search, null, tint = appColors.onMuted, modifier = Modifier.size(18.dp)) },
             singleLine = true,
             shape = RoundedCornerShape(14.dp),
@@ -310,13 +314,13 @@ fun NotificationPanel(viewModel: MainViewModel) {
             FilterChip(
                 selected = tab == "inbox",
                 onClick = { tab = "inbox" },
-                label = { Text("Notifications") },
+                label = { Text(stringResource(R.string.ui_notifications_753a22b)) },
                 shape = RoundedCornerShape(12.dp)
             )
             FilterChip(
                 selected = tab == "archive",
                 onClick = { tab = "archive" },
-                label = { Text("Archived") },
+                label = { Text(stringResource(R.string.ui_archived_eddc813)) },
                 shape = RoundedCornerShape(12.dp)
             )
         }
@@ -338,16 +342,16 @@ fun NotificationPanel(viewModel: MainViewModel) {
                 Spacer(Modifier.height(12.dp))
                 Text(
                     when {
-                        query.isNotBlank() -> "No matches"
-                        tab == "archive" -> "No archived notifications"
-                        else -> "No notifications"
+                        query.isNotBlank() -> stringResource(R.string.ui_no_matches_cd0af6c)
+                        tab == "archive" -> stringResource(R.string.ui_no_archived_notifications_ed5604b)
+                        else -> stringResource(R.string.ui_no_notifications_b08626f)
                     },
                     color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium
                 )
                 if (tab == "inbox" && query.isBlank()) {
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        "Messages sent to this device via\nHome Assistant's notify service appear here.",
+                        stringResource(R.string.ui_messages_sent_to_this_device_via_home_assistant_s_87e4a32),
                         color = appColors.onMuted.copy(alpha = 0.7f),
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(horizontal = 24.dp)
@@ -363,11 +367,11 @@ fun NotificationPanel(viewModel: MainViewModel) {
             ) {
                 if (tab == "inbox") {
                     if (unread.isNotEmpty()) {
-                        item(key = "hdr_unread") { SectionLabel("Unread") }
+                        item(key = "hdr_unread") { SectionLabel(stringResource(R.string.notification_unread)) }
                         items(unread, key = { it.id }) { n -> NotificationRow(n, viewModel, archivedTab = false) }
                     }
                     if (history.isNotEmpty()) {
-                        item(key = "hdr_history") { SectionLabel("History") }
+                        item(key = "hdr_history") { SectionLabel(stringResource(R.string.notification_history)) }
                         items(history, key = { it.id }) { n -> NotificationRow(n, viewModel, archivedTab = false) }
                     }
                 } else {
@@ -418,24 +422,24 @@ private fun NotificationRow(
         ) {
             // Read/unread toggle on both tabs: unread gets "mark as read", read the inverse.
             if (notification.read) {
-                SwipeActionButton(Icons.Default.MarkEmailUnread, "Mark as unread", Color(0xFF42A5F5)) {
+                SwipeActionButton(Icons.Default.MarkEmailUnread, stringResource(R.string.notification_mark_unread), Color(0xFF42A5F5)) {
                     viewModel.setNotificationRead(notification.id, false); close()
                 }
             } else {
-                SwipeActionButton(Icons.Default.MarkEmailRead, "Mark as read", Color(0xFF42A5F5)) {
+                SwipeActionButton(Icons.Default.MarkEmailRead, stringResource(R.string.notification_mark_read), Color(0xFF42A5F5)) {
                     viewModel.setNotificationRead(notification.id, true); close()
                 }
             }
             if (!archivedTab) {
-                SwipeActionButton(Icons.Default.Archive, "Archive", Color(0xFF66BB6A)) {
+                SwipeActionButton(Icons.Default.Archive, stringResource(R.string.notification_archive), Color(0xFF66BB6A)) {
                     viewModel.archiveNotification(notification.id); close()
                 }
             } else {
-                SwipeActionButton(Icons.Default.Unarchive, "Unarchive", Color(0xFF66BB6A)) {
+                SwipeActionButton(Icons.Default.Unarchive, stringResource(R.string.notification_unarchive), Color(0xFF66BB6A)) {
                     viewModel.unarchiveNotification(notification.id); close()
                 }
             }
-            SwipeActionButton(Icons.Default.Delete, "Delete", Color(0xFFEF5350)) {
+            SwipeActionButton(Icons.Default.Delete, stringResource(R.string.notification_delete_action), Color(0xFFEF5350)) {
                 viewModel.deleteNotification(notification.id)
             }
         }

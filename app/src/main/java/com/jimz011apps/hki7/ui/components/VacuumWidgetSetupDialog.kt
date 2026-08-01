@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,7 +38,7 @@ fun VacuumWidgetSetupDialog(
     if (useEntityFallback) {
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter { it.entity_id.startsWith("vacuum.") },
-            title = "Select Vacuum Entity",
+            title = stringResource(R.string.dlg_select_vacuum_entity),
             singleSelect = true,
             preselectedIds = emptySet(),
             onDismiss = { useEntityFallback = false },
@@ -63,7 +67,7 @@ fun VacuumWidgetSetupDialog(
                     )
                 )
             },
-            alternativeLabel = "Choose a vacuum entity instead",
+        alternativeLabel = stringResource(R.string.dlg_choose_vacuum_entity_instead),
             onAlternative = { useEntityFallback = true }
         )
     }

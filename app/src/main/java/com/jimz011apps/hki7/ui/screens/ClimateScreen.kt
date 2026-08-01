@@ -2,6 +2,12 @@
 
 package com.jimz011apps.hki7.ui.screens
 
+import com.jimz011apps.hki7.R
+
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 
 import androidx.compose.animation.core.*
@@ -74,6 +80,7 @@ import com.jimz011apps.hki7.ui.utils.MdiIcon
 import com.jimz011apps.hki7.ui.components.surfaceGradient
 import com.jimz011apps.hki7.ui.components.LocalItemCornerRadius
 import com.jimz011apps.hki7.ui.components.itemCornerShape
+import com.jimz011apps.hki7.ui.components.localizedClimateModeLabel
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.contentOrNull
@@ -100,27 +107,27 @@ private val MistCyan    = Color(0xFF26C6DA)
 /** One sensor tile / detail tab: a set of related HA `device_class`es shown together. */
 private data class ClimateSensorGroup(
     val key: String,
-    val title: String,
-    val subtitle: String,
+    @StringRes val titleRes: Int,
+    @StringRes val subtitleRes: Int,
     val icon: ImageVector,
     val color: Color,
     val deviceClasses: Set<String>
 )
 
 private val climateSensorGroups = listOf(
-    ClimateSensorGroup("temperature", "Temperature", "All temperature sensors",
+    ClimateSensorGroup("temperature", R.string.cr_climate_temperature, R.string.cr_climate_all_temperature_sensors,
         Icons.Default.Thermostat, TempWarm, setOf("temperature")),
     // Outside sits right next to Temperature. Never auto-discovered — its sensors are set manually
     // (temperature/humidity/pressure) in Climate settings.
-    ClimateSensorGroup("outside", "Outside", "Outside temperature, humidity & pressure",
+    ClimateSensorGroup("outside", R.string.cr_climate_outside, R.string.cr_climate_outside_summary,
         Icons.Default.WbSunny, TempWarm, emptySet()),
-    ClimateSensorGroup("humidity", "Humidity", "All humidity sensors",
+    ClimateSensorGroup("humidity", R.string.cr_climate_humidity, R.string.cr_climate_all_humidity_sensors,
         Icons.Default.WaterDrop, HumidBlue, setOf("humidity")),
-    ClimateSensorGroup("pressure", "Air pressure", "All pressure sensors",
+    ClimateSensorGroup("pressure", R.string.cr_climate_air_pressure, R.string.cr_climate_all_pressure_sensors,
         Icons.Default.Speed, PressPurple, setOf("pressure", "atmospheric_pressure")),
-    ClimateSensorGroup("co2", "CO₂", "Carbon dioxide sensors",
+    ClimateSensorGroup("co2", R.string.cr_climate_co2, R.string.cr_climate_carbon_dioxide_sensors,
         Icons.Default.Co2, Co2Teal, setOf("carbon_dioxide")),
-    ClimateSensorGroup("air", "Air quality", "Particulates, VOC & AQI",
+    ClimateSensorGroup("air", R.string.cr_climate_air_quality, R.string.cr_climate_air_quality_summary,
         Icons.Default.Air, AirGreen, setOf(
             "pm1", "pm25", "pm10", "aqi", "volatile_organic_compounds",
             "volatile_organic_compounds_parts", "nitrogen_dioxide", "carbon_monoxide"
@@ -467,8 +474,8 @@ fun ClimateScreen(viewModel: MainViewModel) {
 
     if (showReorderDevices) {
         com.jimz011apps.hki7.ui.components.ReorderItemsDialog(
-            title = "Reorder devices",
-            subtitle = "Drag to set the order thermostats and AC units appear on the Climate view.",
+            title = stringResource(R.string.ui_reorder_devices_8bcc061),
+            subtitle = stringResource(R.string.ui_drag_to_set_the_order_thermostats_and_ac_units_62d49e7),
             items = climateEntities.map {
                 com.jimz011apps.hki7.ui.components.ReorderItem(
                     it.entity_id,
@@ -501,7 +508,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
     }
 
     val climateSettingsSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
-        "Climate Entities" to { setBack ->
+        stringResource(R.string.cr_climate_entities) to { setBack ->
             ClimateSensorSection(
                 climateConfig = climateConfig,
                 allEntities = entities,
@@ -510,7 +517,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
             )
         }
     val climateAppearanceSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
-        "Appearance" to { _ ->
+        stringResource(R.string.cr_appearance) to { _ ->
             ClimateAppearanceSection(climateConfig) { newCfg ->
                 viewModel.updateClimateConfig(CLIMATE_PAGE_KEY, newCfg)
             }
@@ -518,52 +525,52 @@ fun ClimateScreen(viewModel: MainViewModel) {
     var showClimateReimport by remember { mutableStateOf(false) }
     var showClearClimate by remember { mutableStateOf(false) }
     val climateImportSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
-        "Re-import" to { _ ->
-            Text("Fetch climate entities from Home Assistant again.", color = LocalHKIAppColors.current.onMuted)
+        stringResource(R.string.cr_reimport) to { _ ->
+            Text(stringResource(R.string.ui_fetch_climate_entities_from_home_assistant_again_a65f837), color = LocalHKIAppColors.current.onMuted)
             Button(onClick = { showClimateReimport = true }, modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Default.CloudDownload, null); Spacer(Modifier.width(8.dp)); Text("Re-import Climate")
+                Icon(Icons.Default.CloudDownload, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.ui_re_import_climate_f7f5678))
             }
             OutlinedButton(onClick = { showClearClimate = true }, modifier = Modifier.fillMaxWidth()) {
-                Text("Clear Climate View", color = MaterialTheme.colorScheme.error)
+                Text(stringResource(R.string.ui_clear_climate_view_48e8a5e), color = MaterialTheme.colorScheme.error)
             }
         }
 
     if (showClimateReimport) {
         AlertDialog(
             onDismissRequest = { showClimateReimport = false },
-            title = { Text("Re-import climate") },
-            text = { Text("Import entities that have not been edited, or remove all climate edits and import from scratch.") },
+            title = { Text(stringResource(R.string.ui_re_import_climate_3ed098c)) },
+            text = { Text(stringResource(R.string.ui_import_entities_that_have_not_been_edited_or_remove_6edde59)) },
             confirmButton = { Column(horizontalAlignment = Alignment.End) {
-                Button(onClick = { viewModel.reimportClimate(false); showClimateReimport = false }) { Text("Import unedited") }
-                TextButton(onClick = { viewModel.reimportClimate(true); showClimateReimport = false }) { Text("Remove edits and import all", color = MaterialTheme.colorScheme.error) }
+                Button(onClick = { viewModel.reimportClimate(false); showClimateReimport = false }) { Text(stringResource(R.string.ui_import_unedited_4a58143)) }
+                TextButton(onClick = { viewModel.reimportClimate(true); showClimateReimport = false }) { Text(stringResource(R.string.ui_remove_edits_and_import_all_7f0b4a1), color = MaterialTheme.colorScheme.error) }
             } },
-            dismissButton = { TextButton(onClick = { showClimateReimport = false }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { showClimateReimport = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
         )
     }
     if (showClearClimate) {
         AlertDialog(
             onDismissRequest = { showClearClimate = false },
-            title = { Text("Clear climate view?") },
-            text = { Text("This removes all imported climate entities from this view.") },
-            confirmButton = { TextButton(onClick = { viewModel.clearClimateImports(); showClearClimate = false }) { Text("Clear", color = MaterialTheme.colorScheme.error) } },
-            dismissButton = { TextButton(onClick = { showClearClimate = false }) { Text("Cancel") } }
+            title = { Text(stringResource(R.string.ui_clear_climate_view_9a1339c)) },
+            text = { Text(stringResource(R.string.ui_this_removes_all_imported_climate_entities_from_this_view_713f511)) },
+            confirmButton = { TextButton(onClick = { viewModel.clearClimateImports(); showClearClimate = false }) { Text(stringResource(R.string.ui_clear_719ea39), color = MaterialTheme.colorScheme.error) } },
+            dismissButton = { TextButton(onClick = { showClearClimate = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
         )
     }
 
     val pageTitle = when (page) {
-        "fans" -> "Fans"; "purifiers" -> "Air purifiers"; "humidifiers" -> "Humidifiers"
-        else -> activeGroup?.title ?: "Climate"
+        "fans" -> stringResource(R.string.ui_fans_73d38db); "purifiers" -> stringResource(R.string.ui_air_purifiers_476147b); "humidifiers" -> stringResource(R.string.ui_humidifiers_aa38e2a)
+        else -> activeGroup?.let { stringResource(it.titleRes) } ?: stringResource(R.string.ui_climate_4857860)
     }
     val pageSubtitle = when (page) {
-        "fans" -> "Air circulation devices"; "purifiers" -> "Air cleaning devices"; "humidifiers" -> "Humidity control devices"
-        else -> activeGroup?.subtitle ?: "Indoor comfort"
+        "fans" -> stringResource(R.string.ui_air_circulation_devices_a14e95d); "purifiers" -> stringResource(R.string.ui_air_cleaning_devices_4364277); "humidifiers" -> stringResource(R.string.ui_humidity_control_devices_c7e4846)
+        else -> activeGroup?.let { stringResource(it.subtitleRes) } ?: stringResource(R.string.ui_indoor_comfort_7060319)
     }
     HKIPage(
         viewModel = viewModel,
         title = pageTitle,
         subtitle = pageSubtitle,
         pageKey = CLIMATE_PAGE_KEY,
-        pageSettingsTitle = "Climate Settings",
+        pageSettingsTitle = stringResource(R.string.cr_climate_settings),
         extraPageSettingsSection = climateAppearanceSection,
         additionalPageSettingsSections = listOf(climateSettingsSection, climateImportSection),
         showBadgeBar = false,
@@ -617,7 +624,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
             else -> if (climateConfig.manualOnly && climateEntities.isEmpty() && groupSensors.values.all { it.isEmpty() } && fanEntities.isEmpty() && humidifierEntities.isEmpty()) {
                 EmptyEditHint(
                     Modifier.fillMaxSize().padding(padding),
-                    "This is an empty climate view. Swipe down on the header and open Climate Settings to add entities manually."
+                    stringResource(R.string.cr_empty_climate_view)
                 )
             } else LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding),
@@ -671,28 +678,31 @@ fun ClimateScreen(viewModel: MainViewModel) {
                             val values = if (outsideWeather?.temperature != null) listOf(outsideWeather.temperature!!) else summarySensors.mapNotNull { it.numericState().let { v -> v?.toDouble() } }
                             val unit = outsideWeather?.attributes?.get("temperature_unit")?.jsonPrimitive?.contentOrNull ?: summarySensors.firstOrNull()?.unit() ?: ""
                             val avg = if (values.isNotEmpty()) values.average().toFloat() else null
-                            val status = buildString {
-                                append("${sensors.size} sensor${if (sensors.size == 1) "" else "s"}")
-                                if (avg != null) append(" · avg ${formatValue(avg)}${if (unit.isNotBlank()) " $unit" else ""}")
-                            }
-                            add(TileSpec(group.icon, group.color, group.title, status, group.key))
+                            val countLabel = pluralStringResource(R.plurals.cr_sensor_count, sensors.size, sensors.size)
+                            val status = if (avg == null) countLabel else stringResource(
+                                R.string.cr_count_with_average,
+                                countLabel,
+                                formatValue(avg),
+                                if (unit.isNotBlank()) " $unit" else ""
+                            )
+                            add(TileSpec(group.icon, group.color, stringResource(group.titleRes), status, group.key))
                         }
                         if (fanEntities.isNotEmpty()) {
                             val on = fanEntities.count { it.state == "on" }
-                            add(TileSpec(Icons.Default.Air, CoolBlue, "Fans",
-                                "${fanEntities.size} device${if (fanEntities.size == 1) "" else "s"} · $on on",
+                            add(TileSpec(Icons.Default.Air, CoolBlue, stringResource(R.string.cr_climate_fans),
+                                pluralStringResource(R.plurals.cr_device_count_on, fanEntities.size, fanEntities.size, on),
                                 "fans"))
                         }
                         if (purifierEntities.isNotEmpty()) {
                             val on = purifierEntities.count { it.state == "on" }
-                            add(TileSpec(Icons.Default.Air, AirGreen, "Air purifiers",
-                                "${purifierEntities.size} device${if (purifierEntities.size == 1) "" else "s"} · $on on",
+                            add(TileSpec(Icons.Default.Air, AirGreen, stringResource(R.string.cr_climate_air_purifiers),
+                                pluralStringResource(R.plurals.cr_device_count_on, purifierEntities.size, purifierEntities.size, on),
                                 "purifiers"))
                         }
                         if (humidifierEntities.isNotEmpty()) {
                             val on = humidifierEntities.count { it.state == "on" }
-                            add(TileSpec(Icons.Default.WaterDrop, MistCyan, "Humidifiers",
-                                "${humidifierEntities.size} device${if (humidifierEntities.size == 1) "" else "s"} · $on on",
+                            add(TileSpec(Icons.Default.WaterDrop, MistCyan, stringResource(R.string.cr_climate_humidifiers),
+                                pluralStringResource(R.plurals.cr_device_count_on, humidifierEntities.size, humidifierEntities.size, on),
                                 "humidifiers"))
                         }
                     }
@@ -726,7 +736,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
                             shape = itemCornerShape(), color = appColors.elevated
                         ) {
                             Text(
-                                "No climate devices found. Thermostats and AC units from Home Assistant appear here automatically.",
+                                stringResource(R.string.ui_no_climate_devices_found_thermostats_and_ac_units_from_2e47541),
                                 style = MaterialTheme.typography.bodySmall, color = appColors.onMuted,
                                 modifier = Modifier.padding(16.dp)
                             )
@@ -738,7 +748,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
                         item {
                             Box(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
                                 OutlinedButton(onClick = { showReorderDevices = true }, modifier = Modifier.fillMaxWidth()) {
-                                    Icon(Icons.Default.SwapVert, null); Spacer(Modifier.width(8.dp)); Text("Reorder devices")
+                                    Icon(Icons.Default.SwapVert, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.ui_reorder_devices_8bcc061))
                                 }
                             }
                         }
@@ -789,14 +799,14 @@ private fun ClimateEntitySearchBar(
     val appColors = LocalHKIAppColors.current
     var expanded by rememberSaveable { mutableStateOf(false) }
     val sortLabel = when (sortMode) {
-        "name_asc" -> "Name A-Z"
-        "name_desc" -> "Name Z-A"
-        else -> "Custom order"
+        "name_asc" -> stringResource(R.string.ui_name_a_z_257c1c4)
+        "name_desc" -> stringResource(R.string.ui_name_z_a_daabfb6)
+        else -> stringResource(R.string.ui_custom_order_a7a5984)
     }
     val summary = buildList {
         if (query.isNotBlank()) add("\"${query.trim()}\"")
         if (sortMode != "custom") add(sortLabel)
-    }.joinToString(" - ").ifBlank { "No search active · $sortLabel" }
+    }.joinToString(" - ").ifBlank { stringResource(R.string.cr_no_search_active, sortLabel) }
 
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(
@@ -810,12 +820,14 @@ private fun ClimateEntitySearchBar(
             Icon(Icons.Default.Search, null, tint = appColors.onSurface, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
             Column(Modifier.weight(1f)) {
-                Text("Search & sort", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.ui_search_sort_9fe6cb4), color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                 Text(summary, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             Icon(
                 if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                contentDescription = if (expanded) "Collapse search" else "Expand search",
+                    contentDescription = stringResource(
+                        if (expanded) R.string.cr_collapse_search else R.string.cr_expand_search
+                    ),
                 tint = appColors.onMuted
             )
         }
@@ -823,7 +835,7 @@ private fun ClimateEntitySearchBar(
             OutlinedTextField(
                 value = query,
                 onValueChange = onQueryChange,
-                label = { Text("Search by name") },
+                label = { Text(stringResource(R.string.ui_search_by_name_28abc03)) },
                 leadingIcon = { Icon(Icons.Default.Search, null) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
@@ -833,9 +845,9 @@ private fun ClimateEntitySearchBar(
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
             ) {
                 listOf(
-                    "custom" to "Custom order",
-                    "name_asc" to "Name A-Z",
-                    "name_desc" to "Name Z-A"
+                    "custom" to stringResource(R.string.cr_custom_order),
+                    "name_asc" to stringResource(R.string.cr_name_a_z),
+                    "name_desc" to stringResource(R.string.cr_name_z_a)
                 ).forEach { (value, label) ->
                     FilterChip(
                         selected = sortMode == value,
@@ -847,7 +859,7 @@ private fun ClimateEntitySearchBar(
             }
             if (query.isNotBlank()) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                    TextButton(onClick = { onQueryChange("") }) { Text("Clear search") }
+                    TextButton(onClick = { onQueryChange("") }) { Text(stringResource(R.string.ui_clear_search_67300d0)) }
                 }
             }
         }
@@ -880,36 +892,44 @@ private fun ClimateDeviceSettingsDialog(
     AlertDialog(
         stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { com.jimz011apps.hki7.ui.components.ModernSettingsDialogTitle("Climate device", "Display name and linked sensors") },
+        title = {
+            com.jimz011apps.hki7.ui.components.ModernSettingsDialogTitle(
+                stringResource(R.string.cr_climate_device),
+                stringResource(R.string.cr_climate_device_subtitle)
+            )
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 com.jimz011apps.hki7.ui.components.SettingsTabRow(
-                    tabs = listOf("identity" to "Identity", "appearance" to "Appearance"),
+                tabs = listOf(
+                    "identity" to stringResource(R.string.cr_identity),
+                    "appearance" to stringResource(R.string.cr_appearance)
+                ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
                 )
                 if (settingsPage == "identity") {
-                com.jimz011apps.hki7.ui.components.SettingsSubcategory("Identity", "Optional name and icon overrides")
+                com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_identity_7e5a975), stringResource(R.string.ui_optional_name_and_icon_overrides_5dfd062))
                 OutlinedTextField(
                     value = name, onValueChange = { name = it },
-                    label = { Text("Name") },
+                    label = { Text(stringResource(R.string.ui_name_709a232)) },
                     placeholder = { Text(entity.friendlyName ?: entity.entity_id) },
                     singleLine = true, modifier = Modifier.fillMaxWidth()
                 )
                 }
                 if (settingsPage == "appearance") {
-                com.jimz011apps.hki7.ui.components.SettingsSubcategory("Appearance", "Card shape and width")
-                Text("Shape", style = MaterialTheme.typography.labelLarge)
+                com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_appearance_41def7a), stringResource(R.string.ui_card_shape_and_width_0d513f7))
+                Text(stringResource(R.string.ui_shape_ea5c1a2), style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = shape == "standard", onClick = { shape = "standard" }, label = { Text("Standard") })
-                    FilterChip(selected = shape == "square", onClick = { shape = "square" }, label = { Text("Square") })
+                    FilterChip(selected = shape == "standard", onClick = { shape = "standard" }, label = { Text(stringResource(R.string.ui_standard_2dfa660)) })
+                    FilterChip(selected = shape == "square", onClick = { shape = "square" }, label = { Text(stringResource(R.string.ui_square_82810cb)) })
                 }
                 WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = config.defaultDeviceCardStyle != "dial")
-                Text("Icon", style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.ui_icon_716f63b), style = MaterialTheme.typography.labelLarge)
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (icon.isNotBlank()) MdiIcon(icon, size = 20.dp)
-                    TextButton(onClick = { showIconPicker = true }) { Text(if (icon.isBlank()) "Choose" else "Change") }
-                    if (icon.isNotBlank()) TextButton(onClick = { icon = "" }) { Text("Default") }
+                    TextButton(onClick = { showIconPicker = true }) { Text(if (icon.isBlank()) stringResource(R.string.ui_choose_78b7c9f) else stringResource(R.string.ui_change_64fbd99)) }
+                    if (icon.isNotBlank()) TextButton(onClick = { icon = "" }) { Text(stringResource(R.string.ui_default_808d7dc)) }
                 }
                 }
             }
@@ -924,9 +944,9 @@ private fun ClimateDeviceSettingsDialog(
                     deviceCardWidths = if (width == config.defaultDeviceCardWidth) config.deviceCardWidths - id else config.deviceCardWidths + (id to width),
                     deviceCardShapes = if (shape == "standard") config.deviceCardShapes - id else config.deviceCardShapes + (id to shape)
                 ))
-            }) { Text("Save") }
+            }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
     )
 }
 
@@ -945,6 +965,7 @@ private fun ClimateHero(
     modifier: Modifier = Modifier
 ) {
     val appColors = LocalHKIAppColors.current
+    val locale = LocalConfiguration.current.locales[0]
     val temps = tempSensors.mapNotNull { it.numericState() }
     val hums = humiditySensors.mapNotNull { it.numericState() }
     val avgTemp = if (temps.isNotEmpty()) temps.average().toFloat() else null
@@ -991,17 +1012,17 @@ private fun ClimateHero(
         else -> SafeClimateGreen
     }
     val statusLabel = when {
-        mixedThermal -> "Mixed climate"
-        heating -> "Heating"
-        cooling -> "Cooling"
-        drying -> "Drying"
-        defrosting -> "Defrosting"
-        humidifying -> "Humidifying"
-        fanActive -> "Air circulating"
-        atTarget && enabledCount > 0 -> "At target"
-        enabledCount > 0 -> "Systems idle"
-        hasReadings -> "Monitoring"
-        else -> "No climate data"
+        mixedThermal -> stringResource(R.string.ui_mixed_climate_5d22eb9)
+        heating -> stringResource(R.string.ui_heating_f2a3e6e)
+        cooling -> stringResource(R.string.ui_cooling_5569ac4)
+        drying -> stringResource(R.string.ui_drying_7ea61a9)
+        defrosting -> stringResource(R.string.ui_defrosting_c3b2817)
+        humidifying -> stringResource(R.string.ui_humidifying_5d5f6c5)
+        fanActive -> stringResource(R.string.ui_air_circulating_273e82b)
+        atTarget && enabledCount > 0 -> stringResource(R.string.ui_at_target_6a8dbb5)
+        enabledCount > 0 -> stringResource(R.string.ui_systems_idle_584a6f0)
+        hasReadings -> stringResource(R.string.ui_monitoring_a814345)
+        else -> stringResource(R.string.ui_no_climate_data_37d45e0)
     }
     // Match the Energy scene: the illustration sits directly on the page. Only the compact data
     // pills have surfaces; there is no opaque card or wash behind the house.
@@ -1027,16 +1048,16 @@ private fun ClimateHero(
             Column(
                 modifier = Modifier.align(Alignment.TopStart).padding(start = 14.dp, top = 8.dp)
             ) {
-                Text("INDOOR AVERAGE", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.ui_indoor_average_53abf03), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted, fontWeight = FontWeight.SemiBold)
                 Row(verticalAlignment = Alignment.Top) {
-                    Text(avgTemp?.let { "%.1f".format(Locale.getDefault(), it) } ?: "—", style = MaterialTheme.typography.headlineMedium, color = appColors.onSurface, fontWeight = FontWeight.Bold)
+                    Text(avgTemp?.let { "%.1f".format(locale, it) } ?: "—", style = MaterialTheme.typography.headlineMedium, color = appColors.onSurface, fontWeight = FontWeight.Bold)
                     if (avgTemp != null) Text(tempUnit, style = MaterialTheme.typography.labelLarge, color = sceneAccent, modifier = Modifier.padding(top = 4.dp, start = 2.dp))
                 }
                 if (avgOutside != null) {
                     Spacer(Modifier.height(2.dp))
-                    Text("OUTSIDE", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.ui_outside_cbbef8c), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted, fontWeight = FontWeight.SemiBold)
                     Row(verticalAlignment = Alignment.Top) {
-                        Text("%.1f".format(Locale.getDefault(), avgOutside), style = MaterialTheme.typography.titleMedium, color = appColors.onSurface, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.ui_1f_16b5d7d).format(locale, avgOutside), style = MaterialTheme.typography.titleMedium, color = appColors.onSurface, fontWeight = FontWeight.Bold)
                         Text(outsideUnit, style = MaterialTheme.typography.labelSmall, color = sceneAccent, modifier = Modifier.padding(top = 2.dp, start = 2.dp))
                     }
                 }
@@ -1054,11 +1075,12 @@ private fun ClimateHero(
         }
         FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
             HeroStat(Icons.Default.WaterDrop, HumidBlue,
-                avgHum?.let { "${formatValue(it)}%" } ?: "—", "Humidity")
+                avgHum?.let { "${formatValue(it)}%" } ?: "—", stringResource(R.string.cr_climate_humidity))
             HeroStat(Icons.Default.Thermostat, TempWarm,
-                "${tempSensors.size}", "Temp sensors")
+                "${tempSensors.size}", stringResource(R.string.cr_temperature_sensors))
             HeroStat(Icons.Default.HeatPump, Co2Teal,
-                "$activeCount of $totalDeviceCount", "Devices active")
+                stringResource(R.string.cr_active_of_total, activeCount, totalDeviceCount),
+                stringResource(R.string.cr_devices_active))
         }
     }
 }
@@ -1098,16 +1120,16 @@ private fun ClimateHouseScene(
     val doorOpen by animateFloatAsState(
         targetValue = if (openDoorCount > 0) 1f else 0f,
         animationSpec = tween(850, easing = FastOutSlowInEasing),
-        label = "climateDoorOpen"
+        label = stringResource(R.string.ui_climatedooropen_026f1c8)
     )
     val windowOpen by animateFloatAsState(
         targetValue = if (openWindowCount > 0) 1f else 0f,
         animationSpec = tween(850, easing = FastOutSlowInEasing),
-        label = "climateWindowOpen"
+        label = stringResource(R.string.ui_climatewindowopen_9b0794a)
     )
-    val infinite = rememberInfiniteTransition(label = "climateHouse")
-    val phase by infinite.animateFloat(0f, 1f, infiniteRepeatable(tween(3200, easing = LinearEasing)), label = "airPhase")
-    val pulse by infinite.animateFloat(.62f, 1f, infiniteRepeatable(tween(2200, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "comfortPulse")
+    val infinite = rememberInfiniteTransition(label = stringResource(R.string.ui_climatehouse_9c0637a))
+    val phase by infinite.animateFloat(0f, 1f, infiniteRepeatable(tween(3200, easing = LinearEasing)), label = stringResource(R.string.ui_airphase_1f2d2b6))
+    val pulse by infinite.animateFloat(.62f, 1f, infiniteRepeatable(tween(2200, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = stringResource(R.string.ui_comfortpulse_100b63b))
 
     Canvas(modifier) {
         // Use a fixed design viewport and one scale for both axes. The hero is also available as a
@@ -1561,12 +1583,6 @@ private fun hvacModeIcon(mode: String): ImageVector = when (mode) {
     else -> Icons.Default.Thermostat
 }
 
-private fun hvacModeLabel(mode: String): String = when (mode) {
-    "heat_cool" -> "Heat/Cool"
-    "fan_only" -> "Fan"
-    else -> mode.replaceFirstChar(Char::uppercase)
-}
-
 @Composable
 private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: Int = LocalItemCornerRadius.current, isSquare: Boolean = false, iconOverride: String? = null) {
     val appColors = LocalHKIAppColors.current
@@ -1591,9 +1607,11 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, corner
         entity.swingHorizontalModes.isNotEmpty() || presetModes.isNotEmpty()
 
     val statusText = buildString {
-        append((if (localMode != entity.state) localMode else hvacAction ?: entity.state).replace('_', ' ').replaceFirstChar(Char::uppercase))
-        presetMode?.takeIf { it != "none" }?.let { append(" · ${it.replaceFirstChar(Char::uppercase)}") }
-        currentHumidity?.let { append(" · ${it.toInt()}%") }
+        append(localizedClimateModeLabel(if (localMode != entity.state) localMode else hvacAction ?: entity.state))
+        presetMode?.takeIf { it != "none" }?.let {
+            append(stringResource(R.string.ui_text_be10035, localizedClimateModeLabel(it)))
+        }
+        currentHumidity?.let { append(stringResource(R.string.ui_text_4ad598c, it.toInt())) }
     }
 
     Surface(
@@ -1626,7 +1644,7 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, corner
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            if (currentTemp != null) "${"%.1f".format(locale, currentTemp)}° current" else statusText,
+                            if (currentTemp != null) stringResource(R.string.ui_current_88a0a02, "%.1f".format(locale, currentTemp)) else statusText,
                             style = MaterialTheme.typography.labelSmall,
                             color = actionColor,
                             maxLines = 1,
@@ -1647,12 +1665,12 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, corner
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                "${"%.1f".format(locale, localTarget)}°",
+                                stringResource(R.string.ui_text_7f1f581, "%.1f".format(locale, localTarget)),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = actionColor,
                                 fontWeight = FontWeight.Bold
                             )
-                            Text("Target", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+                            Text(stringResource(R.string.ui_target_61ad50a), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
                         }
                         CompactTempStepButton(Icons.Default.Add, enabled = localTarget < maxTemp) {
                             localTarget = (localTarget + step).coerceAtMost(maxTemp)
@@ -1693,11 +1711,11 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, corner
                 if (currentTemp != null) {
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
-                            "%.1f°".format(locale, currentTemp),
+                            stringResource(R.string.ui_1f_b07a377).format(locale, currentTemp),
                             style = MaterialTheme.typography.headlineSmall,
                             color = appColors.onSurface, fontWeight = FontWeight.Bold
                         )
-                        Text("Current", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+                        Text(stringResource(R.string.ui_current_4fc0e2b), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
                     }
                 }
             }
@@ -1720,14 +1738,14 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, corner
                     ) {
                         Row(verticalAlignment = Alignment.Top) {
                             Text(
-                                "%.1f".format(locale, localTarget),
+                                stringResource(R.string.ui_1f_16b5d7d).format(locale, localTarget),
                                 style = MaterialTheme.typography.displaySmall,
                                 color = actionColor, fontWeight = FontWeight.Bold
                             )
                             Text("°", style = MaterialTheme.typography.titleLarge, color = actionColor,
                                 modifier = Modifier.padding(top = 4.dp))
                         }
-                        Text("Target", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+                        Text(stringResource(R.string.ui_target_61ad50a), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
                     }
                     TempStepButton(Icons.Default.Add, enabled = localTarget < maxTemp) {
                         localTarget = (localTarget + step).coerceAtMost(maxTemp)
@@ -1752,7 +1770,7 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, corner
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        if (expanded) "Less" else "Fan & modes",
+                        if (expanded) stringResource(R.string.ui_less_526cb74) else stringResource(R.string.ui_fan_modes_fbaa3df),
                         style = MaterialTheme.typography.labelMedium, color = appColors.onMuted
                     )
                     Icon(
@@ -1763,7 +1781,7 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, corner
                 if (expanded) {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         if (presetModes.isNotEmpty()) {
-                            ClimateChipGroup("Preset", presetModes, presetMode, centered = true) { mode ->
+                            ClimateChipGroup(stringResource(R.string.cr_climate_preset), presetModes, presetMode, centered = true) { mode ->
                                 viewModel.callService(
                                     "climate", "set_preset_mode",
                                     HAServiceCall(entity_id = entity.entity_id, preset_mode = mode)
@@ -1771,17 +1789,17 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, corner
                             }
                         }
                         if (entity.fanModes.isNotEmpty()) {
-                            ClimateChipGroup("Fan", entity.fanModes, entity.fanMode) {
+                            ClimateChipGroup(stringResource(R.string.cr_climate_fan), entity.fanModes, entity.fanMode) {
                                 viewModel.setClimateFanMode(entity.entity_id, it)
                             }
                         }
                         if (entity.swingModes.isNotEmpty()) {
-                            ClimateChipGroup("Swing", entity.swingModes, entity.swingMode) {
+                            ClimateChipGroup(stringResource(R.string.cr_climate_vertical_airflow), entity.swingModes, entity.swingMode) {
                                 viewModel.setClimateSwingMode(entity.entity_id, it)
                             }
                         }
                         if (entity.swingHorizontalModes.isNotEmpty()) {
-                            ClimateChipGroup("Swing (horizontal)", entity.swingHorizontalModes, entity.swingHorizontalMode) {
+                            ClimateChipGroup(stringResource(R.string.cr_climate_horizontal_airflow), entity.swingHorizontalModes, entity.swingHorizontalMode) {
                                 viewModel.setClimateSwingHorizontalMode(entity.entity_id, it)
                             }
                         }
@@ -1851,14 +1869,14 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
                     if (currentTemp != null) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                             MdiIcon("home-thermometer-outline", tint = appColors.onMuted, size = 17.dp)
-                            Text("%.1f °C".format(locale, currentTemp),
+                            Text(stringResource(R.string.ui_1f_c_5b83308).format(locale, currentTemp),
                                 style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
                         }
                     }
                     if (outdoorTemp != null) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                             MdiIcon("thermometer", tint = appColors.onMuted, size = 17.dp)
-                            Text("%.1f °C".format(locale, outdoorTemp),
+                            Text(stringResource(R.string.ui_1f_c_5b83308).format(locale, outdoorTemp),
                                 style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
                         }
                     }
@@ -1993,17 +2011,17 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
                                             style = bigStyle.copy(fontSize = bigStyle.fontSize * dialScale, lineHeight = bigStyle.fontSize * dialScale),
                                             color = appColors.onSurface, fontWeight = FontWeight.Bold, maxLines = 1)
                                         Column {
-                                            Text("°C",
+                                            Text(stringResource(R.string.ui_c_a178665),
                                                 style = unitStyle.copy(fontSize = unitStyle.fontSize * dialScale, lineHeight = unitStyle.fontSize * dialScale),
                                                 color = appColors.onSurface, fontWeight = FontWeight.SemiBold, maxLines = 1)
-                                            Text(".${parts.getOrElse(1) { "0" }}",
+                                            Text(stringResource(R.string.ui_text_33e0751, parts.getOrElse(1) { "0" }),
                                                 style = decStyle.copy(fontSize = decStyle.fontSize * dialScale, lineHeight = decStyle.fontSize * dialScale),
                                                 color = appColors.onSurface, fontWeight = FontWeight.SemiBold, maxLines = 1)
                                         }
                                     }
                                 } else {
                                     currentTemp?.let {
-                                        Text("%.1f°".format(locale, it),
+                                        Text(stringResource(R.string.ui_1f_b07a377).format(locale, it),
                                             style = fallbackStyle.copy(fontSize = fallbackStyle.fontSize * dialScale, lineHeight = fallbackStyle.fontSize * dialScale),
                                             color = appColors.onSurface, fontWeight = FontWeight.Bold, maxLines = 1)
                                     }
@@ -2027,7 +2045,12 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
                                 },
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.Remove, "Lower target", tint = Color.White, modifier = Modifier.size((22.dp * dialScale).coerceAtLeast(16.dp)))
+                        Icon(
+                            Icons.Default.Remove,
+                            stringResource(R.string.cr_lower_target),
+                            tint = Color.White,
+                            modifier = Modifier.size((22.dp * dialScale).coerceAtLeast(16.dp))
+                        )
                         }
                         Spacer(Modifier.width(ringWidth * 0.4f))
                         Box(
@@ -2038,7 +2061,12 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
                                 },
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.Add, "Raise target", tint = Color.White, modifier = Modifier.size((22.dp * dialScale).coerceAtLeast(16.dp)))
+                        Icon(
+                            Icons.Default.Add,
+                            stringResource(R.string.cr_raise_target),
+                            tint = Color.White,
+                            modifier = Modifier.size((22.dp * dialScale).coerceAtLeast(16.dp))
+                        )
                         }
                     }
                 }
@@ -2064,7 +2092,7 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
-                            hvacModeIcon(localMode), contentDescription = "Mode",
+                            hvacModeIcon(localMode), contentDescription = stringResource(R.string.ui_mode_a7b93d2),
                             tint = accent, modifier = Modifier.size(14.dp)
                         )
                     }
@@ -2076,7 +2104,7 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
                                 Icon(hvacModeIcon(mode), null, tint = hvacColor(mode), modifier = Modifier.size(18.dp))
                             },
                             text = {
-                                Text(hvacModeLabel(mode), fontWeight = if (mode == localMode) FontWeight.Bold else null)
+                    Text(localizedClimateModeLabel(mode), fontWeight = if (mode == localMode) FontWeight.Bold else null)
                             },
                             onClick = {
                                 modesOpen = false
@@ -2123,7 +2151,7 @@ private fun HvacModePillsRow(entity: HAEntity, viewModel: MainViewModel, selecte
                             tint = if (selected) modeColor else appColors.onMuted,
                             modifier = Modifier.size(16.dp))
                         Text(
-                            hvacModeLabel(mode),
+                                localizedClimateModeLabel(mode),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
                             color = if (selected) appColors.onSurface else appColors.onMuted
@@ -2200,7 +2228,7 @@ private fun ClimateChipGroup(
                     modifier = Modifier.clip(itemCornerShape()).clickable { onSelect(mode) }
                 ) {
                     Text(
-                        mode.split("_").joinToString(" ") { it.replaceFirstChar(Char::uppercase) },
+                        localizedClimateModeLabel(mode),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
                         color = if (selected) appColors.onSurface else appColors.onMuted,
@@ -2259,9 +2287,9 @@ private fun ClimateDeviceListPage(
                 ) {
                     Text(
                         when (deviceType) {
-                            "fans" -> "No fans found. Fan entities from Home Assistant appear here automatically."
-                            "purifiers" -> "No air purifiers configured. Add fan entities under Climate Settings → Climate Entities → Air purifiers."
-                            else -> "No humidifiers found. Humidifier entities from Home Assistant appear here automatically; extras can be added in Climate Settings."
+                            "fans" -> stringResource(R.string.ui_no_fans_found_fan_entities_from_home_assistant_appear_279dab7)
+                            "purifiers" -> stringResource(R.string.ui_no_air_purifiers_configured_add_fan_entities_under_climate_fd229a8)
+                            else -> stringResource(R.string.ui_no_humidifiers_found_humidifier_entities_from_home_assista_eeadbd7)
                         },
                         style = MaterialTheme.typography.bodySmall, color = appColors.onMuted,
                         modifier = Modifier.padding(16.dp)
@@ -2311,9 +2339,9 @@ private fun FanCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: In
                     )
                     Text(
                         buildString {
-                            append(if (isOn) "On" else entity.state.replaceFirstChar(Char::uppercase))
-                            entity.fanPresetMode?.let { append(" · ${it.replaceFirstChar(Char::uppercase)}") }
-                            if (isOn && percentage != null) append(" · $percentage%")
+            append(if (isOn) stringResource(R.string.ui_on_e0049a6) else localizedClimateModeLabel(entity.state))
+            entity.fanPresetMode?.let { append(stringResource(R.string.ui_text_be10035, localizedClimateModeLabel(it))) }
+                            if (isOn && percentage != null) append(stringResource(R.string.ui_text_4ad598c, percentage))
                         },
                         style = MaterialTheme.typography.bodySmall, color = color,
                         maxLines = 1, overflow = TextOverflow.Ellipsis
@@ -2333,7 +2361,7 @@ private fun FanCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: In
                         modifier = Modifier.weight(1f)
                     )
                     Text(
-                        "${localPct.toInt()}%",
+                        stringResource(R.string.ui_text_fc9db15, localPct.toInt()),
                         style = MaterialTheme.typography.labelMedium, color = appColors.onSurface,
                         fontWeight = FontWeight.SemiBold, modifier = Modifier.widthIn(min = 38.dp)
                     )
@@ -2341,7 +2369,7 @@ private fun FanCard(entity: HAEntity, viewModel: MainViewModel, cornerRadius: In
             }
             if (entity.fanPresetModes.isNotEmpty()) {
                 Spacer(Modifier.height(10.dp))
-                ClimateChipGroup("Mode", entity.fanPresetModes, entity.fanPresetMode) {
+                ClimateChipGroup(stringResource(R.string.cr_mode), entity.fanPresetModes, entity.fanPresetMode) {
                     viewModel.setFanPresetMode(entity.entity_id, it)
                 }
             }
@@ -2387,8 +2415,8 @@ private fun HumidifierCard(entity: HAEntity, viewModel: MainViewModel, fanEntity
                     )
                     Text(
                         buildString {
-                            append(if (isOn) (if (isDehumidifier) "Drying" else "Humidifying") else entity.state.replaceFirstChar(Char::uppercase))
-                            entity.humidifierMode?.let { append(" · ${it.replaceFirstChar(Char::uppercase)}") }
+            append(if (isOn) (if (isDehumidifier) stringResource(R.string.ui_drying_7ea61a9) else stringResource(R.string.ui_humidifying_5d5f6c5)) else localizedClimateModeLabel(entity.state))
+            entity.humidifierMode?.let { append(stringResource(R.string.ui_text_be10035, localizedClimateModeLabel(it))) }
                         },
                         style = MaterialTheme.typography.bodySmall, color = color,
                         maxLines = 1, overflow = TextOverflow.Ellipsis
@@ -2397,11 +2425,11 @@ private fun HumidifierCard(entity: HAEntity, viewModel: MainViewModel, fanEntity
                 if (current != null) {
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
-                            "${current.toInt()}%",
+                            stringResource(R.string.ui_text_fc9db15, current.toInt()),
                             style = MaterialTheme.typography.headlineSmall,
                             color = appColors.onSurface, fontWeight = FontWeight.Bold
                         )
-                        Text("Current", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+                        Text(stringResource(R.string.ui_current_4fc0e2b), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
                     }
                 }
                 Switch(checked = isOn, onCheckedChange = { viewModel.toggleEntity(entity.entity_id) })
@@ -2422,11 +2450,11 @@ private fun HumidifierCard(entity: HAEntity, viewModel: MainViewModel, fanEntity
                         modifier = Modifier.widthIn(min = 110.dp)
                     ) {
                         Text(
-                            "${localTarget.toInt()}%",
+                            stringResource(R.string.ui_text_fc9db15, localTarget.toInt()),
                             style = MaterialTheme.typography.displaySmall,
                             color = color, fontWeight = FontWeight.Bold
                         )
-                        Text("Target", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+                        Text(stringResource(R.string.ui_target_61ad50a), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
                     }
                     TempStepButton(Icons.Default.Add, enabled = localTarget < maxHum) {
                         localTarget = (localTarget + 5f).coerceAtMost(maxHum)
@@ -2438,7 +2466,7 @@ private fun HumidifierCard(entity: HAEntity, viewModel: MainViewModel, fanEntity
                 HumidifierSpeedControl(fanEntity, viewModel)
             } else if (modes.isNotEmpty()) {
                 Spacer(Modifier.height(10.dp))
-                ClimateChipGroup("Mode", modes, entity.humidifierMode) {
+                ClimateChipGroup(stringResource(R.string.cr_mode), modes, entity.humidifierMode) {
                     viewModel.setHumidifierMode(entity.entity_id, it)
                 }
             }
@@ -2466,12 +2494,12 @@ private fun HumidifierSpeedControl(fanEntity: HAEntity, viewModel: MainViewModel
                     valueRange = 0f..100f,
                     modifier = Modifier.weight(1f)
                 )
-                Text("${localPct.toInt()}%", style = MaterialTheme.typography.labelMedium, color = appColors.onSurface, fontWeight = FontWeight.SemiBold, modifier = Modifier.widthIn(min = 38.dp))
+                Text(stringResource(R.string.ui_text_fc9db15, localPct.toInt()), style = MaterialTheme.typography.labelMedium, color = appColors.onSurface, fontWeight = FontWeight.SemiBold, modifier = Modifier.widthIn(min = 38.dp))
             }
         }
         if (fanEntity.fanPresetModes.isNotEmpty()) {
             Spacer(Modifier.height(10.dp))
-            ClimateChipGroup("Fan speed", fanEntity.fanPresetModes, fanEntity.fanPresetMode) {
+            ClimateChipGroup(stringResource(R.string.cr_fan_speed), fanEntity.fanPresetModes, fanEntity.fanPresetMode) {
                 viewModel.setFanPresetMode(fanEntity.entity_id, it)
             }
         }
@@ -2480,7 +2508,7 @@ private fun HumidifierSpeedControl(fanEntity: HAEntity, viewModel: MainViewModel
         val options = (fanEntity.attributes?.get("options") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
         if (options.isNotEmpty()) {
             Spacer(Modifier.height(10.dp))
-            ClimateChipGroup("Speed", options, fanEntity.state) {
+            ClimateChipGroup(stringResource(R.string.cr_speed), options, fanEntity.state) {
                 viewModel.callService(domain, "select_option", HAServiceCall(entity_id = fanEntity.entity_id, option = it))
             }
         }
@@ -2515,17 +2543,32 @@ private fun ClimateSensorDetailPage(
         weatherEntity?.let { viewModel.fetchEntityHistory(it.entity_id, selectedHours.toLong(), significantChangesOnly = false) }
     }
 
-    data class WeatherAttrSpec(val key: String, val label: String, val unit: String, val color: Color)
+    data class WeatherAttrSpec(
+        val key: String,
+        @StringRes val labelRes: Int,
+        val unit: String,
+        val color: Color
+    )
     val weatherAttrSpecs = remember(weatherEntity) {
         if (weatherEntity == null) emptyList() else buildList {
             if (weatherEntity.temperature != null) add(
-                WeatherAttrSpec("temperature", "Outside temperature", weatherEntity.attributes?.get("temperature_unit")?.jsonPrimitive?.contentOrNull ?: "°C", TempWarm)
+                WeatherAttrSpec(
+                    "temperature",
+                    R.string.cr_outside_temperature,
+                    weatherEntity.attributes?.get("temperature_unit")?.jsonPrimitive?.contentOrNull ?: "°C",
+                    TempWarm
+                )
             )
             if (weatherEntity.humidity != null) add(
-                WeatherAttrSpec("humidity", "Outside humidity", "%", CoolBlue)
+                WeatherAttrSpec("humidity", R.string.cr_outside_humidity, "%", CoolBlue)
             )
             if (weatherEntity.pressure != null) add(
-                WeatherAttrSpec("pressure", "Outside pressure", weatherEntity.attributes?.get("pressure_unit")?.jsonPrimitive?.contentOrNull ?: "hPa", group.color)
+                WeatherAttrSpec(
+                    "pressure",
+                    R.string.cr_outside_pressure,
+                    weatherEntity.attributes?.get("pressure_unit")?.jsonPrimitive?.contentOrNull ?: "hPa",
+                    group.color
+                )
             )
         }
     }
@@ -2578,7 +2621,7 @@ private fun ClimateSensorDetailPage(
                             Icon(group.icon, null, tint = group.color, modifier = Modifier.size(18.dp))
                         }
                         Text(
-                            "${sensors.size} sensor${if (sensors.size == 1) "" else "s"}",
+                            pluralStringResource(R.plurals.cr_sensor_count, sensors.size, sensors.size),
                             style = MaterialTheme.typography.titleSmall, color = appColors.onSurface,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -2587,11 +2630,11 @@ private fun ClimateSensorDetailPage(
                         Spacer(Modifier.height(14.dp))
                         FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             HeroStat(Icons.Default.ArrowDownward, CoolBlue,
-                                "${formatValue(values.min())}${if (unit.isNotBlank()) " $unit" else ""}", "Lowest")
+                                "${formatValue(values.min())}${if (unit.isNotBlank()) " $unit" else ""}", stringResource(R.string.cr_lowest))
                             HeroStat(group.icon, group.color,
-                                "${formatValue(values.average().toFloat())}${if (unit.isNotBlank()) " $unit" else ""}", "Average")
+                                "${formatValue(values.average().toFloat())}${if (unit.isNotBlank()) " $unit" else ""}", stringResource(R.string.cr_average))
                             HeroStat(Icons.Default.ArrowUpward, TempWarm,
-                                "${formatValue(values.max())}${if (unit.isNotBlank()) " $unit" else ""}", "Highest")
+                                "${formatValue(values.max())}${if (unit.isNotBlank()) " $unit" else ""}", stringResource(R.string.cr_highest))
                         }
                     }
                 }
@@ -2613,7 +2656,7 @@ private fun ClimateSensorDetailPage(
                         sensorEntity = weatherEntity!!,
                         viewModel = viewModel,
                         lineColor = spec.color,
-                        titleOverride = spec.label,
+                        titleOverride = stringResource(spec.labelRes),
                         attributeKey = spec.key,
                         unitOverride = spec.unit
                     )
@@ -2628,7 +2671,10 @@ private fun ClimateSensorDetailPage(
                     shape = itemCornerShape(), color = appColors.elevated
                 ) {
                     Text(
-                        "No ${group.title.lowercase()} sensors found.",
+                        stringResource(
+                            R.string.cr_no_sensors_found_for,
+                            stringResource(group.titleRes).lowercase(Locale.getDefault())
+                        ),
                         style = MaterialTheme.typography.bodySmall, color = appColors.onMuted,
                         modifier = Modifier.padding(16.dp)
                     )
@@ -2668,15 +2714,18 @@ private fun ClimateAppearanceSection(
     var cfg by remember(climateConfig) { mutableStateOf(climateConfig) }
     Surface(modifier = Modifier.fillMaxWidth(), shape = itemCornerShape(), color = appColors.subtleSurface) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("All thermostats", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.ui_all_thermostats_59c8297), color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             Text(
-                "Set the control style for every thermostat on this Climate page. Standalone climate widgets keep their own layout settings.",
+                stringResource(R.string.ui_set_the_control_style_for_every_thermostat_on_this_de5cd1e),
                 color = appColors.onMuted,
                 style = MaterialTheme.typography.bodySmall
             )
-            Text("Control", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+            Text(stringResource(R.string.ui_control_ea1d3df), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("card" to "Climate control", "dial" to "Thermostat dial").forEach { (value, label) ->
+                listOf(
+                    "card" to R.string.cr_climate_control,
+                    "dial" to R.string.cr_thermostat_dial
+                ).forEach { (value, labelRes) ->
                     FilterChip(
                         selected = cfg.defaultDeviceCardStyle == value,
                         onClick = {
@@ -2689,13 +2738,17 @@ private fun ClimateAppearanceSection(
                             )
                             onSave(cfg)
                         },
-                        label = { Text(label) }
+                        label = { Text(stringResource(labelRes)) }
                     )
                 }
             }
-            Text("Width", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+            Text(stringResource(R.string.ui_width_a58ddf5), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("third" to "Third", "half" to "Half", "full" to "Full").forEach { (value, label) ->
+                listOf(
+                    "third" to R.string.cr_width_third,
+                    "half" to R.string.cr_width_half,
+                    "full" to R.string.cr_width_full
+                ).forEach { (value, labelRes) ->
                     FilterChip(
                         selected = cfg.defaultDeviceCardWidth == value,
                         enabled = value != "third" || cfg.defaultDeviceCardStyle != "dial",
@@ -2703,7 +2756,7 @@ private fun ClimateAppearanceSection(
                             cfg = cfg.copy(defaultDeviceCardWidth = value, deviceCardWidths = emptyMap())
                             onSave(cfg)
                         },
-                        label = { Text(label) }
+                        label = { Text(stringResource(labelRes)) }
                     )
                 }
             }
@@ -2779,18 +2832,18 @@ private fun ClimateSensorSection(
     }
 
     val categoryTitles = buildMap {
-        climateSensorGroups.forEach { put(it.key, it.title) }
-        put("climate", "Thermostats & AC")
-        put("purifiers", "Air purifiers")
-        put("humidifiers", "Humidifiers")
-        put("hidden", "Removed entities")
+        climateSensorGroups.forEach { put(it.key, stringResource(it.titleRes)) }
+        put("climate", stringResource(R.string.cr_card_thermostats_ac))
+        put("purifiers", stringResource(R.string.cr_climate_air_purifiers))
+        put("humidifiers", stringResource(R.string.cr_climate_humidifiers))
+        put("hidden", stringResource(R.string.cr_removed_entities))
     }
 
     if (showPicker && category != null && category != "hidden" && category != "outside") {
         val cat = category!!
         AdvancedEntitySearchDialog(
             allEntities = pickerEntities(cat),
-            title = "Select ${categoryTitles[cat]}",
+            title = stringResource(R.string.ui_select_0fc8ec5, categoryTitles[cat].orEmpty()),
             singleSelect = false,
             preselectedIds = manualIds(cat).toSet(),
             onDismiss = { showPicker = false },
@@ -2802,9 +2855,14 @@ private fun ClimateSensorSection(
     }
 
     outsidePickerType?.let { type ->
+        val outsideLabel = when (type) {
+            "temperature" -> stringResource(R.string.cr_outside_temperature)
+            "humidity" -> stringResource(R.string.cr_outside_humidity)
+            else -> stringResource(R.string.cr_outside_air_pressure)
+        }
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter { it.entity_id.startsWith("sensor.") },
-            title = "Select outside ${type}",
+            title = stringResource(R.string.cr_select_item, outsideLabel),
             singleSelect = false,
             preselectedIds = outsideIds(type).toSet(),
             onDismiss = { outsidePickerType = null },
@@ -2815,7 +2873,7 @@ private fun ClimateSensorSection(
     if (outsideWeatherPicker) {
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter { it.entity_id.startsWith("weather.") },
-            title = "Outside weather entity",
+            title = stringResource(R.string.ui_outside_weather_entity_98e8465),
             singleSelect = true,
             preselectedIds = setOfNotNull(cfg.outsideWeatherEntityId),
             onDismiss = { outsideWeatherPicker = false },
@@ -2827,7 +2885,7 @@ private fun ClimateSensorSection(
         AdvancedEntitySearchDialog(
             // A humidifier's speed source can be a fan, or a select / input_select of speed options.
             allEntities = allEntities.filter { it.entity_id.startsWith("fan.") || it.entity_id.startsWith("select.") || it.entity_id.startsWith("input_select.") },
-            title = "Link a speed control",
+            title = stringResource(R.string.ui_link_a_speed_control_197d75a),
             singleSelect = true,
             preselectedIds = setOfNotNull(cfg.humidifierFanEntityIds[humId]),
             onDismiss = { fanPickerForHumidifier = null },
@@ -2861,29 +2919,54 @@ private fun ClimateSensorSection(
 
     if (category == null) {
         climateSensorGroups.forEach { group ->
+            val groupTitle = stringResource(group.titleRes)
             if (group.key == "outside") {
                 val count = cfg.outsideTemperatureIds.size + cfg.outsideHumidityIds.size + cfg.outsidePressureIds.size
-                categoryButton(group.key, group.title,
-                    if (count > 0) "$count outside sensors set" else "Set outdoor temp / humidity / pressure",
+                categoryButton(group.key, groupTitle,
+                    if (count > 0) {
+                        pluralStringResource(R.plurals.cr_outside_sensors_set, count, count)
+                    } else {
+                        stringResource(R.string.cr_set_outdoor_sensors)
+                    },
                     group.icon, group.color)
             } else {
                 val extraCount = cfg.extraSensorIds[group.key].orEmpty().size
-                categoryButton(group.key, group.title,
-                    if (extraCount > 0) "Auto-discovered + $extraCount manual" else "Auto-discovered by device class",
+                categoryButton(group.key, groupTitle,
+                    if (extraCount > 0) {
+                        pluralStringResource(R.plurals.cr_auto_plus_manual, extraCount, extraCount)
+                    } else {
+                        stringResource(R.string.cr_auto_discovered_device_class)
+                    },
                     group.icon, group.color)
             }
         }
-        categoryButton("climate", "Thermostats & AC",
-            if (cfg.extraClimateIds.isEmpty()) "Auto-discovered climate devices" else "Auto + ${cfg.extraClimateIds.size} manual",
+        categoryButton("climate", stringResource(R.string.cr_card_thermostats_ac),
+            if (cfg.extraClimateIds.isEmpty()) {
+                stringResource(R.string.cr_auto_discovered_climate_devices)
+            } else {
+                pluralStringResource(R.plurals.cr_auto_plus_manual, cfg.extraClimateIds.size, cfg.extraClimateIds.size)
+            },
             Icons.Default.Thermostat, TempWarm)
-        categoryButton("purifiers", "Air purifiers",
-            if (cfg.purifierEntityIds.isEmpty()) "Pick fan entities to treat as purifiers" else "${cfg.purifierEntityIds.size} selected",
+        categoryButton("purifiers", stringResource(R.string.cr_climate_air_purifiers),
+            if (cfg.purifierEntityIds.isEmpty()) {
+                stringResource(R.string.cr_pick_fan_entities_as_purifiers)
+            } else {
+                pluralStringResource(R.plurals.cr_selected_count, cfg.purifierEntityIds.size, cfg.purifierEntityIds.size)
+            },
             Icons.Default.Air, AirGreen)
-        categoryButton("humidifiers", "Humidifiers",
-            if (cfg.extraHumidifierIds.isEmpty()) "Auto-discovered humidifier devices" else "Auto + ${cfg.extraHumidifierIds.size} manual",
+        categoryButton("humidifiers", stringResource(R.string.cr_climate_humidifiers),
+            if (cfg.extraHumidifierIds.isEmpty()) {
+                stringResource(R.string.cr_auto_discovered_humidifier_devices)
+            } else {
+                pluralStringResource(R.plurals.cr_auto_plus_manual, cfg.extraHumidifierIds.size, cfg.extraHumidifierIds.size)
+            },
             Icons.Default.WaterDrop, MistCyan)
-        categoryButton("hidden", "Removed entities",
-            if (cfg.hiddenEntityIds.isEmpty()) "Entities removed in edit mode" else "${cfg.hiddenEntityIds.size} removed",
+        categoryButton("hidden", stringResource(R.string.cr_removed_entities),
+            if (cfg.hiddenEntityIds.isEmpty()) {
+                stringResource(R.string.cr_entities_removed_edit_mode)
+            } else {
+                pluralStringResource(R.plurals.cr_removed_count, cfg.hiddenEntityIds.size, cfg.hiddenEntityIds.size)
+            },
             Icons.Default.VisibilityOff, appColors.onMuted)
         return
     }
@@ -2891,12 +2974,12 @@ private fun ClimateSensorSection(
     if (category == "hidden") {
         if (cfg.hiddenEntityIds.isEmpty()) {
             Text(
-                "Nothing removed. Use edit mode on the Climate page to remove cards; they land here and can be restored.",
+                stringResource(R.string.ui_nothing_removed_use_edit_mode_on_the_climate_page_dd07910),
                 style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
             )
         } else {
             Text(
-                "Removed entities are excluded from cards, graphs, tiles and averages. Tap ✕ to restore.",
+                stringResource(R.string.ui_removed_entities_are_excluded_from_cards_graphs_tiles_and_628e91a),
                 style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
             )
             cfg.hiddenEntityIds.forEach { id ->
@@ -2918,7 +3001,12 @@ private fun ClimateSensorSection(
                         },
                         modifier = Modifier.size(28.dp)
                     ) {
-                        Icon(Icons.Default.Close, "Restore", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+                        Icon(
+                            Icons.Default.Close,
+                            stringResource(R.string.cr_restore),
+                            tint = appColors.onMuted,
+                            modifier = Modifier.size(16.dp)
+                        )
                     }
                 }
                 HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
@@ -2931,29 +3019,38 @@ private fun ClimateSensorSection(
     // auto-discovered, since we can't know which sensors are outdoors.
     if (category == "outside") {
         Text(
-            "Outside is never auto-detected. Either link a weather entity (it usually carries temperature, humidity and pressure) or pick individual outdoor sensors below. The temperature feeds the Outside tile and the hero's outside reading.",
+            stringResource(R.string.ui_outside_is_never_auto_detected_either_link_a_weather_eb8cc14),
             style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
         )
-        Text("Weather entity", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+        Text(stringResource(R.string.ui_weather_entity_402cbd9), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
         Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(cfg.outsideWeatherEntityId?.let { entityName(it) } ?: "None", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = if (cfg.outsideWeatherEntityId != null) MaterialTheme.colorScheme.primary else appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            TextButton(onClick = { outsideWeatherPicker = true }) { Text("Change") }
-            if (cfg.outsideWeatherEntityId != null) TextButton(onClick = { cfg = cfg.copy(outsideWeatherEntityId = null); onSave(cfg) }) { Text("Clear") }
+            Text(cfg.outsideWeatherEntityId?.let { entityName(it) } ?: stringResource(R.string.ui_none_6eef664), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = if (cfg.outsideWeatherEntityId != null) MaterialTheme.colorScheme.primary else appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            TextButton(onClick = { outsideWeatherPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
+            if (cfg.outsideWeatherEntityId != null) TextButton(onClick = { cfg = cfg.copy(outsideWeatherEntityId = null); onSave(cfg) }) { Text(stringResource(R.string.ui_clear_719ea39)) }
         }
         HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
-        listOf("temperature" to "Outside temperature", "humidity" to "Outside humidity", "pressure" to "Outside air pressure").forEach { (type, label) ->
-            Text(label, style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+        listOf(
+            "temperature" to R.string.cr_outside_temperature,
+            "humidity" to R.string.cr_outside_humidity,
+            "pressure" to R.string.cr_outside_air_pressure
+        ).forEach { (type, labelRes) ->
+            Text(stringResource(labelRes), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
             outsideIds(type).forEach { id ->
                 Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(entityName(id), style = MaterialTheme.typography.labelMedium, color = appColors.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
                     IconButton(onClick = { saveOutsideIds(type, outsideIds(type) - id) }, modifier = Modifier.size(28.dp)) {
-                        Icon(Icons.Default.Close, "Remove", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+                        Icon(
+                            Icons.Default.Close,
+                            stringResource(R.string.cr_remove),
+                            tint = appColors.onMuted,
+                            modifier = Modifier.size(16.dp)
+                        )
                     }
                 }
             }
             TextButton(onClick = { outsidePickerType = type }) {
                 Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(6.dp))
-                Text(if (outsideIds(type).isEmpty()) "Add sensors" else "Edit sensors")
+                Text(if (outsideIds(type).isEmpty()) stringResource(R.string.ui_add_sensors_d6df16f) else stringResource(R.string.ui_edit_sensors_6c38d51))
             }
             HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
         }
@@ -2964,10 +3061,10 @@ private fun ClimateSensorSection(
     val cat = category!!
     Text(
         when (cat) {
-            "climate" -> "Climate devices are found automatically; add extra entities here if any are missing."
-            "purifiers" -> "Air purifiers are fan entities in Home Assistant, so they can't be auto-detected. Select yours here."
-            "humidifiers" -> "Humidifiers are found automatically from the humidifier domain; add extra entities here if any are missing."
-            else -> "${categoryTitles[cat]} sensors are found automatically by device class; add sensors missing that class here."
+            "climate" -> stringResource(R.string.ui_climate_devices_are_found_automatically_add_extra_entities_5ebd8b7)
+            "purifiers" -> stringResource(R.string.ui_air_purifiers_are_fan_entities_in_home_assistant_so_3fa4fdb)
+            "humidifiers" -> stringResource(R.string.ui_humidifiers_are_found_automatically_from_the_humidifier_do_0717429)
+            else -> stringResource(R.string.ui_sensors_are_found_automatically_by_device_class_add_sensor_150bab5, categoryTitles[cat].orEmpty())
         },
         style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
     )
@@ -2983,7 +3080,12 @@ private fun ClimateSensorSection(
                 onClick = { saveManualIds(cat, manualIds(cat) - id) },
                 modifier = Modifier.size(28.dp)
             ) {
-                Icon(Icons.Default.Close, "Remove", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+                Icon(
+                    Icons.Default.Close,
+                    stringResource(R.string.cr_remove),
+                    tint = appColors.onMuted,
+                    modifier = Modifier.size(16.dp)
+                )
             }
         }
         HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
@@ -2991,7 +3093,7 @@ private fun ClimateSensorSection(
     TextButton(onClick = { showPicker = true }) {
         Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp))
         Spacer(Modifier.width(6.dp))
-        Text(if (manualIds(cat).isEmpty()) "Add entities" else "Edit entities")
+        Text(if (manualIds(cat).isEmpty()) stringResource(R.string.ui_add_entities_333152e) else stringResource(R.string.ui_edit_entities_485ee65))
     }
 
     // Per-humidifier linked fan: its speed options replace the humidifier's mode chips on the card.
@@ -2999,17 +3101,17 @@ private fun ClimateSensorSection(
         val humidifiers = (allEntities.filter { it.entity_id.startsWith("humidifier.") }.map { it.entity_id } + cfg.extraHumidifierIds).distinct()
         if (humidifiers.isNotEmpty()) {
             Spacer(Modifier.height(6.dp))
-            Text("Linked speed control (optional)", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
-            Text("Give a humidifier a fan / select / input_select to control its speed; its options replace the humidifier's mode chips, and modes move to the dialog's nav bar.", style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
+            Text(stringResource(R.string.ui_linked_speed_control_optional_95fd680), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+            Text(stringResource(R.string.ui_give_a_humidifier_a_fan_select_input_select_to_860be4d), style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
             humidifiers.forEach { humId ->
                 Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Column(Modifier.weight(1f)) {
                         Text(entityName(humId), style = MaterialTheme.typography.labelMedium, color = appColors.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         val fanId = cfg.humidifierFanEntityIds[humId]
-                        Text(fanId?.let { entityName(it) } ?: "No speed control linked", style = MaterialTheme.typography.bodySmall, color = if (fanId != null) MaterialTheme.colorScheme.primary else appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(fanId?.let { entityName(it) } ?: stringResource(R.string.ui_no_speed_control_linked_cb0e9ad), style = MaterialTheme.typography.bodySmall, color = if (fanId != null) MaterialTheme.colorScheme.primary else appColors.onMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
-                    TextButton(onClick = { fanPickerForHumidifier = humId }) { Text("Change") }
-                    if (cfg.humidifierFanEntityIds[humId] != null) TextButton(onClick = { saveLinkedFan(humId, null) }) { Text("Clear") }
+                    TextButton(onClick = { fanPickerForHumidifier = humId }) { Text(stringResource(R.string.ui_change_64fbd99)) }
+                    if (cfg.humidifierFanEntityIds[humId] != null) TextButton(onClick = { saveLinkedFan(humId, null) }) { Text(stringResource(R.string.ui_clear_719ea39)) }
                 }
                 HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
             }
@@ -3027,7 +3129,7 @@ private fun ClimateSectionHeader(trailing: String?) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("Thermostats", style = MaterialTheme.typography.titleMedium, color = appColors.onSurface, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.ui_thermostats_601da0c), style = MaterialTheme.typography.titleMedium, color = appColors.onSurface, fontWeight = FontWeight.Bold)
         if (trailing != null) {
             Text(trailing, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
         }
@@ -3073,21 +3175,26 @@ private fun ClimateLiveTile(
 // other pages, standalone or grouped in a climate stack (like the energy cards).
 // ═════════════════════════════════════════════════════════════════════════════
 
-data class ClimateCardSpec(val key: String, val label: String, val category: String, val mdiIcon: String)
+data class ClimateCardSpec(
+    val key: String,
+    @StringRes val labelRes: Int,
+    @StringRes val categoryRes: Int,
+    val mdiIcon: String
+)
 
 val climateCardCatalog = listOf(
-    ClimateCardSpec("hero", "Indoor climate overview", "Overview", "home-thermometer"),
-    ClimateCardSpec("tiles", "Sensor & device tiles", "Overview", "view-grid"),
-    ClimateCardSpec("thermostats", "Thermostats & AC", "Devices", "thermostat"),
-    ClimateCardSpec("dial", "Thermostat dial", "Devices", "knob"),
-    ClimateCardSpec("fans", "Fans", "Devices", "fan"),
-    ClimateCardSpec("purifiers", "Air purifiers", "Devices", "air-purifier"),
-    ClimateCardSpec("humidifiers", "Humidifiers", "Devices", "air-humidifier"),
-    ClimateCardSpec("temperature", "Temperature summary", "Sensors", "thermometer"),
-    ClimateCardSpec("humidity", "Humidity summary", "Sensors", "water-percent"),
-    ClimateCardSpec("pressure", "Air pressure summary", "Sensors", "gauge"),
-    ClimateCardSpec("co2", "CO₂ summary", "Sensors", "molecule-co2"),
-    ClimateCardSpec("air", "Air quality summary", "Sensors", "air-filter")
+    ClimateCardSpec("hero", R.string.cr_card_indoor_climate_overview, R.string.cr_category_overview, "home-thermometer"),
+    ClimateCardSpec("tiles", R.string.cr_card_sensor_device_tiles, R.string.cr_category_overview, "view-grid"),
+    ClimateCardSpec("thermostats", R.string.cr_card_thermostats_ac, R.string.cr_category_devices, "thermostat"),
+    ClimateCardSpec("dial", R.string.cr_thermostat_dial, R.string.cr_category_devices, "knob"),
+    ClimateCardSpec("fans", R.string.cr_climate_fans, R.string.cr_category_devices, "fan"),
+    ClimateCardSpec("purifiers", R.string.cr_climate_air_purifiers, R.string.cr_category_devices, "air-purifier"),
+    ClimateCardSpec("humidifiers", R.string.cr_climate_humidifiers, R.string.cr_category_devices, "air-humidifier"),
+    ClimateCardSpec("temperature", R.string.cr_card_temperature_summary, R.string.cr_category_sensors, "thermometer"),
+    ClimateCardSpec("humidity", R.string.cr_card_humidity_summary, R.string.cr_category_sensors, "water-percent"),
+    ClimateCardSpec("pressure", R.string.cr_card_air_pressure_summary, R.string.cr_category_sensors, "gauge"),
+    ClimateCardSpec("co2", R.string.cr_card_co2_summary, R.string.cr_category_sensors, "molecule-co2"),
+    ClimateCardSpec("air", R.string.cr_card_air_quality_summary, R.string.cr_category_sensors, "air-filter")
 )
 
 private data class ClimateWidgetData(
@@ -3283,26 +3390,72 @@ fun ClimateCardWidgetView(
                     val values = sensors.mapNotNull { it.numericState() }
                     val unit = sensors.firstOrNull()?.unit() ?: ""
                     val avg = if (values.isNotEmpty()) values.average().toFloat() else null
-                    val status = buildString {
-                        append("${sensors.size} sensor${if (sensors.size == 1) "" else "s"}")
-                        if (avg != null) append(" · avg ${formatValue(avg)}${if (unit.isNotBlank()) " $unit" else ""}")
+                    val sensorCount = pluralStringResource(R.plurals.cr_sensor_count, sensors.size, sensors.size)
+                    val status = if (avg == null) {
+                        sensorCount
+                    } else {
+                        stringResource(
+                            R.string.cr_count_with_average,
+                            sensorCount,
+                            formatValue(avg),
+                            if (unit.isNotBlank()) " $unit" else ""
+                        )
                     }
-                    add(TileSpec(group.icon, group.color, group.title, status))
+                    add(TileSpec(group.icon, group.color, stringResource(group.titleRes), status))
                 }
                 if (data.fanEntities.isNotEmpty()) {
                     val on = data.fanEntities.count { it.state == "on" }
-                    add(TileSpec(Icons.Default.Air, CoolBlue, "Fans", "${data.fanEntities.size} device${if (data.fanEntities.size == 1) "" else "s"} · $on on"))
+                    add(
+                        TileSpec(
+                            Icons.Default.Air,
+                            CoolBlue,
+                            stringResource(R.string.cr_climate_fans),
+                            pluralStringResource(
+                                R.plurals.cr_device_count_on,
+                                data.fanEntities.size,
+                                data.fanEntities.size,
+                                on
+                            )
+                        )
+                    )
                 }
                 if (data.purifierEntities.isNotEmpty()) {
                     val on = data.purifierEntities.count { it.state == "on" }
-                    add(TileSpec(Icons.Default.Air, AirGreen, "Air purifiers", "${data.purifierEntities.size} device${if (data.purifierEntities.size == 1) "" else "s"} · $on on"))
+                    add(
+                        TileSpec(
+                            Icons.Default.Air,
+                            AirGreen,
+                            stringResource(R.string.cr_climate_air_purifiers),
+                            pluralStringResource(
+                                R.plurals.cr_device_count_on,
+                                data.purifierEntities.size,
+                                data.purifierEntities.size,
+                                on
+                            )
+                        )
+                    )
                 }
                 if (data.humidifierEntities.isNotEmpty()) {
                     val on = data.humidifierEntities.count { it.state == "on" }
-                    add(TileSpec(Icons.Default.WaterDrop, MistCyan, "Humidifiers", "${data.humidifierEntities.size} device${if (data.humidifierEntities.size == 1) "" else "s"} · $on on"))
+                    add(
+                        TileSpec(
+                            Icons.Default.WaterDrop,
+                            MistCyan,
+                            stringResource(R.string.cr_climate_humidifiers),
+                            pluralStringResource(
+                                R.plurals.cr_device_count_on,
+                                data.humidifierEntities.size,
+                                data.humidifierEntities.size,
+                                on
+                            )
+                        )
+                    )
                 }
             }
-            if (tiles.isEmpty()) { emptyCard("No climate sensors or devices found."); return }
+            if (tiles.isEmpty()) {
+                emptyCard(stringResource(R.string.cr_no_climate_sensors_devices))
+                return
+            }
             BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
                 // Auto-fit: 2 tiles across when there's room, dropping to 1 on narrow windows.
                 val tileColumns = ((maxWidth + 10.dp) / 170.dp).toInt().coerceIn(1, 2)
@@ -3323,11 +3476,11 @@ fun ClimateCardWidgetView(
         }
         "thermostats" -> deviceList(
             data.climateEntities,
-            "No climate devices found. Thermostats and AC units from Home Assistant appear here automatically."
+            stringResource(R.string.cr_no_climate_devices)
         ) { ClimateDeviceCard(it, viewModel, cornerRadius) }
         "dial" -> deviceList(
             data.climateEntities,
-            "No climate devices found. Thermostats and AC units from Home Assistant appear here automatically."
+            stringResource(R.string.cr_no_climate_devices)
         ) { entity ->
             ThermostatDialCard(
                 entity = entity,
@@ -3339,19 +3492,22 @@ fun ClimateCardWidgetView(
         }
         "fans" -> deviceList(
             data.fanEntities,
-            "No fans found. Fan entities from Home Assistant appear here automatically."
+            stringResource(R.string.cr_no_fans)
         ) { FanCard(it, viewModel, cornerRadius) }
         "purifiers" -> deviceList(
             data.purifierEntities,
-            "No air purifiers configured. Select fan entities under Climate Settings → Climate Entities → Air purifiers."
+            stringResource(R.string.cr_no_air_purifiers)
         ) { FanCard(it, viewModel, cornerRadius) }
         "humidifiers" -> deviceList(
             data.humidifierEntities,
-            "No humidifiers found. Humidifier entities from Home Assistant appear here automatically."
+            stringResource(R.string.cr_no_humidifiers)
         ) { HumidifierCard(it, viewModel, cornerRadius = cornerRadius) }
         else -> {
             val group = climateSensorGroups.find { it.key == cardKey }
-            if (group == null) { emptyCard("Unknown climate card: $cardKey"); return }
+            if (group == null) {
+                emptyCard(stringResource(R.string.cr_unknown_climate_card, cardKey))
+                return
+            }
             // With a per-card selection, show whatever was picked even without a matching device_class.
             val sensors = data.groupSensors[group.key].orEmpty().ifEmpty { data.overrideSensors }
             val values = sensors.mapNotNull { it.numericState() }
@@ -3366,9 +3522,9 @@ fun ClimateCardWidgetView(
                             Icon(group.icon, null, tint = group.color, modifier = Modifier.size(18.dp))
                         }
                         Column {
-                            Text(group.title, style = MaterialTheme.typography.titleSmall, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(group.titleRes), style = MaterialTheme.typography.titleSmall, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
                             Text(
-                                "${sensors.size} sensor${if (sensors.size == 1) "" else "s"}",
+                                pluralStringResource(R.plurals.cr_sensor_count, sensors.size, sensors.size),
                                 style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
                             )
                         }
@@ -3377,15 +3533,18 @@ fun ClimateCardWidgetView(
                         Spacer(Modifier.height(14.dp))
                         FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             HeroStat(Icons.Default.ArrowDownward, CoolBlue,
-                                "${formatValue(values.min())}${if (unit.isNotBlank()) " $unit" else ""}", "Lowest")
+                                "${formatValue(values.min())}${if (unit.isNotBlank()) " $unit" else ""}", stringResource(R.string.cr_lowest))
                             HeroStat(group.icon, group.color,
-                                "${formatValue(values.average().toFloat())}${if (unit.isNotBlank()) " $unit" else ""}", "Average")
+                                "${formatValue(values.average().toFloat())}${if (unit.isNotBlank()) " $unit" else ""}", stringResource(R.string.cr_average))
                             HeroStat(Icons.Default.ArrowUpward, TempWarm,
-                                "${formatValue(values.max())}${if (unit.isNotBlank()) " $unit" else ""}", "Highest")
+                                "${formatValue(values.max())}${if (unit.isNotBlank()) " $unit" else ""}", stringResource(R.string.cr_highest))
                         }
                     } else {
                         Spacer(Modifier.height(8.dp))
-                        Text("No ${group.title.lowercase()} sensors found.",
+                        Text(stringResource(
+                            R.string.cr_no_sensors_found_for,
+                            stringResource(group.titleRes).lowercase(Locale.getDefault())
+                        ),
                             style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
                     }
                 }
@@ -3461,7 +3620,7 @@ fun ClimateStackWidgetItem(
             Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 MdiIcon(stack.icon ?: "thermostat", tint = appColors.onMuted, size = 16.dp)
                 Spacer(Modifier.width(8.dp))
-                Text(stack.title ?: "Climate", color = appColors.onMuted,
+                Text(stack.title ?: stringResource(R.string.ui_climate_4857860), color = appColors.onMuted,
                     style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(1f))
                 if (stack.collapsible) {
                     IconButton(onClick = onToggleCollapsed, modifier = Modifier.size(24.dp)) {
@@ -3475,7 +3634,7 @@ fun ClimateStackWidgetItem(
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     if (stack.cardKeys.isEmpty()) {
                         Surface(shape = RoundedCornerShape(stack.cornerRadius.dp), color = appColors.elevated) {
-                            Text("No cards yet — open the stack settings to pick climate cards.",
+                            Text(stringResource(R.string.ui_no_cards_yet_open_the_stack_settings_to_pick_ca8008f),
                                 style = MaterialTheme.typography.bodySmall, color = appColors.onMuted,
                                 modifier = Modifier.padding(16.dp))
                         }
@@ -3512,9 +3671,9 @@ fun ClimateCardPickerList(
             .fadingEdges(listState),
         state = listState
     ) {
-        climateCardCatalog.groupBy { it.category }.forEach { (category, specs) ->
+        climateCardCatalog.groupBy { it.categoryRes }.forEach { (categoryRes, specs) ->
             item {
-                Text(category, style = MaterialTheme.typography.labelLarge,
+                Text(stringResource(categoryRes), style = MaterialTheme.typography.labelLarge,
                     color = appColors.onMuted,
                     modifier = Modifier.padding(top = 10.dp, bottom = 4.dp))
             }
@@ -3533,7 +3692,7 @@ fun ClimateCardPickerList(
                     Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                         MdiIcon(spec.mdiIcon, contentDescription = null, tint = appColors.onSurface, size = 28.dp)
                         Spacer(Modifier.width(14.dp))
-                        Text(spec.label, color = appColors.onSurface,
+                        Text(stringResource(spec.labelRes), color = appColors.onSurface,
                             style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.weight(1f))
                         if (isSel) Icon(Icons.Default.Check, contentDescription = null,
@@ -3550,20 +3709,21 @@ fun ClimateCardPickerList(
 fun ClimateCardPickerDialog(
     multiSelect: Boolean,
     preselected: List<String> = emptyList(),
-    title: String = "Select Climate Cards",
+    title: String? = null,
     onDismiss: () -> Unit,
     onSelected: (List<String>) -> Unit
 ) {
     var selected by remember { mutableStateOf(preselected.toList()) }
+    val resolvedTitle = title ?: stringResource(R.string.cr_select_climate_cards)
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(title) },
+        title = { Text(resolvedTitle) },
         text = {
             Column {
                 TextButton(onClick = onDismiss) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Back")
+                    Text(stringResource(R.string.ui_back_b52b36b))
                 }
                 ClimateCardPickerList(
                     selected = selected,
@@ -3577,7 +3737,7 @@ fun ClimateCardPickerDialog(
                 )
             }
         },
-        confirmButton = { TextButton(onClick = { onSelected(selected) }) { Text("Done") } }
+        confirmButton = { TextButton(onClick = { onSelected(selected) }) { Text(stringResource(R.string.ui_done_e9b450d)) } }
     )
 }
 
@@ -3608,9 +3768,12 @@ fun ClimateCardEntityPickerDialog(
     onSelected: (List<String>) -> Unit
 ) {
     val allEntities by viewModel.entities.collectAsState()
+    val cardLabel = climateCardCatalog.find { it.key == cardKey }
+        ?.let { stringResource(it.labelRes) }
+        ?: cardKey
     AdvancedEntitySearchDialog(
         allEntities = allEntities.filter(climateOverridePickerFilter(listOf(cardKey))),
-        title = "Entities · ${climateCardCatalog.find { it.key == cardKey }?.label ?: cardKey}",
+        title = stringResource(R.string.cr_entities_for, cardLabel),
         singleSelect = false,
         preselectedIds = emptySet(),
         onDismiss = onDismiss,
@@ -3628,18 +3791,18 @@ private fun ClimateEntityOverrideSection(
     val appColors = LocalHKIAppColors.current
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.weight(1f)) {
-            Text("Entities", style = MaterialTheme.typography.labelLarge)
+            Text(stringResource(R.string.ui_entities_f7638a2), style = MaterialTheme.typography.labelLarge)
             Text(
-                if (entityIds.isEmpty()) "Using the Climate view's entities"
-                else "${entityIds.size} selected for this card",
+                if (entityIds.isEmpty()) stringResource(R.string.ui_using_the_climate_view_s_entities_8befb0f)
+                else stringResource(R.string.ui_selected_for_this_card_3c4a588, entityIds.size),
                 style = MaterialTheme.typography.bodySmall,
                 color = if (entityIds.isEmpty()) appColors.onMuted else MaterialTheme.colorScheme.primary
             )
         }
         if (entityIds.isNotEmpty()) {
-            TextButton(onClick = onReset) { Text("Reset") }
+            TextButton(onClick = onReset) { Text(stringResource(R.string.ui_reset_44c57ab)) }
         }
-        TextButton(onClick = onPick) { Text("Change") }
+        TextButton(onClick = onPick) { Text(stringResource(R.string.ui_change_64fbd99)) }
     }
 }
 
@@ -3662,7 +3825,7 @@ fun ClimateCardWidgetSettingsDialog(
     var settingsPage by remember(widget) { mutableStateOf("data") }
     if (showPicker) {
         ClimateCardPickerDialog(
-            multiSelect = false, preselected = listOf(cardKey), title = "Select Climate Card",
+            multiSelect = false, preselected = listOf(cardKey), title = stringResource(R.string.ui_select_climate_card_18f3b6e),
             onDismiss = { showPicker = false },
             onSelected = { sel -> sel.firstOrNull()?.let { cardKey = it }; showPicker = false }
         )
@@ -3670,7 +3833,7 @@ fun ClimateCardWidgetSettingsDialog(
     if (pickingEntities) {
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter(climateOverridePickerFilter(listOf(cardKey))),
-            title = "Select Entities",
+            title = stringResource(R.string.ui_select_entities_affed45),
             singleSelect = false,
             preselectedIds = entityIds.toSet(),
             onDismiss = { pickingEntities = false },
@@ -3682,24 +3845,34 @@ fun ClimateCardWidgetSettingsDialog(
     AlertDialog(
         stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { com.jimz011apps.hki7.ui.components.ModernSettingsDialogTitle("Climate card", "Data sources and card appearance") },
+        title = {
+            com.jimz011apps.hki7.ui.components.ModernSettingsDialogTitle(
+                stringResource(R.string.cr_climate_card),
+                stringResource(R.string.cr_climate_card_dialog_subtitle)
+            )
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 com.jimz011apps.hki7.ui.components.SettingsTabRow(
-                    tabs = listOf("data" to "Card & data", "appearance" to "Appearance"),
+                    tabs = listOf(
+                        "data" to stringResource(R.string.cr_card_and_data),
+                        "appearance" to stringResource(R.string.cr_appearance)
+                    ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
                 )
                 if (settingsPage == "data") {
-                com.jimz011apps.hki7.ui.components.SettingsSubcategory("Card & entities", "Choose the climate view and optional entity overrides")
+                com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_card_entities_e548a55), stringResource(R.string.ui_choose_the_climate_view_and_optional_entity_overrides_a69cbbc))
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.weight(1f)) {
-                        Text("Card", style = MaterialTheme.typography.labelLarge)
-                        Text(climateCardCatalog.find { it.key == cardKey }?.label ?: cardKey,
+                        Text(stringResource(R.string.ui_card_4d4ce73), style = MaterialTheme.typography.labelLarge)
+                        Text(climateCardCatalog.find { it.key == cardKey }
+                            ?.let { stringResource(it.labelRes) }
+                            ?: cardKey,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary)
                     }
-                    TextButton(onClick = { showPicker = true }) { Text("Change") }
+                    TextButton(onClick = { showPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
                 }
                 ClimateEntityOverrideSection(
                     entityIds = entityIds,
@@ -3708,16 +3881,16 @@ fun ClimateCardWidgetSettingsDialog(
                 )
                 }
                 if (settingsPage == "appearance") {
-                com.jimz011apps.hki7.ui.components.SettingsSubcategory("Appearance", "Optional title, width, and supported shape")
+                com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_appearance_41def7a), stringResource(R.string.ui_optional_title_width_and_supported_shape_8b2e456))
                 OutlinedTextField(value = title, onValueChange = { title = it },
-                    label = { Text("Title (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    label = { Text(stringResource(R.string.ui_title_optional_932fc13)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
                 // The thermostat dial can render as a compact 1:1 square, like the other widgets.
                 if (cardKey == "dial") {
-                    Text("Shape", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.ui_shape_ea5c1a2), style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
-                        FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text("Square") })
+                        FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text(stringResource(R.string.ui_standard_2dfa660)) })
+                        FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text(stringResource(R.string.ui_square_82810cb)) })
                     }
                 }
                 }
@@ -3730,9 +3903,9 @@ fun ClimateCardWidgetSettingsDialog(
                     cornerRadius = radius, entityIds = entityIds,
                     isSquare = isSquare && cardKey == "dial"
                 ))
-            }) { Text("Save") }
+            }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
     )
 }
 
@@ -3753,9 +3926,14 @@ fun ClimateStackSettingsDialog(
     var showPicker by remember { mutableStateOf(false) }
     var pickingEntities by remember { mutableStateOf(false) }
     var settingsPage by remember(stack) { mutableStateOf("cards") }
+    val selectedCardNames = cardKeys.map { key ->
+        climateCardCatalog.find { it.key == key }
+            ?.let { stringResource(it.labelRes) }
+            ?: key
+    }
     if (showPicker) {
         ClimateCardPickerDialog(
-            multiSelect = true, preselected = cardKeys, title = "Stack Cards",
+            multiSelect = true, preselected = cardKeys, title = stringResource(R.string.ui_stack_cards_8bdc343),
             onDismiss = { showPicker = false },
             onSelected = { cardKeys = it; showPicker = false }
         )
@@ -3763,7 +3941,7 @@ fun ClimateStackSettingsDialog(
     if (pickingEntities) {
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter(climateOverridePickerFilter(cardKeys)),
-            title = "Select Entities",
+            title = stringResource(R.string.ui_select_entities_affed45),
             singleSelect = false,
             preselectedIds = entityIds.toSet(),
             onDismiss = { pickingEntities = false },
@@ -3775,27 +3953,35 @@ fun ClimateStackSettingsDialog(
     AlertDialog(
         stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { com.jimz011apps.hki7.ui.components.ModernSettingsDialogTitle("Climate stack", "Cards, data sources, and layout") },
+        title = {
+            com.jimz011apps.hki7.ui.components.ModernSettingsDialogTitle(
+                stringResource(R.string.cr_climate_stack),
+                stringResource(R.string.cr_climate_stack_dialog_subtitle)
+            )
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 com.jimz011apps.hki7.ui.components.SettingsTabRow(
-                    tabs = listOf("cards" to "Cards & data", "layout" to "Layout"),
+                    tabs = listOf(
+                        "cards" to stringResource(R.string.cr_cards_and_data),
+                        "layout" to stringResource(R.string.cr_layout)
+                    ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
                 )
                 if (settingsPage == "cards") {
-                com.jimz011apps.hki7.ui.components.SettingsSubcategory("Cards & entities", "Choose included views and shared entity overrides")
+                com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_cards_entities_be4393a), stringResource(R.string.ui_choose_included_views_and_shared_entity_overrides_41f2e64))
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.weight(1f)) {
-                        Text("Cards", style = MaterialTheme.typography.labelLarge)
+                        Text(stringResource(R.string.ui_cards_0f830bc), style = MaterialTheme.typography.labelLarge)
                         Text(
-                            if (cardKeys.isEmpty()) "None selected"
-                            else cardKeys.joinToString { key -> climateCardCatalog.find { it.key == key }?.label ?: key },
+                            if (cardKeys.isEmpty()) stringResource(R.string.ui_none_selected_5798946)
+                            else selectedCardNames.joinToString(),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
-                    TextButton(onClick = { showPicker = true }) { Text("Change") }
+                    TextButton(onClick = { showPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
                 }
                 ClimateEntityOverrideSection(
                     entityIds = entityIds,
@@ -3804,11 +3990,11 @@ fun ClimateStackSettingsDialog(
                 )
                 }
                 if (settingsPage == "layout") {
-                com.jimz011apps.hki7.ui.components.SettingsSubcategory("Stack layout", "Title, collapse behavior, and dashboard width")
+                com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_stack_layout_1623679), stringResource(R.string.ui_title_collapse_behavior_and_dashboard_width_a64a590))
                 OutlinedTextField(value = title, onValueChange = { title = it },
-                    label = { Text("Title") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    label = { Text(stringResource(R.string.ui_title_768e0c1)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    Text("Collapsible", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.ui_collapsible_c932fac), style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
                     Switch(checked = collapsible, onCheckedChange = { collapsible = it })
                 }
                 WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
@@ -3821,8 +4007,8 @@ fun ClimateStackSettingsDialog(
                     title = title.ifBlank { null }, width = width, cornerRadius = radius,
                     cardKeys = cardKeys, collapsible = collapsible, entityIds = entityIds
                 ))
-            }) { Text("Save") }
+            }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
     )
 }

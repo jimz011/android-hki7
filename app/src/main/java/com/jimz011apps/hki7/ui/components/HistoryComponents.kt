@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -49,6 +53,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -56,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HAHistoryEntry
 import com.jimz011apps.hki7.ui.MainViewModel
+import com.jimz011apps.hki7.ui.localizedCommonStateLabel
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
@@ -65,6 +71,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -130,26 +137,40 @@ fun parseHistoryMillis(value: String?): Long? {
         .getOrNull()
 }
 
-private val clockFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
-private val clockDateFormatter = DateTimeFormatter.ofPattern("MMM d, HH:mm")
-
 fun formatHistoryClock(millis: Long, withDate: Boolean = false): String {
     val zoned = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault())
-    return zoned.format(if (withDate) clockDateFormatter else clockFormatter)
+    val formatter = if (withDate) {
+        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+    } else {
+        DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)
+    }
+    return zoned.format(formatter.withLocale(Locale.getDefault()))
 }
 
 /** "Last seen just now" / "Last seen 36m ago" from an entity's `last_changed` timestamp. */
+@Composable
 fun formatLastSeen(lastChanged: String?): String? {
     val millis = parseHistoryMillis(lastChanged) ?: return null
     val diffSeconds = ((System.currentTimeMillis() - millis) / 1000).coerceAtLeast(0)
-    val relative = when {
-        diffSeconds < 60 -> "just now"
-        diffSeconds < 3_600 -> "${diffSeconds / 60}m ago"
-        diffSeconds < 86_400 -> "${diffSeconds / 3_600}h ago"
-        diffSeconds < 604_800 -> "${diffSeconds / 86_400}d ago"
-        else -> "${diffSeconds / 604_800}w ago"
+    return when {
+        diffSeconds < 60 -> stringResource(R.string.core_last_seen_just_now)
+        diffSeconds < 3_600 -> {
+            val count = (diffSeconds / 60).toInt()
+            pluralStringResource(R.plurals.core_last_seen_minutes, count, count)
+        }
+        diffSeconds < 86_400 -> {
+            val count = (diffSeconds / 3_600).toInt()
+            pluralStringResource(R.plurals.core_last_seen_hours, count, count)
+        }
+        diffSeconds < 604_800 -> {
+            val count = (diffSeconds / 86_400).toInt()
+            pluralStringResource(R.plurals.core_last_seen_days, count, count)
+        }
+        else -> {
+            val count = (diffSeconds / 604_800).toInt()
+            pluralStringResource(R.plurals.core_last_seen_weeks, count, count)
+        }
     }
-    return "Last seen $relative"
 }
 
 private fun trimSensorGraphValue(value: Float): String =
@@ -224,7 +245,7 @@ fun EntitySensorGraphCard(
         ) {
             if (graphPoints.size < 2) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Not enough data", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.ui_not_enough_data_cdb9d58), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
                 }
             } else {
                 InteractiveLineGraph(
@@ -239,9 +260,9 @@ fun EntitySensorGraphCard(
         if (minValue != null && maxValue != null) {
             Spacer(Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                SensorGraphStat("Min", trimSensorGraphValue(minValue), unit)
-                avgValue?.let { SensorGraphStat("Avg", trimSensorGraphValue(it), unit) }
-                SensorGraphStat("Max", trimSensorGraphValue(maxValue), unit)
+                SensorGraphStat(stringResource(R.string.cr_min), trimSensorGraphValue(minValue), unit)
+                avgValue?.let { SensorGraphStat(stringResource(R.string.cr_avg), trimSensorGraphValue(it), unit) }
+                SensorGraphStat(stringResource(R.string.cr_max), trimSensorGraphValue(maxValue), unit)
             }
         }
     }
@@ -255,7 +276,7 @@ private fun SensorGraphStat(label: String, value: String, unit: String) {
         Text(label, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
         Spacer(Modifier.height(2.dp))
         Text(
-            text = if (unit.isNotBlank()) "$value $unit" else value,
+            text = if (unit.isNotBlank()) stringResource(R.string.ui_text_78c505f, value, unit) else value,
             color = appColors.onSurface,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold
@@ -293,7 +314,7 @@ fun HistoryRangeChips(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "${hours}h",
+                    text = stringResource(R.string.ui_h_0be1674, hours),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                     color = if (isSelected) appColors.onSurface else appColors.onMuted
@@ -401,7 +422,11 @@ fun StateTimelineBar(
         Box(modifier = Modifier.fillMaxWidth().height(22.dp)) {
             if (selected != null && cursorTime != null) {
                 Text(
-                    text = "${selected.state.replaceFirstChar { it.uppercase() }} · ${formatHistoryClock(cursorTime)}",
+                    text = stringResource(
+                        R.string.ui_text_c1aacd9,
+                        localizedCommonStateLabel(selected.state),
+                        formatHistoryClock(cursorTime)
+                    ),
                     color = appColors.onSurface,
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold
@@ -455,7 +480,7 @@ fun StateTimelineBar(
                 style = MaterialTheme.typography.labelSmall
             )
             Text(
-                text = "Now",
+                text = stringResource(R.string.ui_now_e3b8204),
                 color = appColors.onMuted,
                 style = MaterialTheme.typography.labelSmall
             )

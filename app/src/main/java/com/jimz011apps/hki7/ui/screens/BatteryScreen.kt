@@ -2,6 +2,11 @@
 
 package com.jimz011apps.hki7.ui.screens
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
+
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -97,8 +102,8 @@ private data class BatteryInfo(
 )
 
 private data class BatteryCategory(
-    val title: String,
-    val subtitle: String,
+    val titleRes: Int,
+    val subtitleRes: Int,
     val color: Color,
     val predicate: (BatteryInfo) -> Boolean
 )
@@ -114,11 +119,11 @@ private data class BatteryWidgetSummary(
 )
 
 private val batteryCategories = listOf(
-    BatteryCategory("Critical", "0-10%", Color(0xFFE53935)) { (it.level ?: 101) <= 10 },
-    BatteryCategory("Low", "11-30%", Color(0xFFFF9800)) { (it.level ?: 101) in 11..30 },
-    BatteryCategory("Watch", "31-50%", Color(0xFFFFD54F)) { (it.level ?: 101) in 31..50 },
-    BatteryCategory("Good", "Above 50%", Color(0xFF43A047)) { (it.level ?: -1) > 50 },
-    BatteryCategory("Unknown", "Unavailable or unknown", Color(0xFF8E8E93)) { it.level == null }
+    BatteryCategory(R.string.widgets_battery_critical, R.string.widgets_battery_range_critical, Color(0xFFE53935)) { (it.level ?: 101) <= 10 },
+    BatteryCategory(R.string.widgets_battery_low, R.string.widgets_battery_range_low, Color(0xFFFF9800)) { (it.level ?: 101) in 11..30 },
+    BatteryCategory(R.string.widgets_battery_watch, R.string.widgets_battery_range_watch, Color(0xFFFFD54F)) { (it.level ?: 101) in 31..50 },
+    BatteryCategory(R.string.widgets_battery_good, R.string.widgets_battery_range_good, Color(0xFF43A047)) { (it.level ?: -1) > 50 },
+    BatteryCategory(R.string.widgets_battery_unknown, R.string.widgets_battery_range_unknown, Color(0xFF8E8E93)) { it.level == null }
 )
 
 private fun HAEntity.attr(name: String): String? =
@@ -373,7 +378,7 @@ fun BatteryScreen(
     }
 
     val settingsSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
-        "Battery Entities" to { _ ->
+        stringResource(R.string.widgets_battery_entities) to { _ ->
             val allEntities by viewModel.entities.collectAsState()
             BatterySettingsSection(
                 config = config,
@@ -387,44 +392,44 @@ fun BatteryScreen(
     var showBatteryReimport by remember { mutableStateOf(false) }
     var showClearBattery by remember { mutableStateOf(false) }
     val batteryImportSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
-        "Re-import" to { _ ->
+        stringResource(R.string.widgets_reimport) to { _ ->
             Text(
-                "Import sensors with device_class battery and unit_of_measurement %.",
+                stringResource(R.string.ui_import_sensors_with_device_class_battery_and_unit_of_dfaced9),
                 color = LocalHKIAppColors.current.onMuted
             )
             Button(onClick = { showBatteryReimport = true }, modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Default.CloudDownload, null); Spacer(Modifier.width(8.dp)); Text("Re-import Batteries")
+                Icon(Icons.Default.CloudDownload, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.ui_re_import_batteries_f3b8458))
             }
             OutlinedButton(onClick = { showClearBattery = true }, modifier = Modifier.fillMaxWidth()) {
-                Text("Clear Battery View", color = MaterialTheme.colorScheme.error)
+                Text(stringResource(R.string.ui_clear_battery_view_5ef09bf), color = MaterialTheme.colorScheme.error)
             }
         }
     if (showBatteryReimport) {
         AlertDialog(
             onDismissRequest = { showBatteryReimport = false },
-            title = { Text("Re-import batteries") },
+            title = { Text(stringResource(R.string.ui_re_import_batteries_9473d07)) },
             text = {
                 Text(
-                    "Only percentage sensors classified by Home Assistant as batteries are imported. " +
-                        "Keep existing edits, or remove all battery edits and import from scratch."
+                    stringResource(R.string.ui_only_percentage_sensors_classified_by_home_assistant_as_ba_0d94a2a) +
+                        stringResource(R.string.ui_keep_existing_edits_or_remove_all_battery_edits_and_acc0236)
                 )
             },
             confirmButton = { Column(horizontalAlignment = Alignment.End) {
-                Button(onClick = { viewModel.reimportBattery(false); showBatteryReimport = false }) { Text("Import unedited") }
+                Button(onClick = { viewModel.reimportBattery(false); showBatteryReimport = false }) { Text(stringResource(R.string.ui_import_unedited_4a58143)) }
                 TextButton(onClick = { viewModel.reimportBattery(true); showBatteryReimport = false }) {
-                    Text("Remove edits and import all", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.ui_remove_edits_and_import_all_7f0b4a1), color = MaterialTheme.colorScheme.error)
                 }
             } },
-            dismissButton = { TextButton(onClick = { showBatteryReimport = false }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { showBatteryReimport = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
         )
     }
     if (showClearBattery) {
         AlertDialog(
             onDismissRequest = { showClearBattery = false },
-            title = { Text("Clear battery view?") },
-            text = { Text("This removes all imported battery entities from this view.") },
-            confirmButton = { TextButton(onClick = { viewModel.clearBatteryImports(); showClearBattery = false }) { Text("Clear", color = MaterialTheme.colorScheme.error) } },
-            dismissButton = { TextButton(onClick = { showClearBattery = false }) { Text("Cancel") } }
+            title = { Text(stringResource(R.string.ui_clear_battery_view_1952347)) },
+            text = { Text(stringResource(R.string.ui_this_removes_all_imported_battery_entities_from_this_view_7a74283)) },
+            confirmButton = { TextButton(onClick = { viewModel.clearBatteryImports(); showClearBattery = false }) { Text(stringResource(R.string.ui_clear_719ea39), color = MaterialTheme.colorScheme.error) } },
+            dismissButton = { TextButton(onClick = { showClearBattery = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
         )
     }
 
@@ -449,10 +454,10 @@ fun BatteryScreen(
 
     HKIPage(
         viewModel = viewModel,
-        title = "Batteries",
-        subtitle = "$lowCount low batteries",
+        title = stringResource(R.string.ui_batteries_0970f9d),
+        subtitle = pluralStringResource(R.plurals.widgets_battery_low_count, lowCount, lowCount),
         pageKey = BATTERY_PAGE_KEY,
-        pageSettingsTitle = "Battery Settings",
+        pageSettingsTitle = stringResource(R.string.widgets_battery_settings),
         extraPageSettingsSection = settingsSection,
         additionalPageSettingsSections = listOf(batteryImportSection),
         showBadgeBar = false,
@@ -474,7 +479,7 @@ fun BatteryScreen(
         if (isEmptyBatteryView) {
             EmptyEditHint(
                 Modifier.fillMaxSize().padding(padding),
-                "This is an empty battery view. Swipe down on the header and open Battery Settings to add entities manually."
+                stringResource(R.string.widgets_battery_empty_view_hint)
             )
         } else {
         // Two tiles across like the Security/Energy/Climate pages, dropping to one when there
@@ -596,9 +601,9 @@ fun BatteryCardWidgetItem(
     val criticalCount = summary.criticalCount
     val accent = batteryColor(if (criticalCount > 0) 5 else if (lowCount > 0) 25 else 90)
     val stateText = when {
-        criticalCount > 0 -> "$criticalCount critical · $lowCount low"
-        lowCount > 0 -> "$lowCount low"
-        else -> "All batteries OK"
+        criticalCount > 0 -> stringResource(R.string.ui_critical_low_5852b16, criticalCount, lowCount)
+        lowCount > 0 -> stringResource(R.string.ui_low_ba7cae2, lowCount)
+        else -> stringResource(R.string.ui_all_batteries_ok_9676f73)
     }
     // Same footprint and label placement as the waste/vacuum/camera widgets: 16:9 (or square)
     // card with a centered artwork and the name + state overlay in the bottom-left corner.
@@ -639,7 +644,7 @@ fun BatteryCardWidgetItem(
                 ) {
                     Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
                         Text(
-                            widget.title ?: "Battery Levels",
+                            widget.title ?: stringResource(R.string.ui_battery_levels_7c61b65),
                             color = Color.White, style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis
                         )
@@ -673,15 +678,23 @@ private fun BatteryHero(batteries: List<BatteryInfo>, visibleCount: Int, battery
     val accent = batteryColor(if (critical > 0) 5 else if (low > 0) 25 else average ?: 90)
     val chargeColor = batteryColor(average)
     val status = when {
-        critical > 0 -> "$critical critical ${if (critical == 1) "battery" else "batteries"}"
-        low > 0 -> "$low ${if (low == 1) "battery needs" else "batteries need"} attention"
-        batteries.isEmpty() -> "No battery data"
-        unknown == batteries.size -> "Battery levels unavailable"
-        else -> "Battery levels look healthy"
+        critical > 0 -> pluralStringResource(R.plurals.widgets_battery_critical_count, critical, critical)
+        low > 0 -> pluralStringResource(R.plurals.widgets_battery_attention_count, low, low)
+        batteries.isEmpty() -> stringResource(R.string.widgets_battery_no_data)
+        unknown == batteries.size -> stringResource(R.string.widgets_battery_levels_unavailable)
+        else -> stringResource(R.string.widgets_battery_levels_healthy)
     }
     val detail = weakest?.let {
-        "Lowest: ${it.deviceName ?: it.entity.friendlyName ?: it.entity.entity_id} at ${it.level}%"
-    } ?: if (batteryPlusOnly) "Showing Battery+ devices" else "Waiting for reported levels"
+        stringResource(
+            R.string.widgets_battery_lowest_detail,
+            it.deviceName ?: it.entity.friendlyName ?: it.entity.entity_id,
+            it.level ?: 0
+        )
+    } ?: if (batteryPlusOnly) {
+        stringResource(R.string.widgets_battery_showing_plus)
+    } else {
+        stringResource(R.string.widgets_battery_waiting_levels)
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
@@ -697,7 +710,7 @@ private fun BatteryHero(batteries: List<BatteryInfo>, visibleCount: Int, battery
             )
             Column(Modifier.align(Alignment.TopStart).padding(start = 14.dp, top = 8.dp)) {
                 Text(
-                    if (batteryPlusOnly) "BATTERY+ HEALTH" else "BATTERY HEALTH",
+                    if (batteryPlusOnly) stringResource(R.string.ui_battery_health_8cc8e64) else stringResource(R.string.ui_battery_health_12c0ce4),
                     style = MaterialTheme.typography.labelSmall,
                     color = appColors.onMuted,
                     fontWeight = FontWeight.SemiBold
@@ -730,7 +743,7 @@ private fun BatteryHero(batteries: List<BatteryInfo>, visibleCount: Int, battery
                 ) {
                     Box(Modifier.size(7.dp).background(accent, CircleShape))
                     Spacer(Modifier.width(6.dp))
-                    Text("$visibleCount shown", color = appColors.onSurface, style = MaterialTheme.typography.labelMedium)
+                    Text(stringResource(R.string.ui_shown_b1015a1, visibleCount), color = appColors.onSurface, style = MaterialTheme.typography.labelMedium)
                 }
             }
             Surface(
@@ -749,7 +762,7 @@ private fun BatteryHero(batteries: List<BatteryInfo>, visibleCount: Int, battery
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold
                     )
-                    Text("average", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(R.string.ui_average_93a8018), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
                 }
             }
         }
@@ -758,19 +771,19 @@ private fun BatteryHero(batteries: List<BatteryInfo>, visibleCount: Int, battery
                 "battery-low",
                 weakest?.level?.let { batteryColor(it) } ?: appColors.onMuted,
                 weakest?.level?.let { "$it%" } ?: "—",
-                "Lowest"
+                stringResource(R.string.widgets_battery_lowest)
             )
             BatteryHeroStat(
                 "alert-circle-outline",
                 if (low > 0) batteryColor(if (critical > 0) 5 else 25) else batteryColor(90),
                 low.toString(),
-                "Attention"
+                stringResource(R.string.widgets_battery_attention)
             )
             BatteryHeroStat(
                 "battery-check-outline",
                 chargeColor,
                 batteries.size.toString(),
-                "Tracked"
+                stringResource(R.string.widgets_battery_tracked)
             )
         }
     }
@@ -787,19 +800,19 @@ private fun BatteryPackScene(
     val appColors = LocalHKIAppColors.current
     val dark = appColors.background.luminance() < 0.5f
     val targetFill = ((level ?: 0) / 100f).coerceIn(0f, 1f)
-    val fill by animateFloatAsState(targetFill, tween(900, easing = FastOutSlowInEasing), label = "battery-fill")
-    val motion = rememberInfiniteTransition(label = "battery-energy")
+    val fill by animateFloatAsState(targetFill, tween(900, easing = FastOutSlowInEasing), label = "batteryFill")
+    val motion = rememberInfiniteTransition(label = "batteryEnergy")
     val orbit by motion.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(tween(2600)),
-        label = "battery-orbit"
+        label = "batteryOrbit"
     )
     val pulse by motion.animateFloat(
         initialValue = 0.35f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(tween(950), RepeatMode.Reverse),
-        label = "battery-attention"
+        label = "batteryAttention"
     )
 
     Canvas(modifier) {
@@ -912,21 +925,21 @@ private fun BatteryFilters(
     val appColors = LocalHKIAppColors.current
     var expanded by rememberSaveable { mutableStateOf(false) }
     val levelLabel = listOf(
-        "all" to "All levels",
-        "critical" to "Critical",
-        "low" to "Low",
-        "watch" to "Watch",
-        "good" to "Good",
-        "unknown" to "Unknown"
-    ).firstOrNull { it.first == levelFilter }?.second ?: "All levels"
-    val sortLabel = listOf("level" to "Level", "name" to "Name", "type" to "Type")
-        .firstOrNull { it.first == sortMode }?.second ?: "Level"
+        "all" to stringResource(R.string.ui_all_levels_6b4fde3),
+        "critical" to stringResource(R.string.ui_critical_04b7b26),
+        "low" to stringResource(R.string.ui_low_a124947),
+        "watch" to stringResource(R.string.ui_watch_d91ebf5),
+        "good" to stringResource(R.string.ui_good_61dedcf),
+        "unknown" to stringResource(R.string.ui_unknown_bc7819b)
+    ).firstOrNull { it.first == levelFilter }?.second ?: stringResource(R.string.ui_all_levels_6b4fde3)
+    val sortLabel = listOf("level" to stringResource(R.string.ui_level_7c7f5d0), "name" to stringResource(R.string.ui_name_709a232), "type" to stringResource(R.string.ui_type_3deb745))
+        .firstOrNull { it.first == sortMode }?.second ?: stringResource(R.string.widgets_battery_level)
     val activeSummary = buildList {
         if (query.isNotBlank()) add("\"${query.trim()}\"")
         selectedType?.let { add(it) }
         if (levelFilter != "all") add(levelLabel)
-        if (sortMode != "level") add("Sort: $sortLabel")
-    }.joinToString(" - ").ifBlank { "No filters active" }
+        if (sortMode != "level") add(stringResource(R.string.widgets_battery_sort_summary, sortLabel))
+    }.joinToString(" · ").ifBlank { stringResource(R.string.widgets_battery_no_filters) }
     val hasFilters = query.isNotBlank() || selectedType != null || levelFilter != "all" || sortMode != "level"
 
     Column(
@@ -945,7 +958,7 @@ private fun BatteryFilters(
             Icon(Icons.Default.Search, contentDescription = null, tint = appColors.onSurface, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
             Column(Modifier.weight(1f)) {
-                Text("Search & filters", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.ui_search_filters_3d10e32), color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                 Text(activeSummary, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             if (hasFilters && !expanded) {
@@ -954,11 +967,15 @@ private fun BatteryFilters(
                     onTypeChange(null)
                     onLevelFilterChange("all")
                     onSortModeChange("level")
-                }) { Text("Clear") }
+                }) { Text(stringResource(R.string.ui_clear_719ea39)) }
             }
             Icon(
                 if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                contentDescription = if (expanded) "Collapse filters" else "Expand filters",
+                contentDescription = if (expanded) {
+                    stringResource(R.string.widgets_battery_collapse_filters)
+                } else {
+                    stringResource(R.string.widgets_battery_expand_filters)
+                },
                 tint = appColors.onMuted
             )
         }
@@ -967,7 +984,7 @@ private fun BatteryFilters(
             OutlinedTextField(
                 value = query,
                 onValueChange = onQueryChange,
-                label = { Text("Search batteries") },
+                label = { Text(stringResource(R.string.ui_search_batteries_a63e58b)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
             )
@@ -978,7 +995,7 @@ private fun BatteryFilters(
                 FilterChip(
                     selected = selectedType == null,
                     onClick = { onTypeChange(null) },
-                    label = { Text("All types") },
+                    label = { Text(stringResource(R.string.ui_all_types_30c8a0f)) },
                     shape = itemCornerShape()
                 )
                 batteryTypes.forEach { type ->
@@ -994,7 +1011,14 @@ private fun BatteryFilters(
                 modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
             ) {
-                listOf("all" to "All", "critical" to "Critical", "low" to "Low", "watch" to "Watch", "good" to "Good", "unknown" to "Unknown").forEach { (value, label) ->
+                listOf(
+                    "all" to stringResource(R.string.widgets_battery_all),
+                    "critical" to stringResource(R.string.widgets_battery_critical),
+                    "low" to stringResource(R.string.widgets_battery_low),
+                    "watch" to stringResource(R.string.widgets_battery_watch),
+                    "good" to stringResource(R.string.widgets_battery_good),
+                    "unknown" to stringResource(R.string.widgets_battery_unknown)
+                ).forEach { (value, label) ->
                     FilterChip(
                         selected = levelFilter == value,
                         onClick = { onLevelFilterChange(value) },
@@ -1007,11 +1031,15 @@ private fun BatteryFilters(
                 modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
             ) {
-                listOf("level" to "Level", "name" to "Name", "type" to "Type").forEach { (value, label) ->
+                listOf(
+                    "level" to stringResource(R.string.widgets_battery_level),
+                    "name" to stringResource(R.string.widgets_battery_name),
+                    "type" to stringResource(R.string.widgets_battery_type)
+                ).forEach { (value, label) ->
                     FilterChip(
                         selected = sortMode == value,
                         onClick = { onSortModeChange(value) },
-                        label = { Text("Sort: $label") },
+                        label = { Text(stringResource(R.string.ui_sort_d5f73d6, label)) },
                         shape = itemCornerShape()
                     )
                 }
@@ -1025,7 +1053,7 @@ private fun BatteryFilters(
                             onLevelFilterChange("all")
                             onSortModeChange("level")
                         }
-                    ) { Text("Clear filters") }
+                    ) { Text(stringResource(R.string.ui_clear_filters_4122267)) }
                 }
             }
         }
@@ -1042,8 +1070,8 @@ private fun BatteryCategoryHeader(category: BatteryCategory, count: Int) {
         Box(Modifier.size(10.dp).background(category.color, RoundedCornerShape(50)))
         Spacer(Modifier.width(10.dp))
         Column(Modifier.weight(1f)) {
-            Text(category.title, color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-            Text(category.subtitle, style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
+            Text(stringResource(category.titleRes), color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(category.subtitleRes), style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
         }
         Text(count.toString(), color = appColors.onMuted, style = MaterialTheme.typography.labelLarge)
     }
@@ -1058,8 +1086,8 @@ private fun BatteryEmptyState(useBatteryNotes: Boolean) {
         color = Color.Transparent
     ) {
         Text(
-            if (useBatteryNotes) "No Battery+ entities found. Turn off Battery+ filtering to show all battery sensors."
-            else "No battery sensors found.",
+            if (useBatteryNotes) stringResource(R.string.ui_no_battery_entities_found_turn_off_battery_filtering_to_dfbc403)
+            else stringResource(R.string.ui_no_battery_sensors_found_7cc0962),
             modifier = Modifier.fillMaxWidth().padding(18.dp),
             color = appColors.onMuted,
             style = MaterialTheme.typography.bodyMedium
@@ -1075,11 +1103,11 @@ private fun BatteryTile(info: BatteryInfo, modifier: Modifier = Modifier, onClic
     val appColors = LocalHKIAppColors.current
     val color = batteryColor(info.level)
     val levelLabel = when (info.level) {
-        null -> "Unknown"
-        in 0..10 -> "Critical"
-        in 11..30 -> "Low"
-        in 31..50 -> "Watch"
-        else -> "Healthy"
+        null -> stringResource(R.string.ui_unknown_bc7819b)
+        in 0..10 -> stringResource(R.string.ui_critical_04b7b26)
+        in 11..30 -> stringResource(R.string.ui_low_a124947)
+        in 31..50 -> stringResource(R.string.ui_watch_d91ebf5)
+        else -> stringResource(R.string.ui_healthy_80ea156)
     }
     Surface(
         modifier = modifier.fillMaxWidth().clip(itemCornerShape()).clickable(onClick = onClick),
@@ -1112,7 +1140,7 @@ private fun BatteryTile(info: BatteryInfo, modifier: Modifier = Modifier, onClic
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        "${info.level?.let { "$it%" } ?: "--"} · $levelLabel",
+                        stringResource(R.string.ui_text_c1aacd9, info.level?.let { "$it%" } ?: "--", levelLabel),
                         style = MaterialTheme.typography.bodySmall,
                         color = appColors.onMuted,
                         maxLines = 1,
@@ -1151,11 +1179,11 @@ private fun BatteryDetailDialog(info: BatteryInfo, onDismiss: () -> Unit) {
     val appColors = LocalHKIAppColors.current
     val color = batteryColor(info.level)
     val stateLabel = when (info.level) {
-        null -> "Level unavailable"
-        in 0..10 -> "Critical — replace soon"
-        in 11..30 -> "Low — plan a replacement"
-        in 31..50 -> "Worth watching"
-        else -> "Battery level is healthy"
+        null -> stringResource(R.string.ui_level_unavailable_a442183)
+        in 0..10 -> stringResource(R.string.ui_critical_replace_soon_dbd946d)
+        in 11..30 -> stringResource(R.string.ui_low_plan_a_replacement_34435da)
+        in 31..50 -> stringResource(R.string.ui_worth_watching_a3d46c7)
+        else -> stringResource(R.string.ui_battery_level_is_healthy_1de4c4f)
     }
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -1208,7 +1236,7 @@ private fun BatteryDetailDialog(info: BatteryInfo, onDismiss: () -> Unit) {
                             }
                             Spacer(Modifier.width(14.dp))
                             Column(Modifier.weight(1f)) {
-                                Text("Current charge", color = appColors.onMuted, style = MaterialTheme.typography.labelMedium)
+                                Text(stringResource(R.string.ui_current_charge_b6b0b3d), color = appColors.onMuted, style = MaterialTheme.typography.labelMedium)
                                 Text(
                                     info.level?.let { "$it%" } ?: "—",
                                     color = appColors.onSurface,
@@ -1228,25 +1256,25 @@ private fun BatteryDetailDialog(info: BatteryInfo, onDismiss: () -> Unit) {
                             )
                         }
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            BatteryMetaChip(info.batteryType ?: "Unknown type", color)
+                            BatteryMetaChip(info.batteryType ?: stringResource(R.string.widgets_battery_unknown_type), color)
                             info.quantity?.takeIf(String::isNotBlank)?.let {
-                                BatteryMetaChip("Qty $it", MaterialTheme.colorScheme.primary)
+                                BatteryMetaChip(stringResource(R.string.widgets_battery_quantity_short, it), MaterialTheme.colorScheme.primary)
                             }
                         }
                     }
                 }
                 BatteryDetailsPanel(
                     buildList {
-                        add("Entity" to info.entity.entity_id)
-                        add("Battery type" to (info.batteryType ?: "Unknown"))
-                        info.quantity?.takeIf(String::isNotBlank)?.let { add("Quantity" to it) }
-                        info.deviceId?.takeIf(String::isNotBlank)?.let { add("Device id" to it) }
+                        add(stringResource(R.string.widgets_battery_entity) to info.entity.entity_id)
+                        add(stringResource(R.string.widgets_battery_type) to (info.batteryType ?: stringResource(R.string.widgets_battery_unknown)))
+                        info.quantity?.takeIf(String::isNotBlank)?.let { add(stringResource(R.string.widgets_battery_quantity) to it) }
+                        info.deviceId?.takeIf(String::isNotBlank)?.let { add(stringResource(R.string.widgets_battery_device_id) to it) }
                         addAll(info.notes)
                     }
                 )
             }
         },
-        confirmButton = { Button(onClick = onDismiss) { Text("Done") } }
+        confirmButton = { Button(onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) } }
     )
 }
 
@@ -1255,7 +1283,7 @@ private fun BatteryDetailsPanel(rows: List<Pair<String, String>>) {
     val appColors = LocalHKIAppColors.current
     Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
         Text(
-            "DEVICE DETAILS",
+            stringResource(R.string.ui_device_details_eb36018),
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold
@@ -1322,7 +1350,7 @@ private fun BatterySettingsSection(
     if (showEntityPicker) {
         AdvancedEntitySearchDialog(
             allEntities = batteryCandidates,
-            title = "Select Battery Entities",
+            title = stringResource(R.string.ui_select_battery_entities_b08b299),
             singleSelect = false,
             preselectedIds = config.extraEntityIds.toSet(),
             onDismiss = { showEntityPicker = false },
@@ -1344,7 +1372,7 @@ private fun BatterySettingsSection(
         }
         AdvancedEntitySearchDialog(
             allEntities = deviceEntities,
-            title = "Select Battery Devices",
+            title = stringResource(R.string.ui_select_battery_devices_bfc9841),
             singleSelect = false,
             preselectedIds = config.extraDeviceIds.toSet(),
             onDismiss = { showDevicePicker = false },
@@ -1358,28 +1386,28 @@ private fun BatterySettingsSection(
     if (showClearConfirmation) {
         AlertDialog(
             onDismissRequest = { showClearConfirmation = false },
-            title = { Text("Clear battery config?") },
-            text = { Text("Are you sure you want to clear battery config?") },
+            title = { Text(stringResource(R.string.ui_clear_battery_config_d8854f7)) },
+            text = { Text(stringResource(R.string.ui_are_you_sure_you_want_to_clear_battery_config_3e19f24)) },
             confirmButton = {
                 TextButton(onClick = {
                     onSave(HKIBatteryConfig(manualOnly = true))
                     showClearConfirmation = false
-                }) { Text("Clear") }
+                }) { Text(stringResource(R.string.ui_clear_719ea39)) }
             },
-            dismissButton = { TextButton(onClick = { showClearConfirmation = false }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { showClearConfirmation = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
         )
     }
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
-            Text("Battery+ / Battery Notes only")
-            Text("Only show Battery+ entities and include type, quantity, and related battery info.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.ui_battery_battery_notes_only_14e5936))
+            Text(stringResource(R.string.ui_only_show_battery_entities_and_include_type_quantity_and_0d8ce40), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Switch(checked = useNotes, onCheckedChange = { useNotes = it; onSave(config.copy(useBatteryNotes = it)) })
     }
-    Text("${batteries.size} battery entities visible", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Text(stringResource(R.string.ui_battery_entities_visible_9299588, batteries.size), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     Text(
-        if (config.manualOnly) "Manual configuration: only selected entities and devices are shown."
-        else "Automatic configuration: only battery-class percentage sensors are included.",
+        if (config.manualOnly) stringResource(R.string.ui_manual_configuration_only_selected_entities_and_devices_ar_10e150b)
+        else stringResource(R.string.ui_automatic_configuration_only_battery_class_percentage_sens_ce9ab03),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
@@ -1387,12 +1415,12 @@ private fun BatterySettingsSection(
         TextButton(onClick = { showEntityPicker = true }) {
             Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp))
             Spacer(Modifier.width(6.dp))
-            Text("Entities")
+            Text(stringResource(R.string.ui_entities_f7638a2))
         }
         TextButton(onClick = { showDevicePicker = true }) {
             Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp))
             Spacer(Modifier.width(6.dp))
-            Text("Devices")
+            Text(stringResource(R.string.ui_devices_df485c8))
         }
     }
     config.extraEntityIds.forEach { id ->
@@ -1408,9 +1436,9 @@ private fun BatterySettingsSection(
         )
     }
     if (config.hiddenEntityIds.isNotEmpty()) {
-        Text("Removed entities", style = MaterialTheme.typography.labelLarge)
+        Text(stringResource(R.string.ui_removed_entities_6dbeb2d), style = MaterialTheme.typography.labelLarge)
         Text(
-            "Tap X to restore an entity to the battery page.",
+            stringResource(R.string.ui_tap_x_to_restore_an_entity_to_the_battery_ad0eb75),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -1424,7 +1452,7 @@ private fun BatterySettingsSection(
     OutlinedButton(
         onClick = { showClearConfirmation = true },
         modifier = Modifier.fillMaxWidth()
-    ) { Text("Clear config") }
+    ) { Text(stringResource(R.string.ui_clear_config_51f6330)) }
 }
 
 @Composable
@@ -1436,7 +1464,7 @@ private fun ManualBatteryRow(label: String, onRemove: () -> Unit) {
     ) {
         Text(label, modifier = Modifier.weight(1f), color = appColors.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
         IconButton(onClick = onRemove, modifier = Modifier.size(28.dp)) {
-            Icon(Icons.Default.Close, "Remove", tint = appColors.onMuted, modifier = Modifier.size(16.dp))
+            Icon(Icons.Default.Close, stringResource(R.string.widgets_remove), tint = appColors.onMuted, modifier = Modifier.size(16.dp))
         }
     }
 }
@@ -1455,10 +1483,16 @@ fun BatteryCardWidgetSettingsDialog(
     var width by remember(widget) { mutableStateOf(widget.width) }
     var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
     var settingsPage by remember(widget) { mutableStateOf("rules") }
+    val defaultTitle = stringResource(R.string.widgets_battery_levels_title)
     AlertDialog(
         stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { com.jimz011apps.hki7.ui.components.ModernSettingsDialogTitle("Battery levels", "Thresholds, sources, and appearance") },
+        title = {
+            com.jimz011apps.hki7.ui.components.ModernSettingsDialogTitle(
+                stringResource(R.string.widgets_battery_levels_title),
+                stringResource(R.string.widgets_battery_levels_subtitle)
+            )
+        },
         text = {
             val settingsScroll = rememberScrollState()
             Column(
@@ -1466,25 +1500,28 @@ fun BatteryCardWidgetSettingsDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 com.jimz011apps.hki7.ui.components.SettingsTabRow(
-                    tabs = listOf("rules" to "Battery rules", "appearance" to "Appearance"),
+                    tabs = listOf(
+                        "rules" to stringResource(R.string.widgets_battery_rules),
+                        "appearance" to stringResource(R.string.widgets_tab_appearance)
+                    ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
                 )
                 if (settingsPage == "rules") {
-                com.jimz011apps.hki7.ui.components.SettingsSubcategory("Battery rules", "Choose the source and when a battery is considered low")
-                OutlinedTextField(title, { title = it }, label = { Text("Title") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(threshold, { threshold = it.filter(Char::isDigit).take(3) }, label = { Text("Low threshold (%)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_battery_rules_be75b3c), stringResource(R.string.ui_choose_the_source_and_when_a_battery_is_considered_0b993df))
+                OutlinedTextField(title, { title = it }, label = { Text(stringResource(R.string.ui_title_768e0c1)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(threshold, { threshold = it.filter(Char::isDigit).take(3) }, label = { Text(stringResource(R.string.ui_low_threshold_1ecfd8b)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Text("Battery+ / Battery Notes only", modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.ui_battery_battery_notes_only_14e5936), modifier = Modifier.weight(1f))
                     Switch(checked = useNotes, onCheckedChange = { useNotes = it })
                 }
                 }
                 if (settingsPage == "appearance") {
-                com.jimz011apps.hki7.ui.components.SettingsSubcategory("Appearance", "Card shape, width, and background")
-                Text("Shape", style = MaterialTheme.typography.labelLarge)
+                com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_appearance_41def7a), stringResource(R.string.ui_card_shape_width_and_background_e4aff1c))
+                Text(stringResource(R.string.ui_shape_ea5c1a2), style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
-                    FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text("Square") })
+                    FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text(stringResource(R.string.ui_standard_2dfa660)) })
+                    FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text(stringResource(R.string.ui_square_82810cb)) })
                 }
                 WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
                 WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
@@ -1494,7 +1531,7 @@ fun BatteryCardWidgetSettingsDialog(
         confirmButton = {
             Button(onClick = {
                 onSave(widget.copy(
-                    title = title.ifBlank { "Battery Levels" },
+                    title = title.ifBlank { defaultTitle },
                     lowThreshold = (threshold.toIntOrNull() ?: 30).coerceIn(1, 100),
                     useBatteryNotes = useNotes,
                     isSquare = isSquare,
@@ -1502,8 +1539,8 @@ fun BatteryCardWidgetSettingsDialog(
                     width = width,
                     backgroundUrl = backgroundUrl
                 ))
-            }) { Text("Save") }
+            }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
     )
 }

@@ -2,6 +2,10 @@
 
 package com.jimz011apps.hki7.ui.screens
 
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 
 import androidx.compose.foundation.Image
@@ -62,6 +66,7 @@ import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Locale
 
 internal data class ParcelCarrier(
@@ -76,51 +81,53 @@ internal data class ParcelCarrier(
     val accessToken: String,
     /** The Home Assistant integration domain (e.g. "gls", "postnl"), from the entity registry
      *  platform. Determines the brand logo and whether manual parcel-adding is supported. */
-    val domain: String = key
+    val domain: String = key,
+    /** Stable Home Assistant registry translation keys indexed by entity id. */
+    val translationKeys: Map<String, String> = emptyMap()
 ) {
     val deliveredCount: Int get() = parcels.count { it.isDeliveredParcel() }
+    private val hasParcelCollections: Boolean get() = entities.any { entity ->
+        listOf("parcels", "shipments", "packages", "enroute", "delivered")
+            .any { key -> entity.attributes?.get(key) is JsonArray }
+    }
+    val incomingCount: Int get() = if (hasParcelCollections) {
+        parcels.count { !it.isDeliveredParcel() && !it.isOutgoingParcel() }
+    } else {
+        incoming
+    }
+    val outgoingCount: Int get() = if (hasParcelCollections) {
+        parcels.count { !it.isDeliveredParcel() && it.isOutgoingParcel() }
+    } else {
+        outgoing
+    }
     /** True when this carrier's integration exposes `<domain>.track_parcel` (manual add by number). */
     val supportsManualAdd: Boolean get() = domain in TRACK_PARCEL_DOMAINS
 
     val supportsLetters: Boolean get() = entities.any { entity ->
         val label = "${entity.entity_id} ${entity.friendlyName.orEmpty()}"
-        !entity.entity_id.startsWith("image.") &&
-            (label.contains("letters", true) || label.contains("brieven", true))
+        val role = translationKeys[entity.entity_id].orEmpty()
+        !entity.entity_id.startsWith("image.") && (
+            role.contains("letters", true) ||
+                label.contains("letters", true) ||
+                label.contains("brieven", true)
+            )
     }
     val currentLetterCount: Int get() = letters.count(::isCurrentOrFutureLetter)
 
-    val parcels: List<JsonObject> get() {
-        val individual = entities.mapNotNull { entity ->
-            val attributes = entity.attributes?.takeIf { entity.parcelAttribute("barcode") != null } ?: return@mapNotNull null
-            val label = "${entity.entity_id} ${entity.friendlyName.orEmpty()}"
-            buildJsonObject {
-                attributes.forEach { (key, value) -> put(key, value) }
-                put("_direction", if (label.contains("outgoing", true)) "Outgoing" else "Incoming")
-            }
-        }
-        val summaries = entities.flatMap { entity ->
-            val label = "${entity.entity_id} ${entity.friendlyName.orEmpty()}"
-            val direction = if (label.contains("outgoing", true)) "Outgoing" else "Incoming"
-            (entity.attributes?.get("parcels") as? JsonArray)?.mapNotNull { item ->
-                (item as? JsonObject)?.let { parcel -> buildJsonObject { parcel.forEach { (key, value) -> put(key, value) }; put("_direction", direction) } }
-            }.orEmpty()
-        }
-        return (individual + summaries).distinctBy { parcel ->
-            parcel["barcode"]?.jsonPrimitive?.contentOrNull
-                ?: listOf("sender", "receiver", "planned_from", "status").joinToString("|") { parcel[it]?.jsonPrimitive?.contentOrNull.orEmpty() }
-        }
-    }
+    val parcels: List<JsonObject> get() = collectCarrierParcels(entities, translationKeys, domain)
     val letters: List<JsonObject> get() {
         val fromSensors = entities.filter { entity ->
             val label = "${entity.entity_id} ${entity.friendlyName.orEmpty()}"
-            label.contains("letters", true) || label.contains("brieven", true)
+            translationKeys[entity.entity_id]?.contains("letters", true) == true ||
+                label.contains("letters", true) ||
+                label.contains("brieven", true)
         }.flatMap { entity -> extractObjectList(entity.attributes) }
         val fromImages = entities.filter { it.entity_id.startsWith("image.") }.mapNotNull { entity ->
             val attrs = entity.attributes ?: return@mapNotNull null
             val id = attrs["id"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null
             buildJsonObject {
                 put("id", id)
-                put("title", attrs["title"]?.jsonPrimitive?.contentOrNull ?: entity.friendlyName ?: "Mail")
+                (attrs["title"]?.jsonPrimitive?.contentOrNull ?: entity.friendlyName)?.let { put("title", it) }
                 attrs["date"]?.jsonPrimitive?.contentOrNull?.let { put("date", it) }
                 attrs["unread"]?.jsonPrimitive?.booleanOrNull?.let { put("unread", it) }
             }
@@ -143,15 +150,38 @@ internal data class ParcelCarrier(
     }
 }
 
-private enum class ParcelTab(val title: String) {
-    Incoming("Incoming"), Delivered("Delivered"), Outgoing("Outgoing"), Letters("Letters")
+private enum class ParcelTab(@StringRes val titleRes: Int, @StringRes val emptyRes: Int?) {
+    Incoming(R.string.parcel_incoming, R.string.parcel_no_incoming),
+    Delivered(R.string.parcel_delivered, R.string.parcel_no_delivered),
+    Outgoing(R.string.parcel_outgoing, R.string.parcel_no_outgoing),
+    Letters(R.string.parcel_letters, null)
 }
 
 private fun JsonObject.parcelValue(name: String): String? = this[name]?.jsonPrimitive?.contentOrNull
 
+@Composable
+private fun localizedParcelStatus(status: String): String =
+    when (status.trim().lowercase(Locale.ROOT).replace('-', '_').replace(' ', '_')) {
+        "registered" -> stringResource(R.string.parcel_stage_registered)
+        "in_transit" -> stringResource(R.string.parcel_status_in_transit)
+        "out_for_delivery" -> stringResource(R.string.parcel_status_out_for_delivery)
+        "at_pickup_point", "ready_for_pickup" ->
+            stringResource(R.string.parcel_status_at_pickup_point)
+        "ready_to_send" -> stringResource(R.string.parcel_status_ready_to_send)
+        "delivered" -> stringResource(R.string.parcel_delivered)
+        "unknown", "unavailable" -> stringResource(R.string.parcel_unknown_status)
+        else -> status.replace('_', ' ').replaceFirstChar(Char::uppercase)
+    }
+
 private fun JsonObject.isDeliveredParcel(): Boolean {
+    val explicitlyDelivered = this["delivered"]?.jsonPrimitive?.let { value ->
+        value.booleanOrNull ?: (value.contentOrNull?.let { it == "1" || it.equals("true", ignoreCase = true) })
+    } == true
     val status = listOfNotNull(parcelValue("status"), parcelValue("raw_status")).joinToString(" ")
-    return status.contains("delivered", true) || status.contains("bezorgd", true)
+    return explicitlyDelivered ||
+        status.contains("delivered", true) ||
+        status.contains("bezorgd", true) ||
+        status.contains("afgeleverd", true)
 }
 
 private fun JsonObject.isOutgoingParcel(): Boolean =
@@ -183,11 +213,219 @@ private fun isCurrentOrFutureLetter(letter: JsonObject, today: LocalDate = Local
 private fun HAEntity.parcelAttribute(name: String): String? =
     attributes?.get(name)?.jsonPrimitive?.contentOrNull
 
+private val PARCEL_PAYLOAD_MARKERS = setOf(
+    "status", "raw_status", "delivered", "delivered_at", "planned_from", "planned_to",
+    "pickup", "pickup_point", "url", "weight", "dimensions", "history", "raw"
+)
+
+private val PARCEL_LABEL_MARKERS = listOf(
+    "parcel", "package", "shipment", "pakket", "paket", "colis", "paquete", "pacco", "kargo"
+)
+
+private fun HAEntity.isIndividualParcelEntity(translationKey: String?): Boolean {
+    val attributes = attributes ?: return false
+    if (parcelAttribute("barcode").isNullOrBlank()) return false
+
+    // Current ha-parcel-integrations releases expose a stable registry translation key. It is a
+    // stronger signal than an entity id or localized friendly name: summary/helper sensors such
+    // as `next_delivery` can expose most of the same top-level attributes as a parcel.
+    if (!translationKey.isNullOrBlank()) {
+        return translationKey == "parcel"
+    }
+
+    // Summary/helper sensors may also expose a barcode. In particular, PostNL's next-delivery
+    // sensor only contains a barcode and sender; treating it as the parcel shadows the complete
+    // object from the incoming-parcels sensor during de-duplication.
+    if (entity_id.contains("next_delivery", ignoreCase = true)) return false
+    if (listOf("parcels", "shipments", "packages", "enroute", "delivered")
+            .any { attributes[it] is JsonArray }
+    ) return false
+    val hasCanonicalPayload = PARCEL_PAYLOAD_MARKERS.any(attributes::containsKey)
+    val label = "${entity_id.replace('_', ' ')} ${friendlyName.orEmpty()}"
+    val hasParcelLabel = PARCEL_LABEL_MARKERS.any { label.contains(it, ignoreCase = true) }
+    return hasCanonicalPayload || hasParcelLabel
+}
+
+private fun HAEntity.parcelDirection(translationKey: String?): String {
+    val label = "${entity_id.replace('_', ' ')} ${friendlyName.orEmpty()}"
+    return if (
+        translationKey?.contains("outgoing", ignoreCase = true) == true ||
+        label.contains("outgoing", ignoreCase = true) ||
+        label.contains("sent parcel", ignoreCase = true) ||
+        label.contains("uitgaande", ignoreCase = true) ||
+        label.contains("verzonden", ignoreCase = true) ||
+        label.contains("ausgehend", ignoreCase = true) ||
+        label.contains("sortant", ignoreCase = true) ||
+        label.contains("saliente", ignoreCase = true) ||
+        label.contains("in uscita", ignoreCase = true) ||
+        label.contains("giden", ignoreCase = true)
+    ) {
+        "Outgoing"
+    } else {
+        "Incoming"
+    }
+}
+
+private fun JsonObject.withParcelDirection(fallback: String): JsonObject = buildJsonObject {
+    this@withParcelDirection.forEach { (key, value) -> put(key, value) }
+    val explicit = listOf("_direction", "direction")
+        .firstNotNullOfOrNull { key -> this@withParcelDirection[key]?.jsonPrimitive?.contentOrNull }
+    val contactType = (this@withParcelDirection["raw"] as? JsonObject)
+        ?.get("contact_type")
+        ?.jsonPrimitive
+        ?.contentOrNull
+    val contactDirection = when {
+        contactType.equals("sender", ignoreCase = true) -> "Outgoing"
+        contactType.equals("receiver", ignoreCase = true) -> "Incoming"
+        else -> null
+    }
+    put("_direction", explicit ?: contactDirection ?: fallback)
+}
+
+private fun HAEntity.individualParcel(translationKey: String?): JsonObject? {
+    if (!isIndividualParcelEntity(translationKey)) return null
+    val source = attributes ?: return null
+    return buildJsonObject {
+        source.forEach { (key, value) -> put(key, value) }
+        if (!source.containsKey("status")) {
+            val entityState = state.takeIf { candidate ->
+                candidate.isNotBlank() &&
+                    candidate.toDoubleOrNull() == null &&
+                    !candidate.equals("unknown", ignoreCase = true) &&
+                    !candidate.equals("unavailable", ignoreCase = true) &&
+                    !Regex("""^\d{4}-\d{2}-\d{2}""").containsMatchIn(candidate)
+            }
+            entityState?.let { put("status", it) }
+        }
+    }.withParcelDirection(parcelDirection(translationKey))
+}
+
+private fun HAEntity.summaryParcels(translationKey: String?): List<JsonObject> {
+    val attributes = attributes ?: return emptyList()
+    val arrays = listOf("parcels", "shipments", "packages", "enroute", "delivered").mapNotNull { key ->
+        (attributes[key] as? JsonArray)?.let { key to it }
+    }
+    return arrays.flatMap { (sourceKey, array) ->
+        array.filterIsInstance<JsonObject>()
+            .filter { parcel ->
+                listOf("barcode", "tracking_number", "tracking_code", "trackingcode", "id", "key")
+                    .any { key -> parcel.parcelValue(key)?.isNotBlank() == true }
+            }
+            .map { parcel ->
+                buildJsonObject {
+                    parcel.forEach { (key, value) -> put(key, value) }
+                    if (!parcel.containsKey("barcode")) {
+                        listOf("key", "trackingcode", "tracking_code", "tracking_number")
+                            .firstNotNullOfOrNull(parcel::parcelValue)
+                            ?.let { put("barcode", it) }
+                    }
+                    if (!parcel.containsKey("sender")) {
+                        parcel.parcelValue("name")?.let { put("sender", it) }
+                    }
+                    if (!parcel.containsKey("raw_status")) {
+                        parcel.parcelValue("status_message")?.let { put("raw_status", it) }
+                    }
+                    if (!parcel.containsKey("delivered_at")) {
+                        parcel.parcelValue("delivery_date")?.let { put("delivered_at", it) }
+                    }
+                    if (sourceKey == "delivered" && !parcel.containsKey("delivered")) {
+                        put("delivered", true)
+                    }
+                }.withParcelDirection(parcelDirection(translationKey))
+            }
+    }
+}
+
+private fun JsonObject.parcelIdentity(): String {
+    val identifier = listOf("barcode", "tracking_number", "tracking_code", "trackingcode", "id", "key")
+        .firstNotNullOfOrNull { key -> parcelValue(key)?.takeIf(String::isNotBlank) }
+    if (identifier != null) return "id:${identifier.lowercase(Locale.ROOT)}"
+    return "fallback:" + listOf("sender", "receiver", "planned_from", "planned_to", "status")
+        .joinToString("|") { key -> parcelValue(key).orEmpty().lowercase(Locale.ROOT) }
+}
+
+private fun JsonElement.hasMeaningfulParcelValue(): Boolean = when (this) {
+    is JsonNull -> false
+    is JsonPrimitive -> contentOrNull?.isNotBlank() == true
+    is JsonArray -> isNotEmpty()
+    is JsonObject -> isNotEmpty()
+}
+
+private fun JsonObject.parcelCompleteness(): Int =
+    entries.sumOf { (key, value) ->
+        if (!value.hasMeaningfulParcelValue()) {
+            0
+        } else {
+            when (key) {
+                "history", "status", "raw_status", "planned_from", "planned_to", "delivered" -> 3
+                "barcode", "_direction" -> 1
+                else -> 2
+            }
+        }
+    }
+
+private data class ParcelCandidate(val parcel: JsonObject, val fromSummary: Boolean)
+
+private fun mergeParcelCandidates(candidates: List<ParcelCandidate>): JsonObject {
+    val merged = candidates.map(ParcelCandidate::parcel)
+        .sortedBy(JsonObject::parcelCompleteness)
+        .fold(buildJsonObject {}) { accumulated, candidate ->
+        buildJsonObject {
+            accumulated.forEach { (key, value) -> put(key, value) }
+            candidate.forEach { (key, value) -> put(key, value) }
+        }
+    }
+    val summaryDirection = candidates
+        .firstNotNullOfOrNull { candidate ->
+            candidate.takeIf(ParcelCandidate::fromSummary)
+                ?.parcel
+                ?.parcelValue("_direction")
+        }
+    return if (summaryDirection == null) merged else buildJsonObject {
+        merged.forEach { (key, value) -> put(key, value) }
+        put("_direction", summaryDirection)
+    }
+}
+
+private fun JsonObject.withCarrierCompatibility(domain: String?): JsonObject {
+    if (domain != "postnl") return this
+    val rawName = (this["raw"] as? JsonObject)
+        ?.get("name")
+        ?.jsonPrimitive
+        ?.contentOrNull
+        ?.takeIf(String::isNotBlank)
+        ?: return this
+    return buildJsonObject {
+        this@withCarrierCompatibility.forEach { (key, value) -> put(key, value) }
+        // PostNL shared-household parcels currently expose the account contact as `sender`.
+        // The actual shop remains available as raw.name until the upstream mapper is fixed.
+        put("sender", rawName)
+    }
+}
+
+internal fun collectCarrierParcels(
+    entities: List<HAEntity>,
+    translationKeys: Map<String, String> = emptyMap(),
+    domain: String? = null
+): List<JsonObject> {
+    val candidates = entities.flatMap { entity ->
+        val translationKey = translationKeys[entity.entity_id]
+        listOfNotNull(entity.individualParcel(translationKey)?.let { ParcelCandidate(it, false) }) +
+            entity.summaryParcels(translationKey).map { ParcelCandidate(it, true) }
+    }
+    return candidates
+        .groupBy { candidate -> candidate.parcel.parcelIdentity() }
+        .values
+        .map(::mergeParcelCandidates)
+        .map { parcel -> parcel.withCarrierCompatibility(domain) }
+}
+
 /** Every supported ha-parcel-integrations carrier: HA integration domain -> display name. */
 private val PARCEL_CARRIERS = linkedMapOf(
     "postnl" to "PostNL", "dhl_nl" to "DHL", "dpd" to "DPD", "gls" to "GLS",
     "dragonfly" to "Dragonfly", "cainiao" to "Cainiao", "correos" to "Correos",
-    "packeta" to "Packeta", "hermes" to "Hermes", "trunkrs" to "Trunkrs"
+    "packeta" to "Packeta", "hermes" to "Hermes", "trunkrs" to "Trunkrs",
+    "vinted_go" to "Vinted Go", "parcel_aggregator" to "Parcels"
 )
 
 /** Carriers whose integration exposes `<domain>.track_parcel` — a manual add-by-tracking-number
@@ -210,6 +448,8 @@ private fun carrierKey(text: String): String = when {
     text.contains("packeta", true) || text.contains("zasilkovna", true) -> "packeta"
     text.contains("hermes", true) -> "hermes"
     text.contains("trunkrs", true) -> "trunkrs"
+    text.contains("vinted", true) -> "vinted_go"
+    text.contains("parcel aggregator", true) -> "parcel_aggregator"
     else -> "parcel"
 }
 
@@ -253,7 +493,10 @@ internal fun aggregateParcelCarriers(carriers: List<ParcelCarrier>): List<Parcel
             logoUrl = accounts.firstNotNullOfOrNull { it.logoUrl },
             baseUrl = first.baseUrl,
             accessToken = first.accessToken,
-            domain = first.domain
+            domain = first.domain,
+            translationKeys = accounts
+                .flatMap { it.translationKeys.entries }
+                .associate { it.toPair() }
         )
     }
 }
@@ -269,10 +512,31 @@ private fun extractObjectList(attributes: JsonObject?): List<JsonObject> {
     }.orEmpty()
 }
 
-private fun countEntity(entities: List<HAEntity>, word: String): Int = entities
+private fun countEntity(
+    entities: List<HAEntity>,
+    translationKeys: Map<String, String>,
+    word: String
+): Int = entities
     .firstOrNull { entity ->
+        val translationKey = translationKeys[entity.entity_id].orEmpty()
         val text = "${entity.entity_id} ${entity.friendlyName.orEmpty()}"
-        text.contains(word, true) && text.contains("parcel", true) && !text.contains("delivered", true) && entity.parcelAttribute("barcode") == null
+        val stableRoleMatches = when (word) {
+            "incoming" -> translationKey == "incoming" || translationKey.startsWith("incoming_parcels")
+            "outgoing" -> translationKey == "outgoing" || translationKey.startsWith("outgoing_parcels")
+            else -> translationKey.contains(word, true)
+        }
+        val localizedRoleMatches = when (word) {
+            "incoming" -> listOf("incoming", "inkomende", "eingehend", "entrant", "entrante", "in arrivo", "gelen")
+            "outgoing" -> listOf("outgoing", "uitgaande", "ausgehend", "sortant", "saliente", "in uscita", "giden")
+            else -> listOf(word)
+        }.any { text.contains(it, true) }
+        val mentionsParcel = listOf("parcel", "pakket", "paket", "colis", "paquete", "pacco", "kargo")
+            .any { text.contains(it, true) }
+        (stableRoleMatches || (localizedRoleMatches && mentionsParcel)) &&
+            !translationKey.contains("delivered", true) &&
+            !text.contains("delivered", true) &&
+            !text.contains("bezorgd", true) &&
+            entity.parcelAttribute("barcode") == null
     }?.state?.toIntOrNull() ?: 0
 
 private fun resolveParcelCarriers(
@@ -283,7 +547,8 @@ private fun resolveParcelCarriers(
     customImages: Map<String, String>,
     customNames: Map<String, String>,
     currentUrl: String,
-    accessToken: String
+    accessToken: String,
+    fallbackCarrierName: String
 ): List<ParcelCarrier> {
     val entityDevice = registry.associate { it.entity_id to it.device_id }
     return deviceIds.distinct().mapNotNull { deviceId ->
@@ -315,8 +580,23 @@ private fun resolveParcelCarriers(
         // drawable resolved by domain in CarrierLogo.
         val image = customImages[deviceId]?.takeIf { it.isNotBlank() }
             ?.let { if (it.startsWith("http")) it else "${currentUrl.removeSuffix("/")}/${it.removePrefix("/")}" }
-        ParcelCarrier(key, customNames[deviceId]?.takeIf { it.isNotBlank() } ?: carrierName(domain), deviceId, deviceEntities,
-            countEntity(deviceEntities, "incoming"), countEntity(deviceEntities, "outgoing"), image, currentUrl, accessToken, domain = domain)
+        val translationKeys = registry
+            .asSequence()
+            .filter { it.device_id == deviceId && !it.translation_key.isNullOrBlank() }
+            .associate { it.entity_id to it.translation_key.orEmpty() }
+        val displayName = customNames[deviceId]?.takeIf { it.isNotBlank() }
+            ?: PARCEL_CARRIERS[domain]
+            ?: device?.name_by_user
+            ?: device?.name
+            ?: fallbackCarrierName
+        ParcelCarrier(key, displayName, deviceId, deviceEntities,
+            countEntity(deviceEntities, translationKeys, "incoming"),
+            countEntity(deviceEntities, translationKeys, "outgoing"),
+            image,
+            currentUrl,
+            accessToken,
+            domain = domain,
+            translationKeys = translationKeys)
     }
 }
 
@@ -335,6 +615,7 @@ fun ParcelsWidgetItem(
     val devices by viewModel.deviceRegistry.collectAsState()
     val currentUrl by viewModel.currentUrl.collectAsState()
     val accessToken by viewModel.accessToken.collectAsState()
+    val fallbackCarrierName = stringResource(R.string.parcel_generic_carrier)
     val hasUnresolvedDevices = widget.deviceIds.any { deviceId ->
         devices.none { it.id == deviceId } || registry.none { it.device_id == deviceId }
     }
@@ -349,12 +630,12 @@ fun ParcelsWidgetItem(
             }
         }
     }
-    val carriers = remember(widget.deviceIds, widget.carrierImageUrls, widget.carrierNames, widget.aggregateCarriers, entities, registry, devices, currentUrl, accessToken) {
-        val resolved = resolveParcelCarriers(widget.deviceIds, entities, registry, devices, widget.carrierImageUrls, widget.carrierNames, currentUrl, accessToken.orEmpty())
+    val carriers = remember(widget.deviceIds, widget.carrierImageUrls, widget.carrierNames, widget.aggregateCarriers, entities, registry, devices, currentUrl, accessToken, fallbackCarrierName) {
+        val resolved = resolveParcelCarriers(widget.deviceIds, entities, registry, devices, widget.carrierImageUrls, widget.carrierNames, currentUrl, accessToken.orEmpty(), fallbackCarrierName)
         if (widget.aggregateCarriers) aggregateParcelCarriers(resolved) else resolved
     }
-    val incoming = carriers.sumOf { it.incoming }
-    val outgoing = carriers.sumOf { it.outgoing }
+    val incoming = carriers.sumOf { it.incomingCount }
+    val outgoing = carriers.sumOf { it.outgoingCount }
     val supportsLetters = carriers.any { it.supportsLetters }
     val letters = carriers.sumOf { it.currentLetterCount }
     var showDialog by remember { mutableStateOf(false) }
@@ -395,10 +676,16 @@ fun ParcelsWidgetItem(
                 Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent, appColors.elevated.copy(.88f)))))
                 Surface(Modifier.align(Alignment.BottomStart).padding(10.dp), color = Color.Black.copy(.55f), shape = itemCornerShape()) {
                     Column(Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
-                        Text(widget.title ?: "Parcels", color = Color.White, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
-                        val summary = buildString {
-                            append("$incoming incoming · $outgoing outgoing")
-                            if (supportsLetters) append(" · $letters letters")
+                        Text(widget.title ?: stringResource(R.string.parcel_title), color = Color.White, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+                        val summary = if (supportsLetters) {
+                            stringResource(
+                                R.string.parcel_summary_with_letter_count,
+                                incoming,
+                                outgoing,
+                                pluralStringResource(R.plurals.parcel_letter_count, letters, letters)
+                            )
+                        } else {
+                            stringResource(R.string.parcel_summary, incoming, outgoing)
                         }
                         Text(summary, color = Color.White.copy(.7f), style = MaterialTheme.typography.labelSmall, fontSize = 10.sp)
                     }
@@ -475,11 +762,11 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel
     }
 
     com.jimz011apps.hki7.ui.components.ModernSettingsDialogFrame(
-        title = if (parcelDetail) "Tracking history" else carrier?.name ?: "Parcels",
+        title = if (parcelDetail) stringResource(R.string.parcel_tracking_history) else carrier?.name ?: stringResource(R.string.parcel_title),
         subtitle = when {
-            parcelDetail -> "Parcel journey and status updates"
-            carrier == null -> "Choose a carrier account"
-            else -> "${carrier.incoming} incoming · ${carrier.outgoing} outgoing"
+            parcelDetail -> stringResource(R.string.parcel_tracking_history_subtitle)
+            carrier == null -> stringResource(R.string.parcel_choose_carrier_account)
+            else -> stringResource(R.string.parcel_summary, carrier.incomingCount, carrier.outgoingCount)
         },
         icon = Icons.Default.LocalShipping,
         onDismiss = onDismiss,
@@ -504,7 +791,7 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 when {
-                    carriers.isEmpty() -> Text("Choose one or more carrier devices in widget settings.", color = appColors.onMuted)
+                    carriers.isEmpty() -> Text(stringResource(R.string.ui_choose_one_or_more_carrier_devices_in_widget_settings_100a4ca), color = appColors.onMuted)
                     carrier == null -> {
                         val scroll = rememberScrollState()
                         Column(Modifier.weight(1f).fadingEdges(scroll).verticalScroll(scroll), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -512,10 +799,10 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel
                             val anyLetters = carriers.any { it.supportsLetters }
                             Surface(shape = itemCornerShape(), color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = Modifier.fillMaxWidth()) {
                                 Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                                    SummaryPill("Incoming", carriers.sumOf { it.incoming }, Modifier.weight(1f))
-                                    SummaryPill("Delivered", carriers.sumOf { it.deliveredCount }, Modifier.weight(1f))
-                                    SummaryPill("Outgoing", carriers.sumOf { it.outgoing }, Modifier.weight(1f))
-                                    if (anyLetters) SummaryPill("Letters", carriers.sumOf { it.currentLetterCount }, Modifier.weight(1f))
+                                    SummaryPill(stringResource(R.string.parcel_incoming), carriers.sumOf { it.incomingCount }, Modifier.weight(1f))
+                                    SummaryPill(stringResource(R.string.parcel_delivered), carriers.sumOf { it.deliveredCount }, Modifier.weight(1f))
+                                    SummaryPill(stringResource(R.string.parcel_outgoing), carriers.sumOf { it.outgoingCount }, Modifier.weight(1f))
+                                    if (anyLetters) SummaryPill(stringResource(R.string.parcel_letters), carriers.sumOf { it.currentLetterCount }, Modifier.weight(1f))
                                 }
                             }
                             carriers.forEach { item ->
@@ -525,8 +812,24 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel
                                         CarrierLogo(item, 56)
                                         Column(Modifier.weight(1f)) {
                                             Text(item.name, fontWeight = FontWeight.Bold)
-                                            val letterSummary = if (item.supportsLetters) " · ${item.currentLetterCount} letters" else ""
-                                            Text("${item.incoming} incoming · ${item.outgoing} outgoing$letterSummary", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                                            Text(
+                                                if (item.supportsLetters) {
+                                                    stringResource(
+                                                        R.string.parcel_summary_with_letter_count,
+                                                        item.incomingCount,
+                                                        item.outgoingCount,
+                                                        pluralStringResource(
+                                                            R.plurals.parcel_letter_count,
+                                                            item.currentLetterCount,
+                                                            item.currentLetterCount
+                                                        )
+                                                    )
+                                                } else {
+                                                    stringResource(R.string.parcel_summary, item.incomingCount, item.outgoingCount)
+                                                },
+                                                color = appColors.onMuted,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
                                         }
                                     }
                                 }
@@ -558,7 +861,7 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel
                                 Tab(tab == item, {
                                     tab = item
                                     selectedHistory = null
-                                }, text = { Text("${item.title} ($count)", maxLines = 1) })
+                                }, text = { Text(stringResource(R.string.parcel_tab_count, stringResource(item.titleRes), count), maxLines = 1) })
                             }
                         }
                         val scroll = rememberScrollState()
@@ -571,7 +874,7 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel
                                     ParcelTab.Letters -> emptyList()
                                 }
                                 if (visibleParcels.isEmpty()) Text(
-                                    "No ${tab.title.lowercase()} parcels.",
+                                    stringResource(requireNotNull(tab.emptyRes)),
                                     color = appColors.onMuted,
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp)
@@ -585,7 +888,7 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel
                                 }
                             } else {
                                 if (carrier.letters.isEmpty()) Text(
-                                    "No announced letters.",
+                                    stringResource(R.string.ui_no_announced_letters_4382408),
                                     color = appColors.onMuted,
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp)
@@ -597,8 +900,8 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel
                                         Row(Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                             if (image != null) ParcelAsyncImage(carrier, image, null, Modifier.size(58.dp).clip(itemCornerShape()), ContentScale.Crop)
                                             Column(Modifier.weight(1f)) {
-                                                Text(letter["title"]?.jsonPrimitive?.contentOrNull ?: "Mail", fontWeight = FontWeight.SemiBold)
-                                                Text(letter["date"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime) ?: "Announced letter", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                                                Text(letter["title"]?.jsonPrimitive?.contentOrNull ?: stringResource(R.string.ui_mail_92379cb), fontWeight = FontWeight.SemiBold)
+                                                Text(letter["date"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime) ?: stringResource(R.string.ui_announced_letter_3a7ac05), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
                                             }
                                         }
                                     }
@@ -613,11 +916,11 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel
         footer = {
             if (canAddParcel && !parcelDetail) {
                 Button(onClick = { showAddParcel = true }) {
-                    Icon(Icons.Default.Add, null); Spacer(Modifier.width(6.dp)); Text("Add Parcel")
+                    Icon(Icons.Default.Add, null); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.ui_add_parcel_bde8afb))
                 }
                 Spacer(Modifier.weight(1f))
             }
-            TextButton(onClick = onDismiss) { Text("Done") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) }
         }
     )
     selectedLetter?.let { letter -> LetterViewerDialog(carrier, letter) { selectedLetter = null } }
@@ -638,10 +941,12 @@ private fun AddParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewMo
     var busy by remember { mutableStateOf(false) }
     var message by remember(selectedDomain) { mutableStateOf<String?>(null) }
     val needsPostcode = selected?.domain in TRACK_PARCEL_POSTCODE_DOMAINS
+    val addParcelError = stringResource(R.string.ui_could_not_add_the_parcel_check_the_number_and_fd157b4)
 
     com.jimz011apps.hki7.ui.components.ModernSettingsDialogFrame(
-        title = "Add parcel",
-        subtitle = selected?.let { "Track a new ${it.name} parcel by number" } ?: "Choose a carrier",
+        title = stringResource(R.string.ui_add_parcel_82c0bf8),
+        subtitle = selected?.let { stringResource(R.string.parcel_track_new, it.name) }
+            ?: stringResource(R.string.parcel_choose_carrier),
         icon = Icons.Default.Add,
         onDismiss = onDismiss,
         onBack = if (selected != null && addable.size > 1) ({ selectedDomain = null }) else null,
@@ -649,7 +954,7 @@ private fun AddParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewMo
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 when {
                     addable.isEmpty() -> Text(
-                        "None of your configured carriers support adding a parcel by tracking number. Account-based carriers (PostNL, DPD, DHL) only track what's already in your account.",
+                        stringResource(R.string.ui_none_of_your_configured_carriers_support_adding_a_parcel_21dc0a4),
                         color = appColors.onMuted
                     )
                     selected == null -> addable.forEach { c ->
@@ -664,11 +969,11 @@ private fun AddParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewMo
                     else -> {
                         OutlinedTextField(
                             value = tracking, onValueChange = { tracking = it; message = null },
-                            label = { Text("Tracking number") }, singleLine = true, modifier = Modifier.fillMaxWidth()
+                            label = { Text(stringResource(R.string.ui_tracking_number_4e40c54)) }, singleLine = true, modifier = Modifier.fillMaxWidth()
                         )
                         if (needsPostcode) OutlinedTextField(
                             value = postcode, onValueChange = { postcode = it },
-                            label = { Text("Postal code (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth()
+                            label = { Text(stringResource(R.string.ui_postal_code_optional_b86b6a2)) }, singleLine = true, modifier = Modifier.fillMaxWidth()
                         )
                         message?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
                     }
@@ -676,7 +981,7 @@ private fun AddParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewMo
             }
         },
         footer = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
             Spacer(Modifier.weight(1f))
             if (selected != null) Button(
                 enabled = !busy && tracking.isNotBlank(),
@@ -691,10 +996,10 @@ private fun AddParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewMo
                         val result = runCatching { viewModel.callServiceRawAwait(domain, "track_parcel", payload) }
                         busy = false
                         if (result.isSuccess) onDismiss()
-                        else message = "Could not add the parcel. Check the number and try again."
+                        else message = addParcelError
                     }
                 }
-            ) { Text(if (busy) "Adding…" else "Add") }
+            ) { Text(if (busy) stringResource(R.string.ui_adding_ffb2e62) else stringResource(R.string.ui_add_61cc55a)) }
         }
     )
 }
@@ -704,12 +1009,14 @@ private fun ParcelHistoryList(parcel: JsonObject, selected: JsonObject?, onSelec
     val appColors = LocalHKIAppColors.current
     val history = parcel["history"] as? JsonArray
     if (history.isNullOrEmpty()) {
-        Text("No status history (enable parcel history in the integration options)", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+        Text(stringResource(R.string.ui_no_status_history_enable_parcel_history_in_the_integration_302ca4a), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
         return
     }
     history.reversed().forEach { item ->
         val event = item as? JsonObject ?: return@forEach
-        val eventTitle = event["raw_status"]?.jsonPrimitive?.contentOrNull ?: event["status"]?.jsonPrimitive?.contentOrNull ?: "Update"
+        val eventTitle = event["raw_status"]?.jsonPrimitive?.contentOrNull
+            ?: event["status"]?.jsonPrimitive?.contentOrNull?.let { localizedParcelStatus(it) }
+            ?: stringResource(R.string.ui_update_fb91e24)
         val eventTime = event["timestamp"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime).orEmpty()
         val selectedColors = if (event == selected) {
             MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
@@ -734,7 +1041,10 @@ private fun ParcelHistoryList(parcel: JsonObject, selected: JsonObject?, onSelec
 private fun ParcelHero(carrier: ParcelCarrier, parcel: JsonObject?, history: JsonObject?) {
     fun JsonObject.attr(name: String) = this[name]?.jsonPrimitive?.contentOrNull
     val status = history?.attr("status") ?: parcel?.attr("status") ?: "unknown"
-    val rawStatus = history?.attr("raw_status") ?: parcel?.attr("raw_status") ?: status.replace('_', ' ')
+    val rawStatus = history?.attr("raw_status")
+        ?: parcel?.attr("raw_status")
+        ?: parcel?.attr("status")?.let { localizedParcelStatus(it) }
+        ?: stringResource(R.string.parcel_unknown_status)
     val delivered = parcel?.isDeliveredParcel() == true
     // Best available ETA/delivery moment. A planned window wins; otherwise any single expected-time
     // field; otherwise (for delivered parcels) the last history timestamp.
@@ -747,14 +1057,14 @@ private fun ParcelHero(carrier: ParcelCarrier, parcel: JsonObject?, history: Jso
         ?: singleEta
         ?: deliveredMoment
         ?: ""
-    val momentLabel = when { history != null -> "History"; delivered -> "Delivered"; else -> "Expected delivery" }
+    val momentLabel = when { history != null -> stringResource(R.string.ui_history_90ccd64); delivered -> stringResource(R.string.ui_delivered_eea956c); else -> stringResource(R.string.ui_expected_delivery_78d54b2) }
     val stage = when (status) { "registered" -> 0; "in_transit" -> 1; "out_for_delivery", "at_pickup_point" -> 2; "delivered" -> 3; else -> 1 }
     Surface(shape = itemCornerShape(), color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = Modifier.fillMaxWidth().height(190.dp)) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.SpaceBetween) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 CarrierLogo(carrier, 58)
                 Column(Modifier.weight(1f)) {
-                    Text(parcel?.attr("sender") ?: parcel?.attr("receiver") ?: parcel?.attr("barcode") ?: "No parcel selected", fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(parcel?.attr("sender") ?: parcel?.attr("receiver") ?: parcel?.attr("barcode") ?: stringResource(R.string.ui_no_parcel_selected_922a402), fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Text(rawStatus.replaceFirstChar(Char::uppercase), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall, maxLines = 2)
                 }
                 if (moment.isNotBlank()) Column(horizontalAlignment = Alignment.End) {
@@ -771,7 +1081,12 @@ private fun ParcelHero(carrier: ParcelCarrier, parcel: JsonObject?, history: Jso
                 }
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                listOf("Registered", "Sorting", "On the way", "Delivered").forEach { Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                listOf(
+                    stringResource(R.string.parcel_stage_registered),
+                    stringResource(R.string.parcel_stage_sorting),
+                    stringResource(R.string.parcel_stage_on_the_way),
+                    stringResource(R.string.parcel_delivered)
+                ).forEach { Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             }
         }
     }
@@ -780,8 +1095,10 @@ private fun ParcelHero(carrier: ParcelCarrier, parcel: JsonObject?, history: Jso
 @Composable
 private fun InteractiveParcelRow(parcel: JsonObject, selected: Boolean, onClick: () -> Unit) {
     fun attr(name: String) = parcel[name]?.jsonPrimitive?.contentOrNull
-    val title = attr("sender") ?: attr("receiver") ?: attr("barcode") ?: "Parcel"
-    val status = attr("raw_status") ?: attr("status") ?: "Unknown status"
+    val title = attr("sender") ?: attr("receiver") ?: attr("barcode") ?: stringResource(R.string.ui_parcel_9ddaaee)
+    val status = attr("raw_status")
+        ?: attr("status")?.let { localizedParcelStatus(it) }
+        ?: stringResource(R.string.parcel_unknown_status)
     val schedule = listOfNotNull(attr("planned_from")?.let(::formatParcelTime), attr("planned_to")?.let(::formatParcelTime)).joinToString(" – ")
     Surface(shape = itemCornerShape(), color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
@@ -797,17 +1114,17 @@ private fun InteractiveParcelRow(parcel: JsonObject, selected: Boolean, onClick:
 private fun LetterViewerDialog(carrier: ParcelCarrier?, letter: JsonObject, onDismiss: () -> Unit) {
     val image = carrier?.letterImage(letter)
     com.jimz011apps.hki7.ui.components.ModernSettingsDialogFrame(
-        title = letter["title"]?.jsonPrimitive?.contentOrNull ?: "Mail",
-        subtitle = letter["date"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime) ?: "Letter preview",
+        title = letter["title"]?.jsonPrimitive?.contentOrNull ?: stringResource(R.string.parcel_mail),
+        subtitle = letter["date"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime) ?: stringResource(R.string.parcel_letter_preview),
         icon = Icons.Default.Email,
         onDismiss = onDismiss,
         content = {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 if (image != null) ParcelAsyncImage(carrier, image, null, Modifier.fillMaxSize().clip(itemCornerShape()), ContentScale.Fit)
-                else Text("No letter image available", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                else Text(stringResource(R.string.ui_no_letter_image_available_eeb42c0), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         },
-        footer = { TextButton(onClick = onDismiss) { Text("Done") } }
+        footer = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) } }
     )
 }
 
@@ -821,14 +1138,14 @@ private fun ParcelDialogLegacy(carriers: List<ParcelCarrier>, onDismiss: () -> U
         onDismissRequest = onDismiss,
         title = {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                if (carrier != null && carriers.size > 1) IconButton(onClick = { selected = null }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Carriers") }
-                Text(carrier?.name ?: "Parcels", modifier = Modifier.weight(1f))
+                if (carrier != null && carriers.size > 1) IconButton(onClick = { selected = null }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.parcel_carriers)) }
+                Text(carrier?.name ?: stringResource(R.string.parcel_title), modifier = Modifier.weight(1f))
             }
         },
         text = {
             val scroll = rememberScrollState()
             Column(Modifier.heightIn(max = 520.dp).fadingEdges(scroll).verticalScroll(scroll), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                if (carriers.isEmpty()) Text("Choose one or more carrier devices in widget settings.", color = appColors.onMuted)
+                if (carriers.isEmpty()) Text(stringResource(R.string.ui_choose_one_or_more_carrier_devices_in_widget_settings_100a4ca), color = appColors.onMuted)
                 else if (carrier == null) carriers.forEach { item ->
                     Surface(shape = itemCornerShape(), color = appColors.subtleSurface,
                         modifier = Modifier.fillMaxWidth().clickable { selected = item.deviceId }) {
@@ -836,25 +1153,25 @@ private fun ParcelDialogLegacy(carriers: List<ParcelCarrier>, onDismiss: () -> U
                             CarrierLogo(item, 48)
                             Column(Modifier.weight(1f)) {
                                 Text(item.name, fontWeight = FontWeight.Bold, color = appColors.onSurface)
-                                Text("${item.incoming} incoming · ${item.outgoing} outgoing", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                                Text(stringResource(R.string.parcel_summary, item.incomingCount, item.outgoingCount), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
                             }
                         }
                     }
                 } else {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        SummaryPill("Incoming", carrier.incoming, Modifier.weight(1f))
-                        SummaryPill("Outgoing", carrier.outgoing, Modifier.weight(1f))
-                        if (carrier.letters.isNotEmpty()) SummaryPill("Mail", carrier.letters.size, Modifier.weight(1f))
+                        SummaryPill(stringResource(R.string.parcel_incoming), carrier.incomingCount, Modifier.weight(1f))
+                        SummaryPill(stringResource(R.string.parcel_outgoing), carrier.outgoingCount, Modifier.weight(1f))
+                        if (carrier.letters.isNotEmpty()) SummaryPill(stringResource(R.string.parcel_mail), carrier.letters.size, Modifier.weight(1f))
                     }
-                    if (carrier.parcels.isEmpty() && carrier.letters.isEmpty()) Text("No active parcels or mail.", color = appColors.onMuted)
+                    if (carrier.parcels.isEmpty() && carrier.letters.isEmpty()) Text(stringResource(R.string.ui_no_active_parcels_or_mail_6c9d49c), color = appColors.onMuted)
                     carrier.parcels.forEach { ParcelRow(it) }
                     carrier.letters.forEach { letter ->
                         val image = carrier.letterImage(letter)
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             if (image != null) AsyncImage(image, null, Modifier.size(52.dp).clip(itemCornerShape()), contentScale = ContentScale.Crop)
                             Box(Modifier.weight(1f)) {
-                                DetailRow(letter["title"]?.jsonPrimitive?.contentOrNull ?: "Mail",
-                                    letter["date"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime) ?: "Announced letter")
+                                DetailRow(letter["title"]?.jsonPrimitive?.contentOrNull ?: stringResource(R.string.parcel_mail),
+                                    letter["date"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime) ?: stringResource(R.string.ui_announced_letter_3a7ac05))
                             }
                         }
                     }
@@ -868,7 +1185,7 @@ private fun ParcelDialogLegacy(carriers: List<ParcelCarrier>, onDismiss: () -> U
     val colors = MaterialTheme.colorScheme
     Surface(modifier, shape = itemCornerShape(), color = colors.surfaceContainerHigh) {
         Column(Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("$count", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.ui_text_c79f712, count), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
             Text(label, style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant)
         }
     }
@@ -876,8 +1193,10 @@ private fun ParcelDialogLegacy(carriers: List<ParcelCarrier>, onDismiss: () -> U
 
 @Composable private fun ParcelRow(parcel: JsonObject) {
     fun attr(name: String) = parcel[name]?.jsonPrimitive?.contentOrNull
-    val title = attr("sender") ?: attr("receiver") ?: attr("barcode") ?: "Parcel"
-    val status = attr("raw_status") ?: attr("status") ?: "Unknown status"
+    val title = attr("sender") ?: attr("receiver") ?: attr("barcode") ?: stringResource(R.string.ui_parcel_9ddaaee)
+    val status = attr("raw_status")
+        ?: attr("status")?.let { localizedParcelStatus(it) }
+        ?: stringResource(R.string.parcel_unknown_status)
     val direction = attr("_direction")
     val from = attr("planned_from")
     val to = attr("planned_to")
@@ -886,19 +1205,25 @@ private fun ParcelDialogLegacy(carriers: List<ParcelCarrier>, onDismiss: () -> U
         Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(title, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(status.replaceFirstChar(Char::uppercase), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
-            if (direction != null) Text(direction, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelSmall)
+            if (direction != null) Text(
+                if (parcel.isOutgoingParcel()) stringResource(R.string.parcel_outgoing) else stringResource(R.string.parcel_incoming),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelSmall
+            )
             if (schedule.isNotBlank()) Text(schedule, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelMedium)
-            attr("pickup_point")?.let { Text("Pickup: $it", style = MaterialTheme.typography.bodySmall) }
+            attr("pickup_point")?.let { Text(stringResource(R.string.ui_pickup_b6da461, it), style = MaterialTheme.typography.bodySmall) }
             val history = parcel["history"] as? JsonArray
             if (!history.isNullOrEmpty()) {
-                Text("History", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(R.string.ui_history_90ccd64), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)
                 history.takeLast(4).reversed().forEach { item ->
                     val obj = item as? JsonObject ?: return@forEach
-                    DetailRow(obj["raw_status"]?.jsonPrimitive?.contentOrNull ?: obj["status"]?.jsonPrimitive?.contentOrNull ?: "Update",
+                    DetailRow(obj["raw_status"]?.jsonPrimitive?.contentOrNull
+                        ?: obj["status"]?.jsonPrimitive?.contentOrNull?.let { localizedParcelStatus(it) }
+                        ?: stringResource(R.string.ui_update_fb91e24),
                         obj["timestamp"]?.jsonPrimitive?.contentOrNull?.let(::formatParcelTime).orEmpty())
                 }
             } else {
-                Text("No status history (enable parcel history in the integration options)", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall)
+                Text(stringResource(R.string.ui_no_status_history_enable_parcel_history_in_the_integration_302ca4a), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall)
             }
         }
     }
@@ -912,7 +1237,10 @@ private fun ParcelDialogLegacy(carriers: List<ParcelCarrier>, onDismiss: () -> U
 }
 
 private fun formatParcelTime(value: String): String = runCatching {
-    OffsetDateTime.parse(value).format(DateTimeFormatter.ofPattern("EEE d MMM, HH:mm"))
+    OffsetDateTime.parse(value).format(
+        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+            .withLocale(Locale.getDefault())
+    )
 }.getOrDefault(value)
 
 /** Device picker that waits for the HA registries instead of presenting an empty search list. */
@@ -935,13 +1263,13 @@ fun ParcelDevicePickerDialog(
     if (devices.isEmpty()) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text("Select Device") },
+            title = { Text(stringResource(R.string.ui_select_device_87a4751)) },
             text = {
                 Row(Modifier.fillMaxWidth().padding(vertical = 28.dp), horizontalArrangement = Arrangement.Center) {
                     CircularProgressIndicator()
                 }
             },
-            confirmButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+            confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
         )
     } else {
         DevicePickerDialog(devices, currentId, onDismiss, onSelected)
@@ -967,6 +1295,7 @@ fun ParcelsWidgetSettingsDialog(
     var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
     var picking by remember { mutableStateOf(false) }
     var settingsPage by remember(widget) { mutableStateOf("accounts") }
+    val defaultTitle = stringResource(R.string.parcel_title)
     val hasUnresolvedDevices = deviceIds.any { id -> devices.none { it.id == id } }
     LaunchedEffect(deviceIds, hasUnresolvedDevices) {
         if (deviceIds.isNotEmpty() && hasUnresolvedDevices) {
@@ -985,47 +1314,56 @@ fun ParcelsWidgetSettingsDialog(
         // Do not compose the settings AlertDialog over the device picker.
         return
     }
-    AlertDialog(stableHeight = true, onDismissRequest = onDismiss, title = { com.jimz011apps.hki7.ui.components.ModernSettingsDialogTitle("Parcels", "Carrier accounts, aggregation, and appearance") }, text = {
+    AlertDialog(stableHeight = true, onDismissRequest = onDismiss, title = {
+        com.jimz011apps.hki7.ui.components.ModernSettingsDialogTitle(
+            stringResource(R.string.parcel_title),
+            stringResource(R.string.parcel_settings_subtitle)
+        )
+    }, text = {
         val scroll = rememberScrollState()
         // stableHeight gives the dialog a fixed tall frame; fill it so the scroll area spans the
         // whole body instead of capping at 480dp and leaving the lower half empty.
         Column(Modifier.fillMaxHeight().fadingEdges(scroll).verticalScroll(scroll), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             com.jimz011apps.hki7.ui.components.SettingsTabRow(
-                tabs = listOf("accounts" to "Accounts", "organization" to "Organization", "appearance" to "Appearance"),
+                tabs = listOf(
+                    "accounts" to stringResource(R.string.parcel_settings_accounts),
+                    "organization" to stringResource(R.string.parcel_settings_organization),
+                    "appearance" to stringResource(R.string.parcel_settings_appearance)
+                ),
                 selected = settingsPage,
                 onSelect = { settingsPage = it }
             )
             if (settingsPage == "accounts") {
-            com.jimz011apps.hki7.ui.components.SettingsSubcategory("Carrier accounts", "Add every integration account that should contribute parcels")
-            OutlinedTextField(title, { title = it }, label = { Text("Title") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            Text("Carrier devices", style = MaterialTheme.typography.labelLarge)
+            com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_carrier_accounts_20ad36c), stringResource(R.string.ui_add_every_integration_account_that_should_contribute_parce_ce58afb))
+            OutlinedTextField(title, { title = it }, label = { Text(stringResource(R.string.ui_title_768e0c1)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            Text(stringResource(R.string.ui_carrier_devices_9927ae1), style = MaterialTheme.typography.labelLarge)
             deviceIds.forEach { id ->
                 Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         val device = devices.firstOrNull { it.id == id }
-                        Text(device?.let { it.name_by_user ?: it.name } ?: "Loading device...", modifier = Modifier.weight(1f), maxLines = 1)
-                        IconButton(onClick = { deviceIds = deviceIds - id; imageUrls = imageUrls - id; carrierNames = carrierNames - id }) { Icon(Icons.Default.Close, "Remove") }
+                        Text(device?.let { it.name_by_user ?: it.name } ?: stringResource(R.string.ui_loading_device_a3fda88), modifier = Modifier.weight(1f), maxLines = 1)
+                        IconButton(onClick = { deviceIds = deviceIds - id; imageUrls = imageUrls - id; carrierNames = carrierNames - id }) { Icon(Icons.Default.Close, stringResource(R.string.action_remove)) }
                     }
                     OutlinedTextField(
                         value = carrierNames[id].orEmpty(),
                         onValueChange = { value -> carrierNames = if (value.isBlank()) carrierNames - id else carrierNames + (id to value) },
-                        label = { Text("Carrier display name (optional)") },
+                        label = { Text(stringResource(R.string.ui_carrier_display_name_optional_5ca06fc)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
                         value = imageUrls[id].orEmpty(),
                         onValueChange = { value -> imageUrls = if (value.isBlank()) imageUrls - id else imageUrls + (id to value) },
-                        label = { Text("Logo URL or HA/local path (optional)") },
+                        label = { Text(stringResource(R.string.ui_logo_url_or_ha_local_path_optional_e795f06)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
-            TextButton(onClick = { picking = true }) { Icon(Icons.Default.Add, null); Spacer(Modifier.width(6.dp)); Text("Add carrier device") }
+            TextButton(onClick = { picking = true }) { Icon(Icons.Default.Add, null); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.ui_add_carrier_device_7945283)) }
             }
             if (settingsPage == "organization") {
-            com.jimz011apps.hki7.ui.components.SettingsSubcategory("Organization", "Control how accounts become tabs and lists")
+            com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_organization_519255a), stringResource(R.string.ui_control_how_accounts_become_tabs_and_lists_f100249))
             Surface(
                 modifier = Modifier.fillMaxWidth().clickable { aggregateCarriers = !aggregateCarriers },
                 shape = itemCornerShape(),
@@ -1036,9 +1374,9 @@ fun ParcelsWidgetSettingsDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(Modifier.weight(1f)) {
-                        Text("Aggregate carriers", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.ui_aggregate_carriers_eae26c7), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                         Text(
-                            "Combine multiple accounts from the same carrier into one tab and parcel list.",
+                            stringResource(R.string.ui_combine_multiple_accounts_from_the_same_carrier_into_one_0006a49),
                             style = MaterialTheme.typography.bodySmall,
                             color = LocalHKIAppColors.current.onMuted
                         )
@@ -1049,16 +1387,16 @@ fun ParcelsWidgetSettingsDialog(
             }
             }
             if (settingsPage == "appearance") {
-            com.jimz011apps.hki7.ui.components.SettingsSubcategory("Appearance", "Card size, shape, and background")
+            com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_appearance_41def7a), stringResource(R.string.ui_card_size_shape_and_background_df75707))
             WidgetWidthSelector(width, { width = it })
-            Text("Shape", style = MaterialTheme.typography.labelLarge)
+            Text(stringResource(R.string.ui_shape_ea5c1a2), style = MaterialTheme.typography.labelLarge)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(!square, { square = false }, label = { Text("Standard") })
-                FilterChip(square, { square = true }, label = { Text("Square") })
+                FilterChip(!square, { square = false }, label = { Text(stringResource(R.string.ui_standard_2dfa660)) })
+                FilterChip(square, { square = true }, label = { Text(stringResource(R.string.ui_square_82810cb)) })
             }
             WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
             }
         }
-    }, confirmButton = { Button(onClick = { onSave(widget.copy(deviceIds = deviceIds, carrierImageUrls = imageUrls, carrierNames = carrierNames, aggregateCarriers = aggregateCarriers, title = title.ifBlank { "Parcels" }, width = width, isSquare = square, cornerRadius = radius, backgroundUrl = backgroundUrl)) }) { Text("Save") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } })
+    }, confirmButton = { Button(onClick = { onSave(widget.copy(deviceIds = deviceIds, carrierImageUrls = imageUrls, carrierNames = carrierNames, aggregateCarriers = aggregateCarriers, title = title.ifBlank { defaultTitle }, width = width, isSquare = square, cornerRadius = radius, backgroundUrl = backgroundUrl)) }) { Text(stringResource(R.string.ui_save_efc007a)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } })
 }

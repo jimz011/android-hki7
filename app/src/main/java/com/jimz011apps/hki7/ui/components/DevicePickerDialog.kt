@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -59,12 +63,12 @@ fun DevicePickerDialogWithAlternative(
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Select Device") },
+        title = { Text(stringResource(R.string.ui_select_device_87a4751)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = query, onValueChange = { query = it },
-                    placeholder = { Text("Search devices") },
+                    placeholder = { Text(stringResource(R.string.ui_search_devices_2ce0b70)) },
                     singleLine = true, modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(8.dp))
@@ -75,7 +79,7 @@ fun DevicePickerDialogWithAlternative(
                 LazyColumn(Modifier.heightIn(max = 340.dp).fadingEdges(listState), state = listState) {
                     if (currentId != null) {
                         item {
-                            TextButton(onClick = { onSelected(null) }) { Text("Clear selection") }
+                            TextButton(onClick = { onSelected(null) }) { Text(stringResource(R.string.ui_clear_selection_247fd63)) }
                         }
                     }
                     items(filtered.size) { i ->
@@ -95,6 +99,6 @@ fun DevicePickerDialogWithAlternative(
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } }
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_close_bbfa773)) } }
     )
 }

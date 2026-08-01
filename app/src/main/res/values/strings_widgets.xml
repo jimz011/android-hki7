@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widgets_tab_content">Content</string>
+    <string name="widgets_tab_appearance">Appearance</string>
+    <string name="widgets_tab_data">Data</string>
+    <string name="widgets_tab_chart">Chart</string>
+    <string name="widgets_tab_graphs">Graphs</string>
+    <string name="widgets_tab_layout">Layout</string>
+    <string name="widgets_tab_data_sources">Data sources</string>
+    <string name="widgets_remove">Remove</string>
+    <string name="widgets_reimport">Re-import</string>
+    <string name="widgets_unavailable">Unavailable</string>
+    <string name="widgets_today">Today</string>
+    <string name="widgets_tomorrow">Tomorrow</string>
+    <string name="widgets_yesterday">Yesterday</string>
+    <string name="widgets_today_initial">T</string>
+    <string name="widgets_date_range">%1$s – %2$s</string>
+
+    <string name="widgets_iframe_title">iFrame</string>
+    <string name="widgets_iframe_subtitle">Embed a web page on your dashboard</string>
+    <string name="widgets_ratio_square">Square</string>
+    <string name="widgets_ratio_wide">Wide</string>
+    <string name="widgets_ratio_tall">Tall</string>
+    <string name="widgets_markdown_title">Markdown</string>
+    <string name="widgets_markdown_subtitle">Content and card appearance</string>
+    <string name="widgets_media_player_title">Media player</string>
+    <string name="widgets_media_player_subtitle">Source, layout, and artwork</string>
+
+    <string name="widgets_stat_min">Min</string>
+    <string name="widgets_stat_average">Avg</string>
+    <string name="widgets_stat_max">Max</string>
+    <string name="widgets_sensor_graph_title">Sensor graph</string>
+    <string name="widgets_sensor_graph_subtitle">Entities, chart style, and appearance</string>
+    <string name="widgets_sensor_graph_stack_title">Sensor graph stack</string>
+    <string name="widgets_sensor_graph_stack_subtitle">Grouped charts and stack layout</string>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="one">Graph %1$d · %2$d sensor</item>
+        <item quantity="other">Graph %1$d · %2$d sensors</item>
+    </plurals>
+
+    <string name="widgets_calendar_title">Calendar</string>
+    <string name="widgets_calendar_subtitle">Calendars, default view, and appearance</string>
+    <string name="widgets_calendar_agenda">Agenda</string>
+    <string name="widgets_calendar_week">Week</string>
+    <string name="widgets_calendar_month">Month</string>
+    <string name="widgets_calendar_no_entity">No calendar entity available</string>
+    <string name="widgets_calendar_no_upcoming_events">No events in the coming days</string>
+    <string name="widgets_calendar_no_events_for">No events for %1$s</string>
+    <string name="widgets_calendar_all_day">All day</string>
+    <string name="widgets_calendar_time_unknown">Time unknown</string>
+
+    <string name="widgets_vacuum_state_cleaning">Cleaning</string>
+    <string name="widgets_vacuum_state_docked">Docked</string>
+    <string name="widgets_vacuum_state_paused">Paused</string>
+    <string name="widgets_vacuum_state_error">Error</string>
+    <string name="widgets_vacuum_state_returning">Returning to dock</string>
+    <string name="widgets_vacuum_dock">Dock</string>
+    <string name="widgets_vacuum_start">Start</string>
+    <string name="widgets_vacuum_pause">Pause</string>
+    <string name="widgets_vacuum_stop">Stop</string>
+    <string name="widgets_vacuum_locate">Locate</string>
+    <string name="widgets_vacuum_page_status">%1$d/%2$d · %3$s</string>
+    <string name="widgets_vacuum_fan_speed">Fan speed</string>
+    <string name="widgets_vacuum_water_level">Water level</string>
+    <string name="widgets_vacuum_map">Vacuum map</string>
+    <string name="widgets_vacuum_room_number">Room %1$d</string>
+
+    <string name="widgets_waste_collection_title">Waste collection</string>
+    <string name="widgets_waste_collection_subtitle">Sensors, calendar, and appearance</string>
+    <string name="widgets_waste_sensor_picture_help">Shows the sensor’s entity_picture (falls back to the type icon when no picture is available).</string>
+    <string name="widgets_waste_organic">Organic waste</string>
+    <string name="widgets_waste_packaging">Packaging</string>
+    <string name="widgets_waste_paper">Paper</string>
+    <string name="widgets_waste_residual">Residual waste</string>
+    <string name="widgets_waste_glass">Glass</string>
+    <string name="widgets_waste_textiles">Textiles</string>
+    <string name="widgets_waste_plastic">Plastic</string>
+    <string name="widgets_waste_christmas_trees">Christmas trees</string>
+    <string name="widgets_waste_bulky">Bulky waste</string>
+    <string name="widgets_waste_duo_bin">Duo bin</string>
+
+    <string name="widgets_weather_title">Weather</string>
+    <string name="widgets_weather_subtitle">Entity, card type, and appearance</string>
+    <string name="widgets_weather_style_current">Current weather</string>
+    <string name="widgets_weather_style_daily">Daily forecast</string>
+    <string name="widgets_weather_style_hourly">Hourly forecast</string>
+    <string name="widgets_weather_style_horizon">Sunrise &amp; sunset horizon</string>
+    <string name="widgets_weather_style_wind">Wind compass</string>
+    <string name="widgets_weather_style_rain_map">Rain map (image URL)</string>
+    <string-array name="widgets_compass_directions">
+        <item>N</item><item>NNE</item><item>NE</item><item>ENE</item>
+        <item>E</item><item>ESE</item><item>SE</item><item>SSE</item>
+        <item>S</item><item>SSW</item><item>SW</item><item>WSW</item>
+        <item>W</item><item>WNW</item><item>NW</item><item>NNW</item>
+    </string-array>
+
+    <string name="widgets_battery_entities">Battery entities</string>
+    <string name="widgets_battery_settings">Battery settings</string>
+    <string name="widgets_battery_empty_view_hint">This battery view is empty. Swipe down on the header and open Battery settings to add entities manually.</string>
+    <string name="widgets_battery_levels_title">Battery levels</string>
+    <string name="widgets_battery_levels_subtitle">Thresholds, sources, and appearance</string>
+    <string name="widgets_battery_rules">Battery rules</string>
+    <string name="widgets_battery_all">All</string>
+    <string name="widgets_battery_critical">Critical</string>
+    <string name="widgets_battery_low">Low</string>
+    <string name="widgets_battery_watch">Watch</string>
+    <string name="widgets_battery_good">Good</string>
+    <string name="widgets_battery_unknown">Unknown</string>
+    <string name="widgets_battery_range_critical">0–10%</string>
+    <string name="widgets_battery_range_low">11–30%</string>
+    <string name="widgets_battery_range_watch">31–50%</string>
+    <string name="widgets_battery_range_good">Above 50%</string>
+    <string name="widgets_battery_range_unknown">Unavailable or unknown</string>
+    <string name="widgets_battery_no_data">No battery data</string>
+    <string name="widgets_battery_levels_unavailable">Battery levels unavailable</string>
+    <string name="widgets_battery_levels_healthy">Battery levels look healthy</string>
+    <string name="widgets_battery_lowest_detail">Lowest: %1$s at %2$d%%</string>
+    <string name="widgets_battery_showing_plus">Showing Battery+ devices</string>
+    <string name="widgets_battery_waiting_levels">Waiting for reported levels</string>
+    <string name="widgets_battery_lowest">Lowest</string>
+    <string name="widgets_battery_attention">Attention</string>
+    <string name="widgets_battery_tracked">Tracked</string>
+    <string name="widgets_battery_level">Level</string>
+    <string name="widgets_battery_name">Name</string>
+    <string name="widgets_battery_type">Battery type</string>
+    <string name="widgets_battery_entity">Entity</string>
+    <string name="widgets_battery_quantity">Quantity</string>
+    <string name="widgets_battery_quantity_short">Qty %1$s</string>
+    <string name="widgets_battery_device_id">Device ID</string>
+    <string name="widgets_battery_unknown_type">Unknown type</string>
+    <string name="widgets_battery_sort_summary">Sort: %1$s</string>
+    <string name="widgets_battery_no_filters">No filters active</string>
+    <string name="widgets_battery_collapse_filters">Collapse filters</string>
+    <string name="widgets_battery_expand_filters">Expand filters</string>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="one">%1$d low battery</item>
+        <item quantity="other">%1$d low batteries</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="one">%1$d critical battery</item>
+        <item quantity="other">%1$d critical batteries</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="one">%1$d battery needs attention</item>
+        <item quantity="other">%1$d batteries need attention</item>
+    </plurals>
+
+    <string name="widgets_energy_day">Day</string>
+    <string name="widgets_energy_week">Week</string>
+    <string name="widgets_energy_month">Month</string>
+    <string name="widgets_energy_year">Year</string>
+    <string name="widgets_energy_this_week">This week</string>
+    <string name="widgets_energy_this_month">This month</string>
+    <string name="widgets_energy_this_year">This year</string>
+    <string name="widgets_energy_today_lower">today</string>
+    <string name="widgets_energy_this_week_lower">this week</string>
+    <string name="widgets_energy_this_month_lower">this month</string>
+    <string name="widgets_energy_this_year_lower">this year</string>
+    <string name="widgets_energy_yesterday_lower">yesterday</string>
+    <string name="widgets_energy_consumed_solar">Consumed solar</string>
+    <string name="widgets_energy_imported">Imported</string>
+    <string name="widgets_energy_exported">Exported</string>
+    <string name="widgets_energy_phase_number">Phase %1$d</string>
+    <string name="widgets_energy_forecast_number">Forecast %1$d</string>
+    <string name="widgets_energy_ha_forecast">Home Assistant forecast</string>
+</resources>

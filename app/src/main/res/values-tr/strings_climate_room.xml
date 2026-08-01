@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cr_state_on">Açık</string>
+    <string name="cr_state_off">Kapalı</string>
+    <string name="cr_open">Aç</string>
+    <string name="cr_close">Kapat</string>
+    <string name="cr_stop">Durdur</string>
+    <string name="cr_closed">Kapalı</string>
+    <string name="cr_opening">Açılıyor</string>
+    <string name="cr_closing">Kapanıyor</string>
+    <string name="cr_locked">Kilitli</string>
+    <string name="cr_unlocked">Kilidi açık</string>
+    <string name="cr_unavailable">Kullanılamıyor</string>
+    <string name="cr_unknown">Bilinmiyor</string>
+    <string name="cr_idle">Boşta</string>
+    <string name="cr_home">Evde</string>
+    <string name="cr_away">Evde değil</string>
+    <string name="cr_cleaning">Temizliyor</string>
+    <string name="cr_returning">İstasyona dönüyor</string>
+    <string name="cr_paused">Duraklatıldı</string>
+    <string name="cr_error">Hata</string>
+    <string name="cr_playing">Oynatılıyor</string>
+    <string name="cr_buffering">Arabelleğe alınıyor</string>
+    <string name="cr_standby">Beklemede</string>
+    <string name="cr_humidifying">Nemlendiriyor</string>
+    <string name="cr_drying">Kurutuyor</string>
+    <string name="cr_detected">Algılandı</string>
+    <string name="cr_clear">Temiz</string>
+    <string name="cr_problem">Sorun</string>
+    <string name="cr_ok">Tamam</string>
+    <string name="cr_low">Düşük</string>
+    <string name="cr_normal">Normal</string>
+    <string name="cr_connected">Bağlı</string>
+    <string name="cr_disconnected">Bağlı değil</string>
+    <string name="cr_plugged_in">Prize takılı</string>
+    <string name="cr_unplugged">Prizden çıkarılmış</string>
+    <string name="cr_wet">Islak</string>
+    <string name="cr_dry">Kuru</string>
+    <string name="cr_none">Yok</string>
+    <string name="cr_any">Sınırsız</string>
+    <string name="cr_remove">Kaldır</string>
+    <string name="cr_restore">Geri yükle</string>
+    <string name="cr_general">Genel</string>
+    <string name="cr_identity">Kimlik</string>
+    <string name="cr_appearance">Görünüm</string>
+    <string name="cr_layout">Düzen</string>
+    <string name="cr_behavior">Davranış</string>
+    <string name="cr_profiles">Profiller</string>
+    <string name="cr_playback">Oynatma</string>
+    <string name="cr_content">İçerik</string>
+    <string name="cr_actions">Eylemler</string>
+    <string name="cr_protection">Koruma</string>
+    <string name="cr_power">Güç</string>
+    <string name="cr_brightness">Parlaklık</string>
+    <string name="cr_temperature">Sıcaklık</string>
+    <string name="cr_color">Renk</string>
+    <string name="cr_min">Min.</string>
+    <string name="cr_avg">Ort.</string>
+    <string name="cr_max">Maks.</string>
+    <string name="cr_now">Şimdi</string>
+    <string name="cr_lowest">En düşük</string>
+    <string name="cr_average">Ortalama</string>
+    <string name="cr_highest">En yüksek</string>
+    <string name="cr_live">Canlı</string>
+    <string name="cr_once">Bir kez</string>
+    <string name="cr_daily">Her gün</string>
+    <string name="cr_weekly">Her hafta</string>
+    <string name="cr_monthly">Her ay</string>
+    <string name="cr_yearly">Her yıl</string>
+    <string name="cr_action_tap">Dokunma</string>
+    <string name="cr_action_double_tap">Çift dokunma</string>
+    <string name="cr_action_hold">Basılı tutma</string>
+
+    <string name="cr_mode">Mod</string>
+    <string name="cr_mode_auto">Otomatik</string>
+    <string name="cr_mode_heat">Isıtma</string>
+    <string name="cr_mode_cool">Soğutma</string>
+    <string name="cr_mode_heat_cool">Isıtma/soğutma</string>
+    <string name="cr_mode_dry">Nem alma</string>
+    <string name="cr_mode_fan_only">Yalnızca fan</string>
+    <string name="cr_mode_low">Düşük</string>
+    <string name="cr_mode_medium">Orta</string>
+    <string name="cr_mode_high">Yüksek</string>
+    <string name="cr_mode_quiet">Sessiz</string>
+    <string name="cr_mode_boost">Turbo</string>
+    <string name="cr_mode_eco">Eko</string>
+    <string name="cr_mode_sleep">Uyku</string>
+    <string name="cr_mode_manual">Manuel</string>
+    <string name="cr_mode_vertical">Dikey</string>
+    <string name="cr_mode_horizontal">Yatay</string>
+    <string name="cr_mode_both">İkisi de</string>
+    <string name="cr_mode_up">Yukarı</string>
+    <string name="cr_mode_down">Aşağı</string>
+    <string name="cr_mode_center">Orta</string>
+    <string name="cr_mode_left">Sol</string>
+    <string name="cr_mode_right">Sağ</string>
+    <string name="cr_climate_fan">Fan</string>
+    <string name="cr_climate_vertical_airflow">Dikey hava akışı</string>
+    <string name="cr_climate_horizontal_airflow">Yatay hava akışı</string>
+    <string name="cr_climate_preset">Ön ayar</string>
+    <string name="cr_fan_speed">Fan hızı</string>
+    <string name="cr_speed">Hız</string>
+    <string name="cr_lower_target">Hedef sıcaklığı düşür</string>
+    <string name="cr_raise_target">Hedef sıcaklığı yükselt</string>
+
+    <string name="cr_climate_temperature">Sıcaklık</string>
+    <string name="cr_climate_all_temperature_sensors">Tüm sıcaklık sensörleri</string>
+    <string name="cr_climate_outside">Dış ortam</string>
+    <string name="cr_climate_outside_summary">Dış ortam sıcaklığı, nemi ve basıncı</string>
+    <string name="cr_climate_humidity">Nem</string>
+    <string name="cr_climate_all_humidity_sensors">Tüm nem sensörleri</string>
+    <string name="cr_climate_air_pressure">Hava basıncı</string>
+    <string name="cr_climate_all_pressure_sensors">Tüm hava basıncı sensörleri</string>
+    <string name="cr_climate_co2">CO₂</string>
+    <string name="cr_climate_carbon_dioxide_sensors">Karbondioksit sensörleri</string>
+    <string name="cr_climate_air_quality">Hava kalitesi</string>
+    <string name="cr_climate_air_quality_summary">Partiküller, HKİ, UOB’ler ve gazlar</string>
+    <string name="cr_climate_entities">İklim varlıkları</string>
+    <string name="cr_reimport">Yeniden içe aktar</string>
+    <string name="cr_climate_settings">İklim ayarları</string>
+    <string name="cr_empty_climate_view">Henüz iklim verisi yok.</string>
+    <string name="cr_climate_fans">Fanlar</string>
+    <string name="cr_climate_air_purifiers">Hava temizleyiciler</string>
+    <string name="cr_climate_humidifiers">Nemlendiriciler</string>
+    <string name="cr_temperature_sensors">Sıcaklık sensörleri</string>
+    <string name="cr_devices_active">Etkin cihazlar</string>
+    <string name="cr_active_of_total">%2$d cihazdan %1$d tanesi etkin</string>
+    <string name="cr_no_search_active">Etkin arama yok · %1$s</string>
+    <string name="cr_collapse_search">Aramayı daralt</string>
+    <string name="cr_expand_search">Aramayı genişlet</string>
+    <string name="cr_custom_order">Özel sıralama</string>
+    <string name="cr_name_a_z">Ad A–Z</string>
+    <string name="cr_name_z_a">Ad Z–A</string>
+    <string name="cr_climate_device">İklim cihazı</string>
+    <string name="cr_climate_device_subtitle">Ad, simge, kart stili ve genişlik</string>
+    <string name="cr_count_with_average">%1$s · ort. %2$s%3$s</string>
+    <string name="cr_outside_temperature">Dış ortam sıcaklığı</string>
+    <string name="cr_outside_humidity">Dış ortam nemi</string>
+    <string name="cr_outside_pressure">Dış ortam basıncı</string>
+    <string name="cr_outside_air_pressure">Dış ortam hava basıncı</string>
+    <string name="cr_no_sensors_found_for">%1$s sensörü bulunamadı.</string>
+    <string name="cr_climate_control">İklim kontrolü</string>
+    <string name="cr_thermostat_dial">Termostat kadranı</string>
+    <string name="cr_width_third">Üçte bir</string>
+    <string name="cr_width_half">Yarım</string>
+    <string name="cr_width_full">Tam genişlik</string>
+    <string name="cr_select_item">%1$s seç</string>
+    <string name="cr_set_outdoor_sensors">Dış ortam sıcaklığı, nemi ve basıncını ayarla</string>
+    <string name="cr_auto_discovered_device_class">Cihaz sınıfına göre otomatik olarak bulundu</string>
+    <string name="cr_auto_discovered_climate_devices">Otomatik olarak bulunan iklim cihazları</string>
+    <string name="cr_pick_fan_entities_as_purifiers">Hava temizleyici olarak kullanılacak fan varlıklarını seç</string>
+    <string name="cr_auto_discovered_humidifier_devices">Otomatik olarak bulunan nemlendiriciler</string>
+    <string name="cr_removed_entities">Kaldırılan varlıklar</string>
+    <string name="cr_entities_removed_edit_mode">Düzenleme modunda kaldırılan varlıklar</string>
+    <string name="cr_card_indoor_climate_overview">İç ortam iklimine genel bakış</string>
+    <string name="cr_card_sensor_device_tiles">Sensör ve cihaz kutucukları</string>
+    <string name="cr_card_thermostats_ac">Termostatlar ve klimalar</string>
+    <string name="cr_card_temperature_summary">Sıcaklık özeti</string>
+    <string name="cr_card_humidity_summary">Nem özeti</string>
+    <string name="cr_card_air_pressure_summary">Hava basıncı özeti</string>
+    <string name="cr_card_co2_summary">CO₂ özeti</string>
+    <string name="cr_card_air_quality_summary">Hava kalitesi özeti</string>
+    <string name="cr_category_overview">Genel bakış</string>
+    <string name="cr_category_devices">Cihazlar</string>
+    <string name="cr_category_sensors">Sensörler</string>
+    <string name="cr_no_climate_sensors_devices">İklim sensörü veya cihazı bulunamadı.</string>
+    <string name="cr_no_climate_devices">İklim cihazı bulunamadı. Home Assistant’taki termostatlar ve klimalar burada otomatik olarak görünür.</string>
+    <string name="cr_no_fans">Fan bulunamadı. Home Assistant’taki fan varlıkları burada otomatik olarak görünür.</string>
+    <string name="cr_no_air_purifiers">Yapılandırılmış hava temizleyici yok. İklim ayarları → İklim varlıkları → Hava temizleyiciler bölümünden fan varlıklarını seç.</string>
+    <string name="cr_no_humidifiers">Nemlendirici bulunamadı. Home Assistant’taki nemlendirici varlıkları burada otomatik olarak görünür.</string>
+    <string name="cr_unknown_climate_card">Bilinmeyen iklim kartı: %1$s</string>
+    <string name="cr_select_climate_cards">İklim kartlarını seç</string>
+    <string name="cr_entities_for">%1$s varlıkları</string>
+    <string name="cr_climate_card">İklim kartı</string>
+    <string name="cr_climate_card_dialog_subtitle">Veri kaynakları ve kart görünümü</string>
+    <string name="cr_card_and_data">Kart ve veri</string>
+    <string name="cr_climate_stack">İklim yığını</string>
+    <string name="cr_climate_stack_dialog_subtitle">Kartlar, veri kaynakları ve düzen</string>
+    <string name="cr_cards_and_data">Kartlar ve veri</string>
+
+    <plurals name="cr_sensor_count">
+        <item quantity="one">%d sensör</item>
+        <item quantity="other">%d sensör</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="one">%1$d cihaz · %2$d açık</item>
+        <item quantity="other">%1$d cihaz · %2$d açık</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="one">%d dış ortam sensörü ayarlandı</item>
+        <item quantity="other">%d dış ortam sensörü ayarlandı</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="one">Otomatik + %d manuel</item>
+        <item quantity="other">Otomatik + %d manuel</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="one">%d seçildi</item>
+        <item quantity="other">%d seçildi</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="one">%d kaldırıldı</item>
+        <item quantity="other">%d kaldırıldı</item>
+    </plurals>
+
+    <string name="cr_room">Oda</string>
+    <string name="cr_room_details">Oda ayrıntıları</string>
+    <string name="cr_empty_room">Bu oda boş. Başlığı aşağı kaydır, düzenleme modunu aç ve widget, düğme veya kutucuk ekle.</string>
+    <string name="cr_default_markdown_content"># Markdown\nKendi içeriğini yazmak için bu widget’ı **düzenleme modunda** aç.</string>
+    <string name="cr_select_camera">Kamera seç</string>
+    <string name="cr_select_entity">Varlık seç</string>
+    <string name="cr_custom_camera">Özel kamera</string>
+    <string name="cr_configure_widget">Widget’ı yapılandır</string>
+    <string name="cr_configure_widget_subtitle">Eklemeden önce temel seçenekleri ayarla</string>
+    <string name="cr_widget_options">Widget seçenekleri</string>
+    <string name="cr_widget_options_subtitle">Bu widget’ın ne göstereceğini seç</string>
+    <string name="cr_add_widget">Widget ekle</string>
+    <string name="cr_add_widget_subtitle">Amaca göre göz at veya tüm widget’larda ara</string>
+    <string name="cr_category_with_options">%1$s · %2$s</string>
+    <string name="cr_widget_category_controls">Kontroller</string>
+    <string name="cr_widget_category_controls_description">Düğmeler, robot süpürgeler ve gruplanmış kontroller</string>
+    <string name="cr_widget_category_cameras">Kameralar</string>
+    <string name="cr_widget_category_cameras_description">Canlı kamera kutucukları ve çoklu kamera görünümleri</string>
+    <string name="cr_widget_category_climate">İklim ve hava durumu</string>
+    <string name="cr_widget_category_climate_description">Sıcaklık, konfor, tahminler ve koşullar</string>
+    <string name="cr_widget_category_energy">Enerji ve piller</string>
+    <string name="cr_widget_category_energy_description">Tüketim, üretim ve cihaz sağlığı</string>
+    <string name="cr_widget_category_information">Bilgi ve medya</string>
+    <string name="cr_widget_category_information_description">Takvimler, teslimatlar, grafikler, notlar ve oynatma</string>
+    <string name="cr_widget_category_layout">Düzen ve yapı</string>
+    <string name="cr_widget_category_layout_description">Başlıklar ve esnek widget kapsayıcıları</string>
+    <string name="cr_widget_adaptive_lighting">Uyarlanabilir Aydınlatma</string>
+    <string name="cr_widget_adaptive_lighting_description">Yüklü herhangi bir Uyarlanabilir Aydınlatma profilini kontrol et</string>
+    <string name="cr_widget_button">Düğme</string>
+    <string name="cr_widget_button_description">Tek bir varlık için yapılandırılabilir kontrol</string>
+    <string name="cr_widget_buttons">Düğmeler</string>
+    <string name="cr_widget_calendar">Takvim</string>
+    <string name="cr_widget_calendar_description">Home Assistant takvimlerinden ajanda, hafta ve ay görünümleri</string>
+    <string name="cr_widget_waste_collection">Atık toplama</string>
+    <string name="cr_widget_waste_collection_description">Atık sensörlerinden yaklaşan toplamalar</string>
+    <string name="cr_widget_parcels">Paketler</string>
+    <string name="cr_widget_parcels_description">Desteklenen taşıyıcılardan gelen ve giden paketler</string>
+    <string name="cr_widget_camera">Kamera</string>
+    <string name="cr_widget_camera_description">Tek bir canlı kamera kutucuğu veya yayın URL’si</string>
+    <string name="cr_widget_cameras">Kameralar</string>
+    <string name="cr_widget_climate_card">İklim kartı</string>
+    <string name="cr_widget_climate_card_description">İklim görünümündeki herhangi bir kart</string>
+    <string name="cr_widget_energy_card">Enerji kartı</string>
+    <string name="cr_widget_energy_card_description">Enerji görünümündeki herhangi bir kart</string>
+    <string name="cr_widget_battery_levels">Pil seviyeleri</string>
+    <string name="cr_widget_battery_levels_description">Düşük piller veya yalnızca tür ayrıntılarıyla Battery+</string>
+    <string name="cr_widget_header_text">Başlık metni</string>
+    <string name="cr_widget_header_text_description">Bölüm başlığı ekle</string>
+    <string name="cr_widget_markdown">Markdown</string>
+    <string name="cr_widget_markdown_description">Markdown ile yazılmış serbest biçimli kart</string>
+    <string name="cr_widget_iframe">iFrame</string>
+    <string name="cr_widget_iframe_description">Panona herhangi bir web sayfası yerleştir</string>
+    <string name="cr_widget_media_player">Medya oynatıcı</string>
+    <string name="cr_widget_media_player_description">Arka planda albüm kapağı bulunan oynatılan içerik kutucuğu</string>
+    <string name="cr_widget_sensor_graph">Sensör grafiği</string>
+    <string name="cr_widget_sensor_graph_description">Bir veya daha fazla sensör için çizgi ya da çubuk biçiminde geçmiş grafiği</string>
+    <string name="cr_widget_vacuum">Robot süpürge</string>
+    <string name="cr_widget_vacuum_description">Tek robot süpürge kontrolü</string>
+    <string name="cr_widget_weather">Hava durumu</string>
+    <string name="cr_widget_weather_description">Tek bir hava durumu kartı</string>
+    <string name="cr_widget_empty_stack">Boş yığın</string>
+    <string name="cr_widget_empty_stack_description">Widget’ları yapılandırılabilir bir yığına yerleştir</string>
+    <string name="cr_widget_button_stack">Düğme yığını</string>
+    <string name="cr_widget_button_stack_description">Varlıkları yapılandırılabilir kontrollerde grupla</string>
+    <string name="cr_widget_camera_stack">Kamera yığını</string>
+    <string name="cr_widget_camera_stack_description">Canlı kamera kutucukları veya özel yayın URL’si göster</string>
+    <string name="cr_widget_climate_stack">İklim yığını</string>
+    <string name="cr_widget_climate_stack_description">Genel bakış, termostatlar ve sensörler gibi iklim kartlarını grupla</string>
+    <string name="cr_widget_energy_stack">Enerji yığını</string>
+    <string name="cr_widget_energy_stack_description">Tüketim, güneş, gaz ve su gibi enerji kartlarını grupla</string>
+    <string name="cr_widget_sensor_graph_stack">Sensör grafiği yığını</string>
+    <string name="cr_widget_sensor_graph_stack_description">Birden fazla sensör geçmişi grafiğini grupla</string>
+    <string name="cr_widget_swiping_stack">Kaydırmalı yığın</string>
+    <string name="cr_widget_swiping_stack_description">İç içe widget’lar arasında yatay kaydır</string>
+    <string name="cr_widget_vacuum_stack">Robot süpürge yığını</string>
+    <string name="cr_widget_vacuum_stack_description">Robot süpürgeleri harita ve pil durumuyla kontrol et</string>
+    <string name="cr_widget_weather_stack">Hava durumu yığını</string>
+    <string name="cr_widget_weather_stack_description">Koşul, tahmin, rüzgâr veya yağmur haritası kartlarını grupla</string>
+    <string name="cr_camera_settings">Kamera ayarları</string>
+    <string name="cr_vacuum_settings">Robot süpürge ayarları</string>
+    <string name="cr_button_settings">Düğme ayarları</string>
+    <string name="cr_robot_image">Robot görseli</string>
+    <string name="cr_map_camera">Harita kamerası</string>
+    <string name="cr_external_url">Harici URL</string>
+    <string name="cr_animation_glow">Parlama</string>
+    <string name="cr_animation_spin">Dönme</string>
+    <string name="cr_animation_pulse">Nabız</string>
+    <string name="cr_adaptive_lighting_widget">Uyarlanabilir Aydınlatma widget’ı</string>
+    <string name="cr_adaptive_lighting_widget_subtitle">Profiller, boyut ve görünüm</string>
+    <string name="cr_button_stack_dialog_subtitle">Düzen, görünüm ve varlık sırası</string>
+    <string name="cr_expand_stack">Yığını genişlet</string>
+    <string name="cr_collapse_stack">Yığını daralt</string>
+    <string name="cr_hide_stack">Yığını gizle</string>
+    <string name="cr_unhide_stack">Yığını göster</string>
+    <string name="cr_swiping_stack_dialog_subtitle">Sayfalar, yükseklik ve kart görünümü</string>
+    <string name="cr_empty_stack_dialog_subtitle">Kapsayıcı düzeni ve görünümü</string>
+    <string name="cr_header_text_dialog_subtitle">Başlık içeriği ve görsel stil</string>
+    <string name="cr_animation_swipe">Kaydırma</string>
+    <string name="cr_animation_fade">Solma</string>
+    <string name="cr_animation_zoom">Yakınlaştırma</string>
+    <string name="cr_animation_slide_fade">Kaydırma + solma</string>
+    <string name="cr_animation_cube">Küp</string>
+    <string name="cr_animation_instant">Anında</string>
+    <string name="cr_paged_status">%1$d/%2$d · %3$s</string>
+    <string name="cr_cover_status">%1$d%% · %2$s</string>
+    <string name="cr_paged_cover_status">%1$d/%2$d · %3$d%% · %4$s</string>
+
+    <plurals name="cr_widget_option_count">
+        <item quantity="one">%d seçenek</item>
+        <item quantity="other">%d seçenek</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="one">%d yapılandırılmış ışık</item>
+        <item quantity="other">%d yapılandırılmış ışık</item>
+    </plurals>
+
+    <string name="cr_quick_notifications">Bildirimler</string>
+    <string name="cr_quick_notifications_instruction">Sol üst köşeden sağa kaydır.</string>
+    <string name="cr_quick_switch_homes">Ev değiştir</string>
+    <string name="cr_quick_switch_homes_instruction">Başlığın sağ üst köşesinden sola kaydır.</string>
+    <string name="cr_quick_actions">Hızlı eylemler</string>
+    <string name="cr_quick_actions_instruction">Arama, Akışlar, Düzenleme ve Ayarlar için herhangi bir sayfa başlığını aşağı çek.</string>
+    <string name="cr_quick_media_player">Medya oynatıcı</string>
+    <string name="cr_quick_media_player_instruction">Tutamak göründüğünde oynatıcıyı geri getirmek için alt çubuğu yukarı kaydır.</string>
+    <string name="cr_quick_make_it_yours">Kendine göre düzenle</string>
+    <string name="cr_quick_make_it_yours_instruction">Düzenleme modunda odaları, katları ve widget’ları ekleyip sırala. Yapılandırmak için bir öğeye dokun.</string>
+
+    <string-array name="cr_whats_new_beta_10">
+        <item>PostNL ve güncel paket entegrasyonu ayrıştırıcısı düzeltildi; gelen gönderiler artık eksiksiz takip ayrıntılarını ve teslim durumunu yeniden gösteriyor. Taşıyıcı desteği de güncellendi.</item>
+        <item>Uygulamaya Felemenkçe, Almanca, Fransızca, İspanyolca, İtalyanca ve Türkçe için geniş kapsamlı bir dil seçici eklendi; Felemenkçe metinler de baştan sona iyileştirildi.</item>
+        <item>Yeniden bağlanma durumu artık gerçek bağlantı hatasını gösteriyor; böylece Wi-Fi, mobil veri ve VPN geçişlerindeki sorunları teşhis etmek çok daha kolay.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_9">
+        <item>Kameraları, termostatları ve enerji kartlarını sürükleyerek sırala. Düzenleme modunda Güvenlik, İklim ve Enerji görünümlerinin ilgili kartları için birer Yeniden sırala düğmesi bulunur.</item>
+        <item>Yeni İklim Dış ortam kutucuğu. Bir hava durumu varlığı veya dış ortam sıcaklık, nem ve basınç sensörlerini bağla; ayrı geçmiş grafiklerini görmek için kutucuğu aç.</item>
+        <item>Görünürlük artık her düğme ve başlık rozetine aittir. Bir öğeyi gizle ya da bir kez, günlük, haftalık, aylık veya yıllık olarak zamanla.</item>
+        <item>Başlık rozetleri Görünüm ayarlarından yeniden adlandırılabilir.</item>
+        <item>Kaydırmalı kartlar varsayılan olarak her üç saniyede bir otomatik ilerler.</item>
+        <item>Hava Durumu penceresine Mevsim için otomatik oynatma, rüzgâr gülü ve kamera ya da gömülü web sayfasından isteğe bağlı yağmur haritası eklendi.</item>
+        <item>Paketler widget’ı; logolar, hesap toplamları, gönderi bölümleri, tahminler, takip geçmişi ve desteklendiğinde takip koduyla ekleme özellikleriyle taşıyıcılar etrafında yeniden oluşturuldu.</item>
+        <item>Nemlendiriciler ve nem alıcılar artık uygulamanın tamamında yerel güç, nem, mod, hız ve yardımcı kontrollere sahip.</item>
+        <item>Oda durum sayaçları etkileşimlidir ve her sayının arkasındaki varlıkları açar.</item>
+        <item>Düğmeler ve rozetler, tamamlanma zamanı varlığından canlı geri sayım gösterebilir.</item>
+        <item>Paylaşılan panolar, sahibinin düzenlemelerini otomatik yayımlar; alıcılar bunları sonraki eşitlemede alır.</item>
+        <item>Başlık görünüm ayarları artık her panoya özeldir ve yedeklerle aile paylaşımına dâhil edilir.</item>
+        <item>Kamera widget’ları kutucuğun tamamını doldurur ve ayarlanan köşe yarıçapını kullanır.</item>
+        <item>Aynı gündeki atık toplamaları artık görünür biçimde üst üste gelir ve büyük pencere dışarıya dokunularak kapatılabilir.</item>
+        <item>Pil, Atık, kamera, hava durumu ve Hakkında görselleri artık daha tutarlı.</item>
+        <item>İkili sensörler Home Assistant tarzı Açık/Kapalı, Islak/Kuru, Algılandı/Temiz ve Bağlı/Bağlı değil etiketlerini kullanır.</item>
+        <item>Yalnızca görsel düzenleme izni olanlar mevcut rozetlerin görünümünü değiştirebilir ancak rozet ekleyemez, kaldıramaz veya yeniden yapılandıramaz.</item>
+        <item>Ağ geçişleri düzeltildi: eski Android ağına bağlı soketler atılır ve kaydedilen Home Assistant oturumu gereksiz giriş olmadan yeniden bağlanır. Yeniden bağlanma durumu hata nedenini de gösterir.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_8">
+        <item>Çocuk kilitleri artık oda kontrolü olarak otomatik içe aktarılmıyor.</item>
+        <item>Tüm düğmeler ve rozetler artık Home Assistant varlık simgesi geçersiz kılmalarını kullanıyor.</item>
+        <item>Robot süpürgeler oda rozet çubuğunda görünür ve dokunulduğunda kontrollerini açar.</item>
+        <item>Çok öğeli widget’lardaki tekil düğmeler, yinelenen yıllık tarih aralıkları dâhil gizlenebilir veya zamanlanabilir.</item>
+        <item>Birden çok kamera rozeti artık tam ekran sayfalama içeren tek bir kaydırılabilir pencere açar.</item>
+        <item>Aile Paylaşımı artık bulutta yayımlanan panoları listeler; yeniden kurulumdan sonra içe aktarılabilir, tekrar paylaşılabilir veya silinebilir.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_7">
+        <item>Otomatik oda içe aktarma, gerçek ek kontrolleri korurken yerleşik yardımcı kontrolleri artık atlar.</item>
+        <item>Farklı entegrasyonlardan gelen iklim cihazları artık tek bir kontrolde birleştirilmiyor.</item>
+        <item>İklim cihazı simgeleri artık klima, nemlendirici, nem alıcı ve hava temizleyicilerle eşleşiyor.</item>
+        <item>Hava temizleyici ve nemlendirici simgeleri dönmek yerine hafifçe nabız gibi atıyor.</item>
+        <item>Kapı kilitleri artık kapalı ve açık kapı simgelerini kullanıyor.</item>
+        <item>Çok cihazlı başlık rozetleri, öndeki varlığı seçmek için yeniden sıralanabilir.</item>
+        <item>Animasyonlu simge efektleri yeni kurulumlarda varsayılan olarak etkin.</item>
+        <item>Düğmeler ve rozetler durum yerine bir varlık özniteliğini ve isteğe bağlı birimi gösterebilir.</item>
+        <item>Panolar tüm odaları, widget’ları ve sayfa ayarlarıyla birlikte kopyalanabilir.</item>
+        <item>Aile Paylaşımı artık ebeveyn denetimlerini, pano paylaşımını ve kullanıcı başına izinleri birleştiriyor.</item>
+        <item>Paylaşılan panolar, izin verilen yerel görsel değişiklikleri koruyarak otomatik güncellenir.</item>
+        <item>Yönetici olmayan aile üyeleri, HKI 7 Cloud Component yüklüyse oda başına otomatik Uyarlanabilir Aydınlatma kontrollerini kullanabilir.</item>
+        <item>Açık modda ve özel görünümlerde okunamayan başlık ve aşağı çekme etiketleri düzeltildi.</item>
+        <item>Hakkında sayfasında artık Yenilikler ve Tam değişiklik günlüğü düğmeleri bulunuyor.</item>
+        <item>Home Assistant’a erişilemediğinde güvenilir biçimde görünmesi için Bağlanılamıyor ekranı düzeltildi.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_6">
+        <item>Düzenleme modu eylem çubuklarının Android üç düğmeli gezinmeyle örtüşmesi düzeltildi.</item>
+        <item>Yedekleme ve Geri Yükleme ekranı artık her otomatik bulut yedeklemesinin son çalışma zamanını gösteriyor.</item>
+        <item>Her bulut yedeklemesine Şimdi yedekle düğmesi eklendi.</item>
+        <item>Temalı simge güncellemesinden sonra büyüyen uygulama simgesi düzeltildi.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_4_to_5">
+        <item>Yedekleme ve Geri Yükleme ekranı artık her otomatik bulut yedeklemesinin son çalışma zamanını gösteriyor.</item>
+        <item>Her bulut yedeklemesine Şimdi yedekle düğmesi eklendi.</item>
+        <item>Temalı simge güncellemesinden sonra büyüyen uygulama simgesi düzeltildi.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_3">
+        <item>Material Design Icons yanında Simple Icons, Tabler ve Phosphor simge paketleri eklendi.</item>
+        <item>Etkin olduğunda parlayan, dönen veya nabız gibi atan animasyonlu varlık simgeleri eklendi.</item>
+        <item>Yöneticiler için aile pano paylaşımı eklendi.*</item>
+        <item>Belirli kişilerden seçilen görünümleri ve odaları gizleyebilen ebeveyn denetimleri eklendi.*</item>
+        <item>Kendi Home Assistant’ına otomatik günlük yedekleme eklendi.*</item>
+        <item>Medya kaynağı simgeleri renklidir ve yüklü kaynak uygulamasını açabilir.</item>
+        <item>Web sayfalarını gömmek için yeni iFrame widget’ı.</item>
+        <item>Enerji görünümleri dışa güç aktarılırken artık negatif değerleri gösterir.</item>
+        <item>İlk kurulum tamamlanmadan başka ekrana geçildiğinde kurulumun bitmiş sayılması düzeltildi.</item>
+        <item>Termostat kadranı mod düğmesinin yakındaki öğelerle örtüşmesi düzeltildi.</item>
+        <item>Çok sayıda küçük hata düzeltmesi.</item>
+        <item>* HKI 7 Cloud Component entegrasyonu gerekir.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_2">
+        <item>Kısa ve dar ekranlardaki düzenler, uygulama genelinde tek sütunlu yerleşimle iyileştirildi.</item>
+        <item>Başlıkların kesilmemesi için pencere başlıkları dar ekranlarda iki satır kullanır.</item>
+        <item>Uyarlanabilir Aydınlatma kaydırıcılarının diğer öğelerle örtüşmesi düzeltildi.</item>
+        <item>Gezinme çubukları artık ekran dışında daha fazla öğe bulunduğunu gösterir.</item>
+        <item>Kameraların ekran yönü kilidini yok sayması düzeltildi.</item>
+        <item>Kamera pencerelerinde ve tam ekran kameralarda yakınlaştırma düzeltildi.</item>
+    </string-array>
+</resources>

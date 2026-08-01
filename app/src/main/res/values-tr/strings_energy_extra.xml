@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="energy_extra_sensors">Enerji sensörleri</string>
+    <string name="energy_extra_settings">Enerji ayarları</string>
+    <string name="energy_extra_previous_period">Önceki dönem</string>
+    <string name="energy_extra_next_period">Sonraki dönem</string>
+    <string name="energy_extra_empty_view_hint">Bu enerji görünümü boş. Başlıkta aşağı kaydırıp Enerji ayarlarını açarak varlıkları elle ekleyebilirsin.</string>
+
+    <string name="energy_extra_electricity">Elektrik</string>
+    <string name="energy_extra_solar">Güneş enerjisi</string>
+    <string name="energy_extra_home">Ev</string>
+    <string name="energy_extra_battery">Batarya</string>
+    <string name="energy_extra_gas">Gaz</string>
+    <string name="energy_extra_water">Su</string>
+    <string name="energy_extra_energy">Enerji</string>
+    <string name="energy_extra_power">Güç</string>
+    <string name="energy_extra_carbon">Karbon</string>
+    <string name="energy_extra_devices">Cihazlar</string>
+    <string name="energy_extra_device">Cihaz</string>
+
+    <string name="energy_extra_importing">Şebekeden alım</string>
+    <string name="energy_extra_exporting">Şebekeye aktarım</string>
+    <string name="energy_extra_idle">Beklemede</string>
+    <string name="energy_extra_charging">Şarj oluyor</string>
+    <string name="energy_extra_discharging">Deşarj oluyor</string>
+    <string name="energy_extra_producing">Üretiyor</string>
+    <string name="energy_extra_consuming">Tüketiyor</string>
+    <string name="energy_extra_grid_idle">Şebeke beklemede</string>
+    <string name="energy_extra_importing_power">Şebekeden güç alınıyor</string>
+    <string name="energy_extra_exporting_power">Şebekeye güç aktarılıyor</string>
+    <string name="energy_extra_battery_supporting">Batarya güç sağlıyor</string>
+    <string name="energy_extra_battery_charging">Batarya şarj oluyor</string>
+    <string name="energy_extra_solar_producing">Güneş enerjisi üretiliyor</string>
+    <string name="energy_extra_home_consuming">Ev enerji tüketiyor</string>
+    <string name="energy_extra_energy_idle">Enerji akışı yok</string>
+
+    <string name="energy_extra_today_value">%1$s bugün</string>
+    <string name="energy_extra_used_period">Tüketim: %1$s</string>
+    <string name="energy_extra_produced_period">Üretim: %1$s</string>
+    <string name="energy_extra_fossil_percentage">%1$s%% fosil</string>
+    <string name="energy_extra_self_used_percentage">Öz tüketim · %1$d%%</string>
+
+    <string name="energy_extra_electricity_total">Toplam elektrik</string>
+    <string name="energy_extra_top_consumers">En çok tüketenler</string>
+    <string name="energy_extra_device_energy">Cihaza göre enerji</string>
+    <string name="energy_extra_individual_water_usage">Cihaza göre su tüketimi</string>
+    <string name="energy_extra_production">Üretim</string>
+    <string name="energy_extra_forecast">Tahmin</string>
+    <string name="energy_extra_inverters">İnvertörler</string>
+    <string name="energy_extra_now">Şimdi</string>
+    <string name="energy_extra_usage">Tüketim</string>
+    <string name="energy_extra_total">Toplam</string>
+    <string name="energy_extra_cost">Maliyet</string>
+    <string name="energy_extra_charge">Şarj düzeyi</string>
+    <string name="energy_extra_grid_flow">Şebeke akışı</string>
+    <string name="energy_extra_self_sufficient">Enerji bağımsızlığı</string>
+    <string name="energy_extra_carbon_footprint">Karbon ayak izi</string>
+    <string name="energy_extra_self_used">Öz tüketim</string>
+    <string name="energy_extra_last_seven_days">Son 7 gün</string>
+    <string name="energy_extra_lifetime">Devreye alındığından beri</string>
+    <string name="energy_extra_power_per_phase">Faz başına güç</string>
+    <string name="energy_extra_tariff_meter_readings">Tarifeye göre sayaç değerleri</string>
+    <string name="energy_extra_tariff_one">Tarife 1</string>
+    <string name="energy_extra_tariff_two">Tarife 2</string>
+    <string name="energy_extra_solar_production">Güneş enerjisi üretimi</string>
+
+    <string name="energy_extra_category_overview">Genel bakış</string>
+    <string name="energy_extra_category_electricity_subtitle">Şebeke gücü, fazlar, alım, aktarım, tarifeler ve maliyet</string>
+    <string name="energy_extra_category_solar_subtitle">Üretim, tahmin ve invertör</string>
+    <string name="energy_extra_category_battery_subtitle">Şarj düzeyi ve batarya gücü</string>
+    <string name="energy_extra_category_carbon_subtitle">Şebeke karbon ayak izi cihazı</string>
+    <string name="energy_extra_category_usage_cost_subtitle">Tüketim ve maliyet</string>
+    <string name="energy_extra_category_devices_subtitle">Güç, enerji ve ayrı su sayaçları</string>
+
+    <string name="energy_extra_card_live_source_tiles">Canlı kaynak kutucukları</string>
+    <string name="energy_extra_card_electricity_totals_usage">Elektrik toplamları ve tüketim</string>
+    <string name="energy_extra_card_home_battery">Ev bataryası</string>
+    <string name="energy_extra_card_gas_usage">Gaz tüketimi</string>
+    <string name="energy_extra_card_water_usage">Su tüketimi</string>
+    <string name="energy_extra_card_device_energy_bars">Cihaza göre enerji</string>
+    <string name="energy_extra_select_energy_cards">Enerji kartlarını seç</string>
+
+    <string name="energy_extra_role_grid_power">Şebeke gücü (W)</string>
+    <string name="energy_extra_role_home_power">Ev gücü (W)</string>
+    <string name="energy_extra_role_solar_power">Güneş enerjisi gücü (W)</string>
+    <string name="energy_extra_role_battery_power">Batarya gücü (W)</string>
+    <string name="energy_extra_role_battery_level" formatted="false">Batarya düzeyi (%)</string>
+    <string name="energy_extra_role_grid_import">Şebekeden alım (kWh)</string>
+    <string name="energy_extra_role_grid_export">Şebekeye aktarım (kWh)</string>
+    <string name="energy_extra_role_solar_production">Güneş enerjisi üretimi (kWh)</string>
+    <string name="energy_extra_role_phase_one_power">Faz 1 gücü</string>
+    <string name="energy_extra_role_phase_two_power">Faz 2 gücü</string>
+    <string name="energy_extra_role_phase_three_power">Faz 3 gücü</string>
+    <string name="energy_extra_role_import_meter_tariff_one">Alım sayacı tarife 1</string>
+    <string name="energy_extra_role_import_meter_tariff_two">Alım sayacı tarife 2</string>
+    <string name="energy_extra_role_export_meter_tariff_one">Aktarım sayacı tarife 1</string>
+    <string name="energy_extra_role_export_meter_tariff_two">Aktarım sayacı tarife 2</string>
+    <string name="energy_extra_role_energy_cost">Enerji maliyeti</string>
+    <string name="energy_extra_role_gas_total">Toplam gaz (m³)</string>
+    <string name="energy_extra_role_gas_flow_now">Gaz akışı (şimdi)</string>
+    <string name="energy_extra_role_gas_cost">Gaz maliyeti</string>
+    <string name="energy_extra_role_water_total">Toplam su</string>
+    <string name="energy_extra_role_water_flow_now">Su akışı (şimdi)</string>
+    <string name="energy_extra_role_water_cost">Su maliyeti</string>
+    <string name="energy_extra_role_individual_water_devices">Ayrı su sayaçları</string>
+    <string name="energy_extra_role_power_devices">Güç cihazları</string>
+    <string name="energy_extra_role_energy_devices">Enerji cihazları</string>
+
+    <string name="energy_extra_sensor_current_power_import">Anlık güç (W, + = alım)</string>
+    <string name="energy_extra_sensor_power_phase_one">Faz 1 gücü (W)</string>
+    <string name="energy_extra_sensor_power_phase_two">Faz 2 gücü (W)</string>
+    <string name="energy_extra_sensor_power_phase_three">Faz 3 gücü (W)</string>
+    <string name="energy_extra_sensor_current_phase_one">Faz 1 akımı (A)</string>
+    <string name="energy_extra_sensor_current_phase_two">Faz 2 akımı (A)</string>
+    <string name="energy_extra_sensor_current_phase_three">Faz 3 akımı (A)</string>
+    <string name="energy_extra_sensor_voltage_phase_one">Faz 1 gerilimi (V)</string>
+    <string name="energy_extra_sensor_voltage_phase_two">Faz 2 gerilimi (V)</string>
+    <string name="energy_extra_sensor_voltage_phase_three">Faz 3 gerilimi (V)</string>
+    <string name="energy_extra_sensor_home_consumption_power">Evin tüketim gücü (W)</string>
+    <string name="energy_extra_sensor_energy_import">Alınan enerji (kWh)</string>
+    <string name="energy_extra_sensor_energy_import_tariff_one">Alınan enerji tarife 1 (kWh)</string>
+    <string name="energy_extra_sensor_energy_import_tariff_two">Alınan enerji tarife 2 (kWh)</string>
+    <string name="energy_extra_sensor_energy_export">Aktarılan enerji (kWh)</string>
+    <string name="energy_extra_sensor_energy_export_tariff_one">Aktarılan enerji tarife 1 (kWh)</string>
+    <string name="energy_extra_sensor_energy_export_tariff_two">Aktarılan enerji tarife 2 (kWh)</string>
+    <string name="energy_extra_sensor_energy_cost_today">Bugünkü enerji maliyeti</string>
+    <string name="energy_extra_sensor_current_power_production">Anlık enerji üretimi (W)</string>
+    <string name="energy_extra_sensor_energy_production_today">Bugünkü enerji üretimi (kWh)</string>
+    <string name="energy_extra_sensor_energy_production_seven_days">Son 7 gündeki enerji üretimi</string>
+    <string name="energy_extra_sensor_lifetime_energy_production">Toplam enerji üretimi</string>
+    <string name="energy_extra_sensor_battery_power_charging">Batarya gücü (W, + = şarj)</string>
+    <string name="energy_extra_sensor_gas_used_today">Bugünkü gaz tüketimi (m³)</string>
+    <string name="energy_extra_sensor_current_gas_flow">Anlık gaz akışı (m³/sa, isteğe bağlı)</string>
+    <string name="energy_extra_sensor_gas_cost_today">Bugünkü gaz maliyeti</string>
+    <string name="energy_extra_sensor_water_used_today">Bugünkü su tüketimi (L/m³)</string>
+    <string name="energy_extra_sensor_current_water_flow">Anlık su akışı (L/dk, isteğe bağlı)</string>
+    <string name="energy_extra_sensor_water_cost_today">Bugünkü su maliyeti</string>
+
+    <string name="energy_extra_picker_top_consumer_devices">En çok tüketen cihazlar</string>
+    <string name="energy_extra_picker_device_energy_counters">Cihaza göre enerji sayaçları</string>
+    <string name="energy_extra_auto_power_sensors_help">device_class power olan tüm sensörler otomatik olarak eklenir. Kendi listeni oluşturmak için bir cihazı kaldır.</string>
+    <string name="energy_extra_auto_energy_sensors_help">device_class energy olan tüm sensörler otomatik olarak eklenir. Sayaç değişimleri seçilen dönem için kullanılır.</string>
+
+    <string name="energy_extra_energy_card">Enerji kartı</string>
+    <string name="energy_extra_energy_card_subtitle">Veri kaynakları ve kart görünümü</string>
+    <string name="energy_extra_card_and_data">Kart ve veriler</string>
+    <string name="energy_extra_energy_stack">Enerji kart grubu</string>
+    <string name="energy_extra_energy_stack_subtitle">Kartlar, veri kaynakları ve düzen</string>
+    <string name="energy_extra_cards_and_data">Kartlar ve veriler</string>
+</resources>

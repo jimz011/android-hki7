@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_system">System</string>
+    <string name="core_last_seen_just_now">Gerade eben zuletzt gesehen</string>
+    <string name="core_no_media_playing">Es werden keine Medien wiedergegeben</string>
+    <plurals name="core_media_players_playing">
+        <item quantity="one">%1$d Mediaplayer gibt etwas wieder</item>
+        <item quantity="other">%1$d Mediaplayer geben etwas wieder</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="one">Zuletzt gesehen vor %1$d Minute</item>
+        <item quantity="other">Zuletzt gesehen vor %1$d Minuten</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="one">Zuletzt gesehen vor %1$d Stunde</item>
+        <item quantity="other">Zuletzt gesehen vor %1$d Stunden</item>
+    </plurals>
+    <plurals name="core_last_seen_days">
+        <item quantity="one">Zuletzt gesehen vor %1$d Tag</item>
+        <item quantity="other">Zuletzt gesehen vor %1$d Tagen</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="one">Zuletzt gesehen vor %1$d Woche</item>
+        <item quantity="other">Zuletzt gesehen vor %1$d Wochen</item>
+    </plurals>
+</resources>

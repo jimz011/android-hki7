@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -128,7 +132,7 @@ fun PersonDetailDialog(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Default.Map, contentDescription = null, tint = appColors.onMuted, modifier = Modifier.size(48.dp))
                             Spacer(Modifier.height(8.dp))
-                            Text("Location Unavailable", color = appColors.onMuted)
+                            Text(stringResource(R.string.ui_location_unavailable_3a57dda), color = appColors.onMuted)
                         }
                     }
                 }
@@ -153,7 +157,7 @@ fun PersonDetailDialog(
                         ) {
                             Icon(Icons.Default.Place, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
                             Text(
-                                address ?: "Locating…",
+                                address ?: stringResource(R.string.ui_locating_e46bab0),
                                 color = appColors.onSurface,
                                 style = MaterialTheme.typography.bodyMedium,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -179,7 +183,7 @@ private fun PersonSettingsDialog(
     onDismiss: () -> Unit
 ) {
     ModernSettingsDialogFrame(
-        title = "Person settings",
+        title = stringResource(R.string.ui_person_settings_977e009),
         subtitle = person.friendlyName ?: person.entity_id,
         icon = Icons.Default.Person,
         onDismiss = onDismiss,
@@ -195,7 +199,7 @@ private fun PersonSettingsDialog(
                 showHeader = false
             )
         },
-        footer = { Button(onClick = onDismiss) { Text("Done") } }
+        footer = { Button(onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) } }
     )
 }
 
@@ -221,7 +225,7 @@ fun PersonSettingsView(
     ) {
         if (showHeader) {
             ModernSettingsHeader(
-                title = "Person settings",
+                title = stringResource(R.string.ui_person_settings_977e009),
                 subtitle = person.friendlyName ?: person.entity_id,
                 icon = Icons.Default.Person,
                 onClose = onBack
@@ -229,7 +233,7 @@ fun PersonSettingsView(
             Spacer(Modifier.height(16.dp))
         }
 
-        SettingsSubcategory("Visibility", "Choose whether this person appears in the Home header")
+        SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_choose_whether_this_person_appears_in_the_home_header_49f0ec2))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
                 checked = isVisible,
@@ -246,12 +250,12 @@ fun PersonSettingsView(
                     )
                 }
             )
-            Text("Show in header", color = appColors.onSurface)
+            Text(stringResource(R.string.ui_show_in_header_43f0dfd), color = appColors.onSurface)
         }
 
         Spacer(Modifier.height(16.dp))
 
-        SettingsSubcategory("Quick actions", "Buttons available from this person's detail dialog")
+        SettingsSubcategory(stringResource(R.string.ui_quick_actions_e47e804), stringResource(R.string.ui_buttons_available_from_this_person_s_detail_dialog_ab3f9f9))
         Spacer(Modifier.height(8.dp))
         CustomButtonsEditor(
             buttons = personButtons,
@@ -427,7 +431,7 @@ private fun OpenStreetMapPreview(lat: Double, lon: Double, imageUrl: String?) {
             shape = RoundedCornerShape(8.dp)
         ) {
             Text(
-                "OpenStreetMap",
+                stringResource(R.string.ui_openstreetmap_fa78a33),
                 color = Color.White.copy(alpha = 0.75f),
                 fontSize = 9.sp,
                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)

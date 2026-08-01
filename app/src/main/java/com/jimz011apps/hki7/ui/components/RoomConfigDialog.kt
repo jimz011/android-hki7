@@ -2,6 +2,11 @@
 
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 
 import androidx.compose.foundation.layout.*
@@ -98,7 +103,7 @@ fun RoomConfigDialog(
         val mediaPlayers = allEntities.filter { it.entity_id.startsWith("media_player.") }
         AdvancedEntitySearchDialog(
             allEntities = mediaPlayers,
-            title = "Select Media Players",
+            title = stringResource(R.string.dlg_select_media_players),
             singleSelect = false,
             preselectedIds = mediaPlayerEntityIds.toSet(),
             onDismiss = { showMediaPicker = false },
@@ -117,7 +122,7 @@ fun RoomConfigDialog(
         }
         AdvancedEntitySearchDialog(
             allEntities = roomEntityCandidates(picker, allEntities, selectedIds),
-            title = "Select ${roomEntityLabel(picker)}",
+            title = stringResource(R.string.dlg_select, roomEntityLabel(picker)),
             singleSelect = false,
             preselectedIds = selectedIds,
             onDismiss = { roomEntityPicker = null },
@@ -140,8 +145,16 @@ fun RoomConfigDialog(
         onDismiss()
     }
     ModernSettingsDialogFrame(
-        title = if (section == "menu") "Room configuration" else section.replaceFirstChar { it.uppercase() },
-        subtitle = if (section == "menu") "Choose one room area to configure" else "Focused options for this room area",
+        title = if (section == "menu") {
+            stringResource(R.string.dlg_room_configuration)
+        } else {
+            roomSectionLabel(section)
+        },
+        subtitle = if (section == "menu") {
+            stringResource(R.string.dlg_choose_room_area_to_configure)
+        } else {
+            stringResource(R.string.dlg_focused_room_options)
+        },
         onDismiss = dismissSettings,
         onBack = if (section == "menu") null else {{ section = "menu" }},
         content = {
@@ -151,15 +164,15 @@ fun RoomConfigDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 if (section == "menu") {
-                    SettingsSubcategory("Room areas", "Identity, presentation, indicators, and maintenance")
-                    RoomSettingsChoice(Icons.Default.Tune, "General", "Name and icon") { section = "general" }
-                    RoomSettingsChoice(Icons.Default.Image, "Header", "Wallpaper and custom color") { section = "header" }
-                    RoomSettingsChoice(Icons.Default.ViewStream, "Badge Bar", "Alignment and display options") { section = "badgebar" }
-                    RoomSettingsChoice(Icons.Default.Home, "Floor", "Assign this room to a floor") { section = "floor" }
-                    RoomSettingsChoice(Icons.Default.Sensors, "Room status", "Media, activity, safety and climate indicators") { section = "room status" }
+                    SettingsSubcategory(stringResource(R.string.dlg_room_areas), stringResource(R.string.dlg_identity_presentation_indicators_and_maintenance))
+                    RoomSettingsChoice(Icons.Default.Tune, stringResource(R.string.dlg_general), stringResource(R.string.dlg_name_and_icon)) { section = "general" }
+                    RoomSettingsChoice(Icons.Default.Image, stringResource(R.string.dlg_header), stringResource(R.string.dlg_wallpaper_and_custom_color)) { section = "header" }
+                    RoomSettingsChoice(Icons.Default.ViewStream, stringResource(R.string.dlg_badge_bar), stringResource(R.string.dlg_alignment_and_display_options)) { section = "badgebar" }
+                    RoomSettingsChoice(Icons.Default.Home, stringResource(R.string.dlg_floor), stringResource(R.string.dlg_assign_room_to_floor)) { section = "floor" }
+                    RoomSettingsChoice(Icons.Default.Sensors, stringResource(R.string.dlg_room_status), stringResource(R.string.dlg_room_status_summary)) { section = "room status" }
                     if (!aestheticsOnly) {
-                        RoomSettingsChoice(Icons.Default.CloudDownload, "Re-import from Home Assistant", "Import new rooms or rebuild every room") { showReimport = true }
-                        RoomSettingsChoice(Icons.Default.DeleteSweep, "Clear Rooms View", "Remove imported rooms and floors") {
+                        RoomSettingsChoice(Icons.Default.CloudDownload, stringResource(R.string.dlg_reimport_from_home_assistant), stringResource(R.string.dlg_import_or_rebuild_rooms)) { showReimport = true }
+                        RoomSettingsChoice(Icons.Default.DeleteSweep, stringResource(R.string.dlg_clear_rooms_view_action), stringResource(R.string.dlg_remove_imported_rooms_and_floors)) {
                             showClearRooms = true
                         }
                     }
@@ -167,15 +180,15 @@ fun RoomConfigDialog(
 
                 if (section == "general") {
                     val appColors = LocalHKIAppColors.current
-                    SettingsSubcategory("Identity", "Name and icon used throughout the app")
+                    SettingsSubcategory(stringResource(R.string.dlg_identity), stringResource(R.string.dlg_name_and_icon_used_throughout_the_app))
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        label = { Text("Room name") },
+                        label = { Text(stringResource(R.string.dlg_room_name)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Text("Icon", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.dlg_icon), style = MaterialTheme.typography.labelLarge)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -185,21 +198,25 @@ fun RoomConfigDialog(
                             MdiIcon(iconName, size = 24.dp)
                         }
                         Text(
-                            iconName.takeUnless { it == "None" } ?: "None",
+                            when (iconName) {
+                                "None" -> stringResource(R.string.dlg_none)
+                                "Room" -> stringResource(R.string.dlg_room)
+                                else -> iconName
+                            },
                             modifier = Modifier.weight(1f),
                             style = MaterialTheme.typography.bodyMedium,
                             color = appColors.onSurface
                         )
-                        TextButton(onClick = { showIconPickerRoom = true }) { Text("Change") }
+                        TextButton(onClick = { showIconPickerRoom = true }) { Text(stringResource(R.string.dlg_change)) }
                     }
                 }
 
                 if (section == "header") {
-                    SettingsSubcategory("Header appearance", "Wallpaper and optional custom color")
+                    SettingsSubcategory(stringResource(R.string.dlg_header_appearance), stringResource(R.string.dlg_wallpaper_and_optional_custom_color))
                     OutlinedTextField(
                         value = wallpaper,
                         onValueChange = { wallpaper = it },
-                        label = { Text("Wallpaper URL or path") },
+                        label = { Text(stringResource(R.string.dlg_wallpaper_url_or_path)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -209,7 +226,7 @@ fun RoomConfigDialog(
                             headerColor = it
                             onHeaderColorPreview(it.ifBlank { null })
                         },
-                        label = { Text("Header custom color (#RRGGBB)") },
+                        label = { Text(stringResource(R.string.dlg_header_custom_color_rrggbb)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -226,13 +243,13 @@ fun RoomConfigDialog(
                 }
 
                 if (section == "floor" && floors.isNotEmpty()) {
-                    SettingsSubcategory("Floor assignment", "Place this room in the correct floor group")
-                    Text("Floor", style = MaterialTheme.typography.labelLarge)
+                    SettingsSubcategory(stringResource(R.string.dlg_floor_assignment), stringResource(R.string.dlg_place_this_room_in_the_correct_floor_group))
+                    Text(stringResource(R.string.dlg_floor), style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                         SettingsChoiceChip(
                             selected = floorId == null,
                             onClick = { floorId = null },
-                            label = { Text("None") }
+                            label = { Text(stringResource(R.string.dlg_none)) }
                         )
                         floors.take(3).forEach { floor ->
                             SettingsChoiceChip(
@@ -246,10 +263,10 @@ fun RoomConfigDialog(
 
                 if (section == "room status") {
                     val appColors = LocalHKIAppColors.current
-                    SettingsSubcategory("Media", "Players summarized by the room header and card")
-                    Text("Media players", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+                    SettingsSubcategory(stringResource(R.string.dlg_media), stringResource(R.string.dlg_players_summarized_by_the_room_header_and_card))
+                    Text(stringResource(R.string.dlg_media_players), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
                     Text(
-                        "The room header and card show a single player's media, or an active-player count when multiple players are selected.",
+                        stringResource(R.string.dlg_the_room_header_and_card_show_a_single_player),
                         style = MaterialTheme.typography.bodySmall,
                         color = appColors.onMuted
                     )
@@ -265,14 +282,14 @@ fun RoomConfigDialog(
                             color = appColors.onSurface
                         )
                         if (mediaPlayerEntityIds.isNotEmpty()) {
-                            TextButton(onClick = { mediaPlayerEntityIds = emptyList() }) { Text("Clear") }
+                            TextButton(onClick = { mediaPlayerEntityIds = emptyList() }) { Text(stringResource(R.string.dlg_clear)) }
                         }
-                        TextButton(onClick = { showMediaPicker = true }) { Text("Change") }
+                        TextButton(onClick = { showMediaPicker = true }) { Text(stringResource(R.string.dlg_change)) }
                     }
                     HorizontalDivider()
-                    SettingsSubcategory("Live indicators", "Entities that signal activity or safety states")
+                    SettingsSubcategory(stringResource(R.string.dlg_live_indicators), stringResource(R.string.dlg_entities_that_signal_activity_or_safety_states))
                     Text(
-                        "Choose the Home Assistant entities that drive this room's live indicators. Indicators only appear while they are active.",
+                        stringResource(R.string.dlg_choose_the_home_assistant_entities_that_drive_this_room),
                         style = MaterialTheme.typography.bodySmall,
                         color = appColors.onMuted
                     )
@@ -290,16 +307,16 @@ fun RoomConfigDialog(
                     }
 
                     HorizontalDivider()
-                    SettingsSubcategory("Climate summary", "Temperature and humidity sources for the room")
-                    Text("Room climate", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+                    SettingsSubcategory(stringResource(R.string.dlg_climate_summary), stringResource(R.string.dlg_temperature_and_humidity_sources_for_the_room))
+                    Text(stringResource(R.string.dlg_room_climate), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
                     Text(
-                        "Climate sources take priority and use their current_temperature and current_humidity values. " +
-                            "Multiple climate values are averaged. Separate sensor values are averaged only when no climate source is selected.",
+                        stringResource(R.string.dlg_climate_sources_take_priority_and_use_their_current_temper) +
+                            stringResource(R.string.dlg_multiple_climate_values_are_averaged_separate_sensor_value),
                         style = MaterialTheme.typography.bodySmall,
                         color = appColors.onMuted
                     )
                     RoomEntitySelectionRow(
-                        label = "Temperature",
+                        label = stringResource(R.string.dlg_temperature),
                         selection = selectedEntitySummary(
                             roomTemperatureEntityIds,
                             allEntities
@@ -309,7 +326,7 @@ fun RoomConfigDialog(
                         onChange = { roomEntityPicker = ROOM_TEMPERATURE_PICKER }
                     )
                     RoomEntitySelectionRow(
-                        label = "Humidity",
+                        label = stringResource(R.string.dlg_humidity),
                         selection = selectedEntitySummary(
                             roomHumidityEntityIds,
                             allEntities
@@ -321,13 +338,13 @@ fun RoomConfigDialog(
                 }
 
                 if (section == "badgebar") {
-                    SettingsSubcategory("Badge bar layout", "Visibility, alignment, and overflow behavior")
+                    SettingsSubcategory(stringResource(R.string.dlg_badge_bar_layout), stringResource(R.string.dlg_visibility_alignment_and_overflow_behavior))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Show badge bar", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.dlg_show_badge_bar), style = MaterialTheme.typography.bodyMedium)
                         Switch(
                             checked = badgeBarEnabled,
                             onCheckedChange = {
@@ -336,9 +353,14 @@ fun RoomConfigDialog(
                             }
                         )
                     }
-                    Text("Alignment", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.dlg_alignment), style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                        listOf("split" to "Split", "left" to "Left", "center" to "Center", "right" to "Right").forEach { (value, label) ->
+                        listOf(
+                            "split" to stringResource(R.string.dlg_split),
+                            "left" to stringResource(R.string.dlg_left),
+                            "center" to stringResource(R.string.dlg_center),
+                            "right" to stringResource(R.string.dlg_right),
+                        ).forEach { (value, label) ->
                             SettingsChoiceChip(
                                 selected = badgeAlignment == value,
                                 onClick  = {
@@ -355,7 +377,7 @@ fun RoomConfigDialog(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Span badges", style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.dlg_span_badges), style = MaterialTheme.typography.bodyMedium)
                             Switch(
                                 checked = badgeSpanIcons,
                                 onCheckedChange = {
@@ -371,7 +393,7 @@ fun RoomConfigDialog(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Left side overflows right", style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.dlg_left_side_overflows_right), style = MaterialTheme.typography.bodyMedium)
                             Switch(
                                 checked = badgeLeftOverflow,
                                 onCheckedChange = {
@@ -385,7 +407,7 @@ fun RoomConfigDialog(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Right side overflows left", style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.dlg_right_side_overflows_left), style = MaterialTheme.typography.bodyMedium)
                             Switch(
                                 checked = badgeRightOverflow,
                                 onCheckedChange = {
@@ -399,7 +421,7 @@ fun RoomConfigDialog(
             }
         },
         footer = {
-            TextButton(onClick = dismissSettings) { Text("Cancel") }
+            TextButton(onClick = dismissSettings) { Text(stringResource(R.string.dlg_cancel)) }
             Button(onClick = {
                 val normalizedMediaPlayerEntityIds = normalizeRoomEntityIds(mediaPlayerEntityIds)
                 val configuredMediaPlayerEntityIds = normalizeRoomEntityIds(
@@ -448,37 +470,37 @@ fun RoomConfigDialog(
                 onHeaderColorPreview(null)
                 onBadgeBarPreview(null)
                 onDismiss()
-            }) { Text("Save") }
+            }) { Text(stringResource(R.string.dlg_save)) }
         }
     )
 
     if (showReimport) {
         AlertDialog(
             onDismissRequest = { showReimport = false },
-            title = { Text("Re-import rooms") },
-            text = { Text("Import only rooms that have not been edited, or rebuild everything. Rebuilding removes all edited rooms and floors before importing them from scratch.") },
+            title = { Text(stringResource(R.string.dlg_re_import_rooms)) },
+            text = { Text(stringResource(R.string.dlg_import_only_rooms_that_have_not_been_edited_or)) },
             confirmButton = {
                 Column(horizontalAlignment = Alignment.End) {
-                    Button(onClick = { viewModel.reimportRooms(fromScratch = false); showReimport = false; onDismiss() }) { Text("Import unedited") }
+                    Button(onClick = { viewModel.reimportRooms(fromScratch = false); showReimport = false; onDismiss() }) { Text(stringResource(R.string.dlg_import_unedited)) }
                     TextButton(onClick = { viewModel.reimportRooms(fromScratch = true); showReimport = false; onDismiss() }) {
-                        Text("Remove edits and import all", color = MaterialTheme.colorScheme.error)
+                        Text(stringResource(R.string.dlg_remove_edits_and_import_all), color = MaterialTheme.colorScheme.error)
                     }
                 }
             },
-            dismissButton = { TextButton(onClick = { showReimport = false }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { showReimport = false }) { Text(stringResource(R.string.dlg_cancel)) } }
         )
     }
     if (showClearRooms) {
         AlertDialog(
             onDismissRequest = { showClearRooms = false },
-            title = { Text("Clear rooms view?") },
-            text = { Text("This removes all imported rooms and floors from this view.") },
+            title = { Text(stringResource(R.string.dlg_clear_rooms_view)) },
+            text = { Text(stringResource(R.string.dlg_this_removes_all_imported_rooms_and_floors_from_this)) },
             confirmButton = {
                 TextButton(onClick = { viewModel.clearRoomImports(); showClearRooms = false; onDismiss() }) {
-                    Text("Clear", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.dlg_clear), color = MaterialTheme.colorScheme.error)
                 }
             },
-            dismissButton = { TextButton(onClick = { showClearRooms = false }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { showClearRooms = false }) { Text(stringResource(R.string.dlg_cancel)) } }
         )
     }
 }
@@ -511,9 +533,9 @@ private fun RoomEntitySelectionRow(
                 color = if (hasSelection) appColors.onSurface else appColors.onMuted
             )
             if (hasSelection) {
-                TextButton(onClick = onClear) { Text("Clear") }
+                TextButton(onClick = onClear) { Text(stringResource(R.string.dlg_clear)) }
             }
-            TextButton(onClick = onChange) { Text("Change") }
+            TextButton(onClick = onChange) { Text(stringResource(R.string.dlg_change)) }
         }
     }
 }
@@ -521,19 +543,30 @@ private fun RoomEntitySelectionRow(
 private const val ROOM_TEMPERATURE_PICKER = "__room_temperature__"
 private const val ROOM_HUMIDITY_PICKER = "__room_humidity__"
 
+@Composable
 private fun roomEntityLabel(role: String): String = when (role) {
-    RoomStatusRoles.DOORS -> "Doors"
-    RoomStatusRoles.WINDOWS -> "Windows"
-    RoomStatusRoles.MOTION -> "Motion"
-    RoomStatusRoles.PRESENCE -> "Presence"
-    RoomStatusRoles.LIGHTS -> "Lights"
-    RoomStatusRoles.DEVICES -> "Devices"
-    RoomStatusRoles.SMOKE -> "Smoke"
-    RoomStatusRoles.GAS -> "Gas"
-    RoomStatusRoles.FIRE -> "Fire"
-    ROOM_TEMPERATURE_PICKER -> "Temperature"
-    ROOM_HUMIDITY_PICKER -> "Humidity"
+    RoomStatusRoles.DOORS -> stringResource(R.string.dlg_doors)
+    RoomStatusRoles.WINDOWS -> stringResource(R.string.dlg_windows)
+    RoomStatusRoles.MOTION -> stringResource(R.string.dlg_motion)
+    RoomStatusRoles.PRESENCE -> stringResource(R.string.dlg_presence)
+    RoomStatusRoles.LIGHTS -> stringResource(R.string.dlg_lights)
+    RoomStatusRoles.DEVICES -> stringResource(R.string.dlg_devices)
+    RoomStatusRoles.SMOKE -> stringResource(R.string.dlg_smoke)
+    RoomStatusRoles.GAS -> stringResource(R.string.dlg_gas)
+    RoomStatusRoles.FIRE -> stringResource(R.string.dlg_fire)
+    ROOM_TEMPERATURE_PICKER -> stringResource(R.string.dlg_temperature)
+    ROOM_HUMIDITY_PICKER -> stringResource(R.string.dlg_humidity)
     else -> role.replace('_', ' ').replaceFirstChar { it.uppercase() }
+}
+
+@Composable
+private fun roomSectionLabel(section: String): String = when (section) {
+    "general" -> stringResource(R.string.dlg_general)
+    "header" -> stringResource(R.string.dlg_header)
+    "badgebar" -> stringResource(R.string.dlg_badge_bar)
+    "floor" -> stringResource(R.string.dlg_floor)
+    "room status" -> stringResource(R.string.dlg_room_status)
+    else -> section.replaceFirstChar { it.uppercase() }
 }
 
 private fun roomEntityCandidates(
@@ -578,21 +611,24 @@ private fun roomEntityCandidates(
     }
 }
 
+@Composable
 private fun selectedEntitySummary(
     selectedIds: List<String>,
     allEntities: List<HAEntity>,
     includeCount: Boolean = true
 ): String {
-    if (selectedIds.isEmpty()) return "None"
+    if (selectedIds.isEmpty()) return stringResource(R.string.dlg_none)
     val names = selectedIds.map { id ->
         allEntities.firstOrNull { it.entity_id == id }?.friendlyName ?: id
     }
     if (!includeCount) return names.first()
-    return when (names.size) {
-        1 -> "1 selected · ${names.first()}"
-        2 -> "2 selected · ${names.joinToString()}"
-        else -> "${names.size} selected · ${names.first()} +${names.size - 1}"
-    }
+    val details = if (names.size <= 2) names.joinToString() else "${names.first()} +${names.size - 1}"
+    return pluralStringResource(
+        R.plurals.dlg_selected_entities_summary,
+        names.size,
+        names.size,
+        details,
+    )
 }
 
 private fun normalizeRoomStatusEntityIds(entityIds: Map<String, List<String>>): Map<String, List<String>> =
@@ -606,12 +642,15 @@ private fun normalizeRoomEntityIds(entityIds: List<String>): List<String> =
  *  consistent. Room cards don't support thirds (their row packing is full/half only). */
 @Composable
 fun WidgetWidthSelector(width: String, onWidthChange: (String) -> Unit, includeThird: Boolean = true) {
-    Text("Widget width", style = MaterialTheme.typography.labelLarge)
+    Text(stringResource(R.string.dlg_widget_width), style = MaterialTheme.typography.labelLarge)
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        val options = buildList {
-            add("full" to "Full")
-            add("half" to "Half")
-            if (includeThird) add("third" to "Third")
+        val options = listOf(
+            "full" to stringResource(R.string.dlg_full),
+            "half" to stringResource(R.string.dlg_half),
+        ) + if (includeThird) {
+            listOf("third" to stringResource(R.string.dlg_third))
+        } else {
+            emptyList()
         }
         options.forEach { (value, label) ->
             SettingsChoiceChip(

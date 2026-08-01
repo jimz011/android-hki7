@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="parcel_letter_count">
+        <item quantity="one">%1$d lettre</item>
+        <item quantity="other">%1$d lettres</item>
+    </plurals>
+</resources>

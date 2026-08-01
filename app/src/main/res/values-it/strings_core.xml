@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_system">Sistema</string>
+    <string name="core_last_seen_just_now">Visto l’ultima volta proprio ora</string>
+    <string name="core_no_media_playing">Nessun contenuto multimediale in riproduzione</string>
+    <plurals name="core_media_players_playing">
+        <item quantity="one">%1$d lettore multimediale è in riproduzione</item>
+        <item quantity="other">%1$d lettori multimediali sono in riproduzione</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="one">Visto %1$d minuto fa</item>
+        <item quantity="other">Visto %1$d minuti fa</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="one">Visto %1$d ora fa</item>
+        <item quantity="other">Visto %1$d ore fa</item>
+    </plurals>
+    <plurals name="core_last_seen_days">
+        <item quantity="one">Visto %1$d giorno fa</item>
+        <item quantity="other">Visto %1$d giorni fa</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="one">Visto %1$d settimana fa</item>
+        <item quantity="other">Visto %1$d settimane fa</item>
+    </plurals>
+</resources>

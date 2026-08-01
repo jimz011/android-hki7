@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="global_search_browse_entities">
+        <item quantity="one">Bekijk %1$d entiteit op dit apparaat</item>
+        <item quantity="other">Bekijk %1$d entiteiten op dit apparaat</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="one">%1$d entiteit</item>
+        <item quantity="other">%1$d entiteiten</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="one">%1$d kamer</item>
+        <item quantity="other">%1$d kamers</item>
+    </plurals>
+</resources>

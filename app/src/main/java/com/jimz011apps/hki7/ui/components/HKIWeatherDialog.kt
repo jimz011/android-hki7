@@ -1,5 +1,10 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -111,12 +116,13 @@ fun HKIWeatherDialog(
     weather: HAEntity,
     viewModel: MainViewModel,
     onDismiss: () -> Unit,
-    settingsTitle: String = "Header Pill",
+    settingsTitle: String? = null,
     displayType: String? = null,
     alarmEntityIds: List<String> = emptyList(),
     onDisplayTypeSelected: ((String) -> Unit)? = null,
     onAlarmEntitiesSelected: ((List<String>) -> Unit)? = null
 ) {
+    val resolvedSettingsTitle = settingsTitle ?: stringResource(R.string.uif_header_pill)
     val isEditMode by viewModel.isEditMode.collectAsState()
     val use24h by viewModel.use24hFormat.collectAsState()
     val extraEntities by viewModel.weatherExtraEntities.collectAsState()
@@ -188,15 +194,15 @@ fun HKIWeatherDialog(
 
     if (isEditMode) {
         ModernSettingsDialogFrame(
-            title = settingsTitle,
-            subtitle = "Display, linked entities, and dialog layout",
+            title = resolvedSettingsTitle,
+            subtitle = stringResource(R.string.dlg_display_linked_entities_and_dialog_layout),
             icon = headerDisplayIcon(currentDisplayType, weather.state),
             onDismiss = onDismiss,
             content = {
                 WeatherConfigView(
                     allEntities = allEntities,
                     viewModel = viewModel,
-                    title = settingsTitle,
+                    title = resolvedSettingsTitle,
                     displayType = displayType,
                     alarmEntityIds = alarmEntityIds,
                     onDisplayTypeSelected = onDisplayTypeSelected,
@@ -204,7 +210,7 @@ fun HKIWeatherDialog(
                     onEntitySelected = { id -> viewModel.saveWeatherEntity(id) }
                 )
             },
-            footer = { Button(onClick = onDismiss) { Text("Done") } }
+            footer = { Button(onClick = onDismiss) { Text(stringResource(R.string.dlg_done)) } }
         )
         return
     }
@@ -219,11 +225,15 @@ fun HKIWeatherDialog(
             WeatherStateIcon(
                 state = weather.state,
                 size = 28.dp,
-                contentDescription = formatWeatherState(weather.state)
+                contentDescription = localizedWeatherStateLabel(weather.state)
             )
         },
-        titleOverride = "Weather",
-        statusText = "${formatWeatherState(weather.state)} - ${season?.state ?: "Season"}"
+        titleOverride = stringResource(R.string.dlg_weather),
+        statusText = stringResource(
+            R.string.dlg_weather_and_season,
+            localizedWeatherStateLabel(weather.state),
+            season?.state?.let { localizedSeasonLabel(it) } ?: stringResource(R.string.uif_season),
+        )
     ) {
         val weatherGridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
         LazyVerticalGrid(
@@ -276,6 +286,68 @@ fun formatWeatherState(state: String): String {
         .joinToString(" ") { word -> word.replaceFirstChar { it.uppercase() } }
 }
 
+/**
+ * Localized display label for Home Assistant weather condition tokens.
+ *
+ * Keep [formatWeatherState] for non-UI/fallback formatting. Composable callers, including HKIPage,
+ * should use this function so raw Home Assistant tokens remain unchanged for comparisons.
+ */
+@Composable
+fun localizedWeatherStateLabel(state: String): String = when (state.lowercase()) {
+    "clear-night" -> stringResource(R.string.dlg_weather_state_clear_night)
+    "cloudy" -> stringResource(R.string.dlg_weather_state_cloudy)
+    "exceptional" -> stringResource(R.string.dlg_weather_state_exceptional)
+    "fog" -> stringResource(R.string.dlg_weather_state_fog)
+    "hail" -> stringResource(R.string.dlg_weather_state_hail)
+    "lightning" -> stringResource(R.string.dlg_weather_state_lightning)
+    "lightning-rainy" -> stringResource(R.string.dlg_weather_state_lightning_rainy)
+    "partlycloudy", "partly_cloudy", "partly-cloudy" ->
+        stringResource(R.string.dlg_weather_state_partly_cloudy)
+    "pouring" -> stringResource(R.string.dlg_weather_state_pouring)
+    "rainy" -> stringResource(R.string.dlg_weather_state_rainy)
+    "snowy" -> stringResource(R.string.dlg_weather_state_snowy)
+    "snowy-rainy" -> stringResource(R.string.dlg_weather_state_snowy_rainy)
+    "sunny" -> stringResource(R.string.dlg_weather_state_sunny)
+    "windy" -> stringResource(R.string.dlg_weather_state_windy)
+    "windy-variant" -> stringResource(R.string.dlg_weather_state_windy_variant)
+    else -> formatWeatherState(state)
+}
+
+@Composable
+private fun localizedWeatherDisplayType(type: String): String = when (type) {
+    "Weather" -> stringResource(R.string.uif_weather)
+    "Alarm" -> stringResource(R.string.uif_alarm)
+    "Date" -> stringResource(R.string.uif_date)
+    "Time" -> stringResource(R.string.uif_time)
+    "DateTime" -> stringResource(R.string.uif_date_and_time)
+    "None" -> stringResource(R.string.uif_none)
+    else -> type
+}
+
+@Composable
+private fun localizedSeasonLabel(season: String): String = when (season.lowercase()) {
+    "spring" -> stringResource(R.string.uif_season_spring)
+    "summer" -> stringResource(R.string.uif_season_summer)
+    "autumn", "fall" -> stringResource(R.string.uif_season_autumn)
+    "winter" -> stringResource(R.string.uif_season_winter)
+    else -> localizedEntityStateLabel(season)
+}
+
+@Composable
+private fun localizedMoonPhaseLabel(phase: String): String = when (
+    phase.lowercase().replace("-", "_").replace(" ", "_")
+) {
+    "new_moon" -> stringResource(R.string.uif_moon_phase_new)
+    "waxing_crescent" -> stringResource(R.string.uif_moon_phase_waxing_crescent)
+    "first_quarter" -> stringResource(R.string.uif_moon_phase_first_quarter)
+    "waxing_gibbous" -> stringResource(R.string.uif_moon_phase_waxing_gibbous)
+    "full_moon" -> stringResource(R.string.uif_moon_phase_full)
+    "waning_gibbous" -> stringResource(R.string.uif_moon_phase_waning_gibbous)
+    "last_quarter", "third_quarter" -> stringResource(R.string.uif_moon_phase_last_quarter)
+    "waning_crescent" -> stringResource(R.string.uif_moon_phase_waning_crescent)
+    else -> localizedEntityStateLabel(phase)
+}
+
 @Composable
 fun WeatherMainCard(
     weather: HAEntity,
@@ -313,7 +385,7 @@ fun WeatherMainCard(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
-                            text = weather.friendlyName ?: "Current weather",
+                            text = weather.friendlyName ?: stringResource(R.string.dlg_current_weather),
                             style = MaterialTheme.typography.labelSmall,
                             color = appColors.onMuted,
                             maxLines = 1,
@@ -321,16 +393,16 @@ fun WeatherMainCard(
                         WeatherStateIcon(
                             state = weather.state,
                             size = 54.dp,
-                            contentDescription = formatWeatherState(weather.state)
+                            contentDescription = localizedWeatherStateLabel(weather.state)
                         )
                         Text(
-                            text = "${weather.temperature?.toInt() ?: "--"}${temperatureUnit}",
+                            text = stringResource(R.string.dlg_value_with_unit, weather.temperature?.toInt() ?: "--", temperatureUnit),
                             style = MaterialTheme.typography.headlineLarge,
                             color = appColors.onSurface,
                             fontWeight = FontWeight.Light
                         )
                         Text(
-                            formatWeatherState(weather.state),
+                            localizedWeatherStateLabel(weather.state),
                             color = appColors.onSurface,
                             style = MaterialTheme.typography.labelMedium,
                             maxLines = 1
@@ -344,14 +416,14 @@ fun WeatherMainCard(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = weather.friendlyName ?: "Current weather",
+                                text = weather.friendlyName ?: stringResource(R.string.dlg_current_weather),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = appColors.onMuted,
                                 maxLines = 1
                             )
                             Row(verticalAlignment = Alignment.Bottom) {
                                 Text(
-                                    text = "${weather.temperature?.toInt() ?: "--"}°",
+                                    text = stringResource(R.string.dlg_temperature_value, weather.temperature?.toInt() ?: "--"),
                                     style = if (compact) MaterialTheme.typography.displayMedium else MaterialTheme.typography.displayLarge,
                                     color = appColors.onSurface,
                                     fontWeight = FontWeight.Light
@@ -366,7 +438,7 @@ fun WeatherMainCard(
                                 }
                             }
                             Text(
-                                formatWeatherState(weather.state),
+                                localizedWeatherStateLabel(weather.state),
                                 color = appColors.onSurface,
                                 style = MaterialTheme.typography.titleMedium
                             )
@@ -374,7 +446,7 @@ fun WeatherMainCard(
                         WeatherStateIcon(
                             state = weather.state,
                             size = if (compact) 62.dp else 92.dp,
-                            contentDescription = formatWeatherState(weather.state)
+                            contentDescription = localizedWeatherStateLabel(weather.state)
                         )
                     }
                 }
@@ -384,10 +456,30 @@ fun WeatherMainCard(
                         modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        apparent?.let { WeatherMetricChip(Icons.Default.Thermostat, "Feels ${it.toInt()}°") }
-                        weather.humidity?.let { WeatherMetricChip(Icons.Default.WaterDrop, "${it.toInt()}%") }
-                        weather.windSpeed?.let { WeatherMetricChip(Icons.Default.Air, "${it.toInt()} km/h") }
-                        weather.pressure?.let { WeatherMetricChip(Icons.Default.Speed, "${it.toInt()} hPa") }
+                        apparent?.let {
+                            WeatherMetricChip(
+                                Icons.Default.Thermostat,
+                                stringResource(R.string.uif_feels_like_temperature, it.toInt())
+                            )
+                        }
+                        weather.humidity?.let {
+                            WeatherMetricChip(
+                                Icons.Default.WaterDrop,
+                                stringResource(R.string.uif_percentage_value, it.toInt())
+                            )
+                        }
+                        weather.windSpeed?.let {
+                            WeatherMetricChip(
+                                Icons.Default.Air,
+                                stringResource(R.string.uif_speed_kmh, it.toInt())
+                            )
+                        }
+                        weather.pressure?.let {
+                            WeatherMetricChip(
+                                Icons.Default.Speed,
+                                stringResource(R.string.uif_pressure_hpa, it.toInt())
+                            )
+                        }
                     }
                 }
             }
@@ -439,7 +531,7 @@ fun ForecastCard(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.CalendarMonth, null, tint = accent, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Forecast", style = MaterialTheme.typography.titleSmall, color = appColors.onSurface)
+                Text(stringResource(R.string.dlg_forecast), style = MaterialTheme.typography.titleSmall, color = appColors.onSurface)
             }
             Spacer(Modifier.height(12.dp))
             if (!forecasts.isNullOrEmpty()) {
@@ -451,7 +543,7 @@ fun ForecastCard(
                 }
             } else {
                 Box(modifier = Modifier.fillMaxWidth().height(84.dp), contentAlignment = Alignment.Center) {
-                    Text("No forecast available", color = appColors.onMuted, style = MaterialTheme.typography.labelMedium)
+                    Text(stringResource(R.string.dlg_no_forecast_available), color = appColors.onMuted, style = MaterialTheme.typography.labelMedium)
                 }
             }
         }
@@ -461,9 +553,9 @@ fun ForecastCard(
 @Composable
 fun MoonCard(moon: HAEntity?) {
     WeatherInfoCard(
-        title = "Moon",
-        value = moon?.state?.replace("_", " ")?.replaceFirstChar { it.uppercase() } ?: "Unknown",
-        subtitle = "Lunar phase",
+        title = stringResource(R.string.dlg_moon),
+        value = moon?.state?.let { localizedMoonPhaseLabel(it) } ?: stringResource(R.string.uif_unknown),
+        subtitle = stringResource(R.string.dlg_lunar_phase),
         icon = Icons.Default.Brightness2,
         accent = Color(0xFF9FA8DA)
     )
@@ -641,7 +733,7 @@ private fun SeasonCardFace(timing: SeasonTiming, astronomical: Boolean) {
                 }
             } else {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Season", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
+                    Text(stringResource(R.string.dlg_season), style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
                     Box(
                         modifier = Modifier.size(34.dp).background(accent.copy(alpha = 0.16f), itemCornerShape()),
                         contentAlignment = Alignment.Center
@@ -652,20 +744,25 @@ private fun SeasonCardFace(timing: SeasonTiming, astronomical: Boolean) {
             }
             Column(horizontalAlignment = if (compact) Alignment.CenterHorizontally else Alignment.Start) {
                 Text(
-                    timing.current.replaceFirstChar { it.uppercase() },
+                    localizedSeasonLabel(timing.current),
                     style = if (compact) MaterialTheme.typography.titleMedium else MaterialTheme.typography.headlineSmall,
                     color = appColors.onSurface,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1
                 )
                 Text(
-                    "${timing.daysUntilNext} day${if (timing.daysUntilNext == 1L) "" else "s"} to ${timing.next.replaceFirstChar { it.uppercase() }}",
+                    pluralStringResource(
+                        R.plurals.uif_days_to_season,
+                        timing.daysUntilNext.toInt(),
+                        timing.daysUntilNext,
+                        localizedSeasonLabel(timing.next)
+                    ),
                     color = appColors.onMuted,
                     style = MaterialTheme.typography.labelSmall,
                     maxLines = 1
                 )
                 Text(
-                    if (astronomical) "Astronomical · tap or swipe" else "Meteorological · tap or swipe",
+                    if (astronomical) stringResource(R.string.dlg_astronomical_tap_or_swipe) else stringResource(R.string.dlg_meteorological_tap_or_swipe),
                     color = appColors.onMuted,
                     style = MaterialTheme.typography.labelSmall,
                     maxLines = 1
@@ -685,16 +782,22 @@ fun AqiCard(aqi: HAEntity?) {
         value <= 150 -> Color(0xFFFF8A65)
         else -> Color(0xFFEF5350)
     }
-    WeatherInfoCard("Air quality", aqi?.state ?: "--", "AQI", Icons.Default.Air, color)
+    WeatherInfoCard(
+        stringResource(R.string.uif_air_quality),
+        aqi?.state ?: "--",
+        stringResource(R.string.uif_aqi),
+        Icons.Default.Air,
+        color
+    )
 }
 
 @Composable
 fun RainCard(rain: HAEntity?) {
     val unit = rain?.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull ?: "mm"
     WeatherInfoCard(
-        title = "Rain",
+        title = stringResource(R.string.dlg_rain),
         value = "${rain?.state ?: "0"} $unit",
-        subtitle = "Precipitation",
+        subtitle = stringResource(R.string.dlg_precipitation),
         icon = Icons.Default.WaterDrop,
         accent = weatherStateColor("rainy")
     )
@@ -723,21 +826,52 @@ fun StatsCard(weather: HAEntity) {
                 verticalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 10.dp)
             ) {
                 Text(
-                    if (compact) "Details" else "Weather details",
+                    if (compact) stringResource(R.string.dlg_details) else stringResource(R.string.dlg_weather_details),
                     color = appColors.onMuted,
                     style = MaterialTheme.typography.labelLarge,
                     maxLines = 1
                 )
-                StatLine("Humidity", "${weather.humidity?.toInt() ?: "--"}%", Icons.Default.WaterDrop, compact)
-                StatLine("Wind", "${weather.windSpeed?.toInt() ?: "--"} km/h", Icons.Default.Air, compact)
-                weather.pressure?.let { StatLine("Pressure", "${it.toInt()} hPa", Icons.Default.Speed, compact) }
+                StatLine(
+                    stringResource(R.string.uif_humidity),
+                    weather.humidity?.let {
+                        stringResource(R.string.uif_percentage_value, it.toInt())
+                    } ?: "--",
+                    Icons.Default.WaterDrop,
+                    compact
+                )
+                StatLine(
+                    stringResource(R.string.uif_wind),
+                    weather.windSpeed?.let {
+                        stringResource(R.string.uif_speed_kmh, it.toInt())
+                    } ?: "--",
+                    Icons.Default.Air,
+                    compact
+                )
+                weather.pressure?.let {
+                    StatLine(
+                        stringResource(R.string.uif_pressure),
+                        stringResource(R.string.uif_pressure_hpa, it.toInt()),
+                        Icons.Default.Speed,
+                        compact
+                    )
+                }
             }
         }
     }
 }
 
+@Composable
 private fun cardinalFromBearing(deg: Float): String {
-    val dirs = listOf("N", "NE", "E", "SE", "S", "SW", "W", "NW")
+    val dirs = listOf(
+        stringResource(R.string.uif_direction_north_short),
+        stringResource(R.string.uif_direction_northeast_short),
+        stringResource(R.string.uif_direction_east_short),
+        stringResource(R.string.uif_direction_southeast_short),
+        stringResource(R.string.uif_direction_south_short),
+        stringResource(R.string.uif_direction_southwest_short),
+        stringResource(R.string.uif_direction_west_short),
+        stringResource(R.string.uif_direction_northwest_short)
+    )
     val idx = (((deg % 360f) + 360f) % 360f / 45f).let { Math.round(it) } % 8
     return dirs[idx]
 }
@@ -769,7 +903,7 @@ fun WindCard(weather: HAEntity) {
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Wind", style = MaterialTheme.typography.labelLarge, color = muted)
+                    Text(stringResource(R.string.dlg_wind), style = MaterialTheme.typography.labelLarge, color = muted)
                     Box(
                         modifier = Modifier.size(34.dp).background(accent.copy(alpha = 0.16f), itemCornerShape()),
                         contentAlignment = Alignment.Center
@@ -801,12 +935,12 @@ fun WindCard(weather: HAEntity) {
                     }
                     Column(verticalArrangement = Arrangement.Center) {
                         Text(
-                            speed?.let { "${it.toInt()} $unit" } ?: "--",
+                            speed?.let { stringResource(R.string.dlg_value_and_unit, it.toInt(), unit) } ?: "--",
                             style = MaterialTheme.typography.titleMedium,
                             color = onSurface, fontWeight = FontWeight.SemiBold, maxLines = 1
                         )
                         Text(
-                            cardinal?.let { "From $it" } ?: "Direction —",
+                            cardinal?.let { stringResource(R.string.dlg_from, it) } ?: stringResource(R.string.dlg_direction),
                             color = muted, style = MaterialTheme.typography.labelSmall, maxLines = 1
                         )
                     }
@@ -972,21 +1106,21 @@ fun ForecastItem(forecast: HAWeatherForecast) {
             WeatherStateIcon(
                 state = forecast.condition,
                 size = 38.dp,
-                contentDescription = forecast.condition?.let(::formatWeatherState),
+                contentDescription = forecast.condition?.let { localizedWeatherStateLabel(it) },
                 loop = false
             )
             Text(
                 buildString {
                     append(forecast.temperature?.toInt() ?: "--")
                     append("°")
-                    forecast.templow?.let { append("  ${it.toInt()}°") }
+                    forecast.templow?.let { append(stringResource(R.string.dlg_spaced_temperature, it.toInt())) }
                 },
                 color = appColors.onSurface,
                 fontWeight = FontWeight.SemiBold,
                 style = MaterialTheme.typography.labelLarge
             )
             Text(
-                forecast.precipitation?.takeIf { it > 0.0 }?.let { "${it.toInt()} mm" } ?: " ",
+                forecast.precipitation?.takeIf { it > 0.0 }?.let { stringResource(R.string.dlg_mm, it.toInt()) } ?: " ",
                 color = weatherStateColor("rainy"),
                 style = MaterialTheme.typography.labelSmall,
                 maxLines = 1
@@ -999,7 +1133,7 @@ fun ForecastItem(forecast: HAWeatherForecast) {
 fun WeatherConfigView(
     allEntities: List<HAEntity>,
     viewModel: MainViewModel,
-    title: String = "Header Pill",
+    title: String? = null,
     displayType: String? = null,
     alarmEntityIds: List<String> = emptyList(),
     onDisplayTypeSelected: ((String) -> Unit)? = null,
@@ -1032,8 +1166,10 @@ fun WeatherConfigView(
             item {
                 SettingsTabRow(
                     tabs = buildList {
-                        add("display" to "Display")
-                        if (currentDisplayType in listOf("Weather", "DateTime", "Alarm")) add("entities" to "Entities")
+                        add("display" to stringResource(R.string.uif_display))
+                        if (currentDisplayType in listOf("Weather", "DateTime", "Alarm")) {
+                            add("entities" to stringResource(R.string.uif_entities))
+                        }
                     },
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
@@ -1041,7 +1177,7 @@ fun WeatherConfigView(
             }
 
             if (settingsPage == "display") item {
-                SettingsSubcategory("Display mode", "Choose what this header pill shows")
+                SettingsSubcategory(stringResource(R.string.dlg_display_mode), stringResource(R.string.dlg_choose_what_this_header_pill_shows))
                 Row(
                     modifier = Modifier.padding(vertical = 8.dp).horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -1050,7 +1186,7 @@ fun WeatherConfigView(
                         SettingsChoiceChip(
                             selected = currentDisplayType == type,
                             onClick = { (onDisplayTypeSelected ?: viewModel::setWeatherDisplayType)(type) },
-                            label = { Text(type, fontSize = 10.sp) }
+                            label = { Text(localizedWeatherDisplayType(type), fontSize = 10.sp) }
                         )
                     }
                 }
@@ -1058,20 +1194,20 @@ fun WeatherConfigView(
 
             if (settingsPage == "display" && currentDisplayType in listOf("Time", "DateTime")) item {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    Text("24-Hour Format", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted, modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.dlg_24_hour_format), style = MaterialTheme.typography.labelLarge, color = appColors.onMuted, modifier = Modifier.weight(1f))
                     Switch(checked = use24h, onCheckedChange = { viewModel.setUse24hFormat(it) })
                 }
             }
 
             if (settingsPage == "display" && currentDisplayType in listOf("Date", "DateTime")) item {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    Text("Full Day Name", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted, modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.dlg_full_day_name), style = MaterialTheme.typography.labelLarge, color = appColors.onMuted, modifier = Modifier.weight(1f))
                     Switch(checked = useFullDayName, onCheckedChange = { viewModel.setUseFullDayName(it) })
                 }
             }
 
             if (settingsPage == "entities" && currentDisplayType in listOf("Weather", "DateTime")) item {
-                SettingsSubcategory("Weather entities", "Pick a source device or fine-tune individual roles")
+                SettingsSubcategory(stringResource(R.string.dlg_weather_entities), stringResource(R.string.dlg_pick_a_source_device_or_fine_tune_individual_roles))
                 Spacer(Modifier.height(8.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     // Device-first setup: picking a weather station automatically fills the role entities
@@ -1079,34 +1215,52 @@ fun WeatherConfigView(
                     val deviceName = extraEntities["device"]?.let { id ->
                         deviceRegistry.find { it.id == id }?.let { it.name_by_user ?: it.name } ?: id
                     }
-                    WeatherEntityRow("Source device", deviceName ?: "Pick to auto-fill") { showDevicePicker = true }
-                    WeatherEntityRow("Weather", allEntities.find { it.entity_id.startsWith("weather.") }?.entity_id) { selectingForRole = "weather" }
-                    WeatherEntityRow("Sun", extraEntities["sun"]) { selectingForRole = "sun" }
-                    WeatherEntityRow("Moon", extraEntities["moon"]) { selectingForRole = "moon" }
-                    WeatherEntityRow("AQI", extraEntities["aqi"]) { selectingForRole = "aqi" }
-                    WeatherEntityRow("Season", extraEntities["season"]) { selectingForRole = "season" }
-                    WeatherEntityRow("Rain", extraEntities["rain"]) { selectingForRole = "rain" }
+                    WeatherEntityRow(
+                        stringResource(R.string.uif_source_device),
+                        deviceName ?: stringResource(R.string.uif_pick_to_auto_fill)
+                    ) { showDevicePicker = true }
+                    WeatherEntityRow(
+                        stringResource(R.string.uif_weather),
+                        allEntities.find { it.entity_id.startsWith("weather.") }?.entity_id
+                    ) { selectingForRole = "weather" }
+                    WeatherEntityRow(stringResource(R.string.uif_sun), extraEntities["sun"]) {
+                        selectingForRole = "sun"
+                    }
+                    WeatherEntityRow(stringResource(R.string.uif_moon), extraEntities["moon"]) {
+                        selectingForRole = "moon"
+                    }
+                    WeatherEntityRow(stringResource(R.string.uif_aqi), extraEntities["aqi"]) {
+                        selectingForRole = "aqi"
+                    }
+                    WeatherEntityRow(stringResource(R.string.uif_season), extraEntities["season"]) {
+                        selectingForRole = "season"
+                    }
+                    WeatherEntityRow(stringResource(R.string.uif_rain), extraEntities["rain"]) {
+                        selectingForRole = "rain"
+                    }
                 }
                 Spacer(Modifier.height(16.dp))
-                SettingsSubcategory("Rain map", "Show a live radar/rain map card — a camera entity or an embedded web page (iframe)")
+                SettingsSubcategory(stringResource(R.string.dlg_rain_map), stringResource(R.string.dlg_show_a_live_radar_rain_map_card_a_camera))
                 Spacer(Modifier.height(8.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    WeatherEntityRow("Rain map camera", extraEntities["rainmap"]) { selectingForRole = "rainmap" }
+                    WeatherEntityRow(stringResource(R.string.uif_rain_map_camera), extraEntities["rainmap"]) {
+                        selectingForRole = "rainmap"
+                    }
                     var rainUrl by remember(extraEntities["rainmap_url"]) { mutableStateOf(extraEntities["rainmap_url"].orEmpty()) }
                     androidx.compose.material3.OutlinedTextField(
                         value = rainUrl,
                         onValueChange = { rainUrl = it },
-                        label = { Text("Rain map URL (iframe)") },
-                        placeholder = { Text("https://…") },
+                        label = { Text(stringResource(R.string.dlg_rain_map_url_iframe)) },
+                        placeholder = { Text(stringResource(R.string.dlg_https)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
                             androidx.compose.material3.TextButton(onClick = {
                                 viewModel.setWeatherExtraEntity("rainmap_url", rainUrl.trim().takeIf { it.isNotBlank() })
-                            }) { Text("Save") }
+                            }) { Text(stringResource(R.string.dlg_save)) }
                         }
                     )
-                    Text("Aspect ratio", style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
+                    Text(stringResource(R.string.dlg_aspect_ratio), style = MaterialTheme.typography.labelLarge, color = appColors.onMuted)
                     val currentAspect = extraEntities["rainmap_aspect"] ?: "16:9"
                     Row(
                         modifier = Modifier.horizontalScroll(rememberScrollState()),
@@ -1124,10 +1278,10 @@ fun WeatherConfigView(
             }
 
             if (settingsPage == "entities" && currentDisplayType == "Alarm") item {
-                SettingsSubcategory("Alarm entities", "Select the alarm panels summarized by this pill")
+                SettingsSubcategory(stringResource(R.string.dlg_alarm_entities), stringResource(R.string.dlg_select_the_alarm_panels_summarized_by_this_pill))
                 Spacer(Modifier.height(8.dp))
                 WeatherEntityRow(
-                    "Alarms",
+                    stringResource(R.string.uif_alarms),
                     alarmEntityIds.takeIf { it.isNotEmpty() }?.joinToString { it.substringAfter(".") }
                 ) { selectingForRole = "alarm" }
             }
@@ -1204,7 +1358,11 @@ private fun WeatherCardWidthRow(label: String, width: String, onWidthChange: (St
     ) {
         Text(label, color = appColors.onSurface, style = MaterialTheme.typography.bodyMedium)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf("full" to "Full", "half" to "Half", "third" to "Third").forEach { (value, text) ->
+            listOf(
+                "full" to stringResource(R.string.uif_full),
+                "half" to stringResource(R.string.uif_half),
+                "third" to stringResource(R.string.uif_third)
+            ).forEach { (value, text) ->
                 SettingsChoiceChip(
                     selected = width == value,
                     onClick = { onWidthChange(value) },
@@ -1236,6 +1394,6 @@ fun WeatherEntityRow(label: String, entityId: String?, onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(label, color = appColors.onSurface)
-        Text(entityId?.substringAfter(".") ?: "Auto-scan", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+        Text(entityId?.substringAfter(".") ?: stringResource(R.string.dlg_auto_scan), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
     }
 }

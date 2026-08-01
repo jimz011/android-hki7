@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,13 +27,13 @@ fun AdvancedEntitySearchDialog(
     allEntities: List<HAEntity>,
     onDismiss: () -> Unit,
     onEntitiesSelected: (List<String>) -> Unit,
-    title: String = "Select Items",
+    title: String? = null,
     singleSelect: Boolean = false,
     preselectedIds: Set<String> = emptySet()
 ) {
     val appColors = LocalHKIAppColors.current
     var searchQuery by remember { mutableStateOf("") }
-    var selectedDomain by remember { mutableStateOf("All") }
+    var selectedDomain by remember { mutableStateOf("__all__") }
     val selectedIds = remember { mutableStateListOf<String>() }
 
     LaunchedEffect(preselectedIds) {
@@ -38,7 +42,7 @@ fun AdvancedEntitySearchDialog(
     }
     
     val domains = remember(allEntities) {
-        listOf("All") + allEntities.map { it.entity_id.split(".").first() }.distinct().sorted()
+        listOf("__all__") + allEntities.map { it.entity_id.split(".").first() }.distinct().sorted()
     }
 
     // derivedStateOf: only re-filter/re-sort when the query, domain, or selection actually
@@ -48,15 +52,19 @@ fun AdvancedEntitySearchDialog(
             allEntities.filter { entity ->
                 val matchesSearch = entity.friendlyName?.contains(searchQuery, ignoreCase = true) == true ||
                                     entity.entity_id.contains(searchQuery, ignoreCase = true)
-                val matchesDomain = selectedDomain == "All" || entity.entity_id.startsWith("$selectedDomain.")
+                val matchesDomain = selectedDomain == "__all__" || entity.entity_id.startsWith("$selectedDomain.")
                 matchesSearch && matchesDomain
             }.sortedWith(compareByDescending<HAEntity> { selectedIds.contains(it.entity_id) }.thenBy { it.friendlyName ?: it.entity_id })
         }
     }
 
     ModernSettingsDialogFrame(
-        title = title,
-        subtitle = if (singleSelect) "Search and choose one entity" else "Search and select one or more entities",
+        title = title ?: stringResource(R.string.entity_search_select_items),
+        subtitle = if (singleSelect) {
+            stringResource(R.string.entity_search_choose_one)
+        } else {
+            stringResource(R.string.entity_search_choose_multiple)
+        },
         icon = Icons.Default.Search,
         onDismiss = onDismiss,
         content = {
@@ -67,7 +75,7 @@ fun AdvancedEntitySearchDialog(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
                     modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)),
-                    placeholder = { Text("Search", color = appColors.onMuted) },
+                    placeholder = { Text(stringResource(R.string.ui_search_bce0641), color = appColors.onMuted) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = appColors.onMuted) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = appColors.onSurface,
@@ -103,7 +111,12 @@ fun AdvancedEntitySearchDialog(
                         SettingsChoiceChip(
                             selected = isSelected,
                             onClick = { selectedDomain = domain },
-                            label = { Text(domain.replaceFirstChar { it.uppercase() }) },
+                            label = {
+                                Text(
+                                    if (domain == "__all__") stringResource(R.string.ui_all_6a72085)
+                                    else domain.replace('_', ' ').replaceFirstChar { it.uppercase() }
+                                )
+                            },
                             modifier = Modifier.padding(end = 8.dp)
                         )
                     }
@@ -169,12 +182,12 @@ fun AdvancedEntitySearchDialog(
             }
         },
         footer = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
             if (!singleSelect) {
                 Button(
                     onClick = { onEntitiesSelected(selectedIds.toList()); onDismiss() },
                     enabled = selectedIds.isNotEmpty()
-                ) { Text("Add (${selectedIds.size})") }
+                ) { Text(stringResource(R.string.ui_add_016df71, selectedIds.size)) }
             }
         }
     )

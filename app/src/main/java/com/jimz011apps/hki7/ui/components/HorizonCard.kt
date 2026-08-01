@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -219,7 +223,7 @@ fun HorizonCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Sunrise and sunset data unavailable",
+                        text = stringResource(R.string.ui_sunrise_and_sunset_data_unavailable_3295324),
                         color = appColors.onMuted,
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center
@@ -235,13 +239,13 @@ fun HorizonCard(
                     verticalAlignment = Alignment.Top
                 ) {
                     HorizonTimeLabel(
-                        label = "Sunrise",
+                        label = stringResource(R.string.ui_sunrise_fadf71c),
                         time = timeline.sunrise.format(timeFormatter),
                         alignEnd = false,
                         compact = compact
                     )
                     HorizonTimeLabel(
-                        label = "Sunset",
+                        label = stringResource(R.string.ui_sunset_181bcd5),
                         time = timeline.sunset.format(timeFormatter),
                         alignEnd = true,
                         compact = compact
@@ -253,7 +257,7 @@ fun HorizonCard(
     
                 if (compact) {
                     Text(
-                        text = "Solar noon ${timeline.solarNoon.format(timeFormatter)}",
+                        text = stringResource(R.string.ui_solar_noon_599372c, timeline.solarNoon.format(timeFormatter)),
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                         color = appColors.onMuted,
                         style = MaterialTheme.typography.labelSmall
@@ -261,9 +265,20 @@ fun HorizonCard(
                 } else {
                     Spacer(Modifier.height(8.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        HorizonEventLabel("Dawn", timeline.dawn?.format(timeFormatter) ?: "--")
-                        HorizonEventLabel("Solar noon", timeline.solarNoon.format(timeFormatter))
-                        HorizonEventLabel("Dusk", timeline.dusk?.format(timeFormatter) ?: "--", alignEnd = true)
+                        HorizonEventLabel(
+                            stringResource(R.string.core_dawn),
+                            timeline.dawn?.format(timeFormatter) ?: "--"
+                        )
+                        HorizonEventLabel(
+                            stringResource(R.string.core_solar_noon),
+                            timeline.solarNoon.format(timeFormatter),
+                            center = true
+                        )
+                        HorizonEventLabel(
+                            stringResource(R.string.core_dusk),
+                            timeline.dusk?.format(timeFormatter) ?: "--",
+                            alignEnd = true
+                        )
                     }
                 }
     
@@ -274,12 +289,12 @@ fun HorizonCard(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         HorizonMetric(
-                            label = "Azimuth",
+                            label = stringResource(R.string.ui_azimuth_d2fbdb3),
                             value = timeline.azimuth.asDegrees(),
                             modifier = Modifier.weight(1f)
                         )
                         HorizonMetric(
-                            label = "Elevation",
+                            label = stringResource(R.string.ui_elevation_a514da1),
                             value = timeline.elevation.asDegrees(),
                             modifier = Modifier.weight(1f)
                         )
@@ -449,12 +464,17 @@ private fun HorizonTimeLabel(label: String, time: String, alignEnd: Boolean, com
 }
 
 @Composable
-private fun HorizonEventLabel(label: String, time: String, alignEnd: Boolean = false) {
+private fun HorizonEventLabel(
+    label: String,
+    time: String,
+    alignEnd: Boolean = false,
+    center: Boolean = false
+) {
     val appColors = LocalHKIAppColors.current
     Column(
         horizontalAlignment = when {
             alignEnd -> Alignment.End
-            label == "Solar noon" -> Alignment.CenterHorizontally
+            center -> Alignment.CenterHorizontally
             else -> Alignment.Start
         }
     ) {

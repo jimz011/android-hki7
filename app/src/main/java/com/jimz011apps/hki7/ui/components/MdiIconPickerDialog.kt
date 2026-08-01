@@ -1,5 +1,10 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
@@ -46,66 +51,72 @@ import com.jimz011apps.hki7.ui.utils.SI_COMMON
 import com.jimz011apps.hki7.ui.utils.TABLER_COMMON
 
 /** Category name for the curated "common" icons shown by default. */
-private const val COMMON_CATEGORY = "Common"
+private const val COMMON_CATEGORY = "common"
+
+private data class IconCategory(
+    val id: String,
+    @StringRes val labelRes: Int,
+    val tag: String?
+)
 
 /**
  * Picker category chips: label → MDI tag (from meta.json `tags`), or null for the
  * curated common set. Tags are matched precisely via [MdiIconStore.byCategory].
  */
-private val ICON_CATEGORIES: List<Pair<String, String?>> = listOf(
-    COMMON_CATEGORY to null,
-    "Home" to "home automation",
-    "Weather" to "weather",
-    "Lock" to "lock",
-    "People" to "account / user",
-    "Auto" to "automotive",
-    "Music" to "music",
-    "Battery" to "battery",
-    "Nature" to "nature",
-    "Places" to "places",
-    "Food" to "food / drink",
-    "Navigation" to "navigation",
+private val ICON_CATEGORIES = listOf(
+    IconCategory(COMMON_CATEGORY, R.string.core_icon_category_common, null),
+    IconCategory("home", R.string.core_icon_category_home, "home automation"),
+    IconCategory("weather", R.string.core_icon_category_weather, "weather"),
+    IconCategory("lock", R.string.core_icon_category_lock, "lock"),
+    IconCategory("people", R.string.core_icon_category_people, "account / user"),
+    IconCategory("auto", R.string.core_icon_category_auto, "automotive"),
+    IconCategory("music", R.string.core_icon_category_music, "music"),
+    IconCategory("battery", R.string.core_icon_category_battery, "battery"),
+    IconCategory("nature", R.string.core_icon_category_nature, "nature"),
+    IconCategory("places", R.string.core_icon_category_places, "places"),
+    IconCategory("food", R.string.core_icon_category_food, "food / drink"),
+    IconCategory("navigation", R.string.core_icon_category_navigation, "navigation"),
 )
 
 /** Tabler category chips: label → Tabler `category` (matched as `#category`). */
-private val TABLER_CATEGORIES: List<Pair<String, String?>> = listOf(
-    COMMON_CATEGORY to null,
-    "Devices" to "devices",
-    "Weather" to "weather",
-    "Nature" to "nature",
-    "Map" to "map",
-    "Media" to "media",
-    "Communication" to "communication",
-    "Food" to "food",
-    "Health" to "health",
-    "Vehicles" to "vehicles",
-    "Buildings" to "buildings",
-    "Electrical" to "electrical",
-    "Sport" to "sport",
+private val TABLER_CATEGORIES = listOf(
+    IconCategory(COMMON_CATEGORY, R.string.core_icon_category_common, null),
+    IconCategory("devices", R.string.core_icon_category_devices, "devices"),
+    IconCategory("weather", R.string.core_icon_category_weather, "weather"),
+    IconCategory("nature", R.string.core_icon_category_nature, "nature"),
+    IconCategory("map", R.string.core_icon_category_map, "map"),
+    IconCategory("media", R.string.core_icon_category_media, "media"),
+    IconCategory("communication", R.string.core_icon_category_communication, "communication"),
+    IconCategory("food", R.string.core_icon_category_food, "food"),
+    IconCategory("health", R.string.core_icon_category_health, "health"),
+    IconCategory("vehicles", R.string.core_icon_category_vehicles, "vehicles"),
+    IconCategory("buildings", R.string.core_icon_category_buildings, "buildings"),
+    IconCategory("electrical", R.string.core_icon_category_electrical, "electrical"),
+    IconCategory("sport", R.string.core_icon_category_sport, "sport"),
 )
 
 /** Phosphor category chips: label → Phosphor `IconCategory` (matched as `#category`). */
-private val PHOSPHOR_CATEGORIES: List<Pair<String, String?>> = listOf(
-    COMMON_CATEGORY to null,
-    "Objects" to "objects",
-    "Weather" to "weather",
-    "Nature" to "nature",
-    "Map" to "map",
-    "Media" to "media",
-    "Communication" to "communication",
-    "Commerce" to "commerce",
-    "Health" to "health",
-    "Games" to "games",
-    "People" to "people",
-    "Finance" to "finance",
+private val PHOSPHOR_CATEGORIES = listOf(
+    IconCategory(COMMON_CATEGORY, R.string.core_icon_category_common, null),
+    IconCategory("objects", R.string.core_icon_category_objects, "objects"),
+    IconCategory("weather", R.string.core_icon_category_weather, "weather"),
+    IconCategory("nature", R.string.core_icon_category_nature, "nature"),
+    IconCategory("map", R.string.core_icon_category_map, "map"),
+    IconCategory("media", R.string.core_icon_category_media, "media"),
+    IconCategory("communication", R.string.core_icon_category_communication, "communication"),
+    IconCategory("commerce", R.string.core_icon_category_commerce, "commerce"),
+    IconCategory("health", R.string.core_icon_category_health, "health"),
+    IconCategory("games", R.string.core_icon_category_games, "games"),
+    IconCategory("people", R.string.core_icon_category_people, "people"),
+    IconCategory("finance", R.string.core_icon_category_finance, "finance"),
 )
 
 /** The category chip list for [pack]; empty-of-categories packs use the common-only list. */
-private fun categoriesFor(pack: IconPack): List<Pair<String, String?>> = when (pack) {
+private fun categoriesFor(pack: IconPack): List<IconCategory> = when (pack) {
     IconPack.MDI -> ICON_CATEGORIES
     IconPack.TABLER -> TABLER_CATEGORIES
     IconPack.PHOSPHOR -> PHOSPHOR_CATEGORIES
-    else -> listOf(COMMON_CATEGORY to null)
+    else -> listOf(IconCategory(COMMON_CATEGORY, R.string.core_icon_category_common, null))
 }
 
 /**
@@ -132,7 +143,7 @@ fun MdiIconPickerDialog(
     val context = LocalContext.current
     var query by remember { mutableStateOf("") }
     var pack by remember { mutableStateOf(initialPack) }
-    var category by remember { mutableStateOf(ICON_CATEGORIES.first().first) }
+    var category by remember { mutableStateOf(COMMON_CATEGORY) }
     val allNames = remember(pack) { MdiIconStore.allNames(context, pack) }
     val filtered = remember(query, category, pack, allNames) {
         val q = query.trim()
@@ -151,15 +162,15 @@ fun MdiIconPickerDialog(
                 common.filter { allNames.contains(it) } + allNames.filterNot { it in commonSet }
             }
             else -> {
-                val tag = categoriesFor(pack).firstOrNull { it.first == category }?.second
+                val tag = categoriesFor(pack).firstOrNull { it.id == category }?.tag
                 if (tag == null) allNames else MdiIconStore.byCategory(context, tag, pack)
             }
         }
     }
 
     ModernSettingsDialogFrame(
-        title = "Choose icon",
-        subtitle = "Search the Material Design icon library",
+        title = stringResource(R.string.ui_choose_icon_b0047ce),
+        subtitle = stringResource(R.string.ui_search_the_material_design_icon_library_2a2aa8d),
         icon = Icons.Default.Search,
         onDismiss = onDismiss,
         content = {
@@ -169,7 +180,7 @@ fun MdiIconPickerDialog(
                 OutlinedTextField(
                     value = query,
                     onValueChange = { query = it },
-                    placeholder = { Text("Search…", color = appColors.onMuted) },
+                    placeholder = { Text(stringResource(R.string.ui_search_f54fbca), color = appColors.onMuted) },
                     leadingIcon = { Icon(Icons.Default.Search, null, tint = appColors.onMuted) },
                     singleLine = true,
                     modifier = Modifier
@@ -198,7 +209,7 @@ fun MdiIconPickerDialog(
                     IconPack.entries.forEach { p ->
                         SettingsChoiceChip(
                             selected = pack == p,
-                            onClick = { pack = p; category = ICON_CATEGORIES.first().first },
+                            onClick = { pack = p; category = COMMON_CATEGORY },
                             label = { Text(p.displayName) }
                         )
                     }
@@ -214,14 +225,14 @@ fun MdiIconPickerDialog(
                     SettingsChoiceChip(
                         selected = current.isEmpty(),
                         onClick = { onSelect("") },
-                        label = { Text("None / Auto") }
+                        label = { Text(stringResource(R.string.ui_none_auto_cc8786f)) }
                     )
                     if (allowEntityPicture) {
                         SettingsChoiceChip(
                             selected = current == ENTITY_PICTURE_ICON,
                             onClick = { onSelect(ENTITY_PICTURE_ICON) },
                             leadingIcon = { Icon(Icons.Default.AccountCircle, null, modifier = Modifier.size(18.dp)) },
-                            label = { Text("Entity picture") }
+                            label = { Text(stringResource(R.string.ui_entity_picture_0569c68)) }
                         )
                     }
                 }
@@ -237,11 +248,11 @@ fun MdiIconPickerDialog(
                             .padding(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        categoriesFor(pack).forEach { (label, _) ->
+                        categoriesFor(pack).forEach { categoryOption ->
                             SettingsChoiceChip(
-                                selected = query.isBlank() && category == label,
-                                onClick = { category = label; query = "" },
-                                label = { Text(label) }
+                                selected = query.isBlank() && category == categoryOption.id,
+                                onClick = { category = categoryOption.id; query = "" },
+                                label = { Text(stringResource(categoryOption.labelRes)) }
                             )
                         }
                     }
@@ -289,6 +300,6 @@ fun MdiIconPickerDialog(
                 }
             }
         },
-        footer = { androidx.compose.material3.TextButton(onClick = onDismiss) { Text("Cancel") } }
+        footer = { androidx.compose.material3.TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
     )
 }

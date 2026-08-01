@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_system">Sistem</string>
+    <string name="core_last_seen_just_now">Son görülme: az önce</string>
+    <string name="core_no_media_playing">Herhangi bir medya oynatılmıyor</string>
+    <plurals name="core_media_players_playing">
+        <item quantity="one">%1$d medya oynatıcı oynatıyor</item>
+        <item quantity="other">%1$d medya oynatıcı oynatıyor</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="one">Son görülme: %1$d dakika önce</item>
+        <item quantity="other">Son görülme: %1$d dakika önce</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="one">Son görülme: %1$d saat önce</item>
+        <item quantity="other">Son görülme: %1$d saat önce</item>
+    </plurals>
+    <plurals name="core_last_seen_days">
+        <item quantity="one">Son görülme: %1$d gün önce</item>
+        <item quantity="other">Son görülme: %1$d gün önce</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="one">Son görülme: %1$d hafta önce</item>
+        <item quantity="other">Son görülme: %1$d hafta önce</item>
+    </plurals>
+</resources>

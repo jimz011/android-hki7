@@ -1,5 +1,10 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -98,11 +103,127 @@ private data class AutomationRunMode(
     val description: String
 )
 
-private val automationRunModes = listOf(
-    AutomationRunMode("single", "Single", "Ignore a new trigger while this flow is still running."),
-    AutomationRunMode("restart", "Restart", "Stop the current run and start again when conditions still pass."),
-    AutomationRunMode("queued", "Queued", "Wait, then run each trigger in the order it arrived."),
-    AutomationRunMode("parallel", "Parallel", "Start every trigger as a separate run at the same time.")
+@Composable
+private fun automationRunModes() = listOf(
+    AutomationRunMode(
+        "single",
+        stringResource(R.string.uif_flow_mode_single),
+        stringResource(R.string.uif_flow_mode_single_description),
+    ),
+    AutomationRunMode(
+        "restart",
+        stringResource(R.string.uif_flow_mode_restart),
+        stringResource(R.string.uif_flow_mode_restart_description),
+    ),
+    AutomationRunMode(
+        "queued",
+        stringResource(R.string.uif_flow_mode_queued),
+        stringResource(R.string.uif_flow_mode_queued_description),
+    ),
+    AutomationRunMode(
+        "parallel",
+        stringResource(R.string.uif_flow_mode_parallel),
+        stringResource(R.string.uif_flow_mode_parallel_description),
+    ),
+)
+
+@Composable
+private fun localizedAutomationSection(section: AutomationSection): String = when (section) {
+    AutomationSection.TRIGGER -> stringResource(R.string.uif_flow_section_when)
+    AutomationSection.CONDITION -> stringResource(R.string.uif_flow_section_and_if)
+    AutomationSection.ACTION -> stringResource(R.string.uif_flow_section_then)
+}
+
+@Composable
+private fun localizedAutomationBlockKind(section: AutomationSection, kind: String?): String =
+    when (section to kind) {
+        AutomationSection.TRIGGER to "state",
+        AutomationSection.CONDITION to "state" -> stringResource(R.string.uif_flow_entity_state)
+        AutomationSection.TRIGGER to "time" -> stringResource(R.string.uif_time)
+        AutomationSection.TRIGGER to "sun" -> stringResource(R.string.uif_flow_sunrise_or_sunset)
+        AutomationSection.CONDITION to "time" -> stringResource(R.string.uif_flow_time_window)
+        AutomationSection.ACTION to "action" -> stringResource(R.string.uif_flow_ha_action)
+        else -> stringResource(R.string.uif_advanced)
+    }
+
+@Composable
+private fun localizedAutomationBlockSummary(section: AutomationSection, block: JsonObject): String {
+    fun text(key: String) = block.stringValue(key).takeIf(String::isNotBlank)
+    return when (section to automationBlockKind(section, block)) {
+        AutomationSection.TRIGGER to "state" -> {
+            val entity = text("entity_id") ?: stringResource(R.string.uif_choose_entity)
+            text("to")?.let { stringResource(R.string.uif_flow_entity_becomes_state, entity, it) } ?: entity
+        }
+        AutomationSection.TRIGGER to "time" ->
+            stringResource(R.string.uif_flow_at_time, text("at") ?: stringResource(R.string.uif_a_time))
+        AutomationSection.TRIGGER to "sun" -> when (text("event")) {
+            "sunrise" -> stringResource(R.string.uif_sunrise)
+            "sunset" -> stringResource(R.string.uif_sunset)
+            else -> stringResource(R.string.uif_flow_sun_event)
+        }
+        AutomationSection.CONDITION to "state" -> stringResource(
+            R.string.uif_flow_entity_is_state,
+            text("entity_id") ?: stringResource(R.string.uif_choose_entity),
+            text("state") ?: stringResource(R.string.uif_a_state),
+        )
+        AutomationSection.CONDITION to "time" -> {
+            val parts = listOfNotNull(
+                text("after")?.let { stringResource(R.string.uif_flow_after_time, it) },
+                text("before")?.let { stringResource(R.string.uif_flow_before_time, it) },
+            )
+            if (parts.isEmpty()) {
+                stringResource(R.string.uif_flow_within_time_window)
+            } else {
+                parts.joinToString(stringResource(R.string.uif_and_separator))
+            }
+        }
+        AutomationSection.ACTION to "action" -> {
+            val action = text("action") ?: text("service") ?: stringResource(R.string.uif_choose_action)
+            val target = (block["target"] as? JsonObject)?.stringValue("entity_id")
+                ?.takeIf(String::isNotBlank)
+                ?: text("entity_id")
+            target?.let { "$action → $it" } ?: action
+        }
+        else -> stringResource(R.string.uif_flow_advanced_block_unchanged)
+    }
+}
+
+@Composable
+private fun localizedRecipeTitle(recipe: AutomationRecipe): String = stringResource(
+    when (recipe) {
+        AutomationRecipe.BLANK -> R.string.uif_recipe_blank_title
+        AutomationRecipe.ENTITY_STATE -> R.string.uif_recipe_entity_state_title
+        AutomationRecipe.SCHEDULE -> R.string.uif_recipe_schedule_title
+        AutomationRecipe.SUNSET -> R.string.uif_recipe_sunset_title
+        AutomationRecipe.MOTION_LIGHTS -> R.string.uif_recipe_motion_lights_title
+        AutomationRecipe.SUNRISE_LIGHTS_OFF -> R.string.uif_recipe_sunrise_lights_off_title
+        AutomationRecipe.ARRIVE_HOME -> R.string.uif_recipe_arrive_home_title
+        AutomationRecipe.LEAVE_HOME -> R.string.uif_recipe_leave_home_title
+        AutomationRecipe.BEDTIME -> R.string.uif_recipe_bedtime_title
+        AutomationRecipe.MORNING_SCENE -> R.string.uif_recipe_morning_scene_title
+        AutomationRecipe.LOCK_AT_NIGHT -> R.string.uif_recipe_lock_at_night_title
+        AutomationRecipe.OPEN_COVERS_AT_SUNRISE -> R.string.uif_recipe_open_covers_title
+        AutomationRecipe.CLOSE_COVERS_AT_SUNSET -> R.string.uif_recipe_close_covers_title
+    }
+)
+
+@Composable
+private fun localizedRecipeDescription(recipe: AutomationRecipe): String = stringResource(
+    when (recipe) {
+        AutomationRecipe.BLANK -> R.string.uif_recipe_blank_description
+        AutomationRecipe.ENTITY_STATE -> R.string.uif_recipe_entity_state_description
+        AutomationRecipe.SCHEDULE -> R.string.uif_recipe_schedule_description
+        AutomationRecipe.SUNSET -> R.string.uif_recipe_sunset_description
+        AutomationRecipe.MOTION_LIGHTS -> R.string.uif_recipe_motion_lights_description
+        AutomationRecipe.SUNRISE_LIGHTS_OFF -> R.string.uif_recipe_sunrise_lights_off_description
+        AutomationRecipe.ARRIVE_HOME -> R.string.uif_recipe_arrive_home_description
+        AutomationRecipe.LEAVE_HOME -> R.string.uif_recipe_leave_home_description
+        AutomationRecipe.BEDTIME -> R.string.uif_recipe_bedtime_description
+        AutomationRecipe.MORNING_SCENE -> R.string.uif_recipe_morning_scene_description
+        AutomationRecipe.LOCK_AT_NIGHT -> R.string.uif_recipe_lock_at_night_description
+        AutomationRecipe.OPEN_COVERS_AT_SUNRISE -> R.string.uif_recipe_open_covers_description
+        AutomationRecipe.CLOSE_COVERS_AT_SUNSET -> R.string.uif_recipe_close_covers_description
+    }
 )
 
 /** Native Home Assistant automation manager. No automation is cached or stored by HKI7. */
@@ -131,12 +252,18 @@ fun FlowsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
     var confirmDelete by remember { mutableStateOf(false) }
     var actionDefinitions by remember { mutableStateOf<List<HAActionDefinition>>(emptyList()) }
     var actionLoadError by remember { mutableStateOf<String?>(null) }
+    val actionsLoadFailed = stringResource(R.string.uif_flow_actions_load_failed)
+    val automationLoadFailed = stringResource(R.string.uif_flow_automation_load_failed)
+    val automationSaveFailed = stringResource(R.string.uif_flow_automation_save_failed)
+    val automationDeleteFailed = stringResource(R.string.uif_flow_automation_delete_failed)
+    val automationSaved = stringResource(R.string.uif_flow_automation_saved)
+    val automationDeleted = stringResource(R.string.uif_flow_automation_deleted)
 
     LaunchedEffect(viewModel) {
         viewModel.fetchRegistries()
         runCatching { viewModel.getAutomationActions() }
             .onSuccess { actionDefinitions = it; actionLoadError = null }
-            .onFailure { actionLoadError = it.message ?: "Could not load Home Assistant actions" }
+            .onFailure { actionLoadError = it.message ?: actionsLoadFailed }
     }
 
     fun closeEditor(listMessage: String? = null) {
@@ -165,14 +292,14 @@ fun FlowsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
     }
 
     val title = when (currentView) {
-        FlowsView.LIST -> "Flows"
-        FlowsView.RECIPES -> "Create a flow"
-        FlowsView.EDITOR -> draft?.stringValue("alias")?.ifBlank { "Automation" } ?: "Automation"
+        FlowsView.LIST -> stringResource(R.string.dlg_flows)
+        FlowsView.RECIPES -> stringResource(R.string.dlg_create_a_flow)
+        FlowsView.EDITOR -> draft?.stringValue("alias")?.ifBlank { stringResource(R.string.dlg_automation) } ?: stringResource(R.string.dlg_automation)
     }
     val subtitle = when (currentView) {
-        FlowsView.LIST -> "Native Home Assistant automations, always in sync"
-        FlowsView.RECIPES -> "Start with a useful recipe, then adjust each step"
-        FlowsView.EDITOR -> if (document?.editable == true) "When · And if · Then" else "Read-only Home Assistant automation"
+        FlowsView.LIST -> stringResource(R.string.dlg_native_home_assistant_automations_always_in_sync)
+        FlowsView.RECIPES -> stringResource(R.string.dlg_start_with_a_useful_recipe_then_adjust_each_step)
+        FlowsView.EDITOR -> if (document?.editable == true) stringResource(R.string.dlg_when_and_if_then) else stringResource(R.string.dlg_read_only_home_assistant_automation)
     }
 
     ModernSettingsDialogFrame(
@@ -210,7 +337,7 @@ fun FlowsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                                     editorParentView = FlowsView.LIST
                                     currentView = FlowsView.EDITOR
                                 }
-                                .onFailure { message = it.message ?: "Could not load this automation" }
+                    .onFailure { message = it.message ?: automationLoadFailed }
                             loadingEntityId = null
                         }
                     }
@@ -251,23 +378,23 @@ fun FlowsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
         footer = {
             when (currentView) {
                 FlowsView.LIST -> {
-                    TextButton(onClick = onDismiss) { Text("Close") }
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.dlg_close)) }
                     Spacer(Modifier.weight(1f))
                     Button(onClick = { currentView = FlowsView.RECIPES }) {
                         Icon(Icons.Default.Add, null)
                         Spacer(Modifier.width(8.dp))
-                        Text("New flow")
+                        Text(stringResource(R.string.dlg_new_flow))
                     }
                 }
                 FlowsView.RECIPES -> {
-                    TextButton(onClick = { currentView = FlowsView.LIST }) { Text("Cancel") }
+                    TextButton(onClick = { currentView = FlowsView.LIST }) { Text(stringResource(R.string.dlg_cancel)) }
                 }
                 FlowsView.EDITOR -> {
                     if (document?.editable == true && document?.entityId != null) {
                         TextButton(onClick = { confirmDelete = true }, enabled = !busy) {
                             Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.error)
                             Spacer(Modifier.width(4.dp))
-                            Text("Delete", color = MaterialTheme.colorScheme.error)
+                            Text(stringResource(R.string.dlg_delete), color = MaterialTheme.colorScheme.error)
                         }
                     }
                     Spacer(Modifier.weight(1f))
@@ -282,19 +409,19 @@ fun FlowsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                                 scope.launch {
                                     runCatching { viewModel.saveAutomation(id, config) }
                                         .onSuccess { errors ->
-                                            if (errors.isEmpty()) closeEditor("Saved and loaded in Home Assistant")
+                            if (errors.isEmpty()) closeEditor(automationSaved)
                                             else message = errors.joinToString("\n")
                                         }
-                                        .onFailure { message = it.message ?: "Could not save this automation" }
+                        .onFailure { message = it.message ?: automationSaveFailed }
                                     busy = false
                                 }
                             }
                         ) {
                             if (busy) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
-                            else Text("Save in Home Assistant")
+                            else Text(stringResource(R.string.dlg_save_in_home_assistant))
                         }
                     } else {
-                        Button(onClick = { closeEditor() }) { Text("Done") }
+                        Button(onClick = { closeEditor() }) { Text(stringResource(R.string.dlg_done)) }
                     }
                 }
             }
@@ -344,9 +471,9 @@ fun FlowsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
     if (confirmDelete) {
         AlertDialog(
             onDismissRequest = { if (!busy) confirmDelete = false },
-            title = { Text("Delete automation?") },
-            text = { Text("This removes the native automation from Home Assistant. This cannot be undone from HKI7.") },
-            dismissButton = { TextButton(onClick = { confirmDelete = false }, enabled = !busy) { Text("Cancel") } },
+            title = { Text(stringResource(R.string.dlg_delete_automation)) },
+            text = { Text(stringResource(R.string.dlg_this_removes_the_native_automation_from_home_assistant_thi)) },
+            dismissButton = { TextButton(onClick = { confirmDelete = false }, enabled = !busy) { Text(stringResource(R.string.dlg_cancel)) } },
             confirmButton = {
                 TextButton(
                     enabled = !busy,
@@ -355,12 +482,12 @@ fun FlowsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         busy = true
                         scope.launch {
                             runCatching { viewModel.deleteAutomation(id) }
-                                .onSuccess { confirmDelete = false; closeEditor("Deleted from Home Assistant") }
-                                .onFailure { message = it.message ?: "Could not delete this automation"; confirmDelete = false }
+                        .onSuccess { confirmDelete = false; closeEditor(automationDeleted) }
+                        .onFailure { message = it.message ?: automationDeleteFailed; confirmDelete = false }
                             busy = false
                         }
                     }
-                ) { Text("Delete", color = MaterialTheme.colorScheme.error) }
+                ) { Text(stringResource(R.string.dlg_delete), color = MaterialTheme.colorScheme.error) }
             }
         )
     }
@@ -391,17 +518,19 @@ private fun FlowsList(
                 onValueChange = onQueryChange,
                 modifier = Modifier.weight(1f),
                 leadingIcon = { Icon(Icons.Default.Search, null) },
-                placeholder = { Text("Search automations") },
+                placeholder = { Text(stringResource(R.string.dlg_search_automations)) },
                 singleLine = true,
                 shape = RoundedCornerShape(16.dp)
             )
-            IconButton(onClick = onRefresh) { Icon(Icons.Default.Refresh, "Refresh") }
+            IconButton(onClick = onRefresh) {
+                Icon(Icons.Default.Refresh, stringResource(R.string.uif_refresh))
+            }
         }
         message?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
         if (filtered.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
-                    if (automations.isEmpty()) "No native Home Assistant automations found" else "No matching automations",
+                    if (automations.isEmpty()) stringResource(R.string.dlg_no_native_home_assistant_automations_found) else stringResource(R.string.dlg_no_matching_automations),
                     color = appColors.onMuted
                 )
             }
@@ -458,15 +587,15 @@ private fun FlowAutomationRow(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    if (entity.state == "unavailable") "Not loaded by Home Assistant"
-                    else lastTriggered?.let { "Last run $it" } ?: "Never triggered",
+                    if (entity.state == "unavailable") stringResource(R.string.dlg_not_loaded_by_home_assistant)
+                    else lastTriggered?.let { stringResource(R.string.dlg_last_run, it) } ?: stringResource(R.string.dlg_never_triggered),
                     color = appColors.onMuted,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1
                 )
             }
             IconButton(onClick = onRun, enabled = !loading && entity.state != "unavailable") {
-                Icon(Icons.Default.PlayArrow, "Run")
+                Icon(Icons.Default.PlayArrow, stringResource(R.string.uif_run))
             }
             Switch(
                 checked = entity.state == "on",
@@ -497,7 +626,7 @@ private fun RecipeList(onSelected: (AutomationRecipe) -> Unit) {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
             Text(
-                "Recipes create regular Home Assistant automations. You can continue editing them in either HKI7 or Home Assistant.",
+                stringResource(R.string.dlg_recipes_create_regular_home_assistant_automations_you_can),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -521,13 +650,13 @@ private fun RecipeCard(recipe: AutomationRecipe, icon: ImageVector, onClick: () 
             Spacer(Modifier.width(16.dp))
             Column {
                 Text(
-                    recipe.title,
+                    localizedRecipeTitle(recipe),
                     color = appColors.onSurface,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleSmall
                 )
                 Text(
-                    recipe.description,
+                    localizedRecipeDescription(recipe),
                     color = appColors.onSurface.copy(alpha = 0.78f),
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -552,7 +681,7 @@ private fun FlowEditor(
             item {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)) {
                     Text(
-                        "This automation is managed outside Home Assistant's UI (usually YAML). HKI7 can show it, but will not overwrite it.",
+                        stringResource(R.string.dlg_this_automation_is_managed_outside_home_assistant_s_ui),
                         modifier = Modifier.padding(14.dp),
                         color = MaterialTheme.colorScheme.onTertiaryContainer
                     )
@@ -564,7 +693,7 @@ private fun FlowEditor(
                 value = config.stringValue("alias"),
                 onValueChange = { onConfigChange(withAutomationText(config, "alias", it)) },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Name") },
+                label = { Text(stringResource(R.string.dlg_name)) },
                 enabled = editable,
                 singleLine = true
             )
@@ -574,7 +703,7 @@ private fun FlowEditor(
                 value = config.stringValue("description"),
                 onValueChange = { onConfigChange(withAutomationText(config, "description", it)) },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Description") },
+                label = { Text(stringResource(R.string.dlg_description)) },
                 enabled = editable,
                 minLines = 2
             )
@@ -600,8 +729,11 @@ private fun FlowEditor(
                         colors = CardDefaults.cardColors(containerColor = appColors.subtleSurface)
                     ) {
                         Text(
-                            if (shorthandCount == 1) "1 advanced shorthand block (kept unchanged)"
-                            else "$shorthandCount advanced shorthand blocks (kept unchanged)",
+                            pluralStringResource(
+                                R.plurals.uif_flow_advanced_block_count,
+                                shorthandCount,
+                                shorthandCount,
+                            ),
                             modifier = Modifier.padding(14.dp),
                             color = appColors.onMuted,
                             style = MaterialTheme.typography.bodySmall
@@ -612,7 +744,7 @@ private fun FlowEditor(
             if (blocks.isEmpty() && shorthandCount == 0) {
                 item {
                     Text(
-                        if (section == AutomationSection.CONDITION) "No conditions — this flow always continues" else "Add at least one step",
+                        if (section == AutomationSection.CONDITION) stringResource(R.string.dlg_no_conditions_this_flow_always_continues) else stringResource(R.string.dlg_add_at_least_one_step),
                         color = appColors.onMuted,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(horizontal = 6.dp)
@@ -633,8 +765,8 @@ private fun FlowEditor(
         item {
             val current = config.stringValue("mode").ifBlank { "single" }
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("Run mode", fontWeight = FontWeight.SemiBold)
-                automationRunModes.forEach { mode ->
+                Text(stringResource(R.string.dlg_run_mode), fontWeight = FontWeight.SemiBold)
+                automationRunModes().forEach { mode ->
                     val selected = current == mode.key
                     Card(
                         modifier = Modifier
@@ -655,7 +787,7 @@ private fun FlowEditor(
                     ) {
                         Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
                             Text(
-                                text = if (selected) "${mode.title} · Selected" else mode.title,
+                                text = if (selected) stringResource(R.string.dlg_selected, mode.title) else mode.title,
                                 fontWeight = FontWeight.SemiBold,
                                 color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer
                                 else MaterialTheme.colorScheme.onSurface
@@ -677,12 +809,12 @@ private fun FlowEditor(
 @Composable
 private fun FlowSectionHeader(section: AutomationSection, editable: Boolean, onAdd: () -> Unit) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(section.title.uppercase(), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+        Text(localizedAutomationSection(section).uppercase(), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
         Spacer(Modifier.weight(1f))
         if (editable) FilledTonalButton(onClick = onAdd) {
             Icon(Icons.Default.Add, null, Modifier.size(18.dp))
             Spacer(Modifier.width(4.dp))
-            Text("Add")
+            Text(stringResource(R.string.dlg_add))
         }
     }
 }
@@ -705,15 +837,18 @@ private fun FlowBlockCard(
         Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(
-                    automationBlockKind(section, block)?.replace('_', ' ')?.replaceFirstChar { it.uppercase() }
-                        ?: "Advanced",
+                    localizedAutomationBlockKind(section, automationBlockKind(section, block)),
                     fontWeight = FontWeight.SemiBold
                 )
-                Text(automationBlockSummary(section, block), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                Text(localizedAutomationBlockSummary(section, block), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
             }
-            if (editable && supported) Icon(Icons.Default.Edit, "Edit", tint = appColors.onMuted)
+            if (editable && supported) {
+                Icon(Icons.Default.Edit, stringResource(R.string.uif_edit), tint = appColors.onMuted)
+            }
             if (editable) {
-                IconButton(onClick = onRemove) { Icon(Icons.Default.Close, "Remove") }
+                IconButton(onClick = onRemove) {
+                    Icon(Icons.Default.Close, stringResource(R.string.uif_remove))
+                }
             }
         }
     }
@@ -726,16 +861,25 @@ private fun AddAutomationBlockDialog(
     onSelected: (String) -> Unit
 ) {
     val choices = when (section) {
-        AutomationSection.TRIGGER -> listOf("state" to "Entity state", "time" to "Time", "sun" to "Sunrise or sunset")
-        AutomationSection.CONDITION -> listOf("state" to "Entity state", "time" to "Time window")
-        AutomationSection.ACTION -> listOf("action" to "Perform a Home Assistant action")
+        AutomationSection.TRIGGER -> listOf(
+            "state" to stringResource(R.string.uif_flow_entity_state),
+            "time" to stringResource(R.string.uif_time),
+            "sun" to stringResource(R.string.uif_flow_sunrise_or_sunset),
+        )
+        AutomationSection.CONDITION -> listOf(
+            "state" to stringResource(R.string.uif_flow_entity_state),
+            "time" to stringResource(R.string.uif_flow_time_window),
+        )
+        AutomationSection.ACTION -> listOf(
+            "action" to stringResource(R.string.uif_flow_perform_ha_action),
+        )
     }
     ModernSettingsDialogFrame(
-        title = "Add to ${section.title}",
-        subtitle = "Choose a visual Home Assistant block",
+        title = stringResource(R.string.dlg_add_to, localizedAutomationSection(section)),
+        subtitle = stringResource(R.string.dlg_choose_a_visual_home_assistant_block),
         icon = Icons.Default.Add,
         onDismiss = onDismiss,
-        footer = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        footer = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.dlg_cancel)) } }
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             choices.forEach { (kind, label) ->
@@ -770,7 +914,11 @@ private fun AutomationBlockEditorDialog(
         mutableStateOf(openActionPickerInitially)
     }
     val kind = automationBlockKind(section, working).orEmpty()
-    val title = "${section.title}: ${kind.replace('_', ' ').replaceFirstChar { it.uppercase() }}"
+    val title = stringResource(
+        R.string.dlg_labeled_value,
+        localizedAutomationSection(section),
+        localizedAutomationBlockKind(section, kind),
+    )
     fun updateText(key: String, value: String) { working = working.withString(key, value) }
     val directEntityId = working.stringValue("entity_id")
     val targetEntityId = (working["target"] as? JsonObject)?.stringValue("entity_id")
@@ -797,13 +945,13 @@ private fun AutomationBlockEditorDialog(
 
     ModernSettingsDialogFrame(
         title = title,
-        subtitle = "Saved directly in the native automation",
+        subtitle = stringResource(R.string.dlg_saved_directly_in_the_native_automation),
         icon = Icons.Default.AccountTree,
         onDismiss = onDismiss,
         footer = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.dlg_cancel)) }
             Spacer(Modifier.weight(1f))
-            Button(onClick = { onSave(working) }, enabled = canApply) { Text("Apply") }
+            Button(onClick = { onSave(working) }, enabled = canApply) { Text(stringResource(R.string.dlg_apply)) }
         }
     ) {
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -811,7 +959,7 @@ private fun AutomationBlockEditorDialog(
                 AutomationSection.TRIGGER to "state" -> {
                     EntityField(working.stringValue("entity_id")) { showEntityPicker = true }
                     StateSelectorField(
-                        label = "From state",
+                        label = stringResource(R.string.dlg_from_state),
                         selected = working.stringValue("from"),
                         options = stateOptions,
                         allowAny = true,
@@ -819,7 +967,7 @@ private fun AutomationBlockEditorDialog(
                         onSelected = { updateText("from", it) }
                     )
                     StateSelectorField(
-                        label = "To state",
+                        label = stringResource(R.string.dlg_to_state),
                         selected = working.stringValue("to"),
                         options = stateOptions,
                         allowAny = true,
@@ -828,13 +976,24 @@ private fun AutomationBlockEditorDialog(
                     )
                 }
                 AutomationSection.TRIGGER to "time" ->
-                    FlowTextField("Time (HH:MM:SS)", working.stringValue("at")) { updateText("at", it) }
+                    FlowTextField(stringResource(R.string.uif_flow_time_format), working.stringValue("at")) { updateText("at", it) }
                 AutomationSection.TRIGGER to "sun" -> {
-                    Text("Event", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.dlg_event), fontWeight = FontWeight.SemiBold)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf("sunrise", "sunset").forEach { event ->
+                            val eventLabel = if (event == "sunrise") {
+                                stringResource(R.string.uif_sunrise)
+                            } else {
+                                stringResource(R.string.uif_sunset)
+                            }
                             FilledTonalButton(onClick = { updateText("event", event) }) {
-                                Text(if (working.stringValue("event") == event) "✓ ${event.replaceFirstChar { it.uppercase() }}" else event.replaceFirstChar { it.uppercase() })
+                                Text(
+                                    if (working.stringValue("event") == event) {
+                                        stringResource(R.string.dlg_selected_value, eventLabel)
+                                    } else {
+                                        eventLabel
+                                    }
+                                )
                             }
                         }
                     }
@@ -842,7 +1001,7 @@ private fun AutomationBlockEditorDialog(
                 AutomationSection.CONDITION to "state" -> {
                     EntityField(working.stringValue("entity_id")) { showEntityPicker = true }
                     StateSelectorField(
-                        label = "Required state",
+                        label = stringResource(R.string.dlg_required_state),
                         selected = working.stringValue("state"),
                         options = stateOptions,
                         enabled = selectedEntity != null,
@@ -850,8 +1009,8 @@ private fun AutomationBlockEditorDialog(
                     )
                 }
                 AutomationSection.CONDITION to "time" -> {
-                    FlowTextField("After (HH:MM:SS)", working.stringValue("after")) { updateText("after", it) }
-                    FlowTextField("Before (HH:MM:SS)", working.stringValue("before")) { updateText("before", it) }
+                    FlowTextField(stringResource(R.string.uif_flow_after_format), working.stringValue("after")) { updateText("after", it) }
+                    FlowTextField(stringResource(R.string.uif_flow_before_format), working.stringValue("before")) { updateText("before", it) }
                 }
                 AutomationSection.ACTION to "action" -> {
                     ActionSelectorField(
@@ -864,16 +1023,16 @@ private fun AutomationBlockEditorDialog(
                     }
                     if (selectedActionKey.isNotBlank()) {
                         if (selectedActionDefinition?.supportsTarget == true || targetEntityId.isNotBlank()) {
-                            Text("Target entity (optional)", style = MaterialTheme.typography.labelMedium)
+                            Text(stringResource(R.string.dlg_target_entity_optional), style = MaterialTheme.typography.labelMedium)
                             EntityField(targetEntityId) { showEntityPicker = true }
                             if (targetEntityId.isNotBlank()) {
                                 TextButton(
                                     onClick = { working = working.without("target", "entity_id") }
-                                ) { Text("No target") }
+                                ) { Text(stringResource(R.string.dlg_no_target)) }
                             }
                         } else if (selectedActionDefinition != null) {
                             Text(
-                                "This action does not use an entity target.",
+                                stringResource(R.string.dlg_this_action_does_not_use_an_entity_target),
                                 color = LocalHKIAppColors.current.onMuted,
                                 style = MaterialTheme.typography.bodySmall
                             )
@@ -895,7 +1054,11 @@ private fun AutomationBlockEditorDialog(
     if (showEntityPicker) {
         AdvancedEntitySearchDialog(
             allEntities = allEntities,
-            title = if (section == AutomationSection.ACTION) "Choose target" else "Choose entity",
+            title = if (section == AutomationSection.ACTION) {
+                stringResource(R.string.uif_choose_target)
+            } else {
+                stringResource(R.string.uif_choose_entity)
+            },
             singleSelect = true,
             preselectedIds = setOfNotNull(
                 (working["target"] as? JsonObject)?.stringValue("entity_id")?.takeIf { it.isNotBlank() }
@@ -986,8 +1149,8 @@ private fun StateSelectorField(
                 Text(
                     when {
                         selected.isNotBlank() -> selected.replace('_', ' ')
-                        allowAny -> "Any state"
-                        else -> "Choose a state"
+                        allowAny -> stringResource(R.string.dlg_any_state)
+                        else -> stringResource(R.string.dlg_choose_a_state)
                     },
                     modifier = Modifier.weight(1f),
                     maxLines = 1,
@@ -998,7 +1161,7 @@ private fun StateSelectorField(
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 if (allowAny) {
                     DropdownMenuItem(
-                        text = { Text("Any state") },
+                        text = { Text(stringResource(R.string.dlg_any_state)) },
                         onClick = { customMode = false; onSelected(""); expanded = false }
                     )
                 }
@@ -1009,7 +1172,7 @@ private fun StateSelectorField(
                     )
                 }
                 DropdownMenuItem(
-                    text = { Text("Custom state...") },
+                    text = { Text(stringResource(R.string.dlg_custom_state)) },
                     onClick = { customMode = true; expanded = false }
                 )
             }
@@ -1018,14 +1181,14 @@ private fun StateSelectorField(
             OutlinedTextField(
                 value = selected,
                 onValueChange = onSelected,
-                label = { Text("Custom ${label.lowercase()}") },
-                supportingText = { Text("Exact text or number reported by Home Assistant") },
+                label = { Text(stringResource(R.string.dlg_custom_value, label.lowercase())) },
+                supportingText = { Text(stringResource(R.string.dlg_exact_text_or_number_reported_by_home_assistant)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
         }
         if (!enabled) {
-            Text("Choose an entity first", color = LocalHKIAppColors.current.onMuted, style = MaterialTheme.typography.labelSmall)
+            Text(stringResource(R.string.dlg_choose_an_entity_first), color = LocalHKIAppColors.current.onMuted, style = MaterialTheme.typography.labelSmall)
         }
     }
 }
@@ -1033,12 +1196,12 @@ private fun StateSelectorField(
 @Composable
 private fun ActionSelectorField(selected: String, enabled: Boolean, onClick: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text("Action", style = MaterialTheme.typography.labelMedium)
+        Text(stringResource(R.string.dlg_action), style = MaterialTheme.typography.labelMedium)
         OutlinedButton(onClick = onClick, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
             Icon(Icons.Default.Bolt, null)
             Spacer(Modifier.width(8.dp))
             Text(
-                selected.ifBlank { if (enabled) "Choose an action" else "Loading actions…" },
+                selected.ifBlank { if (enabled) stringResource(R.string.dlg_choose_an_action) else stringResource(R.string.dlg_loading_actions) },
                 modifier = Modifier.weight(1f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -1071,11 +1234,13 @@ internal fun HomeAssistantActionPickerDialog(
             .toList()
     }
     ModernSettingsDialogFrame(
-        title = "Choose action",
-        subtitle = preferredDomain?.let { "$it actions are shown first" } ?: "Actions available in Home Assistant",
+        title = stringResource(R.string.dlg_choose_action),
+        subtitle = preferredDomain?.let {
+            stringResource(R.string.uif_flow_domain_actions_first, it)
+        } ?: stringResource(R.string.uif_flow_actions_available),
         icon = Icons.Default.Bolt,
         onDismiss = onDismiss,
-        footer = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        footer = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.dlg_cancel)) } }
     ) {
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedTextField(
@@ -1083,7 +1248,7 @@ internal fun HomeAssistantActionPickerDialog(
                 onValueChange = { query = it },
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = { Icon(Icons.Default.Search, null) },
-                placeholder = { Text("Search actions") },
+                placeholder = { Text(stringResource(R.string.dlg_search_actions)) },
                 singleLine = true
             )
             LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1122,6 +1287,6 @@ private fun EntityField(entityId: String, onClick: () -> Unit) {
     OutlinedButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         Icon(Icons.Default.Lightbulb, null)
         Spacer(Modifier.width(8.dp))
-        Text(entityId.ifBlank { "Choose an entity" }, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(entityId.ifBlank { stringResource(R.string.dlg_choose_an_entity) }, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }

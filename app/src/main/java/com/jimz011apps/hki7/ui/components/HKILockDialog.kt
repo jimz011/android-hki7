@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
@@ -48,9 +52,9 @@ fun HKILockDialog(
         else                                  -> LockOrange
     }
     val stateText = when {
-        isDoorOpen || currentEntity.state == "open" -> "Open"
-        currentEntity.state == "locked"             -> "Locked"
-        else                                        -> "Unlocked"
+        isDoorOpen || currentEntity.state == "open" -> stringResource(R.string.ui_open_cf9b770)
+        currentEntity.state == "locked"             -> stringResource(R.string.ui_locked_a798882)
+        else                                        -> stringResource(R.string.ui_unlocked_b3da702)
     }
     val icon = if (currentEntity.state == "locked") Icons.Default.Lock else Icons.Default.LockOpen
     val pageStatus = if (entities.size > 1) "${page + 1}/${entities.size} - ${stateText.uppercase()}" else stateText.uppercase()
@@ -110,7 +114,7 @@ fun HKILockDialog(
                         )
                     }
                     Spacer(Modifier.height(16.dp))
-                    Text("LOCK", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(R.string.ui_lock_c37eb4c), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
                 }
             }
 

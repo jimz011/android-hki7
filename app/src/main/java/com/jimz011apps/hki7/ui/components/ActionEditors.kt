@@ -2,6 +2,11 @@
 
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -57,28 +62,32 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import java.util.UUID
 
-// Selectable action types shown in the editor. "default" defers to the domain-based heuristic.
-private val ACTION_TYPES = listOf(
-    "default" to "Default",
-    "none" to "None",
-    "toggle" to "Toggle",
-    "more_info" to "More-info",
-    "call_service" to "Action",
-    "navigate" to "Navigate",
-    "url" to "URL"
+// Values are stable action tokens; labels follow the app locale.
+@Composable
+private fun actionTypes() = listOf(
+    "default" to stringResource(R.string.dlg_default),
+    "none" to stringResource(R.string.dlg_none),
+    "toggle" to stringResource(R.string.dlg_toggle),
+    "more_info" to stringResource(R.string.dlg_more_information),
+    "call_service" to stringResource(R.string.dlg_action),
+    "navigate" to stringResource(R.string.dlg_navigate),
+    "url" to stringResource(R.string.dlg_url),
 )
 
 /** Fixed in-app navigation targets plus one entry per Home Assistant area. */
-fun navTargetOptions(areas: List<HAArea>): List<Pair<String, String>> = buildList {
-    add("home" to "Home")
-    add("rooms" to "Rooms")
-    add("energy" to "Energy")
-    add("climate" to "Climate")
-    add("security" to "Security")
-    add("battery" to "Battery")
-    add("settings" to "Settings")
-    areas.sortedBy { it.name }.forEach { add("room:${it.area_id}" to "Room · ${it.name}") }
-}
+@Composable
+fun navTargetOptions(areas: List<HAArea>): List<Pair<String, String>> =
+    listOf(
+        "home" to stringResource(R.string.dlg_home),
+        "rooms" to stringResource(R.string.dlg_rooms),
+        "energy" to stringResource(R.string.dlg_energy),
+        "climate" to stringResource(R.string.dlg_climate),
+        "security" to stringResource(R.string.dlg_security),
+        "battery" to stringResource(R.string.dlg_battery),
+        "settings" to stringResource(R.string.dlg_settings),
+    ) + areas.sortedBy { it.name }.map {
+        "room:${it.area_id}" to stringResource(R.string.dlg_room_value, it.name)
+    }
 
 private fun parseJsonObjectOrNull(text: String): JsonObject? =
     if (text.isBlank()) null else  runCatching { Json.parseToJsonElement(text).jsonObject }.getOrNull()
@@ -116,7 +125,7 @@ internal fun HomeAssistantActionDataEditor(
                     invalidData = false
                     onDataChange(updated)
                 },
-                label = { Text(field.name + if (field.required) " (required)" else "") },
+                label = { Text(field.name + if (field.required) stringResource(R.string.dlg_required) else "") },
                 supportingText = field.description.takeIf(String::isNotBlank)?.let { description ->
                     { Text(description) }
                 },
@@ -129,11 +138,11 @@ internal fun HomeAssistantActionDataEditor(
         OutlinedButton(onClick = { showAdvanced = !showAdvanced }, modifier = Modifier.fillMaxWidth()) {
             Icon(if (showAdvanced) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null)
             Spacer(Modifier.width(8.dp))
-            Text("Advanced action data (JSON)")
+            Text(stringResource(R.string.dlg_advanced_action_data_json))
         }
         if (showAdvanced) {
             Text(
-                "Enter the same data object Home Assistant shows in YAML. JSON is used here so values keep their exact type.",
+                stringResource(R.string.dlg_enter_the_same_data_object_home_assistant_shows_in),
                 style = MaterialTheme.typography.labelSmall,
                 color = appColors.onMuted
             )
@@ -150,13 +159,13 @@ internal fun HomeAssistantActionDataEditor(
                         if (parsed != null) onDataChange(parsed)
                     }
                 },
-                label = { Text("Action data object") },
+                label = { Text(stringResource(R.string.dlg_action_data_object)) },
                 minLines = 4,
                 modifier = Modifier.fillMaxWidth(),
                 isError = invalidData
             )
             if (invalidData) {
-                Text("Enter a valid JSON object", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
+                Text(stringResource(R.string.dlg_enter_a_valid_json_object), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
             }
         }
     }
@@ -191,17 +200,18 @@ fun ActionEditor(
     var actionDetailsDraft by remember { mutableStateOf<HKIAction?>(null) }
     var actionDefinitions by remember { mutableStateOf<List<HAActionDefinition>>(emptyList()) }
     var actionLoadError by remember { mutableStateOf<String?>(null) }
+    val actionLoadFallback = stringResource(R.string.dlg_could_not_load_home_assistant_actions)
 
     LaunchedEffect(viewModel) {
         runCatching { viewModel.getAutomationActions() }
             .onSuccess { actionDefinitions = it; actionLoadError = null }
-            .onFailure { actionLoadError = it.message ?: "Could not load Home Assistant actions" }
+            .onFailure { actionLoadError = it.message ?: actionLoadFallback }
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text("$label action", style = MaterialTheme.typography.labelMedium, color = appColors.onSurface)
+        Text(stringResource(R.string.dlg_action_count, label), style = MaterialTheme.typography.labelMedium, color = appColors.onSurface)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ACTION_TYPES.forEach { (value, text) ->
+            actionTypes().forEach { (value, text) ->
                 FilterChip(
                     selected = action.type == value,
                     onClick = { onChange(HKIAction(type = value)) },
@@ -229,7 +239,7 @@ fun ActionEditor(
                         Text(
                             selectedAction?.name ?: action.service ?: if (
                                 actionDefinitions.isEmpty() && actionLoadError == null
-                            ) "Loading actions..." else "Choose an action",
+                            ) stringResource(R.string.dlg_loading_actions) else stringResource(R.string.dlg_choose_an_action),
                             style = MaterialTheme.typography.bodyMedium
                         )
                         action.service?.let {
@@ -247,7 +257,7 @@ fun ActionEditor(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
-                            Text("Action details", style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.dlg_action_details), style = MaterialTheme.typography.bodyMedium)
                             Text(
                                 actionDetailsSummary(action, selectedAction, allEntities),
                                 style = MaterialTheme.typography.labelSmall,
@@ -257,7 +267,7 @@ fun ActionEditor(
                     }
                     if (!selectedAction.supportsTarget && selectedAction.fields.isEmpty() && action.data.isNullOrEmpty()) {
                         Text(
-                            "This action has no required target or additional fields.",
+                            stringResource(R.string.dlg_this_action_has_no_required_target_or_additional_fields),
                             style = MaterialTheme.typography.labelSmall,
                             color = appColors.onMuted
                         )
@@ -265,20 +275,21 @@ fun ActionEditor(
                 }
             }
             "more_info" -> TargetRow(
-                labelText = "Show entity (default: this one)",
+                labelText = stringResource(R.string.dlg_show_entity_default_this_one),
                 valueText = entityLabel(action.moreInfoEntityId, allEntities),
                 onPick = { showMoreInfoPicker = true },
                 onClear = action.moreInfoEntityId?.let { { onChange(action.copy(moreInfoEntityId = null)) } }
             )
             "toggle" -> TargetRow(
-                labelText = "Target entity (default: this one)",
+                labelText = stringResource(R.string.dlg_target_entity_default_this_one),
                 valueText = entityLabel(action.targetEntityId, allEntities),
                 onPick = { showTargetPicker = true },
                 onClear = action.targetEntityId?.let { { onChange(action.copy(targetEntityId = null)) } }
             )
             "navigate" -> {
-                val options = remember(areas) { navTargetOptions(areas) }
-                val current = options.find { it.first == action.navigationTarget }?.second ?: "Select destination"
+                val options = navTargetOptions(areas)
+                val current = options.find { it.first == action.navigationTarget }?.second
+                    ?: stringResource(R.string.dlg_select_destination)
                 Column {
                     OutlinedButton(onClick = { navMenuOpen = true }, modifier = Modifier.fillMaxWidth()) {
                         Text(current)
@@ -296,7 +307,7 @@ fun ActionEditor(
             "url" -> OutlinedTextField(
                 value = action.url ?: "",
                 onValueChange = { onChange(action.copy(url = it.ifBlank { null })) },
-                label = { Text("URL (https://…)") },
+                label = { Text(stringResource(R.string.dlg_url_https)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -311,7 +322,7 @@ fun ActionEditor(
                 onChange(action.copy(targetEntityId = ids.firstOrNull(), targetMode = "entity"))
                 showTargetPicker = false
             },
-            title = "Select Target Entity",
+            title = stringResource(R.string.dlg_select_target_entity),
             singleSelect = true,
             preselectedIds = action.targetEntityId?.let { setOf(it) } ?: emptySet()
         )
@@ -321,7 +332,7 @@ fun ActionEditor(
             allEntities = allEntities,
             onDismiss = { showMoreInfoPicker = false },
             onEntitiesSelected = { ids -> onChange(action.copy(moreInfoEntityId = ids.firstOrNull())); showMoreInfoPicker = false },
-            title = "Select Entity",
+            title = stringResource(R.string.dlg_select_entity),
             singleSelect = true,
             preselectedIds = action.moreInfoEntityId?.let { setOf(it) } ?: emptySet()
         )
@@ -369,18 +380,29 @@ fun ActionEditor(
     }
 }
 
+@Composable
 private fun actionDetailsSummary(
     action: HKIAction,
     definition: HAActionDefinition,
     allEntities: List<HAEntity>
 ): String {
     val target = when {
-        !definition.supportsTarget || action.targetMode == "none" -> "No target"
-        action.targetMode == "entity" -> entityLabel(action.targetEntityId, allEntities) ?: "Choose target"
-        else -> "This entity"
+        !definition.supportsTarget || action.targetMode == "none" -> stringResource(R.string.dlg_no_target)
+        action.targetMode == "entity" -> entityLabel(action.targetEntityId, allEntities)
+            ?: stringResource(R.string.dlg_choose_target)
+        else -> stringResource(R.string.dlg_this_entity)
     }
     val dataCount = action.data?.size ?: 0
-    return if (dataCount > 0) "$target · $dataCount data value${if (dataCount == 1) "" else "s"}" else target
+    return if (dataCount > 0) {
+        pluralStringResource(
+            R.plurals.dlg_action_data_value_summary,
+            dataCount,
+            target,
+            dataCount,
+        )
+    } else {
+        target
+    }
 }
 
 @Composable
@@ -398,7 +420,7 @@ private fun HomeAssistantActionDetailsDialog(
     ModernAlertDialog(
         stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { ModernSettingsDialogTitle(definition.name, "Target and action data") },
+        title = { ModernSettingsDialogTitle(definition.name, stringResource(R.string.dlg_target_and_action_data)) },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
@@ -406,33 +428,33 @@ private fun HomeAssistantActionDetailsDialog(
             ) {
                 Text(definition.key, style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
                 if (definition.supportsTarget) {
-                    SettingsSubcategory("Target", "Choose what this action should control")
+                    SettingsSubcategory(stringResource(R.string.dlg_target), stringResource(R.string.dlg_choose_what_this_action_should_control))
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(
                             selected = draft.targetMode == "owner" && draft.targetEntityId == null,
                             onClick = { draft = draft.copy(targetEntityId = null, targetMode = "owner") },
-                            label = { Text("This entity") }
+                            label = { Text(stringResource(R.string.dlg_this_entity)) }
                         )
                         FilterChip(
                             selected = draft.targetMode == "entity" && draft.targetEntityId != null,
                             onClick = { showTargetPicker = true },
-                            label = { Text(entityLabel(draft.targetEntityId, allEntities) ?: "Choose entity") }
+                            label = { Text(entityLabel(draft.targetEntityId, allEntities) ?: stringResource(R.string.dlg_choose_entity)) }
                         )
                         FilterChip(
                             selected = draft.targetMode == "none",
                             onClick = { draft = draft.copy(targetEntityId = null, targetMode = "none") },
-                            label = { Text("No target") }
+                            label = { Text(stringResource(R.string.dlg_no_target)) }
                         )
                     }
                 } else {
                     Text(
-                        "This action does not use an entity target.",
+                        stringResource(R.string.dlg_this_action_does_not_use_an_entity_target),
                         style = MaterialTheme.typography.bodySmall,
                         color = appColors.onMuted
                     )
                 }
 
-                SettingsSubcategory("Action data", "Optional fields passed to Home Assistant")
+                SettingsSubcategory(stringResource(R.string.dlg_action_data), stringResource(R.string.dlg_optional_fields_passed_to_home_assistant))
                 HomeAssistantActionDataEditor(
                     definition = definition,
                     data = draft.data,
@@ -440,8 +462,8 @@ private fun HomeAssistantActionDetailsDialog(
                 )
             }
         },
-        confirmButton = { TextButton(onClick = { onSave(draft) }) { Text("Save") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        confirmButton = { TextButton(onClick = { onSave(draft) }) { Text(stringResource(R.string.dlg_save)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.dlg_cancel)) } }
     )
 
     if (showTargetPicker) {
@@ -452,7 +474,7 @@ private fun HomeAssistantActionDetailsDialog(
                 draft = draft.copy(targetEntityId = ids.firstOrNull(), targetMode = "entity")
                 showTargetPicker = false
             },
-            title = "Select Target Entity",
+            title = stringResource(R.string.dlg_select_target_entity),
             singleSelect = true,
             preselectedIds = draft.targetEntityId?.let { setOf(it) } ?: emptySet()
         )
@@ -465,13 +487,13 @@ private fun TargetRow(labelText: String, valueText: String?, onPick: () -> Unit,
         Column(Modifier.weight(1f)) {
             Text(labelText, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(
-                valueText ?: "None",
+                valueText ?: stringResource(R.string.dlg_none),
                 style = MaterialTheme.typography.bodySmall,
                 color = if (valueText != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        TextButton(onClick = onPick) { Text("Change") }
-        if (onClear != null) TextButton(onClick = onClear) { Text("Clear") }
+        TextButton(onClick = onPick) { Text(stringResource(R.string.dlg_change)) }
+        if (onClear != null) TextButton(onClick = onClear) { Text(stringResource(R.string.dlg_clear)) }
     }
 }
 
@@ -490,13 +512,13 @@ fun CustomButtonsEditor(
     var expandedId by remember { mutableStateOf<String?>(null) }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Custom buttons", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+        Text(stringResource(R.string.dlg_custom_buttons), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
         Text(
-            "Add 4–10 entity buttons to this dialog's nav bar.",
+            stringResource(R.string.dlg_add_4_10_entity_buttons_to_this_dialog_s),
             style = MaterialTheme.typography.labelSmall, color = appColors.onMuted
         )
         if (buttons.isNotEmpty() && buttons.size < 4) {
-            Text("Add ${4 - buttons.size} more for a full row.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+            Text(stringResource(R.string.dlg_add_more_for_a_full_row, 4 - buttons.size), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
         }
 
         buttons.forEach { button ->
@@ -517,10 +539,10 @@ fun CustomButtonsEditor(
                             style = MaterialTheme.typography.bodyMedium, color = appColors.onSurface, fontWeight = FontWeight.SemiBold
                         )
                         IconButton(onClick = { expandedId = if (expanded) null else button.id }) {
-                            Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, contentDescription = "Edit", tint = appColors.onSurface)
+                            Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, contentDescription = stringResource(R.string.dlg_edit), tint = appColors.onSurface)
                         }
                         IconButton(onClick = { onChange(buttons.filterNot { it.id == button.id }) }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Remove", tint = appColors.onSurface)
+                            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.dlg_remove), tint = appColors.onSurface)
                         }
                     }
                     if (expanded) {
@@ -535,7 +557,7 @@ fun CustomButtonsEditor(
             OutlinedButton(onClick = { showAddPicker = true }, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("Add button")
+                Text(stringResource(R.string.dlg_add_button))
             }
         }
     }
@@ -549,7 +571,7 @@ fun CustomButtonsEditor(
                 onChange(buttons + toAdd)
                 showAddPicker = false
             },
-            title = "Add Custom Buttons",
+            title = stringResource(R.string.dlg_add_custom_buttons),
             singleSelect = false
         )
     }
@@ -569,7 +591,7 @@ private fun CustomButtonInlineEditor(
         OutlinedTextField(
             value = button.name ?: "",
             onValueChange = { onChange(button.copy(name = it.ifBlank { null })) },
-            label = { Text("Name (optional)") },
+            label = { Text(stringResource(R.string.dlg_name_optional)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -581,17 +603,17 @@ private fun CustomButtonInlineEditor(
                 MdiIcon(slug, tint = appColors.onSurface, size = 20.dp)
             }
             val iconLabel = when {
-                button.icon == ENTITY_PICTURE_ICON -> "Entity picture"
+                button.icon == ENTITY_PICTURE_ICON -> stringResource(R.string.dlg_entity_picture)
                 !button.icon.isNullOrBlank() -> button.icon
-                else -> "Auto"
+                else -> stringResource(R.string.dlg_auto)
             }
-            Text("Icon: $iconLabel", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
-            TextButton(onClick = { showIconPicker = true }) { Text("Change") }
-            if (!button.icon.isNullOrBlank()) TextButton(onClick = { onChange(button.copy(icon = null)) }) { Text("Clear") }
+            Text(stringResource(R.string.dlg_icon_value, iconLabel), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
+            TextButton(onClick = { showIconPicker = true }) { Text(stringResource(R.string.dlg_change)) }
+            if (!button.icon.isNullOrBlank()) TextButton(onClick = { onChange(button.copy(icon = null)) }) { Text(stringResource(R.string.dlg_clear)) }
         }
-        ActionEditor("Tap", button.tapAction, allEntities, areas, viewModel) { onChange(button.copy(tapAction = it)) }
-        ActionEditor("Hold", button.holdAction, allEntities, areas, viewModel) { onChange(button.copy(holdAction = it)) }
-        ActionEditor("Double", button.doubleTapAction, allEntities, areas, viewModel) { onChange(button.copy(doubleTapAction = it)) }
+        ActionEditor(stringResource(R.string.dlg_tap), button.tapAction, allEntities, areas, viewModel) { onChange(button.copy(tapAction = it)) }
+        ActionEditor(stringResource(R.string.dlg_hold), button.holdAction, allEntities, areas, viewModel) { onChange(button.copy(holdAction = it)) }
+        ActionEditor(stringResource(R.string.dlg_double_tap), button.doubleTapAction, allEntities, areas, viewModel) { onChange(button.copy(doubleTapAction = it)) }
     }
     if (showIconPicker) {
         MdiIconPickerDialog(

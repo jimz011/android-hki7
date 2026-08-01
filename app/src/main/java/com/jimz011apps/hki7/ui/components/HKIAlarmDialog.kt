@@ -1,5 +1,10 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
+
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
@@ -41,17 +46,18 @@ fun alarmStateColor(state: String): Color = when (state.lowercase()) {
     else -> Color(0xFF9E9E9E)
 }
 
+@Composable
 fun alarmStateLabel(state: String): String = when (state.lowercase()) {
-    "disarmed" -> "Disarmed"
-    "armed_home" -> "Armed Home"
-    "armed_away" -> "Armed Away"
-    "armed_night" -> "Armed Night"
-    "armed_vacation" -> "Armed Vacation"
-    "armed_custom_bypass" -> "Armed (Custom)"
-    "pending" -> "Pending"
-    "arming" -> "Arming…"
-    "disarming" -> "Disarming…"
-    "triggered" -> "TRIGGERED"
+    "disarmed" -> stringResource(R.string.dlg_alarm_disarmed)
+    "armed_home" -> stringResource(R.string.dlg_alarm_armed_home)
+    "armed_away" -> stringResource(R.string.dlg_alarm_armed_away)
+    "armed_night" -> stringResource(R.string.dlg_alarm_armed_night)
+    "armed_vacation" -> stringResource(R.string.dlg_alarm_armed_vacation)
+    "armed_custom_bypass" -> stringResource(R.string.dlg_alarm_armed_custom)
+    "pending" -> stringResource(R.string.dlg_alarm_pending)
+    "arming" -> stringResource(R.string.dlg_alarm_arming)
+    "disarming" -> stringResource(R.string.dlg_alarm_disarming)
+    "triggered" -> stringResource(R.string.dlg_alarm_triggered)
     else -> state.replaceFirstChar(Char::uppercase)
 }
 
@@ -130,6 +136,12 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
     var shakeTrigger by remember { mutableIntStateOf(0) }
     val shakeOffset = remember { Animatable(0f) }
     val pendingSeconds by viewModel.alarmPendingSeconds.collectAsState()
+    val alarmDisarmedMessage = stringResource(R.string.dlg_alarm_disarmed_message)
+    val commandAccepted = stringResource(R.string.dlg_alarm_command_accepted)
+    val alarmCommand = stringResource(R.string.dlg_alarm_command)
+    val commandFailed = stringResource(R.string.dlg_alarm_command_failed)
+    val armingCancelled = stringResource(R.string.dlg_alarm_arming_cancelled)
+    val cancelFailed = stringResource(R.string.dlg_alarm_cancel_failed)
     LaunchedEffect(shakeTrigger) {
         if (shakeTrigger == 0) return@LaunchedEffect
         listOf(0f, -14f, 14f, -10f, 10f, -6f, 6f, 0f).forEach { target ->
@@ -153,8 +165,8 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
             if (success) {
                 errorMessage = null
                 successMessage = when (service) {
-                    "alarm_disarm" -> "Alarm disarmed"
-                    else -> "${selectedAction?.second ?: "Alarm command"} accepted"
+                    "alarm_disarm" -> alarmDisarmedMessage
+                    else -> commandAccepted.format(selectedAction?.second ?: alarmCommand)
                 }
                 if (service == "alarm_disarm") {
                     pendingRemainingSeconds = 0
@@ -166,7 +178,7 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
                 selectedAction = null
             } else {
                 successMessage = null
-                errorMessage = "Command failed. Check the code and try again."
+                errorMessage = commandFailed
                 shakeTrigger++
             }
         }
@@ -179,30 +191,26 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
                 pendingCancelCode = null
                 selectedAction = null
                 errorMessage = null
-                successMessage = "Arming cancelled"
+                successMessage = armingCancelled
             } else {
                 successMessage = null
-                errorMessage = "Cancel failed. Check the code and try again."
+                errorMessage = cancelFailed
                 shakeTrigger++
             }
         }
     }
 
-    val armModes = remember(entity.supportedFeatures) {
-        buildList {
-            val f = entity.supportedFeatures
-            if (f and 1 != 0) add("alarm_arm_home" to "Arm Home")
-            if (f and 2 != 0) add("alarm_arm_away" to "Arm Away")
-            if (f and 4 != 0) add("alarm_arm_night" to "Arm Night")
-            if (f and 16 != 0) add("alarm_arm_custom_bypass" to "Arm Custom")
-            if (f and 32 != 0) add("alarm_arm_vacation" to "Arm Vacation")
-        }
+    val armModes = buildList {
+        val f = entity.supportedFeatures
+        if (f and 1 != 0) add("alarm_arm_home" to stringResource(R.string.dlg_alarm_arm_home))
+        if (f and 2 != 0) add("alarm_arm_away" to stringResource(R.string.dlg_alarm_arm_away))
+        if (f and 4 != 0) add("alarm_arm_night" to stringResource(R.string.dlg_alarm_arm_night))
+        if (f and 16 != 0) add("alarm_arm_custom_bypass" to stringResource(R.string.dlg_alarm_arm_custom))
+        if (f and 32 != 0) add("alarm_arm_vacation" to stringResource(R.string.dlg_alarm_arm_vacation))
     }
-    val actions = remember(state, armModes) {
-        buildList {
-            if (state != "disarmed") add("alarm_disarm" to "Disarm")
-            if (state == "disarmed") addAll(armModes)
-        }
+    val actions = buildList {
+        if (state != "disarmed") add("alarm_disarm" to stringResource(R.string.dlg_alarm_disarm))
+        if (state == "disarmed") addAll(armModes)
     }
 
     Column(
@@ -215,7 +223,7 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
             when {
                 errorMessage != null -> Text(errorMessage!!, color = Color(0xFFEF5350), style = MaterialTheme.typography.bodyMedium)
                 successMessage != null -> Text(successMessage!!, color = Color(0xFF4CAF50), style = MaterialTheme.typography.bodyMedium)
-                isBusy -> Text("Please wait…", color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
+                isBusy -> Text(stringResource(R.string.dlg_please_wait), color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
             }
         }
         Spacer(Modifier.height(20.dp))
@@ -247,7 +255,7 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
         if (needsCode) {
             Box(Modifier.height(24.dp), contentAlignment = Alignment.Center) {
                 if (codeBuffer.isEmpty()) {
-                    Text("Enter code", color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.dlg_enter_code), color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
                 } else {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         repeat(codeBuffer.length) {
@@ -276,14 +284,14 @@ private fun AlarmKeypadContent(entity: HAEntity, viewModel: MainViewModel) {
 
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
             OutlinedButton(onClick = { selectedAction = null; codeBuffer = ""; errorMessage = null }, modifier = Modifier.weight(1f)) {
-                Text("Back")
+                Text(stringResource(R.string.dlg_back))
             }
             Button(
                 onClick = { submit(selectedAction!!.first) },
                 colors = ButtonDefaults.buttonColors(containerColor = accent),
                 modifier = Modifier.weight(1f)
             ) {
-                Text(if (needsCode) "Confirm" else selectedAction!!.second)
+                Text(if (needsCode) stringResource(R.string.dlg_confirm) else selectedAction!!.second)
             }
         }
     }
@@ -303,12 +311,12 @@ private fun AlarmModeList(
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Text("Modes", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
-        Text("Select a mode to continue", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+        Text(stringResource(R.string.dlg_modes), color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.dlg_select_a_mode_to_continue), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
         Spacer(Modifier.height(6.dp))
 
         if (actions.isEmpty()) {
-            Text("No supported alarm modes reported by this entity", color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.dlg_no_supported_alarm_modes_reported_by_this_entity), color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
             return@Column
         }
 
@@ -365,7 +373,7 @@ private fun PendingTimerSelector(
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text(
-            "Pending timer",
+            stringResource(R.string.dlg_pending_timer),
             color = appColors.onSurface,
             style = MaterialTheme.typography.labelLarge,
             textAlign = TextAlign.Center,
@@ -377,7 +385,12 @@ private fun PendingTimerSelector(
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState())
         ) {
-            listOf(0 to "None", 5 to "5s", 10 to "10s", 30 to "30s").forEach { (seconds, label) ->
+            listOf(0, 5, 10, 30).forEach { seconds ->
+                val label = if (seconds == 0) {
+                    stringResource(R.string.dlg_none)
+                } else {
+                    pluralStringResource(R.plurals.dlg_seconds_short, seconds, seconds)
+                }
                 FilterChip(
                     selected = !customSelected && pendingSeconds == seconds,
                     onClick = {
@@ -391,7 +404,7 @@ private fun PendingTimerSelector(
             FilterChip(
                 selected = customSelected,
                 onClick = { showCustom = true },
-                label = { Text("Custom") },
+                label = { Text(stringResource(R.string.dlg_custom)) },
                 shape = itemCornerShape()
             )
         }
@@ -403,7 +416,7 @@ private fun PendingTimerSelector(
                     customInput = digits
                     digits.toIntOrNull()?.takeIf { it > 0 }?.let(onPendingSecondsSelected)
                 },
-                label = { Text("Custom seconds") },
+                label = { Text(stringResource(R.string.dlg_custom_seconds)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
@@ -435,15 +448,17 @@ private fun AlarmPendingPanel(
                 size = 32.dp
             )
             Spacer(Modifier.height(10.dp))
-            Text("Alarm pending", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.dlg_alarm_pending), color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
             Text(
-                remainingSeconds?.let { "Arming in $it seconds" } ?: "Waiting for Home Assistant",
+                remainingSeconds?.let {
+                    pluralStringResource(R.plurals.dlg_arming_in_seconds, it, it)
+                } ?: stringResource(R.string.dlg_waiting_for_home_assistant),
                 color = appColors.onMuted,
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(Modifier.height(16.dp))
             OutlinedButton(onClick = onCancel, modifier = Modifier.fillMaxWidth()) {
-                Text("Cancel arming")
+                Text(stringResource(R.string.dlg_cancel_arming))
             }
         }
     }
@@ -489,8 +504,8 @@ private fun AlarmKeypadButton(label: Char, onClick: () -> Unit) {
     ) {
         Box(contentAlignment = Alignment.Center) {
             when (label) {
-                'C' -> Text("Clear", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
-                '⌫' -> Icon(Icons.AutoMirrored.Filled.Backspace, contentDescription = "Backspace", tint = appColors.onMuted)
+                'C' -> Text(stringResource(R.string.dlg_clear), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+                '⌫' -> Icon(Icons.AutoMirrored.Filled.Backspace, contentDescription = stringResource(R.string.dlg_backspace), tint = appColors.onMuted)
                 else -> Text(label.toString(), style = MaterialTheme.typography.headlineSmall, color = appColors.onSurface)
             }
         }

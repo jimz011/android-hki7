@@ -1,5 +1,10 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,7 +30,7 @@ import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
  *  device auto-fill, and which domains its manual picker is limited to. */
 data class HumidifierAuxSlot(
     val key: String,
-    val label: String,
+    @StringRes val labelRes: Int,
     val matchKeys: List<String>,
     val domains: List<String>
 )
@@ -33,17 +38,17 @@ data class HumidifierAuxSlot(
 /** Ordered set of auxiliary humidifier entities surfaced in the humidifier dialog. Mirrors the
  *  helper entities typical dehumidifier integrations (e.g. Midea) expose per device. */
 val HumidifierAuxSlots: List<HumidifierAuxSlot> = listOf(
-    HumidifierAuxSlot("current_humidity", "Current humidity", listOf("humidity"), listOf("sensor")),
-    HumidifierAuxSlot("tank_level", "Tank / water level", listOf("tank", "water_level", "water"), listOf("sensor", "binary_sensor")),
-    HumidifierAuxSlot("pm25", "PM2.5", listOf("pm2_5", "pm25", "pm2.5"), listOf("sensor")),
-    HumidifierAuxSlot("error", "Error code", listOf("error"), listOf("sensor", "binary_sensor")),
-    HumidifierAuxSlot("bucket_full", "Bucket full", listOf("bucket_full", "tank_full", "full"), listOf("binary_sensor")),
-    HumidifierAuxSlot("clean_filter", "Clean filter", listOf("clean_filter", "filter"), listOf("binary_sensor", "sensor")),
-    HumidifierAuxSlot("defrost", "Defrosting", listOf("defrost"), listOf("binary_sensor", "sensor")),
-    HumidifierAuxSlot("ionizer", "Ionizer", listOf("ionizer", "anion", "ion"), listOf("switch")),
-    HumidifierAuxSlot("pump", "Pump", listOf("pump"), listOf("switch")),
-    HumidifierAuxSlot("sleep", "Sleep", listOf("sleep"), listOf("switch")),
-    HumidifierAuxSlot("beep", "Beep on command", listOf("beep", "buzzer"), listOf("switch"))
+    HumidifierAuxSlot("current_humidity", R.string.core_current_humidity, listOf("humidity"), listOf("sensor")),
+    HumidifierAuxSlot("tank_level", R.string.core_tank_water_level, listOf("tank", "water_level", "water"), listOf("sensor", "binary_sensor")),
+    HumidifierAuxSlot("pm25", R.string.core_pm25, listOf("pm2_5", "pm25", "pm2.5"), listOf("sensor")),
+    HumidifierAuxSlot("error", R.string.core_error_code, listOf("error"), listOf("sensor", "binary_sensor")),
+    HumidifierAuxSlot("bucket_full", R.string.core_bucket_full, listOf("bucket_full", "tank_full", "full"), listOf("binary_sensor")),
+    HumidifierAuxSlot("clean_filter", R.string.core_clean_filter, listOf("clean_filter", "filter"), listOf("binary_sensor", "sensor")),
+    HumidifierAuxSlot("defrost", R.string.ui_defrosting_c3b2817, listOf("defrost"), listOf("binary_sensor", "sensor")),
+    HumidifierAuxSlot("ionizer", R.string.core_ionizer, listOf("ionizer", "anion", "ion"), listOf("switch")),
+    HumidifierAuxSlot("pump", R.string.core_pump, listOf("pump"), listOf("switch")),
+    HumidifierAuxSlot("sleep", R.string.cr_mode_sleep, listOf("sleep"), listOf("switch")),
+    HumidifierAuxSlot("beep", R.string.core_beep_on_command, listOf("beep", "buzzer"), listOf("switch"))
 )
 
 /** Resolves the auxiliary humidifier entities for [deviceId] by matching that device's registry
@@ -91,54 +96,55 @@ fun HumidifierIntegrationSettings(
 
     fun nameOf(id: String?) = id?.let { e -> allEntities.find { it.entity_id == e }?.friendlyName ?: e }
 
-    SettingsSubcategory("Entity integrations", "Link a device to auto-fill the humidifier's helper entities, or set them by hand")
+    SettingsSubcategory(stringResource(R.string.ui_entity_integrations_852a3e0), stringResource(R.string.ui_link_a_device_to_auto_fill_the_humidifier_s_6f65010))
 
     // Device selector (auto-fill)
     val deviceName = deviceId?.let { id -> devices.find { it.id == id }?.let { it.name_by_user ?: it.name } ?: id }
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Column(Modifier.weight(1f)) {
-            Text("Device", style = MaterialTheme.typography.labelLarge)
+            Text(stringResource(R.string.ui_device_a5a74a6), style = MaterialTheme.typography.labelLarge)
             Text(
-                deviceName ?: "Select to auto-fill helper entities below",
+                deviceName ?: stringResource(R.string.ui_select_to_auto_fill_helper_entities_below_84a8833),
                 style = MaterialTheme.typography.bodySmall,
                 color = if (deviceName != null) MaterialTheme.colorScheme.primary else appColors.onMuted,
                 maxLines = 1, overflow = TextOverflow.Ellipsis
             )
         }
-        TextButton(onClick = { showDevicePicker = true }) { Text("Change") }
-        if (deviceId != null) TextButton(onClick = { onChange(null, fanEntityId, auxEntityIds) }) { Text("Clear") }
+        TextButton(onClick = { showDevicePicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
+        if (deviceId != null) TextButton(onClick = { onChange(null, fanEntityId, auxEntityIds) }) { Text(stringResource(R.string.ui_clear_719ea39)) }
     }
 
     // Linked speed control (fan / select / input_select)
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Column(Modifier.weight(1f)) {
-            Text("Speed control", style = MaterialTheme.typography.labelLarge)
+            Text(stringResource(R.string.ui_speed_control_89a2786), style = MaterialTheme.typography.labelLarge)
             Text(
-                nameOf(fanEntityId) ?: "None — modes stay as the only control",
+                nameOf(fanEntityId) ?: stringResource(R.string.ui_none_modes_stay_as_the_only_control_b62bff7),
                 style = MaterialTheme.typography.bodySmall,
                 color = if (fanEntityId != null) MaterialTheme.colorScheme.primary else appColors.onMuted,
                 maxLines = 1, overflow = TextOverflow.Ellipsis
             )
         }
-        TextButton(onClick = { showFanPicker = true }) { Text("Change") }
-        if (fanEntityId != null) TextButton(onClick = { onChange(deviceId, null, auxEntityIds) }) { Text("Clear") }
+        TextButton(onClick = { showFanPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
+        if (fanEntityId != null) TextButton(onClick = { onChange(deviceId, null, auxEntityIds) }) { Text(stringResource(R.string.ui_clear_719ea39)) }
     }
 
     // Per-slot auxiliary entities
     HumidifierAuxSlots.forEach { slot ->
         val current = auxEntityIds[slot.key]
+        val slotLabel = stringResource(slot.labelRes)
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Column(Modifier.weight(1f)) {
-                Text(slot.label, style = MaterialTheme.typography.labelLarge)
+                Text(slotLabel, style = MaterialTheme.typography.labelLarge)
                 Text(
-                    nameOf(current) ?: "Not set",
+                    nameOf(current) ?: stringResource(R.string.ui_not_set_93039e6),
                     style = MaterialTheme.typography.bodySmall,
                     color = if (current != null) MaterialTheme.colorScheme.primary else appColors.onMuted,
                     maxLines = 1, overflow = TextOverflow.Ellipsis
                 )
             }
-            TextButton(onClick = { auxPickerSlot = slot.key }) { Text("Change") }
-            if (current != null) TextButton(onClick = { onChange(deviceId, fanEntityId, auxEntityIds - slot.key) }) { Text("Clear") }
+            TextButton(onClick = { auxPickerSlot = slot.key }) { Text(stringResource(R.string.ui_change_64fbd99)) }
+            if (current != null) TextButton(onClick = { onChange(deviceId, fanEntityId, auxEntityIds - slot.key) }) { Text(stringResource(R.string.ui_clear_719ea39)) }
         }
     }
 
@@ -163,7 +169,7 @@ fun HumidifierIntegrationSettings(
     if (showFanPicker) {
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter { it.entity_id.startsWith("fan.") || it.entity_id.startsWith("select.") || it.entity_id.startsWith("input_select.") },
-            title = "Select speed control",
+            title = stringResource(R.string.ui_select_speed_control_20f7efa),
             singleSelect = true,
             preselectedIds = setOfNotNull(fanEntityId),
             onDismiss = { showFanPicker = false },
@@ -172,9 +178,10 @@ fun HumidifierIntegrationSettings(
     }
     auxPickerSlot?.let { key ->
         val slot = HumidifierAuxSlots.first { it.key == key }
+        val slotLabel = stringResource(slot.labelRes)
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter { e -> slot.domains.any { e.entity_id.startsWith("$it.") } },
-            title = "Select ${slot.label}",
+            title = stringResource(R.string.ui_select_0fc8ec5, slotLabel),
             singleSelect = true,
             preselectedIds = setOfNotNull(auxEntityIds[key]),
             onDismiss = { auxPickerSlot = null },
@@ -186,4 +193,3 @@ fun HumidifierIntegrationSettings(
         )
     }
 }
-

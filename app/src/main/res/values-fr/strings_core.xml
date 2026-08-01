@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_system">Système</string>
+    <string name="core_last_seen_just_now">Vu à l’instant</string>
+    <string name="core_no_media_playing">Aucun média n’est en cours de lecture</string>
+    <plurals name="core_media_players_playing">
+        <item quantity="one">%1$d lecteur multimédia est en cours de lecture</item>
+        <item quantity="other">%1$d lecteurs multimédias sont en cours de lecture</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="one">Vu il y a %1$d minute</item>
+        <item quantity="other">Vu il y a %1$d minutes</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="one">Vu il y a %1$d heure</item>
+        <item quantity="other">Vu il y a %1$d heures</item>
+    </plurals>
+    <plurals name="core_last_seen_days">
+        <item quantity="one">Vu il y a %1$d jour</item>
+        <item quantity="other">Vu il y a %1$d jours</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="one">Vu il y a %1$d semaine</item>
+        <item quantity="other">Vu il y a %1$d semaines</item>
+    </plurals>
+</resources>

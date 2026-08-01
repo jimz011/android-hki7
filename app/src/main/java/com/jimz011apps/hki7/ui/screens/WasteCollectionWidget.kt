@@ -2,6 +2,10 @@
 
 package com.jimz011apps.hki7.ui.screens
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +49,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
@@ -71,6 +76,7 @@ import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 private data class WasteCategory(
     val entity: HAEntity,
@@ -152,21 +158,34 @@ private fun wasteCategoryColor(name: String): Color {
     }
 }
 
-private fun wasteDateLabel(date: LocalDate, zone: ZoneId): String = when (date) {
-    LocalDate.now(zone) -> "Today"
-    LocalDate.now(zone).plusDays(1) -> "Tomorrow"
-    else -> date.format(DateTimeFormatter.ofPattern("EEE d MMM"))
+@Composable
+private fun wasteDateLabel(date: LocalDate, zone: ZoneId): String {
+    val locale = LocalConfiguration.current.locales[0] ?: Locale.getDefault()
+    return when (date) {
+        LocalDate.now(zone) -> stringResource(R.string.widgets_today)
+        LocalDate.now(zone).plusDays(1) -> stringResource(R.string.widgets_tomorrow)
+        else -> date.format(DateTimeFormatter.ofPattern("EEE d MMM", locale))
+    }
 }
 
 /** Canonical waste-type label when the sensor name contains a known fraction keyword. */
+@Composable
 private fun wasteShortName(raw: String): String? {
     val n = raw.lowercase()
-    return listOf(
-        "gft" to "GFT", "pmd" to "PMD", "papier" to "Papier", "paper" to "Paper",
-        "restafval" to "Restafval", "glas" to "Glas", "glass" to "Glass",
-        "textiel" to "Textiel", "plastic" to "Plastic", "kerstbo" to "Kerstbomen",
-        "grofvuil" to "Grofvuil", "duobak" to "Duobak", "rest" to "Rest"
-    ).firstOrNull { n.contains(it.first) }?.second
+    val label = when {
+        n.contains("gft") -> R.string.widgets_waste_organic
+        n.contains("pmd") -> R.string.widgets_waste_packaging
+        n.contains("papier") || n.contains("paper") -> R.string.widgets_waste_paper
+        n.contains("restafval") || n.contains("rest") -> R.string.widgets_waste_residual
+        n.contains("glas") || n.contains("glass") -> R.string.widgets_waste_glass
+        n.contains("textiel") -> R.string.widgets_waste_textiles
+        n.contains("plastic") -> R.string.widgets_waste_plastic
+        n.contains("kerstbo") -> R.string.widgets_waste_christmas_trees
+        n.contains("grofvuil") -> R.string.widgets_waste_bulky
+        n.contains("duobak") -> R.string.widgets_waste_duo_bin
+        else -> null
+    }
+    return label?.let { stringResource(it) }
 }
 
 /** Drops the shared leading words (the integration/collector name) from a set of sensor names. */
@@ -177,12 +196,6 @@ private fun stripCommonPrefix(names: List<String>): List<String> {
     var prefixLen = 0
     while (prefixLen < maxPrefix && tokenLists.all { it[prefixLen].equals(tokenLists[0][prefixLen], ignoreCase = true) }) prefixLen++
     return tokenLists.map { tokens -> tokens.drop(prefixLen).joinToString(" ").ifBlank { tokens.joinToString(" ") } }
-}
-
-/** Display names for the categories: the waste type only, without the component/collector name. */
-private fun wasteDisplayNames(rawNames: List<String>): List<String> {
-    val stripped = stripCommonPrefix(rawNames)
-    return rawNames.indices.map { i -> wasteShortName(rawNames[i]) ?: stripped[i] }
 }
 
 /** Sensors that look like waste-collection entities (Afvalbeheer etc.); all sensors when none match. */
@@ -215,12 +228,18 @@ fun WasteCollectionWidgetItem(
         if (isEditMode) viewModel.entitySnapshotFor(widget.entityIds) else viewModel.entitiesFor(widget.entityIds)
     }
     val entities by entityFlow.collectAsState()
-    val categories = remember(entities, widget.entityIds) {
-        val resolved = widget.entityIds.mapNotNull { id -> entities.find { it.entity_id == id } }
-        val names = wasteDisplayNames(resolved.map { it.friendlyName ?: it.entity_id.substringAfter('.') })
-        resolved.mapIndexed { index, entity -> WasteCategory(entity, names[index], wasteNextDate(entity, zone)) }
-            .sortedWith(compareBy(nullsLast(naturalOrder())) { it.date })
+    val resolved = remember(entities, widget.entityIds) {
+        widget.entityIds.mapNotNull { id -> entities.find { it.entity_id == id } }
     }
+    val rawNames = resolved.map { it.friendlyName ?: it.entity_id.substringAfter('.') }
+    val strippedNames = remember(rawNames) { stripCommonPrefix(rawNames) }
+    val categories = resolved.mapIndexed { index, entity ->
+        WasteCategory(
+            entity,
+            wasteShortName(rawNames[index]) ?: strippedNames[index],
+            wasteNextDate(entity, zone)
+        )
+    }.sortedWith(compareBy(nullsLast(naturalOrder())) { it.date })
     var showDialog by remember(widget.id) { mutableStateOf(false) }
     val currentUrl by viewModel.currentUrl.collectAsState()
 
@@ -258,9 +277,9 @@ private fun WasteCollectionCard(
     val nextNames = todays.joinToString(" · ") { it.name }
     val accent = next?.let { wasteCategoryColor(it.name) } ?: appColors.onMuted
     val stateText = when {
-        widget.entityIds.isEmpty() -> "No waste sensors selected"
-        nextDate == null -> "No upcoming collections"
-        else -> "$nextNames · ${wasteDateLabel(nextDate, zone)}"
+        widget.entityIds.isEmpty() -> stringResource(R.string.ui_no_waste_sensors_selected_68b51ce)
+        nextDate == null -> stringResource(R.string.ui_no_upcoming_collections_feff2a6)
+        else -> stringResource(R.string.ui_text_c1aacd9, nextNames, wasteDateLabel(nextDate, zone))
     }
 
     // Same footprint and label placement as the camera/vacuum widgets: 16:9 (or square) card
@@ -313,7 +332,7 @@ private fun WasteCollectionCard(
             ) {
                 Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
                     Text(
-                        widget.title ?: "Waste Collection",
+                        widget.title ?: stringResource(R.string.ui_waste_collection_7cdf205),
                         color = Color.White, style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis
                     )
@@ -384,7 +403,7 @@ private fun WasteCollectionDialog(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(widget.title ?: "Waste Collection", modifier = Modifier.weight(1f))
+                Text(widget.title ?: stringResource(R.string.ui_waste_collection_7cdf205), modifier = Modifier.weight(1f))
             }
         },
         text = {
@@ -395,7 +414,7 @@ private fun WasteCollectionDialog(
             ) {
                 if (categories.isEmpty()) {
                     Text(
-                        "No waste sensors selected. Add them via the widget settings in edit mode.",
+                        stringResource(R.string.ui_no_waste_sensors_selected_add_them_via_the_widget_554ff3d),
                         color = appColors.onMuted, style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -421,7 +440,7 @@ private fun WasteCollectionDialog(
                                 modifier = Modifier.weight(1f)
                             )
                             Text(
-                                category.date?.let { wasteDateLabel(it, zone) } ?: "Unknown",
+                                category.date?.let { wasteDateLabel(it, zone) } ?: stringResource(R.string.ui_unknown_bc7819b),
                                 color = if (isToday) color else appColors.onMuted,
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal
@@ -460,10 +479,11 @@ private fun WasteWeekCalendar(calendarEntityId: String, viewModel: MainViewModel
             .groupBy({ it.first }, { it.second })
     }
     if (byDay.isEmpty()) {
-        Text("No collections in the next 7 days.", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+        Text(stringResource(R.string.ui_no_collections_in_the_next_7_days_6d48bf4), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
         return
     }
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        val collectionLabel = stringResource(R.string.ui_collection_30c54a9)
         byDay.forEach { (date, dayEvents) ->
             Surface(shape = itemCornerShape(), color = appColors.subtleSurface) {
                 Row(Modifier.fillMaxWidth().padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -473,7 +493,7 @@ private fun WasteWeekCalendar(calendarEntityId: String, viewModel: MainViewModel
                         fontWeight = FontWeight.Bold, modifier = Modifier.width(96.dp), maxLines = 1
                     )
                     Text(
-                        dayEvents.joinToString(", ") { it.summary?.takeIf { s -> s.isNotBlank() } ?: "Collection" },
+                        dayEvents.joinToString(", ") { it.summary?.takeIf { s -> s.isNotBlank() } ?: collectionLabel },
                         color = appColors.onMuted, style = MaterialTheme.typography.bodySmall,
                         maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f)
                     )
@@ -504,7 +524,7 @@ fun WasteEntityPickerDialog(
 ) {
     AdvancedEntitySearchDialog(
         allEntities = wasteSensorCandidates(allEntities),
-        title = "Select Waste Sensors",
+        title = stringResource(R.string.ui_select_waste_sensors_6006d5f),
         singleSelect = false,
         preselectedIds = emptySet(),
         onDismiss = onDismiss,
@@ -536,7 +556,7 @@ fun WasteCollectionSettingsDialog(
     if (showEntityPicker) {
         AdvancedEntitySearchDialog(
             allEntities = wasteSensorCandidates(allEntities),
-            title = "Select Waste Sensors",
+            title = stringResource(R.string.ui_select_waste_sensors_6006d5f),
             singleSelect = false,
             preselectedIds = entityIds.toSet(),
             onDismiss = { showEntityPicker = false },
@@ -546,7 +566,7 @@ fun WasteCollectionSettingsDialog(
     if (showCalendarPicker) {
         AdvancedEntitySearchDialog(
             allEntities = allEntities.filter { it.entity_id.startsWith("calendar.") },
-            title = "Select Week Calendar",
+            title = stringResource(R.string.ui_select_week_calendar_640f382),
             singleSelect = true,
             preselectedIds = setOfNotNull(calendarEntityId),
             onDismiss = { showCalendarPicker = false },
@@ -565,68 +585,76 @@ fun WasteCollectionSettingsDialog(
     AlertDialog(
         stableHeight = true,
         onDismissRequest = onDismiss,
-        title = { com.jimz011apps.hki7.ui.components.ModernSettingsDialogTitle("Waste collection", "Sensors, calendar, and appearance") },
+        title = {
+            com.jimz011apps.hki7.ui.components.ModernSettingsDialogTitle(
+                stringResource(R.string.widgets_waste_collection_title),
+                stringResource(R.string.widgets_waste_collection_subtitle)
+            )
+        },
         text = {
             Column(
                 modifier = Modifier.heightIn(max = 480.dp).fadingEdges(scroll).verticalScroll(scroll),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 com.jimz011apps.hki7.ui.components.SettingsTabRow(
-                    tabs = listOf("sources" to "Data sources", "appearance" to "Appearance"),
+                    tabs = listOf(
+                        "sources" to stringResource(R.string.widgets_tab_data_sources),
+                        "appearance" to stringResource(R.string.widgets_tab_appearance)
+                    ),
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
                 )
                 if (settingsPage == "sources") {
-                com.jimz011apps.hki7.ui.components.SettingsSubcategory("Data sources", "Sensors and an optional week calendar")
+                com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_data_sources_dadd6ac), stringResource(R.string.ui_sensors_and_an_optional_week_calendar_399bad3))
                 OutlinedTextField(
                     value = title, onValueChange = { title = it },
-                    label = { Text("Title") }, singleLine = true, modifier = Modifier.fillMaxWidth()
+                    label = { Text(stringResource(R.string.ui_title_768e0c1)) }, singleLine = true, modifier = Modifier.fillMaxWidth()
                 )
-                Text("Waste sensors", style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.ui_waste_sensors_8bfd3ec), style = MaterialTheme.typography.labelLarge)
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        if (entityIds.isEmpty()) "None selected"
+                        if (entityIds.isEmpty()) stringResource(R.string.ui_none_selected_5798946)
                         else entityIds.joinToString(", ") { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id },
                         style = MaterialTheme.typography.bodySmall,
                         color = if (entityIds.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary,
                         maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f)
                     )
-                    TextButton(onClick = { showEntityPicker = true }) { Text("Change") }
+                    TextButton(onClick = { showEntityPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
                 }
-                Text("Week calendar (shown in the dialog)", style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.ui_week_calendar_shown_in_the_dialog_6d4f28b), style = MaterialTheme.typography.labelLarge)
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        calendarEntityId?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id } ?: "Not set",
+                        calendarEntityId?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id } ?: stringResource(R.string.ui_not_set_93039e6),
                         style = MaterialTheme.typography.bodySmall,
                         color = if (calendarEntityId == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary,
                         maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f)
                     )
-                    TextButton(onClick = { showCalendarPicker = true }) { Text("Change") }
-                    if (calendarEntityId != null) TextButton(onClick = { calendarEntityId = null }) { Text("Clear") }
+                    TextButton(onClick = { showCalendarPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
+                    if (calendarEntityId != null) TextButton(onClick = { calendarEntityId = null }) { Text(stringResource(R.string.ui_clear_719ea39)) }
                 }
                 }
                 if (settingsPage == "appearance") {
-                com.jimz011apps.hki7.ui.components.SettingsSubcategory("Appearance", "Image style, size, shape, and background")
-                Text("Image", style = MaterialTheme.typography.labelLarge)
+                com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_appearance_41def7a), stringResource(R.string.ui_image_style_size_shape_and_background_40c17b6))
+                Text(stringResource(R.string.ui_image_50e19fd), style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = imageStyle == "icon", onClick = { imageStyle = "icon" }, label = { Text("Type icon") })
-                    FilterChip(selected = imageStyle == "picture", onClick = { imageStyle = "picture" }, label = { Text("Sensor picture") })
+                    FilterChip(selected = imageStyle == "icon", onClick = { imageStyle = "icon" }, label = { Text(stringResource(R.string.ui_type_icon_839142a)) })
+                    FilterChip(selected = imageStyle == "picture", onClick = { imageStyle = "picture" }, label = { Text(stringResource(R.string.ui_sensor_picture_c3a0ed2)) })
                 }
                 Text(
-                    if (imageStyle == "picture") "Shows the sensor's entity_picture (falls back to the type icon when a sensor has none)."
-                    else "Shows an icon matching the waste type (GFT, PMD, paper, …).",
+                    if (imageStyle == "picture") stringResource(R.string.widgets_waste_sensor_picture_help)
+                    else stringResource(R.string.ui_shows_an_icon_matching_the_waste_type_gft_pmd_1966fe0),
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
-                Text("Shape", style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.ui_shape_ea5c1a2), style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text("Standard") })
-                    FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text("Square") })
+                    FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text(stringResource(R.string.ui_standard_2dfa660)) })
+                    FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text(stringResource(R.string.ui_square_82810cb)) })
                 }
-                Text("Icon", style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.ui_icon_716f63b), style = MaterialTheme.typography.labelLarge)
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     MdiIcon(iconName, size = 20.dp)
-                    TextButton(onClick = { showIconPicker = true }) { Text("Change") }
+                    TextButton(onClick = { showIconPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
                 }
                 WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
                 }
@@ -647,8 +675,8 @@ fun WasteCollectionSettingsDialog(
                         backgroundUrl = backgroundUrl
                     )
                 )
-            }) { Text("Save") }
+            }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
     )
 }

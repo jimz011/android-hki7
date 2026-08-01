@@ -1,5 +1,10 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -105,10 +110,11 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
     }
 
     ModernSettingsDialogFrame(
-        title = selectedDevice?.let(::deviceName) ?: "Search",
+        title = selectedDevice?.let(::deviceName) ?: stringResource(R.string.global_search_title),
         subtitle = selectedDevice?.let { device ->
-            "Browse ${entityCountByDevice[device.id] ?: 0} entities on this device"
-        } ?: "Find and control any Home Assistant device or entity",
+            val count = entityCountByDevice[device.id] ?: 0
+            pluralStringResource(R.plurals.global_search_browse_entities, count, count)
+        } ?: stringResource(R.string.global_search_subtitle),
         icon = Icons.Default.Search,
         onDismiss = onDismiss,
         onBack = selectedDevice?.let {
@@ -125,11 +131,11 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                 OutlinedTextField(
                     value = query,
                     onValueChange = { query = it },
-                    placeholder = { Text(if (mode == "devices" && selectedDevice == null) "Search devices" else "Search entities") },
+                    placeholder = { Text(if (mode == "devices" && selectedDevice == null) stringResource(R.string.ui_search_devices_2ce0b70) else stringResource(R.string.ui_search_entities_7c70008)) },
                     leadingIcon = { Icon(Icons.Default.Search, null, modifier = Modifier.size(18.dp)) },
                     trailingIcon = {
                         if (query.isNotEmpty()) IconButton(onClick = { query = "" }) {
-                            Icon(Icons.Default.Close, "Clear", modifier = Modifier.size(16.dp))
+                            Icon(Icons.Default.Close, stringResource(R.string.global_search_clear), modifier = Modifier.size(16.dp))
                         }
                     },
                     singleLine = true,
@@ -137,9 +143,9 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                 )
                 if (selectedDevice == null) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        SettingsChoiceChip(selected = mode == "entities", onClick = { mode = "entities" }, label = { Text("Entities") },
+                        SettingsChoiceChip(selected = mode == "entities", onClick = { mode = "entities" }, label = { Text(stringResource(R.string.ui_entities_f7638a2)) },
                             leadingIcon = { Icon(Icons.Default.Lightbulb, null, Modifier.size(14.dp)) })
-                        SettingsChoiceChip(selected = mode == "devices", onClick = { mode = "devices" }, label = { Text("Devices") },
+                        SettingsChoiceChip(selected = mode == "devices", onClick = { mode = "devices" }, label = { Text(stringResource(R.string.ui_devices_df485c8)) },
                             leadingIcon = { Icon(Icons.Default.Memory, null, Modifier.size(14.dp)) })
                     }
                 }
@@ -149,9 +155,9 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         SettingsChoiceChip(selected = activeOnly, onClick = { activeOnly = !activeOnly },
-                            label = { Text("Active") },
+                            label = { Text(stringResource(R.string.ui_active_a733b80)) },
                             leadingIcon = { Icon(Icons.Default.Bolt, null, Modifier.size(14.dp)) })
-                        SettingsChoiceChip(selected = domainFilter == null, onClick = { domainFilter = null }, label = { Text("All") })
+                        SettingsChoiceChip(selected = domainFilter == null, onClick = { domainFilter = null }, label = { Text(stringResource(R.string.ui_all_6a72085)) })
                         domains.forEach { domain ->
                             SettingsChoiceChip(
                                 selected = domainFilter == domain,
@@ -164,7 +170,7 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                 val listState = androidx.compose.foundation.lazy.rememberLazyListState()
                 LazyColumn(Modifier.weight(1f).fadingEdges(listState), state = listState) {
                     if (mode == "devices" && selectedDevice == null) {
-                        if (deviceResults.isEmpty()) item { SearchEmptyHint("No matching devices.") }
+                        if (deviceResults.isEmpty()) item { SearchEmptyHint(stringResource(R.string.global_search_no_devices)) }
                         items(deviceResults, key = { it.id }) { device ->
                             SearchDeviceRow(
                                 device = device,
@@ -174,7 +180,7 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                             )
                         }
                     } else {
-                        if (entityResults.isEmpty()) item { SearchEmptyHint("No matching entities.") }
+                        if (entityResults.isEmpty()) item { SearchEmptyHint(stringResource(R.string.global_search_no_entities)) }
                         items(entityResults, key = { it.entity_id }) { entity ->
                             SearchEntityRow(
                                 entity = entity,
@@ -188,7 +194,7 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                 }
             }
         },
-        footer = { TextButton(onClick = onDismiss) { Text("Close") } }
+        footer = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_close_bbfa773)) } }
     )
 }
 
@@ -222,7 +228,7 @@ private fun SearchEntityRow(entity: HAEntity, onOpen: () -> Unit, onToggle: (() 
                 maxLines = 1, overflow = TextOverflow.Ellipsis
             )
             Text(
-                "${entity.state.replace('_', ' ').replaceFirstChar(Char::uppercase)} · ${entity.entity_id}",
+                stringResource(R.string.ui_text_c1aacd9, entity.state.replace('_', ' ').replaceFirstChar(Char::uppercase), entity.entity_id),
                 color = appColors.onMuted, style = MaterialTheme.typography.bodySmall,
                 maxLines = 1, overflow = TextOverflow.Ellipsis
             )
@@ -257,7 +263,7 @@ private fun SearchDeviceRow(device: HADeviceRegistryEntry, name: String, entityC
                 listOfNotNull(
                     device.manufacturer?.takeIf { it.isNotBlank() },
                     device.model?.takeIf { it.isNotBlank() },
-                    "$entityCount ${if (entityCount == 1) "entity" else "entities"}"
+                    pluralStringResource(R.plurals.global_search_entity_count, entityCount, entityCount)
                 ).joinToString(" · "),
                 color = appColors.onMuted, style = MaterialTheme.typography.bodySmall,
                 maxLines = 1, overflow = TextOverflow.Ellipsis

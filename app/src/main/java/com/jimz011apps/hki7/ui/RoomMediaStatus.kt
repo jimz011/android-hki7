@@ -1,7 +1,12 @@
 package com.jimz011apps.hki7.ui
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import com.jimz011apps.hki7.R
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HKIAreaConfig
+import com.jimz011apps.hki7.ui.components.mediaPlayerStatus
 
 /**
  * Presentation-neutral media status shared by room tiles and room headers.
@@ -12,8 +17,22 @@ import com.jimz011apps.hki7.data.HKIAreaConfig
  */
 internal data class RoomMediaSummary(
     val text: String?,
-    val representative: HAEntity?
+    val representative: HAEntity?,
+    val activeCount: Int = if (text == null) -1 else 1
 )
+
+/** Localizes the presentation-neutral room media result at the Compose boundary. */
+@Composable
+internal fun RoomMediaSummary.localizedText(): String? = when {
+    text == null -> null
+    activeCount == 0 -> stringResource(R.string.core_no_media_playing)
+    activeCount > 1 -> pluralStringResource(
+        R.plurals.core_media_players_playing,
+        activeCount,
+        activeCount
+    )
+    else -> mediaPlayerStatus(representative)
+}
 
 private val inactiveRoomMediaStates = setOf("", "off", "idle", "unknown", "unavailable")
 
@@ -42,7 +61,8 @@ internal fun resolveRoomMediaStatus(entities: List<HAEntity>): RoomMediaSummary 
     if (activePlayers.isEmpty()) {
         return RoomMediaSummary(
             text = "No Media is Playing",
-            representative = representative
+            representative = representative,
+            activeCount = 0
         )
     }
 
@@ -50,13 +70,15 @@ internal fun resolveRoomMediaStatus(entities: List<HAEntity>): RoomMediaSummary 
         val count = activePlayers.size
         return RoomMediaSummary(
             text = "$count Media Players are Playing",
-            representative = representative
+            representative = representative,
+            activeCount = count
         )
     }
 
     return RoomMediaSummary(
         text = singlePlayerStatus(activePlayers.single()),
-        representative = representative
+        representative = representative,
+        activeCount = 1
     )
 }
 

@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -100,7 +104,7 @@ fun ModernSettingsHeader(
                     .size(46.dp)
                     .background(colors.subtleSurface, RoundedCornerShape(16.dp))
             ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = colors.onSurface)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.ui_back_b52b36b), tint = colors.onSurface)
             }
         } else {
             Surface(
@@ -139,7 +143,7 @@ fun ModernSettingsHeader(
                     .size(46.dp)
                     .background(colors.subtleSurface, CircleShape)
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = colors.onSurface)
+                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.ui_close_bbfa773), tint = colors.onSurface)
             }
         }
     }
@@ -542,7 +546,7 @@ fun ModernAlertDialog(
                                 onClick = onDismissRequest,
                                 modifier = Modifier.size(44.dp).background(colors.subtleSurface, CircleShape)
                             ) {
-                                Icon(Icons.Default.Close, contentDescription = "Close", tint = colors.onSurface)
+                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.ui_close_bbfa773), tint = colors.onSurface)
                             }
                         }
                     }

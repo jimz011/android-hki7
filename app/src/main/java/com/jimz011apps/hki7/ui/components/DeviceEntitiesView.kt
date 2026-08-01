@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -39,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HAServiceCall
 import com.jimz011apps.hki7.ui.MainViewModel
+import com.jimz011apps.hki7.ui.localizedStateLabel
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import com.jimz011apps.hki7.ui.utils.MdiIcon
 import kotlinx.serialization.json.contentOrNull
@@ -107,7 +112,7 @@ fun DeviceEntitiesView(
         item {
             Column(Modifier.padding(bottom = 12.dp)) {
                 Text(
-                    deviceName ?: "Device",
+                    deviceName ?: stringResource(R.string.ui_device_a5a74a6),
                     style = MaterialTheme.typography.titleMedium,
                     color = appColors.onSurface, fontWeight = FontWeight.Bold
                 )
@@ -115,14 +120,14 @@ fun DeviceEntitiesView(
                     Text(deviceDetail, style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
                 }
                 device?.sw_version?.takeIf { it.isNotBlank() }?.let {
-                    Text("Firmware $it", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted.copy(alpha = 0.7f))
+                    Text(stringResource(R.string.ui_firmware_94fe490, it), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted.copy(alpha = 0.7f))
                 }
             }
         }
         if (siblings.isEmpty()) {
             item {
                 Text(
-                    "No other entities on this device.",
+                    stringResource(R.string.ui_no_other_entities_on_this_device_fbc481b),
                     style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
                 )
             }
@@ -192,7 +197,7 @@ private fun DeviceEntityRow(entity: HAEntity, diagnostic: Boolean, viewModel: Ma
             )
             "cover" -> {
                 val isOpen = entity.state == "open" || entity.state == "opening"
-                Text(entityStateDisplay(entity), style = MaterialTheme.typography.labelMedium, color = appColors.onMuted)
+                Text(entity.localizedStateLabel(), style = MaterialTheme.typography.labelMedium, color = appColors.onMuted)
                 IconButton(onClick = {
                     viewModel.callService(
                         "cover", if (isOpen) "close_cover" else "open_cover",
@@ -201,7 +206,7 @@ private fun DeviceEntityRow(entity: HAEntity, diagnostic: Boolean, viewModel: Ma
                 }) {
                     MdiIcon(
                         if (isOpen) "arrow-down-bold" else "arrow-up-bold",
-                        contentDescription = if (isOpen) "Close" else "Open",
+                        contentDescription = stringResource(if (isOpen) R.string.cr_close else R.string.cr_open),
                         tint = MaterialTheme.colorScheme.primary, size = 18.dp
                     )
                 }
@@ -209,20 +214,20 @@ private fun DeviceEntityRow(entity: HAEntity, diagnostic: Boolean, viewModel: Ma
             "button", "input_button" -> IconButton(onClick = {
                 viewModel.callService(domain, "press", HAServiceCall(entity_id = entity.entity_id))
             }) {
-                MdiIcon("gesture-tap-button", contentDescription = "Press",
+                MdiIcon("gesture-tap-button", contentDescription = stringResource(R.string.ui_press_ea683ad),
                     tint = MaterialTheme.colorScheme.primary, size = 18.dp)
             }
             "scene", "script" -> IconButton(onClick = {
                 viewModel.callService(domain, "turn_on", HAServiceCall(entity_id = entity.entity_id))
             }) {
-                MdiIcon("play", contentDescription = "Run",
+                MdiIcon("play", contentDescription = stringResource(R.string.ui_run_b1b3926),
                     tint = MaterialTheme.colorScheme.primary, size = 18.dp)
             }
             "select", "input_select" -> SelectControl(entity, domain, viewModel)
             "number", "input_number" -> NumberControl(entity, domain, viewModel)
             "text", "input_text" -> TextControl(entity, domain, viewModel)
             else -> Text(
-                entityStateDisplay(entity),
+                entity.localizedStateLabel(),
                 style = MaterialTheme.typography.labelLarge,
                 color = appColors.onSurface, fontWeight = FontWeight.SemiBold
             )
@@ -247,7 +252,7 @@ private fun SelectControl(entity: HAEntity, domain: String, viewModel: MainViewM
                 .padding(vertical = 6.dp)
         ) {
             Text(
-                entityStateDisplay(entity),
+                entity.localizedStateLabel(),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold
             )
@@ -288,15 +293,15 @@ private fun NumberControl(entity: HAEntity, domain: String, viewModel: MainViewM
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
         IconButton(onClick = { current?.let { send(it - step) } }, enabled = current != null) {
-            MdiIcon("minus", contentDescription = "Decrease", tint = appColors.onSurface, size = 16.dp)
+            MdiIcon("minus", contentDescription = stringResource(R.string.ui_decrease_67e19d8), tint = appColors.onSurface, size = 16.dp)
         }
         Text(
-            entityStateDisplay(entity),
+            entity.localizedStateLabel(),
             style = MaterialTheme.typography.labelLarge,
             color = appColors.onSurface, fontWeight = FontWeight.SemiBold
         )
         IconButton(onClick = { current?.let { send(it + step) } }, enabled = current != null) {
-            MdiIcon("plus", contentDescription = "Increase", tint = appColors.onSurface, size = 16.dp)
+            MdiIcon("plus", contentDescription = stringResource(R.string.ui_increase_5a7fecf), tint = appColors.onSurface, size = 16.dp)
         }
     }
 }
@@ -323,9 +328,9 @@ private fun TextControl(entity: HAEntity, domain: String, viewModel: MainViewMod
                 TextButton(onClick = {
                     viewModel.callService(domain, "set_value", HAServiceCall(entity_id = entity.entity_id, value = text))
                     editing = false
-                }) { Text("Save") }
+                }) { Text(stringResource(R.string.ui_save_efc007a)) }
             },
-            dismissButton = { TextButton(onClick = { editing = false }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { editing = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
         )
     }
 }

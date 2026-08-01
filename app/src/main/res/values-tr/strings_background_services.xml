@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="background_notification_channel_general">Genel</string>
+    <string name="background_location_channel_name">Konum paylaşımı</string>
+    <string name="background_location_channel_description">Cihazınızın konumunu Home Assistant’ta güncel tutar</string>
+    <string name="background_location_notification_title">Home Assistant ile konum paylaşımı</string>
+    <string name="background_location_notification_text">Konumunuz Home Assistant ile paylaşılıyor</string>
+    <string name="background_push_channel_name">Bildirim bağlantısı</string>
+    <string name="background_push_channel_description">Anlık bildirimler için arka planda Home Assistant bağlantısını sürdürür</string>
+    <string name="background_push_notification_title">Home Assistant’a bağlı</string>
+    <string name="background_push_notification_text">Bildirimler bekleniyor</string>
+</resources>

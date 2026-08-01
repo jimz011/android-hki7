@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shared states and controls -->
+    <string name="cr_state_on">On</string>
+    <string name="cr_state_off">Off</string>
+    <string name="cr_open">Open</string>
+    <string name="cr_close">Close</string>
+    <string name="cr_stop">Stop</string>
+    <string name="cr_closed">Closed</string>
+    <string name="cr_opening">Opening</string>
+    <string name="cr_closing">Closing</string>
+    <string name="cr_locked">Locked</string>
+    <string name="cr_unlocked">Unlocked</string>
+    <string name="cr_unavailable">Unavailable</string>
+    <string name="cr_unknown">Unknown</string>
+    <string name="cr_idle">Idle</string>
+    <string name="cr_home">Home</string>
+    <string name="cr_away">Away</string>
+    <string name="cr_cleaning">Cleaning</string>
+    <string name="cr_returning">Returning</string>
+    <string name="cr_paused">Paused</string>
+    <string name="cr_error">Error</string>
+    <string name="cr_playing">Playing</string>
+    <string name="cr_buffering">Buffering</string>
+    <string name="cr_standby">Standby</string>
+    <string name="cr_humidifying">Humidifying</string>
+    <string name="cr_drying">Drying</string>
+    <string name="cr_detected">Detected</string>
+    <string name="cr_clear">Clear</string>
+    <string name="cr_problem">Problem</string>
+    <string name="cr_ok">OK</string>
+    <string name="cr_low">Low</string>
+    <string name="cr_normal">Normal</string>
+    <string name="cr_connected">Connected</string>
+    <string name="cr_disconnected">Disconnected</string>
+    <string name="cr_plugged_in">Plugged in</string>
+    <string name="cr_unplugged">Unplugged</string>
+    <string name="cr_wet">Wet</string>
+    <string name="cr_dry">Dry</string>
+    <string name="cr_none">None</string>
+    <string name="cr_any">Any</string>
+    <string name="cr_remove">Remove</string>
+    <string name="cr_restore">Restore</string>
+    <string name="cr_general">General</string>
+    <string name="cr_identity">Identity</string>
+    <string name="cr_appearance">Appearance</string>
+    <string name="cr_layout">Layout</string>
+    <string name="cr_behavior">Behavior</string>
+    <string name="cr_profiles">Profiles</string>
+    <string name="cr_playback">Playback</string>
+    <string name="cr_content">Content</string>
+    <string name="cr_actions">Actions</string>
+    <string name="cr_protection">Protection</string>
+    <string name="cr_power">Power</string>
+    <string name="cr_brightness">Brightness</string>
+    <string name="cr_temperature">Temperature</string>
+    <string name="cr_color">Color</string>
+    <string name="cr_min">Min</string>
+    <string name="cr_avg">Avg</string>
+    <string name="cr_max">Max</string>
+    <string name="cr_now">Now</string>
+    <string name="cr_lowest">Lowest</string>
+    <string name="cr_average">Average</string>
+    <string name="cr_highest">Highest</string>
+    <string name="cr_live">Live</string>
+    <string name="cr_once">Once</string>
+    <string name="cr_daily">Daily</string>
+    <string name="cr_weekly">Weekly</string>
+    <string name="cr_monthly">Monthly</string>
+    <string name="cr_yearly">Yearly</string>
+    <string name="cr_action_tap">Tap</string>
+    <string name="cr_action_double_tap">Double tap</string>
+    <string name="cr_action_hold">Hold</string>
+
+    <!-- Climate modes and controls -->
+    <string name="cr_mode">Mode</string>
+    <string name="cr_mode_auto">Auto</string>
+    <string name="cr_mode_heat">Heat</string>
+    <string name="cr_mode_cool">Cool</string>
+    <string name="cr_mode_heat_cool">Heat/cool</string>
+    <string name="cr_mode_dry">Dry</string>
+    <string name="cr_mode_fan_only">Fan only</string>
+    <string name="cr_mode_low">Low</string>
+    <string name="cr_mode_medium">Medium</string>
+    <string name="cr_mode_high">High</string>
+    <string name="cr_mode_quiet">Quiet</string>
+    <string name="cr_mode_boost">Boost</string>
+    <string name="cr_mode_eco">Eco</string>
+    <string name="cr_mode_sleep">Sleep</string>
+    <string name="cr_mode_manual">Manual</string>
+    <string name="cr_mode_vertical">Vertical</string>
+    <string name="cr_mode_horizontal">Horizontal</string>
+    <string name="cr_mode_both">Both</string>
+    <string name="cr_mode_up">Up</string>
+    <string name="cr_mode_down">Down</string>
+    <string name="cr_mode_center">Center</string>
+    <string name="cr_mode_left">Left</string>
+    <string name="cr_mode_right">Right</string>
+    <string name="cr_climate_fan">Fan</string>
+    <string name="cr_climate_vertical_airflow">Vertical airflow</string>
+    <string name="cr_climate_horizontal_airflow">Horizontal airflow</string>
+    <string name="cr_climate_preset">Preset</string>
+    <string name="cr_fan_speed">Fan speed</string>
+    <string name="cr_speed">Speed</string>
+    <string name="cr_lower_target">Lower target</string>
+    <string name="cr_raise_target">Raise target</string>
+
+    <!-- Climate page -->
+    <string name="cr_climate_temperature">Temperature</string>
+    <string name="cr_climate_all_temperature_sensors">All temperature sensors</string>
+    <string name="cr_climate_outside">Outside</string>
+    <string name="cr_climate_outside_summary">Outdoor temperature, humidity, and pressure</string>
+    <string name="cr_climate_humidity">Humidity</string>
+    <string name="cr_climate_all_humidity_sensors">All humidity sensors</string>
+    <string name="cr_climate_air_pressure">Air pressure</string>
+    <string name="cr_climate_all_pressure_sensors">All air-pressure sensors</string>
+    <string name="cr_climate_co2">CO₂</string>
+    <string name="cr_climate_carbon_dioxide_sensors">Carbon-dioxide sensors</string>
+    <string name="cr_climate_air_quality">Air quality</string>
+    <string name="cr_climate_air_quality_summary">Particulates, AQI, VOCs, and gases</string>
+    <string name="cr_climate_entities">Climate entities</string>
+    <string name="cr_reimport">Reimport</string>
+    <string name="cr_climate_settings">Climate settings</string>
+    <string name="cr_empty_climate_view">No climate data is available yet.</string>
+    <string name="cr_climate_fans">Fans</string>
+    <string name="cr_climate_air_purifiers">Air purifiers</string>
+    <string name="cr_climate_humidifiers">Humidifiers</string>
+    <string name="cr_temperature_sensors">Temperature sensors</string>
+    <string name="cr_devices_active">Devices active</string>
+    <string name="cr_active_of_total">%1$d of %2$d active</string>
+    <string name="cr_no_search_active">No active search · %1$s</string>
+    <string name="cr_collapse_search">Collapse search</string>
+    <string name="cr_expand_search">Expand search</string>
+    <string name="cr_custom_order">Custom order</string>
+    <string name="cr_name_a_z">Name A–Z</string>
+    <string name="cr_name_z_a">Name Z–A</string>
+    <string name="cr_climate_device">Climate device</string>
+    <string name="cr_climate_device_subtitle">Name, icon, card style, and width</string>
+    <string name="cr_count_with_average">%1$s · avg %2$s%3$s</string>
+    <string name="cr_outside_temperature">Outside temperature</string>
+    <string name="cr_outside_humidity">Outside humidity</string>
+    <string name="cr_outside_pressure">Outside pressure</string>
+    <string name="cr_outside_air_pressure">Outside air pressure</string>
+    <string name="cr_no_sensors_found_for">No %1$s sensors found.</string>
+    <string name="cr_climate_control">Climate control</string>
+    <string name="cr_thermostat_dial">Thermostat dial</string>
+    <string name="cr_width_third">Third</string>
+    <string name="cr_width_half">Half</string>
+    <string name="cr_width_full">Full</string>
+    <string name="cr_select_item">Select %1$s</string>
+    <string name="cr_set_outdoor_sensors">Set outdoor temperature, humidity, and pressure</string>
+    <string name="cr_auto_discovered_device_class">Discovered automatically by device class</string>
+    <string name="cr_auto_discovered_climate_devices">Climate devices discovered automatically</string>
+    <string name="cr_pick_fan_entities_as_purifiers">Choose fan entities to use as air purifiers</string>
+    <string name="cr_auto_discovered_humidifier_devices">Humidifier devices discovered automatically</string>
+    <string name="cr_removed_entities">Removed entities</string>
+    <string name="cr_entities_removed_edit_mode">Entities removed in edit mode</string>
+    <string name="cr_card_indoor_climate_overview">Indoor climate overview</string>
+    <string name="cr_card_sensor_device_tiles">Sensor and device tiles</string>
+    <string name="cr_card_thermostats_ac">Thermostats and AC</string>
+    <string name="cr_card_temperature_summary">Temperature summary</string>
+    <string name="cr_card_humidity_summary">Humidity summary</string>
+    <string name="cr_card_air_pressure_summary">Air-pressure summary</string>
+    <string name="cr_card_co2_summary">CO₂ summary</string>
+    <string name="cr_card_air_quality_summary">Air-quality summary</string>
+    <string name="cr_category_overview">Overview</string>
+    <string name="cr_category_devices">Devices</string>
+    <string name="cr_category_sensors">Sensors</string>
+    <string name="cr_no_climate_sensors_devices">No climate sensors or devices found.</string>
+    <string name="cr_no_climate_devices">No climate devices found. Thermostats and AC units from Home Assistant appear here automatically.</string>
+    <string name="cr_no_fans">No fans found. Fan entities from Home Assistant appear here automatically.</string>
+    <string name="cr_no_air_purifiers">No air purifiers configured. Choose fan entities under Climate settings → Climate entities → Air purifiers.</string>
+    <string name="cr_no_humidifiers">No humidifiers found. Humidifier entities from Home Assistant appear here automatically.</string>
+    <string name="cr_unknown_climate_card">Unknown climate card: %1$s</string>
+    <string name="cr_select_climate_cards">Select climate cards</string>
+    <string name="cr_entities_for">%1$s entities</string>
+    <string name="cr_climate_card">Climate card</string>
+    <string name="cr_climate_card_dialog_subtitle">Data sources and card appearance</string>
+    <string name="cr_card_and_data">Card and data</string>
+    <string name="cr_climate_stack">Climate stack</string>
+    <string name="cr_climate_stack_dialog_subtitle">Cards, data sources, and layout</string>
+    <string name="cr_cards_and_data">Cards and data</string>
+
+    <plurals name="cr_sensor_count">
+        <item quantity="one">%d sensor</item>
+        <item quantity="other">%d sensors</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="one">%1$d device · %2$d on</item>
+        <item quantity="other">%1$d devices · %2$d on</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="one">%d outside sensor set</item>
+        <item quantity="other">%d outside sensors set</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="one">Automatic + %d manual</item>
+        <item quantity="other">Automatic + %d manual</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="one">%d selected</item>
+        <item quantity="other">%d selected</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="one">%d removed</item>
+        <item quantity="other">%d removed</item>
+    </plurals>
+
+    <!-- Room and widget configuration -->
+    <string name="cr_room">Room</string>
+    <string name="cr_room_details">Room details</string>
+    <string name="cr_empty_room">This room is empty. Swipe down on the header, enable edit mode, and add widgets, buttons, or tiles.</string>
+    <string name="cr_default_markdown_content"># Markdown\nOpen this widget in **edit mode** to write your own content.</string>
+    <string name="cr_select_camera">Select camera</string>
+    <string name="cr_select_entity">Select entity</string>
+    <string name="cr_custom_camera">Custom camera</string>
+    <string name="cr_configure_widget">Configure widget</string>
+    <string name="cr_configure_widget_subtitle">Set the essentials before adding it</string>
+    <string name="cr_widget_options">Widget options</string>
+    <string name="cr_widget_options_subtitle">Choose what this widget should display</string>
+    <string name="cr_add_widget">Add widget</string>
+    <string name="cr_add_widget_subtitle">Browse by purpose or search every widget</string>
+    <string name="cr_category_with_options">%1$s · %2$s</string>
+    <string name="cr_widget_category_controls">Controls</string>
+    <string name="cr_widget_category_controls_description">Buttons, vacuums, and grouped controls</string>
+    <string name="cr_widget_category_cameras">Cameras</string>
+    <string name="cr_widget_category_cameras_description">Live camera tiles and multi-camera views</string>
+    <string name="cr_widget_category_climate">Climate and weather</string>
+    <string name="cr_widget_category_climate_description">Temperature, comfort, forecasts, and conditions</string>
+    <string name="cr_widget_category_energy">Energy and batteries</string>
+    <string name="cr_widget_category_energy_description">Consumption, production, and device health</string>
+    <string name="cr_widget_category_information">Information and media</string>
+    <string name="cr_widget_category_information_description">Calendars, deliveries, graphs, notes, and playback</string>
+    <string name="cr_widget_category_layout">Layout and structure</string>
+    <string name="cr_widget_category_layout_description">Headings and flexible widget containers</string>
+    <string name="cr_widget_adaptive_lighting">Adaptive Lighting</string>
+    <string name="cr_widget_adaptive_lighting_description">Control any installed Adaptive Lighting profile</string>
+    <string name="cr_widget_button">Button</string>
+    <string name="cr_widget_button_description">A single configurable entity control</string>
+    <string name="cr_widget_buttons">Buttons</string>
+    <string name="cr_widget_calendar">Calendar</string>
+    <string name="cr_widget_calendar_description">Agenda, week, and month views from Home Assistant calendars</string>
+    <string name="cr_widget_waste_collection">Waste collection</string>
+    <string name="cr_widget_waste_collection_description">Upcoming collections from waste sensors</string>
+    <string name="cr_widget_parcels">Parcels</string>
+    <string name="cr_widget_parcels_description">Incoming and outgoing parcels from supported carriers</string>
+    <string name="cr_widget_camera">Camera</string>
+    <string name="cr_widget_camera_description">A single live camera tile or stream URL</string>
+    <string name="cr_widget_cameras">Cameras</string>
+    <string name="cr_widget_climate_card">Climate card</string>
+    <string name="cr_widget_climate_card_description">Any card from the Climate view</string>
+    <string name="cr_widget_energy_card">Energy card</string>
+    <string name="cr_widget_energy_card_description">Any card from the Energy view</string>
+    <string name="cr_widget_battery_levels">Battery levels</string>
+    <string name="cr_widget_battery_levels_description">Low batteries, or Battery+ only with type details</string>
+    <string name="cr_widget_header_text">Header text</string>
+    <string name="cr_widget_header_text_description">Add a section heading</string>
+    <string name="cr_widget_markdown">Markdown</string>
+    <string name="cr_widget_markdown_description">A free-form card written in Markdown</string>
+    <string name="cr_widget_iframe">iFrame</string>
+    <string name="cr_widget_iframe_description">Embed any web page on your dashboard</string>
+    <string name="cr_widget_media_player">Media player</string>
+    <string name="cr_widget_media_player_description">Now-playing tile with album art as the background</string>
+    <string name="cr_widget_sensor_graph">Sensor graph</string>
+    <string name="cr_widget_sensor_graph_description">History graph for one or more sensors, as lines or bars</string>
+    <string name="cr_widget_vacuum">Vacuum</string>
+    <string name="cr_widget_vacuum_description">A single robot-vacuum control</string>
+    <string name="cr_widget_weather">Weather</string>
+    <string name="cr_widget_weather_description">A single weather card</string>
+    <string name="cr_widget_empty_stack">Empty stack</string>
+    <string name="cr_widget_empty_stack_description">Place widgets inside a configurable stack</string>
+    <string name="cr_widget_button_stack">Button stack</string>
+    <string name="cr_widget_button_stack_description">Group entities into configurable controls</string>
+    <string name="cr_widget_camera_stack">Camera stack</string>
+    <string name="cr_widget_camera_stack_description">Show live camera tiles or a custom stream URL</string>
+    <string name="cr_widget_climate_stack">Climate stack</string>
+    <string name="cr_widget_climate_stack_description">Group climate cards such as overview, thermostats, and sensors</string>
+    <string name="cr_widget_energy_stack">Energy stack</string>
+    <string name="cr_widget_energy_stack_description">Group energy cards such as usage, solar, gas, and water</string>
+    <string name="cr_widget_sensor_graph_stack">Sensor graph stack</string>
+    <string name="cr_widget_sensor_graph_stack_description">Group several sensor-history graphs</string>
+    <string name="cr_widget_swiping_stack">Swiping stack</string>
+    <string name="cr_widget_swiping_stack_description">Swipe horizontally through nested widgets</string>
+    <string name="cr_widget_vacuum_stack">Vacuum stack</string>
+    <string name="cr_widget_vacuum_stack_description">Control robot vacuums with a map and battery status</string>
+    <string name="cr_widget_weather_stack">Weather stack</string>
+    <string name="cr_widget_weather_stack_description">Group conditions, forecast, wind, or rain-map cards</string>
+    <string name="cr_camera_settings">Camera settings</string>
+    <string name="cr_vacuum_settings">Vacuum settings</string>
+    <string name="cr_button_settings">Button settings</string>
+    <string name="cr_robot_image">Robot image</string>
+    <string name="cr_map_camera">Map camera</string>
+    <string name="cr_external_url">External URL</string>
+    <string name="cr_animation_glow">Glow</string>
+    <string name="cr_animation_spin">Spin</string>
+    <string name="cr_animation_pulse">Pulse</string>
+    <string name="cr_adaptive_lighting_widget">Adaptive Lighting widget</string>
+    <string name="cr_adaptive_lighting_widget_subtitle">Profiles, size, and appearance</string>
+    <string name="cr_button_stack_dialog_subtitle">Layout, appearance, and entity order</string>
+    <string name="cr_expand_stack">Expand stack</string>
+    <string name="cr_collapse_stack">Collapse stack</string>
+    <string name="cr_hide_stack">Hide stack</string>
+    <string name="cr_unhide_stack">Unhide stack</string>
+    <string name="cr_swiping_stack_dialog_subtitle">Pages, height, and card appearance</string>
+    <string name="cr_empty_stack_dialog_subtitle">Container layout and appearance</string>
+    <string name="cr_header_text_dialog_subtitle">Heading content and visual style</string>
+    <string name="cr_animation_swipe">Swipe</string>
+    <string name="cr_animation_fade">Fade</string>
+    <string name="cr_animation_zoom">Zoom</string>
+    <string name="cr_animation_slide_fade">Slide + fade</string>
+    <string name="cr_animation_cube">Cube</string>
+    <string name="cr_animation_instant">Instant</string>
+    <string name="cr_paged_status">%1$d/%2$d · %3$s</string>
+    <string name="cr_cover_status">%1$d%% · %2$s</string>
+    <string name="cr_paged_cover_status">%1$d/%2$d · %3$d%% · %4$s</string>
+
+    <plurals name="cr_widget_option_count">
+        <item quantity="one">%d option</item>
+        <item quantity="other">%d options</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="one">%d configured light</item>
+        <item quantity="other">%d configured lights</item>
+    </plurals>
+
+    <!-- Quick-start guide -->
+    <string name="cr_quick_notifications">Notifications</string>
+    <string name="cr_quick_notifications_instruction">Swipe right from the upper-left edge.</string>
+    <string name="cr_quick_switch_homes">Switch homes</string>
+    <string name="cr_quick_switch_homes_instruction">Swipe left from the upper-right edge of the header.</string>
+    <string name="cr_quick_actions">Quick actions</string>
+    <string name="cr_quick_actions_instruction">Pull down on any page header for Search, Flows, Edit, and Settings.</string>
+    <string name="cr_quick_media_player">Media player</string>
+    <string name="cr_quick_media_player_instruction">When the handle appears, swipe up on the bottom bar to restore the player.</string>
+    <string name="cr_quick_make_it_yours">Make it yours</string>
+    <string name="cr_quick_make_it_yours_instruction">In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.</string>
+
+    <!-- Current release -->
+    <string-array name="cr_whats_new_beta_10">
+        <item>Fixed PostNL and the current parcel-integration parser, so incoming shipments once again show their complete tracking details and delivered state. Carrier support has also been brought up to date.</item>
+        <item>Added an in-app language selector with broad Dutch, German, French, Spanish, Italian, and Turkish coverage, plus a major wording pass for Dutch.</item>
+        <item>The reconnect status now shows the actual connection error, making Wi-Fi, mobile-data, and VPN handovers much easier to diagnose.</item>
+        <item>Screen rotation now follows your device's auto-rotate setting instead of staying locked to portrait.</item>
+    </string-array>
+
+    <!-- Earlier releases are kept so a build from an older tag still has a valid resource. -->
+    <string-array name="cr_whats_new_beta_9">
+        <item>Drag to reorder cameras, thermostats, and energy cards. In edit mode the Security, Climate, and Energy views each get a Reorder button for their relevant cards.</item>
+        <item>New Climate Outside tile. Link a weather entity or outdoor temperature, humidity, and air-pressure sensors, then open the tile for individual history graphs.</item>
+        <item>Visibility now belongs to each button and header badge. Hide an item or schedule it once or on a daily, weekly, monthly, or yearly recurrence.</item>
+        <item>Header badges can be renamed from Appearance settings.</item>
+        <item>Swiping cards autoplay every three seconds by default.</item>
+        <item>The Weather dialog adds autoplay for Season, a windrose card, and an optional rain-map card from a camera or embedded web page.</item>
+        <item>The Parcels widget was rebuilt around carriers, with logos, account totals, shipment sections, estimates, tracking history, and add-by-tracking support where available.</item>
+        <item>Humidifiers and dehumidifiers now have native power, humidity, mode, speed, and helper controls throughout the app.</item>
+        <item>Room status counters are interactive and open the entities behind each count.</item>
+        <item>Buttons and badges can show a live countdown from a completion-time entity.</item>
+        <item>Shared dashboards publish owner edits automatically and recipients receive them on their next sync.</item>
+        <item>Header display settings now belong to each dashboard and travel through backups and family sharing.</item>
+        <item>Camera widgets fill the entire tile and follow the configured corner radius.</item>
+        <item>Waste collections on the same day now overlap visibly, and the larger dialog can be dismissed by tapping outside.</item>
+        <item>Battery, Waste, camera, weather, and About visuals are now more consistent.</item>
+        <item>Binary sensors use Home Assistant-style Open/Closed, Wet/Dry, Detected/Clear, and Connected/Disconnected labels.</item>
+        <item>Aesthetic-only editors can change existing badge visuals but cannot add, remove, or reconfigure badges.</item>
+        <item>Fixed network handovers: sockets tied to the old Android network are discarded and the saved Home Assistant session reconnects without an unnecessary login. Reconnect status also shows the failure reason.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_8">
+        <item>Child locks are no longer imported automatically as room controls.</item>
+        <item>Every button and badge now honours Home Assistant entity-icon overrides.</item>
+        <item>Vacuums now appear in the room badge bar and open their controls when tapped.</item>
+        <item>Individual buttons in multi-item widgets can be hidden or scheduled, including recurring annual date ranges.</item>
+        <item>Multiple camera badges now open one swipeable dialog with fullscreen paging.</item>
+        <item>Family Sharing now lists cloud-published dashboards so they can be imported, reshared, or deleted after a reinstall.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_7">
+        <item>Automatic room import now skips built-in helper controls while retaining genuine extra controls.</item>
+        <item>Climate devices from different integrations are no longer merged into one control.</item>
+        <item>Climate-device icons now match air conditioners, humidifiers, dehumidifiers, and air purifiers.</item>
+        <item>Air-purifier and humidifier icons pulse gently instead of spinning.</item>
+        <item>Door locks now use closed-door and open-door icons.</item>
+        <item>Multi-device header badges can be reordered to choose their leading entity.</item>
+        <item>Animated icon effects are enabled by default on new installations.</item>
+        <item>Buttons and badges can display an entity attribute and optional unit instead of its state.</item>
+        <item>Dashboards can now be copied with all rooms, widgets, and page settings.</item>
+        <item>Family Sharing now combines parental controls, dashboard sharing, and per-user permissions.</item>
+        <item>Shared dashboards update automatically while keeping allowed local visual changes.</item>
+        <item>Non-admin family members can use automatic per-room Adaptive Lighting controls when the HKI 7 Cloud component is installed.</item>
+        <item>Fixed unreadable header and pull-down labels in light mode and with custom appearances.</item>
+        <item>About now provides What’s new and Full changelog buttons.</item>
+        <item>Fixed the Unable to connect screen so it appears reliably when Home Assistant cannot be reached.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_6">
+        <item>Fixed edit-mode action bars overlapping Android three-button navigation.</item>
+        <item>The Backup and Restore screen now shows when each automatic cloud backup last ran.</item>
+        <item>Each cloud backup now has a Back up now button.</item>
+        <item>Fixed the oversized app icon after the themed-icon update.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_4_to_5">
+        <item>The Backup and Restore screen now shows when each automatic cloud backup last ran.</item>
+        <item>Each cloud backup now has a Back up now button.</item>
+        <item>Fixed the oversized app icon after the themed-icon update.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_3">
+        <item>Added Simple Icons, Tabler, and Phosphor icon packs alongside Material Design Icons.</item>
+        <item>Added animated entity icons that glow, spin, or pulse while active.</item>
+        <item>Added family dashboard sharing for admins.*</item>
+        <item>Added parental controls that can hide selected views and rooms for specific people.*</item>
+        <item>Added automatic daily backup to your own Home Assistant.*</item>
+        <item>Media-source icons are colored and can open the installed source app.</item>
+        <item>New iFrame widget for embedding web pages.</item>
+        <item>Energy views now show negative values while exporting power.</item>
+        <item>Fixed onboarding completing when switching away before finishing.</item>
+        <item>Fixed the thermostat-dial mode button overlapping nearby items.</item>
+        <item>Many smaller bug fixes.</item>
+        <item>* HKI 7 Cloud Component integration required.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_2">
+        <item>Improved layouts on short and narrow displays, with a single-column fallback throughout the app.</item>
+        <item>Dialog headers use two rows on narrow screens so titles are no longer cut off.</item>
+        <item>Fixed Adaptive Lighting sliders overlapping other elements.</item>
+        <item>Navigation bars now indicate when more items are available off-screen.</item>
+        <item>Fixed cameras ignoring the screen-orientation lock.</item>
+        <item>Fixed zoom in camera dialogs and fullscreen cameras.</item>
+    </string-array>
+</resources>

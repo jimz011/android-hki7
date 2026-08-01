@@ -2,6 +2,10 @@
 
 package com.jimz011apps.hki7.ui.screens
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
@@ -33,6 +37,8 @@ import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HAServiceCall
 import com.jimz011apps.hki7.data.HKIButtonConfig
 import com.jimz011apps.hki7.ui.MainViewModel
+import com.jimz011apps.hki7.ui.localizedHvacModeLabel
+import com.jimz011apps.hki7.ui.localizedStateLabel
 import com.jimz011apps.hki7.ui.components.*
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.coroutines.delay
@@ -95,51 +101,88 @@ fun UniversalStackDialog(
 
     // ── Status text ───────────────────────────────────────────────────────────
     val statusText = buildString {
-        if (entities.size > 1) append("${page + 1}/${entities.size} - ")
+        if (entities.size > 1) append(stringResource(R.string.ui_text_9704d5c, page + 1, entities.size))
         when (domain) {
-            "light" -> append(if (entity.state == "on") { val b = ((entity.brightness ?: 0) / 255f * 100).toInt(); "$b% • ON" } else "OFF")
-            "cover" -> append("${entity.attributes?.get("current_position")?.jsonPrimitive?.intOrNull ?: 0}% - ${entity.state.uppercase()}")
-            "vacuum" -> append((entity.attributes?.get("status")?.jsonPrimitive?.contentOrNull ?: entity.state).uppercase())
-            else -> append(entity.state.uppercase())
+            "light" -> append(if (entity.state == "on") { val b = ((entity.brightness ?: 0) / 255f * 100).toInt(); stringResource(R.string.ui_on_f9ca2fe, b) } else stringResource(R.string.ui_off_ad50489))
+            "cover" -> append(
+                stringResource(
+                    R.string.universal_cover_status,
+                    entity.attributes?.get("current_position")?.jsonPrimitive?.intOrNull ?: 0,
+                    entity.localizedStateLabel()
+                )
+            )
+            "vacuum" -> append(
+                entity.attributes?.get("status")?.jsonPrimitive?.contentOrNull
+                    ?: entity.localizedStateLabel()
+            )
+            else -> append(entity.localizedStateLabel())
         }
     }
 
     // ── Tabs ─────────────────────────────────────────────────────────────────
+    val brightnessLabel = stringResource(R.string.cr_brightness)
+    val temperatureLabel = stringResource(R.string.cr_temperature)
+    val colorLabel = stringResource(R.string.cr_color)
+    val effectsLabel = stringResource(R.string.universal_effects)
+    val openDoorLabel = stringResource(R.string.universal_open_door)
+    val openLabel = stringResource(R.string.cr_open)
+    val stopLabel = stringResource(R.string.cr_stop)
+    val closeLabel = stringResource(R.string.cr_close)
+    val dockLabel = stringResource(R.string.universal_vacuum_dock)
+    val startLabel = stringResource(R.string.universal_start)
+    val pauseLabel = stringResource(R.string.universal_pause)
+    val locateLabel = stringResource(R.string.universal_locate)
     val tabs: List<Triple<String, androidx.compose.ui.graphics.vector.ImageVector, () -> Unit>> = when (domain) {
         "light" -> buildList {
-            if (entity.supportsBrightness) add(Triple("Bright", Icons.Default.LightMode) { lightTab = "Bright" })
-            if (entity.supportsColorTemp)  add(Triple("Temp",   Icons.Default.Thermostat) { lightTab = "Temp" })
-            if (entity.supportsColor)      add(Triple("Color",  Icons.Default.Palette) { lightTab = "Color" })
-            if (entity.effectList.isNotEmpty()) add(Triple("Effects", Icons.Default.AutoAwesome) { lightTab = "Effects" })
+            if (entity.supportsBrightness) add(Triple(brightnessLabel, Icons.Default.LightMode) { lightTab = "Bright" })
+            if (entity.supportsColorTemp) add(Triple(temperatureLabel, Icons.Default.Thermostat) { lightTab = "Temp" })
+            if (entity.supportsColor) add(Triple(colorLabel, Icons.Default.Palette) { lightTab = "Color" })
+            if (entity.effectList.isNotEmpty()) add(Triple(effectsLabel, Icons.Default.AutoAwesome) { lightTab = "Effects" })
         }
-        "lock" -> listOf(Triple("Open Door", Icons.Default.DoorFront) { viewModel.openLock(entity.entity_id) })
+        "lock" -> listOf(Triple(openDoorLabel, Icons.Default.DoorFront) { viewModel.openLock(entity.entity_id) })
         "cover" -> listOf(
-            Triple("Open",  Icons.Default.ArrowUpward)  { coverAction = "Open";  viewModel.controlCover(entity.entity_id, "open_cover") },
-            Triple("Stop",  Icons.Default.Stop)          { coverAction = "Stop";  viewModel.controlCover(entity.entity_id, "stop_cover") },
-            Triple("Close", Icons.Default.ArrowDownward) { coverAction = "Close"; viewModel.controlCover(entity.entity_id, "close_cover") }
+            Triple(openLabel, Icons.Default.ArrowUpward) { coverAction = "Open"; viewModel.controlCover(entity.entity_id, "open_cover") },
+            Triple(stopLabel, Icons.Default.Stop) { coverAction = "Stop"; viewModel.controlCover(entity.entity_id, "stop_cover") },
+            Triple(closeLabel, Icons.Default.ArrowDownward) { coverAction = "Close"; viewModel.controlCover(entity.entity_id, "close_cover") }
         )
         "climate" -> buildList {
             entity.hvacModes.ifEmpty { listOf("cool", "heat", "auto", "off") }.forEach { mode ->
-                add(Triple(climateModeLabel(mode), climateModeIcon(mode)) {
+                add(Triple(localizedHvacModeLabel(mode), climateModeIcon(mode)) {
                     climateMode = mode; viewModel.setHvacMode(entity.entity_id, mode)
                 })
             }
         }
         "vacuum" -> listOf(
-            Triple("Dock",   Icons.Default.Home)             { viewModel.vacuumCommand(entity.entity_id, "return_to_base") },
-            Triple("Start",  Icons.Default.PlayArrow)         { viewModel.vacuumCommand(entity.entity_id, "start") },
-            Triple("Pause",  Icons.Default.Pause)             { viewModel.vacuumCommand(entity.entity_id, "pause") },
-            Triple("Stop",   Icons.Default.Stop)              { viewModel.vacuumCommand(entity.entity_id, "stop") },
-            Triple("Locate", Icons.Default.LocationSearching) { viewModel.vacuumSendCommand(entity.entity_id, "locate") }
+            Triple(dockLabel, Icons.Default.Home) { viewModel.vacuumCommand(entity.entity_id, "return_to_base") },
+            Triple(startLabel, Icons.Default.PlayArrow) { viewModel.vacuumCommand(entity.entity_id, "start") },
+            Triple(pauseLabel, Icons.Default.Pause) { viewModel.vacuumCommand(entity.entity_id, "pause") },
+            Triple(stopLabel, Icons.Default.Stop) { viewModel.vacuumCommand(entity.entity_id, "stop") },
+            Triple(locateLabel, Icons.Default.LocationSearching) { viewModel.vacuumSendCommand(entity.entity_id, "locate") }
         )
         else -> emptyList()
     }
 
     val currentTab = when (domain) {
-        "light"   -> lightTab
-        "cover"   -> coverAction
-        "climate" -> climateModeLabel(climateMode)
-        "vacuum"  -> when (entity.state) { "cleaning" -> "Start"; "paused" -> "Pause"; "docked" -> "Dock"; "returning" -> "Dock"; else -> null }
+        "light" -> when (lightTab) {
+            "Bright" -> brightnessLabel
+            "Temp" -> temperatureLabel
+            "Color" -> colorLabel
+            "Effects" -> effectsLabel
+            else -> null
+        }
+        "cover" -> when (coverAction) {
+            "Open" -> openLabel
+            "Stop" -> stopLabel
+            "Close" -> closeLabel
+            else -> null
+        }
+        "climate" -> localizedHvacModeLabel(climateMode)
+        "vacuum" -> when (entity.state) {
+            "cleaning" -> startLabel
+            "paused" -> pauseLabel
+            "docked", "returning" -> dockLabel
+            else -> null
+        }
         else -> null
     }
 
@@ -189,7 +232,7 @@ fun UniversalStackDialog(
                     (slideOutHorizontally(tween(220)) { it * dir } + fadeOut(tween(150)))
                 },
                 modifier = Modifier.weight(1f).fillMaxWidth(),
-                label = "stack_page"
+                label = stringResource(R.string.ui_stack_page_3d91ce9)
             ) { pg ->
                 val liveEntity = allEntities.find { it.entity_id == entities[pg].entity_id } ?: entities[pg]
                 val d = liveEntity.entity_id.substringBefore(".")
@@ -233,13 +276,13 @@ private fun UniversalLightContent(entity: HAEntity, viewModel: MainViewModel, cu
     val appColors = LocalHKIAppColors.current
     if (!entity.supportsBrightness && currentTab !in setOf("Temp", "Color", "Effects")) {
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(if (entity.state == "on") "On" else "Off", color = appColors.onSurface, style = MaterialTheme.typography.headlineLarge)
+            Text(if (entity.state == "on") stringResource(R.string.ui_on_e0049a6) else stringResource(R.string.ui_off_e3de5ab), color = appColors.onSurface, style = MaterialTheme.typography.headlineLarge)
             Spacer(Modifier.height(24.dp))
             Box(Modifier.height(VerticalControlHeight).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 VerticalMasterSwitch(isOn = entity.state == "on", onToggle = { viewModel.toggleEntity(entity.entity_id) })
             }
             Spacer(Modifier.height(16.dp))
-            Text("SWITCH", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+            Text(stringResource(R.string.ui_switch_b02cbd9), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
         }
         return
     }
@@ -248,13 +291,13 @@ private fun UniversalLightContent(entity: HAEntity, viewModel: MainViewModel, cu
             var v by remember(entity.entity_id) { mutableFloatStateOf((entity.brightness ?: 0) / 255f) }
             LaunchedEffect(entity.brightness) { v = (entity.brightness ?: 0) / 255f }
             Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("${(v * 100).toInt()}%", color = appColors.onSurface, style = MaterialTheme.typography.displayMedium)
+                Text(stringResource(R.string.ui_text_fc9db15, (v * 100).toInt()), color = appColors.onSurface, style = MaterialTheme.typography.displayMedium)
                 Spacer(Modifier.height(24.dp))
                 Box(Modifier.height(VerticalControlHeight).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     VerticalSlider(v, { v = it; viewModel.setOptimisticBrightness(entity.entity_id, it) }, { viewModel.setBrightness(entity.entity_id, v) }, activeColor = Color(0xFFFFA500))
                 }
                 Spacer(Modifier.height(16.dp))
-                Text("BRIGHTNESS", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+                Text(stringResource(R.string.ui_brightness_8e06ad0), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
             }
         }
         "Temp" -> {
@@ -262,13 +305,13 @@ private fun UniversalLightContent(entity: HAEntity, viewModel: MainViewModel, cu
             var k by remember(entity.entity_id) { mutableFloatStateOf(entity.colorTempKelvin?.toFloat() ?: 3000f) }
             LaunchedEffect(entity.colorTempKelvin) { k = entity.colorTempKelvin?.toFloat() ?: 3000f }
             Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("${k.toInt()}K", color = appColors.onSurface, style = MaterialTheme.typography.displayMedium)
+                Text(stringResource(R.string.ui_k_df46805, k.toInt()), color = appColors.onSurface, style = MaterialTheme.typography.displayMedium)
                 Spacer(Modifier.height(24.dp))
                 Box(Modifier.height(VerticalControlHeight).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     VerticalSlider(((k - minK) / (maxK - minK)).coerceIn(0f, 1f), { k = minK + it * (maxK - minK) }, { viewModel.setColorTemp(entity.entity_id, k.toInt()) }, gradient = Brush.verticalGradient(listOf(Color(0xFFCCE6FF), Color(0xFFFFCC33))))
                 }
                 Spacer(Modifier.height(16.dp))
-                Text("TEMPERATURE", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+                Text(stringResource(R.string.ui_temperature_cc6906a), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
             }
         }
         "Color" -> {
@@ -290,9 +333,9 @@ private fun UniversalLightContent(entity: HAEntity, viewModel: MainViewModel, cu
         else -> {
             // Light is off and no control available
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Off", color = appColors.onMuted, style = MaterialTheme.typography.headlineLarge)
+                Text(stringResource(R.string.ui_off_e3de5ab), color = appColors.onMuted, style = MaterialTheme.typography.headlineLarge)
                 Spacer(Modifier.height(24.dp))
-                Button(onClick = { viewModel.toggleEntity(entity.entity_id) }) { Text("Turn On") }
+                Button(onClick = { viewModel.toggleEntity(entity.entity_id) }) { Text(stringResource(R.string.ui_turn_on_a5aa418)) }
             }
         }
     }
@@ -303,7 +346,7 @@ private fun UniversalLockContent(entity: HAEntity, viewModel: MainViewModel, doo
     val appColors = LocalHKIAppColors.current
     val isDoorOpen = doorEntity?.state == "on"
     val accentColor = when { isDoorOpen || entity.state == "open" -> LockRed; entity.state == "locked" -> LockGreen; else -> LockOrange }
-    val stateText = when { isDoorOpen || entity.state == "open" -> "Open"; entity.state == "locked" -> "Locked"; else -> "Unlocked" }
+    val stateText = when { isDoorOpen || entity.state == "open" -> stringResource(R.string.ui_open_cf9b770); entity.state == "locked" -> stringResource(R.string.ui_locked_a798882); else -> stringResource(R.string.ui_unlocked_b3da702) }
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(stateText, color = appColors.onSurface, style = MaterialTheme.typography.headlineLarge)
         Spacer(Modifier.height(24.dp))
@@ -311,7 +354,7 @@ private fun UniversalLockContent(entity: HAEntity, viewModel: MainViewModel, doo
             VerticalMasterSwitch(isOn = entity.state == "locked", onToggle = { viewModel.toggleLock(entity.entity_id) }, accentColor = accentColor, doorOpen = isDoorOpen)
         }
         Spacer(Modifier.height(16.dp))
-        Text("LOCK", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+        Text(stringResource(R.string.ui_lock_c37eb4c), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
     }
 }
 
@@ -325,7 +368,7 @@ private fun UniversalCoverContent(entity: HAEntity, viewModel: MainViewModel) {
     var localTilt by remember(entity.tiltPosition) { mutableFloatStateOf((entity.tiltPosition ?: 0) / 100f) }
     val accent = coverAccentColor(entity)
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("${(local * 100).toInt()}%", color = appColors.onSurface, style = MaterialTheme.typography.displayMedium)
+        Text(stringResource(R.string.ui_text_fc9db15, (local * 100).toInt()), color = appColors.onSurface, style = MaterialTheme.typography.displayMedium)
         Spacer(Modifier.height(24.dp))
         Box(Modifier.height(VerticalControlHeight).fillMaxWidth(), contentAlignment = Alignment.Center) {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -348,8 +391,8 @@ private fun UniversalCoverContent(entity: HAEntity, viewModel: MainViewModel) {
         }
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(if (hasTilt) 44.dp else 0.dp)) {
-            Text("POSITION", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
-            if (hasTilt) Text("TILT", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+            Text(stringResource(R.string.ui_position_d0b0314), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+            if (hasTilt) Text(stringResource(R.string.ui_tilt_aceae6f), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
         }
     }
 }
@@ -377,7 +420,7 @@ private fun UniversalClimateContent(entity: HAEntity, viewModel: MainViewModel, 
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = if (showModes) "Modes" else "${"%.1f".format(local)}°",
+            text = if (showModes) stringResource(R.string.ui_modes_79f5b22) else stringResource(R.string.ui_text_7f1f581, "%.1f".format(local)),
             color = appColors.onSurface,
             style = if (showModes) MaterialTheme.typography.displayMedium else MaterialTheme.typography.headlineLarge
         )
@@ -395,7 +438,7 @@ private fun UniversalClimateContent(entity: HAEntity, viewModel: MainViewModel, 
             }
         }
         Spacer(Modifier.height(16.dp))
-        Text(if (showModes) "MODES" else "TARGET", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+        Text(if (showModes) stringResource(R.string.ui_modes_6fc3ca8) else stringResource(R.string.ui_target_f762108), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
         ClimateModesButton(entity, onClick = { onToggleModes(!showModes) }, selected = showModes)
     }
 }
@@ -434,7 +477,7 @@ private fun UniversalVacuumContent(entity: HAEntity, config: HKIButtonConfig?, a
                 )
             } else {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No map camera\nconfigured", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
+                    Text(stringResource(R.string.ui_no_map_camera_configured_d72057b), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
                 }
             }
         }
@@ -455,9 +498,13 @@ private fun UniversalVacuumContent(entity: HAEntity, config: HKIButtonConfig?, a
                 }
             }
         }
-        val rooms = remember(entity) {
+        val roomNumberFormat = stringResource(R.string.universal_room_number)
+        val rooms = remember(entity, roomNumberFormat) {
             ((entity.attributes?.get("rooms") as? JsonObject)?.entries.orEmpty()).mapNotNull { (id, name) ->
-                id.toIntOrNull()?.let { it to (name.jsonPrimitive.contentOrNull ?: "Room $id") }
+                id.toIntOrNull()?.let {
+                    it to (name.jsonPrimitive.contentOrNull
+                        ?: roomNumberFormat.format(id))
+                }
             }
         }
         if (rooms.isNotEmpty()) {
@@ -467,7 +514,7 @@ private fun UniversalVacuumContent(entity: HAEntity, config: HKIButtonConfig?, a
                     FilterChip(selected = id in selected, onClick = { if (id in selected) selected.remove(id) else selected.add(id) }, label = { Text(name, fontSize = 11.sp) })
                 }
                 if (selected.isNotEmpty()) item {
-                    Button(onClick = { viewModel.vacuumCleanSegments(entity.entity_id, selected.toList()); selected.clear() }) { Text("Clean rooms") }
+                    Button(onClick = { viewModel.vacuumCleanSegments(entity.entity_id, selected.toList()); selected.clear() }) { Text(stringResource(R.string.ui_clean_rooms_4dc67ab)) }
                 }
             }
         }
@@ -475,7 +522,7 @@ private fun UniversalVacuumContent(entity: HAEntity, config: HKIButtonConfig?, a
             TextButton(onClick = {
                 val domain = empty.entity_id.substringBefore('.')
                 viewModel.callService(domain, if (domain == "button") "press" else "turn_on", HAServiceCall(empty.entity_id))
-            }) { Text("Empty bin") }
+            }) { Text(stringResource(R.string.ui_empty_bin_0cbe2d7)) }
         }
     }
 }
@@ -484,13 +531,13 @@ private fun UniversalVacuumContent(entity: HAEntity, config: HKIButtonConfig?, a
 private fun UniversalSwitchContent(entity: HAEntity, viewModel: MainViewModel) {
     val appColors = LocalHKIAppColors.current
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(if (entity.state == "on") "On" else "Off", color = appColors.onSurface, style = MaterialTheme.typography.headlineLarge)
+        Text(if (entity.state == "on") stringResource(R.string.ui_on_e0049a6) else stringResource(R.string.ui_off_e3de5ab), color = appColors.onSurface, style = MaterialTheme.typography.headlineLarge)
         Spacer(Modifier.height(24.dp))
         Box(Modifier.height(VerticalControlHeight).fillMaxWidth(), contentAlignment = Alignment.Center) {
             VerticalMasterSwitch(isOn = entity.state == "on", onToggle = { viewModel.toggleEntity(entity.entity_id) })
         }
         Spacer(Modifier.height(16.dp))
-        Text("SWITCH", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+        Text(stringResource(R.string.ui_switch_b02cbd9), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
     }
 }
 
@@ -502,7 +549,7 @@ private fun UniversalCameraContent(entity: HAEntity, currentUrl: String) {
         AsyncImage(model = streamUrl, contentDescription = null, contentScale = ContentScale.Fit,
             modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f).clip(RoundedCornerShape(20.dp)))
     } else {
-        Text("No stream available", color = appColors.onMuted)
+        Text(stringResource(R.string.ui_no_stream_available_0535c4e), color = appColors.onMuted)
     }
 }
 

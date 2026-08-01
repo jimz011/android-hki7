@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="background_notification_channel_general">General</string>
+    <string name="background_location_channel_name">Compartir ubicación</string>
+    <string name="background_location_channel_description">Mantiene actualizada la ubicación de tu dispositivo en Home Assistant</string>
+    <string name="background_location_notification_title">Ubicación compartida con Home Assistant</string>
+    <string name="background_location_notification_text">Tu ubicación se está compartiendo con Home Assistant</string>
+    <string name="background_push_channel_name">Conexión de notificaciones</string>
+    <string name="background_push_channel_description">Mantiene una conexión en segundo plano con Home Assistant para recibir notificaciones al instante</string>
+    <string name="background_push_notification_title">Conectado a Home Assistant</string>
+    <string name="background_push_notification_text">Esperando notificaciones</string>
+</resources>

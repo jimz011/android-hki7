@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cr_state_on">Aan</string>
+    <string name="cr_state_off">Uit</string>
+    <string name="cr_open">Openen</string>
+    <string name="cr_close">Sluiten</string>
+    <string name="cr_stop">Stoppen</string>
+    <string name="cr_closed">Gesloten</string>
+    <string name="cr_opening">Wordt geopend</string>
+    <string name="cr_closing">Wordt gesloten</string>
+    <string name="cr_locked">Vergrendeld</string>
+    <string name="cr_unlocked">Ontgrendeld</string>
+    <string name="cr_unavailable">Niet beschikbaar</string>
+    <string name="cr_unknown">Onbekend</string>
+    <string name="cr_idle">Inactief</string>
+    <string name="cr_home">Thuis</string>
+    <string name="cr_away">Afwezig</string>
+    <string name="cr_cleaning">Aan het schoonmaken</string>
+    <string name="cr_returning">Keert terug</string>
+    <string name="cr_paused">Gepauzeerd</string>
+    <string name="cr_error">Fout</string>
+    <string name="cr_playing">Speelt af</string>
+    <string name="cr_buffering">Aan het bufferen</string>
+    <string name="cr_standby">Stand-by</string>
+    <string name="cr_humidifying">Aan het bevochtigen</string>
+    <string name="cr_drying">Aan het ontvochtigen</string>
+    <string name="cr_detected">Gedetecteerd</string>
+    <string name="cr_clear">Vrij</string>
+    <string name="cr_problem">Probleem</string>
+    <string name="cr_ok">In orde</string>
+    <string name="cr_low">Laag</string>
+    <string name="cr_normal">Normaal</string>
+    <string name="cr_connected">Verbonden</string>
+    <string name="cr_disconnected">Niet verbonden</string>
+    <string name="cr_plugged_in">Aangesloten</string>
+    <string name="cr_unplugged">Niet aangesloten</string>
+    <string name="cr_wet">Nat</string>
+    <string name="cr_dry">Droog</string>
+    <string name="cr_none">Geen</string>
+    <string name="cr_any">Onbeperkt</string>
+    <string name="cr_remove">Verwijderen</string>
+    <string name="cr_restore">Herstellen</string>
+    <string name="cr_general">Algemeen</string>
+    <string name="cr_identity">Naam en pictogram</string>
+    <string name="cr_appearance">Weergave</string>
+    <string name="cr_layout">Indeling</string>
+    <string name="cr_behavior">Gedrag</string>
+    <string name="cr_profiles">Profielen</string>
+    <string name="cr_playback">Afspelen</string>
+    <string name="cr_content">Inhoud</string>
+    <string name="cr_actions">Acties</string>
+    <string name="cr_protection">Beveiliging</string>
+    <string name="cr_power">Aan/uit</string>
+    <string name="cr_brightness">Helderheid</string>
+    <string name="cr_temperature">Temperatuur</string>
+    <string name="cr_color">Kleur</string>
+    <string name="cr_min">Min.</string>
+    <string name="cr_avg">Gem.</string>
+    <string name="cr_max">Max.</string>
+    <string name="cr_now">Nu</string>
+    <string name="cr_lowest">Laagste</string>
+    <string name="cr_average">Gemiddeld</string>
+    <string name="cr_highest">Hoogste</string>
+    <string name="cr_live">Live</string>
+    <string name="cr_once">Eenmalig</string>
+    <string name="cr_daily">Dagelijks</string>
+    <string name="cr_weekly">Wekelijks</string>
+    <string name="cr_monthly">Maandelijks</string>
+    <string name="cr_yearly">Jaarlijks</string>
+    <string name="cr_action_tap">Tikken</string>
+    <string name="cr_action_double_tap">Dubbeltikken</string>
+    <string name="cr_action_hold">Ingedrukt houden</string>
+
+    <string name="cr_mode">Modus</string>
+    <string name="cr_mode_auto">Automatisch</string>
+    <string name="cr_mode_heat">Verwarmen</string>
+    <string name="cr_mode_cool">Koelen</string>
+    <string name="cr_mode_heat_cool">Verwarmen/koelen</string>
+    <string name="cr_mode_dry">Ontvochtigen</string>
+    <string name="cr_mode_fan_only">Alleen ventileren</string>
+    <string name="cr_mode_low">Laag</string>
+    <string name="cr_mode_medium">Gemiddeld</string>
+    <string name="cr_mode_high">Hoog</string>
+    <string name="cr_mode_quiet">Stil</string>
+    <string name="cr_mode_boost">Boost</string>
+    <string name="cr_mode_eco">Eco</string>
+    <string name="cr_mode_sleep">Slaapstand</string>
+    <string name="cr_mode_manual">Handmatig</string>
+    <string name="cr_mode_vertical">Verticaal</string>
+    <string name="cr_mode_horizontal">Horizontaal</string>
+    <string name="cr_mode_both">Beide</string>
+    <string name="cr_mode_up">Omhoog</string>
+    <string name="cr_mode_down">Omlaag</string>
+    <string name="cr_mode_center">Midden</string>
+    <string name="cr_mode_left">Links</string>
+    <string name="cr_mode_right">Rechts</string>
+    <string name="cr_climate_fan">Ventilator</string>
+    <string name="cr_climate_vertical_airflow">Verticale luchtstroom</string>
+    <string name="cr_climate_horizontal_airflow">Horizontale luchtstroom</string>
+    <string name="cr_climate_preset">Voorkeuze</string>
+    <string name="cr_fan_speed">Ventilatorsnelheid</string>
+    <string name="cr_speed">Snelheid</string>
+    <string name="cr_lower_target">Doelwaarde verlagen</string>
+    <string name="cr_raise_target">Doelwaarde verhogen</string>
+
+    <string name="cr_climate_temperature">Temperatuur</string>
+    <string name="cr_climate_all_temperature_sensors">Alle temperatuursensoren</string>
+    <string name="cr_climate_outside">Buiten</string>
+    <string name="cr_climate_outside_summary">Buitentemperatuur, luchtvochtigheid en luchtdruk</string>
+    <string name="cr_climate_humidity">Luchtvochtigheid</string>
+    <string name="cr_climate_all_humidity_sensors">Alle luchtvochtigheidssensoren</string>
+    <string name="cr_climate_air_pressure">Luchtdruk</string>
+    <string name="cr_climate_all_pressure_sensors">Alle luchtdruksensoren</string>
+    <string name="cr_climate_co2">CO₂</string>
+    <string name="cr_climate_carbon_dioxide_sensors">Koolstofdioxidesensoren</string>
+    <string name="cr_climate_air_quality">Luchtkwaliteit</string>
+    <string name="cr_climate_air_quality_summary">Fijnstof, LKI, VOS en gassen</string>
+    <string name="cr_climate_entities">Klimaatentiteiten</string>
+    <string name="cr_reimport">Opnieuw importeren</string>
+    <string name="cr_climate_settings">Klimaatinstellingen</string>
+    <string name="cr_empty_climate_view">Er zijn nog geen klimaatgegevens beschikbaar.</string>
+    <string name="cr_climate_fans">Ventilatoren</string>
+    <string name="cr_climate_air_purifiers">Luchtreinigers</string>
+    <string name="cr_climate_humidifiers">Luchtbevochtigers</string>
+    <string name="cr_temperature_sensors">Temperatuursensoren</string>
+    <string name="cr_devices_active">Actieve apparaten</string>
+    <string name="cr_active_of_total">%1$d van %2$d actief</string>
+    <string name="cr_no_search_active">Geen zoekopdracht · %1$s</string>
+    <string name="cr_collapse_search">Zoeken inklappen</string>
+    <string name="cr_expand_search">Zoeken uitklappen</string>
+    <string name="cr_custom_order">Eigen volgorde</string>
+    <string name="cr_name_a_z">Naam A–Z</string>
+    <string name="cr_name_z_a">Naam Z–A</string>
+    <string name="cr_climate_device">Klimaatapparaat</string>
+    <string name="cr_climate_device_subtitle">Naam, pictogram, kaartstijl en breedte</string>
+    <string name="cr_count_with_average">%1$s · gem. %2$s%3$s</string>
+    <string name="cr_outside_temperature">Buitentemperatuur</string>
+    <string name="cr_outside_humidity">Luchtvochtigheid buiten</string>
+    <string name="cr_outside_pressure">Luchtdruk buiten</string>
+    <string name="cr_outside_air_pressure">Luchtdruk buiten</string>
+    <string name="cr_no_sensors_found_for">Geen sensoren voor %1$s gevonden.</string>
+    <string name="cr_climate_control">Klimaatbediening</string>
+    <string name="cr_thermostat_dial">Thermostaatknop</string>
+    <string name="cr_width_third">Een derde</string>
+    <string name="cr_width_half">Half</string>
+    <string name="cr_width_full">Volledig</string>
+    <string name="cr_select_item">%1$s kiezen</string>
+    <string name="cr_set_outdoor_sensors">Stel de buitentemperatuur, luchtvochtigheid en luchtdruk in</string>
+    <string name="cr_auto_discovered_device_class">Automatisch gevonden op basis van apparaatklasse</string>
+    <string name="cr_auto_discovered_climate_devices">Klimaatapparaten worden automatisch gevonden</string>
+    <string name="cr_pick_fan_entities_as_purifiers">Kies ventilatorentiteiten die je als luchtreiniger wilt gebruiken</string>
+    <string name="cr_auto_discovered_humidifier_devices">Luchtbevochtigers worden automatisch gevonden</string>
+    <string name="cr_removed_entities">Verwijderde entiteiten</string>
+    <string name="cr_entities_removed_edit_mode">Entiteiten die je in de bewerkmodus hebt verwijderd</string>
+    <string name="cr_card_indoor_climate_overview">Overzicht binnenklimaat</string>
+    <string name="cr_card_sensor_device_tiles">Sensor- en apparaattegels</string>
+    <string name="cr_card_thermostats_ac">Thermostaten en airco’s</string>
+    <string name="cr_card_temperature_summary">Temperatuuroverzicht</string>
+    <string name="cr_card_humidity_summary">Overzicht luchtvochtigheid</string>
+    <string name="cr_card_air_pressure_summary">Luchtdrukoverzicht</string>
+    <string name="cr_card_co2_summary">CO₂-overzicht</string>
+    <string name="cr_card_air_quality_summary">Overzicht luchtkwaliteit</string>
+    <string name="cr_category_overview">Overzicht</string>
+    <string name="cr_category_devices">Apparaten</string>
+    <string name="cr_category_sensors">Sensoren</string>
+    <string name="cr_no_climate_sensors_devices">Geen klimaatsensoren of -apparaten gevonden.</string>
+    <string name="cr_no_climate_devices">Geen klimaatapparaten gevonden. Thermostaten en airco’s uit Home Assistant verschijnen hier automatisch.</string>
+    <string name="cr_no_fans">Geen ventilatoren gevonden. Ventilatorentiteiten uit Home Assistant verschijnen hier automatisch.</string>
+    <string name="cr_no_air_purifiers">Geen luchtreinigers ingesteld. Kies ventilatorentiteiten via Klimaatinstellingen → Klimaatentiteiten → Luchtreinigers.</string>
+    <string name="cr_no_humidifiers">Geen luchtbevochtigers gevonden. Luchtbevochtigers uit Home Assistant verschijnen hier automatisch.</string>
+    <string name="cr_unknown_climate_card">Onbekende klimaatkaart: %1$s</string>
+    <string name="cr_select_climate_cards">Klimaatkaarten kiezen</string>
+    <string name="cr_entities_for">Entiteiten voor %1$s</string>
+    <string name="cr_climate_card">Klimaatkaart</string>
+    <string name="cr_climate_card_dialog_subtitle">Gegevensbronnen en kaartweergave</string>
+    <string name="cr_card_and_data">Kaart en gegevens</string>
+    <string name="cr_climate_stack">Klimaatstapel</string>
+    <string name="cr_climate_stack_dialog_subtitle">Kaarten, gegevensbronnen en indeling</string>
+    <string name="cr_cards_and_data">Kaarten en gegevens</string>
+
+    <plurals name="cr_sensor_count">
+        <item quantity="one">%d sensor</item>
+        <item quantity="other">%d sensoren</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="one">%1$d apparaat · %2$d aan</item>
+        <item quantity="other">%1$d apparaten · %2$d aan</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="one">%d buitensensor ingesteld</item>
+        <item quantity="other">%d buitensensoren ingesteld</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="one">Automatisch + %d handmatig</item>
+        <item quantity="other">Automatisch + %d handmatig</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="one">%d geselecteerd</item>
+        <item quantity="other">%d geselecteerd</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="one">%d verwijderd</item>
+        <item quantity="other">%d verwijderd</item>
+    </plurals>
+
+    <string name="cr_room">Kamer</string>
+    <string name="cr_room_details">Kamerdetails</string>
+    <string name="cr_empty_room">Deze kamer is nog leeg. Veeg de kop omlaag, schakel de bewerkmodus in en voeg widgets, knoppen of tegels toe.</string>
+    <string name="cr_default_markdown_content"># Markdown\nOpen deze widget in de **bewerkmodus** om je eigen inhoud te schrijven.</string>
+    <string name="cr_select_camera">Camera kiezen</string>
+    <string name="cr_select_entity">Entiteit kiezen</string>
+    <string name="cr_custom_camera">Aangepaste camera</string>
+    <string name="cr_configure_widget">Widget instellen</string>
+    <string name="cr_configure_widget_subtitle">Stel eerst de belangrijkste opties in</string>
+    <string name="cr_widget_options">Widgetopties</string>
+    <string name="cr_widget_options_subtitle">Kies wat deze widget moet weergeven</string>
+    <string name="cr_add_widget">Widget toevoegen</string>
+    <string name="cr_add_widget_subtitle">Blader per functie of doorzoek alle widgets</string>
+    <string name="cr_category_with_options">%1$s · %2$s</string>
+    <string name="cr_widget_category_controls">Bediening</string>
+    <string name="cr_widget_category_controls_description">Knoppen, robotstofzuigers en gegroepeerde bediening</string>
+    <string name="cr_widget_category_cameras">Camera’s</string>
+    <string name="cr_widget_category_cameras_description">Live camerategels en weergaven met meerdere camera’s</string>
+    <string name="cr_widget_category_climate">Klimaat en weer</string>
+    <string name="cr_widget_category_climate_description">Temperatuur, comfort, verwachtingen en omstandigheden</string>
+    <string name="cr_widget_category_energy">Energie en batterijen</string>
+    <string name="cr_widget_category_energy_description">Verbruik, opwekking en apparaatstatus</string>
+    <string name="cr_widget_category_information">Informatie en media</string>
+    <string name="cr_widget_category_information_description">Agenda’s, bezorgingen, grafieken, notities en media</string>
+    <string name="cr_widget_category_layout">Indeling en structuur</string>
+    <string name="cr_widget_category_layout_description">Koppen en flexibele widgetcontainers</string>
+    <string name="cr_widget_adaptive_lighting">Adaptive Lighting</string>
+    <string name="cr_widget_adaptive_lighting_description">Bedien elk geïnstalleerd Adaptive Lighting-profiel</string>
+    <string name="cr_widget_button">Knop</string>
+    <string name="cr_widget_button_description">Eén instelbare bediening voor een entiteit</string>
+    <string name="cr_widget_buttons">Knoppen</string>
+    <string name="cr_widget_calendar">Agenda</string>
+    <string name="cr_widget_calendar_description">Agenda-, week- en maandweergaven uit Home Assistant-agenda’s</string>
+    <string name="cr_widget_waste_collection">Afvalinzameling</string>
+    <string name="cr_widget_waste_collection_description">Aankomende inzamelingen uit afvalsensoren</string>
+    <string name="cr_widget_parcels">Pakketten</string>
+    <string name="cr_widget_parcels_description">Inkomende en uitgaande pakketten van ondersteunde vervoerders</string>
+    <string name="cr_widget_camera">Camera</string>
+    <string name="cr_widget_camera_description">Eén live camerategel of stream-URL</string>
+    <string name="cr_widget_cameras">Camera’s</string>
+    <string name="cr_widget_climate_card">Klimaatkaart</string>
+    <string name="cr_widget_climate_card_description">Een kaart uit de klimaatweergave</string>
+    <string name="cr_widget_energy_card">Energiekaart</string>
+    <string name="cr_widget_energy_card_description">Een kaart uit de energieweergave</string>
+    <string name="cr_widget_battery_levels">Batterijniveaus</string>
+    <string name="cr_widget_battery_levels_description">Lege batterijen, of alleen Battery+ met typedetails</string>
+    <string name="cr_widget_header_text">Koptekst</string>
+    <string name="cr_widget_header_text_description">Voeg een sectiekop toe</string>
+    <string name="cr_widget_markdown">Markdown</string>
+    <string name="cr_widget_markdown_description">Een vrij opgemaakte kaart in Markdown</string>
+    <string name="cr_widget_iframe">iFrame</string>
+    <string name="cr_widget_iframe_description">Sluit een webpagina in op je dashboard</string>
+    <string name="cr_widget_media_player">Mediaspeler</string>
+    <string name="cr_widget_media_player_description">Tegel voor wat er nu speelt, met albumhoes als achtergrond</string>
+    <string name="cr_widget_sensor_graph">Sensorgrafiek</string>
+    <string name="cr_widget_sensor_graph_description">Historiegrafiek voor een of meer sensoren, als lijnen of balken</string>
+    <string name="cr_widget_vacuum">Robotstofzuiger</string>
+    <string name="cr_widget_vacuum_description">Bediening voor één robotstofzuiger</string>
+    <string name="cr_widget_weather">Weer</string>
+    <string name="cr_widget_weather_description">Eén weerkaart</string>
+    <string name="cr_widget_empty_stack">Lege stapel</string>
+    <string name="cr_widget_empty_stack_description">Plaats widgets in een instelbare stapel</string>
+    <string name="cr_widget_button_stack">Knoppenstapel</string>
+    <string name="cr_widget_button_stack_description">Groepeer entiteiten tot instelbare bediening</string>
+    <string name="cr_widget_camera_stack">Camerastapel</string>
+    <string name="cr_widget_camera_stack_description">Toon live camerategels of een aangepaste stream-URL</string>
+    <string name="cr_widget_climate_stack">Klimaatstapel</string>
+    <string name="cr_widget_climate_stack_description">Groepeer klimaatkaarten, zoals overzicht, thermostaten en sensoren</string>
+    <string name="cr_widget_energy_stack">Energiestapel</string>
+    <string name="cr_widget_energy_stack_description">Groepeer energiekaarten, zoals verbruik, zon, gas en water</string>
+    <string name="cr_widget_sensor_graph_stack">Sensorgrafiekstapel</string>
+    <string name="cr_widget_sensor_graph_stack_description">Groepeer meerdere sensorhistoriegrafieken</string>
+    <string name="cr_widget_swiping_stack">Veegstapel</string>
+    <string name="cr_widget_swiping_stack_description">Veeg horizontaal door geneste widgets</string>
+    <string name="cr_widget_vacuum_stack">Robotstofzuigerstapel</string>
+    <string name="cr_widget_vacuum_stack_description">Bedien robotstofzuigers met kaart en batterijstatus</string>
+    <string name="cr_widget_weather_stack">Weerstapel</string>
+    <string name="cr_widget_weather_stack_description">Groepeer kaarten voor omstandigheden, verwachting, wind of regenradar</string>
+    <string name="cr_camera_settings">Camera-instellingen</string>
+    <string name="cr_vacuum_settings">Instellingen robotstofzuiger</string>
+    <string name="cr_button_settings">Knopinstellingen</string>
+    <string name="cr_robot_image">Afbeelding robot</string>
+    <string name="cr_map_camera">Kaartcamera</string>
+    <string name="cr_external_url">Externe URL</string>
+    <string name="cr_animation_glow">Gloeien</string>
+    <string name="cr_animation_spin">Draaien</string>
+    <string name="cr_animation_pulse">Pulseren</string>
+    <string name="cr_adaptive_lighting_widget">Adaptive Lighting-widget</string>
+    <string name="cr_adaptive_lighting_widget_subtitle">Profielen, formaat en weergave</string>
+    <string name="cr_button_stack_dialog_subtitle">Indeling, weergave en volgorde van entiteiten</string>
+    <string name="cr_expand_stack">Stapel uitklappen</string>
+    <string name="cr_collapse_stack">Stapel inklappen</string>
+    <string name="cr_hide_stack">Stapel verbergen</string>
+    <string name="cr_unhide_stack">Stapel weergeven</string>
+    <string name="cr_swiping_stack_dialog_subtitle">Pagina’s, hoogte en kaartweergave</string>
+    <string name="cr_empty_stack_dialog_subtitle">Indeling en weergave van de container</string>
+    <string name="cr_header_text_dialog_subtitle">Inhoud en weergave van de kop</string>
+    <string name="cr_animation_swipe">Vegen</string>
+    <string name="cr_animation_fade">Vervagen</string>
+    <string name="cr_animation_zoom">Zoomen</string>
+    <string name="cr_animation_slide_fade">Schuiven + vervagen</string>
+    <string name="cr_animation_cube">Kubus</string>
+    <string name="cr_animation_instant">Direct</string>
+    <string name="cr_paged_status">%1$d/%2$d · %3$s</string>
+    <string name="cr_cover_status">%1$d%% · %2$s</string>
+    <string name="cr_paged_cover_status">%1$d/%2$d · %3$d%% · %4$s</string>
+
+    <plurals name="cr_widget_option_count">
+        <item quantity="one">%d optie</item>
+        <item quantity="other">%d opties</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="one">%d ingestelde lamp</item>
+        <item quantity="other">%d ingestelde lampen</item>
+    </plurals>
+
+    <string name="cr_quick_notifications">Meldingen</string>
+    <string name="cr_quick_notifications_instruction">Veeg vanaf de linkerbovenrand naar rechts.</string>
+    <string name="cr_quick_switch_homes">Van woning wisselen</string>
+    <string name="cr_quick_switch_homes_instruction">Veeg vanaf de rechterbovenrand van de kop naar links.</string>
+    <string name="cr_quick_actions">Snelle acties</string>
+    <string name="cr_quick_actions_instruction">Trek de kop van een pagina omlaag voor Zoeken, Flows, Bewerken en Instellingen.</string>
+    <string name="cr_quick_media_player">Mediaspeler</string>
+    <string name="cr_quick_media_player_instruction">Veeg de onderste balk omhoog zodra de greep verschijnt om de speler terug te halen.</string>
+    <string name="cr_quick_make_it_yours">Maak het van jou</string>
+    <string name="cr_quick_make_it_yours_instruction">Voeg in de bewerkmodus kamers, verdiepingen en widgets toe of wijzig hun volgorde. Tik op een onderdeel om het in te stellen.</string>
+
+    <string-array name="cr_whats_new_beta_10">
+        <item>PostNL en de parser voor de huidige pakkettenintegratie zijn hersteld. Inkomende zendingen tonen weer alle track-en-tracegegevens en de juiste bezorgstatus. Ook de ondersteuning voor vervoerders is bijgewerkt.</item>
+        <item>Je kunt nu in de app een taal kiezen. Nederlands, Duits, Frans, Spaans, Italiaans en Turks worden breed ondersteund. De Nederlandse teksten zijn bovendien grondig herschreven.</item>
+        <item>De verbindingsmelding toont nu de echte fout tijdens het opnieuw verbinden. Daardoor zijn wisselingen tussen wifi, mobiele data en VPN veel makkelijker te beoordelen.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_9">
+        <item>Versleep camera’s, thermostaten en energiekaarten om hun volgorde te wijzigen. In de bewerkmodus hebben Beveiliging, Klimaat en Energie elk een knop Opnieuw ordenen.</item>
+        <item>Nieuwe tegel Buiten in Klimaat. Koppel een weerentiteit of buitensensoren voor temperatuur, luchtvochtigheid en luchtdruk en open de tegel voor afzonderlijke historiegrafieken.</item>
+        <item>Zichtbaarheid stel je nu per knop en kopbadge in. Verberg een onderdeel of plan het eenmalig, dagelijks, wekelijks, maandelijks of jaarlijks.</item>
+        <item>Je kunt kopbadges nu een eigen naam geven via Weergave.</item>
+        <item>Veegkaarten spelen standaard automatisch af en gaan elke drie seconden verder.</item>
+        <item>Het Weer-dialoogvenster speelt Seizoen automatisch af en voegt kaarten voor een windroos en een optionele regenradar toe.</item>
+        <item>De Pakketten-widget is opnieuw opgebouwd rond vervoerders, met logo’s, totalen, zendingsoverzichten, bezorgverwachtingen, track-en-tracehistorie en waar mogelijk toevoegen op zendingsnummer.</item>
+        <item>Luchtbevochtigers en ontvochtigers hebben nu overal eigen bediening voor voeding, luchtvochtigheid, modus, snelheid en hulpfuncties.</item>
+        <item>Kamerstatussen zijn interactief en openen de entiteiten achter een teller.</item>
+        <item>Knoppen en badges kunnen een live aftelling tonen op basis van een entiteit met eindtijd.</item>
+        <item>Gedeelde dashboards publiceren wijzigingen van de eigenaar automatisch en ontvangers krijgen ze bij de volgende synchronisatie.</item>
+        <item>Instellingen voor de kop horen nu bij het dashboard en gaan mee met back-ups en Delen met gezin.</item>
+        <item>Camerawidgets vullen de hele tegel en volgen de ingestelde hoekafronding.</item>
+        <item>Afvalinzamelingen op dezelfde dag blijven zichtbaar door overlappende pictogrammen. Het grotere venster sluit door erbuiten te tikken.</item>
+        <item>De weergave van Batterij, Afval, camera, weer en Over is consistenter gemaakt.</item>
+        <item>Binaire sensoren gebruiken Home Assistant-termen zoals Open/Gesloten, Nat/Droog, Gedetecteerd/Vrij en Verbonden/Niet verbonden.</item>
+        <item>Bewerkers met alleen vormgevingsrechten kunnen bestaande badges aanpassen, maar niet toevoegen, verwijderen of opnieuw instellen.</item>
+        <item>Netwerkwisselingen zijn hersteld: verbindingen op het oude Android-netwerk worden gesloten en de opgeslagen Home Assistant-sessie verbindt opnieuw zonder onnodig inloggen. De verbindingsmelding toont ook de echte fout.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_8">
+        <item>Kindersloten worden niet meer automatisch als kamerbediening geïmporteerd.</item>
+        <item>Alle knoppen en badges gebruiken nu het pictogram dat je in Home Assistant hebt ingesteld.</item>
+        <item>Robotstofzuigers verschijnen nu in de badgebalk van een kamer en openen hun bediening wanneer je erop tikt.</item>
+        <item>Afzonderlijke knoppen in widgets met meerdere onderdelen kunnen worden verborgen of gepland, ook met jaarlijks terugkerende datumbereiken.</item>
+        <item>Meerdere camerabadges openen nu één veegbaar venster met navigatie op volledig scherm.</item>
+        <item>Delen met gezin toont gepubliceerde dashboards uit de cloud, zodat je ze na een herinstallatie kunt importeren, opnieuw delen of verwijderen.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_7">
+        <item>De automatische kamerimport slaat ingebouwde hulpbediening over, maar behoudt echte extra bediening.</item>
+        <item>Klimaatapparaten van verschillende integraties worden niet meer samengevoegd.</item>
+        <item>Pictogrammen voor airco’s, bevochtigers, ontvochtigers en luchtreinigers passen nu bij het apparaat.</item>
+        <item>Pictogrammen van luchtreinigers en bevochtigers pulseren rustig in plaats van te draaien.</item>
+        <item>Deursloten gebruiken nu pictogrammen van een gesloten of geopende deur.</item>
+        <item>Badges met meerdere apparaten kunnen opnieuw worden geordend om de leidende entiteit te kiezen.</item>
+        <item>Geanimeerde pictogrameffecten staan bij nieuwe installaties standaard aan.</item>
+        <item>Knoppen en badges kunnen een attribuut en optionele eenheid tonen in plaats van de status.</item>
+        <item>Je kunt dashboards nu kopiëren met alle kamers, widgets en pagina-instellingen.</item>
+        <item>Delen met gezin bundelt ouderlijk toezicht, dashboarddeling en rechten per gebruiker.</item>
+        <item>Gedeelde dashboards worden automatisch bijgewerkt, terwijl toegestane lokale vormgevingswijzigingen behouden blijven.</item>
+        <item>Gezinsleden zonder beheerdersrechten kunnen automatische Adaptive Lighting-bediening per kamer gebruiken met de HKI 7 Cloud-component.</item>
+        <item>Onleesbare kop- en uitklapteksten in de lichte modus en bij aangepaste vormgeving zijn hersteld.</item>
+        <item>Over bevat nu de knoppen Wat is er nieuw en Volledig wijzigingsoverzicht.</item>
+        <item>Het scherm Kan niet verbinden verschijnt nu betrouwbaar wanneer Home Assistant niet bereikbaar is.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_6">
+        <item>Actiebalken in de bewerkmodus overlappen de Android-navigatie met drie knoppen niet meer.</item>
+        <item>Back-up en herstel toont nu wanneer elke automatische cloudback-up voor het laatst is uitgevoerd.</item>
+        <item>Elke cloudback-up heeft nu een knop Nu back-up maken.</item>
+        <item>Het te grote app-pictogram na de update voor themapictogrammen is hersteld.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_4_to_5">
+        <item>Back-up en herstel toont nu wanneer elke automatische cloudback-up voor het laatst is uitgevoerd.</item>
+        <item>Elke cloudback-up heeft nu een knop Nu back-up maken.</item>
+        <item>Het te grote app-pictogram na de update voor themapictogrammen is hersteld.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_3">
+        <item>Simple Icons, Tabler en Phosphor zijn toegevoegd naast Material Design Icons.</item>
+        <item>Entiteitspictogrammen kunnen nu gloeien, draaien of pulseren wanneer ze actief zijn.</item>
+        <item>Beheerders kunnen dashboards delen met gezinsleden.*</item>
+        <item>Ouderlijk toezicht kan bepaalde weergaven en kamers voor personen verbergen.*</item>
+        <item>Dagelijkse automatische back-up naar je eigen Home Assistant is toegevoegd.*</item>
+        <item>Pictogrammen van mediabronnen hebben kleur en kunnen de bijbehorende app openen.</item>
+        <item>Nieuwe iFrame-widget om webpagina’s in te sluiten.</item>
+        <item>Energie toont nu negatieve waarden wanneer je stroom teruglevert.</item>
+        <item>Onboarding wordt niet meer voltooid wanneer je de app verlaat voordat je klaar bent.</item>
+        <item>De modusknop van de thermostaatknop overlapt omliggende onderdelen niet meer.</item>
+        <item>Veel kleinere fouten opgelost.</item>
+        <item>* HKI 7 Cloud Component-integratie vereist.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_2">
+        <item>Indelingen op korte en smalle schermen zijn verbeterd, met overal een terugval naar één kolom.</item>
+        <item>Koppen van dialoogvensters gebruiken op smalle schermen twee regels, zodat titels niet meer worden afgekapt.</item>
+        <item>Overlappende Adaptive Lighting-schuifregelaars zijn hersteld.</item>
+        <item>Navigatiebalken geven nu aan wanneer buiten beeld meer onderdelen beschikbaar zijn.</item>
+        <item>Camera’s respecteren de vergrendelde schermstand weer.</item>
+        <item>Zoomen in cameravensters en camera’s op volledig scherm werkt weer.</item>
+    </string-array>
+</resources>

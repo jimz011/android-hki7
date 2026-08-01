@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="energy_extra_sensors">Energiesensoren</string>
+    <string name="energy_extra_settings">Energie-instellingen</string>
+    <string name="energy_extra_previous_period">Vorige periode</string>
+    <string name="energy_extra_next_period">Volgende periode</string>
+    <string name="energy_extra_empty_view_hint">Deze energieweergave is leeg. Veeg in de kop omlaag en open Energie-instellingen om handmatig entiteiten toe te voegen.</string>
+
+    <string name="energy_extra_electricity">Elektriciteit</string>
+    <string name="energy_extra_solar">Zonne-energie</string>
+    <string name="energy_extra_home">Woning</string>
+    <string name="energy_extra_battery">Accu</string>
+    <string name="energy_extra_gas">Gas</string>
+    <string name="energy_extra_water">Water</string>
+    <string name="energy_extra_energy">Energie</string>
+    <string name="energy_extra_power">Vermogen</string>
+    <string name="energy_extra_carbon">CO₂</string>
+    <string name="energy_extra_devices">Apparaten</string>
+    <string name="energy_extra_device">Apparaat</string>
+
+    <string name="energy_extra_importing">Afname</string>
+    <string name="energy_extra_exporting">Teruglevering</string>
+    <string name="energy_extra_idle">Inactief</string>
+    <string name="energy_extra_charging">Opladen</string>
+    <string name="energy_extra_discharging">Ontladen</string>
+    <string name="energy_extra_producing">Opwekking</string>
+    <string name="energy_extra_consuming">Verbruik</string>
+    <string name="energy_extra_grid_idle">Net inactief</string>
+    <string name="energy_extra_importing_power">Stroomafname</string>
+    <string name="energy_extra_exporting_power">Stroomteruglevering</string>
+    <string name="energy_extra_battery_supporting">Accu levert stroom</string>
+    <string name="energy_extra_battery_charging">Accu wordt opgeladen</string>
+    <string name="energy_extra_solar_producing">Zonnepanelen wekken stroom op</string>
+    <string name="energy_extra_home_consuming">Woning verbruikt stroom</string>
+    <string name="energy_extra_energy_idle">Geen energiestroom</string>
+
+    <string name="energy_extra_today_value">%1$s vandaag</string>
+    <string name="energy_extra_used_period">Verbruikt %1$s</string>
+    <string name="energy_extra_produced_period">Opgewekt %1$s</string>
+    <string name="energy_extra_fossil_percentage">%1$s%% fossiel</string>
+    <string name="energy_extra_self_used_percentage">Direct gebruikt · %1$d%%</string>
+
+    <string name="energy_extra_electricity_total">Totaal elektriciteit</string>
+    <string name="energy_extra_top_consumers">Grootste verbruikers</string>
+    <string name="energy_extra_device_energy">Energie per apparaat</string>
+    <string name="energy_extra_individual_water_usage">Waterverbruik per apparaat</string>
+    <string name="energy_extra_production">Opwekking</string>
+    <string name="energy_extra_forecast">Verwachting</string>
+    <string name="energy_extra_inverters">Omvormers</string>
+    <string name="energy_extra_now">Nu</string>
+    <string name="energy_extra_usage">Verbruik</string>
+    <string name="energy_extra_total">Totaal</string>
+    <string name="energy_extra_cost">Kosten</string>
+    <string name="energy_extra_charge">Lading</string>
+    <string name="energy_extra_grid_flow">Netstroom</string>
+    <string name="energy_extra_self_sufficient">Zelfvoorzienend</string>
+    <string name="energy_extra_carbon_footprint">CO₂-voetafdruk</string>
+    <string name="energy_extra_self_used">Direct gebruikt</string>
+    <string name="energy_extra_last_seven_days">Afgelopen 7 dagen</string>
+    <string name="energy_extra_lifetime">Sinds ingebruikname</string>
+    <string name="energy_extra_power_per_phase">Vermogen per fase</string>
+    <string name="energy_extra_tariff_meter_readings">Meterstanden per tarief</string>
+    <string name="energy_extra_tariff_one">Tarief 1</string>
+    <string name="energy_extra_tariff_two">Tarief 2</string>
+    <string name="energy_extra_solar_production">Zonne-opwekking</string>
+
+    <string name="energy_extra_category_overview">Overzicht</string>
+    <string name="energy_extra_category_electricity_subtitle">Netvermogen, fasen, afname, teruglevering, tarieven en kosten</string>
+    <string name="energy_extra_category_solar_subtitle">Opwekking, verwachting en omvormer</string>
+    <string name="energy_extra_category_battery_subtitle">Laadniveau en accuvermogen</string>
+    <string name="energy_extra_category_carbon_subtitle">Apparaat voor de CO₂-voetafdruk van het net</string>
+    <string name="energy_extra_category_usage_cost_subtitle">Verbruik en kosten</string>
+    <string name="energy_extra_category_devices_subtitle">Vermogen, energie en afzonderlijke watermeters</string>
+
+    <string name="energy_extra_card_live_source_tiles">Live brontegels</string>
+    <string name="energy_extra_card_electricity_totals_usage">Elektriciteitstotalen en verbruik</string>
+    <string name="energy_extra_card_home_battery">Thuisaccu</string>
+    <string name="energy_extra_card_gas_usage">Gasverbruik</string>
+    <string name="energy_extra_card_water_usage">Waterverbruik</string>
+    <string name="energy_extra_card_device_energy_bars">Energie per apparaat</string>
+    <string name="energy_extra_select_energy_cards">Energiekaarten kiezen</string>
+
+    <string name="energy_extra_role_grid_power">Netvermogen (W)</string>
+    <string name="energy_extra_role_home_power">Vermogen woning (W)</string>
+    <string name="energy_extra_role_solar_power">Zonnevermogen (W)</string>
+    <string name="energy_extra_role_battery_power">Accuvermogen (W)</string>
+    <string name="energy_extra_role_battery_level" formatted="false">Accuniveau (%)</string>
+    <string name="energy_extra_role_grid_import">Netafname (kWh)</string>
+    <string name="energy_extra_role_grid_export">Teruglevering (kWh)</string>
+    <string name="energy_extra_role_solar_production">Zonne-opwekking (kWh)</string>
+    <string name="energy_extra_role_phase_one_power">Vermogen fase 1</string>
+    <string name="energy_extra_role_phase_two_power">Vermogen fase 2</string>
+    <string name="energy_extra_role_phase_three_power">Vermogen fase 3</string>
+    <string name="energy_extra_role_import_meter_tariff_one">Meterstand afname tarief 1</string>
+    <string name="energy_extra_role_import_meter_tariff_two">Meterstand afname tarief 2</string>
+    <string name="energy_extra_role_export_meter_tariff_one">Meterstand teruglevering tarief 1</string>
+    <string name="energy_extra_role_export_meter_tariff_two">Meterstand teruglevering tarief 2</string>
+    <string name="energy_extra_role_energy_cost">Energiekosten</string>
+    <string name="energy_extra_role_gas_total">Totale gasstand (m³)</string>
+    <string name="energy_extra_role_gas_flow_now">Gasdebiet (nu)</string>
+    <string name="energy_extra_role_gas_cost">Gaskosten</string>
+    <string name="energy_extra_role_water_total">Totale waterstand</string>
+    <string name="energy_extra_role_water_flow_now">Waterdebiet (nu)</string>
+    <string name="energy_extra_role_water_cost">Waterkosten</string>
+    <string name="energy_extra_role_individual_water_devices">Afzonderlijke watermeters</string>
+    <string name="energy_extra_role_power_devices">Vermogensapparaten</string>
+    <string name="energy_extra_role_energy_devices">Energieapparaten</string>
+
+    <string name="energy_extra_sensor_current_power_import">Huidig vermogen (W, + = afname)</string>
+    <string name="energy_extra_sensor_power_phase_one">Vermogen fase 1 (W)</string>
+    <string name="energy_extra_sensor_power_phase_two">Vermogen fase 2 (W)</string>
+    <string name="energy_extra_sensor_power_phase_three">Vermogen fase 3 (W)</string>
+    <string name="energy_extra_sensor_current_phase_one">Stroomsterkte fase 1 (A)</string>
+    <string name="energy_extra_sensor_current_phase_two">Stroomsterkte fase 2 (A)</string>
+    <string name="energy_extra_sensor_current_phase_three">Stroomsterkte fase 3 (A)</string>
+    <string name="energy_extra_sensor_voltage_phase_one">Spanning fase 1 (V)</string>
+    <string name="energy_extra_sensor_voltage_phase_two">Spanning fase 2 (V)</string>
+    <string name="energy_extra_sensor_voltage_phase_three">Spanning fase 3 (V)</string>
+    <string name="energy_extra_sensor_home_consumption_power">Verbruiksvermogen woning (W)</string>
+    <string name="energy_extra_sensor_energy_import">Energieafname (kWh)</string>
+    <string name="energy_extra_sensor_energy_import_tariff_one">Energieafname tarief 1 (kWh)</string>
+    <string name="energy_extra_sensor_energy_import_tariff_two">Energieafname tarief 2 (kWh)</string>
+    <string name="energy_extra_sensor_energy_export">Teruggeleverde energie (kWh)</string>
+    <string name="energy_extra_sensor_energy_export_tariff_one">Teruglevering tarief 1 (kWh)</string>
+    <string name="energy_extra_sensor_energy_export_tariff_two">Teruglevering tarief 2 (kWh)</string>
+    <string name="energy_extra_sensor_energy_cost_today">Energiekosten vandaag</string>
+    <string name="energy_extra_sensor_current_power_production">Huidige stroomopwekking (W)</string>
+    <string name="energy_extra_sensor_energy_production_today">Energieopwekking vandaag (kWh)</string>
+    <string name="energy_extra_sensor_energy_production_seven_days">Energieopwekking in de afgelopen 7 dagen</string>
+    <string name="energy_extra_sensor_lifetime_energy_production">Totale energieopwekking sinds ingebruikname</string>
+    <string name="energy_extra_sensor_battery_power_charging">Accuvermogen (W, + = opladen)</string>
+    <string name="energy_extra_sensor_gas_used_today">Gasverbruik vandaag (m³)</string>
+    <string name="energy_extra_sensor_current_gas_flow">Huidig gasdebiet (m³/u, optioneel)</string>
+    <string name="energy_extra_sensor_gas_cost_today">Gaskosten vandaag</string>
+    <string name="energy_extra_sensor_water_used_today">Waterverbruik vandaag (L/m³)</string>
+    <string name="energy_extra_sensor_current_water_flow">Huidig waterdebiet (L/min, optioneel)</string>
+    <string name="energy_extra_sensor_water_cost_today">Waterkosten vandaag</string>
+
+    <string name="energy_extra_picker_top_consumer_devices">Apparaten met het hoogste verbruik</string>
+    <string name="energy_extra_picker_device_energy_counters">Energiemeters per apparaat</string>
+    <string name="energy_extra_auto_power_sensors_help">Alle sensoren met device_class power worden automatisch toegevoegd. Verwijder een apparaat om je eigen lijst te maken.</string>
+    <string name="energy_extra_auto_energy_sensors_help">Alle sensoren met device_class energy worden automatisch toegevoegd. De tellerwijzigingen worden voor de gekozen periode gebruikt.</string>
+
+    <string name="energy_extra_energy_card">Energiekaart</string>
+    <string name="energy_extra_energy_card_subtitle">Gegevensbronnen en kaartweergave</string>
+    <string name="energy_extra_card_and_data">Kaart en gegevens</string>
+    <string name="energy_extra_energy_stack">Energiestapel</string>
+    <string name="energy_extra_energy_stack_subtitle">Kaarten, gegevensbronnen en indeling</string>
+    <string name="energy_extra_cards_and_data">Kaarten en gegevens</string>
+</resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="background_notification_channel_general">Algemeen</string>
+    <string name="background_location_channel_name">Locatie delen</string>
+    <string name="background_location_channel_description">Houdt de locatie van je apparaat actueel in Home Assistant</string>
+    <string name="background_location_notification_title">Locatie delen met Home Assistant</string>
+    <string name="background_location_notification_text">Je locatie wordt gedeeld met Home Assistant</string>
+    <string name="background_push_channel_name">Meldingsverbinding</string>
+    <string name="background_push_channel_description">Houdt op de achtergrond verbinding met Home Assistant voor directe meldingen</string>
+    <string name="background_push_notification_title">Verbonden met Home Assistant</string>
+    <string name="background_push_notification_text">Wacht op meldingen</string>
+</resources>

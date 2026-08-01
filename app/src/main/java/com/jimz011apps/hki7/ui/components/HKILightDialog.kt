@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.BorderStroke
@@ -84,7 +88,7 @@ fun HKILightDialog(
         if (currentTab !in availableTabs) currentTab = defaultTab()
     }
     val brightnessPercent = ((entity.brightness ?: 0) / 255f * 100).toInt()
-    val statusText = if (entity.state == "on") "$brightnessPercent% • ACTIVE" else "OFF"
+    val statusText = if (entity.state == "on") stringResource(R.string.ui_active_c7260b5, brightnessPercent) else stringResource(R.string.ui_off_ad50489)
 
     val tabs = mutableListOf<Triple<String, androidx.compose.ui.graphics.vector.ImageVector, () -> Unit>>()
     if (supportsBrightness) tabs.add(Triple("Bright", Icons.Default.LightMode) {
@@ -105,6 +109,12 @@ fun HKILightDialog(
     })
 
     val visibleTabs = tabs.ifEmpty { emptyList() }
+    val tabLabels = mapOf(
+        "Bright" to stringResource(R.string.cr_brightness),
+        "Temp" to stringResource(R.string.cr_temperature),
+        "Color" to stringResource(R.string.cr_color),
+        "Effects" to stringResource(R.string.universal_effects)
+    )
 
     HKIDialog(
         entity = entity,
@@ -117,6 +127,7 @@ fun HKILightDialog(
         statusText = statusText,
         groupContent = groupContent,
         tabs = visibleTabs,
+        tabLabels = tabLabels,
         currentTab = currentTab
     ) {
         val appColors = LocalHKIAppColors.current
@@ -152,14 +163,14 @@ fun HKILightDialog(
                 ) {
                     Icon(Icons.Default.PowerSettingsNew, null, modifier = Modifier.size(64.dp), tint = appColors.onMuted.copy(alpha = 0.5f))
                     Spacer(Modifier.height(16.dp))
-                    Text("Light is turned off", style = MaterialTheme.typography.titleMedium, color = appColors.onSurface)
-                    Text("Turn the light on to access controls", style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
+                    Text(stringResource(R.string.ui_light_is_turned_off_ebc0cf1), style = MaterialTheme.typography.titleMedium, color = appColors.onSurface)
+                    Text(stringResource(R.string.ui_turn_the_light_on_to_access_controls_25f4ad6), style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
                     Spacer(Modifier.height(24.dp))
                     Button(onClick = {
                         currentTab = defaultTab()
                         viewModel.toggleEntity(entity.entity_id)
                     }) {
-                        Text("Turn On")
+                        Text(stringResource(R.string.ui_turn_on_a5aa418))
                     }
                     AdaptiveLightingButton(
                         visible = adaptiveLightingProfiles.isNotEmpty(),
@@ -184,7 +195,7 @@ fun HKILightDialog(
             } else if (!supportsBrightness && currentTab !in setOf("Temp", "Color")) {
                 Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = if (entity.state == "on") "On" else "Off",
+                        text = if (entity.state == "on") stringResource(R.string.ui_on_e0049a6) else stringResource(R.string.ui_off_e3de5ab),
                         color = appColors.onSurface,
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Normal
@@ -198,7 +209,7 @@ fun HKILightDialog(
                         )
                     }
                     Spacer(Modifier.height(16.dp))
-                    Text("SWITCH", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(R.string.ui_switch_b02cbd9), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
                     AdaptiveLightingButton(
                         visible = adaptiveLightingProfiles.isNotEmpty(),
                         onClick = { showAdaptiveLighting = true }
@@ -210,7 +221,7 @@ fun HKILightDialog(
                         var sliderValue by remember(entity.entity_id) { mutableFloatStateOf((entity.brightness ?: 0) / 255f) }
                         LaunchedEffect(entity.brightness) { sliderValue = (entity.brightness ?: 0) / 255f }
                         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("${(sliderValue * 100).toInt()}%", color = appColors.onSurface, style = MaterialTheme.typography.displayMedium)
+                            Text(stringResource(R.string.ui_text_fc9db15, (sliderValue * 100).toInt()), color = appColors.onSurface, style = MaterialTheme.typography.displayMedium)
                             Spacer(Modifier.height(24.dp))
                             Box(Modifier.height(controlHeight).fillMaxWidth(), contentAlignment = Alignment.Center) {
                                 VerticalSlider(
@@ -225,7 +236,7 @@ fun HKILightDialog(
                                 )
                             }
                             Spacer(Modifier.height(16.dp))
-                            Text("BRIGHTNESS", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+                            Text(stringResource(R.string.ui_brightness_8e06ad0), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
                             AdaptiveLightingButton(
                                 visible = adaptiveLightingProfiles.isNotEmpty(),
                                 onClick = { showAdaptiveLighting = true }
@@ -238,7 +249,7 @@ fun HKILightDialog(
                         var kelvinValue by remember(entity.entity_id) { mutableFloatStateOf(entity.colorTempKelvin?.toFloat() ?: 3000f) }
                         LaunchedEffect(entity.colorTempKelvin) { kelvinValue = entity.colorTempKelvin?.toFloat() ?: 3000f }
                         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("${kelvinValue.toInt()}K", color = appColors.onSurface, style = MaterialTheme.typography.displayMedium)
+                            Text(stringResource(R.string.ui_k_df46805, kelvinValue.toInt()), color = appColors.onSurface, style = MaterialTheme.typography.displayMedium)
                             Spacer(Modifier.height(24.dp))
                             Box(Modifier.height(controlHeight).fillMaxWidth(), contentAlignment = Alignment.Center) {
                                 VerticalSlider(
@@ -250,7 +261,7 @@ fun HKILightDialog(
                                 )
                             }
                             Spacer(Modifier.height(16.dp))
-                            Text("TEMPERATURE", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+                            Text(stringResource(R.string.ui_temperature_cc6906a), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
                             AdaptiveLightingButton(
                                 visible = adaptiveLightingProfiles.isNotEmpty(),
                                 onClick = { showAdaptiveLighting = true }
@@ -305,8 +316,8 @@ private fun LightEffectsContent(
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Text("Effects", color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
-        Text("Select an effect to turn it on", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+        Text(stringResource(R.string.ui_effects_8f25a85), color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.ui_select_an_effect_to_turn_it_on_75d9bec), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
         Spacer(Modifier.height(6.dp))
 
         effects.forEach { effect ->
@@ -362,7 +373,7 @@ private fun AdaptiveLightingButton(
         FilterChip(
             selected = selected,
             onClick = onClick,
-            label = { Text(if (selected) "Back" else "Adaptive lighting") },
+            label = { Text(if (selected) stringResource(R.string.ui_back_b52b36b) else stringResource(R.string.ui_adaptive_lighting_7587880)) },
             leadingIcon = {
                 Icon(
                     if (selected) Icons.AutoMirrored.Filled.ArrowBack else Icons.Default.AutoAwesome,

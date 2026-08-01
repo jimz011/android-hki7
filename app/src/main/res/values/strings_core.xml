@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_system">System</string>
+    <string name="core_greeting_morning">Good Morning</string>
+    <string name="core_greeting_afternoon">Good Afternoon</string>
+    <string name="core_greeting_evening">Good Evening</string>
+    <string name="core_greeting_night">Good Night</string>
+    <string name="core_last_seen_just_now">Last seen just now</string>
+    <string name="core_no_media_playing">No media is playing</string>
+    <plurals name="core_media_players_playing">
+        <item quantity="one">%1$d media player is playing</item>
+        <item quantity="other">%1$d media players are playing</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="one">Last seen %1$d minute ago</item>
+        <item quantity="other">Last seen %1$d minutes ago</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="one">Last seen %1$d hour ago</item>
+        <item quantity="other">Last seen %1$d hours ago</item>
+    </plurals>
+    <plurals name="core_last_seen_days">
+        <item quantity="one">Last seen %1$d day ago</item>
+        <item quantity="other">Last seen %1$d days ago</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="one">Last seen %1$d week ago</item>
+        <item quantity="other">Last seen %1$d weeks ago</item>
+    </plurals>
+</resources>

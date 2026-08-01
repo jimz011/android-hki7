@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -158,18 +162,18 @@ fun WithIconEffect(
         IconEffect.NONE -> content(Modifier)
 
         IconEffect.SPIN -> {
-            val t = rememberInfiniteTransition(label = "spin")
+            val t = rememberInfiniteTransition(label = stringResource(R.string.ui_spin_a801301))
             val rotation by t.animateFloat(
                 0f, 360f,
                 infiniteRepeatable(tween(spinPeriodMillis(entity), easing = LinearEasing), RepeatMode.Restart),
-                label = "rotation",
+                label = stringResource(R.string.ui_rotation_acaf322),
             )
             content(Modifier.graphicsLayer { rotationZ = rotation })
         }
 
         IconEffect.PULSE -> {
             // A "heartbeat": two quick beats then a rest, so it reads as alive rather than a dull throb.
-            val t = rememberInfiniteTransition(label = "pulse")
+            val t = rememberInfiniteTransition(label = stringResource(R.string.ui_pulse_8439fc4))
             val scale by t.animateFloat(
                 1f, 1f,
                 infiniteRepeatable(
@@ -184,7 +188,7 @@ fun WithIconEffect(
                     },
                     RepeatMode.Restart,
                 ),
-                label = "pulseScale",
+                label = stringResource(R.string.ui_pulsescale_939f5c2),
             )
             content(Modifier.graphicsLayer { scaleX = scale; scaleY = scale })
         }
@@ -192,11 +196,11 @@ fun WithIconEffect(
         IconEffect.GLOW -> {
             // A breathing light halo: a soft, wide bloom that swells and fades, with the glyph itself
             // subtly brightening — not a hard pulsing disc.
-            val t = rememberInfiniteTransition(label = "glow")
+            val t = rememberInfiniteTransition(label = stringResource(R.string.ui_glow_6ae5a62))
             val phase by t.animateFloat(
                 0f, 1f,
                 infiniteRepeatable(tween(1600, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-                label = "glowPhase",
+                label = stringResource(R.string.ui_glowphase_748e6d6),
             )
             val glowAlpha = 0.12f + 0.5f * phase
             val scale = 1f + 0.06f * phase

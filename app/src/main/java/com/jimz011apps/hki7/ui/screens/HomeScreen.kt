@@ -2,6 +2,10 @@
 
 package com.jimz011apps.hki7.ui.screens
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 
 import androidx.compose.foundation.layout.*
@@ -190,9 +194,10 @@ fun HAHomeScreen(
     fun newCameraStack(title: String?, icon: String?) = HKIButtonStack(id = UUID.randomUUID().toString(), title = title, icon = icon, columns = 2, isSquare = true, stackType = "camera")
     fun newVacuumStack(title: String?, icon: String?) = HKIButtonStack(id = UUID.randomUUID().toString(), title = title, icon = icon, columns = 2, isSquare = true, stackType = "vacuum")
     fun newWeatherStack(title: String?, icon: String?) = HKIButtonStack(id = UUID.randomUUID().toString(), title = title, icon = icon, columns = 1, isSquare = false, showBadge = false, cornerRadius = 24, stackType = "weather")
+    val adaptiveLightingTitle = stringResource(R.string.ui_adaptive_lighting_e2cffbd)
     fun newAdaptiveLightingWidget() = HKIButtonStack(
         id = UUID.randomUUID().toString(),
-        title = "Adaptive Lighting",
+        title = adaptiveLightingTitle,
         icon = "auto-awesome",
         isSquare = false,
         stackType = "adaptive_lighting",
@@ -204,9 +209,11 @@ fun HAHomeScreen(
         HKISingleEntityWidget(id = UUID.randomUUID().toString(), entityId = entityId, kind = kind, isSquare = kind != "camera", config = config)
     fun newCalendarWidget(entityIds: List<String>) = HKICalendarWidget(id = UUID.randomUUID().toString(), entityIds = entityIds, width = "full")
     fun newWasteWidget(entityIds: List<String>) = HKIWasteCollectionWidget(id = UUID.randomUUID().toString(), entityIds = entityIds, width = "full")
+    val defaultMarkdownContent = stringResource(R.string.home_default_markdown_content)
+    val customCameraDefaultName = stringResource(R.string.custom_camera_default_name)
     fun newMarkdownWidget() = HKIMarkdownWidget(
         id = UUID.randomUUID().toString(),
-        content = "# Markdown\nOpen this widget's settings in **edit mode** to write your own content."
+        content = defaultMarkdownContent
     )
     fun newIframeWidget() = HKIIframeWidget(id = UUID.randomUUID().toString())
     fun addChildToSwipingStack(stackId: String, child: HKIRoomWidget) {
@@ -489,7 +496,9 @@ fun HAHomeScreen(
         showPeople = customPage == null,
         onPeopleClick = { person -> selectedPerson = person },
         pageKey = customPage?.let { "custom_page_${it.id}" } ?: "home",
-        pageSettingsTitle = customPage?.let { "${it.name} Settings" } ?: "Home Settings",
+        pageSettingsTitle = customPage?.let {
+            stringResource(R.string.custom_page_settings_title, it.name)
+        } ?: stringResource(R.string.home_settings_title),
         customPage = customPage,
         onCustomPageSave = viewModel::updateCustomPage,
         showBadgeBar = customPage == null,
@@ -515,10 +524,8 @@ fun HAHomeScreen(
                 if (homeWidgets.isEmpty() && !isEditMode) {
                     EmptyEditHint(
                         Modifier.weight(1f),
-                        if (customPage == null)
-                            "This is the homepage. You can add widgets to this page by swiping down on the header and enabling edit mode."
-                        else
-                            "This is an empty page. You can add widgets to this page by swiping down on the header and enabling edit mode."
+                        if (customPage == null) stringResource(R.string.home_empty)
+                        else stringResource(R.string.custom_page_empty)
                     )
                 } else if (!isEditMode) {
                     LazyVerticalGrid(
@@ -912,7 +919,7 @@ fun HAHomeScreen(
                 ) {
                     Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Add Widget")
+                    Text(stringResource(R.string.ui_add_widget_a9df350))
                 }
             }
         }
@@ -1141,8 +1148,8 @@ fun HAHomeScreen(
         AdvancedEntitySearchDialog(
             allEntities = candidates,
             title = when (kind) {
-                "camera" -> "Select Camera"
-                else -> "Select Entity"
+                "camera" -> stringResource(R.string.select_camera_title)
+                else -> stringResource(R.string.select_entity_title)
             },
             singleSelect = true,
             preselectedIds = emptySet(),
@@ -1174,7 +1181,7 @@ fun HAHomeScreen(
         val weatherEntities = entities.filter { it.entity_id.startsWith("weather.") }
         AdvancedEntitySearchDialog(
             allEntities = weatherEntities.ifEmpty { entities },
-            title = "Select Weather",
+            title = stringResource(R.string.ui_select_weather_2357e9d),
             singleSelect = true,
             preselectedIds = emptySet(),
             onDismiss = {
@@ -1201,10 +1208,13 @@ fun HAHomeScreen(
                 choosingWeatherWidgetStyle = false
                 pendingWeatherWidgetEntityId = null
             },
-            title = { Text("Weather Type") },
+            title = { Text(stringResource(R.string.ui_weather_type_fe0b7cc)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    weatherWidgetStyles.sortedBy { it.second }.forEach { (style, label) ->
+                    weatherWidgetStyleIds
+                        .map { style -> style to weatherStyleLabel(style) }
+                        .sortedBy { it.second }
+                        .forEach { (style, label) ->
                         WidgetChoice(
                             icon = Icons.Default.WbSunny,
                             title = label,
@@ -1232,7 +1242,7 @@ fun HAHomeScreen(
                 OutlinedButton(onClick = {
                     choosingWeatherWidgetStyle = false
                     pendingWeatherWidgetEntityId = null
-                }) { Text("Back") }
+                }) { Text(stringResource(R.string.ui_back_b52b36b)) }
             }
         )
     }
@@ -1282,7 +1292,7 @@ fun HAHomeScreen(
         when (targetStack?.stackType) {
             "vacuum" -> AdvancedEntitySearchDialog(
                 allEntities = entities.filter { it.entity_id.startsWith("vacuum.") },
-                title = "Select Vacuums",
+                title = stringResource(R.string.ui_select_vacuums_7c2d22a),
                 preselectedIds = targetStack.entityIds.toSet(),
                 onDismiss = { addingToStackId = null },
                 onEntitiesSelected = { ids ->
@@ -1292,7 +1302,7 @@ fun HAHomeScreen(
             )
             "single_vacuum" -> AdvancedEntitySearchDialog(
                 allEntities = entities.filter { it.entity_id.startsWith("vacuum.") },
-                title = "Select Vacuum",
+                title = stringResource(R.string.ui_select_vacuum_4663021),
                 preselectedIds = targetStack.entityIds.take(1).toSet(),
                 onDismiss = { addingToStackId = null },
                 onEntitiesSelected = { ids ->
@@ -1302,7 +1312,7 @@ fun HAHomeScreen(
             )
             "single_camera" -> AdvancedEntitySearchDialog(
                 allEntities = entities.filter { it.entity_id.substringBefore(".").equals("camera", ignoreCase = true) },
-                title = "Select Camera",
+                title = stringResource(R.string.ui_select_camera_70cf6fb),
                 preselectedIds = targetStack.entityIds.take(1).toSet(),
                 onDismiss = { addingToStackId = null },
                 onEntitiesSelected = { ids ->
@@ -1312,13 +1322,13 @@ fun HAHomeScreen(
             )
             "camera" -> AlertDialog(
                 onDismissRequest = { addingToStackId = null },
-                title = { Text("Add Camera") },
-                text = { Text("Would you like to add an existing camera entity or a custom URL?") },
+                title = { Text(stringResource(R.string.ui_add_camera_cf03528)) },
+                text = { Text(stringResource(R.string.ui_would_you_like_to_add_an_existing_camera_entity_00d5bc3)) },
                 confirmButton = {
-                    Button(onClick = { cameraAddMode = "entity" }) { Text("Existing Camera") }
+                    Button(onClick = { cameraAddMode = "entity" }) { Text(stringResource(R.string.ui_existing_camera_5fb3653)) }
                 },
                 dismissButton = {
-                    TextButton(onClick = { cameraAddMode = "custom" }) { Text("Custom URL") }
+                    TextButton(onClick = { cameraAddMode = "custom" }) { Text(stringResource(R.string.ui_custom_url_9c155e9)) }
                 }
             )
             "weather" -> WeatherItemDialog(
@@ -1384,17 +1394,17 @@ fun HAHomeScreen(
         val targetStack = homeWidgets.find { it.id == addingToStackId } as? HKIButtonStack
         AlertDialog(
             onDismissRequest = { cameraAddMode = null; customCameraUrl = "" },
-            title = { Text("Add Custom Camera URL") },
+            title = { Text(stringResource(R.string.ui_add_custom_camera_url_aab29ef)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(
                         value = customCameraUrl,
                         onValueChange = { customCameraUrl = it },
-                        label = { Text("Camera URL") },
+                        label = { Text(stringResource(R.string.ui_camera_url_0eebe87)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Text("Enter HTTP URL, relative path, or WebRTC path (e.g., url: poort_hd)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.ui_enter_http_url_relative_path_or_webrtc_path_e_41da8c2), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             },
             confirmButton = {
@@ -1407,7 +1417,7 @@ fun HAHomeScreen(
                                 stack.copy(
                                     entityIds = stack.entityIds + customId,
                                     buttonConfigs = stack.buttonConfigs + (customId to HKIButtonConfig(
-                                        name = "Custom Camera",
+                                        name = customCameraDefaultName,
                                         cameraUrl = customCameraUrl,
                                         isCustomUrl = true,
                                         cameraRefreshInterval = 5
@@ -1419,10 +1429,10 @@ fun HAHomeScreen(
                     addingToStackId = null
                     cameraAddMode = null
                     customCameraUrl = ""
-                }) { Text("Add") }
+                }) { Text(stringResource(R.string.ui_add_61cc55a)) }
             },
             dismissButton = {
-                OutlinedButton(onClick = { cameraAddMode = null; customCameraUrl = "" }) { Text("Back") }
+                OutlinedButton(onClick = { cameraAddMode = null; customCameraUrl = "" }) { Text(stringResource(R.string.ui_back_b52b36b)) }
             }
         )
     }
@@ -1887,7 +1897,7 @@ fun HAHomeScreen(
         }
         AdvancedEntitySearchDialog(
             allEntities = sensors.ifEmpty { entities },
-            title = "Select Sensors",
+            title = stringResource(R.string.ui_select_sensors_5141d75),
             singleSelect = false,
             preselectedIds = emptySet(),
             onDismiss = {
@@ -1915,7 +1925,7 @@ fun HAHomeScreen(
         }
         AdvancedEntitySearchDialog(
             allEntities = sensors.ifEmpty { entities },
-            title = "Select Sensors",
+            title = stringResource(R.string.ui_select_sensors_5141d75),
             singleSelect = false,
             preselectedIds = emptySet(),
             onDismiss = {
@@ -1937,7 +1947,7 @@ fun HAHomeScreen(
     pendingMediaPlayerWidgetContainerId?.let { target ->
         AdvancedEntitySearchDialog(
             allEntities = entities.filter { it.entity_id.startsWith("media_player.") },
-            title = "Select Media Player",
+            title = stringResource(R.string.ui_select_media_player_73f4f5b),
             singleSelect = true,
             preselectedIds = emptySet(),
             onDismiss = {
@@ -2016,7 +2026,7 @@ fun HAHomeScreen(
         val streamUrl = config?.cameraUrl?.takeIf { it.isNotBlank() }
             ?: resolveEntityCameraUrl(entity, currentUrl, preferLive = true)
             ?: fallbackEntityUrl
-        val label = config?.name ?: entity?.friendlyName ?: selectedCameraId ?: "Camera"
+        val label = config?.name ?: entity?.friendlyName ?: selectedCameraId ?: stringResource(R.string.ui_camera_4da9c9a)
         val liveWebUrl = when {
             entity != null -> resolveEntityCameraUrl(entity, currentUrl, preferLive = true)
             fallbackEntityUrl != null -> fallbackEntityUrl
@@ -2031,7 +2041,7 @@ fun HAHomeScreen(
             imageUrl = resolveCameraUrl(streamUrl, currentUrl),
             liveWebUrl = liveWebUrl,
             authToken = accessToken,
-            statusText = "Live",
+            statusText = stringResource(R.string.cr_live),
             entity = entity,
             viewModel = viewModel,
             onPrevious = if (hasCameraNavigation) {

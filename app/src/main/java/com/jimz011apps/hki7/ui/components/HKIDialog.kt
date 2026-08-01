@@ -2,6 +2,9 @@
 
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -71,6 +74,7 @@ import coil3.compose.AsyncImage
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HKIActionButton
 import com.jimz011apps.hki7.ui.MainViewModel
+import com.jimz011apps.hki7.ui.localizedCommonStateLabel
 import com.jimz011apps.hki7.ui.screens.GenericEntityDialog
 import com.jimz011apps.hki7.ui.screens.PagedRoleDialog
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
@@ -105,6 +109,8 @@ fun HKIDialog(
     /** Optional content pinned above the dialog's primary controls. */
     topContent: (@Composable ColumnScope.() -> Unit)? = null,
     tabs: List<Triple<String, ImageVector, () -> Unit>> = emptyList(),
+    /** Localized display labels keyed by the stable tab ids in [tabs]. */
+    tabLabels: Map<String, String> = emptyMap(),
     currentTab: String? = null,
     // User-added quick-access buttons rendered on wrapped rows below the default nav bar. Defaults
     // to the value provided at the open site via LocalDialogCustomButtons.
@@ -316,7 +322,7 @@ fun HKIDialog(
                                 ) {
                                     MdiIcon(
                                         "devices",
-                                        contentDescription = "Device details",
+                                        contentDescription = stringResource(R.string.ui_device_details_39c277d),
                                         tint = appColors.onSurface,
                                         size = 24.dp
                                     )
@@ -336,7 +342,7 @@ fun HKIDialog(
                                 ) {
                                     MdiIcon(
                                         "view-list",
-                                        contentDescription = "Show group",
+                                        contentDescription = stringResource(R.string.ui_show_group_380c43e),
                                         tint = appColors.onSurface,
                                         size = 24.dp
                                     )
@@ -356,7 +362,7 @@ fun HKIDialog(
                                 ) {
                                     Icon(
                                         Icons.Default.History,
-                                        contentDescription = "History",
+                                        contentDescription = stringResource(R.string.ui_history_90ccd64),
                                         tint = appColors.onSurface,
                                         modifier = Modifier.size(24.dp)
                                     )
@@ -372,7 +378,7 @@ fun HKIDialog(
                                 ) {
                                     Icon(
                                         Icons.Default.Close,
-                                        contentDescription = "Close",
+                                        contentDescription = stringResource(R.string.ui_close_bbfa773),
                                         tint = appColors.onSurface,
                                         modifier = Modifier.size(24.dp)
                                     )
@@ -472,7 +478,7 @@ fun HKIDialog(
                                                     modifier = Modifier.size(if (denseTabs) 22.dp else 24.dp)
                                                 )
                                                 Text(
-                                                    label,
+                                                    tabLabels[label] ?: label,
                                                     color = if (isSelected) appColors.onSurface else appColors.onMuted,
                                                     style = if (denseTabs) MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp) else MaterialTheme.typography.labelSmall,
                                                     maxLines = 1
@@ -658,7 +664,7 @@ fun HistoryView(entity: HAEntity, viewModel: MainViewModel, extraGraphEntityIds:
         )
         Spacer(Modifier.height(20.dp))
 
-        Text("History", style = MaterialTheme.typography.titleMedium, color = appColors.onSurface)
+        Text(stringResource(R.string.ui_history_90ccd64), style = MaterialTheme.typography.titleMedium, color = appColors.onSurface)
         Spacer(Modifier.height(10.dp))
         StateTimelineBar(
             entries = entries,
@@ -677,13 +683,13 @@ fun HistoryView(entity: HAEntity, viewModel: MainViewModel, extraGraphEntityIds:
         }
 
         Spacer(Modifier.height(20.dp))
-        Text("Activity", style = MaterialTheme.typography.titleMedium, color = appColors.onSurface)
+        Text(stringResource(R.string.ui_activity_81c0d91), style = MaterialTheme.typography.titleMedium, color = appColors.onSurface)
         Spacer(Modifier.height(12.dp))
 
         if (entries.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 if (loadedHours == selectedHours) {
-                    Text("No activity in this period", color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.ui_no_activity_in_this_period_5cb3978), color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium)
                 } else {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
@@ -699,8 +705,9 @@ fun HistoryView(entity: HAEntity, viewModel: MainViewModel, extraGraphEntityIds:
                         ActorAvatar(actorName = entry.actorName, pictureUrl = avatarUrlFor(entry.actorId))
                         Spacer(Modifier.width(14.dp))
                         Column(Modifier.weight(1f)) {
-                            val stateName = entry.state.replaceFirstChar { it.uppercase() }
-                            val who = entry.actorName?.takeIf { it.isNotBlank() } ?: "System"
+                            val stateName = localizedCommonStateLabel(entry.state)
+                            val who = entry.actorName?.takeIf { it.isNotBlank() }
+                                ?: stringResource(R.string.core_system)
                             Text(stateName, color = appColors.onSurface, style = MaterialTheme.typography.bodyMedium)
                             Text(text = who, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
                         }

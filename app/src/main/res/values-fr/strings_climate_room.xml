@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- États et commandes partagés -->
+    <string name="cr_state_on">Activé</string>
+    <string name="cr_state_off">Désactivé</string>
+    <string name="cr_open">Ouvrir</string>
+    <string name="cr_close">Fermer</string>
+    <string name="cr_stop">Arrêter</string>
+    <string name="cr_closed">Fermé</string>
+    <string name="cr_opening">Ouverture</string>
+    <string name="cr_closing">Fermeture</string>
+    <string name="cr_locked">Verrouillé</string>
+    <string name="cr_unlocked">Déverrouillé</string>
+    <string name="cr_unavailable">Indisponible</string>
+    <string name="cr_unknown">Inconnu</string>
+    <string name="cr_idle">Inactif</string>
+    <string name="cr_home">À la maison</string>
+    <string name="cr_away">Absent</string>
+    <string name="cr_cleaning">Nettoyage</string>
+    <string name="cr_returning">Retour à la base</string>
+    <string name="cr_paused">En pause</string>
+    <string name="cr_error">Erreur</string>
+    <string name="cr_playing">Lecture</string>
+    <string name="cr_buffering">Mise en mémoire tampon</string>
+    <string name="cr_standby">En veille</string>
+    <string name="cr_humidifying">Humidification</string>
+    <string name="cr_drying">Séchage</string>
+    <string name="cr_detected">Détecté</string>
+    <string name="cr_clear">Dégagé</string>
+    <string name="cr_problem">Problème</string>
+    <string name="cr_ok">OK</string>
+    <string name="cr_low">Faible</string>
+    <string name="cr_normal">Normal</string>
+    <string name="cr_connected">Connecté</string>
+    <string name="cr_disconnected">Déconnecté</string>
+    <string name="cr_plugged_in">Branché</string>
+    <string name="cr_unplugged">Débranché</string>
+    <string name="cr_wet">Humide</string>
+    <string name="cr_dry">Sec</string>
+    <string name="cr_none">Aucun</string>
+    <string name="cr_any">Sans limite</string>
+    <string name="cr_remove">Supprimer</string>
+    <string name="cr_restore">Restaurer</string>
+    <string name="cr_general">Général</string>
+    <string name="cr_identity">Identité</string>
+    <string name="cr_appearance">Apparence</string>
+    <string name="cr_layout">Disposition</string>
+    <string name="cr_behavior">Comportement</string>
+    <string name="cr_profiles">Profils</string>
+    <string name="cr_playback">Lecture</string>
+    <string name="cr_content">Contenu</string>
+    <string name="cr_actions">Actions</string>
+    <string name="cr_protection">Protection</string>
+    <string name="cr_power">Alimentation</string>
+    <string name="cr_brightness">Luminosité</string>
+    <string name="cr_temperature">Température</string>
+    <string name="cr_color">Couleur</string>
+    <string name="cr_min">Min.</string>
+    <string name="cr_avg">Moy.</string>
+    <string name="cr_max">Max.</string>
+    <string name="cr_now">Maintenant</string>
+    <string name="cr_lowest">Minimum</string>
+    <string name="cr_average">Moyenne</string>
+    <string name="cr_highest">Maximum</string>
+    <string name="cr_live">En direct</string>
+    <string name="cr_once">Une fois</string>
+    <string name="cr_daily">Tous les jours</string>
+    <string name="cr_weekly">Toutes les semaines</string>
+    <string name="cr_monthly">Tous les mois</string>
+    <string name="cr_yearly">Tous les ans</string>
+    <string name="cr_action_tap">Appui</string>
+    <string name="cr_action_double_tap">Double appui</string>
+    <string name="cr_action_hold">Appui long</string>
+
+    <!-- Modes et commandes de climatisation -->
+    <string name="cr_mode">Mode</string>
+    <string name="cr_mode_auto">Auto</string>
+    <string name="cr_mode_heat">Chauffage</string>
+    <string name="cr_mode_cool">Climatisation</string>
+    <string name="cr_mode_heat_cool">Chauffage/climatisation</string>
+    <string name="cr_mode_dry">Déshumidification</string>
+    <string name="cr_mode_fan_only">Ventilation seule</string>
+    <string name="cr_mode_low">Faible</string>
+    <string name="cr_mode_medium">Moyenne</string>
+    <string name="cr_mode_high">Élevée</string>
+    <string name="cr_mode_quiet">Silencieux</string>
+    <string name="cr_mode_boost">Turbo</string>
+    <string name="cr_mode_eco">Éco</string>
+    <string name="cr_mode_sleep">Nuit</string>
+    <string name="cr_mode_manual">Manuel</string>
+    <string name="cr_mode_vertical">Vertical</string>
+    <string name="cr_mode_horizontal">Horizontal</string>
+    <string name="cr_mode_both">Les deux</string>
+    <string name="cr_mode_up">Haut</string>
+    <string name="cr_mode_down">Bas</string>
+    <string name="cr_mode_center">Centre</string>
+    <string name="cr_mode_left">Gauche</string>
+    <string name="cr_mode_right">Droite</string>
+    <string name="cr_climate_fan">Ventilateur</string>
+    <string name="cr_climate_vertical_airflow">Flux d’air vertical</string>
+    <string name="cr_climate_horizontal_airflow">Flux d’air horizontal</string>
+    <string name="cr_climate_preset">Préréglage</string>
+    <string name="cr_fan_speed">Vitesse du ventilateur</string>
+    <string name="cr_speed">Vitesse</string>
+    <string name="cr_lower_target">Réduire la consigne</string>
+    <string name="cr_raise_target">Augmenter la consigne</string>
+
+    <!-- Page Climat -->
+    <string name="cr_climate_temperature">Température</string>
+    <string name="cr_climate_all_temperature_sensors">Tous les capteurs de température</string>
+    <string name="cr_climate_outside">Extérieur</string>
+    <string name="cr_climate_outside_summary">Température, humidité et pression extérieures</string>
+    <string name="cr_climate_humidity">Humidité</string>
+    <string name="cr_climate_all_humidity_sensors">Tous les capteurs d’humidité</string>
+    <string name="cr_climate_air_pressure">Pression atmosphérique</string>
+    <string name="cr_climate_all_pressure_sensors">Tous les capteurs de pression atmosphérique</string>
+    <string name="cr_climate_co2">CO₂</string>
+    <string name="cr_climate_carbon_dioxide_sensors">Capteurs de dioxyde de carbone</string>
+    <string name="cr_climate_air_quality">Qualité de l’air</string>
+    <string name="cr_climate_air_quality_summary">Particules, IQA, COV et gaz</string>
+    <string name="cr_climate_entities">Entités de climatisation</string>
+    <string name="cr_reimport">Réimporter</string>
+    <string name="cr_climate_settings">Paramètres de climatisation</string>
+    <string name="cr_empty_climate_view">Aucune donnée climatique n’est encore disponible.</string>
+    <string name="cr_climate_fans">Ventilateurs</string>
+    <string name="cr_climate_air_purifiers">Purificateurs d’air</string>
+    <string name="cr_climate_humidifiers">Humidificateurs</string>
+    <string name="cr_temperature_sensors">Capteurs de température</string>
+    <string name="cr_devices_active">Appareils actifs</string>
+    <string name="cr_active_of_total">%1$d actifs sur %2$d</string>
+    <string name="cr_no_search_active">Aucune recherche active · %1$s</string>
+    <string name="cr_collapse_search">Réduire la recherche</string>
+    <string name="cr_expand_search">Développer la recherche</string>
+    <string name="cr_custom_order">Ordre personnalisé</string>
+    <string name="cr_name_a_z">Nom A–Z</string>
+    <string name="cr_name_z_a">Nom Z–A</string>
+    <string name="cr_climate_device">Appareil de climatisation</string>
+    <string name="cr_climate_device_subtitle">Nom, icône, style de carte et largeur</string>
+    <string name="cr_count_with_average">%1$s · moy. %2$s%3$s</string>
+    <string name="cr_outside_temperature">Température extérieure</string>
+    <string name="cr_outside_humidity">Humidité extérieure</string>
+    <string name="cr_outside_pressure">Pression extérieure</string>
+    <string name="cr_outside_air_pressure">Pression atmosphérique extérieure</string>
+    <string name="cr_no_sensors_found_for">Aucun capteur %1$s trouvé.</string>
+    <string name="cr_climate_control">Commande de climatisation</string>
+    <string name="cr_thermostat_dial">Cadran du thermostat</string>
+    <string name="cr_width_third">Un tiers</string>
+    <string name="cr_width_half">Moitié</string>
+    <string name="cr_width_full">Pleine largeur</string>
+    <string name="cr_select_item">Sélectionner %1$s</string>
+    <string name="cr_set_outdoor_sensors">Définir la température, l’humidité et la pression extérieures</string>
+    <string name="cr_auto_discovered_device_class">Détectés automatiquement selon leur classe d’appareil</string>
+    <string name="cr_auto_discovered_climate_devices">Appareils de climatisation détectés automatiquement</string>
+    <string name="cr_pick_fan_entities_as_purifiers">Choisir les entités ventilateur à utiliser comme purificateurs d’air</string>
+    <string name="cr_auto_discovered_humidifier_devices">Humidificateurs détectés automatiquement</string>
+    <string name="cr_removed_entities">Entités supprimées</string>
+    <string name="cr_entities_removed_edit_mode">Entités supprimées en mode édition</string>
+    <string name="cr_card_indoor_climate_overview">Vue d’ensemble du climat intérieur</string>
+    <string name="cr_card_sensor_device_tiles">Tuiles de capteurs et d’appareils</string>
+    <string name="cr_card_thermostats_ac">Thermostats et climatiseurs</string>
+    <string name="cr_card_temperature_summary">Résumé de la température</string>
+    <string name="cr_card_humidity_summary">Résumé de l’humidité</string>
+    <string name="cr_card_air_pressure_summary">Résumé de la pression atmosphérique</string>
+    <string name="cr_card_co2_summary">Résumé du CO₂</string>
+    <string name="cr_card_air_quality_summary">Résumé de la qualité de l’air</string>
+    <string name="cr_category_overview">Vue d’ensemble</string>
+    <string name="cr_category_devices">Appareils</string>
+    <string name="cr_category_sensors">Capteurs</string>
+    <string name="cr_no_climate_sensors_devices">Aucun capteur ni appareil climatique trouvé.</string>
+    <string name="cr_no_climate_devices">Aucun appareil de climatisation trouvé. Les thermostats et climatiseurs de Home Assistant apparaissent ici automatiquement.</string>
+    <string name="cr_no_fans">Aucun ventilateur trouvé. Les entités ventilateur de Home Assistant apparaissent ici automatiquement.</string>
+    <string name="cr_no_air_purifiers">Aucun purificateur d’air configuré. Choisis des entités ventilateur sous Paramètres de climatisation → Entités de climatisation → Purificateurs d’air.</string>
+    <string name="cr_no_humidifiers">Aucun humidificateur trouvé. Les entités humidificateur de Home Assistant apparaissent ici automatiquement.</string>
+    <string name="cr_unknown_climate_card">Carte climatique inconnue : %1$s</string>
+    <string name="cr_select_climate_cards">Sélectionner les cartes climatiques</string>
+    <string name="cr_entities_for">Entités de %1$s</string>
+    <string name="cr_climate_card">Carte climatique</string>
+    <string name="cr_climate_card_dialog_subtitle">Sources de données et apparence de la carte</string>
+    <string name="cr_card_and_data">Carte et données</string>
+    <string name="cr_climate_stack">Pile climatique</string>
+    <string name="cr_climate_stack_dialog_subtitle">Cartes, sources de données et disposition</string>
+    <string name="cr_cards_and_data">Cartes et données</string>
+
+    <plurals name="cr_sensor_count">
+        <item quantity="one">%d capteur</item>
+        <item quantity="other">%d capteurs</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="one">%1$d appareil · %2$d activé</item>
+        <item quantity="other">%1$d appareils · %2$d activés</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="one">%d capteur extérieur défini</item>
+        <item quantity="other">%d capteurs extérieurs définis</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="one">Automatique + %d manuel</item>
+        <item quantity="other">Automatique + %d manuels</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="one">%d sélectionné</item>
+        <item quantity="other">%d sélectionnés</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="one">%d supprimé</item>
+        <item quantity="other">%d supprimés</item>
+    </plurals>
+
+    <!-- Configuration des pièces et widgets -->
+    <string name="cr_room">Pièce</string>
+    <string name="cr_room_details">Détails de la pièce</string>
+    <string name="cr_empty_room">Cette pièce est vide. Fais glisser l’en-tête vers le bas, active le mode édition, puis ajoute des widgets, des boutons ou des tuiles.</string>
+    <string name="cr_default_markdown_content"># Markdown\nOuvre ce widget en **mode édition** pour écrire ton propre contenu.</string>
+    <string name="cr_select_camera">Sélectionner une caméra</string>
+    <string name="cr_select_entity">Sélectionner une entité</string>
+    <string name="cr_custom_camera">Caméra personnalisée</string>
+    <string name="cr_configure_widget">Configurer le widget</string>
+    <string name="cr_configure_widget_subtitle">Définis l’essentiel avant de l’ajouter</string>
+    <string name="cr_widget_options">Options du widget</string>
+    <string name="cr_widget_options_subtitle">Choisis ce que ce widget doit afficher</string>
+    <string name="cr_add_widget">Ajouter un widget</string>
+    <string name="cr_add_widget_subtitle">Parcours les catégories ou recherche parmi tous les widgets</string>
+    <string name="cr_category_with_options">%1$s · %2$s</string>
+    <string name="cr_widget_category_controls">Commandes</string>
+    <string name="cr_widget_category_controls_description">Boutons, aspirateurs et commandes groupées</string>
+    <string name="cr_widget_category_cameras">Caméras</string>
+    <string name="cr_widget_category_cameras_description">Tuiles de caméra en direct et vues multicaméras</string>
+    <string name="cr_widget_category_climate">Climat et météo</string>
+    <string name="cr_widget_category_climate_description">Température, confort, prévisions et conditions</string>
+    <string name="cr_widget_category_energy">Énergie et batteries</string>
+    <string name="cr_widget_category_energy_description">Consommation, production et état des appareils</string>
+    <string name="cr_widget_category_information">Informations et médias</string>
+    <string name="cr_widget_category_information_description">Calendriers, livraisons, graphiques, notes et lecture</string>
+    <string name="cr_widget_category_layout">Disposition et structure</string>
+    <string name="cr_widget_category_layout_description">Titres et conteneurs de widgets flexibles</string>
+    <string name="cr_widget_adaptive_lighting">Éclairage adaptatif</string>
+    <string name="cr_widget_adaptive_lighting_description">Contrôler un profil Éclairage adaptatif installé</string>
+    <string name="cr_widget_button">Bouton</string>
+    <string name="cr_widget_button_description">Une commande configurable pour une seule entité</string>
+    <string name="cr_widget_buttons">Boutons</string>
+    <string name="cr_widget_calendar">Calendrier</string>
+    <string name="cr_widget_calendar_description">Vues agenda, semaine et mois des calendriers Home Assistant</string>
+    <string name="cr_widget_waste_collection">Collecte des déchets</string>
+    <string name="cr_widget_waste_collection_description">Prochaines collectes provenant des capteurs de déchets</string>
+    <string name="cr_widget_parcels">Colis</string>
+    <string name="cr_widget_parcels_description">Colis entrants et sortants des transporteurs pris en charge</string>
+    <string name="cr_widget_camera">Caméra</string>
+    <string name="cr_widget_camera_description">Une tuile de caméra en direct ou une URL de flux</string>
+    <string name="cr_widget_cameras">Caméras</string>
+    <string name="cr_widget_climate_card">Carte climatique</string>
+    <string name="cr_widget_climate_card_description">Une carte de la vue Climat</string>
+    <string name="cr_widget_energy_card">Carte Énergie</string>
+    <string name="cr_widget_energy_card_description">Une carte de la vue Énergie</string>
+    <string name="cr_widget_battery_levels">Niveaux de batterie</string>
+    <string name="cr_widget_battery_levels_description">Batteries faibles, ou Battery+ uniquement avec le détail des types</string>
+    <string name="cr_widget_header_text">Texte d’en-tête</string>
+    <string name="cr_widget_header_text_description">Ajouter un titre de section</string>
+    <string name="cr_widget_markdown">Markdown</string>
+    <string name="cr_widget_markdown_description">Une carte libre rédigée en Markdown</string>
+    <string name="cr_widget_iframe">iFrame</string>
+    <string name="cr_widget_iframe_description">Intégrer une page web au tableau de bord</string>
+    <string name="cr_widget_media_player">Lecteur multimédia</string>
+    <string name="cr_widget_media_player_description">Tuile de lecture en cours avec la pochette en arrière-plan</string>
+    <string name="cr_widget_sensor_graph">Graphique de capteur</string>
+    <string name="cr_widget_sensor_graph_description">Historique d’un ou plusieurs capteurs, sous forme de courbes ou de barres</string>
+    <string name="cr_widget_vacuum">Aspirateur</string>
+    <string name="cr_widget_vacuum_description">Commande pour un seul robot aspirateur</string>
+    <string name="cr_widget_weather">Météo</string>
+    <string name="cr_widget_weather_description">Une seule carte météo</string>
+    <string name="cr_widget_empty_stack">Pile vide</string>
+    <string name="cr_widget_empty_stack_description">Placer des widgets dans une pile configurable</string>
+    <string name="cr_widget_button_stack">Pile de boutons</string>
+    <string name="cr_widget_button_stack_description">Regrouper des entités dans des commandes configurables</string>
+    <string name="cr_widget_camera_stack">Pile de caméras</string>
+    <string name="cr_widget_camera_stack_description">Afficher des tuiles de caméra en direct ou une URL de flux personnalisée</string>
+    <string name="cr_widget_climate_stack">Pile climatique</string>
+    <string name="cr_widget_climate_stack_description">Regrouper des cartes comme la vue d’ensemble, les thermostats et les capteurs</string>
+    <string name="cr_widget_energy_stack">Pile Énergie</string>
+    <string name="cr_widget_energy_stack_description">Regrouper des cartes comme la consommation, le solaire, le gaz et l’eau</string>
+    <string name="cr_widget_sensor_graph_stack">Pile de graphiques de capteurs</string>
+    <string name="cr_widget_sensor_graph_stack_description">Regrouper plusieurs graphiques d’historique de capteurs</string>
+    <string name="cr_widget_swiping_stack">Pile à faire défiler</string>
+    <string name="cr_widget_swiping_stack_description">Faire défiler horizontalement les widgets imbriqués</string>
+    <string name="cr_widget_vacuum_stack">Pile d’aspirateurs</string>
+    <string name="cr_widget_vacuum_stack_description">Commander les robots aspirateurs avec une carte et l’état de leur batterie</string>
+    <string name="cr_widget_weather_stack">Pile météo</string>
+    <string name="cr_widget_weather_stack_description">Regrouper les conditions, les prévisions, le vent ou les cartes de pluie</string>
+    <string name="cr_camera_settings">Paramètres de la caméra</string>
+    <string name="cr_vacuum_settings">Paramètres de l’aspirateur</string>
+    <string name="cr_button_settings">Paramètres du bouton</string>
+    <string name="cr_robot_image">Image du robot</string>
+    <string name="cr_map_camera">Caméra de la carte</string>
+    <string name="cr_external_url">URL externe</string>
+    <string name="cr_animation_glow">Lueur</string>
+    <string name="cr_animation_spin">Rotation</string>
+    <string name="cr_animation_pulse">Pulsation</string>
+    <string name="cr_adaptive_lighting_widget">Widget Éclairage adaptatif</string>
+    <string name="cr_adaptive_lighting_widget_subtitle">Profils, taille et apparence</string>
+    <string name="cr_button_stack_dialog_subtitle">Disposition, apparence et ordre des entités</string>
+    <string name="cr_expand_stack">Développer la pile</string>
+    <string name="cr_collapse_stack">Réduire la pile</string>
+    <string name="cr_hide_stack">Masquer la pile</string>
+    <string name="cr_unhide_stack">Afficher la pile</string>
+    <string name="cr_swiping_stack_dialog_subtitle">Pages, hauteur et apparence de la carte</string>
+    <string name="cr_empty_stack_dialog_subtitle">Disposition et apparence du conteneur</string>
+    <string name="cr_header_text_dialog_subtitle">Contenu du titre et style visuel</string>
+    <string name="cr_animation_swipe">Balayage</string>
+    <string name="cr_animation_fade">Fondu</string>
+    <string name="cr_animation_zoom">Zoom</string>
+    <string name="cr_animation_slide_fade">Glissement + fondu</string>
+    <string name="cr_animation_cube">Cube</string>
+    <string name="cr_animation_instant">Instantané</string>
+    <string name="cr_paged_status">%1$d/%2$d · %3$s</string>
+    <string name="cr_cover_status">%1$d%% · %2$s</string>
+    <string name="cr_paged_cover_status">%1$d/%2$d · %3$d%% · %4$s</string>
+
+    <plurals name="cr_widget_option_count">
+        <item quantity="one">%d option</item>
+        <item quantity="other">%d options</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="one">%d éclairage configuré</item>
+        <item quantity="other">%d éclairages configurés</item>
+    </plurals>
+
+    <!-- Guide de démarrage rapide -->
+    <string name="cr_quick_notifications">Notifications</string>
+    <string name="cr_quick_notifications_instruction">Fais glisser vers la droite depuis le coin supérieur gauche.</string>
+    <string name="cr_quick_switch_homes">Changer de domicile</string>
+    <string name="cr_quick_switch_homes_instruction">Fais glisser l’en-tête vers la gauche depuis son coin supérieur droit.</string>
+    <string name="cr_quick_actions">Actions rapides</string>
+    <string name="cr_quick_actions_instruction">Tire l’en-tête de n’importe quelle page vers le bas pour accéder à Recherche, Flux, Modifier et Paramètres.</string>
+    <string name="cr_quick_media_player">Lecteur multimédia</string>
+    <string name="cr_quick_media_player_instruction">Lorsque la poignée apparaît, fais glisser la barre inférieure vers le haut pour restaurer le lecteur.</string>
+    <string name="cr_quick_make_it_yours">Personnalise ton espace</string>
+    <string name="cr_quick_make_it_yours_instruction">En mode édition, ajoute et réorganise les pièces, les étages et les widgets. Appuie sur un élément pour le configurer.</string>
+
+    <!-- Version actuelle -->
+    <string-array name="cr_whats_new_beta_10">
+        <item>Correction de PostNL et de l’analyseur actuel des intégrations de colis : les envois entrants affichent de nouveau toutes les informations de suivi et leur état de livraison. La prise en charge des transporteurs a également été mise à jour.</item>
+        <item>Ajout d’un sélecteur de langue dans l’application, avec une large couverture en néerlandais, allemand, français, espagnol, italien et turc, ainsi qu’une révision approfondie des textes néerlandais.</item>
+        <item>L’état de reconnexion affiche désormais l’erreur de connexion réelle, ce qui facilite le diagnostic lors du passage entre Wi-Fi, données mobiles et VPN.</item>
+    </string-array>
+
+    <string-array name="cr_whats_new_beta_9">
+        <item>Réorganise les caméras, thermostats et cartes Énergie par glisser-déposer. En mode édition, les vues Sécurité, Climat et Énergie disposent chacune d’un bouton Réorganiser.</item>
+        <item>Nouvelle tuile Extérieur dans Climat. Associe une entité météo ou des capteurs extérieurs de température, d’humidité et de pression, puis ouvre la tuile pour afficher leurs graphiques d’historique.</item>
+        <item>La visibilité se règle désormais pour chaque bouton et badge d’en-tête. Masque un élément ou programme-le une fois, chaque jour, semaine, mois ou année.</item>
+        <item>Les badges d’en-tête peuvent être renommés dans les paramètres d’apparence.</item>
+        <item>Les cartes à faire défiler passent automatiquement toutes les trois secondes par défaut.</item>
+        <item>La boîte de dialogue Météo ajoute la lecture automatique pour Saison, une rose des vents et une carte de pluie facultative issue d’une caméra ou d’une page web intégrée.</item>
+        <item>Le widget Colis a été reconstruit autour des transporteurs, avec logos, totaux par compte, sections d’envois, estimations, historique de suivi et ajout par numéro de suivi lorsque disponible.</item>
+        <item>Les humidificateurs et déshumidificateurs disposent maintenant de commandes natives pour l’alimentation, l’humidité, le mode, la vitesse et les fonctions auxiliaires dans toute l’application.</item>
+        <item>Les compteurs d’état des pièces sont interactifs et ouvrent les entités correspondant à chaque nombre.</item>
+        <item>Les boutons et badges peuvent afficher un compte à rebours en direct à partir d’une entité d’heure de fin.</item>
+        <item>Les tableaux de bord partagés publient automatiquement les modifications du propriétaire, que les destinataires reçoivent à leur prochaine synchronisation.</item>
+        <item>Les paramètres d’affichage de l’en-tête sont propres à chaque tableau de bord et sont inclus dans les sauvegardes et le partage familial.</item>
+        <item>Les widgets Caméra remplissent toute la tuile et respectent le rayon d’angle configuré.</item>
+        <item>Les collectes de déchets du même jour se chevauchent désormais visiblement, et la grande boîte de dialogue peut être fermée en appuyant à l’extérieur.</item>
+        <item>Les visuels des batteries, déchets, caméras, de la météo et de la page À propos sont maintenant plus cohérents.</item>
+        <item>Les capteurs binaires utilisent les libellés de Home Assistant : Ouvert/Fermé, Humide/Sec, Détecté/Dégagé et Connecté/Déconnecté.</item>
+        <item>Les éditeurs limités à l’esthétique peuvent modifier l’apparence des badges existants, mais pas en ajouter, en supprimer ni les reconfigurer.</item>
+        <item>Correction des changements de réseau : les sockets liés à l’ancien réseau Android sont abandonnés et la session Home Assistant enregistrée se reconnecte sans connexion manuelle inutile. L’état de reconnexion affiche aussi la cause de l’échec.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_8">
+        <item>Les verrouillages enfants ne sont plus importés automatiquement comme commandes de pièce.</item>
+        <item>Tous les boutons et badges respectent désormais les icônes d’entité personnalisées de Home Assistant.</item>
+        <item>Les aspirateurs apparaissent dans la barre de badges de la pièce et ouvrent leurs commandes lors d’un appui.</item>
+        <item>Chaque bouton d’un widget comportant plusieurs éléments peut être masqué ou programmé, y compris avec des plages de dates annuelles récurrentes.</item>
+        <item>Plusieurs badges de caméra ouvrent désormais une boîte de dialogue navigable par balayage avec affichage plein écran.</item>
+        <item>Le partage familial répertorie désormais les tableaux de bord publiés dans le cloud afin de pouvoir les importer, les repartager ou les supprimer après une réinstallation.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_7">
+        <item>L’importation automatique des pièces ignore désormais les commandes auxiliaires intégrées tout en conservant les véritables commandes supplémentaires.</item>
+        <item>Les appareils de climatisation provenant d’intégrations différentes ne sont plus regroupés dans une même commande.</item>
+        <item>Les icônes des appareils de climatisation correspondent maintenant aux climatiseurs, humidificateurs, déshumidificateurs et purificateurs d’air.</item>
+        <item>Les icônes des purificateurs d’air et humidificateurs pulsent doucement au lieu de tourner.</item>
+        <item>Les serrures de porte utilisent maintenant des icônes de porte fermée et ouverte.</item>
+        <item>Les badges d’en-tête comportant plusieurs appareils peuvent être réorganisés afin de choisir l’entité principale.</item>
+        <item>Les effets d’icônes animées sont activés par défaut sur les nouvelles installations.</item>
+        <item>Les boutons et badges peuvent afficher un attribut d’entité et une unité facultative à la place de son état.</item>
+        <item>Les tableaux de bord peuvent être copiés avec toutes leurs pièces, widgets et paramètres de page.</item>
+        <item>Le partage familial réunit maintenant le contrôle parental, le partage de tableaux de bord et les autorisations par utilisateur.</item>
+        <item>Les tableaux de bord partagés se mettent à jour automatiquement tout en conservant les modifications visuelles locales autorisées.</item>
+        <item>Les membres non administrateurs peuvent utiliser les commandes automatiques d’Éclairage adaptatif par pièce lorsque le composant HKI 7 Cloud est installé.</item>
+        <item>Correction des libellés d’en-tête et de volet déroulant illisibles en mode clair et avec des apparences personnalisées.</item>
+        <item>La page À propos propose désormais les boutons Nouveautés et Journal complet des modifications.</item>
+        <item>Correction de l’écran Impossible de se connecter afin qu’il apparaisse correctement lorsque Home Assistant est inaccessible.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_6">
+        <item>Correction des barres d’action du mode édition qui chevauchaient la navigation Android à trois boutons.</item>
+        <item>L’écran Sauvegarde et restauration indique maintenant la dernière exécution de chaque sauvegarde automatique dans le cloud.</item>
+        <item>Chaque sauvegarde cloud dispose désormais d’un bouton Sauvegarder maintenant.</item>
+        <item>Correction de l’icône d’application surdimensionnée après la mise à jour des icônes thématiques.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_4_to_5">
+        <item>L’écran Sauvegarde et restauration indique maintenant la dernière exécution de chaque sauvegarde automatique dans le cloud.</item>
+        <item>Chaque sauvegarde cloud dispose désormais d’un bouton Sauvegarder maintenant.</item>
+        <item>Correction de l’icône d’application surdimensionnée après la mise à jour des icônes thématiques.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_3">
+        <item>Ajout des packs d’icônes Simple Icons, Tabler et Phosphor aux côtés de Material Design Icons.</item>
+        <item>Ajout d’icônes d’entité animées qui brillent, tournent ou pulsent lorsqu’elles sont actives.</item>
+        <item>Ajout du partage familial des tableaux de bord pour les administrateurs.*</item>
+        <item>Ajout d’un contrôle parental permettant de masquer certaines vues et pièces à des personnes précises.*</item>
+        <item>Ajout d’une sauvegarde quotidienne automatique vers ton propre Home Assistant.*</item>
+        <item>Les icônes des sources multimédias sont colorées et peuvent ouvrir l’application source installée.</item>
+        <item>Nouveau widget iFrame pour intégrer des pages web.</item>
+        <item>Les vues Énergie affichent désormais les valeurs négatives lors de l’exportation d’électricité.</item>
+        <item>Correction de l’intégration initiale qui se terminait en quittant l’écran avant sa fin.</item>
+        <item>Correction du bouton de mode du cadran de thermostat qui chevauchait les éléments voisins.</item>
+        <item>De nombreux correctifs mineurs.</item>
+        <item>* Intégration HKI 7 Cloud Component requise.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_2">
+        <item>Amélioration des dispositions sur les écrans courts et étroits, avec une présentation en une colonne dans toute l’application.</item>
+        <item>Sur les écrans étroits, les en-têtes des boîtes de dialogue utilisent deux lignes afin que les titres ne soient plus tronqués.</item>
+        <item>Correction des curseurs Éclairage adaptatif qui chevauchaient d’autres éléments.</item>
+        <item>Les barres de navigation indiquent désormais lorsque d’autres éléments sont disponibles hors écran.</item>
+        <item>Correction des caméras qui ignoraient le verrouillage de l’orientation de l’écran.</item>
+        <item>Correction du zoom dans les boîtes de dialogue de caméra et les caméras en plein écran.</item>
+    </string-array>
+</resources>

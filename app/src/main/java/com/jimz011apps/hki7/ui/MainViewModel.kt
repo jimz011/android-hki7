@@ -4458,11 +4458,13 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         }
     }
 
-    val greeting: String
+    val greetingPeriod: GreetingPeriod
         get() = when (LocalTime.now().hour) {
-            in 5..11 -> "Good Morning"
-            in 12..17 -> "Good Afternoon"
-            in 18..21 -> "Good Evening"
-            else -> "Good Night"
+            in 5..11 -> GreetingPeriod.MORNING
+            in 12..17 -> GreetingPeriod.AFTERNOON
+            in 18..21 -> GreetingPeriod.EVENING
+            else -> GreetingPeriod.NIGHT
         }
 }
+
+enum class GreetingPeriod { MORNING, AFTERNOON, EVENING, NIGHT }

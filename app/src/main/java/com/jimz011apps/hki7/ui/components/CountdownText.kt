@@ -16,10 +16,11 @@ import java.time.ZoneId
 
 /**
  * Formats a remaining-time countdown as `H:MM:SS` (with hours) or `MM:SS` (under an hour), e.g.
- * `00:19` for nineteen seconds left. Non-positive durations read as "Done".
+ * `00:19` for nineteen seconds left. Non-positive durations return null so callers can use their
+ * localized inactive-state label without comparing translated display text.
  */
-fun formatCountdown(totalSeconds: Long): String {
-    if (totalSeconds <= 0) return "Done"
+fun formatCountdown(totalSeconds: Long): String? {
+    if (totalSeconds <= 0) return null
     val h = totalSeconds / 3600
     val m = (totalSeconds % 3600) / 60
     val s = totalSeconds % 60
@@ -88,7 +89,8 @@ fun parseTimestampToInstant(value: String?): Instant? {
  * Live countdown text to [targetIso] (a completion timestamp), ticking every second. Returns null
  * when [targetIso] can't be parsed as a timestamp, so callers can fall back to the raw value. Used
  * by buttons/badges whose state is a "finished at" time (washer, dryer, dishwasher, …) so they can
- * show a descending "MM:SS left" instead of a raw ISO string.
+ * show a descending countdown instead of a raw ISO string. Once the target has passed this returns
+ * null, just like an invalid timestamp.
  */
 @Composable
 fun rememberCountdownText(targetIso: String?): String? {

@@ -2,6 +2,10 @@
 
 package com.jimz011apps.hki7.ui.screens
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -23,6 +27,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.font.FontWeight
@@ -43,7 +48,21 @@ import com.jimz011apps.hki7.ui.components.itemCornerShape
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.*
+import java.util.Locale
 import kotlin.time.Duration.Companion.seconds
+
+@Composable
+private fun vacuumStateLabel(state: String): String = when (state.lowercase(Locale.ROOT)) {
+    "cleaning" -> stringResource(R.string.widgets_vacuum_state_cleaning)
+    "docked" -> stringResource(R.string.widgets_vacuum_state_docked)
+    "paused" -> stringResource(R.string.widgets_vacuum_state_paused)
+    "error" -> stringResource(R.string.widgets_vacuum_state_error)
+    "returning" -> stringResource(R.string.widgets_vacuum_state_returning)
+    else -> state.replace('_', ' ')
+}
+
+private fun localizedTitlecase(value: String, locale: Locale): String =
+    value.replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Vacuum stack widget content (rendered inside ButtonStackItem)
@@ -156,7 +175,7 @@ fun VacuumEntityCard(
         else entity.attributes?.get("battery_level")?.jsonPrimitive?.intOrNull ?: 0
     }
     val displayName = config?.name ?: entity.friendlyName ?: entity.entity_id
-    val stateTxt = entity.state.split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+    val stateTxt = vacuumStateLabel(entity.state)
     val stateColor = when (entity.state) {
         "cleaning"  -> Color(0xFF66BB6A)
         "docked"    -> Color(0xFF42A5F5)
@@ -210,7 +229,7 @@ fun VacuumEntityCard(
                         Text(stateTxt, color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.labelSmall, fontSize = 10.sp)
                         Spacer(Modifier.weight(1f, fill = false))
                         Icon(Icons.Default.BatteryFull, null, tint = Color.White.copy(alpha = 0.7f), modifier = Modifier.size(11.dp))
-                        Text("$batteryLevel%", color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.labelSmall, fontSize = 9.sp)
+                        Text(stringResource(R.string.ui_text_fc9db15, batteryLevel), color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.labelSmall, fontSize = 9.sp)
                     }
                 }
             }
@@ -324,7 +343,7 @@ fun VacuumStackDialog(
     val fanSpeedList = (entity.attributes?.get("fan_speed_list") as? JsonArray)
         ?.mapNotNull { it.jsonPrimitive.contentOrNull } ?: emptyList()
     val statusText   = entity.attributes?.get("status")?.jsonPrimitive?.contentOrNull
-        ?: entity.state.split("_").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+        ?: vacuumStateLabel(entity.state)
     val rooms        = parseVacuumRooms(entity)
 
     // State color
@@ -337,25 +356,29 @@ fun VacuumStackDialog(
         else        -> LocalHKIAppColors.current.onMuted
     }
 
-    // Map vacuum state to active tab highlight
+    val dockLabel = stringResource(R.string.widgets_vacuum_dock)
+    val startLabel = stringResource(R.string.widgets_vacuum_start)
+    val pauseLabel = stringResource(R.string.widgets_vacuum_pause)
+    val stopLabel = stringResource(R.string.widgets_vacuum_stop)
+    val locateLabel = stringResource(R.string.widgets_vacuum_locate)
+
+    // Map the raw vacuum state to the localized tab label used by HKIDialog.
     val currentTab = when (entity.state) {
-        "cleaning"  -> "Start"
-        "paused"    -> "Pause"
-        "docked"    -> "Dock"
-        "returning" -> "Dock"
+        "cleaning"  -> startLabel
+        "paused"    -> pauseLabel
+        "docked"    -> dockLabel
+        "returning" -> dockLabel
         else        -> null
     }
 
     // Control tabs shown in dialog bottom bar
-    val tabs = remember(entity.entity_id) {
-        listOf(
-            Triple("Dock", Icons.Default.Home) { viewModel.vacuumCommand(entity.entity_id, "return_to_base") },
-            Triple("Start", Icons.Default.PlayArrow) { viewModel.vacuumCommand(entity.entity_id, "start") },
-            Triple("Pause", Icons.Default.Pause) { viewModel.vacuumCommand(entity.entity_id, "pause") },
-            Triple("Stop", Icons.Default.Stop) { viewModel.vacuumCommand(entity.entity_id, "stop") },
-            Triple("Locate", Icons.Default.LocationSearching) { viewModel.vacuumSendCommand(entity.entity_id, "locate") }
-        )
-    }
+    val tabs = listOf(
+        Triple(dockLabel, Icons.Default.Home) { viewModel.vacuumCommand(entity.entity_id, "return_to_base") },
+        Triple(startLabel, Icons.Default.PlayArrow) { viewModel.vacuumCommand(entity.entity_id, "start") },
+        Triple(pauseLabel, Icons.Default.Pause) { viewModel.vacuumCommand(entity.entity_id, "pause") },
+        Triple(stopLabel, Icons.Default.Stop) { viewModel.vacuumCommand(entity.entity_id, "stop") },
+        Triple(locateLabel, Icons.Default.LocationSearching) { viewModel.vacuumSendCommand(entity.entity_id, "locate") }
+    )
 
     HKIDialog(
         entity = entity,
@@ -365,7 +388,11 @@ fun VacuumStackDialog(
         iconTint = stateColor,
         titleOverride = config?.name,
         iconName = config?.icon,
-        statusText = if (entities.size > 1) "${page + 1}/${entities.size} - ${statusText.uppercase()}" else statusText.uppercase(),
+        statusText = if (entities.size > 1) {
+            stringResource(R.string.widgets_vacuum_page_status, page + 1, entities.size, statusText)
+        } else {
+            statusText
+        },
         tabs = tabs,
         currentTab = currentTab
     ) {
@@ -434,13 +461,23 @@ fun VacuumStackDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (fanSpeedList.isNotEmpty()) {
-                        VacuumControlDropdown(Icons.Default.Air, "Fan speed", fanSpeed, fanSpeedList) {
+                        VacuumControlDropdown(
+                            Icons.Default.Air,
+                            stringResource(R.string.widgets_vacuum_fan_speed),
+                            fanSpeed,
+                            fanSpeedList
+                        ) {
                             viewModel.vacuumSetFanSpeed(entity.entity_id, it)
                         }
                     }
                     resolved.water?.let { water ->
                         if (waterOptions.isNotEmpty()) {
-                            VacuumControlDropdown(Icons.Default.WaterDrop, "Water level", water.state, waterOptions) {
+                            VacuumControlDropdown(
+                                Icons.Default.WaterDrop,
+                                stringResource(R.string.widgets_vacuum_water_level),
+                                water.state,
+                                waterOptions
+                            ) {
                                 viewModel.callService(water.entity_id.substringBefore('.'), "select_option", com.jimz011apps.hki7.data.HAServiceCall(water.entity_id, option = it))
                             }
                         }
@@ -456,7 +493,7 @@ fun VacuumStackDialog(
                         ) {
                             Icon(Icons.Default.DeleteSweep, null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
-                            Text("Empty", fontSize = 11.sp)
+                            Text(stringResource(R.string.ui_empty_3159fe4), fontSize = 11.sp)
                         }
                     }
                 }
@@ -472,14 +509,20 @@ fun VacuumStackDialog(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Icon(Icons.Default.Air, "Fan speed", tint = appColors.onMuted, modifier = Modifier.size(18.dp))
+                        Icon(
+                            Icons.Default.Air,
+                            stringResource(R.string.widgets_vacuum_fan_speed),
+                            tint = appColors.onMuted,
+                            modifier = Modifier.size(18.dp)
+                        )
                         Spacer(Modifier.width(8.dp))
+                        val locale = LocalConfiguration.current.locales[0] ?: Locale.getDefault()
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             items(fanSpeedList) { speed ->
                                 FilterChip(
                                     selected = speed == fanSpeed,
                                     onClick = { viewModel.vacuumSetFanSpeed(entity.entity_id, speed) },
-                                    label = { Text(speed.replaceFirstChar { it.uppercase() }, fontSize = 11.sp) }
+                                    label = { Text(localizedTitlecase(speed, locale), fontSize = 11.sp) }
                                 )
                             }
                         }
@@ -493,14 +536,20 @@ fun VacuumStackDialog(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
-                            Icon(Icons.Default.WaterDrop, "Water level", tint = appColors.onMuted, modifier = Modifier.size(18.dp))
+                            Icon(
+                                Icons.Default.WaterDrop,
+                                stringResource(R.string.widgets_vacuum_water_level),
+                                tint = appColors.onMuted,
+                                modifier = Modifier.size(18.dp)
+                            )
                             Spacer(Modifier.width(8.dp))
+                            val locale = LocalConfiguration.current.locales[0] ?: Locale.getDefault()
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 items(waterOptions) { option ->
                                     FilterChip(
                                         selected = water.state == option,
                                         onClick = { viewModel.callService(water.entity_id.substringBefore('.'), "select_option", com.jimz011apps.hki7.data.HAServiceCall(water.entity_id, option = option)) },
-                                        label = { Text(option.replaceFirstChar { it.uppercase() }, fontSize = 11.sp) }
+                                        label = { Text(localizedTitlecase(option, locale), fontSize = 11.sp) }
                                     )
                                 }
                             }
@@ -524,7 +573,7 @@ fun VacuumStackDialog(
                     ) {
                         Icon(Icons.Default.DeleteSweep, null, modifier = Modifier.size(16.dp))
                         Spacer(Modifier.width(6.dp))
-                        Text("Empty bin")
+                        Text(stringResource(R.string.ui_empty_bin_0cbe2d7))
                     }
                 }
             }
@@ -559,6 +608,7 @@ private fun VacuumControlDropdown(
     onSelect: (String) -> Unit
 ) {
     var open by remember { mutableStateOf(false) }
+    val locale = LocalConfiguration.current.locales[0] ?: Locale.getDefault()
     Box {
         FilterChip(
             selected = false,
@@ -566,7 +616,7 @@ private fun VacuumControlDropdown(
             leadingIcon = { Icon(icon, contentDescription, modifier = Modifier.size(16.dp)) },
             label = {
                 Text(
-                    selected.ifBlank { "—" }.replaceFirstChar { it.uppercase() },
+                    localizedTitlecase(selected.ifBlank { "—" }, locale),
                     fontSize = 11.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -577,7 +627,7 @@ private fun VacuumControlDropdown(
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             options.forEach { option ->
                 DropdownMenuItem(
-                    text = { Text(option.replaceFirstChar { it.uppercase() }) },
+                    text = { Text(localizedTitlecase(option, locale)) },
                     onClick = { open = false; onSelect(option) }
                 )
             }
@@ -613,11 +663,16 @@ private fun VacuumMapView(mapUrl: String?) {
                     .graphicsLayer(scaleX = scale, scaleY = scale, translationX = offsetX, translationY = offsetY)
             ) {
                 lastGoodMap?.let { fallback ->
-                    AsyncImage(fallback, "Vacuum map", contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
+                    AsyncImage(
+                        fallback,
+                        stringResource(R.string.widgets_vacuum_map),
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
                 SubcomposeAsyncImage(
                     model = mapUrl,
-                    contentDescription = "Vacuum map",
+                    contentDescription = stringResource(R.string.ui_vacuum_map_8236541),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize(),
                     loading = {},
@@ -626,7 +681,7 @@ private fun VacuumMapView(mapUrl: String?) {
                         if (lastGoodMap == null) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(Icons.Default.BrokenImage, null, tint = appColors.onMuted.copy(alpha = 0.4f), modifier = Modifier.size(40.dp))
-                                Text("Map unavailable", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+                                Text(stringResource(R.string.ui_map_unavailable_0ccd149), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
                             }
                         }
                     }
@@ -635,7 +690,7 @@ private fun VacuumMapView(mapUrl: String?) {
         } else {
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Icon(Icons.Default.Map, null, tint = appColors.onMuted.copy(alpha = 0.3f), modifier = Modifier.size(48.dp))
-                Text("No map camera set.\nConfigure in button settings.", color = appColors.onMuted,
+                Text(stringResource(R.string.ui_no_map_camera_set_configure_in_button_settings_b54466c), color = appColors.onMuted,
                     style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
             }
         }
@@ -652,7 +707,7 @@ private fun VacuumRoomsInDialog(rooms: Map<Int, String>, entity: HAEntity, viewM
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Rooms", style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+            Text(stringResource(R.string.ui_rooms_3a28d6f), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
             if (selectedRooms.isNotEmpty()) {
                 TextButton(onClick = {
                     viewModel.vacuumCleanSegments(entity.entity_id, selectedRooms.toList())
@@ -660,7 +715,7 @@ private fun VacuumRoomsInDialog(rooms: Map<Int, String>, entity: HAEntity, viewM
                 }, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)) {
                     Icon(Icons.Default.PlayArrow, null, modifier = Modifier.size(12.dp))
                     Spacer(Modifier.width(2.dp))
-                    Text("Clean selected", fontSize = 11.sp)
+                    Text(stringResource(R.string.ui_clean_selected_43d8dd5), fontSize = 11.sp)
                 }
             }
         }
@@ -676,10 +731,13 @@ private fun VacuumRoomsInDialog(rooms: Map<Int, String>, entity: HAEntity, viewM
     }
 }
 
+@Composable
 private fun parseVacuumRooms(vacuum: HAEntity?): Map<Int, String> {
     if (vacuum == null) return emptyMap()
     val attr = vacuum.attributes?.get("rooms") as? JsonObject ?: return emptyMap()
     return attr.entries.mapNotNull { (k, v) ->
-        k.toIntOrNull()?.let { id -> id to (v.jsonPrimitive.contentOrNull ?: "Room $id") }
+        k.toIntOrNull()?.let { id ->
+            id to (v.jsonPrimitive.contentOrNull ?: stringResource(R.string.widgets_vacuum_room_number, id))
+        }
     }.toMap()
 }

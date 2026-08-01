@@ -100,21 +100,23 @@ class PushNotificationHandler(
             != PackageManager.PERMISSION_GRANTED
         ) return
 
-        val channelName = data?.get("channel")?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() } ?: "General"
+        val requestedChannel = data?.get("channel")?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
+        val channelName = requestedChannel ?: context.getString(R.string.background_notification_channel_general)
         val sourcePrefix = instanceId?.take(12)?.replace(Regex("[^A-Za-z0-9]+"), "_") ?: "default"
-        val channelId = "ha_${sourcePrefix}_" + channelName.lowercase(Locale.getDefault()).replace(Regex("[^a-z0-9]+"), "_")
+        val channelIdPart = requestedChannel ?: "general"
+        val channelId = "ha_${sourcePrefix}_" + channelIdPart.lowercase(Locale.ROOT).replace(Regex("[^a-z0-9]+"), "_")
         val manager = notificationManager()
-        if (manager.getNotificationChannel(channelId) == null) {
-            manager.createNotificationChannel(
-                NotificationChannel(
-                    channelId,
-                    listOfNotNull(instanceName, channelName).joinToString(" · "),
-                    NotificationManager.IMPORTANCE_HIGH
-                ).apply {
-                    description = listOfNotNull("Home Assistant", instanceName, channelName).joinToString(" · ")
-                }
-            )
-        }
+        // Recreate to refresh the localized fallback name after an app-language change. Android
+        // retains the user's importance and other channel preferences for an existing ID.
+        manager.createNotificationChannel(
+            NotificationChannel(
+                channelId,
+                listOfNotNull(instanceName, channelName).joinToString(" · "),
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = listOfNotNull("Home Assistant", instanceName, channelName).joinToString(" · ")
+            }
+        )
 
         val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
             instanceId?.let { putExtra(EXTRA_HA_INSTANCE_ID, it) }
@@ -269,13 +271,15 @@ class PushForegroundService : Service() {
 
     private fun createChannel() {
         val manager = getSystemService(NotificationManager::class.java)
-        if (manager.getNotificationChannel(CHANNEL_ID) == null) {
-            manager.createNotificationChannel(
-                NotificationChannel(CHANNEL_ID, "Notification connection", NotificationManager.IMPORTANCE_MIN).apply {
-                    description = "Keeps a connection to Home Assistant for instant notifications"
-                }
-            )
-        }
+        manager.createNotificationChannel(
+            NotificationChannel(
+                CHANNEL_ID,
+                getString(R.string.background_push_channel_name),
+                NotificationManager.IMPORTANCE_MIN
+            ).apply {
+                description = getString(R.string.background_push_channel_description)
+            }
+        )
     }
 
     private fun buildNotification(): Notification {
@@ -288,8 +292,8 @@ class PushForegroundService : Service() {
         // the lock screen, no timestamp, and its appearance deferred. The user can hide it fully
         // by disabling this one channel (see the settings shortcut) — the service keeps running.
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Connected to Home Assistant")
-            .setContentText("Listening for notifications")
+            .setContentTitle(getString(R.string.background_push_notification_title))
+            .setContentText(getString(R.string.background_push_notification_text))
             .setSmallIcon(R.drawable.ic_stat_hki)
             .setOngoing(true)
             .setSilent(true)

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widgets_tab_content">Inhoud</string>
+    <string name="widgets_tab_appearance">Weergave</string>
+    <string name="widgets_tab_data">Gegevens</string>
+    <string name="widgets_tab_chart">Grafiek</string>
+    <string name="widgets_tab_graphs">Grafieken</string>
+    <string name="widgets_tab_layout">Indeling</string>
+    <string name="widgets_tab_data_sources">Gegevensbronnen</string>
+    <string name="widgets_remove">Verwijderen</string>
+    <string name="widgets_reimport">Opnieuw importeren</string>
+    <string name="widgets_unavailable">Niet beschikbaar</string>
+    <string name="widgets_today">Vandaag</string>
+    <string name="widgets_tomorrow">Morgen</string>
+    <string name="widgets_yesterday">Gisteren</string>
+    <string name="widgets_today_initial">V</string>
+    <string name="widgets_date_range">%1$s – %2$s</string>
+
+    <string name="widgets_iframe_title">iFrame</string>
+    <string name="widgets_iframe_subtitle">Toon een webpagina op je dashboard</string>
+    <string name="widgets_ratio_square">Vierkant</string>
+    <string name="widgets_ratio_wide">Breed</string>
+    <string name="widgets_ratio_tall">Hoog</string>
+    <string name="widgets_markdown_title">Markdown</string>
+    <string name="widgets_markdown_subtitle">Inhoud en weergave van de kaart</string>
+    <string name="widgets_media_player_title">Mediaspeler</string>
+    <string name="widgets_media_player_subtitle">Bron, indeling en albumhoes</string>
+
+    <string name="widgets_stat_min">Min.</string>
+    <string name="widgets_stat_average">Gem.</string>
+    <string name="widgets_stat_max">Max.</string>
+    <string name="widgets_sensor_graph_title">Sensorgrafiek</string>
+    <string name="widgets_sensor_graph_subtitle">Entiteiten, grafiekstijl en weergave</string>
+    <string name="widgets_sensor_graph_stack_title">Gestapelde sensorgrafieken</string>
+    <string name="widgets_sensor_graph_stack_subtitle">Gegroepeerde grafieken en stapelindeling</string>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="one">Grafiek %1$d · %2$d sensor</item>
+        <item quantity="other">Grafiek %1$d · %2$d sensoren</item>
+    </plurals>
+
+    <string name="widgets_calendar_title">Agenda</string>
+    <string name="widgets_calendar_subtitle">Agenda’s, standaardweergave en opmaak</string>
+    <string name="widgets_calendar_agenda">Agenda</string>
+    <string name="widgets_calendar_week">Week</string>
+    <string name="widgets_calendar_month">Maand</string>
+    <string name="widgets_calendar_no_entity">Geen agenda-entiteit beschikbaar</string>
+    <string name="widgets_calendar_no_upcoming_events">Geen afspraken in de komende dagen</string>
+    <string name="widgets_calendar_no_events_for">Geen afspraken op %1$s</string>
+    <string name="widgets_calendar_all_day">Hele dag</string>
+    <string name="widgets_calendar_time_unknown">Tijd onbekend</string>
+
+    <string name="widgets_vacuum_state_cleaning">Aan het schoonmaken</string>
+    <string name="widgets_vacuum_state_docked">Op het laadstation</string>
+    <string name="widgets_vacuum_state_paused">Gepauzeerd</string>
+    <string name="widgets_vacuum_state_error">Fout</string>
+    <string name="widgets_vacuum_state_returning">Terug naar laadstation</string>
+    <string name="widgets_vacuum_dock">Naar station</string>
+    <string name="widgets_vacuum_start">Starten</string>
+    <string name="widgets_vacuum_pause">Pauzeren</string>
+    <string name="widgets_vacuum_stop">Stoppen</string>
+    <string name="widgets_vacuum_locate">Zoeken</string>
+    <string name="widgets_vacuum_page_status">%1$d/%2$d · %3$s</string>
+    <string name="widgets_vacuum_fan_speed">Zuigkracht</string>
+    <string name="widgets_vacuum_water_level">Waterniveau</string>
+    <string name="widgets_vacuum_map">Stofzuigerkaart</string>
+    <string name="widgets_vacuum_room_number">Kamer %1$d</string>
+
+    <string name="widgets_waste_collection_title">Afvalinzameling</string>
+    <string name="widgets_waste_collection_subtitle">Sensoren, kalender en weergave</string>
+    <string name="widgets_waste_sensor_picture_help">Toont de entity_picture van de sensor. Als die ontbreekt, wordt het pictogram van het afvaltype gebruikt.</string>
+    <string name="widgets_waste_organic">GFT</string>
+    <string name="widgets_waste_packaging">PMD</string>
+    <string name="widgets_waste_paper">Papier</string>
+    <string name="widgets_waste_residual">Restafval</string>
+    <string name="widgets_waste_glass">Glas</string>
+    <string name="widgets_waste_textiles">Textiel</string>
+    <string name="widgets_waste_plastic">Plastic</string>
+    <string name="widgets_waste_christmas_trees">Kerstbomen</string>
+    <string name="widgets_waste_bulky">Grofvuil</string>
+    <string name="widgets_waste_duo_bin">Duobak</string>
+
+    <string name="widgets_weather_title">Weer</string>
+    <string name="widgets_weather_subtitle">Entiteit, kaarttype en weergave</string>
+    <string name="widgets_weather_style_current">Huidig weer</string>
+    <string name="widgets_weather_style_daily">Dagverwachting</string>
+    <string name="widgets_weather_style_hourly">Uurverwachting</string>
+    <string name="widgets_weather_style_horizon">Zonsopkomst en zonsondergang</string>
+    <string name="widgets_weather_style_wind">Windkompas</string>
+    <string name="widgets_weather_style_rain_map">Neerslagkaart (afbeeldings-URL)</string>
+    <string-array name="widgets_compass_directions">
+        <item>N</item><item>NNO</item><item>NO</item><item>ONO</item>
+        <item>O</item><item>OZO</item><item>ZO</item><item>ZZO</item>
+        <item>Z</item><item>ZZW</item><item>ZW</item><item>WZW</item>
+        <item>W</item><item>WNW</item><item>NW</item><item>NNW</item>
+    </string-array>
+
+    <string name="widgets_battery_entities">Batterij-entiteiten</string>
+    <string name="widgets_battery_settings">Batterij-instellingen</string>
+    <string name="widgets_battery_empty_view_hint">Deze batterijweergave is leeg. Veeg de kop omlaag en open Batterij-instellingen om zelf entiteiten toe te voegen.</string>
+    <string name="widgets_battery_levels_title">Batterijniveaus</string>
+    <string name="widgets_battery_levels_subtitle">Drempels, bronnen en weergave</string>
+    <string name="widgets_battery_rules">Batterijregels</string>
+    <string name="widgets_battery_all">Alle</string>
+    <string name="widgets_battery_critical">Kritiek</string>
+    <string name="widgets_battery_low">Laag</string>
+    <string name="widgets_battery_watch">In de gaten houden</string>
+    <string name="widgets_battery_good">Goed</string>
+    <string name="widgets_battery_unknown">Onbekend</string>
+    <string name="widgets_battery_range_critical">0–10%</string>
+    <string name="widgets_battery_range_low">11–30%</string>
+    <string name="widgets_battery_range_watch">31–50%</string>
+    <string name="widgets_battery_range_good">Meer dan 50%</string>
+    <string name="widgets_battery_range_unknown">Niet beschikbaar of onbekend</string>
+    <string name="widgets_battery_no_data">Geen batterijgegevens</string>
+    <string name="widgets_battery_levels_unavailable">Batterijniveaus niet beschikbaar</string>
+    <string name="widgets_battery_levels_healthy">De batterijniveaus zien er goed uit</string>
+    <string name="widgets_battery_lowest_detail">Laagste: %1$s met %2$d%%</string>
+    <string name="widgets_battery_showing_plus">Alleen Battery+-apparaten</string>
+    <string name="widgets_battery_waiting_levels">Wachten op gemelde batterijniveaus</string>
+    <string name="widgets_battery_lowest">Laagste</string>
+    <string name="widgets_battery_attention">Aandacht nodig</string>
+    <string name="widgets_battery_tracked">Gevolgd</string>
+    <string name="widgets_battery_level">Niveau</string>
+    <string name="widgets_battery_name">Naam</string>
+    <string name="widgets_battery_type">Batterijtype</string>
+    <string name="widgets_battery_entity">Entiteit</string>
+    <string name="widgets_battery_quantity">Aantal</string>
+    <string name="widgets_battery_quantity_short">Aantal %1$s</string>
+    <string name="widgets_battery_device_id">Apparaat-ID</string>
+    <string name="widgets_battery_unknown_type">Onbekend type</string>
+    <string name="widgets_battery_sort_summary">Sorteren: %1$s</string>
+    <string name="widgets_battery_no_filters">Geen filters actief</string>
+    <string name="widgets_battery_collapse_filters">Filters inklappen</string>
+    <string name="widgets_battery_expand_filters">Filters uitklappen</string>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="one">%1$d batterij bijna leeg</item>
+        <item quantity="other">%1$d batterijen bijna leeg</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="one">%1$d batterij kritiek</item>
+        <item quantity="other">%1$d batterijen kritiek</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="one">%1$d batterij heeft aandacht nodig</item>
+        <item quantity="other">%1$d batterijen hebben aandacht nodig</item>
+    </plurals>
+
+    <string name="widgets_energy_day">Dag</string>
+    <string name="widgets_energy_week">Week</string>
+    <string name="widgets_energy_month">Maand</string>
+    <string name="widgets_energy_year">Jaar</string>
+    <string name="widgets_energy_this_week">Deze week</string>
+    <string name="widgets_energy_this_month">Deze maand</string>
+    <string name="widgets_energy_this_year">Dit jaar</string>
+    <string name="widgets_energy_today_lower">vandaag</string>
+    <string name="widgets_energy_this_week_lower">deze week</string>
+    <string name="widgets_energy_this_month_lower">deze maand</string>
+    <string name="widgets_energy_this_year_lower">dit jaar</string>
+    <string name="widgets_energy_yesterday_lower">gisteren</string>
+    <string name="widgets_energy_consumed_solar">Direct verbruikte zonne-energie</string>
+    <string name="widgets_energy_imported">Afgenomen</string>
+    <string name="widgets_energy_exported">Teruggeleverd</string>
+    <string name="widgets_energy_phase_number">Fase %1$d</string>
+    <string name="widgets_energy_forecast_number">Verwachting %1$d</string>
+    <string name="widgets_energy_ha_forecast">Home Assistant-verwachting</string>
+</resources>

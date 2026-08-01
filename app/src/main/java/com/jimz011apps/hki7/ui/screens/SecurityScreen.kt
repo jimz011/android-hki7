@@ -1,5 +1,11 @@
 package com.jimz011apps.hki7.ui.screens
 
+import androidx.annotation.StringRes
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 
 import androidx.activity.compose.BackHandler
@@ -43,6 +49,7 @@ import com.jimz011apps.hki7.data.HKIPageConfig
 import com.jimz011apps.hki7.data.HKISecurityConfig
 import com.jimz011apps.hki7.data.withDisplayName
 import com.jimz011apps.hki7.ui.MainViewModel
+import com.jimz011apps.hki7.ui.localizedStateLabel
 import com.jimz011apps.hki7.ui.components.*
 import com.jimz011apps.hki7.ui.components.surfaceGradient
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
@@ -62,8 +69,8 @@ private val SecurityWindowWarm = Color(0xFFFFDF9E)
 
 private data class SecurityGroup(
     val key: String,
-    val title: String,
-    val subtitle: String,
+    @StringRes val titleRes: Int,
+    @StringRes val subtitleRes: Int,
     val icon: ImageVector,
     val color: Color,
     val domains: Set<String> = setOf("binary_sensor"),
@@ -73,38 +80,38 @@ private data class SecurityGroup(
 // HA's security/safety binary classes plus security-related controllable domains. Groups only
 // appear when at least one matching entity exists.
 private val securityGroups = listOf(
-    SecurityGroup("doors", "Doors", "Door contacts", Icons.Default.DoorFront, SecurityBlue, deviceClasses = setOf("door")),
-    SecurityGroup("windows", "Windows", "Window contacts", Icons.Default.Window, SecurityBlue, deviceClasses = setOf("window")),
-    SecurityGroup("openings", "Openings", "Garage doors and other openings", Icons.Default.Garage, SecurityBlue,
+    SecurityGroup("doors", R.string.security_group_doors, R.string.security_group_doors_subtitle, Icons.Default.DoorFront, SecurityBlue, deviceClasses = setOf("door")),
+    SecurityGroup("windows", R.string.security_group_windows, R.string.security_group_windows_subtitle, Icons.Default.Window, SecurityBlue, deviceClasses = setOf("window")),
+    SecurityGroup("openings", R.string.security_group_openings, R.string.security_group_openings_subtitle, Icons.Default.Garage, SecurityBlue,
         deviceClasses = setOf("garage_door", "opening")),
     // Before "covers", so garage covers land here instead of the generic covers group.
-    SecurityGroup("garage_doors", "Garage doors", "Garage door covers", Icons.Default.Garage, PresencePurple,
+    SecurityGroup("garage_doors", R.string.security_group_garage_doors, R.string.security_group_garage_doors_subtitle, Icons.Default.Garage, PresencePurple,
         domains = setOf("cover"), deviceClasses = setOf("garage", "garage_door")),
-    SecurityGroup("covers", "Covers", "Blinds, shutters and gates", Icons.Default.Blinds, PresencePurple,
+    SecurityGroup("covers", R.string.security_group_covers, R.string.security_group_covers_subtitle, Icons.Default.Blinds, PresencePurple,
         domains = setOf("cover")),
-    SecurityGroup("locks", "Locks", "Door and gate locks", Icons.Default.Lock, PresencePurple,
+    SecurityGroup("locks", R.string.security_group_locks, R.string.security_group_locks_subtitle, Icons.Default.Lock, PresencePurple,
         domains = setOf("lock")),
-    SecurityGroup("motion", "Motion", "Motion detection", Icons.AutoMirrored.Filled.DirectionsWalk, WarningOrange,
+    SecurityGroup("motion", R.string.security_group_motion, R.string.security_group_motion_subtitle, Icons.AutoMirrored.Filled.DirectionsWalk, WarningOrange,
         deviceClasses = setOf("motion")),
-    SecurityGroup("presence", "Presence", "Occupancy sensors", Icons.Default.SensorOccupied, PresencePurple,
+    SecurityGroup("presence", R.string.security_group_presence, R.string.security_group_presence_subtitle, Icons.Default.SensorOccupied, PresencePurple,
         deviceClasses = setOf("occupancy")),
-    SecurityGroup("fire", "Fire & temperature", "Fire, heat, cold and safety alarms", Icons.Default.LocalFireDepartment, AlertRed,
+    SecurityGroup("fire", R.string.security_group_fire, R.string.security_group_fire_subtitle, Icons.Default.LocalFireDepartment, AlertRed,
         deviceClasses = setOf("heat", "cold", "safety")),
-    SecurityGroup("smoke", "Smoke", "Smoke detectors", Icons.Default.SmokeFree, AlertRed,
+    SecurityGroup("smoke", R.string.security_group_smoke, R.string.security_group_smoke_subtitle, Icons.Default.SmokeFree, AlertRed,
         deviceClasses = setOf("smoke")),
-    SecurityGroup("gas", "Gas", "Combustible gas sensors", Icons.Default.GasMeter, AlertRed,
+    SecurityGroup("gas", R.string.security_group_gas, R.string.security_group_gas_subtitle, Icons.Default.GasMeter, AlertRed,
         deviceClasses = setOf("gas")),
-    SecurityGroup("co2", "CO / CO₂", "Carbon monoxide and carbon dioxide sensors", Icons.Default.Co2, WarningOrange,
+    SecurityGroup("co2", R.string.security_group_co2, R.string.security_group_co2_subtitle, Icons.Default.Co2, WarningOrange,
         domains = setOf("binary_sensor", "sensor"), deviceClasses = setOf("carbon_monoxide", "carbon_dioxide")),
-    SecurityGroup("moisture", "Leaks", "Moisture and water leaks", Icons.Default.WaterDrop, SecurityBlue,
+    SecurityGroup("moisture", R.string.security_group_moisture, R.string.security_group_moisture_subtitle, Icons.Default.WaterDrop, SecurityBlue,
         deviceClasses = setOf("moisture")),
-    SecurityGroup("sound", "Sound", "Sound and glass-break sensors", Icons.Default.Hearing, WarningOrange,
+    SecurityGroup("sound", R.string.security_group_sound, R.string.security_group_sound_subtitle, Icons.Default.Hearing, WarningOrange,
         deviceClasses = setOf("sound")),
-    SecurityGroup("light", "Light detection", "Light and beam sensors", Icons.Default.LightMode, WarningOrange,
+    SecurityGroup("light", R.string.security_group_light, R.string.security_group_light_subtitle, Icons.Default.LightMode, WarningOrange,
         deviceClasses = setOf("light")),
-    SecurityGroup("alarms", "Alarm systems", "Alarm control panels", Icons.Default.Security, AlertRed,
+    SecurityGroup("alarms", R.string.security_group_alarms, R.string.security_group_alarms_subtitle, Icons.Default.Security, AlertRed,
         domains = setOf("alarm_control_panel")),
-    SecurityGroup("cameras", "Cameras", "Camera feeds", Icons.Default.Videocam, SecurityBlue,
+    SecurityGroup("cameras", R.string.security_group_cameras, R.string.security_group_cameras_subtitle, Icons.Default.Videocam, SecurityBlue,
         domains = setOf("camera"))
 )
 
@@ -364,8 +371,8 @@ fun SecurityScreen(viewModel: MainViewModel) {
     if (showReorderCameras) {
         val cams = grouped["cameras"].orEmpty()
         ReorderItemsDialog(
-            title = "Reorder cameras",
-            subtitle = "Drag to set the order cameras appear on the Security view.",
+            title = stringResource(R.string.ui_reorder_cameras_b226c47),
+            subtitle = stringResource(R.string.ui_drag_to_set_the_order_cameras_appear_on_the_7bcb4f5),
             items = cams.map { ReorderItem(it.entity_id, config.customNames[it.entity_id]?.takeIf(String::isNotBlank) ?: it.friendlyName ?: it.entity_id, "cctv") },
             onDismiss = { showReorderCameras = false },
             onSave = { applyOrder(it); showReorderCameras = false }
@@ -385,50 +392,50 @@ fun SecurityScreen(viewModel: MainViewModel) {
         }
     }
     val settings: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
-        "Security Entities" to { setBack ->
+        stringResource(R.string.security_entities) to { setBack ->
             SecurityEntitySettings(config, entities,
                 onSave = { viewModel.updateSecurityConfig(SECURITY_PAGE_KEY, it) }, setBack = setBack)
         }
     var showSecurityReimport by remember { mutableStateOf(false) }
     var showClearSecurity by remember { mutableStateOf(false) }
     val importSettings: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
-        "Re-import" to { _ ->
-            Text("Fetch security entities from Home Assistant again.", color = LocalHKIAppColors.current.onMuted)
+        stringResource(R.string.security_reimport) to { _ ->
+            Text(stringResource(R.string.ui_fetch_security_entities_from_home_assistant_again_577b666), color = LocalHKIAppColors.current.onMuted)
             Button(onClick = { showSecurityReimport = true }, modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Default.CloudDownload, null); Spacer(Modifier.width(8.dp)); Text("Re-import Security")
+                Icon(Icons.Default.CloudDownload, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.ui_re_import_security_411e76d))
             }
             OutlinedButton(onClick = { showClearSecurity = true }, modifier = Modifier.fillMaxWidth()) {
-                Text("Clear Security View", color = MaterialTheme.colorScheme.error)
+                Text(stringResource(R.string.ui_clear_security_view_219e25b), color = MaterialTheme.colorScheme.error)
             }
         }
     if (showSecurityReimport) {
         AlertDialog(
             onDismissRequest = { showSecurityReimport = false },
-            title = { Text("Re-import security") },
-            text = { Text("Import entities that have not been edited, or remove all security edits and import from scratch.") },
+            title = { Text(stringResource(R.string.ui_re_import_security_fcf0ad8)) },
+            text = { Text(stringResource(R.string.ui_import_entities_that_have_not_been_edited_or_remove_9851b28)) },
             confirmButton = { Column(horizontalAlignment = Alignment.End) {
-                Button(onClick = { viewModel.reimportSecurity(false); showSecurityReimport = false }) { Text("Import unedited") }
-                TextButton(onClick = { viewModel.reimportSecurity(true); showSecurityReimport = false }) { Text("Remove edits and import all", color = MaterialTheme.colorScheme.error) }
+                Button(onClick = { viewModel.reimportSecurity(false); showSecurityReimport = false }) { Text(stringResource(R.string.ui_import_unedited_4a58143)) }
+                TextButton(onClick = { viewModel.reimportSecurity(true); showSecurityReimport = false }) { Text(stringResource(R.string.ui_remove_edits_and_import_all_7f0b4a1), color = MaterialTheme.colorScheme.error) }
             } },
-            dismissButton = { TextButton(onClick = { showSecurityReimport = false }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { showSecurityReimport = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
         )
     }
     if (showClearSecurity) {
         AlertDialog(
             onDismissRequest = { showClearSecurity = false },
-            title = { Text("Clear security view?") },
-            text = { Text("This removes all imported security entities from this view.") },
-            confirmButton = { TextButton(onClick = { viewModel.clearSecurityImports(); showClearSecurity = false }) { Text("Clear", color = MaterialTheme.colorScheme.error) } },
-            dismissButton = { TextButton(onClick = { showClearSecurity = false }) { Text("Cancel") } }
+            title = { Text(stringResource(R.string.ui_clear_security_view_48790f7)) },
+            text = { Text(stringResource(R.string.ui_this_removes_all_imported_security_entities_from_this_view_6443e5c)) },
+            confirmButton = { TextButton(onClick = { viewModel.clearSecurityImports(); showClearSecurity = false }) { Text(stringResource(R.string.ui_clear_719ea39), color = MaterialTheme.colorScheme.error) } },
+            dismissButton = { TextButton(onClick = { showClearSecurity = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
         )
     }
 
     HKIPage(
         viewModel = viewModel,
-        title = activeGroup?.title ?: "Security",
-        subtitle = activeGroup?.subtitle ?: "Home status and activity",
+        title = activeGroup?.let { stringResource(it.titleRes) } ?: stringResource(R.string.security_title),
+        subtitle = activeGroup?.let { stringResource(it.subtitleRes) } ?: stringResource(R.string.security_subtitle),
         pageKey = SECURITY_PAGE_KEY,
-        pageSettingsTitle = "Security Settings",
+        pageSettingsTitle = stringResource(R.string.security_settings),
         extraPageSettingsSection = settings,
         additionalPageSettingsSections = listOf(importSettings),
         showBadgeBar = false,
@@ -457,11 +464,11 @@ private fun SecurityEntitySearchBar(
 ) {
     val appColors = LocalHKIAppColors.current
     var expanded by rememberSaveable { mutableStateOf(false) }
-    val sortLabel = when (sortMode) { "name_asc" -> "Name A-Z"; "name_desc" -> "Name Z-A"; else -> "Custom order" }
+    val sortLabel = when (sortMode) { "name_asc" -> stringResource(R.string.ui_name_a_z_257c1c4); "name_desc" -> stringResource(R.string.ui_name_z_a_daabfb6); else -> stringResource(R.string.ui_custom_order_a7a5984) }
     val summary = buildList {
         if (query.isNotBlank()) add("\"${query.trim()}\"")
         if (sortMode != "custom") add(sortLabel)
-    }.joinToString(" - ").ifBlank { "No search active · $sortLabel" }
+    }.joinToString(" - ").ifBlank { stringResource(R.string.security_no_search_active, sortLabel) }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(
             Modifier.fillMaxWidth().clip(itemCornerShape()).clickable { expanded = !expanded }.padding(horizontal = 12.dp, vertical = 6.dp),
@@ -470,14 +477,14 @@ private fun SecurityEntitySearchBar(
             Icon(Icons.Default.Search, null, tint = appColors.onSurface, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
             Column(Modifier.weight(1f)) {
-                Text("Search & sort", color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.ui_search_sort_9fe6cb4), color = appColors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                 Text(summary, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null, tint = appColors.onMuted)
         }
         if (expanded) {
             OutlinedTextField(
-                value = query, onValueChange = onQueryChange, label = { Text("Search by name") },
+                value = query, onValueChange = onQueryChange, label = { Text(stringResource(R.string.ui_search_by_name_28abc03)) },
                 leadingIcon = { Icon(Icons.Default.Search, null) }, singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
             )
@@ -485,12 +492,16 @@ private fun SecurityEntitySearchBar(
                 Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
             ) {
-                listOf("custom" to "Custom order", "name_asc" to "Name A-Z", "name_desc" to "Name Z-A").forEach { (value, label) ->
+                listOf(
+                    "custom" to stringResource(R.string.ui_custom_order_a7a5984),
+                    "name_asc" to stringResource(R.string.ui_name_a_z_257c1c4),
+                    "name_desc" to stringResource(R.string.ui_name_z_a_daabfb6)
+                ).forEach { (value, label) ->
                     FilterChip(selected = sortMode == value, onClick = { onSortModeChange(value) }, label = { Text(label) }, shape = itemCornerShape())
                 }
             }
             if (query.isNotBlank()) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                TextButton(onClick = { onQueryChange("") }) { Text("Clear search") }
+                TextButton(onClick = { onQueryChange("") }) { Text(stringResource(R.string.ui_clear_search_67300d0)) }
             }
         }
     }
@@ -537,7 +548,7 @@ private fun SecurityOverview(
                 item {
                     Box(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
                         OutlinedButton(onClick = onReorderCameras, modifier = Modifier.fillMaxWidth()) {
-                            Icon(Icons.Default.SwapVert, null); Spacer(Modifier.width(8.dp)); Text("Reorder cameras")
+                            Icon(Icons.Default.SwapVert, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.ui_reorder_cameras_b226c47))
                         }
                     }
                 }
@@ -579,30 +590,30 @@ private fun SecurityHero(state: SecuritySceneState) {
         else -> colors.onMuted
     }
     val status = when {
-        state.alertCount > 0 -> "Security alert"
-        state.alarmMode == SecurityAlarmMode.PENDING -> "Alarm pending"
-        state.alarmMode == SecurityAlarmMode.TRANSITIONING -> "Changing alarm mode"
-        needsAttention -> "Needs attention"
-        state.motionCount > 0 -> "Motion detected"
-        state.sensorActivityCount > 0 -> "Sensor activity"
-        alarmUnavailable -> "Alarm unavailable"
-        state.unavailableCount > 0 -> "Devices unavailable"
-        camerasNeedAttention -> "Cameras offline"
-        state.isArmed -> "All secure"
-        state.alarmMode == SecurityAlarmMode.DISARMED -> "Alarm disarmed"
-        hasData -> "All clear"
-        else -> "No security data"
+        state.alertCount > 0 -> stringResource(R.string.security_status_alert)
+        state.alarmMode == SecurityAlarmMode.PENDING -> stringResource(R.string.security_status_alarm_pending)
+        state.alarmMode == SecurityAlarmMode.TRANSITIONING -> stringResource(R.string.security_status_changing_alarm)
+        needsAttention -> stringResource(R.string.security_status_needs_attention)
+        state.motionCount > 0 -> stringResource(R.string.security_status_motion)
+        state.sensorActivityCount > 0 -> stringResource(R.string.security_status_sensor_activity)
+        alarmUnavailable -> stringResource(R.string.security_status_alarm_unavailable)
+        state.unavailableCount > 0 -> stringResource(R.string.security_status_devices_unavailable)
+        camerasNeedAttention -> stringResource(R.string.security_status_cameras_offline)
+        state.isArmed -> stringResource(R.string.security_status_all_secure)
+        state.alarmMode == SecurityAlarmMode.DISARMED -> stringResource(R.string.security_status_alarm_disarmed)
+        hasData -> stringResource(R.string.security_status_all_clear)
+        else -> stringResource(R.string.security_status_no_data)
     }
     val alarmLabel = when (state.alarmMode) {
-        SecurityAlarmMode.TRIGGERED -> "Alarm triggered"
-        SecurityAlarmMode.PENDING -> "Alarm pending"
-        SecurityAlarmMode.TRANSITIONING -> "Changing mode"
-        SecurityAlarmMode.ARMED_HOME -> "Armed home"
-        SecurityAlarmMode.ARMED_AWAY -> "Armed away"
-        SecurityAlarmMode.ARMED_NIGHT -> "Armed night"
-        SecurityAlarmMode.ARMED_OTHER -> "Armed"
-        SecurityAlarmMode.DISARMED -> "Disarmed"
-        SecurityAlarmMode.NONE -> if (alarmUnavailable) "Alarm unavailable" else "No alarm"
+        SecurityAlarmMode.TRIGGERED -> stringResource(R.string.ui_alarm_triggered_641ff6f)
+        SecurityAlarmMode.PENDING -> stringResource(R.string.ui_alarm_pending_e2c04aa)
+        SecurityAlarmMode.TRANSITIONING -> stringResource(R.string.ui_changing_mode_3da68b4)
+        SecurityAlarmMode.ARMED_HOME -> stringResource(R.string.ui_armed_home_c8d0b44)
+        SecurityAlarmMode.ARMED_AWAY -> stringResource(R.string.ui_armed_away_6834abf)
+        SecurityAlarmMode.ARMED_NIGHT -> stringResource(R.string.ui_armed_night_80659bd)
+        SecurityAlarmMode.ARMED_OTHER -> stringResource(R.string.ui_armed_32caa31)
+        SecurityAlarmMode.DISARMED -> stringResource(R.string.ui_disarmed_aaa4d9e)
+        SecurityAlarmMode.NONE -> if (alarmUnavailable) stringResource(R.string.ui_alarm_unavailable_867909b) else stringResource(R.string.ui_no_alarm_585ad82)
     }
 
     Column(
@@ -617,7 +628,7 @@ private fun SecurityHero(state: SecuritySceneState) {
                 modifier = Modifier.align(Alignment.TopStart)
                     .padding(start = 14.dp, top = 8.dp)
             ) {
-                Text("HOME SECURITY", style = MaterialTheme.typography.labelSmall, color = colors.onMuted, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.ui_home_security_aa534f2), style = MaterialTheme.typography.labelSmall, color = colors.onMuted, fontWeight = FontWeight.SemiBold)
                 Text(
                     status,
                     style = MaterialTheme.typography.titleLarge,
@@ -651,7 +662,7 @@ private fun SecurityHero(state: SecuritySceneState) {
                     else -> SafeGreen
                 },
                 state.openingCount.toString(),
-                "Openings"
+                stringResource(R.string.security_metric_openings)
             )
             SecurityHeroStat(
                 Icons.Default.Lock,
@@ -662,7 +673,7 @@ private fun SecurityHero(state: SecuritySceneState) {
                     else -> SafeGreen
                 },
                 if (state.lockCount > 0) "${state.lockedLocks}/${state.lockCount}" else "—",
-                "Locked"
+                stringResource(R.string.security_metric_locked)
             )
             SecurityHeroStat(
                 Icons.Default.Videocam,
@@ -672,7 +683,7 @@ private fun SecurityHero(state: SecuritySceneState) {
                     else -> SafeGreen
                 },
                 if (state.cameras > 0) "${state.onlineCameras}/${state.cameras}" else "—",
-                "Cameras online"
+                stringResource(R.string.security_metric_cameras_online)
             )
         }
     }
@@ -1303,7 +1314,7 @@ private fun SecurityTile(group: SecurityGroup, count: Int, active: Int, modifier
     Surface(modifier.clip(itemCornerShape()).background(surfaceGradient(c.elevated), itemCornerShape()).clickable(onClick = onClick), itemCornerShape(), color = Color.Transparent) {
         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Box(Modifier.size(34.dp).background(group.color.copy(.15f), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) { Icon(group.icon, null, tint = group.color, modifier = Modifier.size(18.dp)) }
-            Column(Modifier.weight(1f)) { Text(group.title, color = c.onSurface, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, maxLines = 1); Text("$count · $active active", color = c.onMuted, style = MaterialTheme.typography.bodySmall, maxLines = 1) }
+            Column(Modifier.weight(1f)) { Text(stringResource(group.titleRes), color = c.onSurface, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, maxLines = 1); Text(stringResource(R.string.ui_active_0af2854, count, active), color = c.onMuted, style = MaterialTheme.typography.bodySmall, maxLines = 1) }
             Icon(Icons.Default.ChevronRight, null, tint = c.onMuted, modifier = Modifier.size(16.dp))
         }
     }
@@ -1353,28 +1364,33 @@ private fun SecurityCardSettingsDialog(
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { ModernSettingsDialogTitle("Security card", "Name, layout, and card appearance") },
+        title = {
+            ModernSettingsDialogTitle(
+                stringResource(R.string.security_card_title),
+                stringResource(R.string.security_card_subtitle)
+            )
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                SettingsSubcategory("Identity", "Optional display name and icon override")
+                SettingsSubcategory(stringResource(R.string.ui_identity_7e5a975), stringResource(R.string.ui_optional_display_name_and_icon_override_f7a6cda))
                 OutlinedTextField(value = name, onValueChange = { name = it }, singleLine = true,
-                    label = { Text("Name") }, placeholder = { Text(defaultName) }, modifier = Modifier.fillMaxWidth())
-                Text("Icon", style = MaterialTheme.typography.labelLarge)
+                    label = { Text(stringResource(R.string.ui_name_709a232)) }, placeholder = { Text(defaultName) }, modifier = Modifier.fillMaxWidth())
+                Text(stringResource(R.string.ui_icon_716f63b), style = MaterialTheme.typography.labelLarge)
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     if (icon.isNotBlank()) MdiIcon(icon, size = 24.dp)
-                    Text(icon.ifBlank { "Auto" }, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                    TextButton(onClick = { showIconPicker = true }) { Text("Change") }
-                    if (icon.isNotBlank()) TextButton(onClick = { icon = "" }) { Text("Clear") }
+                    Text(icon.ifBlank { stringResource(R.string.ui_auto_c614ba7) }, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                    TextButton(onClick = { showIconPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
+                    if (icon.isNotBlank()) TextButton(onClick = { icon = "" }) { Text(stringResource(R.string.ui_clear_719ea39)) }
                 }
             }
         },
         confirmButton = {
-            TextButton(onClick = { onSave(name.trim().takeIf { it.isNotEmpty() }, icon.trim().takeIf { it.isNotEmpty() }) }) { Text("Save") }
+            TextButton(onClick = { onSave(name.trim().takeIf { it.isNotEmpty() }, icon.trim().takeIf { it.isNotEmpty() }) }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
         dismissButton = {
             Row {
-                TextButton(onClick = { onSave(null, null) }) { Text("Reset") }
-                TextButton(onClick = onDismiss) { Text("Cancel") }
+                TextButton(onClick = { onSave(null, null) }) { Text(stringResource(R.string.ui_reset_44c57ab)) }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
             }
         }
     )
@@ -1391,16 +1407,16 @@ private fun SecurityGroupSummary(group: SecurityGroup, items: List<HAEntity>) {
                     Icon(group.icon, null, tint = group.color, modifier = Modifier.size(18.dp))
                 }
                 Column {
-                    Text("${items.size} ${if (items.size == 1) "entity" else "entities"}",
+                    Text(pluralStringResource(R.plurals.security_entity_count, items.size, items.size),
                         style = MaterialTheme.typography.titleSmall, color = c.onSurface, fontWeight = FontWeight.SemiBold)
-                    Text(group.subtitle, style = MaterialTheme.typography.bodySmall, color = c.onMuted)
+                    Text(stringResource(group.subtitleRes), style = MaterialTheme.typography.bodySmall, color = c.onMuted)
                 }
             }
             Spacer(Modifier.height(14.dp))
             FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                SummaryStat(group.icon, group.color, items.size.toString(), "Total")
-                SummaryStat(Icons.Default.NotificationsActive, if (active > 0) WarningOrange else c.onMuted, active.toString(), "Active")
-                SummaryStat(Icons.Default.VerifiedUser, SafeGreen, (items.size - active).toString(), "Clear")
+                SummaryStat(group.icon, group.color, items.size.toString(), stringResource(R.string.security_stat_total))
+                SummaryStat(Icons.Default.NotificationsActive, if (active > 0) WarningOrange else c.onMuted, active.toString(), stringResource(R.string.security_stat_active))
+                SummaryStat(Icons.Default.VerifiedUser, SafeGreen, (items.size - active).toString(), stringResource(R.string.security_stat_clear))
             }
         }
     }
@@ -1430,7 +1446,7 @@ private fun SecurityEntityCard(entity: HAEntity, group: SecurityGroup, viewModel
                 if (iconOverride != null) MdiIcon(iconOverride, contentDescription = null, tint = if (active) group.color else c.onMuted, size = 24.dp)
                 else Icon(group.icon, null, tint = if (active) group.color else c.onMuted)
             }
-            Spacer(Modifier.width(12.dp)); Column(Modifier.weight(1f)) { Text(entity.friendlyName ?: entity.entity_id, color = c.onSurface, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis); Text(entity.state.replace('_', ' ').replaceFirstChar(Char::uppercase), color = if (active) group.color else c.onMuted, style = MaterialTheme.typography.bodySmall) }
+            Spacer(Modifier.width(12.dp)); Column(Modifier.weight(1f)) { Text(entity.friendlyName ?: entity.entity_id, color = c.onSurface, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis); Text(entity.localizedStateLabel(), color = if (active) group.color else c.onMuted, style = MaterialTheme.typography.bodySmall) }
             Icon(Icons.Default.ChevronRight, null, tint = c.onMuted)
         }
     }
@@ -1465,13 +1481,16 @@ private fun SecurityEntityDialog(entity: HAEntity, viewModel: MainViewModel, onD
 
 @Composable
 private fun SecurityCoverDialog(entity: HAEntity, viewModel: MainViewModel, onDismiss: () -> Unit) {
+    val openLabel = stringResource(R.string.security_cover_open)
+    val stopLabel = stringResource(R.string.security_cover_stop)
+    val closeLabel = stringResource(R.string.security_cover_close)
     var selectedAction by remember(entity.entity_id, entity.state) {
-        mutableStateOf(when (entity.state) { "open", "opening" -> "Open"; "closed", "closing" -> "Close"; else -> "Stop" })
+        mutableStateOf(when (entity.state) { "open", "opening" -> openLabel; "closed", "closing" -> closeLabel; else -> stopLabel })
     }
     val tabs = listOf(
-        Triple("Open", Icons.Default.ArrowUpward) { selectedAction = "Open"; viewModel.controlCover(entity.entity_id, "open_cover") },
-        Triple("Stop", Icons.Default.Stop) { selectedAction = "Stop"; viewModel.controlCover(entity.entity_id, "stop_cover") },
-        Triple("Close", Icons.Default.ArrowDownward) { selectedAction = "Close"; viewModel.controlCover(entity.entity_id, "close_cover") }
+        Triple(openLabel, Icons.Default.ArrowUpward) { selectedAction = openLabel; viewModel.controlCover(entity.entity_id, "open_cover") },
+        Triple(stopLabel, Icons.Default.Stop) { selectedAction = stopLabel; viewModel.controlCover(entity.entity_id, "stop_cover") },
+        Triple(closeLabel, Icons.Default.ArrowDownward) { selectedAction = closeLabel; viewModel.controlCover(entity.entity_id, "close_cover") }
     )
     HKIDialog(
         entity = entity,
@@ -1537,33 +1556,38 @@ private fun SecurityEntitySettings(config: HKISecurityConfig, allEntities: List<
         allEntities = allEntities,
         onDismiss = { picker = false },
         onEntitiesSelected = { ids -> save(cfg.copy(extraEntityIds = cfg.extraEntityIds + (group.key to ids))); picker = false },
-        title = "Select ${group.title}",
+        title = stringResource(R.string.ui_select_0fc8ec5, stringResource(group.titleRes)),
         singleSelect = false,
         preselectedIds = cfg.extraEntityIds[group.key].orEmpty().toSet()
     )
     if (category == null) {
         securityGroups.forEach { g ->
-            Surface(Modifier.fillMaxWidth().clickable { category = g.key }, itemCornerShape(), color = c.subtleSurface) { Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) { Icon(g.icon, null, tint = g.color); Spacer(Modifier.width(12.dp)); Column(Modifier.weight(1f)) { Text(g.title, color = c.onSurface, fontWeight = FontWeight.SemiBold); Text(if (cfg.extraEntityIds[g.key].orEmpty().isEmpty()) "Auto-discovered" else "Auto + ${cfg.extraEntityIds[g.key].orEmpty().size} manual", color = c.onMuted, style = MaterialTheme.typography.bodySmall) }; Icon(Icons.Default.ChevronRight, null, tint = c.onMuted) } }
+            Surface(Modifier.fillMaxWidth().clickable { category = g.key }, itemCornerShape(), color = c.subtleSurface) { Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) { Icon(g.icon, null, tint = g.color); Spacer(Modifier.width(12.dp)); Column(Modifier.weight(1f)) { Text(stringResource(g.titleRes), color = c.onSurface, fontWeight = FontWeight.SemiBold); Text(if (cfg.extraEntityIds[g.key].orEmpty().isEmpty()) stringResource(R.string.ui_auto_discovered_e0643da) else stringResource(R.string.ui_auto_manual_342b68e, cfg.extraEntityIds[g.key].orEmpty().size), color = c.onMuted, style = MaterialTheme.typography.bodySmall) }; Icon(Icons.Default.ChevronRight, null, tint = c.onMuted) } }
         }
-        Surface(Modifier.fillMaxWidth().clickable { category = "hidden" }, itemCornerShape(), color = c.subtleSurface) { Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Default.VisibilityOff, null, tint = c.onMuted); Spacer(Modifier.width(12.dp)); Text("Removed entities (${cfg.hiddenEntityIds.size})", color = c.onSurface, modifier = Modifier.weight(1f)); Icon(Icons.Default.ChevronRight, null, tint = c.onMuted) } }
+        Surface(Modifier.fillMaxWidth().clickable { category = "hidden" }, itemCornerShape(), color = c.subtleSurface) { Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Default.VisibilityOff, null, tint = c.onMuted); Spacer(Modifier.width(12.dp)); Text(stringResource(R.string.ui_removed_entities_559c584, cfg.hiddenEntityIds.size), color = c.onSurface, modifier = Modifier.weight(1f)); Icon(Icons.Default.ChevronRight, null, tint = c.onMuted) } }
         return
     }
     if (category == "hidden") {
-        if (cfg.hiddenEntityIds.isEmpty()) Text("Nothing removed.", color = c.onMuted)
-        cfg.hiddenEntityIds.forEach { id -> Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) { Text(allEntities.find { it.entity_id == id }?.friendlyName ?: id, Modifier.weight(1f), color = c.onSurface, maxLines = 1); IconButton({ save(cfg.copy(hiddenEntityIds = cfg.hiddenEntityIds - id)) }) { Icon(Icons.Default.Close, "Restore") } } }
+        if (cfg.hiddenEntityIds.isEmpty()) Text(stringResource(R.string.ui_nothing_removed_d67902f), color = c.onMuted)
+        cfg.hiddenEntityIds.forEach { id -> Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) { Text(allEntities.find { it.entity_id == id }?.friendlyName ?: id, Modifier.weight(1f), color = c.onSurface, maxLines = 1); IconButton({ save(cfg.copy(hiddenEntityIds = cfg.hiddenEntityIds - id)) }) { Icon(Icons.Default.Close, stringResource(R.string.security_restore)) } } }
         return
     }
     if (group != null) {
-        Text("Matching entities are added automatically by Home Assistant device class. Add any missing or custom entities here.", color = c.onMuted, style = MaterialTheme.typography.bodySmall)
-        cfg.extraEntityIds[group.key].orEmpty().forEach { id -> Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) { Text(allEntities.find { it.entity_id == id }?.friendlyName ?: id, Modifier.weight(1f), color = c.onSurface); IconButton({ save(cfg.copy(extraEntityIds = cfg.extraEntityIds + (group.key to (cfg.extraEntityIds[group.key].orEmpty() - id)))) }) { Icon(Icons.Default.Close, "Remove") } } }
-        TextButton({ picker = true }) { Icon(Icons.Default.Add, null); Spacer(Modifier.width(6.dp)); Text("Add or edit entities") }
+        Text(stringResource(R.string.ui_matching_entities_are_added_automatically_by_home_assistan_07ebdac), color = c.onMuted, style = MaterialTheme.typography.bodySmall)
+        cfg.extraEntityIds[group.key].orEmpty().forEach { id -> Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) { Text(allEntities.find { it.entity_id == id }?.friendlyName ?: id, Modifier.weight(1f), color = c.onSurface); IconButton({ save(cfg.copy(extraEntityIds = cfg.extraEntityIds + (group.key to (cfg.extraEntityIds[group.key].orEmpty() - id)))) }) { Icon(Icons.Default.Close, stringResource(R.string.action_remove)) } } }
+        TextButton({ picker = true }) { Icon(Icons.Default.Add, null); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.ui_add_or_edit_entities_b59919b)) }
     }
 }
 
-@Composable private fun SecuritySectionHeader(count: String) { val c = LocalHKIAppColors.current; Row(Modifier.fillMaxWidth().padding(20.dp, 22.dp, 20.dp, 10.dp), horizontalArrangement = Arrangement.SpaceBetween) { Text("Cameras", color = c.onSurface, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold); Text(count, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) } }
+@Composable private fun SecuritySectionHeader(count: String) { val c = LocalHKIAppColors.current; Row(Modifier.fillMaxWidth().padding(20.dp, 22.dp, 20.dp, 10.dp), horizontalArrangement = Arrangement.SpaceBetween) { Text(stringResource(R.string.ui_cameras_d3daff3), color = c.onSurface, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold); Text(count, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) } }
 
 @Composable
 fun EmptyEditHint(
     modifier: Modifier = Modifier,
-    message: String = "This is an empty security view. Swipe down on the header and open Security Settings to add entities manually."
-) { Column(modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) { Text(message, color = Color.Gray, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center) } }
+    message: String? = null
+) {
+    val resolvedMessage = message ?: stringResource(R.string.security_empty)
+    Column(modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Text(resolvedMessage, color = Color.Gray, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+    }
+}

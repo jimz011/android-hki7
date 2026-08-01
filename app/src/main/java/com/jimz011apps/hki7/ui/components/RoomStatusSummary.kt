@@ -1,5 +1,7 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,6 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -188,17 +192,18 @@ private fun statusOrder(role: String): Int = when (role) {
 }
 
 /** Group-dialog title for a room-status role (e.g. "Lights", "Open doors"). */
+@Composable
 fun roomStatusGroupTitle(role: String): String = when (role) {
-    RoomStatusRoles.DOORS -> "Open doors"
-    RoomStatusRoles.WINDOWS -> "Open windows"
-    RoomStatusRoles.MOTION -> "Motion"
-    RoomStatusRoles.PRESENCE -> "Presence"
-    RoomStatusRoles.LIGHTS -> "Lights on"
-    RoomStatusRoles.DEVICES -> "Devices on"
-    RoomStatusRoles.SMOKE -> "Smoke"
-    RoomStatusRoles.GAS -> "Gas"
-    RoomStatusRoles.FIRE -> "Fire"
-    else -> "Active"
+    RoomStatusRoles.DOORS -> stringResource(R.string.uif_open_doors)
+    RoomStatusRoles.WINDOWS -> stringResource(R.string.uif_open_windows)
+    RoomStatusRoles.MOTION -> stringResource(R.string.uif_motion)
+    RoomStatusRoles.PRESENCE -> stringResource(R.string.uif_presence)
+    RoomStatusRoles.LIGHTS -> stringResource(R.string.uif_lights_on)
+    RoomStatusRoles.DEVICES -> stringResource(R.string.uif_devices_on)
+    RoomStatusRoles.SMOKE -> stringResource(R.string.uif_smoke)
+    RoomStatusRoles.GAS -> stringResource(R.string.uif_gas)
+    RoomStatusRoles.FIRE -> stringResource(R.string.uif_fire)
+    else -> stringResource(R.string.uif_active)
 }
 
 /** MDI icon slug for a room-status role, used by the tapped-counter group dialog header. */
@@ -215,30 +220,20 @@ fun roomStatusMdiSlug(role: String): String = when (role) {
     else -> "power-plug"
 }
 
-private fun statusLabel(role: String, count: Int): String {
-    val singular = when (role) {
-        RoomStatusRoles.DOORS -> "open door"
-        RoomStatusRoles.WINDOWS -> "open window"
-        RoomStatusRoles.MOTION -> "motion sensor active"
-        RoomStatusRoles.PRESENCE -> "presence detected"
-        RoomStatusRoles.LIGHTS -> "light on"
-        RoomStatusRoles.DEVICES -> "device on"
-        RoomStatusRoles.SMOKE -> "smoke detected"
-        RoomStatusRoles.GAS -> "gas detected"
-        RoomStatusRoles.FIRE -> "fire detected"
-        else -> "active device"
-    }
-    val plural = when (role) {
-        RoomStatusRoles.DOORS -> "open doors"
-        RoomStatusRoles.WINDOWS -> "open windows"
-        RoomStatusRoles.MOTION -> "motion sensors active"
-        RoomStatusRoles.PRESENCE -> "presence sensors active"
-        RoomStatusRoles.LIGHTS -> "lights on"
-        RoomStatusRoles.DEVICES -> "devices on"
-        RoomStatusRoles.SMOKE -> "smoke detectors active"
-        RoomStatusRoles.GAS -> "gas detectors active"
-        RoomStatusRoles.FIRE -> "fire detectors active"
-        else -> "active devices"
-    }
-    return "$count ${if (count == 1) singular else plural}"
-}
+@Composable
+private fun statusLabel(role: String, count: Int): String = pluralStringResource(
+    when (role) {
+        RoomStatusRoles.DOORS -> R.plurals.uif_open_door_count
+        RoomStatusRoles.WINDOWS -> R.plurals.uif_open_window_count
+        RoomStatusRoles.MOTION -> R.plurals.uif_motion_sensor_count
+        RoomStatusRoles.PRESENCE -> R.plurals.uif_presence_sensor_count
+        RoomStatusRoles.LIGHTS -> R.plurals.uif_light_on_count
+        RoomStatusRoles.DEVICES -> R.plurals.uif_device_on_count
+        RoomStatusRoles.SMOKE -> R.plurals.uif_smoke_detector_count
+        RoomStatusRoles.GAS -> R.plurals.uif_gas_detector_count
+        RoomStatusRoles.FIRE -> R.plurals.uif_fire_detector_count
+        else -> R.plurals.uif_active_device_count
+    },
+    count,
+    count,
+)

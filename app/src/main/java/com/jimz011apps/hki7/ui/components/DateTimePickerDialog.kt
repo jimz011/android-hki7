@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +45,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 /**
  * A Material 3 date-and-time picker in the same style as the Energy view's date picker: the standard
@@ -70,12 +75,12 @@ fun DateTimePickerDialog(
                 val millis = dateState.selectedDateMillis ?: return@TextButton
                 val date: LocalDate = Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate()
                 onConfirm(LocalDateTime.of(date, LocalTime.of(timeState.hour, timeState.minute)))
-            }) { Text("Done") }
+            }) { Text(stringResource(R.string.dlg_done)) }
         },
         dismissButton = {
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                if (onClear != null) TextButton(onClick = onClear) { Text("Clear") }
-                TextButton(onClick = onDismiss) { Text("Cancel") }
+                if (onClear != null) TextButton(onClick = onClear) { Text(stringResource(R.string.dlg_clear)) }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.dlg_cancel)) }
             }
         }
     ) {
@@ -84,8 +89,8 @@ fun DateTimePickerDialog(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                FilterChip(selected = tab == "date", onClick = { tab = "date" }, label = { Text("Date") })
-                FilterChip(selected = tab == "time", onClick = { tab = "time" }, label = { Text("Time") })
+                FilterChip(selected = tab == "date", onClick = { tab = "date" }, label = { Text(stringResource(R.string.dlg_date)) })
+                FilterChip(selected = tab == "time", onClick = { tab = "time" }, label = { Text(stringResource(R.string.dlg_time)) })
             }
             if (tab == "date") {
                 DatePicker(state = dateState)
@@ -107,11 +112,14 @@ data class VisibilitySpec(
     val recurrence: String = "none",
 )
 
-/** Human-readable label for a scheduled bound stored as an ISO local date-time, or "Any" if blank. */
+/** Human-readable label for a scheduled bound stored as an ISO local date-time. */
+@Composable
 fun formatVisibilityBound(iso: String?): String {
-    if (iso.isNullOrBlank()) return "Any"
+    if (iso.isNullOrBlank()) return stringResource(R.string.dlg_any)
     return runCatching {
-        LocalDateTime.parse(iso).format(DateTimeFormatter.ofPattern("d MMM, HH:mm"))
+        LocalDateTime.parse(iso).format(
+            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+        )
     }.getOrDefault(iso)
 }
 
@@ -134,43 +142,49 @@ fun VisibilityEditor(spec: VisibilitySpec, onChange: (VisibilitySpec) -> Unit) {
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(selected = mode == "always", onClick = { onChange(VisibilitySpec()) }, label = { Text("Always") })
-            FilterChip(selected = mode == "hidden", onClick = { onChange(VisibilitySpec(hidden = true)) }, label = { Text("Hidden") })
+            FilterChip(selected = mode == "always", onClick = { onChange(VisibilitySpec()) }, label = { Text(stringResource(R.string.dlg_always)) })
+            FilterChip(selected = mode == "hidden", onClick = { onChange(VisibilitySpec(hidden = true)) }, label = { Text(stringResource(R.string.dlg_hidden)) })
             FilterChip(
                 selected = mode == "scheduled",
                 onClick = { onChange(spec.copy(hidden = false, start = spec.start ?: LocalDateTime.now().withSecond(0).withNano(0).toString())) },
-                label = { Text("Scheduled") }
+                label = { Text(stringResource(R.string.dlg_scheduled)) }
             )
         }
         if (mode == "scheduled") {
-            Text("When", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+            Text(stringResource(R.string.dlg_when), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(selected = spec.rangeMode == "show", onClick = { onChange(spec.copy(rangeMode = "show")) }, label = { Text("Visible during") })
-                FilterChip(selected = spec.rangeMode == "hide", onClick = { onChange(spec.copy(rangeMode = "hide")) }, label = { Text("Hidden during") })
+                FilterChip(selected = spec.rangeMode == "show", onClick = { onChange(spec.copy(rangeMode = "show")) }, label = { Text(stringResource(R.string.dlg_visible_during)) })
+                FilterChip(selected = spec.rangeMode == "hide", onClick = { onChange(spec.copy(rangeMode = "hide")) }, label = { Text(stringResource(R.string.dlg_hidden_during)) })
             }
-            Text("Repeat", style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+            Text(stringResource(R.string.dlg_repeat), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                listOf("none" to "Once", "daily" to "Daily", "weekly" to "Weekly", "monthly" to "Monthly", "yearly" to "Yearly").forEach { (value, txt) ->
+                listOf(
+                    "none" to stringResource(R.string.dlg_once),
+                    "daily" to stringResource(R.string.dlg_daily),
+                    "weekly" to stringResource(R.string.dlg_weekly),
+                    "monthly" to stringResource(R.string.dlg_monthly),
+                    "yearly" to stringResource(R.string.dlg_yearly),
+                ).forEach { (value, txt) ->
                     FilterChip(selected = spec.recurrence == value, onClick = { onChange(spec.copy(recurrence = value)) }, label = { Text(txt) })
                 }
             }
             OutlinedButton(onClick = { pickingStart = true }, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.Schedule, null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Start: ${formatVisibilityBound(spec.start)}", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(stringResource(R.string.dlg_start, formatVisibilityBound(spec.start)), maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             OutlinedButton(onClick = { pickingEnd = true }, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.Schedule, null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("End: ${formatVisibilityBound(spec.end)}", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(stringResource(R.string.dlg_end, formatVisibilityBound(spec.end)), maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             Text(
                 when (spec.recurrence) {
-                    "daily" -> "Repeats every day — only the time of day is used."
-                    "weekly" -> "Repeats every week — only the weekday and time are used."
-                    "monthly" -> "Repeats every month — only the day of the month and time are used."
-                    "yearly" -> "Repeats every year — the year is ignored, so e.g. 24–26 Dec recurs each Christmas."
-                    else -> "The exact dates you pick. Leave a bound as \"Any\" for an open-ended range."
+                    "daily" -> stringResource(R.string.dlg_repeats_every_day_only_the_time_of_day_is)
+                    "weekly" -> stringResource(R.string.dlg_repeats_every_week_only_the_weekday_and_time_are)
+                    "monthly" -> stringResource(R.string.dlg_repeats_every_month_only_the_day_of_the_month)
+                    "yearly" -> stringResource(R.string.dlg_repeats_every_year_the_year_is_ignored_so_e)
+                    else -> stringResource(R.string.dlg_the_exact_dates_you_pick_leave_a_bound_as)
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = appColors.onMuted

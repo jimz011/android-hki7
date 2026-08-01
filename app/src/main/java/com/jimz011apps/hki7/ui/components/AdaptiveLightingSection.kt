@@ -1,5 +1,10 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
+
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
@@ -203,17 +208,24 @@ internal fun AdaptiveLightingWidget(
     var profileMenuOpen by remember { mutableStateOf(false) }
     var busyAction by remember { mutableStateOf<String?>(null) }
     var feedback by remember { mutableStateOf<String?>(null) }
+    var feedbackIsError by remember { mutableStateOf(false) }
     val compact = stack.buttonStyle == "tile"
     val doubleRow = stack.adaptiveLightingLayout == "double_row"
+    val updatedTemplate = stringResource(R.string.uif_updated)
+    val updateFailedTemplate = stringResource(R.string.uif_update_failed)
 
     fun runCommand(label: String, command: suspend () -> Unit) {
         if (busyAction != null) return
         scope.launch {
             busyAction = label
             feedback = null
+            feedbackIsError = false
             runCatching { command() }
-                .onSuccess { feedback = "$label updated" }
-                .onFailure { feedback = it.message ?: "Could not update $label" }
+                .onSuccess { feedback = updatedTemplate.format(label) }
+                .onFailure {
+                    feedback = it.message ?: updateFailedTemplate.format(label)
+                    feedbackIsError = true
+                }
             busyAction = null
         }
     }
@@ -239,14 +251,18 @@ internal fun AdaptiveLightingWidget(
         .toSet()
     val targets = selectedProfile?.configuredLightIds.orEmpty().toList().sorted()
     val pausedCount = expandedLightEntityIds(targets, entitiesById).count { it in manualControlIds }
+    val adaptNowLabel = stringResource(R.string.dlg_adapt_now)
+    val pauseAdaptationLabel = stringResource(R.string.dlg_pause_adaptation)
+    val resumeAdaptationLabel = stringResource(R.string.dlg_resume_adaptation)
+    val adaptiveLightingLabel = stringResource(R.string.dlg_adaptive_lighting)
 
     fun callAction(action: String, manualControl: Boolean? = null) {
         val profile = selectedProfile ?: return
         if (targets.isEmpty()) return
         val label = when (action) {
-            "apply" -> "Adapt now"
-            "set_manual_control" -> if (manualControl == true) "Pause adaptation" else "Resume adaptation"
-            else -> "Adaptive Lighting"
+            "apply" -> adaptNowLabel
+            "set_manual_control" -> if (manualControl == true) pauseAdaptationLabel else resumeAdaptationLabel
+            else -> adaptiveLightingLabel
         }
         runCommand(label) {
             viewModel.callServiceRawAwait(
@@ -290,7 +306,7 @@ internal fun AdaptiveLightingWidget(
                 Column(Modifier.weight(1f)) {
                     if (stack.showName) {
                         Text(
-                            stack.title ?: "Adaptive Lighting",
+                            stack.title ?: stringResource(R.string.dlg_adaptive_lighting),
                             color = appColors.onSurface,
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold,
@@ -299,7 +315,7 @@ internal fun AdaptiveLightingWidget(
                         )
                     }
                     Text(
-                        selectedProfile?.name ?: "No profile available",
+                        selectedProfile?.name ?: stringResource(R.string.dlg_no_profile_available),
                         color = appColors.onMuted,
                         style = if (stack.showName) MaterialTheme.typography.labelSmall else MaterialTheme.typography.titleSmall,
                         fontWeight = if (stack.showName) FontWeight.Normal else FontWeight.SemiBold,
@@ -310,7 +326,7 @@ internal fun AdaptiveLightingWidget(
                 if (!isEditMode && profiles.size > 1) {
                     Box {
                         OutlinedButton(onClick = { profileMenuOpen = true }, modifier = Modifier.height(34.dp)) {
-                            Text("Profile", maxLines = 1)
+                            Text(stringResource(R.string.dlg_profile), maxLines = 1)
                             Icon(Icons.Default.KeyboardArrowDown, null, Modifier.size(17.dp))
                         }
                         DropdownMenu(expanded = profileMenuOpen, onDismissRequest = { profileMenuOpen = false }) {
@@ -330,7 +346,7 @@ internal fun AdaptiveLightingWidget(
 
             if (profiles.isEmpty()) {
                 Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
-                    Text("Adaptive Lighting is unavailable", color = appColors.onMuted)
+                    Text(stringResource(R.string.dlg_adaptive_lighting_is_unavailable), color = appColors.onMuted)
                 }
             } else {
                 if (!doubleRow) {
@@ -338,10 +354,10 @@ internal fun AdaptiveLightingWidget(
                         modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(7.dp)
                     ) {
-                        AdaptiveLightingSwitchChip("Adaptive", Icons.Default.AutoAwesome, selectedProfile?.main, !isEditMode && busyAction == null, ::toggle)
-                        AdaptiveLightingSwitchChip("Brightness", Icons.Default.LightMode, selectedProfile?.adaptBrightness, !isEditMode && busyAction == null, ::toggle)
-                        AdaptiveLightingSwitchChip("Color", Icons.Default.Palette, selectedProfile?.adaptColor, !isEditMode && busyAction == null, ::toggle)
-                        AdaptiveLightingSwitchChip("Sleep", Icons.Default.Bedtime, selectedProfile?.sleepMode, !isEditMode && busyAction == null, ::toggle)
+                        AdaptiveLightingSwitchChip(stringResource(R.string.uif_adaptive), Icons.Default.AutoAwesome, selectedProfile?.main, !isEditMode && busyAction == null, ::toggle)
+                        AdaptiveLightingSwitchChip(stringResource(R.string.uif_brightness), Icons.Default.LightMode, selectedProfile?.adaptBrightness, !isEditMode && busyAction == null, ::toggle)
+                        AdaptiveLightingSwitchChip(stringResource(R.string.uif_color), Icons.Default.Palette, selectedProfile?.adaptColor, !isEditMode && busyAction == null, ::toggle)
+                        AdaptiveLightingSwitchChip(stringResource(R.string.uif_sleep), Icons.Default.Bedtime, selectedProfile?.sleepMode, !isEditMode && busyAction == null, ::toggle)
                     }
                 }
                 Row(
@@ -356,13 +372,13 @@ internal fun AdaptiveLightingWidget(
                     AssistChip(
                         onClick = { callAction("apply") },
                         enabled = !isEditMode && targets.isNotEmpty() && busyAction == null,
-                        label = { Text("Adapt now") },
+                        label = { Text(stringResource(R.string.dlg_adapt_now)) },
                         leadingIcon = { Icon(Icons.Default.PlayArrow, null, Modifier.size(17.dp)) }
                     )
                     AssistChip(
                         onClick = { callAction("set_manual_control", pausedCount == 0) },
                         enabled = !isEditMode && targets.isNotEmpty() && busyAction == null,
-                        label = { Text(if (pausedCount > 0) "Resume" else "Pause") },
+                        label = { Text(if (pausedCount > 0) stringResource(R.string.dlg_resume) else stringResource(R.string.dlg_pause)) },
                         leadingIcon = {
                             Icon(
                                 if (pausedCount > 0) Icons.Default.PlayArrow else Icons.Default.Pause,
@@ -375,8 +391,12 @@ internal fun AdaptiveLightingWidget(
                 }
                 if (!compact && !doubleRow) {
                     Text(
-                        feedback ?: "Controls ${targets.size} light${if (targets.size == 1) "" else "s"} in this profile.",
-                        color = if (feedback?.contains("could not", ignoreCase = true) == true) {
+                        feedback ?: pluralStringResource(
+                            R.plurals.uif_adaptive_profile_light_count,
+                            targets.size,
+                            targets.size,
+                        ),
+                        color = if (feedbackIsError) {
                             MaterialTheme.colorScheme.error
                         } else appColors.onMuted,
                         style = MaterialTheme.typography.labelSmall,
@@ -435,6 +455,9 @@ internal fun AdaptiveLightingSection(
     var profileMenuOpen by remember { mutableStateOf(false) }
     var busyAction by remember { mutableStateOf<String?>(null) }
     var feedback by remember { mutableStateOf<String?>(null) }
+    var feedbackIsError by remember { mutableStateOf(false) }
+    val updatedTemplate = stringResource(R.string.uif_updated)
+    val updateFailedTemplate = stringResource(R.string.uif_update_failed)
 
     val manualControlIds = selectedProfile?.main?.attributes
         ?.get("manual_control")
@@ -455,9 +478,13 @@ internal fun AdaptiveLightingSection(
         scope.launch {
             busyAction = label
             feedback = null
+            feedbackIsError = false
             runCatching { command() }
-                .onSuccess { feedback = "$label updated" }
-                .onFailure { feedback = it.message ?: "Could not update $label" }
+                .onSuccess { feedback = updatedTemplate.format(label) }
+                .onFailure {
+                    feedback = it.message ?: updateFailedTemplate.format(label)
+                    feedbackIsError = true
+                }
             busyAction = null
         }
     }
@@ -475,6 +502,11 @@ internal fun AdaptiveLightingSection(
         }
     }
 
+    val adaptNowLabel = stringResource(R.string.dlg_adapt_now)
+    val pauseAdaptationLabel = stringResource(R.string.dlg_pause_adaptation)
+    val resumeAdaptationLabel = stringResource(R.string.dlg_resume_adaptation)
+    val adaptiveLightingLabel = stringResource(R.string.dlg_adaptive_lighting)
+
     fun callAdaptiveLightingAction(action: String, manualControl: Boolean? = null) {
         val profile = selectedProfile ?: return
         val payload = buildJsonObject {
@@ -483,9 +515,9 @@ internal fun AdaptiveLightingSection(
             manualControl?.let { put("manual_control", it) }
         }
         val label = when (action) {
-            "apply" -> "Adapt now"
-            "set_manual_control" -> if (manualControl == true) "Pause adaptation" else "Resume adaptation"
-            else -> "Adaptive Lighting"
+            "apply" -> adaptNowLabel
+            "set_manual_control" -> if (manualControl == true) pauseAdaptationLabel else resumeAdaptationLabel
+            else -> adaptiveLightingLabel
         }
         runCommand(label) {
             viewModel.callServiceRawAwait("adaptive_lighting", action, payload)
@@ -514,13 +546,13 @@ internal fun AdaptiveLightingSection(
                 )
                 Column(Modifier.weight(1f)) {
                     Text(
-                        "Adaptive Lighting",
+                        stringResource(R.string.dlg_adaptive_lighting),
                         color = appColors.onSurface,
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
-                        selectedProfile?.name ?: "Choose the profile for this light",
+                        selectedProfile?.name ?: stringResource(R.string.dlg_choose_the_profile_for_this_light),
                         color = appColors.onMuted,
                         style = MaterialTheme.typography.labelSmall,
                         maxLines = 1,
@@ -533,7 +565,7 @@ internal fun AdaptiveLightingSection(
                             onClick = { profileMenuOpen = true },
                             modifier = Modifier.height(36.dp)
                         ) {
-                            Text("Profile", maxLines = 1)
+                            Text(stringResource(R.string.dlg_profile), maxLines = 1)
                             Icon(Icons.Default.KeyboardArrowDown, null, Modifier.size(18.dp))
                         }
                         DropdownMenu(
@@ -556,7 +588,7 @@ internal fun AdaptiveLightingSection(
                             }
                             if (directProfileId != null) {
                                 DropdownMenuItem(
-                                    text = { Text("Forget selection") },
+                                    text = { Text(stringResource(R.string.dlg_forget_selection)) },
                                     onClick = {
                                         profileMenuOpen = false
                                         scope.launch {
@@ -574,10 +606,10 @@ internal fun AdaptiveLightingSection(
                 modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                AdaptiveLightingSwitchChip("Adaptive", Icons.Default.AutoAwesome, selectedProfile?.main, busyAction == null, ::toggle)
-                AdaptiveLightingSwitchChip("Brightness", Icons.Default.LightMode, selectedProfile?.adaptBrightness, busyAction == null, ::toggle)
-                AdaptiveLightingSwitchChip("Color", Icons.Default.Palette, selectedProfile?.adaptColor, busyAction == null, ::toggle)
-                AdaptiveLightingSwitchChip("Sleep", Icons.Default.Bedtime, selectedProfile?.sleepMode, busyAction == null, ::toggle)
+                AdaptiveLightingSwitchChip(stringResource(R.string.uif_adaptive), Icons.Default.AutoAwesome, selectedProfile?.main, busyAction == null, ::toggle)
+                AdaptiveLightingSwitchChip(stringResource(R.string.uif_brightness), Icons.Default.LightMode, selectedProfile?.adaptBrightness, busyAction == null, ::toggle)
+                AdaptiveLightingSwitchChip(stringResource(R.string.uif_color), Icons.Default.Palette, selectedProfile?.adaptColor, busyAction == null, ::toggle)
+                AdaptiveLightingSwitchChip(stringResource(R.string.uif_sleep), Icons.Default.Bedtime, selectedProfile?.sleepMode, busyAction == null, ::toggle)
             }
 
             Row(
@@ -588,7 +620,7 @@ internal fun AdaptiveLightingSection(
                 AssistChip(
                     onClick = { callAdaptiveLightingAction("apply") },
                     enabled = selectedProfile != null && busyAction == null,
-                    label = { Text("Adapt now") },
+                    label = { Text(stringResource(R.string.dlg_adapt_now)) },
                     leadingIcon = { Icon(Icons.Default.PlayArrow, null, Modifier.size(18.dp)) }
                 )
                 AssistChip(
@@ -599,7 +631,7 @@ internal fun AdaptiveLightingSection(
                         )
                     },
                     enabled = selectedProfile != null && busyAction == null,
-                    label = { Text(if (manualCount > 0) "Resume adaptation" else "Pause adaptation") },
+                    label = { Text(if (manualCount > 0) stringResource(R.string.dlg_resume_adaptation) else stringResource(R.string.dlg_pause_adaptation)) },
                     leadingIcon = {
                         Icon(
                             if (manualCount > 0) Icons.Default.PlayArrow else Icons.Default.Pause,
@@ -612,10 +644,14 @@ internal fun AdaptiveLightingSection(
 
             Text(
                 if (manualCount > 0) {
-                    if (light.childEntityIds.isEmpty()) "This light is paused for manual control."
-                    else "$manualCount group light${if (manualCount == 1) " is" else "s are"} paused for manual control."
+                    if (light.childEntityIds.isEmpty()) stringResource(R.string.dlg_this_light_is_paused_for_manual_control)
+                    else pluralStringResource(
+                        R.plurals.uif_adaptive_group_paused_count,
+                        manualCount,
+                        manualCount,
+                    )
                 } else {
-                    "Profile switches affect every light assigned to ${selectedProfile?.name ?: "that profile"}."
+                    stringResource(R.string.dlg_profile_switches_affect_every_light_assigned_to, selectedProfile?.name ?: stringResource(R.string.dlg_that_profile))
                 },
                 color = appColors.onMuted,
                 style = MaterialTheme.typography.labelSmall
@@ -627,7 +663,7 @@ internal fun AdaptiveLightingSection(
                 ) {
                     CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
                     Text(
-                        "$busyAction…",
+                        stringResource(R.string.dlg_updating_value, busyAction ?: ""),
                         color = appColors.onMuted,
                         style = MaterialTheme.typography.labelSmall
                     )
@@ -635,9 +671,7 @@ internal fun AdaptiveLightingSection(
             } else if (feedback != null) {
                 Text(
                     feedback.orEmpty(),
-                    color = if (feedback?.contains("could not", ignoreCase = true) == true ||
-                        feedback?.contains("failed", ignoreCase = true) == true
-                    ) MaterialTheme.colorScheme.error else appColors.onMuted,
+                    color = if (feedbackIsError) MaterialTheme.colorScheme.error else appColors.onMuted,
                     style = MaterialTheme.typography.labelSmall
                 )
             }

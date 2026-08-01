@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -32,18 +36,20 @@ fun HKIFanDialog(
     val isOn = entity.state == "on"
     val supportsPercentage = entity.fanPercentage != null
 
-    fun defaultTab() = "Speed"
+    fun defaultTab() = "speed"
     var currentTab by remember(entity.entity_id) { mutableStateOf(defaultTab()) }
     var showPresets by remember(entity.entity_id) { mutableStateOf(false) }
 
     val tabs = buildList {
-        if (supportsPercentage) add(Triple("Speed", Icons.Default.Air) { currentTab = "Speed" })
+        if (supportsPercentage) {
+            add(Triple(stringResource(R.string.uif_speed), Icons.Default.Air) { currentTab = "speed" })
+        }
     }
     val navigationTabs = tabs.takeIf { it.size > 1 } ?: emptyList()
 
     val statusText = if (isOn) {
-        entity.fanPercentage?.let { "$it% • ON" } ?: "ON"
-    } else "OFF"
+        entity.fanPercentage?.let { stringResource(R.string.dlg_percent_on, it) } ?: stringResource(R.string.dlg_on_uppercase)
+    } else stringResource(R.string.dlg_off_uppercase)
 
     HKIDialog(
         entity = entity,
@@ -98,9 +104,9 @@ private fun FanContent(
     ) {
         Text(
             text = when {
-                showPresets -> "Presets"
-                supportsPercentage -> "${(sliderValue * 100).toInt()}%"
-                else -> if (isOn) "On" else "Off"
+                showPresets -> stringResource(R.string.dlg_presets)
+                supportsPercentage -> stringResource(R.string.dlg_percentage, (sliderValue * 100).toInt())
+                else -> if (isOn) stringResource(R.string.dlg_on) else stringResource(R.string.dlg_off)
             },
             color = appColors.onSurface,
             style = if (showPresets || supportsPercentage) MaterialTheme.typography.displayMedium else MaterialTheme.typography.headlineLarge
@@ -124,7 +130,7 @@ private fun FanContent(
         }
         Spacer(Modifier.height(16.dp))
         Text(
-            text = if (showPresets) "PRESETS" else if (supportsPercentage) "SPEED" else "SWITCH",
+            text = if (showPresets) stringResource(R.string.dlg_presets_uppercase) else if (supportsPercentage) stringResource(R.string.dlg_speed) else stringResource(R.string.dlg_switch),
             color = appColors.onMuted,
             style = MaterialTheme.typography.labelSmall
         )
@@ -136,7 +142,7 @@ private fun FanContent(
                     FilterChip(
                         selected = osc,
                         onClick = { viewModel.setFanOscillating(entity.entity_id, !osc) },
-                        label = { Text("Oscillate") },
+                        label = { Text(stringResource(R.string.dlg_oscillate)) },
                         leadingIcon = { Icon(Icons.Default.SwapHoriz, contentDescription = null, modifier = Modifier.size(18.dp)) }
                     )
                 }
@@ -144,7 +150,7 @@ private fun FanContent(
                     FilterChip(
                         selected = dir == "reverse",
                         onClick = { viewModel.setFanDirection(entity.entity_id, if (dir == "forward") "reverse" else "forward") },
-                        label = { Text(if (dir == "forward") "Forward" else "Reverse") },
+                        label = { Text(if (dir == "forward") stringResource(R.string.dlg_forward) else stringResource(R.string.dlg_reverse)) },
                         leadingIcon = { Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(18.dp)) }
                     )
                 }
@@ -162,7 +168,7 @@ private fun PresetsButton(entity: HAEntity, onClick: () -> Unit, selected: Boole
         FilterChip(
             selected = selected,
             onClick = onClick,
-            label = { Text(if (selected) "Back" else "Presets") },
+            label = { Text(if (selected) stringResource(R.string.dlg_back) else stringResource(R.string.dlg_presets)) },
             leadingIcon = { Icon(if (selected) Icons.AutoMirrored.Filled.ArrowBack else Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(18.dp)) }
         )
     }
@@ -196,13 +202,13 @@ private fun FanPresetList(entity: HAEntity, viewModel: MainViewModel) {
                     Icon(Icons.Default.Tune, contentDescription = null, tint = if (isCustom) FanBlue else appColors.onMuted, modifier = Modifier.size(22.dp))
                     Spacer(Modifier.width(12.dp))
                     Text(
-                        text = "Custom",
+                        text = stringResource(R.string.dlg_custom),
                         color = if (isCustom) appColors.onSurface else appColors.onMuted,
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.weight(1f)
                     )
                     entity.fanPercentage?.let {
-                        Text("$it%", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+                        Text(stringResource(R.string.dlg_percentage, it), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
                         Spacer(Modifier.width(8.dp))
                     }
                     if (isCustom) Icon(Icons.Default.CheckCircle, contentDescription = null, tint = FanBlue)
@@ -228,7 +234,7 @@ private fun FanPresetList(entity: HAEntity, viewModel: MainViewModel) {
                     Icon(Icons.Default.Air, contentDescription = null, tint = if (selected) FanBlue else appColors.onMuted, modifier = Modifier.size(22.dp))
                     Spacer(Modifier.width(12.dp))
                     Text(
-                        text = mode.split("_").joinToString(" ") { it.replaceFirstChar(Char::uppercase) },
+                        text = localizedDeviceModeLabel(mode),
                         color = if (selected) appColors.onSurface else appColors.onMuted,
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.weight(1f)
@@ -238,4 +244,29 @@ private fun FanPresetList(entity: HAEntity, viewModel: MainViewModel) {
             }
         }
     }
+}
+
+/** Localizes well-known HA mode tokens while leaving integration-specific catalog values intact. */
+@Composable
+internal fun localizedDeviceModeLabel(mode: String): String = when (mode.lowercase()) {
+    "auto", "smart" -> stringResource(R.string.uif_mode_auto)
+    "normal" -> stringResource(R.string.uif_mode_normal)
+    "eco" -> stringResource(R.string.uif_mode_eco)
+    "sleep", "night" -> stringResource(R.string.uif_mode_sleep)
+    "quiet", "silent" -> stringResource(R.string.uif_mode_quiet)
+    "low" -> stringResource(R.string.uif_mode_low)
+    "medium" -> stringResource(R.string.uif_mode_medium)
+    "high" -> stringResource(R.string.uif_mode_high)
+    "boost", "turbo", "max" -> stringResource(R.string.uif_mode_boost)
+    "comfort" -> stringResource(R.string.uif_mode_comfort)
+    "home" -> stringResource(R.string.uif_mode_home)
+    "away" -> stringResource(R.string.uif_mode_away)
+    "baby" -> stringResource(R.string.uif_mode_baby)
+    "continuous", "cont", "continuously" -> stringResource(R.string.uif_mode_continuous)
+    "manual" -> stringResource(R.string.uif_mode_manual)
+    "dry", "dryer", "drying" -> stringResource(R.string.uif_mode_dry)
+    "laundry" -> stringResource(R.string.uif_mode_laundry)
+    "clothes_dry", "clothes" -> stringResource(R.string.uif_mode_clothes)
+    "purify", "purifier" -> stringResource(R.string.uif_mode_purify)
+    else -> mode.replace('_', ' ').replaceFirstChar(Char::uppercase)
 }

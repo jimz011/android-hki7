@@ -1,5 +1,8 @@
 package com.jimz011apps.hki7.ui
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.jimz011apps.hki7.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ViewQuilt
 import androidx.compose.material.icons.filled.*
@@ -34,6 +37,19 @@ sealed class Screen(
     object RoomDetail : Screen("room_detail/{areaId}", "Room Detail", Icons.AutoMirrored.Filled.ViewQuilt) {
         fun createRoute(areaId: String) = "room_detail/$areaId"
     }
+}
+
+@Composable
+fun Screen.localizedTitle(): String = when (this) {
+    Screen.Home -> stringResource(R.string.nav_home)
+    Screen.Rooms -> stringResource(R.string.nav_rooms)
+    Screen.Security -> stringResource(R.string.nav_security)
+    Screen.Energy -> stringResource(R.string.nav_energy)
+    Screen.Climate -> stringResource(R.string.nav_climate)
+    Screen.Battery -> stringResource(R.string.nav_battery)
+    Screen.Settings -> stringResource(R.string.nav_settings)
+    Screen.RoomDetail -> stringResource(R.string.nav_room_detail)
+    is Screen.Custom -> page.name
 }
 
 /**

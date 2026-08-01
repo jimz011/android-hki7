@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -46,7 +50,7 @@ fun WidgetBackgroundSelector(url: String?, onUrlChange: (String?) -> Unit) {
     OutlinedTextField(
         value = url ?: "",
         onValueChange = { onUrlChange(it.ifBlank { null }) },
-        label = { Text("Background image (URL or path)") },
+        label = { Text(stringResource(R.string.ui_background_image_url_or_path_dfc4908)) },
         singleLine = true,
         modifier = Modifier.fillMaxWidth()
     )

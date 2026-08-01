@@ -1,5 +1,9 @@
 package com.jimz011apps.hki7.ui.components
 
+import com.jimz011apps.hki7.R
+
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -79,17 +83,19 @@ fun HKIHumidifierDialog(
 ) {
     val appColors = LocalHKIAppColors.current
     val isOn = entity.state == "on"
-    fun label(mode: String) = mode.split("_").joinToString(" ") { it.replaceFirstChar(Char::uppercase) }
-
     // Humidifier modes are the dialog's nav-bar tabs (like the climate dialog's hvac modes), rather
     // than a modes button + list.
     val modes = entity.humidifierAvailableModes
     val navigationTabs: List<Triple<String, androidx.compose.ui.graphics.vector.ImageVector, () -> Unit>> =
-        if (modes.size > 1) modes.map { m -> Triple(label(m), humidifierModeIcon(m, modes)) { viewModel.setHumidifierMode(entity.entity_id, m) } } else emptyList()
+        if (modes.size > 1) modes.map { mode ->
+            Triple(localizedDeviceModeLabel(mode), humidifierModeIcon(mode, modes)) {
+                viewModel.setHumidifierMode(entity.entity_id, mode)
+            }
+        } else emptyList()
 
     val statusText = if (isOn) {
-        entity.humidity?.let { "${it.toInt()}% • ON" } ?: "ON"
-    } else "OFF"
+        entity.humidity?.let { stringResource(R.string.dlg_percent_on, it.toInt()) } ?: stringResource(R.string.dlg_on_uppercase)
+    } else stringResource(R.string.dlg_off_uppercase)
 
     HKIDialog(
         entity = entity,
@@ -101,7 +107,7 @@ fun HKIHumidifierDialog(
         iconName = iconName,
         statusText = statusText,
         tabs = navigationTabs,
-        currentTab = entity.humidifierMode?.let(::label)
+        currentTab = entity.humidifierMode?.let { localizedDeviceModeLabel(it) }
     ) {
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             HumidifierContent(entity = entity, viewModel = viewModel, isOn = isOn, fanEntity = fanEntity, auxEntities = auxEntities)
@@ -135,14 +141,14 @@ private fun HumidifierContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = if (isOn) "$displayValue%" else "Off",
+            text = if (isOn) stringResource(R.string.uif_percentage, displayValue) else stringResource(R.string.dlg_off),
             color = appColors.onSurface,
             style = if (isOn) MaterialTheme.typography.displayMedium else MaterialTheme.typography.headlineLarge
         )
         if (isOn) {
             currentHumidity?.let { current ->
                 Spacer(Modifier.height(4.dp))
-                Text("Current ${current.toInt()}%", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(R.string.dlg_current, current.toInt()), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
             }
         }
         Spacer(Modifier.height(24.dp))
@@ -157,12 +163,12 @@ private fun HumidifierContent(
             ) else Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(Icons.Default.WaterDrop, contentDescription = null, modifier = Modifier.size(64.dp), tint = appColors.onMuted.copy(alpha = 0.5f))
                 Spacer(Modifier.height(16.dp))
-                Button(onClick = { viewModel.toggleEntity(entity.entity_id) }) { Text("Turn On") }
+                Button(onClick = { viewModel.toggleEntity(entity.entity_id) }) { Text(stringResource(R.string.dlg_turn_on)) }
             }
         }
         if (isOn) {
             Spacer(Modifier.height(16.dp))
-            Text("TARGET ($minH–$maxH%)", color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+            Text(stringResource(R.string.dlg_target_range_percent, minH, maxH), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
             // A linked fan / select / input_select supplies the speed options.
             if (fanEntity != null) {
                 Spacer(Modifier.height(14.dp))
@@ -180,15 +186,20 @@ private fun HumidifierAuxSection(auxEntities: Map<String, HAEntity>, viewModel: 
     val appColors = LocalHKIAppColors.current
     // Info chips: value/state shown for these slots when set.
     val infoSlots = listOf(
-        "tank_level" to "Tank",
-        "pm25" to "PM2.5",
-        "error" to "Error",
-        "bucket_full" to "Bucket",
-        "clean_filter" to "Filter",
-        "defrost" to "Defrost"
+        "tank_level" to stringResource(R.string.uif_tank),
+        "pm25" to stringResource(R.string.uif_pm25),
+        "error" to stringResource(R.string.uif_error),
+        "bucket_full" to stringResource(R.string.uif_bucket),
+        "clean_filter" to stringResource(R.string.uif_filter),
+        "defrost" to stringResource(R.string.uif_defrost),
     )
     val infoEntries = infoSlots.mapNotNull { (key, label) -> auxEntities[key]?.let { label to it } }
-    val toggleSlots = listOf("ionizer" to "Ionizer", "pump" to "Pump", "sleep" to "Sleep", "beep" to "Beep")
+    val toggleSlots = listOf(
+        "ionizer" to stringResource(R.string.uif_ionizer),
+        "pump" to stringResource(R.string.uif_pump),
+        "sleep" to stringResource(R.string.uif_sleep),
+        "beep" to stringResource(R.string.uif_beep),
+    )
     val toggleEntries = toggleSlots.mapNotNull { (key, label) -> auxEntities[key]?.let { label to it } }
     if (infoEntries.isEmpty() && toggleEntries.isEmpty()) return
 
@@ -201,11 +212,11 @@ private fun HumidifierAuxSection(auxEntities: Map<String, HAEntity>, viewModel: 
         ) {
             infoEntries.forEach { (label, e) ->
                 val unit = e.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull.orEmpty()
-                val value = e.state.replaceFirstChar(Char::uppercase)
+                val value = localizedEntityStateLabel(e.state)
                 AssistChip(
                     onClick = {},
                     enabled = false,
-                    label = { Text("$label: $value$unit", style = MaterialTheme.typography.labelMedium) }
+                    label = { Text(stringResource(R.string.dlg_labeled_value_unit, label, value, unit), style = MaterialTheme.typography.labelMedium) }
                 )
             }
         }
@@ -241,13 +252,13 @@ private fun HumidifierSpeedControl(fanEntity: HAEntity, viewModel: MainViewModel
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Icon(Icons.Default.Speed, null, tint = appColors.onMuted, modifier = Modifier.size(16.dp))
                     HKISlider(value = v, onValueChange = { v = it }, onValueChangeFinished = { viewModel.setFanPercentage(fanEntity.entity_id, v.toInt()) }, valueRange = 0f..100f, modifier = Modifier.weight(1f))
-                    Text("${v.toInt()}%", style = MaterialTheme.typography.labelMedium, color = appColors.onSurface)
+                    Text(stringResource(R.string.dlg_percentage, v.toInt()), style = MaterialTheme.typography.labelMedium, color = appColors.onSurface)
                 }
             }
-            SpeedChips("Fan speed", fanEntity.fanPresetModes, fanEntity.fanPresetMode) { viewModel.setFanPresetMode(fanEntity.entity_id, it) }
+            SpeedChips(stringResource(R.string.uif_fan_speed), fanEntity.fanPresetModes, fanEntity.fanPresetMode) { viewModel.setFanPresetMode(fanEntity.entity_id, it) }
         } else {
             val options = (fanEntity.attributes?.get("options") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
-            SpeedChips("Speed", options, fanEntity.state) { viewModel.callService(domain, "select_option", HAServiceCall(entity_id = fanEntity.entity_id, option = it)) }
+            SpeedChips(stringResource(R.string.uif_speed), options, fanEntity.state) { viewModel.callService(domain, "select_option", HAServiceCall(entity_id = fanEntity.entity_id, option = it)) }
         }
     }
 }
@@ -262,8 +273,34 @@ private fun SpeedChips(label: String, options: List<String>, current: String?, o
             FilterChip(
                 selected = option == current,
                 onClick = { onSelect(option) },
-                label = { Text(option.split("_").joinToString(" ") { it.replaceFirstChar(Char::uppercase) }) }
+                label = { Text(localizedDeviceModeLabel(option)) }
             )
         }
     }
+}
+
+/** Common Home Assistant states used as display text; comparisons continue to use raw tokens. */
+@Composable
+internal fun localizedEntityStateLabel(state: String): String = when (state.lowercase()) {
+    "on" -> stringResource(R.string.uif_state_on)
+    "off" -> stringResource(R.string.uif_state_off)
+    "open" -> stringResource(R.string.uif_state_open)
+    "closed" -> stringResource(R.string.uif_state_closed)
+    "locked" -> stringResource(R.string.uif_state_locked)
+    "unlocked" -> stringResource(R.string.uif_state_unlocked)
+    "home" -> stringResource(R.string.uif_state_home)
+    "away", "not_home" -> stringResource(R.string.uif_state_away)
+    "idle" -> stringResource(R.string.uif_state_idle)
+    "active" -> stringResource(R.string.uif_state_active)
+    "cleaning" -> stringResource(R.string.uif_state_cleaning)
+    "returning" -> stringResource(R.string.uif_state_returning)
+    "paused" -> stringResource(R.string.uif_state_paused)
+    "docked" -> stringResource(R.string.uif_state_docked)
+    "playing" -> stringResource(R.string.uif_state_playing)
+    "buffering" -> stringResource(R.string.uif_state_buffering)
+    "standby" -> stringResource(R.string.uif_state_standby)
+    "unknown" -> stringResource(R.string.uif_state_unknown)
+    "unavailable" -> stringResource(R.string.uif_state_unavailable)
+    "error" -> stringResource(R.string.uif_state_error)
+    else -> state.replace('_', ' ').replaceFirstChar(Char::uppercase)
 }

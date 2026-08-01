@@ -1,5 +1,7 @@
 package com.jimz011apps.hki7.data
 
+import com.jimz011apps.hki7.R
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -123,13 +125,17 @@ class LocationForegroundService : Service() {
 
     private fun createChannel() {
         val manager = getSystemService(NotificationManager::class.java)
-        if (manager.getNotificationChannel(CHANNEL_ID) == null) {
-            manager.createNotificationChannel(
-                NotificationChannel(CHANNEL_ID, "Location sharing", NotificationManager.IMPORTANCE_LOW).apply {
-                    description = "Keeps your device location updated in Home Assistant"
-                }
-            )
-        }
+        // Recreating an existing channel updates its localized name and description without
+        // changing user-controlled importance, so an app-language change reaches Android settings.
+        manager.createNotificationChannel(
+            NotificationChannel(
+                CHANNEL_ID,
+                getString(R.string.background_location_channel_name),
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = getString(R.string.background_location_channel_description)
+            }
+        )
     }
 
     private fun buildNotification(): Notification {
@@ -138,8 +144,8 @@ class LocationForegroundService : Service() {
             PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         }
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Home Assistant location")
-            .setContentText("Sharing your location with Home Assistant")
+            .setContentTitle(getString(R.string.background_location_notification_title))
+            .setContentText(getString(R.string.background_location_notification_text))
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setOngoing(true)
             .setContentIntent(contentIntent)
