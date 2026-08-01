@@ -3309,4 +3309,10 @@
         <item>S</item><item>SSO</item><item>SO</item><item>OSO</item>
         <item>O</item><item>ONO</item><item>NO</item><item>NNO</item>
     </string-array>
+    <string name="dlg_condition">Doença</string>
+    <string name="dlg_condition_entity_id">ID da entidade (opcional)</string>
+    <string name="dlg_condition_hint">Oculte também isso, a menos que uma entidade esteja (ou não) em um determinado estado, como um cartão condicional do Home Assistant. Combina com o cronograma acima.</string>
+    <string name="dlg_condition_is">É</string>
+    <string name="dlg_condition_is_not">Não é</string>
+    <string name="dlg_condition_state">Estado</string>
 </resources>

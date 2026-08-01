@@ -24,6 +24,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -103,13 +104,19 @@ fun DateTimePickerDialog(
     }
 }
 
-/** Portable hide/schedule rule for a button or badge (see `isVisibleAt`). */
+/** Portable hide/schedule/condition rule for a button, badge, or widget (see `isVisibleAt`). */
 data class VisibilitySpec(
     val hidden: Boolean = false,
     val start: String? = null,
     val end: String? = null,
     val rangeMode: String = "show",
     val recurrence: String = "none",
+    /** Optional entity-state condition, like a Home Assistant conditional card: when set, this item
+     * is also gated on whether [conditionEntityId]'s current state does/doesn't equal
+     * [conditionState], per [conditionNegate]. */
+    val conditionEntityId: String? = null,
+    val conditionState: String? = null,
+    val conditionNegate: Boolean = false,
 )
 
 /** Human-readable label for a scheduled bound stored as an ISO local date-time. */
@@ -188,6 +195,35 @@ fun VisibilityEditor(spec: VisibilitySpec, onChange: (VisibilitySpec) -> Unit) {
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = appColors.onMuted
+            )
+        }
+        androidx.compose.material3.HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
+        Text(stringResource(R.string.dlg_condition), style = MaterialTheme.typography.labelLarge, color = appColors.onSurface)
+        Text(
+            stringResource(R.string.dlg_condition_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = appColors.onMuted
+        )
+        OutlinedTextField(
+            value = spec.conditionEntityId.orEmpty(),
+            onValueChange = { onChange(spec.copy(conditionEntityId = it.ifBlank { null })) },
+            label = { Text(stringResource(R.string.dlg_condition_entity_id)) },
+            placeholder = { Text("light.living_room") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+        if (!spec.conditionEntityId.isNullOrBlank()) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(selected = !spec.conditionNegate, onClick = { onChange(spec.copy(conditionNegate = false)) }, label = { Text(stringResource(R.string.dlg_condition_is)) })
+                FilterChip(selected = spec.conditionNegate, onClick = { onChange(spec.copy(conditionNegate = true)) }, label = { Text(stringResource(R.string.dlg_condition_is_not)) })
+            }
+            OutlinedTextField(
+                value = spec.conditionState.orEmpty(),
+                onValueChange = { onChange(spec.copy(conditionState = it.ifBlank { null })) },
+                label = { Text(stringResource(R.string.dlg_condition_state)) },
+                placeholder = { Text("on") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }

@@ -3261,4 +3261,10 @@
     <string name="widgets_weather_subtitle">实体、卡片类型和外观</string>
     <string name="widgets_weather_title">天气</string>
     <string name="widgets_yesterday">昨天</string>
+    <string name="dlg_condition">健康）状况</string>
+    <string name="dlg_condition_entity_id">实体 ID（可选）</string>
+    <string name="dlg_condition_hint">除非实体处于（或不处于）给定状态（例如家庭助理条件卡），否则也隐藏此状态。结合上面的时间表。</string>
+    <string name="dlg_condition_is">是</string>
+    <string name="dlg_condition_is_not">不是</string>
+    <string name="dlg_condition_state">状态</string>
 </resources>

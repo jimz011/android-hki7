@@ -60,6 +60,16 @@
     <string name="push_connection_channel_name">Benachrichtigungsverbindung</string>
     <string name="push_connection_notification_title">Mit Home Assistant verbunden</string>
     <string name="push_connection_notification_text">Benachrichtigungen werden empfangen</string>
+    <string name="core_greeting_morning">Guten Morgen</string>
+    <string name="core_greeting_afternoon">Guten Tag</string>
+    <string name="core_greeting_evening">Guten Abend</string>
+    <string name="core_greeting_night">Gute Nacht</string>
+    <string name="dlg_condition">Zustand</string>
+    <string name="dlg_condition_entity_id">Entitäts-ID (optional)</string>
+    <string name="dlg_condition_hint">Blenden Sie dies auch aus, es sei denn, eine Entität befindet sich in einem bestimmten Zustand (oder nicht), wie z. B. eine bedingte Home Assistant-Karte. Kombinierbar mit dem obigen Zeitplan.</string>
+    <string name="dlg_condition_is">Ist</string>
+    <string name="dlg_condition_is_not">Ist nicht</string>
+    <string name="dlg_condition_state">Zustand</string>
     <string name="ui_0f_s_788ca6f" formatted="false">%.0f %s</string>
     <string name="ui_1_advanced_shorthand_block_kept_unchanged_d4dcbd7">1 erweiterter Kurzschriftblock (unverändert beibehalten)</string>
     <string name="ui_1f_16b5d7d" formatted="false">%.1f</string>
@@ -90,7 +100,7 @@
     <string name="ui_activity_indication_and_collapsing_0764a94">Aktivitätsanzeige und Zusammenklappen</string>
     <string name="ui_adapt_now_c30eb08">Passen Sie sich jetzt an</string>
     <string name="ui_adaptive_lighting_7587880">Adaptive Beleuchtung</string>
-    <string name="ui_adaptive_lighting_e2cffbd">Adaptive Beleuchtung</string>
+    <string name="ui_adaptive_lighting_e2cffbd">Adaptive Lighting</string>
     <string name="ui_adaptive_lighting_is_unavailable_6b9ada3">Adaptive Beleuchtung ist nicht verfügbar</string>
     <string name="ui_add_016df71">Hinzufügen (%1$s)</string>
     <string name="ui_add_4_10_entity_buttons_to_this_dialog_s_cdedf23">Fügen Sie der Navigationsleiste dieses Dialogfelds 4–10 Entitätsschaltflächen hinzu.</string>
@@ -139,7 +149,7 @@
     <string name="ui_airphase_1f2d2b6">Luftphase</string>
     <string name="ui_alarm_25f8c55">Alarm</string>
     <string name="ui_alarm_entities_b462ba5">Alarmeinheiten</string>
-    <string name="ui_alarm_pending_e2c04aa">Alarm steht an</string>
+    <string name="ui_alarm_pending_e2c04aa">Alarm wird aktiviert</string>
     <string name="ui_alarm_triggered_641ff6f">Alarm ausgelöst</string>
     <string name="ui_alarm_unavailable_867909b">Alarm nicht verfügbar</string>
     <string name="ui_alignment_7f8c517">Ausrichtung</string>
@@ -167,15 +177,15 @@
     <string name="ui_archived_eddc813">Archiviert</string>
     <string name="ui_are_you_sure_you_want_to_clear_battery_config_3e19f24">Sind Sie sicher, dass Sie die Batteriekonfiguration löschen möchten?</string>
     <string name="ui_armed_32caa31">Bewaffnet</string>
-    <string name="ui_armed_away_6834abf">Bewaffnet weg</string>
-    <string name="ui_armed_home_c8d0b44">Bewaffnetes Zuhause</string>
-    <string name="ui_armed_night_80659bd">Bewaffnete Nacht</string>
+    <string name="ui_armed_away_6834abf">Scharf: Abwesend</string>
+    <string name="ui_armed_home_c8d0b44">Scharf: Zuhause</string>
+    <string name="ui_armed_night_80659bd">Scharf: Nacht</string>
     <string name="ui_arming_in_seconds_b9e07a8">Scharfschaltung in %1$s Sekunden</string>
     <string name="ui_aspect_ratio_4e077cf">Seitenverhältnis</string>
     <string name="ui_aspect_ratio_used_by_every_stream_275bb52">Von jedem Stream verwendetes Seitenverhältnis</string>
     <string name="ui_astronomical_tap_or_swipe_683fe28">Astronomisch · tippen oder wischen</string>
     <string name="ui_at_target_6a8dbb5">Am Ziel</string>
-    <string name="ui_auto_c614ba7">Auto</string>
+    <string name="ui_auto_c614ba7">Automatisch</string>
     <string name="ui_auto_dashboard_c7a509a">Automatisches Dashboard</string>
     <string name="ui_auto_discovered_e0643da">Automatisch entdeckt</string>
     <string name="ui_auto_generate_0f86c24">Automatisch generieren</string>
@@ -238,7 +248,7 @@
     <string name="ui_build_the_interface_entirely_your_way_e94582f">Gestalten Sie die Benutzeroberfläche ganz nach Ihren Wünschen.</string>
     <string name="ui_building_your_dashboard_2943961">Erstellen Sie Ihr Dashboard</string>
     <string name="ui_built_in_20f409c">Eingebaut</string>
-    <string name="ui_button_794145f">Taste</string>
+    <string name="ui_button_794145f">Schaltfläche</string>
     <string name="ui_button_image_2483e32">Schaltflächenbild</string>
     <string name="ui_button_lock_28d87b1">Tastensperre</string>
     <string name="ui_button_stack_ee9e7f8">Knopfstapel</string>
@@ -324,7 +334,7 @@
     <string name="ui_choose_your_dashboard_1ec85e9">Wählen Sie Ihr Dashboard</string>
     <string name="ui_clean_rooms_4dc67ab">Saubere Zimmer</string>
     <string name="ui_clean_selected_43d8dd5">Sauber ausgewählt</string>
-    <string name="ui_clear_719ea39">Klar</string>
+    <string name="ui_clear_719ea39">In Ordnung</string>
     <string name="ui_clear_battery_config_d8854f7">Batteriekonfiguration löschen?</string>
     <string name="ui_clear_battery_view_1952347">Klare Batterieansicht?</string>
     <string name="ui_clear_battery_view_5ef09bf">Batterieansicht löschen</string>
@@ -372,7 +382,7 @@
     <string name="ui_connected_through_home_assistant_cloud_47a54c0">Verbunden über die Home Assistant Cloud</string>
     <string name="ui_connected_through_your_external_home_assistant_address_966b0e6">Verbunden über Ihre externe Home Assistant-Adresse</string>
     <string name="ui_connected_through_your_home_network_cdf4e0f">Verbunden über Ihr Heimnetzwerk</string>
-    <string name="ui_connecting_fd3e796">Verbinden…</string>
+    <string name="ui_connecting_fd3e796">Verbindung wird hergestellt…</string>
     <string name="ui_connection_6512ee1">Verbindung</string>
     <string name="ui_connection_switched_to_8f04753">Verbindung wurde auf %1$s umgestellt</string>
     <string name="ui_contacting_your_home_assistant_server_e0a53d1">Kontaktaufnahme mit Ihrem Home Assistant-Server…</string>
@@ -417,7 +427,7 @@
     <string name="ui_custom_ed17691">Benutzerdefiniert %1$s</string>
     <string name="ui_custom_entities_d6e76ae">Benutzerdefinierte Entitäten</string>
     <string name="ui_custom_name_6af17c2">Benutzerdefinierter Name</string>
-    <string name="ui_custom_order_a7a5984">Sonderanfertigung</string>
+    <string name="ui_custom_order_a7a5984">Eigene Reihenfolge</string>
     <string name="ui_custom_seconds_7467e28">Benutzerdefinierte Sekunden</string>
     <string name="ui_custom_state_378153b">Benutzerdefinierter Status...</string>
     <string name="ui_custom_url_9c155e9">Benutzerdefinierte URL</string>
@@ -449,7 +459,7 @@
     <string name="ui_delete_automation_442d61c">Automatisierung löschen?</string>
     <string name="ui_delete_f6fdbe4">Löschen</string>
     <string name="ui_delete_floor_07c4a91">Etage löschen</string>
-    <string name="ui_delivered_eea956c">Geliefert</string>
+    <string name="ui_delivered_eea956c">Zugestellt</string>
     <string name="ui_demo_mode_a85b728">Demo-Modus</string>
     <string name="ui_description_55f8ebc">Beschreibung</string>
     <string name="ui_details_dc3decb">Details</string>
@@ -458,7 +468,7 @@
     <string name="ui_device_a5a74a6">Gerät</string>
     <string name="ui_device_details_39c277d">Gerätedetails</string>
     <string name="ui_device_details_eb36018">GERÄTEDETAILS</string>
-    <string name="ui_device_energy_79de3d8">Geräteenergie</string>
+    <string name="ui_device_energy_79de3d8">Energie je Gerät</string>
     <string name="ui_device_helpers_6a8b199">Gerät &amp; Helfer</string>
     <string name="ui_device_name_79d7a15">Gerätename</string>
     <string name="ui_device_tracker_and_geocoded_location_f9e2d34">Geräte-Tracker und geokodierter Standort</string>
@@ -467,7 +477,7 @@
     <string name="ui_dialog_control_63e18cf">Dialogsteuerung</string>
     <string name="ui_direction_5a47d4d">Richtung —</string>
     <string name="ui_disable_battery_optimization_d3201bf">Deaktivieren Sie die Batterieoptimierung</string>
-    <string name="ui_disarmed_aaa4d9e">Entwaffnet</string>
+    <string name="ui_disarmed_aaa4d9e">Unscharf</string>
     <string name="ui_discovered_acbb9e0">Entdeckt</string>
     <string name="ui_dismiss_70afe9e">Zurückweisen</string>
     <string name="ui_display_574ff9b">Anzeige</string>
@@ -485,7 +495,7 @@
     <string name="ui_drag_to_set_the_order_cameras_appear_on_the_7bcb4f5">Ziehen Sie, um die Reihenfolge festzulegen, in der Kameras in der Sicherheitsansicht angezeigt werden.</string>
     <string name="ui_drag_to_set_the_order_the_cards_appear_below_b6a92e4">Ziehen Sie, um die Reihenfolge festzulegen, in der die Karten in der Energieansicht unter dem Haus angezeigt werden.</string>
     <string name="ui_drag_to_set_the_order_thermostats_and_ac_units_62d49e7">Ziehen Sie, um die Reihenfolge festzulegen, in der Thermostate und AC-Einheiten in der Klimaansicht angezeigt werden.</string>
-    <string name="ui_drying_7ea61a9">Trocknen</string>
+    <string name="ui_drying_7ea61a9">Entfeuchtet</string>
     <string name="ui_e_e0184ad">E</string>
     <string name="ui_each_group_controls_one_part_of_this_page_286a40b">Jede Gruppe kontrolliert einen Teil dieser Seite</string>
     <string name="ui_each_home_keeps_its_own_login_dashboard_notification_conne_c261f94">Jedes Zuhause verfügt über ein eigenes Login, ein eigenes Dashboard, eine eigene Benachrichtigungsverbindung und eine eigene Standortregistrierung</string>
@@ -549,7 +559,7 @@
     <string name="ui_family_sharing_settings_are_controlled_by_a_home_assistant_cdb35a2">Die Einstellungen für die Familienfreigabe werden von einem Home Assistant-Administrator gesteuert. Sie können ein unten für Sie freigegebenes Dashboard verwenden.</string>
     <string name="ui_fan_ec38406">Lüfter</string>
     <string name="ui_fan_modes_fbaa3df">Lüfter und Modi</string>
-    <string name="ui_fans_73d38db">Fans</string>
+    <string name="ui_fans_73d38db">Lüfter</string>
     <string name="ui_fetch_climate_entities_from_home_assistant_again_a65f837">Rufen Sie die Klimaelemente erneut vom Home Assistant ab.</string>
     <string name="ui_fetch_rooms_floors_and_their_entities_from_home_assistant_0d84305">Rufen Sie Räume, Etagen und ihre Einheiten erneut vom Home Assistant ab.</string>
     <string name="ui_fetch_security_entities_from_home_assistant_again_577b666">Rufen Sie die Sicherheitsentitäten erneut von Home Assistant ab.</string>
@@ -558,7 +568,7 @@
     <string name="ui_firmware_94fe490">Firmware %1$s</string>
     <string name="ui_five_simple_gestures_are_all_you_need_to_get_d4c2675">Fünf einfache Gesten genügen, um sich in HKI 7 zurechtzufinden.</string>
     <string name="ui_fixed_tab_10fe998">Feste Registerkarte</string>
-    <string name="ui_floor_7db82f7">Boden</string>
+    <string name="ui_floor_7db82f7">Etage</string>
     <string name="ui_floor_assignment_288a740">Etagenzuweisung</string>
     <string name="ui_floor_name_e9d98d6">Etagenname</string>
     <string name="ui_floor_settings_640cb8e">Bodeneinstellungen</string>
@@ -606,7 +616,7 @@
     <string name="ui_header_appearance_40327c9">Erscheinungsbild der Kopfzeile</string>
     <string name="ui_header_custom_color_rrggbb_1887d0a">Benutzerdefinierte Kopfzeilenfarbe (#RRGGBB)</string>
     <string name="ui_header_pill_d7520cf">Kopfpille</string>
-    <string name="ui_header_text_7f71314">Kopfzeilentext</string>
+    <string name="ui_header_text_7f71314">Überschrift</string>
     <string name="ui_header_text_f7593e7">Kopfzeilentext</string>
     <string name="ui_header_wallpaper_url_or_path_25cf2b6">URL oder Pfad des Header-Hintergrundbilds</string>
     <string name="ui_heading_some_bold_text_a_list_item_one_item_b7f049b"># Überschrift\nEtwas **fetter** Text, eine Liste:\n- Punkt eins\n- Punkt zwei</string>
@@ -624,7 +634,7 @@
     <string name="ui_hide_this_badge_or_schedule_when_it_appears_e149fbf">Blenden Sie dieses Abzeichen aus oder planen Sie, wann es angezeigt wird</string>
     <string name="ui_hide_this_button_or_schedule_when_it_appears_a28bf66">Blenden Sie diese Schaltfläche aus oder planen Sie, wann sie angezeigt wird</string>
     <string name="ui_high_accuracy_mode_954d2c5">Hochpräzisionsmodus</string>
-    <string name="ui_history_90ccd64">Geschichte</string>
+    <string name="ui_history_90ccd64">Verlauf</string>
     <string name="ui_hki_7_68a9e17">HKI 7</string>
     <string name="ui_hki_7_collects_location_data_to_enable_presence_detection_2dda033">HKI 7 sammelt Standortdaten, um eine Anwesenheitserkennung und zonenbasierte Erkennung zu ermöglichen</string>
     <string name="ui_hki_7_logo_a445c44">HKI 7-Logo</string>
@@ -646,7 +656,7 @@
     <string name="ui_https_example_ui_nabu_casa_4d97501">https://example.ui.nabu.casa</string>
     <string name="ui_humidifiers_aa38e2a">Luftbefeuchter</string>
     <string name="ui_humidifiers_are_found_automatically_from_the_humidifier_do_0717429">Luftbefeuchter werden automatisch aus der Luftbefeuchterdomäne gefunden; Fügen Sie hier zusätzliche Entitäten hinzu, falls welche fehlen.</string>
-    <string name="ui_humidifying_5d5f6c5">Befeuchtung</string>
+    <string name="ui_humidifying_5d5f6c5">Befeuchtet</string>
     <string name="ui_humidity_65adb9c">Luftfeuchtigkeit</string>
     <string name="ui_humidity_control_devices_c7e4846">Geräte zur Feuchtigkeitskontrolle</string>
     <string name="ui_humidity_sensor_graphed_in_activity_5b792e1">Feuchtigkeitssensor (grafisch dargestellt in Aktivität)</string>
@@ -659,7 +669,7 @@
     <string name="ui_identity_7e5a975">Identität</string>
     <string name="ui_identity_and_connection_bee53f8">Identität und Verbindung</string>
     <string name="ui_identity_presentation_indicators_and_maintenance_d46fbf4">Identität, Präsentation, Indikatoren und Wartung</string>
-    <string name="ui_idle_cc1ebdd">Leerlauf</string>
+    <string name="ui_idle_cc1ebdd">Inaktiv</string>
     <string name="ui_image_50e19fd">Bild</string>
     <string name="ui_image_style_size_shape_and_background_40c17b6">Bildstil, Größe, Form und Hintergrund</string>
     <string name="ui_image_url_or_path_ddd8d74">Bild-URL oder Pfad</string>
@@ -679,7 +689,7 @@
     <string name="ui_incoming_outgoing_49b9c0b">%1$s eingehend · %2$s ausgehend</string>
     <string name="ui_incorrect_pin_2de1d18">Falsche PIN</string>
     <string name="ui_increase_5a7fecf">Zunahme</string>
-    <string name="ui_individual_water_usage_21dd78c">Individueller Wasserverbrauch</string>
+    <string name="ui_individual_water_usage_21dd78c">Wasserverbrauch je Gerät</string>
     <string name="ui_individual_widgets_ff1526f">Individuelle Widgets</string>
     <string name="ui_indoor_average_53abf03">INNENDURCHSCHNITT</string>
     <string name="ui_indoor_comfort_7060319">Komfort im Innenbereich</string>
@@ -735,7 +745,7 @@
     <string name="ui_location_d219c68">Standort</string>
     <string name="ui_location_unavailable_3a57dda">Standort nicht verfügbar</string>
     <string name="ui_lock_c37eb4c">SPERREN</string>
-    <string name="ui_locked_a798882">Gesperrt</string>
+    <string name="ui_locked_a798882">Verriegelt</string>
     <string name="ui_locks_the_screen_to_its_highest_refresh_rate_while_585256f">Stellt den Bildschirm auf die höchste Bildwiederholfrequenz ein, während die App geöffnet ist (verbraucht mehr Batterie).</string>
     <string name="ui_log_in_again_1ee6e18">Melden Sie sich erneut an</string>
     <string name="ui_logging_in_again_keeps_your_dashboard_and_settings_9a8ed6f">Wenn Sie sich erneut anmelden, bleiben Ihr Dashboard und Ihre Einstellungen erhalten.</string>
@@ -758,7 +768,7 @@
     <string name="ui_map_camera_for_dialog_2bc4344">Kartenkamera (für Dialog)</string>
     <string name="ui_map_status_sensors_and_control_bindings_8cc2dbd">Karte, Statussensoren und Steuerungsbindungen</string>
     <string name="ui_map_unavailable_0ccd149">Karte nicht verfügbar</string>
-    <string name="ui_markdown_23e67fc">Abschlag</string>
+    <string name="ui_markdown_23e67fc">Markdown</string>
     <string name="ui_matching_entities_are_added_automatically_by_home_assistan_07ebdac">Passende Entitäten werden automatisch von der Home Assistant-Geräteklasse hinzugefügt. Fügen Sie hier alle fehlenden oder benutzerdefinierten Entitäten hinzu.</string>
     <string name="ui_media_0c77aee">Medien</string>
     <string name="ui_media_browsing_isn_t_available_for_this_player_e068417">Das Durchsuchen von Medien ist für diesen Player nicht verfügbar.</string>
@@ -816,7 +826,7 @@
     <string name="ui_no_cards_yet_open_the_stack_settings_to_pick_021dada">Noch keine Karten – öffnen Sie die Stapeleinstellungen, um Energiekarten auszuwählen.</string>
     <string name="ui_no_cards_yet_open_the_stack_settings_to_pick_ca8008f">Noch keine Karten – öffnen Sie die Stapeleinstellungen, um Klimakarten auszuwählen.</string>
     <string name="ui_no_climate_data_37d45e0">Keine Klimadaten</string>
-    <string name="ui_no_climate_devices_found_thermostats_and_ac_units_from_2e47541">Keine Klimageräte gefunden. Thermostate und Klimageräte von Home Assistant erscheinen hier automatisch.</string>
+    <string name="ui_no_climate_devices_found_thermostats_and_ac_units_from_2e47541">Keine Klimageräte gefunden. Thermostate und Klimaanlagen aus Home Assistant erscheinen hier automatisch.</string>
     <string name="ui_no_collections_in_the_next_7_days_6d48bf4">Keine Abholungen in den nächsten 7 Tagen.</string>
     <string name="ui_no_conditions_this_flow_always_continues_c95e76f">Keine Bedingungen – dieser Fluss geht immer weiter</string>
     <string name="ui_no_dashboards_have_been_shared_with_you_yet_ask_38b2c0d">Es wurden noch keine Dashboards mit Ihnen geteilt. Bitten Sie einen Administrator, eines zu teilen, oder wählen Sie oben eine andere Option aus.</string>
@@ -825,7 +835,7 @@
     <string name="ui_no_door_sensor_f6b60c8">Kein Türsensor</string>
     <string name="ui_no_energy_sensors_found_eeecdec">Keine Energiesensoren gefunden.</string>
     <string name="ui_no_events_e339ba7">Keine Veranstaltungen</string>
-    <string name="ui_no_fans_found_fan_entities_from_home_assistant_appear_279dab7">Keine Fans gefunden. Fan-Entitäten von Home Assistant erscheinen hier automatisch.</string>
+    <string name="ui_no_fans_found_fan_entities_from_home_assistant_appear_279dab7">Keine Lüfter gefunden. Lüfter-Entitäten aus Home Assistant erscheinen hier automatisch.</string>
     <string name="ui_no_forecast_available_ed48809">Keine Prognose verfügbar</string>
     <string name="ui_no_graphs_yet_open_the_stack_settings_to_add_87f742f">Noch keine Diagramme – öffnen Sie die Stapeleinstellungen, um Sensordiagramme hinzuzufügen.</string>
     <string name="ui_no_heading_162947f">Keine Überschrift</string>
@@ -846,12 +856,12 @@
     <string name="ui_no_other_entities_on_this_device_fbc481b">Keine anderen Entitäten auf diesem Gerät.</string>
     <string name="ui_no_other_users_found_on_this_home_assistant_cb89d3d">Keine anderen Benutzer für diesen Home Assistant gefunden.</string>
     <string name="ui_no_parcel_selected_922a402">Kein Paket ausgewählt</string>
-    <string name="ui_no_parcels_cf4c0a0">Keine %1$s-Pakete.</string>
+    <string name="ui_no_parcels_cf4c0a0">Keine %1$s Pakete.</string>
     <string name="ui_no_phase_sensors_configured_in_energy_settings_b88c1dc">In den Energieeinstellungen sind keine Phasensensoren konfiguriert.</string>
     <string name="ui_no_power_sensors_found_caf2e07">Keine Leistungssensoren gefunden.</string>
     <string name="ui_no_power_sensors_found_on_this_device_or_its_942e9be">Auf diesem Gerät (oder seinen Untergeräten) wurden noch keine Leistungssensoren gefunden.</string>
     <string name="ui_no_profile_available_98d6e00">Kein Profil verfügbar</string>
-    <string name="ui_no_sensors_found_edacf22">Keine %1$s Sensoren gefunden.</string>
+    <string name="ui_no_sensors_found_edacf22">Keine Sensoren für %1$s gefunden.</string>
     <string name="ui_no_sensors_selected_open_the_widget_settings_in_edit_cd87a2e">Keine Sensoren ausgewählt – öffnen Sie die Widget-Einstellungen im Bearbeitungsmodus.</string>
     <string name="ui_no_servers_found_yet_make_sure_you_re_on_7e6832d">Noch keine Server gefunden. Stellen Sie sicher, dass Sie sich im selben WLAN befinden, oder geben Sie die Adresse unten ein.</string>
     <string name="ui_no_speed_control_linked_cb0e9ad">Keine Geschwindigkeitsregelung angeschlossen</string>
@@ -868,7 +878,7 @@
     <string name="ui_no_weather_cards_ce32255">Keine Wetterkarten</string>
     <string name="ui_no_weather_entity_available_7476bcb">Keine Wettereinheit verfügbar</string>
     <string name="ui_no_widgets_match_73a3c20">Keine Widgets passen zu „%1$s“</string>
-    <string name="ui_none_6eef664">Keiner</string>
+    <string name="ui_none_6eef664">Keine</string>
     <string name="ui_none_auto_cc8786f">Keine/Auto</string>
     <string name="ui_none_modes_stay_as_the_only_control_b62bff7">Keine – Modi bleiben die einzige Steuerung</string>
     <string name="ui_none_of_your_configured_carriers_support_adding_a_parcel_21dc0a4">Keiner Ihrer konfigurierten Spediteure unterstützt das Hinzufügen eines Pakets anhand der Sendungsverfolgungsnummer. Kontobasierte Spediteure (PostNL, DPD, DHL) verfolgen nur, was sich bereits auf Ihrem Konto befindet.</string>
@@ -896,7 +906,7 @@
     <string name="ui_ok_9ce3bd4">OK</string>
     <string name="ui_on_12469c7">Ein – %1$s%%</string>
     <string name="ui_on_387d7a5">AN</string>
-    <string name="ui_on_e0049a6">An</string>
+    <string name="ui_on_e0049a6">Ein</string>
     <string name="ui_on_f9ca2fe">%1$s%% • EIN</string>
     <string name="ui_on_these_wi_fi_networks_the_app_connects_via_82d3f1f">In diesen Wi-Fi-Netzwerken stellt die App eine Verbindung über die interne URL her; Überall sonst wird die oben genannte Hauptserver-URL verwendet.</string>
     <string name="ui_on_this_device_a7f9620">Auf diesem Gerät</string>
@@ -905,7 +915,7 @@
     <string name="ui_only_show_battery_entities_and_include_battery_type_detail_b216867">Zeigen Sie nur Batterie+-Entitäten an und geben Sie Details zum Batterietyp an</string>
     <string name="ui_only_show_battery_entities_and_include_type_quantity_and_0d8ce40">Zeigt nur Batterie+-Entitäten an und enthält Typ, Menge und zugehörige Batterieinformationen.</string>
     <string name="ui_open_camera_full_screen_afc186b">Kamera im Vollbildmodus öffnen</string>
-    <string name="ui_open_cf9b770">Offen</string>
+    <string name="ui_open_cf9b770">Öffnen</string>
     <string name="ui_open_history_for_graph_ae801d5">Verlauf für Grafik öffnen</string>
     <string name="ui_open_link_d2de1a2">Link öffnen</string>
     <string name="ui_open_source_and_premium_licensing_0328125">Open-Source- und Premium-Lizenzierung</string>
@@ -944,7 +954,7 @@
     <string name="ui_pause_781961b">Pause</string>
     <string name="ui_pause_adaptation_821b33e">Anpassung pausieren</string>
     <string name="ui_pending_timer_dbf15fa">Ausstehender Timer</string>
-    <string name="ui_people_b37554f">Menschen</string>
+    <string name="ui_people_b37554f">Personen</string>
     <string name="ui_permission_needed_7c7a8e5">Erlaubnis erforderlich</string>
     <string name="ui_permissions_d06d555">Berechtigungen</string>
     <string name="ui_person_settings_977e009">Personeneinstellungen</string>
@@ -968,7 +978,7 @@
     <string name="ui_postal_code_optional_b86b6a2">Postleitzahl (optional)</string>
     <string name="ui_power_c2b6b52">LEISTUNG</string>
     <string name="ui_power_overview_a204dd7">Leistungsübersicht</string>
-    <string name="ui_power_per_phase_1f38fb0">Leistung pro Phase</string>
+    <string name="ui_power_per_phase_1f38fb0">Leistung je Phase</string>
     <string name="ui_precipitation_60d5e73">Fällung</string>
     <string name="ui_premium_icon_packs_animated_icons_and_artwork_premium_them_6363fef">Premium-Symbolpakete, animierte Symbole und Grafiken, Premium-Themen, Berechtigungsdienste und alle separat gekennzeichneten Premium-Module werden nicht von MPL-2.0 abgedeckt. Sie bleiben urheberrechtlich geschützt und werden für den persönlichen Gebrauch durch eine gültige Premium-Berechtigung lizenziert.</string>
     <string name="ui_presets_6891289">VOREINSTELLUNGEN</string>
@@ -976,7 +986,7 @@
     <string name="ui_press_ea683ad">Drücken</string>
     <string name="ui_prevents_android_from_delaying_battery_charging_and_presen_623b898">Verhindert, dass Android Akku-, Lade- und Anwesenheitsaktualisierungen verzögert, während das Gerät inaktiv ist.</string>
     <string name="ui_previous_camera_5014da7">Vorherige Kamera</string>
-    <string name="ui_produced_5028c07">Produziert %1$s</string>
+    <string name="ui_produced_5028c07">Erzeugt: %1$s</string>
     <string name="ui_production_overview_fbbfc38">Produktionsübersicht</string>
     <string name="ui_profile_ff4fc02">Profil</string>
     <string name="ui_profile_switches_affect_every_light_assigned_to_19ba9ec">Profilschalter wirken sich auf jedes Licht aus, das %1$s zugewiesen ist.</string>
@@ -989,7 +999,7 @@
     <string name="ui_push_delivery_and_history_aa3e29d">Push-Zustellung und -Verlauf</string>
     <string name="ui_push_my_changes_now_ddff3f6">Pushe jetzt meine Änderungen</string>
     <string name="ui_pushing_3c52088">Schieben…</string>
-    <string name="ui_quick_actions_e47e804">Schnelle Aktionen</string>
+    <string name="ui_quick_actions_e47e804">Schnellaktionen</string>
     <string name="ui_quick_start_gesture_23ee6fe">quick_start_geste</string>
     <string name="ui_rain_0a858c9">Regen</string>
     <string name="ui_rain_map_7c1862a">Regenkarte</string>
@@ -1086,7 +1096,7 @@
     <string name="ui_search_actions_9313854">Suchaktionen</string>
     <string name="ui_search_automations_9172ba9">Suchautomatisierungen</string>
     <string name="ui_search_batteries_a63e58b">Batterien suchen</string>
-    <string name="ui_search_bce0641">Suchen</string>
+    <string name="ui_search_bce0641">Suche</string>
     <string name="ui_search_by_name_28abc03">Suche nach Namen</string>
     <string name="ui_search_devices_2ce0b70">Geräte suchen</string>
     <string name="ui_search_entities_7c70008">Entitäten suchen</string>
@@ -1106,7 +1116,7 @@
     <string name="ui_securityphase_f4739f6">Sicherheitsphase</string>
     <string name="ui_securitypulse_5340cf8">securityPulse</string>
     <string name="ui_securitywindow_4619bf3">securityWindow</string>
-    <string name="ui_select_0fc8ec5">Wählen Sie %1$s</string>
+    <string name="ui_select_0fc8ec5">%1$s auswählen</string>
     <string name="ui_select_a_mode_to_continue_0426fc8">Wählen Sie einen Modus aus, um fortzufahren</string>
     <string name="ui_select_an_effect_to_turn_it_on_75d9bec">Wählen Sie einen Effekt aus, um ihn zu aktivieren</string>
     <string name="ui_select_an_inverter_device_in_energy_settings_solar_to_4a0aade">Wählen Sie unter Energieeinstellungen → Solar ein Wechselrichtergerät aus, um seine Wechselrichter hier aufzulisten.</string>
@@ -1199,7 +1209,7 @@
     <string name="ui_size_shape_and_artwork_4bb38bb">Größe, Form und Kunstwerk</string>
     <string name="ui_size_shape_and_background_24dd9b6">Größe, Form und Hintergrund</string>
     <string name="ui_snapshot_b08ae37">Schnappschuss</string>
-    <string name="ui_solar_0e26539">Solar</string>
+    <string name="ui_solar_0e26539">Solarenergie</string>
     <string name="ui_solar_noon_599372c">Sonnenmittag %1$s</string>
     <string name="ui_sort_d5f73d6">Sortieren: %1$s</string>
     <string name="ui_source_and_card_refresh_behavior_0a26324">Verhalten bei Quell- und Kartenaktualisierung</string>
@@ -1307,7 +1317,7 @@
     <string name="ui_the_web_page_shown_on_this_card_ce97bfd">Die auf dieser Karte angezeigte Webseite</string>
     <string name="ui_theme_a797e30">Thema</string>
     <string name="ui_theme_and_navigation_bar_474ee6b">Theme und Navigationsleiste</string>
-    <string name="ui_thermostat_dial_e6af91b">Thermostat-Zifferblatt</string>
+    <string name="ui_thermostat_dial_e6af91b">Thermostatregler</string>
     <string name="ui_thermostats_601da0c">Thermostate</string>
     <string name="ui_thermostats_ac_7d2ace4">Thermostate und Klimaanlage</string>
     <string name="ui_these_are_stored_in_the_cloud_import_one_to_558c62d">Diese werden in der Cloud gespeichert. Importieren Sie eine, um sie zu bearbeiten oder erneut zu teilen, oder löschen Sie sie, um sie von allen zu entfernen. Ihre Änderungen werden auch automatisch übertragen, wenn Sie die App öffnen.</string>
@@ -1349,7 +1359,7 @@
     <string name="ui_to_state_2a995a1">Zu sagen</string>
     <string name="ui_today_24345a1">Heute</string>
     <string name="ui_tomorrow_1948bf2">Morgen</string>
-    <string name="ui_top_consumers_0199dbf">Top-Verbraucher</string>
+    <string name="ui_top_consumers_0199dbf">Größte Verbraucher</string>
     <string name="ui_tracking_number_4e40c54">Tracking-Nummer</string>
     <string name="ui_try_again_042c862">Versuchen Sie es erneut</string>
     <string name="ui_try_the_demo_home_no_server_needed_bc58247">Testen Sie die Demo zu Hause – kein Server erforderlich</string>
@@ -1367,7 +1377,7 @@
     <string name="ui_unlock_1526a17">Entsperren</string>
     <string name="ui_unlock_button_ad521c4">Entriegelungstaste</string>
     <string name="ui_unlock_method_dff380e">Entsperrmethode</string>
-    <string name="ui_unlocked_b3da702">Entsperrt</string>
+    <string name="ui_unlocked_b3da702">Entriegelt</string>
     <string name="ui_unrestricted_background_cebdb1e">Uneingeschränkter Hintergrund</string>
     <string name="ui_untitled_621521f">Ohne Titel</string>
     <string name="ui_untitled_event_ef8d264">Veranstaltung ohne Titel</string>
@@ -1382,13 +1392,13 @@
     <string name="ui_use_a_family_shared_dashboard_9b8ab51">Verwenden Sie ein gemeinsam genutztes Familien-Dashboard</string>
     <string name="ui_use_a_recognizable_name_such_as_kitchen_tablet_or_ca9f431">Verwenden Sie einen erkennbaren Namen, z. B. „Küchen-Tablet“ oder „Jimmys Telefon“.</string>
     <string name="ui_use_family_shared_dashboard_28e06c2">Verwenden Sie das gemeinsam genutzte Familien-Dashboard</string>
-    <string name="ui_used_6a4ebbf">Gebraucht %1$s</string>
+    <string name="ui_used_6a4ebbf">Verbraucht: %1$s</string>
     <string name="ui_uses_hki_7_s_private_google_drive_storage_enable_0559ced">Verwendet den privaten Google Drive-Speicher von HKI 7. Aktivieren Sie es einmal, um ein sofortiges Backup zu erstellen und dann jeden Tag automatisch ein Backup zu erstellen.</string>
     <string name="ui_uses_the_sun_entity_configured_in_weather_settings_e580a39">Verwendet die in den Wettereinstellungen konfigurierte Sun-Entität.</string>
     <string name="ui_using_a_shared_dashboard_applies_the_permissions_the_admin_a337a76">Bei Verwendung eines freigegebenen Dashboards werden die vom Administrator dafür festgelegten Berechtigungen angewendet.</string>
     <string name="ui_using_the_climate_view_s_entities_8befb0f">Verwendung der Entitäten der Klimaansicht</string>
     <string name="ui_using_the_energy_view_s_entities_7ca9bed">Verwenden der Entitäten der Energieansicht</string>
-    <string name="ui_vacuum_5fe15df">Vakuum</string>
+    <string name="ui_vacuum_5fe15df">Saugroboter</string>
     <string name="ui_vacuum_device_3deae52">Vakuumgerät</string>
     <string name="ui_vacuum_entities_c7da1d7">Vakuumwesen</string>
     <string name="ui_vacuum_map_8236541">Vakuumkarte</string>
@@ -1451,8 +1461,4 @@
     <string name="ui_your_dashboard_is_ready_0719f75">Ihr Dashboard ist fertig</string>
     <string name="ui_your_home_72412fa">Ihr Zuhause</string>
     <string name="ui_your_location_is_shared_only_with_your_own_home_c75bd6d">Ihr Standort wird nur mit Ihrem eigenen Home Assistant-Server geteilt. Es ist</string>
-    <string name="core_greeting_morning">Guten Morgen</string>
-    <string name="core_greeting_afternoon">Guten Tag</string>
-    <string name="core_greeting_evening">Guten Abend</string>
-    <string name="core_greeting_night">Gute Nacht</string>
 </resources>

@@ -3306,4 +3306,10 @@
     <string name="widgets_weather_subtitle">Entidad, tipo de tarjeta y apariencia</string>
     <string name="widgets_weather_title">Clima</string>
     <string name="widgets_yesterday">Ayer</string>
+    <string name="dlg_condition">Condición</string>
+    <string name="dlg_condition_entity_id">ID de entidad (opcional)</string>
+    <string name="dlg_condition_hint">También oculte esto a menos que una entidad esté (o no esté) en un estado determinado, como una tarjeta condicional de Home Assistant. Combina con el horario anterior.</string>
+    <string name="dlg_condition_is">Es</string>
+    <string name="dlg_condition_is_not">no es</string>
+    <string name="dlg_condition_state">Estado</string>
 </resources>

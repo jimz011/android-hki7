@@ -60,6 +60,16 @@
     <string name="push_connection_channel_name">Bildirim bağlantısı</string>
     <string name="push_connection_notification_title">Home Assistant\'a bağlandı</string>
     <string name="push_connection_notification_text">Bildirimler bekleniyor</string>
+    <string name="core_greeting_morning">Günaydın</string>
+    <string name="core_greeting_afternoon">Tünaydın</string>
+    <string name="core_greeting_evening">İyi akşamlar</string>
+    <string name="core_greeting_night">İyi geceler</string>
+    <string name="dlg_condition">Durum</string>
+    <string name="dlg_condition_entity_id">Varlık Kimliği (isteğe bağlı)</string>
+    <string name="dlg_condition_hint">Ayrıca, bir varlık Ev Asistanı koşullu kartı gibi belirli bir durumda olmadığı (veya olmadığı) sürece bunu da gizleyin. Yukarıdaki programla birleştirilir.</string>
+    <string name="dlg_condition_is">öyle mi</string>
+    <string name="dlg_condition_is_not">değil mi</string>
+    <string name="dlg_condition_state">Durum</string>
     <string name="ui_0f_s_788ca6f" formatted="false">%.0f %s</string>
     <string name="ui_1_advanced_shorthand_block_kept_unchanged_d4dcbd7">1 gelişmiş kısayol bloğu (değişmeden tutulur)</string>
     <string name="ui_1f_16b5d7d" formatted="false">%.1f</string>
@@ -83,7 +93,7 @@
     <string name="ui_action_details_d623b1c">Eylem ayrıntıları</string>
     <string name="ui_active_0af2854">%1$s · %2$s etkin</string>
     <string name="ui_active_25ff32f">%1$s/%2$s etkin</string>
-    <string name="ui_active_a733b80">Aktif</string>
+    <string name="ui_active_a733b80">Etkin</string>
     <string name="ui_active_c7260b5">%1$s%% • AKTİF</string>
     <string name="ui_active_connection_54db7a1">Aktif bağlantı</string>
     <string name="ui_activity_81c0d91">Etkinlik</string>
@@ -134,12 +144,12 @@
     <string name="ui_air_circulating_273e82b">Hava sirkülasyonu</string>
     <string name="ui_air_circulation_devices_a14e95d">Hava sirkülasyon cihazları</string>
     <string name="ui_air_cleaning_devices_4364277">Hava temizleme cihazları</string>
-    <string name="ui_air_purifiers_476147b">Hava temizleyicileri</string>
+    <string name="ui_air_purifiers_476147b">Hava temizleyiciler</string>
     <string name="ui_air_purifiers_are_fan_entities_in_home_assistant_so_3fa4fdb">Hava temizleyicileri, Home Assistant\'taki fan öğeleridir, dolayısıyla otomatik olarak algılanamazlar. Burada sizinkini seçin.</string>
     <string name="ui_airphase_1f2d2b6">hava fazı</string>
     <string name="ui_alarm_25f8c55">Alarm</string>
     <string name="ui_alarm_entities_b462ba5">Alarm varlıkları</string>
-    <string name="ui_alarm_pending_e2c04aa">Alarm bekleniyor</string>
+    <string name="ui_alarm_pending_e2c04aa">Alarm devreye alınıyor</string>
     <string name="ui_alarm_triggered_641ff6f">Alarm tetiklendi</string>
     <string name="ui_alarm_unavailable_867909b">Alarm kullanılamıyor</string>
     <string name="ui_alignment_7f8c517">Hizalama</string>
@@ -167,9 +177,9 @@
     <string name="ui_archived_eddc813">Arşivlendi</string>
     <string name="ui_are_you_sure_you_want_to_clear_battery_config_3e19f24">Pil yapılandırmasını temizlemek istediğinizden emin misiniz?</string>
     <string name="ui_armed_32caa31">Silahlı</string>
-    <string name="ui_armed_away_6834abf">Silahlı</string>
-    <string name="ui_armed_home_c8d0b44">Silahlı ev</string>
-    <string name="ui_armed_night_80659bd">Silahlı gece</string>
+    <string name="ui_armed_away_6834abf">Etkin: dışarıda</string>
+    <string name="ui_armed_home_c8d0b44">Etkin: evde</string>
+    <string name="ui_armed_night_80659bd">Etkin: gece</string>
     <string name="ui_arming_in_seconds_b9e07a8">%1$s saniye içinde devreye alınıyor</string>
     <string name="ui_aspect_ratio_4e077cf">En boy oranı</string>
     <string name="ui_aspect_ratio_used_by_every_stream_275bb52">Her akış tarafından kullanılan en boy oranı</string>
@@ -324,7 +334,7 @@
     <string name="ui_choose_your_dashboard_1ec85e9">Kontrol panelinizi seçin</string>
     <string name="ui_clean_rooms_4dc67ab">Temiz odalar</string>
     <string name="ui_clean_selected_43d8dd5">Seçileni temizle</string>
-    <string name="ui_clear_719ea39">Temizlemek</string>
+    <string name="ui_clear_719ea39">Temiz</string>
     <string name="ui_clear_battery_config_d8854f7">Pil yapılandırması temizlensin mi?</string>
     <string name="ui_clear_battery_view_1952347">Pil görünümü temizlensin mi?</string>
     <string name="ui_clear_battery_view_5ef09bf">Pil Görünümünü Temizle</string>
@@ -350,7 +360,7 @@
     <string name="ui_climatedooropen_026f1c8">iklimKapıAçık</string>
     <string name="ui_climatehouse_9c0637a">İklim evi</string>
     <string name="ui_climatewindowopen_9b0794a">iklimPencereAçık</string>
-    <string name="ui_close_bbfa773">Kapalı</string>
+    <string name="ui_close_bbfa773">Kapat</string>
     <string name="ui_cloud_backup_is_off_71dfae1">Bulut yedekleme kapalı</string>
     <string name="ui_collapsed_by_default_65a57c6">Varsayılan olarak daraltıldı</string>
     <string name="ui_collapsible_c932fac">Katlanabilir</string>
@@ -372,7 +382,7 @@
     <string name="ui_connected_through_home_assistant_cloud_47a54c0">Home Assistant Cloud aracılığıyla bağlanıldı</string>
     <string name="ui_connected_through_your_external_home_assistant_address_966b0e6">Harici Ev Asistanı adresiniz aracılığıyla bağlanıldı</string>
     <string name="ui_connected_through_your_home_network_cdf4e0f">Ev ağınız üzerinden bağlı</string>
-    <string name="ui_connecting_fd3e796">Bağlanıyor…</string>
+    <string name="ui_connecting_fd3e796">Bağlanılıyor…</string>
     <string name="ui_connection_6512ee1">Bağlantı</string>
     <string name="ui_connection_switched_to_8f04753">Bağlantı %1$s olarak değiştirildi</string>
     <string name="ui_contacting_your_home_assistant_server_e0a53d1">Ev Asistanı sunucunuzla iletişim kuruluyor…</string>
@@ -417,7 +427,7 @@
     <string name="ui_custom_ed17691">Özel %1$s</string>
     <string name="ui_custom_entities_d6e76ae">Özel varlıklar</string>
     <string name="ui_custom_name_6af17c2">Özel ad</string>
-    <string name="ui_custom_order_a7a5984">Özel sipariş</string>
+    <string name="ui_custom_order_a7a5984">Özel sıralama</string>
     <string name="ui_custom_seconds_7467e28">Özel saniyeler</string>
     <string name="ui_custom_state_378153b">Özel durum...</string>
     <string name="ui_custom_url_9c155e9">Özel URL</string>
@@ -447,9 +457,9 @@
     <string name="ui_delete_0c6013a">"%1$s" silinsin mi?</string>
     <string name="ui_delete_137cdc2">%1$s silinsin mi?</string>
     <string name="ui_delete_automation_442d61c">Otomasyon silinsin mi?</string>
-    <string name="ui_delete_f6fdbe4">Silmek</string>
+    <string name="ui_delete_f6fdbe4">Sil</string>
     <string name="ui_delete_floor_07c4a91">Katı sil</string>
-    <string name="ui_delivered_eea956c">Teslim edilmiş</string>
+    <string name="ui_delivered_eea956c">Teslim edildi</string>
     <string name="ui_demo_mode_a85b728">Demo modu</string>
     <string name="ui_description_55f8ebc">Tanım</string>
     <string name="ui_details_dc3decb">Detaylar</string>
@@ -458,7 +468,7 @@
     <string name="ui_device_a5a74a6">Cihaz</string>
     <string name="ui_device_details_39c277d">Cihaz ayrıntıları</string>
     <string name="ui_device_details_eb36018">CİHAZ DETAYLARI</string>
-    <string name="ui_device_energy_79de3d8">Cihaz enerjisi</string>
+    <string name="ui_device_energy_79de3d8">Cihaza göre enerji</string>
     <string name="ui_device_helpers_6a8b199">Cihaz ve yardımcılar</string>
     <string name="ui_device_name_79d7a15">Cihaz adı</string>
     <string name="ui_device_tracker_and_geocoded_location_f9e2d34">Cihaz izleyici ve coğrafi kodlanmış konum</string>
@@ -467,7 +477,7 @@
     <string name="ui_dialog_control_63e18cf">Diyalog kontrolü</string>
     <string name="ui_direction_5a47d4d">Yön -</string>
     <string name="ui_disable_battery_optimization_d3201bf">Pil Optimizasyonunu Devre Dışı Bırak</string>
-    <string name="ui_disarmed_aaa4d9e">Silahsız</string>
+    <string name="ui_disarmed_aaa4d9e">Devre dışı</string>
     <string name="ui_discovered_acbb9e0">Keşfedildi</string>
     <string name="ui_dismiss_70afe9e">Azletmek</string>
     <string name="ui_display_574ff9b">Görüntülemek</string>
@@ -479,13 +489,13 @@
     <string name="ui_door_open_74899a4">Kapı\nAçık</string>
     <string name="ui_door_sensor_turns_lock_card_red_when_open_9bc1372">Kapı sensörü (açıldığında kilit kartını kırmızıya çevirir)</string>
     <string name="ui_door_sensors_a7bb309">Kapı sensörleri</string>
-    <string name="ui_double_tap_a268e89">İki kez dokunun</string>
+    <string name="ui_double_tap_a268e89">Çift dokunma</string>
     <string name="ui_drag_horizontally_across_the_full_button_547ea8c">Tam düğme boyunca yatay olarak sürükleyin</string>
     <string name="ui_drag_to_reorder_use_the_eye_button_to_hide_cd28b4c">Yeniden sıralamak için sürükleyin. Bir öğeyi veya programı gösterildiğinde gizlemek için göz düğmesini kullanın.</string>
     <string name="ui_drag_to_set_the_order_cameras_appear_on_the_7bcb4f5">Kameraların Güvenlik görünümünde görünme sırasını ayarlamak için sürükleyin.</string>
     <string name="ui_drag_to_set_the_order_the_cards_appear_below_b6a92e4">Enerji görünümünde kartların evin altında görüneceği sırayı ayarlamak için sürükleyin.</string>
     <string name="ui_drag_to_set_the_order_thermostats_and_ac_units_62d49e7">Termostatların ve AC ünitelerinin İklim görünümünde görünme sırasını ayarlamak için sürükleyin.</string>
-    <string name="ui_drying_7ea61a9">Kurutma</string>
+    <string name="ui_drying_7ea61a9">Kurutuyor</string>
     <string name="ui_e_e0184ad">e</string>
     <string name="ui_each_group_controls_one_part_of_this_page_286a40b">Her grup bu sayfanın bir bölümünü kontrol eder</string>
     <string name="ui_each_home_keeps_its_own_login_dashboard_notification_conne_c261f94">Her evin kendi oturum açma bilgisi, kontrol paneli, bildirim bağlantısı ve konum kaydı bulunur</string>
@@ -549,7 +559,7 @@
     <string name="ui_family_sharing_settings_are_controlled_by_a_home_assistant_cdb35a2">Aile Paylaşımı ayarları Ev Asistanı yöneticisi tarafından kontrol edilir. Aşağıda sizinle paylaşılan kontrol panelini kullanabilirsiniz.</string>
     <string name="ui_fan_ec38406">Fan</string>
     <string name="ui_fan_modes_fbaa3df">Fan ve modlar</string>
-    <string name="ui_fans_73d38db">Hayranlar</string>
+    <string name="ui_fans_73d38db">Fanlar</string>
     <string name="ui_fetch_climate_entities_from_home_assistant_again_a65f837">İklim varlıklarını Home Assistant\'tan tekrar alın.</string>
     <string name="ui_fetch_rooms_floors_and_their_entities_from_home_assistant_0d84305">Ev Asistanı\'ndan odaları, katları ve bunların varlıklarını tekrar alın.</string>
     <string name="ui_fetch_security_entities_from_home_assistant_again_577b666">Güvenlik varlıklarını Home Assistant\'tan tekrar alın.</string>
@@ -558,7 +568,7 @@
     <string name="ui_firmware_94fe490">Firmware %1$s</string>
     <string name="ui_five_simple_gestures_are_all_you_need_to_get_d4c2675">HKI 7\'yi aşmak için ihtiyacınız olan tek şey beş basit harekettir.</string>
     <string name="ui_fixed_tab_10fe998">Sabit sekme</string>
-    <string name="ui_floor_7db82f7">Zemin</string>
+    <string name="ui_floor_7db82f7">Kat</string>
     <string name="ui_floor_assignment_288a740">Kat ataması</string>
     <string name="ui_floor_name_e9d98d6">Kat adı</string>
     <string name="ui_floor_settings_640cb8e">Zemin ayarları</string>
@@ -624,7 +634,7 @@
     <string name="ui_hide_this_badge_or_schedule_when_it_appears_e149fbf">Bu rozeti gizleyin veya ne zaman görüneceğini planlayın</string>
     <string name="ui_hide_this_button_or_schedule_when_it_appears_a28bf66">Bu düğmeyi gizleyin veya ne zaman görüneceğini planlayın</string>
     <string name="ui_high_accuracy_mode_954d2c5">Yüksek doğruluk modu</string>
-    <string name="ui_history_90ccd64">Tarih</string>
+    <string name="ui_history_90ccd64">Geçmiş</string>
     <string name="ui_hki_7_68a9e17">HKİ 7</string>
     <string name="ui_hki_7_collects_location_data_to_enable_presence_detection_2dda033">HKI 7, varlık algılamayı ve bölge tabanlı özellikleri etkinleştirmek için konum verilerini toplar</string>
     <string name="ui_hki_7_logo_a445c44">HKI 7 logosu</string>
@@ -646,7 +656,7 @@
     <string name="ui_https_example_ui_nabu_casa_4d97501">https://example.ui.nabu.casa</string>
     <string name="ui_humidifiers_aa38e2a">Nemlendiriciler</string>
     <string name="ui_humidifiers_are_found_automatically_from_the_humidifier_do_0717429">Nemlendiriciler, nemlendirici alanından otomatik olarak bulunur; Eksik olanlar varsa buraya fazladan varlıklar ekleyin.</string>
-    <string name="ui_humidifying_5d5f6c5">Nemlendirme</string>
+    <string name="ui_humidifying_5d5f6c5">Nemlendiriyor</string>
     <string name="ui_humidity_65adb9c">Nem</string>
     <string name="ui_humidity_control_devices_c7e4846">Nem kontrol cihazları</string>
     <string name="ui_humidity_sensor_graphed_in_activity_5b792e1">Nem sensörü (Etkinlik\'te grafikle gösterilmiştir)</string>
@@ -679,7 +689,7 @@
     <string name="ui_incoming_outgoing_49b9c0b">%1$s gelen · %2$s giden</string>
     <string name="ui_incorrect_pin_2de1d18">Yanlış PIN</string>
     <string name="ui_increase_5a7fecf">Arttırmak</string>
-    <string name="ui_individual_water_usage_21dd78c">Bireysel su kullanımı</string>
+    <string name="ui_individual_water_usage_21dd78c">Cihaza göre su tüketimi</string>
     <string name="ui_individual_widgets_ff1526f">Bireysel widget\'lar</string>
     <string name="ui_indoor_average_53abf03">İÇ MEKAN ORTALAMA</string>
     <string name="ui_indoor_comfort_7060319">İç mekan konforu</string>
@@ -758,7 +768,7 @@
     <string name="ui_map_camera_for_dialog_2bc4344">Harita kamerası (diyalog için)</string>
     <string name="ui_map_status_sensors_and_control_bindings_8cc2dbd">Harita, durum sensörleri ve kontrol bağlantıları</string>
     <string name="ui_map_unavailable_0ccd149">Harita kullanılamıyor</string>
-    <string name="ui_markdown_23e67fc">İndirim</string>
+    <string name="ui_markdown_23e67fc">Markdown</string>
     <string name="ui_matching_entities_are_added_automatically_by_home_assistan_07ebdac">Eşleşen varlıklar Home Assistant cihaz sınıfı tarafından otomatik olarak eklenir. Eksik veya özel varlıkları buraya ekleyin.</string>
     <string name="ui_media_0c77aee">Medya</string>
     <string name="ui_media_browsing_isn_t_available_for_this_player_e068417">Bu oynatıcıda medyaya göz atma özelliği mevcut değil.</string>
@@ -816,7 +826,7 @@
     <string name="ui_no_cards_yet_open_the_stack_settings_to_pick_021dada">Henüz kart yok; enerji kartlarını seçmek için yığın ayarlarını açın.</string>
     <string name="ui_no_cards_yet_open_the_stack_settings_to_pick_ca8008f">Henüz kart yok; iklim kartlarını seçmek için yığın ayarlarını açın.</string>
     <string name="ui_no_climate_data_37d45e0">İklim verisi yok</string>
-    <string name="ui_no_climate_devices_found_thermostats_and_ac_units_from_2e47541">Hiçbir iklim cihazı bulunamadı. Home Assistant\'ın termostatları ve klima üniteleri burada otomatik olarak görünür.</string>
+    <string name="ui_no_climate_devices_found_thermostats_and_ac_units_from_2e47541">İklim cihazı bulunamadı. Home Assistant’taki termostatlar ve klimalar burada otomatik olarak görünür.</string>
     <string name="ui_no_collections_in_the_next_7_days_6d48bf4">Önümüzdeki 7 gün içinde tahsilat yapılmayacaktır.</string>
     <string name="ui_no_conditions_this_flow_always_continues_c95e76f">Koşul yok — bu akış her zaman devam eder</string>
     <string name="ui_no_dashboards_have_been_shared_with_you_yet_ask_38b2c0d">Henüz sizinle hiçbir kontrol paneli paylaşılmadı. Bir yöneticiden bir tanesini paylaşmasını isteyin veya yukarıdan başka bir seçeneği seçin.</string>
@@ -825,7 +835,7 @@
     <string name="ui_no_door_sensor_f6b60c8">Kapı sensörü yok</string>
     <string name="ui_no_energy_sensors_found_eeecdec">Enerji sensörü bulunamadı.</string>
     <string name="ui_no_events_e339ba7">Etkinlik yok</string>
-    <string name="ui_no_fans_found_fan_entities_from_home_assistant_appear_279dab7">Hayran bulunamadı. Home Assistant\'taki hayran varlıkları burada otomatik olarak görünür.</string>
+    <string name="ui_no_fans_found_fan_entities_from_home_assistant_appear_279dab7">Fan bulunamadı. Home Assistant’taki fan varlıkları burada otomatik olarak görünür.</string>
     <string name="ui_no_forecast_available_ed48809">Tahmin mevcut değil</string>
     <string name="ui_no_graphs_yet_open_the_stack_settings_to_add_87f742f">Henüz grafik yok — sensör grafikleri eklemek için yığın ayarlarını açın.</string>
     <string name="ui_no_heading_162947f">Başlık yok</string>
@@ -846,12 +856,12 @@
     <string name="ui_no_other_entities_on_this_device_fbc481b">Bu cihazda başka varlık yok.</string>
     <string name="ui_no_other_users_found_on_this_home_assistant_cb89d3d">Bu Ev Asistanında başka kullanıcı bulunamadı.</string>
     <string name="ui_no_parcel_selected_922a402">Parsel seçilmedi</string>
-    <string name="ui_no_parcels_cf4c0a0">%1$s parsel yok.</string>
+    <string name="ui_no_parcels_cf4c0a0">%1$s paket yok.</string>
     <string name="ui_no_phase_sensors_configured_in_energy_settings_b88c1dc">Enerji Ayarlarında yapılandırılmış faz sensörü yok.</string>
     <string name="ui_no_power_sensors_found_caf2e07">Güç sensörü bulunamadı.</string>
     <string name="ui_no_power_sensors_found_on_this_device_or_its_942e9be">Bu cihazda (veya alt cihazlarında) henüz güç sensörü bulunamadı.</string>
     <string name="ui_no_profile_available_98d6e00">Profil mevcut değil</string>
-    <string name="ui_no_sensors_found_edacf22">%1$s sensör bulunamadı.</string>
+    <string name="ui_no_sensors_found_edacf22">%1$s sensörü bulunamadı.</string>
     <string name="ui_no_sensors_selected_open_the_widget_settings_in_edit_cd87a2e">Hiçbir sensör seçilmedi — widget ayarlarını düzenleme modunda açın.</string>
     <string name="ui_no_servers_found_yet_make_sure_you_re_on_7e6832d">Henüz sunucu bulunamadı. Aynı kablosuz ağa bağlı olduğunuzdan emin olun veya adresi aşağıya girin.</string>
     <string name="ui_no_speed_control_linked_cb0e9ad">Hız kontrolü bağlı değil</string>
@@ -868,7 +878,7 @@
     <string name="ui_no_weather_cards_ce32255">Hava durumu kartı yok</string>
     <string name="ui_no_weather_entity_available_7476bcb">Hava durumu varlığı mevcut değil</string>
     <string name="ui_no_widgets_match_73a3c20">"%1$s" ile eşleşen widget yok</string>
-    <string name="ui_none_6eef664">Hiçbiri</string>
+    <string name="ui_none_6eef664">Yok</string>
     <string name="ui_none_auto_cc8786f">Yok / Otomatik</string>
     <string name="ui_none_modes_stay_as_the_only_control_b62bff7">Yok — modlar tek kontrol olarak kalır</string>
     <string name="ui_none_of_your_configured_carriers_support_adding_a_parcel_21dc0a4">Yapılandırılmış operatörlerinizin hiçbiri takip numarasına göre paket eklemeyi desteklemiyor. Hesap tabanlı operatörler (PostNL, DPD, DHL) yalnızca hesabınızda bulunanları takip eder.</string>
@@ -893,7 +903,7 @@
     <string name="ui_off_ad50489">KAPALI</string>
     <string name="ui_off_at_any_time_in_android_settings_4607e2c">Android ayarlarında istediğiniz zaman kapatabilirsiniz.</string>
     <string name="ui_off_e3de5ab">Kapalı</string>
-    <string name="ui_ok_9ce3bd4">TAMAM</string>
+    <string name="ui_ok_9ce3bd4">Tamam</string>
     <string name="ui_on_12469c7">Açık - %1$s%%</string>
     <string name="ui_on_387d7a5">AÇIK</string>
     <string name="ui_on_e0049a6">Açık</string>
@@ -905,7 +915,7 @@
     <string name="ui_only_show_battery_entities_and_include_battery_type_detail_b216867">Yalnızca Battery+ varlıklarını gösterin ve pil türü ayrıntılarını ekleyin</string>
     <string name="ui_only_show_battery_entities_and_include_type_quantity_and_0d8ce40">Yalnızca Pil+ varlıklarını gösterin ve türü, miktarı ve ilgili pil bilgilerini ekleyin.</string>
     <string name="ui_open_camera_full_screen_afc186b">Kamerayı tam ekran aç</string>
-    <string name="ui_open_cf9b770">Açık</string>
+    <string name="ui_open_cf9b770">Aç</string>
     <string name="ui_open_history_for_graph_ae801d5">Grafik için geçmişi aç</string>
     <string name="ui_open_link_d2de1a2">Bağlantıyı aç</string>
     <string name="ui_open_source_and_premium_licensing_0328125">Açık kaynak ve premium lisanslama</string>
@@ -925,7 +935,7 @@
     <string name="ui_optional_title_and_dashboard_width_e04c6e8">İsteğe bağlı başlık ve gösterge tablosu genişliği</string>
     <string name="ui_optional_title_width_and_supported_shape_8b2e456">İsteğe bağlı başlık, genişlik ve desteklenen şekil</string>
     <string name="ui_options_6bf5da9">Seçenekler</string>
-    <string name="ui_organization_519255a">Organizasyon</string>
+    <string name="ui_organization_519255a">Düzen</string>
     <string name="ui_oscillate_3d3c9bd">Salınım</string>
     <string name="ui_outside_cbbef8c">DIŞTAN</string>
     <string name="ui_outside_is_never_auto_detected_either_link_a_weather_eb8cc14">Dışarısı hiçbir zaman otomatik olarak algılanmaz. Ya bir hava durumu birimini bağlayın (genellikle sıcaklık, nem ve basıncı taşır) ya da aşağıdan bireysel dış mekan sensörlerini seçin. Sıcaklık, Dış kutucuğu ve kahramanın dışarıdaki okumasını besler.</string>
@@ -937,14 +947,14 @@
     <string name="ui_page_settings_0a44afc">Sayfa ayarları</string>
     <string name="ui_page_subtitle_8a04084">Sayfa alt başlığı</string>
     <string name="ui_parcel_9ddaaee">Parsel</string>
-    <string name="ui_parcels_16129ec">Parseller</string>
+    <string name="ui_parcels_16129ec">Paketler</string>
     <string name="ui_parental_controls_c4f61d0">Ebeveyn denetimleri</string>
     <string name="ui_parental_controls_dashboard_sharing_and_permissions_b74e0c0">Ebeveyn denetimleri, kontrol paneli paylaşımı ve izinler</string>
     <string name="ui_parental_controls_sharing_needs_the_hki_7_cloud_component_7929459">Ebeveyn denetimleri ve paylaşım — HKI 7 Bulut bileşenine ihtiyaç duyar</string>
     <string name="ui_pause_781961b">Duraklat</string>
     <string name="ui_pause_adaptation_821b33e">Uyarlamayı duraklat</string>
     <string name="ui_pending_timer_dbf15fa">Bekleme zamanlayıcısı</string>
-    <string name="ui_people_b37554f">İnsanlar</string>
+    <string name="ui_people_b37554f">Kişiler</string>
     <string name="ui_permission_needed_7c7a8e5">İzin gerekli</string>
     <string name="ui_permissions_d06d555">İzinler</string>
     <string name="ui_person_settings_977e009">Kişi ayarları</string>
@@ -960,7 +970,7 @@
     <string name="ui_pin_3adadd3">PIN</string>
     <string name="ui_place_this_room_in_the_correct_floor_group_52c044a">Bu odayı doğru kat grubuna yerleştirin</string>
     <string name="ui_placement_ab89d05">Atama</string>
-    <string name="ui_playback_c8e3087">Playback</string>
+    <string name="ui_playback_c8e3087">Oynatma</string>
     <string name="ui_player_e53407c">Oyuncu</string>
     <string name="ui_players_summarized_by_the_room_header_and_card_729ea70">Oda başlığına ve karta göre özetlenen oyuncular</string>
     <string name="ui_please_wait_5afeca7">Lütfen bekleyin…</string>
@@ -976,7 +986,7 @@
     <string name="ui_press_ea683ad">Basmak</string>
     <string name="ui_prevents_android_from_delaying_battery_charging_and_presen_623b898">Cihaz boştayken Android\'in pil, şarj ve durum güncellemelerini geciktirmesini önler.</string>
     <string name="ui_previous_camera_5014da7">Önceki kamera</string>
-    <string name="ui_produced_5028c07">%1$s üretildi</string>
+    <string name="ui_produced_5028c07">Üretim: %1$s</string>
     <string name="ui_production_overview_fbbfc38">Üretime genel bakış</string>
     <string name="ui_profile_ff4fc02">Profil</string>
     <string name="ui_profile_switches_affect_every_light_assigned_to_19ba9ec">Profil anahtarları %1$s\'ye atanan her ışığı etkiler.</string>
@@ -1020,7 +1030,7 @@
     <string name="ui_remote_access_optional_75dd54d">Uzaktan erişim (isteğe bağlı)</string>
     <string name="ui_remove_436e1a0">%1$s kaldırılsın mı?</string>
     <string name="ui_remove_avatar_58e0c56">Avatarı kaldır</string>
-    <string name="ui_remove_e963907">Kaldırmak</string>
+    <string name="ui_remove_e963907">Kaldır</string>
     <string name="ui_remove_edits_and_import_all_7f0b4a1">Düzenlemeleri kaldırın ve tümünü içe aktarın</string>
     <string name="ui_removed_entities_559c584">Kaldırılan varlıklar (%1$s)</string>
     <string name="ui_removed_entities_6dbeb2d">Kaldırılan varlıklar</string>
@@ -1049,7 +1059,7 @@
     <string name="ui_restart_home_assistant_0206bf0">Ev Asistanı yeniden başlatılsın mı?</string>
     <string name="ui_restart_home_assistant_551322c">Ev Asistanını yeniden başlatın</string>
     <string name="ui_restarting_b86eee1">Yeniden başlatılıyor…</string>
-    <string name="ui_restore_3cbe6d6">Eski haline getirmek</string>
+    <string name="ui_restore_3cbe6d6">Geri yükle</string>
     <string name="ui_restore_backup_a65eaa8">Yedeği geri yükle</string>
     <string name="ui_restore_from_cloud_52b6663">Buluttan geri yükle</string>
     <string name="ui_restore_from_home_assistant_13aec1d">Ev Asistanından Geri Yükle</string>
@@ -1086,7 +1096,7 @@
     <string name="ui_search_actions_9313854">Arama işlemleri</string>
     <string name="ui_search_automations_9172ba9">Arama otomasyonları</string>
     <string name="ui_search_batteries_a63e58b">Pilleri arayın</string>
-    <string name="ui_search_bce0641">Aramak</string>
+    <string name="ui_search_bce0641">Ara</string>
     <string name="ui_search_by_name_28abc03">İsme göre ara</string>
     <string name="ui_search_devices_2ce0b70">Cihazları arayın</string>
     <string name="ui_search_entities_7c70008">Varlıkları arayın</string>
@@ -1106,7 +1116,7 @@
     <string name="ui_securityphase_f4739f6">güvenlik Aşaması</string>
     <string name="ui_securitypulse_5340cf8">güvenlikNabız</string>
     <string name="ui_securitywindow_4619bf3">güvenlik penceresi</string>
-    <string name="ui_select_0fc8ec5">%1$s öğesini seçin</string>
+    <string name="ui_select_0fc8ec5">%1$s seç</string>
     <string name="ui_select_a_mode_to_continue_0426fc8">Devam etmek için bir mod seçin</string>
     <string name="ui_select_an_effect_to_turn_it_on_75d9bec">Açmak için bir efekt seçin</string>
     <string name="ui_select_an_inverter_device_in_energy_settings_solar_to_4a0aade">İnverterlerini burada listelemek için Enerji Ayarları → Solar bölümünden bir invertör cihazı seçin.</string>
@@ -1199,7 +1209,7 @@
     <string name="ui_size_shape_and_artwork_4bb38bb">Boyut, şekil ve sanat eseri</string>
     <string name="ui_size_shape_and_background_24dd9b6">Boyut, şekil ve arka plan</string>
     <string name="ui_snapshot_b08ae37">Anlık Görüntü</string>
-    <string name="ui_solar_0e26539">Güneş</string>
+    <string name="ui_solar_0e26539">Güneş enerjisi</string>
     <string name="ui_solar_noon_599372c">Güneşli öğle vakti %1$s</string>
     <string name="ui_sort_d5f73d6">Sırala: %1$s</string>
     <string name="ui_source_and_card_refresh_behavior_0a26324">Kaynak ve kart yenileme davranışı</string>
@@ -1349,7 +1359,7 @@
     <string name="ui_to_state_2a995a1">belirtmek</string>
     <string name="ui_today_24345a1">Bugün</string>
     <string name="ui_tomorrow_1948bf2">Yarın</string>
-    <string name="ui_top_consumers_0199dbf">En iyi tüketiciler</string>
+    <string name="ui_top_consumers_0199dbf">En çok tüketenler</string>
     <string name="ui_tracking_number_4e40c54">Takip numarası</string>
     <string name="ui_try_again_042c862">Tekrar deneyin</string>
     <string name="ui_try_the_demo_home_no_server_needed_bc58247">Demo ana sayfasını deneyin; sunucuya gerek yok</string>
@@ -1367,7 +1377,7 @@
     <string name="ui_unlock_1526a17">Kilidi aç</string>
     <string name="ui_unlock_button_ad521c4">Kilit açma düğmesi</string>
     <string name="ui_unlock_method_dff380e">Kilit açma yöntemi</string>
-    <string name="ui_unlocked_b3da702">Kilitli değil</string>
+    <string name="ui_unlocked_b3da702">Kilidi açık</string>
     <string name="ui_unrestricted_background_cebdb1e">Sınırsız arka plan</string>
     <string name="ui_untitled_621521f">İsimsiz</string>
     <string name="ui_untitled_event_ef8d264">Başlıksız etkinlik</string>
@@ -1382,13 +1392,13 @@
     <string name="ui_use_a_family_shared_dashboard_9b8ab51">Aile tarafından paylaşılan bir kontrol paneli kullanın</string>
     <string name="ui_use_a_recognizable_name_such_as_kitchen_tablet_or_ca9f431">\'Mutfak tableti\' veya \'Jimmy\'nin telefonu\' gibi tanınabilir bir ad kullanın.</string>
     <string name="ui_use_family_shared_dashboard_28e06c2">Aile tarafından paylaşılan kontrol panelini kullanın</string>
-    <string name="ui_used_6a4ebbf">Kullanılmış %1$s</string>
+    <string name="ui_used_6a4ebbf">Tüketim: %1$s</string>
     <string name="ui_uses_hki_7_s_private_google_drive_storage_enable_0559ced">HKI 7\'nin özel Google Drive depolama alanını kullanır. Anında yedekleme oluşturmak ve ardından her gün otomatik olarak yedeklemek için bunu bir kez etkinleştirin.</string>
     <string name="ui_uses_the_sun_entity_configured_in_weather_settings_e580a39">Hava Durumu ayarlarında yapılandırılan Güneş varlığını kullanır.</string>
     <string name="ui_using_a_shared_dashboard_applies_the_permissions_the_admin_a337a76">Paylaşılan bir kontrol panelinin kullanılması, yöneticinin kendisi için ayarladığı izinleri uygular.</string>
     <string name="ui_using_the_climate_view_s_entities_8befb0f">İklim görünümünün varlıklarını kullanma</string>
     <string name="ui_using_the_energy_view_s_entities_7ca9bed">Enerji görünümünün varlıklarını kullanma</string>
-    <string name="ui_vacuum_5fe15df">Vakum</string>
+    <string name="ui_vacuum_5fe15df">Robot süpürge</string>
     <string name="ui_vacuum_device_3deae52">Vakum cihazı</string>
     <string name="ui_vacuum_entities_c7da1d7">Vakum varlıkları</string>
     <string name="ui_vacuum_map_8236541">Vakum haritası</string>
@@ -1451,8 +1461,4 @@
     <string name="ui_your_dashboard_is_ready_0719f75">Kontrol paneliniz hazır</string>
     <string name="ui_your_home_72412fa">Eviniz</string>
     <string name="ui_your_location_is_shared_only_with_your_own_home_c75bd6d">Konumunuz yalnızca kendi Ev Asistanı sunucunuzla paylaşılır. öyle</string>
-    <string name="core_greeting_morning">Günaydın</string>
-    <string name="core_greeting_afternoon">Tünaydın</string>
-    <string name="core_greeting_evening">İyi akşamlar</string>
-    <string name="core_greeting_night">İyi geceler</string>
 </resources>

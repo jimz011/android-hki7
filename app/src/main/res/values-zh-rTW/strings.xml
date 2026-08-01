@@ -3306,4 +3306,10 @@
     <string name="widgets_energy_phase_number">相位 %1$d</string>
     <string name="widgets_energy_forecast_number">預測 %1$d</string>
     <string name="widgets_energy_ha_forecast">Home Assistant 預測</string>
+    <string name="dlg_condition">狀態</string>
+    <string name="dlg_condition_entity_id">實體 ID（可選）</string>
+    <string name="dlg_condition_hint">除非實體處於（或不處於）給定狀態（例如家庭助理條件卡），否則也隱藏此狀態。結合上面的時間表。</string>
+    <string name="dlg_condition_is">是</string>
+    <string name="dlg_condition_is_not">不是</string>
+    <string name="dlg_condition_state">狀態</string>
 </resources>

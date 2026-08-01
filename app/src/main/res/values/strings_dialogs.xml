@@ -45,6 +45,12 @@
     <string name="dlg_change">Change</string>
     <string name="dlg_choose_a_side_when_the_badge_bar_is_split">Choose a side when the badge bar is split</string>
     <string name="dlg_choose_a_state">Choose a state</string>
+    <string name="dlg_condition">Condition</string>
+    <string name="dlg_condition_entity_id">Entity ID (optional)</string>
+    <string name="dlg_condition_hint">Also hide this unless an entity is (or isn\'t) in a given state, like a Home Assistant conditional card. Combines with the schedule above.</string>
+    <string name="dlg_condition_is">Is</string>
+    <string name="dlg_condition_is_not">Is not</string>
+    <string name="dlg_condition_state">State</string>
     <string name="dlg_choose_a_visual_home_assistant_block">Choose a visual Home Assistant block</string>
     <string name="dlg_choose_action">Choose action</string>
     <string name="dlg_choose_an_action">Choose an action</string>

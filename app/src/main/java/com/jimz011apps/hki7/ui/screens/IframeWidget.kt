@@ -140,7 +140,8 @@ fun IframeWidgetSettingsDialog(
         mutableStateOf(
             com.jimz011apps.hki7.ui.components.VisibilitySpec(
                 widget.isHidden, widget.visibilityStart, widget.visibilityEnd,
-                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" }
+                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" },
+                widget.visibilityConditionEntityId, widget.visibilityConditionState, widget.visibilityConditionNegate
             )
         )
     }
@@ -218,6 +219,9 @@ fun IframeWidgetSettingsDialog(
                         visibilityEnd = visSpec.end,
                         visibilityRangeMode = visSpec.rangeMode,
                         visibilityRecurrence = visSpec.recurrence,
+                        visibilityConditionEntityId = visSpec.conditionEntityId,
+                        visibilityConditionState = visSpec.conditionState,
+                        visibilityConditionNegate = visSpec.conditionNegate
                     )
                 )
             }) { Text(stringResource(R.string.ui_save_efc007a)) }

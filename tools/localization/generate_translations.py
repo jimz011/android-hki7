@@ -20,7 +20,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 RES = ROOT / "app/src/main/res"
 CACHE_FILE = Path(__file__).with_name("translation_cache.json")
-LOCALES = ("ja", "ko")
+LOCALES = ("nl", "de", "fr", "es", "it", "tr", "ja", "ko")
+# pt-rBR, b+es+419, and zh-rCN/zh-rTW are deliberately excluded: their Android resource-folder
+# qualifiers aren't valid Google Translate target codes (need pt-BR/es-419/zh-CN/zh-TW), and unlike
+# ja/ko their <plurals> live inside strings.xml itself, which this script fully overwrites — running
+# it for them silently mistranslates (falls back to English) and drops their plurals. Add new keys to
+# those locales with a small standalone insert-only script instead (see git history for an example).
 SOURCE_FILES = tuple(sorted((RES / "values").glob("strings*.xml")))
 FORMAT_ARGUMENT = re.compile(r"%\d+\$[a-zA-Z]")
 NONPOSITIONAL_FORMAT = re.compile(r"%(?!\d+\$)[.\d]*[a-zA-Z]")

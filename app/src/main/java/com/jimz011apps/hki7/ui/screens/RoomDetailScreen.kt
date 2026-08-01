@@ -3294,7 +3294,8 @@ fun ButtonConfigDialog(
         mutableStateOf(
             com.jimz011apps.hki7.ui.components.VisibilitySpec(
                 config.hidden, config.visibilityStart, config.visibilityEnd,
-                config.visibilityRangeMode.ifBlank { "show" }, config.visibilityRecurrence.ifBlank { "none" }
+                config.visibilityRangeMode.ifBlank { "show" }, config.visibilityRecurrence.ifBlank { "none" },
+                config.visibilityConditionEntityId, config.visibilityConditionState, config.visibilityConditionNegate
             )
         )
     }
@@ -3807,7 +3808,10 @@ fun ButtonConfigDialog(
                             visibilityStart = if (isCameraItem || isVacuumItem) config.visibilityStart else visSpec.start,
                             visibilityEnd = if (isCameraItem || isVacuumItem) config.visibilityEnd else visSpec.end,
                             visibilityRangeMode = if (isCameraItem || isVacuumItem) config.visibilityRangeMode else visSpec.rangeMode,
-                            visibilityRecurrence = if (isCameraItem || isVacuumItem) config.visibilityRecurrence else visSpec.recurrence
+                            visibilityRecurrence = if (isCameraItem || isVacuumItem) config.visibilityRecurrence else visSpec.recurrence,
+                            visibilityConditionEntityId = if (isCameraItem || isVacuumItem) config.visibilityConditionEntityId else visSpec.conditionEntityId,
+                            visibilityConditionState = if (isCameraItem || isVacuumItem) config.visibilityConditionState else visSpec.conditionState,
+                            visibilityConditionNegate = if (isCameraItem || isVacuumItem) config.visibilityConditionNegate else visSpec.conditionNegate
                         )
                     )
                 }
@@ -4105,7 +4109,8 @@ fun StackSettingsDialog(
         mutableStateOf(
             com.jimz011apps.hki7.ui.components.VisibilitySpec(
                 stack.isHidden, stack.visibilityStart, stack.visibilityEnd,
-                stack.visibilityRangeMode.ifBlank { "show" }, stack.visibilityRecurrence.ifBlank { "none" }
+                stack.visibilityRangeMode.ifBlank { "show" }, stack.visibilityRecurrence.ifBlank { "none" },
+                stack.visibilityConditionEntityId, stack.visibilityConditionState, stack.visibilityConditionNegate
             )
         )
     }
@@ -4346,6 +4351,9 @@ fun StackSettingsDialog(
                             visibilityEnd = if (isAdaptiveLighting) null else visSpec.end,
                             visibilityRangeMode = if (isAdaptiveLighting) "show" else visSpec.rangeMode,
                             visibilityRecurrence = if (isAdaptiveLighting) "none" else visSpec.recurrence,
+                            visibilityConditionEntityId = if (isAdaptiveLighting) null else visSpec.conditionEntityId,
+                            visibilityConditionState = if (isAdaptiveLighting) null else visSpec.conditionState,
+                            visibilityConditionNegate = if (isAdaptiveLighting) false else visSpec.conditionNegate,
                             collapsible = collapsible,
                             defaultCollapsed = defaultCollapsed,
                             isCollapsed = defaultCollapsed,
@@ -4791,7 +4799,8 @@ fun ButtonStackItem(
                     config.vacuumBatteryEntityId,
                     config.climateTempSensorEntityId,
                     config.climateHumiditySensorEntityId,
-                    config.weatherEntityId
+                    config.weatherEntityId,
+                    config.visibilityConditionEntityId
                 ).forEach(::add)
             }
         }.toList()
@@ -4805,7 +4814,7 @@ fun ButtonStackItem(
     // all so the user can still reach the visibility settings.
     val entities = remember(stack.entityIds, stack.buttonConfigs, entityById, isEditMode) {
         stack.entityIds
-            .filter { isEditMode || isButtonVisibleNow(stack.buttonConfigs[it] ?: HKIButtonConfig()) }
+            .filter { isEditMode || isButtonVisibleNow(stack.buttonConfigs[it] ?: HKIButtonConfig()) { id -> entityById[id]?.state } }
             .mapNotNull(entityById::get)
     }
     val buttonConfigs = stack.buttonConfigs
@@ -5557,7 +5566,8 @@ fun SwipingStackSettingsDialog(
         mutableStateOf(
             com.jimz011apps.hki7.ui.components.VisibilitySpec(
                 stack.isHidden, stack.visibilityStart, stack.visibilityEnd,
-                stack.visibilityRangeMode.ifBlank { "show" }, stack.visibilityRecurrence.ifBlank { "none" }
+                stack.visibilityRangeMode.ifBlank { "show" }, stack.visibilityRecurrence.ifBlank { "none" },
+                stack.visibilityConditionEntityId, stack.visibilityConditionState, stack.visibilityConditionNegate
             )
         )
     }
@@ -5688,7 +5698,10 @@ fun SwipingStackSettingsDialog(
                         visibilityStart = visSpec.start,
                         visibilityEnd = visSpec.end,
                         visibilityRangeMode = visSpec.rangeMode,
-                        visibilityRecurrence = visSpec.recurrence
+                        visibilityRecurrence = visSpec.recurrence,
+                        visibilityConditionEntityId = visSpec.conditionEntityId,
+                        visibilityConditionState = visSpec.conditionState,
+                        visibilityConditionNegate = visSpec.conditionNegate
                     )
                 )
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
@@ -5847,7 +5860,8 @@ fun EmptyStackSettingsDialog(
         mutableStateOf(
             com.jimz011apps.hki7.ui.components.VisibilitySpec(
                 stack.isHidden, stack.visibilityStart, stack.visibilityEnd,
-                stack.visibilityRangeMode.ifBlank { "show" }, stack.visibilityRecurrence.ifBlank { "none" }
+                stack.visibilityRangeMode.ifBlank { "show" }, stack.visibilityRecurrence.ifBlank { "none" },
+                stack.visibilityConditionEntityId, stack.visibilityConditionState, stack.visibilityConditionNegate
             )
         )
     }
@@ -5967,7 +5981,10 @@ fun EmptyStackSettingsDialog(
                         visibilityStart = visSpec.start,
                         visibilityEnd = visSpec.end,
                         visibilityRangeMode = visSpec.rangeMode,
-                        visibilityRecurrence = visSpec.recurrence
+                        visibilityRecurrence = visSpec.recurrence,
+                        visibilityConditionEntityId = visSpec.conditionEntityId,
+                        visibilityConditionState = visSpec.conditionState,
+                        visibilityConditionNegate = visSpec.conditionNegate
                     )
                 )
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
@@ -7548,7 +7565,8 @@ fun HeaderTextSettingsDialog(
         mutableStateOf(
             com.jimz011apps.hki7.ui.components.VisibilitySpec(
                 widget.isHidden, widget.visibilityStart, widget.visibilityEnd,
-                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" }
+                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" },
+                widget.visibilityConditionEntityId, widget.visibilityConditionState, widget.visibilityConditionNegate
             )
         )
     }
@@ -7619,7 +7637,10 @@ fun HeaderTextSettingsDialog(
                         visibilityStart = visSpec.start,
                         visibilityEnd = visSpec.end,
                         visibilityRangeMode = visSpec.rangeMode,
-                        visibilityRecurrence = visSpec.recurrence
+                        visibilityRecurrence = visSpec.recurrence,
+                        visibilityConditionEntityId = visSpec.conditionEntityId,
+                        visibilityConditionState = visSpec.conditionState,
+                        visibilityConditionNegate = visSpec.conditionNegate
                     )
                 )
             }) { Text(stringResource(R.string.ui_save_efc007a)) }

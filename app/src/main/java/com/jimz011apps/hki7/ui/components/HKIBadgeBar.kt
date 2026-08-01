@@ -118,8 +118,6 @@ fun HKIBadgeBar(
     val currentUrl by viewModel.currentUrl.collectAsState()
     val config = badgeBarConfig ?: HKIBadgeBarConfig()
     val badges = config.badges
-    // Hidden/scheduled badges are dropped outside edit mode; edit mode keeps them so they can be restored.
-    val renderBadges = if (isEditMode) badges else badges.filter { com.jimz011apps.hki7.data.isBadgeVisibleNow(it) }
     // When an admin restricts a user to aesthetic-only editing, adding/removing badges is a structural
     // change and stays locked — only visual tweaks to existing badges are allowed.
     val aestheticsOnly by viewModel.aestheticsOnlyEditing.collectAsState()
@@ -136,6 +134,7 @@ fun HKIBadgeBar(
                 addAll(badge.vacuumEmptyBinEntityIds.values)
                 badge.humidifierFanEntityId?.let(::add)
                 addAll(badge.humidifierAuxEntityIds.values)
+                badge.visibilityConditionEntityId?.let(::add)
             }
         }.toList()
     }
@@ -146,6 +145,12 @@ fun HKIBadgeBar(
         if (isEditMode) viewModel.entitySnapshotFor(dependencyIds) else viewModel.entitiesFor(dependencyIds)
     }
     val allEntities by entityFlow.collectAsState()
+    val badgeEntityById = remember(allEntities) { allEntities.associateBy { it.entity_id } }
+    // Hidden/scheduled/conditional badges are dropped outside edit mode; edit mode keeps them so they
+    // can be restored.
+    val renderBadges = if (isEditMode) badges else badges.filter {
+        com.jimz011apps.hki7.data.isBadgeVisibleNow(it) { id -> badgeEntityById[id]?.state }
+    }
 
     // ── dialog state ──────────────────────────────────────────────────────────
     var dialogRole    by remember { mutableStateOf<String?>(null) }
@@ -1093,6 +1098,9 @@ fun BadgeSettingsDialog(
     var visEnd      by remember { mutableStateOf(badge.visibilityEnd) }
     var visRangeMode by remember { mutableStateOf(badge.visibilityRangeMode) }
     var visRecurrence by remember { mutableStateOf(badge.visibilityRecurrence) }
+    var visConditionEntityId by remember { mutableStateOf(badge.visibilityConditionEntityId) }
+    var visConditionState by remember { mutableStateOf(badge.visibilityConditionState) }
+    var visConditionNegate by remember { mutableStateOf(badge.visibilityConditionNegate) }
     var showState   by remember { mutableStateOf(badge.showState) }
     var stateAttribute by remember { mutableStateOf(badge.stateAttribute) }
     var stateUnit by remember { mutableStateOf(badge.stateUnit) }
@@ -1458,10 +1466,15 @@ fun BadgeSettingsDialog(
                 HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.15f))
                 SettingsSubcategory(stringResource(R.string.dlg_visibility), stringResource(R.string.dlg_hide_this_badge_or_schedule_when_it_appears))
                 VisibilityEditor(
-                    spec = VisibilitySpec(hidden, visStart, visEnd, visRangeMode.ifBlank { "show" }, visRecurrence.ifBlank { "none" }),
+                    spec = VisibilitySpec(
+                        hidden, visStart, visEnd, visRangeMode.ifBlank { "show" }, visRecurrence.ifBlank { "none" },
+                        visConditionEntityId, visConditionState, visConditionNegate
+                    ),
                     onChange = {
                         hidden = it.hidden; visStart = it.start; visEnd = it.end
                         visRangeMode = it.rangeMode; visRecurrence = it.recurrence
+                        visConditionEntityId = it.conditionEntityId; visConditionState = it.conditionState
+                        visConditionNegate = it.conditionNegate
                     }
                 )
 
@@ -1506,6 +1519,9 @@ fun BadgeSettingsDialog(
                     visibilityEnd = visEnd,
                     visibilityRangeMode = visRangeMode,
                     visibilityRecurrence = visRecurrence,
+                    visibilityConditionEntityId = visConditionEntityId,
+                    visibilityConditionState = visConditionState,
+                    visibilityConditionNegate = visConditionNegate,
                     showState  = showState,
                     stateAttribute = stateAttribute,
                     stateUnit  = stateUnit,

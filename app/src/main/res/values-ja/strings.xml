@@ -644,6 +644,12 @@
     <string name="dlg_change">変更</string>
     <string name="dlg_choose_a_side_when_the_badge_bar_is_split">バッジバーを分割する際の側を選択</string>
     <string name="dlg_choose_a_state">状態を選択</string>
+    <string name="dlg_condition">状態</string>
+    <string name="dlg_condition_entity_id">エンティティID (オプション)</string>
+    <string name="dlg_condition_hint">また、ホーム アシスタントの条件カードなど、エンティティが特定の状態にない (またはない) 場合を除き、これを非表示にします。上記スケジュールと合わせてご利用ください。</string>
+    <string name="dlg_condition_is">は</string>
+    <string name="dlg_condition_is_not">そうではありません</string>
+    <string name="dlg_condition_state">状態</string>
     <string name="dlg_choose_a_visual_home_assistant_block">視覚的なHome Assistantブロックを選択</string>
     <string name="dlg_choose_action">アクションを選択</string>
     <string name="dlg_choose_an_action">アクションを選択</string>

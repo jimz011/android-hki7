@@ -640,7 +640,8 @@ fun SensorGraphWidgetSettingsDialog(
         mutableStateOf(
             com.jimz011apps.hki7.ui.components.VisibilitySpec(
                 widget.isHidden, widget.visibilityStart, widget.visibilityEnd,
-                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" }
+                widget.visibilityRangeMode.ifBlank { "show" }, widget.visibilityRecurrence.ifBlank { "none" },
+                widget.visibilityConditionEntityId, widget.visibilityConditionState, widget.visibilityConditionNegate
             )
         )
     }
@@ -745,7 +746,10 @@ fun SensorGraphWidgetSettingsDialog(
                     entityIds = entityIds, title = title.ifBlank { null }, style = style,
                     hours = hours, width = width, isSquare = square, cornerRadius = radius,
                     isHidden = visSpec.hidden, visibilityStart = visSpec.start, visibilityEnd = visSpec.end,
-                    visibilityRangeMode = visSpec.rangeMode, visibilityRecurrence = visSpec.recurrence
+                    visibilityRangeMode = visSpec.rangeMode, visibilityRecurrence = visSpec.recurrence,
+ visibilityConditionEntityId = visSpec.conditionEntityId,
+ visibilityConditionState = visSpec.conditionState,
+ visibilityConditionNegate = visSpec.conditionNegate
                 ))
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
@@ -772,7 +776,8 @@ fun SensorGraphStackSettingsDialog(
         mutableStateOf(
             com.jimz011apps.hki7.ui.components.VisibilitySpec(
                 stack.isHidden, stack.visibilityStart, stack.visibilityEnd,
-                stack.visibilityRangeMode.ifBlank { "show" }, stack.visibilityRecurrence.ifBlank { "none" }
+                stack.visibilityRangeMode.ifBlank { "show" }, stack.visibilityRecurrence.ifBlank { "none" },
+                stack.visibilityConditionEntityId, stack.visibilityConditionState, stack.visibilityConditionNegate
             )
         )
     }
@@ -885,7 +890,10 @@ fun SensorGraphStackSettingsDialog(
                     title = title.ifBlank { null }, width = width, cornerRadius = radius,
                     collapsible = collapsible, graphs = graphs,
                     isHidden = visSpec.hidden, visibilityStart = visSpec.start, visibilityEnd = visSpec.end,
-                    visibilityRangeMode = visSpec.rangeMode, visibilityRecurrence = visSpec.recurrence
+                    visibilityRangeMode = visSpec.rangeMode, visibilityRecurrence = visSpec.recurrence,
+ visibilityConditionEntityId = visSpec.conditionEntityId,
+ visibilityConditionState = visSpec.conditionState,
+ visibilityConditionNegate = visSpec.conditionNegate
                 ))
             }) { Text(stringResource(R.string.ui_save_efc007a)) }
         },
