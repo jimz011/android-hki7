@@ -125,11 +125,12 @@ private fun RoomStatusIndicatorPill(
     val label = statusLabel(indicator.role, indicator.count)
     val horizontalPadding = if (compact) 6.dp else 8.dp
     val backingColor = appColors.elevated.copy(alpha = 0.90f)
+    val readableContentColor = semanticColorForBackground(contentColor, appColors.elevated)
     Row(
         modifier = Modifier
             .semantics(mergeDescendants = true) { contentDescription = label }
             .background(backingColor, RoundedCornerShape(50))
-            .border(BorderStroke(0.5.dp, contentColor.copy(alpha = 0.72f)), RoundedCornerShape(50))
+            .border(BorderStroke(0.5.dp, readableContentColor.copy(alpha = 0.72f)), RoundedCornerShape(50))
             .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
             // Reserve the two-digit footprint so a counter changing from 9 to 10 never resizes.
             .width(if (compact) 45.dp else 53.dp)
@@ -142,7 +143,7 @@ private fun RoomStatusIndicatorPill(
     ) {
         Text(
             text = indicator.count.toString(),
-            color = contentColor,
+            color = readableContentColor,
             style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
             maxLines = 1
@@ -150,7 +151,7 @@ private fun RoomStatusIndicatorPill(
         Icon(
             imageVector = statusIcon(indicator.role),
             contentDescription = null,
-            tint = contentColor,
+            tint = readableContentColor,
             modifier = Modifier.size(if (compact) 16.dp else 19.dp)
         )
     }

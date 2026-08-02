@@ -224,6 +224,10 @@ class PreferencesManager(
     private val defaultDashboardIdKey = stringPreferencesKey("default_dashboard_id")
     private val pendingAutoTakeoverKey = booleanPreferencesKey("pending_auto_takeover")
     private val quickStartGuidePendingKey = booleanPreferencesKey("quick_start_guide_pending")
+    // Sticky device-level restriction set when a non-admin subscribes to a family dashboard.
+    // Authentication-only logout and dashboard removal deliberately do not clear it; only clearAll()
+    // (the app's full reset) may restore local dashboard creation.
+    private val familyDashboardCreationLockedKey = booleanPreferencesKey("family_dashboard_creation_locked")
     private val cloudBackupEnabledKey = booleanPreferencesKey("cloud_backup_enabled")
     private val haBackupEnabledKey = booleanPreferencesKey("ha_backup_enabled")
     // Wall-clock time (epoch millis) of the most recent successful backup to each destination,
@@ -283,6 +287,9 @@ class PreferencesManager(
     val defaultDashboardId: Flow<String?> = context.dataStore.data.map { it[defaultDashboardIdKey] }
     val pendingAutoTakeover: Flow<Boolean> = context.dataStore.data.map { it[pendingAutoTakeoverKey] ?: false }
     val quickStartGuidePending: Flow<Boolean> = context.dataStore.data.map { it[quickStartGuidePendingKey] ?: false }
+    val familyDashboardCreationLocked: Flow<Boolean> = context.dataStore.data.map {
+        it[familyDashboardCreationLockedKey] ?: false
+    }
     val cloudBackupEnabled: Flow<Boolean> = context.dataStore.data.map { it[cloudBackupEnabledKey] ?: false }
     /** Daily backup to the user's own Home Assistant instance via the hki7 companion component. */
     val haBackupEnabled: Flow<Boolean> = context.dataStore.data.map { it[haBackupEnabledKey] ?: false }
@@ -1015,6 +1022,11 @@ class PreferencesManager(
         context.dataStore.edit { it.remove(quickStartGuidePendingKey) }
     }
 
+    /** Permanently disables creating/duplicating dashboards on this app installation. */
+    suspend fun lockDashboardCreationForFamilySubscriber() {
+        context.dataStore.edit { it[familyDashboardCreationLockedKey] = true }
+    }
+
     /** Migrates the original single dashboard in place, without changing what is currently loaded. */
     suspend fun ensureDashboardStore(defaultName: String = "Default") {
         context.dataStore.edit { p ->
@@ -1032,7 +1044,8 @@ class PreferencesManager(
         }
     }
 
-    suspend fun createDashboard(name: String, autoGenerate: Boolean): String {
+    suspend fun createDashboard(name: String, autoGenerate: Boolean): String? {
+        if (familyDashboardCreationLocked.first()) return null
         val id = UUID.randomUUID().toString()
         context.dataStore.edit { p ->
             val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
@@ -1064,6 +1077,29 @@ class PreferencesManager(
             p.remove(pendingAutoTakeoverKey)
             p[quickStartGuidePendingKey] = true
             loadDashboardIntoPreferences(p, target)
+        }
+    }
+
+    /** Onboarding: commits the UI values just restored from a backup into the dashboard store and
+     * makes that restored dashboard active/default. Without this, the eager blank onboarding
+     * dashboard could overwrite the restored live preferences on the next dashboard switch. */
+    suspend fun useRestoredBackupAsInitial(defaultName: String = "Restored dashboard") {
+        context.dataStore.edit { p ->
+            val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
+            val activeId = p[activeDashboardIdKey]
+                ?: p[defaultDashboardIdKey]
+                ?: dashboards.firstOrNull()?.id
+                ?: UUID.randomUUID().toString()
+            val existingName = dashboards.firstOrNull { it.id == activeId }?.name
+            val restored = dashboardFromPreferences(p, activeId, existingName ?: defaultName)
+            val index = dashboards.indexOfFirst { it.id == activeId }
+            if (index >= 0) dashboards[index] = restored else dashboards += restored
+            p[dashboardsKey] = appJson.encodeToString(dashboards)
+            p[activeDashboardIdKey] = activeId
+            p[defaultDashboardIdKey] = activeId
+            p.remove(pendingAutoTakeoverKey)
+            p[quickStartGuidePendingKey] = true
+            snapshotActiveInstance(p)
         }
     }
 
@@ -1185,6 +1221,7 @@ class PreferencesManager(
      * unsaved edits) captures its current state. The active dashboard is left unchanged. Returns the
      * new dashboard id, or null if the source id is unknown. */
     suspend fun copyDashboard(id: String, name: String): String? {
+        if (familyDashboardCreationLocked.first()) return null
         var newId: String? = null
         context.dataStore.edit { p ->
             val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()

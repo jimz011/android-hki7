@@ -96,6 +96,38 @@ class ParcelCarrierAggregationTest {
     }
 
     @Test
+    fun `carrier card selects earliest expected delivery from active parcels`() {
+        val later = parcel("sensor.postnl_later", "LATER", "2026-08-04T14:00:00+02:00")
+        val earlier = parcel("sensor.postnl_earlier", "EARLIER", "2026-08-03T09:30:00+02:00")
+        val carrier = ParcelCarrier(
+            key = "postnl",
+            name = "PostNL",
+            deviceId = "postnl-device",
+            entities = listOf(later, earlier),
+            incoming = 2,
+            outgoing = 0,
+            logoUrl = null,
+            baseUrl = "https://example.test",
+            accessToken = ""
+        )
+
+        assertEquals("2026-08-03T09:30:00+02:00", carrier.firstExpectedDeliveryValue())
+    }
+
+    @Test
+    fun `carrier card can use next delivery helper without duplicating the parcel`() {
+        val helper = HAEntity(
+            entity_id = "sensor.postnl_next_delivery",
+            state = "2026-08-03T11:00:00+02:00",
+            attributes = buildJsonObject { put("friendly_name", "PostNL Next delivery") }
+        )
+        val carrier = carrier("postnl", "postnl-device", helper, incoming = 1)
+
+        assertTrue(carrier.parcels.isEmpty())
+        assertEquals("2026-08-03T11:00:00+02:00", carrier.firstExpectedDeliveryValue())
+    }
+
+    @Test
     fun `duplicate parcel sources merge into the most complete object`() {
         val individual = HAEntity(
             entity_id = "sensor.postnl_parcel_3stest",
@@ -275,13 +307,14 @@ class ParcelCarrierAggregationTest {
         accessToken = ""
     )
 
-    private fun parcel(entityId: String, barcode: String) = HAEntity(
+    private fun parcel(entityId: String, barcode: String, plannedFrom: String? = null) = HAEntity(
         entity_id = entityId,
         state = "on",
         attributes = buildJsonObject {
             put("barcode", barcode)
             put("status", "in_transit")
             put("friendly_name", entityId)
+            plannedFrom?.let { put("planned_from", it) }
         }
     )
 }

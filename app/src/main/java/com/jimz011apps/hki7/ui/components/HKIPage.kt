@@ -1519,6 +1519,7 @@ private fun HeaderStatusPill(
     onSettingsClick: () -> Unit,
     onClick: () -> Unit
 ) {
+    val appColors = LocalHKIAppColors.current
     val showPill = displayType != "None"
     Box(
         modifier = if (!showPill && isEditMode) Modifier.size(36.dp) else Modifier,
@@ -1546,6 +1547,7 @@ private fun HeaderStatusPill(
                 )
             }
             val pillShape = itemCornerShape()
+            val resolvedPillBackground = pillColor.compositeOver(appColors.background)
             Surface(
                 modifier = Modifier
                     .height(36.dp)
@@ -1560,10 +1562,14 @@ private fun HeaderStatusPill(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (displayType == "Alarm") {
+                        val alarmIconColor = semanticColorForBackground(
+                            alarmStateColor(alarm?.state.orEmpty()),
+                            resolvedPillBackground,
+                        )
                         MdiIcon(
                             name = alarm?.let { defaultEntityIconSlug(it) } ?: "shield-home",
                             contentDescription = null,
-                            tint = alarmStateColor(alarm?.state.orEmpty()),
+                            tint = alarmIconColor,
                             size = 18.dp
                         )
                         Spacer(Modifier.width(8.dp))
@@ -1572,6 +1578,10 @@ private fun HeaderStatusPill(
                             WeatherStateIcon(
                                 state = weather?.state,
                                 size = 20.dp,
+                                fallbackTint = semanticColorForBackground(
+                                    weatherStateColor(weather?.state),
+                                    resolvedPillBackground,
+                                ),
                                 contentDescription = weather?.state?.let {
                                     localizedWeatherStateLabel(it)
                                 }

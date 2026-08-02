@@ -25,9 +25,6 @@ import java.net.HttpURLConnection
 import java.net.URLEncoder
 import java.net.URL
 import java.nio.charset.StandardCharsets
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 const val DRIVE_APPDATA_SCOPE = "https://www.googleapis.com/auth/drive.appdata"
@@ -80,7 +77,7 @@ object CloudBackupStorage {
 
     suspend fun backups(context: Context): List<CloudBackupFile> = withContext(Dispatchers.IO) {
         val token = driveAccessToken(context)
-        val query = "name contains 'hki7-backup-' and trashed = false"
+        val query = "(name contains 'HKI7-' or name contains 'hki7-backup-') and trashed = false"
         val url = "$API?spaces=appDataFolder&q=${encode(query)}&orderBy=modifiedTime%20desc&fields=files(id,name,modifiedTime)"
         val root = json.parseToJsonElement(request(url, token)).jsonObject
         root["files"]?.jsonArray.orEmpty().mapNotNull { element ->
@@ -96,8 +93,7 @@ object CloudBackupStorage {
 
     suspend fun write(context: Context, raw: String) = withContext(Dispatchers.IO) {
         val token = driveAccessToken(context)
-        val stamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(Date())
-        val name = "hki7-backup-$stamp.json"
+        val name = hki7BackupName()
         val boundary = "hki7-${System.currentTimeMillis()}"
         val metadata = "{\"name\":\"$name\",\"parents\":[\"appDataFolder\"]}"
         val body = buildString {
@@ -124,7 +120,7 @@ object CloudBackupStorage {
     }
 
     private fun backupsWithToken(token: String): List<CloudBackupFile> {
-        val query = "name contains 'hki7-backup-' and trashed = false"
+        val query = "(name contains 'HKI7-' or name contains 'hki7-backup-') and trashed = false"
         val url = "$API?spaces=appDataFolder&q=${encode(query)}&orderBy=modifiedTime%20desc&fields=files(id,name,modifiedTime)"
         val root = json.parseToJsonElement(request(url, token)).jsonObject
         return root["files"]?.jsonArray.orEmpty().mapNotNull { element ->

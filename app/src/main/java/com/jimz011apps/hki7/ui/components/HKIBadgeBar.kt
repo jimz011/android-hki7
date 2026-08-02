@@ -693,7 +693,10 @@ private fun BadgeItem(
         badge.doorEntityIdFor(entity.entity_id)
             ?.let { id -> allEntities.find { it.entity_id == id }?.state == "on" } == true
 
-    val colors = badgeStateColors(badge, entities, allEntities)
+    val rawColors = badgeStateColors(badge, entities, allEntities)
+    val colors = rawColors.copy(
+        icon = semanticColorForBackground(rawColors.icon, rawColors.background)
+    )
 
     // A custom MDI slug wins; otherwise use the state-aware default (lock/cover), falling
     // back to a Material domain icon for domains without a custom default.

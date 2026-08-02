@@ -57,8 +57,23 @@ object HaDashboardSharing {
         prefs: PreferencesManager,
         meta: Hki7SharedDashboardMeta,
     ): String? {
+        // A successful identity lookup is part of subscribing: without it the app cannot safely
+        // decide whether this installation must receive the sticky non-admin restriction.
+        val identity = Hki7Endpoint.withClient(context) { it.hki7WhoAmI() } ?: return null
         val raw = Hki7Endpoint.withClient(context) { it.hki7GetDashboard(meta.id) } ?: return null
-        return prefs.importSharedDashboard(meta.id, raw, nameOverride = meta.name, updatedAt = meta.updated)
+        val localId = prefs.importSharedDashboard(
+            meta.id,
+            raw,
+            nameOverride = meta.name,
+            updatedAt = meta.updated,
+        ) ?: return null
+        // Subscribing as a non-admin permanently opts this installation into the centrally managed
+        // family-dashboard model. Authentication-only logout and unpublishing do not unlock local
+        // dashboard creation; only PreferencesManager.clearAll() does.
+        if (!identity.isAdmin && !identity.isOwner) {
+            prefs.lockDashboardCreationForFamilySubscriber()
+        }
+        return localId
     }
 
     /** Outcome of a shared-dashboard sync. */
@@ -109,7 +124,9 @@ object HaDashboardSharing {
         var pushed = 0
         for (meta in shared) {
             if (meta.ownerId != me.userId) continue
-            val local = localById[meta.id] ?: continue
+            // The original publishing device keeps the source id; after a reinstall the owner may
+            // re-import that same cloud dashboard, which deliberately uses "shared-<id>" locally.
+            val local = localById[meta.id] ?: localById["shared-${meta.id}"] ?: continue
             val currentRaw = prefs.exportDashboard(meta.id) ?: continue
             val currentJson = runCatching { json.parseToJsonElement(currentRaw) }.getOrNull() as? JsonObject ?: continue
             // Skip when the cloud copy already matches the local content (structural comparison, so

@@ -924,6 +924,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     val defaultDashboardId: StateFlow<String?> = prefs.defaultDashboardId.stateIn(
         viewModelScope, SharingStarted.Eagerly, null
     )
+    val familyDashboardCreationLocked: StateFlow<Boolean> = prefs.familyDashboardCreationLocked.stateIn(
+        viewModelScope, SharingStarted.Eagerly, false
+    )
 
     private val _people = MutableStateFlow<List<HAEntity>>(emptyList())
     val people: StateFlow<List<HAEntity>> = _people
@@ -1370,6 +1373,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private var client: HomeAssistantClient? = null
     private var pollJob: Job? = null
     private var realtimeJob: Job? = null
+    private var sharedDashboardEventsJob: Job? = null
     private var pushJob: Job? = null
     private val pushHandler by lazy { appContext?.let { PushNotificationHandler(it, prefs) } }
     private val realtimeBuffer = ConcurrentHashMap<String, HAStateChange>()
@@ -1385,7 +1389,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private var lastTokenRefreshAt = 0L
     private var appVisible = true.also { AppVisibilityTracker.isVisible = true }
     private var lastDashboardRefreshAt = 0L
-    private var appContext: Context? = null
+    // Available from construction for family sync even when location reporting is disabled. The
+    // previous lazy assignment in startLocationReporting accidentally made dashboard sync depend
+    // on the user granting/enabling location.
+    private var appContext: Context? = appCtx?.applicationContext
     private var batteryReceiver: android.content.BroadcastReceiver? = null
     private var lastReportedBatteryPct = -1
     private var lastReportedCharging: Boolean? = null
@@ -1694,12 +1701,16 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private fun startSync() {
         startPolling()
         startRealtimeSync()
+        startSharedDashboardEvents()
         startPushChannel()
+        // Covers cold start and components too old to broadcast dashboard invalidations.
+        syncSharedDashboards()
     }
 
     private fun stopSync() {
         stopPolling()
         stopRealtimeSync()
+        stopSharedDashboardEvents()
         stopPushChannel()
         refreshJob?.cancel()
         refreshJob = null
@@ -1820,6 +1831,36 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         realtimeJob?.cancel()
         realtimeJob = null
         realtimeBuffer.clear()
+    }
+
+    /** Keeps foreground family dashboards current without polling. Backgrounded clients reconcile
+     * on their next startup/foreground transition. */
+    private fun startSharedDashboardEvents() {
+        sharedDashboardEventsJob?.cancel()
+        sharedDashboardEventsJob = viewModelScope.launch(Dispatchers.IO) {
+            while (currentCoroutineContext().isActive) {
+                val currentClient = client
+                if (currentClient == null) {
+                    delay(2.seconds)
+                    continue
+                }
+                try {
+                    currentClient.subscribeHki7DashboardUpdates().collect {
+                        syncSharedDashboards()
+                    }
+                } catch (e: Exception) {
+                    if (e.message != "AUTH_EXPIRED") {
+                        addLog("Family dashboard channel interrupted: ${e.message}")
+                    }
+                }
+                delay(3.seconds)
+            }
+        }
+    }
+
+    private fun stopSharedDashboardEvents() {
+        sharedDashboardEventsJob?.cancel()
+        sharedDashboardEventsJob = null
     }
 
     /** Applies all buffered state changes in one batch so a burst of events causes a single UI
@@ -3300,7 +3341,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         if (!_isEditMode.value) {
             // Save the current area order so room reorder is preserved
             val currentOrder = _areas.value.map { it.area_id }
-            viewModelScope.launch { prefs.saveAreaOrder(currentOrder) }
+            viewModelScope.launch {
+                prefs.saveAreaOrder(currentOrder)
+                // Done/Save is the family-dashboard commit point. The app filters to dashboards
+                // owned by this user, and the component independently enforces the same ownership.
+                appContext?.let { runCatching { HaDashboardSharing.pushOwnedUpdates(it, prefs) } }
+            }
             _areaWidgetsMapping.value = _areaWidgetsMapping.value.toMap()
             _areaConfigsMapping.value = _areaConfigsMapping.value.toMap()
             _areas.value = _areas.value.toList()
@@ -3715,7 +3761,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     fun createDashboard(name: String, auto: Boolean) {
         viewModelScope.launch {
-            prefs.createDashboard(name, auto)
+            if (prefs.createDashboard(name, auto) == null) return@launch
             _dashboardMode.value = if (auto) "auto" else "manual"
             _areaWidgetsMapping.value = emptyMap()
             _areaConfigsMapping.value = emptyMap()

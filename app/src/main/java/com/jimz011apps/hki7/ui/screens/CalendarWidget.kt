@@ -296,21 +296,12 @@ private fun CalendarWidgetCard(
     ) {
       Box {
         WidgetBackground(widget.backgroundUrl, currentUrl)
-        // Agenda is a lazy list that scrolls itself, so in the full-height dialog it takes the
-        // remaining space rather than sitting inside the column's scroll — a lazy list in a
-        // scrolling parent gets unbounded height, which is what forced its fixed cap. Week and
-        // month are plain columns that can outgrow the dialog, so those keep the outer scroll.
-        val agendaFillsHeight = fillHeight && activeView != "week" && activeView != "month"
+        // Keep the header and tabs stable while the bounded calendar body scrolls. This prevents
+        // short cards from squeezing event rows or clipping month/week content.
         Column(
             modifier = Modifier
                 .padding(16.dp)
-                .then(
-                    when {
-                        !fillHeight -> Modifier
-                        agendaFillsHeight -> Modifier.fillMaxSize()
-                        else -> Modifier.verticalScroll(rememberScrollState())
-                    }
-                ),
+                .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             CalendarHeader(
@@ -325,39 +316,47 @@ private fun CalendarWidgetCard(
                 onPickDate = if (interactionsEnabled) ({ showDatePicker = true }) else null
             )
             CalendarViewTabs(activeView = activeView, enabled = interactionsEnabled) { activeView = it }
-            if (entityIds.isEmpty()) {
-                CalendarEmptyState(stringResource(R.string.widgets_calendar_no_entity))
-            } else {
-                when (activeView) {
-                    "week" -> WeekCalendarView(
-                        selectedDate = selectedDate,
-                        events = events,
-                        colorsByEntity = colorsByEntity,
-                        calendarNames = calendarNames,
-                        interactionsEnabled = interactionsEnabled,
-                        onSelectDate = { selectedEpochDay = it.toEpochDay() },
-                        zone = zone
-                    )
-                    "month" -> MonthCalendarView(
-                        selectedDate = selectedDate,
-                        window = window,
-                        events = events,
-                        colorsByEntity = colorsByEntity,
-                        calendarNames = calendarNames,
-                        interactionsEnabled = interactionsEnabled,
-                        onSelectDate = { selectedEpochDay = it.toEpochDay() },
-                        zone = zone
-                    )
-                    else -> AgendaCalendarView(
-                        startDate = window.startDate,
-                        endDateExclusive = window.endDateExclusive,
-                        events = events,
-                        colorsByEntity = colorsByEntity,
-                        calendarNames = calendarNames,
-                        zone = zone,
-                        modifier = if (agendaFillsHeight) Modifier.weight(1f) else Modifier,
-                        fillHeight = agendaFillsHeight
-                    )
+            Box(Modifier.weight(1f).fillMaxWidth()) {
+                if (entityIds.isEmpty()) {
+                    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                        CalendarEmptyState(stringResource(R.string.widgets_calendar_no_entity))
+                    }
+                } else {
+                    when (activeView) {
+                        "week" -> Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                            WeekCalendarView(
+                                selectedDate = selectedDate,
+                                events = events,
+                                colorsByEntity = colorsByEntity,
+                                calendarNames = calendarNames,
+                                interactionsEnabled = interactionsEnabled,
+                                onSelectDate = { selectedEpochDay = it.toEpochDay() },
+                                zone = zone
+                            )
+                        }
+                        "month" -> Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                            MonthCalendarView(
+                                selectedDate = selectedDate,
+                                window = window,
+                                events = events,
+                                colorsByEntity = colorsByEntity,
+                                calendarNames = calendarNames,
+                                interactionsEnabled = interactionsEnabled,
+                                onSelectDate = { selectedEpochDay = it.toEpochDay() },
+                                zone = zone
+                            )
+                        }
+                        else -> AgendaCalendarView(
+                            startDate = window.startDate,
+                            endDateExclusive = window.endDateExclusive,
+                            events = events,
+                            colorsByEntity = colorsByEntity,
+                            calendarNames = calendarNames,
+                            zone = zone,
+                            modifier = Modifier.fillMaxSize(),
+                            fillHeight = true
+                        )
+                    }
                 }
             }
         }
@@ -422,7 +421,7 @@ private fun CompactCalendarWidgetCard(
                 zone = zone
             )
             else -> Column(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                modifier = Modifier.fillMaxSize().padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Row(verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth()) {
@@ -445,22 +444,26 @@ private fun CompactCalendarWidgetCard(
                     }
                     MdiIcon(widget.icon ?: "calendar-month", tint = appColors.onMuted.copy(alpha = 0.22f), size = 34.dp)
                 }
-                Spacer(Modifier.weight(1f))
-                if (visibleEvents.isEmpty()) {
-                    Text(
-                        stringResource(R.string.ui_no_events_e339ba7),
-                        color = appColors.onMuted,
-                        style = MaterialTheme.typography.bodySmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                } else {
-                    visibleEvents.forEach { event ->
-                        CompactCalendarEventPill(
-                            event = event,
-                            color = colorsByEntity[event.entityId] ?: MaterialTheme.colorScheme.primary,
-                            zone = zone
+                Column(
+                    modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    if (visibleEvents.isEmpty()) {
+                        Text(
+                            stringResource(R.string.ui_no_events_e339ba7),
+                            color = appColors.onMuted,
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
+                    } else {
+                        visibleEvents.forEach { event ->
+                            CompactCalendarEventPill(
+                                event = event,
+                                color = colorsByEntity[event.entityId] ?: MaterialTheme.colorScheme.primary,
+                                zone = zone
+                            )
+                        }
                     }
                 }
             }

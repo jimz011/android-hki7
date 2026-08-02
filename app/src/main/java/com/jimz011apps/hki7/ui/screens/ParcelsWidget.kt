@@ -207,6 +207,40 @@ private fun JsonObject.isDeliveredParcel(): Boolean {
 private fun JsonObject.isOutgoingParcel(): Boolean =
     parcelValue("_direction")?.contains("outgoing", true) == true
 
+private val PARCEL_EXPECTED_DELIVERY_KEYS = listOf(
+    "planned_from", "expected_delivery", "delivery_date", "eta", "expected", "delivery", "planned_date"
+)
+
+/** Earliest known delivery moment for an active incoming or outgoing parcel. */
+internal fun ParcelCarrier.firstExpectedDeliveryValue(): String? {
+    if (incomingCount == 0 && outgoingCount == 0) return null
+
+    val parcelValues = parcels
+        .asSequence()
+        .filterNot(JsonObject::isDeliveredParcel)
+        .mapNotNull { parcel ->
+            PARCEL_EXPECTED_DELIVERY_KEYS.firstNotNullOfOrNull { key ->
+                parcel.parcelValue(key)?.takeIf(String::isNotBlank)
+            }
+        }
+    val helperValues = entities.asSequence().flatMap { entity ->
+        val attributes = entity.attributes
+        val expectedAttributes = PARCEL_EXPECTED_DELIVERY_KEYS.asSequence().mapNotNull { key ->
+            attributes?.get(key)?.jsonPrimitive?.contentOrNull?.takeIf(String::isNotBlank)
+        }
+        val isNextDeliveryHelper = translationKeys[entity.entity_id]
+            ?.contains("next_delivery", ignoreCase = true) == true ||
+            entity.entity_id.contains("next_delivery", ignoreCase = true)
+        expectedAttributes + sequenceOf(entity.state).filter { isNextDeliveryHelper }
+    }
+
+    return (parcelValues + helperValues)
+        .distinct()
+        .mapNotNull { value -> parseParcelMoment(value)?.let { moment -> value to moment.toInstant() } }
+        .minByOrNull { (_, instant) -> instant }
+        ?.first
+}
+
 private fun isCurrentOrFutureLetter(letter: JsonObject, today: LocalDate = LocalDate.now()): Boolean {
     val attributeDate = letter["date"]?.jsonPrimitive?.contentOrNull
     val fullDate = attributeDate?.let { value ->
@@ -829,6 +863,7 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel
                                 }
                             }
                             carriers.forEach { item ->
+                                val firstExpectedDelivery = item.firstExpectedDeliveryValue()?.let { formatParcelTime(it) }
                                 Surface(shape = itemCornerShape(), color = appColors.subtleSurface, contentColor = appColors.onSurface,
                                     modifier = Modifier.fillMaxWidth().clickable { selectedCarrierId = item.deviceId }) {
                                     Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -853,6 +888,22 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel
                                                 color = appColors.onMuted,
                                                 style = MaterialTheme.typography.bodySmall
                                             )
+                                        }
+                                        if (firstExpectedDelivery != null) {
+                                            Column(horizontalAlignment = Alignment.End) {
+                                                Text(
+                                                    stringResource(R.string.ui_expected_delivery_78d54b2),
+                                                    color = appColors.onMuted,
+                                                    style = MaterialTheme.typography.labelSmall
+                                                )
+                                                Text(
+                                                    firstExpectedDelivery,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    style = MaterialTheme.typography.labelMedium,
+                                                    textAlign = TextAlign.End,
+                                                    maxLines = 2
+                                                )
+                                            }
                                         }
                                     }
                                 }

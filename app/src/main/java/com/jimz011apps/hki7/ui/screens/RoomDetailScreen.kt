@@ -267,6 +267,7 @@ import com.jimz011apps.hki7.ui.components.HKIBottomBar
 import com.jimz011apps.hki7.ui.components.HorizontalLightBar
 import com.jimz011apps.hki7.ui.components.HorizontalColorTempBar
 import com.jimz011apps.hki7.ui.components.HorizontalHueBar
+import com.jimz011apps.hki7.ui.components.responsiveDashboardColumnCount
 import com.jimz011apps.hki7.ui.components.swipeToAdjacentTab
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.serialization.json.contentOrNull
@@ -882,11 +883,7 @@ fun RoomDetailScreen(
         BoxWithConstraints(modifier = Modifier.fillMaxSize().padding(padding)) {
         // Number of full-width columns. Scales up on larger screens (fold/tablet)
         // so widgets tile into several columns instead of one wide stack.
-        val widgetColumnCount = when {
-            maxWidth >= 900.dp -> 3
-            maxWidth >= 600.dp -> 2
-            else -> 1
-        }
+        val widgetColumnCount = responsiveDashboardColumnCount(maxWidth)
         // Six grid cells per column so widgets can span a full column (6), half (3), or third (2).
         val widgetGridColumns = widgetColumnCount * 6
         fun widgetSpan(widget: HKIRoomWidget): Int = when (widget.width) {

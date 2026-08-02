@@ -916,6 +916,39 @@ open class HomeAssistantClient(
         }
     }
 
+    /** Emits the shared dashboard id whenever HKI 7 Cloud publishes or unpublishes a dashboard.
+     * Access control remains enforced by the subsequent list/get calls; this event is only an
+     * invalidation signal. Older components simply never emit it, while startup/foreground sync
+     * remains the compatibility fallback. */
+    open fun subscribeHki7DashboardUpdates(): Flow<String?> = flow {
+        val conn = ensureConnected()
+        val id = messageId.getAndIncrement()
+        val channel = Channel<JsonObject>(Channel.UNLIMITED)
+        conn.channels[id] = channel
+        try {
+            conn.session.send(buildJsonObject {
+                put("id", id)
+                put("type", "subscribe_events")
+                put("event_type", "hki7_dashboard_updated")
+            }.toString())
+
+            for (message in channel) {
+                if (message["type"]?.jsonPrimitive?.contentOrNull != "event") continue
+                val data = message["event"]?.jsonObject?.get("data")?.jsonObject
+                emit(data?.get("dashboard_id")?.jsonPrimitive?.contentOrNull)
+            }
+        } finally {
+            conn.channels.remove(id)
+            runCatching {
+                conn.session.send(buildJsonObject {
+                    put("id", messageId.getAndIncrement())
+                    put("type", "unsubscribe_events")
+                    put("subscription", id)
+                }.toString())
+            }
+        }
+    }
+
     /** Long-term statistics (recorder): pre-aggregated per-hour/per-day mean and change values —
      *  the same source HA's own energy dashboard uses. Tiny payloads compared to raw history,
      *  which for a per-second P1 meter can run into millions of rows over a month. */

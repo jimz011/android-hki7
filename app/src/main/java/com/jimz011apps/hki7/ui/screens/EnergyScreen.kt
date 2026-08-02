@@ -58,6 +58,8 @@ import com.jimz011apps.hki7.ui.components.HKIPage
 import com.jimz011apps.hki7.ui.components.fadingEdges
 import com.jimz011apps.hki7.ui.components.parseHistoryMillis
 import com.jimz011apps.hki7.ui.components.itemCornerShape
+import com.jimz011apps.hki7.ui.components.responsiveDashboardColumnCount
+import com.jimz011apps.hki7.ui.components.responsiveDashboardTileCount
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
@@ -813,6 +815,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
         onBack = if (page != "energy") ({ page = "energy" }) else null
     ) { padding ->
         val appColors = LocalHKIAppColors.current
+        val dashboardColumns = responsiveDashboardColumnCount(LocalConfiguration.current.screenWidthDp.dp)
         if (isEmptyManualEnergyConfig) {
             EmptyEditHint(
                 Modifier.fillMaxSize().padding(padding),
@@ -905,9 +908,7 @@ fun EnergyScreen(viewModel: MainViewModel) {
                         ) { page = "water" })
                     }
                     BoxWithConstraints(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        // Auto-fit: 2 tiles across when there's room for a readable ~160dp tile,
-                        // dropping to 1 on narrow windows so labels never letter-wrap.
-                        val tileColumns = ((maxWidth + 10.dp) / 170.dp).toInt().coerceIn(1, 2)
+                        val tileColumns = responsiveDashboardTileCount(maxWidth)
                         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             tiles.chunked(tileColumns).forEach { rowTiles ->
                                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
@@ -1141,7 +1142,20 @@ fun EnergyScreen(viewModel: MainViewModel) {
                         }
                     }
                 }
-                effectiveCardOrder.forEach { k -> cardByKey[k]?.let { body -> item(k) { body() } } }
+                effectiveCardOrder.chunked(dashboardColumns).forEach { rowKeys ->
+                    item(rowKeys.joinToString("|")) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.Top,
+                        ) {
+                            rowKeys.forEach { key ->
+                                Column(Modifier.weight(1f)) { cardByKey[key]?.invoke() }
+                            }
+                            repeat(dashboardColumns - rowKeys.size) { Spacer(Modifier.weight(1f)) }
+                        }
+                    }
+                }
             } else if (page == "solar") {
                 // ═══ SOLAR PAGE ═══════════════════════════════════════════════
                 item {

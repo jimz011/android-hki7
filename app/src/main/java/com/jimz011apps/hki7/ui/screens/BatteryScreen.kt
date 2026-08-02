@@ -76,6 +76,7 @@ import com.jimz011apps.hki7.ui.components.WidgetBackground
 import com.jimz011apps.hki7.ui.components.WidgetBackgroundSelector
 import com.jimz011apps.hki7.ui.components.surfaceGradient
 import com.jimz011apps.hki7.ui.components.itemCornerShape
+import com.jimz011apps.hki7.ui.components.responsiveDashboardTileCount
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import com.jimz011apps.hki7.ui.utils.MdiIcon
 import kotlinx.serialization.json.contentOrNull
@@ -484,10 +485,8 @@ fun BatteryScreen(
                 stringResource(R.string.widgets_battery_empty_view_hint)
             )
         } else {
-        // Two tiles across like the Security/Energy/Climate pages, dropping to one when there
-        // isn't room for a readable ~160dp tile.
         val windowWidth = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() }
-        val batteryColumns = if (windowWidth >= 360.dp) 2 else 1
+        val batteryColumns = responsiveDashboardTileCount((windowWidth - 32.dp).coerceAtLeast(0.dp))
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(top = 16.dp, bottom = 96.dp + com.jimz011apps.hki7.ui.components.LocalMediaPlayerBarInset.current),

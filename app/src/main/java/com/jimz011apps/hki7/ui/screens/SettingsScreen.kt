@@ -131,6 +131,7 @@ import com.jimz011apps.hki7.data.CloudBackupStorage
 import com.jimz011apps.hki7.data.CloudBackupFile
 import com.jimz011apps.hki7.data.CloudBackupWork
 import com.jimz011apps.hki7.data.HaBackupStorage
+import com.jimz011apps.hki7.data.hki7BackupName
 import com.jimz011apps.hki7.data.HaDashboardSharing
 import androidx.compose.foundation.layout.FlowRow
 import com.jimz011apps.hki7.data.HaParentalControls
@@ -331,6 +332,7 @@ fun SettingsDialog(
     val dashboards by viewModel.dashboards.collectAsState()
     val activeDashboardId by viewModel.activeDashboardId.collectAsState()
     val defaultDashboardId by viewModel.defaultDashboardId.collectAsState()
+    val familyDashboardCreationLocked by viewModel.familyDashboardCreationLocked.collectAsState()
     val homeAssistantInstances by prefs.homeAssistantInstances.collectAsState(initial = emptyList())
     val activeHomeAssistantInstanceId by prefs.activeHomeAssistantInstanceId.collectAsState(initial = null)
     val cloudBackupEnabled by prefs.cloudBackupEnabled.collectAsState(initial = false)
@@ -379,6 +381,7 @@ fun SettingsDialog(
     var sharedWithMe by remember { mutableStateOf(emptyList<com.jimz011apps.hki7.data.Hki7SharedDashboardMeta>()) }
     var sharingAvailable by remember { mutableStateOf(false) }
     var isHaAdmin by remember { mutableStateOf(false) }
+    var currentHaUserId by remember { mutableStateOf<String?>(null) }
     // ── Parental controls (admin editor) ──
     var parentalUsers by remember { mutableStateOf(emptyList<com.jimz011apps.hki7.data.Hki7User>()) }
     var parentalPolicies by remember { mutableStateOf(emptyMap<String, com.jimz011apps.hki7.data.Hki7Policy>()) }
@@ -388,6 +391,7 @@ fun SettingsDialog(
         val id = runCatching { HaDashboardSharing.whoami(context) }.getOrNull()
         sharingAvailable = id != null
         isHaAdmin = id?.isAdmin == true
+        currentHaUserId = id?.userId
     }
     val avatarPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let {
@@ -1507,6 +1511,7 @@ fun SettingsDialog(
                                 val id = runCatching { HaDashboardSharing.whoami(context) }.getOrNull()
                                 sharingAvailable = id != null
                                 isHaAdmin = id?.isAdmin == true
+                                currentHaUserId = id?.userId
                                 sharedWithMe = if (id != null)
                                     runCatching { HaDashboardSharing.listSharedForMe(context) }.getOrDefault(emptyList())
                                 else emptyList()
@@ -1544,11 +1549,13 @@ fun SettingsDialog(
                                                         stringResource(R.string.settings_extra_rename_dashboard, dashboard.name)
                                                     )
                                                 }
-                                                IconButton(onClick = { copyDashboard = dashboard }) {
-                                                    Icon(
-                                                        Icons.Default.ContentCopy,
-                                                        stringResource(R.string.settings_extra_copy_dashboard, dashboard.name)
-                                                    )
+                                                if (!familyDashboardCreationLocked) {
+                                                    IconButton(onClick = { copyDashboard = dashboard }) {
+                                                        Icon(
+                                                            Icons.Default.ContentCopy,
+                                                            stringResource(R.string.settings_extra_copy_dashboard, dashboard.name)
+                                                        )
+                                                    }
                                                 }
                                                 IconButton(onClick = { deleteDashboard = dashboard }, enabled = dashboards.size > 1) {
                                                     Icon(
@@ -1561,20 +1568,22 @@ fun SettingsDialog(
                                         }
                                     }
                                 }
-                                Button(
-                                    onClick = {
-                                        newDashboardName = context.getString(
-                                            R.string.settings_extra_dashboard_default_name,
-                                            dashboards.size + 1
-                                        )
-                                        showNewConfigConfirm = true
-                                    },
-                                    modifier = Modifier.fillMaxWidth().height(52.dp),
-                                    shape = itemCornerShape()
-                                ) {
-                                    Icon(Icons.Default.Add, null)
-                                    Spacer(Modifier.width(8.dp))
-                                    Text(stringResource(R.string.ui_new_dashboard_4d3c071))
+                                if (!familyDashboardCreationLocked) {
+                                    Button(
+                                        onClick = {
+                                            newDashboardName = context.getString(
+                                                R.string.settings_extra_dashboard_default_name,
+                                                dashboards.size + 1
+                                            )
+                                            showNewConfigConfirm = true
+                                        },
+                                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                                        shape = itemCornerShape()
+                                    ) {
+                                        Icon(Icons.Default.Add, null)
+                                        Spacer(Modifier.width(8.dp))
+                                        Text(stringResource(R.string.ui_new_dashboard_4d3c071))
+                                    }
                                 }
                             }
                             if (sharingAvailable && sharedWithMe.isNotEmpty()) {
@@ -1962,10 +1971,12 @@ fun SettingsDialog(
                                                                 }
                                                             }
                                                         ) { Text(stringResource(R.string.ui_import_d6fbc9d)) }
-                                                        TextButton(
-                                                            enabled = !shareBusy,
-                                                            onClick = { pendingUnpublish = meta }
-                                                        ) { Text(stringResource(R.string.ui_delete_f6fdbe4), color = MaterialTheme.colorScheme.error) }
+                                                        if (meta.ownerId == currentHaUserId) {
+                                                            TextButton(
+                                                                enabled = !shareBusy,
+                                                                onClick = { pendingUnpublish = meta }
+                                                            ) { Text(stringResource(R.string.ui_delete_f6fdbe4), color = MaterialTheme.colorScheme.error) }
+                                                        }
                                                     }
                                                 }
                                             }
@@ -2031,7 +2042,7 @@ fun SettingsDialog(
                                 )
                                 Text(stringResource(R.string.ui_on_this_device_a7f9620), color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
                                 Button(
-                                    onClick = { backupLauncher.launch("hki7-dashboard-backup.json") },
+                                    onClick = { backupLauncher.launch(hki7BackupName()) },
                                     modifier = Modifier.fillMaxWidth().height(52.dp),
                                     shape = itemCornerShape()
                                 ) {

@@ -47,6 +47,8 @@ import com.jimz011apps.hki7.data.HKISingleEntityWidget
 import com.jimz011apps.hki7.data.HKISwipingStack
 import com.jimz011apps.hki7.data.HKISubtitleWidget
 import com.jimz011apps.hki7.data.HKIWeatherWidget
+import com.jimz011apps.hki7.data.isWidgetVisibleNow
+import com.jimz011apps.hki7.data.visibilityConditionEntityIds
 import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.ui.Screen
 import com.jimz011apps.hki7.ui.utils.handleActionOutcome
@@ -71,6 +73,7 @@ import com.jimz011apps.hki7.ui.components.ReorderAxis
 import com.jimz011apps.hki7.ui.components.PersonDetailDialog
 import com.jimz011apps.hki7.ui.components.resolveEntityCameraUrl
 import com.jimz011apps.hki7.ui.components.resolveCameraUrl
+import com.jimz011apps.hki7.ui.components.responsiveDashboardColumnCount
 import androidx.navigation.NavController
 import java.util.UUID
 
@@ -105,6 +108,24 @@ fun HAHomeScreen(
     val itemCornerRadius = LocalItemCornerRadius.current
     val homeWidgets = remember(widgets, itemCornerRadius) {
         widgets[HOME_WIDGET_AREA].orEmpty().map { it.withGlobalCornerRadius(itemCornerRadius) }
+    }
+    val homeVisibilityEntityIds = remember(homeWidgets) {
+        homeWidgets.flatMap { it.visibilityConditionEntityIds() }.distinct()
+    }
+    val homeVisibilityFlow = remember(viewModel, homeVisibilityEntityIds, isEditMode) {
+        if (isEditMode) viewModel.entitySnapshotFor(homeVisibilityEntityIds)
+        else viewModel.entitiesFor(homeVisibilityEntityIds)
+    }
+    val homeVisibilityEntities by homeVisibilityFlow.collectAsState()
+    val homeVisibilityStates = remember(homeVisibilityEntities) {
+        homeVisibilityEntities.associate { it.entity_id to it.state }
+    }
+    // A composable that returns early still owns a LazyGrid slot. Filter top-level home widgets
+    // before handing them to the grid so hidden/conditional widgets release their space entirely.
+    val renderedHomeWidgets = remember(homeWidgets, homeVisibilityStates, isEditMode) {
+        if (isEditMode) homeWidgets else homeWidgets.filter { widget ->
+            isWidgetVisibleNow(widget) { entityId -> homeVisibilityStates[entityId] }
+        }
     }
     val widgetGridState = rememberLazyGridState()
     var showAddWidget by remember { mutableStateOf(false) }
@@ -508,11 +529,7 @@ fun HAHomeScreen(
         BoxWithConstraints(modifier = Modifier.fillMaxSize().padding(padding)) {
             // Number of full-width columns. Scales up on larger screens (fold/tablet)
             // so widgets tile into several columns instead of one wide stack.
-            val widgetColumnCount = when {
-                maxWidth >= 900.dp -> 3
-                maxWidth >= 600.dp -> 2
-                else -> 1
-            }
+            val widgetColumnCount = responsiveDashboardColumnCount(maxWidth)
             // Six grid cells per column so widgets can span a full column (6), half (3), or third (2).
             val widgetGridColumns = widgetColumnCount * 6
             fun widgetSpan(widget: HKIRoomWidget): Int = when (widget.width) {
@@ -521,7 +538,7 @@ fun HAHomeScreen(
                 else -> 6
             }
             Column(modifier = Modifier.fillMaxSize()) {
-                if (homeWidgets.isEmpty() && !isEditMode) {
+                if (renderedHomeWidgets.isEmpty() && !isEditMode) {
                     EmptyEditHint(
                         Modifier.weight(1f),
                         if (customPage == null) stringResource(R.string.home_empty)
@@ -537,12 +554,12 @@ fun HAHomeScreen(
                         horizontalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
                         items(
-                            count = homeWidgets.size,
-                            key = { index -> homeWidgets[index].id },
-                            contentType = { index -> homeWidgets[index]::class.simpleName ?: "widget" },
-                            span = { index -> GridItemSpan(widgetSpan(homeWidgets[index])) }
+                            count = renderedHomeWidgets.size,
+                            key = { index -> renderedHomeWidgets[index].id },
+                            contentType = { index -> renderedHomeWidgets[index]::class.simpleName ?: "widget" },
+                            span = { index -> GridItemSpan(widgetSpan(renderedHomeWidgets[index])) }
                         ) { index ->
-                            when (val widget = homeWidgets[index]) {
+                            when (val widget = renderedHomeWidgets[index]) {
                                 is HKIButtonStack -> ButtonStackItem(
                                 stack = widget,
                                 viewModel = viewModel,

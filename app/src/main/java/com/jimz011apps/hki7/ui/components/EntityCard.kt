@@ -493,7 +493,7 @@ fun EntityCard(
                 modifier = Modifier.padding(16.dp).fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-            val iconTint = when {
+            val rawIconTint = when {
                 coverDoorIconColor != null  -> coverDoorIconColor   // door cover: state color on icon only
                 isCoverNotClosed            -> primaryContent        // open cover (non-door): readable on primary bg
                 isLockDoorOpen              -> LockRed
@@ -508,6 +508,7 @@ fun EntityCard(
                 isUnavailable               -> appColors.onMuted
                 else                        -> primary
             }
+            val iconTint = semanticColorForBackground(rawIconTint, cardBg)
             // User icon overrides; otherwise fall back to HA-provided/custom defaults and
             // device-class defaults that mirror Home Assistant's icon choices.
             val defaultSlug = defaultEntityIconSlug(

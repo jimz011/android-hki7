@@ -3216,6 +3216,16 @@
         <item quantity="one">Gráfico %1$d · %2$d sensor</item>
         <item quantity="other">Gráfico %1$d · %2$d sensores</item>
     </plurals>
+    <string-array name="cr_whats_new_beta_11">
+        <item>Os painéis Cômodos, Clima, Segurança, Energia e Bateria aproveitam melhor tablets e dispositivos dobráveis. Os cartões grandes seguem o layout de uma, duas ou três colunas da tela inicial e dos cômodos, enquanto os blocos compactos se ajustam automaticamente sem ficarem apertados.</item>
+        <item>Os ícones coloridos pelo estado nos botões de entidades e nos indicadores de cabeçalho ou status mantêm o tom identificável, mas ficam automaticamente mais claros ou escuros quando poderiam se confundir com o tema atual.</item>
+        <item>Ao selecionar um painel familiar durante a configuração inicial, esta instalação passa a ser inscrita nele. As alterações do proprietário são publicadas ao tocar em Salvar ou Concluído, os clientes ativos são atualizados imediatamente e os clientes offline sincronizam ao reabrir. Usuários que não sejam administradores não podem criar nem duplicar painéis até a redefinição completa do aplicativo.*</item>
+        <item>A configuração inicial do painel agora permite restaurar um backup local, do Google Drive ou do Home Assistant. Os novos backups do Google Drive e Home Assistant usam nomes consistentes e informativos com a versão do aplicativo e a data de criação.*</item>
+        <item>Os widgets de calendário permitem rolagem vertical quando não têm altura suficiente para todos os eventos, e os widgets ocultos da tela inicial são removidos do layout em vez de deixarem um espaço vazio.</item>
+        <item>Os cartões das transportadoras agora mostram a primeira data e hora de entrega prevista para remessas ativas recebidas ou enviadas, incluindo integrações com um sensor separado para a próxima entrega.</item>
+        <item>* É necessária a integração do componente HKI 7 Cloud.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_10">
         <item>As regras de visibilidade funcionam em todos os widgets e itens, com condições Hora, Entidade, Pessoa e combinações E/OU. Administradores de um painel familiar compartilhado podem tornar um item Visível ou Oculto para um usuário escolhido. As condições Pessoa usam o HKI 7 Cloud e mostram o requisito se a integração estiver ausente. As novas regras começam vazias: Hora, Entidade ou Pessoa.</item>
         <item>Os selos de contagem do status dos cômodos mantêm uma largura estável para dois dígitos. Os cabeçalhos se adaptam a uma, duas ou três colunas como os selos da tela inicial e de pessoas, sem empurrar o título para baixo.</item>

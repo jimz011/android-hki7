@@ -60,7 +60,7 @@ object HaBackupStorage {
     suspend fun write(context: Context): Boolean = withClient(context) { client ->
         val raw = PreferencesManager(context).exportUiBackup()
         val payload = json.parseToJsonElement(raw) as? JsonObject ?: return@withClient false
-        client.hki7PutBackup(payload)
+        client.hki7PutBackup(payload, label = hki7BackupName())
     } ?: false
 
     /** Lists the current user's HA-local backups, newest first. */

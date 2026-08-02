@@ -329,6 +329,16 @@
     <string name="cr_quick_make_it_yours">Hazlo tuyo</string>
     <string name="cr_quick_make_it_yours_instruction">En el modo de edición, añade y reordena habitaciones, plantas y widgets. Toca un elemento para configurarlo.</string>
 
+    <string-array name="cr_whats_new_beta_11">
+        <item>Los paneles Habitaciones, Clima, Seguridad, Energía y Batería aprovechan mejor las tabletas y los dispositivos plegables. Las tarjetas grandes siguen el diseño de una, dos o tres columnas de Inicio y las habitaciones, mientras que las tarjetas compactas se ajustan automáticamente sin quedar apretadas.</item>
+        <item>Los iconos coloreados según el estado en botones de entidades y etiquetas de cabecera o estado conservan su tono identificativo, pero se aclaran u oscurecen automáticamente cuando podrían confundirse con el tema actual.</item>
+        <item>Al elegir un panel familiar durante la configuración inicial, la instalación queda suscrita. Los cambios del propietario se publican al pulsar Guardar o Listo, los clientes activos se actualizan de inmediato y los desconectados se sincronizan al volver a abrirse. Quienes no sean administradores no pueden crear ni duplicar paneles hasta restablecer por completo la aplicación.*</item>
+        <item>La configuración inicial del panel ahora permite restaurar una copia local, de Google Drive o de Home Assistant. Las nuevas copias de Google Drive y Home Assistant usan nombres coherentes e informativos con la versión de la aplicación y la fecha de creación.*</item>
+        <item>Los widgets de calendario permiten desplazamiento vertical cuando no tienen altura suficiente para todos los eventos, y los widgets ocultos de Inicio se eliminan del diseño en vez de dejar un espacio vacío.</item>
+        <item>Las tarjetas de las empresas de paquetería muestran ahora la primera fecha y hora de entrega prevista para envíos activos entrantes o salientes, incluso con integraciones que ofrecen un sensor separado de próxima entrega.</item>
+        <item>* Requiere la integración HKI 7 Cloud Component.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_10">
         <item>Las reglas de visibilidad funcionan en todos los widgets y elementos, con condiciones Hora, Entidad, Persona y combinaciones Y/O. Los administradores de un panel familiar compartido pueden hacer que un elemento sea Visible u Oculto para un usuario elegido. Las condiciones Persona usan HKI 7 Cloud y muestran el requisito si falta la integración. Las reglas nuevas empiezan vacías: Hora, Entidad o Persona.</item>
         <item>Las insignias de contador del estado de las habitaciones mantienen un ancho estable para dos dígitos. Las cabeceras se adaptan a una, dos o tres columnas como las insignias de inicio y de personas, sin empujar el título hacia abajo.</item>

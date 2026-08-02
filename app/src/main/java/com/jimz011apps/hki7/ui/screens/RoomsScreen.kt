@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -103,6 +104,7 @@ import com.jimz011apps.hki7.ui.components.WidgetWidthSelector
 import com.jimz011apps.hki7.ui.components.fadingEdges
 import com.jimz011apps.hki7.ui.components.LocalItemCornerRadius
 import com.jimz011apps.hki7.ui.components.itemCornerShape
+import com.jimz011apps.hki7.ui.components.responsiveDashboardColumnCount
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import com.jimz011apps.hki7.ui.utils.MdiIcon
 import kotlin.math.max
@@ -218,11 +220,12 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
         } else null,
         navController = navController
     ) { padding ->
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
         ) {
+            val floorRowCapacity = responsiveDashboardColumnCount(maxWidth) * 2
             if (groupedFloors.isEmpty() && !isEditMode) {
                 if (autoGenerationPending) {
                     RoomsImportProgress(Modifier.fillMaxSize(), centered = true)
@@ -248,7 +251,7 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                     if (autoGenerationPending) {
                         RoomsImportProgress(Modifier.fillMaxWidth())
                     }
-                    packFloorRows(groupedFloors).forEach { floorRow ->
+                    packFloorRows(groupedFloors, floorRowCapacity).forEach { floorRow ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -287,7 +290,9 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                                 )
                             }
                             val usedUnits = floorRow.sumOf { if (it.floor?.width == "half") 1 else 2 }
-                            if (usedUnits < 2) Spacer(Modifier.weight((2 - usedUnits).toFloat()))
+                            if (usedUnits < floorRowCapacity) {
+                                Spacer(Modifier.weight((floorRowCapacity - usedUnits).toFloat()))
+                            }
                         }
                     }
                 }
@@ -432,15 +437,18 @@ private fun RoomsImportProgress(modifier: Modifier = Modifier, centered: Boolean
 
 private data class FloorSectionData(val key: String, val floor: HAFloor?, val areas: List<HAArea>)
 
-// Packs floor sections into rows: a "full" floor takes a whole row, while "half" floors pair up
-// two per row (like full/half-row widgets), so the whole section resizes — not the cards inside.
-private fun packFloorRows(sections: List<FloorSectionData>): List<List<FloorSectionData>> {
+// Packs floor sections into the same responsive dashboard lanes as Home and room detail. Each lane
+// has two units: a "full" floor uses both and a "half" floor uses one.
+private fun packFloorRows(
+    sections: List<FloorSectionData>,
+    maxUnits: Int,
+): List<List<FloorSectionData>> {
     val rows = mutableListOf<List<FloorSectionData>>()
     var current = mutableListOf<FloorSectionData>()
     var used = 0
     for (section in sections) {
         val units = if (section.floor?.width == "half") 1 else 2
-        if (used + units > 2 && current.isNotEmpty()) {
+        if (used + units > maxUnits && current.isNotEmpty()) {
             rows.add(current.toList())
             current = mutableListOf()
             used = 0

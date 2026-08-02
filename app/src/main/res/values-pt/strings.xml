@@ -3216,6 +3216,16 @@
         <item quantity="one">%1$d bateria precisa de atenção</item>
         <item quantity="other">%1$d baterias precisam de atenção</item>
     </plurals>
+    <string-array name="cr_whats_new_beta_11">
+        <item>Os painéis Divisões, Clima, Segurança, Energia e Bateria aproveitam melhor tablets e dispositivos dobráveis. Os cartões grandes seguem a disposição de uma, duas ou três colunas do Início e das divisões, enquanto os blocos compactos se ajustam automaticamente sem ficarem apertados.</item>
+        <item>Os ícones coloridos pelo estado nos botões de entidades e nos indicadores de cabeçalho ou estado mantêm o tom identificável, mas ficam automaticamente mais claros ou escuros quando poderiam confundir-se com o tema atual.</item>
+        <item>Ao selecionar um painel familiar durante a configuração inicial, esta instalação fica agora subscrita. As alterações do proprietário são publicadas ao tocar em Guardar ou Concluído, os clientes ativos são atualizados imediatamente e os clientes offline sincronizam ao reabrir. Utilizadores que não sejam administradores não podem criar nem duplicar painéis até à reposição completa da aplicação.*</item>
+        <item>A configuração inicial do painel permite agora restaurar uma cópia local, do Google Drive ou do Home Assistant. As novas cópias do Google Drive e Home Assistant usam nomes consistentes e informativos com a versão da aplicação e a data de criação.*</item>
+        <item>Os widgets de calendário permitem deslocamento vertical quando não têm altura suficiente para todos os eventos, e os widgets ocultos do Início são removidos da disposição em vez de deixarem um espaço vazio.</item>
+        <item>Os cartões das transportadoras mostram agora a primeira data e hora de entrega prevista para envios ativos recebidos ou enviados, incluindo integrações com um sensor separado para a próxima entrega.</item>
+        <item>* Requer a integração do Componente HKI 7 Cloud.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_10">
         <item>As regras de visibilidade funcionam em todos os widgets e itens, com condições Hora, Entidade, Pessoa e combinações E/OU. Os administradores de um painel familiar partilhado podem tornar um item Visível ou Oculto para um utilizador escolhido. As condições Pessoa usam o HKI 7 Cloud e mostram o requisito se a integração estiver em falta. As novas regras começam vazias: Hora, Entidade ou Pessoa.</item>
         <item>Os emblemas dos contadores de estado das divisões mantêm uma largura estável para dois dígitos. Os cabeçalhos adaptam-se a uma, duas ou três colunas como os emblemas do início e de pessoas, sem empurrar o título para baixo.</item>

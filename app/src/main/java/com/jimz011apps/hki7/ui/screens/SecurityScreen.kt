@@ -520,15 +520,15 @@ private fun SecurityOverview(
         return
     }
     val sceneState = remember(grouped) { grouped.toSecuritySceneState() }
-    LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(bottom = 96.dp + LocalMediaPlayerBarInset.current)) {
+    BoxWithConstraints(Modifier.fillMaxSize().padding(padding)) {
+        val dashboardColumns = responsiveDashboardColumnCount(maxWidth)
+        LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 96.dp + LocalMediaPlayerBarInset.current)) {
         item { SecurityHero(sceneState) }
         item {
             // Cameras get their own full-width section below instead of a tile.
             val present = securityGroups.filter { it.key != "cameras" && grouped[it.key].orEmpty().isNotEmpty() }
             BoxWithConstraints(Modifier.padding(horizontal = 16.dp)) {
-                // Auto-fit: 2 tiles across when there's room for a readable ~160dp tile,
-                // dropping to 1 on narrow windows so labels never letter-wrap.
-                val tileColumns = ((maxWidth + 10.dp) / 170.dp).toInt().coerceIn(1, 2)
+                val tileColumns = responsiveDashboardTileCount(maxWidth)
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     present.chunked(tileColumns).forEach { row ->
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -553,15 +553,26 @@ private fun SecurityOverview(
                     }
                 }
             }
-            items(cameras.size, key = { cameras[it].entity_id }) { index ->
-                Box(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
-                    SecurityCameraCard(cameras[index], viewModel, currentUrl, cameraConfigs[cameras[index].entity_id])
-                    if (isEditMode) {
-                        EditSettingsButton({ onCameraSettings(cameras[index]) }, Modifier.align(Alignment.Center))
-                        EditRemoveBadge({ onRemove(cameras[index].entity_id) }, Modifier.align(Alignment.TopEnd))
+            val cameraRows = cameras.chunked(dashboardColumns)
+            items(cameraRows.size, key = { index -> cameraRows[index].joinToString("|") { it.entity_id } }) { index ->
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    cameraRows[index].forEach { camera ->
+                        Box(Modifier.weight(1f)) {
+                            SecurityCameraCard(camera, viewModel, currentUrl, cameraConfigs[camera.entity_id])
+                            if (isEditMode) {
+                                EditSettingsButton({ onCameraSettings(camera) }, Modifier.align(Alignment.Center))
+                                EditRemoveBadge({ onRemove(camera.entity_id) }, Modifier.align(Alignment.TopEnd))
+                            }
+                        }
                     }
+                    repeat(dashboardColumns - cameraRows[index].size) { Spacer(Modifier.weight(1f)) }
                 }
             }
+        }
         }
     }
 }

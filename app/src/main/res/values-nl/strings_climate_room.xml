@@ -329,6 +329,16 @@
     <string name="cr_quick_make_it_yours">Maak het van jou</string>
     <string name="cr_quick_make_it_yours_instruction">Voeg in de bewerkmodus kamers, verdiepingen en widgets toe of wijzig hun volgorde. Tik op een onderdeel om het in te stellen.</string>
 
+    <string-array name="cr_whats_new_beta_11">
+        <item>De dashboards Kamers, Klimaat, Beveiliging, Energie en Batterij benutten tablets en foldables nu beter. Grote kaarten volgen de indeling met één, twee of drie kolommen van Start en kamerdetails, terwijl compacte tegels zich automatisch aanpassen zonder te krap te worden.</item>
+        <item>Statusgekleurde pictogrammen op entiteitsknoppen en kop-/statuspillen behouden hun herkenbare kleur, maar worden automatisch lichter of donkerder als ze anders wegvallen tegen het huidige thema.</item>
+        <item>Als je tijdens de onboarding een familiedashboard kiest, wordt deze installatie daarop geabonneerd. Wijzigingen van de eigenaar worden gepubliceerd bij Opslaan of Gereed, actieve clients worden direct bijgewerkt en offline clients worden bijgewerkt zodra ze weer openen. Niet-beheerders kunnen geen dashboards maken of dupliceren totdat de app volledig wordt gereset.*</item>
+        <item>Tijdens de dashboardconfiguratie in de onboarding kun je nu een lokale, Google Drive- of Home Assistant-back-up herstellen. Nieuwe back-ups in Google Drive en Home Assistant krijgen consistente, duidelijke namen met de appversie en aanmaakdatum.*</item>
+        <item>Agenda-widgets kunnen verticaal scrollen als ze te laag zijn voor alle afspraken, en verborgen widgets op Start worden uit de indeling verwijderd zodat ze geen lege ruimte achterlaten.</item>
+        <item>Kaarten van pakketbezorgers tonen nu rechtsboven de eerst verwachte bezorgdatum en -tijd voor actieve inkomende of uitgaande zendingen, ook bij integraties met een aparte sensor voor de volgende bezorging.</item>
+        <item>* HKI 7 Cloud Component-integratie vereist.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_10">
         <item>Zichtbaarheidsregels werken voor alle widgets en onderdelen, met Tijd, Entiteit, Persoon en vrij te combineren EN/OF-voorwaarden. Beheerders van een gedeeld familiedashboard kunnen kiezen of een onderdeel Zichtbaar of Verborgen is voor een geselecteerde gebruiker. Persoonsvoorwaarden gebruiken HKI 7 Cloud; de vereiste wordt getoond als deze ontbreekt. Nieuwe regels beginnen leeg, zodat je Tijd, Entiteit of Persoon kiest.</item>
         <item>Badges met kamerstatustellers behouden een vaste breedte voor twee cijfers. Koppen passen zich aan naar één, twee of drie tellers per rij, zoals badges op de startpagina en personenbadges, zonder de titel omlaag te duwen.</item>

@@ -7,6 +7,7 @@ import com.jimz011apps.hki7.R
 import androidx.compose.ui.res.stringResource
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.PowerManager
@@ -20,6 +21,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.IntentSenderRequest
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -47,6 +49,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -69,6 +72,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.jimz011apps.hki7.data.HaDashboardSharing
+import com.jimz011apps.hki7.data.HaBackupStorage
+import com.jimz011apps.hki7.data.CloudBackupFile
+import com.jimz011apps.hki7.data.CloudBackupStorage
+import com.jimz011apps.hki7.data.Hki7BackupMeta
 import com.jimz011apps.hki7.data.Hki7SharedDashboardMeta
 import com.jimz011apps.hki7.data.HomeAssistantClient
 import com.jimz011apps.hki7.data.HomeAssistantConnectionRoute
@@ -77,12 +84,14 @@ import com.jimz011apps.hki7.data.PreferencesManager
 import com.jimz011apps.hki7.data.PushForegroundService
 import com.jimz011apps.hki7.data.classifyHomeAssistantConnectionRoute
 import com.jimz011apps.hki7.data.splitHomeAssistantConnectionUrl
+import com.jimz011apps.hki7.data.driveAuthorizationRequest
 import com.jimz011apps.hki7.ui.components.LocationDisclosureDialog
 import com.jimz011apps.hki7.ui.components.ModernSettingsHeader
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 import java.net.URLEncoder
+import com.google.android.gms.auth.api.identity.Identity
 
 private enum class OnboardStep { WELCOME, SERVER, NAME, LOGIN, PERMISSIONS, CONNECTION, DASHBOARD }
 private enum class AddInstanceStep { SERVER, LOGIN }
@@ -295,6 +304,7 @@ private fun ConnectionInfoStep(serverUrl: String, onContinue: () -> Unit) {
             }
         }
     }
+
 }
 
 private data class ConnectionInfoContent(
@@ -390,7 +400,126 @@ private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit
     var sharedList by remember { mutableStateOf<List<Hki7SharedDashboardMeta>>(emptyList()) }
     var usingSharedId by remember { mutableStateOf<String?>(null) }
     var familyError by remember { mutableStateOf<String?>(null) }
+    var showRestoreSource by remember { mutableStateOf(false) }
+    var showCloudRestore by remember { mutableStateOf(false) }
+    var showHaRestore by remember { mutableStateOf(false) }
+    var cloudRestoreFiles by remember { mutableStateOf<List<CloudBackupFile>>(emptyList()) }
+    var haRestoreFiles by remember { mutableStateOf<List<Hki7BackupMeta>>(emptyList()) }
+    var restoreBusy by remember { mutableStateOf(false) }
+    var restoreError by remember { mutableStateOf<String?>(null) }
     val importFailedTemplate = stringResource(R.string.uif_onboarding_shared_import_failed)
+    val unknownError = stringResource(R.string.settings_extra_unknown_error)
+
+    fun restoreRaw(raw: String) {
+        if (restoreBusy || savingMode != null) return
+        restoreBusy = true
+        restoreError = null
+        scope.launch {
+            runCatching {
+                prefs.restoreUiBackup(raw)
+                prefs.useRestoredBackupAsInitial()
+            }.onSuccess {
+                onComplete()
+            }.onFailure { error ->
+                restoreError = context.getString(
+                    R.string.settings_extra_restore_failed,
+                    error.message ?: unknownError,
+                )
+                restoreBusy = false
+            }
+        }
+    }
+
+    val localRestoreLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let {
+            scope.launch {
+                runCatching {
+                    context.contentResolver.openInputStream(it)?.bufferedReader()?.use { reader -> reader.readText() }
+                        ?: error(context.getString(R.string.settings_extra_selected_file_open_failed))
+                }.onSuccess(::restoreRaw).onFailure { error ->
+                    restoreError = context.getString(
+                        R.string.settings_extra_restore_failed,
+                        error.message ?: unknownError,
+                    )
+                }
+            }
+        }
+    }
+
+    val loadDriveBackups: () -> Unit = {
+        restoreBusy = true
+        restoreError = null
+        scope.launch {
+            runCatching { CloudBackupStorage.backups(context) }
+                .onSuccess { backups ->
+                    cloudRestoreFiles = backups
+                    restoreBusy = false
+                    if (backups.isEmpty()) {
+                        restoreError = context.getString(R.string.settings_extra_no_drive_backups)
+                    } else {
+                        showCloudRestore = true
+                    }
+                }
+                .onFailure { error ->
+                    restoreBusy = false
+                    restoreError = context.getString(
+                        R.string.settings_extra_drive_backups_load_failed,
+                        error.message ?: unknownError,
+                    )
+                }
+        }
+    }
+    val driveAuthorizationLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+            runCatching {
+                Identity.getAuthorizationClient(context).getAuthorizationResultFromIntent(result.data!!)
+            }.onSuccess { authorization ->
+                if (authorization.accessToken != null) loadDriveBackups()
+                else {
+                    restoreBusy = false
+                    restoreError = context.getString(R.string.settings_extra_drive_access_token_missing)
+                }
+            }.onFailure { error ->
+                restoreBusy = false
+                restoreError = context.getString(
+                    R.string.settings_extra_drive_authorization_failed,
+                    error.message ?: unknownError,
+                )
+            }
+        } else {
+            restoreBusy = false
+            restoreError = context.getString(R.string.settings_extra_drive_authorization_cancelled)
+        }
+    }
+    val requestDriveRestore = {
+        restoreBusy = true
+        restoreError = null
+        Identity.getAuthorizationClient(context).authorize(driveAuthorizationRequest())
+            .addOnSuccessListener { authorization ->
+                if (authorization.hasResolution()) {
+                    authorization.pendingIntent?.let { pendingIntent ->
+                        driveAuthorizationLauncher.launch(
+                            IntentSenderRequest.Builder(pendingIntent.intentSender).build()
+                        )
+                    } ?: run {
+                        restoreBusy = false
+                        restoreError = context.getString(R.string.settings_extra_drive_authorization_open_failed)
+                    }
+                } else if (authorization.accessToken != null) {
+                    loadDriveBackups()
+                } else {
+                    restoreBusy = false
+                    restoreError = context.getString(R.string.settings_extra_drive_access_token_missing)
+                }
+            }
+            .addOnFailureListener { error ->
+                restoreBusy = false
+                restoreError = context.getString(
+                    R.string.settings_extra_drive_authorization_failed,
+                    error.message ?: unknownError,
+                )
+            }
+    }
     LaunchedEffect(Unit) {
         val id = runCatching { HaDashboardSharing.whoami(context) }.getOrNull()
         cloudAvailable = id != null
@@ -467,6 +596,32 @@ private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit
                 enabled = savingMode == null,
                 onClick = { finish(false) }
             )
+            DashboardChoiceCard(
+                title = stringResource(R.string.ui_restore_backup_a65eaa8),
+                subtitle = stringResource(R.string.ui_choose_where_to_restore_the_dashboard_configuration_from_bb40b34),
+                icon = Icons.Default.Restore,
+                recommended = false,
+                bullets = buildList {
+                    add(stringResource(R.string.ui_local_file_576d5ac))
+                    add(stringResource(R.string.ui_google_drive_07c2964))
+                    if (cloudAvailable == true) add(stringResource(R.string.ui_home_assistant_c8fd3bb))
+                },
+                buttonText = if (restoreBusy) {
+                    stringResource(R.string.connection_restoring_dashboard)
+                } else {
+                    stringResource(R.string.ui_restore_backup_a65eaa8)
+                },
+                enabled = savingMode == null && !restoreBusy,
+                onClick = { showRestoreSource = true }
+            )
+            restoreError?.let { error ->
+                Text(
+                    error,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                )
+            }
             // Import from family: shown whenever the option is relevant, with guidance when the
             // cloud component isn't set up yet.
             Surface(
@@ -560,6 +715,206 @@ private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit
                 )
             }
         }
+    }
+
+    OnboardingRestoreDialogs(
+        showSource = showRestoreSource,
+        showCloud = showCloudRestore,
+        showHomeAssistant = showHaRestore,
+        cloudComponentAvailable = cloudAvailable == true,
+        busy = restoreBusy,
+        cloudFiles = cloudRestoreFiles,
+        homeAssistantFiles = haRestoreFiles,
+        onDismissSource = { showRestoreSource = false },
+        onDismissCloud = { showCloudRestore = false },
+        onDismissHomeAssistant = { showHaRestore = false },
+        onLocal = {
+            showRestoreSource = false
+            localRestoreLauncher.launch(arrayOf("application/json", "text/plain"))
+        },
+        onGoogleDrive = {
+            showRestoreSource = false
+            requestDriveRestore()
+        },
+        onHomeAssistant = {
+            showRestoreSource = false
+            restoreBusy = true
+            restoreError = null
+            scope.launch {
+                runCatching { HaBackupStorage.list(context) }
+                    .onSuccess { backups ->
+                        haRestoreFiles = backups
+                        restoreBusy = false
+                        if (backups.isEmpty()) {
+                            restoreError = context.getString(R.string.settings_extra_no_ha_backups)
+                        } else {
+                            showHaRestore = true
+                        }
+                    }
+                    .onFailure { error ->
+                        restoreBusy = false
+                        restoreError = context.getString(
+                            R.string.settings_extra_ha_backups_load_failed,
+                            error.message ?: unknownError,
+                        )
+                    }
+            }
+        },
+        onCloudFile = { file ->
+            showCloudRestore = false
+            restoreBusy = true
+            scope.launch {
+                runCatching { CloudBackupStorage.read(context, file.id) }
+                    .onSuccess { raw ->
+                        restoreBusy = false
+                        restoreRaw(raw)
+                    }
+                    .onFailure { error ->
+                        restoreBusy = false
+                        restoreError = context.getString(
+                            R.string.settings_extra_restore_failed,
+                            error.message ?: unknownError,
+                        )
+                    }
+            }
+        },
+        onHomeAssistantFile = { meta ->
+            showHaRestore = false
+            restoreBusy = true
+            scope.launch {
+                runCatching {
+                    HaBackupStorage.read(context, meta.id)
+                        ?: error(context.getString(R.string.settings_extra_backup_unreadable))
+                }.onSuccess { raw ->
+                    restoreBusy = false
+                    restoreRaw(raw)
+                }.onFailure { error ->
+                    restoreBusy = false
+                    restoreError = context.getString(
+                        R.string.settings_extra_restore_failed,
+                        error.message ?: unknownError,
+                    )
+                }
+            }
+        },
+    )
+}
+
+@Composable
+private fun OnboardingRestoreDialogs(
+    showSource: Boolean,
+    showCloud: Boolean,
+    showHomeAssistant: Boolean,
+    cloudComponentAvailable: Boolean,
+    busy: Boolean,
+    cloudFiles: List<CloudBackupFile>,
+    homeAssistantFiles: List<Hki7BackupMeta>,
+    onDismissSource: () -> Unit,
+    onDismissCloud: () -> Unit,
+    onDismissHomeAssistant: () -> Unit,
+    onLocal: () -> Unit,
+    onGoogleDrive: () -> Unit,
+    onHomeAssistant: () -> Unit,
+    onCloudFile: (CloudBackupFile) -> Unit,
+    onHomeAssistantFile: (Hki7BackupMeta) -> Unit,
+) {
+    val colors = LocalHKIAppColors.current
+    if (showSource) {
+        AlertDialog(
+            onDismissRequest = { if (!busy) onDismissSource() },
+            title = { Text(stringResource(R.string.ui_restore_backup_a65eaa8)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(stringResource(R.string.ui_choose_where_to_restore_the_dashboard_configuration_from_bb40b34))
+                    TextButton(enabled = !busy, onClick = onLocal, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.ui_local_file_576d5ac))
+                    }
+                    TextButton(enabled = !busy, onClick = onGoogleDrive, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.ui_google_drive_07c2964))
+                    }
+                    if (cloudComponentAvailable) {
+                        TextButton(enabled = !busy, onClick = onHomeAssistant, modifier = Modifier.fillMaxWidth()) {
+                            Text(stringResource(R.string.ui_home_assistant_c8fd3bb))
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(enabled = !busy, onClick = onDismissSource) {
+                    Text(stringResource(R.string.ui_cancel_77dfd21))
+                }
+            },
+        )
+    }
+    if (showCloud) {
+        AlertDialog(
+            onDismissRequest = { if (!busy) onDismissCloud() },
+            title = { Text(stringResource(R.string.ui_restore_from_cloud_52b6663)) },
+            text = {
+                Column(
+                    modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    cloudFiles.forEach { file ->
+                        TextButton(
+                            enabled = !busy,
+                            onClick = { onCloudFile(file) },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Column(Modifier.fillMaxWidth()) {
+                                Text(file.name)
+                                Text(
+                                    file.modifiedTime.take(19).replace('T', ' '),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = colors.onMuted,
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(enabled = !busy, onClick = onDismissCloud) {
+                    Text(stringResource(R.string.ui_cancel_77dfd21))
+                }
+            },
+        )
+    }
+    if (showHomeAssistant) {
+        AlertDialog(
+            onDismissRequest = { if (!busy) onDismissHomeAssistant() },
+            title = { Text(stringResource(R.string.ui_restore_from_home_assistant_13aec1d)) },
+            text = {
+                Column(
+                    modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    homeAssistantFiles.forEach { meta ->
+                        TextButton(
+                            enabled = !busy,
+                            onClick = { onHomeAssistantFile(meta) },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Column(Modifier.fillMaxWidth()) {
+                                Text(meta.label.ifBlank { meta.created.take(19).replace('T', ' ') })
+                                if (meta.label.isNotBlank()) {
+                                    Text(
+                                        meta.created.take(19).replace('T', ' '),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = colors.onMuted,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(enabled = !busy, onClick = onDismissHomeAssistant) {
+                    Text(stringResource(R.string.ui_cancel_77dfd21))
+                }
+            },
+        )
     }
 }
 

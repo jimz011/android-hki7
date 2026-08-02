@@ -335,6 +335,16 @@
     <string name="cr_quick_make_it_yours_instruction">En mode édition, ajoute et réorganise les pièces, les étages et les widgets. Appuie sur un élément pour le configurer.</string>
 
     <!-- Version actuelle -->
+    <string-array name="cr_whats_new_beta_11">
+        <item>Les tableaux de bord Pièces, Climat, Sécurité, Énergie et Batterie exploitent mieux les tablettes et appareils pliables. Les grandes cartes suivent la disposition à une, deux ou trois colonnes de l’accueil et des pièces, tandis que les tuiles compactes s’ajustent automatiquement sans être à l’étroit.</item>
+        <item>Les icônes colorées selon l’état sur les boutons d’entité et les pastilles d’en-tête ou d’état conservent leur teinte sémantique, tout en devenant automatiquement plus claires ou plus foncées si elles se confondent avec le thème actuel.</item>
+        <item>Choisir un tableau de bord familial pendant la configuration abonne désormais cette installation. Les modifications du propriétaire sont publiées avec Enregistrer ou Terminé, les clients actifs sont actualisés immédiatement et les clients hors ligne se synchronisent à la prochaine ouverture. Les non-administrateurs ne peuvent créer ni dupliquer de tableaux de bord avant une réinitialisation complète de l’application.*</item>
+        <item>La configuration initiale du tableau de bord permet maintenant de restaurer une sauvegarde locale, Google Drive ou Home Assistant. Les nouvelles sauvegardes Google Drive et Home Assistant utilisent des noms cohérents et explicites comprenant la version de l’application et la date de création.*</item>
+        <item>Les widgets de calendrier défilent verticalement lorsque leur hauteur ne suffit pas pour tous les événements, et les widgets masqués de l’accueil sont retirés de la disposition au lieu de laisser un espace vide.</item>
+        <item>Les cartes des transporteurs affichent désormais la première date et heure de livraison prévue pour les envois entrants ou sortants actifs, y compris avec les intégrations qui exposent un capteur séparé de prochaine livraison.</item>
+        <item>* Intégration HKI 7 Cloud Component requise.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_10">
         <item>Les règles de visibilité couvrent tous les widgets et éléments, avec conditions Heure, Entité, Personne et combinaisons ET/OU. Les administrateurs d’un tableau familial partagé peuvent rendre un élément visible ou masqué pour un utilisateur choisi. Les conditions Personne utilisent HKI 7 Cloud et son exigence est signalée si l’intégration manque. Une nouvelle règle commence vide : Heure, Entité ou Personne.</item>
         <item>Les badges de compteur d’état des pièces conservent une largeur stable pour deux chiffres. Les en-têtes s’adaptent à une, deux ou trois colonnes comme les badges d’accueil et de personnes, sans repousser le titre vers le bas.</item>

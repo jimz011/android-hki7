@@ -335,6 +335,16 @@
     <string name="cr_quick_make_it_yours_instruction">In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.</string>
 
     <!-- Current release -->
+    <string-array name="cr_whats_new_beta_11">
+        <item>Rooms, Climate, Security, Energy, and Battery dashboards now make better use of tablets and foldables. Large cards follow the Home and individual-room 1/2/3-column layout, while compact tiles auto-fit without becoming cramped.</item>
+        <item>State-colored icons on entity buttons and header/status pills now preserve their semantic hue while automatically shifting lighter or darker when they would blend into the current theme.</item>
+        <item>Selecting a family dashboard during onboarding now subscribes that installation to it. Owner edits are published when Save or Done is tapped, active clients refresh immediately, and offline clients reconcile when reopened. Non-admin subscribers cannot create or duplicate dashboards unless the app is fully reset.*</item>
+        <item>Dashboard setup during onboarding can now restore a local, Google Drive, or Home Assistant backup. New Google Drive and Home Assistant backups use consistent, informative names containing the app version and creation date.*</item>
+        <item>Calendar widgets become vertically scrollable when their height is too small for every event, and hidden Home widgets are removed from the layout instead of leaving an empty space.</item>
+        <item>Parcel carrier cards now show the earliest expected delivery date and time for active incoming or outgoing shipments, including integrations that expose a separate next-delivery sensor.</item>
+        <item>* HKI 7 Cloud Component integration required.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_10">
         <item>Visibility rules now work across all widgets and individual items, with time, entity, person, and mixed AND/OR conditions. Admins using a family-shared dashboard can choose whether an item is Visible or Hidden for a selected user. Person conditions use HKI 7 Cloud, whose requirement is shown when it is unavailable. New rules start empty so you choose Time, Entity, or Person.</item>
         <item>Room-status counter badges keep a stable two-digit width. Headers responsively fit one, two, or three counters per row like the home-page and person badges, without pushing the title down.</item>

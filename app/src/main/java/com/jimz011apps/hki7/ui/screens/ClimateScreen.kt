@@ -83,6 +83,8 @@ import com.jimz011apps.hki7.ui.components.surfaceGradient
 import com.jimz011apps.hki7.ui.components.LocalItemCornerRadius
 import com.jimz011apps.hki7.ui.components.itemCornerShape
 import com.jimz011apps.hki7.ui.components.localizedClimateModeLabel
+import com.jimz011apps.hki7.ui.components.responsiveDashboardColumnCount
+import com.jimz011apps.hki7.ui.components.responsiveDashboardTileCount
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.contentOrNull
@@ -391,9 +393,11 @@ fun ClimateScreen(viewModel: MainViewModel) {
     }
     // Below this width a half/third device card (especially a dial) is too cramped to read, so
     // every card is forced to full width — one per row.
-    val narrowDeviceCards =
-        with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() } < 360.dp
-    val climateDeviceRows = remember(climateEntities, climateConfig.deviceCardWidths, climateConfig.defaultDeviceCardWidth, climateConfig.defaultDeviceCardStyle, narrowDeviceCards) {
+    val dashboardWidth = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() }
+    val dashboardColumns = responsiveDashboardColumnCount(dashboardWidth)
+    val narrowDeviceCards = dashboardWidth < 360.dp
+    val climateDeviceRowUnits = dashboardColumns * 6
+    val climateDeviceRows = remember(climateEntities, climateConfig.deviceCardWidths, climateConfig.defaultDeviceCardWidth, climateConfig.defaultDeviceCardStyle, narrowDeviceCards, climateDeviceRowUnits) {
         buildList<List<HAEntity>> {
             var row = mutableListOf<HAEntity>()
             var used = 0
@@ -406,14 +410,14 @@ fun ClimateScreen(viewModel: MainViewModel) {
                     "half" -> 3
                     else -> 6
                 }
-                if (row.isNotEmpty() && used + span > 6) {
+                if (row.isNotEmpty() && used + span > climateDeviceRowUnits) {
                     add(row)
                     row = mutableListOf()
                     used = 0
                 }
                 row.add(entity)
                 used += span
-                if (used == 6) {
+                if (used == climateDeviceRowUnits) {
                     add(row)
                     row = mutableListOf()
                     used = 0
@@ -718,9 +722,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
                         }
                     }
                     BoxWithConstraints(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        // Auto-fit: 2 tiles across when there's room for a readable ~160dp tile,
-                        // dropping to 1 on narrow windows so labels never letter-wrap.
-                        val tileColumns = ((maxWidth + 10.dp) / 170.dp).toInt().coerceIn(1, 2)
+                        val tileColumns = responsiveDashboardTileCount(maxWidth)
                         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             tiles.chunked(tileColumns).forEach { rowTiles ->
                                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
@@ -790,7 +792,9 @@ fun ClimateScreen(viewModel: MainViewModel) {
                                     }
                                 }
                             }
-                            if (used < 6) Spacer(Modifier.weight((6 - used).toFloat()))
+                            if (used < climateDeviceRowUnits) {
+                                Spacer(Modifier.weight((climateDeviceRowUnits - used).toFloat()))
+                            }
                         }
                     }
                 }
