@@ -49,6 +49,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -80,6 +81,18 @@ private data class DialogTabSwipeRegistration(
 
 private val LocalDialogTabSwipeRegistrar =
     compositionLocalOf<(DialogTabSwipeRegistration?) -> Unit> { { } }
+
+/** True while a family policy only permits local visual customization. */
+val LocalAestheticsOnlyEditing = compositionLocalOf { false }
+
+private val aestheticSettingsTabs = setOf(
+    "appearance",
+    "layout",
+    "identity",
+    "style",
+    "display",
+    "chart",
+)
 
 /** Onboarding-inspired heading used by full settings surfaces. */
 @Composable
@@ -275,9 +288,20 @@ fun SettingsTabRow(
     onSelect: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val tabKeys = tabs.map { it.first }
+    val aestheticsOnly = LocalAestheticsOnlyEditing.current
+    val visibleTabs = if (aestheticsOnly) {
+        tabs.filter { it.first in aestheticSettingsTabs }
+    } else {
+        tabs
+    }
+    val tabKeys = visibleTabs.map { it.first }
     val registerForDialogSwipe = LocalDialogTabSwipeRegistrar.current
     val latestOnSelect by rememberUpdatedState(onSelect)
+    LaunchedEffect(aestheticsOnly, tabKeys, selected) {
+        if (aestheticsOnly && selected !in tabKeys) {
+            tabKeys.firstOrNull()?.let(onSelect)
+        }
+    }
     DisposableEffect(registerForDialogSwipe, tabKeys, selected) {
         registerForDialogSwipe(
             DialogTabSwipeRegistration(tabKeys, selected) { latestOnSelect(it) }
@@ -298,7 +322,7 @@ fun SettingsTabRow(
             ),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        tabs.forEach { (key, label) ->
+        visibleTabs.forEach { (key, label) ->
             SettingsChoiceChip(
                 selected = selected == key,
                 onClick = { onSelect(key) },

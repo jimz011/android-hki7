@@ -933,6 +933,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     val allowDashboardCreate: StateFlow<Boolean> = prefs.enforcedAllowDashboardCreate.stateIn(
         viewModelScope, SharingStarted.Eagerly, true
     )
+    val allowReimport: StateFlow<Boolean> = prefs.enforcedAllowReimport.stateIn(
+        viewModelScope, SharingStarted.Eagerly, true
+    )
 
     private val _people = MutableStateFlow<List<HAEntity>>(emptyList())
     val people: StateFlow<List<HAEntity>> = _people
@@ -2491,20 +2494,36 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun saveWeatherEntity(entityId: String) {
+        if (_aestheticsOnlyEditing.value) return
         viewModelScope.launch {
             prefs.saveWeatherEntity(entityId)
             refreshEntities(isSilent = true)
         }
     }
 
-    fun setWeatherDisplayType(type: String) { viewModelScope.launch { prefs.saveWeatherDisplayType(type) } }
-    fun setHeaderLeftDisplayType(type: String) { viewModelScope.launch { prefs.saveHeaderLeftDisplayType(type) } }
+    fun setWeatherDisplayType(type: String) {
+        if (_aestheticsOnlyEditing.value) return
+        viewModelScope.launch { prefs.saveWeatherDisplayType(type) }
+    }
+    fun setHeaderLeftDisplayType(type: String) {
+        if (_aestheticsOnlyEditing.value) return
+        viewModelScope.launch { prefs.saveHeaderLeftDisplayType(type) }
+    }
     fun setUse24hFormat(use24h: Boolean) { viewModelScope.launch { prefs.saveUse24hFormat(use24h) } }
     fun setUseFullDayName(useFullDayName: Boolean) { viewModelScope.launch { prefs.saveUseFullDayName(useFullDayName) } }
-    fun setWeatherExtraEntity(role: String, entityId: String?) { viewModelScope.launch { prefs.saveWeatherExtraEntity(role, entityId) } }
+    fun setWeatherExtraEntity(role: String, entityId: String?) {
+        if (_aestheticsOnlyEditing.value) return
+        viewModelScope.launch { prefs.saveWeatherExtraEntity(role, entityId) }
+    }
     fun setWeatherCardWidth(card: String, width: String) { viewModelScope.launch { prefs.saveWeatherCardWidth(card, width) } }
-    fun setHeaderAlarmEntities(entityIds: List<String>) { viewModelScope.launch { prefs.saveHeaderAlarmEntities(entityIds) } }
-    fun setHeaderLeftAlarmEntities(entityIds: List<String>) { viewModelScope.launch { prefs.saveHeaderLeftAlarmEntities(entityIds) } }
+    fun setHeaderAlarmEntities(entityIds: List<String>) {
+        if (_aestheticsOnlyEditing.value) return
+        viewModelScope.launch { prefs.saveHeaderAlarmEntities(entityIds) }
+    }
+    fun setHeaderLeftAlarmEntities(entityIds: List<String>) {
+        if (_aestheticsOnlyEditing.value) return
+        viewModelScope.launch { prefs.saveHeaderLeftAlarmEntities(entityIds) }
+    }
     fun setAlarmPendingSeconds(seconds: Int) { viewModelScope.launch { prefs.saveAlarmPendingSeconds(seconds) } }
 
     fun toggleLock(entityId: String) {
@@ -3846,7 +3865,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     fun setDefaultDashboard(id: String) { viewModelScope.launch { prefs.setDefaultDashboard(id) } }
 
     fun reimportRooms(fromScratch: Boolean) {
-        if (_aestheticsOnlyEditing.value) return
+        if (_aestheticsOnlyEditing.value || !allowReimport.value) return
         viewModelScope.launch {
             val currentClient = client ?: return@launch
             try {
@@ -3902,6 +3921,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun clearRoomImports() {
+        if (_aestheticsOnlyEditing.value || !allowReimport.value) return
         _areas.value = emptyList()
         _floors.value = emptyList()
         _areaWidgetsMapping.value = emptyMap()
@@ -3916,7 +3936,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun reimportClimate(fromScratch: Boolean) {
-        if (_aestheticsOnlyEditing.value) return
+        if (_aestheticsOnlyEditing.value || !allowReimport.value) return
         val current = _pageConfigsMapping.value["climate"] ?: HKIPageConfig()
         val old = if (fromScratch) HKIClimateConfig() else current.climateConfig ?: HKIClimateConfig()
         val all = _entities.value
@@ -3941,12 +3961,13 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun clearClimateImports() {
+        if (_aestheticsOnlyEditing.value || !allowReimport.value) return
         val current = _pageConfigsMapping.value["climate"] ?: HKIPageConfig()
         updatePageConfig("climate", current.copy(climateConfig = HKIClimateConfig(manualOnly = true)))
     }
 
     fun reimportSecurity(fromScratch: Boolean) {
-        if (_aestheticsOnlyEditing.value) return
+        if (_aestheticsOnlyEditing.value || !allowReimport.value) return
         val current = _pageConfigsMapping.value["security"] ?: HKIPageConfig()
         val old = if (fromScratch) HKISecurityConfig() else current.securityConfig ?: HKISecurityConfig()
         val keys = AUTO_SECURITY_GROUP_KEYS
@@ -3959,12 +3980,13 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun clearSecurityImports() {
+        if (_aestheticsOnlyEditing.value || !allowReimport.value) return
         val current = _pageConfigsMapping.value["security"] ?: HKIPageConfig()
         updatePageConfig("security", current.copy(securityConfig = HKISecurityConfig(manualOnly = true)))
     }
 
     fun reimportEnergy(fromScratch: Boolean) {
-        if (_aestheticsOnlyEditing.value) return
+        if (_aestheticsOnlyEditing.value || !allowReimport.value) return
         val current = _pageConfigsMapping.value["energy"] ?: HKIPageConfig()
         val retained = if (fromScratch) HKIEnergyConfig() else (current.energyConfig ?: HKIEnergyConfig()).copy(manualOnly = false)
         updatePageConfig("energy", current.copy(energyConfig = retained))
@@ -3972,12 +3994,13 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun clearEnergyImports() {
+        if (_aestheticsOnlyEditing.value || !allowReimport.value) return
         val current = _pageConfigsMapping.value["energy"] ?: HKIPageConfig()
         updatePageConfig("energy", current.copy(energyConfig = HKIEnergyConfig(manualOnly = true)))
     }
 
     fun reimportBattery(fromScratch: Boolean) {
-        if (_aestheticsOnlyEditing.value) return
+        if (_aestheticsOnlyEditing.value || !allowReimport.value) return
         val current = _pageConfigsMapping.value["battery"] ?: HKIPageConfig()
         val old = if (fromScratch) HKIBatteryConfig() else current.batteryConfig ?: HKIBatteryConfig()
         val imported = _entities.value.filter { it.isBatteryPercentageSensor() }.map { it.entity_id }
@@ -3988,6 +4011,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun clearBatteryImports() {
+        if (_aestheticsOnlyEditing.value || !allowReimport.value) return
         val current = _pageConfigsMapping.value["battery"] ?: HKIPageConfig()
         updatePageConfig("battery", current.copy(batteryConfig = HKIBatteryConfig(manualOnly = true)))
     }
@@ -4074,18 +4098,21 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun updateWidget(areaId: String, updatedWidget: HKIRoomWidget) {
-        // Aesthetics-only users may retune visuals but not change structure. Block updates that add
-        // or remove buttons in a stack or children in a container; membership is compared as a set so
-        // reordering (a layout tweak) is still permitted.
-        if (_aestheticsOnlyEditing.value && isStructuralWidgetChange(areaId, updatedWidget)) return
+        val existingWidget = _areaWidgetsMapping.value[areaId]?.firstOrNull { it.id == updatedWidget.id }
+        if (_aestheticsOnlyEditing.value && existingWidget == null) return
+        // Treat the stored widget as authoritative for entities, actions, visibility and behavior.
+        // Only the proposed widget's visual fields are layered over it in aesthetics-only mode.
+        val safeWidget = if (_aestheticsOnlyEditing.value) {
+            mergeWidgetAesthetics(existingWidget!!, updatedWidget)
+        } else updatedWidget
         takeSnapshot()
         bumpWidgetUi()
         ignoreWidgetPrefsUntil = SystemClock.elapsedRealtime() + 2500
         val currentMapping = _areaWidgetsMapping.value.toMutableMap()
         val currentList = currentMapping[areaId]?.toMutableList() ?: return
-        val index = currentList.indexOfFirst { it.id == updatedWidget.id }
+        val index = currentList.indexOfFirst { it.id == safeWidget.id }
         if (index != -1) {
-            currentList[index] = updatedWidget
+            currentList[index] = safeWidget
             currentMapping[areaId] = currentList
             _areaWidgetsMapping.value = currentMapping
             viewModelScope.launch { prefs.saveAreaWidgets(currentMapping) }
@@ -4137,19 +4164,25 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     fun updateAreaConfig(areaId: String, config: HKIAreaConfig) {
+        val safeConfig = if (_aestheticsOnlyEditing.value) {
+            mergeAreaConfigAesthetics(_areaConfigsMapping.value[areaId] ?: HKIAreaConfig(), config)
+        } else config
         takeSnapshot()
         _uiRevision.value += 1
         ignoreConfigPrefsUntil = SystemClock.elapsedRealtime() + 2500
         val currentMapping = _areaConfigsMapping.value.toMutableMap()
-        currentMapping[areaId] = config
+        currentMapping[areaId] = safeConfig
         _areaConfigsMapping.value = currentMapping
         viewModelScope.launch { prefs.saveAreaConfigs(currentMapping) }
     }
 
     fun updatePageConfig(pageKey: String, config: HKIPageConfig) {
+        val safeConfig = if (_aestheticsOnlyEditing.value) {
+            mergePageConfigAesthetics(_pageConfigsMapping.value[pageKey] ?: HKIPageConfig(), config)
+        } else config
         takeSnapshot()
         val updated = _pageConfigsMapping.value.toMutableMap()
-        updated[pageKey] = config
+        updated[pageKey] = safeConfig
         _pageConfigsMapping.value = updated
         viewModelScope.launch { prefs.savePageConfigs(updated) }
     }

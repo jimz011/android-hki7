@@ -337,6 +337,10 @@
         <item>Kalender-Widgets lassen sich vertikal scrollen, wenn ihre Höhe nicht für alle Termine reicht, und ausgeblendete Startseiten-Widgets werden aus dem Layout entfernt, statt leeren Platz zu belegen.</item>
         <item>Karten von Paketdiensten zeigen jetzt das früheste erwartete Zustelldatum mit Uhrzeit für aktive ein- oder ausgehende Sendungen, auch bei Integrationen mit separatem Sensor für die nächste Zustellung.</item>
         <item>Familienberechtigungen können Dashboard-Wechsel und -Erstellung jetzt unabhängig erlauben. Vollständig eingeschränkte Abonnenten sehen einen gesperrten Dashboard-Bereich; die Einrichtung entfernt das Platzhalter-Dashboard, wenn Wechsel nicht erlaubt sind, und ein gelöschtes Familien-Dashboard öffnet eine berechtigungsgesteuerte Wiederherstellung statt still einen Ersatz zu erstellen.*</item>
+        <item>Familienberechtigungen steuern jetzt auch den manuellen Neuimport. Nicht-Administratoren können die Familienfreigabe nicht öffnen, deaktivierte Einrichtungsoptionen erklären ihre Sperre und rein visuelle Bearbeiter sehen ausschließlich Darstellungsoptionen. Ihre lokalen Namen, Symbole, Farben, Hintergründe, Stile, Größen und Layouts haben Vorrang, wenn Aktualisierungen des Eigentümers eintreffen.*</item>
+        <item>Klima-Sensor- und Gerätetabs, Sicherheitsgruppen und alle Energie-Detailtabs folgen jetzt denselben responsiven Masonry-Regeln mit einer, zwei oder drei Spalten, auch beim Bearbeiten und Sortieren.</item>
+        <item>Familienbearbeiter mit ausschließlich visuellen Rechten können weder die Konfiguration der Kopfzeilenfelder noch die Personen des Dashboards ändern; diese funktionalen Einstellungen bleiben beim Eigentümer.*</item>
+        <item>Die Kindersicherung ersetzt die manuelle Eingabe von Entitäts-IDs durch Listen für Sichtbar und Unsichtbar. Administratoren können ganze Home-Assistant-Domänen oder einzelne Entitäten wählen; die globale Suche blendet eingeschränkte Entitäten und Geräte aus. Unsichtbar hat immer Vorrang.*</item>
         <item>* HKI-7-Cloud-Component-Integration erforderlich.</item>
     </string-array>
 

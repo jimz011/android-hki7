@@ -148,4 +148,10 @@
     <string name="family_dashboard_tab_locked">Aile izinleriyle kilitlendi</string>
     <string name="family_dashboard_access_lost_title">Aile erişimi kaldırıldı</string>
     <string name="family_dashboard_access_lost_message">Bu aile panosu üzerinden HKI 7 erişimin artık yok. Seninle paylaşılan başka bir panoyu veya aile izinlerinin tanıdığı başka bir seçeneği seç.</string>
+    <string name="family_permission_reimport">Yeniden içe aktarmaya izin ver</string>
+    <string name="family_permission_reimport_subtitle">Bu kişinin Odalar, İklim, Güvenlik, Enerji ve Pil verilerini elle yeniden içe aktarmasına veya temizlemesine izin ver</string>
+    <string name="family_dashboard_create_disabled_reason">Aile yöneticiniz pano oluşturmayı devre dışı bıraktı. Bu hesap yalnızca paylaşılan aile panolarını kullanabilir.</string>
+    <string name="family_dashboard_restore_disabled_reason">Aile yöneticiniz pano değiştirmeyi devre dışı bıraktı. Bir yedeği geri yüklemek aile panosunun yerini alabileceğinden bu hesap yalnızca paylaşılan bir pano seçebilir.</string>
+    <string name="family_settings_admin_only">Kilitli — aile paylaşımını yalnızca bir Home Assistant yöneticisi yönetebilir</string>
+    <string name="family_aesthetics_only_explanation">Yalnızca estetik erişim; yerel adlar, simgeler, renkler, arka planlar, kart stilleri, şekiller, boyutlar ve düzenlere izin verir. Varlıklar, eylemler, görünürlük kuralları, içerik, kontroller ve diğer davranışlar pano sahibinin yönetiminde kalır.</string>
 </resources>

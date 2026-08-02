@@ -1,0 +1,12 @@
+<resources>
+    <string name="parental_search_access_title">エンティティ検索へのアクセス</string>
+    <string name="parental_search_access_hint">このユーザーがグローバル検索で見つけられる Home Assistant のドメインまたは個別のエンティティを選択します。非表示の選択が常に優先されます。</string>
+    <string name="parental_search_visible_title">表示</string>
+    <string name="parental_search_invisible_title">非表示</string>
+    <string name="parental_search_visible_empty">非表示リストに含まれないすべてのエンティティが表示されます。</string>
+    <string name="parental_search_invisible_empty">明示的に非表示のエンティティはありません。</string>
+    <string name="parental_search_picker_subtitle">ドメイン全体または個別のエンティティを選択</string>
+    <string name="parental_search_domains">ドメイン</string>
+    <string name="parental_search_entire_domain">ドメイン全体</string>
+    <string name="parental_search_domain_chip">ドメイン: %1$s</string>
+</resources>

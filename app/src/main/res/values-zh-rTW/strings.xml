@@ -1876,6 +1876,10 @@
         <item>當行事曆小工具高度不足以顯示所有事件時，現在可以垂直捲動；隱藏的首頁小工具會從配置中移除，不再占用空白空間。</item>
         <item>物流業者卡片現在會顯示進行中收件或寄件的最早預計送達日期與時間，也支援提供獨立「下次送達」感測器的整合。</item>
         <item>家庭權限現在可以分別控制是否允許切換與建立儀表板。兩項都受限的訂閱者會看到鎖定的儀表板設定；禁止切換時，初始設定會移除暫用儀表板，而家庭儀表板遭刪除後會開啟符合權限的復原畫面，不再靜默建立替代儀表板。*</item>
+        <item>家庭權限現在也可控制手動重新匯入。非管理員無法開啟家庭共享設定；初始設定中停用的選項會說明原因；僅限外觀編輯的使用者只會看到視覺設定。擁有者更新到達時，使用者的本機名稱、圖示、顏色、背景、樣式、尺寸和版面配置仍優先保留。*</item>
+        <item>空調感測器／裝置分頁、安全群組及所有能源詳細分頁現在都遵循相同的一至三欄響應式瀑布流規則，編輯與重新排序版面也同樣適用。</item>
+        <item>僅限外觀編輯的家庭使用者無法再變更標題列膠囊設定或儀表板中的人員；這些功能設定仍由擁有者控制。*</item>
+        <item>家長監護現在以「可見」和「不可見」清單取代手動輸入實體 ID。管理員可選擇完整的 Home Assistant 網域或個別實體；全域搜尋會隱藏受限實體與裝置。「不可見」一律優先。*</item>
         <item>* 需要 HKI 7 Cloud Component 整合。</item>
     </string-array>
 
@@ -3350,4 +3354,10 @@
     <string name="family_dashboard_tab_locked">已被家庭權限鎖定</string>
     <string name="family_dashboard_access_lost_title">家庭存取權限已移除</string>
     <string name="family_dashboard_access_lost_message">你已無法透過此家庭儀表板存取 HKI 7。請選擇另一個與你共享的儀表板，或選擇家庭權限允許的其他選項。</string>
+    <string name="family_permission_reimport">允許重新匯入</string>
+    <string name="family_permission_reimport_subtitle">允許此使用者手動重新匯入或清除房間、氣候、安全、能源和電池資料</string>
+    <string name="family_dashboard_create_disabled_reason">家庭管理員已停用建立儀表板。此帳戶只能使用家庭共享儀表板。</string>
+    <string name="family_dashboard_restore_disabled_reason">家庭管理員已停用切換儀表板。還原備份可能會取代家庭儀表板，因此此帳戶只能選擇共享儀表板。</string>
+    <string name="family_settings_admin_only">已鎖定 — 只有 Home Assistant 管理員可以管理家庭共享</string>
+    <string name="family_aesthetics_only_explanation">僅外觀權限允許修改本機名稱、圖示、顏色、背景、卡片樣式、形狀、尺寸與版面配置。實體、動作、可見性規則、內容、控制項及其他行為仍由儀表板擁有者管理。</string>
 </resources>

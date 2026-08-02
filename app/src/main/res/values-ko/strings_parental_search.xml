@@ -1,0 +1,12 @@
+<resources>
+    <string name="parental_search_access_title">엔티티 검색 접근</string>
+    <string name="parental_search_access_hint">이 사용자가 전체 검색에서 찾을 수 있는 Home Assistant 도메인 또는 개별 엔티티를 선택하세요. 숨김 선택이 항상 우선합니다.</string>
+    <string name="parental_search_visible_title">표시</string>
+    <string name="parental_search_invisible_title">숨김</string>
+    <string name="parental_search_visible_empty">숨김 목록에 없는 모든 엔티티가 표시됩니다.</string>
+    <string name="parental_search_invisible_empty">명시적으로 숨긴 엔티티가 없습니다.</string>
+    <string name="parental_search_picker_subtitle">전체 도메인 또는 개별 엔티티 선택</string>
+    <string name="parental_search_domains">도메인</string>
+    <string name="parental_search_entire_domain">전체 도메인</string>
+    <string name="parental_search_domain_chip">도메인: %1$s</string>
+</resources>

@@ -122,6 +122,7 @@ fun HKIBadgeBar(
     // When an admin restricts a user to aesthetic-only editing, adding/removing badges is a structural
     // change and stays locked — only visual tweaks to existing badges are allowed.
     val aestheticsOnly by viewModel.aestheticsOnlyEditing.collectAsState()
+    val badgeEditMode = isEditMode && !aestheticsOnly
     val alignment = config.alignment
     val dependencyIds = remember(badges) {
         buildSet {
@@ -142,15 +143,15 @@ fun HKIBadgeBar(
     // The always-visible badge bar only observes entities it renders. Entity pickers obtain their
     // own full snapshot when opened, so edit mode does not need to invalidate every badge for every
     // Home Assistant state change.
-    val entityFlow = remember(viewModel, dependencyIds, isEditMode) {
-        if (isEditMode) viewModel.entitySnapshotFor(dependencyIds) else viewModel.entitiesFor(dependencyIds)
+    val entityFlow = remember(viewModel, dependencyIds, badgeEditMode) {
+        if (badgeEditMode) viewModel.entitySnapshotFor(dependencyIds) else viewModel.entitiesFor(dependencyIds)
     }
     val allEntities by entityFlow.collectAsState()
     val badgeEntityById = remember(allEntities) { allEntities.associateBy { it.entity_id } }
     val parentalHiddenItemIds by viewModel.prefs.parentalHiddenItemIds.collectAsState(initial = emptyList())
     // Hidden/scheduled/conditional/per-user-hidden badges are dropped outside edit mode; edit mode
     // keeps them so they can be restored.
-    val renderBadges = if (isEditMode) badges else badges.filter {
+    val renderBadges = if (badgeEditMode) badges else badges.filter {
         it.id !in parentalHiddenItemIds && com.jimz011apps.hki7.data.isBadgeVisibleNow(
             it,
             resolveEntityState = { id -> badgeEntityById[id]?.state }
@@ -209,7 +210,7 @@ fun HKIBadgeBar(
     fun handleHold(badge: HKIBadge) = dispatchBadge(badge, "hold")
 
     // ── nothing to show ───────────────────────────────────────────────────────
-    if (!config.visible || (!isEditMode && renderBadges.isEmpty())) return
+    if (!config.visible || (!badgeEditMode && renderBadges.isEmpty())) return
 
     // ── layout ────────────────────────────────────────────────────────────────
     Row(
@@ -219,7 +220,7 @@ fun HKIBadgeBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         when {
-            badges.isEmpty() && isEditMode -> {
+            badges.isEmpty() && badgeEditMode -> {
                 // Empty bar in edit mode: + Add pill + × Remove (if config exists)
                 if (!aestheticsOnly) AddBadgePill { addBadge(if (alignment == "split") "left" else "right") }
             }
@@ -228,7 +229,7 @@ fun HKIBadgeBar(
                 val leftBadges  = renderBadges.filter { it.side == "left" }
                 val rightBadges = renderBadges.filter { it.side == "right" }
 
-                if (isEditMode) {
+                if (badgeEditMode) {
                     BoxWithConstraints(modifier = Modifier.weight(1f)) {
                         val gap = 56.dp
                         val laneWidth = (maxWidth - gap) / 2
@@ -317,11 +318,11 @@ fun HKIBadgeBar(
                         BadgeDraggableRow(
                             badges = leftBadges,
                             allEntities = allEntities,
-                            isEditMode = isEditMode,
+                            isEditMode = badgeEditMode,
                             currentUrl = currentUrl,
                             modifier = Modifier.horizontalScroll(rememberScrollState()),
                             onTap    = { b -> handleTap(b) },
-                            onHold   = { b -> if (isEditMode) editingBadge = b else handleHold(b) },
+                            onHold   = { b -> if (badgeEditMode) editingBadge = b else handleHold(b) },
                             onRemove = { b -> saveBadges(badges.filter { it.id != b.id }) },
                             onNewOrder = { ordered -> saveBadges(ordered + rightBadges) }
                         )
@@ -334,11 +335,11 @@ fun HKIBadgeBar(
                         BadgeDraggableRow(
                             badges = rightBadges,
                             allEntities = allEntities,
-                            isEditMode = isEditMode,
+                            isEditMode = badgeEditMode,
                             currentUrl = currentUrl,
                             modifier = Modifier.horizontalScroll(rememberScrollState()),
                             onTap    = { b -> handleTap(b) },
-                            onHold   = { b -> if (isEditMode) editingBadge = b else handleHold(b) },
+                            onHold   = { b -> if (badgeEditMode) editingBadge = b else handleHold(b) },
                             onRemove = { b -> saveBadges(badges.filter { it.id != b.id }) },
                             onNewOrder = { ordered -> saveBadges(leftBadges + ordered) }
                         )
@@ -363,16 +364,16 @@ fun HKIBadgeBar(
                     BadgeDraggableRow(
                         badges = renderBadges,
                         allEntities = allEntities,
-                        isEditMode = isEditMode,
+                        isEditMode = badgeEditMode,
                         currentUrl = currentUrl,
                         modifier = if (config.spanIcons) Modifier.weight(1f) else Modifier,
                         arrangement = if (config.spanIcons) Arrangement.SpaceEvenly else Arrangement.spacedBy(8.dp),
                         onTap    = { b -> handleTap(b) },
-                        onHold   = { b -> if (isEditMode) editingBadge = b else handleHold(b) },
+                        onHold   = { b -> if (badgeEditMode) editingBadge = b else handleHold(b) },
                         onRemove = { b -> saveBadges(badges.filter { it.id != b.id }) },
                         onNewOrder = { ordered -> saveBadges(ordered) }
                     )
-                    if (isEditMode) {
+                    if (badgeEditMode) {
                         Spacer(Modifier.width(8.dp))
                         if (!aestheticsOnly) AddBadgePill { addBadge("right") }
                     }
@@ -398,7 +399,7 @@ fun HKIBadgeBar(
     }
 
     // ── per-badge settings ────────────────────────────────────────────────────
-    editingBadge?.let { badge ->
+    if (!aestheticsOnly) editingBadge?.let { badge ->
         BadgeSettingsDialog(
             badge = badge,
             allEntities = entityCatalog,

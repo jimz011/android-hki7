@@ -1,0 +1,12 @@
+<resources>
+    <string name="parental_search_access_title">Varlık arama erişimi</string>
+    <string name="parental_search_access_hint">Bu kişinin genel aramada bulabileceği Home Assistant alanlarını veya tek tek varlıkları seçin. Görünmez seçimler her zaman önceliklidir.</string>
+    <string name="parental_search_visible_title">Görünür</string>
+    <string name="parental_search_invisible_title">Görünmez</string>
+    <string name="parental_search_visible_empty">Görünmez listesinde bulunmayan tüm varlıklar görünürdür.</string>
+    <string name="parental_search_invisible_empty">Açıkça gizlenmiş varlık yok.</string>
+    <string name="parental_search_picker_subtitle">Tüm alanları veya tek tek varlıkları seçin</string>
+    <string name="parental_search_domains">Alanlar</string>
+    <string name="parental_search_entire_domain">Tüm alan</string>
+    <string name="parental_search_domain_chip">Alan: %1$s</string>
+</resources>

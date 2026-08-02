@@ -1,0 +1,12 @@
+<resources>
+    <string name="parental_search_access_title">實體搜尋權限</string>
+    <string name="parental_search_access_hint">選擇此使用者可在全域搜尋中找到的 Home Assistant 網域或個別實體。不可見選項一律優先。</string>
+    <string name="parental_search_visible_title">可見</string>
+    <string name="parental_search_invisible_title">不可見</string>
+    <string name="parental_search_visible_empty">除了「不可見」清單中的實體外，所有實體皆可見。</string>
+    <string name="parental_search_invisible_empty">沒有明確隱藏的實體。</string>
+    <string name="parental_search_picker_subtitle">選擇整個網域或個別實體</string>
+    <string name="parental_search_domains">網域</string>
+    <string name="parental_search_entire_domain">整個網域</string>
+    <string name="parental_search_domain_chip">網域：%1$s</string>
+</resources>

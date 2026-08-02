@@ -124,6 +124,7 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
     val isEditMode by viewModel.isEditMode.collectAsState()
     // Aesthetics-only recipients (Family Sharing) can't add or remove rooms/floors.
     val aestheticsOnly by viewModel.aestheticsOnlyEditing.collectAsState()
+    val allowReimport by viewModel.allowReimport.collectAsState()
     val currentUrl by viewModel.currentUrl.collectAsState()
     val entities by viewModel.entities.collectAsState()
     // Tapping a room-status counter lists exactly the entities it counts (the currently-active ones)
@@ -208,7 +209,7 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
         showPeople = false,
         pageKey = "rooms",
         pageSettingsTitle = stringResource(R.string.rooms_settings_title),
-        extraPageSettingsSection = roomsImportSettings,
+        extraPageSettingsSection = roomsImportSettings.takeIf { !aestheticsOnly && allowReimport },
         headerTrailingContent = if (wholeHomeSummary.indicators.isNotEmpty()) {
             { _ ->
                 RoomStatusIndicators(

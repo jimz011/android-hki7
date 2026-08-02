@@ -207,6 +207,7 @@ class MainActivity : ComponentActivity() {
                 })
 
                 val forcedLogoutReason by viewModel.forcedLogoutReason.collectAsState()
+                val aestheticsOnlyEditing by viewModel.aestheticsOnlyEditing.collectAsState()
                 LaunchedEffect(forcedLogoutReason) {
                     val reason = forcedLogoutReason
                     if (reason != null) {
@@ -309,6 +310,7 @@ class MainActivity : ComponentActivity() {
                         CompositionLocalProvider(
                             LocalEntityCatalogProvider provides { viewModel.entities.value },
                             LocalVisibilityFamilyContext provides visibilityFamilyContext,
+                            com.jimz011apps.hki7.ui.components.LocalAestheticsOnlyEditing provides aestheticsOnlyEditing,
                         ) {
                             MainApp(prefs, viewModel)
                         }

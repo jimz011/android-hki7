@@ -241,12 +241,17 @@ class PreferencesManager(
     private val parentalHiddenViewsKey = stringPreferencesKey("parental_hidden_views")
     private val parentalHiddenRoomsKey = stringPreferencesKey("parental_hidden_rooms")
     private val parentalHiddenItemIdsKey = stringPreferencesKey("parental_hidden_item_ids")
+    private val parentalVisibleSearchDomainsKey = stringPreferencesKey("parental_visible_search_domains")
+    private val parentalVisibleSearchEntityIdsKey = stringPreferencesKey("parental_visible_search_entity_ids")
+    private val parentalHiddenSearchDomainsKey = stringPreferencesKey("parental_hidden_search_domains")
+    private val parentalHiddenSearchEntityIdsKey = stringPreferencesKey("parental_hidden_search_entity_ids")
     private val parentalAllowEditKey = booleanPreferencesKey("parental_allow_edit")
     private val parentalAestheticsOnlyKey = booleanPreferencesKey("parental_aesthetics_only")
     private val parentalShowSearchKey = booleanPreferencesKey("parental_show_search")
     private val parentalShowFlowsKey = booleanPreferencesKey("parental_show_flows")
     private val parentalAllowDashboardSwitchKey = booleanPreferencesKey("parental_allow_dashboard_switch")
     private val parentalAllowDashboardCreateKey = booleanPreferencesKey("parental_allow_dashboard_create")
+    private val parentalAllowReimportKey = booleanPreferencesKey("parental_allow_reimport")
     private val lastSeenVersionCodeKey = intPreferencesKey("last_seen_version_code")
     private val homeAssistantInstancesKey = stringPreferencesKey("home_assistant_instances_v1")
     private val activeHomeAssistantInstanceIdKey = stringPreferencesKey("active_home_assistant_instance_id")
@@ -315,6 +320,18 @@ class PreferencesManager(
     val parentalHiddenItemIds: Flow<List<String>> = context.dataStore.data.map {
         it[parentalHiddenItemIdsKey]?.split(",")?.filter { r -> r.isNotBlank() } ?: emptyList()
     }
+    val parentalVisibleSearchDomains: Flow<List<String>> = context.dataStore.data.map {
+        it[parentalVisibleSearchDomainsKey]?.split(",")?.filter(String::isNotBlank) ?: emptyList()
+    }
+    val parentalVisibleSearchEntityIds: Flow<List<String>> = context.dataStore.data.map {
+        it[parentalVisibleSearchEntityIdsKey]?.split(",")?.filter(String::isNotBlank) ?: emptyList()
+    }
+    val parentalHiddenSearchDomains: Flow<List<String>> = context.dataStore.data.map {
+        it[parentalHiddenSearchDomainsKey]?.split(",")?.filter(String::isNotBlank) ?: emptyList()
+    }
+    val parentalHiddenSearchEntityIds: Flow<List<String>> = context.dataStore.data.map {
+        it[parentalHiddenSearchEntityIdsKey]?.split(",")?.filter(String::isNotBlank) ?: emptyList()
+    }
     /** Whether the current user may enter dashboard edit mode (admin policy; default allowed). */
     val enforcedAllowEdit: Flow<Boolean> = context.dataStore.data.map { it[parentalAllowEditKey] ?: true }
     /** Whether the current user is restricted to aesthetic-only edits (admin policy). */
@@ -329,6 +346,9 @@ class PreferencesManager(
     val enforcedAllowDashboardCreate: Flow<Boolean> = context.dataStore.data.map {
         it[parentalAllowDashboardCreateKey] ?: true
     }
+    val enforcedAllowReimport: Flow<Boolean> = context.dataStore.data.map {
+        it[parentalAllowReimportKey] ?: true
+    }
 
     /** Caches the enforced policy for the signed-in user (reset to defaults for admins/owners). */
     suspend fun saveEnforcedPolicy(policy: Hki7Policy) {
@@ -336,12 +356,17 @@ class PreferencesManager(
             it[parentalHiddenViewsKey] = policy.hiddenViews.joinToString(",")
             it[parentalHiddenRoomsKey] = policy.hiddenRooms.joinToString(",")
             it[parentalHiddenItemIdsKey] = policy.hiddenItemIds.joinToString(",")
+            it[parentalVisibleSearchDomainsKey] = policy.visibleSearchDomains.joinToString(",")
+            it[parentalVisibleSearchEntityIdsKey] = policy.visibleSearchEntityIds.joinToString(",")
+            it[parentalHiddenSearchDomainsKey] = policy.hiddenSearchDomains.joinToString(",")
+            it[parentalHiddenSearchEntityIdsKey] = policy.hiddenSearchEntityIds.joinToString(",")
             it[parentalAllowEditKey] = policy.allowEdit
             it[parentalAestheticsOnlyKey] = policy.aestheticsOnly
             it[parentalShowSearchKey] = policy.showGlobalSearch
             it[parentalShowFlowsKey] = policy.showFlows
             it[parentalAllowDashboardSwitchKey] = policy.allowDashboardSwitch
             it[parentalAllowDashboardCreateKey] = policy.allowDashboardCreate
+            it[parentalAllowReimportKey] = policy.allowReimport
         }
     }
 

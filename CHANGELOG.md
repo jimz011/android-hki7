@@ -8,12 +8,16 @@ Items marked with \* require the HKI 7 Cloud Component integration.
 ## 1.0.0-beta.11
 
 - Rooms, Climate, Security, Energy, and Battery dashboards now make better use of tablets and foldables. Large cards follow the Home and individual-room 1/2/3-column layout, while compact tiles auto-fit without becoming cramped. Climate, Security, and Energy cards use a height-aware masonry layout on wider displays so shorter cards no longer leave large empty gaps.
+- Climate sensor/device tabs, Security groups, and every Energy detail tab now follow the same responsive one-, two-, or three-column masonry rules, including their edit and reorder layouts.
 - State-colored icons on entity buttons and header/status pills now preserve their semantic hue while automatically shifting lighter or darker when they would blend into the current theme.
 - Selecting a family dashboard during onboarding now subscribes that installation to it. Owner edits are published when Save or Done is tapped, active clients refresh immediately, and offline clients reconcile when reopened. Non-admin subscribers cannot create or duplicate dashboards unless the app is fully reset.\*
 - Dashboard setup during onboarding can now restore a local, Google Drive, or Home Assistant backup. New Google Drive and Home Assistant backups use consistent, informative names containing the app version and creation date.\*
 - Calendar widgets become vertically scrollable when their height is too small for every event, and hidden Home widgets are removed from the layout instead of leaving an empty space.
 - Parcel carrier cards now show the earliest expected delivery date and time for active incoming or outgoing shipments, including integrations that expose a separate next-delivery sensor.
 - Family permissions can now independently allow dashboard switching and creation. Fully restricted subscribers see a locked Dashboard settings tab; onboarding removes its placeholder dashboard when switching is denied, and a deleted family dashboard opens a permission-aware recovery screen instead of silently creating a replacement.\*
+- Family permissions now also control manual re-importing. Non-admins cannot open Family Sharing settings, disabled onboarding choices explain why they are unavailable, and aesthetics-only editors see only visual controls. Their local names, icons, colors, backgrounds, styles, sizes, and layouts take priority when owner updates arrive.\*
+- Aesthetics-only family editors can no longer change header-pill configuration or the dashboard's people; those functional settings remain controlled by the owner.\*
+- Parental Controls now replaces manual entity-ID entry with Visible and Invisible lists. Admins can select complete Home Assistant domains or individual entities, and global search hides restricted entities and devices. Invisible entries always take precedence.\*
 
 ## 1.0.0-beta.10
 

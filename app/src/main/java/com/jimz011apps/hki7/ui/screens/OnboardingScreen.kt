@@ -46,6 +46,7 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Public
@@ -613,6 +614,9 @@ private fun DashboardSetupStep(
                     stringResource(R.string.uif_onboarding_auto_generate)
                 },
                 enabled = savingMode == null && allowDashboardCreate,
+                disabledReason = if (!allowDashboardCreate) {
+                    stringResource(R.string.family_dashboard_create_disabled_reason)
+                } else null,
                 onClick = { finish(true) }
             )
             DashboardChoiceCard(
@@ -630,6 +634,9 @@ private fun DashboardSetupStep(
                     stringResource(R.string.uif_onboarding_start_empty)
                 },
                 enabled = savingMode == null && allowDashboardCreate,
+                disabledReason = if (!allowDashboardCreate) {
+                    stringResource(R.string.family_dashboard_create_disabled_reason)
+                } else null,
                 onClick = { finish(false) }
             )
             DashboardChoiceCard(
@@ -648,6 +655,9 @@ private fun DashboardSetupStep(
                     stringResource(R.string.ui_restore_backup_a65eaa8)
                 },
                 enabled = savingMode == null && !restoreBusy && allowDashboardSwitch,
+                disabledReason = if (!allowDashboardSwitch) {
+                    stringResource(R.string.family_dashboard_restore_disabled_reason)
+                } else null,
                 onClick = { showRestoreSource = true }
             )
             restoreError?.let { error ->
@@ -976,6 +986,7 @@ private fun DashboardChoiceCard(
     bullets: List<String>,
     buttonText: String,
     enabled: Boolean,
+    disabledReason: String? = null,
     onClick: () -> Unit
 ) {
     val colors = LocalHKIAppColors.current
@@ -1045,6 +1056,14 @@ private fun DashboardChoiceCard(
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(16.dp)
                 ) { Text(buttonText, fontWeight = FontWeight.Bold) }
+            }
+            if (!enabled && disabledReason != null) {
+                Spacer(Modifier.height(9.dp))
+                Row(verticalAlignment = Alignment.Top) {
+                    Icon(Icons.Default.Lock, contentDescription = null, tint = colors.onMuted, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(7.dp))
+                    Text(disabledReason, style = MaterialTheme.typography.bodySmall, color = colors.onMuted, modifier = Modifier.weight(1f))
+                }
             }
         }
     }

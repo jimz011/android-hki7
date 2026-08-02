@@ -1562,6 +1562,14 @@ data class Hki7Policy(
      * [hiddenViews]/[hiddenRooms]. A button's id is its entity id; a badge's or widget's id is its
      * own [HKIBadge.id]/[HKIRoomWidget.id] (visible in its Appearance settings). */
     val hiddenItemIds: List<String> = emptyList(),
+    /** Search allow-list. When either list contains entries, global search only exposes entities
+     * matching one of these domains or exact entity ids. Empty lists retain the unrestricted
+     * default. */
+    val visibleSearchDomains: List<String> = emptyList(),
+    val visibleSearchEntityIds: List<String> = emptyList(),
+    /** Search deny-list. These matches always win over the allow-list. */
+    val hiddenSearchDomains: List<String> = emptyList(),
+    val hiddenSearchEntityIds: List<String> = emptyList(),
     /** Whether this user may enter dashboard edit mode at all. */
     val allowEdit: Boolean = true,
     /** When editing is allowed, restrict this user to aesthetic changes (theme, colors, icons,
@@ -1575,9 +1583,22 @@ data class Hki7Policy(
     val allowDashboardSwitch: Boolean = true,
     /** Whether a family-dashboard subscriber may create or duplicate a dashboard. */
     val allowDashboardCreate: Boolean = true,
+    /** Whether this user may manually re-import or clear view data from Home Assistant. */
+    val allowReimport: Boolean = true,
 ) {
     val isEmpty: Boolean
         get() = hiddenViews.isEmpty() && hiddenRooms.isEmpty() && hiddenItemIds.isEmpty() &&
+            visibleSearchDomains.isEmpty() && visibleSearchEntityIds.isEmpty() &&
+            hiddenSearchDomains.isEmpty() && hiddenSearchEntityIds.isEmpty() &&
             allowEdit && !aestheticsOnly && showGlobalSearch && showFlows &&
-            allowDashboardSwitch && allowDashboardCreate
+            allowDashboardSwitch && allowDashboardCreate && allowReimport
+}
+
+/** Whether an entity may appear in global search for this policy. An explicit invisible match
+ * takes precedence over a visible match. */
+fun Hki7Policy.canSearchEntity(entityId: String): Boolean {
+    val domain = entityId.substringBefore('.')
+    val hasAllowList = visibleSearchDomains.isNotEmpty() || visibleSearchEntityIds.isNotEmpty()
+    val allowed = !hasAllowList || domain in visibleSearchDomains || entityId in visibleSearchEntityIds
+    return allowed && domain !in hiddenSearchDomains && entityId !in hiddenSearchEntityIds
 }

@@ -1964,6 +1964,10 @@
         <item>当日历小组件高度不足以显示所有事件时，现在可以垂直滚动；隐藏的主页小组件会从布局中移除，不再占用空白空间。</item>
         <item>快递公司卡片现在会显示活动中收件或寄件的最早预计送达日期和时间，也支持提供独立“下次送达”传感器的集成。</item>
         <item>家庭权限现在可以分别控制是否允许切换和创建仪表板。两项都受限的订阅者会看到锁定的仪表板设置；禁止切换时，初始设置会移除临时仪表板，而家庭仪表板被删除后会打开符合权限的恢复界面，不再静默创建替代仪表板。*</item>
+        <item>家庭权限现在也可控制手动重新导入。非管理员无法打开家庭共享设置；初始设置中已禁用的选项会说明原因；仅限外观编辑的用户只会看到视觉设置。所有者更新到达时，用户的本地名称、图标、颜色、背景、样式、尺寸和布局仍优先保留。*</item>
+        <item>气候传感器/设备标签页、安全分组以及所有能源详情标签页现在均遵循相同的一至三列响应式瀑布流规则，编辑和重新排序布局也同样适用。</item>
+        <item>仅限外观编辑的家庭用户无法再更改标题栏胶囊配置或仪表板中的人员；这些功能设置仍由所有者控制。*</item>
+        <item>家长控制现已用“可见”和“不可见”列表替代手动输入实体 ID。管理员可选择完整的 Home Assistant 域或单个实体；全局搜索会隐藏受限实体和设备。“不可见”始终优先。*</item>
         <item>* 需要 HKI 7 Cloud 组件集成。</item>
     </string-array>
 
@@ -3305,4 +3309,10 @@
     <string name="family_dashboard_tab_locked">已被家庭权限锁定</string>
     <string name="family_dashboard_access_lost_title">家庭访问权限已移除</string>
     <string name="family_dashboard_access_lost_message">你已无法通过此家庭仪表板访问 HKI 7。请选择另一个与你共享的仪表板，或选择家庭权限允许的其他选项。</string>
+    <string name="family_permission_reimport">允许重新导入</string>
+    <string name="family_permission_reimport_subtitle">允许此用户手动重新导入或清除房间、气候、安全、能源和电池数据</string>
+    <string name="family_dashboard_create_disabled_reason">家庭管理员已禁止创建仪表板。此账户只能使用家庭共享仪表板。</string>
+    <string name="family_dashboard_restore_disabled_reason">家庭管理员已禁止切换仪表板。恢复备份可能会替换家庭仪表板，因此此账户只能选择共享仪表板。</string>
+    <string name="family_settings_admin_only">已锁定 — 只有 Home Assistant 管理员可以管理家庭共享</string>
+    <string name="family_aesthetics_only_explanation">仅外观权限允许修改本地名称、图标、颜色、背景、卡片样式、形状、尺寸和布局。实体、操作、可见性规则、内容、控件及其他行为仍由仪表板所有者管理。</string>
 </resources>

@@ -148,4 +148,20 @@
     <string name="family_dashboard_tab_locked">Vergrendeld door familiemachtigingen</string>
     <string name="family_dashboard_access_lost_title">Familietoegang verwijderd</string>
     <string name="family_dashboard_access_lost_message">Je hebt via dit familiedashboard geen toegang meer tot HKI 7. Kies een ander dashboard dat met je is gedeeld, of gebruik een andere optie die je familiemachtigingen toestaan.</string>
+    <string name="family_permission_reimport">Opnieuw importeren toestaan</string>
+    <string name="family_permission_reimport_subtitle">Laat deze persoon handmatig gegevens voor Kamers, Klimaat, Beveiliging, Energie en Batterij opnieuw importeren of wissen</string>
+    <string name="family_dashboard_create_disabled_reason">Je gezinsbeheerder heeft het maken van dashboards uitgeschakeld. Dit account kan alleen gedeelde gezinsdashboards gebruiken.</string>
+    <string name="family_dashboard_restore_disabled_reason">Je gezinsbeheerder heeft het wisselen van dashboard uitgeschakeld. Een back-up kan het gezinsdashboard vervangen, daarom kan dit account alleen een gedeeld dashboard kiezen.</string>
+    <string name="family_settings_admin_only">Vergrendeld — alleen een Home Assistant-beheerder kan gezinsdeling beheren</string>
+    <string name="family_aesthetics_only_explanation">Alleen esthetische toegang staat lokale namen, pictogrammen, kleuren, achtergronden, kaartstijlen, vormen, formaten en indeling toe. Entiteiten, acties, zichtbaarheidsregels, inhoud, bediening en ander gedrag blijven beheerd door de dashboardeigenaar.</string>
+    <string name="parental_search_access_title">Toegang tot zoeken naar entiteiten</string>
+    <string name="parental_search_access_hint">Kies welke Home Assistant-domeinen of afzonderlijke entiteiten deze persoon via de algemene zoekfunctie kan vinden. Onzichtbare selecties hebben altijd voorrang.</string>
+    <string name="parental_search_visible_title">Zichtbaar</string>
+    <string name="parental_search_invisible_title">Onzichtbaar</string>
+    <string name="parental_search_visible_empty">Alle entiteiten zijn zichtbaar, behalve als ze in de lijst Onzichtbaar staan.</string>
+    <string name="parental_search_invisible_empty">Er zijn geen entiteiten expliciet verborgen.</string>
+    <string name="parental_search_picker_subtitle">Selecteer volledige domeinen of afzonderlijke entiteiten</string>
+    <string name="parental_search_domains">Domeinen</string>
+    <string name="parental_search_entire_domain">Volledig domein</string>
+    <string name="parental_search_domain_chip">Domein: %1$s</string>
 </resources>

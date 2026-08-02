@@ -337,6 +337,10 @@
         <item>Takvim widget’ları tüm etkinliklere yetecek kadar yüksek olmadığında dikey olarak kaydırılabilir ve gizli Ana Sayfa widget’ları boş alan bırakmak yerine düzenden kaldırılır.</item>
         <item>Kargo şirketi kartları artık etkin gelen veya giden gönderiler için beklenen en erken teslimat tarihini ve saatini gösterir; ayrı bir sonraki teslimat sensörü sunan entegrasyonlar da desteklenir.</item>
         <item>Aile izinleri artık pano değiştirme ve oluşturmayı ayrı ayrı yönetebilir. Tamamen kısıtlı aboneler kilitli bir Pano ayarları bölümü görür; değiştirme yasaksa ilk kurulum geçici panoyu kaldırır ve silinen bir aile panosu sessizce yenisini oluşturmak yerine izinlere göre bir kurtarma ekranı açar.*</item>
+        <item>Aile izinleri artık elle yeniden içe aktarmayı da denetler. Yönetici olmayanlar Aile Paylaşımı ayarlarını açamaz, kurulumdaki devre dışı seçenekler neden kullanılamadıklarını açıklar ve yalnızca estetik düzenleme izni olanlar sadece görsel kontrolleri görür. Yerel adları, simgeleri, renkleri, arka planları, stilleri, boyutları ve düzenleri, sahip güncellemeleri geldiğinde öncelikli kalır.*</item>
+        <item>İklim sensör/cihaz sekmeleri, Güvenlik grupları ve tüm Enerji ayrıntı sekmeleri artık düzenleme ve yeniden sıralama ekranları dâhil aynı duyarlı bir, iki veya üç sütunlu masonry kurallarını izler.</item>
+        <item>Yalnızca estetik düzenleme izni olan aile kullanıcıları artık başlık göstergesi yapılandırmasını veya paneldeki kişileri değiştiremez; bu işlevsel ayarlar sahibin kontrolünde kalır.*</item>
+        <item>Ebeveyn Denetimleri, elle varlık kimliği girişini Görünür ve Görünmez listeleriyle değiştirir. Yöneticiler Home Assistant alanlarının tamamını veya tek tek varlıkları seçebilir; genel arama kısıtlı varlıkları ve cihazları gizler. Görünmez her zaman önceliklidir.*</item>
         <item>* HKI 7 Cloud Component entegrasyonu gerekir.</item>
     </string-array>
 

@@ -148,4 +148,10 @@
     <string name="family_dashboard_tab_locked">Bloccato dai permessi famiglia</string>
     <string name="family_dashboard_access_lost_title">Accesso famiglia rimosso</string>
     <string name="family_dashboard_access_lost_message">Non hai più accesso a HKI 7 tramite questa dashboard familiare. Scegli un’altra dashboard condivisa con te o un’altra opzione consentita dai permessi famiglia.</string>
+    <string name="family_permission_reimport">Consenti reimportazione</string>
+    <string name="family_permission_reimport_subtitle">Consenti a questa persona di reimportare o cancellare manualmente i dati di Stanze, Clima, Sicurezza, Energia e Batteria</string>
+    <string name="family_dashboard_create_disabled_reason">L’amministratore della famiglia ha disattivato la creazione di dashboard. Questo account può usare solo dashboard familiari condivise.</string>
+    <string name="family_dashboard_restore_disabled_reason">L’amministratore della famiglia ha disattivato il cambio di dashboard. Il ripristino potrebbe sostituire la dashboard familiare, quindi questo account può scegliere solo una dashboard condivisa.</string>
+    <string name="family_settings_admin_only">Bloccato — solo un amministratore di Home Assistant può gestire la condivisione familiare</string>
+    <string name="family_aesthetics_only_explanation">L’accesso solo estetico consente nomi, icone, colori, sfondi, stili delle schede, forme, dimensioni e layout locali. Entità, azioni, regole di visibilità, contenuti, controlli e altri comportamenti restano gestiti dal proprietario della dashboard.</string>
 </resources>

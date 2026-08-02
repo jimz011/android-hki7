@@ -164,4 +164,20 @@
         <item quantity="one">Pushed changes to %1$d shared dashboard.</item>
         <item quantity="other">Pushed changes to %1$d shared dashboards.</item>
     </plurals>
+    <string name="family_permission_reimport">Allow re-importing</string>
+    <string name="family_permission_reimport_subtitle">Let this person manually re-import or clear Rooms, Climate, Security, Energy, and Battery data</string>
+    <string name="family_dashboard_create_disabled_reason">Your family administrator has disabled dashboard creation. This account can only use family-shared dashboards.</string>
+    <string name="family_dashboard_restore_disabled_reason">Your family administrator has disabled dashboard switching. Restoring a backup could replace the family dashboard, so this account can only select a shared dashboard.</string>
+    <string name="family_settings_admin_only">Locked — only a Home Assistant administrator can manage family sharing</string>
+    <string name="family_aesthetics_only_explanation">Aesthetics-only access allows local names, icons, colors, backgrounds, card styles, shapes, sizes, and layout. Entities, actions, visibility rules, content, controls, and other behavior remain managed by the dashboard owner.</string>
+    <string name="parental_search_access_title">Entity search access</string>
+    <string name="parental_search_access_hint">Choose which Home Assistant domains or individual entities this person can find in global search. Invisible selections always take precedence.</string>
+    <string name="parental_search_visible_title">Visible</string>
+    <string name="parental_search_invisible_title">Invisible</string>
+    <string name="parental_search_visible_empty">All entities are visible unless they appear in the Invisible list.</string>
+    <string name="parental_search_invisible_empty">No entities are explicitly hidden.</string>
+    <string name="parental_search_picker_subtitle">Select entire domains or individual entities</string>
+    <string name="parental_search_domains">Domains</string>
+    <string name="parental_search_entire_domain">Entire domain</string>
+    <string name="parental_search_domain_chip">Domain: %1$s</string>
 </resources>

@@ -1,56 +1,117 @@
 package com.jimz011apps.hki7.data
 
 /**
- * Merges an incoming shared-dashboard update onto the recipient's local copy.
- *
- * Structural changes from the owner — which rooms, widgets, and buttons exist, their entities and
- * actions — are applied, while the recipient's own aesthetic tweaks (icons, names, layout shape,
- * wallpaper) are preserved. Matching is by stable id (area id, widget id, entity id).
- *
- * Global appearance (theme, colors, fonts, corner radius) is a per-user preference that never travels
- * inside a dashboard, so it is untouched by sharing regardless of this merge.
+ * Applies owner-controlled structure and behavior while retaining the subscriber's local styling.
+ * Matching uses stable area, widget, badge, graph, and entity ids.
  */
 fun mergeSharedDashboardAesthetics(local: HKIDashboard, incoming: HKIDashboard): HKIDashboard {
-    val mergedAreaConfigs = incoming.areaConfigs.mapValues { (areaId, cfg) ->
-        val lc = local.areaConfigs[areaId] ?: return@mapValues cfg
-        // Room icon and wallpaper are aesthetic; everything else (entity bindings, badges) is the
-        // owner's structure.
-        cfg.copy(icon = lc.icon, wallpaper = lc.wallpaper)
+    val mergedAreaConfigs = incoming.areaConfigs.mapValues { (areaId, config) ->
+        local.areaConfigs[areaId]?.let { mergeAreaConfigAesthetics(config, it) } ?: config
     }
     val mergedAreaWidgets = incoming.areaWidgets.mapValues { (areaId, widgets) ->
         val localById = local.areaWidgets[areaId].orEmpty().associateBy { it.id }
-        widgets.map { w -> localById[w.id]?.let { mergeWidgetAesthetics(w, it) } ?: w }
+        widgets.map { widget -> localById[widget.id]?.let { mergeWidgetAesthetics(widget, it) } ?: widget }
     }
-    val mergedPageConfigs = incoming.pageConfigs.mapValues { (key, pc) ->
-        val lp = local.pageConfigs[key] ?: return@mapValues pc
-        pc.copy(wallpaper = lp.wallpaper, headerColor = lp.headerColor)
+    val mergedPageConfigs = incoming.pageConfigs.mapValues { (key, config) ->
+        local.pageConfigs[key]?.let { mergePageConfigAesthetics(config, it) } ?: config
     }
+    val localCustomPages = local.customPages.associateBy { it.id }
     return incoming.copy(
-        id = local.id,        // keep the local ("shared-<id>") id
-        name = local.name,    // keep the recipient's chosen name
+        id = local.id,
+        name = local.name,
         areaConfigs = mergedAreaConfigs,
         areaWidgets = mergedAreaWidgets,
         pageConfigs = mergedPageConfigs,
+        customPages = incoming.customPages.map { page -> localCustomPages[page.id] ?: page },
+        navBarOrder = local.navBarOrder,
+        navBarHidden = local.navBarHidden,
+        mediaPlayerNames = incoming.mediaPlayerNames + local.mediaPlayerNames,
     )
 }
 
-private fun mergeWidgetAesthetics(incoming: HKIRoomWidget, local: HKIRoomWidget): HKIRoomWidget {
+internal fun mergeAreaConfigAesthetics(incoming: HKIAreaConfig, local: HKIAreaConfig): HKIAreaConfig =
+    incoming.copy(
+        name = local.name,
+        icon = local.icon,
+        wallpaper = local.wallpaper,
+        headerColor = local.headerColor,
+        lockIcon = local.lockIcon,
+        climateIcon = local.climateIcon,
+        cameraIcon = local.cameraIcon,
+        blindIcon = local.blindIcon,
+    )
+
+internal fun mergePageConfigAesthetics(incoming: HKIPageConfig, local: HKIPageConfig): HKIPageConfig =
+    incoming.copy(
+        wallpaper = local.wallpaper,
+        headerColor = local.headerColor,
+        energyConfig = mergeEnergyConfigAesthetics(incoming.energyConfig, local.energyConfig),
+        climateConfig = mergeClimateConfigAesthetics(incoming.climateConfig, local.climateConfig),
+        securityConfig = mergeSecurityConfigAesthetics(incoming.securityConfig, local.securityConfig),
+        batteryConfig = mergeBatteryConfigAesthetics(incoming.batteryConfig, local.batteryConfig),
+    )
+
+private fun mergeEnergyConfigAesthetics(incoming: HKIEnergyConfig?, local: HKIEnergyConfig?): HKIEnergyConfig? =
+    if (incoming == null || local == null) incoming else incoming.copy(
+        cardOrder = local.cardOrder,
+        customNames = local.customNames,
+    )
+
+private fun mergeClimateConfigAesthetics(incoming: HKIClimateConfig?, local: HKIClimateConfig?): HKIClimateConfig? =
+    if (incoming == null || local == null) incoming else incoming.copy(
+        entityOrder = local.entityOrder,
+        customNames = local.customNames,
+        customIcons = local.customIcons,
+        defaultDeviceCardStyle = local.defaultDeviceCardStyle,
+        defaultDeviceCardWidth = local.defaultDeviceCardWidth,
+        deviceCardStyles = local.deviceCardStyles,
+        deviceCardWidths = local.deviceCardWidths,
+        deviceCardShapes = local.deviceCardShapes,
+    )
+
+private fun mergeSecurityConfigAesthetics(incoming: HKISecurityConfig?, local: HKISecurityConfig?): HKISecurityConfig? {
+    if (incoming == null || local == null) return incoming
+    return incoming.copy(
+        entityOrder = local.entityOrder,
+        customNames = local.customNames,
+        customIcons = local.customIcons,
+        cameraConfigs = incoming.cameraConfigs.mapValues { (id, config) ->
+            local.cameraConfigs[id]?.let { mergeButtonConfig(config, it) } ?: config
+        },
+    )
+}
+
+private fun mergeBatteryConfigAesthetics(incoming: HKIBatteryConfig?, local: HKIBatteryConfig?): HKIBatteryConfig? =
+    if (incoming == null || local == null) incoming else incoming.copy(
+        entityOrder = local.entityOrder,
+        customNames = local.customNames,
+    )
+
+internal fun mergeWidgetAesthetics(incoming: HKIRoomWidget, local: HKIRoomWidget): HKIRoomWidget {
     if (incoming::class != local::class) return incoming
     return when (incoming) {
         is HKIButtonStack -> {
             local as HKIButtonStack
             incoming.copy(
-                title = local.title, icon = local.icon, width = local.width,
-                columns = local.columns, isSquare = local.isSquare, cornerRadius = local.cornerRadius,
-                buttonStyle = local.buttonStyle, showBadge = local.showBadge, showName = local.showName,
-                isHidden = local.isHidden, isCollapsed = local.isCollapsed, defaultCollapsed = local.defaultCollapsed,
+                title = local.title,
+                icon = local.icon,
+                width = local.width,
+                columns = local.columns,
+                showBadge = local.showBadge,
+                showName = local.showName,
+                isSquare = local.isSquare,
+                cornerRadius = local.cornerRadius,
+                buttonStyle = local.buttonStyle,
+                adaptiveLightingLayout = local.adaptiveLightingLayout,
                 buttonConfigs = mergeButtonConfigs(incoming.entityIds, incoming.buttonConfigs, local.buttonConfigs),
             )
         }
         is HKISingleEntityWidget -> {
             local as HKISingleEntityWidget
             incoming.copy(
-                width = local.width, isSquare = local.isSquare, cornerRadius = local.cornerRadius,
+                width = local.width,
+                isSquare = local.isSquare,
+                cornerRadius = local.cornerRadius,
                 buttonStyle = local.buttonStyle,
                 config = mergeButtonConfig(incoming.config, local.config),
             )
@@ -58,33 +119,121 @@ private fun mergeWidgetAesthetics(incoming: HKIRoomWidget, local: HKIRoomWidget)
         is HKIEmptyStack -> {
             local as HKIEmptyStack
             incoming.copy(
-                title = local.title, icon = local.icon, width = local.width, columns = local.columns,
-                isSquare = local.isSquare, cornerRadius = local.cornerRadius, showBadge = local.showBadge,
-                isHidden = local.isHidden, isCollapsed = local.isCollapsed, defaultCollapsed = local.defaultCollapsed,
+                title = local.title,
+                icon = local.icon,
+                width = local.width,
+                columns = local.columns,
+                showBadge = local.showBadge,
+                isSquare = local.isSquare,
+                cornerRadius = local.cornerRadius,
                 widgets = mergeChildWidgets(incoming.widgets, local.widgets),
             )
         }
         is HKISwipingStack -> {
             local as HKISwipingStack
             incoming.copy(
-                title = local.title, icon = local.icon, width = local.width,
-                isSquare = local.isSquare, cornerRadius = local.cornerRadius,
-                isHidden = local.isHidden, isCollapsed = local.isCollapsed, defaultCollapsed = local.defaultCollapsed,
+                title = local.title,
+                icon = local.icon,
+                width = local.width,
+                isSquare = local.isSquare,
+                cornerRadius = local.cornerRadius,
+                animationDurationMs = local.animationDurationMs,
+                animation = local.animation,
                 widgets = mergeChildWidgets(incoming.widgets, local.widgets),
             )
         }
-        else -> incoming
+        is HKISubtitleWidget -> incoming.copy(width = (local as HKISubtitleWidget).width, icon = local.icon)
+        is HKIEnergyCardWidget -> {
+            local as HKIEnergyCardWidget
+            incoming.copy(width = local.width, title = local.title, icon = local.icon, cornerRadius = local.cornerRadius, backgroundUrl = local.backgroundUrl)
+        }
+        is HKIEnergyStack -> {
+            local as HKIEnergyStack
+            incoming.copy(width = local.width, title = local.title, icon = local.icon, cornerRadius = local.cornerRadius)
+        }
+        is HKIClimateCardWidget -> {
+            local as HKIClimateCardWidget
+            incoming.copy(width = local.width, title = local.title, icon = local.icon, cornerRadius = local.cornerRadius, isSquare = local.isSquare, backgroundUrl = local.backgroundUrl)
+        }
+        is HKIClimateStack -> {
+            local as HKIClimateStack
+            incoming.copy(width = local.width, title = local.title, icon = local.icon, cornerRadius = local.cornerRadius)
+        }
+        is HKIMediaPlayerWidget -> {
+            local as HKIMediaPlayerWidget
+            incoming.copy(width = local.width, title = local.title, icon = local.icon, isSquare = local.isSquare, cornerRadius = local.cornerRadius, backgroundUrl = local.backgroundUrl)
+        }
+        is HKISensorGraphWidget -> {
+            local as HKISensorGraphWidget
+            incoming.copy(
+                width = local.width,
+                title = local.title,
+                icon = local.icon,
+                style = local.style,
+                isSquare = local.isSquare,
+                cornerRadius = local.cornerRadius,
+                backgroundUrl = local.backgroundUrl,
+                itemConfigs = mergeButtonConfigs(incoming.entityIds, incoming.itemConfigs, local.itemConfigs),
+            )
+        }
+        is HKISensorGraphStack -> {
+            local as HKISensorGraphStack
+            val localGraphs = local.graphs.associateBy { it.id }
+            incoming.copy(
+                width = local.width,
+                title = local.title,
+                icon = local.icon,
+                cornerRadius = local.cornerRadius,
+                graphs = incoming.graphs.map { graph ->
+                    localGraphs[graph.id]?.let { mergeWidgetAesthetics(graph, it) as HKISensorGraphWidget } ?: graph
+                },
+            )
+        }
+        is HKIMarkdownWidget -> {
+            local as HKIMarkdownWidget
+            incoming.copy(width = local.width, isSquare = local.isSquare, cornerRadius = local.cornerRadius, backgroundUrl = local.backgroundUrl)
+        }
+        is HKIIframeWidget -> {
+            local as HKIIframeWidget
+            incoming.copy(width = local.width, title = local.title, icon = local.icon, aspectRatio = local.aspectRatio, cornerRadius = local.cornerRadius)
+        }
+        is HKIWeatherWidget -> {
+            local as HKIWeatherWidget
+            incoming.copy(width = local.width, style = local.style, title = local.title, icon = local.icon, cornerRadius = local.cornerRadius, backgroundUrl = local.backgroundUrl)
+        }
+        is HKICalendarWidget -> {
+            local as HKICalendarWidget
+            incoming.copy(width = local.width, view = local.view, isSquare = local.isSquare, title = local.title, icon = local.icon, cornerRadius = local.cornerRadius, backgroundUrl = local.backgroundUrl)
+        }
+        is HKIWasteCollectionWidget -> {
+            local as HKIWasteCollectionWidget
+            incoming.copy(width = local.width, title = local.title, icon = local.icon, imageStyle = local.imageStyle, isSquare = local.isSquare, cornerRadius = local.cornerRadius, backgroundUrl = local.backgroundUrl)
+        }
+        is HKIBatteryCardWidget -> {
+            local as HKIBatteryCardWidget
+            incoming.copy(width = local.width, title = local.title, icon = local.icon, isSquare = local.isSquare, cornerRadius = local.cornerRadius, backgroundUrl = local.backgroundUrl)
+        }
+        is HKIParcelsWidget -> {
+            local as HKIParcelsWidget
+            incoming.copy(
+                width = local.width,
+                carrierImageUrls = local.carrierImageUrls,
+                carrierNames = local.carrierNames,
+                title = local.title,
+                icon = local.icon,
+                isSquare = local.isSquare,
+                cornerRadius = local.cornerRadius,
+                backgroundUrl = local.backgroundUrl,
+            )
+        }
     }
 }
 
 private fun mergeChildWidgets(incoming: List<HKIRoomWidget>, local: List<HKIRoomWidget>): List<HKIRoomWidget> {
     val byId = local.associateBy { it.id }
-    return incoming.map { w -> byId[w.id]?.let { mergeWidgetAesthetics(w, it) } ?: w }
+    return incoming.map { widget -> byId[widget.id]?.let { mergeWidgetAesthetics(widget, it) } ?: widget }
 }
 
-/** Keeps a config for every entity the owner still exposes: structural fields (actions, vacuum/lock
- * bindings, …) come from the owner; the recipient's visual fields (name, icon, animation, secondary
- * value) win. Configs for entities the owner removed are dropped. */
 private fun mergeButtonConfigs(
     entityIds: List<String>,
     incoming: Map<String, HKIButtonConfig>,
@@ -94,19 +243,17 @@ private fun mergeButtonConfigs(
         addAll(incoming.keys)
         addAll(entityIds)
     }
-    val out = LinkedHashMap<String, HKIButtonConfig>()
-    for (key in keys) {
-        val inc = incoming[key]
-        val loc = local[key]
-        val merged = when {
-            inc != null && loc != null -> mergeButtonConfig(inc, loc)
-            inc != null -> inc
-            loc != null -> loc
-            else -> null
+    return buildMap {
+        for (key in keys) {
+            val incomingConfig = incoming[key]
+            val localConfig = local[key]
+            when {
+                incomingConfig != null && localConfig != null -> put(key, mergeButtonConfig(incomingConfig, localConfig))
+                incomingConfig != null -> put(key, incomingConfig)
+                localConfig != null -> put(key, localConfig)
+            }
         }
-        if (merged != null) out[key] = merged
     }
-    return out
 }
 
 private fun mergeButtonConfig(incoming: HKIButtonConfig, local: HKIButtonConfig): HKIButtonConfig =
@@ -114,7 +261,4 @@ private fun mergeButtonConfig(incoming: HKIButtonConfig, local: HKIButtonConfig)
         name = local.name,
         icon = local.icon,
         iconAnimation = local.iconAnimation,
-        stateAttribute = local.stateAttribute,
-        stateUnit = local.stateUnit,
-        stateAsTimer = local.stateAsTimer,
     )

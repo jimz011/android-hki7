@@ -66,9 +66,10 @@ fun PersonDetailDialog(
     val appColors = LocalHKIAppColors.current
     val currentUrl by viewModel.currentUrl.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
+    val aestheticsOnly by viewModel.aestheticsOnlyEditing.collectAsState()
     // Settings needs the full catalog for the entity pickers; normal view only the person.
-    val personEntityFlow = remember(viewModel, person.entity_id, isEditMode) {
-        if (isEditMode) viewModel.entitiesMatching { true }
+    val personEntityFlow = remember(viewModel, person.entity_id, isEditMode, aestheticsOnly) {
+        if (isEditMode && !aestheticsOnly) viewModel.entitiesMatching { true }
         else viewModel.entitiesFor(listOf(person.entity_id))
     }
     val allEntities by personEntityFlow.collectAsState()
@@ -84,7 +85,7 @@ fun PersonDetailDialog(
 
     // Edit mode: tapping a person opens its individual settings (the entity dialog auto-dismisses in edit
     // mode, so the settings live in their own dialog here rather than inside the person dialog).
-    if (isEditMode) {
+    if (isEditMode && !aestheticsOnly) {
         PersonSettingsDialog(
             person = livePerson,
             viewModel = viewModel,

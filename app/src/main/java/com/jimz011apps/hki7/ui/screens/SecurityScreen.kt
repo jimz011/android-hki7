@@ -38,6 +38,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -288,6 +290,8 @@ internal fun Map<String, List<HAEntity>>.toSecuritySceneState(): SecuritySceneSt
 fun SecurityScreen(viewModel: MainViewModel) {
     val pageConfigs by viewModel.pageConfigsMapping.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
+    val aestheticsOnly by viewModel.aestheticsOnlyEditing.collectAsState()
+    val allowReimport by viewModel.allowReimport.collectAsState()
     val uiRevision by viewModel.uiRevision.collectAsState()
     val currentUrl by viewModel.currentUrl.collectAsState()
     val config = (pageConfigs[SECURITY_PAGE_KEY] ?: HKIPageConfig()).securityConfig ?: HKISecurityConfig()
@@ -436,8 +440,8 @@ fun SecurityScreen(viewModel: MainViewModel) {
         subtitle = activeGroup?.let { stringResource(it.subtitleRes) } ?: stringResource(R.string.security_subtitle),
         pageKey = SECURITY_PAGE_KEY,
         pageSettingsTitle = stringResource(R.string.security_settings),
-        extraPageSettingsSection = settings,
-        additionalPageSettingsSections = listOf(importSettings),
+        extraPageSettingsSection = settings.takeIf { !aestheticsOnly },
+        additionalPageSettingsSections = listOfNotNull(importSettings.takeIf { !aestheticsOnly && allowReimport }),
         showBadgeBar = false,
         headerBar = if (activeGroup != null) ({
             SecurityEntitySearchBar(entitySearch, { entitySearch = it }, entitySort, { entitySort = it })
@@ -1336,11 +1340,15 @@ private fun SecurityTile(group: SecurityGroup, count: Int, active: Int, modifier
 private fun SecurityGroupPage(group: SecurityGroup, items: List<HAEntity>, viewModel: MainViewModel, currentUrl: String,
     customIcons: Map<String, String>, cameraConfigs: Map<String, HKIButtonConfig>,
     edit: Boolean, onRemove: (String) -> Unit, onRename: (HAEntity) -> Unit, onReorder: (Int, Int) -> Unit, padding: PaddingValues) {
+    val detailWidth = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() }
+    val detailColumns = responsiveDashboardColumnCount(detailWidth)
     if (edit && items.isNotEmpty()) {
-        ReorderableGrid(items, true, onReorder, { it.entity_id }, GridCells.Fixed(1),
+        ReorderableGrid(items, true, onReorder, { it.entity_id }, GridCells.Fixed(detailColumns),
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(16.dp, 10.dp, 16.dp, 96.dp + LocalMediaPlayerBarInset.current),
-            verticalArrangement = Arrangement.spacedBy(10.dp), axis = ReorderAxis.Vertical) { entity, _ ->
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            axis = ReorderAxis.Vertical) { entity, _ ->
             Box {
                 SecurityEntityCard(entity, group, viewModel, currentUrl, edit, customIcons[entity.entity_id], cameraConfigs[entity.entity_id])
                 EditSettingsButton({ onRename(entity) }, Modifier.align(Alignment.Center))
@@ -1351,7 +1359,20 @@ private fun SecurityGroupPage(group: SecurityGroup, items: List<HAEntity>, viewM
         EmptyEditHint(Modifier.fillMaxSize().padding(padding))
     } else LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp, 10.dp, 16.dp, 96.dp + LocalMediaPlayerBarInset.current), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         item { SecurityGroupSummary(group, items) }
-        items(items.size, key = { items[it].entity_id }) { SecurityEntityCard(items[it], group, viewModel, currentUrl, edit, customIcons[items[it].entity_id], cameraConfigs[items[it].entity_id]) }
+        item(items.joinToString("|", prefix = "security-group-detail:") { it.entity_id }) {
+            DashboardMasonryLayout(
+                columns = detailColumns,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalSpacing = 10.dp,
+                verticalSpacing = 10.dp,
+            ) {
+                items.forEach { entity ->
+                    key(entity.entity_id) {
+                        SecurityEntityCard(entity, group, viewModel, currentUrl, edit, customIcons[entity.entity_id], cameraConfigs[entity.entity_id])
+                    }
+                }
+            }
+        }
     }
 }
 

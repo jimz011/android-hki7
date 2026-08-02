@@ -7,6 +7,47 @@ import org.junit.Test
 class SharedDashboardMergeTest {
 
     @Test
+    fun `person and header pill configuration remain owner controlled`() {
+        val local = HKIDashboard(
+            id = "shared-family",
+            name = "Local",
+            headerPill = HeaderPillConfig(rightDisplayType = "Date"),
+            pageConfigs = mapOf(
+                "home" to HKIPageConfig(
+                    wallpaper = "local-wallpaper",
+                    peopleSort = "custom",
+                    customPeopleOrder = listOf("person.local"),
+                    hiddenPeople = listOf("person.hidden"),
+                    badgeBar = HKIBadgeBarConfig(alignment = "left"),
+                )
+            )
+        )
+        val incoming = HKIDashboard(
+            id = "family",
+            name = "Owner",
+            headerPill = HeaderPillConfig(rightDisplayType = "Weather"),
+            pageConfigs = mapOf(
+                "home" to HKIPageConfig(
+                    wallpaper = "owner-wallpaper",
+                    peopleSort = "name",
+                    customPeopleOrder = listOf("person.owner"),
+                    hiddenPeople = emptyList(),
+                    badgeBar = HKIBadgeBarConfig(alignment = "right"),
+                )
+            )
+        )
+
+        val merged = mergeSharedDashboardAesthetics(local, incoming)
+
+        assertEquals("Weather", merged.headerPill?.rightDisplayType)
+        assertEquals("local-wallpaper", merged.pageConfigs["home"]?.wallpaper)
+        assertEquals("name", merged.pageConfigs["home"]?.peopleSort)
+        assertEquals(listOf("person.owner"), merged.pageConfigs["home"]?.customPeopleOrder)
+        assertTrue(merged.pageConfigs["home"]?.hiddenPeople.isNullOrEmpty())
+        assertEquals("right", merged.pageConfigs["home"]?.badgeBar?.alignment)
+    }
+
+    @Test
     fun `structural updates apply while local aesthetics are preserved`() {
         val local = HKIDashboard(
             id = "shared-abc",

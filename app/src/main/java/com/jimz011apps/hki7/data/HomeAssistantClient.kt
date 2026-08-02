@@ -439,11 +439,26 @@ open class HomeAssistantClient(
             "show_global_search" to JsonPrimitive(policy.showGlobalSearch),
             "show_flows" to JsonPrimitive(policy.showFlows),
         )
-        val full = legacyPermissions + mapOf<String, JsonElement>(
+        val dashboardPermissions = legacyPermissions + mapOf<String, JsonElement>(
             "allow_dashboard_switch" to JsonPrimitive(policy.allowDashboardSwitch),
             "allow_dashboard_create" to JsonPrimitive(policy.allowDashboardCreate),
+            "allow_reimport" to JsonPrimitive(policy.allowReimport),
+        )
+        val full = dashboardPermissions + mapOf<String, JsonElement>(
+            "hidden_item_ids" to JsonArray(policy.hiddenItemIds.map { JsonPrimitive(it) }),
+            "visible_search_domains" to JsonArray(policy.visibleSearchDomains.map { JsonPrimitive(it) }),
+            "visible_search_entity_ids" to JsonArray(policy.visibleSearchEntityIds.map { JsonPrimitive(it) }),
+            "hidden_search_domains" to JsonArray(policy.hiddenSearchDomains.map { JsonPrimitive(it) }),
+            "hidden_search_entity_ids" to JsonArray(policy.hiddenSearchEntityIds.map { JsonPrimitive(it) }),
         )
         if (sendCommand("hki7/policy/set", full)["success"]?.jsonPrimitive?.booleanOrNull == true) {
+            return@withWebSocket true
+        }
+        val needsSearchAccessSupport = policy.hiddenItemIds.isNotEmpty() ||
+            policy.visibleSearchDomains.isNotEmpty() || policy.visibleSearchEntityIds.isNotEmpty() ||
+            policy.hiddenSearchDomains.isNotEmpty() || policy.hiddenSearchEntityIds.isNotEmpty()
+        if (needsSearchAccessSupport) return@withWebSocket false
+        if (sendCommand("hki7/policy/set", dashboardPermissions)["success"]?.jsonPrimitive?.booleanOrNull == true) {
             return@withWebSocket true
         }
         // Component 0.4/0.5 understands the original permission set but not the two dashboard
@@ -465,12 +480,18 @@ open class HomeAssistantClient(
     private fun parsePolicy(o: JsonObject): Hki7Policy = Hki7Policy(
         hiddenViews = o["hidden_views"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty(),
         hiddenRooms = o["hidden_rooms"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty(),
+        hiddenItemIds = o["hidden_item_ids"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty(),
+        visibleSearchDomains = o["visible_search_domains"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty(),
+        visibleSearchEntityIds = o["visible_search_entity_ids"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty(),
+        hiddenSearchDomains = o["hidden_search_domains"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty(),
+        hiddenSearchEntityIds = o["hidden_search_entity_ids"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty(),
         allowEdit = o["allow_edit"]?.jsonPrimitive?.booleanOrNull ?: true,
         aestheticsOnly = o["aesthetics_only"]?.jsonPrimitive?.booleanOrNull ?: false,
         showGlobalSearch = o["show_global_search"]?.jsonPrimitive?.booleanOrNull ?: true,
         showFlows = o["show_flows"]?.jsonPrimitive?.booleanOrNull ?: true,
         allowDashboardSwitch = o["allow_dashboard_switch"]?.jsonPrimitive?.booleanOrNull ?: true,
         allowDashboardCreate = o["allow_dashboard_create"]?.jsonPrimitive?.booleanOrNull ?: true,
+        allowReimport = o["allow_reimport"]?.jsonPrimitive?.booleanOrNull ?: true,
     )
 
     private fun parseDashboardMeta(o: JsonObject): Hki7SharedDashboardMeta? {

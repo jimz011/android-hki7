@@ -123,6 +123,7 @@ fun HKIPage(
     val displayName by viewModel.displayName.collectAsState()
     val currentUrl by viewModel.currentUrl.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
+    val aestheticsOnly by viewModel.aestheticsOnlyEditing.collectAsState()
     val status by viewModel.status.collectAsState()
     val notifications by viewModel.notifications.collectAsState()
     val unreadNotificationCount = notifications.count { !it.read && !it.archived }
@@ -469,7 +470,7 @@ fun HKIPage(
                                     alarm = leftAlarmEntity,
                                     use24hFormat = use24h,
                                     useFullDayName = useFullDayName,
-                                    isEditMode = isEditMode,
+                                    isEditMode = isEditMode && !aestheticsOnly,
                                     pillColor = pillColor,
                                     textColor = pillContentColor,
                                     editSurfaceColor = appColors.surface.copy(alpha = 0.7f),
@@ -497,7 +498,7 @@ fun HKIPage(
                                 alarm = rightAlarmEntity,
                                 use24hFormat = rightUse24h,
                                 useFullDayName = rightUseFullDayName,
-                                isEditMode = isEditMode,
+                                isEditMode = isEditMode && !aestheticsOnly,
                                 pillColor = pillColor,
                                 textColor = pillContentColor,
                                 editSurfaceColor = appColors.surface.copy(alpha = 0.7f),
@@ -786,7 +787,7 @@ fun HKIPage(
                             alarm = compactRightAlarm,
                             use24hFormat = compactUse24h,
                             useFullDayName = compactUseFullDayName,
-                            isEditMode = isEditMode,
+                            isEditMode = isEditMode && !aestheticsOnly,
                             pillColor = pillColor,
                             textColor = pillContentColor,
                             editSurfaceColor = appColors.surface.copy(alpha = 0.7f),
@@ -808,7 +809,7 @@ fun HKIPage(
                 val badgeContent: @Composable () -> Unit = {
                     HKIBadgeBar(
                         badgeBarConfig = badgeBarConfig,
-                        isEditMode = isEditMode,
+                            isEditMode = isEditMode && !aestheticsOnly,
                         viewModel = viewModel,
                         navController = navController,
                         onConfigChange = { newBarConfig ->
@@ -893,7 +894,7 @@ fun HKIPage(
             )
         }
 
-        if (showLeftPillSettings && weather != null) {
+        if (!aestheticsOnly && showLeftPillSettings && weather != null) {
             val leftDisplayType by viewModel.headerLeftDisplayType.collectAsState()
             val leftAlarmEntityIds by viewModel.headerLeftAlarmEntityIds.collectAsState()
             HKIWeatherDialog(
@@ -908,7 +909,7 @@ fun HKIPage(
             )
         }
 
-        if (showRightPillSettings && weather != null) {
+        if (!aestheticsOnly && showRightPillSettings && weather != null) {
             val rightDisplayType by viewModel.weatherDisplayType.collectAsState()
             val rightAlarmEntityIds by viewModel.headerAlarmEntityIds.collectAsState()
             HKIWeatherDialog(
@@ -974,6 +975,7 @@ fun HKIPage(
                 customPage = customPage,
                 onCustomPageSave = onCustomPageSave,
                 extraSections = listOfNotNull(extraPageSettingsSection) + additionalPageSettingsSections,
+                aestheticsOnly = aestheticsOnly,
                 onHeaderColorPreview = { previewHeaderColor = it },
                 onBadgeBarPreview = { previewBadgeBarConfig = it },
                 onDismiss = {
@@ -1077,6 +1079,7 @@ fun PageSettingsDialog(
     customPage: HKICustomPage? = null,
     onCustomPageSave: (HKICustomPage) -> Unit = {},
     extraSections: List<Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit>> = emptyList(),
+    aestheticsOnly: Boolean = false,
     onHeaderColorPreview: (String?) -> Unit = {},
     onBadgeBarPreview: (HKIBadgeBarConfig?) -> Unit = {},
     onDismiss: () -> Unit,
@@ -1151,6 +1154,14 @@ fun PageSettingsDialog(
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 if (section == "menu") {
+                    if (aestheticsOnly) {
+                        SettingsGroup {
+                            Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Icon(Icons.Default.Palette, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                                Text(stringResource(R.string.family_aesthetics_only_explanation), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                    }
                     SettingsSubcategory(stringResource(R.string.ui_page_areas_1068b64), stringResource(R.string.ui_each_group_controls_one_part_of_this_page_286a40b))
                     SettingsMenuChoice(
                         Icons.Default.Image,
@@ -1164,14 +1175,14 @@ fun PageSettingsDialog(
                             stringResource(R.string.page_settings_custom_page_description)
                         ) { section = "page" }
                     }
-                    if (showBadgeBarSettings) {
+                    if (showBadgeBarSettings && !aestheticsOnly) {
                         SettingsMenuChoice(
                             Icons.Default.ViewStream,
                             stringResource(R.string.page_settings_badge_bar),
                             stringResource(R.string.page_settings_badge_description)
                         ) { section = "badgebar" }
                     }
-                    if (showPeopleSettings) {
+                    if (showPeopleSettings && !aestheticsOnly) {
                         SettingsMenuChoice(
                             Icons.Default.Person,
                             stringResource(R.string.page_settings_persons),
@@ -1248,7 +1259,7 @@ fun PageSettingsDialog(
                         modifier = Modifier.align(Alignment.CenterHorizontally).size(220.dp)
                     )
                 }
-                if (section == "persons" && showPeopleSettings) {
+                if (section == "persons" && showPeopleSettings && !aestheticsOnly) {
                     SettingsSubcategory(stringResource(R.string.ui_people_b37554f), stringResource(R.string.ui_visibility_and_ordering_in_the_page_header_0f9e3d8))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = showPeople, onCheckedChange = { showPeople = it })
@@ -1335,8 +1346,9 @@ fun PageSettingsDialog(
                         extraSections.getOrNull(index)?.second?.invoke(this) { extraSectionInnerBack = it }
                     }
                 }
-                if (section == "badgebar" && showBadgeBarSettings) {
+                if (section == "badgebar" && showBadgeBarSettings && !aestheticsOnly) {
                     SettingsSubcategory(stringResource(R.string.ui_badge_bar_layout_4b4dfdd), stringResource(R.string.ui_visibility_alignment_and_overflow_behavior_467f44f))
+                    if (!aestheticsOnly) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -1350,6 +1362,7 @@ fun PageSettingsDialog(
                                 onBadgeBarPreview((config.badgeBar ?: HKIBadgeBarConfig()).copy(visible = it, alignment = badgeAlignment, spanIcons = badgeSpanIcons, leftOverflow = badgeLeftOverflow, rightOverflow = badgeRightOverflow))
                             }
                         )
+                    }
                     }
                     Text(stringResource(R.string.ui_alignment_7f8c517), style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
@@ -1434,11 +1447,13 @@ fun PageSettingsDialog(
                     config.copy(
                         wallpaper = wallpaper.ifBlank { null },
                         headerColor = headerColorText.ifBlank { null },
-                        showPeople = showPeople,
-                        peopleSort = peopleSort,
-                        customPeopleOrder = customOrder,
-                        hiddenPeople = hiddenPeople,
-                        badgeBar = if (showBadgeBarSettings) {
+                        showPeople = if (aestheticsOnly) config.showPeople else showPeople,
+                        peopleSort = if (aestheticsOnly) config.peopleSort else peopleSort,
+                        customPeopleOrder = if (aestheticsOnly) config.customPeopleOrder else customOrder,
+                        hiddenPeople = if (aestheticsOnly) config.hiddenPeople else hiddenPeople,
+                        badgeBar = if (aestheticsOnly) {
+                            config.badgeBar
+                        } else if (showBadgeBarSettings) {
                             (config.badgeBar ?: HKIBadgeBarConfig()).copy(
                                 visible = badgeBarEnabled,
                                 alignment = badgeAlignment,

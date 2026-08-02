@@ -3224,6 +3224,10 @@
         <item>Os widgets de calendário permitem rolagem vertical quando não têm altura suficiente para todos os eventos, e os widgets ocultos da tela inicial são removidos do layout em vez de deixarem um espaço vazio.</item>
         <item>Os cartões das transportadoras agora mostram a primeira data e hora de entrega prevista para remessas ativas recebidas ou enviadas, incluindo integrações com um sensor separado para a próxima entrega.</item>
         <item>As permissões da família agora podem autorizar separadamente a troca e a criação de painéis. Assinantes totalmente restritos veem a seção Painel bloqueada; a configuração remove o painel provisório quando a troca não é permitida e um painel familiar excluído abre uma recuperação baseada nas permissões em vez de criar silenciosamente um substituto.*</item>
+        <item>As permissões familiares agora também controlam a reimportação manual. Usuários que não sejam administradores não podem abrir o Compartilhamento familiar, as opções desativadas da configuração explicam por que estão indisponíveis e editores limitados à aparência veem apenas controles visuais. Seus nomes, ícones, cores, planos de fundo, estilos, tamanhos e layouts locais têm prioridade quando chegam atualizações do proprietário.*</item>
+        <item>As abas de sensores e dispositivos de Clima, os grupos de Segurança e todas as abas de detalhes de Energia agora seguem as mesmas regras masonry responsivas de uma, duas ou três colunas, inclusive ao editar e reordenar.</item>
+        <item>Editores familiares limitados à aparência não podem mais alterar a configuração dos indicadores do cabeçalho nem as pessoas do painel; essas configurações funcionais continuam sob controle do proprietário.*</item>
+        <item>O Controle parental substitui a digitação manual de IDs de entidades por listas Visível e Invisível. Os administradores podem selecionar domínios completos do Home Assistant ou entidades individuais; a pesquisa global oculta entidades e dispositivos restritos. Invisível sempre tem prioridade.*</item>
         <item>* É necessária a integração do componente HKI 7 Cloud.</item>
     </string-array>
 
@@ -3350,4 +3354,10 @@
     <string name="family_dashboard_tab_locked">Bloqueado pelas permissões da família</string>
     <string name="family_dashboard_access_lost_title">Acesso familiar removido</string>
     <string name="family_dashboard_access_lost_message">Você não tem mais acesso ao HKI 7 por meio deste painel familiar. Escolha outro painel compartilhado com você ou outra opção permitida pelas permissões da sua família.</string>
+    <string name="family_permission_reimport">Permitir reimportação</string>
+    <string name="family_permission_reimport_subtitle">Permitir que esta pessoa reimporte ou limpe manualmente os dados de Cômodos, Clima, Segurança, Energia e Bateria</string>
+    <string name="family_dashboard_create_disabled_reason">O administrador da família desativou a criação de painéis. Esta conta só pode usar painéis familiares compartilhados.</string>
+    <string name="family_dashboard_restore_disabled_reason">O administrador da família desativou a troca de painel. Restaurar um backup pode substituir o painel familiar, portanto esta conta só pode escolher um painel compartilhado.</string>
+    <string name="family_settings_admin_only">Bloqueado — somente um administrador do Home Assistant pode gerenciar o compartilhamento familiar</string>
+    <string name="family_aesthetics_only_explanation">O acesso somente estético permite nomes, ícones, cores, planos de fundo, estilos de cartões, formas, tamanhos e layouts locais. Entidades, ações, regras de visibilidade, conteúdo, controles e outros comportamentos continuam sendo gerenciados pelo proprietário do painel.</string>
 </resources>

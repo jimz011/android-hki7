@@ -322,6 +322,8 @@ fun BatteryScreen(
     val devices by viewModel.deviceRegistry.collectAsState()
     val pageConfigs by viewModel.pageConfigsMapping.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
+    val aestheticsOnly by viewModel.aestheticsOnlyEditing.collectAsState()
+    val allowReimport by viewModel.allowReimport.collectAsState()
     val config = (pageConfigs[BATTERY_PAGE_KEY] ?: HKIPageConfig()).batteryConfig ?: HKIBatteryConfig()
     var selected by remember { mutableStateOf<BatteryInfo?>(null) }
     var query by rememberSaveable { mutableStateOf("") }
@@ -461,8 +463,8 @@ fun BatteryScreen(
         subtitle = pluralStringResource(R.plurals.widgets_battery_low_count, lowCount, lowCount),
         pageKey = BATTERY_PAGE_KEY,
         pageSettingsTitle = stringResource(R.string.widgets_battery_settings),
-        extraPageSettingsSection = settingsSection,
-        additionalPageSettingsSections = listOf(batteryImportSection),
+        extraPageSettingsSection = settingsSection.takeIf { !aestheticsOnly },
+        additionalPageSettingsSections = listOfNotNull(batteryImportSection.takeIf { !aestheticsOnly && allowReimport }),
         showBadgeBar = false,
         headerBar = if (isEmptyBatteryView) null else ({
             BatteryFilters(

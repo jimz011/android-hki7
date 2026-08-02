@@ -148,4 +148,10 @@
     <string name="family_dashboard_tab_locked">Durch Familienberechtigungen gesperrt</string>
     <string name="family_dashboard_access_lost_title">Familienzugriff entfernt</string>
     <string name="family_dashboard_access_lost_message">Du hast über dieses Familien-Dashboard keinen Zugriff mehr auf HKI 7. Wähle ein anderes mit dir geteiltes Dashboard oder eine andere Option, die deine Familienberechtigungen erlauben.</string>
+    <string name="family_permission_reimport">Erneuten Import erlauben</string>
+    <string name="family_permission_reimport_subtitle">Diese Person darf Daten für Räume, Klima, Sicherheit, Energie und Batterie manuell neu importieren oder löschen</string>
+    <string name="family_dashboard_create_disabled_reason">Dein Familienadministrator hat das Erstellen von Dashboards deaktiviert. Dieses Konto kann nur geteilte Familiendashboards verwenden.</string>
+    <string name="family_dashboard_restore_disabled_reason">Dein Familienadministrator hat den Dashboardwechsel deaktiviert. Eine Wiederherstellung könnte das Familiendashboard ersetzen, daher kann dieses Konto nur ein geteiltes Dashboard auswählen.</string>
+    <string name="family_settings_admin_only">Gesperrt — nur ein Home-Assistant-Administrator kann die Familienfreigabe verwalten</string>
+    <string name="family_aesthetics_only_explanation">Der rein visuelle Zugriff erlaubt lokale Namen, Symbole, Farben, Hintergründe, Kartenstile, Formen, Größen und Layouts. Entitäten, Aktionen, Sichtbarkeitsregeln, Inhalte, Bedienelemente und sonstiges Verhalten bleiben unter der Kontrolle des Dashboard-Eigentümers.</string>
 </resources>

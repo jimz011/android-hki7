@@ -163,6 +163,8 @@ import com.jimz011apps.hki7.ui.components.SettingsGroup
 import com.jimz011apps.hki7.ui.components.SettingsChoiceChip
 import com.jimz011apps.hki7.ui.components.SettingsSubcategory
 import com.jimz011apps.hki7.ui.components.SettingsTabRow
+import com.jimz011apps.hki7.ui.components.SearchAccessSelection
+import com.jimz011apps.hki7.ui.components.SearchAccessSelectionDialog
 import com.jimz011apps.hki7.ui.components.WhatsNewDialog
 import com.jimz011apps.hki7.data.Hki7Policy
 import com.jimz011apps.hki7.ui.components.fadingEdges
@@ -385,6 +387,7 @@ fun SettingsDialog(
     var sharingAvailable by remember { mutableStateOf(false) }
     var isHaAdmin by remember { mutableStateOf(false) }
     var currentHaUserId by remember { mutableStateOf<String?>(null) }
+    val familySettingsLocked = sharingAvailable && !isHaAdmin
     // ── Parental controls (admin editor) ──
     var parentalUsers by remember { mutableStateOf(emptyList<com.jimz011apps.hki7.data.Hki7User>()) }
     var parentalPolicies by remember { mutableStateOf(emptyMap<String, com.jimz011apps.hki7.data.Hki7Policy>()) }
@@ -556,11 +559,12 @@ fun SettingsDialog(
                             SettingsChoice(Icons.Default.Notifications, stringResource(R.string.ui_notifications_753a22b), stringResource(R.string.ui_push_delivery_and_history_aa3e29d)) { section = SettingsSection.NOTIFICATIONS }
                             SettingsChoice(Icons.Default.Backup, stringResource(R.string.ui_backup_and_restore_a593246), stringResource(R.string.ui_save_or_restore_dashboard_configuration_be8f39f)) { section = SettingsSection.BACKUP_RESTORE }
                             SettingsChoice(
-                                Icons.Default.Shield,
+                                if (familySettingsLocked) Icons.Default.Lock else Icons.Default.Shield,
                                 stringResource(R.string.ui_family_sharing_160fddb),
                                 if (!sharingAvailable) stringResource(R.string.ui_parental_controls_sharing_needs_the_hki_7_cloud_component_7929459)
                                 else if (isHaAdmin) stringResource(R.string.ui_parental_controls_dashboard_sharing_and_permissions_b74e0c0)
-                                else stringResource(R.string.ui_managed_by_an_admin_805ae65)
+                                else stringResource(R.string.family_settings_admin_only),
+                                enabled = !familySettingsLocked,
                             ) { section = SettingsSection.FAMILY_SHARING }
                             SettingsSubcategory(stringResource(R.string.ui_hki_7_68a9e17), stringResource(R.string.ui_project_information_licensing_and_community_support_9fc47d6))
                             SettingsChoice(Icons.Default.Info, stringResource(R.string.ui_about_6b21fb7), stringResource(R.string.ui_what_hki_7_is_and_how_it_is_built_247bace)) { section = SettingsSection.ABOUT }
@@ -1648,6 +1652,7 @@ fun SettingsDialog(
                         }
                         SettingsSection.FAMILY_SHARING -> {
                             val pcAreas by viewModel.areas.collectAsState()
+                            val pcEntities by viewModel.entities.collectAsState()
                             val pcCustomPages by prefs.customPages.collectAsState(initial = emptyList())
                             // (route, label) — Home is always visible; Settings is not a nav tab.
                             val viewOptions = listOf(
@@ -1658,6 +1663,7 @@ fun SettingsDialog(
                                 "battery" to stringResource(R.string.settings_extra_view_battery)
                             ) + pcCustomPages.map { "custom_page/${it.id}" to it.name }
                             var familyTab by remember { mutableStateOf("parental") }
+                            var searchAccessPicker by remember { mutableStateOf<Pair<String, Boolean>?>(null) }
                             LaunchedEffect(Unit) {
                                 val id = runCatching { HaDashboardSharing.whoami(context) }.getOrNull()
                                 sharingAvailable = id != null
@@ -1674,6 +1680,37 @@ fun SettingsDialog(
                                     if (ok) parentalPolicies = parentalPolicies + (uid to policy)
                                     else setupChangedMessage = context.getString(R.string.settings_extra_policy_update_failed)
                                 }
+                            }
+                            searchAccessPicker?.let { (userId, visible) ->
+                                val policy = parentalPolicies[userId] ?: Hki7Policy()
+                                SearchAccessSelectionDialog(
+                                    allEntities = pcEntities,
+                                    title = stringResource(
+                                        if (visible) R.string.parental_search_visible_title
+                                        else R.string.parental_search_invisible_title
+                                    ),
+                                    initialSelection = SearchAccessSelection(
+                                        domains = (if (visible) policy.visibleSearchDomains else policy.hiddenSearchDomains).toSet(),
+                                        entityIds = (if (visible) policy.visibleSearchEntityIds else policy.hiddenSearchEntityIds).toSet(),
+                                    ),
+                                    onDismiss = { searchAccessPicker = null },
+                                    onSave = { selection ->
+                                        savePolicy(
+                                            userId,
+                                            if (visible) {
+                                                policy.copy(
+                                                    visibleSearchDomains = selection.domains.sorted(),
+                                                    visibleSearchEntityIds = selection.entityIds.sorted(),
+                                                )
+                                            } else {
+                                                policy.copy(
+                                                    hiddenSearchDomains = selection.domains.sorted(),
+                                                    hiddenSearchEntityIds = selection.entityIds.sorted(),
+                                                )
+                                            }
+                                        )
+                                    },
+                                )
                             }
                             when {
                                 !sharingAvailable -> {
@@ -1801,7 +1838,8 @@ fun SettingsDialog(
                                             nonAdmin.forEach { user ->
                                                 val policy = parentalPolicies[user.id] ?: com.jimz011apps.hki7.data.Hki7Policy()
                                                 val expanded = parentalExpandedUser == user.id
-                                                val hiddenCount = policy.hiddenViews.size + policy.hiddenRooms.size
+                                                val hiddenCount = policy.hiddenViews.size + policy.hiddenRooms.size +
+                                                    policy.hiddenSearchDomains.size + policy.hiddenSearchEntityIds.size
                                                 Surface(
                                                     Modifier.fillMaxWidth(),
                                                     shape = itemCornerShape(),
@@ -1857,26 +1895,28 @@ fun SettingsDialog(
                                                                     }
                                                                 }
                                                             }
-                                                            Spacer(Modifier.height(4.dp))
-                                                            Text(stringResource(R.string.ui_hidden_items_advanced_title), color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
+                                                            Spacer(Modifier.height(8.dp))
+                                                            Text(stringResource(R.string.parental_search_access_title), color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
                                                             Text(
-                                                                stringResource(R.string.ui_hidden_items_advanced_hint),
+                                                                stringResource(R.string.parental_search_access_hint),
                                                                 color = appColors.onMuted,
                                                                 style = MaterialTheme.typography.bodySmall
                                                             )
-                                                            var hiddenItemsText by remember(user.id, policy.hiddenItemIds) {
-                                                                mutableStateOf(policy.hiddenItemIds.joinToString(", "))
-                                                            }
-                                                            OutlinedTextField(
-                                                                value = hiddenItemsText,
-                                                                onValueChange = { value ->
-                                                                    hiddenItemsText = value
-                                                                    val ids = value.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-                                                                    savePolicy(user.id, policy.copy(hiddenItemIds = ids))
-                                                                },
-                                                                placeholder = { Text("light.living_room, badge-a1b2c3") },
-                                                                singleLine = false,
-                                                                modifier = Modifier.fillMaxWidth()
+                                                            ParentalSearchAccessList(
+                                                                title = stringResource(R.string.parental_search_visible_title),
+                                                                domains = policy.visibleSearchDomains,
+                                                                entityIds = policy.visibleSearchEntityIds,
+                                                                allEntities = pcEntities,
+                                                                emptyText = stringResource(R.string.parental_search_visible_empty),
+                                                                onChange = { searchAccessPicker = user.id to true },
+                                                            )
+                                                            ParentalSearchAccessList(
+                                                                title = stringResource(R.string.parental_search_invisible_title),
+                                                                domains = policy.hiddenSearchDomains,
+                                                                entityIds = policy.hiddenSearchEntityIds,
+                                                                allEntities = pcEntities,
+                                                                emptyText = stringResource(R.string.parental_search_invisible_empty),
+                                                                onChange = { searchAccessPicker = user.id to false },
                                                             )
                                                         }
                                                     }
@@ -2024,6 +2064,11 @@ fun SettingsDialog(
                                                             subtitle = stringResource(R.string.family_permission_create_dashboards_subtitle),
                                                             checked = policy.allowDashboardCreate
                                                         ) { savePolicy(user.id, policy.copy(allowDashboardCreate = it)) }
+                                                        FamilyPermissionRow(
+                                                            title = stringResource(R.string.family_permission_reimport),
+                                                            subtitle = stringResource(R.string.family_permission_reimport_subtitle),
+                                                            checked = policy.allowReimport
+                                                        ) { savePolicy(user.id, policy.copy(allowReimport = it)) }
                                                         FamilyPermissionRow(
                                                             title = stringResource(R.string.ui_allow_editing_24f2b54),
                                                             subtitle = stringResource(R.string.ui_let_this_person_enter_edit_mode_667df39),
@@ -3221,6 +3266,57 @@ private fun SettingsTile(icon: ImageVector, title: String, subtitle: String, ico
         Column {
             Text(title, color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
             Text(subtitle, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+        }
+    }
+}
+
+@Composable
+private fun ParentalSearchAccessList(
+    title: String,
+    domains: List<String>,
+    entityIds: List<String>,
+    allEntities: List<HAEntity>,
+    emptyText: String,
+    onChange: () -> Unit,
+) {
+    val appColors = LocalHKIAppColors.current
+    val names = remember(allEntities) { allEntities.associate { it.entity_id to (it.friendlyName ?: it.entity_id) } }
+    Surface(
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        shape = itemCornerShape(),
+        color = appColors.elevated,
+    ) {
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text(title, color = appColors.onSurface, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                TextButton(onClick = onChange) { Text(stringResource(R.string.ui_change_64fbd99)) }
+            }
+            if (domains.isEmpty() && entityIds.isEmpty()) {
+                Text(emptyText, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+            } else {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    domains.sorted().forEach { domain ->
+                        Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)) {
+                            Text(
+                                stringResource(R.string.parental_search_domain_chip, domain.replace('_', ' ').replaceFirstChar(Char::uppercase)),
+                                color = appColors.onSurface,
+                                style = MaterialTheme.typography.labelSmall,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            )
+                        }
+                    }
+                    entityIds.sortedBy { names[it] ?: it }.forEach { entityId ->
+                        Surface(shape = RoundedCornerShape(50), color = appColors.subtleSurface) {
+                            Text(
+                                names[entityId] ?: entityId,
+                                color = appColors.onSurface,
+                                style = MaterialTheme.typography.labelSmall,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }

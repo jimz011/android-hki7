@@ -7,6 +7,8 @@ import com.jimz011apps.hki7.R
 import androidx.annotation.StringRes
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 
 import com.jimz011apps.hki7.ui.components.toVisibilitySpec
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
@@ -17,6 +19,8 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -278,6 +282,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
         }
     }
     val isEditMode by viewModel.isEditMode.collectAsState()
+    val aestheticsOnly by viewModel.aestheticsOnlyEditing.collectAsState()
+    val allowReimport by viewModel.allowReimport.collectAsState()
     var renameEntity by remember { mutableStateOf<HAEntity?>(null) }
     renameEntity?.let { entity ->
         RenameCardDialog(energyConfig.customNames[entity.entity_id].orEmpty(), entity.friendlyName ?: entity.entity_id,
@@ -759,8 +765,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
         subtitle = pageSubtitle,
         pageKey = ENERGY_PAGE_KEY,
         pageSettingsTitle = stringResource(R.string.energy_extra_settings),
-        extraPageSettingsSection = energySettingsSection,
-        additionalPageSettingsSections = listOf(energyImportSection),
+        extraPageSettingsSection = energySettingsSection.takeIf { !aestheticsOnly },
+        additionalPageSettingsSections = listOfNotNull(energyImportSection.takeIf { !aestheticsOnly && allowReimport }),
         showBadgeBar = false,
         // Time filter lives in the pinned header slot so it never scrolls away.
         headerBar = if (isEmptyManualEnergyConfig) null else ({
@@ -816,16 +822,19 @@ fun EnergyScreen(viewModel: MainViewModel) {
         onBack = if (page != "energy") ({ page = "energy" }) else null
     ) { padding ->
         val appColors = LocalHKIAppColors.current
-        val dashboardColumns = responsiveDashboardColumnCount(LocalConfiguration.current.screenWidthDp.dp)
+        val dashboardWidth = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() }
+        val dashboardColumns = responsiveDashboardColumnCount(dashboardWidth)
         if (isEmptyManualEnergyConfig) {
             EmptyEditHint(
                 Modifier.fillMaxSize().padding(padding),
                 stringResource(R.string.energy_extra_empty_view_hint)
             )
         } else {
-        LazyColumn(
+        LazyVerticalStaggeredGrid(
+            columns = StaggeredGridCells.Fixed(if (page == "energy") 1 else dashboardColumns),
             modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(bottom = 96.dp + com.jimz011apps.hki7.ui.components.LocalMediaPlayerBarInset.current)
+            contentPadding = PaddingValues(bottom = 96.dp + com.jimz011apps.hki7.ui.components.LocalMediaPlayerBarInset.current),
+            horizontalArrangement = Arrangement.spacedBy(0.dp),
         ) {
             if (page == "energy") {
                 // ── the animated house ────────────────────────────────────────

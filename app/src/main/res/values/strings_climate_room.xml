@@ -343,6 +343,10 @@
         <item>Calendar widgets become vertically scrollable when their height is too small for every event, and hidden Home widgets are removed from the layout instead of leaving an empty space.</item>
         <item>Parcel carrier cards now show the earliest expected delivery date and time for active incoming or outgoing shipments, including integrations that expose a separate next-delivery sensor.</item>
         <item>Family permissions can now independently allow dashboard switching and creation. Fully restricted subscribers see a locked Dashboard settings tab; onboarding removes its placeholder dashboard when switching is denied, and a deleted family dashboard opens a permission-aware recovery screen instead of silently creating a replacement.*</item>
+        <item>Family permissions now also control manual re-importing. Non-admins cannot open Family Sharing settings, disabled onboarding choices explain why they are unavailable, and aesthetics-only editors see only visual controls. Their local names, icons, colors, backgrounds, styles, sizes, and layouts take priority when owner updates arrive.*</item>
+        <item>Climate sensor/device tabs, Security groups, and every Energy detail tab now follow the same responsive one-, two-, or three-column masonry rules, including their edit and reorder layouts.</item>
+        <item>Aesthetics-only family editors can no longer change header-pill configuration or the dashboard\'s people; those functional settings remain controlled by the owner.*</item>
+        <item>Parental Controls now replaces manual entity-ID entry with Visible and Invisible lists. Admins can select complete Home Assistant domains or individual entities, and global search hides restricted entities and devices. Invisible entries always take precedence.*</item>
         <item>* HKI 7 Cloud Component integration required.</item>
     </string-array>
 

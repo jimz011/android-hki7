@@ -304,6 +304,8 @@ fun ClimateScreen(viewModel: MainViewModel) {
     val pageConfigsMap by viewModel.pageConfigsMapping.collectAsState()
     val entityRegistry by viewModel.entityRegistry.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
+    val aestheticsOnly by viewModel.aestheticsOnlyEditing.collectAsState()
+    val allowReimport by viewModel.allowReimport.collectAsState()
     // Bumped by undo/redo; keying the page content on it rebuilds the reorderable lists so a
     // restored order shows immediately instead of only after leaving edit mode.
     val uiRevision by viewModel.uiRevision.collectAsState()
@@ -579,7 +581,10 @@ fun ClimateScreen(viewModel: MainViewModel) {
         pageKey = CLIMATE_PAGE_KEY,
         pageSettingsTitle = stringResource(R.string.cr_climate_settings),
         extraPageSettingsSection = climateAppearanceSection,
-        additionalPageSettingsSections = listOf(climateSettingsSection, climateImportSection),
+        additionalPageSettingsSections = buildList {
+            if (!aestheticsOnly) add(climateSettingsSection)
+            if (!aestheticsOnly && allowReimport) add(climateImportSection)
+        },
         showBadgeBar = false,
         headerBar = if (page != "climate") ({
             ClimateEntitySearchBar(
@@ -2305,17 +2310,20 @@ private fun ClimateDeviceListPage(
     humidifierFans: Map<String, HAEntity> = emptyMap()
 ) {
     val appColors = LocalHKIAppColors.current
+    val detailWidth = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() }
+    val detailColumns = responsiveDashboardColumnCount(detailWidth)
     if (isEditMode && devices.isNotEmpty()) {
         ReorderableGrid(
             items = devices,
             canReorder = true,
             onReorder = onReorder,
             key = { it.entity_id },
-            columns = GridCells.Fixed(1),
+            columns = GridCells.Fixed(detailColumns),
             axis = ReorderAxis.Vertical,
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(start = 16.dp, top = 10.dp, end = 16.dp, bottom = 96.dp + com.jimz011apps.hki7.ui.components.LocalMediaPlayerBarInset.current),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) { entity, _ ->
             Box {
                 if (deviceType == "humidifiers") HumidifierCard(entity, viewModel, humidifierFans[entity.entity_id]) else FanCard(entity, viewModel)
@@ -2347,16 +2355,30 @@ private fun ClimateDeviceListPage(
                 }
             }
         } else {
-            items(count = devices.size, key = { devices[it].entity_id }) { idx ->
-                val entity = devices[idx]
-                Box(Modifier.padding(horizontal = 16.dp, vertical = 5.dp)) {
-                    if (deviceType == "humidifiers") HumidifierCard(entity, viewModel, humidifierFans[entity.entity_id]) else FanCard(entity, viewModel)
-                    if (isEditMode) {
-                        EditSettingsButton(onClick = { onRename(entity) }, modifier = Modifier.align(Alignment.Center))
-                        EditRemoveBadge(
-                            onClick = { onRemove(entity.entity_id) },
-                            modifier = Modifier.align(Alignment.TopEnd)
-                        )
+            item(devices.joinToString("|", prefix = "climate-device-detail:") { it.entity_id }) {
+                DashboardMasonryLayout(
+                    columns = detailColumns,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 5.dp),
+                    horizontalSpacing = 10.dp,
+                    verticalSpacing = 10.dp,
+                ) {
+                    devices.forEach { entity ->
+                        key(entity.entity_id) {
+                            Box(Modifier.fillMaxWidth()) {
+                                if (deviceType == "humidifiers") {
+                                    HumidifierCard(entity, viewModel, humidifierFans[entity.entity_id])
+                                } else {
+                                    FanCard(entity, viewModel)
+                                }
+                                if (isEditMode) {
+                                    EditSettingsButton(onClick = { onRename(entity) }, modifier = Modifier.align(Alignment.Center))
+                                    EditRemoveBadge(
+                                        onClick = { onRemove(entity.entity_id) },
+                                        modifier = Modifier.align(Alignment.TopEnd)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -2583,6 +2605,8 @@ private fun ClimateSensorDetailPage(
     weatherEntity: HAEntity? = null
 ) {
     val appColors = LocalHKIAppColors.current
+    val detailWidth = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() }
+    val detailColumns = responsiveDashboardColumnCount(detailWidth)
     var selectedHours by rememberSaveable(group.key) { mutableIntStateOf(24) }
 
     // Pull raw history for every sensor in the group; graphs update as results stream in. The
@@ -2638,11 +2662,12 @@ private fun ClimateSensorDetailPage(
             canReorder = true,
             onReorder = onReorder,
             key = { it.entity_id },
-            columns = GridCells.Fixed(1),
+            columns = GridCells.Fixed(detailColumns),
             axis = ReorderAxis.Vertical,
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(start = 16.dp, top = 10.dp, end = 16.dp, bottom = 96.dp + com.jimz011apps.hki7.ui.components.LocalMediaPlayerBarInset.current),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) { sensor, _ ->
             Box {
                 EntitySensorGraphCard(
@@ -2704,21 +2729,52 @@ private fun ClimateSensorDetailPage(
             }
         }
 
-        if (weatherAttrSpecs.isNotEmpty()) {
-            items(count = weatherAttrSpecs.size, key = { "weather-${weatherAttrSpecs[it].key}" }) { idx ->
-                val spec = weatherAttrSpecs[idx]
-                Box(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
-                    EntitySensorGraphCard(
-                        sensorEntity = weatherEntity!!,
-                        viewModel = viewModel,
-                        lineColor = spec.color,
-                        titleOverride = stringResource(spec.labelRes),
-                        attributeKey = spec.key,
-                        unitOverride = spec.unit,
-                        // The attribute keys are the matching device-class names, so each graph gets
-                        // the same value-hue gradient a dedicated sensor of that class would.
-                        gradientDeviceClass = spec.key
-                    )
+        if (weatherAttrSpecs.isNotEmpty() || sensors.isNotEmpty()) {
+            item(
+                weatherAttrSpecs.joinToString("|", prefix = "climate-graphs:") { "weather-${it.key}" } +
+                    sensors.joinToString("|", prefix = "|") { it.entity_id }
+            ) {
+                DashboardMasonryLayout(
+                    columns = detailColumns,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+                    horizontalSpacing = 12.dp,
+                    verticalSpacing = 12.dp,
+                ) {
+                    weatherAttrSpecs.forEach { spec ->
+                        key("weather-${spec.key}") {
+                            Box(Modifier.fillMaxWidth()) {
+                                EntitySensorGraphCard(
+                                    sensorEntity = weatherEntity!!,
+                                    viewModel = viewModel,
+                                    lineColor = spec.color,
+                                    titleOverride = stringResource(spec.labelRes),
+                                    attributeKey = spec.key,
+                                    unitOverride = spec.unit,
+                                    // The attribute keys are the matching device-class names, so each graph gets
+                                    // the same value-hue gradient a dedicated sensor of that class would.
+                                    gradientDeviceClass = spec.key
+                                )
+                            }
+                        }
+                    }
+                    sensors.forEach { sensor ->
+                        key(sensor.entity_id) {
+                            Box(Modifier.fillMaxWidth()) {
+                                EntitySensorGraphCard(
+                                    sensorEntity = sensor,
+                                    viewModel = viewModel,
+                                    lineColor = group.color
+                                )
+                                if (isEditMode) {
+                                    EditSettingsButton(onClick = { onRename(sensor) }, modifier = Modifier.align(Alignment.Center))
+                                    EditRemoveBadge(
+                                        onClick = { onRemove(sensor.entity_id) },
+                                        modifier = Modifier.align(Alignment.TopEnd)
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -2737,25 +2793,6 @@ private fun ClimateSensorDetailPage(
                         style = MaterialTheme.typography.bodySmall, color = appColors.onMuted,
                         modifier = Modifier.padding(16.dp)
                     )
-                }
-            }
-        } else if (sensors.isNotEmpty()) {
-            // One gradient graph per sensor (colors follow the sensor's device_class palette)
-            items(count = sensors.size, key = { sensors[it].entity_id }) { idx ->
-                val sensor = sensors[idx]
-                Box(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
-                    EntitySensorGraphCard(
-                        sensorEntity = sensor,
-                        viewModel = viewModel,
-                        lineColor = group.color
-                    )
-                    if (isEditMode) {
-                        EditSettingsButton(onClick = { onRename(sensor) }, modifier = Modifier.align(Alignment.Center))
-                        EditRemoveBadge(
-                            onClick = { onRemove(sensor.entity_id) },
-                            modifier = Modifier.align(Alignment.TopEnd)
-                        )
-                    }
                 }
             }
         }

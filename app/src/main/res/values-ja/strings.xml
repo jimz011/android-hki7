@@ -3062,4 +3062,10 @@
     <string name="family_dashboard_tab_locked">ファミリー権限によりロックされています</string>
     <string name="family_dashboard_access_lost_title">ファミリーアクセスが削除されました</string>
     <string name="family_dashboard_access_lost_message">このファミリーダッシュボード経由ではHKI 7にアクセスできなくなりました。共有されている別のダッシュボード、またはファミリー権限で許可された別の方法を選んでください。</string>
+    <string name="family_permission_reimport">再インポートを許可</string>
+    <string name="family_permission_reimport_subtitle">部屋、空調、セキュリティ、エネルギー、バッテリーのデータを手動で再インポートまたは消去できるようにします</string>
+    <string name="family_dashboard_create_disabled_reason">ファミリー管理者がダッシュボードの作成を無効にしています。このアカウントでは、共有されたファミリーダッシュボードのみ使用できます。</string>
+    <string name="family_dashboard_restore_disabled_reason">ファミリー管理者がダッシュボードの切り替えを無効にしています。バックアップの復元によってファミリーダッシュボードが置き換わる可能性があるため、このアカウントでは共有ダッシュボードのみ選択できます。</string>
+    <string name="family_settings_admin_only">ロック中 — ファミリー共有を管理できるのは Home Assistant 管理者のみです</string>
+    <string name="family_aesthetics_only_explanation">外観のみのアクセスでは、ローカルの名前、アイコン、色、背景、カードスタイル、形、サイズ、レイアウトを変更できます。エンティティ、アクション、表示ルール、コンテンツ、操作、その他の動作は引き続きダッシュボード所有者が管理します。</string>
 </resources>

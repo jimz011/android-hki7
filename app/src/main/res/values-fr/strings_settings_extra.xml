@@ -148,4 +148,10 @@
     <string name="family_dashboard_tab_locked">Verrouillé par les autorisations familiales</string>
     <string name="family_dashboard_access_lost_title">Accès familial supprimé</string>
     <string name="family_dashboard_access_lost_message">Tu n’as plus accès à HKI 7 via ce tableau de bord familial. Choisis un autre tableau de bord partagé avec toi ou une autre option autorisée par tes permissions familiales.</string>
+    <string name="family_permission_reimport">Autoriser la réimportation</string>
+    <string name="family_permission_reimport_subtitle">Autoriser cette personne à réimporter ou effacer manuellement les données Pièces, Climat, Sécurité, Énergie et Batterie</string>
+    <string name="family_dashboard_create_disabled_reason">Votre administrateur familial a désactivé la création de tableaux de bord. Ce compte ne peut utiliser que les tableaux de bord familiaux partagés.</string>
+    <string name="family_dashboard_restore_disabled_reason">Votre administrateur familial a désactivé le changement de tableau de bord. Une restauration pourrait remplacer le tableau de bord familial ; ce compte ne peut donc choisir qu’un tableau de bord partagé.</string>
+    <string name="family_settings_admin_only">Verrouillé — seul un administrateur Home Assistant peut gérer le partage familial</string>
+    <string name="family_aesthetics_only_explanation">L’accès esthétique uniquement autorise les noms, icônes, couleurs, arrière-plans, styles de cartes, formes, tailles et mises en page locaux. Les entités, actions, règles de visibilité, contenus, commandes et autres comportements restent gérés par le propriétaire du tableau de bord.</string>
 </resources>

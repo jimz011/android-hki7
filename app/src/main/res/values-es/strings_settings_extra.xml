@@ -148,4 +148,10 @@
     <string name="family_dashboard_tab_locked">Bloqueado por los permisos familiares</string>
     <string name="family_dashboard_access_lost_title">Acceso familiar eliminado</string>
     <string name="family_dashboard_access_lost_message">Ya no tienes acceso a HKI 7 mediante este panel familiar. Elige otro panel compartido contigo o cualquier otra opción permitida por tus permisos familiares.</string>
+    <string name="family_permission_reimport">Permitir volver a importar</string>
+    <string name="family_permission_reimport_subtitle">Permitir que esta persona vuelva a importar o borre manualmente los datos de Habitaciones, Clima, Seguridad, Energía y Batería</string>
+    <string name="family_dashboard_create_disabled_reason">El administrador familiar ha desactivado la creación de paneles. Esta cuenta solo puede usar paneles familiares compartidos.</string>
+    <string name="family_dashboard_restore_disabled_reason">El administrador familiar ha desactivado el cambio de panel. Restaurar una copia podría sustituir el panel familiar, por lo que esta cuenta solo puede elegir un panel compartido.</string>
+    <string name="family_settings_admin_only">Bloqueado: solo un administrador de Home Assistant puede gestionar el uso compartido familiar</string>
+    <string name="family_aesthetics_only_explanation">El acceso solo estético permite nombres, iconos, colores, fondos, estilos de tarjeta, formas, tamaños y diseño locales. Las entidades, acciones, reglas de visibilidad, contenido, controles y demás comportamiento siguen bajo la gestión del propietario del panel.</string>
 </resources>

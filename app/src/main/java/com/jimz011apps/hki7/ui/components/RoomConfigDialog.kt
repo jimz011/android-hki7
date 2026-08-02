@@ -38,6 +38,7 @@ fun RoomConfigDialog(
     val areaConfigs by viewModel.areaConfigsMapping.collectAsState()
     // Aesthetics-only recipients (Family Sharing) can't rebuild structure, so re-import and clear are hidden.
     val aestheticsOnly by viewModel.aestheticsOnlyEditing.collectAsState()
+    val allowReimport by viewModel.allowReimport.collectAsState()
     val floors by viewModel.floors.collectAsState()
     val areas by viewModel.areas.collectAsState()
     val allEntities by viewModel.entities.collectAsState()
@@ -170,7 +171,7 @@ fun RoomConfigDialog(
                     RoomSettingsChoice(Icons.Default.ViewStream, stringResource(R.string.dlg_badge_bar), stringResource(R.string.dlg_alignment_and_display_options)) { section = "badgebar" }
                     RoomSettingsChoice(Icons.Default.Home, stringResource(R.string.dlg_floor), stringResource(R.string.dlg_assign_room_to_floor)) { section = "floor" }
                     RoomSettingsChoice(Icons.Default.Sensors, stringResource(R.string.dlg_room_status), stringResource(R.string.dlg_room_status_summary)) { section = "room status" }
-                    if (!aestheticsOnly) {
+                    if (!aestheticsOnly && allowReimport) {
                         RoomSettingsChoice(Icons.Default.CloudDownload, stringResource(R.string.dlg_reimport_from_home_assistant), stringResource(R.string.dlg_import_or_rebuild_rooms)) { showReimport = true }
                         RoomSettingsChoice(Icons.Default.DeleteSweep, stringResource(R.string.dlg_clear_rooms_view_action), stringResource(R.string.dlg_remove_imported_rooms_and_floors)) {
                             showClearRooms = true

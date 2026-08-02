@@ -1,0 +1,12 @@
+<resources>
+    <string name="parental_search_access_title">Accès à la recherche d’entités</string>
+    <string name="parental_search_access_hint">Choisissez les domaines Home Assistant ou les entités individuelles que cette personne peut trouver dans la recherche globale. Les sélections invisibles sont toujours prioritaires.</string>
+    <string name="parental_search_visible_title">Visible</string>
+    <string name="parental_search_invisible_title">Invisible</string>
+    <string name="parental_search_visible_empty">Toutes les entités sont visibles sauf celles de la liste Invisible.</string>
+    <string name="parental_search_invisible_empty">Aucune entité n’est explicitement masquée.</string>
+    <string name="parental_search_picker_subtitle">Sélectionnez des domaines entiers ou des entités individuelles</string>
+    <string name="parental_search_domains">Domaines</string>
+    <string name="parental_search_entire_domain">Domaine entier</string>
+    <string name="parental_search_domain_chip">Domaine : %1$s</string>
+</resources>

@@ -23,6 +23,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jimz011apps.hki7.data.HADeviceRegistryEntry
 import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.Hki7Policy
+import com.jimz011apps.hki7.data.canSearchEntity
 import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.ui.screens.UniversalStackDialog
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
@@ -46,6 +48,10 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
     val entityRegistry by viewModel.entityRegistry.collectAsState()
     val deviceRegistry by viewModel.deviceRegistry.collectAsState()
     val currentUrl by viewModel.currentUrl.collectAsState()
+    val visibleSearchDomains by viewModel.prefs.parentalVisibleSearchDomains.collectAsState(initial = emptyList())
+    val visibleSearchEntityIds by viewModel.prefs.parentalVisibleSearchEntityIds.collectAsState(initial = emptyList())
+    val hiddenSearchDomains by viewModel.prefs.parentalHiddenSearchDomains.collectAsState(initial = emptyList())
+    val hiddenSearchEntityIds by viewModel.prefs.parentalHiddenSearchEntityIds.collectAsState(initial = emptyList())
     LaunchedEffect(Unit) { viewModel.fetchRegistries() }
 
     var query by remember { mutableStateOf("") }
@@ -57,21 +63,39 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
 
     fun deviceName(d: HADeviceRegistryEntry) = d.name_by_user ?: d.name ?: d.id
 
-    val entityById = remember(allEntities) { allEntities.associateBy { it.entity_id } }
-    val entityCountByDevice = remember(entityRegistry) {
-        entityRegistry.filter { it.device_id != null }.groupingBy { it.device_id!! }.eachCount()
+    val searchPolicy = remember(
+        visibleSearchDomains,
+        visibleSearchEntityIds,
+        hiddenSearchDomains,
+        hiddenSearchEntityIds,
+    ) {
+        Hki7Policy(
+            visibleSearchDomains = visibleSearchDomains,
+            visibleSearchEntityIds = visibleSearchEntityIds,
+            hiddenSearchDomains = hiddenSearchDomains,
+            hiddenSearchEntityIds = hiddenSearchEntityIds,
+        )
+    }
+    val searchableEntities = remember(allEntities, searchPolicy) {
+        allEntities.filter { searchPolicy.canSearchEntity(it.entity_id) }
+    }
+    val searchableEntityIds = remember(searchableEntities) { searchableEntities.mapTo(hashSetOf()) { it.entity_id } }
+    val entityById = remember(searchableEntities) { searchableEntities.associateBy { it.entity_id } }
+    val entityCountByDevice = remember(entityRegistry, searchableEntityIds) {
+        entityRegistry.filter { it.device_id != null && it.entity_id in searchableEntityIds }
+            .groupingBy { it.device_id!! }.eachCount()
     }
     // Domain chips ordered by how common the domain is in this home.
-    val domains = remember(allEntities) {
-        allEntities.groupingBy { it.entity_id.substringBefore('.') }.eachCount()
+    val domains = remember(searchableEntities) {
+        searchableEntities.groupingBy { it.entity_id.substringBefore('.') }.eachCount()
             .toList().sortedByDescending { it.second }.map { it.first }
     }
     val deviceEntities = selectedDevice?.let { dev ->
         entityRegistry.filter { it.device_id == dev.id }.mapNotNull { entityById[it.entity_id] }
     }
 
-    val entityResults = remember(allEntities, deviceEntities, query, domainFilter, activeOnly) {
-        (deviceEntities ?: allEntities).asSequence()
+    val entityResults = remember(searchableEntities, deviceEntities, query, domainFilter, activeOnly) {
+        (deviceEntities ?: searchableEntities).asSequence()
             .filter { domainFilter == null || it.entity_id.substringBefore('.') == domainFilter }
             .filter { !activeOnly || it.state.lowercase() in activeStates }
             .filter {
@@ -82,8 +106,9 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
             .take(150)
             .toList()
     }
-    val deviceResults = remember(deviceRegistry, query) {
+    val deviceResults = remember(deviceRegistry, entityCountByDevice, query) {
         deviceRegistry.asSequence()
+            .filter { (entityCountByDevice[it.id] ?: 0) > 0 }
             .filter { deviceName(it).isNotBlank() }
             .filter {
                 query.isBlank() || deviceName(it).contains(query, ignoreCase = true) ||
@@ -101,7 +126,7 @@ fun GlobalSearchDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
         } else {
             UniversalStackDialog(
                 entities = listOf(live),
-                allEntities = allEntities,
+                allEntities = searchableEntities,
                 currentUrl = currentUrl,
                 viewModel = viewModel,
                 onDismiss = { controlEntity = null }
