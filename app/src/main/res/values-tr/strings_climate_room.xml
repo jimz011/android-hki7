@@ -330,12 +330,13 @@
     <string name="cr_quick_make_it_yours_instruction">Düzenleme modunda odaları, katları ve widget’ları ekleyip sırala. Yapılandırmak için bir öğeye dokun.</string>
 
     <string-array name="cr_whats_new_beta_11">
-        <item>Odalar, İklim, Güvenlik, Enerji ve Pil panoları artık tablet ve katlanabilir cihazları daha iyi kullanıyor. Büyük kartlar Ana Sayfa ve oda ayrıntılarındaki bir, iki veya üç sütunlu düzeni izlerken kompakt kutucuklar sıkışmadan otomatik olarak yerleşiyor.</item>
+        <item>Odalar, İklim, Güvenlik, Enerji ve Pil panoları artık tablet ve katlanabilir cihazları daha iyi kullanıyor. Büyük kartlar Ana Sayfa ve oda ayrıntılarındaki bir, iki veya üç sütunlu düzeni izlerken kompakt kutucuklar sıkışmadan otomatik olarak yerleşiyor. İklim, Güvenlik ve Enerji kartları geniş ekranlarda yüksekliği dikkate alan bir masonry düzeni kullanarak kısa kartların altındaki büyük boşlukları kaldırıyor.</item>
         <item>Varlık düğmeleri ile başlık/durum rozetlerindeki durum renkli simgeler anlamlı renk tonunu korur; mevcut temayla karışacaksa otomatik olarak daha açık veya koyu hale gelir.</item>
         <item>İlk kurulum sırasında bir aile panosu seçildiğinde bu kurulum artık ona abone olur. Sahibin değişiklikleri Kaydet veya Bitti seçildiğinde yayımlanır, etkin istemciler hemen yenilenir ve çevrimdışı istemciler yeniden açıldığında eşitlenir. Yönetici olmayan aboneler uygulama tamamen sıfırlanana kadar pano oluşturamaz veya çoğaltamaz.*</item>
         <item>İlk kurulumdaki pano ayarı artık yerel, Google Drive veya Home Assistant yedeğini geri yükleyebilir. Yeni Google Drive ve Home Assistant yedekleri uygulama sürümünü ve oluşturma tarihini içeren tutarlı, açıklayıcı adlar kullanır.*</item>
         <item>Takvim widget’ları tüm etkinliklere yetecek kadar yüksek olmadığında dikey olarak kaydırılabilir ve gizli Ana Sayfa widget’ları boş alan bırakmak yerine düzenden kaldırılır.</item>
         <item>Kargo şirketi kartları artık etkin gelen veya giden gönderiler için beklenen en erken teslimat tarihini ve saatini gösterir; ayrı bir sonraki teslimat sensörü sunan entegrasyonlar da desteklenir.</item>
+        <item>Aile izinleri artık pano değiştirme ve oluşturmayı ayrı ayrı yönetebilir. Tamamen kısıtlı aboneler kilitli bir Pano ayarları bölümü görür; değiştirme yasaksa ilk kurulum geçici panoyu kaldırır ve silinen bir aile panosu sessizce yenisini oluşturmak yerine izinlere göre bir kurtarma ekranı açar.*</item>
         <item>* HKI 7 Cloud Component entegrasyonu gerekir.</item>
     </string-array>
 

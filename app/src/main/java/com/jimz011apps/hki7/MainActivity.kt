@@ -381,6 +381,16 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     })
+    val familyDashboardAccessLost by prefs.familyDashboardAccessLost.collectAsState(initial = false)
+    if (familyDashboardAccessLost) {
+        OnboardingScreen(
+            prefs = prefs,
+            startAtDashboard = true,
+            familyAccessLost = true,
+            onComplete = { viewModel.completeInitialDashboardSetup() },
+        )
+        return
+    }
     
     val connectionStatus by viewModel.status.collectAsState()
     val connectionError by viewModel.connectionError.collectAsState()

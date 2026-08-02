@@ -141,4 +141,11 @@
         <item quantity="one">Änderungen wurden an %1$d geteiltes Dashboard übertragen.</item>
         <item quantity="other">Änderungen wurden an %1$d geteilte Dashboards übertragen.</item>
     </plurals>
+    <string name="family_permission_switch_dashboards">Dashboard-Wechsel erlauben</string>
+    <string name="family_permission_switch_dashboards_subtitle">Diese Person darf ein anderes vorhandenes Dashboard laden</string>
+    <string name="family_permission_create_dashboards">Dashboard-Erstellung erlauben</string>
+    <string name="family_permission_create_dashboards_subtitle">Diese Person darf Dashboards erstellen oder duplizieren</string>
+    <string name="family_dashboard_tab_locked">Durch Familienberechtigungen gesperrt</string>
+    <string name="family_dashboard_access_lost_title">Familienzugriff entfernt</string>
+    <string name="family_dashboard_access_lost_message">Du hast über dieses Familien-Dashboard keinen Zugriff mehr auf HKI 7. Wähle ein anderes mit dir geteiltes Dashboard oder eine andere Option, die deine Familienberechtigungen erlauben.</string>
 </resources>

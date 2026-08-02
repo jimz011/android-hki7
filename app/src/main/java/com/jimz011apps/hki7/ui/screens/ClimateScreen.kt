@@ -83,6 +83,7 @@ import com.jimz011apps.hki7.ui.components.surfaceGradient
 import com.jimz011apps.hki7.ui.components.LocalItemCornerRadius
 import com.jimz011apps.hki7.ui.components.itemCornerShape
 import com.jimz011apps.hki7.ui.components.localizedClimateModeLabel
+import com.jimz011apps.hki7.ui.components.DashboardMasonryLayout
 import com.jimz011apps.hki7.ui.components.responsiveDashboardColumnCount
 import com.jimz011apps.hki7.ui.components.responsiveDashboardTileCount
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
@@ -766,34 +767,68 @@ fun ClimateScreen(viewModel: MainViewModel) {
                             }
                         }
                     }
-                    items(count = climateDeviceRows.size, key = { row -> climateDeviceRows[row].joinToString("|") { it.entity_id } }) { rowIndex ->
-                        val row = climateDeviceRows[rowIndex]
-                        Row(
-                            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 5.dp),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            verticalAlignment = Alignment.Top
-                        ) {
-                            var used = 0
-                            row.forEach { entity ->
+                    if (dashboardColumns > 1) {
+                        item(climateEntities.joinToString("|", prefix = "climate-masonry:") { it.entity_id }) {
+                            val spans = climateEntities.map { entity ->
                                 val configuredWidth = climateConfig.deviceCardWidths[entity.entity_id] ?: climateConfig.defaultDeviceCardWidth
                                 val style = climateConfig.defaultDeviceCardStyle
                                 val width = if (style == "dial" && configuredWidth == "third") "half" else configuredWidth
-                                val span = if (narrowDeviceCards) 6 else when (width) { "third" -> 2; "half" -> 3; else -> 6 }
-                                used += span
-                                val iconOverride = climateConfig.customIcons[entity.entity_id]
-                                val cardStyle = climateConfig.defaultDeviceCardStyle
-                                val isSquare = climateConfig.deviceCardShapes[entity.entity_id] == "square"
-                                Box(Modifier.weight(span.toFloat())) {
-                                    if (cardStyle == "dial") ThermostatDialCard(entity, viewModel, isSquare = isSquare, iconOverride = iconOverride, onCenterClick = { dialDialogEntity = entity })
-                                    else ClimateDeviceCard(entity, viewModel, isSquare = isSquare, iconOverride = iconOverride)
-                                    if (isEditMode) {
-                                        EditSettingsButton(onClick = { renameEntity = entity }, modifier = Modifier.align(Alignment.Center))
-                                        EditRemoveBadge(onClick = { hideEntity(entity.entity_id) }, modifier = Modifier.align(Alignment.TopEnd))
+                                when (width) { "third" -> 2; "half" -> 3; else -> 6 }
+                            }
+                            DashboardMasonryLayout(
+                                columns = climateDeviceRowUnits,
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 5.dp),
+                                horizontalSpacing = 10.dp,
+                                verticalSpacing = 10.dp,
+                                itemSpans = spans,
+                            ) {
+                                climateEntities.forEach { entity ->
+                                    key(entity.entity_id) {
+                                    val iconOverride = climateConfig.customIcons[entity.entity_id]
+                                    val cardStyle = climateConfig.defaultDeviceCardStyle
+                                    val isSquare = climateConfig.deviceCardShapes[entity.entity_id] == "square"
+                                    Box(Modifier.fillMaxWidth()) {
+                                        if (cardStyle == "dial") ThermostatDialCard(entity, viewModel, isSquare = isSquare, iconOverride = iconOverride, onCenterClick = { dialDialogEntity = entity })
+                                        else ClimateDeviceCard(entity, viewModel, isSquare = isSquare, iconOverride = iconOverride)
+                                        if (isEditMode) {
+                                            EditSettingsButton(onClick = { renameEntity = entity }, modifier = Modifier.align(Alignment.Center))
+                                            EditRemoveBadge(onClick = { hideEntity(entity.entity_id) }, modifier = Modifier.align(Alignment.TopEnd))
+                                        }
+                                    }
                                     }
                                 }
                             }
-                            if (used < climateDeviceRowUnits) {
-                                Spacer(Modifier.weight((climateDeviceRowUnits - used).toFloat()))
+                        }
+                    } else {
+                        items(count = climateDeviceRows.size, key = { row -> climateDeviceRows[row].joinToString("|") { it.entity_id } }) { rowIndex ->
+                            val row = climateDeviceRows[rowIndex]
+                            Row(
+                                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 5.dp),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                var used = 0
+                                row.forEach { entity ->
+                                    val configuredWidth = climateConfig.deviceCardWidths[entity.entity_id] ?: climateConfig.defaultDeviceCardWidth
+                                    val style = climateConfig.defaultDeviceCardStyle
+                                    val width = if (style == "dial" && configuredWidth == "third") "half" else configuredWidth
+                                    val span = if (narrowDeviceCards) 6 else when (width) { "third" -> 2; "half" -> 3; else -> 6 }
+                                    used += span
+                                    val iconOverride = climateConfig.customIcons[entity.entity_id]
+                                    val cardStyle = climateConfig.defaultDeviceCardStyle
+                                    val isSquare = climateConfig.deviceCardShapes[entity.entity_id] == "square"
+                                    Box(Modifier.weight(span.toFloat())) {
+                                        if (cardStyle == "dial") ThermostatDialCard(entity, viewModel, isSquare = isSquare, iconOverride = iconOverride, onCenterClick = { dialDialogEntity = entity })
+                                        else ClimateDeviceCard(entity, viewModel, isSquare = isSquare, iconOverride = iconOverride)
+                                        if (isEditMode) {
+                                            EditSettingsButton(onClick = { renameEntity = entity }, modifier = Modifier.align(Alignment.Center))
+                                            EditRemoveBadge(onClick = { hideEntity(entity.entity_id) }, modifier = Modifier.align(Alignment.TopEnd))
+                                        }
+                                    }
+                                }
+                                if (used < climateDeviceRowUnits) {
+                                    Spacer(Modifier.weight((climateDeviceRowUnits - used).toFloat()))
+                                }
                             }
                         }
                     }

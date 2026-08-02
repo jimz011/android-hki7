@@ -141,4 +141,11 @@
         <item quantity="one">Değişiklikler %1$d paylaşılan panoya gönderildi.</item>
         <item quantity="other">Değişiklikler %1$d paylaşılan panoya gönderildi.</item>
     </plurals>
+    <string name="family_permission_switch_dashboards">Pano değiştirmeye izin ver</string>
+    <string name="family_permission_switch_dashboards_subtitle">Bu kişinin başka bir mevcut panoyu yüklemesine izin ver</string>
+    <string name="family_permission_create_dashboards">Pano oluşturmaya izin ver</string>
+    <string name="family_permission_create_dashboards_subtitle">Bu kişinin pano oluşturmasına veya çoğaltmasına izin ver</string>
+    <string name="family_dashboard_tab_locked">Aile izinleriyle kilitlendi</string>
+    <string name="family_dashboard_access_lost_title">Aile erişimi kaldırıldı</string>
+    <string name="family_dashboard_access_lost_message">Bu aile panosu üzerinden HKI 7 erişimin artık yok. Seninle paylaşılan başka bir panoyu veya aile izinlerinin tanıdığı başka bir seçeneği seç.</string>
 </resources>

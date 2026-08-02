@@ -58,6 +58,7 @@ import com.jimz011apps.hki7.ui.components.HKIPage
 import com.jimz011apps.hki7.ui.components.fadingEdges
 import com.jimz011apps.hki7.ui.components.parseHistoryMillis
 import com.jimz011apps.hki7.ui.components.itemCornerShape
+import com.jimz011apps.hki7.ui.components.DashboardMasonryLayout
 import com.jimz011apps.hki7.ui.components.responsiveDashboardColumnCount
 import com.jimz011apps.hki7.ui.components.responsiveDashboardTileCount
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
@@ -1142,17 +1143,14 @@ fun EnergyScreen(viewModel: MainViewModel) {
                         }
                     }
                 }
-                effectiveCardOrder.chunked(dashboardColumns).forEach { rowKeys ->
-                    item(rowKeys.joinToString("|")) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalAlignment = Alignment.Top,
-                        ) {
-                            rowKeys.forEach { key ->
-                                Column(Modifier.weight(1f)) { cardByKey[key]?.invoke() }
-                            }
-                            repeat(dashboardColumns - rowKeys.size) { Spacer(Modifier.weight(1f)) }
+                item(effectiveCardOrder.joinToString("|", prefix = "energy-masonry:")) {
+                    DashboardMasonryLayout(
+                        columns = dashboardColumns,
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalSpacing = 12.dp,
+                    ) {
+                        effectiveCardOrder.forEach { key ->
+                            key(key) { Column(Modifier.fillMaxWidth()) { cardByKey[key]?.invoke() } }
                         }
                     }
                 }

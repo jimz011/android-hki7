@@ -34,6 +34,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -223,12 +224,13 @@ fun ModernSettingsMenuItem(
     title: String,
     subtitle: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     val colors = LocalHKIAppColors.current
     val accent = readableDialogAccent(MaterialTheme.colorScheme.primary, colors.elevated)
     Surface(
-        modifier = modifier.fillMaxWidth().clickable(onClick = onClick),
+        modifier = modifier.fillMaxWidth().clickable(enabled = enabled, onClick = onClick),
         shape = RoundedCornerShape(20.dp),
         color = colors.subtleSurface,
         contentColor = colors.onSurface
@@ -243,16 +245,25 @@ fun ModernSettingsMenuItem(
                 color = accent.copy(alpha = 0.13f)
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(22.dp))
+                    Icon(
+                        icon,
+                        contentDescription = null,
+                        tint = if (enabled) accent else colors.onMuted,
+                        modifier = Modifier.size(22.dp),
+                    )
                 }
             }
             Spacer(Modifier.width(13.dp))
             Column(Modifier.weight(1f)) {
-                Text(title, color = colors.onSurface, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(title, color = if (enabled) colors.onSurface else colors.onMuted, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                 Text(subtitle, color = colors.onMuted, style = MaterialTheme.typography.bodySmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             Spacer(Modifier.width(8.dp))
-            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = colors.onMuted, modifier = Modifier.size(20.dp))
+            if (enabled) {
+                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = colors.onMuted, modifier = Modifier.size(20.dp))
+            } else {
+                Icon(Icons.Default.Lock, contentDescription = null, tint = colors.onMuted, modifier = Modifier.size(20.dp))
+            }
         }
     }
 }

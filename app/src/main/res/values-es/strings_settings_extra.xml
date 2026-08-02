@@ -141,4 +141,11 @@
         <item quantity="one">Se enviaron los cambios a %1$d panel compartido.</item>
         <item quantity="other">Se enviaron los cambios a %1$d paneles compartidos.</item>
     </plurals>
+    <string name="family_permission_switch_dashboards">Permitir cambiar de panel</string>
+    <string name="family_permission_switch_dashboards_subtitle">Permite que esta persona cargue otro panel existente</string>
+    <string name="family_permission_create_dashboards">Permitir crear paneles</string>
+    <string name="family_permission_create_dashboards_subtitle">Permite que esta persona cree o duplique paneles</string>
+    <string name="family_dashboard_tab_locked">Bloqueado por los permisos familiares</string>
+    <string name="family_dashboard_access_lost_title">Acceso familiar eliminado</string>
+    <string name="family_dashboard_access_lost_message">Ya no tienes acceso a HKI 7 mediante este panel familiar. Elige otro panel compartido contigo o cualquier otra opción permitida por tus permisos familiares.</string>
 </resources>

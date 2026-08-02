@@ -330,12 +330,13 @@
     <string name="cr_quick_make_it_yours_instruction">Im Bearbeitungsmodus Räume, Etagen und Widgets hinzufügen oder neu anordnen. Tippe auf ein Element, um es einzurichten.</string>
 
     <string-array name="cr_whats_new_beta_11">
-        <item>Die Dashboards für Räume, Klima, Sicherheit, Energie und Batterie nutzen Tablets und Foldables jetzt besser aus. Große Karten folgen dem Ein-, Zwei- oder Drei-Spalten-Layout von Startseite und Raumdetails, während kompakte Kacheln automatisch passen, ohne zu eng zu werden.</item>
+        <item>Die Dashboards für Räume, Klima, Sicherheit, Energie und Batterie nutzen Tablets und Foldables jetzt besser aus. Große Karten folgen dem Ein-, Zwei- oder Drei-Spalten-Layout von Startseite und Raumdetails, während kompakte Kacheln automatisch passen, ohne zu eng zu werden. Klima-, Sicherheits- und Energiekarten verwenden auf breiten Displays ein höhenabhängiges Masonry-Layout, sodass unter kürzeren Karten keine großen Lücken mehr entstehen.</item>
         <item>Statusfarbene Symbole auf Entitätsschaltflächen und Kopf-/Statusfeldern behalten ihren erkennbaren Farbton, werden aber automatisch heller oder dunkler, wenn sie sonst mit dem aktuellen Design verschmelzen würden.</item>
         <item>Wird während der Einrichtung ein Familien-Dashboard gewählt, abonniert diese Installation es jetzt. Änderungen des Eigentümers werden bei Speichern oder Fertig veröffentlicht, aktive Clients sofort aktualisiert und Offline-Clients beim nächsten Öffnen abgeglichen. Nicht-Administratoren können bis zu einem vollständigen App-Reset keine Dashboards erstellen oder duplizieren.*</item>
         <item>Bei der Dashboard-Einrichtung kann jetzt ein lokales, Google-Drive- oder Home-Assistant-Backup wiederhergestellt werden. Neue Backups in Google Drive und Home Assistant erhalten einheitliche, aussagekräftige Namen mit App-Version und Erstellungsdatum.*</item>
         <item>Kalender-Widgets lassen sich vertikal scrollen, wenn ihre Höhe nicht für alle Termine reicht, und ausgeblendete Startseiten-Widgets werden aus dem Layout entfernt, statt leeren Platz zu belegen.</item>
         <item>Karten von Paketdiensten zeigen jetzt das früheste erwartete Zustelldatum mit Uhrzeit für aktive ein- oder ausgehende Sendungen, auch bei Integrationen mit separatem Sensor für die nächste Zustellung.</item>
+        <item>Familienberechtigungen können Dashboard-Wechsel und -Erstellung jetzt unabhängig erlauben. Vollständig eingeschränkte Abonnenten sehen einen gesperrten Dashboard-Bereich; die Einrichtung entfernt das Platzhalter-Dashboard, wenn Wechsel nicht erlaubt sind, und ein gelöschtes Familien-Dashboard öffnet eine berechtigungsgesteuerte Wiederherstellung statt still einen Ersatz zu erstellen.*</item>
         <item>* HKI-7-Cloud-Component-Integration erforderlich.</item>
     </string-array>
 

@@ -330,12 +330,13 @@
     <string name="cr_quick_make_it_yours_instruction">In modalità modifica, aggiungi e riordina stanze, piani e widget. Tocca un elemento per configurarlo.</string>
 
     <string-array name="cr_whats_new_beta_11">
-        <item>Le dashboard Stanze, Clima, Sicurezza, Energia e Batteria sfruttano meglio tablet e dispositivi pieghevoli. Le schede grandi seguono il layout a una, due o tre colonne di Home e delle singole stanze, mentre i riquadri compatti si adattano automaticamente senza diventare troppo stretti.</item>
+        <item>Le dashboard Stanze, Clima, Sicurezza, Energia e Batteria sfruttano meglio tablet e dispositivi pieghevoli. Le schede grandi seguono il layout a una, due o tre colonne di Home e delle singole stanze, mentre i riquadri compatti si adattano automaticamente senza diventare troppo stretti. Su schermi ampi, le schede Clima, Sicurezza ed Energia usano un layout masonry basato sull’altezza, eliminando i grandi spazi sotto le schede più corte.</item>
         <item>Le icone colorate in base allo stato sui pulsanti delle entità e sugli indicatori di intestazione o stato mantengono la tonalità riconoscibile, ma diventano automaticamente più chiare o più scure se rischiano di confondersi con il tema corrente.</item>
         <item>Selezionando una dashboard familiare durante la configurazione, questa installazione viene ora iscritta. Le modifiche del proprietario vengono pubblicate con Salva o Fine, i client attivi si aggiornano subito e quelli offline si sincronizzano alla riapertura. Gli utenti non amministratori non possono creare o duplicare dashboard fino al ripristino completo dell’app.*</item>
         <item>La configurazione iniziale della dashboard ora può ripristinare un backup locale, di Google Drive o di Home Assistant. I nuovi backup di Google Drive e Home Assistant usano nomi coerenti e informativi con la versione dell’app e la data di creazione.*</item>
         <item>I widget Calendario diventano scorrevoli verticalmente quando non sono abbastanza alti per tutti gli eventi, mentre i widget Home nascosti vengono rimossi dal layout senza lasciare spazi vuoti.</item>
         <item>Le schede dei corrieri ora mostrano la prima data e ora di consegna prevista per le spedizioni attive in entrata o in uscita, incluse le integrazioni con un sensore separato per la prossima consegna.</item>
+        <item>I permessi famiglia possono ora consentire separatamente il cambio e la creazione delle dashboard. Gli utenti completamente limitati vedono la sezione Dashboard bloccata; la configurazione rimuove la dashboard provvisoria se il cambio non è consentito e una dashboard familiare eliminata apre un ripristino basato sui permessi invece di creare silenziosamente una sostituzione.*</item>
         <item>* È richiesta l’integrazione HKI 7 Cloud Component.</item>
     </string-array>
 

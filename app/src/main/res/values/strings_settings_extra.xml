@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="family_permission_switch_dashboards">Allow switching dashboards</string>
+    <string name="family_permission_switch_dashboards_subtitle">Let this person load another existing dashboard</string>
+    <string name="family_permission_create_dashboards">Allow creating dashboards</string>
+    <string name="family_permission_create_dashboards_subtitle">Let this person create or duplicate dashboards</string>
+    <string name="family_dashboard_tab_locked">Locked by family permissions</string>
+    <string name="family_dashboard_access_lost_title">Family access removed</string>
+    <string name="family_dashboard_access_lost_message">You no longer have access to HKI 7 through this family dashboard. Choose another dashboard shared with you, or use any other option your family permissions allow.</string>
     <string name="settings_extra_active_instance">Active instance</string>
     <string name="settings_extra_automatic_cloud_backup_enabled">Automatic cloud backup enabled.</string>
     <string name="settings_extra_background_restricted_warning">Restricted — background sync will not work</string>

@@ -924,8 +924,14 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     val defaultDashboardId: StateFlow<String?> = prefs.defaultDashboardId.stateIn(
         viewModelScope, SharingStarted.Eagerly, null
     )
-    val familyDashboardCreationLocked: StateFlow<Boolean> = prefs.familyDashboardCreationLocked.stateIn(
+    val familyDashboardSubscribed: StateFlow<Boolean> = prefs.familyDashboardSubscribed.stateIn(
         viewModelScope, SharingStarted.Eagerly, false
+    )
+    val allowDashboardSwitch: StateFlow<Boolean> = prefs.enforcedAllowDashboardSwitch.stateIn(
+        viewModelScope, SharingStarted.Eagerly, true
+    )
+    val allowDashboardCreate: StateFlow<Boolean> = prefs.enforcedAllowDashboardCreate.stateIn(
+        viewModelScope, SharingStarted.Eagerly, true
     )
 
     private val _people = MutableStateFlow<List<HAEntity>>(emptyList())
@@ -3792,6 +3798,23 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     fun copyDashboard(id: String, name: String) { viewModelScope.launch { prefs.copyDashboard(id, name) } }
 
+    /** Activates a newly selected family dashboard even when ordinary dashboard switching is
+     * disabled. This is the controlled subscription entry point, not a general switch bypass. */
+    fun useFamilyDashboard(id: String) {
+        viewModelScope.launch {
+            // Only first-run onboarding removes its placeholder dashboard when switching is denied.
+            // Existing user-created dashboards are retained here so a later permission change can
+            // reveal them again without data loss.
+            prefs.useSharedDashboardAsInitial(id, discardOtherDashboards = false)
+            _areas.value = prefs.savedAreas.first()
+            _floors.value = prefs.savedFloors.first()
+            _areaWidgetsMapping.value = prefs.areaWidgets.first()
+            _areaConfigsMapping.value = prefs.areaConfigs.first()
+            _pageConfigsMapping.value = prefs.pageConfigs.first()
+            _dashboardMode.value = prefs.dashboardMode.first()
+        }
+    }
+
     private var sharedSyncJob: Job? = null
     /** Pull-and-merge any updates to shared dashboards this user imported, keeping their own aesthetic
      * changes. Runs on foreground return; reloads the live view if the active dashboard was updated. */
@@ -3799,14 +3822,15 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val ctx = appContext ?: return
         if (sharedSyncJob?.isActive == true) return
         sharedSyncJob = viewModelScope.launch(Dispatchers.IO) {
+            runCatching { HaParentalControls.refreshForCurrentUser(ctx, prefs) }
             // Owner side: push this user's local edits to any dashboards they've shared, so recipients
             // pick them up. Runs first so a recipient's pull below sees the freshest content.
             runCatching { HaDashboardSharing.pushOwnedUpdates(ctx, prefs) }
             val result = runCatching { HaDashboardSharing.syncUpdates(ctx, prefs) }.getOrNull() ?: return@launch
-            if (result.needsAutoGenerate) {
-                // Every dashboard this user had was an unpublished shared one; fall back to the app's
-                // default auto-generated dashboard.
-                createDashboard("Default", auto = true)
+            if (result.accessLost) {
+                // Never silently replace a centrally-managed dashboard. The host shows the chooser
+                // again with Auto/Empty/Restore enabled strictly according to the cached policy.
+                // The prune transaction persisted this state atomically with removing the dashboard.
             } else if (result.activeChanged) {
                 _areas.value = prefs.savedAreas.first()
                 _floors.value = prefs.savedFloors.first()

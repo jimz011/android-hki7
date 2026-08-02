@@ -141,4 +141,11 @@
         <item quantity="one">Modifiche inviate a %1$d dashboard condivisa.</item>
         <item quantity="other">Modifiche inviate a %1$d dashboard condivise.</item>
     </plurals>
+    <string name="family_permission_switch_dashboards">Consenti cambio dashboard</string>
+    <string name="family_permission_switch_dashboards_subtitle">Consenti a questa persona di caricare un’altra dashboard esistente</string>
+    <string name="family_permission_create_dashboards">Consenti creazione dashboard</string>
+    <string name="family_permission_create_dashboards_subtitle">Consenti a questa persona di creare o duplicare dashboard</string>
+    <string name="family_dashboard_tab_locked">Bloccato dai permessi famiglia</string>
+    <string name="family_dashboard_access_lost_title">Accesso famiglia rimosso</string>
+    <string name="family_dashboard_access_lost_message">Non hai più accesso a HKI 7 tramite questa dashboard familiare. Scegli un’altra dashboard condivisa con te o un’altra opzione consentita dai permessi famiglia.</string>
 </resources>

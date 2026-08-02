@@ -332,7 +332,10 @@ fun SettingsDialog(
     val dashboards by viewModel.dashboards.collectAsState()
     val activeDashboardId by viewModel.activeDashboardId.collectAsState()
     val defaultDashboardId by viewModel.defaultDashboardId.collectAsState()
-    val familyDashboardCreationLocked by viewModel.familyDashboardCreationLocked.collectAsState()
+    val familyDashboardSubscribed by viewModel.familyDashboardSubscribed.collectAsState()
+    val allowDashboardSwitch by viewModel.allowDashboardSwitch.collectAsState()
+    val allowDashboardCreate by viewModel.allowDashboardCreate.collectAsState()
+    val dashboardSettingsLocked = familyDashboardSubscribed && !allowDashboardSwitch && !allowDashboardCreate
     val homeAssistantInstances by prefs.homeAssistantInstances.collectAsState(initial = emptyList())
     val activeHomeAssistantInstanceId by prefs.activeHomeAssistantInstanceId.collectAsState(initial = null)
     val cloudBackupEnabled by prefs.cloudBackupEnabled.collectAsState(initial = false)
@@ -537,13 +540,16 @@ fun SettingsDialog(
                             SettingsChoice(Icons.Default.MyLocation, stringResource(R.string.ui_location_d219c68), stringResource(R.string.ui_device_tracker_and_geocoded_location_f9e2d34)) { section = SettingsSection.LOCATION }
                             SettingsSubcategory(stringResource(R.string.ui_personalize_7602b35), stringResource(R.string.ui_dashboards_visual_style_and_everyday_navigation_17f3ac2))
                             SettingsChoice(
-                                Icons.Default.Dashboard,
+                                if (dashboardSettingsLocked) Icons.Default.Lock else Icons.Default.Dashboard,
                                 stringResource(R.string.ui_dashboard_d87f47b),
-                                if (dashboardMode == "auto") {
+                                if (dashboardSettingsLocked) {
+                                    stringResource(R.string.family_dashboard_tab_locked)
+                                } else if (dashboardMode == "auto") {
                                     stringResource(R.string.settings_extra_dashboard_mode_auto)
                                 } else {
                                     stringResource(R.string.settings_extra_dashboard_mode_manual)
-                                }
+                                },
+                                enabled = !dashboardSettingsLocked,
                             ) { section = SettingsSection.DASHBOARD }
                             SettingsChoice(Icons.Default.Palette, stringResource(R.string.ui_appearance_41def7a), stringResource(R.string.ui_theme_and_navigation_bar_474ee6b)) { section = SettingsSection.APPEARANCE }
                             SettingsSubcategory(stringResource(R.string.ui_services_data_7864c0a), stringResource(R.string.ui_messages_safety_and_portability_ee58dfe))
@@ -1527,7 +1533,9 @@ fun SettingsDialog(
                                 }
                                 dashboards.forEach { dashboard ->
                                     Surface(
-                                        Modifier.fillMaxWidth().clickable(enabled = dashboard.id != activeDashboardId) { viewModel.switchDashboard(dashboard.id) },
+                                        Modifier.fillMaxWidth().clickable(
+                                            enabled = dashboard.id != activeDashboardId && (!familyDashboardSubscribed || allowDashboardSwitch)
+                                        ) { viewModel.switchDashboard(dashboard.id) },
                                         shape = itemCornerShape(),
                                         color = if (dashboard.id == activeDashboardId) MaterialTheme.colorScheme.primaryContainer else appColors.subtleSurface
                                     ) {
@@ -1536,7 +1544,10 @@ fun SettingsDialog(
                                                 Text(dashboard.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
                                                 Text(if (dashboard.id == activeDashboardId) stringResource(R.string.ui_currently_loaded_69ef6fb) else stringResource(R.string.ui_tap_to_load_0c49cab), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
                                             }
-                                            IconButton(onClick = { viewModel.setDefaultDashboard(dashboard.id) }) {
+                                            IconButton(
+                                                onClick = { viewModel.setDefaultDashboard(dashboard.id) },
+                                                enabled = !familyDashboardSubscribed || allowDashboardSwitch,
+                                            ) {
                                                 Icon(
                                                     if (dashboard.id == defaultDashboardId) Icons.Default.Star else Icons.Default.StarBorder,
                                                     stringResource(R.string.settings_extra_set_dashboard_default, dashboard.name)
@@ -1549,7 +1560,7 @@ fun SettingsDialog(
                                                         stringResource(R.string.settings_extra_rename_dashboard, dashboard.name)
                                                     )
                                                 }
-                                                if (!familyDashboardCreationLocked) {
+                                                if (!familyDashboardSubscribed || allowDashboardCreate) {
                                                     IconButton(onClick = { copyDashboard = dashboard }) {
                                                         Icon(
                                                             Icons.Default.ContentCopy,
@@ -1568,7 +1579,7 @@ fun SettingsDialog(
                                         }
                                     }
                                 }
-                                if (!familyDashboardCreationLocked) {
+                                if (!familyDashboardSubscribed || allowDashboardCreate) {
                                     Button(
                                         onClick = {
                                             newDashboardName = context.getString(
@@ -1738,7 +1749,7 @@ fun SettingsDialog(
                                                                 scope.launch {
                                                                     val localId = runCatching { HaDashboardSharing.import(context, prefs, meta) }.getOrNull()
                                                                     if (localId != null) {
-                                                                        viewModel.switchDashboard(localId)
+                                                                        viewModel.useFamilyDashboard(localId)
                                                                         setupChangedMessage = context.getString(
                                                                             R.string.settings_extra_shared_dashboard_now_using,
                                                                             meta.name
@@ -2004,6 +2015,16 @@ fun SettingsDialog(
                                                     Column(Modifier.padding(12.dp)) {
                                                         Text(user.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
                                                         FamilyPermissionRow(
+                                                            title = stringResource(R.string.family_permission_switch_dashboards),
+                                                            subtitle = stringResource(R.string.family_permission_switch_dashboards_subtitle),
+                                                            checked = policy.allowDashboardSwitch
+                                                        ) { savePolicy(user.id, policy.copy(allowDashboardSwitch = it)) }
+                                                        FamilyPermissionRow(
+                                                            title = stringResource(R.string.family_permission_create_dashboards),
+                                                            subtitle = stringResource(R.string.family_permission_create_dashboards_subtitle),
+                                                            checked = policy.allowDashboardCreate
+                                                        ) { savePolicy(user.id, policy.copy(allowDashboardCreate = it)) }
+                                                        FamilyPermissionRow(
                                                             title = stringResource(R.string.ui_allow_editing_24f2b54),
                                                             subtitle = stringResource(R.string.ui_let_this_person_enter_edit_mode_667df39),
                                                             checked = policy.allowEdit
@@ -2052,6 +2073,7 @@ fun SettingsDialog(
                                 }
                                 OutlinedButton(
                                     onClick = { showRestoreSource = true },
+                                    enabled = !familyDashboardSubscribed || allowDashboardSwitch,
                                     modifier = Modifier.fillMaxWidth().height(52.dp),
                                     shape = itemCornerShape()
                                 ) {
@@ -2905,8 +2927,14 @@ private fun SettingsHeader(
 }
 
 @Composable
-private fun SettingsChoice(icon: ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
-    ModernSettingsMenuItem(icon = icon, title = title, subtitle = subtitle, onClick = onClick)
+private fun SettingsChoice(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+) {
+    ModernSettingsMenuItem(icon = icon, title = title, subtitle = subtitle, enabled = enabled, onClick = onClick)
 }
 
 @Composable

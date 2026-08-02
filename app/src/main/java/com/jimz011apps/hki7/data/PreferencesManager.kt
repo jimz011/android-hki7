@@ -67,8 +67,8 @@ data class HeaderPillConfig(
 data class SharedPruneResult(
     val removed: Boolean,
     val activeReplaced: Boolean,
-    /** No dashboards remain, so the caller should build the app's default (auto-generated) one. */
-    val needsAutoGenerate: Boolean,
+    /** No dashboards remain, so the user must choose another permitted dashboard source. */
+    val needsDashboardChoice: Boolean,
 )
 
 /** One independently authenticated Home Assistant server. The existing preference keys remain the
@@ -224,10 +224,11 @@ class PreferencesManager(
     private val defaultDashboardIdKey = stringPreferencesKey("default_dashboard_id")
     private val pendingAutoTakeoverKey = booleanPreferencesKey("pending_auto_takeover")
     private val quickStartGuidePendingKey = booleanPreferencesKey("quick_start_guide_pending")
-    // Sticky device-level restriction set when a non-admin subscribes to a family dashboard.
-    // Authentication-only logout and dashboard removal deliberately do not clear it; only clearAll()
-    // (the app's full reset) may restore local dashboard creation.
-    private val familyDashboardCreationLockedKey = booleanPreferencesKey("family_dashboard_creation_locked")
+    // Family subscription state is separate from its permissions: admins can change the latter at
+    // any time, while the former remains true until the user leaves the family-dashboard flow.
+    private val familyDashboardSubscribedKey = booleanPreferencesKey("family_dashboard_subscribed")
+    private val familyDashboardAccessLostKey = booleanPreferencesKey("family_dashboard_access_lost")
+    private val legacyFamilyDashboardCreationLockedKey = booleanPreferencesKey("family_dashboard_creation_locked")
     private val cloudBackupEnabledKey = booleanPreferencesKey("cloud_backup_enabled")
     private val haBackupEnabledKey = booleanPreferencesKey("ha_backup_enabled")
     // Wall-clock time (epoch millis) of the most recent successful backup to each destination,
@@ -244,6 +245,8 @@ class PreferencesManager(
     private val parentalAestheticsOnlyKey = booleanPreferencesKey("parental_aesthetics_only")
     private val parentalShowSearchKey = booleanPreferencesKey("parental_show_search")
     private val parentalShowFlowsKey = booleanPreferencesKey("parental_show_flows")
+    private val parentalAllowDashboardSwitchKey = booleanPreferencesKey("parental_allow_dashboard_switch")
+    private val parentalAllowDashboardCreateKey = booleanPreferencesKey("parental_allow_dashboard_create")
     private val lastSeenVersionCodeKey = intPreferencesKey("last_seen_version_code")
     private val homeAssistantInstancesKey = stringPreferencesKey("home_assistant_instances_v1")
     private val activeHomeAssistantInstanceIdKey = stringPreferencesKey("active_home_assistant_instance_id")
@@ -287,9 +290,12 @@ class PreferencesManager(
     val defaultDashboardId: Flow<String?> = context.dataStore.data.map { it[defaultDashboardIdKey] }
     val pendingAutoTakeover: Flow<Boolean> = context.dataStore.data.map { it[pendingAutoTakeoverKey] ?: false }
     val quickStartGuidePending: Flow<Boolean> = context.dataStore.data.map { it[quickStartGuidePendingKey] ?: false }
-    val familyDashboardCreationLocked: Flow<Boolean> = context.dataStore.data.map {
-        it[familyDashboardCreationLockedKey] ?: false
+    val familyDashboardSubscribed: Flow<Boolean> = context.dataStore.data.map { p ->
+        p[familyDashboardSubscribedKey] == true ||
+            p[legacyFamilyDashboardCreationLockedKey] == true ||
+            decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).any { it.id.startsWith("shared-") }
     }
+    val familyDashboardAccessLost: Flow<Boolean> = context.dataStore.data.map { it[familyDashboardAccessLostKey] ?: false }
     val cloudBackupEnabled: Flow<Boolean> = context.dataStore.data.map { it[cloudBackupEnabledKey] ?: false }
     /** Daily backup to the user's own Home Assistant instance via the hki7 companion component. */
     val haBackupEnabled: Flow<Boolean> = context.dataStore.data.map { it[haBackupEnabledKey] ?: false }
@@ -317,6 +323,12 @@ class PreferencesManager(
     val enforcedShowGlobalSearch: Flow<Boolean> = context.dataStore.data.map { it[parentalShowSearchKey] ?: true }
     /** Whether the current user sees the flows action (admin policy; default shown). */
     val enforcedShowFlows: Flow<Boolean> = context.dataStore.data.map { it[parentalShowFlowsKey] ?: true }
+    val enforcedAllowDashboardSwitch: Flow<Boolean> = context.dataStore.data.map {
+        it[parentalAllowDashboardSwitchKey] ?: true
+    }
+    val enforcedAllowDashboardCreate: Flow<Boolean> = context.dataStore.data.map {
+        it[parentalAllowDashboardCreateKey] ?: true
+    }
 
     /** Caches the enforced policy for the signed-in user (reset to defaults for admins/owners). */
     suspend fun saveEnforcedPolicy(policy: Hki7Policy) {
@@ -328,6 +340,8 @@ class PreferencesManager(
             it[parentalAestheticsOnlyKey] = policy.aestheticsOnly
             it[parentalShowSearchKey] = policy.showGlobalSearch
             it[parentalShowFlowsKey] = policy.showFlows
+            it[parentalAllowDashboardSwitchKey] = policy.allowDashboardSwitch
+            it[parentalAllowDashboardCreateKey] = policy.allowDashboardCreate
         }
     }
 
@@ -650,6 +664,10 @@ class PreferencesManager(
         preferences[activeDashboardIdKey] = activeId
         preferences[defaultDashboardIdKey] = defaultId
         loadDashboardIntoPreferences(preferences, dashboards.first { it.id == activeId })
+        if (dashboards.any { it.id.startsWith("shared-") }) preferences[familyDashboardSubscribedKey] = true
+        else preferences.remove(familyDashboardSubscribedKey)
+        preferences.remove(familyDashboardAccessLostKey)
+        preferences.remove(legacyFamilyDashboardCreationLockedKey)
         if (instance.autoGenerationPending) preferences[pendingAutoTakeoverKey] = true
         else preferences.remove(pendingAutoTakeoverKey)
         preferences[activeHomeAssistantInstanceIdKey] = instance.id
@@ -902,6 +920,7 @@ class PreferencesManager(
     }
 
     suspend fun restoreUiBackup(raw: String) {
+        check(familyDashboardSwitchAllowed()) { "Dashboard restore is disabled by family permissions" }
         val backup = appJson.decodeFromString<HKIUiBackup>(raw)
         require(backup.version == 1) { "Unsupported backup version ${backup.version}" }
         context.dataStore.edit { p ->
@@ -1022,14 +1041,33 @@ class PreferencesManager(
         context.dataStore.edit { it.remove(quickStartGuidePendingKey) }
     }
 
-    /** Permanently disables creating/duplicating dashboards on this app installation. */
-    suspend fun lockDashboardCreationForFamilySubscriber() {
-        context.dataStore.edit { it[familyDashboardCreationLockedKey] = true }
+    suspend fun markFamilyDashboardSubscribed() {
+        context.dataStore.edit {
+            it[familyDashboardSubscribedKey] = true
+            it.remove(familyDashboardAccessLostKey)
+            it.remove(legacyFamilyDashboardCreationLockedKey)
+        }
     }
+
+    /** Leaves family management after choosing a permitted standalone dashboard source. */
+    suspend fun clearFamilyDashboardSubscription() {
+        context.dataStore.edit {
+            it.remove(familyDashboardSubscribedKey)
+            it.remove(familyDashboardAccessLostKey)
+            it.remove(legacyFamilyDashboardCreationLockedKey)
+        }
+    }
+
+    private suspend fun familyDashboardCreateAllowed(): Boolean =
+        !familyDashboardSubscribed.first() || enforcedAllowDashboardCreate.first()
+
+    private suspend fun familyDashboardSwitchAllowed(): Boolean =
+        !familyDashboardSubscribed.first() || enforcedAllowDashboardSwitch.first()
 
     /** Migrates the original single dashboard in place, without changing what is currently loaded. */
     suspend fun ensureDashboardStore(defaultName: String = "Default") {
         context.dataStore.edit { p ->
+            if (p[familyDashboardAccessLostKey] == true) return@edit
             val existing = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList())
             if (existing.isNotEmpty()) {
                 if (p[activeDashboardIdKey].isNullOrBlank()) p[activeDashboardIdKey] = existing.first().id
@@ -1045,7 +1083,7 @@ class PreferencesManager(
     }
 
     suspend fun createDashboard(name: String, autoGenerate: Boolean): String? {
-        if (familyDashboardCreationLocked.first()) return null
+        if (!familyDashboardCreateAllowed()) return null
         val id = UUID.randomUUID().toString()
         context.dataStore.edit { p ->
             val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
@@ -1068,10 +1106,14 @@ class PreferencesManager(
 
     /** Onboarding: adopt an already-imported shared dashboard as the initial active + default
      * dashboard and finish first-run setup. */
-    suspend fun useSharedDashboardAsInitial(localId: String) {
+    suspend fun useSharedDashboardAsInitial(localId: String, discardOtherDashboards: Boolean = false) {
         context.dataStore.edit { p ->
-            val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList())
+            var dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList())
             val target = dashboards.firstOrNull { it.id == localId } ?: return@edit
+            if (discardOtherDashboards) {
+                dashboards = listOf(target)
+                p[dashboardsKey] = appJson.encodeToString(dashboards)
+            }
             p[activeDashboardIdKey] = localId
             p[defaultDashboardIdKey] = localId
             p.remove(pendingAutoTakeoverKey)
@@ -1179,10 +1221,10 @@ class PreferencesManager(
 
     /** Removes imported shared dashboards ("shared-*") whose source is no longer among [presentLocalIds]
      * (the admin unpublished them, or stopped sharing them with this user). If the active dashboard was
-     * one of them, switches to a surviving dashboard; if none survive, clears the active dashboard and
-     * signals [SharedPruneResult.needsAutoGenerate] so the caller can build the app's default instead. */
+     * removed, clears the active selection and signals [SharedPruneResult.needsDashboardChoice] so the
+     * host can reopen the dashboard chooser instead of switching or creating something implicitly. */
     suspend fun pruneUnpublishedSharedDashboards(presentLocalIds: Set<String>): SharedPruneResult {
-        var result = SharedPruneResult(removed = false, activeReplaced = false, needsAutoGenerate = false)
+        var result = SharedPruneResult(removed = false, activeReplaced = false, needsDashboardChoice = false)
         context.dataStore.edit { p ->
             val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
             val removedIds = dashboards
@@ -1198,20 +1240,25 @@ class PreferencesManager(
             if (dashboards.isEmpty()) {
                 p.remove(activeDashboardIdKey)
                 p.remove(defaultDashboardIdKey)
+                p[familyDashboardAccessLostKey] = true
                 p[dashboardsKey] = appJson.encodeToString(dashboards)
-                result = SharedPruneResult(removed = true, activeReplaced = removedActive, needsAutoGenerate = true)
+                result = SharedPruneResult(removed = true, activeReplaced = removedActive, needsDashboardChoice = true)
+                return@edit
+            }
+            // Losing the dashboard currently granting family access is never an implicit switch.
+            // Block the app and return to the permission-aware chooser even when local dashboards
+            // survive; the user must deliberately choose an allowed next source.
+            if (removedActive) {
+                p.remove(activeDashboardIdKey)
+                p.remove(defaultDashboardIdKey)
+                p[familyDashboardAccessLostKey] = true
+                p[dashboardsKey] = appJson.encodeToString(dashboards)
+                result = SharedPruneResult(removed = true, activeReplaced = false, needsDashboardChoice = true)
                 return@edit
             }
             if (p[defaultDashboardIdKey] in removedIds) p[defaultDashboardIdKey] = dashboards.first().id
-            var activeReplaced = false
-            if (removedActive) {
-                val replacement = dashboards.firstOrNull { it.id == p[defaultDashboardIdKey] } ?: dashboards.first()
-                p[activeDashboardIdKey] = replacement.id
-                loadDashboardIntoPreferences(p, replacement)
-                activeReplaced = true
-            }
             p[dashboardsKey] = appJson.encodeToString(dashboards)
-            result = SharedPruneResult(removed = true, activeReplaced = activeReplaced, needsAutoGenerate = false)
+            result = SharedPruneResult(removed = true, activeReplaced = false, needsDashboardChoice = false)
         }
         return result
     }
@@ -1221,7 +1268,7 @@ class PreferencesManager(
      * unsaved edits) captures its current state. The active dashboard is left unchanged. Returns the
      * new dashboard id, or null if the source id is unknown. */
     suspend fun copyDashboard(id: String, name: String): String? {
-        if (familyDashboardCreationLocked.first()) return null
+        if (!familyDashboardCreateAllowed()) return null
         var newId: String? = null
         context.dataStore.edit { p ->
             val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
@@ -1240,6 +1287,7 @@ class PreferencesManager(
     }
 
     suspend fun switchDashboard(id: String): Boolean {
+        if (!familyDashboardSwitchAllowed()) return false
         var switched = false
         context.dataStore.edit { p ->
             val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
@@ -1283,6 +1331,7 @@ class PreferencesManager(
     }
 
     suspend fun setDefaultDashboard(id: String) {
+        if (!familyDashboardSwitchAllowed()) return
         context.dataStore.edit { p ->
             val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList())
             if (dashboards.any { it.id == id }) p[defaultDashboardIdKey] = id

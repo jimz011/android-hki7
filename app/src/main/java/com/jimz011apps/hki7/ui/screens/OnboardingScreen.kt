@@ -89,6 +89,7 @@ import com.jimz011apps.hki7.ui.components.LocationDisclosureDialog
 import com.jimz011apps.hki7.ui.components.ModernSettingsHeader
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import java.net.URLEncoder
 import com.google.android.gms.auth.api.identity.Identity
@@ -103,7 +104,13 @@ private enum class AddInstanceStep { SERVER, LOGIN }
  * Calls [onComplete] when finished so the host can show the main app.
  */
 @Composable
-fun OnboardingScreen(prefs: PreferencesManager, startAtLogin: Boolean = false, onComplete: () -> Unit) {
+fun OnboardingScreen(
+    prefs: PreferencesManager,
+    startAtLogin: Boolean = false,
+    startAtDashboard: Boolean = false,
+    familyAccessLost: Boolean = false,
+    onComplete: () -> Unit,
+) {
     // Re-login mode (e.g. session expired or the dashboard stopped connecting): the server is
     // already known, so jump straight to the login step and skip the rest of onboarding.
     val loadingSentinel = "__hki_loading__"
@@ -120,12 +127,14 @@ fun OnboardingScreen(prefs: PreferencesManager, startAtLogin: Boolean = false, o
     val savedLoginUrl = savedServerUrl?.takeIf { it.isNotBlank() }
         ?: savedInternalUrl?.takeIf { it.isNotBlank() }
     val loginOnly = remember { startAtLogin && !savedLoginUrl.isNullOrBlank() }
-    LaunchedEffect(loginOnly) {
-        if (!loginOnly) prefs.prepareForInitialDashboardChoice()
+    LaunchedEffect(loginOnly, startAtDashboard) {
+        if (!loginOnly && !startAtDashboard) prefs.prepareForInitialDashboardChoice()
     }
     // Saveable so that backgrounding mid-onboarding (e.g. on the permission step) and returning to a
     // recreated Activity resumes the same step instead of being lost.
-    var step by rememberSaveable { mutableStateOf(if (loginOnly) OnboardStep.LOGIN else OnboardStep.WELCOME) }
+    var step by rememberSaveable {
+        mutableStateOf(if (startAtDashboard) OnboardStep.DASHBOARD else if (loginOnly) OnboardStep.LOGIN else OnboardStep.WELCOME)
+    }
     var serverUrl by rememberSaveable {
         mutableStateOf(if (loginOnly) savedLoginUrl.orEmpty().removeSuffix("/") else "")
     }
@@ -172,7 +181,7 @@ fun OnboardingScreen(prefs: PreferencesManager, startAtLogin: Boolean = false, o
             )
             OnboardStep.PERMISSIONS -> PermissionsStep(onFinish = { step = OnboardStep.CONNECTION })
             OnboardStep.CONNECTION -> ConnectionInfoStep(serverUrl, onContinue = { step = OnboardStep.DASHBOARD })
-            OnboardStep.DASHBOARD -> DashboardSetupStep(prefs, onComplete)
+            OnboardStep.DASHBOARD -> DashboardSetupStep(prefs, familyAccessLost, onComplete)
         }
     }
 }
@@ -390,7 +399,11 @@ private fun OnboardingDialogFrame(
 }
 
 @Composable
-private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit) {
+private fun DashboardSetupStep(
+    prefs: PreferencesManager,
+    familyAccessLost: Boolean = false,
+    onComplete: () -> Unit,
+) {
     val colors = LocalHKIAppColors.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -407,6 +420,9 @@ private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit
     var haRestoreFiles by remember { mutableStateOf<List<Hki7BackupMeta>>(emptyList()) }
     var restoreBusy by remember { mutableStateOf(false) }
     var restoreError by remember { mutableStateOf<String?>(null) }
+    val allowDashboardCreate by prefs.enforcedAllowDashboardCreate.collectAsState(initial = true)
+    val allowDashboardSwitch by prefs.enforcedAllowDashboardSwitch.collectAsState(initial = true)
+    var showAccessLostMessage by remember(familyAccessLost) { mutableStateOf(familyAccessLost) }
     val importFailedTemplate = stringResource(R.string.uif_onboarding_shared_import_failed)
     val unknownError = stringResource(R.string.settings_extra_unknown_error)
 
@@ -418,6 +434,7 @@ private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit
             runCatching {
                 prefs.restoreUiBackup(raw)
                 prefs.useRestoredBackupAsInitial()
+                prefs.clearFamilyDashboardSubscription()
             }.onSuccess {
                 onComplete()
             }.onFailure { error ->
@@ -521,18 +538,36 @@ private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit
             }
     }
     LaunchedEffect(Unit) {
-        val id = runCatching { HaDashboardSharing.whoami(context) }.getOrNull()
-        cloudAvailable = id != null
-        sharedList = if (id != null)
-            runCatching { HaDashboardSharing.listSharedForMe(context) }.getOrDefault(emptyList())
-        else emptyList()
+        do {
+            runCatching { com.jimz011apps.hki7.data.HaParentalControls.refreshForCurrentUser(context, prefs) }
+            val id = runCatching { HaDashboardSharing.whoami(context) }.getOrNull()
+            cloudAvailable = id != null
+            sharedList = if (id != null)
+                runCatching { HaDashboardSharing.listSharedForMe(context) }.getOrDefault(emptyList())
+            else emptyList()
+            // While access is blocked, keep the chooser live so a newly shared dashboard or relaxed
+            // permission appears without requiring the user to restart the app.
+            if (familyAccessLost) delay(5_000)
+        } while (familyAccessLost)
     }
     fun finish(auto: Boolean) {
-        if (savingMode != null) return
+        if (savingMode != null || !allowDashboardCreate) return
         savingMode = auto
         scope.launch {
-            prefs.configureInitialDashboard(auto)
-            onComplete()
+            if (familyAccessLost) {
+                val name = if (auto) "Default (auto generated)" else "Default"
+                val created = prefs.createDashboard(name, auto)
+                if (created == null) {
+                    savingMode = null
+                    return@launch
+                }
+                prefs.clearFamilyDashboardSubscription()
+                onComplete()
+            } else {
+                prefs.clearFamilyDashboardSubscription()
+                prefs.configureInitialDashboard(auto)
+                onComplete()
+            }
         }
     }
     fun useShared(meta: Hki7SharedDashboardMeta) {
@@ -542,7 +577,8 @@ private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit
         scope.launch {
             val localId = runCatching { HaDashboardSharing.import(context, prefs, meta) }.getOrNull()
             if (localId != null) {
-                prefs.useSharedDashboardAsInitial(localId)
+                val discardOtherDashboards = !prefs.enforcedAllowDashboardSwitch.first()
+                prefs.useSharedDashboardAsInitial(localId, discardOtherDashboards)
                 onComplete()
             } else {
                 familyError = importFailedTemplate.format(meta.name)
@@ -576,7 +612,7 @@ private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit
                 } else {
                     stringResource(R.string.uif_onboarding_auto_generate)
                 },
-                enabled = savingMode == null,
+                enabled = savingMode == null && allowDashboardCreate,
                 onClick = { finish(true) }
             )
             DashboardChoiceCard(
@@ -593,7 +629,7 @@ private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit
                 } else {
                     stringResource(R.string.uif_onboarding_start_empty)
                 },
-                enabled = savingMode == null,
+                enabled = savingMode == null && allowDashboardCreate,
                 onClick = { finish(false) }
             )
             DashboardChoiceCard(
@@ -611,7 +647,7 @@ private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit
                 } else {
                     stringResource(R.string.ui_restore_backup_a65eaa8)
                 },
-                enabled = savingMode == null && !restoreBusy,
+                enabled = savingMode == null && !restoreBusy && allowDashboardSwitch,
                 onClick = { showRestoreSource = true }
             )
             restoreError?.let { error ->
@@ -798,6 +834,19 @@ private fun DashboardSetupStep(prefs: PreferencesManager, onComplete: () -> Unit
             }
         },
     )
+
+    if (showAccessLostMessage) {
+        AlertDialog(
+            onDismissRequest = { showAccessLostMessage = false },
+            title = { Text(stringResource(R.string.family_dashboard_access_lost_title)) },
+            text = { Text(stringResource(R.string.family_dashboard_access_lost_message)) },
+            confirmButton = {
+                Button(onClick = { showAccessLostMessage = false }) {
+                    Text(stringResource(R.string.ui_continue_2e02623))
+                }
+            },
+        )
+    }
 }
 
 @Composable

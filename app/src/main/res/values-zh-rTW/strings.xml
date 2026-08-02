@@ -1869,12 +1869,13 @@
         <item quantity="other">圖表 %1$d · %2$d 個感測器</item>
     </plurals>
     <string-array name="cr_whats_new_beta_11">
-        <item>房間、空調、安全、能源和電池儀表板現在能更充分利用平板電腦與摺疊螢幕裝置。大型卡片採用與首頁和個別房間相同的一至三欄配置，緊湊方塊會自動排列且不會過於擁擠。</item>
+        <item>房間、空調、安全、能源和電池儀表板現在能更充分利用平板電腦與摺疊螢幕裝置。大型卡片採用與首頁和個別房間相同的一至三欄配置，緊湊方塊會自動排列且不會過於擁擠。在寬螢幕上，空調、安全和能源卡片會使用考量高度的瀑布流配置，避免較短卡片下方留下大片空白。</item>
         <item>實體按鈕及標題列／狀態標籤中的狀態色圖示會保留其語意色調；若與目前主題過於接近，則會自動變亮或變暗以保持清晰。</item>
         <item>在初始設定中選擇家庭儀表板後，此裝置會訂閱該儀表板。擁有者點選「儲存」或「完成」時會發布變更，線上用戶端會立即更新，離線用戶端會在再次開啟時同步。非管理員訂閱者在完整重設應用程式之前無法建立或複製儀表板。*</item>
         <item>初始設定的儀表板配置現在可以從本機、Google Drive 或 Home Assistant 備份還原。新的 Google Drive 和 Home Assistant 備份會使用包含應用程式版本與建立日期的一致且清楚的名稱。*</item>
         <item>當行事曆小工具高度不足以顯示所有事件時，現在可以垂直捲動；隱藏的首頁小工具會從配置中移除，不再占用空白空間。</item>
         <item>物流業者卡片現在會顯示進行中收件或寄件的最早預計送達日期與時間，也支援提供獨立「下次送達」感測器的整合。</item>
+        <item>家庭權限現在可以分別控制是否允許切換與建立儀表板。兩項都受限的訂閱者會看到鎖定的儀表板設定；禁止切換時，初始設定會移除暫用儀表板，而家庭儀表板遭刪除後會開啟符合權限的復原畫面，不再靜默建立替代儀表板。*</item>
         <item>* 需要 HKI 7 Cloud Component 整合。</item>
     </string-array>
 
@@ -3342,4 +3343,11 @@
     <string name="dlg_vis_match_all">所有規則</string>
     <string name="dlg_vis_match_any">任何規則</string>
     <string name="dlg_vis_or">或者</string>
+    <string name="family_permission_switch_dashboards">允許切換儀表板</string>
+    <string name="family_permission_switch_dashboards_subtitle">允許此使用者載入其他現有儀表板</string>
+    <string name="family_permission_create_dashboards">允許建立儀表板</string>
+    <string name="family_permission_create_dashboards_subtitle">允許此使用者建立或複製儀表板</string>
+    <string name="family_dashboard_tab_locked">已被家庭權限鎖定</string>
+    <string name="family_dashboard_access_lost_title">家庭存取權限已移除</string>
+    <string name="family_dashboard_access_lost_message">你已無法透過此家庭儀表板存取 HKI 7。請選擇另一個與你共享的儀表板，或選擇家庭權限允許的其他選項。</string>
 </resources>

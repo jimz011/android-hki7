@@ -3055,4 +3055,11 @@
     <string name="widgets_energy_phase_number">단계 %1$d</string>
     <string name="widgets_energy_forecast_number">예측 %1$d</string>
     <string name="widgets_energy_ha_forecast">홈어시스턴트 예측</string>
+    <string name="family_permission_switch_dashboards">대시보드 전환 허용</string>
+    <string name="family_permission_switch_dashboards_subtitle">이 사용자가 다른 기존 대시보드를 불러올 수 있도록 허용합니다</string>
+    <string name="family_permission_create_dashboards">대시보드 생성 허용</string>
+    <string name="family_permission_create_dashboards_subtitle">이 사용자가 대시보드를 만들거나 복제할 수 있도록 허용합니다</string>
+    <string name="family_dashboard_tab_locked">가족 권한으로 잠김</string>
+    <string name="family_dashboard_access_lost_title">가족 액세스가 제거됨</string>
+    <string name="family_dashboard_access_lost_message">이 가족 대시보드를 통해 더 이상 HKI 7에 액세스할 수 없습니다. 공유된 다른 대시보드나 가족 권한이 허용하는 다른 옵션을 선택하세요.</string>
 </resources>

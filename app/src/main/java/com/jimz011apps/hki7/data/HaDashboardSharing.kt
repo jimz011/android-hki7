@@ -57,39 +57,40 @@ object HaDashboardSharing {
         prefs: PreferencesManager,
         meta: Hki7SharedDashboardMeta,
     ): String? {
-        // A successful identity lookup is part of subscribing: without it the app cannot safely
-        // decide whether this installation must receive the sticky non-admin restriction.
-        val identity = Hki7Endpoint.withClient(context) { it.hki7WhoAmI() } ?: return null
-        val raw = Hki7Endpoint.withClient(context) { it.hki7GetDashboard(meta.id) } ?: return null
+        val imported = Hki7Endpoint.withClient(context) { client ->
+            val identity = client.hki7WhoAmI() ?: return@withClient null
+            val policy = if (identity.isAdmin || identity.isOwner) Hki7Policy() else client.hki7GetMyPolicy()
+            val raw = client.hki7GetDashboard(meta.id) ?: return@withClient null
+            raw to policy
+        } ?: return null
+        val (raw, policy) = imported
+        // Cache the policy before activating the subscription so every storage-level permission
+        // check observes the administrator's current values immediately.
+        prefs.saveEnforcedPolicy(policy)
         val localId = prefs.importSharedDashboard(
             meta.id,
             raw,
             nameOverride = meta.name,
             updatedAt = meta.updated,
         ) ?: return null
-        // Subscribing as a non-admin permanently opts this installation into the centrally managed
-        // family-dashboard model. Authentication-only logout and unpublishing do not unlock local
-        // dashboard creation; only PreferencesManager.clearAll() does.
-        if (!identity.isAdmin && !identity.isOwner) {
-            prefs.lockDashboardCreationForFamilySubscriber()
-        }
+        prefs.markFamilyDashboardSubscribed()
         return localId
     }
 
     /** Outcome of a shared-dashboard sync. */
-    data class SyncResult(val activeChanged: Boolean, val needsAutoGenerate: Boolean)
+    data class SyncResult(val activeChanged: Boolean, val accessLost: Boolean)
 
     /** Reconciles this user's imported shared dashboards with the cloud: merges newer versions in
      * (preserving the recipient's aesthetic changes) and removes any the admin unpublished. If the
      * cloud can't be reached the local dashboards are left completely untouched, so a transient outage
-     * never deletes anything. When the removal empties the dashboard list, [SyncResult.needsAutoGenerate]
-     * asks the caller to build the app's default dashboard. */
+     * never deletes anything. When the removal empties the dashboard list, [SyncResult.accessLost]
+     * asks the caller to return to the permission-aware dashboard chooser. */
     suspend fun syncUpdates(context: Context, prefs: PreferencesManager): SyncResult {
         val locals = prefs.dashboards.first().filter { it.id.startsWith("shared-") }
-        if (locals.isEmpty()) return SyncResult(activeChanged = false, needsAutoGenerate = false)
+        if (locals.isEmpty()) return SyncResult(activeChanged = false, accessLost = false)
         // null (not empty) means the component is unreachable — do not prune on a failed call.
         val shared = Hki7Endpoint.withClient(context) { it.hki7ListSharedDashboards() }
-            ?: return SyncResult(activeChanged = false, needsAutoGenerate = false)
+            ?: return SyncResult(activeChanged = false, accessLost = false)
         val sharedByLocalId = shared.associateBy { "shared-${it.id}" }
         // The current user owns some of these; those are the source of truth and are pushed by
         // pushOwnedUpdates, never pulled — pulling would merge the (older) cloud copy back over a
@@ -106,7 +107,7 @@ object HaDashboardSharing {
         val prune = prefs.pruneUnpublishedSharedDashboards(sharedByLocalId.keys)
         return SyncResult(
             activeChanged = activeChanged || prune.activeReplaced,
-            needsAutoGenerate = prune.needsAutoGenerate,
+            accessLost = prune.needsDashboardChoice,
         )
     }
 

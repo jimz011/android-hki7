@@ -1957,12 +1957,13 @@
     <string name="cr_weekly">每周</string>
     <string name="cr_wet">潮湿</string>
     <string-array name="cr_whats_new_beta_11">
-        <item>房间、气候、安全、能源和电池仪表板现在能更充分地利用平板电脑和折叠屏设备。大型卡片采用与主页和单个房间相同的一至三列布局，紧凑磁贴会自动排列且不会过于拥挤。</item>
+        <item>房间、气候、安全、能源和电池仪表板现在能更充分地利用平板电脑和折叠屏设备。大型卡片采用与主页和单个房间相同的一至三列布局，紧凑磁贴会自动排列且不会过于拥挤。在宽屏设备上，气候、安全和能源卡片会使用考虑高度的瀑布流布局，避免较短卡片下方留下大片空白。</item>
         <item>实体按钮及标题栏／状态标签中的状态色图标会保留其语义色调；如果与当前主题过于接近，则会自动变亮或变暗以保持清晰。</item>
         <item>在初始设置中选择家庭仪表板后，此设备会订阅该仪表板。所有者点击“保存”或“完成”时会发布更改，在线客户端会立即刷新，离线客户端会在再次打开时同步。非管理员订阅者在完全重置应用之前无法创建或复制仪表板。*</item>
         <item>初始设置的仪表板配置现在可以从本地、Google Drive 或 Home Assistant 备份恢复。新的 Google Drive 和 Home Assistant 备份会使用包含应用版本和创建日期的统一且清晰的名称。*</item>
         <item>当日历小组件高度不足以显示所有事件时，现在可以垂直滚动；隐藏的主页小组件会从布局中移除，不再占用空白空间。</item>
         <item>快递公司卡片现在会显示活动中收件或寄件的最早预计送达日期和时间，也支持提供独立“下次送达”传感器的集成。</item>
+        <item>家庭权限现在可以分别控制是否允许切换和创建仪表板。两项都受限的订阅者会看到锁定的仪表板设置；禁止切换时，初始设置会移除临时仪表板，而家庭仪表板被删除后会打开符合权限的恢复界面，不再静默创建替代仪表板。*</item>
         <item>* 需要 HKI 7 Cloud 组件集成。</item>
     </string-array>
 
@@ -3297,4 +3298,11 @@
     <string name="dlg_vis_match_all">所有规则</string>
     <string name="dlg_vis_match_any">任何规则</string>
     <string name="dlg_vis_or">或者</string>
+    <string name="family_permission_switch_dashboards">允许切换仪表板</string>
+    <string name="family_permission_switch_dashboards_subtitle">允许此用户加载其他现有仪表板</string>
+    <string name="family_permission_create_dashboards">允许创建仪表板</string>
+    <string name="family_permission_create_dashboards_subtitle">允许此用户创建或复制仪表板</string>
+    <string name="family_dashboard_tab_locked">已被家庭权限锁定</string>
+    <string name="family_dashboard_access_lost_title">家庭访问权限已移除</string>
+    <string name="family_dashboard_access_lost_message">你已无法通过此家庭仪表板访问 HKI 7。请选择另一个与你共享的仪表板，或选择家庭权限允许的其他选项。</string>
 </resources>

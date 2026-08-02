@@ -3217,12 +3217,13 @@
         <item quantity="other">%1$d baterias precisam de atenção</item>
     </plurals>
     <string-array name="cr_whats_new_beta_11">
-        <item>Os painéis Divisões, Clima, Segurança, Energia e Bateria aproveitam melhor tablets e dispositivos dobráveis. Os cartões grandes seguem a disposição de uma, duas ou três colunas do Início e das divisões, enquanto os blocos compactos se ajustam automaticamente sem ficarem apertados.</item>
+        <item>Os painéis Divisões, Clima, Segurança, Energia e Bateria aproveitam melhor tablets e dispositivos dobráveis. Os cartões grandes seguem a disposição de uma, duas ou três colunas do Início e das divisões, enquanto os blocos compactos se ajustam automaticamente sem ficarem apertados. Em ecrãs largos, os cartões de Clima, Segurança e Energia usam uma disposição masonry que considera a altura, eliminando grandes espaços sob os cartões mais baixos.</item>
         <item>Os ícones coloridos pelo estado nos botões de entidades e nos indicadores de cabeçalho ou estado mantêm o tom identificável, mas ficam automaticamente mais claros ou escuros quando poderiam confundir-se com o tema atual.</item>
         <item>Ao selecionar um painel familiar durante a configuração inicial, esta instalação fica agora subscrita. As alterações do proprietário são publicadas ao tocar em Guardar ou Concluído, os clientes ativos são atualizados imediatamente e os clientes offline sincronizam ao reabrir. Utilizadores que não sejam administradores não podem criar nem duplicar painéis até à reposição completa da aplicação.*</item>
         <item>A configuração inicial do painel permite agora restaurar uma cópia local, do Google Drive ou do Home Assistant. As novas cópias do Google Drive e Home Assistant usam nomes consistentes e informativos com a versão da aplicação e a data de criação.*</item>
         <item>Os widgets de calendário permitem deslocamento vertical quando não têm altura suficiente para todos os eventos, e os widgets ocultos do Início são removidos da disposição em vez de deixarem um espaço vazio.</item>
         <item>Os cartões das transportadoras mostram agora a primeira data e hora de entrega prevista para envios ativos recebidos ou enviados, incluindo integrações com um sensor separado para a próxima entrega.</item>
+        <item>As permissões familiares podem agora autorizar separadamente a mudança e a criação de painéis. Os subscritores totalmente limitados veem a secção Painel bloqueada; a configuração remove o painel provisório quando a mudança não é permitida e um painel familiar eliminado abre uma recuperação baseada nas permissões em vez de criar silenciosamente um substituto.*</item>
         <item>* Requer a integração do Componente HKI 7 Cloud.</item>
     </string-array>
 
@@ -3345,4 +3346,11 @@
     <string name="dlg_vis_match_all">Todas as regras</string>
     <string name="dlg_vis_match_any">Qualquer regra</string>
     <string name="dlg_vis_or">OU</string>
+    <string name="family_permission_switch_dashboards">Permitir mudar de painel</string>
+    <string name="family_permission_switch_dashboards_subtitle">Permitir que esta pessoa carregue outro painel existente</string>
+    <string name="family_permission_create_dashboards">Permitir criar painéis</string>
+    <string name="family_permission_create_dashboards_subtitle">Permitir que esta pessoa crie ou duplique painéis</string>
+    <string name="family_dashboard_tab_locked">Bloqueado pelas permissões familiares</string>
+    <string name="family_dashboard_access_lost_title">Acesso familiar removido</string>
+    <string name="family_dashboard_access_lost_message">Já não tens acesso ao HKI 7 através deste painel familiar. Escolhe outro painel partilhado contigo ou outra opção permitida pelas tuas permissões familiares.</string>
 </resources>

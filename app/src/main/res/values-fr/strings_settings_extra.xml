@@ -141,4 +141,11 @@
         <item quantity="one">Modifications envoyées à %1$d tableau de bord partagé.</item>
         <item quantity="other">Modifications envoyées à %1$d tableaux de bord partagés.</item>
     </plurals>
+    <string name="family_permission_switch_dashboards">Autoriser le changement de tableau de bord</string>
+    <string name="family_permission_switch_dashboards_subtitle">Permettre à cette personne de charger un autre tableau de bord existant</string>
+    <string name="family_permission_create_dashboards">Autoriser la création de tableaux de bord</string>
+    <string name="family_permission_create_dashboards_subtitle">Permettre à cette personne de créer ou dupliquer des tableaux de bord</string>
+    <string name="family_dashboard_tab_locked">Verrouillé par les autorisations familiales</string>
+    <string name="family_dashboard_access_lost_title">Accès familial supprimé</string>
+    <string name="family_dashboard_access_lost_message">Tu n’as plus accès à HKI 7 via ce tableau de bord familial. Choisis un autre tableau de bord partagé avec toi ou une autre option autorisée par tes permissions familiales.</string>
 </resources>

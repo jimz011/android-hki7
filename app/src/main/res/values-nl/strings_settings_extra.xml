@@ -141,4 +141,11 @@
         <item quantity="one">Wijzigingen zijn doorgestuurd naar %1$d gedeeld dashboard.</item>
         <item quantity="other">Wijzigingen zijn doorgestuurd naar %1$d gedeelde dashboards.</item>
     </plurals>
+    <string name="family_permission_switch_dashboards">Wisselen tussen dashboards toestaan</string>
+    <string name="family_permission_switch_dashboards_subtitle">Laat deze persoon een ander bestaand dashboard laden</string>
+    <string name="family_permission_create_dashboards">Dashboards maken toestaan</string>
+    <string name="family_permission_create_dashboards_subtitle">Laat deze persoon dashboards maken of dupliceren</string>
+    <string name="family_dashboard_tab_locked">Vergrendeld door familiemachtigingen</string>
+    <string name="family_dashboard_access_lost_title">Familietoegang verwijderd</string>
+    <string name="family_dashboard_access_lost_message">Je hebt via dit familiedashboard geen toegang meer tot HKI 7. Kies een ander dashboard dat met je is gedeeld, of gebruik een andere optie die je familiemachtigingen toestaan.</string>
 </resources>

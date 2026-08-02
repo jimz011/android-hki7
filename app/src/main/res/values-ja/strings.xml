@@ -3055,4 +3055,11 @@
     <string name="widgets_energy_phase_number">フェーズ %1$d</string>
     <string name="widgets_energy_forecast_number">予報 %1$d</string>
     <string name="widgets_energy_ha_forecast">ホームアシスタントの予測</string>
+    <string name="family_permission_switch_dashboards">ダッシュボードの切り替えを許可</string>
+    <string name="family_permission_switch_dashboards_subtitle">別の既存ダッシュボードを読み込めるようにします</string>
+    <string name="family_permission_create_dashboards">ダッシュボードの作成を許可</string>
+    <string name="family_permission_create_dashboards_subtitle">ダッシュボードを作成または複製できるようにします</string>
+    <string name="family_dashboard_tab_locked">ファミリー権限によりロックされています</string>
+    <string name="family_dashboard_access_lost_title">ファミリーアクセスが削除されました</string>
+    <string name="family_dashboard_access_lost_message">このファミリーダッシュボード経由ではHKI 7にアクセスできなくなりました。共有されている別のダッシュボード、またはファミリー権限で許可された別の方法を選んでください。</string>
 </resources>

@@ -553,23 +553,24 @@ private fun SecurityOverview(
                     }
                 }
             }
-            val cameraRows = cameras.chunked(dashboardColumns)
-            items(cameraRows.size, key = { index -> cameraRows[index].joinToString("|") { it.entity_id } }) { index ->
-                Row(
-                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.Top,
+            item(cameras.joinToString("|", prefix = "security-camera-masonry:") { it.entity_id }) {
+                DashboardMasonryLayout(
+                    columns = dashboardColumns,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+                    horizontalSpacing = 12.dp,
+                    verticalSpacing = 12.dp,
                 ) {
-                    cameraRows[index].forEach { camera ->
-                        Box(Modifier.weight(1f)) {
+                    cameras.forEach { camera ->
+                        key(camera.entity_id) {
+                        Box(Modifier.fillMaxWidth()) {
                             SecurityCameraCard(camera, viewModel, currentUrl, cameraConfigs[camera.entity_id])
                             if (isEditMode) {
                                 EditSettingsButton({ onCameraSettings(camera) }, Modifier.align(Alignment.Center))
                                 EditRemoveBadge({ onRemove(camera.entity_id) }, Modifier.align(Alignment.TopEnd))
                             }
                         }
+                        }
                     }
-                    repeat(dashboardColumns - cameraRows[index].size) { Spacer(Modifier.weight(1f)) }
                 }
             }
         }

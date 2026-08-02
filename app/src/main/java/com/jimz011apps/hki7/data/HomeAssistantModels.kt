@@ -1571,8 +1571,13 @@ data class Hki7Policy(
     val showGlobalSearch: Boolean = true,
     /** Whether this user sees the flows (automations) action. */
     val showFlows: Boolean = true,
+    /** Whether a family-dashboard subscriber may load a different existing dashboard. */
+    val allowDashboardSwitch: Boolean = true,
+    /** Whether a family-dashboard subscriber may create or duplicate a dashboard. */
+    val allowDashboardCreate: Boolean = true,
 ) {
     val isEmpty: Boolean
         get() = hiddenViews.isEmpty() && hiddenRooms.isEmpty() && hiddenItemIds.isEmpty() &&
-            allowEdit && !aestheticsOnly && showGlobalSearch && showFlows
+            allowEdit && !aestheticsOnly && showGlobalSearch && showFlows &&
+            allowDashboardSwitch && allowDashboardCreate
 }

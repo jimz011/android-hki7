@@ -1969,12 +1969,13 @@
     <string name="cr_weekly">Semanal</string>
     <string name="cr_wet">Húmedo</string>
     <string-array name="cr_whats_new_beta_11">
-        <item>Los paneles Habitaciones, Clima, Seguridad, Energía y Batería aprovechan mejor las tabletas y los dispositivos plegables. Las tarjetas grandes siguen el diseño de una, dos o tres columnas de Inicio y las habitaciones, mientras que las tarjetas compactas se ajustan automáticamente sin quedar apretadas.</item>
+        <item>Los paneles Habitaciones, Clima, Seguridad, Energía y Batería aprovechan mejor las tabletas y los dispositivos plegables. Las tarjetas grandes siguen el diseño de una, dos o tres columnas de Inicio y las habitaciones, mientras que las tarjetas compactas se ajustan automáticamente sin quedar apretadas. Las tarjetas de Clima, Seguridad y Energía usan un diseño de mampostería que considera la altura en pantallas anchas, evitando grandes espacios bajo las tarjetas más cortas.</item>
         <item>Los íconos coloreados según el estado en botones de entidades y etiquetas de encabezado o estado conservan su tono identificativo, pero se aclaran u oscurecen automáticamente cuando podrían confundirse con el tema actual.</item>
         <item>Al elegir un panel familiar durante la configuración inicial, la instalación queda suscrita. Los cambios del propietario se publican al tocar Guardar o Listo, los clientes activos se actualizan de inmediato y los desconectados se sincronizan al volver a abrirse. Quienes no sean administradores no pueden crear ni duplicar paneles hasta restablecer por completo la aplicación.*</item>
         <item>La configuración inicial del panel ahora permite restaurar una copia local, de Google Drive o de Home Assistant. Las nuevas copias de Google Drive y Home Assistant usan nombres coherentes e informativos con la versión de la aplicación y la fecha de creación.*</item>
         <item>Los widgets de calendario permiten desplazamiento vertical cuando no tienen altura suficiente para todos los eventos, y los widgets ocultos de Inicio se eliminan del diseño en vez de dejar un espacio vacío.</item>
         <item>Las tarjetas de las empresas de paquetería muestran ahora la primera fecha y hora de entrega prevista para envíos activos entrantes o salientes, incluso con integraciones que ofrecen un sensor separado de próxima entrega.</item>
+        <item>Los permisos familiares ahora permiten autorizar por separado el cambio y la creación de paneles. Los suscriptores totalmente restringidos ven bloqueada la sección Panel; la configuración inicial elimina el panel provisional si no se permite cambiar y, al eliminarse un panel familiar, abre una recuperación según los permisos en vez de crear un reemplazo en silencio.*</item>
         <item>* Requiere la integración de HKI 7 Cloud Component.</item>
     </string-array>
 
@@ -3342,4 +3343,11 @@
     <string name="dlg_vis_match_all">Todas las reglas</string>
     <string name="dlg_vis_match_any">cualquier regla</string>
     <string name="dlg_vis_or">O</string>
+    <string name="family_permission_switch_dashboards">Permitir cambiar de panel</string>
+    <string name="family_permission_switch_dashboards_subtitle">Permite que esta persona cargue otro panel existente</string>
+    <string name="family_permission_create_dashboards">Permitir crear paneles</string>
+    <string name="family_permission_create_dashboards_subtitle">Permite que esta persona cree o duplique paneles</string>
+    <string name="family_dashboard_tab_locked">Bloqueado por los permisos familiares</string>
+    <string name="family_dashboard_access_lost_title">Acceso familiar eliminado</string>
+    <string name="family_dashboard_access_lost_message">Ya no tienes acceso a HKI 7 mediante este panel familiar. Elige otro panel compartido contigo o cualquier otra opción permitida por tus permisos familiares.</string>
 </resources>

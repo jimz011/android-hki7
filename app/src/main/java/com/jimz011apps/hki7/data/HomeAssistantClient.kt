@@ -425,22 +425,30 @@ open class HomeAssistantClient(
      * only. Returns true on success.
      *
      * Older companion components accept only hidden_views/hidden_rooms and reject unknown keys with a
-     * schema error, so the extra permission fields are attempted first and, if that call is rejected,
-     * we retry with just the hidden lists. That keeps parental controls working on an un-updated
-     * component; the new permission fields take effect once the component understands them. */
+     * schema error. We retry first with the pre-dashboard permission set, then with only hidden
+     * lists, so every component generation keeps all fields it understands. */
     open suspend fun hki7SetPolicy(userId: String, policy: Hki7Policy): Boolean = withWebSocket {
         val base = mapOf<String, JsonElement>(
             "user_id" to JsonPrimitive(userId),
             "hidden_views" to JsonArray(policy.hiddenViews.map { JsonPrimitive(it) }),
             "hidden_rooms" to JsonArray(policy.hiddenRooms.map { JsonPrimitive(it) }),
         )
-        val full = base + mapOf<String, JsonElement>(
+        val legacyPermissions = base + mapOf<String, JsonElement>(
             "allow_edit" to JsonPrimitive(policy.allowEdit),
             "aesthetics_only" to JsonPrimitive(policy.aestheticsOnly),
             "show_global_search" to JsonPrimitive(policy.showGlobalSearch),
             "show_flows" to JsonPrimitive(policy.showFlows),
         )
+        val full = legacyPermissions + mapOf<String, JsonElement>(
+            "allow_dashboard_switch" to JsonPrimitive(policy.allowDashboardSwitch),
+            "allow_dashboard_create" to JsonPrimitive(policy.allowDashboardCreate),
+        )
         if (sendCommand("hki7/policy/set", full)["success"]?.jsonPrimitive?.booleanOrNull == true) {
+            return@withWebSocket true
+        }
+        // Component 0.4/0.5 understands the original permission set but not the two dashboard
+        // fields. Preserve those permissions instead of falling all the way back to hidden lists.
+        if (sendCommand("hki7/policy/set", legacyPermissions)["success"]?.jsonPrimitive?.booleanOrNull == true) {
             return@withWebSocket true
         }
         sendCommand("hki7/policy/set", base)["success"]?.jsonPrimitive?.booleanOrNull == true
@@ -461,6 +469,8 @@ open class HomeAssistantClient(
         aestheticsOnly = o["aesthetics_only"]?.jsonPrimitive?.booleanOrNull ?: false,
         showGlobalSearch = o["show_global_search"]?.jsonPrimitive?.booleanOrNull ?: true,
         showFlows = o["show_flows"]?.jsonPrimitive?.booleanOrNull ?: true,
+        allowDashboardSwitch = o["allow_dashboard_switch"]?.jsonPrimitive?.booleanOrNull ?: true,
+        allowDashboardCreate = o["allow_dashboard_create"]?.jsonPrimitive?.booleanOrNull ?: true,
     )
 
     private fun parseDashboardMeta(o: JsonObject): Hki7SharedDashboardMeta? {
