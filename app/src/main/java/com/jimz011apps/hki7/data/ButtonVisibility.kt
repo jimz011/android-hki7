@@ -1,13 +1,17 @@
 package com.jimz011apps.hki7.data
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import java.time.LocalDateTime
 
 /**
  * Visibility rules for a button, badge, or widget.
  *
  * An item is hidden outright when its `hidden`/`isHidden` flag is set. Otherwise it is shown when
- * its [HKIVisibilityCondition] blocks pass, combined with [VISIBILITY_MATCH_ALL] (AND) or
- * [VISIBILITY_MATCH_ANY] (OR). No blocks means always visible.
+ * its [HKIVisibilityCondition] blocks pass. Per-block connectors support mixed AND/OR expressions;
+ * the legacy global match value remains the fallback for older saved rules. No blocks means always
+ * visible.
  *
  * Blocks replaced an earlier flat "one schedule plus one entity check" layout. Items saved under
  * that layout still carry the flat fields and no blocks, so [normalizedVisibilityConditions]
@@ -57,10 +61,21 @@ private fun isConditionMet(
     condition: HKIVisibilityCondition,
     now: LocalDateTime,
     resolveEntityState: ((String) -> String?)?,
+    currentUserId: String?,
 ): Boolean = when (condition.type) {
     VISIBILITY_TYPE_TIME -> isWithinSchedule(
         condition.start, condition.end, condition.rangeMode, condition.recurrence, now
     )
+    VISIBILITY_TYPE_PERSON -> {
+        if (condition.userId.isNullOrBlank() || currentUserId.isNullOrBlank()) {
+            // Until identity is available, do not make content disappear. The identity refresh
+            // updates snapshot state and causes readers to evaluate again.
+            true
+        } else {
+            val matches = condition.userId == currentUserId
+            if (condition.negate) !matches else matches
+        }
+    }
     else -> {
         if (condition.entityId.isNullOrBlank() || resolveEntityState == null) {
             true
@@ -122,6 +137,7 @@ fun isVisibleAt(
     conditionState: String? = null,
     conditionNegate: Boolean = false,
     resolveEntityState: ((String) -> String?)? = null,
+    currentUserId: String? = null,
     conditions: List<HKIVisibilityCondition> = emptyList(),
     match: String = VISIBILITY_MATCH_ALL,
 ): Boolean {
@@ -131,7 +147,7 @@ fun isVisibleAt(
         conditionEntityId, conditionState, conditionNegate,
     )
     if (blocks.isEmpty()) return true
-    val values = blocks.map { isConditionMet(it, now, resolveEntityState) }
+    val values = blocks.map { isConditionMet(it, now, resolveEntityState, currentUserId) }
     // AND binds tighter than OR: each OR starts a new all-must-pass group.
     var groupPasses = values.first()
     var anyCompletedGroupPasses = false
@@ -164,11 +180,24 @@ fun isButtonVisibleAt(
     config: HKIButtonConfig,
     now: LocalDateTime,
     resolveEntityState: ((String) -> String?)? = null,
+    currentUserId: String? = null,
 ): Boolean = isVisibleAt(
     config.hidden, config.visibilityStart, config.visibilityEnd, config.visibilityRangeMode, config.visibilityRecurrence, now,
     config.visibilityConditionEntityId, config.visibilityConditionState, config.visibilityConditionNegate, resolveEntityState,
+    currentUserId,
     config.visibilityConditions, config.visibilityMatch,
 )
+
+/** Process-local identity used by the convenience `*VisibleNow` functions. The value is snapshot
+ * state so visibility readers recompose as soon as the authenticated HA identity is resolved. */
+object VisibilityUserSession {
+    var currentUserId: String? by mutableStateOf(null)
+        private set
+
+    fun update(userId: String?) {
+        currentUserId = userId
+    }
+}
 
 /** True when [this] has any visibility restriction (a hide, a schedule, or a condition). */
 fun HKIButtonConfig.hasVisibilityRule(): Boolean =
@@ -178,7 +207,9 @@ fun HKIButtonConfig.hasVisibilityRule(): Boolean =
 fun isButtonVisibleNow(
     config: HKIButtonConfig,
     resolveEntityState: ((String) -> String?)? = null,
-): Boolean = isButtonVisibleAt(config, LocalDateTime.now(), resolveEntityState)
+): Boolean = isButtonVisibleAt(
+    config, LocalDateTime.now(), resolveEntityState, VisibilityUserSession.currentUserId
+)
 
 /** True when [this] has any visibility restriction (a hide, a schedule, or a condition). */
 fun HKIBadge.hasVisibilityRule(): Boolean =
@@ -193,6 +224,7 @@ fun isBadgeVisibleAt(
     isVisibleAt(
         badge.hidden, badge.visibilityStart, badge.visibilityEnd, badge.visibilityRangeMode, badge.visibilityRecurrence, now,
         badge.visibilityConditionEntityId, badge.visibilityConditionState, badge.visibilityConditionNegate, resolveEntityState,
+        VisibilityUserSession.currentUserId,
         badge.visibilityConditions, badge.visibilityMatch,
     )
 
@@ -214,6 +246,7 @@ fun isWidgetVisibleAt(
     isVisibleAt(
         widget.isHidden, widget.visibilityStart, widget.visibilityEnd, widget.visibilityRangeMode, widget.visibilityRecurrence, now,
         widget.visibilityConditionEntityId, widget.visibilityConditionState, widget.visibilityConditionNegate, resolveEntityState,
+        VisibilityUserSession.currentUserId,
         widget.visibilityConditions, widget.visibilityMatch,
     )
 

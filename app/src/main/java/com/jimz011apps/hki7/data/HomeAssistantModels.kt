@@ -856,12 +856,12 @@ data class HKIEnergyConfig(
 )
 
 /**
- * One visibility rule. A button, badge, or widget holds a list of these plus a match mode
- * ("all" = every block must pass, "any" = at least one must), letting rules be combined rather than
- * limited to one schedule and one entity check.
+ * One visibility rule. A button, badge, or widget holds a list of these. Each block after the first
+ * stores its AND/OR connector, so time, entity, and person rules can be mixed in one expression.
  *
  * [type] selects which fields apply: [VISIBILITY_TYPE_TIME] uses [start]/[end]/[rangeMode]/
- * [recurrence]; [VISIBILITY_TYPE_ENTITY] uses [entityId]/[state]/[negate].
+ * [recurrence]; [VISIBILITY_TYPE_ENTITY] uses [entityId]/[state]/[negate];
+ * [VISIBILITY_TYPE_PERSON] uses [userId]/[negate] to match the signed-in Home Assistant user.
  */
 @Serializable
 data class HKIVisibilityCondition(
@@ -871,6 +871,8 @@ data class HKIVisibilityCondition(
     /** Entity rule: passes while [entityId]'s state does (or, with [negate], doesn't) equal [state]. */
     val entityId: String? = null,
     val state: String? = null,
+    /** Person rule: Home Assistant user id selected by an admin for a shared dashboard. */
+    val userId: String? = null,
     val negate: Boolean = false,
     /** Time rule: ISO-8601 local date-time bounds, same semantics as the legacy flat fields. */
     val start: String? = null,
@@ -881,6 +883,7 @@ data class HKIVisibilityCondition(
 
 const val VISIBILITY_TYPE_ENTITY = "entity"
 const val VISIBILITY_TYPE_TIME = "time"
+const val VISIBILITY_TYPE_PERSON = "person"
 const val VISIBILITY_CONNECTOR_AND = "and"
 const val VISIBILITY_CONNECTOR_OR = "or"
 /** Every block must pass. */

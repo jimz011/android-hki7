@@ -1917,7 +1917,6 @@
     <string name="cr_quick_switch_homes">切换住宅</string>
     <string name="cr_quick_switch_homes_instruction">从标题栏右上角边缘向左滑动。</string>
     <string name="cr_raise_target">提高目标值</string>
-    <string name="cr_reimport">重新导入</string>
     <string name="cr_remove">移除</string>
     <plurals name="cr_removed_count">
         <item quantity="other">已移除 %d 个</item>
@@ -1958,10 +1957,11 @@
     <string name="cr_weekly">每周</string>
     <string name="cr_wet">潮湿</string>
     <string-array name="cr_whats_new_beta_10">
-        <item>可见性规则现已适用于所有小组件及其单个项目，支持时间计划、实体状态条件、按用户隐藏，并可在同一规则组中自由混合“与”和“或”。新条件默认留空，可自行选择时间或实体。</item>
-        <item>房间状态计数徽章现在保持稳定的两位数宽度，标题区域每行可容纳三个计数器后再换行。</item>
+        <item>可见性规则适用于所有小组件及项目，支持时间、实体、人员及混合“与/或”条件。家庭共享仪表板的管理员可让项目对所选用户可见或隐藏。人员条件使用 HKI 7 Cloud；未安装该集成时会显示要求。新规则默认留空，可选择时间、实体或人员。</item>
+        <item>房间状态计数徽章保持稳定的两位数宽度。标题区域会像主页和人员徽章一样自动适应每行一、二或三列，且不会把标题向下挤。</item>
         <item>能源设置现可识别 SmartGateways 和 DSMR Reader 的 MQTT 传感器名称，选择来源设备会重新填充各个传感器。区域供暖新增专用设置、来源磁贴、详情页，以及按 J/GJ 用量估算的天然气等价值。</item>
         <item>日历小组件对话框现在会正确使用全部可用高度，内容不再只占一半或被截断。</item>
+        <item>房间、气候、安全、能源和电池中的重新导入设置现使用统一且正确本地化的标签。所有支持语言中的条件可见性术语也已修正。</item>
         <item>屏幕旋转现在会跟随设备的自动旋转设置，不再固定为竖屏。</item>
         <item>关联天气设备后，即使没有独立传感器，气候页面也会显示“室外”磁贴，在摘要中计入温度、湿度和气压属性，并用对应的传感器颜色绘制图表。</item>
         <item>包裹状态代码现在会显示为自然语句。日期和时间遵循所选语言及 12/24 小时设置，近期送达使用星期名称，省略当前年份，且不会重复显示同一日期。</item>
@@ -3268,14 +3268,19 @@
     <string name="widgets_weather_subtitle">实体、卡片类型和外观</string>
     <string name="widgets_weather_title">天气</string>
     <string name="widgets_yesterday">昨天</string>
-    <string name="dlg_condition">健康）状况</string>
+    <string name="dlg_condition">条件</string>
     <string name="dlg_condition_is">是</string>
     <string name="dlg_condition_is_not">不是</string>
     <string name="dlg_condition_state">状态</string>
     <string name="ui_hidden_items_advanced_title">隐藏物品（高级）</string>
     <string name="ui_hidden_items_advanced_hint">以逗号分隔的按钮实体 ID 或徽章/小部件 ID 列表，专门向此人隐藏。按钮的 id 是其实体 id；徽章或小部件的 ID 显示在其自己的外观设置中。</string>
-    <string name="dlg_vis_conditional">有条件的</string>
+    <string name="dlg_vis_conditional">按条件</string>
     <string name="dlg_vis_entity_state">实体状态</string>
+    <string name="dlg_vis_person">人员</string>
+    <string name="dlg_visible">可见</string>
+    <string name="dlg_choose_person">选择人员</string>
+    <string name="dlg_person_condition_hint">与当前登录的 Home Assistant 用户匹配。此规则会随共享仪表板一起传递。</string>
+    <string name="dlg_person_requires_hki7_cloud">按人员设置可见性需要 HKI 7 Cloud 组件。安装后即可在此选择 Home Assistant 用户。</string>
     <string name="dlg_vis_time_schedule">时间表</string>
     <string name="dlg_vis_and">和</string>
     <string name="dlg_vis_match">匹配</string>

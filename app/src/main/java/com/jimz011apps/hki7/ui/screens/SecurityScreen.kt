@@ -399,7 +399,7 @@ fun SecurityScreen(viewModel: MainViewModel) {
     var showSecurityReimport by remember { mutableStateOf(false) }
     var showClearSecurity by remember { mutableStateOf(false) }
     val importSettings: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
-        stringResource(R.string.security_reimport) to { _ ->
+        stringResource(R.string.widgets_reimport) to { _ ->
             Text(stringResource(R.string.ui_fetch_security_entities_from_home_assistant_again_577b666), color = LocalHKIAppColors.current.onMuted)
             Button(onClick = { showSecurityReimport = true }, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.CloudDownload, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.ui_re_import_security_411e76d))

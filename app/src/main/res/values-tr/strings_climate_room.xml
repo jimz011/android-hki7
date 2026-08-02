@@ -116,7 +116,6 @@
     <string name="cr_climate_air_quality">Hava kalitesi</string>
     <string name="cr_climate_air_quality_summary">Partiküller, HKİ, UOB’ler ve gazlar</string>
     <string name="cr_climate_entities">İklim varlıkları</string>
-    <string name="cr_reimport">Yeniden içe aktar</string>
     <string name="cr_climate_settings">İklim ayarları</string>
     <string name="cr_empty_climate_view">Henüz iklim verisi yok.</string>
     <string name="cr_climate_fans">Fanlar</string>
@@ -331,10 +330,11 @@
     <string name="cr_quick_make_it_yours_instruction">Düzenleme modunda odaları, katları ve widget’ları ekleyip sırala. Yapılandırmak için bir öğeye dokun.</string>
 
     <string-array name="cr_whats_new_beta_10">
-        <item>Görünürlük kuralları artık tüm widget’larda ve tek tek widget öğelerinde çalışıyor; zaman planları, varlık durumu koşulları, kullanıcıya göre gizleme ve aynı kural kümesinde serbestçe karıştırılabilen VE ile VEYA bağlantıları destekleniyor. Yeni koşullar, Zaman veya Varlık seçebilmeniz için boş başlar.</item>
-        <item>Oda durumu sayaç rozetleri artık iki basamak için sabit genişliğini koruyor ve başlık, alt satıra geçmeden önce her satıra üç sayaç sığdırıyor.</item>
+        <item>Görünürlük kuralları tüm widget ve öğelerde Zaman, Varlık, Kişi ve karışık VE/VEYA koşullarıyla çalışır. Paylaşılan aile panosunun yöneticileri bir öğeyi seçilen kullanıcı için Görünür veya Gizli yapabilir. Kişi koşulları HKI 7 Cloud kullanır ve entegrasyon yoksa gereksinim gösterilir. Yeni kurallar boş başlar: Zaman, Varlık veya Kişi.</item>
+        <item>Oda durumu sayaç rozetleri iki basamak için sabit genişliğini korur. Başlıklar, ana sayfa ve kişi rozetleri gibi bir, iki veya üç sütuna uyum sağlar ve başlığı aşağı itmez.</item>
         <item>Enerji kurulumu artık SmartGateways ve DSMR Reader MQTT sensör adlarını tanıyor. Bir kaynak cihaz seçildiğinde ayrı sensör rolleri yeniden dolduruluyor. Bölgesel ısıtma için ayarlar, kaynak kutucuğu, ayrıntı sekmesi ve J/GJ değerlerinden tahmini doğal gaz eşdeğeri eklendi.</item>
         <item>Takvim widget pencereleri artık kullanılabilir yüksekliğin tamamını doğru kullanıyor; içerik yarım alanda kalmıyor veya kesilmiyor.</item>
+        <item>Yeniden içe aktarma ayarları artık Odalar, İklim, Güvenlik, Enerji ve Pil genelinde aynı doğru yazılmış ve yerelleştirilmiş etiketi kullanıyor. Koşullu görünürlük terimleri de desteklenen tüm dillerde düzeltildi.</item>
         <item>Ekran döndürme artık dikey moda kilitlenmek yerine cihazın otomatik döndürme ayarını izliyor.</item>
         <item>İklim Dış ortam kutucuğu, ayrı sensörler olmasa bile bir hava durumu cihazı bağlandığında görünür; sıcaklık, nem ve basınç özniteliklerini özete katar ve eşleşen sensör renkleriyle grafikte gösterir.</item>
         <item>Paket durum kodları normal cümleler olarak gösterilir. Tarih ve saatler dil ile 12/24 saat tercihine uyar, yakın teslimatlarda hafta günleri kullanılır, geçerli yıl atlanır ve aynı tarih tekrarlanmaz.</item>

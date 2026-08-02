@@ -119,7 +119,6 @@
     <string name="cr_climate_air_quality">Qualité de l’air</string>
     <string name="cr_climate_air_quality_summary">Particules, IQA, COV et gaz</string>
     <string name="cr_climate_entities">Entités de climatisation</string>
-    <string name="cr_reimport">Réimporter</string>
     <string name="cr_climate_settings">Paramètres de climatisation</string>
     <string name="cr_empty_climate_view">Aucune donnée climatique n’est encore disponible.</string>
     <string name="cr_climate_fans">Ventilateurs</string>
@@ -337,10 +336,11 @@
 
     <!-- Version actuelle -->
     <string-array name="cr_whats_new_beta_10">
-        <item>Les règles de visibilité fonctionnent désormais pour tous les widgets et leurs éléments, avec horaires, conditions d’état d’entité, masquage par utilisateur et opérateurs ET et OU librement combinés dans un même ensemble. Une nouvelle condition est vide afin de choisir soi-même Heure ou Entité.</item>
-        <item>Les badges de compteur d’état des pièces conservent maintenant une largeur stable pour deux chiffres, et l’en-tête en place trois par ligne avant de revenir à la ligne.</item>
+        <item>Les règles de visibilité couvrent tous les widgets et éléments, avec conditions Heure, Entité, Personne et combinaisons ET/OU. Les administrateurs d’un tableau familial partagé peuvent rendre un élément visible ou masqué pour un utilisateur choisi. Les conditions Personne utilisent HKI 7 Cloud et son exigence est signalée si l’intégration manque. Une nouvelle règle commence vide : Heure, Entité ou Personne.</item>
+        <item>Les badges de compteur d’état des pièces conservent une largeur stable pour deux chiffres. Les en-têtes s’adaptent à une, deux ou trois colonnes comme les badges d’accueil et de personnes, sans repousser le titre vers le bas.</item>
         <item>La configuration Énergie reconnaît maintenant les capteurs MQTT SmartGateways et DSMR Reader. Choisir un appareil source remplit de nouveau les capteurs séparés. Le chauffage urbain dispose de réglages, d’une tuile, d’un onglet détaillé et d’une estimation en équivalent gaz pour les valeurs J/GJ.</item>
         <item>Les fenêtres du widget Calendrier utilisent correctement toute la hauteur disponible : leur contenu n’occupe plus seulement la moitié et n’est plus coupé.</item>
+        <item>Les réglages de réimportation utilisent désormais le même libellé correctement orthographié et traduit dans Pièces, Climat, Sécurité, Énergie et Batterie. La terminologie de visibilité conditionnelle a aussi été corrigée dans toutes les langues prises en charge.</item>
         <item>La rotation de l’écran suit désormais le réglage de rotation automatique de l’appareil au lieu de rester bloquée en portrait.</item>
         <item>La tuile Climat « Extérieur » apparaît avec un appareil météo même sans capteurs dédiés, compte ses attributs de température, d’humidité et de pression dans le résumé et les trace avec les couleurs de capteur correspondantes.</item>
         <item>Les codes d’état des colis deviennent des phrases normales. Dates et heures suivent la langue et le format 12/24 h, les livraisons proches utilisent les jours de la semaine, l’année en cours est omise et une même date n’est plus répétée.</item>

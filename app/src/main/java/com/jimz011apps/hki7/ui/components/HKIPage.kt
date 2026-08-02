@@ -549,6 +549,14 @@ fun HKIPage(
                                 if (overflowCount > 0) visiblePeople.take(avatarCapacity - 1) else visiblePeople
                             val avatarRows = if (perRow > 0) shownPeople.chunked(perRow) else emptyList()
                             val wrappedPeopleCapacity = rowCapacity(maxWidth).coerceAtLeast(1)
+                            // Follow the person layout's responsive principle: reduce the trailing
+                            // counter columns as the header narrows. Badges wrap before they can take
+                            // enough horizontal space to force the page title onto two lines.
+                            val trailingContentWidth = when {
+                                maxWidth >= 400.dp -> 180.dp // 3 x 53dp pills + two 6dp gaps
+                                maxWidth >= 280.dp -> 112.dp // 2 x 53dp pills + one 6dp gap
+                                else -> 53.dp
+                            }
 
                             if (perRow == 0) {
                                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -593,10 +601,7 @@ fun HKIPage(
                                         if (headerTrailingContent != null) {
                                             Box(
                                                 modifier = Modifier
-                                                    // Three regular room-status pills need 171dp
-                                                    // (3 x 53dp plus two 6dp gaps). Keep a little
-                                                    // breathing room so the header does not wrap at two.
-                                                    .widthIn(max = 180.dp)
+                                                    .width(trailingContentWidth)
                                                     .padding(top = 4.dp),
                                                 contentAlignment = Alignment.TopEnd
                                             ) {

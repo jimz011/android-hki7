@@ -19,7 +19,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -40,11 +42,13 @@ import com.jimz011apps.hki7.data.HKIBadge
 import com.jimz011apps.hki7.data.HKIButtonConfig
 import com.jimz011apps.hki7.data.HKIRoomWidget
 import com.jimz011apps.hki7.data.HKIVisibilityCondition
+import com.jimz011apps.hki7.data.Hki7User
 import com.jimz011apps.hki7.data.VISIBILITY_CONNECTOR_AND
 import com.jimz011apps.hki7.data.VISIBILITY_CONNECTOR_OR
 import com.jimz011apps.hki7.data.VISIBILITY_MATCH_ALL
 import com.jimz011apps.hki7.data.VISIBILITY_MATCH_ANY
 import com.jimz011apps.hki7.data.VISIBILITY_TYPE_ENTITY
+import com.jimz011apps.hki7.data.VISIBILITY_TYPE_PERSON
 import com.jimz011apps.hki7.data.VISIBILITY_TYPE_TIME
 import com.jimz011apps.hki7.data.normalizedVisibilityConditions
 import com.jimz011apps.hki7.data.suggestedAutomationStates
@@ -182,6 +186,17 @@ fun formatVisibilityBound(iso: String?): String {
  */
 val LocalEntityCatalogProvider = staticCompositionLocalOf<() -> List<HAEntity>> { { emptyList() } }
 
+/** Family-sharing identity used to evaluate and author per-person visibility rules. */
+data class VisibilityFamilyContext(
+    val currentUserId: String? = null,
+    val isAdmin: Boolean = false,
+    val users: List<Hki7User> = emptyList(),
+    val componentChecked: Boolean = false,
+    val componentAvailable: Boolean = false,
+)
+
+val LocalVisibilityFamilyContext = staticCompositionLocalOf { VisibilityFamilyContext() }
+
 /**
  * Inline visibility editor embedded in a button's, badge's, or widget's settings.
  *
@@ -204,8 +219,15 @@ fun VisibilityEditor(spec: VisibilitySpec, onChange: (VisibilitySpec) -> Unit) {
     var pickingStartFor by remember { mutableStateOf<Int?>(null) }
     var pickingEndFor by remember { mutableStateOf<Int?>(null) }
     var pickingEntityFor by remember { mutableStateOf<Int?>(null) }
+    var pickingPersonFor by remember { mutableStateOf<Int?>(null) }
 
     val catalogProvider = LocalEntityCatalogProvider.current
+    val familyContext = LocalVisibilityFamilyContext.current
+    val selectableUsers = remember(familyContext) {
+        familyContext.users
+            .filter { it.id != familyContext.currentUserId }
+            .sortedBy { it.name.lowercase() }
+    }
     // Snapshotted when a picker opens rather than observed, so the editor doesn't recompose on every
     // unrelated Home Assistant state change while it is on screen.
     var catalog by remember { mutableStateOf<List<HAEntity>>(emptyList()) }
@@ -234,7 +256,7 @@ fun VisibilityEditor(spec: VisibilitySpec, onChange: (VisibilitySpec) -> Unit) {
             FilterChip(selected = mode == "hidden", onClick = { emptyConditional = false; onChange(VisibilitySpec(hidden = true)) }, label = { Text(stringResource(R.string.dlg_hidden)) })
             FilterChip(
                 selected = mode == "conditional",
-                // Conditional starts empty; the user explicitly chooses a time or entity rule.
+                // Conditional starts empty; the user explicitly chooses a time, entity, or person rule.
                 onClick = { emptyConditional = true; onChange(spec.copy(hidden = false)) },
                 label = { Text(stringResource(R.string.dlg_vis_conditional)) }
             )
@@ -262,8 +284,11 @@ fun VisibilityEditor(spec: VisibilitySpec, onChange: (VisibilitySpec) -> Unit) {
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                             Text(
                                 stringResource(
-                                    if (block.type == VISIBILITY_TYPE_TIME) R.string.dlg_vis_time_schedule
-                                    else R.string.dlg_vis_entity_state
+                                    when (block.type) {
+                                        VISIBILITY_TYPE_TIME -> R.string.dlg_vis_time_schedule
+                                        VISIBILITY_TYPE_PERSON -> R.string.dlg_vis_person
+                                        else -> R.string.dlg_vis_entity_state
+                                    }
                                 ),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = appColors.onSurface,
@@ -314,6 +339,33 @@ fun VisibilityEditor(spec: VisibilitySpec, onChange: (VisibilitySpec) -> Unit) {
                                 style = MaterialTheme.typography.bodySmall,
                                 color = appColors.onMuted
                             )
+                        } else if (block.type == VISIBILITY_TYPE_PERSON) {
+                            val selectedUser = selectableUsers.firstOrNull { it.id == block.userId }
+                            OutlinedButton(
+                                onClick = { pickingPersonFor = index },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Default.Person, null, modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    selectedUser?.name
+                                        ?: block.userId?.takeIf { it.isNotBlank() }
+                                        ?: stringResource(R.string.dlg_choose_person),
+                                    modifier = Modifier.weight(1f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Icon(Icons.Default.KeyboardArrowDown, null)
+                            }
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                FilterChip(selected = !block.negate, onClick = { updateBlock(index) { it.copy(negate = false) } }, label = { Text(stringResource(R.string.dlg_visible)) })
+                                FilterChip(selected = block.negate, onClick = { updateBlock(index) { it.copy(negate = true) } }, label = { Text(stringResource(R.string.dlg_hidden)) })
+                            }
+                            Text(
+                                stringResource(R.string.dlg_person_condition_hint),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = appColors.onMuted
+                            )
                         } else {
                             val blockEntity = catalog.firstOrNull { it.entity_id == block.entityId }
                             OutlinedButton(
@@ -348,7 +400,10 @@ fun VisibilityEditor(spec: VisibilitySpec, onChange: (VisibilitySpec) -> Unit) {
                 }
             }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 OutlinedButton(onClick = { addBlock(newTimeBlock()) }) {
                     Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
@@ -363,6 +418,24 @@ fun VisibilityEditor(spec: VisibilitySpec, onChange: (VisibilitySpec) -> Unit) {
                     Spacer(Modifier.width(6.dp))
                     Text(stringResource(R.string.dlg_vis_entity_state))
                 }
+                if (familyContext.isAdmin && selectableUsers.isNotEmpty()) {
+                    OutlinedButton(onClick = {
+                        pickingPersonFor = spec.conditions.size
+                        addBlock(HKIVisibilityCondition(type = VISIBILITY_TYPE_PERSON))
+                    }) {
+                        Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text(stringResource(R.string.dlg_vis_person))
+                    }
+                }
+            }
+            if (familyContext.componentChecked && !familyContext.componentAvailable) {
+                Text(
+                    stringResource(R.string.dlg_person_requires_hki7_cloud),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = appColors.onMuted
+                )
+                Hki7CloudInstallCard()
             }
         }
     }
@@ -382,6 +455,36 @@ fun VisibilityEditor(spec: VisibilitySpec, onChange: (VisibilitySpec) -> Unit) {
                     updateBlock(index) { it.copy(entityId = picked, state = null) }
                 }
                 pickingEntityFor = null
+            }
+        )
+    }
+    pickingPersonFor?.let { index ->
+        val current = spec.conditions.getOrNull(index)
+        AlertDialog(
+            onDismissRequest = { pickingPersonFor = null },
+            title = { Text(stringResource(R.string.dlg_choose_person)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    selectableUsers.forEach { user ->
+                        TextButton(
+                            onClick = {
+                                if (user.id != current?.userId) {
+                                    updateBlock(index) { it.copy(userId = user.id) }
+                                }
+                                pickingPersonFor = null
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(user.name, modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { pickingPersonFor = null }) {
+                    Text(stringResource(R.string.dlg_cancel))
+                }
             }
         )
     }

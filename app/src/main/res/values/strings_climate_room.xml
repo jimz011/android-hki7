@@ -119,7 +119,6 @@
     <string name="cr_climate_air_quality">Air quality</string>
     <string name="cr_climate_air_quality_summary">Particulates, AQI, VOCs, and gases</string>
     <string name="cr_climate_entities">Climate entities</string>
-    <string name="cr_reimport">Reimport</string>
     <string name="cr_climate_settings">Climate settings</string>
     <string name="cr_empty_climate_view">No climate data is available yet.</string>
     <string name="cr_climate_fans">Fans</string>
@@ -337,10 +336,11 @@
 
     <!-- Current release -->
     <string-array name="cr_whats_new_beta_10">
-        <item>Visibility rules now work across all widgets and individual widget items, with time schedules, entity-state conditions, per-user hiding, and AND plus OR mixed freely in the same rule set. New conditional rules start empty so you can choose Time or Entity yourself.</item>
-        <item>Room-status counter badges now keep a stable two-digit width, and the header fits three counters per row before wrapping.</item>
+        <item>Visibility rules now work across all widgets and individual items, with time, entity, person, and mixed AND/OR conditions. Admins using a family-shared dashboard can choose whether an item is Visible or Hidden for a selected user. Person conditions use HKI 7 Cloud, whose requirement is shown when it is unavailable. New rules start empty so you choose Time, Entity, or Person.</item>
+        <item>Room-status counter badges keep a stable two-digit width. Headers responsively fit one, two, or three counters per row like the home-page and person badges, without pushing the title down.</item>
         <item>Energy setup now recognises SmartGateways and DSMR Reader MQTT sensor names, and choosing a source device refills its separate sensor roles. City heating has dedicated settings, a source tile and detail tab, plus an estimated natural-gas equivalent for J/GJ heat readings.</item>
         <item>Calendar widget dialogs now use the available height correctly, fixing content that previously occupied only half the settings dialog or was cut off.</item>
+        <item>Re-import settings now use one consistently spelled and localized label across Rooms, Climate, Security, Energy, and Battery. Conditional visibility wording was also corrected in every supported language.</item>
         <item>Fixed PostNL and the current parcel-integration parser, so incoming shipments once again show their complete tracking details and delivered state. Carrier support has also been brought up to date.</item>
         <item>Added an in-app language selector with full coverage in 13 languages: Dutch, German, French, Spanish (plus Latin American Spanish), Italian, Turkish, Portuguese (plus Brazilian Portuguese), Japanese, Korean, and Chinese (Simplified and Traditional). Each language shows its native name with an English hint beneath it.</item>
         <item>The reconnect status now shows the actual connection error, making Wi-Fi, mobile-data, and VPN handovers much easier to diagnose.</item>

@@ -166,7 +166,7 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
     var showClearRooms by remember { mutableStateOf(false) }
 
     val roomsImportSettings: Pair<String, @Composable androidx.compose.foundation.layout.ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
-        "Re-import" to { _ ->
+        stringResource(R.string.widgets_reimport) to { _ ->
             Text(stringResource(R.string.ui_fetch_rooms_floors_and_their_entities_from_home_assistant_0d84305), color = LocalHKIAppColors.current.onMuted)
             Button(onClick = { showRoomsReimport = true }, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.CloudDownload, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.ui_re_import_rooms_b49077d))

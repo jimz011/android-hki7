@@ -52,6 +52,11 @@
     <string name="dlg_vis_and">AND</string>
     <string name="dlg_vis_conditional">Conditional</string>
     <string name="dlg_vis_entity_state">Entity state</string>
+    <string name="dlg_vis_person">Person</string>
+    <string name="dlg_visible">Visible</string>
+    <string name="dlg_choose_person">Choose person</string>
+    <string name="dlg_person_condition_hint">Matches the signed-in Home Assistant user. This rule travels with a shared dashboard.</string>
+    <string name="dlg_person_requires_hki7_cloud">Person visibility requires the HKI 7 Cloud component. Install it to select Home Assistant users here.</string>
     <string name="dlg_vis_match">Match</string>
     <string name="dlg_vis_match_all">All rules</string>
     <string name="dlg_vis_match_any">Any rule</string>

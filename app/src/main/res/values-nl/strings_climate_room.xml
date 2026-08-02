@@ -116,7 +116,6 @@
     <string name="cr_climate_air_quality">Luchtkwaliteit</string>
     <string name="cr_climate_air_quality_summary">Fijnstof, LKI, VOS en gassen</string>
     <string name="cr_climate_entities">Klimaatentiteiten</string>
-    <string name="cr_reimport">Opnieuw importeren</string>
     <string name="cr_climate_settings">Klimaatinstellingen</string>
     <string name="cr_empty_climate_view">Er zijn nog geen klimaatgegevens beschikbaar.</string>
     <string name="cr_climate_fans">Ventilatoren</string>
@@ -331,10 +330,11 @@
     <string name="cr_quick_make_it_yours_instruction">Voeg in de bewerkmodus kamers, verdiepingen en widgets toe of wijzig hun volgorde. Tik op een onderdeel om het in te stellen.</string>
 
     <string-array name="cr_whats_new_beta_10">
-        <item>Zichtbaarheidsregels werken nu voor alle widgets en afzonderlijke widgetonderdelen, met tijdschema’s, entiteitsstatusvoorwaarden, verbergen per gebruiker en vrij te combineren EN- en OF-regels binnen dezelfde regelset. Nieuwe voorwaarden beginnen leeg, zodat je zelf Tijd of Entiteit kiest.</item>
-        <item>Badges met kamerstatustellers behouden nu een vaste breedte voor twee cijfers en in de kop passen drie tellers per rij voordat ze doorlopen.</item>
+        <item>Zichtbaarheidsregels werken voor alle widgets en onderdelen, met Tijd, Entiteit, Persoon en vrij te combineren EN/OF-voorwaarden. Beheerders van een gedeeld familiedashboard kunnen kiezen of een onderdeel Zichtbaar of Verborgen is voor een geselecteerde gebruiker. Persoonsvoorwaarden gebruiken HKI 7 Cloud; de vereiste wordt getoond als deze ontbreekt. Nieuwe regels beginnen leeg, zodat je Tijd, Entiteit of Persoon kiest.</item>
+        <item>Badges met kamerstatustellers behouden een vaste breedte voor twee cijfers. Koppen passen zich aan naar één, twee of drie tellers per rij, zoals badges op de startpagina en personenbadges, zonder de titel omlaag te duwen.</item>
         <item>Energie-instellingen herkennen nu MQTT-sensornamen van SmartGateways en DSMR Reader. Het kiezen van een bronapparaat vult de afzonderlijke sensoren weer in. Stadsverwarming heeft eigen instellingen, een brontegel en detailtab, plus een geschat aardgasequivalent voor warmte in J/GJ.</item>
         <item>Kalenderwidgetvensters gebruiken nu de beschikbare hoogte correct, zodat inhoud niet meer slechts de helft van het instellingenvenster gebruikt of wordt afgesneden.</item>
+        <item>Instellingen voor Opnieuw importeren gebruiken nu in Kamers, Klimaat, Beveiliging, Energie en Batterij hetzelfde correct gespelde en vertaalde label. Ook de terminologie voor conditionele zichtbaarheid is in alle ondersteunde talen verbeterd.</item>
         <item>Schermrotatie volgt nu de instelling voor automatisch draaien van je apparaat in plaats van vast te blijven staan in portretstand.</item>
         <item>De tegel Buiten in Klimaat verschijnt zodra een weerapparaat is gekoppeld, ook zonder losse sensoren, telt temperatuur, luchtvochtigheid en luchtdruk uit de kenmerken mee in de samenvatting en toont grafieken met bijpassende sensorkleuren.</item>
         <item>Pakketstatuscodes worden nu als normale zinnen weergegeven. Datums en tijden volgen de gekozen taal en 12/24-uursnotatie, nabije bezorgingen gebruiken weekdagen, het huidige jaar wordt weggelaten en dezelfde datum wordt niet meer herhaald.</item>

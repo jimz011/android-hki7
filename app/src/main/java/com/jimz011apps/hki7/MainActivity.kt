@@ -91,8 +91,12 @@ import com.jimz011apps.hki7.ui.connectionIssueGraceMillis
 import com.jimz011apps.hki7.ui.HomeAssistantRestartPhase
 import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.data.HaParentalControls
+import com.jimz011apps.hki7.data.HaDashboardSharing
+import com.jimz011apps.hki7.data.VisibilityUserSession
 import com.jimz011apps.hki7.ui.components.IconEffectDefaults
 import com.jimz011apps.hki7.ui.components.LocalEntityCatalogProvider
+import com.jimz011apps.hki7.ui.components.LocalVisibilityFamilyContext
+import com.jimz011apps.hki7.ui.components.VisibilityFamilyContext
 import com.jimz011apps.hki7.ui.components.LocalIconAnimationsEnabled
 import com.jimz011apps.hki7.ui.NavBarConfig
 import kotlinx.coroutines.flow.collectLatest
@@ -225,6 +229,38 @@ class MainActivity : ComponentActivity() {
                 val isLoading = serverUrl == loading || internalUrl == loading || accessToken == loading || refreshToken == loading
                 val hasConnectionUrl = !serverUrl.isNullOrBlank() || !internalUrl.isNullOrBlank()
                 val loggedIn = hasConnectionUrl && (!accessToken.isNullOrBlank() || !refreshToken.isNullOrBlank())
+                var visibilityFamilyContext by remember(activeInstanceId) {
+                    mutableStateOf(VisibilityFamilyContext())
+                }
+                LaunchedEffect(loggedIn, activeInstanceId) {
+                    if (!loggedIn) {
+                        visibilityFamilyContext = VisibilityFamilyContext()
+                        VisibilityUserSession.update(null)
+                    } else {
+                        // Never carry one HA account's identity across an instance switch while the
+                        // new companion-component identity is still being resolved.
+                        visibilityFamilyContext = VisibilityFamilyContext()
+                        VisibilityUserSession.update(null)
+                        val identity = runCatching {
+                            HaDashboardSharing.whoami(applicationContext)
+                        }.getOrNull()
+                        val users = if (identity?.isAdmin == true || identity?.isOwner == true) {
+                            runCatching {
+                                HaDashboardSharing.listUsers(applicationContext)
+                            }.getOrDefault(emptyList())
+                        } else {
+                            emptyList()
+                        }
+                        visibilityFamilyContext = VisibilityFamilyContext(
+                            currentUserId = identity?.userId,
+                            isAdmin = identity?.isAdmin == true || identity?.isOwner == true,
+                            users = users,
+                            componentChecked = true,
+                            componentAvailable = identity != null,
+                        )
+                        VisibilityUserSession.update(identity?.userId)
+                    }
+                }
                 // Latch onboarding on once we know the user needs to log in, and keep it on through the
                 // login + permission steps (saving the token mid-flow would otherwise jump to the app).
                 // rememberSaveable so backgrounding on the permission step and returning to a recreated
@@ -271,7 +307,8 @@ class MainActivity : ComponentActivity() {
                     }
                     else -> {
                         CompositionLocalProvider(
-                            LocalEntityCatalogProvider provides { viewModel.entities.value }
+                            LocalEntityCatalogProvider provides { viewModel.entities.value },
+                            LocalVisibilityFamilyContext provides visibilityFamilyContext,
                         ) {
                             MainApp(prefs, viewModel)
                         }

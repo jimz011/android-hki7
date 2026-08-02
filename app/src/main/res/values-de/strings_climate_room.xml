@@ -116,7 +116,6 @@
     <string name="cr_climate_air_quality">Luftqualität</string>
     <string name="cr_climate_air_quality_summary">Feinstaub, AQI, VOC und Gase</string>
     <string name="cr_climate_entities">Klima-Entitäten</string>
-    <string name="cr_reimport">Neu importieren</string>
     <string name="cr_climate_settings">Klimaeinstellungen</string>
     <string name="cr_empty_climate_view">Noch keine Klimadaten verfügbar.</string>
     <string name="cr_climate_fans">Lüfter</string>
@@ -331,10 +330,11 @@
     <string name="cr_quick_make_it_yours_instruction">Im Bearbeitungsmodus Räume, Etagen und Widgets hinzufügen oder neu anordnen. Tippe auf ein Element, um es einzurichten.</string>
 
     <string-array name="cr_whats_new_beta_10">
-        <item>Sichtbarkeitsregeln gelten jetzt für alle Widgets und einzelne Widget-Elemente – mit Zeitplänen, Entitätsstatus-Bedingungen, benutzerspezifischem Ausblenden und frei gemischten UND- und ODER-Verknüpfungen im selben Regelsatz. Neue Bedingungen starten leer, sodass du Zeit oder Entität selbst auswählst.</item>
-        <item>Raumstatus-Zähler behalten jetzt eine einheitliche Breite für zwei Ziffern, und in der Kopfzeile passen drei Zähler in eine Reihe, bevor sie umbrechen.</item>
+        <item>Sichtbarkeitsregeln gelten für alle Widgets und Elemente, mit Zeit-, Entitäts-, Personen- und frei gemischten UND/ODER-Bedingungen. Admins eines geteilten Familiendashboards können ein Element für einen ausgewählten Benutzer sichtbar oder ausgeblendet schalten. Personenbedingungen verwenden HKI 7 Cloud; fehlt die Integration, wird der Hinweis angezeigt. Neue Regeln starten leer: Zeit, Entität oder Person.</item>
+        <item>Raumstatus-Zähler behalten eine einheitliche Breite für zwei Ziffern. Kopfzeilen passen sich wie Startseiten- und Personen-Badges auf eine, zwei oder drei Spalten an, ohne den Titel nach unten zu drücken.</item>
         <item>Die Energieeinrichtung erkennt jetzt MQTT-Sensornamen von SmartGateways und DSMR Reader. Die Auswahl eines Quellgeräts füllt die einzelnen Sensorrollen wieder aus. Fernwärme erhält eigene Einstellungen, eine Quellenkachel, eine Detailseite und ein geschätztes Erdgasäquivalent für J/GJ-Werte.</item>
         <item>Kalender-Widget-Dialoge nutzen die verfügbare Höhe jetzt korrekt; Inhalte belegen nicht mehr nur die Hälfte und werden nicht mehr abgeschnitten.</item>
+        <item>Die Einstellungen zum erneuten Importieren verwenden in Räume, Klima, Sicherheit, Energie und Batterie jetzt dieselbe korrekt geschriebene und lokalisierte Bezeichnung. Auch die Begriffe für bedingte Sichtbarkeit wurden in allen unterstützten Sprachen korrigiert.</item>
         <item>Die Bildschirmdrehung folgt jetzt der automatischen Drehung des Geräts, statt im Hochformat gesperrt zu bleiben.</item>
         <item>Die Klima-Kachel „Außen“ erscheint mit einem verknüpften Wettergerät auch ohne eigene Sensoren, zählt dessen Temperatur-, Feuchtigkeits- und Druckattribute in der Übersicht und zeichnet sie in den passenden Sensorfarben auf.</item>
         <item>Paketstatuscodes erscheinen jetzt als normale Sätze. Datum und Uhrzeit folgen Sprache und 12/24-Stunden-Einstellung, nahe Lieferungen verwenden Wochentage, das aktuelle Jahr entfällt und dasselbe Datum wird nicht wiederholt.</item>

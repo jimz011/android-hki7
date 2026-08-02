@@ -116,7 +116,6 @@
     <string name="cr_climate_air_quality">Calidad del aire</string>
     <string name="cr_climate_air_quality_summary">Partículas, ICA, COV y gases</string>
     <string name="cr_climate_entities">Entidades de climatización</string>
-    <string name="cr_reimport">Volver a importar</string>
     <string name="cr_climate_settings">Ajustes de climatización</string>
     <string name="cr_empty_climate_view">Todavía no hay datos climáticos disponibles.</string>
     <string name="cr_climate_fans">Ventiladores</string>
@@ -331,10 +330,11 @@
     <string name="cr_quick_make_it_yours_instruction">En el modo de edición, añade y reordena habitaciones, plantas y widgets. Toca un elemento para configurarlo.</string>
 
     <string-array name="cr_whats_new_beta_10">
-        <item>Las reglas de visibilidad ya funcionan en todos los widgets y sus elementos, con horarios, condiciones de estado de entidad, ocultación por usuario y operadores Y y O combinables libremente en el mismo conjunto. Las condiciones nuevas empiezan vacías para que elijas Hora o Entidad.</item>
-        <item>Las insignias de contador del estado de las habitaciones mantienen ahora un ancho estable para dos dígitos, y la cabecera admite tres contadores por fila antes de continuar en la siguiente.</item>
+        <item>Las reglas de visibilidad funcionan en todos los widgets y elementos, con condiciones Hora, Entidad, Persona y combinaciones Y/O. Los administradores de un panel familiar compartido pueden hacer que un elemento sea Visible u Oculto para un usuario elegido. Las condiciones Persona usan HKI 7 Cloud y muestran el requisito si falta la integración. Las reglas nuevas empiezan vacías: Hora, Entidad o Persona.</item>
+        <item>Las insignias de contador del estado de las habitaciones mantienen un ancho estable para dos dígitos. Las cabeceras se adaptan a una, dos o tres columnas como las insignias de inicio y de personas, sin empujar el título hacia abajo.</item>
         <item>La configuración de Energía reconoce ahora sensores MQTT de SmartGateways y DSMR Reader. Elegir un dispositivo de origen vuelve a rellenar los sensores separados. La calefacción urbana incluye ajustes, tarjeta de origen, pestaña detallada y una estimación del gas equivalente para lecturas en J/GJ.</item>
         <item>Los diálogos del widget Calendario usan correctamente toda la altura disponible; el contenido ya no ocupa solo la mitad ni queda cortado.</item>
+        <item>Los ajustes para volver a importar usan ahora la misma etiqueta bien escrita y localizada en Habitaciones, Clima, Seguridad, Energía y Batería. También se corrigió la terminología de visibilidad condicional en todos los idiomas compatibles.</item>
         <item>La rotación de pantalla sigue ahora el ajuste de giro automático del dispositivo en vez de permanecer bloqueada en vertical.</item>
         <item>La tarjeta Exterior de Clima aparece con un dispositivo meteorológico incluso sin sensores dedicados, incluye sus atributos de temperatura, humedad y presión en el resumen y los representa con los colores de sensor correspondientes.</item>
         <item>Los códigos de estado de los paquetes se muestran como frases normales. Las fechas y horas siguen el idioma y el formato de 12/24 horas, las entregas cercanas usan días de la semana, se omite el año actual y no se repite una misma fecha.</item>

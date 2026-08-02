@@ -1890,7 +1890,6 @@
     <string name="cr_quick_switch_homes">Mudar de casa</string>
     <string name="cr_quick_switch_homes_instruction">Deslize para a esquerda a partir do canto superior direito do cabeçalho.</string>
     <string name="cr_raise_target">Subir objetivo</string>
-    <string name="cr_reimport">Reimportar</string>
     <string name="cr_remove">Remover</string>
     <string name="cr_removed_entities">Entidades removidas</string>
     <string name="cr_restore">Restaurar</string>
@@ -3218,10 +3217,11 @@
         <item quantity="other">%1$d baterias precisam de atenção</item>
     </plurals>
     <string-array name="cr_whats_new_beta_10">
-        <item>As regras de visibilidade funcionam agora em todos os widgets e respetivos itens, com horários, condições de estado de entidades, ocultação por utilizador e operadores E e OU livremente combinados no mesmo conjunto. As novas condições começam vazias para poder escolher Hora ou Entidade.</item>
-        <item>Os emblemas dos contadores de estado das divisões mantêm agora uma largura estável para dois dígitos, e o cabeçalho apresenta três contadores por linha antes de mudar de linha.</item>
+        <item>As regras de visibilidade funcionam em todos os widgets e itens, com condições Hora, Entidade, Pessoa e combinações E/OU. Os administradores de um painel familiar partilhado podem tornar um item Visível ou Oculto para um utilizador escolhido. As condições Pessoa usam o HKI 7 Cloud e mostram o requisito se a integração estiver em falta. As novas regras começam vazias: Hora, Entidade ou Pessoa.</item>
+        <item>Os emblemas dos contadores de estado das divisões mantêm uma largura estável para dois dígitos. Os cabeçalhos adaptam-se a uma, duas ou três colunas como os emblemas do início e de pessoas, sem empurrar o título para baixo.</item>
         <item>A configuração de Energia reconhece sensores MQTT do SmartGateways e DSMR Reader. Escolher um dispositivo de origem volta a preencher os sensores separados. O aquecimento urbano tem definições, bloco, separador de detalhes e uma estimativa do gás equivalente para leituras em J/GJ.</item>
         <item>As janelas do widget Calendário usam agora corretamente toda a altura disponível; o conteúdo deixou de ocupar apenas metade ou de ficar cortado.</item>
+        <item>As definições de reimportação usam agora a mesma etiqueta corretamente escrita e localizada em Divisões, Clima, Segurança, Energia e Bateria. A terminologia da visibilidade condicional também foi corrigida em todos os idiomas suportados.</item>
         <item>A rotação do ecrã segue agora a rotação automática do dispositivo, em vez de permanecer bloqueada no modo vertical.</item>
         <item>O bloco Exterior em Clima aparece com um dispositivo meteorológico mesmo sem sensores próprios, inclui os atributos de temperatura, humidade e pressão no resumo e apresenta-os com as cores de sensor correspondentes.</item>
         <item>Os códigos de estado das encomendas são apresentados como frases normais. Datas e horas seguem o idioma e o formato de 12/24 horas, entregas próximas usam dias da semana, o ano atual é omitido e a mesma data não é repetida.</item>
@@ -3316,7 +3316,7 @@
         <item>S</item><item>SSO</item><item>SO</item><item>OSO</item>
         <item>O</item><item>ONO</item><item>NO</item><item>NNO</item>
     </string-array>
-    <string name="dlg_condition">Doença</string>
+    <string name="dlg_condition">Condição</string>
     <string name="dlg_condition_is">É</string>
     <string name="dlg_condition_is_not">Não é</string>
     <string name="dlg_condition_state">Estado</string>
@@ -3324,6 +3324,11 @@
     <string name="ui_hidden_items_advanced_hint">Lista separada por vírgulas de IDs de entidades de botão ou IDs de crachás/widgets para ocultar especificamente dessa pessoa. O id de um botão é o seu id de entidade; o ID de um emblema ou widget é mostrado em suas próprias configurações de Aparência.</string>
     <string name="dlg_vis_conditional">Condicional</string>
     <string name="dlg_vis_entity_state">Estado da entidade</string>
+    <string name="dlg_vis_person">Pessoa</string>
+    <string name="dlg_visible">Visível</string>
+    <string name="dlg_choose_person">Escolher pessoa</string>
+    <string name="dlg_person_condition_hint">Corresponde ao utilizador do Home Assistant com sessão iniciada. Esta regra acompanha um painel partilhado.</string>
+    <string name="dlg_person_requires_hki7_cloud">A visibilidade por pessoa requer o componente HKI 7 Cloud. Instale-o para escolher aqui utilizadores do Home Assistant.</string>
     <string name="dlg_vis_time_schedule">Cronograma</string>
     <string name="dlg_vis_and">E</string>
     <string name="dlg_vis_match">Corresponder</string>

@@ -116,7 +116,6 @@
     <string name="cr_climate_air_quality">Qualità dell’aria</string>
     <string name="cr_climate_air_quality_summary">Particolato, IQA, COV e gas</string>
     <string name="cr_climate_entities">Entità climatiche</string>
-    <string name="cr_reimport">Reimporta</string>
     <string name="cr_climate_settings">Impostazioni climatiche</string>
     <string name="cr_empty_climate_view">Non sono ancora disponibili dati climatici.</string>
     <string name="cr_climate_fans">Ventole</string>
@@ -331,10 +330,11 @@
     <string name="cr_quick_make_it_yours_instruction">In modalità modifica, aggiungi e riordina stanze, piani e widget. Tocca un elemento per configurarlo.</string>
 
     <string-array name="cr_whats_new_beta_10">
-        <item>Le regole di visibilità ora funzionano per tutti i widget e i singoli elementi, con orari, condizioni sullo stato delle entità, occultamento per utente e operatori AND e OR liberamente combinabili nello stesso gruppo. Le nuove condizioni partono vuote per scegliere Ora o Entità.</item>
-        <item>I badge contatore dello stato delle stanze mantengono ora una larghezza stabile per due cifre e l’intestazione dispone tre contatori per riga prima di andare a capo.</item>
+        <item>Le regole di visibilità funzionano per tutti i widget e gli elementi, con condizioni Ora, Entità, Persona e combinazioni AND/OR. Gli amministratori di una dashboard familiare condivisa possono rendere un elemento Visibile o Nascosto per un utente scelto. Le condizioni Persona usano HKI 7 Cloud e ne mostrano il requisito se l’integrazione manca. Le nuove regole partono vuote: Ora, Entità o Persona.</item>
+        <item>I badge contatore dello stato delle stanze mantengono una larghezza stabile per due cifre. Le intestazioni si adattano a una, due o tre colonne come i badge Home e Persona, senza spingere il titolo verso il basso.</item>
         <item>La configurazione Energia riconosce ora i sensori MQTT di SmartGateways e DSMR Reader. La scelta di un dispositivo sorgente compila nuovamente i sensori separati. Il teleriscaldamento dispone di impostazioni, riquadro, scheda dettagli e stima del gas equivalente per valori J/GJ.</item>
         <item>Le finestre del widget Calendario usano correttamente tutta l’altezza disponibile: il contenuto non occupa più solo metà finestra e non viene tagliato.</item>
+        <item>Le impostazioni di reimportazione usano ora la stessa etichetta corretta e localizzata in Stanze, Clima, Sicurezza, Energia e Batteria. Anche la terminologia della visibilità condizionale è stata corretta in tutte le lingue supportate.</item>
         <item>La rotazione dello schermo segue ora l’impostazione di rotazione automatica del dispositivo invece di restare bloccata in verticale.</item>
         <item>Il riquadro Esterno di Clima appare con un dispositivo meteo anche senza sensori dedicati, include nel riepilogo gli attributi di temperatura, umidità e pressione e li rappresenta con i colori dei sensori corrispondenti.</item>
         <item>I codici di stato dei pacchi diventano frasi normali. Date e orari seguono lingua e formato 12/24 ore, le consegne vicine usano i giorni della settimana, l’anno corrente viene omesso e la stessa data non viene ripetuta.</item>

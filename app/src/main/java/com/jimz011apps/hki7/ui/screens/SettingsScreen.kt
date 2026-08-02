@@ -154,6 +154,7 @@ import com.jimz011apps.hki7.ui.localizedTitle
 import com.jimz011apps.hki7.ui.localizedName
 import com.jimz011apps.hki7.ui.components.ColorWheel
 import com.jimz011apps.hki7.ui.components.HKISlider
+import com.jimz011apps.hki7.ui.components.Hki7CloudInstallCard
 import com.jimz011apps.hki7.ui.components.MdiIconPickerDialog
 import com.jimz011apps.hki7.ui.components.ModernSettingsHeader
 import com.jimz011apps.hki7.ui.components.ModernSettingsMenuItem
@@ -3154,53 +3155,6 @@ private fun openExternalUrl(context: android.content.Context, url: String) {
 
 const val HKI7_GITHUB_URL = "https://github.com/jimz011/android-hki7"
 const val HKI7_CHANGELOG_URL = "https://github.com/jimz011/android-hki7/blob/main/CHANGELOG.md"
-const val HKI7_CLOUD_GITHUB_URL = "https://github.com/jimz011/HKI7-Cloud-Component"
-
-/**
- * Setup steps shown wherever a family feature (sharing, parental controls) needs the optional
- * HKI 7 Cloud custom component, which isn't in the default HACS list yet.
- */
-@Composable
-private fun Hki7CloudInstallCard() {
-    val appColors = LocalHKIAppColors.current
-    val context = LocalContext.current
-    val steps = listOf(
-        stringResource(R.string.settings_extra_hki_cloud_step_open_custom_repositories),
-        stringResource(R.string.settings_extra_hki_cloud_step_add_repository, HKI7_CLOUD_GITHUB_URL),
-        stringResource(R.string.settings_extra_hki_cloud_step_install),
-        stringResource(R.string.settings_extra_hki_cloud_step_add_integration),
-        stringResource(R.string.settings_extra_hki_cloud_step_reopen)
-    )
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = itemCornerShape(),
-        color = appColors.subtleSurface
-    ) {
-        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(
-                stringResource(R.string.ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3),
-                color = appColors.onMuted,
-                style = MaterialTheme.typography.bodySmall
-            )
-            steps.forEachIndexed { i, step ->
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(stringResource(R.string.ui_text_68fdf13, i + 1), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
-                    Text(step, color = appColors.onSurface, style = MaterialTheme.typography.bodySmall)
-                }
-            }
-            OutlinedButton(
-                onClick = { openGitHub(context, HKI7_CLOUD_GITHUB_URL) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = itemCornerShape()
-            ) {
-                MdiIcon("github", size = 18.dp)
-                Spacer(Modifier.width(8.dp))
-                Text(stringResource(R.string.ui_open_the_component_on_github_c1e5ee5))
-            }
-        }
-    }
-}
-
 /**
  * Opens the repository in the GitHub app when it is installed, otherwise falls back to the normal
  * browser intent. Targeting the package explicitly is what stops Android from showing a chooser (or

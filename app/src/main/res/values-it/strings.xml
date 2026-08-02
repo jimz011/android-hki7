@@ -66,11 +66,16 @@
     <string name="core_greeting_night">Buonanotte</string>
     <string name="dlg_condition">Condizione</string>
     <string name="dlg_condition_is">È</string>
-    <string name="dlg_condition_is_not">Non lo è</string>
+    <string name="dlg_condition_is_not">Non è</string>
     <string name="dlg_condition_state">Stato</string>
     <string name="dlg_vis_and">E</string>
     <string name="dlg_vis_conditional">Condizionale</string>
     <string name="dlg_vis_entity_state">Stato entità</string>
+    <string name="dlg_vis_person">Persona</string>
+    <string name="dlg_visible">Visibile</string>
+    <string name="dlg_choose_person">Scegli persona</string>
+    <string name="dlg_person_condition_hint">Corrisponde all’utente Home Assistant connesso. Questa regola viene trasferita con una dashboard condivisa.</string>
+    <string name="dlg_person_requires_hki7_cloud">La visibilità per persona richiede il componente HKI 7 Cloud. Installalo per scegliere qui gli utenti Home Assistant.</string>
     <string name="dlg_vis_match">Incontro</string>
     <string name="dlg_vis_match_all">Tutte le regole</string>
     <string name="dlg_vis_match_any">Qualsiasi regola</string>

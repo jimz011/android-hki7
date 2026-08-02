@@ -527,7 +527,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
     var showClimateReimport by remember { mutableStateOf(false) }
     var showClearClimate by remember { mutableStateOf(false) }
     val climateImportSection: Pair<String, @Composable ColumnScope.(setBack: ((() -> Unit)?) -> Unit) -> Unit> =
-        stringResource(R.string.cr_reimport) to { _ ->
+        stringResource(R.string.widgets_reimport) to { _ ->
             Text(stringResource(R.string.ui_fetch_climate_entities_from_home_assistant_again_a65f837), color = LocalHKIAppColors.current.onMuted)
             Button(onClick = { showClimateReimport = true }, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.CloudDownload, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.ui_re_import_climate_f7f5678))
