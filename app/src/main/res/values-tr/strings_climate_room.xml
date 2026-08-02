@@ -341,6 +341,7 @@
         <item>İklim sensör/cihaz sekmeleri, Güvenlik grupları ve tüm Enerji ayrıntı sekmeleri artık düzenleme ve yeniden sıralama ekranları dâhil aynı duyarlı bir, iki veya üç sütunlu masonry kurallarını izler.</item>
         <item>Yalnızca estetik düzenleme izni olan aile kullanıcıları artık başlık göstergesi yapılandırmasını veya paneldeki kişileri değiştiremez; bu işlevsel ayarlar sahibin kontrolünde kalır.*</item>
         <item>Ebeveyn Denetimleri, elle varlık kimliği girişini Görünür ve Görünmez listeleriyle değiştirir. Yöneticiler Home Assistant alanlarının tamamını veya tek tek varlıkları seçebilir; genel arama kısıtlı varlıkları ve cihazları gizler. Görünmez her zaman önceliklidir.*</item>
+        <item>Enerji kurulumu artık Home Assistant Enerji panosu yapılandırılmamış olsa ve sensörler bir cihaza bağlı olmasa bile SmartGateways ve DSMR Reader P1 sayaçlarını içe aktarıyor. Tarife 1 ve tarife 2 ayrı ayrı tanınır; tek bir şebeke alım veya verim sensörü ayarlanmadığında kullanım grafikleri ve dönem toplamları her iki tarifeyi toplar.</item>
         <item>* HKI 7 Cloud Component entegrasyonu gerekir.</item>
     </string-array>
 

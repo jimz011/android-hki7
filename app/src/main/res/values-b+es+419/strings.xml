@@ -1980,6 +1980,7 @@
         <item>Las pestañas de sensores y dispositivos de Clima, los grupos de Seguridad y todas las pestañas de detalle de Energía ahora siguen las mismas reglas adaptables de mampostería con una, dos o tres columnas, incluso al editar y reordenar.</item>
         <item>Los editores familiares limitados a la apariencia ya no pueden cambiar la configuración de las etiquetas del encabezado ni las personas del panel; esos ajustes funcionales siguen bajo el control del propietario.*</item>
         <item>Los Controles parentales reemplazan la captura manual de ID de entidades por listas Visible e Invisible. Los administradores pueden seleccionar dominios completos de Home Assistant o entidades individuales; la búsqueda global oculta entidades y dispositivos restringidos. Invisible siempre tiene prioridad.*</item>
+        <item>La configuración de Energía ahora importa los medidores P1 de SmartGateways y DSMR Reader aunque no hayas configurado el panel de Energía de Home Assistant y los sensores no pertenezcan a ningún dispositivo. Las tarifas 1 y 2 se reconocen por separado, y las gráficas de consumo y los totales del período suman ambas tarifas cuando no hay un solo sensor de importación o exportación.</item>
         <item>* Requiere la integración de HKI 7 Cloud Component.</item>
     </string-array>
 

@@ -347,6 +347,7 @@
         <item>Les onglets des capteurs et appareils Climat, les groupes Sécurité et tous les onglets détaillés Énergie suivent désormais les mêmes règles masonry adaptatives à une, deux ou trois colonnes, y compris en mode édition et réorganisation.</item>
         <item>Les éditeurs familiaux limités à l’esthétique ne peuvent plus modifier la configuration des pastilles d’en-tête ni les personnes du tableau de bord ; ces réglages fonctionnels restent sous le contrôle du propriétaire.*</item>
         <item>Le contrôle parental remplace la saisie manuelle d’identifiants d’entités par des listes Visible et Invisible. Les administrateurs peuvent sélectionner des domaines Home Assistant complets ou des entités individuelles ; la recherche globale masque les entités et appareils restreints. Invisible est toujours prioritaire.*</item>
+        <item>La configuration Énergie importe désormais les compteurs P1 SmartGateways et DSMR Reader, même si le tableau de bord Énergie de Home Assistant n’est pas configuré et que les capteurs ne sont rattachés à aucun appareil. Les tarifs 1 et 2 sont reconnus séparément, et les graphiques de consommation et les totaux de période additionnent les deux tarifs lorsqu’aucun capteur unique d’import ou d’export n’est défini.</item>
         <item>* Intégration HKI 7 Cloud Component requise.</item>
     </string-array>
 

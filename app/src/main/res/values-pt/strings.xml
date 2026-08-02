@@ -3228,6 +3228,7 @@
         <item>Os separadores de sensores e dispositivos de Clima, os grupos de Segurança e todos os separadores de detalhe de Energia seguem agora as mesmas regras masonry adaptáveis de uma, duas ou três colunas, incluindo ao editar e reordenar.</item>
         <item>Os editores familiares limitados à estética já não podem alterar a configuração das pastilhas do cabeçalho nem as pessoas do painel; estas definições funcionais continuam sob controlo do proprietário.*</item>
         <item>O Controlo parental substitui a introdução manual de IDs de entidades por listas Visível e Invisível. Os administradores podem selecionar domínios completos do Home Assistant ou entidades individuais; a pesquisa global oculta entidades e dispositivos restritos. Invisível tem sempre prioridade.*</item>
+        <item>A configuração de Energia passa a importar contadores P1 da SmartGateways e do DSMR Reader mesmo que o painel de Energia do Home Assistant não esteja configurado e os sensores não pertençam a um dispositivo. As tarifas 1 e 2 são reconhecidas separadamente e os gráficos de consumo e os totais do período somam ambas as tarifas quando não existe um sensor único de importação ou exportação.</item>
         <item>* Requer a integração do Componente HKI 7 Cloud.</item>
     </string-array>
 

@@ -459,14 +459,20 @@ fun EnergyScreen(viewModel: MainViewModel) {
     val cityHeatingId = energyConfig.cityHeatingEntityId?.takeIf { it.isNotBlank() }
     val importId = energyConfig.gridImportEntityId?.takeIf { it.isNotBlank() }
     val exportId = energyConfig.gridExportEntityId?.takeIf { it.isNotBlank() }
+    val importStatIds = listOfNotNull(importId).ifEmpty {
+        listOfNotNull(energyConfig.gridImportTariff1EntityId, energyConfig.gridImportTariff2EntityId)
+    }
+    val exportStatIds = listOfNotNull(exportId).ifEmpty {
+        listOfNotNull(energyConfig.gridExportTariff1EntityId, energyConfig.gridExportTariff2EntityId)
+    }
     val solarEnergyId = energyConfig.solarEnergyEntityId?.takeIf { it.isNotBlank() }
     val forecastPowerIds = forecastIds.filter { id ->
         entityUnit(id, "").let { it.contains("W", ignoreCase = true) && !it.contains("Wh", ignoreCase = true) }
     }
     val batteryPowerId = energyConfig.batteryPowerEntityId?.takeIf { it.isNotBlank() }
     val statIds = (listOfNotNull(
-        chartPowerId, solarPowerId, gasId, waterId, cityHeatingId, importId, exportId, solarEnergyId, batteryPowerId
-    ) + phaseIds.filterNotNull()).distinct()
+        chartPowerId, solarPowerId, gasId, waterId, cityHeatingId, solarEnergyId, batteryPowerId
+    ) + importStatIds + exportStatIds + phaseIds.filterNotNull()).distinct()
     LaunchedEffect(statIds, window) {
         viewModel.fetchEnergyStatistics(statIds, window.startMs, window.statPeriod(), window.key(), window.endMs)
     }
@@ -508,6 +514,11 @@ fun EnergyScreen(viewModel: MainViewModel) {
     }
     fun statTotal(id: String?): Float =
         statPoints(id)?.sumOf { (it.change ?: 0f).coerceAtLeast(0f).toDouble() }?.toFloat() ?: 0f
+    fun summedChanges(ids: List<String>): FloatArray {
+        val series = ids.map(::statChanges)
+        return FloatArray(window.buckets) { bucket -> series.sumOf { it[bucket].toDouble() }.toFloat() }
+    }
+    fun summedTotal(ids: List<String>): Float = ids.sumOf { statTotal(it).toDouble() }.toFloat()
     fun todayTotal(id: String?): Float =
         id?.let { energyStats["$it|TODAY"] }
             ?.sumOf { (it.change ?: 0f).coerceAtLeast(0f).toDouble() }?.toFloat() ?: 0f
@@ -538,8 +549,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
     val battSeries  = remember(energyStats, batteryPowerId, window) { statMeans(batteryPowerId) }
     // HA-style electricity usage layers (kWh per bucket): import + consumed solar stack up,
     // export stacks down. Consumed solar = production - export, clamped per bucket.
-    val importEnergySeries = remember(energyStats, importId, window) { statChanges(importId) }
-    val exportEnergySeries = remember(energyStats, exportId, window) { statChanges(exportId) }
+    val importEnergySeries = remember(energyStats, importStatIds, window) { summedChanges(importStatIds) }
+    val exportEnergySeries = remember(energyStats, exportStatIds, window) { summedChanges(exportStatIds) }
     val solarEnergySeries  = remember(energyStats, solarEnergyId, window) { statChanges(solarEnergyId) }
     val consumedSolarSeries = remember(solarEnergySeries, exportEnergySeries) {
         FloatArray(window.buckets) { (solarEnergySeries[it] - exportEnergySeries[it]).coerceAtLeast(0f) }
@@ -547,15 +558,15 @@ fun EnergyScreen(viewModel: MainViewModel) {
     val consumedSolarLabel = stringResource(R.string.widgets_energy_consumed_solar)
     val importedLabel = stringResource(R.string.widgets_energy_imported)
     val exportedLabel = stringResource(R.string.widgets_energy_exported)
-    val usagePosLayers = remember(importEnergySeries, consumedSolarSeries, importId, solarEnergyId, consumedSolarLabel, importedLabel) {
+    val usagePosLayers = remember(importEnergySeries, consumedSolarSeries, importStatIds, solarEnergyId, consumedSolarLabel, importedLabel) {
         buildList {
             // Self-consumed solar is the base of total consumption, starting at the zero line.
             if (solarEnergyId != null) add(Triple(consumedSolarLabel, consumedSolarSeries, SolarAmber))
-            if (importId != null) add(Triple(importedLabel, importEnergySeries, ElecBlue))
+            if (importStatIds.isNotEmpty()) add(Triple(importedLabel, importEnergySeries, ElecBlue))
         }
     }
-    val usageNegLayers = remember(exportEnergySeries, exportId, exportedLabel) {
-        if (exportId != null) listOf(Triple(exportedLabel, exportEnergySeries, BattPurple)) else emptyList()
+    val usageNegLayers = remember(exportEnergySeries, exportStatIds, exportedLabel) {
+        if (exportStatIds.isNotEmpty()) listOf(Triple(exportedLabel, exportEnergySeries, BattPurple)) else emptyList()
     }
     val hasUsageChart = usagePosLayers.isNotEmpty() || usageNegLayers.isNotEmpty()
     val phaseColors = listOf(Color(0xFF42A5F5), Color(0xFFFFB300), Color(0xFFEF5350))
@@ -568,8 +579,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
     }
     // Period totals: deltas of the (lifetime) energy counters over the selected window - how HA
     // derives energy use, instead of showing meaningless lifetime totals.
-    val importPeriod   = statTotal(importId)
-    val exportPeriod   = statTotal(exportId)
+    val importPeriod   = summedTotal(importStatIds)
+    val exportPeriod   = summedTotal(exportStatIds)
     val producedPeriod = statTotal(solarEnergyId)
     val usedPeriod = (importPeriod + producedPeriod - exportPeriod).coerceAtLeast(0f)
     val gasPeriod   = statTotal(gasId)
@@ -2724,9 +2735,14 @@ private fun autoMapDeviceEntities(
     val isCost = { e: HAEntity -> e.deviceClass == "monetary" || name(e).contains("cost") || name(e).contains("kosten") }
     fun phaseMatch(e: HAEntity, n: Int) = name(e).contains("phase $n") || name(e).contains(" l$n")
     fun hasAny(e: HAEntity, vararg terms: String) = terms.any(name(e)::contains)
-    fun isImport(e: HAEntity) = hasAny(e, "import", "consumption", "consumed", "used", "afname")
-    fun isExport(e: HAEntity) = hasAny(e, "export", "production", "produced", "delivered", "returned", "teruglever")
-    fun isTariff(e: HAEntity, n: Int) = hasAny(e, "tariff $n", "tariff_$n", "tarif $n", "tarif_$n", "t$n")
+    fun isDsmr(e: HAEntity) = e.entity_id.startsWith("sensor.dsmr_reading_")
+    fun isImport(e: HAEntity) = hasAny(e, "import", "consumption", "consumed", "used", "afname") ||
+        (isDsmr(e) && hasAny(e, "delivered"))
+    fun isExport(e: HAEntity) = hasAny(e, "export", "production", "produced", "returned", "teruglever") ||
+        (!isDsmr(e) && hasAny(e, "delivered"))
+    fun isTariff(e: HAEntity, n: Int) =
+        hasAny(e, "tariff $n", "tariff_$n", "tarif $n", "tarif_$n", "t$n") ||
+            (isDsmr(e) && e.entity_id.endsWith("_$n"))
     fun isCarbon(e: HAEntity): Boolean {
         val u = unit(e).lowercase()
         val n = name(e)
@@ -3521,6 +3537,12 @@ fun EnergyCardWidgetView(
     val waterId = cfg.waterEntityId?.takeIf { it.isNotBlank() }
     val importId = cfg.gridImportEntityId?.takeIf { it.isNotBlank() }
     val exportId = cfg.gridExportEntityId?.takeIf { it.isNotBlank() }
+    val importStatIds = listOfNotNull(importId).ifEmpty {
+        listOfNotNull(cfg.gridImportTariff1EntityId, cfg.gridImportTariff2EntityId)
+    }
+    val exportStatIds = listOfNotNull(exportId).ifEmpty {
+        listOfNotNull(cfg.gridExportTariff1EntityId, cfg.gridExportTariff2EntityId)
+    }
     val solarEnergyId = cfg.solarEnergyEntityId?.takeIf { it.isNotBlank() }
     val solarPowerId = cfg.solarPowerEntityId?.takeIf { it.isNotBlank() }
     val chartPowerId = cfg.homePowerEntityId?.takeIf { it.isNotBlank() }
@@ -3581,7 +3603,7 @@ fun EnergyCardWidgetView(
     }
 
     val statIds = when (cardKey) {
-        "usage" -> listOfNotNull(chartPowerId, importId, exportId, solarEnergyId)
+        "usage" -> listOfNotNull(chartPowerId, solarEnergyId) + importStatIds + exportStatIds
         "phases" -> phaseIds.filterNotNull()
         "solar" -> listOfNotNull(solarPowerId, solarEnergyId, exportId)
         "battery" -> listOfNotNull(batteryPowerId)
@@ -3617,6 +3639,11 @@ fun EnergyCardWidgetView(
     }
     fun total(id: String?): Float =
         points(id)?.sumOf { (it.change ?: 0f).coerceAtLeast(0f).toDouble() }?.toFloat() ?: 0f
+    fun summedChanges(ids: List<String>): FloatArray {
+        val series = ids.map(::changes)
+        return FloatArray(window.buckets) { bucket -> series.sumOf { it[bucket].toDouble() }.toFloat() }
+    }
+    fun summedTotal(ids: List<String>): Float = ids.sumOf { total(it).toDouble() }.toFloat()
 
     val forecastLabel = stringResource(R.string.energy_extra_forecast)
     val forecastNumberLabels = cfg.solarForecastConfigEntryIds.indices.map {
@@ -3716,8 +3743,8 @@ fun EnergyCardWidgetView(
                 }
             }
             "usage" -> Column(Modifier.padding(16.dp)) {
-                val importPeriod = total(importId)
-                val exportPeriod = total(exportId)
+                val importPeriod = summedTotal(importStatIds)
+                val exportPeriod = summedTotal(exportStatIds)
                 val producedPeriod = total(solarEnergyId)
                 val usedPeriod = (importPeriod + producedPeriod - exportPeriod).coerceAtLeast(0f)
                 val selfUsed = (producedPeriod - exportPeriod).coerceIn(0f, producedPeriod)
@@ -3733,7 +3760,7 @@ fun EnergyCardWidgetView(
                     selfSufficiency?.let { TotalStat(Icons.Default.Home, SolarAmber, "$it%", stringResource(R.string.energy_extra_self_sufficient)) }
                 }
                 Spacer(Modifier.height(14.dp))
-                val exportSeries = changes(exportId)
+                val exportSeries = summedChanges(exportStatIds)
                 val solarSeries = changes(solarEnergyId)
                 val pos = buildList {
                     if (solarEnergyId != null) add(Triple(
@@ -3741,9 +3768,11 @@ fun EnergyCardWidgetView(
                         FloatArray(window.buckets) { (solarSeries[it] - exportSeries[it]).coerceAtLeast(0f) },
                         SolarAmber
                     ))
-                    if (importId != null) add(Triple(stringResource(R.string.widgets_energy_imported), changes(importId), ElecBlue))
+                    if (importStatIds.isNotEmpty()) add(Triple(
+                        stringResource(R.string.widgets_energy_imported), summedChanges(importStatIds), ElecBlue
+                    ))
                 }
-                val neg = if (exportId != null) {
+                val neg = if (exportStatIds.isNotEmpty()) {
                     listOf(Triple(stringResource(R.string.widgets_energy_exported), exportSeries, BattPurple))
                 } else {
                     emptyList()

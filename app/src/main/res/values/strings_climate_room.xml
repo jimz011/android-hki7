@@ -347,6 +347,7 @@
         <item>Climate sensor/device tabs, Security groups, and every Energy detail tab now follow the same responsive one-, two-, or three-column masonry rules, including their edit and reorder layouts.</item>
         <item>Aesthetics-only family editors can no longer change header-pill configuration or the dashboard\'s people; those functional settings remain controlled by the owner.*</item>
         <item>Parental Controls now replaces manual entity-ID entry with Visible and Invisible lists. Admins can select complete Home Assistant domains or individual entities, and global search hides restricted entities and devices. Invisible entries always take precedence.*</item>
+        <item>Energy setup now imports SmartGateways and DSMR Reader P1 meters even when the Home Assistant Energy dashboard has not been configured and the sensors are not attached to a device. Tariff 1 and tariff 2 readings are recognised separately, and usage charts and period totals add both tariffs together when no single grid import or export sensor is set.</item>
         <item>* HKI 7 Cloud Component integration required.</item>
     </string-array>
 

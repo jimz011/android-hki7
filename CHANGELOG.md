@@ -18,6 +18,7 @@ Items marked with \* require the HKI 7 Cloud Component integration.
 - Family permissions now also control manual re-importing. Non-admins cannot open Family Sharing settings, disabled onboarding choices explain why they are unavailable, and aesthetics-only editors see only visual controls. Their local names, icons, colors, backgrounds, styles, sizes, and layouts take priority when owner updates arrive.\*
 - Aesthetics-only family editors can no longer change header-pill configuration or the dashboard's people; those functional settings remain controlled by the owner.\*
 - Parental Controls now replaces manual entity-ID entry with Visible and Invisible lists. Admins can select complete Home Assistant domains or individual entities, and global search hides restricted entities and devices. Invisible entries always take precedence.\*
+- Energy setup now imports SmartGateways and DSMR Reader P1 meters even when the Home Assistant Energy dashboard has not been configured and the sensors are not attached to a device — power, both import and export tariffs, per-phase power, current and voltage, and gas are recognised from their DSMR names. Related-entity discovery falls back to the integration's config entry when a device is missing, and DSMR's "delivered" is read as grid import while "returned" is read as export. Usage charts and period totals add tariff 1 and tariff 2 together when no single grid import or export sensor is set, and re-importing no longer clears device lists that Home Assistant does not provide.
 
 ## 1.0.0-beta.10
 

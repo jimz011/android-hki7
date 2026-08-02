@@ -341,6 +341,7 @@
         <item>Klima-sensor- en apparaattabbladen, beveiligingsgroepen en elk energiedetailtabblad volgen nu dezelfde responsieve masonryregels met één, twee of drie kolommen, ook tijdens bewerken en herschikken.</item>
         <item>Gezinseditors met alleen esthetische rechten kunnen de configuratie van headerpillen of de personen van het dashboard niet meer wijzigen; deze functionele instellingen blijven onder beheer van de eigenaar.*</item>
         <item>Ouderlijk toezicht vervangt de handmatige invoer van entiteits-ID\'s door lijsten Zichtbaar en Onzichtbaar. Beheerders kunnen volledige Home Assistant-domeinen of afzonderlijke entiteiten selecteren; de algemene zoekfunctie verbergt beperkte entiteiten en apparaten. Onzichtbaar heeft altijd voorrang.*</item>
+        <item>Energie-instellingen importeren nu SmartGateways- en DSMR Reader-P1-meters, ook als het Energiedashboard van Home Assistant nog niet is ingesteld en de sensoren niet aan een apparaat hangen. Tarief 1 en tarief 2 worden apart herkend en verbruiksgrafieken en periodetotalen tellen beide tarieven bij elkaar op als er geen losse import- of exportsensor is ingesteld.</item>
         <item>* HKI 7 Cloud Component-integratie vereist.</item>
     </string-array>
 

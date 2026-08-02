@@ -341,6 +341,7 @@
         <item>Le schede di sensori e dispositivi Clima, i gruppi Sicurezza e tutte le schede di dettaglio Energia seguono ora le stesse regole masonry adattive a una, due o tre colonne, anche durante modifica e riordino.</item>
         <item>Gli editor familiari limitati all’estetica non possono più modificare la configurazione degli indicatori dell’intestazione né le persone della dashboard; queste impostazioni funzionali restano sotto il controllo del proprietario.*</item>
         <item>I Controlli parentali sostituiscono l’inserimento manuale degli ID entità con elenchi Visibile e Invisibile. Gli amministratori possono selezionare interi domini Home Assistant o singole entità; la ricerca globale nasconde entità e dispositivi limitati. Invisibile ha sempre la precedenza.*</item>
+        <item>La configurazione Energia ora importa i contatori P1 di SmartGateways e DSMR Reader anche quando la dashboard Energia di Home Assistant non è configurata e i sensori non appartengono a un dispositivo. Le fasce tariffarie 1 e 2 vengono riconosciute separatamente e i grafici dei consumi e i totali del periodo sommano entrambe le fasce quando non è impostato un singolo sensore di prelievo o immissione.</item>
         <item>* È richiesta l’integrazione HKI 7 Cloud Component.</item>
     </string-array>
 

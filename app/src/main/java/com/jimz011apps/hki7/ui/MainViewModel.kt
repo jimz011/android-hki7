@@ -581,15 +581,25 @@ internal fun importRelatedHomeAssistantEnergyEntities(
 ): HKIEnergyConfig {
     val registryByEntity = registry.associateBy { it.entity_id }
 
-    fun related(category: String): Pair<String, List<HAEntity>>? {
+    fun related(category: String): Pair<String?, List<HAEntity>>? {
         // The first explicit HA Energy source is the anchor. Guesses must stay on its owning
-        // device: including child or secondary devices can select a similarly named but unrelated
-        // phase, inverter, or power sensor.
-        val deviceId = sourceEntityIds[category].orEmpty()
-            .firstNotNullOfOrNull { registryByEntity[it]?.device_id }
+        // device. MQTT integrations such as DSMR Reader deliberately create registry entities
+        // without a device, so use their integration config entry as the equivalent boundary.
+        val anchor = sourceEntityIds[category].orEmpty()
+            .firstNotNullOfOrNull(registryByEntity::get)
             ?: return null
+        val deviceId = anchor.device_id
+        val configEntryId = anchor.config_entry_id
+        if (deviceId == null && configEntryId == null) return null
         val relatedEntityIds = registry.asSequence()
-            .filter { it.device_id == deviceId && it.disabled_by == null }
+            .filter {
+                it.disabled_by == null && if (deviceId != null) {
+                    it.device_id == deviceId
+                } else {
+                    it.device_id == null && it.config_entry_id == configEntryId &&
+                        (anchor.platform == null || it.platform == anchor.platform)
+                }
+            }
             .mapTo(hashSetOf()) { it.entity_id }
         return deviceId to liveEntities.filter { it.entity_id in relatedEntityIds }
     }
@@ -605,9 +615,14 @@ internal fun importRelatedHomeAssistantEnergyEntities(
     fun isEnergy(entity: HAEntity) =
         entity.deviceClass == "energy" || unit(entity).contains("Wh", ignoreCase = true)
     fun HAEntity.hasAny(vararg terms: String) = terms.any(normalizedName()::contains)
-    fun isImport(entity: HAEntity) = entity.hasAny("import", "consumption", "consumed", "used", "afname")
-    fun isExport(entity: HAEntity) = entity.hasAny("export", "production", "produced", "delivered", "returned", "teruglever")
-    fun isTariff(entity: HAEntity, tariff: Int) = entity.hasAny("tariff $tariff", "tariff_$tariff", "tarif $tariff", "tarif_$tariff", "t$tariff")
+    fun isDsmr(entity: HAEntity) = entity.entity_id.startsWith("sensor.dsmr_reading_")
+    fun isImport(entity: HAEntity) = entity.hasAny("import", "consumption", "consumed", "used", "afname") ||
+        (isDsmr(entity) && entity.hasAny("delivered"))
+    fun isExport(entity: HAEntity) = entity.hasAny("export", "production", "produced", "returned", "teruglever") ||
+        (!isDsmr(entity) && entity.hasAny("delivered"))
+    fun isTariff(entity: HAEntity, tariff: Int) =
+        entity.hasAny("tariff $tariff", "tariff_$tariff", "tarif $tariff", "tarif_$tariff", "t$tariff") ||
+            (isDsmr(entity) && entity.entity_id.endsWith("_$tariff"))
     fun isCost(entity: HAEntity) =
         entity.deviceClass == "monetary" || entity.normalizedName().contains("cost")
     fun HAEntity.matchesPhase(phase: Int): Boolean {
@@ -719,6 +734,115 @@ internal fun importRelatedHomeAssistantEnergyEntities(
         result = result.copy(carbonDeviceId = result.carbonDeviceId ?: deviceId)
     }
     return result
+}
+
+/** Import the standard entities exposed by SmartGateways' MQTT feed through DSMR Reader.
+ *
+ * These entities need not be selected in HA's Energy dashboard and DSMR Reader does not attach
+ * them to a device. Match the integration's stable translation keys and MQTT topic-derived ids,
+ * rather than localized friendly names. In DSMR terminology `delivered` means supplied by the
+ * grid (import), while `returned` means sent back to the grid (export). */
+internal fun importMqttP1EnergyEntities(
+    config: HKIEnergyConfig,
+    registry: List<HAEntityRegistryEntry>,
+    liveEntities: List<HAEntity>
+): HKIEnergyConfig {
+    val liveById = liveEntities.associateBy { it.entity_id }
+    val candidates = registry.asSequence()
+        .filter { it.disabled_by == null }
+        .filter { entry ->
+            val identity = listOfNotNull(
+                entry.entity_id,
+                entry.unique_id,
+                entry.translation_key
+            ).joinToString(" ").lowercase()
+            entry.platform == "dsmr_reader" ||
+                identity.contains("dsmr_reading_") ||
+                identity.contains("dsmr/reading/") ||
+                identity.contains("smart_gateways") ||
+                identity.contains("smartgateways")
+        }
+        .mapNotNull { entry -> liveById[entry.entity_id]?.let { entry to it } }
+        .toList()
+    if (candidates.isEmpty()) return config
+
+    fun find(vararg identifiers: String): String? = candidates.firstNotNullOfOrNull { (entry, entity) ->
+        val identities = listOfNotNull(entry.entity_id, entry.unique_id, entry.translation_key)
+            .map { it.lowercase().replace('/', '_') }
+        entity.entity_id.takeIf {
+            identifiers.any { identifier -> identities.any { identity -> identity.endsWith(identifier) } }
+        }
+    }
+    fun fill(role: String, current: String?, guessed: String?): String? =
+        if (role in config.customizedEntityRoles) current else guessed ?: current
+
+    val gasCurrent = candidates.firstNotNullOfOrNull { (entry, entity) ->
+        val identities = listOfNotNull(entry.entity_id, entry.unique_id, entry.translation_key)
+            .map { it.lowercase().replace('/', '_') }
+        val unit = entity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull.orEmpty()
+        entity.entity_id.takeIf {
+            identities.any { identity ->
+                identity.endsWith("current_gas_usage") || identity.endsWith("gas_currently_delivered")
+            } &&
+                unit.contains("/")
+        }
+    }
+    val gridPower = find("current_power_usage", "electricity_currently_delivered")
+    val importTariff1 = find("low_tariff_usage", "electricity_delivered_1")
+    val importTariff2 = find("high_tariff_usage", "electricity_delivered_2")
+    val exportTariff1 = find("low_tariff_returned", "electricity_returned_1")
+    val exportTariff2 = find("high_tariff_returned", "electricity_returned_2")
+    val phasePower1 = find("current_power_usage_l1", "phase_currently_delivered_l1")
+    val phasePower2 = find("current_power_usage_l2", "phase_currently_delivered_l2")
+    val phasePower3 = find("current_power_usage_l3", "phase_currently_delivered_l3")
+    val current1 = find("current_l1", "phase_power_current_l1")
+    val current2 = find("current_l2", "phase_power_current_l2")
+    val current3 = find("current_l3", "phase_power_current_l3")
+    val voltage1 = find("current_voltage_l1", "phase_voltage_l1")
+    val voltage2 = find("current_voltage_l2", "phase_voltage_l2")
+    val voltage3 = find("current_voltage_l3", "phase_voltage_l3")
+    val gas = find("gas_meter_usage", "extra_device_delivered")
+    if (listOfNotNull(
+            gridPower, importTariff1, importTariff2, exportTariff1, exportTariff2,
+            phasePower1, phasePower2, phasePower3, current1, current2, current3,
+            voltage1, voltage2, voltage3, gas, gasCurrent
+        ).isEmpty()
+    ) return config
+    return config.copy(
+        usesHomeAssistantEnergyPreferences = true,
+        hasImportedRelatedEntities = true,
+        gridPowerEntityId = fill(
+            "grid_power", config.gridPowerEntityId,
+            gridPower
+        ),
+        gridImportTariff1EntityId = fill(
+            "import_t1", config.gridImportTariff1EntityId,
+            importTariff1
+        ),
+        gridImportTariff2EntityId = fill(
+            "import_t2", config.gridImportTariff2EntityId,
+            importTariff2
+        ),
+        gridExportTariff1EntityId = fill(
+            "export_t1", config.gridExportTariff1EntityId,
+            exportTariff1
+        ),
+        gridExportTariff2EntityId = fill(
+            "export_t2", config.gridExportTariff2EntityId,
+            exportTariff2
+        ),
+        powerPhase1EntityId = fill("phase1", config.powerPhase1EntityId, phasePower1),
+        powerPhase2EntityId = fill("phase2", config.powerPhase2EntityId, phasePower2),
+        powerPhase3EntityId = fill("phase3", config.powerPhase3EntityId, phasePower3),
+        currentPhase1EntityId = fill("current1", config.currentPhase1EntityId, current1),
+        currentPhase2EntityId = fill("current2", config.currentPhase2EntityId, current2),
+        currentPhase3EntityId = fill("current3", config.currentPhase3EntityId, current3),
+        voltagePhase1EntityId = fill("voltage1", config.voltagePhase1EntityId, voltage1),
+        voltagePhase2EntityId = fill("voltage2", config.voltagePhase2EntityId, voltage2),
+        voltagePhase3EntityId = fill("voltage3", config.voltagePhase3EntityId, voltage3),
+        gasEntityId = fill("gas", config.gasEntityId, gas),
+        gasCurrentEntityId = fill("gas_current", config.gasCurrentEntityId, gasCurrent)
+    )
 }
 
 
@@ -2584,21 +2708,15 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     /** Imports the read-only Energy dashboard preferences maintained by Home Assistant. */
     fun importHomeAssistantEnergyPreferences(pageKey: String = "energy", force: Boolean = false) {
         val current = (_pageConfigsMapping.value[pageKey] ?: HKIPageConfig()).energyConfig ?: HKIEnergyConfig()
-        // Re-run the lightweight import for existing HA-backed setups that predate carbon-entry
-        // discovery, so Electricity Maps appears without requiring a manual re-import.
-        if (
-            current.usesHomeAssistantEnergyPreferences &&
-            current.gridCarbonFootprintEntityId != null &&
-            current.hasImportedRelatedEntities &&
-            !force
-        ) return
         val currentClient = client ?: return
         viewModelScope.launch {
             try {
-                val prefsResult = currentClient.getEnergyPreferences() ?: return@launch
-                val sources = prefsResult["energy_sources"]?.jsonArray.orEmpty().mapNotNull { runCatching { it.jsonObject }.getOrNull() }
-                val devices = prefsResult["device_consumption"]?.jsonArray.orEmpty().mapNotNull { runCatching { it.jsonObject }.getOrNull() }
-                val waterDevices = prefsResult["device_consumption_water"]?.jsonArray.orEmpty().mapNotNull { runCatching { it.jsonObject }.getOrNull() }
+                // MQTT P1 discovery must still run when the user has not configured HA's Energy
+                // dashboard yet (in that case energy/get_prefs can be absent or empty).
+                val prefsResult = runCatching { currentClient.getEnergyPreferences() }.getOrNull()
+                val sources = prefsResult?.get("energy_sources")?.jsonArray.orEmpty().mapNotNull { runCatching { it.jsonObject }.getOrNull() }
+                val devices = prefsResult?.get("device_consumption")?.jsonArray.orEmpty().mapNotNull { runCatching { it.jsonObject }.getOrNull() }
+                val waterDevices = prefsResult?.get("device_consumption_water")?.jsonArray.orEmpty().mapNotNull { runCatching { it.jsonObject }.getOrNull() }
 
                 fun JsonObject.text(key: String): String? = this[key]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
                 fun source(type: String): JsonObject? = sources.firstOrNull { it.text("type") == type }
@@ -2630,7 +2748,8 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 // Keep the device selector usable even when Energy preferences are imported before
                 // the normal dashboard registry refresh has run.
                 if (_deviceRegistry.value.isEmpty()) {
-                    _deviceRegistry.value = currentClient.getDeviceRegistry()
+                    runCatching { currentClient.getDeviceRegistry() }
+                        .onSuccess { _deviceRegistry.value = it }
                 }
                 val registryByEntity = registry.associateBy { it.entity_id }
                 val liveById = _entities.value.associateBy { it.entity_id }
@@ -2646,7 +2765,15 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     registry = registry,
                     liveEntities = _entities.value
                 )
-                if (sources.isEmpty() && devices.isEmpty() && waterDevices.isEmpty() && carbonEntityId == null) {
+                val mqttP1Config = importMqttP1EnergyEntities(
+                    config = current,
+                    registry = registry,
+                    liveEntities = _entities.value
+                )
+                if (
+                    sources.isEmpty() && devices.isEmpty() && waterDevices.isEmpty() &&
+                    carbonEntityId == null && mqttP1Config == current
+                ) {
                     return@launch
                 }
                 val powerIds = devices.mapNotNull { device ->
@@ -2694,7 +2821,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                         "carbon" to listOfNotNull(carbonEntityId)
                     )
                 val related = importRelatedHomeAssistantEnergyEntities(
-                    config = current,
+                    config = mqttP1Config,
                     sourceEntityIds = relatedSourceEntityIds,
                     registry = registry,
                     liveEntities = _entities.value
@@ -2738,13 +2865,13 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     waterCurrentEntityId = roleValue("water_current", current.waterCurrentEntityId, waterRate, related.waterCurrentEntityId),
                     waterCostEntityId = roleValue("water_cost", current.waterCostEntityId, water?.text("stat_cost"), related.waterCostEntityId),
                     gridCarbonFootprintEntityId = roleValue("carbon", current.gridCarbonFootprintEntityId, null, carbonEntityId ?: related.gridCarbonFootprintEntityId),
-                    deviceEntityIds = powerIds,
-                    energyDeviceEntityIds = energyIds,
-                    waterDeviceEntityIds = waterDeviceIds,
+                    deviceEntityIds = if (devices.isNotEmpty()) powerIds else current.deviceEntityIds,
+                    energyDeviceEntityIds = if (devices.isNotEmpty()) energyIds else current.energyDeviceEntityIds,
+                    waterDeviceEntityIds = if (waterDevices.isNotEmpty()) waterDeviceIds else current.waterDeviceEntityIds,
                     solarForecastConfigEntryIds = solarForecastConfigEntryIds,
-                    hiddenPowerDeviceEntityIds = emptyList(),
-                    hiddenEnergyDeviceEntityIds = emptyList(),
-                    hiddenWaterDeviceEntityIds = emptyList(),
+                    hiddenPowerDeviceEntityIds = if (devices.isNotEmpty()) emptyList() else current.hiddenPowerDeviceEntityIds,
+                    hiddenEnergyDeviceEntityIds = if (devices.isNotEmpty()) emptyList() else current.hiddenEnergyDeviceEntityIds,
+                    hiddenWaterDeviceEntityIds = if (waterDevices.isNotEmpty()) emptyList() else current.hiddenWaterDeviceEntityIds,
                     customNames = current.customNames + importedNames
                 )
                 val page = _pageConfigsMapping.value[pageKey] ?: HKIPageConfig()

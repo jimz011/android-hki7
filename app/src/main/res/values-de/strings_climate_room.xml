@@ -341,6 +341,7 @@
         <item>Klima-Sensor- und Gerätetabs, Sicherheitsgruppen und alle Energie-Detailtabs folgen jetzt denselben responsiven Masonry-Regeln mit einer, zwei oder drei Spalten, auch beim Bearbeiten und Sortieren.</item>
         <item>Familienbearbeiter mit ausschließlich visuellen Rechten können weder die Konfiguration der Kopfzeilenfelder noch die Personen des Dashboards ändern; diese funktionalen Einstellungen bleiben beim Eigentümer.*</item>
         <item>Die Kindersicherung ersetzt die manuelle Eingabe von Entitäts-IDs durch Listen für Sichtbar und Unsichtbar. Administratoren können ganze Home-Assistant-Domänen oder einzelne Entitäten wählen; die globale Suche blendet eingeschränkte Entitäten und Geräte aus. Unsichtbar hat immer Vorrang.*</item>
+        <item>Die Energie-Einrichtung importiert jetzt SmartGateways- und DSMR-Reader-P1-Zähler, auch wenn das Energie-Dashboard von Home Assistant nicht eingerichtet ist und die Sensoren keinem Gerät zugeordnet sind. Tarif 1 und Tarif 2 werden separat erkannt; Verbrauchsdiagramme und Zeitraumsummen addieren beide Tarife, wenn kein einzelner Netzbezugs- oder Einspeisesensor festgelegt ist.</item>
         <item>* HKI-7-Cloud-Component-Integration erforderlich.</item>
     </string-array>
 
