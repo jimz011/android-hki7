@@ -25,6 +25,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.jsonArray
@@ -2831,6 +2832,77 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     fun vacuumCleanSegments(entityId: String, segments: List<Int>) {
         callService("vacuum", "clean_segment", HAServiceCall(entity_id = entityId, segments = segments))
+    }
+
+    /**
+     * Fetches the Valetudo map camera's PNG and decodes the map JSON hidden in its `zTXt` chunk.
+     * Both the network read and the inflate+parse run off the main thread — a full map is a few
+     * hundred KB of JSON and would jank the dialog if decoded on it.
+     *
+     * Returns a failed [Result] when the image could not be fetched, versus a successful `null` when
+     * the fetch worked but the PNG carries no Valetudo payload. Callers need that distinction: the
+     * second answer is final (an ordinary camera never becomes a map camera), the first is not.
+     */
+    suspend fun loadValetudoMap(cameraEntityId: String): Result<ValetudoMap?> {
+        val currentClient = client ?: return Result.failure(IllegalStateException("Not connected"))
+        return withContext(Dispatchers.Default) {
+            try {
+                val bytes = currentClient.getCameraImageBytes(cameraEntityId)
+                Result.success(ValetudoMapDecoder.decode(bytes))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                addLog("Valetudo map fetch failed: ${e.message}")
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Home Assistant's segment-to-area mapping for a vacuum, inverted to `segment_id -> area_id`,
+     * which is the direction a map tap needs: the map knows the Valetudo segment, `vacuum.clean_area`
+     * wants the Home Assistant area. Empty when the user has not run HA's segment mapping dialog.
+     */
+    suspend fun vacuumSegmentAreas(entityId: String): Map<String, String> {
+        val currentClient = client ?: return emptyMap()
+        return try {
+            val byArea = currentClient.getVacuumAreaMapping(entityId)
+            buildMap {
+                byArea.forEach { (areaId, segments) ->
+                    segments.forEach { segmentId -> putIfAbsent(segmentId, areaId) }
+                }
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            addLog("Vacuum area mapping fetch failed: ${e.message}")
+            emptyMap()
+        }
+    }
+
+    /**
+     * Starts a room clean. Note this is `vacuum.clean_area` with Home Assistant **area** ids, not
+     * `vacuum.send_command`: Valetudo's MQTT autodiscovery never declares `send_command` in
+     * `supported_features`, so that call is rejected outright. HA translates the areas to Valetudo
+     * segment ids itself and publishes them to the robot's `MapSegmentationCapability/clean/set`.
+     */
+    fun vacuumCleanAreas(entityId: String, areaIds: List<String>) {
+        if (areaIds.isEmpty()) return
+        val currentClient = client ?: return
+        viewModelScope.launch {
+            try {
+                currentClient.callServiceRaw(
+                    "vacuum", "clean_area",
+                    buildJsonObject {
+                        put("entity_id", JsonPrimitive(entityId))
+                        put("cleaning_area_id", JsonArray(areaIds.map { JsonPrimitive(it) }))
+                    }
+                )
+                refreshAfterServiceCall()
+            } catch (e: Exception) {
+                addLog("Vacuum clean_area failed: ${e.message}")
+            }
+        }
     }
 
     fun vacuumSendCommand(entityId: String, command: String) {

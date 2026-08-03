@@ -78,7 +78,9 @@ fun VacuumStackContent(
     onEntityClick: (String) -> Unit,
     onButtonSettings: (String) -> Unit,
     onRemoveEntity: (String) -> Unit,
-    onReorderEntities: (Int, Int) -> Unit
+    onReorderEntities: (Int, Int) -> Unit,
+    /** Passed through to the cards for the "valetudo" display mode only. */
+    viewModel: MainViewModel? = null
 ) {
     if (!isEditMode && entities.isEmpty()) {
         EmptyStackHint()
@@ -101,6 +103,7 @@ fun VacuumStackContent(
                                 isSquare = stack.isSquare,
                                 cornerRadius = stack.cornerRadius,
                                 aspectRatio = stack.cameraAspectRatio,
+                                viewModel = viewModel,
                                 onClick = {}
                             )
                             EditSettingsButton(
@@ -130,6 +133,7 @@ fun VacuumStackContent(
                             isSquare = stack.isSquare,
                             cornerRadius = stack.cornerRadius,
                             aspectRatio = stack.cameraAspectRatio,
+                            viewModel = viewModel,
                             onClick = { onEntityClick(entity.entity_id) },
                             modifier = Modifier.weight(1f)
                         )
@@ -155,6 +159,9 @@ fun VacuumEntityCard(
     cornerRadius: Int,
     modifier: Modifier = Modifier,
     aspectRatio: Float = 1f,
+    /** Only needed for the "valetudo" display mode, which fetches and decodes the map itself.
+     *  Callers without one fall back to the static robot graphic. */
+    viewModel: MainViewModel? = null,
     onClick: () -> Unit,
 ) {
     val appColors = LocalHKIAppColors.current
@@ -201,14 +208,40 @@ fun VacuumEntityCard(
         Box {
             // Background image
             when (displayMode) {
+                "valetudo" -> if (viewModel != null && mapCameraEntity != null) {
+                    // Read-only preview: the tile is too small to aim a tap at a room, so cleaning
+                    // stays in the dialog. Refreshes only while cleaning — a parked robot's map
+                    // does not change, and each refresh is a full PNG fetch plus a re-raster.
+                    var tick by remember(mapCameraEntity.entity_id) { mutableIntStateOf(0) }
+                    val cardCleaning = entity.state == "cleaning"
+                    LaunchedEffect(cardCleaning) {
+                        while (cardCleaning) { delay(10.seconds); tick++ }
+                    }
+                    val cardState = rememberValetudoMapState(
+                        cameraEntityId = mapCameraEntity.entity_id,
+                        vacuumEntityId = entity.entity_id,
+                        viewModel = viewModel,
+                        refreshTick = tick
+                    )
+                    if (cardState.render != null) {
+                        ValetudoMapPane(
+                            state = cardState,
+                            onSegmentClick = {},
+                            modifier = Modifier.fillMaxSize(),
+                            interactive = false
+                        )
+                    } else {
+                        StaticVacuumGraphic(modifier = Modifier.fillMaxSize(), state = entity.state, entity = entity, iconAnimation = config?.iconAnimation ?: "auto")
+                    }
+                } else StaticVacuumGraphic(modifier = Modifier.fillMaxSize(), state = entity.state, entity = entity, iconAnimation = config?.iconAnimation ?: "auto")
                 "camera" -> if (mapImageUrl != null)
                     AsyncImage(model = mapImageUrl, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
-                    else StaticVacuumGraphic(modifier = Modifier.fillMaxSize(), state = entity.state)
+                    else StaticVacuumGraphic(modifier = Modifier.fillMaxSize(), state = entity.state, entity = entity, iconAnimation = config?.iconAnimation ?: "auto")
                 "external" -> if (!externalUrl.isNullOrBlank())
                     AsyncImage(model = externalUrl, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
-                    else StaticVacuumGraphic(modifier = Modifier.fillMaxSize(), state = entity.state)
+                    else StaticVacuumGraphic(modifier = Modifier.fillMaxSize(), state = entity.state, entity = entity, iconAnimation = config?.iconAnimation ?: "auto")
                 else ->
-                    StaticVacuumGraphic(modifier = Modifier.fillMaxSize(), state = entity.state)
+                    StaticVacuumGraphic(modifier = Modifier.fillMaxSize(), state = entity.state, entity = entity, iconAnimation = config?.iconAnimation ?: "auto")
             }
 
             // Gradient overlay: dark at bottom (like camera stack)
@@ -240,8 +273,28 @@ fun VacuumEntityCard(
 
 // Top-down robot vacuum drawn with Canvas for the "static" (Robot image) display mode:
 // round body with lid seam, lidar turret, front bumper with notches, and debris-container latch.
+//
+// [entity] drives the same live motion the rest of the app uses for active devices (spin by default
+// for the fans-and-vacuums group, honouring the button's own animation override and the global
+// setting). The graphic is drawn top-down about its own centre, so a rotation reads as the robot
+// turning on the spot rather than tumbling.
 @Composable
-private fun StaticVacuumGraphic(modifier: Modifier = Modifier, state: String) {
+private fun StaticVacuumGraphic(
+    modifier: Modifier = Modifier,
+    state: String,
+    entity: HAEntity? = null,
+    iconAnimation: String = "auto"
+) {
+    val effect = entity?.let {
+        iconEffectFor(it, LocalIconAnimationsEnabled.current, iconAnimation)
+    } ?: IconEffect.NONE
+    WithIconEffect(entity = entity, effect = effect, glowColor = MaterialTheme.colorScheme.primary) { effectModifier ->
+        StaticVacuumGraphicCanvas(modifier = modifier.then(effectModifier), state = state)
+    }
+}
+
+@Composable
+private fun StaticVacuumGraphicCanvas(modifier: Modifier = Modifier, state: String) {
     val primary = MaterialTheme.colorScheme.primary
     val isActive = state == "cleaning"
 
@@ -450,7 +503,20 @@ fun VacuumStackDialog(
                     .clip(RoundedCornerShape(20.dp))
                     .background(Color(0xFF1A1A2E))
             ) {
-                VacuumMapView(mapUrl = mapUrl)
+                // The dialog always renders a Valetudo map when the configured camera turns out to
+                // carry one, whatever the button image is set to — the button image is about the
+                // tile on the dashboard, not about what the dialog can show. Explicitly choosing
+                // "Valetudo map" only changes the failure case: it reports that the camera has no
+                // map data, instead of quietly falling back to the picture.
+                val explicitValetudo = config?.vacuumDisplayMode == "valetudo"
+                ValetudoMapSection(
+                    cameraEntityId = mapCameraEntity?.entity_id,
+                    vacuumEntityId = entity.entity_id,
+                    viewModel = viewModel,
+                    refreshTick = refreshTick,
+                    reportNoMapData = explicitValetudo,
+                    fallback = { VacuumMapView(mapUrl = mapUrl) }
+                )
             }
 
             if (compactControls) {
@@ -630,6 +696,81 @@ private fun VacuumControlDropdown(
                 DropdownMenuItem(
                     text = { Text(localizedTitlecase(option, locale)) },
                     onClick = { open = false; onSelect(option) }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Valetudo map with tap-a-room-to-clean.
+ *
+ * Cleaning goes through `vacuum.clean_area`, which targets Home Assistant areas rather than robot
+ * segments — Valetudo's MQTT autodiscovery never declares `send_command`, so the older
+ * `vacuum.send_command` route does not exist for these robots. Home Assistant owns the
+ * segment-to-area mapping, so when it has not been set up a tap has nothing to call and the pane
+ * says so rather than silently doing nothing.
+ */
+@Composable
+private fun ValetudoMapSection(
+    cameraEntityId: String?,
+    vacuumEntityId: String,
+    viewModel: MainViewModel,
+    refreshTick: Int,
+    /** True only when the user explicitly picked the Valetudo mode; see the call site. */
+    reportNoMapData: Boolean,
+    fallback: @Composable () -> Unit
+) {
+    val state = rememberValetudoMapState(
+        cameraEntityId = cameraEntityId,
+        vacuumEntityId = vacuumEntityId,
+        viewModel = viewModel,
+        refreshTick = refreshTick
+    )
+
+    // Settled as an ordinary camera: show the picture, exactly as before this mode existed.
+    if (state.render == null && state.isValetudo == false && !reportNoMapData) {
+        fallback()
+        return
+    }
+
+    val canClean = state.segmentAreas.isNotEmpty()
+    var lastCleaned by remember { mutableStateOf<String?>(null) }
+
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val hintText = when {
+        state.render == null -> null
+        canClean -> lastCleaned?.let { stringResource(R.string.widgets_vacuum_valetudo_cleaning, it) }
+            ?: stringResource(R.string.widgets_vacuum_valetudo_tap_hint)
+        else -> stringResource(R.string.widgets_vacuum_valetudo_unmapped)
+    }
+
+    Box(Modifier.fillMaxSize()) {
+        ValetudoMapPane(
+            state = state,
+            onSegmentClick = { segmentId ->
+                val areaId = state.segmentAreas[segmentId] ?: return@ValetudoMapPane
+                val info = state.render?.segments?.firstOrNull { it.segmentId == segmentId }
+                lastCleaned = info?.name
+                    ?: context.getString(R.string.widgets_vacuum_room_label, segmentId)
+                viewModel.vacuumCleanAreas(vacuumEntityId, listOf(areaId))
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+
+        hintText?.let { hint ->
+            Surface(
+                modifier = Modifier.align(Alignment.BottomCenter).padding(8.dp),
+                color = Color.Black.copy(alpha = 0.55f),
+                shape = itemCornerShape()
+            ) {
+                Text(
+                    hint,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                    color = Color.White.copy(alpha = 0.85f),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontSize = 10.sp,
+                    textAlign = TextAlign.Center
                 )
             }
         }

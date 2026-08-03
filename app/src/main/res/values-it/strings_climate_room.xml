@@ -285,6 +285,9 @@
     <string name="cr_button_settings">Impostazioni pulsante</string>
     <string name="cr_robot_image">Immagine del robot</string>
     <string name="cr_map_camera">Telecamera della mappa</string>
+    <string name="cr_valetudo_map">Mappa Valetudo</string>
+    <string name="cr_valetudo_map_hint">Disegna la mappa di un robot Valetudo e consente di toccare una stanza per pulirla. Scegli sotto la camera mappa del robot.</string>
+    <string name="cr_valetudo_camera_mode_note">Camera mappa mostra un riquadro vuoto con un\'entità mappa Valetudo. Valetudo non disegna la mappa sul robot: il PNG è solo un contenitore per i dati. Scegli invece Mappa Valetudo per farla disegnare a HKI.</string>
     <string name="cr_external_url">URL esterno</string>
     <string name="cr_animation_glow">Bagliore</string>
     <string name="cr_animation_spin">Rotazione</string>
@@ -341,6 +344,11 @@
         <item>I flussi ora esprimono « Una qualsiasi » e la logica annidata, non solo un elenco piatto di E. Un gruppo si apre in un proprio elenco con percorso di navigazione, e i gruppi possono contenere gruppi: « movimento rilevato E (dopo il tramonto O modalità ospite attiva) » diventa costruibile. È la stessa struttura scritta dall\'editor di automazioni di Home Assistant, quindi un flusso creato in HA con OR non è più un blocco avanzato intoccabile.</item>
         <item>I quadranti del termostato nella vista Clima non si stringono più in sei su un pieghevole in orizzontale. Restano quattro per riga finché la finestra non è davvero molto larga, così ognuno mantiene la larghezza per essere letto.</item>
         <item>Il messaggio « In attesa di notifiche » ha ora un pulsante « Nascondi questa notifica » che porta direttamente alle impostazioni del suo canale Android. Disattivandolo lì sparisce per sempre, mentre la connessione continua. Android non consente una connessione in background senza notifica visibile, oltre non si può silenziare. Si attiva anche da sola se hai più di un server Home Assistant.</item>
+        <item>Il widget aspirapolvere ora può disegnare da sé una mappa Valetudo. Scegli Mappa Valetudo come immagine del pulsante e puntala alla camera mappa del robot: HKI legge i dati che Valetudo nasconde nel PNG di quella camera e disegna pavimento, muri, stanze, il robot, la base e il percorso seguito. Non servono add-on, componenti personalizzati o integrazioni Home Assistant aggiuntive, e la mappa si aggiorna da sola mentre il robot pulisce.</item>
+        <item>Tocca una stanza sulla mappa Valetudo per mandarci il robot. Le stanze usano i nomi che hai dato loro in Valetudo. Pulire una singola stanza passa dall\'azione clean_area di Home Assistant, quindi associa prima i segmenti del robot alle tue aree — finché non lo fai, la mappa lo segnala invece di ignorare il tocco.</item>
+        <item>Le impostazioni dell\'aspirapolvere ora avvisano che Camera mappa mostra un riquadro vuoto su un\'entità mappa Valetudo. Valetudo di proposito non disegna la mappa sul robot, quindi il PNG è solo un contenitore di dati: Mappa Valetudo è la modalità che mostra davvero qualcosa.</item>
+        <item>La finestra dell\'aspirapolvere ora mostra una mappa Valetudo ogni volta che la camera mappa scelta ne contiene una, qualunque sia l\'immagine del pulsante: quella decide solo l\'aspetto del riquadro sulla dashboard. Le camere che non sono mappe Valetudo continuano a mostrare la loro immagine, e HKI smette di ricontrollare una volta che lo sa.</item>
+        <item>L\'immagine del robot ora ruota mentre l\'aspirapolvere pulisce o torna alla base, con le stesse impostazioni di animazione delle icone del resto dell\'app. L\'impostazione propria di un pulsante ha ancora la precedenza, e Off la lascia ferma.</item>
         <item>* È richiesta l’integrazione HKI 7 Cloud Component.</item>
     </string-array>
 

@@ -1880,6 +1880,11 @@
         <item>流程現在可以表達「滿足其中任一」與巢狀邏輯，而不只是一串 AND。群組會帶麵包屑在自己的清單中開啟，群組還能包含群組，因此「偵測到移動 且（日落之後 或 訪客模式開啟）」可以直接建立。這與 Home Assistant 自動化編輯器寫出的結構相同，所以在 HA 中用 OR 建立的流程不再是無法編輯的進階區塊。</item>
         <item>氣候檢視中的恆溫旋鈕不再在橫向折疊機上擠成六個一排。在視窗真正變得很寬之前，每列維持四個，讓每個旋鈕都有足夠寬度。</item>
         <item>「等待通知」訊息現在帶有「隱藏此通知」按鈕，可直接跳至它的 Android 管道設定。在那裡關閉管道後，通知會徹底消失，而連線照常運作。Android 不允許沒有可見通知的背景連線，因此這已是靜音的極限。當你有多個 Home Assistant 伺服器時，它也會自行開啟。</item>
+        <item>掃地機器人小工具現在可以自己繪製 Valetudo 地圖。將按鈕圖像選為 Valetudo 地圖並指向機器人的地圖攝影機，HKI 會讀取 Valetudo 藏在該攝影機 PNG 裡的地圖資料，畫出地面、牆面、房間、機器人、充電座以及已走路徑。不需任何外掛、自訂元件或額外的 Home Assistant 整合，且清掃時地圖會自動更新。</item>
+        <item>在 Valetudo 地圖上點選房間即可讓機器人前往清掃。房間使用你在 Valetudo 中設定的名稱。單一房間的清掃透過 Home Assistant 的 clean_area 動作完成，因此請先在 Home Assistant 中將機器人的分區對應到區域；在那之前，地圖會給出提示而不是默默忽略點選。</item>
+        <item>掃地機器人設定現在會提醒：對 Valetudo 地圖實體使用一般的地圖攝影機會顯示空白卡片。Valetudo 刻意不在機器人上渲染地圖，PNG 僅作為資料容器 —— 真正能顯示內容的是 Valetudo 地圖模式。</item>
+        <item>掃地機器人彈窗現在只要所選地圖攝影機確實包含地圖資料，就會顯示 Valetudo 地圖，與按鈕圖像的設定無關 —— 按鈕圖像只決定儀表板上卡片的外觀。並非 Valetudo 地圖的攝影機仍然顯示其畫面，HKI 判定一次後不再重複檢查。</item>
+        <item>機器人圖像現在會在清掃或返回充電座時旋轉，使用與應用其他部分相同的圖示動畫設定。按鈕自己的動畫設定仍然優先，選擇關閉則保持靜止。</item>
         <item>* 需要 HKI 7 Cloud Component 整合。</item>
     </string-array>
 
@@ -2140,6 +2145,9 @@
     <string name="cr_lower_target">降低目標值</string>
     <string name="cr_lowest">最低</string>
     <string name="cr_map_camera">地圖攝影機</string>
+    <string name="cr_valetudo_map">Valetudo 地圖</string>
+    <string name="cr_valetudo_map_hint">繪製 Valetudo 機器人的地圖，點選房間即可清掃。請在下方選擇機器人的地圖攝影機。</string>
+    <string name="cr_valetudo_camera_mode_note">對 Valetudo 地圖實體使用地圖攝影機會顯示空白卡片。Valetudo 不會在機器人上繪製地圖，PNG 僅為地圖資料的容器。請改選 Valetudo 地圖，由 HKI 繪製。</string>
     <string name="cr_max">最大</string>
     <string name="cr_min">最小</string>
     <string name="cr_mode">模式</string>
@@ -3309,6 +3317,11 @@
     <string name="widgets_vacuum_water_level">水位</string>
     <string name="widgets_vacuum_map">掃地機器人地圖</string>
     <string name="widgets_vacuum_room_number">房間 %1$d</string>
+    <string name="widgets_vacuum_room_label">房間 %1$s</string>
+    <string name="widgets_vacuum_valetudo_decode_failed">此攝影機實體中沒有 Valetudo 地圖資料</string>
+    <string name="widgets_vacuum_valetudo_tap_hint">點選房間即可清掃</string>
+    <string name="widgets_vacuum_valetudo_unmapped">在 Home Assistant 中將此機器人的分區對應到區域，即可點選清掃房間</string>
+    <string name="widgets_vacuum_valetudo_cleaning">正在清掃 %1$s</string>
     <string name="widgets_waste_collection_title">垃圾清運</string>
     <string name="widgets_waste_collection_subtitle">感測器、行事曆與外觀</string>
     <string name="widgets_waste_sensor_picture_help">顯示感測器的 entity_picture（若無可用圖片則改用類型圖示）。</string>

@@ -560,6 +560,9 @@
     <string name="cr_button_settings">ボタン設定</string>
     <string name="cr_robot_image">ロボット画像</string>
     <string name="cr_map_camera">マップカメラ</string>
+    <string name="cr_valetudo_map">Valetudo マップ</string>
+    <string name="cr_valetudo_map_hint">Valetudo ロボットのマップを描画し、部屋をタップして掃除できます。下でロボットのマップカメラを選んでください。</string>
+    <string name="cr_valetudo_camera_mode_note">Valetudo のマップエンティティにマップカメラを使うと空白のタイルになります。Valetudo はロボット上でマップを描画せず、PNG はマップデータの入れ物にすぎません。HKI に描画させるには Valetudo マップを選んでください。</string>
     <string name="cr_external_url">外部URL</string>
     <string name="cr_animation_glow">グロー</string>
     <string name="cr_animation_spin">回転</string>
@@ -3011,6 +3014,11 @@
     <string name="widgets_vacuum_water_level">水位</string>
     <string name="widgets_vacuum_map">掃除機の地図</string>
     <string name="widgets_vacuum_room_number">部屋 %1$d</string>
+    <string name="widgets_vacuum_room_label">部屋 %1$s</string>
+    <string name="widgets_vacuum_valetudo_decode_failed">このカメラエンティティに Valetudo のマップデータがありません</string>
+    <string name="widgets_vacuum_valetudo_tap_hint">部屋をタップして掃除</string>
+    <string name="widgets_vacuum_valetudo_unmapped">タップで部屋を掃除するには、Home Assistant でこのロボットのセグメントをエリアに割り当ててください</string>
+    <string name="widgets_vacuum_valetudo_cleaning">%1$s を掃除中</string>
     <string name="widgets_waste_collection_title">ゴミ収集</string>
     <string name="widgets_waste_collection_subtitle">センサー、カレンダー、外観</string>
     <string name="widgets_waste_sensor_picture_help">センサーのentity_pictureを表示します(画像が利用できない場合はタイプアイコンに戻ります)。</string>

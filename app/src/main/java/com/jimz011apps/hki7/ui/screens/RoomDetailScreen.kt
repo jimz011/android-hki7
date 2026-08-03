@@ -3661,10 +3661,11 @@ fun ButtonConfigDialog(
                         TextButton(onClick = { showVacuumDevicePicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
                     }
                     Text(stringResource(R.string.ui_button_image_2483e32), style = MaterialTheme.typography.labelLarge)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(
                             "static" to R.string.cr_robot_image,
                             "camera" to R.string.cr_map_camera,
+                            "valetudo" to R.string.cr_valetudo_map,
                             "external" to R.string.cr_external_url
                         ).forEach { (value, labelRes) ->
                             FilterChip(
@@ -3673,6 +3674,23 @@ fun ButtonConfigDialog(
                                 label = { Text(stringResource(labelRes)) }
                             )
                         }
+                    }
+                    if (vacuumDisplayMode == "valetudo") {
+                        Text(
+                            stringResource(R.string.cr_valetudo_map_hint),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    // Valetudo's PNG is a container for map data, not a picture, so plain "Map
+                    // camera" renders an empty tile. Say so where the choice is made rather than
+                    // leaving the user to debug a blank widget.
+                    if (vacuumDisplayMode == "camera") {
+                        Text(
+                            stringResource(R.string.cr_valetudo_camera_mode_note),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                     if (vacuumDisplayMode == "external") {
                         OutlinedTextField(
@@ -5144,6 +5162,7 @@ fun ButtonStackItem(
                             isSquare = stack.isSquare,
                             cornerRadius = stack.cornerRadius,
                             aspectRatio = stack.cameraAspectRatio,
+                            viewModel = viewModel,
                             onClick = { onEntityClick(entity.entity_id) }
                         )
                     }
@@ -5223,7 +5242,8 @@ fun ButtonStackItem(
                     onEntityClick = onEntityClick,
                     onButtonSettings = onButtonSettings,
                     onRemoveEntity = onRemoveEntity,
-                    onReorderEntities = onReorderEntities
+                    onReorderEntities = onReorderEntities,
+                    viewModel = viewModel
                 )
                 return@Column
             }
@@ -5470,6 +5490,7 @@ fun SingleEntityWidgetItem(
                     isSquare = widget.isSquare,
                     cornerRadius = widget.cornerRadius,
                     aspectRatio = widget.cameraAspectRatio,
+                    viewModel = viewModel,
                     onClick = { onEntityClick(widget.entityId) }
                 )
                 else -> {

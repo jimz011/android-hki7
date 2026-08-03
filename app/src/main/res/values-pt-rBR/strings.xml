@@ -1823,6 +1823,9 @@
     <string name="cr_lower_target">Diminuir meta</string>
     <string name="cr_lowest">Mais baixo</string>
     <string name="cr_map_camera">Câmera de mapa</string>
+    <string name="cr_valetudo_map">Mapa Valetudo</string>
+    <string name="cr_valetudo_map_hint">Desenha o mapa de um robô Valetudo e permite tocar em um cômodo para limpá-lo. Escolha abaixo a câmera de mapa do robô.</string>
+    <string name="cr_valetudo_camera_mode_note">Câmera de mapa mostra um bloco vazio com uma entidade de mapa Valetudo. O Valetudo não desenha o mapa no robô — o PNG é apenas um contêiner para os dados. Escolha Mapa Valetudo para o HKI desenhá-lo.</string>
     <string name="cr_max">Máx.</string>
     <string name="cr_min">Mín.</string>
     <string name="cr_mode">Modo</string>
@@ -3039,6 +3042,11 @@
     <string name="widgets_vacuum_page_status">%1$d/%2$d · %3$s</string>
     <string name="widgets_vacuum_pause">Pausar</string>
     <string name="widgets_vacuum_room_number">Cômodo %1$d</string>
+    <string name="widgets_vacuum_room_label">Cômodo %1$s</string>
+    <string name="widgets_vacuum_valetudo_decode_failed">Esta entidade de câmera não contém dados de mapa Valetudo</string>
+    <string name="widgets_vacuum_valetudo_tap_hint">Toque em um cômodo para limpá-lo</string>
+    <string name="widgets_vacuum_valetudo_unmapped">Associe os segmentos deste robô a áreas no Home Assistant para limpar um cômodo com um toque</string>
+    <string name="widgets_vacuum_valetudo_cleaning">Limpando %1$s</string>
     <string name="widgets_vacuum_start">Iniciar</string>
     <string name="widgets_vacuum_state_cleaning">Limpando</string>
     <string name="widgets_vacuum_state_docked">Na base</string>
@@ -3261,6 +3269,11 @@
         <item>Os fluxos agora expressam “Qualquer uma destas” e lógica aninhada, não apenas uma lista simples de E. Um grupo abre na própria lista com trilha de navegação, e grupos podem conter grupos, então “movimento detectado E (depois do pôr do sol OU modo visitante ligado)” é possível. É a mesma estrutura que o editor de automações do Home Assistant escreve, então um fluxo criado no HA com OU deixa de ser um bloco avançado intocável.</item>
         <item>Os mostradores de termostato na tela Clima não se espremem mais em seis num dobrável na horizontal. Ficam em quatro por linha até a janela ficar realmente muito larga, para cada um manter largura de leitura.</item>
         <item>A mensagem “Aguardando notificações” agora tem um botão “Ocultar esta notificação” que abre direto as configurações do seu canal do Android. Desligado ali, ele some de vez enquanto a conexão continua funcionando. O Android não permite uma conexão em segundo plano sem notificação visível, então não dá para silenciar mais. Ela também liga sozinha quando você tem mais de um servidor Home Assistant.</item>
+        <item>O widget de aspirador já consegue desenhar um mapa Valetudo sozinho. Escolha Mapa Valetudo como imagem do botão e aponte para a câmera de mapa do robô: o HKI lê os dados que o Valetudo esconde dentro do PNG dessa câmera e desenha o piso, as paredes, os cômodos, o robô, a base e o trajeto percorrido. Não é preciso nenhum add-on, componente personalizado ou integração extra do Home Assistant, e o mapa se atualiza sozinho enquanto o robô limpa.</item>
+        <item>Toque em um cômodo do mapa Valetudo para enviar o robô até lá. Os cômodos usam os nomes que você deu a eles no Valetudo. Limpar um único cômodo passa pela ação clean_area do Home Assistant, então associe antes os segmentos do robô às suas áreas — até lá, o mapa avisa em vez de ignorar o toque.</item>
+        <item>As configurações do aspirador agora avisam que Câmera de mapa mostra um bloco vazio em uma entidade de mapa Valetudo. O Valetudo não desenha o mapa no robô de propósito, então o PNG é apenas um contêiner de dados — Mapa Valetudo é o modo que realmente mostra algo.</item>
+        <item>A janela do aspirador agora mostra um mapa Valetudo sempre que a câmera de mapa escolhida tiver um, seja qual for a imagem do botão — ela só decide a aparência do bloco no painel. As câmeras que não são mapas Valetudo continuam mostrando sua imagem, e o HKI para de verificar assim que descobre.</item>
+        <item>A imagem do robô agora gira enquanto o aspirador limpa ou volta à base, com as mesmas configurações de animação de ícones do resto do app. A configuração própria de cada botão continua tendo prioridade, e Desligado a mantém parada.</item>
         <item>* É necessária a integração do componente HKI 7 Cloud.</item>
     </string-array>
 

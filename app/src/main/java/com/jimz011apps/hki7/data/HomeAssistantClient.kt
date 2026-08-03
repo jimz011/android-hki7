@@ -1164,6 +1164,48 @@ open class HomeAssistantClient(
         }
     }
 
+    /**
+     * Raw bytes of a camera entity's current frame. Needed for Valetudo map cameras, whose PNG is a
+     * container for deflated map JSON rather than a picture — Coil would decode and cache the blank
+     * pixels and throw the payload away.
+     */
+    open suspend fun getCameraImageBytes(entityId: String): ByteArray = withAuthHandling {
+        val response = client.get("$baseUrl/api/camera_proxy/$entityId") {
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+        }
+        if (!response.status.isSuccess()) {
+            throw Exception("Camera image fetch failed: HTTP ${response.status.value}")
+        }
+        response.body<ByteArray>()
+    }
+
+    /**
+     * The vacuum's segment-to-area mapping, as configured in Home Assistant's segment mapping
+     * dialog: `{ area_id: [segment_id, …] }`. `vacuum.clean_area` targets Home Assistant areas
+     * rather than robot segments, so this is what turns a tapped map segment into a callable area.
+     *
+     * Lives in the entity registry entry's `options`, which `config/entity_registry/list` omits —
+     * only the per-entity `get` returns the extended dict.
+     */
+    open suspend fun getVacuumAreaMapping(entityId: String): Map<String, List<String>> = withWebSocket {
+        val response = sendCommand(
+            "config/entity_registry/get",
+            mapOf("entity_id" to JsonPrimitive(entityId))
+        )
+        if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket emptyMap()
+        val mapping = response["result"]?.jsonObject
+            ?.get("options")?.jsonObject
+            ?.get("vacuum")?.jsonObject
+            ?.get("area_mapping")?.jsonObject
+            ?: return@withWebSocket emptyMap()
+
+        mapping.mapValues { (_, segments) ->
+            runCatching {
+                segments.jsonArray.mapNotNull { it.jsonPrimitive.contentOrNull }
+            }.getOrDefault(emptyList())
+        }.filterValues { it.isNotEmpty() }
+    }
+
     /** Calls an arbitrary service with a free-form JSON payload (target + service data), for
      *  user-configured custom actions where the fixed [HAServiceCall] fields aren't enough. */
     open suspend fun callServiceRaw(domain: String, service: String, payload: JsonObject) {

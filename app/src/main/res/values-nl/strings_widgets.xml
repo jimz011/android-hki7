@@ -64,6 +64,11 @@
     <string name="widgets_vacuum_water_level">Waterniveau</string>
     <string name="widgets_vacuum_map">Stofzuigerkaart</string>
     <string name="widgets_vacuum_room_number">Kamer %1$d</string>
+    <string name="widgets_vacuum_room_label">Kamer %1$s</string>
+    <string name="widgets_vacuum_valetudo_decode_failed">Geen Valetudo-kaartgegevens in deze camera-entiteit</string>
+    <string name="widgets_vacuum_valetudo_tap_hint">Tik op een kamer om die te stofzuigen</string>
+    <string name="widgets_vacuum_valetudo_unmapped">Koppel de segmenten van deze robot aan zones in Home Assistant om een kamer met één tik te stofzuigen</string>
+    <string name="widgets_vacuum_valetudo_cleaning">%1$s wordt gestofzuigd</string>
 
     <string name="widgets_waste_collection_title">Afvalinzameling</string>
     <string name="widgets_waste_collection_subtitle">Sensoren, kalender en weergave</string>

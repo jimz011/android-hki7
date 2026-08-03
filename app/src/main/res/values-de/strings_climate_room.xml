@@ -285,6 +285,9 @@
     <string name="cr_button_settings">Schaltflächeneinstellungen</string>
     <string name="cr_robot_image">Roboterbild</string>
     <string name="cr_map_camera">Kartenkamera</string>
+    <string name="cr_valetudo_map">Valetudo-Karte</string>
+    <string name="cr_valetudo_map_hint">Zeichnet die Karte eines Valetudo-Roboters; tippe auf einen Raum, um ihn reinigen zu lassen. Wähle unten die Kartenkamera des Roboters.</string>
+    <string name="cr_valetudo_camera_mode_note">Kartenkamera zeigt bei einer Valetudo-Kartenentität eine leere Kachel. Valetudo rendert die Karte nicht auf dem Roboter — das PNG ist nur ein Behälter für die Kartendaten. Wähle stattdessen Valetudo-Karte, damit HKI sie zeichnet.</string>
     <string name="cr_external_url">Externe URL</string>
     <string name="cr_animation_glow">Leuchten</string>
     <string name="cr_animation_spin">Drehen</string>
@@ -341,6 +344,11 @@
         <item>Abläufe beherrschen jetzt „Eines davon“ und verschachtelte Logik statt nur einer flachen UND-Liste. Eine Gruppe öffnet sich in einer eigenen Liste mit Pfadanzeige, und Gruppen können Gruppen enthalten — „Bewegung erkannt UND (nach Sonnenuntergang ODER Gästemodus an)“ ist damit baubar. Es ist dieselbe Struktur, die der Automatisierungseditor von Home Assistant schreibt: ein in HA erstellter Ablauf mit ODER ist kein unantastbarer Erweiterungsblock mehr.</item>
         <item>Thermostat-Regler in der Klimaansicht quetschen sich nicht mehr zu sechst über ein aufgeklapptes Foldable im Querformat. Regler bleiben bei vier pro Reihe, bis das Fenster wirklich sehr breit ist, damit jeder lesbar bleibt.</item>
         <item>Die Meldung „Warte auf Benachrichtigungen“ hat jetzt die Schaltfläche „Diese Benachrichtigung ausblenden“, die direkt zu den Android-Kanaleinstellungen führt. Dort ausgeschaltet, verschwindet sie dauerhaft, während die Verbindung weiterläuft. Android lässt keine Hintergrundverbindung ohne sichtbare Benachrichtigung zu, mehr Stummschaltung ist nicht möglich. Sie schaltet sich außerdem selbst ein, wenn du mehr als einen Home-Assistant-Server hast.</item>
+        <item>Das Staubsauger-Widget kann eine Valetudo-Karte jetzt selbst zeichnen. Wähle Valetudo-Karte als Tastenbild und verweise auf die Kartenkamera deines Roboters: HKI liest die Kartendaten, die Valetudo im PNG dieser Kamera versteckt, und zeichnet Boden, Wände, Räume, den Roboter, seine Station und den gefahrenen Weg. Dafür braucht es kein Add-on, keine Custom Component und keine zusätzliche Home-Assistant-Integration, und die Karte aktualisiert sich während der Reinigung von selbst.</item>
+        <item>Tippe auf der Valetudo-Karte auf einen Raum, um ihn reinigen zu lassen. Die Räume tragen die Namen, die du ihnen in Valetudo gegeben hast. Einen einzelnen Raum zu reinigen läuft über die clean_area-Aktion von Home Assistant — ordne die Segmente des Roboters also zuerst deinen Bereichen zu; bis dahin sagt die Karte das, statt den Tipp ins Leere laufen zu lassen.</item>
+        <item>Die Staubsauger-Einstellungen weisen jetzt darauf hin, dass Kartenkamera bei einer Valetudo-Kartenentität eine leere Kachel zeigt. Valetudo rendert die Karte absichtlich nicht auf dem Roboter, das PNG ist nur ein Behälter für die Daten — Valetudo-Karte ist der Modus, der tatsächlich etwas anzeigt.</item>
+        <item>Der Staubsauger-Dialog zeigt jetzt eine Valetudo-Karte, sobald die gewählte Kartenkamera tatsächlich eine enthält — unabhängig vom Tastenbild, das nur das Aussehen der Kachel auf dem Dashboard bestimmt. Kameras, die keine Valetudo-Karte liefern, zeigen weiterhin ihr Bild, und HKI prüft das danach nicht erneut.</item>
+        <item>Das Roboterbild dreht sich jetzt, während der Sauger reinigt oder zur Station zurückfährt — mit denselben Symbolanimations-Einstellungen wie der Rest der App. Die eigene Animationseinstellung einer Taste hat weiterhin Vorrang, und Aus hält es still.</item>
         <item>* HKI-7-Cloud-Component-Integration erforderlich.</item>
     </string-array>
 

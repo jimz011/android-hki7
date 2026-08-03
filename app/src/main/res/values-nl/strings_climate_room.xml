@@ -285,6 +285,9 @@
     <string name="cr_button_settings">Knopinstellingen</string>
     <string name="cr_robot_image">Afbeelding robot</string>
     <string name="cr_map_camera">Kaartcamera</string>
+    <string name="cr_valetudo_map">Valetudo-kaart</string>
+    <string name="cr_valetudo_map_hint">Tekent de kaart van een Valetudo-robot en laat je op een kamer tikken om die te laten stofzuigen. Kies hieronder de kaartcamera van de robot.</string>
+    <string name="cr_valetudo_camera_mode_note">Kaartcamera bij een Valetudo-kaartentiteit toont een lege tegel. Valetudo tekent de kaart niet op de robot — de PNG is alleen een omhulsel voor de kaartgegevens. Kies Valetudo-kaart zodat HKI hem zelf tekent.</string>
     <string name="cr_external_url">Externe URL</string>
     <string name="cr_animation_glow">Gloeien</string>
     <string name="cr_animation_spin">Draaien</string>
@@ -341,6 +344,11 @@
         <item>Flows kunnen nu Een van deze en geneste logica uitdrukken, niet alleen een platte EN-lijst. Een groep opent in een eigen lijst met kruimelpad, en groepen kunnen groepen bevatten, dus beweging gedetecteerd EN (na zonsondergang OF gastmodus aan) is te bouwen. Het is dezelfde structuur die de automatiseringseditor van Home Assistant schrijft, dus een in HA gemaakte flow met OF is geen onaantastbaar geavanceerd blok meer.</item>
         <item>Thermostaatknoppen in de Klimaatweergave persen zich niet langer met zes op een rij op een liggende foldable. Ze blijven op vier per rij tot het venster echt heel breed is, zodat elke knop leesbaar blijft.</item>
         <item>De melding Wachten op meldingen heeft nu een knop Deze melding verbergen die direct naar de Android-kanaalinstellingen springt. Zet je het kanaal daar uit, dan verdwijnt hij definitief terwijl de verbinding blijft werken. Android staat geen achtergrondverbinding zonder zichtbare melding toe, verder dempen kan niet. Hij gaat ook vanzelf aan als je meer dan één Home Assistant-server hebt.</item>
+        <item>Het stofzuigerwidget kan nu zelf een Valetudo-kaart tekenen. Kies Valetudo-kaart als knopafbeelding en wijs het naar de kaartcamera van je robot: HKI leest de kaartgegevens die Valetudo in die PNG verstopt en tekent de vloer, muren, kamers, de robot, het dock en de gereden route. Er is geen add-on, custom component of extra Home Assistant-integratie voor nodig, en de kaart ververst zichzelf terwijl de robot stofzuigt.</item>
+        <item>Tik op een kamer op de Valetudo-kaart om de robot die te laten stofzuigen. Kamers gebruiken de namen die je ze in Valetudo hebt gegeven. Eén kamer stofzuigen loopt via de clean_area-actie van Home Assistant, dus koppel eerst de segmenten van de robot aan je zones in Home Assistant — tot dat gebeurd is zegt de kaart dat, in plaats van een tik te negeren.</item>
+        <item>De stofzuigerinstellingen waarschuwen nu dat gewone Kaartcamera bij een Valetudo-kaartentiteit een lege tegel toont. Valetudo tekent de kaart bewust niet op de robot, dus de PNG is alleen een omhulsel voor de gegevens — Valetudo-kaart is de modus die wél iets laat zien.</item>
+        <item>Het stofzuigervenster toont nu een Valetudo-kaart zodra de gekozen kaartcamera er één bevat, ongeacht de knopafbeelding — die bepaalt alleen hoe de tegel op het dashboard eruitziet. Camera\'s die geen Valetudo-kaart blijken te zijn tonen gewoon hun beeld, en HKI controleert dat daarna niet opnieuw.</item>
+        <item>De robotafbeelding draait nu terwijl de stofzuiger bezig is of terugkeert naar het dock, met dezelfde pictogramanimatie-instellingen als de rest van de app. De eigen animatie-instelling van een knop gaat nog steeds voor, en Uit houdt hem stil.</item>
         <item>* HKI 7 Cloud Component-integratie vereist.</item>
     </string-array>
 

@@ -285,6 +285,9 @@
     <string name="cr_button_settings">Düğme ayarları</string>
     <string name="cr_robot_image">Robot görseli</string>
     <string name="cr_map_camera">Harita kamerası</string>
+    <string name="cr_valetudo_map">Valetudo haritası</string>
+    <string name="cr_valetudo_map_hint">Valetudo robotunun haritasını çizer; bir odaya dokunarak orayı süpürtebilirsiniz. Aşağıdan robotun harita kamerasını seçin.</string>
+    <string name="cr_valetudo_camera_mode_note">Valetudo harita varlığıyla Harita kamerası boş bir kutu gösterir. Valetudo haritayı robot üzerinde çizmez — PNG yalnızca harita verisinin kabuğudur. HKI\'nın çizmesi için Valetudo haritasını seçin.</string>
     <string name="cr_external_url">Harici URL</string>
     <string name="cr_animation_glow">Parlama</string>
     <string name="cr_animation_spin">Dönme</string>
@@ -341,6 +344,11 @@
         <item>Akışlar artık yalnızca düz bir VE listesi değil, “Bunlardan herhangi biri” ve iç içe mantık da kurabiliyor. Bir grup kendi listesinde açılır ve gruplar grup içerebilir; böylece “hareket algılandı VE (gün batımından sonra VEYA misafir modu açık)” kurulabilir. Bu, Home Assistant\'ın kendi otomasyon düzenleyicisinin yazdığı yapıdır; HA\'da VEYA ile oluşturulmuş bir akış artık dokunulamaz bir gelişmiş blok değil.</item>
         <item>Klima görünümündeki termostat kadranları artık yatay katlanabilirde altı yan yana sıkışmıyor. Pencere gerçekten çok genişleyene kadar satır başına dörtte kalır; böylece her kadran okunacak genişliği korur.</item>
         <item>“Bildirimler bekleniyor” mesajında artık doğrudan Android kanal ayarlarına giden bir “Bu bildirimi gizle” düğmesi var. Kanalı orada kapatınca bildirim kalıcı olarak kaybolur, bağlantı çalışmaya devam eder. Android, görünür bir bildirim olmadan arka plan bağlantısına izin vermiyor; sessize almanın sınırı bu. Ayrıca birden fazla Home Assistant sunucunuz varsa kendiliğinden açılır.</item>
+        <item>Süpürge widget\'ı artık Valetudo haritasını kendisi çizebiliyor. Düğme görseli olarak Valetudo haritasını seçip robotunuzun harita kamerasını gösterin: HKI, Valetudo\'nun o kameranın PNG\'sine sakladığı harita verisini okuyup zemini, duvarları, odaları, robotu, şarj ünitesini ve izlediği yolu çizer. Hiçbir eklenti, özel bileşen ya da ek Home Assistant entegrasyonu gerekmez ve harita robot süpürürken kendiliğinden yenilenir.</item>
+        <item>Robotu bir odaya göndermek için Valetudo haritasında o odaya dokunun. Odalar Valetudo\'da verdiğiniz adları kullanır. Tek oda süpürmek Home Assistant\'ın clean_area eylemi üzerinden gider; bu yüzden önce robotun segmentlerini alanlarınızla eşleştirin — eşleştirene kadar harita dokunuşu sessizce yutmak yerine bunu söyler.</item>
+        <item>Süpürge ayarları artık Valetudo harita varlığında düz Harita kamerasının boş bir kutu gösterdiğini belirtiyor. Valetudo haritayı robot üzerinde bilerek çizmez, PNG yalnızca verinin kabuğudur — gerçekten bir şey gösteren mod Valetudo haritasıdır.</item>
+        <item>Süpürge penceresi artık seçtiğiniz harita kamerası gerçekten bir Valetudo haritası taşıyorsa onu gösteriyor — düğme görseli ne olursa olsun; o yalnızca panodaki kutunun görünüşünü belirler. Valetudo haritası olmadığı anlaşılan kameralar yine kendi görüntüsünü gösterir ve HKI bunu öğrendikten sonra tekrar denemez.</item>
+        <item>Robot görseli artık süpürge çalışırken veya şarj ünitesine dönerken dönüyor; uygulamadaki diğer simge animasyonu ayarlarını kullanır. Düğmenin kendi animasyon ayarı yine önceliklidir ve Kapalı seçeneği hareketsiz bırakır.</item>
         <item>* HKI 7 Cloud Component entegrasyonu gerekir.</item>
     </string-array>
 

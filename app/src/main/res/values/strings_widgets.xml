@@ -64,6 +64,11 @@
     <string name="widgets_vacuum_water_level">Water level</string>
     <string name="widgets_vacuum_map">Vacuum map</string>
     <string name="widgets_vacuum_room_number">Room %1$d</string>
+    <string name="widgets_vacuum_room_label">Room %1$s</string>
+    <string name="widgets_vacuum_valetudo_decode_failed">No Valetudo map data in this camera entity</string>
+    <string name="widgets_vacuum_valetudo_tap_hint">Tap a room to clean it</string>
+    <string name="widgets_vacuum_valetudo_unmapped">Map this robot\'s segments to areas in Home Assistant to clean a room by tapping it</string>
+    <string name="widgets_vacuum_valetudo_cleaning">Cleaning %1$s</string>
 
     <string name="widgets_waste_collection_title">Waste collection</string>
     <string name="widgets_waste_collection_subtitle">Sensors, calendar, and appearance</string>

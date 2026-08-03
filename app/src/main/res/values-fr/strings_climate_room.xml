@@ -289,6 +289,9 @@
     <string name="cr_button_settings">Paramètres du bouton</string>
     <string name="cr_robot_image">Image du robot</string>
     <string name="cr_map_camera">Caméra de la carte</string>
+    <string name="cr_valetudo_map">Carte Valetudo</string>
+    <string name="cr_valetudo_map_hint">Dessine la carte d\'un robot Valetudo et permet de toucher une pièce pour la nettoyer. Choisissez ci-dessous la caméra de carte du robot.</string>
+    <string name="cr_valetudo_camera_mode_note">Caméra de carte affiche une tuile vide pour une entité de carte Valetudo. Valetudo ne dessine pas la carte sur le robot — son PNG n\'est qu\'un conteneur pour les données. Choisissez plutôt Carte Valetudo pour que HKI la dessine.</string>
     <string name="cr_external_url">URL externe</string>
     <string name="cr_animation_glow">Lueur</string>
     <string name="cr_animation_spin">Rotation</string>
@@ -347,6 +350,11 @@
         <item>Les flux gèrent désormais « L\'une de celles-ci » et la logique imbriquée, plus seulement une liste plate de ET. Un groupe s\'ouvre dans sa propre liste avec un fil d\'Ariane, et un groupe peut en contenir d\'autres : « mouvement détecté ET (après le coucher du soleil OU mode invité activé) » devient constructible. C\'est la structure qu\'écrit l\'éditeur d\'automatisations de Home Assistant, donc un flux créé dans HA avec OU n\'est plus un bloc avancé intouchable.</item>
         <item>Les cadrans de thermostat de la vue Climat ne se serrent plus à six sur un pliable en paysage. Ils restent à quatre par ligne tant que la fenêtre n\'est pas vraiment très large, pour que chacun garde de quoi se lire.</item>
         <item>Le message « En attente de notifications » comporte désormais un bouton « Masquer cette notification » qui ouvre directement les réglages de son canal Android. Désactivé là, il disparaît définitivement tandis que la connexion continue. Android n\'autorise aucune connexion en arrière-plan sans notification visible : impossible d\'aller plus loin. Il s\'active aussi tout seul si vous avez plusieurs serveurs Home Assistant.</item>
+        <item>Le widget aspirateur peut maintenant dessiner lui-même une carte Valetudo. Choisissez Carte Valetudo comme image du bouton et pointez-la vers la caméra de carte de votre robot : HKI lit les données que Valetudo cache dans le PNG de cette caméra et dessine le sol, les murs, les pièces, le robot, sa base et le trajet parcouru. Aucun add-on, composant personnalisé ni intégration Home Assistant supplémentaire n\'est nécessaire, et la carte se rafraîchit seule pendant le nettoyage.</item>
+        <item>Touchez une pièce sur la carte Valetudo pour y envoyer le robot. Les pièces portent les noms que vous leur avez donnés dans Valetudo. Le nettoyage d\'une seule pièce passe par l\'action clean_area de Home Assistant : associez d\'abord les segments du robot à vos zones — tant que ce n\'est pas fait, la carte le signale au lieu d\'ignorer l\'appui.</item>
+        <item>Les paramètres de l\'aspirateur avertissent désormais que Caméra de carte affiche une tuile vide sur une entité de carte Valetudo. Valetudo ne dessine volontairement pas la carte sur le robot : son PNG n\'est qu\'un conteneur de données — Carte Valetudo est le mode qui affiche vraiment quelque chose.</item>
+        <item>La boîte de dialogue de l\'aspirateur affiche désormais une carte Valetudo dès que la caméra de carte choisie en contient une, quelle que soit l\'image du bouton — celle-ci ne détermine que l\'apparence de la tuile sur le tableau de bord. Les caméras qui ne sont pas des cartes Valetudo affichent toujours leur image, et HKI cesse de vérifier une fois qu\'il le sait.</item>
+        <item>L\'image du robot tourne maintenant pendant que l\'aspirateur nettoie ou retourne à sa base, avec les mêmes réglages d\'animation d\'icône que le reste de l\'application. Le réglage propre à un bouton reste prioritaire, et Désactivé la garde immobile.</item>
         <item>* Intégration HKI 7 Cloud Component requise.</item>
     </string-array>
 

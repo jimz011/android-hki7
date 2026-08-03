@@ -290,6 +290,9 @@
     <string name="cr_robot_image">Robot image</string>
     <string name="cr_map_camera">Map camera</string>
     <string name="cr_external_url">External URL</string>
+    <string name="cr_valetudo_map">Valetudo map</string>
+    <string name="cr_valetudo_map_hint">Draws the map from a Valetudo robot and lets you tap a room to clean it. Pick the robot\'s map camera below.</string>
+    <string name="cr_valetudo_camera_mode_note">Using Map camera with a Valetudo map entity shows a blank tile. Valetudo does not render the map on the robot — its PNG is only a container for the map data. Choose Valetudo map instead to have HKI draw it.</string>
     <string name="cr_animation_glow">Glow</string>
     <string name="cr_animation_spin">Spin</string>
     <string name="cr_animation_pulse">Pulse</string>
@@ -347,6 +350,11 @@
         <item>Flows can express Any of these and nested logic, not just a flat list of ANDs. A group opens into its own list with a breadcrumb, and groups can hold groups, so motion detected AND (after sunset OR guest mode on) is buildable. It is the same structure Home Assistant\'s own editor writes, so a flow made in HA that used OR is no longer an untouchable advanced block.</item>
         <item>Thermostat dials on the Climate view no longer squeeze six across a landscape foldable. Dials hold at four per row until the window is genuinely desktop-wide, so each keeps enough width to read.</item>
         <item>The Waiting for notifications message now has a Hide this notification button that jumps straight to its Android channel settings, where switching the channel off hides it for good while the connection keeps working. Android will not let a background connection run without a visible notification, so this is as far as muting can go. It also switches itself on when you have more than one Home Assistant server.</item>
+        <item>The vacuum widget can now draw a Valetudo map itself. Choose Valetudo map as the button image and point it at your robot\'s map camera: HKI reads the map data Valetudo hides inside that camera\'s PNG and draws the floor, walls, rooms, the robot, its dock and the path it has taken. No add-on, custom component or extra Home Assistant integration is involved, and the map refreshes on its own while the robot is cleaning.</item>
+        <item>Tap a room on the Valetudo map to send the robot to clean it. Rooms use the names you gave them in Valetudo. Cleaning a single room goes through Home Assistant\'s clean_area action, so first map the robot\'s segments to your areas in Home Assistant — until you do, the map says so instead of leaving the tap doing nothing.</item>
+        <item>The vacuum settings now warn that plain Map camera on a Valetudo map entity shows a blank tile. Valetudo deliberately does not render the map on the robot, so its PNG is only a container for the data — Valetudo map is the mode that shows something.</item>
+        <item>The vacuum dialog now shows a Valetudo map whenever the map camera you picked actually carries one, whatever the button image is set to — the button image only decides how the tile on the dashboard looks. Cameras that turn out not to be Valetudo maps still show their picture, and HKI stops re-checking once it knows.</item>
+        <item>The robot image now spins while the vacuum is cleaning or returning to its dock, using the same icon animation settings as the rest of the app. A button\'s own animation setting still overrides it, and Off keeps it still.</item>
         <item>* HKI 7 Cloud Component integration required.</item>
     </string-array>
 

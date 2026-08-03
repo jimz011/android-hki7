@@ -60,6 +60,11 @@
     <string name="widgets_vacuum_water_level">Wassermenge</string>
     <string name="widgets_vacuum_map">Staubsaugerkarte</string>
     <string name="widgets_vacuum_room_number">Raum %1$d</string>
+    <string name="widgets_vacuum_room_label">Raum %1$s</string>
+    <string name="widgets_vacuum_valetudo_decode_failed">Keine Valetudo-Kartendaten in dieser Kameraentität</string>
+    <string name="widgets_vacuum_valetudo_tap_hint">Tippe auf einen Raum, um ihn zu reinigen</string>
+    <string name="widgets_vacuum_valetudo_unmapped">Ordne die Segmente dieses Roboters in Home Assistant Bereichen zu, um einen Raum per Tippen zu reinigen</string>
+    <string name="widgets_vacuum_valetudo_cleaning">%1$s wird gereinigt</string>
     <string name="widgets_waste_collection_title">Abfallabholung</string>
     <string name="widgets_waste_collection_subtitle">Sensoren, Kalender und Darstellung</string>
     <string name="widgets_waste_sensor_picture_help">Zeigt das entity_picture des Sensors; falls keines vorhanden ist, wird das Symbol der Abfallart verwendet.</string>

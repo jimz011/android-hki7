@@ -1847,6 +1847,9 @@
     <string name="cr_lower_target">降低目标值</string>
     <string name="cr_lowest">最低</string>
     <string name="cr_map_camera">地图摄像头</string>
+    <string name="cr_valetudo_map">Valetudo 地图</string>
+    <string name="cr_valetudo_map_hint">绘制 Valetudo 机器人的地图，点击房间即可清扫。请在下方选择机器人的地图摄像机。</string>
+    <string name="cr_valetudo_camera_mode_note">对 Valetudo 地图实体使用地图摄像机会显示空白卡片。Valetudo 不在机器人上渲染地图，PNG 仅作为地图数据的容器。请改选 Valetudo 地图，由 HKI 绘制。</string>
     <string name="cr_max">最大</string>
     <string name="cr_min">最小</string>
     <string name="cr_mode">模式</string>
@@ -1969,6 +1972,11 @@
         <item>流程现在可以表达“满足其中任一”和嵌套逻辑，而不只是一串 AND。分组会带面包屑在自己的列表中打开，分组还能包含分组，因此“检测到移动 且（日落之后 或 访客模式开启）”可以直接搭建。这与 Home Assistant 自动化编辑器写出的结构相同，所以在 HA 中用 OR 创建的流程不再是无法编辑的高级块。</item>
         <item>气候视图中的温控旋钮不再在横屏折叠屏上挤成六个一排。在窗口真正变得很宽之前，每行保持四个，让每个旋钮都有足够宽度。</item>
         <item>“等待通知”消息现在带有“隐藏此通知”按钮，可直接跳转到它的 Android 渠道设置。在那里关闭渠道后，通知会彻底消失，而连接照常工作。Android 不允许没有可见通知的后台连接，因此这已是静音的极限。当你有多个 Home Assistant 服务器时，它也会自行开启。</item>
+        <item>扫地机器人小组件现在可以自己绘制 Valetudo 地图。将按钮图像选为 Valetudo 地图并指向机器人的地图摄像机，HKI 会读取 Valetudo 藏在该摄像机 PNG 里的地图数据，绘出地面、墙体、房间、机器人、充电座以及已走路径。无需任何加载项、自定义组件或额外的 Home Assistant 集成，且清扫时地图会自动刷新。</item>
+        <item>在 Valetudo 地图上点击房间即可让机器人去清扫。房间使用你在 Valetudo 中设的名称。单个房间的清扫通过 Home Assistant 的 clean_area 动作完成，因此请先在 Home Assistant 中将机器人的分区映射到区域；在那之前，地图会给出提示而不是默默忽略点击。</item>
+        <item>扫地机器人设置现在会提醒：对 Valetudo 地图实体使用普通的地图摄像机会显示空白卡片。Valetudo 故意不在机器人上渲染地图，PNG 仅作为数据容器 —— 真正能显示内容的是 Valetudo 地图模式。</item>
+        <item>扫地机器人弹窗现在只要所选地图摄像机确实包含地图数据，就会显示 Valetudo 地图，与按钮图像的设置无关 —— 按钮图像只决定仪表盘上卡片的外观。并非 Valetudo 地图的摄像机仍然显示其画面，HKI 判定一次后不再重复检查。</item>
+        <item>机器人图像现在会在扫地或返回充电座时旋转，使用与应用其他部分相同的图标动画设置。按钮自己的动画设置仍然优先，选择关闭则保持静止。</item>
         <item>* 需要 HKI 7 Cloud 组件集成。</item>
     </string-array>
 
@@ -3311,6 +3319,11 @@
     <string name="widgets_vacuum_page_status">%1$d/%2$d · %3$s</string>
     <string name="widgets_vacuum_pause">暂停</string>
     <string name="widgets_vacuum_room_number">房间 %1$d</string>
+    <string name="widgets_vacuum_room_label">房间 %1$s</string>
+    <string name="widgets_vacuum_valetudo_decode_failed">此摄像机实体中没有 Valetudo 地图数据</string>
+    <string name="widgets_vacuum_valetudo_tap_hint">点击房间即可清扫</string>
+    <string name="widgets_vacuum_valetudo_unmapped">在 Home Assistant 中将此机器人的分区映射到区域，即可点击清扫房间</string>
+    <string name="widgets_vacuum_valetudo_cleaning">正在清扫 %1$s</string>
     <string name="widgets_vacuum_start">开始</string>
     <string name="widgets_vacuum_state_cleaning">清洁中</string>
     <string name="widgets_vacuum_state_docked">已回充</string>
