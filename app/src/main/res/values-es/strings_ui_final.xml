@@ -110,6 +110,16 @@
     <string name="uif_flow_sunrise_or_sunset">Amanecer o puesta de sol</string>
     <string name="uif_flow_time_format">Hora (HH:MM:SS)</string>
     <string name="uif_flow_time_window">Intervalo horario</string>
+    <string name="uif_flow_group_any">Cualquiera de estas</string>
+    <string name="uif_flow_group_all">Todas estas</string>
+    <string name="uif_flow_group_none">Ninguna de estas</string>
+    <string name="uif_flow_group_empty">Vacío — abre el grupo para añadir condiciones</string>
+    <string name="uif_flow_group_open">Abrir grupo</string>
+    <string name="uif_flow_group_back">Atrás</string>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d condición dentro</item>
+        <item quantity="other">%1$d condiciones dentro</item>
+    </plurals>
     <string name="uif_flow_within_time_window">Dentro de un intervalo horario</string>
 
     <string name="uif_full">Completo</string>

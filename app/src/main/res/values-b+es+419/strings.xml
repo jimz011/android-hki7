@@ -1977,6 +1977,8 @@
         <item>La guía rápida ya se puede recorrer a mano. Desliza la vista previa del gesto, toca un punto o cualquier consejo para ir allí. Sigue avanzando sola hasta que tomas el control.</item>
         <item>Se corrigió que el widget de residuos mostrara el ícono y el color equivocados fuera del neerlandés: el tipo se comparaba con la etiqueta traducida, así que PMD mostrado como Packaging caía en un contenedor gris azulado genérico. PMD vuelve a ser naranja con símbolo de reciclaje.</item>
         <item>Se corrigió que el aviso de cambio de habitación apareciera tras desactivar Preguntar antes de cambiar de habitación, y para la habitación ya en pantalla. Ahora también ofrece No volver a preguntar hasta reiniciar, y la espera se puede ajustar igualmente.</item>
+        <item>Los flujos ya expresan «Cualquiera de estas» y lógica anidada, no solo una lista plana de Y. Un grupo se abre en su propia lista con ruta de navegación, y los grupos pueden contener grupos, así que «movimiento detectado Y (después del atardecer O modo invitado activo)» se puede construir. Es la misma estructura que escribe el editor de automatizaciones de Home Assistant, así que un flujo creado en HA con O ya no es un bloque avanzado intocable.</item>
+        <item>Los diales de termostato de la vista Clima ya no se aprietan de seis en un plegable en horizontal. Se mantienen en cuatro por fila hasta que la ventana es realmente muy ancha, para que cada uno conserve ancho suficiente.</item>
         <item>* Requiere la integración de HKI 7 Cloud Component.</item>
     </string-array>
 
@@ -3028,6 +3030,16 @@
     <string name="uif_flow_sunrise_or_sunset">Amanecer o atardecer</string>
     <string name="uif_flow_time_format">Hora (HH:MM:SS)</string>
     <string name="uif_flow_time_window">Ventana de tiempo</string>
+    <string name="uif_flow_group_any">Cualquiera de estas</string>
+    <string name="uif_flow_group_all">Todas estas</string>
+    <string name="uif_flow_group_none">Ninguna de estas</string>
+    <string name="uif_flow_group_empty">Vacío — abre el grupo para agregar condiciones</string>
+    <string name="uif_flow_group_open">Abrir grupo</string>
+    <string name="uif_flow_group_back">Atrás</string>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d condición dentro</item>
+        <item quantity="other">%1$d condiciones dentro</item>
+    </plurals>
     <string name="uif_flow_within_time_window">Dentro de una ventana de tiempo</string>
     <string name="uif_full">Completo</string>
     <string name="uif_gas">Gas</string>

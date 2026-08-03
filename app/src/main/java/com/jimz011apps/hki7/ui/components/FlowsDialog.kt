@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bolt
@@ -63,7 +65,12 @@ import com.jimz011apps.hki7.data.AutomationSection
 import com.jimz011apps.hki7.data.HAActionDefinition
 import com.jimz011apps.hki7.data.HAAutomationDocument
 import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.AUTOMATION_GROUP_KINDS
 import com.jimz011apps.hki7.data.automationBlockKind
+import com.jimz011apps.hki7.data.automationBlocksAtPath
+import com.jimz011apps.hki7.data.automationGroupChildren
+import com.jimz011apps.hki7.data.automationPathExists
+import com.jimz011apps.hki7.data.withAutomationBlocksAtPath
 import com.jimz011apps.hki7.data.automationBlockSummary
 import com.jimz011apps.hki7.data.automationElements
 import com.jimz011apps.hki7.data.automationsIncludingRegistry
@@ -91,6 +98,8 @@ private enum class FlowsView { LIST, RECIPES, EDITOR }
 
 private data class EditingBlock(
     val section: AutomationSection,
+    /** Parent group path; empty for a block in the section's own list. */
+    val path: List<Int> = emptyList(),
     val index: Int,
     val block: JsonObject,
     val openEntityPickerInitially: Boolean = false,
@@ -142,6 +151,9 @@ private fun localizedAutomationBlockKind(section: AutomationSection, kind: Strin
         AutomationSection.TRIGGER to "time" -> stringResource(R.string.uif_time)
         AutomationSection.TRIGGER to "sun" -> stringResource(R.string.uif_flow_sunrise_or_sunset)
         AutomationSection.CONDITION to "time" -> stringResource(R.string.uif_flow_time_window)
+        AutomationSection.CONDITION to "or" -> stringResource(R.string.uif_flow_group_any)
+        AutomationSection.CONDITION to "and" -> stringResource(R.string.uif_flow_group_all)
+        AutomationSection.CONDITION to "not" -> stringResource(R.string.uif_flow_group_none)
         AutomationSection.ACTION to "action" -> stringResource(R.string.uif_flow_ha_action)
         else -> stringResource(R.string.uif_advanced)
     }
@@ -183,6 +195,16 @@ private fun localizedAutomationBlockSummary(section: AutomationSection, block: J
                 ?.takeIf(String::isNotBlank)
                 ?: text("entity_id")
             target?.let { "$action → $it" } ?: action
+        }
+        AutomationSection.CONDITION to "or",
+        AutomationSection.CONDITION to "and",
+        AutomationSection.CONDITION to "not" -> {
+            val count = automationGroupChildren(section, block)?.size ?: 0
+            if (count == 0) {
+                stringResource(R.string.uif_flow_group_empty)
+            } else {
+                pluralStringResource(R.plurals.uif_flow_group_count, count, count)
+            }
         }
         else -> stringResource(R.string.uif_flow_advanced_block_unchanged)
     }
@@ -248,6 +270,8 @@ fun FlowsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
     var loadingEntityId by remember { mutableStateOf<String?>(null) }
     var message by remember { mutableStateOf<String?>(null) }
     var addSection by remember { mutableStateOf<AutomationSection?>(null) }
+    var addPath by remember { mutableStateOf<List<Int>>(emptyList()) }
+    var conditionPath by remember { mutableStateOf<List<Int>>(emptyList()) }
     var editingBlock by remember { mutableStateOf<EditingBlock?>(null) }
     var confirmDelete by remember { mutableStateOf(false) }
     var actionDefinitions by remember { mutableStateOf<List<HAActionDefinition>>(emptyList()) }
@@ -349,7 +373,7 @@ fun FlowsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         editable = document?.editable == true,
                         message = message,
                         onConfigChange = { draft = it; message = null },
-                        onAdd = { section ->
+                        onAdd = { section, path ->
                             if (section == AutomationSection.ACTION) {
                                 val block = newAutomationBlock(section, "action")
                                 val index = automationItems(config, section).size
@@ -361,16 +385,24 @@ fun FlowsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                                 )
                             } else {
                                 addSection = section
+                                addPath = path
                             }
                         },
-                        onEdit = { section, index, block -> editingBlock = EditingBlock(section, index, block) },
-                        onRemove = { section, index ->
+                        onEdit = { section, path, index, block ->
+                            editingBlock = EditingBlock(section, path, index, block)
+                        },
+                        onRemove = { section, path, index ->
+                            val all = automationItems(config, section)
+                            val siblings = automationBlocksAtPath(all, path)
+                                .filterIndexed { itemIndex, _ -> itemIndex != index }
                             draft = withAutomationItems(
                                 config,
                                 section,
-                                automationItems(config, section).filterIndexed { itemIndex, _ -> itemIndex != index }
+                                withAutomationBlocksAtPath(all, path, siblings)
                             )
-                        }
+                        },
+                        conditionPath = conditionPath,
+                        onConditionPathChange = { conditionPath = it }
                     )
                 }
             }
@@ -428,6 +460,17 @@ fun FlowsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
         }
     )
 
+    // Removing a group while inside it, or loading a different flow, can leave the breadcrumb
+    // pointing at something that no longer exists.
+    LaunchedEffect(draft, conditionPath) {
+        val config = draft
+        if (config != null && conditionPath.isNotEmpty() &&
+            !automationPathExists(automationItems(config, AutomationSection.CONDITION), conditionPath)
+        ) {
+            conditionPath = conditionPath.dropLast(1)
+        }
+    }
+
     addSection?.let { section ->
         AddAutomationBlockDialog(
             section = section,
@@ -435,14 +478,27 @@ fun FlowsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
             onSelected = { kind ->
                 val config = draft ?: return@AddAutomationBlockDialog
                 val block = newAutomationBlock(section, kind)
-                val index = automationItems(config, section).size
+                val all = automationItems(config, section)
+                val siblings = automationBlocksAtPath(all, addPath)
                 addSection = null
-                editingBlock = EditingBlock(
-                    section = section,
-                    index = index,
-                    block = block,
-                    openEntityPickerInitially = kind == "state"
-                )
+                if (kind in AUTOMATION_GROUP_KINDS) {
+                    // A group has nothing to fill in, so it is added straight away and opened,
+                    // ready for the conditions that go inside it.
+                    draft = withAutomationItems(
+                        config,
+                        section,
+                        withAutomationBlocksAtPath(all, addPath, siblings + block)
+                    )
+                    conditionPath = addPath + siblings.size
+                } else {
+                    editingBlock = EditingBlock(
+                        section = section,
+                        path = addPath,
+                        index = siblings.size,
+                        block = block,
+                        openEntityPickerInitially = kind == "state"
+                    )
+                }
             }
         )
     }
@@ -459,10 +515,15 @@ fun FlowsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
             onDismiss = { editingBlock = null },
             onSave = { updatedBlock ->
                 val config = draft ?: return@AutomationBlockEditorDialog
-                val blocks = automationItems(config, editing.section).toMutableList()
-                if (editing.index in blocks.indices) blocks[editing.index] = updatedBlock
-                else blocks.add(updatedBlock)
-                draft = withAutomationItems(config, editing.section, blocks)
+                val all = automationItems(config, editing.section)
+                val siblings = automationBlocksAtPath(all, editing.path).toMutableList()
+                if (editing.index in siblings.indices) siblings[editing.index] = updatedBlock
+                else siblings.add(updatedBlock)
+                draft = withAutomationItems(
+                    config,
+                    editing.section,
+                    withAutomationBlocksAtPath(all, editing.path, siblings)
+                )
                 editingBlock = null
             }
         )
@@ -671,11 +732,15 @@ private fun FlowEditor(
     editable: Boolean,
     message: String?,
     onConfigChange: (JsonObject) -> Unit,
-    onAdd: (AutomationSection) -> Unit,
-    onEdit: (AutomationSection, Int, JsonObject) -> Unit,
-    onRemove: (AutomationSection, Int) -> Unit
+    onAdd: (AutomationSection, List<Int>) -> Unit,
+    onEdit: (AutomationSection, List<Int>, Int, JsonObject) -> Unit,
+    onRemove: (AutomationSection, List<Int>, Int) -> Unit,
+    conditionPath: List<Int>,
+    onConditionPathChange: (List<Int>) -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
+    fun pathFor(section: AutomationSection) =
+        if (section == AutomationSection.CONDITION) conditionPath else emptyList()
     LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         if (!editable) {
             item {
@@ -716,10 +781,26 @@ private fun FlowEditor(
                 FlowSectionHeader(
                     section = section,
                     editable = editable,
-                    onAdd = { onAdd(section) }
+                    onAdd = { onAdd(section, pathFor(section)) }
                 )
             }
-            val blocks = automationItems(config, section)
+            val allBlocks = automationItems(config, section)
+            // Conditions can nest; every other section is flat and stays at the root.
+            val path = pathFor(section)
+            val blocks = if (section == AutomationSection.CONDITION) {
+                automationBlocksAtPath(allBlocks, path)
+            } else {
+                allBlocks
+            }
+            if (section == AutomationSection.CONDITION && path.isNotEmpty()) {
+                item {
+                    FlowGroupBreadcrumb(
+                        allBlocks = allBlocks,
+                        path = path,
+                        onNavigate = onConditionPathChange
+                    )
+                }
+            }
             val shorthandCount = automationElements(config, section).size - blocks.size
             if (shorthandCount > 0) {
                 item {
@@ -751,13 +832,19 @@ private fun FlowEditor(
                     )
                 }
             } else {
-                itemsIndexed(blocks, key = { index, _ -> "${section.name}-$index" }) { index, block ->
+                itemsIndexed(blocks, key = { index, _ -> "${section.name}-${path.joinToString("-")}-$index" }) { index, block ->
+                    val children = automationGroupChildren(section, block)
                     FlowBlockCard(
                         section = section,
                         block = block,
                         editable = editable,
-                        onEdit = { onEdit(section, index, block) },
-                        onRemove = { onRemove(section, index) }
+                        // A group has no fields of its own to edit — opening it shows what it holds.
+                        childCount = children?.size,
+                        onEdit = {
+                            if (children != null) onConditionPathChange(path + index)
+                            else onEdit(section, path, index, block)
+                        },
+                        onRemove = { onRemove(section, path, index) }
                     )
                 }
             }
@@ -806,6 +893,60 @@ private fun FlowEditor(
     }
 }
 
+/**
+ * Shows where you are inside nested condition groups and lets you climb back out. Each crumb is
+ * the group's own label, so "And if › Any of › All of" reads as the shape of the logic.
+ */
+@Composable
+private fun FlowGroupBreadcrumb(
+    allBlocks: List<JsonObject>,
+    path: List<Int>,
+    onNavigate: (List<Int>) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    val crumbs = buildList {
+        var current = allBlocks
+        path.forEachIndexed { depth, index ->
+            val block = current.getOrNull(index) ?: return@forEachIndexed
+            add(path.take(depth + 1) to block)
+            current = automationGroupChildren(AutomationSection.CONDITION, block).orEmpty()
+        }
+    }
+    Row(
+        Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        IconButton(onClick = { onNavigate(path.dropLast(1)) }, modifier = Modifier.size(30.dp)) {
+            Icon(
+                Icons.AutoMirrored.Filled.ArrowBack,
+                stringResource(R.string.uif_flow_group_back),
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+        Text(
+            localizedAutomationSection(AutomationSection.CONDITION),
+            style = MaterialTheme.typography.labelMedium,
+            color = appColors.onMuted,
+            modifier = Modifier.clickable { onNavigate(emptyList()) }
+        )
+        crumbs.forEach { (crumbPath, block) ->
+            Text(" › ", style = MaterialTheme.typography.labelMedium, color = appColors.onMuted)
+            val isCurrent = crumbPath.size == path.size
+            Text(
+                localizedAutomationBlockKind(AutomationSection.CONDITION, automationBlockKind(AutomationSection.CONDITION, block)),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
+                color = if (isCurrent) MaterialTheme.colorScheme.primary else appColors.onMuted,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.clickable { onNavigate(crumbPath) }
+            )
+        }
+    }
+}
+
 @Composable
 private fun FlowSectionHeader(section: AutomationSection, editable: Boolean, onAdd: () -> Unit) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -824,13 +965,16 @@ private fun FlowBlockCard(
     section: AutomationSection,
     block: JsonObject,
     editable: Boolean,
+    /** Non-null when this block is an and/or/not group, so the card can offer to open it. */
+    childCount: Int? = null,
     onEdit: () -> Unit,
     onRemove: () -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
     val supported = isSupportedAutomationBlock(section, block)
     Card(
-        modifier = Modifier.fillMaxWidth().clickable(enabled = editable && supported, onClick = onEdit),
+        modifier = Modifier.fillMaxWidth()
+            .clickable(enabled = childCount != null || (editable && supported), onClick = onEdit),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = appColors.subtleSurface)
     ) {
@@ -842,7 +986,14 @@ private fun FlowBlockCard(
                 )
                 Text(localizedAutomationBlockSummary(section, block), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
             }
-            if (editable && supported) {
+            if (childCount != null) {
+                // A group holds conditions rather than fields, so opening it descends into it.
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowForward,
+                    stringResource(R.string.uif_flow_group_open),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            } else if (editable && supported) {
                 Icon(Icons.Default.Edit, stringResource(R.string.uif_edit), tint = appColors.onMuted)
             }
             if (editable) {
@@ -869,6 +1020,11 @@ private fun AddAutomationBlockDialog(
         AutomationSection.CONDITION -> listOf(
             "state" to stringResource(R.string.uif_flow_entity_state),
             "time" to stringResource(R.string.uif_flow_time_window),
+            // Groups can hold other groups, which is how Home Assistant expresses
+            // "A and (B or C)" — and how its own editor writes it.
+            "or" to stringResource(R.string.uif_flow_group_any),
+            "and" to stringResource(R.string.uif_flow_group_all),
+            "not" to stringResource(R.string.uif_flow_group_none),
         )
         AutomationSection.ACTION -> listOf(
             "action" to stringResource(R.string.uif_flow_perform_ha_action),

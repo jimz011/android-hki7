@@ -1965,6 +1965,8 @@
         <item>快速入门指南现在可以手动浏览。滑动手势预览，或点按圆点、任意提示即可跳转。在你接管之前，它仍会自动播放。</item>
         <item>修复了垃圾回收小组件在非荷兰语下所有类别都显示错误图标和颜色的问题：类别是与翻译后的名称比对的，因此显示为 Packaging 的 PMD 落到了通用的灰蓝色垃圾桶。PMD 恢复为带回收符号的橙色。</item>
         <item>修复了关闭“切换房间前先询问”后仍出现房间切换询问，以及为当前已打开的房间询问的问题。询问中新增“在我重新启动应用前不要再询问”，等待时间也可随时设置。</item>
+        <item>流程现在可以表达“满足其中任一”和嵌套逻辑，而不只是一串 AND。分组会带面包屑在自己的列表中打开，分组还能包含分组，因此“检测到移动 且（日落之后 或 访客模式开启）”可以直接搭建。这与 Home Assistant 自动化编辑器写出的结构相同，所以在 HA 中用 OR 创建的流程不再是无法编辑的高级块。</item>
+        <item>气候视图中的温控旋钮不再在横屏折叠屏上挤成六个一排。在窗口真正变得很宽之前，每行保持四个，让每个旋钮都有足够宽度。</item>
         <item>* 需要 HKI 7 Cloud 组件集成。</item>
     </string-array>
 
@@ -2995,6 +2997,16 @@
     <string name="uif_flow_sunrise_or_sunset">日出或日落</string>
     <string name="uif_flow_time_format">时间（HH:MM:SS）</string>
     <string name="uif_flow_time_window">时间窗口</string>
+    <string name="uif_flow_group_any">满足其中任一</string>
+    <string name="uif_flow_group_all">全部满足</string>
+    <string name="uif_flow_group_none">全部都不满足</string>
+    <string name="uif_flow_group_empty">空 — 打开分组以添加条件</string>
+    <string name="uif_flow_group_open">打开分组</string>
+    <string name="uif_flow_group_back">返回</string>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">包含 %1$d 个条件</item>
+        <item quantity="other">包含 %1$d 个条件</item>
+    </plurals>
     <string name="uif_flow_within_time_window">在时间窗口内</string>
     <string name="uif_full">全宽</string>
     <string name="uif_gas">燃气</string>

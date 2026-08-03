@@ -2787,6 +2787,16 @@
     <string name="uif_flow_sunrise_or_sunset">日の出または日の入り</string>
     <string name="uif_flow_time_format">時間 (HH:MM:SS)</string>
     <string name="uif_flow_time_window">タイムウィンドウ</string>
+    <string name="uif_flow_group_any">いずれかが成立</string>
+    <string name="uif_flow_group_all">すべてが成立</string>
+    <string name="uif_flow_group_none">いずれも成立しない</string>
+    <string name="uif_flow_group_empty">空です — グループを開いて条件を追加してください</string>
+    <string name="uif_flow_group_open">グループを開く</string>
+    <string name="uif_flow_group_back">戻る</string>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">条件 %1$d 件</item>
+        <item quantity="other">条件 %1$d 件</item>
+    </plurals>
     <string name="uif_flow_within_time_window">時間枠内で</string>
     <string name="uif_full">全幅</string>
     <string name="uif_gas">ガス</string>

@@ -344,6 +344,8 @@
         <item>The quick start guide can be browsed by hand. Swipe the gesture preview, tap a dot, or tap any tip to jump to it. It still plays on its own until you take over.</item>
         <item>Fixed the waste widget showing the wrong icon and colour for every collection type outside Dutch: the type was matched against the translated label, so PMD shown as Packaging fell through to a generic grey-blue bin. PMD is orange with a recycling symbol again.</item>
         <item>Fixed the room-following prompt appearing after Ask before switching rooms was turned off, and for the room already on screen. It now also offers Don\'t ask again until I restart the app, and the wait time can be set whether or not prompting is on.</item>
+        <item>Flows can express Any of these and nested logic, not just a flat list of ANDs. A group opens into its own list with a breadcrumb, and groups can hold groups, so motion detected AND (after sunset OR guest mode on) is buildable. It is the same structure Home Assistant\'s own editor writes, so a flow made in HA that used OR is no longer an untouchable advanced block.</item>
+        <item>Thermostat dials on the Climate view no longer squeeze six across a landscape foldable. Dials hold at four per row until the window is genuinely desktop-wide, so each keeps enough width to read.</item>
         <item>* HKI 7 Cloud Component integration required.</item>
     </string-array>
 

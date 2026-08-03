@@ -153,12 +153,80 @@ fun automationBlockKind(section: AutomationSection, block: JsonObject): String? 
     }
 }
 
+/**
+ * Condition kinds that hold other conditions. Home Assistant nests these arbitrarily, and its own
+ * automation editor builds them, so a flow made in HA can arrive containing any depth of them.
+ */
+val AUTOMATION_GROUP_KINDS = setOf("and", "or", "not")
+
 fun isSupportedAutomationBlock(section: AutomationSection, block: JsonObject): Boolean =
     automationBlockKind(section, block) in when (section) {
         AutomationSection.TRIGGER -> setOf("state", "time", "sun")
-        AutomationSection.CONDITION -> setOf("state", "time")
+        AutomationSection.CONDITION -> setOf("state", "time") + AUTOMATION_GROUP_KINDS
         AutomationSection.ACTION -> setOf("action")
     }
+
+/** The conditions inside an and/or/not group, or null when [block] is not a group. */
+fun automationGroupChildren(section: AutomationSection, block: JsonObject): List<JsonObject>? {
+    if (section != AutomationSection.CONDITION) return null
+    if (automationBlockKind(section, block) !in AUTOMATION_GROUP_KINDS) return null
+    // HA also accepts a bare object instead of a list for a single child.
+    return when (val nested = block["conditions"]) {
+        is JsonArray -> nested.filterIsInstance<JsonObject>()
+        is JsonObject -> listOf(nested)
+        else -> emptyList()
+    }
+}
+
+private fun withAutomationGroupChildren(block: JsonObject, children: List<JsonObject>): JsonObject {
+    val updated = block.toMutableMap()
+    updated["conditions"] = JsonArray(children)
+    return JsonObject(updated)
+}
+
+/**
+ * The blocks shown at [path], where an empty path is the section's own list and each further index
+ * steps into that block's group. Returns empty for a path that no longer resolves, which is what
+ * happens when the group behind the current screen is deleted.
+ */
+fun automationBlocksAtPath(items: List<JsonObject>, path: List<Int>): List<JsonObject> {
+    var current = items
+    path.forEach { index ->
+        val child = current.getOrNull(index) ?: return emptyList()
+        current = automationGroupChildren(AutomationSection.CONDITION, child) ?: return emptyList()
+    }
+    return current
+}
+
+/** Replaces the block list at [path], rebuilding the groups above it. */
+fun withAutomationBlocksAtPath(
+    items: List<JsonObject>,
+    path: List<Int>,
+    children: List<JsonObject>
+): List<JsonObject> {
+    if (path.isEmpty()) return children
+    val index = path.first()
+    val parent = items.getOrNull(index) ?: return items
+    val rebuilt = withAutomationGroupChildren(
+        parent,
+        withAutomationBlocksAtPath(
+            automationGroupChildren(AutomationSection.CONDITION, parent).orEmpty(),
+            path.drop(1),
+            children
+        )
+    )
+    return items.toMutableList().also { it[index] = rebuilt }
+}
+
+/** True when [path] still points at a group, so the editor can fall back when one is removed. */
+fun automationPathExists(items: List<JsonObject>, path: List<Int>): Boolean {
+    var current = items
+    path.forEach { index ->
+        val child = current.getOrNull(index) ?: return false
+        current = automationGroupChildren(AutomationSection.CONDITION, child) ?: return false
+    }
+    return true
+}
 
 fun automationBlockSummary(section: AutomationSection, block: JsonObject): String {
     fun text(key: String): String? = (block[key] as? JsonPrimitive)?.contentOrNull?.takeIf { it.isNotBlank() }
@@ -187,6 +255,18 @@ fun automationBlockSummary(section: AutomationSection, block: JsonObject): Strin
                 ?: text("entity_id")
             if (target == null) action else "$action → $target"
         }
+        AutomationSection.CONDITION to "or",
+        AutomationSection.CONDITION to "and",
+        AutomationSection.CONDITION to "not" -> {
+            val kind = automationBlockKind(section, block)
+            val count = automationGroupChildren(section, block)?.size ?: 0
+            val label = when (kind) {
+                "or" -> "Any of"
+                "and" -> "All of"
+                else -> "None of"
+            }
+            "$label $count condition${if (count == 1) "" else "s"}"
+        }
         else -> "Advanced Home Assistant block (kept unchanged)"
     }
 }
@@ -212,6 +292,7 @@ fun newAutomationBlock(section: AutomationSection, kind: String): JsonObject = b
                     put("after", "08:00:00")
                     put("before", "22:00:00")
                 }
+                in AUTOMATION_GROUP_KINDS -> put("conditions", buildJsonArray { })
             }
         }
         AutomationSection.ACTION -> {

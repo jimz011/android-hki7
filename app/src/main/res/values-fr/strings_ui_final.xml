@@ -81,6 +81,16 @@
     <string name="uif_flow_sunrise_or_sunset">Lever ou coucher du soleil</string>
     <string name="uif_flow_time_format">Heure (HH:MM:SS)</string>
     <string name="uif_flow_time_window">Plage horaire</string>
+    <string name="uif_flow_group_any">L\'une de celles-ci</string>
+    <string name="uif_flow_group_all">Toutes celles-ci</string>
+    <string name="uif_flow_group_none">Aucune de celles-ci</string>
+    <string name="uif_flow_group_empty">Vide — ouvrez le groupe pour ajouter des conditions</string>
+    <string name="uif_flow_group_open">Ouvrir le groupe</string>
+    <string name="uif_flow_group_back">Retour</string>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d condition à l\'intérieur</item>
+        <item quantity="other">%1$d conditions à l\'intérieur</item>
+    </plurals>
     <string name="uif_flow_within_time_window">Dans une plage horaire</string>
     <string name="uif_full">Pleine largeur</string>
     <string name="uif_gas">Gaz</string>

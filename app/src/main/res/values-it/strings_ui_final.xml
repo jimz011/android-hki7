@@ -81,6 +81,16 @@
     <string name="uif_flow_sunrise_or_sunset">Alba o tramonto</string>
     <string name="uif_flow_time_format">Ora (HH:MM:SS)</string>
     <string name="uif_flow_time_window">Intervallo orario</string>
+    <string name="uif_flow_group_any">Una qualsiasi</string>
+    <string name="uif_flow_group_all">Tutte queste</string>
+    <string name="uif_flow_group_none">Nessuna di queste</string>
+    <string name="uif_flow_group_empty">Vuoto — apri il gruppo per aggiungere condizioni</string>
+    <string name="uif_flow_group_open">Apri gruppo</string>
+    <string name="uif_flow_group_back">Indietro</string>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d condizione dentro</item>
+        <item quantity="other">%1$d condizioni dentro</item>
+    </plurals>
     <string name="uif_flow_within_time_window">In un intervallo orario</string>
     <string name="uif_full">Intera</string>
     <string name="uif_gas">Gas</string>

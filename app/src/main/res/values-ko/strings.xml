@@ -2787,6 +2787,16 @@
     <string name="uif_flow_sunrise_or_sunset">일출 또는 일몰</string>
     <string name="uif_flow_time_format">시간(HH:MM:SS)</string>
     <string name="uif_flow_time_window">시간 창</string>
+    <string name="uif_flow_group_any">다음 중 하나</string>
+    <string name="uif_flow_group_all">다음 모두</string>
+    <string name="uif_flow_group_none">다음 중 어느 것도 아님</string>
+    <string name="uif_flow_group_empty">비어 있음 — 그룹을 열어 조건을 추가하세요</string>
+    <string name="uif_flow_group_open">그룹 열기</string>
+    <string name="uif_flow_group_back">뒤로</string>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">조건 %1$d개 포함</item>
+        <item quantity="other">조건 %1$d개 포함</item>
+    </plurals>
     <string name="uif_flow_within_time_window">일정 기간 내</string>
     <string name="uif_full">전체</string>
     <string name="uif_gas">가스</string>

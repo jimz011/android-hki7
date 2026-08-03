@@ -338,6 +338,8 @@
         <item>Hızlı başlangıç kılavuzu artık elle gezilebiliyor. Hareket önizlemesini kaydırın, bir noktaya veya herhangi bir ipucuna dokunarak oraya atlayın. Siz devralana kadar kendi kendine oynamayı sürdürür.</item>
         <item>Atık bileşeninin Felemenkçe dışında her tür için yanlış simge ve renk göstermesi düzeltildi: tür, çevrilmiş etiketle karşılaştırılıyordu, bu yüzden Packaging olarak görünen PMD genel gri-mavi kovaya düşüyordu. PMD yeniden turuncu ve geri dönüşüm simgeli.</item>
         <item>Oda değiştirme sorusunun, Oda değiştirmeden önce sor kapatıldıktan sonra ve zaten ekranda olan oda için görünmesi düzeltildi. Artık Uygulamayı yeniden başlatana kadar bir daha sorma da sunuyor ve bekleme süresi her hâlükârda ayarlanabiliyor.</item>
+        <item>Akışlar artık yalnızca düz bir VE listesi değil, “Bunlardan herhangi biri” ve iç içe mantık da kurabiliyor. Bir grup kendi listesinde açılır ve gruplar grup içerebilir; böylece “hareket algılandı VE (gün batımından sonra VEYA misafir modu açık)” kurulabilir. Bu, Home Assistant\'ın kendi otomasyon düzenleyicisinin yazdığı yapıdır; HA\'da VEYA ile oluşturulmuş bir akış artık dokunulamaz bir gelişmiş blok değil.</item>
+        <item>Klima görünümündeki termostat kadranları artık yatay katlanabilirde altı yan yana sıkışmıyor. Pencere gerçekten çok genişleyene kadar satır başına dörtte kalır; böylece her kadran okunacak genişliği korur.</item>
         <item>* HKI 7 Cloud Component entegrasyonu gerekir.</item>
     </string-array>
 

@@ -338,6 +338,8 @@
         <item>La guida rapida ora si sfoglia a mano. Scorri l\'anteprima del gesto, tocca un puntino o un suggerimento per saltarci. Continua a scorrere da sola finché non prendi il controllo.</item>
         <item>Risolto il widget rifiuti che mostrava icona e colore sbagliati fuori dall\'olandese: il tipo veniva confrontato con l\'etichetta tradotta, così PMD mostrato come Packaging finiva in un bidone grigio-azzurro generico. PMD è di nuovo arancione con il simbolo del riciclo.</item>
         <item>Risolto il messaggio di cambio stanza che compariva dopo aver disattivato Chiedi prima di cambiare stanza, e per la stanza già a schermo. Ora offre anche Non chiedere più fino al prossimo avvio, e l\'attesa si imposta comunque.</item>
+        <item>I flussi ora esprimono « Una qualsiasi » e la logica annidata, non solo un elenco piatto di E. Un gruppo si apre in un proprio elenco con percorso di navigazione, e i gruppi possono contenere gruppi: « movimento rilevato E (dopo il tramonto O modalità ospite attiva) » diventa costruibile. È la stessa struttura scritta dall\'editor di automazioni di Home Assistant, quindi un flusso creato in HA con OR non è più un blocco avanzato intoccabile.</item>
+        <item>I quadranti del termostato nella vista Clima non si stringono più in sei su un pieghevole in orizzontale. Restano quattro per riga finché la finestra non è davvero molto larga, così ognuno mantiene la larghezza per essere letto.</item>
         <item>* È richiesta l’integrazione HKI 7 Cloud Component.</item>
     </string-array>
 

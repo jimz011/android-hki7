@@ -344,6 +344,8 @@
         <item>Le guide de démarrage se parcourt désormais à la main. Balayez l\'aperçu du geste, touchez un point ou une astuce pour y aller. Il continue de défiler seul jusqu\'à ce que vous preniez la main.</item>
         <item>Correction du widget déchets affichant la mauvaise icône et la mauvaise couleur hors néerlandais : le type était comparé au libellé traduit, donc PMD affiché en Packaging retombait sur un bac gris-bleu générique. PMD est de nouveau orange avec un symbole de recyclage.</item>
         <item>Correction de l\'invite de changement de pièce qui apparaissait après avoir désactivé Demander avant de changer de pièce, et pour la pièce déjà à l\'écran. Elle propose aussi Ne plus demander jusqu\'au prochain démarrage, et le délai se règle indépendamment.</item>
+        <item>Les flux gèrent désormais « L\'une de celles-ci » et la logique imbriquée, plus seulement une liste plate de ET. Un groupe s\'ouvre dans sa propre liste avec un fil d\'Ariane, et un groupe peut en contenir d\'autres : « mouvement détecté ET (après le coucher du soleil OU mode invité activé) » devient constructible. C\'est la structure qu\'écrit l\'éditeur d\'automatisations de Home Assistant, donc un flux créé dans HA avec OU n\'est plus un bloc avancé intouchable.</item>
+        <item>Les cadrans de thermostat de la vue Climat ne se serrent plus à six sur un pliable en paysage. Ils restent à quatre par ligne tant que la fenêtre n\'est pas vraiment très large, pour que chacun garde de quoi se lire.</item>
         <item>* Intégration HKI 7 Cloud Component requise.</item>
     </string-array>
 

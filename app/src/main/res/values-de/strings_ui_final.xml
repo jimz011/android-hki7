@@ -81,6 +81,16 @@
     <string name="uif_flow_sunrise_or_sunset">Sonnenaufgang oder Sonnenuntergang</string>
     <string name="uif_flow_time_format">Uhrzeit (HH:MM:SS)</string>
     <string name="uif_flow_time_window">Zeitfenster</string>
+    <string name="uif_flow_group_any">Eines davon</string>
+    <string name="uif_flow_group_all">Alle davon</string>
+    <string name="uif_flow_group_none">Keines davon</string>
+    <string name="uif_flow_group_empty">Leer — öffne die Gruppe, um Bedingungen hinzuzufügen</string>
+    <string name="uif_flow_group_open">Gruppe öffnen</string>
+    <string name="uif_flow_group_back">Zurück</string>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d Bedingung darin</item>
+        <item quantity="other">%1$d Bedingungen darin</item>
+    </plurals>
     <string name="uif_flow_within_time_window">Innerhalb eines Zeitfensters</string>
     <string name="uif_full">Voll</string>
     <string name="uif_gas">Gas</string>

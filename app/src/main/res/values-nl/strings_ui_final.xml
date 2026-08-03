@@ -81,6 +81,16 @@
     <string name="uif_flow_sunrise_or_sunset">Zonsopkomst of zonsondergang</string>
     <string name="uif_flow_time_format">Tijd (UU:MM:SS)</string>
     <string name="uif_flow_time_window">Tijdsvenster</string>
+    <string name="uif_flow_group_any">Een van deze</string>
+    <string name="uif_flow_group_all">Alle van deze</string>
+    <string name="uif_flow_group_none">Geen van deze</string>
+    <string name="uif_flow_group_empty">Leeg — open de groep om voorwaarden toe te voegen</string>
+    <string name="uif_flow_group_open">Groep openen</string>
+    <string name="uif_flow_group_back">Terug</string>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d voorwaarde erin</item>
+        <item quantity="other">%1$d voorwaarden erin</item>
+    </plurals>
     <string name="uif_flow_within_time_window">Binnen een tijdsvenster</string>
     <string name="uif_full">Volledig</string>
     <string name="uif_gas">Gas</string>

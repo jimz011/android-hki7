@@ -1877,6 +1877,8 @@
         <item>快速入門指南現在可以手動瀏覽。滑動手勢預覽，或點按圓點、任一提示即可跳轉。在你接手之前，它仍會自動播放。</item>
         <item>修正了垃圾回收小工具在非荷蘭文下所有類別都顯示錯誤圖示與顏色的問題：類別是與翻譯後的名稱比對的，因此顯示為 Packaging 的 PMD 落到了通用的灰藍色垃圾桶。PMD 恢復為帶回收符號的橘色。</item>
         <item>修正了關閉「切換房間前先詢問」後仍出現房間切換詢問，以及為目前已開啟的房間詢問的問題。詢問中新增「在我重新啟動應用程式前不要再詢問」，等待時間也可隨時設定。</item>
+        <item>流程現在可以表達「滿足其中任一」與巢狀邏輯，而不只是一串 AND。群組會帶麵包屑在自己的清單中開啟，群組還能包含群組，因此「偵測到移動 且（日落之後 或 訪客模式開啟）」可以直接建立。這與 Home Assistant 自動化編輯器寫出的結構相同，所以在 HA 中用 OR 建立的流程不再是無法編輯的進階區塊。</item>
+        <item>氣候檢視中的恆溫旋鈕不再在橫向折疊機上擠成六個一排。在視窗真正變得很寬之前，每列維持四個，讓每個旋鈕都有足夠寬度。</item>
         <item>* 需要 HKI 7 Cloud Component 整合。</item>
     </string-array>
 
@@ -3082,6 +3084,16 @@
     <string name="uif_flow_sunrise_or_sunset">日出或日落</string>
     <string name="uif_flow_time_format">時間（HH:MM:SS）</string>
     <string name="uif_flow_time_window">時間範圍</string>
+    <string name="uif_flow_group_any">滿足其中任一</string>
+    <string name="uif_flow_group_all">全部滿足</string>
+    <string name="uif_flow_group_none">全部都不滿足</string>
+    <string name="uif_flow_group_empty">空 — 開啟群組以新增條件</string>
+    <string name="uif_flow_group_open">開啟群組</string>
+    <string name="uif_flow_group_back">返回</string>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">包含 %1$d 個條件</item>
+        <item quantity="other">包含 %1$d 個條件</item>
+    </plurals>
     <string name="uif_flow_within_time_window">於時間範圍內</string>
     <string name="uif_full">全寬</string>
     <string name="uif_gas">瓦斯</string>

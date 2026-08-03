@@ -82,6 +82,16 @@
     <string name="uif_flow_sunrise_or_sunset">Sunrise or sunset</string>
     <string name="uif_flow_time_format">Time (HH:MM:SS)</string>
     <string name="uif_flow_time_window">Time window</string>
+    <string name="uif_flow_group_any">Any of these</string>
+    <string name="uif_flow_group_all">All of these</string>
+    <string name="uif_flow_group_none">None of these</string>
+    <string name="uif_flow_group_empty">Empty — open it to add conditions</string>
+    <string name="uif_flow_group_open">Open group</string>
+    <string name="uif_flow_group_back">Back</string>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d condition inside</item>
+        <item quantity="other">%1$d conditions inside</item>
+    </plurals>
     <string name="uif_flow_within_time_window">Within a time window</string>
     <string name="uif_full">Full</string>
     <string name="uif_gas">Gas</string>

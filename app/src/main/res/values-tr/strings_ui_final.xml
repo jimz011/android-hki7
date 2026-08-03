@@ -82,6 +82,16 @@
     <string name="uif_flow_sunrise_or_sunset">Gün doğumu veya gün batımı</string>
     <string name="uif_flow_time_format">Saat (HH:MM:SS)</string>
     <string name="uif_flow_time_window">Zaman aralığı</string>
+    <string name="uif_flow_group_any">Bunlardan herhangi biri</string>
+    <string name="uif_flow_group_all">Bunların tümü</string>
+    <string name="uif_flow_group_none">Bunların hiçbiri</string>
+    <string name="uif_flow_group_empty">Boş — koşul eklemek için grubu açın</string>
+    <string name="uif_flow_group_open">Grubu aç</string>
+    <string name="uif_flow_group_back">Geri</string>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">İçinde %1$d koşul</item>
+        <item quantity="other">İçinde %1$d koşul</item>
+    </plurals>
     <string name="uif_flow_within_time_window">Bir zaman aralığında</string>
     <string name="uif_full">Tam</string>
     <string name="uif_gas">Gaz</string>

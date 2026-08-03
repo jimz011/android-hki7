@@ -2768,6 +2768,16 @@
     <string name="uif_flow_sunrise_or_sunset">Nascer ou pôr do sol</string>
     <string name="uif_flow_time_format">Hora (HH:MM:SS)</string>
     <string name="uif_flow_time_window">Janela temporal</string>
+    <string name="uif_flow_group_any">Qualquer uma destas</string>
+    <string name="uif_flow_group_all">Todas estas</string>
+    <string name="uif_flow_group_none">Nenhuma destas</string>
+    <string name="uif_flow_group_empty">Vazio — abra o grupo para adicionar condições</string>
+    <string name="uif_flow_group_open">Abrir grupo</string>
+    <string name="uif_flow_group_back">Voltar</string>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d condição dentro</item>
+        <item quantity="other">%1$d condições dentro</item>
+    </plurals>
     <string name="uif_flow_within_time_window">Dentro de uma janela temporal</string>
     <string name="uif_full">Completo</string>
     <string name="uif_gas">Gás</string>
@@ -3247,6 +3257,8 @@
         <item>O guia rápido já pode ser percorrido à mão. Deslize a pré-visualização do gesto, toque num ponto ou numa dica para lá saltar. Continua a avançar sozinho até assumir o controlo.</item>
         <item>Corrigido o widget de resíduos a mostrar o ícone e a cor errados fora do neerlandês: o tipo era comparado com a etiqueta traduzida, pelo que PMD mostrado como Packaging caía num contentor cinzento-azulado genérico. O PMD volta a ser laranja com símbolo de reciclagem.</item>
         <item>Corrigido o aviso de mudança de divisão a aparecer depois de desligar Perguntar antes de mudar de divisão, e para a divisão já no ecrã. Passa a oferecer Não perguntar novamente até reiniciar, e a espera pode ser definida à mesma.</item>
+        <item>Os fluxos passam a exprimir «Qualquer uma destas» e lógica aninhada, não apenas uma lista simples de E. Um grupo abre na sua própria lista com trilho de navegação, e os grupos podem conter grupos, pelo que «movimento detetado E (depois do pôr do sol OU modo convidado ligado)» é construível. É a mesma estrutura que o editor de automações do Home Assistant escreve, por isso um fluxo criado no HA com OU deixa de ser um bloco avançado intocável.</item>
+        <item>Os mostradores do termóstato na vista Clima já não se apertam a seis num dobrável na horizontal. Ficam por quatro por linha até a janela ser mesmo muito larga, para cada um manter largura para se ler.</item>
         <item>* Requer a integração do Componente HKI 7 Cloud.</item>
     </string-array>
 
