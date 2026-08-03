@@ -569,13 +569,17 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     }
 
     // Confirming a move is about elapsed time, not about the sensor repeating itself, so this
-    // ticks rather than reacting to state changes.
+    // ticks rather than reacting to state changes. The room on screen must be read through
+    // rememberUpdatedState: navigating between rooms changes none of the effect's keys, so a
+    // captured value would stay stuck on whatever was open when the loop started and the
+    // "already in that room" check below would never match.
+    val latestAreaId by rememberUpdatedState(currentAreaId)
     LaunchedEffect(roomFollow.isActive, roomFollow.promptOnMove, isEditMode) {
         if (!roomFollow.isActive || !roomFollow.promptOnMove) return@LaunchedEffect
         // Never interrupt someone mid-edit with a navigation prompt.
         if (isEditMode) return@LaunchedEffect
         while (true) {
-            viewModel.observeRoomPresence(currentAreaId)
+            viewModel.observeRoomPresence(latestAreaId)
             delay(2.seconds)
         }
     }

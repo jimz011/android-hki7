@@ -1084,6 +1084,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             _pendingRoomMove.value = null
             return
         }
+        // The room may have been reached in the meantime — by tapping Switch, by navigating there
+        // manually, or by the launch navigation — which makes a waiting prompt pointless.
+        if (_pendingRoomMove.value == currentAreaId) _pendingRoomMove.value = null
         if (dwellTrackerSeconds != follow.dwellSeconds) {
             dwellTracker = RoomDwellTracker(follow.dwellSeconds)
             dwellTrackerSeconds = follow.dwellSeconds
