@@ -399,7 +399,15 @@ fun ClimateScreen(viewModel: MainViewModel) {
     val dashboardWidth = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() }
     val dashboardColumns = responsiveDashboardColumnCount(dashboardWidth)
     val narrowDeviceCards = dashboardWidth < 360.dp
-    val climateDeviceRowUnits = dashboardColumns * 6
+    // A dial carries its own temperature, status and ring, so it needs real width to stay legible.
+    // Three dashboard columns put six across a landscape foldable, squeezing every dial; hold at
+    // four until the window is genuinely desktop-wide. Other card styles are unaffected.
+    val maxDialsPerRow = if (dashboardWidth >= 1500.dp) 6 else 4
+    val climateDeviceRowUnits = if (climateConfig.defaultDeviceCardStyle == "dial") {
+        (maxDialsPerRow * 3).coerceAtMost(dashboardColumns * 6)
+    } else {
+        dashboardColumns * 6
+    }
     val climateDeviceRows = remember(climateEntities, climateConfig.deviceCardWidths, climateConfig.defaultDeviceCardWidth, climateConfig.defaultDeviceCardStyle, narrowDeviceCards, climateDeviceRowUnits) {
         buildList<List<HAEntity>> {
             var row = mutableListOf<HAEntity>()

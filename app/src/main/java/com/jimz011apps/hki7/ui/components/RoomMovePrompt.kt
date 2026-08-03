@@ -1,12 +1,17 @@
 package com.jimz011apps.hki7.ui.components
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -62,16 +67,24 @@ fun RoomMovePrompt(
                     style = MaterialTheme.typography.bodyMedium,
                     color = appColors.onMuted
                 )
-                // An escape hatch for someone who is being asked more often than they want, without
-                // making them open Family Sharing (which a non-admin cannot do anyway).
-                TextButton(
+                Spacer(Modifier.height(14.dp))
+                // The escape hatch for someone being asked more often than they want. A bordered,
+                // full-width button because as a borderless line of muted text it read as a caption
+                // and went unnoticed — and a non-admin cannot reach the Family Sharing toggle.
+                OutlinedButton(
                     onClick = onSilenceUntilRestart,
-                    contentPadding = PaddingValues(horizontal = 0.dp, vertical = 4.dp)
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = itemCornerShape()
                 ) {
+                    Icon(
+                        Icons.Default.NotificationsOff,
+                        contentDescription = null,
+                        modifier = Modifier.size(17.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
                     Text(
                         stringResource(R.string.room_follow_moved_silence),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = appColors.onMuted
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
             }

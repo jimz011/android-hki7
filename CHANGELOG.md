@@ -15,6 +15,8 @@ Items marked with \* require the HKI 7 Cloud Component integration.
 - The quick start guide can be browsed by hand. Swipe the gesture preview, tap a dot, or tap any tip in the list to jump to it; it still plays through on its own until you take over, and then stops competing with you.
 - Fixed the waste widget showing the wrong icon and colour for every collection type outside Dutch. The icon and colour are chosen by looking for words like "pmd" or "gft" in the sensor name, but they were being matched against the translated label, so "PMD" shown as "Packaging" fell through to the generic grey-blue bin. PMD is orange with a recycling symbol again.
 - Fixed the room-following prompt appearing even after "Ask before switching rooms" was turned off, and appearing for the room already on screen. The prompt now also offers "Don't ask again until I restart the app", and the dwell time can be set whether or not prompting is on.
+- Thermostat dials on the Climate view no longer squeeze six across a landscape foldable. Dials hold at four per row until the window is genuinely desktop-wide, so each one keeps enough width to read. Other climate card styles are unchanged.
+- The room-switch prompt's "Don't ask again until I restart the app" option is now a proper button rather than a line of muted text under the message, so it can actually be found.
 
 ## 1.0.0-beta.12
 
