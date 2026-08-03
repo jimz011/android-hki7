@@ -90,6 +90,7 @@
     <string name="settings_extra_notifications_persistent_connection">Mantiene una conexión con Home Assistant mientras la aplicación está cerrada. Esto consume más batería.</string>
     <string name="settings_extra_paypal_logo">Logotipo de PayPal</string>
     <string name="settings_extra_policy_update_failed">No se pudo actualizar la política.</string>
+    <string name="settings_extra_policy_needs_component_update">Permisos guardados. Actualiza HKI 7 Cloud para guardar también las listas Visible e Invisible.</string>
     <string name="settings_extra_rename_dashboard">Cambiar el nombre de %1$s</string>
     <string name="settings_extra_rename_instance">Cambiar el nombre de %1$s</string>
     <string name="settings_extra_restart_home_assistant_failed">No se pudo reiniciar Home Assistant.</string>

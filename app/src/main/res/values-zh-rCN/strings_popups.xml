@@ -17,4 +17,7 @@
     <string name="popup_settings_subtitle">名称、图标和状态实体</string>
     <string name="popup_shared_hint">弹窗是共享的：其他按钮也可以打开同一个弹窗。</string>
     <string name="popup_empty">此弹窗为空。点按“编辑”即可添加微件。</string>
+    <string name="popup_settings_title">弹窗</string>
+    <string name="popup_settings_subtitle_section">创建并编辑自定义弹窗</string>
+    <string name="popup_settings_hint">弹窗可从设置为“自定义弹窗”操作的按钮、徽章或对话框按钮打开。“编辑内容”会打开弹窗本身，以便排列其中的微件。</string>
 </resources>

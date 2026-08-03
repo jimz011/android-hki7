@@ -113,6 +113,7 @@
     <string name="settings_extra_notifications_persistent_connection">Keeps a persistent connection to Home Assistant while the app is closed. This uses more battery.</string>
     <string name="settings_extra_paypal_logo">PayPal logo</string>
     <string name="settings_extra_policy_update_failed">Could not update the policy.</string>
+    <string name="settings_extra_policy_needs_component_update">Permissions saved. Update HKI 7 Cloud to also store the Visible and Invisible lists.</string>
     <string name="settings_extra_rename_dashboard">Rename %1$s</string>
     <string name="settings_extra_rename_instance">Rename %1$s</string>
     <string name="settings_extra_restart_home_assistant_failed">Could not restart Home Assistant.</string>

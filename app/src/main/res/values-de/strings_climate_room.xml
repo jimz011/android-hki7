@@ -331,7 +331,9 @@
 
     <string-array name="cr_whats_new_beta_12">
         <item>Schaltflächen-Widgets und -Stapel können jetzt eine leere, vollständig transparente Schaltfläche enthalten. Sie belegt eine Rasterzelle, ohne etwas zu zeichnen, sodass die umliegenden Schaltflächen genau dort sitzen, wo sie sollen.</item>
-        <item>Neue Aktion „Eigenes Pop-up“ für Schaltflächen, Badges und Dialogschaltflächen. Verknüpfe Tippen, Halten oder Doppeltippen mit einem selbst gebauten Pop-up: Es öffnet sich mit Titel, Status, Verlauf und Schließen wie gewohnt und lässt sich mit jedem Widget der App füllen. Jedes Pop-up hat eine eigene Schaltfläche „Bearbeiten“, sodass Widgets direkt im Dialog hinzugefügt, konfiguriert und entfernt werden können, ohne das Dashboard in den Bearbeitungsmodus zu versetzen. Pop-ups werden geteilt, mehrere Schaltflächen können also dasselbe öffnen. Stapel in einem Pop-up können statt drei bis zu sechs Spalten nutzen.</item>
+        <item>Neue Aktion „Eigenes Pop-up“ für Schaltflächen, Badges und Dialogschaltflächen. Verknüpfe Tippen, Halten oder Doppeltippen mit einem selbst gebauten Pop-up: Es öffnet sich mit Titel, Status, Verlauf und Schließen wie gewohnt und lässt sich mit jedem Widget der App füllen. Pop-ups stehen unter Einstellungen › Darstellung › Pop-ups, wo „Inhalt bearbeiten“ eines direkt zum Anordnen öffnet. Pop-ups werden geteilt, mehrere Schaltflächen können also dasselbe öffnen, und Stapel in einem Pop-up dürfen statt drei bis zu sechs Spalten nutzen.</item>
+        <item>Behoben, dass die Kindersicherung nicht mehr speicherte. Eine veraltete HKI-7-Cloud-Component lehnt die Listen „Sichtbar“ und „Unsichtbar“ ab, was zuvor die gesamte Richtlinie scheitern ließ; die Berechtigungen werden jetzt trotzdem gespeichert und die Meldung weist auf das nötige Component-Update hin. Diese Listen filtern nur Entitätslisten wie die globale Suche — eine Schaltfläche auf einem Familien-Dashboard bleibt sichtbar, solange sie für diese Person nicht ausdrücklich ausgeblendet wurde.*</item>
+        <item>* HKI-7-Cloud-Component-Integration erforderlich.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_11">

@@ -17,4 +17,7 @@
     <string name="popup_settings_subtitle">名前、アイコン、ステータスエンティティ</string>
     <string name="popup_shared_hint">ポップアップは共有されます。他のボタンからも同じポップアップを開けます。</string>
     <string name="popup_empty">このポップアップは空です。「編集」をタップしてウィジェットを追加してください。</string>
+    <string name="popup_settings_title">ポップアップ</string>
+    <string name="popup_settings_subtitle_section">カスタムポップアップの作成と編集</string>
+    <string name="popup_settings_hint">ポップアップは「カスタムポップアップ」アクションを設定したボタン・バッジ・ダイアログのボタンから開きます。「内容を編集」はポップアップ自体を開き、ウィジェットを配置できます。</string>
 </resources>

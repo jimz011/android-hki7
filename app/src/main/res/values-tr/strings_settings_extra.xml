@@ -90,6 +90,7 @@
     <string name="settings_extra_notifications_persistent_connection">Uygulama kapalıyken Home Assistant bağlantısını sürdürür. Bu, daha fazla pil tüketir.</string>
     <string name="settings_extra_paypal_logo">PayPal logosu</string>
     <string name="settings_extra_policy_update_failed">İlke güncellenemedi.</string>
+    <string name="settings_extra_policy_needs_component_update">İzinler kaydedildi. Görünür ve Görünmez listelerinin de kaydedilmesi için HKI 7 Cloud’u güncelleyin.</string>
     <string name="settings_extra_rename_dashboard">%1$s panosunu yeniden adlandır</string>
     <string name="settings_extra_rename_instance">%1$s bağlantısını yeniden adlandır</string>
     <string name="settings_extra_restart_home_assistant_failed">Home Assistant yeniden başlatılamadı.</string>

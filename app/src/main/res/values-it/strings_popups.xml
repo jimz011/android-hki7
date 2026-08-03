@@ -17,4 +17,7 @@
     <string name="popup_settings_subtitle">Nome, icona ed entità di stato</string>
     <string name="popup_shared_hint">Le finestre sono condivise: altri pulsanti possono aprire la stessa finestra.</string>
     <string name="popup_empty">Questa finestra è vuota. Tocca Modifica per aggiungere widget.</string>
+    <string name="popup_settings_title">Finestre</string>
+    <string name="popup_settings_subtitle_section">Crea e modifica le tue finestre personalizzate</string>
+    <string name="popup_settings_hint">Le finestre si aprono da un pulsante, un badge o un pulsante di dialogo impostato sull’azione Finestra personalizzata. «Modifica contenuto» apre la finestra stessa per disporne i widget.</string>
 </resources>

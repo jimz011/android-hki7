@@ -1625,8 +1625,27 @@ data class Hki7Policy(
             allowDashboardSwitch && allowDashboardCreate && allowReimport
 }
 
+/** Outcome of writing a policy through the companion component. */
+enum class Hki7PolicySaveResult {
+    /** Everything in the policy was stored. */
+    SAVED,
+
+    /** The permissions were stored, but the installed component is older than the Visible/Invisible
+     *  lists and per-item hiding, so those parts were dropped. Updating HKI 7 Cloud restores them. */
+    SAVED_WITHOUT_SEARCH_ACCESS,
+
+    /** Nothing was stored (not an admin, component absent, or offline). */
+    FAILED;
+
+    val isSaved: Boolean get() = this != FAILED
+}
+
 /** Whether an entity may appear in global search for this policy. An explicit invisible match
- * takes precedence over a visible match. */
+ * takes precedence over a visible match.
+ *
+ * This governs entity **lists** only — global search and the pickers built on it. Dashboard buttons
+ * and badges are never hidden by it: an item disappears for a person only when it is named in
+ * [Hki7Policy.hiddenItemIds] or by that item's own per-person visibility rule. */
 fun Hki7Policy.canSearchEntity(entityId: String): Boolean {
     val domain = entityId.substringBefore('.')
     val hasAllowList = visibleSearchDomains.isNotEmpty() || visibleSearchEntityIds.isNotEmpty()

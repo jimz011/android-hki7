@@ -65,6 +65,7 @@ import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.AutoAwesome
@@ -140,6 +141,8 @@ import com.jimz011apps.hki7.ui.components.IconEffectGroups
 import com.jimz011apps.hki7.data.driveAuthorizationRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.jimz011apps.hki7.data.HKICustomPage
+import com.jimz011apps.hki7.data.HKICustomPopup
+import com.jimz011apps.hki7.data.Hki7PolicySaveResult
 import com.jimz011apps.hki7.data.PreferencesManager
 import com.jimz011apps.hki7.data.PushForegroundService
 import com.jimz011apps.hki7.data.LocationWork
@@ -169,6 +172,7 @@ import com.jimz011apps.hki7.ui.components.WhatsNewDialog
 import com.jimz011apps.hki7.data.Hki7Policy
 import com.jimz011apps.hki7.ui.components.fadingEdges
 import com.jimz011apps.hki7.ui.components.itemCornerShape
+import com.jimz011apps.hki7.ui.components.CustomPopupSettingsDialog
 import androidx.compose.ui.text.font.FontWeight
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import com.jimz011apps.hki7.ui.theme.AppFontFamilyOptions
@@ -181,7 +185,7 @@ import java.util.UUID
 import coil3.compose.AsyncImage
 
 private enum class SettingsSection {
-    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, LANGUAGE, CORNERS, ICONS, NAV_BAR, MEDIA_PLAYERS, DASHBOARD, FAMILY_SHARING, BACKUP_RESTORE, ACCOUNT, ABOUT, LICENSE, SUPPORT
+    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, LANGUAGE, CORNERS, ICONS, NAV_BAR, MEDIA_PLAYERS, POPUPS, DASHBOARD, FAMILY_SHARING, BACKUP_RESTORE, ACCOUNT, ABOUT, LICENSE, SUPPORT
 }
 
 /** Human-friendly "5 minutes ago" / "yesterday" label for the last-backup subtitle. */
@@ -248,6 +252,7 @@ private fun sectionTitle(section: SettingsSection): String = stringResource(when
     SettingsSection.ICONS -> R.string.settings_title_icons
     SettingsSection.NAV_BAR -> R.string.settings_title_nav_bar
     SettingsSection.MEDIA_PLAYERS -> R.string.settings_title_media_players
+    SettingsSection.POPUPS -> R.string.popup_settings_title
     SettingsSection.DASHBOARD -> R.string.settings_title_dashboard
     SettingsSection.FAMILY_SHARING -> R.string.settings_title_family_sharing
     SettingsSection.BACKUP_RESTORE -> R.string.settings_title_backup_restore
@@ -274,6 +279,7 @@ private fun sectionSubtitle(section: SettingsSection): String = stringResource(w
     SettingsSection.LANGUAGE -> R.string.language_display_subtitle
     SettingsSection.NAV_BAR -> R.string.settings_subtitle_nav_bar
     SettingsSection.MEDIA_PLAYERS -> R.string.settings_subtitle_media_players
+    SettingsSection.POPUPS -> R.string.popup_settings_subtitle_section
     SettingsSection.NOTIFICATIONS -> R.string.settings_subtitle_notifications
     SettingsSection.BACKUP_RESTORE -> R.string.settings_subtitle_backup_restore
     SettingsSection.FAMILY_SHARING -> R.string.settings_subtitle_family_sharing
@@ -295,6 +301,7 @@ private fun sectionIcon(section: SettingsSection): ImageVector = when (section) 
     SettingsSection.FONTS -> Icons.Default.TextFields
     SettingsSection.NAV_BAR -> Icons.Default.Menu
     SettingsSection.MEDIA_PLAYERS -> Icons.Default.MusicNote
+    SettingsSection.POPUPS -> Icons.Default.OpenInNew
     SettingsSection.LANGUAGE -> Icons.Default.Language
     SettingsSection.NOTIFICATIONS -> Icons.Default.Notifications
     SettingsSection.BACKUP_RESTORE -> Icons.Default.Backup
@@ -306,7 +313,7 @@ private fun sectionIcon(section: SettingsSection): ImageVector = when (section) 
 
 // Subsections nested under Appearance return there on back; everything else returns to the menu.
 private fun parentSection(section: SettingsSection): SettingsSection = when (section) {
-    SettingsSection.HEADER, SettingsSection.THEME, SettingsSection.FONTS, SettingsSection.LANGUAGE, SettingsSection.CORNERS, SettingsSection.ICONS, SettingsSection.NAV_BAR, SettingsSection.MEDIA_PLAYERS -> SettingsSection.APPEARANCE
+    SettingsSection.HEADER, SettingsSection.THEME, SettingsSection.FONTS, SettingsSection.LANGUAGE, SettingsSection.CORNERS, SettingsSection.ICONS, SettingsSection.NAV_BAR, SettingsSection.MEDIA_PLAYERS, SettingsSection.POPUPS -> SettingsSection.APPEARANCE
     SettingsSection.PROFILE -> SettingsSection.ACCOUNT
     else -> SettingsSection.MENU
 }
@@ -1042,6 +1049,7 @@ fun SettingsDialog(
                             SettingsSubcategory(stringResource(R.string.ui_everyday_navigation_e2f1711), stringResource(R.string.ui_tabs_and_media_controls_shown_throughout_the_app_5d9c1ff))
                             SettingsChoice(Icons.Default.Menu, stringResource(R.string.ui_navigation_bar_e90e3de), stringResource(R.string.ui_reorder_and_hide_tabs_39de701)) { section = SettingsSection.NAV_BAR }
                             SettingsChoice(Icons.Default.MusicNote, stringResource(R.string.ui_media_players_ec25525), stringResource(R.string.ui_rename_players_and_mini_player_visibility_8d0e1f7)) { section = SettingsSection.MEDIA_PLAYERS }
+                            SettingsChoice(Icons.Default.OpenInNew, stringResource(R.string.popup_settings_title), stringResource(R.string.popup_settings_subtitle_section)) { section = SettingsSection.POPUPS }
                         }
                         SettingsSection.HEADER -> {
                             val headerVisible by prefs.headerVisible.collectAsState(initial = true)
@@ -1212,6 +1220,79 @@ fun SettingsDialog(
                                             }
                                         )
                                     }
+                                }
+                            }
+                        }
+                        SettingsSection.POPUPS -> {
+                            val popups by viewModel.customPopups.collectAsState()
+                            val popupEntities by viewModel.entities.collectAsState()
+                            var editingPopup by remember { mutableStateOf<HKICustomPopup?>(null) }
+                            val newPopupName = stringResource(R.string.popup_default_name)
+                            editingPopup?.let { draft ->
+                                CustomPopupSettingsDialog(
+                                    popup = draft,
+                                    allEntities = popupEntities,
+                                    onDismiss = { editingPopup = null },
+                                    onSave = { updated -> viewModel.updateCustomPopup(updated); editingPopup = null },
+                                    onDelete = { viewModel.deleteCustomPopup(draft.id); editingPopup = null }
+                                )
+                            }
+                            SettingsPanel {
+                                Text(
+                                    stringResource(R.string.popup_settings_hint),
+                                    color = appColors.onMuted,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                if (popups.isEmpty()) {
+                                    Text(
+                                        stringResource(R.string.popup_none_yet),
+                                        color = appColors.onMuted,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                                popups.sortedBy { it.name.lowercase() }.forEach { popup ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        popup.icon?.takeUnless { it.isBlank() }?.let { slug ->
+                                            MdiIcon(slug, tint = appColors.onSurface, size = 20.dp)
+                                            Spacer(Modifier.width(10.dp))
+                                        }
+                                        Column(Modifier.weight(1f)) {
+                                            Text(
+                                                popup.name,
+                                                color = appColors.onSurface,
+                                                style = MaterialTheme.typography.labelLarge,
+                                                maxLines = 1, overflow = TextOverflow.Ellipsis
+                                            )
+                                            popup.statusEntityId?.let { statusId ->
+                                                Text(
+                                                    statusId,
+                                                    color = appColors.onMuted,
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    maxLines = 1, overflow = TextOverflow.Ellipsis
+                                                )
+                                            }
+                                        }
+                                        // Opens the popup itself, ready to arrange — the widgets live
+                                        // in the dialog, not in a separate editor.
+                                        TextButton(onClick = { viewModel.openCustomPopup(popup.id, startInEditMode = true) }) {
+                                            Text(stringResource(R.string.popup_edit_contents))
+                                        }
+                                        TextButton(onClick = { editingPopup = popup }) {
+                                            Text(stringResource(R.string.dlg_edit))
+                                        }
+                                    }
+                                }
+                                OutlinedButton(
+                                    onClick = { editingPopup = viewModel.createCustomPopup(newPopupName) },
+                                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                                    shape = itemCornerShape()
+                                ) {
+                                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(stringResource(R.string.popup_new))
                                 }
                             }
                         }
@@ -1676,9 +1757,18 @@ fun SettingsDialog(
                             }
                             val savePolicy: (String, Hki7Policy) -> Unit = { uid, policy ->
                                 scope.launch {
-                                    val ok = runCatching { HaParentalControls.setPolicy(context, uid, policy) }.getOrDefault(false)
-                                    if (ok) parentalPolicies = parentalPolicies + (uid to policy)
-                                    else setupChangedMessage = context.getString(R.string.settings_extra_policy_update_failed)
+                                    val result = runCatching { HaParentalControls.setPolicy(context, uid, policy) }
+                                        .getOrDefault(Hki7PolicySaveResult.FAILED)
+                                    if (result.isSaved) parentalPolicies = parentalPolicies + (uid to policy)
+                                    setupChangedMessage = when (result) {
+                                        Hki7PolicySaveResult.SAVED -> null
+                                        // An out-of-date component saves the permissions but silently
+                                        // drops the lists; say so instead of implying nothing saved.
+                                        Hki7PolicySaveResult.SAVED_WITHOUT_SEARCH_ACCESS ->
+                                            context.getString(R.string.settings_extra_policy_needs_component_update)
+                                        Hki7PolicySaveResult.FAILED ->
+                                            context.getString(R.string.settings_extra_policy_update_failed)
+                                    }
                                 }
                             }
                             searchAccessPicker?.let { (userId, visible) ->

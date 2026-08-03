@@ -17,4 +17,7 @@
     <string name="popup_settings_subtitle">Naam, pictogram en statusentiteit</string>
     <string name="popup_shared_hint">Pop-ups worden gedeeld: andere knoppen kunnen dezelfde pop-up openen.</string>
     <string name="popup_empty">Deze pop-up is leeg. Tik op Bewerken om widgets toe te voegen.</string>
+    <string name="popup_settings_title">Pop-ups</string>
+    <string name="popup_settings_subtitle_section">Bouw en bewerk je aangepaste pop-ups</string>
+    <string name="popup_settings_hint">Pop-ups openen vanaf een knop, badge of dialoogknop met de actie Aangepaste pop-up. Inhoud bewerken opent de pop-up zelf, zodat je de widgets kunt indelen.</string>
 </resources>

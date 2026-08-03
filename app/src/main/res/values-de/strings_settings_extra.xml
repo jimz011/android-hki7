@@ -90,6 +90,7 @@
     <string name="settings_extra_notifications_persistent_connection">Hält die Verbindung zu Home Assistant aufrecht, während die App geschlossen ist. Das verbraucht mehr Akku.</string>
     <string name="settings_extra_paypal_logo">PayPal-Logo</string>
     <string name="settings_extra_policy_update_failed">Die Richtlinie konnte nicht aktualisiert werden.</string>
+    <string name="settings_extra_policy_needs_component_update">Berechtigungen gespeichert. Aktualisiere HKI 7 Cloud, damit auch die Listen „Sichtbar“ und „Unsichtbar“ gespeichert werden.</string>
     <string name="settings_extra_rename_dashboard">%1$s umbenennen</string>
     <string name="settings_extra_rename_instance">%1$s umbenennen</string>
     <string name="settings_extra_restart_home_assistant_failed">Home Assistant konnte nicht neu gestartet werden.</string>

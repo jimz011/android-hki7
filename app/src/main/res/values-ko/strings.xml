@@ -2649,6 +2649,7 @@
     <string name="settings_extra_notifications_persistent_connection">앱이 닫혀 있는 동안 홈어시스턴트에 대한 지속적인 연결을 유지합니다. 이렇게 하면 배터리가 더 많이 소모됩니다.</string>
     <string name="settings_extra_paypal_logo">페이팔 로고</string>
     <string name="settings_extra_policy_update_failed">정책을 업데이트할 수 없습니다.</string>
+    <string name="settings_extra_policy_needs_component_update">권한을 저장했습니다. 표시 및 숨김 목록도 저장하려면 HKI 7 Cloud를 업데이트하세요.</string>
     <string name="settings_extra_rename_dashboard">%1$s 이름 바꾸기</string>
     <string name="settings_extra_rename_instance">%1$s 이름 바꾸기</string>
     <string name="settings_extra_restart_home_assistant_failed">홈어시스턴트를 다시 시작할 수 없습니다.</string>

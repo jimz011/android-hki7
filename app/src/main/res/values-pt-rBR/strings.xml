@@ -2630,6 +2630,7 @@
     <string name="settings_extra_notifications_persistent_connection">Mantém uma conexão persistente com o Home Assistant enquanto o aplicativo está fechado. Isso consome mais bateria.</string>
     <string name="settings_extra_paypal_logo">Logo do PayPal</string>
     <string name="settings_extra_policy_update_failed">Não foi possível atualizar a política.</string>
+    <string name="settings_extra_policy_needs_component_update">Permissões salvas. Atualize o HKI 7 Cloud para salvar também as listas Visível e Invisível.</string>
     <string name="settings_extra_rename_dashboard">Renomear %1$s</string>
     <string name="settings_extra_rename_instance">Renomear %1$s</string>
     <string name="settings_extra_restart_home_assistant_failed">Não foi possível reiniciar o Home Assistant.</string>
@@ -3218,7 +3219,9 @@
     </plurals>
     <string-array name="cr_whats_new_beta_12">
         <item>Os widgets e as pilhas de botões agora aceitam um botão vazio totalmente transparente. Ele ocupa uma célula da grade sem desenhar nada, então os botões ao redor ficam exatamente onde você quer.</item>
-        <item>Nova ação Janela personalizada para botões, selos e botões de caixas de diálogo. Ligue qualquer toque, toque longo ou toque duplo a uma janela criada por você: ela abre com o título, o status, o histórico e o fechamento de sempre, e você a preenche com qualquer widget do app. Cada janela tem o próprio botão Editar, então os widgets podem ser adicionados, configurados e removidos de dentro da caixa de diálogo sem colocar o painel em modo de edição. As janelas são compartilhadas, então vários botões podem abrir a mesma. Dentro de uma janela, as pilhas podem usar até seis colunas em vez de três.</item>
+        <item>Nova ação Janela personalizada para botões, selos e botões de caixas de diálogo. Ligue qualquer toque, toque longo ou toque duplo a uma janela criada por você: ela abre com o título, o status, o histórico e o fechamento de sempre, e você a preenche com qualquer widget do app. As janelas ficam em Configurações › Aparência › Janelas, onde «Editar conteúdo» abre uma pronta para organizar. Elas são compartilhadas, então vários botões podem abrir a mesma, e as pilhas dentro delas podem usar até seis colunas em vez de três.</item>
+        <item>Corrigido o Controle parental que não salvava. Um componente HKI 7 Cloud desatualizado rejeita as listas Visível e Invisível, o que antes fazia toda a política falhar; agora as permissões são salvas mesmo assim e a mensagem avisa que o componente precisa ser atualizado. Essas listas só filtram listas de entidades como a busca global — um botão em um painel da família continua visível a menos que seja ocultado explicitamente para essa pessoa.*</item>
+        <item>* É necessária a integração do componente HKI 7 Cloud.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_11">

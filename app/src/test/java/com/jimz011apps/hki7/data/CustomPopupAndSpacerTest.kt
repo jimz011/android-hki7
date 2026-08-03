@@ -52,6 +52,22 @@ class CustomPopupAndSpacerTest {
     }
 
     @Test
+    fun `a popup's widgets travel with a shared dashboard`() {
+        val areaId = customPopupWidgetAreaId("p1")
+        val local = HKIDashboard(id = "shared-family", name = "Local")
+        val incoming = HKIDashboard(
+            id = "family",
+            name = "Owner",
+            customPopups = listOf(HKICustomPopup(id = "p1", name = "Kitchen")),
+            areaWidgets = mapOf(areaId to listOf(HKIButtonStack("stack", entityIds = listOf("light.kitchen"))))
+        )
+
+        val merged = mergeSharedDashboardAesthetics(local, incoming)
+
+        assertEquals(listOf("light.kitchen"), (merged.areaWidgets.getValue(areaId).single() as HKIButtonStack).entityIds)
+    }
+
+    @Test
     fun `shared dashboards take the owner's popups while keeping local renames`() {
         val local = HKIDashboard(
             id = "shared-family",

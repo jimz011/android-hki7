@@ -17,4 +17,7 @@
     <string name="popup_settings_subtitle">名稱、圖示與狀態實體</string>
     <string name="popup_shared_hint">彈出視窗是共用的：其他按鈕也可開啟同一個彈出視窗。</string>
     <string name="popup_empty">此彈出視窗是空的。輕觸「編輯」即可新增小工具。</string>
+    <string name="popup_settings_title">彈出視窗</string>
+    <string name="popup_settings_subtitle_section">建立與編輯自訂彈出視窗</string>
+    <string name="popup_settings_hint">彈出視窗可從設定為「自訂彈出視窗」動作的按鈕、徽章或對話方塊按鈕開啟。「編輯內容」會開啟彈出視窗本身，以便排列其中的小工具。</string>
 </resources>

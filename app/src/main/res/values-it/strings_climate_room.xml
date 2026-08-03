@@ -331,7 +331,9 @@
 
     <string-array name="cr_whats_new_beta_12">
         <item>I widget e le pile di pulsanti possono ora contenere un pulsante vuoto, del tutto trasparente. Occupa una cella della griglia senza disegnare nulla, così i pulsanti vicini si allineano esattamente dove vuoi.</item>
-        <item>Nuova azione Finestra personalizzata per pulsanti, badge e pulsanti delle finestre di dialogo. Collega tocco, pressione prolungata o doppio tocco a una finestra creata da te: si apre con titolo, stato, cronologia e chiusura consueti e la riempi con qualsiasi widget dell’app. Ogni finestra ha il proprio pulsante Modifica, quindi i suoi widget si possono aggiungere, configurare e rimuovere dalla finestra stessa senza mettere la dashboard in modalità modifica. Le finestre sono condivise: più pulsanti possono aprire la stessa. Nelle finestre le pile possono usare fino a sei colonne invece di tre.</item>
+        <item>Nuova azione Finestra personalizzata per pulsanti, badge e pulsanti delle finestre di dialogo. Collega tocco, pressione prolungata o doppio tocco a una finestra creata da te: si apre con titolo, stato, cronologia e chiusura consueti e la riempi con qualsiasi widget dell’app. Le finestre sono elencate in Impostazioni › Aspetto › Finestre, dove «Modifica contenuto» ne apre una pronta da disporre. Sono condivise, quindi più pulsanti possono aprire la stessa, e le pile al loro interno possono usare fino a sei colonne invece di tre.</item>
+        <item>Risolto il mancato salvataggio dei Controlli parentali. Un componente HKI 7 Cloud non aggiornato rifiuta gli elenchi Visibile e Invisibile, facendo fallire l’intero criterio; ora le autorizzazioni vengono comunque salvate e il messaggio segnala che il componente va aggiornato. Quegli elenchi filtrano solo gli elenchi di entità come la ricerca globale: un pulsante su una dashboard di famiglia resta visibile a meno che non sia nascosto esplicitamente per quella persona.*</item>
+        <item>* È richiesta l’integrazione HKI 7 Cloud Component.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_11">

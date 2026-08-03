@@ -1,32 +1,16 @@
 package com.jimz011apps.hki7.ui.components
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.jimz011apps.hki7.R
 import com.jimz011apps.hki7.data.HAEntity
@@ -87,7 +71,10 @@ private fun CustomPopupDialog(
     val entity = statusEntity ?: remember(popup.id) {
         HAEntity(entity_id = "hki7_popup.${popup.id}", state = "")
     }
-    var editing by remember(popup.id) { mutableStateOf(startInEditMode) }
+    // Editing is decided by how the popup was opened: tapping a button just uses it, while the
+    // "Edit contents" entry points (an item's action settings, Settings › Appearance › Popups)
+    // open it ready to arrange. There is deliberately no in-dialog toggle.
+    val editing = startInEditMode
     val genericStatus = stringResource(R.string.popup_custom_popup)
 
     HKIDialog(
@@ -101,29 +88,10 @@ private fun CustomPopupDialog(
         // actions there), and the popup drives its own canvas edit mode instead.
         allowInEditMode = true,
         showHistoryButton = statusEntity != null,
-        navController = navController,
-        topContent = {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                FilledTonalButton(onClick = { editing = !editing }) {
-                    Icon(
-                        if (editing) Icons.Default.Check else Icons.Default.Edit,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        if (editing) stringResource(R.string.dlg_done) else stringResource(R.string.dlg_edit)
-                    )
-                }
-            }
-        }
+        navController = navController
     ) { _ ->
-        // weight(1f) rather than the canvas' own fillMaxSize: the edit toggle above already took
-        // part of the column, so filling the whole height would push the grid past the dialog.
+        // weight(1f) rather than the canvas' own fillMaxSize, so the grid is bounded by the dialog
+        // instead of running past its bottom edge.
         Box(Modifier.weight(1f).fillMaxWidth()) {
             CompositionLocalProvider(
                 LocalEditModeOverride provides editing,

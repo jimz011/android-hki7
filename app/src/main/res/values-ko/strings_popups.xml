@@ -17,4 +17,7 @@
     <string name="popup_settings_subtitle">이름, 아이콘 및 상태 엔티티</string>
     <string name="popup_shared_hint">팝업은 공유됩니다. 다른 버튼에서도 같은 팝업을 열 수 있습니다.</string>
     <string name="popup_empty">이 팝업은 비어 있습니다. 편집을 눌러 위젯을 추가하세요.</string>
+    <string name="popup_settings_title">팝업</string>
+    <string name="popup_settings_subtitle_section">사용자 지정 팝업 만들기 및 편집</string>
+    <string name="popup_settings_hint">팝업은 사용자 지정 팝업 동작이 설정된 버튼, 배지 또는 대화상자 버튼에서 열립니다. ‘내용 편집’은 팝업 자체를 열어 위젯을 배치할 수 있게 합니다.</string>
 </resources>

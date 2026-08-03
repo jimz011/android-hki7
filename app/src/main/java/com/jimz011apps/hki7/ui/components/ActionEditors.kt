@@ -485,9 +485,10 @@ private fun CustomPopupActionEditor(
 }
 
 /** Name, icon, and optional status entity of a popup. The status entity also decides whether the
- *  dialog offers its history/activity view. */
+ *  dialog offers its history/activity view. Shared by the action editor and
+ *  Settings › Appearance › Popups. */
 @Composable
-private fun CustomPopupSettingsDialog(
+fun CustomPopupSettingsDialog(
     popup: HKICustomPopup,
     allEntities: List<HAEntity>,
     onDismiss: () -> Unit,

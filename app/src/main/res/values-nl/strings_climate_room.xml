@@ -331,7 +331,9 @@
 
     <string-array name="cr_whats_new_beta_12">
         <item>Knopwidgets en knoppenstapels kunnen nu een lege, volledig transparante knop bevatten. Die neemt een vak in zonder iets te tekenen, zodat de knoppen eromheen precies staan waar je ze wilt.</item>
-        <item>Nieuwe actie Aangepaste pop-up voor knoppen, badges en dialoogknoppen. Koppel elke tik, lange druk of dubbele tik aan een pop-up die je zelf samenstelt: die opent met de gebruikelijke titel, status, geschiedenis en sluitknop, en je vult hem met elke widget van de app. Elke pop-up heeft een eigen knop Bewerken, zodat widgets binnen het dialoogvenster kunnen worden toegevoegd, ingesteld en verwijderd zonder het dashboard in bewerkmodus te zetten. Pop-ups worden gedeeld, dus meerdere knoppen kunnen dezelfde openen. Stapels in een pop-up kunnen tot zes kolommen gebruiken in plaats van drie.</item>
+        <item>Nieuwe actie Aangepaste pop-up voor knoppen, badges en dialoogknoppen. Koppel elke tik, lange druk of dubbele tik aan een pop-up die je zelf samenstelt: die opent met de gebruikelijke titel, status, geschiedenis en sluitknop, en je vult hem met elke widget van de app. Pop-ups staan onder Instellingen › Weergave › Pop-ups, waar Inhoud bewerken er een klaar voor indeling opent. Pop-ups worden gedeeld, dus meerdere knoppen kunnen dezelfde openen, en stapels in een pop-up kunnen tot zes kolommen gebruiken in plaats van drie.</item>
+        <item>Opgelost dat Ouderlijk toezicht niet meer opsloeg. Een verouderde HKI 7 Cloud-component weigert de lijsten Zichtbaar en Onzichtbaar, waardoor het hele beleid mislukte; de rechten worden nu wel opgeslagen en de melding vertelt dat de component moet worden bijgewerkt. Die lijsten filteren alleen entiteitenlijsten zoals de algemene zoekfunctie — een knop op een gezinsdashboard blijft zichtbaar tenzij die voor die persoon expliciet is verborgen.*</item>
+        <item>* HKI 7 Cloud Component-integratie vereist.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_11">

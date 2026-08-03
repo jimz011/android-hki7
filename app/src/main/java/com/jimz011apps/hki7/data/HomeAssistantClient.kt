@@ -422,12 +422,13 @@ open class HomeAssistantClient(
     }
 
     /** Sets a user's full policy (hidden views/rooms plus edit and visibility permissions). Admin
-     * only. Returns true on success.
+     * only.
      *
-     * Older companion components accept only hidden_views/hidden_rooms and reject unknown keys with a
-     * schema error. We retry first with the pre-dashboard permission set, then with only hidden
-     * lists, so every component generation keeps all fields it understands. */
-    open suspend fun hki7SetPolicy(userId: String, policy: Hki7Policy): Boolean = withWebSocket {
+     * Older companion components accept only the fields they shipped with and reject unknown keys
+     * with a schema error, so this walks back through the generations. Whatever the component does
+     * understand is still stored, and the result says whether anything had to be dropped — a
+     * component that is merely out of date must not block every other permission from saving. */
+    open suspend fun hki7SetPolicy(userId: String, policy: Hki7Policy): Hki7PolicySaveResult = withWebSocket {
         val base = mapOf<String, JsonElement>(
             "user_id" to JsonPrimitive(userId),
             "hidden_views" to JsonArray(policy.hiddenViews.map { JsonPrimitive(it) }),
@@ -451,22 +452,26 @@ open class HomeAssistantClient(
             "hidden_search_domains" to JsonArray(policy.hiddenSearchDomains.map { JsonPrimitive(it) }),
             "hidden_search_entity_ids" to JsonArray(policy.hiddenSearchEntityIds.map { JsonPrimitive(it) }),
         )
-        if (sendCommand("hki7/policy/set", full)["success"]?.jsonPrimitive?.booleanOrNull == true) {
-            return@withWebSocket true
-        }
-        val needsSearchAccessSupport = policy.hiddenItemIds.isNotEmpty() ||
+        suspend fun send(payload: Map<String, JsonElement>): Boolean =
+            sendCommand("hki7/policy/set", payload)["success"]?.jsonPrimitive?.booleanOrNull == true
+
+        if (send(full)) return@withWebSocket Hki7PolicySaveResult.SAVED
+        // Everything below drops the item/search lists, so only report a partial save when the
+        // policy actually carries some.
+        val usesSearchAccess = policy.hiddenItemIds.isNotEmpty() ||
             policy.visibleSearchDomains.isNotEmpty() || policy.visibleSearchEntityIds.isNotEmpty() ||
             policy.hiddenSearchDomains.isNotEmpty() || policy.hiddenSearchEntityIds.isNotEmpty()
-        if (needsSearchAccessSupport) return@withWebSocket false
-        if (sendCommand("hki7/policy/set", dashboardPermissions)["success"]?.jsonPrimitive?.booleanOrNull == true) {
-            return@withWebSocket true
+        val degraded = if (usesSearchAccess) {
+            Hki7PolicySaveResult.SAVED_WITHOUT_SEARCH_ACCESS
+        } else {
+            Hki7PolicySaveResult.SAVED
         }
-        // Component 0.4/0.5 understands the original permission set but not the two dashboard
-        // fields. Preserve those permissions instead of falling all the way back to hidden lists.
-        if (sendCommand("hki7/policy/set", legacyPermissions)["success"]?.jsonPrimitive?.booleanOrNull == true) {
-            return@withWebSocket true
-        }
-        sendCommand("hki7/policy/set", base)["success"]?.jsonPrimitive?.booleanOrNull == true
+        if (send(dashboardPermissions)) return@withWebSocket degraded
+        // Component 0.4/0.5 understands the original permission set but not the dashboard fields.
+        // Preserve those permissions instead of falling all the way back to hidden lists.
+        if (send(legacyPermissions)) return@withWebSocket degraded
+        if (send(base)) return@withWebSocket degraded
+        Hki7PolicySaveResult.FAILED
     }
 
     /** Every stored policy keyed by user id (admin only). Empty if not permitted. */

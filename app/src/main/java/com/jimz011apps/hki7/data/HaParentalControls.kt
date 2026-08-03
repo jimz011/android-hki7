@@ -35,12 +35,14 @@ object HaParentalControls {
     suspend fun listPolicies(context: Context): Map<String, Hki7Policy> =
         Hki7Endpoint.withClient(context) { it.hki7ListPolicies() } ?: emptyMap()
 
-    /** Sets one user's full policy — hidden views/rooms and edit/visibility permissions (admin only). */
+    /** Sets one user's full policy — hidden views/rooms and edit/visibility permissions (admin only).
+     *  Reports [Hki7PolicySaveResult.SAVED_WITHOUT_SEARCH_ACCESS] when an out-of-date component
+     *  stored the permissions but not the Visible/Invisible lists. */
     suspend fun setPolicy(
         context: Context,
         userId: String,
         policy: Hki7Policy,
-    ): Boolean = Hki7Endpoint.withClient(context) {
+    ): Hki7PolicySaveResult = Hki7Endpoint.withClient(context) {
         it.hki7SetPolicy(userId, policy)
-    } ?: false
+    } ?: Hki7PolicySaveResult.FAILED
 }

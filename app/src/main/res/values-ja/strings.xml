@@ -2649,6 +2649,7 @@
     <string name="settings_extra_notifications_persistent_connection">アプリが閉じている間もHome Assistantとの接続を維持します。バッテリー消費が増加します。</string>
     <string name="settings_extra_paypal_logo">PayPalのロゴ</string>
     <string name="settings_extra_policy_update_failed">ポリシーを更新できませんでした。</string>
+    <string name="settings_extra_policy_needs_component_update">権限を保存しました。「表示」と「非表示」のリストも保存するには、HKI 7 Cloudを更新してください。</string>
     <string name="settings_extra_rename_dashboard">%1$sの名前を変更</string>
     <string name="settings_extra_rename_instance">%1$sの名前を変更</string>
     <string name="settings_extra_restart_home_assistant_failed">Home Assistantを再起動できませんでした。</string>

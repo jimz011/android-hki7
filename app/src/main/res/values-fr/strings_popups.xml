@@ -17,4 +17,7 @@
     <string name="popup_settings_subtitle">Nom, icône et entité d’état</string>
     <string name="popup_shared_hint">Les fenêtres sont partagées : d’autres boutons peuvent ouvrir la même.</string>
     <string name="popup_empty">Cette fenêtre est vide. Appuyez sur Modifier pour ajouter des widgets.</string>
+    <string name="popup_settings_title">Fenêtres</string>
+    <string name="popup_settings_subtitle_section">Créez et modifiez vos fenêtres personnalisées</string>
+    <string name="popup_settings_hint">Les fenêtres s’ouvrent depuis un bouton, un badge ou un bouton de boîte de dialogue réglé sur l’action Fenêtre personnalisée. « Modifier le contenu » ouvre la fenêtre elle-même pour y organiser les widgets.</string>
 </resources>

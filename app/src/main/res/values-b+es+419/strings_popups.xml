@@ -17,4 +17,7 @@
     <string name="popup_settings_subtitle">Nombre, ícono y entidad de estado</string>
     <string name="popup_shared_hint">Las ventanas se comparten: otros botones pueden abrir esta misma ventana.</string>
     <string name="popup_empty">Esta ventana está vacía. Toca Editar para agregar widgets.</string>
+    <string name="popup_settings_title">Ventanas</string>
+    <string name="popup_settings_subtitle_section">Crea y edita tus ventanas personalizadas</string>
+    <string name="popup_settings_hint">Las ventanas se abren desde un botón, una insignia o un botón de diálogo con la acción Ventana personalizada. «Editar contenido» abre la propia ventana para organizar sus widgets.</string>
 </resources>

@@ -1870,7 +1870,9 @@
     </plurals>
     <string-array name="cr_whats_new_beta_12">
         <item>按鈕小工具與按鈕堆疊現在可放入完全透明的空白按鈕。它會占用一個格線儲存格但不繪製任何內容，讓周圍的按鈕精準對齊到你想要的位置。</item>
-        <item>為按鈕、徽章與對話方塊按鈕新增「自訂彈出視窗」動作。可將輕觸、長按或連點兩下指向你自行組建的彈出視窗：視窗具備一貫的標題、狀態、歷史與關閉控制項，並可放入應用程式中的任何小工具。每個彈出視窗都有專屬的「編輯」按鈕，不必將儀表板切換到編輯模式，就能在對話方塊內新增、設定與移除小工具。彈出視窗可共用，多個按鈕能開啟同一個視窗。彈出視窗中的堆疊最多可使用 6 欄，而非 3 欄。</item>
+        <item>為按鈕、徽章與對話方塊按鈕新增「自訂彈出視窗」動作。可將輕觸、長按或連點兩下指向你自行組建的彈出視窗：視窗具備一貫的標題、狀態、歷史與關閉控制項，並可放入應用程式中的任何小工具。彈出視窗會列在設定›外觀›彈出視窗中，「編輯內容」可直接開啟並排列。彈出視窗可共用，多個按鈕能開啟同一個，視窗內的堆疊最多可使用 6 欄，而非 3 欄。</item>
+        <item>修正了家長監護無法儲存的問題。較舊的 HKI 7 Cloud 元件會拒絕「可見」和「不可見」清單，先前會導致整個原則儲存失敗；現在權限仍會儲存，並提示需要更新元件。這些清單只會篩選全域搜尋等實體清單——家庭儀表板上的按鈕除非針對該使用者明確隱藏，否則仍會顯示。*</item>
+        <item>* 需要 HKI 7 Cloud Component 整合。</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_11">
@@ -2928,6 +2930,7 @@
     <string name="settings_extra_notifications_persistent_connection">在應用程式關閉時，仍與 Home Assistant 保持持續連線。這會消耗更多電量。</string>
     <string name="settings_extra_paypal_logo">PayPal 標誌</string>
     <string name="settings_extra_policy_update_failed">無法更新政策。</string>
+    <string name="settings_extra_policy_needs_component_update">權限已儲存。請更新 HKI 7 Cloud 以一併儲存「可見」和「不可見」清單。</string>
     <string name="settings_extra_rename_dashboard">重新命名 %1$s</string>
     <string name="settings_extra_rename_instance">重新命名 %1$s</string>
     <string name="settings_extra_restart_home_assistant_failed">無法重新啟動 Home Assistant。</string>

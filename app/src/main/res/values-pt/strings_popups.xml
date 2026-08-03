@@ -17,4 +17,7 @@
     <string name="popup_settings_subtitle">Nome, ícone e entidade de estado</string>
     <string name="popup_shared_hint">As janelas são partilhadas: outros botões podem abrir a mesma janela.</string>
     <string name="popup_empty">Esta janela está vazia. Toque em Editar para adicionar widgets.</string>
+    <string name="popup_settings_title">Janelas</string>
+    <string name="popup_settings_subtitle_section">Crie e edite as suas janelas personalizadas</string>
+    <string name="popup_settings_hint">As janelas abrem a partir de um botão, emblema ou botão de caixa de diálogo definido para a ação Janela personalizada. «Editar conteúdo» abre a própria janela para organizar os widgets.</string>
 </resources>
