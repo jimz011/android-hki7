@@ -1,5 +1,7 @@
 # HKI 7
 
+<img width="1024" height="500" alt="play_feature_graphic_1024x500" src="https://github.com/user-attachments/assets/452d7a45-3aa8-4306-acbd-cbb0722425a9" />
+
 A modern [Home Assistant](https://www.home-assistant.io/) client for Android, built with Jetpack Compose and Material 3.
 
 > **Status:** beta (`1.0.0-beta.13`). Expect rough edges — issues and feedback are welcome.
