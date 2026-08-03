@@ -331,7 +331,7 @@
 
     <string-array name="cr_whats_new_beta_12">
         <item>Los widgets y las pilas de botones ya admiten un botón vacío totalmente transparente. Ocupa una celda de la cuadrícula sin dibujar nada, de modo que los botones de alrededor quedan justo donde quieres.</item>
-        <item>Nueva acción Ventana personalizada para botones, insignias y botones de diálogo. Asigna a cualquier toque, pulsación larga o doble toque una ventana creada por ti: se abre con el título, el estado, el historial y el cierre habituales, y la rellenas con cualquier widget de la aplicación. Cada ventana tiene su propio botón Editar, así que sus widgets se pueden añadir, configurar y quitar desde el propio diálogo sin poner el panel en modo de edición. Las ventanas se comparten, por lo que varios botones pueden abrir la misma.</item>
+        <item>Nueva acción Ventana personalizada para botones, insignias y botones de diálogo. Asigna a cualquier toque, pulsación larga o doble toque una ventana creada por ti: se abre con el título, el estado, el historial y el cierre habituales, y la rellenas con cualquier widget de la aplicación. Cada ventana tiene su propio botón Editar, así que sus widgets se pueden añadir, configurar y quitar desde el propio diálogo sin poner el panel en modo de edición. Las ventanas se comparten, por lo que varios botones pueden abrir la misma. Dentro de una ventana, las pilas pueden usar hasta seis columnas en lugar de tres.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_11">

@@ -207,6 +207,7 @@ import com.jimz011apps.hki7.ui.components.VacuumWidgetSetupDialog
 import com.jimz011apps.hki7.ui.components.WidgetWidthSelector
 import com.jimz011apps.hki7.ui.components.EntityCard
 import com.jimz011apps.hki7.ui.components.SpacerButtonCard
+import com.jimz011apps.hki7.ui.components.LocalMaxStackColumns
 import com.jimz011apps.hki7.ui.components.EditRemoveBadge
 import com.jimz011apps.hki7.ui.components.EditSettingsButton
 import com.jimz011apps.hki7.ui.components.ModernSettingsHeader
@@ -4117,11 +4118,13 @@ fun StackSettingsDialog(
     onDismiss: () -> Unit,
     onUpdate: (HKIButtonStack) -> Unit
 ) {
+    // 3 on a dashboard page, 6 inside a custom popup (see LocalMaxStackColumns).
+    val maxColumns = LocalMaxStackColumns.current
     var title by remember(stack) { mutableStateOf(stack.title ?: "") }
     var showName by remember(stack) { mutableStateOf(stack.showName) }
     var iconName by remember(stack) { mutableStateOf(stack.icon ?: "Lightbulb") }
     var width by remember(stack) { mutableStateOf(stack.width) }
-    var columns by remember(stack) { mutableIntStateOf(stack.columns.coerceIn(1, 3)) }
+    var columns by remember(stack, maxColumns) { mutableIntStateOf(stack.columns.coerceIn(1, maxColumns)) }
     var showBadge by remember(stack) { mutableStateOf(stack.showBadge) }
     var isSquare by remember(stack) { mutableStateOf(stack.isSquare) }
     var buttonStyle by remember(stack) {
@@ -4305,8 +4308,12 @@ fun StackSettingsDialog(
                 }
                 if (!isAdaptiveLighting) {
                     Text(stringResource(R.string.ui_columns_cf723c5), style = MaterialTheme.typography.labelLarge)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        (1..3).forEach { count ->
+                    // FlowRow: six chips no longer fit one row on a phone-width dialog.
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        (1..maxColumns).forEach { count ->
                             FilterChip(selected = columns == count, onClick = { columns = count }, label = { Text(stringResource(R.string.ui_text_c79f712, count)) })
                         }
                     }
@@ -4367,7 +4374,7 @@ fun StackSettingsDialog(
                             showName = if (isAdaptiveLighting) showName else stack.showName,
                             width = width,
                             icon = iconName.takeUnless { it == "None" },
-                            columns = columns.coerceIn(1, 3),
+                            columns = columns.coerceIn(1, maxColumns),
                             showBadge = if (stack.stackType in listOf("camera", "weather")) false else showBadge,
                             isSquare = if (stack.stackType == "weather") false else isSquare,
                             buttonStyle = if (stack.stackType in listOf("weather", "camera", "vacuum")) stack.buttonStyle else buttonStyle,
@@ -4817,6 +4824,8 @@ fun ButtonStackItem(
     onReorderEntities: (Int, Int) -> Unit,
     onManageOrder: () -> Unit = {}
 ) {
+    // 3 on a dashboard page, 6 inside a custom popup (see LocalMaxStackColumns).
+    val maxColumns = LocalMaxStackColumns.current
     if (!isWidgetVisibleNow(stack) && stack.stackType != "adaptive_lighting" && !isEditMode) return
     if (stack.stackType == "adaptive_lighting") {
         AdaptiveLightingWidget(
@@ -5138,7 +5147,7 @@ fun ButtonStackItem(
                 return@Column
             }
             if (!isEditMode) {
-                val columns = stack.columns.coerceIn(1, 3)
+                val columns = stack.columns.coerceIn(1, maxColumns)
                 val entityRows = remember(entities, columns) { entities.chunked(columns) }
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     entityRows.forEach { rowEntities ->
@@ -5196,7 +5205,7 @@ fun ButtonStackItem(
                     }
                 }
             } else {
-                val columns = stack.columns.coerceIn(1, 3)
+                val columns = stack.columns.coerceIn(1, maxColumns)
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     entities.chunked(columns).forEach { rowEntities ->
                         Row(
@@ -5821,6 +5830,8 @@ fun EmptyStackItem(
     content: @Composable (HKIRoomWidget, Modifier) -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
+    // 3 on a dashboard page, 6 inside a custom popup (see LocalMaxStackColumns).
+    val maxColumns = LocalMaxStackColumns.current
     if (!isWidgetVisibleNow(stack) && !isEditMode) return
     // An unconfigured (childless) container only matters in edit mode; hide it entirely otherwise.
     if (stack.widgets.isEmpty() && !isEditMode) return
@@ -5920,7 +5931,7 @@ fun EmptyStackItem(
                     }
                 }
             } else {
-                val columns = stack.columns.coerceIn(1, 3)
+                val columns = stack.columns.coerceIn(1, maxColumns)
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     stack.widgets.chunked(columns).forEach { row ->
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -5944,10 +5955,12 @@ fun EmptyStackSettingsDialog(
     onDismiss: () -> Unit,
     onUpdate: (HKIEmptyStack) -> Unit
 ) {
+    // 3 on a dashboard page, 6 inside a custom popup (see LocalMaxStackColumns).
+    val maxColumns = LocalMaxStackColumns.current
     var title by remember(stack) { mutableStateOf(stack.title.orEmpty()) }
     var iconName by remember(stack) { mutableStateOf(stack.icon ?: "None") }
     var width by remember(stack) { mutableStateOf(stack.width) }
-    var columns by remember(stack) { mutableIntStateOf(stack.columns.coerceIn(1, 3)) }
+    var columns by remember(stack, maxColumns) { mutableIntStateOf(stack.columns.coerceIn(1, maxColumns)) }
     var showBadge by remember(stack) { mutableStateOf(stack.showBadge) }
     var isSquare by remember(stack) { mutableStateOf(stack.isSquare) }
     var cornerRadius by remember(stack) { mutableIntStateOf(stack.cornerRadius) }
@@ -6024,8 +6037,11 @@ fun EmptyStackSettingsDialog(
                 SettingsSubcategory(stringResource(R.string.ui_layout_972ad8d), stringResource(R.string.ui_width_columns_and_container_shape_984a191))
                 WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 Text(stringResource(R.string.ui_columns_cf723c5), style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    (1..3).forEach { count ->
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    (1..maxColumns).forEach { count ->
                         FilterChip(selected = columns == count, onClick = { columns = count }, label = { Text(stringResource(R.string.ui_text_c79f712, count)) })
                     }
                 }
@@ -6065,7 +6081,7 @@ fun EmptyStackSettingsDialog(
                         title = title.trim().ifBlank { null },
                         icon = iconName.takeUnless { it == "None" },
                         width = width,
-                        columns = columns.coerceIn(1, 3),
+                        columns = columns.coerceIn(1, maxColumns),
                         showBadge = showBadge,
                         isSquare = isSquare,
                         cornerRadius = cornerRadius,
@@ -6129,6 +6145,8 @@ fun CameraStackContent(
     onReorderEntities: (Int, Int) -> Unit
 ) {
     val entityById = remember(entities) { entities.associateBy { it.entity_id } }
+    // 3 on a dashboard page, 6 inside a custom popup (see LocalMaxStackColumns).
+    val maxColumns = LocalMaxStackColumns.current
     val customCameraLabel = stringResource(R.string.ui_custom_camera_ada9096)
     val cameraSources = remember(stack.entityIds, stack.buttonConfigs, entityById, currentUrl, customCameraLabel) {
         stack.entityIds.mapNotNull { entityId ->
@@ -6180,7 +6198,7 @@ fun CameraStackContent(
     }
 
     if (isEditMode) {
-        val columns = stack.columns.coerceIn(1, 3)
+        val columns = stack.columns.coerceIn(1, maxColumns)
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             cameraSources.chunked(columns).forEach { row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {

@@ -8,7 +8,7 @@ Items marked with \* require the HKI 7 Cloud Component integration.
 ## 1.0.0-beta.12
 
 - Button widgets and button stacks can hold an empty, fully transparent button. It takes up a grid cell without drawing anything, so the buttons around it line up exactly where you want them. Add one from a stack's Add-entity screen or from the widget picker under Layout.
-- New "Custom popup" action for buttons, badges, and dialog buttons. Point any tap, hold, or double tap at a popup you build yourself: it opens with the usual dialog title, status, history, and close controls, and you fill it with any widget the app offers. Each popup has its own Edit button, so its widgets can be added, configured, and removed from inside the dialog without putting the dashboard into edit mode. Popups are shared, so several buttons can open the same one, and giving a popup a status entity fills its status line and enables the history view.
+- New "Custom popup" action for buttons, badges, and dialog buttons. Point any tap, hold, or double tap at a popup you build yourself: it opens with the usual dialog title, status, history, and close controls, and you fill it with any widget the app offers. Each popup has its own Edit button, so its widgets can be added, configured, and removed from inside the dialog without putting the dashboard into edit mode. Popups are shared, so several buttons can open the same one, and giving a popup a status entity fills its status line and enables the history view. Stacks inside a popup can use up to six columns instead of the three a dashboard page allows.
 
 ## 1.0.0-beta.11
 

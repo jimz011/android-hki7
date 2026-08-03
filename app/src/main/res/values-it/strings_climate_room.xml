@@ -331,7 +331,7 @@
 
     <string-array name="cr_whats_new_beta_12">
         <item>I widget e le pile di pulsanti possono ora contenere un pulsante vuoto, del tutto trasparente. Occupa una cella della griglia senza disegnare nulla, così i pulsanti vicini si allineano esattamente dove vuoi.</item>
-        <item>Nuova azione Finestra personalizzata per pulsanti, badge e pulsanti delle finestre di dialogo. Collega tocco, pressione prolungata o doppio tocco a una finestra creata da te: si apre con titolo, stato, cronologia e chiusura consueti e la riempi con qualsiasi widget dell’app. Ogni finestra ha il proprio pulsante Modifica, quindi i suoi widget si possono aggiungere, configurare e rimuovere dalla finestra stessa senza mettere la dashboard in modalità modifica. Le finestre sono condivise: più pulsanti possono aprire la stessa.</item>
+        <item>Nuova azione Finestra personalizzata per pulsanti, badge e pulsanti delle finestre di dialogo. Collega tocco, pressione prolungata o doppio tocco a una finestra creata da te: si apre con titolo, stato, cronologia e chiusura consueti e la riempi con qualsiasi widget dell’app. Ogni finestra ha il proprio pulsante Modifica, quindi i suoi widget si possono aggiungere, configurare e rimuovere dalla finestra stessa senza mettere la dashboard in modalità modifica. Le finestre sono condivise: più pulsanti possono aprire la stessa. Nelle finestre le pile possono usare fino a sei colonne invece di tre.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_11">

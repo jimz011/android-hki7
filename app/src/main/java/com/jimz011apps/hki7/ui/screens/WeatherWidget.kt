@@ -560,7 +560,8 @@ fun WeatherStackContent(
         }
         return
     }
-    val columns = stack.columns.coerceIn(1, 3)
+    // 3 on a dashboard page, 6 inside a custom popup (see LocalMaxStackColumns).
+    val columns = stack.columns.coerceIn(1, com.jimz011apps.hki7.ui.components.LocalMaxStackColumns.current)
     if (isEditMode) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             stack.entityIds.chunked(columns).forEach { row ->

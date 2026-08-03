@@ -331,7 +331,7 @@
 
     <string-array name="cr_whats_new_beta_12">
         <item>Schaltflächen-Widgets und -Stapel können jetzt eine leere, vollständig transparente Schaltfläche enthalten. Sie belegt eine Rasterzelle, ohne etwas zu zeichnen, sodass die umliegenden Schaltflächen genau dort sitzen, wo sie sollen.</item>
-        <item>Neue Aktion „Eigenes Pop-up“ für Schaltflächen, Badges und Dialogschaltflächen. Verknüpfe Tippen, Halten oder Doppeltippen mit einem selbst gebauten Pop-up: Es öffnet sich mit Titel, Status, Verlauf und Schließen wie gewohnt und lässt sich mit jedem Widget der App füllen. Jedes Pop-up hat eine eigene Schaltfläche „Bearbeiten“, sodass Widgets direkt im Dialog hinzugefügt, konfiguriert und entfernt werden können, ohne das Dashboard in den Bearbeitungsmodus zu versetzen. Pop-ups werden geteilt, mehrere Schaltflächen können also dasselbe öffnen.</item>
+        <item>Neue Aktion „Eigenes Pop-up“ für Schaltflächen, Badges und Dialogschaltflächen. Verknüpfe Tippen, Halten oder Doppeltippen mit einem selbst gebauten Pop-up: Es öffnet sich mit Titel, Status, Verlauf und Schließen wie gewohnt und lässt sich mit jedem Widget der App füllen. Jedes Pop-up hat eine eigene Schaltfläche „Bearbeiten“, sodass Widgets direkt im Dialog hinzugefügt, konfiguriert und entfernt werden können, ohne das Dashboard in den Bearbeitungsmodus zu versetzen. Pop-ups werden geteilt, mehrere Schaltflächen können also dasselbe öffnen. Stapel in einem Pop-up können statt drei bis zu sechs Spalten nutzen.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_11">

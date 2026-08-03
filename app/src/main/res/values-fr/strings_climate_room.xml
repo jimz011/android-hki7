@@ -337,7 +337,7 @@
     <!-- Version actuelle -->
     <string-array name="cr_whats_new_beta_12">
         <item>Les widgets et les piles de boutons peuvent désormais contenir un bouton vide, entièrement transparent. Il occupe une cellule de la grille sans rien afficher, ce qui permet d’aligner exactement les boutons voisins.</item>
-        <item>Nouvelle action Fenêtre personnalisée pour les boutons, les badges et les boutons de boîte de dialogue. Associez un appui, un appui long ou un double appui à une fenêtre que vous composez vous-même : elle s’ouvre avec le titre, l’état, l’historique et la fermeture habituels, et vous la remplissez avec n’importe quel widget de l’application. Chaque fenêtre possède son propre bouton Modifier, ce qui permet d’ajouter, de configurer et de supprimer ses widgets depuis la boîte de dialogue sans passer le tableau de bord en mode édition. Les fenêtres sont partagées : plusieurs boutons peuvent ouvrir la même.</item>
+        <item>Nouvelle action Fenêtre personnalisée pour les boutons, les badges et les boutons de boîte de dialogue. Associez un appui, un appui long ou un double appui à une fenêtre que vous composez vous-même : elle s’ouvre avec le titre, l’état, l’historique et la fermeture habituels, et vous la remplissez avec n’importe quel widget de l’application. Chaque fenêtre possède son propre bouton Modifier, ce qui permet d’ajouter, de configurer et de supprimer ses widgets depuis la boîte de dialogue sans passer le tableau de bord en mode édition. Les fenêtres sont partagées : plusieurs boutons peuvent ouvrir la même. Dans une fenêtre, les piles peuvent utiliser jusqu’à six colonnes au lieu de trois.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_11">

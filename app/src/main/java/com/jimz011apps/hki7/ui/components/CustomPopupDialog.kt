@@ -40,6 +40,14 @@ import com.jimz011apps.hki7.ui.screens.HAHomeScreen
  *  means "follow the global edit mode". */
 val LocalEditModeOverride = compositionLocalOf<Boolean?> { null }
 
+/** Highest column count a stack may use on this surface. Dashboards cap at 3 so buttons stay
+ *  readable at page width; a popup is a self-contained canvas where denser icon grids make sense,
+ *  so it raises the ceiling to 6. */
+val LocalMaxStackColumns = compositionLocalOf { 3 }
+
+/** Columns a popup allows. Kept here so the renderers and the settings dialogs agree. */
+const val POPUP_MAX_STACK_COLUMNS = 6
+
 /** Hosts the popup opened by a `custom_popup` action. Mounted once at the app root so a popup can be
  *  triggered from a button, a badge, or a dialog's nav bar without per-surface plumbing. */
 @Composable
@@ -117,7 +125,10 @@ private fun CustomPopupDialog(
         // weight(1f) rather than the canvas' own fillMaxSize: the edit toggle above already took
         // part of the column, so filling the whole height would push the grid past the dialog.
         Box(Modifier.weight(1f).fillMaxWidth()) {
-            CompositionLocalProvider(LocalEditModeOverride provides editing) {
+            CompositionLocalProvider(
+                LocalEditModeOverride provides editing,
+                LocalMaxStackColumns provides POPUP_MAX_STACK_COLUMNS
+            ) {
                 HAHomeScreen(
                     viewModel = viewModel,
                     navController = navController,

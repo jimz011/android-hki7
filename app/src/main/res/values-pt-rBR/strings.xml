@@ -3218,7 +3218,7 @@
     </plurals>
     <string-array name="cr_whats_new_beta_12">
         <item>Os widgets e as pilhas de botões agora aceitam um botão vazio totalmente transparente. Ele ocupa uma célula da grade sem desenhar nada, então os botões ao redor ficam exatamente onde você quer.</item>
-        <item>Nova ação Janela personalizada para botões, selos e botões de caixas de diálogo. Ligue qualquer toque, toque longo ou toque duplo a uma janela criada por você: ela abre com o título, o status, o histórico e o fechamento de sempre, e você a preenche com qualquer widget do app. Cada janela tem o próprio botão Editar, então os widgets podem ser adicionados, configurados e removidos de dentro da caixa de diálogo sem colocar o painel em modo de edição. As janelas são compartilhadas, então vários botões podem abrir a mesma.</item>
+        <item>Nova ação Janela personalizada para botões, selos e botões de caixas de diálogo. Ligue qualquer toque, toque longo ou toque duplo a uma janela criada por você: ela abre com o título, o status, o histórico e o fechamento de sempre, e você a preenche com qualquer widget do app. Cada janela tem o próprio botão Editar, então os widgets podem ser adicionados, configurados e removidos de dentro da caixa de diálogo sem colocar o painel em modo de edição. As janelas são compartilhadas, então vários botões podem abrir a mesma. Dentro de uma janela, as pilhas podem usar até seis colunas em vez de três.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_11">

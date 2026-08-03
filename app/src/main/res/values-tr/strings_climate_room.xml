@@ -331,7 +331,7 @@
 
     <string-array name="cr_whats_new_beta_12">
         <item>Düğme widget’ları ve düğme yığınları artık boş, tamamen saydam bir düğme içerebilir. Hiçbir şey çizmeden bir ızgara hücresi kaplar; böylece çevresindeki düğmeler tam istediğiniz yere hizalanır.</item>
-        <item>Düğmeler, rozetler ve iletişim kutusu düğmeleri için yeni Özel açılır pencere eylemi. Herhangi bir dokunuşu, basılı tutmayı veya çift dokunuşu kendi hazırladığınız bir pencereye bağlayın: her zamanki başlık, durum, geçmiş ve kapatma denetimleriyle açılır ve içini uygulamadaki her widget ile doldurabilirsiniz. Her pencerenin kendi Düzenle düğmesi vardır; böylece widget’lar panoyu düzenleme moduna almadan pencerenin içinden eklenebilir, yapılandırılabilir ve kaldırılabilir. Pencereler paylaşılır, birden çok düğme aynı pencereyi açabilir.</item>
+        <item>Düğmeler, rozetler ve iletişim kutusu düğmeleri için yeni Özel açılır pencere eylemi. Herhangi bir dokunuşu, basılı tutmayı veya çift dokunuşu kendi hazırladığınız bir pencereye bağlayın: her zamanki başlık, durum, geçmiş ve kapatma denetimleriyle açılır ve içini uygulamadaki her widget ile doldurabilirsiniz. Her pencerenin kendi Düzenle düğmesi vardır; böylece widget’lar panoyu düzenleme moduna almadan pencerenin içinden eklenebilir, yapılandırılabilir ve kaldırılabilir. Pencereler paylaşılır, birden çok düğme aynı pencereyi açabilir. Açılır pencere içindeki yığınlar üç yerine en fazla altı sütun kullanabilir.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_11">
