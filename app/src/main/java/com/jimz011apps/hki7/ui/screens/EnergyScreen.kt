@@ -841,6 +841,10 @@ fun EnergyScreen(viewModel: MainViewModel) {
                 stringResource(R.string.energy_extra_empty_view_hint)
             )
         } else {
+        // Every item must emit exactly one composable: a staggered-grid item places all of its
+        // children at the same offset and takes the height of the tallest, so a bare
+        // `item { SectionHeader(); Surface() }` hides the heading behind the card and leaves the
+        // cards flush against each other. Wrap multi-part items in a Column.
         LazyVerticalStaggeredGrid(
             columns = StaggeredGridCells.Fixed(if (page == "energy") 1 else dashboardColumns),
             modifier = Modifier.fillMaxSize().padding(padding),
@@ -1177,46 +1181,48 @@ fun EnergyScreen(viewModel: MainViewModel) {
             } else if (page == "solar") {
                 // ═══ SOLAR PAGE ═══════════════════════════════════════════════
                 item {
-                    SectionHeader(stringResource(R.string.energy_extra_production), null)
-                    Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
-                        shape = itemCornerShape(), color = Color.Transparent
-                    ) {
-                        Column(Modifier.padding(16.dp)) {
-                            FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                TotalStat(Icons.Default.Bolt, SolarAmber, formatW(solarW.coerceAtLeast(0f)), stringResource(R.string.energy_extra_now))
-                                TotalStat(
-                                    Icons.Default.WbSunny,
-                                    SolarAmber,
-                                    "%.1f kWh".format(producedPeriod),
-                                    stringResource(R.string.energy_extra_produced_period, periodLabel)
-                                )
-                                TotalStat(Icons.Default.Home, ExportGreen, "%.1f kWh".format(selfUsedPeriod),
-                                    selfUsedPct?.let {
-                                        stringResource(R.string.energy_extra_self_used_percentage, it)
-                                    } ?: stringResource(R.string.energy_extra_self_used))
-                            }
-                            val last7 = entityDisplay(energyConfig.solarLast7DaysEntityId)
-                            val lifetime = entityDisplay(energyConfig.solarLifetimeEntityId)
-                            if (last7 != null || lifetime != null) {
-                                Spacer(Modifier.height(12.dp))
+                    Column {
+                        SectionHeader(stringResource(R.string.energy_extra_production), null)
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                            shape = itemCornerShape(), color = Color.Transparent
+                        ) {
+                            Column(Modifier.padding(16.dp)) {
                                 FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                    if (last7 != null) TotalStat(
-                                        Icons.Default.DateRange,
+                                    TotalStat(Icons.Default.Bolt, SolarAmber, formatW(solarW.coerceAtLeast(0f)), stringResource(R.string.energy_extra_now))
+                                    TotalStat(
+                                        Icons.Default.WbSunny,
                                         SolarAmber,
-                                        last7,
-                                        stringResource(R.string.energy_extra_last_seven_days)
+                                        "%.1f kWh".format(producedPeriod),
+                                        stringResource(R.string.energy_extra_produced_period, periodLabel)
                                     )
-                                    if (lifetime != null) TotalStat(
-                                        Icons.Default.AllInclusive,
-                                        SolarAmber,
-                                        lifetime,
-                                        stringResource(R.string.energy_extra_lifetime)
-                                    )
+                                    TotalStat(Icons.Default.Home, ExportGreen, "%.1f kWh".format(selfUsedPeriod),
+                                        selfUsedPct?.let {
+                                            stringResource(R.string.energy_extra_self_used_percentage, it)
+                                        } ?: stringResource(R.string.energy_extra_self_used))
                                 }
+                                val last7 = entityDisplay(energyConfig.solarLast7DaysEntityId)
+                                val lifetime = entityDisplay(energyConfig.solarLifetimeEntityId)
+                                if (last7 != null || lifetime != null) {
+                                    Spacer(Modifier.height(12.dp))
+                                    FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                        if (last7 != null) TotalStat(
+                                            Icons.Default.DateRange,
+                                            SolarAmber,
+                                            last7,
+                                            stringResource(R.string.energy_extra_last_seven_days)
+                                        )
+                                        if (lifetime != null) TotalStat(
+                                            Icons.Default.AllInclusive,
+                                            SolarAmber,
+                                            lifetime,
+                                            stringResource(R.string.energy_extra_lifetime)
+                                        )
+                                    }
+                                }
+                                Spacer(Modifier.height(14.dp))
+                                EnergyBarChart(solarSeries, SolarAmber, "W", axisLabels, tooltipLabels, nowIndex = nowIndex)
                             }
-                            Spacer(Modifier.height(14.dp))
-                            EnergyBarChart(solarSeries, SolarAmber, "W", axisLabels, tooltipLabels, nowIndex = nowIndex)
                         }
                     }
                 }
@@ -1224,34 +1230,36 @@ fun EnergyScreen(viewModel: MainViewModel) {
                 // ── Forecast (today only: forecast sensors have no history) ───
                 if ((forecastIds.isNotEmpty() || importedForecastSeries.isNotEmpty()) && range == EnergyRange.DAY && rangeOffset == 0) {
                     item {
-                        SectionHeader(stringResource(R.string.energy_extra_forecast), null)
-                        Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
-                        shape = itemCornerShape(), color = Color.Transparent
-                        ) {
-                            Column(Modifier.padding(16.dp)) {
-                                if (forecastKwhToday != null && forecastKwhToday > 0f) {
-                                    val frac = (solarKwh / forecastKwhToday).coerceIn(0f, 1f)
-                                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                        Text(stringResource(R.string.ui_expected_today_4af5600), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
-                                        Text(stringResource(R.string.ui_1f_of_1f_kwh_d_00c25f6).format(solarKwh, forecastKwhToday, (frac * 100).toInt()),
-                                            style = MaterialTheme.typography.labelSmall, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                        Column {
+                            SectionHeader(stringResource(R.string.energy_extra_forecast), null)
+                            Surface(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                            shape = itemCornerShape(), color = Color.Transparent
+                            ) {
+                                Column(Modifier.padding(16.dp)) {
+                                    if (forecastKwhToday != null && forecastKwhToday > 0f) {
+                                        val frac = (solarKwh / forecastKwhToday).coerceIn(0f, 1f)
+                                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                            Text(stringResource(R.string.ui_expected_today_4af5600), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
+                                            Text(stringResource(R.string.ui_1f_of_1f_kwh_d_00c25f6).format(solarKwh, forecastKwhToday, (frac * 100).toInt()),
+                                                style = MaterialTheme.typography.labelSmall, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                        }
+                                        Spacer(Modifier.height(6.dp))
+                                        Box(
+                                            Modifier.fillMaxWidth().height(8.dp)
+                                                .background(SolarAmber.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                                        ) {
+                                            Box(Modifier.fillMaxWidth(frac).fillMaxHeight().background(SolarAmber, RoundedCornerShape(4.dp)))
+                                        }
+                                        Spacer(Modifier.height(14.dp))
                                     }
-                                    Spacer(Modifier.height(6.dp))
-                                    Box(
-                                        Modifier.fillMaxWidth().height(8.dp)
-                                            .background(SolarAmber.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
-                                    ) {
-                                        Box(Modifier.fillMaxWidth(frac).fillMaxHeight().background(SolarAmber, RoundedCornerShape(4.dp)))
+                                    val chartSeries = buildList {
+                                        add(Triple(stringResource(R.string.energy_extra_production), solarSeries, SolarAmber))
+                                        addAll(forecastSeries)
+                                        addAll(importedForecastSeries)
                                     }
-                                    Spacer(Modifier.height(14.dp))
+                                    EnergyMultiLineChart(chartSeries, "W", axisLabels, tooltipLabels)
                                 }
-                                val chartSeries = buildList {
-                                    add(Triple(stringResource(R.string.energy_extra_production), solarSeries, SolarAmber))
-                                    addAll(forecastSeries)
-                                    addAll(importedForecastSeries)
-                                }
-                                EnergyMultiLineChart(chartSeries, "W", axisLabels, tooltipLabels)
                             }
                         }
                     }
@@ -1259,72 +1267,74 @@ fun EnergyScreen(viewModel: MainViewModel) {
 
                 // ── Inverters (includes child devices, e.g. inverters behind an Envoy) ─
                 item {
-                    val entityRegistry by viewModel.entityRegistry.collectAsState()
-                    val deviceRegistry by viewModel.deviceRegistry.collectAsState()
-                    val deviceId = energyConfig.solarDeviceId
-                    SectionHeader(stringResource(R.string.energy_extra_inverters), null)
-                    Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
-                        shape = itemCornerShape(), color = Color.Transparent
-                    ) {
-                        if (deviceId.isNullOrBlank()) {
-                            Text(
-                                stringResource(R.string.ui_select_an_inverter_device_in_energy_settings_solar_to_4a0aade),
-                                style = MaterialTheme.typography.bodySmall, color = appColors.onMuted,
-                                modifier = Modifier.padding(16.dp)
-                            )
-                        } else {
-                            val deviceName = deviceRegistry.find { it.id == deviceId }
-                                ?.let { it.name_by_user ?: it.name }
-                                ?: stringResource(R.string.energy_extra_device)
-                            // Hubs like the Enphase Envoy expose each inverter as a child device
-                            // (via_device); include those so the actual inverters are listed.
-                            // Only the child devices (the actual inverters) - the hub itself
-                            // (e.g. the Envoy) has aggregate sensors we don't want in this list.
-                            val allDeviceIds = remember(deviceRegistry, deviceId) {
-                                val children = deviceRegistry.filter { it.via_device_id == deviceId }.map { it.id }.toSet()
-                                children.ifEmpty { setOf(deviceId) }
-                            }
-                            val deviceEntityIds = remember(entityRegistry, allDeviceIds) {
-                                entityRegistry.filter { it.device_id in allDeviceIds }.map { it.entity_id }.toSet()
-                            }
-                            val inverterEntities = remember(entities, deviceEntityIds) {
-                                entities.filter { e ->
-                                    e.entity_id in deviceEntityIds && e.state.toFloatOrNull() != null &&
-                                        (e.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull ?: "")
-                                            .contains("W", ignoreCase = true)
-                                }.sortedBy { it.friendlyName ?: it.entity_id }
-                            }
-                            Column(Modifier.padding(vertical = 6.dp)) {
-                                Text(deviceName, style = MaterialTheme.typography.labelLarge, color = appColors.onSurface,
-                                    fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
-                                if (inverterEntities.isEmpty()) {
-                                    Text(
-                                        stringResource(R.string.ui_no_power_sensors_found_on_this_device_or_its_942e9be),
-                                        style = MaterialTheme.typography.bodySmall, color = appColors.onMuted,
-                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                                    )
-                                } else {
-                                    inverterEntities.forEachIndexed { idx, e ->
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 9.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Icon(Icons.Default.SolarPower, null, tint = SolarAmber, modifier = Modifier.size(16.dp))
-                                            Spacer(Modifier.width(10.dp))
-                                            Text(
-                                                e.friendlyName ?: e.entity_id,
-                                                style = MaterialTheme.typography.bodySmall, color = appColors.onSurface,
-                                                maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f)
-                                            )
-                                            Text(
-                                                entityDisplay(e.entity_id) ?: e.state,
-                                                style = MaterialTheme.typography.labelLarge, color = appColors.onSurface,
-                                                fontWeight = FontWeight.Bold
-                                            )
+                    Column {
+                        val entityRegistry by viewModel.entityRegistry.collectAsState()
+                        val deviceRegistry by viewModel.deviceRegistry.collectAsState()
+                        val deviceId = energyConfig.solarDeviceId
+                        SectionHeader(stringResource(R.string.energy_extra_inverters), null)
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                            shape = itemCornerShape(), color = Color.Transparent
+                        ) {
+                            if (deviceId.isNullOrBlank()) {
+                                Text(
+                                    stringResource(R.string.ui_select_an_inverter_device_in_energy_settings_solar_to_4a0aade),
+                                    style = MaterialTheme.typography.bodySmall, color = appColors.onMuted,
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            } else {
+                                val deviceName = deviceRegistry.find { it.id == deviceId }
+                                    ?.let { it.name_by_user ?: it.name }
+                                    ?: stringResource(R.string.energy_extra_device)
+                                // Hubs like the Enphase Envoy expose each inverter as a child device
+                                // (via_device); include those so the actual inverters are listed.
+                                // Only the child devices (the actual inverters) - the hub itself
+                                // (e.g. the Envoy) has aggregate sensors we don't want in this list.
+                                val allDeviceIds = remember(deviceRegistry, deviceId) {
+                                    val children = deviceRegistry.filter { it.via_device_id == deviceId }.map { it.id }.toSet()
+                                    children.ifEmpty { setOf(deviceId) }
+                                }
+                                val deviceEntityIds = remember(entityRegistry, allDeviceIds) {
+                                    entityRegistry.filter { it.device_id in allDeviceIds }.map { it.entity_id }.toSet()
+                                }
+                                val inverterEntities = remember(entities, deviceEntityIds) {
+                                    entities.filter { e ->
+                                        e.entity_id in deviceEntityIds && e.state.toFloatOrNull() != null &&
+                                            (e.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull ?: "")
+                                                .contains("W", ignoreCase = true)
+                                    }.sortedBy { it.friendlyName ?: it.entity_id }
+                                }
+                                Column(Modifier.padding(vertical = 6.dp)) {
+                                    Text(deviceName, style = MaterialTheme.typography.labelLarge, color = appColors.onSurface,
+                                        fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
+                                    if (inverterEntities.isEmpty()) {
+                                        Text(
+                                            stringResource(R.string.ui_no_power_sensors_found_on_this_device_or_its_942e9be),
+                                            style = MaterialTheme.typography.bodySmall, color = appColors.onMuted,
+                                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                        )
+                                    } else {
+                                        inverterEntities.forEachIndexed { idx, e ->
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 9.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Icon(Icons.Default.SolarPower, null, tint = SolarAmber, modifier = Modifier.size(16.dp))
+                                                Spacer(Modifier.width(10.dp))
+                                                Text(
+                                                    e.friendlyName ?: e.entity_id,
+                                                    style = MaterialTheme.typography.bodySmall, color = appColors.onSurface,
+                                                    maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f)
+                                                )
+                                                Text(
+                                                    entityDisplay(e.entity_id) ?: e.state,
+                                                    style = MaterialTheme.typography.labelLarge, color = appColors.onSurface,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                            if (idx < inverterEntities.lastIndex)
+                                                HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.06f), modifier = Modifier.padding(horizontal = 16.dp))
                                         }
-                                        if (idx < inverterEntities.lastIndex)
-                                            HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.06f), modifier = Modifier.padding(horizontal = 16.dp))
                                     }
                                 }
                             }
@@ -1334,51 +1344,53 @@ fun EnergyScreen(viewModel: MainViewModel) {
             } else if (page == "electricity") {
                 // ═══ ELECTRICITY PAGE ═════════════════════════════════════════
                 item {
-                    SectionHeader(stringResource(R.string.energy_extra_now), null)
-                    Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
-                        shape = itemCornerShape(), color = Color.Transparent
-                    ) {
-                        Column(Modifier.padding(16.dp)) {
-                            val gridStatus = when {
-                                gridW > 10f  -> stringResource(R.string.energy_extra_importing)
-                                gridW < -10f -> stringResource(R.string.energy_extra_exporting)
-                                else         -> stringResource(R.string.energy_extra_grid_idle)
-                            }
-                            FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                TotalStat(
-                                    if (gridW < -10f) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
-                                    if (gridW < -10f) ExportGreen else ElecBlue,
-                                    formatW(abs(gridW)), gridStatus
-                                )
-                                TotalStat(Icons.Default.Home, MaterialTheme.colorScheme.primary, formatW(homeW), stringResource(R.string.energy_extra_home))
-                                carbonFootprintDisplay?.let {
-                                    TotalStat(Icons.Default.Cloud, ExportGreen, it, stringResource(R.string.energy_extra_carbon_footprint))
+                    Column {
+                        SectionHeader(stringResource(R.string.energy_extra_now), null)
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                            shape = itemCornerShape(), color = Color.Transparent
+                        ) {
+                            Column(Modifier.padding(16.dp)) {
+                                val gridStatus = when {
+                                    gridW > 10f  -> stringResource(R.string.energy_extra_importing)
+                                    gridW < -10f -> stringResource(R.string.energy_extra_exporting)
+                                    else         -> stringResource(R.string.energy_extra_grid_idle)
                                 }
-                            }
-                            val phaseRows = (0..2).mapNotNull { i ->
-                                val p = entityDisplay(phaseIds[i])
-                                val a = entityDisplay(currentIds[i])
-                                val v = entityDisplay(voltageIds[i])
-                                if (p == null && a == null && v == null) null
-                                else Pair(i, listOfNotNull(p, a, v))
-                            }
-                            if (phaseRows.isNotEmpty()) {
-                                Spacer(Modifier.height(12.dp))
-                                HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
-                                Spacer(Modifier.height(4.dp))
-                                phaseRows.forEach { (i, values) ->
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        Box(Modifier.size(8.dp).background(phaseColors[i], CircleShape))
-                                        Text(stringResource(R.string.ui_phase_17619b8, i + 1), style = MaterialTheme.typography.labelMedium,
-                                            color = appColors.onSurface, modifier = Modifier.weight(1f))
-                                        Text(values.joinToString("  ·  "),
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    TotalStat(
+                                        if (gridW < -10f) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                                        if (gridW < -10f) ExportGreen else ElecBlue,
+                                        formatW(abs(gridW)), gridStatus
+                                    )
+                                    TotalStat(Icons.Default.Home, MaterialTheme.colorScheme.primary, formatW(homeW), stringResource(R.string.energy_extra_home))
+                                    carbonFootprintDisplay?.let {
+                                        TotalStat(Icons.Default.Cloud, ExportGreen, it, stringResource(R.string.energy_extra_carbon_footprint))
+                                    }
+                                }
+                                val phaseRows = (0..2).mapNotNull { i ->
+                                    val p = entityDisplay(phaseIds[i])
+                                    val a = entityDisplay(currentIds[i])
+                                    val v = entityDisplay(voltageIds[i])
+                                    if (p == null && a == null && v == null) null
+                                    else Pair(i, listOfNotNull(p, a, v))
+                                }
+                                if (phaseRows.isNotEmpty()) {
+                                    Spacer(Modifier.height(12.dp))
+                                    HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
+                                    Spacer(Modifier.height(4.dp))
+                                    phaseRows.forEach { (i, values) ->
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            Box(Modifier.size(8.dp).background(phaseColors[i], CircleShape))
+                                            Text(stringResource(R.string.ui_phase_17619b8, i + 1), style = MaterialTheme.typography.labelMedium,
+                                                color = appColors.onSurface, modifier = Modifier.weight(1f))
+                                            Text(values.joinToString("  ·  "),
+                                                style = MaterialTheme.typography.labelMedium,
+                                                color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                        }
                                     }
                                 }
                             }
@@ -1388,19 +1400,21 @@ fun EnergyScreen(viewModel: MainViewModel) {
 
                 // ── consumption + per-phase charts ────────────────────────────
                 item {
-                    SectionHeader(stringResource(R.string.energy_extra_power), null)
-                    Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
-                        shape = itemCornerShape(), color = Color.Transparent
-                    ) {
-                        Column(Modifier.padding(16.dp)) {
-                            EnergyBarChart(homeSeries, ElecBlue, "W", axisLabels, tooltipLabels, nowIndex = nowIndex)
-                            if (phaseSeries.isNotEmpty()) {
-                                Spacer(Modifier.height(16.dp))
-                                Text(stringResource(R.string.ui_power_per_phase_1f38fb0), style = MaterialTheme.typography.labelLarge,
-                                    color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
-                                Spacer(Modifier.height(8.dp))
-                                EnergyMultiLineChart(phaseSeries, "W", axisLabels, tooltipLabels)
+                    Column {
+                        SectionHeader(stringResource(R.string.energy_extra_power), null)
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                            shape = itemCornerShape(), color = Color.Transparent
+                        ) {
+                            Column(Modifier.padding(16.dp)) {
+                                EnergyBarChart(homeSeries, ElecBlue, "W", axisLabels, tooltipLabels, nowIndex = nowIndex)
+                                if (phaseSeries.isNotEmpty()) {
+                                    Spacer(Modifier.height(16.dp))
+                                    Text(stringResource(R.string.ui_power_per_phase_1f38fb0), style = MaterialTheme.typography.labelLarge,
+                                        color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                    Spacer(Modifier.height(8.dp))
+                                    EnergyMultiLineChart(phaseSeries, "W", axisLabels, tooltipLabels)
+                                }
                             }
                         }
                     }
@@ -1408,41 +1422,43 @@ fun EnergyScreen(viewModel: MainViewModel) {
 
                 // ── period totals + tariff meter readings ─────────────────────
                 item {
-                    SectionHeader(
-                        stringResource(R.string.energy_extra_energy),
-                        if (!energyConfig.energyCostEntityId.isNullOrBlank()) "€ ${"%.2f".format(costVal)}" else null
-                    )
-                    Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
-                        shape = itemCornerShape(), color = Color.Transparent
-                    ) {
-                        Column(Modifier.padding(16.dp)) {
-                            FlowRow(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceEvenly,
-                                verticalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                TotalStat(Icons.Default.ArrowDownward, ElecBlue, "%.1f kWh".format(usedPeriod), stringResource(R.string.energy_extra_used_period, periodLabel))
-                                TotalStat(Icons.Default.ArrowDownward, ImportRed, "%.1f kWh".format(importPeriod), stringResource(R.string.widgets_energy_imported))
-                                TotalStat(Icons.Default.ArrowUpward, ExportGreen, "%.1f kWh".format(exportPeriod), stringResource(R.string.widgets_energy_exported))
-                            }
-                            if (hasUsageChart) {
-                                Spacer(Modifier.height(14.dp))
-                                EnergyStackedBarChart(usagePosLayers, usageNegLayers, "kWh", axisLabels, tooltipLabels, nowIndex = nowIndex)
-                            }
-                            val impT1 = entityDisplay(energyConfig.gridImportTariff1EntityId)
-                            val impT2 = entityDisplay(energyConfig.gridImportTariff2EntityId)
-                            val expT1 = entityDisplay(energyConfig.gridExportTariff1EntityId)
-                            val expT2 = entityDisplay(energyConfig.gridExportTariff2EntityId)
-                            if (listOfNotNull(impT1, impT2, expT1, expT2).isNotEmpty()) {
-                                Spacer(Modifier.height(10.dp))
-                                HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
-                                Spacer(Modifier.height(8.dp))
-                                Text(stringResource(R.string.ui_meter_readings_a3c12c4), style = MaterialTheme.typography.labelLarge,
-                                    color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
-                                Spacer(Modifier.height(4.dp))
-                                if (impT1 != null || expT1 != null) TariffLine(stringResource(R.string.energy_extra_tariff_one), impT1, expT1)
-                                if (impT2 != null || expT2 != null) TariffLine(stringResource(R.string.energy_extra_tariff_two), impT2, expT2)
+                    Column {
+                        SectionHeader(
+                            stringResource(R.string.energy_extra_energy),
+                            if (!energyConfig.energyCostEntityId.isNullOrBlank()) "€ ${"%.2f".format(costVal)}" else null
+                        )
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                            shape = itemCornerShape(), color = Color.Transparent
+                        ) {
+                            Column(Modifier.padding(16.dp)) {
+                                FlowRow(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceEvenly,
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    TotalStat(Icons.Default.ArrowDownward, ElecBlue, "%.1f kWh".format(usedPeriod), stringResource(R.string.energy_extra_used_period, periodLabel))
+                                    TotalStat(Icons.Default.ArrowDownward, ImportRed, "%.1f kWh".format(importPeriod), stringResource(R.string.widgets_energy_imported))
+                                    TotalStat(Icons.Default.ArrowUpward, ExportGreen, "%.1f kWh".format(exportPeriod), stringResource(R.string.widgets_energy_exported))
+                                }
+                                if (hasUsageChart) {
+                                    Spacer(Modifier.height(14.dp))
+                                    EnergyStackedBarChart(usagePosLayers, usageNegLayers, "kWh", axisLabels, tooltipLabels, nowIndex = nowIndex)
+                                }
+                                val impT1 = entityDisplay(energyConfig.gridImportTariff1EntityId)
+                                val impT2 = entityDisplay(energyConfig.gridImportTariff2EntityId)
+                                val expT1 = entityDisplay(energyConfig.gridExportTariff1EntityId)
+                                val expT2 = entityDisplay(energyConfig.gridExportTariff2EntityId)
+                                if (listOfNotNull(impT1, impT2, expT1, expT2).isNotEmpty()) {
+                                    Spacer(Modifier.height(10.dp))
+                                    HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
+                                    Spacer(Modifier.height(8.dp))
+                                    Text(stringResource(R.string.ui_meter_readings_a3c12c4), style = MaterialTheme.typography.labelLarge,
+                                        color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                    Spacer(Modifier.height(4.dp))
+                                    if (impT1 != null || expT1 != null) TariffLine(stringResource(R.string.energy_extra_tariff_one), impT1, expT1)
+                                    if (impT2 != null || expT2 != null) TariffLine(stringResource(R.string.energy_extra_tariff_two), impT2, expT2)
+                                }
                             }
                         }
                     }
@@ -1450,131 +1466,141 @@ fun EnergyScreen(viewModel: MainViewModel) {
             } else if (page == "gas") {
                 // ═══ GAS PAGE ═════════════════════════════════════════════════
                 item {
-                    SectionHeader(stringResource(R.string.energy_extra_usage), gasCost?.let { "€ ${"%.2f".format(it)}" })
-                    Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
-                        shape = itemCornerShape(), color = Color.Transparent
-                    ) {
-                        Column(Modifier.padding(16.dp)) {
-                            FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                if (gasCurrentDisplay != null)
-                                    TotalStat(Icons.Default.Speed, GasPink, gasCurrentDisplay, stringResource(R.string.energy_extra_now))
-                                TotalStat(Icons.Default.LocalFireDepartment, GasPink,
-                                    "%.1f %s".format(gasPeriod, gasUnit), stringResource(R.string.energy_extra_used_period, periodLabel))
-                                // The bound gas entity is the meter's lifetime counter, not a daily value.
-                                gasVal?.let {
-                                    TotalStat(Icons.Default.LocalFireDepartment, GasPink, "%.1f %s".format(it, gasUnit), stringResource(R.string.energy_extra_total))
+                    Column {
+                        SectionHeader(stringResource(R.string.energy_extra_usage), gasCost?.let { "€ ${"%.2f".format(it)}" })
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                            shape = itemCornerShape(), color = Color.Transparent
+                        ) {
+                            Column(Modifier.padding(16.dp)) {
+                                FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    if (gasCurrentDisplay != null)
+                                        TotalStat(Icons.Default.Speed, GasPink, gasCurrentDisplay, stringResource(R.string.energy_extra_now))
+                                    TotalStat(Icons.Default.LocalFireDepartment, GasPink,
+                                        "%.1f %s".format(gasPeriod, gasUnit), stringResource(R.string.energy_extra_used_period, periodLabel))
+                                    // The bound gas entity is the meter's lifetime counter, not a daily value.
+                                    gasVal?.let {
+                                        TotalStat(Icons.Default.LocalFireDepartment, GasPink, "%.1f %s".format(it, gasUnit), stringResource(R.string.energy_extra_total))
+                                    }
                                 }
+                                Spacer(Modifier.height(14.dp))
+                                EnergyBarChart(gasSeries, GasPink, gasUnit, axisLabels, tooltipLabels, nowIndex = nowIndex)
                             }
-                            Spacer(Modifier.height(14.dp))
-                            EnergyBarChart(gasSeries, GasPink, gasUnit, axisLabels, tooltipLabels, nowIndex = nowIndex)
                         }
                     }
                 }
             } else if (page == "city_heating") {
                 item {
-                    SectionHeader(stringResource(R.string.energy_extra_usage), cityHeatingCost?.let { "€ ${"%.2f".format(it)}" })
-                    Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
-                        shape = itemCornerShape(), color = Color.Transparent
-                    ) {
-                        Column(Modifier.padding(16.dp)) {
-                            FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                cityHeatingCurrentDisplay?.let {
-                                    TotalStat(Icons.Default.Speed, HeatOrange, it, stringResource(R.string.energy_extra_now))
+                    Column {
+                        SectionHeader(stringResource(R.string.energy_extra_usage), cityHeatingCost?.let { "€ ${"%.2f".format(it)}" })
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                            shape = itemCornerShape(), color = Color.Transparent
+                        ) {
+                            Column(Modifier.padding(16.dp)) {
+                                FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    cityHeatingCurrentDisplay?.let {
+                                        TotalStat(Icons.Default.Speed, HeatOrange, it, stringResource(R.string.energy_extra_now))
+                                    }
+                                    TotalStat(Icons.Default.HeatPump, HeatOrange, "%.3f GJ".format(cityHeatingPeriodGJ), stringResource(R.string.energy_extra_used_period, periodLabel))
+                                    TotalStat(
+                                        Icons.Default.LocalFireDepartment, GasPink,
+                                        "%.1f m³".format(gigajoulesToEstimatedGasM3(cityHeatingPeriodGJ)),
+                                        stringResource(R.string.energy_extra_estimated_gas_equivalent)
+                                    )
+                                    cityHeatingTotalGJ?.let {
+                                        TotalStat(Icons.Default.HeatPump, HeatOrange, "%.3f GJ".format(it), stringResource(R.string.energy_extra_total))
+                                    }
                                 }
-                                TotalStat(Icons.Default.HeatPump, HeatOrange, "%.3f GJ".format(cityHeatingPeriodGJ), stringResource(R.string.energy_extra_used_period, periodLabel))
-                                TotalStat(
-                                    Icons.Default.LocalFireDepartment, GasPink,
-                                    "%.1f m³".format(gigajoulesToEstimatedGasM3(cityHeatingPeriodGJ)),
-                                    stringResource(R.string.energy_extra_estimated_gas_equivalent)
-                                )
-                                cityHeatingTotalGJ?.let {
-                                    TotalStat(Icons.Default.HeatPump, HeatOrange, "%.3f GJ".format(it), stringResource(R.string.energy_extra_total))
-                                }
+                                Spacer(Modifier.height(8.dp))
+                                Text(stringResource(R.string.energy_extra_estimated_gas_note), style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
+                                Spacer(Modifier.height(14.dp))
+                                EnergyBarChart(cityHeatingSeriesGJ, HeatOrange, "GJ", axisLabels, tooltipLabels, nowIndex = nowIndex)
                             }
-                            Spacer(Modifier.height(8.dp))
-                            Text(stringResource(R.string.energy_extra_estimated_gas_note), style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
-                            Spacer(Modifier.height(14.dp))
-                            EnergyBarChart(cityHeatingSeriesGJ, HeatOrange, "GJ", axisLabels, tooltipLabels, nowIndex = nowIndex)
                         }
                     }
                 }
             } else if (page == "water") {
                 // ═══ WATER PAGE ═══════════════════════════════════════════════
                 item {
-                    SectionHeader(stringResource(R.string.energy_extra_usage), waterCost?.let { "€ ${"%.2f".format(it)}" })
-                    Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
-                        shape = itemCornerShape(), color = Color.Transparent
-                    ) {
-                        Column(Modifier.padding(16.dp)) {
-                            fun fmtWater(v: Float) = (if (v >= 100f) "%.0f %s" else "%.1f %s").format(v, waterDisplayUnit)
-                            FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                if (waterCurrentDisplay != null)
-                                    TotalStat(Icons.Default.Speed, WaterBlue, waterCurrentDisplay, stringResource(R.string.energy_extra_now))
-                                TotalStat(Icons.Default.WaterDrop, WaterBlue, fmtWater(waterPeriod * waterFactor), stringResource(R.string.energy_extra_used_period, periodLabel))
-                                // The bound water entity is the meter's lifetime counter, not a daily value.
-                                waterVal?.let { TotalStat(Icons.Default.WaterDrop, WaterBlue, fmtWater(it * waterFactor), stringResource(R.string.energy_extra_total)) }
+                    Column {
+                        SectionHeader(stringResource(R.string.energy_extra_usage), waterCost?.let { "€ ${"%.2f".format(it)}" })
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                            shape = itemCornerShape(), color = Color.Transparent
+                        ) {
+                            Column(Modifier.padding(16.dp)) {
+                                fun fmtWater(v: Float) = (if (v >= 100f) "%.0f %s" else "%.1f %s").format(v, waterDisplayUnit)
+                                FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    if (waterCurrentDisplay != null)
+                                        TotalStat(Icons.Default.Speed, WaterBlue, waterCurrentDisplay, stringResource(R.string.energy_extra_now))
+                                    TotalStat(Icons.Default.WaterDrop, WaterBlue, fmtWater(waterPeriod * waterFactor), stringResource(R.string.energy_extra_used_period, periodLabel))
+                                    // The bound water entity is the meter's lifetime counter, not a daily value.
+                                    waterVal?.let { TotalStat(Icons.Default.WaterDrop, WaterBlue, fmtWater(it * waterFactor), stringResource(R.string.energy_extra_total)) }
+                                }
+                                Spacer(Modifier.height(14.dp))
+                                EnergyBarChart(waterSeries, WaterBlue, waterDisplayUnit, axisLabels, tooltipLabels, nowIndex = nowIndex)
                             }
-                            Spacer(Modifier.height(14.dp))
-                            EnergyBarChart(waterSeries, WaterBlue, waterDisplayUnit, axisLabels, tooltipLabels, nowIndex = nowIndex)
                         }
                     }
                 }
                 if (waterDeviceEntities.isNotEmpty()) {
                     item {
-                        SectionHeader(stringResource(R.string.energy_extra_individual_water_usage), null)
-                        Surface(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                            shape = itemCornerShape(),
-                            color = appColors.elevated
-                        ) {
-                            IndividualWaterUsageContent(
-                                entities = waterDeviceEntities,
-                                rawUsage = { id -> statChanges(id).sum() },
-                                modifier = Modifier.padding(16.dp)
-                            )
+                        Column {
+                            SectionHeader(stringResource(R.string.energy_extra_individual_water_usage), null)
+                            Surface(
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                                shape = itemCornerShape(),
+                                color = appColors.elevated
+                            ) {
+                                IndividualWaterUsageContent(
+                                    entities = waterDeviceEntities,
+                                    rawUsage = { id -> statChanges(id).sum() },
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            }
                         }
                     }
                 }
             } else if (page == "battery") {
                 // ═══ BATTERY PAGE ═════════════════════════════════════════════
                 item {
-                    SectionHeader(stringResource(R.string.energy_extra_battery), null)
-                    Surface(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
-                        shape = itemCornerShape(), color = Color.Transparent
-                    ) {
-                        Column(Modifier.padding(16.dp)) {
-                            val battStatus = when {
-                                batteryW > 10f  -> stringResource(R.string.energy_extra_charging)
-                                batteryW < -10f -> stringResource(R.string.energy_extra_discharging)
-                                else            -> stringResource(R.string.energy_extra_idle)
-                            }
-                            val levelColor = when {
-                                (batteryPct ?: 0) > 50 -> ExportGreen
-                                (batteryPct ?: 0) > 20 -> SolarAmber
-                                else -> ImportRed
-                            }
-                            FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                TotalStat(
-                                    if (batteryW > 10f) Icons.Default.BatteryChargingFull else Icons.Default.BatteryStd,
-                                    levelColor, batteryPct?.let { "$it%" } ?: "—", stringResource(R.string.energy_extra_charge)
+                    Column {
+                        SectionHeader(stringResource(R.string.energy_extra_battery), null)
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
+                            shape = itemCornerShape(), color = Color.Transparent
+                        ) {
+                            Column(Modifier.padding(16.dp)) {
+                                val battStatus = when {
+                                    batteryW > 10f  -> stringResource(R.string.energy_extra_charging)
+                                    batteryW < -10f -> stringResource(R.string.energy_extra_discharging)
+                                    else            -> stringResource(R.string.energy_extra_idle)
+                                }
+                                val levelColor = when {
+                                    (batteryPct ?: 0) > 50 -> ExportGreen
+                                    (batteryPct ?: 0) > 20 -> SolarAmber
+                                    else -> ImportRed
+                                }
+                                FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    TotalStat(
+                                        if (batteryW > 10f) Icons.Default.BatteryChargingFull else Icons.Default.BatteryStd,
+                                        levelColor, batteryPct?.let { "$it%" } ?: "—", stringResource(R.string.energy_extra_charge)
+                                    )
+                                    TotalStat(Icons.Default.Bolt, BattPurple, formatW(abs(batteryW)), battStatus)
+                                }
+                                Spacer(Modifier.height(14.dp))
+                                // Split the signed battery power into charge/discharge lines.
+                                val charging = FloatArray(battSeries.size) { battSeries[it].coerceAtLeast(0f) }
+                                val discharging = FloatArray(battSeries.size) { (-battSeries[it]).coerceAtLeast(0f) }
+                                EnergyMultiLineChart(
+                                    listOf(
+                                        Triple(stringResource(R.string.energy_extra_charging), charging, ExportGreen),
+                                        Triple(stringResource(R.string.energy_extra_discharging), discharging, ImportRed)
+                                    ),
+                                    "W", axisLabels, tooltipLabels
                                 )
-                                TotalStat(Icons.Default.Bolt, BattPurple, formatW(abs(batteryW)), battStatus)
                             }
-                            Spacer(Modifier.height(14.dp))
-                            // Split the signed battery power into charge/discharge lines.
-                            val charging = FloatArray(battSeries.size) { battSeries[it].coerceAtLeast(0f) }
-                            val discharging = FloatArray(battSeries.size) { (-battSeries[it]).coerceAtLeast(0f) }
-                            EnergyMultiLineChart(
-                                listOf(
-                                    Triple(stringResource(R.string.energy_extra_charging), charging, ExportGreen),
-                                    Triple(stringResource(R.string.energy_extra_discharging), discharging, ImportRed)
-                                ),
-                                "W", axisLabels, tooltipLabels
-                            )
                         }
                     }
                 }
