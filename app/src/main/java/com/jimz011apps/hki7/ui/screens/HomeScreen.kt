@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -89,7 +90,10 @@ fun HAHomeScreen(
     customPage: HKICustomPage? = null,
     /** Renders only the widget canvas, without the page header, badge bar, and pull-down menu, for
      *  hosts that bring their own chrome (the custom-popup dialog). */
-    embedded: Boolean = false
+    embedded: Boolean = false,
+    /** Shows a Done button beside Add widget while editing. Embedded hosts supply it because they
+     *  have no page header to leave edit mode from; null hides the button. */
+    onEditDone: (() -> Unit)? = null
 ) {
     @Suppress("LocalVariableName")
     val HOME_WIDGET_AREA = widgetAreaId
@@ -926,9 +930,11 @@ fun HAHomeScreen(
                     }
                 }
             }
-            if (isEditMode && !aestheticsOnly) {
-                GradientActionButton(
-                    onClick = { showAddWidget = true },
+            // An embedded canvas has no page chrome to leave edit mode from, so it carries its own
+            // Done button beside Add widget. Aesthetics-only editors get Done alone.
+            val showDone = isEditMode && onEditDone != null
+            if (isEditMode && (!aestheticsOnly || showDone)) {
+                Row(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth()
@@ -939,13 +945,35 @@ fun HAHomeScreen(
                             end = 16.dp,
                             top = addWidgetVerticalPadding,
                             bottom = addWidgetBottomPadding
-                        )
-                        .height(52.dp)
-                        .shadow(10.dp, itemCornerShape()),
+                        ),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.ui_add_widget_a9df350))
+                    if (!aestheticsOnly) {
+                        GradientActionButton(
+                            onClick = { showAddWidget = true },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(52.dp)
+                                .shadow(10.dp, itemCornerShape()),
+                        ) {
+                            Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(R.string.ui_add_widget_a9df350))
+                        }
+                    }
+                    if (showDone) {
+                        GradientActionButton(
+                            onClick = { onEditDone?.invoke() },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(52.dp)
+                                .shadow(10.dp, itemCornerShape()),
+                        ) {
+                            Icon(Icons.Default.Check, null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(R.string.dlg_done))
+                        }
+                    }
                 }
             }
         }

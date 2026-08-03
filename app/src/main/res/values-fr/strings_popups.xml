@@ -20,4 +20,6 @@
     <string name="popup_settings_title">Fenêtres</string>
     <string name="popup_settings_subtitle_section">Créez et modifiez vos fenêtres personnalisées</string>
     <string name="popup_settings_hint">Les fenêtres s’ouvrent depuis un bouton, un badge ou un bouton de boîte de dialogue réglé sur l’action Fenêtre personnalisée. « Modifier le contenu » ouvre la fenêtre elle-même pour y organiser les widgets.</string>
+    <string name="button_icon_only">Icône seule</string>
+    <string name="button_icon_only_description">Masquer le nom et l’état, en centrant l’icône sur le bouton</string>
 </resources>

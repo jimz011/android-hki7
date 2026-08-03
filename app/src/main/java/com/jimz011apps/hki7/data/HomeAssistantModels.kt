@@ -1124,6 +1124,8 @@ data class HKIButtonConfig(
      * before blocks existed keep working (see [normalizedVisibilityConditions]). */
     val visibilityConditions: List<HKIVisibilityCondition> = emptyList(),
     val visibilityMatch: String = VISIBILITY_MATCH_ALL,
+    /** Drops the name and state, leaving only the icon centered on the button. */
+    val iconOnly: Boolean = false,
     /** Light-only Google Home-style full-height brightness control. */
     val showBrightnessSlider: Boolean = false,
     val cameraUrl: String? = null,

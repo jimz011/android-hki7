@@ -20,4 +20,6 @@
     <string name="popup_settings_title">ポップアップ</string>
     <string name="popup_settings_subtitle_section">カスタムポップアップの作成と編集</string>
     <string name="popup_settings_hint">ポップアップは「カスタムポップアップ」アクションを設定したボタン・バッジ・ダイアログのボタンから開きます。「内容を編集」はポップアップ自体を開き、ウィジェットを配置できます。</string>
+    <string name="button_icon_only">アイコンのみ</string>
+    <string name="button_icon_only_description">名前と状態を非表示にして、アイコンをボタンの中央に配置します</string>
 </resources>

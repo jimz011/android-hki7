@@ -246,6 +246,8 @@ fun EntityCard(
     iconAnimation: String = "auto",
     isSquare: Boolean = false,
     cornerRadius: Int = LocalItemCornerRadius.current,
+    /** Drops the name and state so only the icon shows, centered on the button. */
+    iconOnly: Boolean = false,
     interactionsEnabled: Boolean = true,
     doorOpen: Boolean = false,
     buttonStyle: String = if (isSquare) "square" else "standard",
@@ -384,7 +386,7 @@ fun EntityCard(
             Row(
                 modifier = foregroundModifier.fillMaxWidth().padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = if (iconOnly) Arrangement.Center else Arrangement.spacedBy(10.dp)
             ) {
                 Box(
                     Modifier.size(34.dp).background(
@@ -396,11 +398,14 @@ fun EntityCard(
                     if (tileIconSlug != null) MdiIcon(tileIconSlug, tint = tileIconTint, size = 18.dp)
                     else Icon(Icons.Default.DeviceUnknown, null, tint = tileIconTint, modifier = Modifier.size(18.dp))
                 }
-                Column(Modifier.weight(1f)) {
-                    Text(name, style = MaterialTheme.typography.labelLarge, color = mainColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(statusText, style = MaterialTheme.typography.bodySmall, color = secondaryColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                // Icon-only keeps the tile's height and just centers the glyph in it.
+                if (!iconOnly) {
+                    Column(Modifier.weight(1f)) {
+                        Text(name, style = MaterialTheme.typography.labelLarge, color = mainColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(statusText, style = MaterialTheme.typography.bodySmall, color = secondaryColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    Icon(Icons.Default.ChevronRight, null, tint = secondaryColor.copy(alpha = 0.85f), modifier = Modifier.size(16.dp))
                 }
-                Icon(Icons.Default.ChevronRight, null, tint = secondaryColor.copy(alpha = 0.85f), modifier = Modifier.size(16.dp))
             }
         }
         Surface(
@@ -518,10 +523,6 @@ fun EntityCard(
             if (brightnessVisible && localBrightness > 0f) {
                 Box(Modifier.fillMaxWidth(localBrightness).fillMaxHeight().background(Color.White.copy(alpha = 0.18f)))
             }
-            Column(
-                modifier = Modifier.padding(16.dp).fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
             val rawIconTint = when {
                 coverDoorIconColor != null  -> coverDoorIconColor   // door cover: state color on icon only
                 isCoverNotClosed            -> primaryContent        // open cover (non-door): readable on primary bg
@@ -552,28 +553,43 @@ fun EntityCard(
             // "Use entity picture": render the HA picture when available, else fall back to the icon.
             val pictureUrl = if (effectiveSlug == ENTITY_PICTURE_ICON && !currentUrl.isNullOrBlank())
                 resolveEntityPictureUrl(entity, currentUrl) else null
-            WithIconEffect(entity, iconEffect, glowColor = iconTint) { fx ->
-                if (pictureUrl != null) {
-                    AsyncImage(
-                        model = pictureUrl,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.size(32.dp).clip(CircleShape).then(fx)
-                    )
-                } else {
-                    val slugForIcon = if (effectiveSlug == ENTITY_PICTURE_ICON) defaultSlug else effectiveSlug
-                    if (slugForIcon != null) {
-                        MdiIcon(name = slugForIcon, tint = iconTint, modifier = fx)
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.DeviceUnknown,
+            // Icon-only buttons have the whole face to themselves, so the glyph grows to match.
+            val glyphSize = if (iconOnly) 40.dp else 24.dp
+            @Composable
+            fun CardIcon() {
+                WithIconEffect(entity, iconEffect, glowColor = iconTint) { fx ->
+                    if (pictureUrl != null) {
+                        AsyncImage(
+                            model = pictureUrl,
                             contentDescription = null,
-                            tint = iconTint,
-                            modifier = fx
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.size(if (iconOnly) 48.dp else 32.dp).clip(CircleShape).then(fx)
                         )
+                    } else {
+                        val slugForIcon = if (effectiveSlug == ENTITY_PICTURE_ICON) defaultSlug else effectiveSlug
+                        if (slugForIcon != null) {
+                            MdiIcon(name = slugForIcon, tint = iconTint, size = glyphSize, modifier = fx)
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.DeviceUnknown,
+                                contentDescription = null,
+                                tint = iconTint,
+                                modifier = Modifier.size(glyphSize).then(fx)
+                            )
+                        }
                     }
                 }
             }
+            if (iconOnly) {
+                Box(Modifier.fillMaxSize().padding(12.dp), contentAlignment = Alignment.Center) {
+                    CardIcon()
+                }
+            } else {
+            Column(
+                modifier = Modifier.padding(16.dp).fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+            CardIcon()
             Column {
                 Text(
                     text = name,
@@ -611,6 +627,7 @@ fun EntityCard(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
+            }
             }
             }
             if (brightnessEnabled) Box(Modifier.matchParentSize().then(sliderModifier))

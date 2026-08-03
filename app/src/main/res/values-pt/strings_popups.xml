@@ -20,4 +20,6 @@
     <string name="popup_settings_title">Janelas</string>
     <string name="popup_settings_subtitle_section">Crie e edite as suas janelas personalizadas</string>
     <string name="popup_settings_hint">As janelas abrem a partir de um botão, emblema ou botão de caixa de diálogo definido para a ação Janela personalizada. «Editar conteúdo» abre a própria janela para organizar os widgets.</string>
+    <string name="button_icon_only">Apenas ícone</string>
+    <string name="button_icon_only_description">Oculta o nome e o estado, centrando o ícone no botão</string>
 </resources>

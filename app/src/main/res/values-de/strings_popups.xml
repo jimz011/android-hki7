@@ -20,4 +20,6 @@
     <string name="popup_settings_title">Pop-ups</string>
     <string name="popup_settings_subtitle_section">Eigene Pop-ups erstellen und bearbeiten</string>
     <string name="popup_settings_hint">Pop-ups werden über eine Schaltfläche, ein Badge oder eine Dialogschaltfläche mit der Aktion „Eigenes Pop-up“ geöffnet. „Inhalt bearbeiten“ öffnet das Pop-up selbst, um seine Widgets anzuordnen.</string>
+    <string name="button_icon_only">Nur Symbol</string>
+    <string name="button_icon_only_description">Name und Status ausblenden und das Symbol auf der Schaltfläche zentrieren</string>
 </resources>

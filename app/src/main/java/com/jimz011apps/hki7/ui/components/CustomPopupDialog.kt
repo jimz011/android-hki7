@@ -8,7 +8,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
@@ -71,10 +73,11 @@ private fun CustomPopupDialog(
     val entity = statusEntity ?: remember(popup.id) {
         HAEntity(entity_id = "hki7_popup.${popup.id}", state = "")
     }
-    // Editing is decided by how the popup was opened: tapping a button just uses it, while the
-    // "Edit contents" entry points (an item's action settings, Settings › Appearance › Popups)
-    // open it ready to arrange. There is deliberately no in-dialog toggle.
-    val editing = startInEditMode
+    // How the popup was opened decides where it starts: tapping a button just uses it, while the
+    // "Edit contents" entry points (an item's action settings, Settings › Appearance › Popups) open
+    // it ready to arrange. Done then leaves edit mode without closing the dialog, so the result is
+    // visible straight away; there is no way back in from here by design.
+    var editing by remember(popup.id, startInEditMode) { mutableStateOf(startInEditMode) }
     val genericStatus = stringResource(R.string.popup_custom_popup)
 
     HKIDialog(
@@ -101,7 +104,8 @@ private fun CustomPopupDialog(
                     viewModel = viewModel,
                     navController = navController,
                     widgetAreaId = customPopupWidgetAreaId(popup.id),
-                    embedded = true
+                    embedded = true,
+                    onEditDone = { editing = false }
                 )
             }
         }

@@ -20,4 +20,6 @@
     <string name="popup_settings_title">Popups</string>
     <string name="popup_settings_subtitle_section">Build and edit your custom popups</string>
     <string name="popup_settings_hint">Popups open from a button, badge, or dialog button set to the Custom popup action. Edit contents opens the popup itself so you can arrange its widgets.</string>
+    <string name="button_icon_only">Icon only</string>
+    <string name="button_icon_only_description">Hide the name and state, centering the icon on the button</string>
 </resources>

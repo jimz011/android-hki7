@@ -3325,6 +3325,7 @@ fun ButtonConfigDialog(
     var iconAnimation by remember(config) { mutableStateOf(config.iconAnimation) }
     var visSpec by remember(config) { mutableStateOf(config.toVisibilitySpec()) }
     val isLightEntity = entity?.entity_id?.startsWith("light.") == true
+    var iconOnly by remember(config) { mutableStateOf(config.iconOnly) }
     var showBrightnessSlider by remember(config) { mutableStateOf(config.showBrightnessSlider) }
     var tapAction by remember(config) { mutableStateOf(config.tapActionEx ?: HKIAction(type = config.tapAction)) }
     var doubleAction by remember(config) { mutableStateOf(config.doubleTapActionEx ?: HKIAction(type = config.doubleTapAction)) }
@@ -3695,6 +3696,16 @@ fun ButtonConfigDialog(
                             )
                         }
                     }
+                    // Cameras and vacuums draw their own card, which has no name/state line to drop.
+                    if (!isCameraItem && !isVacuumItem) {
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Column(Modifier.weight(1f)) {
+                                Text(stringResource(R.string.button_icon_only), style = MaterialTheme.typography.labelLarge)
+                                Text(stringResource(R.string.button_icon_only_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            Switch(checked = iconOnly, onCheckedChange = { iconOnly = it })
+                        }
+                    }
                     if (isLightEntity) {
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Column(Modifier.weight(1f)) {
@@ -3807,6 +3818,7 @@ fun ButtonConfigDialog(
                             timerStateEntityId = if (isCameraItem || isVacuumItem) config.timerStateEntityId else timerStateEntityId,
                             icon = if (isCameraItem || isVacuumItem) config.icon else iconName.takeUnless { it == "None" },
                             iconAnimation = iconAnimation,
+                            iconOnly = iconOnly,
                             showBrightnessSlider = if (isLightEntity) showBrightnessSlider else false,
                             cameraUrl = if (isCameraItem && config.isCustomUrl) cameraUrl.ifBlank { null } else config.cameraUrl,
                             cameraRefreshInterval = if (isCameraItem) refreshInterval else config.cameraRefreshInterval,
@@ -5080,6 +5092,7 @@ fun ButtonStackItem(
                                 timerMachineRunning = cfg?.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                                 iconName = cfg?.icon,
                                 iconAnimation = cfg?.iconAnimation ?: "auto",
+                                iconOnly = cfg?.iconOnly == true,
                                 onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
                                 onLongClick = { handleButtonInteraction(entity.entity_id, cfg, "hold") { onEntityLongClick(entity.entity_id) } },
                                 onDoubleClick = { handleButtonInteraction(entity.entity_id, cfg, "double") { onEntityDoubleClick(entity.entity_id) } },
@@ -5179,6 +5192,7 @@ fun ButtonStackItem(
                                         timerMachineRunning = cfg?.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                                         iconName = cfg?.icon,
                                         iconAnimation = cfg?.iconAnimation ?: "auto",
+                                        iconOnly = cfg?.iconOnly == true,
                                         onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
                                         onLongClick = { handleButtonInteraction(entity.entity_id, cfg, "hold") { onEntityLongClick(entity.entity_id) } },
                                         onDoubleClick = { handleButtonInteraction(entity.entity_id, cfg, "double") { onEntityDoubleClick(entity.entity_id) } },
@@ -5240,6 +5254,7 @@ fun ButtonStackItem(
                                         timerMachineRunning = buttonConfigs[entity.entity_id]?.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                                         iconName = buttonConfigs[entity.entity_id]?.icon,
                                         iconAnimation = buttonConfigs[entity.entity_id]?.iconAnimation ?: "auto",
+                                        iconOnly = buttonConfigs[entity.entity_id]?.iconOnly == true,
                                         onClick = { onEntityClick(entity.entity_id) },
                                         onLongClick = { onEntityLongClick(entity.entity_id) },
                                         onDoubleClick = { onEntityDoubleClick(entity.entity_id) },
@@ -5431,6 +5446,7 @@ fun SingleEntityWidgetItem(
                         timerMachineRunning = widget.config.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                         iconName = widget.config.icon,
                         iconAnimation = widget.config.iconAnimation,
+                        iconOnly = widget.config.iconOnly,
                         onClick = { handleSingleButtonInteraction("tap") { onEntityClick(widget.entityId) } },
                         onLongClick = { handleSingleButtonInteraction("hold") { onEntityLongClick(widget.entityId) } },
                         onDoubleClick = { handleSingleButtonInteraction("double") { onEntityDoubleClick(widget.entityId) } },

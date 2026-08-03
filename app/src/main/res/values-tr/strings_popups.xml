@@ -20,4 +20,6 @@
     <string name="popup_settings_title">Açılır pencereler</string>
     <string name="popup_settings_subtitle_section">Özel açılır pencerelerinizi oluşturun ve düzenleyin</string>
     <string name="popup_settings_hint">Açılır pencereler, Özel açılır pencere eylemine ayarlanmış bir düğme, rozet veya iletişim kutusu düğmesinden açılır. «İçeriği düzenle», widget’ları yerleştirebilmeniz için pencerenin kendisini açar.</string>
+    <string name="button_icon_only">Yalnızca simge</string>
+    <string name="button_icon_only_description">Adı ve durumu gizler, simgeyi düğmenin ortasına yerleştirir</string>
 </resources>

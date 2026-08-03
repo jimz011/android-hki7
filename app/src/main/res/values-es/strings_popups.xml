@@ -20,4 +20,6 @@
     <string name="popup_settings_title">Ventanas</string>
     <string name="popup_settings_subtitle_section">Crea y edita tus ventanas personalizadas</string>
     <string name="popup_settings_hint">Las ventanas se abren desde un botón, una insignia o un botón de diálogo con la acción Ventana personalizada. «Editar contenido» abre la propia ventana para organizar sus widgets.</string>
+    <string name="button_icon_only">Solo icono</string>
+    <string name="button_icon_only_description">Oculta el nombre y el estado y centra el icono en el botón</string>
 </resources>
