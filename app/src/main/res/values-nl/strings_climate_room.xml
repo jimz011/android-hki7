@@ -329,6 +329,11 @@
     <string name="cr_quick_make_it_yours">Maak het van jou</string>
     <string name="cr_quick_make_it_yours_instruction">Voeg in de bewerkmodus kamers, verdiepingen en widgets toe of wijzig hun volgorde. Tik op een onderdeel om het in te stellen.</string>
 
+    <string-array name="cr_whats_new_beta_12">
+        <item>Knopwidgets en knoppenstapels kunnen nu een lege, volledig transparante knop bevatten. Die neemt een vak in zonder iets te tekenen, zodat de knoppen eromheen precies staan waar je ze wilt.</item>
+        <item>Nieuwe actie Aangepaste pop-up voor knoppen, badges en dialoogknoppen. Koppel elke tik, lange druk of dubbele tik aan een pop-up die je zelf samenstelt: die opent met de gebruikelijke titel, status, geschiedenis en sluitknop, en je vult hem met elke widget van de app. Elke pop-up heeft een eigen knop Bewerken, zodat widgets binnen het dialoogvenster kunnen worden toegevoegd, ingesteld en verwijderd zonder het dashboard in bewerkmodus te zetten. Pop-ups worden gedeeld, dus meerdere knoppen kunnen dezelfde openen.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_11">
         <item>De dashboards Kamers, Klimaat, Beveiliging, Energie en Batterij benutten tablets en foldables nu beter. Grote kaarten volgen de indeling met één, twee of drie kolommen van Start en kamerdetails, terwijl compacte tegels zich automatisch aanpassen zonder te krap te worden. Kaarten voor Klimaat, Beveiliging en Energie gebruiken op brede schermen een hoogtebewuste masonry-indeling, zodat onder kortere kaarten geen grote lege ruimtes meer ontstaan.</item>
         <item>Statusgekleurde pictogrammen op entiteitsknoppen en kop-/statuspillen behouden hun herkenbare kleur, maar worden automatisch lichter of donkerder als ze anders wegvallen tegen het huidige thema.</item>

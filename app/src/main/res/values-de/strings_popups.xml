@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty (transparent) buttons and the custom-popup action. -->
+<resources>
+    <string name="spacer_empty_button">Leere Schaltfläche</string>
+    <string name="spacer_empty_button_description">Transparenter Platzhalter, der nur Platz reserviert</string>
+    <string name="spacer_add_empty_button">Leere Schaltfläche hinzufügen</string>
+    <string name="popup_custom_popup">Eigenes Pop-up</string>
+    <string name="popup_choose">Pop-up auswählen</string>
+    <string name="popup_none_yet">Noch keine Pop-ups</string>
+    <string name="popup_new">Neues Pop-up</string>
+    <string name="popup_default_name">Neues Pop-up</string>
+    <string name="popup_name">Name des Pop-ups</string>
+    <string name="popup_edit_contents">Inhalt bearbeiten</string>
+    <string name="popup_delete">Pop-up löschen</string>
+    <string name="popup_status_entity">Statusentität</string>
+    <string name="popup_status_entity_hint">Optional. Ihr Zustand füllt die Statuszeile des Dialogs und ergänzt die Verlaufsansicht.</string>
+    <string name="popup_settings_subtitle">Name, Symbol und Statusentität</string>
+    <string name="popup_shared_hint">Pop-ups werden geteilt: Andere Schaltflächen können dasselbe Pop-up öffnen.</string>
+    <string name="popup_empty">Dieses Pop-up ist leer. Tippe auf „Bearbeiten“, um Widgets hinzuzufügen.</string>
+</resources>

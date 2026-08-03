@@ -115,6 +115,7 @@ import com.jimz011apps.hki7.ui.components.itemCornerShape
 import com.jimz011apps.hki7.ui.utils.IconPack
 import com.jimz011apps.hki7.ui.utils.IconPreferences
 import com.jimz011apps.hki7.ui.utils.MdiIcon
+import com.jimz011apps.hki7.ui.components.CustomPopupHost
 import com.jimz011apps.hki7.ui.components.NotificationPanel
 import com.jimz011apps.hki7.ui.components.NotificationBannerHost
 import com.jimz011apps.hki7.ui.components.QuickStartGuideDialog
@@ -836,6 +837,10 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         }
 
         NotificationBannerHost(viewModel, Modifier.align(Alignment.TopCenter))
+
+        // Popup actions can fire from any surface (buttons, badges, dialog nav bars), so their
+        // dialog is hosted here once instead of being threaded through every screen.
+        CustomPopupHost(viewModel, navController)
 
         // Opaque strip behind three-button navigation, painted over the page but under the floating
         // bar, so scrolling content no longer shows through the system buttons. Collapses to nothing

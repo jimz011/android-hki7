@@ -1968,6 +1968,11 @@
     <string name="cr_vacuum_settings">Configuración de la aspiradora</string>
     <string name="cr_weekly">Semanal</string>
     <string name="cr_wet">Húmedo</string>
+    <string-array name="cr_whats_new_beta_12">
+        <item>Los widgets y las pilas de botones ahora admiten un botón vacío totalmente transparente. Ocupa una celda de la cuadrícula sin dibujar nada, así que los botones de alrededor quedan justo donde quieres.</item>
+        <item>Nueva acción Ventana personalizada para botones, insignias y botones de diálogo. Asigna a cualquier toque, pulsación larga o doble toque una ventana creada por ti: se abre con el título, el estado, el historial y el cierre habituales, y la llenas con cualquier widget de la app. Cada ventana tiene su propio botón Editar, así que sus widgets se pueden agregar, configurar y quitar desde el propio diálogo sin poner el panel en modo de edición. Las ventanas se comparten, por lo que varios botones pueden abrir la misma.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_11">
         <item>Los paneles Habitaciones, Clima, Seguridad, Energía y Batería aprovechan mejor las tabletas y los dispositivos plegables. Las tarjetas grandes siguen el diseño de una, dos o tres columnas de Inicio y las habitaciones, mientras que las tarjetas compactas se ajustan automáticamente sin quedar apretadas. Las tarjetas de Clima, Seguridad y Energía usan un diseño de mampostería que considera la altura en pantallas anchas, evitando grandes espacios bajo las tarjetas más cortas.</item>
         <item>Los íconos coloreados según el estado en botones de entidades y etiquetas de encabezado o estado conservan su tono identificativo, pero se aclaran u oscurecen automáticamente cuando podrían confundirse con el tema actual.</item>

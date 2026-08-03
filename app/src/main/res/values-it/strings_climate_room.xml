@@ -329,6 +329,11 @@
     <string name="cr_quick_make_it_yours">Rendila tua</string>
     <string name="cr_quick_make_it_yours_instruction">In modalità modifica, aggiungi e riordina stanze, piani e widget. Tocca un elemento per configurarlo.</string>
 
+    <string-array name="cr_whats_new_beta_12">
+        <item>I widget e le pile di pulsanti possono ora contenere un pulsante vuoto, del tutto trasparente. Occupa una cella della griglia senza disegnare nulla, così i pulsanti vicini si allineano esattamente dove vuoi.</item>
+        <item>Nuova azione Finestra personalizzata per pulsanti, badge e pulsanti delle finestre di dialogo. Collega tocco, pressione prolungata o doppio tocco a una finestra creata da te: si apre con titolo, stato, cronologia e chiusura consueti e la riempi con qualsiasi widget dell’app. Ogni finestra ha il proprio pulsante Modifica, quindi i suoi widget si possono aggiungere, configurare e rimuovere dalla finestra stessa senza mettere la dashboard in modalità modifica. Le finestre sono condivise: più pulsanti possono aprire la stessa.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_11">
         <item>Le dashboard Stanze, Clima, Sicurezza, Energia e Batteria sfruttano meglio tablet e dispositivi pieghevoli. Le schede grandi seguono il layout a una, due o tre colonne di Home e delle singole stanze, mentre i riquadri compatti si adattano automaticamente senza diventare troppo stretti. Su schermi ampi, le schede Clima, Sicurezza ed Energia usano un layout masonry basato sull’altezza, eliminando i grandi spazi sotto le schede più corte.</item>
         <item>Le icone colorate in base allo stato sui pulsanti delle entità e sugli indicatori di intestazione o stato mantengono la tonalità riconoscibile, ma diventano automaticamente più chiare o più scure se rischiano di confondersi con il tema corrente.</item>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty (transparent) buttons and the custom-popup action. -->
+<resources>
+    <string name="spacer_empty_button">Lege knop</string>
+    <string name="spacer_empty_button_description">Transparante plaatshouder die alleen ruimte reserveert</string>
+    <string name="spacer_add_empty_button">Lege knop toevoegen</string>
+    <string name="popup_custom_popup">Aangepaste pop-up</string>
+    <string name="popup_choose">Kies een pop-up</string>
+    <string name="popup_none_yet">Nog geen pop-ups</string>
+    <string name="popup_new">Nieuwe pop-up</string>
+    <string name="popup_default_name">Nieuwe pop-up</string>
+    <string name="popup_name">Naam van pop-up</string>
+    <string name="popup_edit_contents">Inhoud bewerken</string>
+    <string name="popup_delete">Pop-up verwijderen</string>
+    <string name="popup_status_entity">Statusentiteit</string>
+    <string name="popup_status_entity_hint">Optioneel. De status ervan vult de statusregel van het dialoogvenster en voegt de geschiedenisweergave toe.</string>
+    <string name="popup_settings_subtitle">Naam, pictogram en statusentiteit</string>
+    <string name="popup_shared_hint">Pop-ups worden gedeeld: andere knoppen kunnen dezelfde pop-up openen.</string>
+    <string name="popup_empty">Deze pop-up is leeg. Tik op Bewerken om widgets toe te voegen.</string>
+</resources>

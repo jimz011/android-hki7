@@ -37,6 +37,34 @@ data class HKICustomPage(
     val icon: String = "view-dashboard"
 )
 
+/** A user-built dialog opened by a `custom_popup` action. Like a custom page, its contents are
+ * widgets stored under a reserved widget-area id ([customPopupWidgetAreaId]), so popups travel
+ * through backups and family sharing with the rest of the dashboard. */
+@Serializable
+data class HKICustomPopup(
+    val id: String,
+    val name: String,
+    val icon: String? = null,
+    /** Optional entity whose state drives the dialog's status line and its history/activity view.
+     *  Without one the dialog shows the popup name alone and hides the history button. */
+    val statusEntityId: String? = null
+)
+
+/** Widget-area id holding [popupId]'s widgets, mirroring the `__custom_page_<id>__` convention. */
+fun customPopupWidgetAreaId(popupId: String): String = "__popup_${popupId}__"
+
+/** Domain of the synthetic entity ids used by empty (transparent) placeholder buttons. Real Home
+ *  Assistant entity ids never use it, so a spacer can live in [HKIButtonStack.entityIds] and in
+ *  [HKISingleEntityWidget.entityId] without colliding with an actual entity. */
+const val SPACER_ENTITY_DOMAIN = "hki7_spacer"
+
+/** True for the synthetic id of an empty button: it renders as blank space and has no state,
+ *  actions, or settings. */
+fun isSpacerEntityId(entityId: String): Boolean = entityId.startsWith("$SPACER_ENTITY_DOMAIN.")
+
+/** A fresh empty-button id. Each spacer gets its own so several can sit in the same stack. */
+fun newSpacerEntityId(): String = "$SPACER_ENTITY_DOMAIN.${java.util.UUID.randomUUID()}"
+
 @Serializable
 @Immutable
 data class HAEntity(
@@ -564,7 +592,7 @@ data class HAActionDefinition(
  *  URL. [type] "default" defers to the domain-based heuristic in the view model. */
 @Serializable
 data class HKIAction(
-    val type: String = "default",       // default | none | toggle | more_info | call_service | navigate | url
+    val type: String = "default",       // default | none | toggle | more_info | call_service | navigate | url | custom_popup
     val service: String? = null,        // "light.turn_on"
     val targetEntityId: String? = null, // service/toggle target; null = the button's own entity
     /** owner = the button/badge entity when no explicit target is set; none = omit a target. */
@@ -572,7 +600,10 @@ data class HKIAction(
     val data: JsonObject? = null,       // arbitrary service data
     val moreInfoEntityId: String? = null, // more_info of a different entity
     val navigationTarget: String? = null, // "home"|"rooms"|"energy"|"climate"|"security"|"battery"|"room:<areaId>"
-    val url: String? = null
+    val url: String? = null,
+    /** [HKICustomPopup.id] opened by a "custom_popup" action. Popups are shared, so several items
+     *  can point at the same one. */
+    val popupId: String? = null
 )
 
 internal fun buildHKIActionServicePayload(action: HKIAction, ownerEntityId: String): JsonObject =

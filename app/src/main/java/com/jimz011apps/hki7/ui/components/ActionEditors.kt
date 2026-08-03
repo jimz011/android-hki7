@@ -8,6 +8,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.pluralStringResource
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -39,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +54,7 @@ import com.jimz011apps.hki7.data.HAActionDefinition
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HKIAction
 import com.jimz011apps.hki7.data.HKIActionButton
+import com.jimz011apps.hki7.data.HKICustomPopup
 import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import com.jimz011apps.hki7.ui.utils.MdiIcon
@@ -72,6 +75,7 @@ private fun actionTypes() = listOf(
     "call_service" to stringResource(R.string.dlg_action),
     "navigate" to stringResource(R.string.dlg_navigate),
     "url" to stringResource(R.string.dlg_url),
+    "custom_popup" to stringResource(R.string.popup_custom_popup),
 )
 
 /** Fixed in-app navigation targets plus one entry per Home Assistant area. */
@@ -311,6 +315,12 @@ fun ActionEditor(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
+            "custom_popup" -> CustomPopupActionEditor(
+                action = action,
+                allEntities = allEntities,
+                viewModel = viewModel,
+                onChange = onChange
+            )
         }
     }
 
@@ -377,6 +387,199 @@ fun ActionEditor(
                 }
             )
         }
+    }
+}
+
+/** Picks (or creates) the popup a `custom_popup` action opens. Popups are shared across the
+ *  dashboard, so this only selects one and offers a shortcut into it; the widgets themselves are
+ *  arranged inside the popup dialog, where the whole widget canvas is available. */
+@Composable
+private fun CustomPopupActionEditor(
+    action: HKIAction,
+    allEntities: List<HAEntity>,
+    viewModel: MainViewModel,
+    onChange: (HKIAction) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    val popups by viewModel.customPopups.collectAsState()
+    val selected = popups.find { it.id == action.popupId }
+    var menuOpen by remember { mutableStateOf(false) }
+    var settingsDraft by remember { mutableStateOf<HKICustomPopup?>(null) }
+    val newPopupName = stringResource(R.string.popup_default_name)
+
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Box {
+            OutlinedButton(
+                onClick = { menuOpen = true },
+                enabled = popups.isNotEmpty(),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                selected?.icon?.takeUnless { it.isBlank() }?.let { slug ->
+                    MdiIcon(slug, tint = appColors.onSurface, size = 18.dp)
+                    Spacer(Modifier.width(8.dp))
+                }
+                Text(
+                    selected?.name ?: stringResource(
+                        if (popups.isEmpty()) R.string.popup_none_yet else R.string.popup_choose
+                    ),
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
+            }
+            androidx.compose.material3.DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                popups.forEach { popup ->
+                    androidx.compose.material3.DropdownMenuItem(
+                        text = { Text(popup.name) },
+                        onClick = { onChange(action.copy(popupId = popup.id)); menuOpen = false }
+                    )
+                }
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(
+                onClick = {
+                    val created = viewModel.createCustomPopup(newPopupName)
+                    onChange(action.copy(popupId = created.id))
+                    settingsDraft = created
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.popup_new))
+            }
+            if (selected != null) {
+                OutlinedButton(onClick = { settingsDraft = selected }, modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.dlg_edit))
+                }
+            }
+        }
+        if (selected != null) {
+            OutlinedButton(
+                onClick = { viewModel.openCustomPopup(selected.id, startInEditMode = true) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.popup_edit_contents))
+            }
+            Text(
+                stringResource(R.string.popup_shared_hint),
+                style = MaterialTheme.typography.labelSmall,
+                color = appColors.onMuted
+            )
+        }
+    }
+
+    settingsDraft?.let { draft ->
+        CustomPopupSettingsDialog(
+            popup = draft,
+            allEntities = allEntities,
+            onDismiss = { settingsDraft = null },
+            onSave = { updated -> viewModel.updateCustomPopup(updated); settingsDraft = null },
+            onDelete = {
+                viewModel.deleteCustomPopup(draft.id)
+                if (action.popupId == draft.id) onChange(action.copy(popupId = null))
+                settingsDraft = null
+            }
+        )
+    }
+}
+
+/** Name, icon, and optional status entity of a popup. The status entity also decides whether the
+ *  dialog offers its history/activity view. */
+@Composable
+private fun CustomPopupSettingsDialog(
+    popup: HKICustomPopup,
+    allEntities: List<HAEntity>,
+    onDismiss: () -> Unit,
+    onSave: (HKICustomPopup) -> Unit,
+    onDelete: () -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    var draft by remember(popup.id) { mutableStateOf(popup) }
+    var showIconPicker by remember { mutableStateOf(false) }
+    var showStatusPicker by remember { mutableStateOf(false) }
+
+    ModernAlertDialog(
+        stableHeight = true,
+        onDismissRequest = onDismiss,
+        title = {
+            ModernSettingsDialogTitle(
+                stringResource(R.string.popup_custom_popup),
+                stringResource(R.string.popup_settings_subtitle)
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedTextField(
+                    value = draft.name,
+                    onValueChange = { draft = draft.copy(name = it) },
+                    label = { Text(stringResource(R.string.popup_name)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    draft.icon?.takeUnless { it.isBlank() }?.let { slug ->
+                        MdiIcon(slug, tint = appColors.onSurface, size = 20.dp)
+                    }
+                    Text(
+                        stringResource(
+                            R.string.dlg_icon_value,
+                            draft.icon?.takeUnless { it.isBlank() } ?: stringResource(R.string.dlg_none)
+                        ),
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = appColors.onMuted
+                    )
+                    TextButton(onClick = { showIconPicker = true }) { Text(stringResource(R.string.dlg_change)) }
+                    if (!draft.icon.isNullOrBlank()) {
+                        TextButton(onClick = { draft = draft.copy(icon = null) }) { Text(stringResource(R.string.dlg_clear)) }
+                    }
+                }
+                TargetRow(
+                    labelText = stringResource(R.string.popup_status_entity),
+                    valueText = entityLabel(draft.statusEntityId, allEntities),
+                    onPick = { showStatusPicker = true },
+                    onClear = draft.statusEntityId?.let { { draft = draft.copy(statusEntityId = null) } }
+                )
+                Text(
+                    stringResource(R.string.popup_status_entity_hint),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = appColors.onMuted
+                )
+                TextButton(onClick = onDelete, modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(stringResource(R.string.popup_delete))
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onSave(draft.copy(name = draft.name.ifBlank { popup.name })) }
+            ) { Text(stringResource(R.string.dlg_save)) }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.dlg_cancel)) } }
+    )
+
+    if (showIconPicker) {
+        MdiIconPickerDialog(
+            current = draft.icon ?: "",
+            onDismiss = { showIconPicker = false },
+            onSelect = { slug -> draft = draft.copy(icon = slug.ifEmpty { null }); showIconPicker = false }
+        )
+    }
+    if (showStatusPicker) {
+        AdvancedEntitySearchDialog(
+            allEntities = allEntities,
+            onDismiss = { showStatusPicker = false },
+            onEntitiesSelected = { ids -> draft = draft.copy(statusEntityId = ids.firstOrNull()); showStatusPicker = false },
+            title = stringResource(R.string.popup_status_entity),
+            singleSelect = true,
+            preselectedIds = draft.statusEntityId?.let { setOf(it) } ?: emptySet()
+        )
     }
 }
 

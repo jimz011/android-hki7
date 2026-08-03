@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty (transparent) buttons and the custom-popup action. -->
+<resources>
+    <string name="spacer_empty_button">빈 버튼</string>
+    <string name="spacer_empty_button_description">자리만 차지하는 투명한 자리 표시자</string>
+    <string name="spacer_add_empty_button">빈 버튼 추가</string>
+    <string name="popup_custom_popup">사용자 지정 팝업</string>
+    <string name="popup_choose">팝업 선택</string>
+    <string name="popup_none_yet">팝업이 아직 없습니다</string>
+    <string name="popup_new">새 팝업</string>
+    <string name="popup_default_name">새 팝업</string>
+    <string name="popup_name">팝업 이름</string>
+    <string name="popup_edit_contents">내용 편집</string>
+    <string name="popup_delete">팝업 삭제</string>
+    <string name="popup_status_entity">상태 엔티티</string>
+    <string name="popup_status_entity_hint">선택 사항입니다. 해당 상태가 대화상자의 상태 줄에 표시되고 기록 보기가 추가됩니다.</string>
+    <string name="popup_settings_subtitle">이름, 아이콘 및 상태 엔티티</string>
+    <string name="popup_shared_hint">팝업은 공유됩니다. 다른 버튼에서도 같은 팝업을 열 수 있습니다.</string>
+    <string name="popup_empty">이 팝업은 비어 있습니다. 편집을 눌러 위젯을 추가하세요.</string>
+</resources>

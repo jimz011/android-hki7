@@ -7,6 +7,7 @@ import com.jimz011apps.hki7.data.HKIEmptyStack
 import com.jimz011apps.hki7.data.HKIRoomWidget
 import com.jimz011apps.hki7.data.HKISingleEntityWidget
 import com.jimz011apps.hki7.data.HKISwipingStack
+import com.jimz011apps.hki7.data.isSpacerEntityId
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.jsonPrimitive
@@ -212,8 +213,9 @@ private fun autoRoleEntityIds(
 internal fun displayedRoomControlEntityIds(widgets: List<HKIRoomWidget>): Set<String> = buildSet {
     fun collect(widget: HKIRoomWidget) {
         when (widget) {
-            is HKIButtonStack -> if (!widget.isHidden) addAll(widget.entityIds)
-            is HKISingleEntityWidget -> if (!widget.isHidden) add(widget.entityId)
+            // Empty buttons carry a synthetic id with no entity behind it, so they never count.
+            is HKIButtonStack -> if (!widget.isHidden) addAll(widget.entityIds.filterNot(::isSpacerEntityId))
+            is HKISingleEntityWidget -> if (!widget.isHidden && !isSpacerEntityId(widget.entityId)) add(widget.entityId)
             is HKIEmptyStack -> if (!widget.isHidden) widget.widgets.forEach(::collect)
             is HKISwipingStack -> if (!widget.isHidden) widget.widgets.forEach(::collect)
             else -> Unit

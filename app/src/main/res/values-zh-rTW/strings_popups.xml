@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty (transparent) buttons and the custom-popup action. -->
+<resources>
+    <string name="spacer_empty_button">空白按鈕</string>
+    <string name="spacer_empty_button_description">僅占位的透明版面配置預留位置</string>
+    <string name="spacer_add_empty_button">新增空白按鈕</string>
+    <string name="popup_custom_popup">自訂彈出視窗</string>
+    <string name="popup_choose">選擇彈出視窗</string>
+    <string name="popup_none_yet">尚無彈出視窗</string>
+    <string name="popup_new">新增彈出視窗</string>
+    <string name="popup_default_name">新增彈出視窗</string>
+    <string name="popup_name">彈出視窗名稱</string>
+    <string name="popup_edit_contents">編輯內容</string>
+    <string name="popup_delete">刪除彈出視窗</string>
+    <string name="popup_status_entity">狀態實體</string>
+    <string name="popup_status_entity_hint">選填。其狀態會顯示在對話方塊的狀態列，並啟用歷史檢視。</string>
+    <string name="popup_settings_subtitle">名稱、圖示與狀態實體</string>
+    <string name="popup_shared_hint">彈出視窗是共用的：其他按鈕也可開啟同一個彈出視窗。</string>
+    <string name="popup_empty">此彈出視窗是空的。輕觸「編輯」即可新增小工具。</string>
+</resources>

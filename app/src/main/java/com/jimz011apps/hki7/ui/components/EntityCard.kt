@@ -198,6 +198,35 @@ fun appendUnit(value: String, unit: String?): String {
     return if (noSpace) "$value$u" else "$value $u"
 }
 
+/** The empty (transparent) button: it reserves exactly the space a real button of the same style
+ *  would take, so the buttons around it land where the user wants them. It draws nothing outside
+ *  edit mode; in edit mode a dashed outline makes it selectable and removable. */
+@Composable
+fun SpacerButtonCard(
+    isSquare: Boolean,
+    buttonStyle: String,
+    cornerRadius: Int,
+    showOutline: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val appColors = LocalHKIAppColors.current
+    val sizeModifier = when {
+        buttonStyle == "tile" -> Modifier.height(58.dp)
+        isSquare -> Modifier.aspectRatio(1f)
+        else -> Modifier.height(110.dp)
+    }
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .then(sizeModifier)
+            .then(
+                if (showOutline) {
+                    Modifier.border(1.dp, appColors.onMuted.copy(alpha = 0.45f), RoundedCornerShape(cornerRadius.dp))
+                } else Modifier
+            )
+    )
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EntityCard(

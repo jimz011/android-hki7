@@ -35,6 +35,9 @@ data class HKIDashboard(
     val areaConfigs: Map<String, HKIAreaConfig> = emptyMap(),
     val pageConfigs: Map<String, HKIPageConfig> = emptyMap(),
     val customPages: List<HKICustomPage> = emptyList(),
+    /** Popup dialogs this dashboard's buttons/badges can open; their widgets live in [areaWidgets]
+     * under [customPopupWidgetAreaId]. */
+    val customPopups: List<HKICustomPopup> = emptyList(),
     val navBarOrder: List<String> = emptyList(),
     val navBarHidden: List<String> = emptyList(),
     // Per-dashboard media-player bar config, so each (shared) dashboard carries its own selection
@@ -113,6 +116,7 @@ private data class HKIUiBackup(
     val pageConfigs: Map<String, HKIPageConfig> = emptyMap(),
     val dashboardMode: String = "auto",
     val customPages: List<HKICustomPage> = emptyList(),
+    val customPopups: List<HKICustomPopup> = emptyList(),
     val navBarOrder: List<String> = emptyList(),
     val navBarHidden: List<String> = emptyList(),
     val themeColor: String = "system",
@@ -215,6 +219,7 @@ class PreferencesManager(
     private val navBarOrderKey = stringPreferencesKey("nav_bar_order")
     private val navBarHiddenKey = stringPreferencesKey("nav_bar_hidden")
     private val customPagesKey = stringPreferencesKey("custom_pages")
+    private val customPopupsKey = stringPreferencesKey("custom_popups")
     private val mediaPlayerNamesKey = stringPreferencesKey("media_player_custom_names")
     private val mediaPlayerBarHiddenKey = stringPreferencesKey("media_player_bar_hidden")
     private val adaptiveLightingProfilesKey = stringPreferencesKey("adaptive_lighting_profiles")
@@ -520,6 +525,10 @@ class PreferencesManager(
     val customPages: Flow<List<HKICustomPage>> = context.dataStore.data.map { preferences ->
         val saved = preferences[customPagesKey] ?: "[]"
         runCatching { appJson.decodeFromString<List<HKICustomPage>>(saved) }.getOrDefault(emptyList())
+    }
+    val customPopups: Flow<List<HKICustomPopup>> = context.dataStore.data.map { preferences ->
+        val saved = preferences[customPopupsKey] ?: "[]"
+        runCatching { appJson.decodeFromString<List<HKICustomPopup>>(saved) }.getOrDefault(emptyList())
     }
 
     // Media players: local display names and which players may show the mini player bar.
@@ -909,6 +918,7 @@ class PreferencesManager(
             pageConfigs = decodeBackup(p[pageConfigsKey], emptyMap()),
             dashboardMode = p[dashboardModeKey] ?: "auto",
             customPages = decodeBackup(p[customPagesKey], emptyList()),
+            customPopups = decodeBackup(p[customPopupsKey], emptyList()),
             navBarOrder = strings(navBarOrderKey),
             navBarHidden = strings(navBarHiddenKey),
             themeColor = p[themeColorKey] ?: "system",
@@ -957,6 +967,7 @@ class PreferencesManager(
             p[pageConfigsKey] = appJson.encodeToString(backup.pageConfigs)
             p[dashboardModeKey] = backup.dashboardMode
             p[customPagesKey] = appJson.encodeToString(backup.customPages)
+            p[customPopupsKey] = appJson.encodeToString(backup.customPopups)
             p[navBarOrderKey] = backup.navBarOrder.joinToString(",")
             p[navBarHiddenKey] = backup.navBarHidden.joinToString(",")
             p[themeColorKey] = backup.themeColor
@@ -1386,6 +1397,7 @@ class PreferencesManager(
         areaConfigs = decodeBackup(p[areaConfigsKey], emptyMap()),
         pageConfigs = decodeBackup(p[pageConfigsKey], emptyMap()),
         customPages = decodeBackup(p[customPagesKey], emptyList()),
+        customPopups = decodeBackup(p[customPopupsKey], emptyList()),
         navBarOrder = p[navBarOrderKey]?.split(',')?.filter(String::isNotBlank).orEmpty(),
         navBarHidden = p[navBarHiddenKey]?.split(',')?.filter(String::isNotBlank).orEmpty(),
         mediaPlayerNames = decodeBackup(p[mediaPlayerNamesKey], emptyMap()),
@@ -1435,6 +1447,7 @@ class PreferencesManager(
         p[areaConfigsKey] = appJson.encodeToString(dashboard.areaConfigs)
         p[pageConfigsKey] = appJson.encodeToString(dashboard.pageConfigs)
         p[customPagesKey] = appJson.encodeToString(dashboard.customPages)
+        p[customPopupsKey] = appJson.encodeToString(dashboard.customPopups)
         p[navBarOrderKey] = dashboard.navBarOrder.joinToString(",")
         p[navBarHiddenKey] = dashboard.navBarHidden.joinToString(",")
         p[mediaPlayerNamesKey] = appJson.encodeToString(dashboard.mediaPlayerNames)
@@ -1715,6 +1728,11 @@ class PreferencesManager(
     suspend fun saveCustomPages(pages: List<HKICustomPage>) {
         context.dataStore.edit {
             if (pages.isEmpty()) it.remove(customPagesKey) else it[customPagesKey] = appJson.encodeToString(pages)
+        }
+    }
+    suspend fun saveCustomPopups(popups: List<HKICustomPopup>) {
+        context.dataStore.edit {
+            if (popups.isEmpty()) it.remove(customPopupsKey) else it[customPopupsKey] = appJson.encodeToString(popups)
         }
     }
 

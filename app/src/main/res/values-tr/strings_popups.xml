@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty (transparent) buttons and the custom-popup action. -->
+<resources>
+    <string name="spacer_empty_button">Boş düğme</string>
+    <string name="spacer_empty_button_description">Yalnızca yer kaplayan saydam yer tutucu</string>
+    <string name="spacer_add_empty_button">Boş düğme ekle</string>
+    <string name="popup_custom_popup">Özel açılır pencere</string>
+    <string name="popup_choose">Bir açılır pencere seçin</string>
+    <string name="popup_none_yet">Henüz açılır pencere yok</string>
+    <string name="popup_new">Yeni açılır pencere</string>
+    <string name="popup_default_name">Yeni açılır pencere</string>
+    <string name="popup_name">Açılır pencere adı</string>
+    <string name="popup_edit_contents">İçeriği düzenle</string>
+    <string name="popup_delete">Açılır pencereyi sil</string>
+    <string name="popup_status_entity">Durum varlığı</string>
+    <string name="popup_status_entity_hint">İsteğe bağlı. Durumu, iletişim kutusunun durum satırını doldurur ve geçmiş görünümünü ekler.</string>
+    <string name="popup_settings_subtitle">Ad, simge ve durum varlığı</string>
+    <string name="popup_shared_hint">Açılır pencereler paylaşılır: başka düğmeler de aynı pencereyi açabilir.</string>
+    <string name="popup_empty">Bu açılır pencere boş. Widget eklemek için Düzenle’ye dokunun.</string>
+</resources>

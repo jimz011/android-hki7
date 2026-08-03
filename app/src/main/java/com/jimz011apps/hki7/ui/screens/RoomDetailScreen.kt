@@ -66,6 +66,7 @@ import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.automirrored.filled.ViewQuilt
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Air
+import androidx.compose.material.icons.filled.CropSquare
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.BatteryAlert
@@ -156,6 +157,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.isSpacerEntityId
+import com.jimz011apps.hki7.data.newSpacerEntityId
 import com.jimz011apps.hki7.data.isWidgetVisibleNow
 import com.jimz011apps.hki7.data.HAArea
 import com.jimz011apps.hki7.data.HAEntityRegistryEntry
@@ -203,6 +206,7 @@ import com.jimz011apps.hki7.ui.components.rememberAdaptiveLightingProfiles
 import com.jimz011apps.hki7.ui.components.VacuumWidgetSetupDialog
 import com.jimz011apps.hki7.ui.components.WidgetWidthSelector
 import com.jimz011apps.hki7.ui.components.EntityCard
+import com.jimz011apps.hki7.ui.components.SpacerButtonCard
 import com.jimz011apps.hki7.ui.components.EditRemoveBadge
 import com.jimz011apps.hki7.ui.components.EditSettingsButton
 import com.jimz011apps.hki7.ui.components.ModernSettingsHeader
@@ -517,6 +521,14 @@ fun RoomDetailScreen(
         collapsible = false
     )
     fun newEmptyStack() = HKIEmptyStack(id = UUID.randomUUID().toString())
+    // Half width and square: the footprint of a normal button widget, which is what it stands in for.
+    fun newSpacerWidget() = HKISingleEntityWidget(
+        id = UUID.randomUUID().toString(),
+        entityId = newSpacerEntityId(),
+        kind = "button",
+        width = "half",
+        isSquare = true
+    )
     fun newSingleEntityWidget(kind: String, entityId: String, config: HKIButtonConfig = HKIButtonConfig()) = HKISingleEntityWidget(
         id = UUID.randomUUID().toString(),
         entityId = entityId,
@@ -1400,6 +1412,10 @@ fun RoomDetailScreen(
                 pendingSingleWidgetContainerId = null
                 showAddWidgetDialog = false
             },
+            onAddSpacerWidget = {
+                viewModel.addWidgetToArea(areaId, newSpacerWidget())
+                showAddWidgetDialog = false
+            },
             onAddAdaptiveLightingWidget = if (entityRegistry.any { it.platform == "adaptive_lighting" }) {
                 {
                     viewModel.addWidgetToArea(areaId, newAdaptiveLightingWidget())
@@ -1762,6 +1778,10 @@ fun RoomDetailScreen(
                 pendingSingleWidgetContainerId = stackId
                 addingToSwipingStackId = null
             },
+            onAddSpacerWidget = {
+                addChildToSwipingStack(stackId, newSpacerWidget())
+                addingToSwipingStackId = null
+            },
             onAddAdaptiveLightingWidget = if (entityRegistry.any { it.platform == "adaptive_lighting" }) {
                 {
                     addChildToSwipingStack(stackId, newAdaptiveLightingWidget())
@@ -2094,7 +2114,16 @@ fun RoomDetailScreen(
                         )
                     }
                     addingToStackId = null
-                }
+                },
+                extraAction = if (targetStack != null && targetStack.stackType == "buttons") {
+                    stringResource(R.string.spacer_add_empty_button) to {
+                        viewModel.updateWidget(
+                            areaId,
+                            targetStack.copy(entityIds = targetStack.entityIds + newSpacerEntityId())
+                        )
+                        addingToStackId = null
+                    }
+                } else null
             )
         }
     } else if (addingToStackId != null && cameraAddMode == "entity") {
@@ -2736,6 +2765,8 @@ fun AddRoomWidgetDialog(
     onAddSwipingStack: (() -> Unit)? = null,
     onAddEmptyStack: (() -> Unit)? = null,
     onAddButtonWidget: (() -> Unit)? = null,
+    /** Adds an empty (transparent) button: a placeholder that only reserves layout space. */
+    onAddSpacerWidget: (() -> Unit)? = null,
     onAddAdaptiveLightingWidget: (() -> Unit)? = null,
     onAddCameraWidget: (() -> Unit)? = null,
     onAddVacuumWidget: (() -> Unit)? = null,
@@ -2801,6 +2832,7 @@ fun AddRoomWidgetDialog(
         if (onAddClimateCard != null) add(PickerWidget(Icons.Default.Thermostat, R.string.cr_widget_climate_card, R.string.cr_widget_climate_card_description, "climate temperature humidity thermostat heating cooling sensors air", WidgetPickerCategory.CLIMATE) { climatePickerSelection = emptyList(); widgetGroup = "climate_card" })
         if (onAddEnergyCard != null) add(PickerWidget(Icons.Default.ElectricBolt, R.string.cr_widget_energy_card, R.string.cr_widget_energy_card_description, "power usage solar gas water consumption electricity", WidgetPickerCategory.ENERGY) { energyPickerSelection = emptyList(); widgetGroup = "energy_card" })
         if (onAddBatteryCard != null) add(PickerWidget(Icons.Default.BatteryAlert, R.string.cr_widget_battery_levels, R.string.cr_widget_battery_levels_description, "battery notes charge level power", WidgetPickerCategory.ENERGY) { widgetGroup = "battery_card" })
+        if (onAddSpacerWidget != null) add(PickerWidget(Icons.Default.CropSquare, R.string.spacer_empty_button, R.string.spacer_empty_button_description, "empty blank spacer placeholder transparent gap align", WidgetPickerCategory.LAYOUT) { onAddSpacerWidget.invoke(); onDismiss() })
         add(PickerWidget(Icons.AutoMirrored.Filled.ShortText, R.string.cr_widget_header_text, R.string.cr_widget_header_text_description, "title subtitle label heading text divider", WidgetPickerCategory.LAYOUT) { configureWidget = "header" })
         if (onAddMarkdownWidget != null) add(PickerWidget(Icons.AutoMirrored.Filled.Notes, R.string.cr_widget_markdown, R.string.cr_widget_markdown_description, "text note markdown card content notes writing", WidgetPickerCategory.INFORMATION) { onAddMarkdownWidget.invoke(); onDismiss() })
         if (onAddIframeWidget != null) add(PickerWidget(Icons.Default.Public, R.string.cr_widget_iframe, R.string.cr_widget_iframe_description, "web page website url embed browser iframe html", WidgetPickerCategory.INFORMATION) { onAddIframeWidget.invoke(); onDismiss() })
@@ -4669,16 +4701,24 @@ private fun StackOrderRow(
     onVisibility: (() -> Unit)? = null
 ) {
     val appColors = LocalHKIAppColors.current
+    val isSpacer = isSpacerEntityId(entityId)
     val scheduled = !config?.visibilityStart.isNullOrBlank() || !config?.visibilityEnd.isNullOrBlank()
     val plainHidden = config?.hidden == true
-    val label = config?.name?.takeIf { it.isNotBlank() }
-        ?: entity?.friendlyName
-        ?: if (config?.isCustomUrl == true) stringResource(R.string.cr_custom_camera) else entityId
-    val secondary = buildList {
+    val label = when {
+        isSpacer -> stringResource(R.string.spacer_empty_button)
+        else -> config?.name?.takeIf { it.isNotBlank() }
+            ?: entity?.friendlyName
+            ?: if (config?.isCustomUrl == true) stringResource(R.string.cr_custom_camera) else entityId
+    }
+    val spacerSecondary = stringResource(R.string.spacer_empty_button_description)
+    val secondary = if (isSpacer) spacerSecondary else buildList {
         add(entity?.entity_id ?: entityId)
         entity?.state?.takeIf { it.isNotBlank() && it != "unknown" && it != "unavailable" }?.let { add(it) }
     }.joinToString(" - ")
-    val iconName = config?.icon?.takeIf { it.isNotBlank() } ?: entity?.let { defaultEntityIconSlug(it) }
+    val iconName = when {
+        isSpacer -> "crop-square"
+        else -> config?.icon?.takeIf { it.isNotBlank() } ?: entity?.let { defaultEntityIconSlug(it) }
+    }
 
     Surface(
         shape = itemCornerShape(),
@@ -4749,6 +4789,11 @@ private fun StackOrderRow(
         }
     }
 }
+
+/** Stand-in entity for an empty button, so spacers travel through the same rendering path as real
+ *  buttons without needing a Home Assistant entity. */
+internal fun spacerPlaceholderEntity(entityId: String): HAEntity? =
+    if (isSpacerEntityId(entityId)) HAEntity(entity_id = entityId, state = "") else null
 
 @Composable
 fun ButtonStackItem(
@@ -4821,7 +4866,9 @@ fun ButtonStackItem(
                         )
                     )
             }
-            .mapNotNull(entityById::get)
+            // Empty buttons have no Home Assistant entity behind them; a stateless placeholder keeps
+            // them in the layout so they still occupy their grid cell.
+            .mapNotNull { id -> entityById[id] ?: spacerPlaceholderEntity(id) }
     }
     val buttonConfigs = stack.buttonConfigs
     var unlockedUntilByEntity by remember(stack.id) { mutableStateOf<Map<String, Long>>(emptyMap()) }
@@ -5100,6 +5147,17 @@ fun ButtonStackItem(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             rowEntities.forEach { entity ->
+                                if (isSpacerEntityId(entity.entity_id)) {
+                                    SpacerButtonCard(
+                                        isSquare = stack.isSquare,
+                                        buttonStyle = stack.buttonStyle.takeIf { it.isNotBlank() }
+                                            ?: if (stack.isSquare) "square" else "standard",
+                                        cornerRadius = stack.cornerRadius,
+                                        showOutline = false,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    return@forEach
+                                }
                                 val cfg = buttonConfigs[entity.entity_id]
                                 val doorOpen = cfg?.doorEntityId?.let { id -> allEntities.find { it.entity_id == id }?.state == "on" } == true
                                 val isLocked = isButtonCurrentlyLocked(cfg, lockNow, unlockedUntilByEntity[entity.entity_id])
@@ -5146,6 +5204,24 @@ fun ButtonStackItem(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             rowEntities.forEach { entity ->
+                                if (isSpacerEntityId(entity.entity_id)) {
+                                    // An empty button has nothing to configure, so edit mode only
+                                    // outlines it and offers removal.
+                                    Box(modifier = Modifier.weight(1f)) {
+                                        SpacerButtonCard(
+                                            isSquare = stack.isSquare,
+                                            buttonStyle = stack.buttonStyle.takeIf { it.isNotBlank() }
+                                                ?: if (stack.isSquare) "square" else "standard",
+                                            cornerRadius = stack.cornerRadius,
+                                            showOutline = true
+                                        )
+                                        EditRemoveBadge(
+                                            onClick = { onRemoveEntity(entity.entity_id) },
+                                            modifier = Modifier.align(Alignment.TopEnd)
+                                        )
+                                    }
+                                    return@forEach
+                                }
                                 Box(modifier = Modifier.weight(1f)) {
                                     EntityCard(
                                         entity = entity,
@@ -5223,6 +5299,25 @@ fun SingleEntityWidgetItem(
     }
     val allEntities by dependencyFlow.collectAsState()
     val entity = allEntities.find { it.entity_id == widget.entityId }
+        ?: spacerPlaceholderEntity(widget.entityId)
+
+    // A standalone empty button is pure spacing: it reserves its cell and, in edit mode, offers the
+    // usual delete/hide controls so it can be moved or removed like any other widget.
+    if (isSpacerEntityId(widget.entityId)) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            SpacerButtonCard(
+                isSquare = widget.isSquare,
+                buttonStyle = widget.buttonStyle.takeIf { it.isNotBlank() }
+                    ?: if (widget.isSquare) "square" else "standard",
+                cornerRadius = widget.cornerRadius,
+                showOutline = isEditMode
+            )
+            if (isEditMode) {
+                EditRemoveBadge(onClick = onDeleteClick, modifier = Modifier.align(Alignment.TopEnd))
+            }
+        }
+        return
+    }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         if (entity == null) {

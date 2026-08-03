@@ -335,6 +335,11 @@
     <string name="cr_quick_make_it_yours_instruction">En mode édition, ajoute et réorganise les pièces, les étages et les widgets. Appuie sur un élément pour le configurer.</string>
 
     <!-- Version actuelle -->
+    <string-array name="cr_whats_new_beta_12">
+        <item>Les widgets et les piles de boutons peuvent désormais contenir un bouton vide, entièrement transparent. Il occupe une cellule de la grille sans rien afficher, ce qui permet d’aligner exactement les boutons voisins.</item>
+        <item>Nouvelle action Fenêtre personnalisée pour les boutons, les badges et les boutons de boîte de dialogue. Associez un appui, un appui long ou un double appui à une fenêtre que vous composez vous-même : elle s’ouvre avec le titre, l’état, l’historique et la fermeture habituels, et vous la remplissez avec n’importe quel widget de l’application. Chaque fenêtre possède son propre bouton Modifier, ce qui permet d’ajouter, de configurer et de supprimer ses widgets depuis la boîte de dialogue sans passer le tableau de bord en mode édition. Les fenêtres sont partagées : plusieurs boutons peuvent ouvrir la même.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_11">
         <item>Les tableaux de bord Pièces, Climat, Sécurité, Énergie et Batterie exploitent mieux les tablettes et appareils pliables. Les grandes cartes suivent la disposition à une, deux ou trois colonnes de l’accueil et des pièces, tandis que les tuiles compactes s’ajustent automatiquement sans être à l’étroit. Sur les écrans larges, les cartes Climat, Sécurité et Énergie utilisent une disposition en maçonnerie tenant compte de leur hauteur, sans grands espaces sous les cartes plus courtes.</item>
         <item>Les icônes colorées selon l’état sur les boutons d’entité et les pastilles d’en-tête ou d’état conservent leur teinte sémantique, tout en devenant automatiquement plus claires ou plus foncées si elles se confondent avec le thème actuel.</item>

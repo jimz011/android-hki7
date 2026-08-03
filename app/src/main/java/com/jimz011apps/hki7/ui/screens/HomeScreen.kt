@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.newSpacerEntityId
 import com.jimz011apps.hki7.data.HKIButtonConfig
 import com.jimz011apps.hki7.data.HKIButtonStack
 import com.jimz011apps.hki7.data.HKIBatteryCardWidget
@@ -59,6 +60,7 @@ import com.jimz011apps.hki7.ui.components.AdvancedEntitySearchDialog
 import com.jimz011apps.hki7.ui.components.VacuumWidgetSetupDialog
 import com.jimz011apps.hki7.ui.components.HKIPage
 import com.jimz011apps.hki7.ui.components.GradientActionButton
+import com.jimz011apps.hki7.ui.components.LocalEditModeOverride
 import com.jimz011apps.hki7.ui.components.LocalItemCornerRadius
 import com.jimz011apps.hki7.ui.components.itemCornerShape
 import com.jimz011apps.hki7.ui.components.withGlobalCornerRadius
@@ -84,7 +86,10 @@ fun HAHomeScreen(
     viewModel: MainViewModel,
     navController: NavController,
     widgetAreaId: String = DEFAULT_HOME_WIDGET_AREA,
-    customPage: HKICustomPage? = null
+    customPage: HKICustomPage? = null,
+    /** Renders only the widget canvas, without the page header, badge bar, and pull-down menu, for
+     *  hosts that bring their own chrome (the custom-popup dialog). */
+    embedded: Boolean = false
 ) {
     @Suppress("LocalVariableName")
     val HOME_WIDGET_AREA = widgetAreaId
@@ -102,7 +107,9 @@ fun HAHomeScreen(
     val accessToken by viewModel.accessToken.collectAsState()
     val entityRegistry by viewModel.entityRegistry.collectAsState()
     val deviceRegistry by viewModel.deviceRegistry.collectAsState()
-    val isEditMode by viewModel.isEditMode.collectAsState()
+    val globalEditMode by viewModel.isEditMode.collectAsState()
+    // A popup edits its own canvas without putting the dashboard behind it into edit mode.
+    val isEditMode = LocalEditModeOverride.current ?: globalEditMode
     // Aesthetics-only recipients (Family Sharing) keep visual edits but can't add/remove structure.
     val aestheticsOnly by viewModel.aestheticsOnlyEditing.collectAsState()
     val itemCornerRadius = LocalItemCornerRadius.current
@@ -226,6 +233,14 @@ fun HAHomeScreen(
         collapsible = false
     )
     fun newEmptyStack() = HKIEmptyStack(id = UUID.randomUUID().toString())
+    // Half width and square: the footprint of a normal button widget, which is what it stands in for.
+    fun newSpacerWidget() = HKISingleEntityWidget(
+        id = UUID.randomUUID().toString(),
+        entityId = newSpacerEntityId(),
+        kind = "button",
+        width = "half",
+        isSquare = true
+    )
     fun newSingleEntityWidget(kind: String, entityId: String, config: HKIButtonConfig = HKIButtonConfig()) =
         HKISingleEntityWidget(id = UUID.randomUUID().toString(), entityId = entityId, kind = kind, isSquare = kind != "camera", config = config)
     fun newCalendarWidget(entityIds: List<String>) = HKICalendarWidget(id = UUID.randomUUID().toString(), entityIds = entityIds, width = "full")
@@ -509,23 +524,14 @@ fun HAHomeScreen(
         }
     }
 
-    HKIPage(
-        viewModel = viewModel,
-        areaId = null,
-        title = customPage?.name,
-        subtitle = customPage?.subtitle,
-        showPeople = customPage == null,
-        onPeopleClick = { person -> selectedPerson = person },
-        pageKey = customPage?.let { "custom_page_${it.id}" } ?: "home",
-        pageSettingsTitle = customPage?.let {
-            stringResource(R.string.custom_page_settings_title, it.name)
-        } ?: stringResource(R.string.home_settings_title),
-        customPage = customPage,
-        onCustomPageSave = viewModel::updateCustomPage,
-        showBadgeBar = customPage == null,
-        showNotificationStatus = customPage == null,
-        navController = navController
-    ) { padding ->
+    // Inside a popup the canvas sits in a dialog that already handles insets, so the extra room the
+    // page leaves for the nav bar, add-widget button, and media player would only waste space.
+    val mediaPlayerInset = com.jimz011apps.hki7.ui.components.LocalMediaPlayerBarInset.current
+    val gridBottomPadding = if (embedded) 16.dp else 96.dp + mediaPlayerInset
+    val editGridBottomPadding = if (embedded) 76.dp else 156.dp + mediaPlayerInset
+    val addWidgetVerticalPadding = if (embedded) 12.dp else 87.dp
+    val addWidgetBottomPadding = if (embedded) 12.dp else 87.dp + mediaPlayerInset
+    val pageBody: @Composable (PaddingValues) -> Unit = { padding ->
         BoxWithConstraints(modifier = Modifier.fillMaxSize().padding(padding)) {
             // Number of full-width columns. Scales up on larger screens (fold/tablet)
             // so widgets tile into several columns instead of one wide stack.
@@ -541,15 +547,18 @@ fun HAHomeScreen(
                 if (renderedHomeWidgets.isEmpty() && !isEditMode) {
                     EmptyEditHint(
                         Modifier.weight(1f),
-                        if (customPage == null) stringResource(R.string.home_empty)
-                        else stringResource(R.string.custom_page_empty)
+                        when {
+                            embedded -> stringResource(R.string.popup_empty)
+                            customPage == null -> stringResource(R.string.home_empty)
+                            else -> stringResource(R.string.custom_page_empty)
+                        }
                     )
                 } else if (!isEditMode) {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(widgetGridColumns),
                         state = widgetGridState,
                         modifier = Modifier.weight(1f),
-                        contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 96.dp + com.jimz011apps.hki7.ui.components.LocalMediaPlayerBarInset.current),
+                        contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = gridBottomPadding),
                         verticalArrangement = Arrangement.spacedBy(14.dp),
                         horizontalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
@@ -725,7 +734,7 @@ fun HAHomeScreen(
                         key = { it.id },
                         columns = GridCells.Fixed(widgetGridColumns),
                         span = { widgetSpan(it) },
-                        contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 156.dp + com.jimz011apps.hki7.ui.components.LocalMediaPlayerBarInset.current),
+                        contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = editGridBottomPadding),
                         verticalArrangement = Arrangement.spacedBy(14.dp),
                         horizontalArrangement = Arrangement.spacedBy(14.dp),
                         axis = ReorderAxis.Vertical,
@@ -928,8 +937,8 @@ fun HAHomeScreen(
                         .padding(
                             start = 16.dp,
                             end = 16.dp,
-                            top = 87.dp,
-                            bottom = 87.dp + com.jimz011apps.hki7.ui.components.LocalMediaPlayerBarInset.current
+                            top = addWidgetVerticalPadding,
+                            bottom = addWidgetBottomPadding
                         )
                         .height(52.dp)
                         .shadow(10.dp, itemCornerShape()),
@@ -940,6 +949,29 @@ fun HAHomeScreen(
                 }
             }
         }
+    }
+
+    if (embedded) {
+        pageBody(PaddingValues(0.dp))
+    } else {
+        HKIPage(
+            viewModel = viewModel,
+            areaId = null,
+            title = customPage?.name,
+            subtitle = customPage?.subtitle,
+            showPeople = customPage == null,
+            onPeopleClick = { person -> selectedPerson = person },
+            pageKey = customPage?.let { "custom_page_${it.id}" } ?: "home",
+            pageSettingsTitle = customPage?.let {
+                stringResource(R.string.custom_page_settings_title, it.name)
+            } ?: stringResource(R.string.home_settings_title),
+            customPage = customPage,
+            onCustomPageSave = viewModel::updateCustomPage,
+            showBadgeBar = customPage == null,
+            showNotificationStatus = customPage == null,
+            navController = navController,
+            content = pageBody
+        )
     }
 
     // Universal stack dialog
@@ -1011,6 +1043,7 @@ fun HAHomeScreen(
             onAddSwipingStack = { viewModel.addSwipingStackToArea(HOME_WIDGET_AREA); showAddWidget = false },
             onAddEmptyStack = { viewModel.addEmptyStackToArea(HOME_WIDGET_AREA); showAddWidget = false },
             onAddButtonWidget = { pendingSingleWidgetKind = "button"; pendingSingleWidgetContainerId = null; showAddWidget = false },
+            onAddSpacerWidget = { viewModel.addWidgetToArea(HOME_WIDGET_AREA, newSpacerWidget()); showAddWidget = false },
             onAddAdaptiveLightingWidget = if (entityRegistry.any { it.platform == "adaptive_lighting" }) {
                 {
                     viewModel.addWidgetToArea(HOME_WIDGET_AREA, newAdaptiveLightingWidget())
@@ -1076,6 +1109,7 @@ fun HAHomeScreen(
             onAddWeatherStack = { (title, icon) -> addChildToSwipingStack(stackId, newWeatherStack(title, icon)); addingToSwipingStackId = null },
             onAddEmptyStack = { addChildToSwipingStack(stackId, newEmptyStack()); addingToSwipingStackId = null },
             onAddButtonWidget = { pendingSingleWidgetKind = "button"; pendingSingleWidgetContainerId = stackId; addingToSwipingStackId = null },
+            onAddSpacerWidget = { addChildToSwipingStack(stackId, newSpacerWidget()); addingToSwipingStackId = null },
             onAddAdaptiveLightingWidget = if (entityRegistry.any { it.platform == "adaptive_lighting" }) {
                 {
                     addChildToSwipingStack(stackId, newAdaptiveLightingWidget())
@@ -1378,7 +1412,16 @@ fun HAHomeScreen(
                         )
                     }
                     addingToStackId = null
-                }
+                },
+                extraAction = if (targetStack != null && targetStack.stackType == "buttons") {
+                    stringResource(R.string.spacer_add_empty_button) to {
+                        viewModel.updateWidget(
+                            HOME_WIDGET_AREA,
+                            targetStack.copy(entityIds = targetStack.entityIds + newSpacerEntityId())
+                        )
+                        addingToStackId = null
+                    }
+                } else null
             )
         }
     } else if (addingToStackId != null && cameraAddMode == "entity") {

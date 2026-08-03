@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty (transparent) buttons and the custom-popup action. -->
+<resources>
+    <string name="spacer_empty_button">Empty button</string>
+    <string name="spacer_empty_button_description">Transparent placeholder that only reserves space</string>
+    <string name="spacer_add_empty_button">Add empty button</string>
+    <string name="popup_custom_popup">Custom popup</string>
+    <string name="popup_choose">Choose a popup</string>
+    <string name="popup_none_yet">No popups yet</string>
+    <string name="popup_new">New popup</string>
+    <string name="popup_default_name">New popup</string>
+    <string name="popup_name">Popup name</string>
+    <string name="popup_edit_contents">Edit contents</string>
+    <string name="popup_delete">Delete popup</string>
+    <string name="popup_status_entity">Status entity</string>
+    <string name="popup_status_entity_hint">Optional. Its state fills the dialog\'s status line and adds the history view.</string>
+    <string name="popup_settings_subtitle">Name, icon, and status entity</string>
+    <string name="popup_shared_hint">Popups are shared: other buttons can open this same popup.</string>
+    <string name="popup_empty">This popup is empty. Tap Edit to add widgets.</string>
+</resources>

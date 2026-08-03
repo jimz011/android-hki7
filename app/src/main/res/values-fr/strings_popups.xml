@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty (transparent) buttons and the custom-popup action. -->
+<resources>
+    <string name="spacer_empty_button">Bouton vide</string>
+    <string name="spacer_empty_button_description">Espace réservé transparent qui occupe seulement la place</string>
+    <string name="spacer_add_empty_button">Ajouter un bouton vide</string>
+    <string name="popup_custom_popup">Fenêtre personnalisée</string>
+    <string name="popup_choose">Choisir une fenêtre</string>
+    <string name="popup_none_yet">Aucune fenêtre pour l’instant</string>
+    <string name="popup_new">Nouvelle fenêtre</string>
+    <string name="popup_default_name">Nouvelle fenêtre</string>
+    <string name="popup_name">Nom de la fenêtre</string>
+    <string name="popup_edit_contents">Modifier le contenu</string>
+    <string name="popup_delete">Supprimer la fenêtre</string>
+    <string name="popup_status_entity">Entité d’état</string>
+    <string name="popup_status_entity_hint">Facultatif. Son état alimente la ligne d’état de la boîte de dialogue et ajoute l’historique.</string>
+    <string name="popup_settings_subtitle">Nom, icône et entité d’état</string>
+    <string name="popup_shared_hint">Les fenêtres sont partagées : d’autres boutons peuvent ouvrir la même.</string>
+    <string name="popup_empty">Cette fenêtre est vide. Appuyez sur Modifier pour ajouter des widgets.</string>
+</resources>

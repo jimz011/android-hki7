@@ -162,6 +162,10 @@ sealed interface ActionOutcome {
     data class OpenUrl(val url: String) : ActionOutcome
 }
 
+/** A custom popup opened by an action, hosted at the app root. [startInEditMode] opens it straight
+ *  into its own edit mode, used by the action editor's "Edit contents" shortcut. */
+data class ActivePopup(val popupId: String, val startInEditMode: Boolean = false)
+
 /** How often the expensive dashboard rebuild (areas/floors/registries/autopopulate) runs. */
 private const val DASHBOARD_REFRESH_INTERVAL_MS = 5 * 60 * 1000L
 
@@ -1060,6 +1064,14 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     val allowReimport: StateFlow<Boolean> = prefs.enforcedAllowReimport.stateIn(
         viewModelScope, SharingStarted.Eagerly, true
     )
+
+    /** Popup dialogs available to `custom_popup` actions on this dashboard. */
+    val customPopups: StateFlow<List<HKICustomPopup>> = prefs.customPopups.stateIn(
+        viewModelScope, SharingStarted.Eagerly, emptyList()
+    )
+    private val _activePopup = MutableStateFlow<ActivePopup?>(null)
+    /** The popup currently open, hosted once at the app root so any surface can trigger one. */
+    val activePopup: StateFlow<ActivePopup?> = _activePopup
 
     private val _people = MutableStateFlow<List<HAEntity>>(emptyList())
     val people: StateFlow<List<HAEntity>> = _people
@@ -2936,6 +2948,42 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         }
     }
 
+    /** Creates a popup and returns it immediately, so the caller can point an action at it without
+     *  waiting for the DataStore write to land. */
+    fun createCustomPopup(name: String, icon: String? = null): HKICustomPopup {
+        val popup = HKICustomPopup(id = UUID.randomUUID().toString(), name = name, icon = icon)
+        viewModelScope.launch { prefs.saveCustomPopups(prefs.customPopups.first() + popup) }
+        return popup
+    }
+
+    fun updateCustomPopup(popup: HKICustomPopup) {
+        viewModelScope.launch {
+            val popups = prefs.customPopups.first()
+            prefs.saveCustomPopups(popups.map { existing -> if (existing.id == popup.id) popup else existing })
+        }
+    }
+
+    /** Removes the popup and the widgets it owns. Actions still pointing at it fall back to doing
+     *  nothing, the same as any other incompletely configured action. */
+    fun deleteCustomPopup(popupId: String) {
+        if (_activePopup.value?.popupId == popupId) _activePopup.value = null
+        viewModelScope.launch {
+            prefs.saveCustomPopups(prefs.customPopups.first().filterNot { it.id == popupId })
+            val areaId = customPopupWidgetAreaId(popupId)
+            if (_areaWidgetsMapping.value.containsKey(areaId)) {
+                val updated = _areaWidgetsMapping.value.toMutableMap().apply { remove(areaId) }
+                _areaWidgetsMapping.value = updated
+                prefs.saveAreaWidgets(updated)
+            }
+        }
+    }
+
+    fun openCustomPopup(popupId: String, startInEditMode: Boolean = false) {
+        _activePopup.value = ActivePopup(popupId, startInEditMode)
+    }
+
+    fun closeCustomPopup() { _activePopup.value = null }
+
     fun hideBatteryEntity(pageKey: String, entityId: String) {
         val current = _pageConfigsMapping.value[pageKey] ?: HKIPageConfig()
         val batteryConfig = current.batteryConfig ?: HKIBatteryConfig()
@@ -3817,6 +3865,11 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             "more_info" -> ActionOutcome.OpenMoreInfo(action.moreInfoEntityId ?: action.targetEntityId ?: ownerEntityId)
             "navigate" -> action.navigationTarget?.let { ActionOutcome.Navigate(it) } ?: ActionOutcome.None
             "url" -> action.url?.takeIf { it.isNotBlank() }?.let { ActionOutcome.OpenUrl(it) } ?: ActionOutcome.None
+            // The popup host lives at the app root, so opening one needs no per-surface plumbing.
+            "custom_popup" -> {
+                val popupId = action.popupId?.takeIf { id -> customPopups.value.any { it.id == id } }
+                if (popupId == null) ActionOutcome.None else { openCustomPopup(popupId); ActionOutcome.Handled }
+            }
             "call_service" -> {
                 val service = action.service?.takeIf { it.contains(".") }
                 if (service == null) { ActionOutcome.None }

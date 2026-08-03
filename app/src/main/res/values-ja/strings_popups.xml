@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty (transparent) buttons and the custom-popup action. -->
+<resources>
+    <string name="spacer_empty_button">空のボタン</string>
+    <string name="spacer_empty_button_description">場所だけを確保する透明なプレースホルダー</string>
+    <string name="spacer_add_empty_button">空のボタンを追加</string>
+    <string name="popup_custom_popup">カスタムポップアップ</string>
+    <string name="popup_choose">ポップアップを選択</string>
+    <string name="popup_none_yet">ポップアップがまだありません</string>
+    <string name="popup_new">新しいポップアップ</string>
+    <string name="popup_default_name">新しいポップアップ</string>
+    <string name="popup_name">ポップアップ名</string>
+    <string name="popup_edit_contents">内容を編集</string>
+    <string name="popup_delete">ポップアップを削除</string>
+    <string name="popup_status_entity">ステータスエンティティ</string>
+    <string name="popup_status_entity_hint">任意。その状態がダイアログのステータス行に表示され、履歴表示も追加されます。</string>
+    <string name="popup_settings_subtitle">名前、アイコン、ステータスエンティティ</string>
+    <string name="popup_shared_hint">ポップアップは共有されます。他のボタンからも同じポップアップを開けます。</string>
+    <string name="popup_empty">このポップアップは空です。「編集」をタップしてウィジェットを追加してください。</string>
+</resources>

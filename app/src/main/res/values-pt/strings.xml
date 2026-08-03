@@ -3216,6 +3216,11 @@
         <item quantity="one">%1$d bateria precisa de atenção</item>
         <item quantity="other">%1$d baterias precisam de atenção</item>
     </plurals>
+    <string-array name="cr_whats_new_beta_12">
+        <item>Os widgets e as pilhas de botões passam a suportar um botão vazio totalmente transparente. Ocupa uma célula da grelha sem desenhar nada, pelo que os botões à volta ficam exatamente onde quer.</item>
+        <item>Nova ação Janela personalizada para botões, emblemas e botões de caixas de diálogo. Associe qualquer toque, toque longo ou duplo toque a uma janela criada por si: abre com o título, o estado, o histórico e o fecho habituais e enche-a com qualquer widget da aplicação. Cada janela tem o seu próprio botão Editar, pelo que os widgets podem ser adicionados, configurados e removidos a partir da própria caixa de diálogo sem colocar o painel em modo de edição. As janelas são partilhadas, por isso vários botões podem abrir a mesma.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_11">
         <item>Os painéis Divisões, Clima, Segurança, Energia e Bateria aproveitam melhor tablets e dispositivos dobráveis. Os cartões grandes seguem a disposição de uma, duas ou três colunas do Início e das divisões, enquanto os blocos compactos se ajustam automaticamente sem ficarem apertados. Em ecrãs largos, os cartões de Clima, Segurança e Energia usam uma disposição masonry que considera a altura, eliminando grandes espaços sob os cartões mais baixos.</item>
         <item>Os ícones coloridos pelo estado nos botões de entidades e nos indicadores de cabeçalho ou estado mantêm o tom identificável, mas ficam automaticamente mais claros ou escuros quando poderiam confundir-se com o tema atual.</item>

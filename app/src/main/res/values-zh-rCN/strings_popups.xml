@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty (transparent) buttons and the custom-popup action. -->
+<resources>
+    <string name="spacer_empty_button">空按钮</string>
+    <string name="spacer_empty_button_description">仅占位的透明占位符</string>
+    <string name="spacer_add_empty_button">添加空按钮</string>
+    <string name="popup_custom_popup">自定义弹窗</string>
+    <string name="popup_choose">选择弹窗</string>
+    <string name="popup_none_yet">尚无弹窗</string>
+    <string name="popup_new">新建弹窗</string>
+    <string name="popup_default_name">新建弹窗</string>
+    <string name="popup_name">弹窗名称</string>
+    <string name="popup_edit_contents">编辑内容</string>
+    <string name="popup_delete">删除弹窗</string>
+    <string name="popup_status_entity">状态实体</string>
+    <string name="popup_status_entity_hint">可选。其状态会显示在对话框的状态行中，并启用历史视图。</string>
+    <string name="popup_settings_subtitle">名称、图标和状态实体</string>
+    <string name="popup_shared_hint">弹窗是共享的：其他按钮也可以打开同一个弹窗。</string>
+    <string name="popup_empty">此弹窗为空。点按“编辑”即可添加微件。</string>
+</resources>

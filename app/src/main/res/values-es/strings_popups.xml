@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty (transparent) buttons and the custom-popup action. -->
+<resources>
+    <string name="spacer_empty_button">Botón vacío</string>
+    <string name="spacer_empty_button_description">Marcador de posición transparente que solo reserva espacio</string>
+    <string name="spacer_add_empty_button">Añadir botón vacío</string>
+    <string name="popup_custom_popup">Ventana personalizada</string>
+    <string name="popup_choose">Elige una ventana</string>
+    <string name="popup_none_yet">Aún no hay ventanas</string>
+    <string name="popup_new">Nueva ventana</string>
+    <string name="popup_default_name">Nueva ventana</string>
+    <string name="popup_name">Nombre de la ventana</string>
+    <string name="popup_edit_contents">Editar contenido</string>
+    <string name="popup_delete">Eliminar ventana</string>
+    <string name="popup_status_entity">Entidad de estado</string>
+    <string name="popup_status_entity_hint">Opcional. Su estado rellena la línea de estado del diálogo y añade la vista de historial.</string>
+    <string name="popup_settings_subtitle">Nombre, icono y entidad de estado</string>
+    <string name="popup_shared_hint">Las ventanas se comparten: otros botones pueden abrir esta misma ventana.</string>
+    <string name="popup_empty">Esta ventana está vacía. Toca Editar para añadir widgets.</string>
+</resources>

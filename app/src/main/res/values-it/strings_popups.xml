@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty (transparent) buttons and the custom-popup action. -->
+<resources>
+    <string name="spacer_empty_button">Pulsante vuoto</string>
+    <string name="spacer_empty_button_description">Segnaposto trasparente che occupa solo lo spazio</string>
+    <string name="spacer_add_empty_button">Aggiungi pulsante vuoto</string>
+    <string name="popup_custom_popup">Finestra personalizzata</string>
+    <string name="popup_choose">Scegli una finestra</string>
+    <string name="popup_none_yet">Ancora nessuna finestra</string>
+    <string name="popup_new">Nuova finestra</string>
+    <string name="popup_default_name">Nuova finestra</string>
+    <string name="popup_name">Nome della finestra</string>
+    <string name="popup_edit_contents">Modifica contenuto</string>
+    <string name="popup_delete">Elimina finestra</string>
+    <string name="popup_status_entity">Entità di stato</string>
+    <string name="popup_status_entity_hint">Facoltativa. Il suo stato riempie la riga di stato della finestra e aggiunge la cronologia.</string>
+    <string name="popup_settings_subtitle">Nome, icona ed entità di stato</string>
+    <string name="popup_shared_hint">Le finestre sono condivise: altri pulsanti possono aprire la stessa finestra.</string>
+    <string name="popup_empty">Questa finestra è vuota. Tocca Modifica per aggiungere widget.</string>
+</resources>

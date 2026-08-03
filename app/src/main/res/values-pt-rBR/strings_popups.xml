@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty (transparent) buttons and the custom-popup action. -->
+<resources>
+    <string name="spacer_empty_button">Botão vazio</string>
+    <string name="spacer_empty_button_description">Espaço reservado transparente que apenas ocupa lugar</string>
+    <string name="spacer_add_empty_button">Adicionar botão vazio</string>
+    <string name="popup_custom_popup">Janela personalizada</string>
+    <string name="popup_choose">Escolher uma janela</string>
+    <string name="popup_none_yet">Ainda não há janelas</string>
+    <string name="popup_new">Nova janela</string>
+    <string name="popup_default_name">Nova janela</string>
+    <string name="popup_name">Nome da janela</string>
+    <string name="popup_edit_contents">Editar conteúdo</string>
+    <string name="popup_delete">Excluir janela</string>
+    <string name="popup_status_entity">Entidade de status</string>
+    <string name="popup_status_entity_hint">Opcional. O status dela preenche a linha de status da caixa de diálogo e adiciona o histórico.</string>
+    <string name="popup_settings_subtitle">Nome, ícone e entidade de status</string>
+    <string name="popup_shared_hint">As janelas são compartilhadas: outros botões podem abrir a mesma janela.</string>
+    <string name="popup_empty">Esta janela está vazia. Toque em Editar para adicionar widgets.</string>
+</resources>

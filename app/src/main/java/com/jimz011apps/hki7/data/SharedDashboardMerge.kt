@@ -16,6 +16,7 @@ fun mergeSharedDashboardAesthetics(local: HKIDashboard, incoming: HKIDashboard):
         local.pageConfigs[key]?.let { mergePageConfigAesthetics(config, it) } ?: config
     }
     val localCustomPages = local.customPages.associateBy { it.id }
+    val localCustomPopups = local.customPopups.associateBy { it.id }
     return incoming.copy(
         id = local.id,
         name = local.name,
@@ -23,6 +24,8 @@ fun mergeSharedDashboardAesthetics(local: HKIDashboard, incoming: HKIDashboard):
         areaWidgets = mergedAreaWidgets,
         pageConfigs = mergedPageConfigs,
         customPages = incoming.customPages.map { page -> localCustomPages[page.id] ?: page },
+        // Like custom pages, the owner decides which popups exist while a local rename/icon sticks.
+        customPopups = incoming.customPopups.map { popup -> localCustomPopups[popup.id] ?: popup },
         navBarOrder = local.navBarOrder,
         navBarHidden = local.navBarHidden,
         mediaPlayerNames = incoming.mediaPlayerNames + local.mediaPlayerNames,
