@@ -13,6 +13,7 @@ import android.content.pm.ServiceInfo
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.IBinder
+import android.provider.Settings
 import com.jimz011apps.hki7.R
 import androidx.core.app.NotificationCompat
 import androidx.core.app.RemoteInput
@@ -400,6 +401,20 @@ class PushForegroundService : Service() {
         val contentIntent = launchIntent?.let {
             PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         }
+        // The escape hatch belongs on the notification itself. Settings has the same shortcut, but
+        // someone bothered by this is looking at the shade, not hunting through Settings — and it
+        // switches itself on for multi-home setups, so they may never have opted into it at all.
+        // Straight to an activity: a broadcast receiver may not start one on a notification's
+        // behalf since Android 12.
+        val hideIntent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
+            putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+            putExtra(Settings.EXTRA_CHANNEL_ID, CHANNEL_ID)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        val hidePendingIntent = PendingIntent.getActivity(
+            this, 1, hideIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
         // Android insists foreground services show a notification (and bumps MIN-importance
         // channels to LOW for them), so this is as quiet as it can legally be: silent, hidden on
         // the lock screen, no timestamp, and its appearance deferred. The user can hide it fully
@@ -414,6 +429,7 @@ class PushForegroundService : Service() {
             .setVisibility(NotificationCompat.VISIBILITY_SECRET)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_DEFERRED)
             .setContentIntent(contentIntent)
+            .addAction(0, getString(R.string.background_push_hide_action), hidePendingIntent)
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .build()
     }

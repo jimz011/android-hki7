@@ -302,6 +302,7 @@
     <string name="background_push_channel_description">即時通知のためHome Assistantへのバックグラウンド接続を維持します</string>
     <string name="background_push_notification_title">Home Assistantに接続済み</string>
     <string name="background_push_notification_text">通知を待機しています</string>
+    <string name="background_push_hide_action">この通知を非表示</string>
     <string name="cr_state_on">オン</string>
     <string name="cr_state_off">オフ</string>
     <string name="cr_open">開く</string>

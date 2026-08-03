@@ -346,6 +346,7 @@
         <item>Correction de l\'invite de changement de pièce qui apparaissait après avoir désactivé Demander avant de changer de pièce, et pour la pièce déjà à l\'écran. Elle propose aussi Ne plus demander jusqu\'au prochain démarrage, et le délai se règle indépendamment.</item>
         <item>Les flux gèrent désormais « L\'une de celles-ci » et la logique imbriquée, plus seulement une liste plate de ET. Un groupe s\'ouvre dans sa propre liste avec un fil d\'Ariane, et un groupe peut en contenir d\'autres : « mouvement détecté ET (après le coucher du soleil OU mode invité activé) » devient constructible. C\'est la structure qu\'écrit l\'éditeur d\'automatisations de Home Assistant, donc un flux créé dans HA avec OU n\'est plus un bloc avancé intouchable.</item>
         <item>Les cadrans de thermostat de la vue Climat ne se serrent plus à six sur un pliable en paysage. Ils restent à quatre par ligne tant que la fenêtre n\'est pas vraiment très large, pour que chacun garde de quoi se lire.</item>
+        <item>Le message « En attente de notifications » comporte désormais un bouton « Masquer cette notification » qui ouvre directement les réglages de son canal Android. Désactivé là, il disparaît définitivement tandis que la connexion continue. Android n\'autorise aucune connexion en arrière-plan sans notification visible : impossible d\'aller plus loin. Il s\'active aussi tout seul si vous avez plusieurs serveurs Home Assistant.</item>
         <item>* Intégration HKI 7 Cloud Component requise.</item>
     </string-array>
 

@@ -1696,6 +1696,7 @@
     <string name="background_push_channel_description">保持与 Home Assistant 的后台连接以便即时接收通知</string>
     <string name="background_push_channel_name">通知连接</string>
     <string name="background_push_notification_text">正在等待通知</string>
+    <string name="background_push_hide_action">隐藏此通知</string>
     <string name="background_push_notification_title">已连接到 Home Assistant</string>
     <plurals name="core_last_seen_days">
         <item quantity="other">%1$d 天前最后出现</item>
@@ -1967,6 +1968,7 @@
         <item>修复了关闭“切换房间前先询问”后仍出现房间切换询问，以及为当前已打开的房间询问的问题。询问中新增“在我重新启动应用前不要再询问”，等待时间也可随时设置。</item>
         <item>流程现在可以表达“满足其中任一”和嵌套逻辑，而不只是一串 AND。分组会带面包屑在自己的列表中打开，分组还能包含分组，因此“检测到移动 且（日落之后 或 访客模式开启）”可以直接搭建。这与 Home Assistant 自动化编辑器写出的结构相同，所以在 HA 中用 OR 创建的流程不再是无法编辑的高级块。</item>
         <item>气候视图中的温控旋钮不再在横屏折叠屏上挤成六个一排。在窗口真正变得很宽之前，每行保持四个，让每个旋钮都有足够宽度。</item>
+        <item>“等待通知”消息现在带有“隐藏此通知”按钮，可直接跳转到它的 Android 渠道设置。在那里关闭渠道后，通知会彻底消失，而连接照常工作。Android 不允许没有可见通知的后台连接，因此这已是静音的极限。当你有多个 Home Assistant 服务器时，它也会自行开启。</item>
         <item>* 需要 HKI 7 Cloud 组件集成。</item>
     </string-array>
 

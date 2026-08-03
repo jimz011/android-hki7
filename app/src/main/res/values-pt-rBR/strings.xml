@@ -1696,6 +1696,7 @@
     <string name="background_push_channel_description">Mantém uma conexão em segundo plano com o Home Assistant para notificações instantâneas</string>
     <string name="background_push_channel_name">Conexão de notificações</string>
     <string name="background_push_notification_text">Aguardando notificações</string>
+    <string name="background_push_hide_action">Ocultar esta notificação</string>
     <string name="background_push_notification_title">Conectado ao Home Assistant</string>
     <string name="core_last_seen_just_now">Visto pela última vez agora mesmo</string>
     <string name="core_no_media_playing">Nenhuma mídia em reprodução</string>
@@ -3259,6 +3260,7 @@
         <item>Corrigido o aviso de mudança de cômodo aparecendo depois de desligar Perguntar antes de mudar de cômodo, e para o cômodo já na tela. Agora também oferece Não perguntar de novo até reiniciar, e a espera pode ser definida mesmo assim.</item>
         <item>Os fluxos agora expressam “Qualquer uma destas” e lógica aninhada, não apenas uma lista simples de E. Um grupo abre na própria lista com trilha de navegação, e grupos podem conter grupos, então “movimento detectado E (depois do pôr do sol OU modo visitante ligado)” é possível. É a mesma estrutura que o editor de automações do Home Assistant escreve, então um fluxo criado no HA com OU deixa de ser um bloco avançado intocável.</item>
         <item>Os mostradores de termostato na tela Clima não se espremem mais em seis num dobrável na horizontal. Ficam em quatro por linha até a janela ficar realmente muito larga, para cada um manter largura de leitura.</item>
+        <item>A mensagem “Aguardando notificações” agora tem um botão “Ocultar esta notificação” que abre direto as configurações do seu canal do Android. Desligado ali, ele some de vez enquanto a conexão continua funcionando. O Android não permite uma conexão em segundo plano sem notificação visível, então não dá para silenciar mais. Ela também liga sozinha quando você tem mais de um servidor Home Assistant.</item>
         <item>* É necessária a integração do componente HKI 7 Cloud.</item>
     </string-array>
 

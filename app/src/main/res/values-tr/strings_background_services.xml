@@ -9,4 +9,5 @@
     <string name="background_push_channel_description">Anlık bildirimler için arka planda Home Assistant bağlantısını sürdürür</string>
     <string name="background_push_notification_title">Home Assistant’a bağlı</string>
     <string name="background_push_notification_text">Bildirimler bekleniyor</string>
+    <string name="background_push_hide_action">Bu bildirimi gizle</string>
 </resources>

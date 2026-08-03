@@ -9,4 +9,5 @@
     <string name="background_push_channel_description">Houdt op de achtergrond verbinding met Home Assistant voor directe meldingen</string>
     <string name="background_push_notification_title">Verbonden met Home Assistant</string>
     <string name="background_push_notification_text">Wacht op meldingen</string>
+    <string name="background_push_hide_action">Deze melding verbergen</string>
 </resources>

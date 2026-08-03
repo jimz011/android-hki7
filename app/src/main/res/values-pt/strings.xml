@@ -1696,6 +1696,7 @@
     <string name="background_push_channel_description">Mantém uma ligação em segundo plano ao Home Assistant para notificações instantâneas</string>
     <string name="background_push_channel_name">Ligação de notificações</string>
     <string name="background_push_notification_text">A aguardar notificações</string>
+    <string name="background_push_hide_action">Ocultar esta notificação</string>
     <string name="background_push_notification_title">Ligado ao Home Assistant</string>
     <string name="core_last_seen_just_now">Visto pela última vez agora mesmo</string>
     <string name="core_no_media_playing">Nenhum média em reprodução</string>
@@ -3259,6 +3260,7 @@
         <item>Corrigido o aviso de mudança de divisão a aparecer depois de desligar Perguntar antes de mudar de divisão, e para a divisão já no ecrã. Passa a oferecer Não perguntar novamente até reiniciar, e a espera pode ser definida à mesma.</item>
         <item>Os fluxos passam a exprimir «Qualquer uma destas» e lógica aninhada, não apenas uma lista simples de E. Um grupo abre na sua própria lista com trilho de navegação, e os grupos podem conter grupos, pelo que «movimento detetado E (depois do pôr do sol OU modo convidado ligado)» é construível. É a mesma estrutura que o editor de automações do Home Assistant escreve, por isso um fluxo criado no HA com OU deixa de ser um bloco avançado intocável.</item>
         <item>Os mostradores do termóstato na vista Clima já não se apertam a seis num dobrável na horizontal. Ficam por quatro por linha até a janela ser mesmo muito larga, para cada um manter largura para se ler.</item>
+        <item>A mensagem «À espera de notificações» passa a ter um botão «Ocultar esta notificação» que abre diretamente as definições do seu canal Android. Desligado aí, desaparece de vez enquanto a ligação continua a funcionar. O Android não permite uma ligação em segundo plano sem notificação visível, por isso não dá para silenciar mais. Também se liga sozinha quando tem mais do que um servidor Home Assistant.</item>
         <item>* Requer a integração do Componente HKI 7 Cloud.</item>
     </string-array>
 

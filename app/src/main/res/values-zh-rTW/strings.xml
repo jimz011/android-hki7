@@ -1879,6 +1879,7 @@
         <item>修正了關閉「切換房間前先詢問」後仍出現房間切換詢問，以及為目前已開啟的房間詢問的問題。詢問中新增「在我重新啟動應用程式前不要再詢問」，等待時間也可隨時設定。</item>
         <item>流程現在可以表達「滿足其中任一」與巢狀邏輯，而不只是一串 AND。群組會帶麵包屑在自己的清單中開啟，群組還能包含群組，因此「偵測到移動 且（日落之後 或 訪客模式開啟）」可以直接建立。這與 Home Assistant 自動化編輯器寫出的結構相同，所以在 HA 中用 OR 建立的流程不再是無法編輯的進階區塊。</item>
         <item>氣候檢視中的恆溫旋鈕不再在橫向折疊機上擠成六個一排。在視窗真正變得很寬之前，每列維持四個，讓每個旋鈕都有足夠寬度。</item>
+        <item>「等待通知」訊息現在帶有「隱藏此通知」按鈕，可直接跳至它的 Android 管道設定。在那裡關閉管道後，通知會徹底消失，而連線照常運作。Android 不允許沒有可見通知的背景連線，因此這已是靜音的極限。當你有多個 Home Assistant 伺服器時，它也會自行開啟。</item>
         <item>* 需要 HKI 7 Cloud Component 整合。</item>
     </string-array>
 
@@ -2012,6 +2013,7 @@
     <string name="background_push_channel_description">維持與 Home Assistant 的背景連線，以便即時接收通知</string>
     <string name="background_push_channel_name">通知連線</string>
     <string name="background_push_notification_text">正在等待通知</string>
+    <string name="background_push_hide_action">隱藏此通知</string>
     <string name="background_push_notification_title">已連線至 Home Assistant</string>
     <string name="core_last_seen_just_now">剛剛上線</string>
     <string name="core_no_media_playing">目前沒有媒體播放</string>

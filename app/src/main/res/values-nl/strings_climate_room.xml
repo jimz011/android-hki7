@@ -340,6 +340,7 @@
         <item>Opgelost dat de kamerwissel-vraag verscheen nadat Vragen voordat van kamer wordt gewisseld was uitgezet, en ook voor de kamer die al op het scherm staat. Er is nu ook Niet meer vragen tot ik de app opnieuw start, en de wachttijd is los daarvan in te stellen.</item>
         <item>Flows kunnen nu Een van deze en geneste logica uitdrukken, niet alleen een platte EN-lijst. Een groep opent in een eigen lijst met kruimelpad, en groepen kunnen groepen bevatten, dus beweging gedetecteerd EN (na zonsondergang OF gastmodus aan) is te bouwen. Het is dezelfde structuur die de automatiseringseditor van Home Assistant schrijft, dus een in HA gemaakte flow met OF is geen onaantastbaar geavanceerd blok meer.</item>
         <item>Thermostaatknoppen in de Klimaatweergave persen zich niet langer met zes op een rij op een liggende foldable. Ze blijven op vier per rij tot het venster echt heel breed is, zodat elke knop leesbaar blijft.</item>
+        <item>De melding Wachten op meldingen heeft nu een knop Deze melding verbergen die direct naar de Android-kanaalinstellingen springt. Zet je het kanaal daar uit, dan verdwijnt hij definitief terwijl de verbinding blijft werken. Android staat geen achtergrondverbinding zonder zichtbare melding toe, verder dempen kan niet. Hij gaat ook vanzelf aan als je meer dan één Home Assistant-server hebt.</item>
         <item>* HKI 7 Cloud Component-integratie vereist.</item>
     </string-array>
 

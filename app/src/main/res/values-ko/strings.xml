@@ -302,6 +302,7 @@
     <string name="background_push_channel_description">즉시 알림을 위해 Home Assistant와의 백그라운드 연결을 유지합니다</string>
     <string name="background_push_notification_title">Home Assistant에 연결됨</string>
     <string name="background_push_notification_text">알림 대기 중</string>
+    <string name="background_push_hide_action">이 알림 숨기기</string>
     <string name="cr_state_on">켜짐</string>
     <string name="cr_state_off">꺼짐</string>
     <string name="cr_open">열기</string>

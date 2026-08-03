@@ -9,4 +9,5 @@
     <string name="background_push_channel_description">Mantiene una conexión en segundo plano con Home Assistant para recibir notificaciones al instante</string>
     <string name="background_push_notification_title">Conectado a Home Assistant</string>
     <string name="background_push_notification_text">Esperando notificaciones</string>
+    <string name="background_push_hide_action">Ocultar esta notificación</string>
 </resources>

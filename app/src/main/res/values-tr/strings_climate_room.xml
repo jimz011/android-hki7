@@ -340,6 +340,7 @@
         <item>Oda değiştirme sorusunun, Oda değiştirmeden önce sor kapatıldıktan sonra ve zaten ekranda olan oda için görünmesi düzeltildi. Artık Uygulamayı yeniden başlatana kadar bir daha sorma da sunuyor ve bekleme süresi her hâlükârda ayarlanabiliyor.</item>
         <item>Akışlar artık yalnızca düz bir VE listesi değil, “Bunlardan herhangi biri” ve iç içe mantık da kurabiliyor. Bir grup kendi listesinde açılır ve gruplar grup içerebilir; böylece “hareket algılandı VE (gün batımından sonra VEYA misafir modu açık)” kurulabilir. Bu, Home Assistant\'ın kendi otomasyon düzenleyicisinin yazdığı yapıdır; HA\'da VEYA ile oluşturulmuş bir akış artık dokunulamaz bir gelişmiş blok değil.</item>
         <item>Klima görünümündeki termostat kadranları artık yatay katlanabilirde altı yan yana sıkışmıyor. Pencere gerçekten çok genişleyene kadar satır başına dörtte kalır; böylece her kadran okunacak genişliği korur.</item>
+        <item>“Bildirimler bekleniyor” mesajında artık doğrudan Android kanal ayarlarına giden bir “Bu bildirimi gizle” düğmesi var. Kanalı orada kapatınca bildirim kalıcı olarak kaybolur, bağlantı çalışmaya devam eder. Android, görünür bir bildirim olmadan arka plan bağlantısına izin vermiyor; sessize almanın sınırı bu. Ayrıca birden fazla Home Assistant sunucunuz varsa kendiliğinden açılır.</item>
         <item>* HKI 7 Cloud Component entegrasyonu gerekir.</item>
     </string-array>
 
