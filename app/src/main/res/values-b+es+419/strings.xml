@@ -1975,6 +1975,8 @@
         <item>Nueva acción Ventana personalizada para botones, insignias y botones de diálogo. Asigna a cualquier toque, pulsación larga o doble toque una ventana creada por ti: se abre con el título, el estado, el historial y el cierre habituales, y la llenas con cualquier widget de la app. Las ventanas aparecen en Ajustes › Apariencia › Ventanas, donde «Editar contenido» abre una lista para organizar. Se comparten, así que varios botones pueden abrir la misma, y las pilas dentro pueden usar hasta seis columnas en lugar de tres. Mientras organizas una ventana, un botón Listo aparece junto a Agregar widget para salir del modo de edición sin cerrarla.</item>
         <item>Se corrigieron las vistas de detalle de Energía (Solar, Electricidad, Gas, Agua, Calefacción urbana, Batería), que dibujaban sus tarjetas pegadas y sin títulos. «Producción», «Pronóstico», «Inversores» y las demás quedaban detrás de la tarjeta siguiente; ahora las tarjetas conservan sus títulos y el espaciado habitual.</item>
         <item>Se corrigió que los Controles parentales no guardaran. Un componente HKI 7 Cloud desactualizado rechaza las listas Visible e Invisible, lo que antes hacía fallar toda la política; ahora los permisos se guardan igualmente y el mensaje indica que hay que actualizar el componente. Esas listas solo filtran listas de entidades como la búsqueda global: un botón de un panel familiar sigue visible salvo que se oculte explícitamente para esa persona.*</item>
+        <item>Las notificaciones de Home Assistant ahora pueden incluir botones de acción. Al agregar actions a un mensaje notify.mobile_app_…, cada una aparece en la notificación; al tocarla, la acción se envía de vuelta a Home Assistant, donde una automatización puede responder. Los botones también aparecen en el aviso dentro de la app y en el cajón de notificaciones, porque HKI oculta las notificaciones del sistema mientras está abierta. Una acción URI abre su enlace, una acción REPLY admite una respuesta escrita y una acción tocada sin conexión se entrega cuando esta vuelve. Cada notificación se puede accionar una vez.</item>
+        <item>HKI ahora puede seguirte de habitación en habitación. Indícale un sensor de presencia como ESPresense: al iniciarse, la app abre la habitación en la que estás y ofrece cambiar de vista cuando te mueves. Las habitaciones también muestran un contador morado con cuántas personas hay, junto a los contadores de movimiento y presencia. Un administrador lo configura para toda la familia en Ajustes › Compartir en familia › Presencia: el sensor de cada persona y cuánto debe mantenerse una habitación nueva antes de contar como un movimiento. Las habitaciones del sensor que se llaman como tus áreas de Home Assistant se emparejan automáticamente.*</item>
         <item>* Requiere la integración de HKI 7 Cloud Component.</item>
     </string-array>
 
@@ -2848,6 +2850,26 @@
     <string name="settings_extra_paypal_logo">Logotipo de PayPal</string>
     <string name="settings_extra_policy_update_failed">No se pudo actualizar la política.</string>
     <string name="settings_extra_policy_needs_component_update">Permisos guardados. Actualiza HKI 7 Cloud para guardar también las listas Visible e Invisible.</string>
+    <string name="settings_extra_policy_needs_component_update_room_follow">Permisos guardados. Actualiza HKI 7 Cloud para guardar también los ajustes de seguimiento de habitaciones.</string>
+    <string name="settings_extra_tab_presence">Presencia</string>
+    <string name="settings_extra_room_follow_title">Seguimiento de habitaciones</string>
+    <string name="settings_extra_room_follow_description">Elige el sensor de presencia que sigue el teléfono de cada persona, como un sensor ESPresense. La app abre la habitación en la que está y ofrece seguirla cuando se mueve.</string>
+    <string name="settings_extra_room_follow_sensor">Sensor de presencia</string>
+    <string name="settings_extra_room_follow_none">Sin sensor</string>
+    <string name="settings_extra_room_follow_enabled">Seguir a esta persona entre habitaciones</string>
+    <string name="settings_extra_room_follow_open_on_launch">Abrir su habitación al iniciar la app</string>
+    <string name="settings_extra_room_follow_prompt_on_move">Preguntar antes de cambiar de habitación</string>
+    <string name="settings_extra_room_follow_dwell">Espera antes de contar un movimiento</string>
+    <string name="settings_extra_room_follow_dwell_value">%1$d s</string>
+    <string name="settings_extra_room_follow_dwell_hint">Los sensores de presencia oscilan entre habitaciones contiguas. Una espera más larga reduce los movimientos falsos.</string>
+    <string name="settings_extra_room_follow_rooms">Estados del sensor</string>
+    <string name="settings_extra_room_follow_rooms_matched">Emparejado automáticamente</string>
+    <string name="settings_extra_room_follow_rooms_unmatched">Elegir una habitación</string>
+    <string name="settings_extra_room_follow_no_states">Aún no se han visto estados. Aparecerán aquí cuando el sensor los informe.</string>
+    <string name="room_follow_moved_title">Te moviste a %1$s</string>
+    <string name="room_follow_moved_message">¿Cambiar a esa habitación o quedarte aquí?</string>
+    <string name="room_follow_moved_switch">Cambiar</string>
+    <string name="room_follow_moved_stay">Quedarme</string>
     <string name="settings_extra_rename_dashboard">Renombrar %1$s</string>
     <string name="settings_extra_rename_instance">Renombrar %1$s</string>
     <string name="settings_extra_restart_home_assistant_failed">No se pudo reiniciar Home Assistant.</string>

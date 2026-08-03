@@ -94,6 +94,7 @@ import com.jimz011apps.hki7.data.HaParentalControls
 import com.jimz011apps.hki7.data.HaDashboardSharing
 import com.jimz011apps.hki7.data.VisibilityUserSession
 import com.jimz011apps.hki7.ui.components.IconEffectDefaults
+import com.jimz011apps.hki7.ui.components.RoomMovePrompt
 import com.jimz011apps.hki7.ui.components.LocalEntityCatalogProvider
 import com.jimz011apps.hki7.ui.components.LocalVisibilityFamilyContext
 import com.jimz011apps.hki7.ui.components.VisibilityFamilyContext
@@ -528,6 +529,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     // Refresh this user's policy from the hki7 component whenever we're authenticated.
     LaunchedEffect(Unit) {
         runCatching { HaParentalControls.refreshForCurrentUser(appCtx, prefs) }
+        runCatching { HaParentalControls.refreshRoomFollowRoster(appCtx, prefs) }
     }
     val isEditMode by viewModel.isEditMode.collectAsState()
     val canUndo by viewModel.canUndo.collectAsState()
@@ -542,6 +544,55 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         if (swipeNavigationDirection != 0) {
             delay(280.milliseconds)
             swipeNavigationDirection = 0
+        }
+    }
+
+    // ── Room following ──────────────────────────────────────────────────
+    val roomFollow by viewModel.roomFollow.collectAsState()
+    val followedAreaId by viewModel.followedAreaId.collectAsState()
+    val pendingRoomMove by viewModel.pendingRoomMove.collectAsState()
+    val parentalHiddenRooms by prefs.parentalHiddenRooms.collectAsState(initial = emptyList())
+    val hiddenRoomIds = remember(parentalHiddenRooms) { parentalHiddenRooms.toSet() }
+    // A room the admin hid from this person must never be opened for them, however they got there.
+    fun canOpenRoom(areaId: String?): Boolean =
+        areaId != null && areaId !in hiddenRoomIds && areas.any { it.area_id == areaId }
+
+    var openedFollowedRoom by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(roomFollow, followedAreaId, areas) {
+        // Once per app start: a later move is the move prompt's job, not a silent jump.
+        if (openedFollowedRoom || !roomFollow.isActive || !roomFollow.openOnLaunch) return@LaunchedEffect
+        if (areas.isEmpty()) return@LaunchedEffect
+        val target = followedAreaId
+        if (!canOpenRoom(target)) return@LaunchedEffect
+        openedFollowedRoom = true
+        navController.navigate(Screen.RoomDetail.createRoute(target!!))
+    }
+
+    // Confirming a move is about elapsed time, not about the sensor repeating itself, so this
+    // ticks rather than reacting to state changes.
+    LaunchedEffect(roomFollow.isActive, roomFollow.promptOnMove, isEditMode) {
+        if (!roomFollow.isActive || !roomFollow.promptOnMove) return@LaunchedEffect
+        // Never interrupt someone mid-edit with a navigation prompt.
+        if (isEditMode) return@LaunchedEffect
+        while (true) {
+            viewModel.observeRoomPresence(currentAreaId)
+            delay(2.seconds)
+        }
+    }
+
+    pendingRoomMove?.let { targetAreaId ->
+        val roomName = areas.firstOrNull { it.area_id == targetAreaId }?.name
+        if (roomName == null || !canOpenRoom(targetAreaId)) {
+            LaunchedEffect(targetAreaId) { viewModel.resolveRoomMove(accepted = false) }
+        } else {
+            RoomMovePrompt(
+                roomName = roomName,
+                onSwitch = {
+                    viewModel.resolveRoomMove(accepted = true)
+                    navController.navigate(Screen.RoomDetail.createRoute(targetAreaId))
+                },
+                onStay = { viewModel.resolveRoomMove(accepted = false) }
+            )
         }
     }
     val currentTopLevelIndex = screens.indexOfFirst { screen ->

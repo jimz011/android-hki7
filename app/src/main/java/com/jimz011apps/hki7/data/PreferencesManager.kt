@@ -215,6 +215,8 @@ class PreferencesManager(
     private val homeSsidsKey = stringPreferencesKey("home_ssids")
     private val highAccuracyLocationKey = booleanPreferencesKey("high_accuracy_location")
     private val notificationHistoryKey = stringPreferencesKey("notification_history")
+    private val roomFollowKey = stringPreferencesKey("room_follow")
+    private val roomFollowRosterKey = stringPreferencesKey("room_follow_roster")
     private val backgroundPushKey = booleanPreferencesKey("background_push_enabled")
     private val navBarOrderKey = stringPreferencesKey("nav_bar_order")
     private val navBarHiddenKey = stringPreferencesKey("nav_bar_hidden")
@@ -372,7 +374,24 @@ class PreferencesManager(
             it[parentalAllowDashboardSwitchKey] = policy.allowDashboardSwitch
             it[parentalAllowDashboardCreateKey] = policy.allowDashboardCreate
             it[parentalAllowReimportKey] = policy.allowReimport
+            it[roomFollowKey] = appJson.encodeToString(policy.roomFollow)
         }
+    }
+
+    /** This device owner's room-following settings, cached so the launch navigation can decide
+     *  before the component has been reached (and keeps working while offline). */
+    val roomFollow: Flow<Hki7RoomFollow> = context.dataStore.data.map { preferences ->
+        decodeBackup(preferences[roomFollowKey], Hki7RoomFollow())
+    }
+
+    /** The household's room-presence sensors, cached from `hki7/room_follow/roster` so the
+     *  people-per-room counters survive a restart before the roster is refetched. */
+    val roomFollowRoster: Flow<List<String>> = context.dataStore.data.map { preferences ->
+        preferences[roomFollowRosterKey]?.split(",")?.filter { it.isNotBlank() }.orEmpty()
+    }
+
+    suspend fun saveRoomFollowRoster(sensors: List<String>) {
+        context.dataStore.edit { it[roomFollowRosterKey] = sensors.filter { s -> s.isNotBlank() }.joinToString(",") }
     }
 
     /** Version code whose changelog the user has already seen; 0 until one has been acknowledged. */

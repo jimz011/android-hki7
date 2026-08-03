@@ -1875,6 +1875,8 @@
         <item>為按鈕、徽章與對話方塊按鈕新增「自訂彈出視窗」動作。可將輕觸、長按或連點兩下指向你自行組建的彈出視窗：視窗具備一貫的標題、狀態、歷史與關閉控制項，並可放入應用程式中的任何小工具。彈出視窗會列在設定›外觀›彈出視窗中，「編輯內容」可直接開啟並排列。彈出視窗可共用，多個按鈕能開啟同一個，視窗內的堆疊最多可使用 6 欄，而非 3 欄。整理彈出視窗時，「新增小工具」旁會出現「完成」按鈕，可在不關閉視窗的情況下離開編輯模式。</item>
         <item>修正了能源詳細頁面（太陽能、電力、瓦斯、水、區域供熱、電池）中卡片緊貼在一起且缺少標題的問題。「發電」「預測」「變流器」等標題被下方卡片遮住；卡片現在會保留標題與一貫的間距。</item>
         <item>修正了家長監護無法儲存的問題。較舊的 HKI 7 Cloud 元件會拒絕「可見」和「不可見」清單，先前會導致整個原則儲存失敗；現在權限仍會儲存，並提示需要更新元件。這些清單只會篩選全域搜尋等實體清單——家庭儀表板上的按鈕除非針對該使用者明確隱藏，否則仍會顯示。*</item>
+        <item>Home Assistant 的通知現在可以帶操作按鈕。在 notify.mobile_app_… 訊息中加入 actions 後，每個按鈕都會顯示在通知上；點按後會將該操作送回 Home Assistant，自動化即可據此回應。由於 HKI 開啟時不會發送系統通知，這些按鈕同樣會顯示在應用程式內橫幅與通知匣中。URI 操作會開啟其連結，REPLY 操作可輸入回覆，離線時點按的操作會在連線恢復後送出。每則通知的操作只能使用一次。</item>
+        <item>HKI 現在可以在房間之間跟隨你。指定像 ESPresense 這樣的在室感測器後，啟動應用程式時會開啟你所在的房間，當你移動到別處時會詢問是否切換檢視。房間還會在動作與在室計數器旁顯示一個紫色計數器，標示房間內的人數。管理員可在設定 › 家庭共用 › 在室 中為全家統一設定：每個人的感測器，以及新房間需要維持多久才算一次移動。與 Home Assistant 區域同名的感測器房間會自動比對。*</item>
         <item>* 需要 HKI 7 Cloud Component 整合。</item>
     </string-array>
 
@@ -2934,6 +2936,26 @@
     <string name="settings_extra_paypal_logo">PayPal 標誌</string>
     <string name="settings_extra_policy_update_failed">無法更新政策。</string>
     <string name="settings_extra_policy_needs_component_update">權限已儲存。請更新 HKI 7 Cloud 以一併儲存「可見」和「不可見」清單。</string>
+    <string name="settings_extra_policy_needs_component_update_room_follow">權限已儲存。請更新 HKI 7 Cloud 以一併儲存房間跟隨設定。</string>
+    <string name="settings_extra_tab_presence">在室</string>
+    <string name="settings_extra_room_follow_title">房間跟隨</string>
+    <string name="settings_extra_room_follow_description">選擇追蹤每個人手機的房間在室感測器，例如 ESPresense 感測器。應用程式會開啟他們所在的房間，並在他們移動時詢問是否跟隨。</string>
+    <string name="settings_extra_room_follow_sensor">在室感測器</string>
+    <string name="settings_extra_room_follow_none">沒有感測器</string>
+    <string name="settings_extra_room_follow_enabled">在房間之間跟隨此人</string>
+    <string name="settings_extra_room_follow_open_on_launch">啟動應用程式時開啟其所在房間</string>
+    <string name="settings_extra_room_follow_prompt_on_move">切換房間前先詢問</string>
+    <string name="settings_extra_room_follow_dwell">計為一次移動前的等待</string>
+    <string name="settings_extra_room_follow_dwell_value">%1$d 秒</string>
+    <string name="settings_extra_room_follow_dwell_hint">在室感測器會在相鄰房間之間跳動。等待時間越長，誤判的移動越少。</string>
+    <string name="settings_extra_room_follow_rooms">感測器狀態</string>
+    <string name="settings_extra_room_follow_rooms_matched">已自動比對</string>
+    <string name="settings_extra_room_follow_rooms_unmatched">選擇房間</string>
+    <string name="settings_extra_room_follow_no_states">尚未收到狀態。感測器回報後會顯示在這裡。</string>
+    <string name="room_follow_moved_title">你已移動到%1$s</string>
+    <string name="room_follow_moved_message">切換到該房間，還是留在目前的檢視？</string>
+    <string name="room_follow_moved_switch">切換</string>
+    <string name="room_follow_moved_stay">留下</string>
     <string name="settings_extra_rename_dashboard">重新命名 %1$s</string>
     <string name="settings_extra_rename_instance">重新命名 %1$s</string>
     <string name="settings_extra_restart_home_assistant_failed">無法重新啟動 Home Assistant。</string>

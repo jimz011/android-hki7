@@ -1963,6 +1963,8 @@
         <item>为按钮、徽章和对话框按钮新增“自定义弹窗”操作。可将轻点、长按或双击指向你自行搭建的弹窗：弹窗带有一贯的标题、状态、历史和关闭控件，并可放入应用中的任意微件。弹窗会列在设置›外观›弹窗中，“编辑内容”可直接打开并排列。弹窗是共享的，多个按钮可以打开同一个，弹窗内的堆栈最多可使用 6 列，而不是 3 列。整理弹窗时，“添加微件”旁会出现“完成”按钮，可在不关闭弹窗的情况下退出编辑模式。</item>
         <item>修复了能源详情页面（太阳能、电力、燃气、水、区域供热、电池）中卡片紧挨在一起且缺少标题的问题。“发电”“预测”“逆变器”等标题被下方卡片遮住；卡片现在会保留标题和一贯的间距。</item>
         <item>修复了家长控制无法保存的问题。较旧的 HKI 7 Cloud 组件会拒绝“可见”和“不可见”列表，此前会导致整个策略保存失败；现在权限仍会保存，并提示需要更新组件。这些列表只会筛选全局搜索等实体列表——家庭仪表板上的按钮除非针对该用户明确隐藏，否则仍会显示。*</item>
+        <item>Home Assistant 的通知现在可以带操作按钮。在 notify.mobile_app_… 消息中添加 actions 后，每个按钮都会显示在通知上；点按后会把该操作发回 Home Assistant，自动化即可对其作出响应。由于 HKI 打开时不会发送系统通知，这些按钮同样会显示在应用内横幅和通知抽屉中。URI 操作会打开其链接，REPLY 操作可输入回复，离线时点按的操作会在连接恢复后送出。每条通知的操作只能使用一次。</item>
+        <item>HKI 现在可以在房间之间跟随你。指定一个像 ESPresense 这样的在室传感器后，启动应用时会打开你所在的房间，当你移动到别处时会询问是否切换视图。房间还会在动作和在室计数器旁显示一个紫色计数器，标明房间内的人数。管理员可在设置 › 家庭共享 › 在室 中为全家统一配置：每个人的传感器，以及新房间需要保持多久才算一次移动。与 Home Assistant 区域同名的传感器房间会自动匹配。*</item>
         <item>* 需要 HKI 7 Cloud 组件集成。</item>
     </string-array>
 
@@ -2823,6 +2825,26 @@
     <string name="settings_extra_paypal_logo">PayPal 标志</string>
     <string name="settings_extra_policy_update_failed">无法更新该策略。</string>
     <string name="settings_extra_policy_needs_component_update">权限已保存。请更新 HKI 7 Cloud 以同时保存“可见”和“不可见”列表。</string>
+    <string name="settings_extra_policy_needs_component_update_room_follow">权限已保存。请更新 HKI 7 Cloud 以同时保存房间跟随设置。</string>
+    <string name="settings_extra_tab_presence">在室</string>
+    <string name="settings_extra_room_follow_title">房间跟随</string>
+    <string name="settings_extra_room_follow_description">选择跟踪每个人手机的房间在室传感器，例如 ESPresense 传感器。应用会打开他们所在的房间，并在他们移动时询问是否跟随。</string>
+    <string name="settings_extra_room_follow_sensor">在室传感器</string>
+    <string name="settings_extra_room_follow_none">无传感器</string>
+    <string name="settings_extra_room_follow_enabled">在房间之间跟随此人</string>
+    <string name="settings_extra_room_follow_open_on_launch">启动应用时打开其所在房间</string>
+    <string name="settings_extra_room_follow_prompt_on_move">切换房间前先询问</string>
+    <string name="settings_extra_room_follow_dwell">计为一次移动前的等待</string>
+    <string name="settings_extra_room_follow_dwell_value">%1$d 秒</string>
+    <string name="settings_extra_room_follow_dwell_hint">在室传感器会在相邻房间之间跳动。等待时间越长，误判的移动越少。</string>
+    <string name="settings_extra_room_follow_rooms">传感器状态</string>
+    <string name="settings_extra_room_follow_rooms_matched">已自动匹配</string>
+    <string name="settings_extra_room_follow_rooms_unmatched">选择房间</string>
+    <string name="settings_extra_room_follow_no_states">尚未收到状态。传感器上报后会显示在这里。</string>
+    <string name="room_follow_moved_title">你已移动到%1$s</string>
+    <string name="room_follow_moved_message">切换到该房间，还是留在当前视图？</string>
+    <string name="room_follow_moved_switch">切换</string>
+    <string name="room_follow_moved_stay">留下</string>
     <string name="settings_extra_rename_dashboard">重命名 %1$s</string>
     <string name="settings_extra_rename_instance">重命名 %1$s</string>
     <string name="settings_extra_restart_home_assistant_failed">无法重启 Home Assistant。</string>

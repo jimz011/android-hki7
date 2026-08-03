@@ -490,6 +490,27 @@ data class HAStateChange(
     val newState: HAEntity?
 )
 
+/**
+ * One tappable button attached to a notification — HA's `data.actions`. Most entries fire a
+ * `mobile_app_notification_action` event back to HA; the two reserved action names behave
+ * differently (see [isUri] and [isReply]).
+ */
+@Serializable
+data class HKINotificationAction(
+    val action: String,
+    val title: String,
+    /** Set on `action: "URI"` entries: opened directly instead of firing an event. */
+    val uri: String? = null,
+    /** Arbitrary payload echoed back to HA inside the fired event. */
+    val actionData: JsonObject? = null,
+    /** HA's `behavior: "textInput"`, the cross-platform spelling of a reply action. */
+    val behavior: String? = null
+) {
+    val isUri: Boolean get() = action.equals("URI", ignoreCase = true) && !uri.isNullOrBlank()
+    val isReply: Boolean
+        get() = action.equals("REPLY", ignoreCase = true) || behavior.equals("textInput", ignoreCase = true)
+}
+
 /** One entry in the on-device notification history (delivered via the websocket push channel).
  *  Non-archived entries are purged 48h after arrival; archived entries are kept forever. */
 @Serializable
@@ -503,7 +524,15 @@ data class HKINotification(
     val instanceId: String? = null,
     val instanceName: String? = null,
     val read: Boolean = false,
-    val archived: Boolean = false
+    val archived: Boolean = false,
+    /** Buttons from `data.actions`. Kept in history so the in-app panel can offer them too —
+     *  while HKI is visible no system notification is posted, so this is the only place they show. */
+    val actions: List<HKINotificationAction> = emptyList(),
+    /** `data.clickAction`: where tapping the notification body should go. */
+    val clickAction: String? = null,
+    /** Client-side only: the action already fired from this entry, so the panel can retire the
+     *  buttons. HA has no concept of a spent action — it would happily fire the event again. */
+    val firedAction: String? = null
 )
 
 /** Response from HA's `/api/mobile_app/registrations`. */
@@ -1634,13 +1663,52 @@ data class Hki7Policy(
     val allowDashboardCreate: Boolean = true,
     /** Whether this user may manually re-import or clear view data from Home Assistant. */
     val allowReimport: Boolean = true,
+    /** This person's room-following settings (see [Hki7RoomFollow]). */
+    val roomFollow: Hki7RoomFollow = Hki7RoomFollow(),
 ) {
     val isEmpty: Boolean
         get() = hiddenViews.isEmpty() && hiddenRooms.isEmpty() && hiddenItemIds.isEmpty() &&
             visibleSearchDomains.isEmpty() && visibleSearchEntityIds.isEmpty() &&
             hiddenSearchDomains.isEmpty() && hiddenSearchEntityIds.isEmpty() &&
             allowEdit && !aestheticsOnly && showGlobalSearch && showFlows &&
-            allowDashboardSwitch && allowDashboardCreate && allowReimport
+            allowDashboardSwitch && allowDashboardCreate && allowReimport &&
+            roomFollow == Hki7RoomFollow()
+}
+
+/**
+ * One person's room following, configured by an admin in Family Sharing.
+ *
+ * [sensorEntityId] is the room-presence sensor tracking that person's phone. ESPresense and HA's
+ * `mqtt_room` platform both publish the room name as the sensor's *state*, which is all this needs
+ * — no MQTT client, just an ordinary entity read.
+ *
+ * [stateRooms] holds overrides only. States are matched against the area names first (see
+ * `resolveFollowedArea`), so a household whose ESPresense rooms are named after its areas needs no
+ * mapping at all.
+ */
+@Serializable
+data class Hki7RoomFollow(
+    val sensorEntityId: String? = null,
+    val enabled: Boolean = false,
+    /** Open the resolved room as soon as the app launches. */
+    val openOnLaunch: Boolean = true,
+    /** Offer to switch views when this person moves to another room. */
+    val promptOnMove: Boolean = true,
+    /**
+     * How long the new room must hold before it counts as a real move. Room-presence sensors flap
+     * between adjacent rooms, so without a dwell window the move prompt would fire constantly.
+     */
+    val dwellSeconds: Int = DEFAULT_DWELL_SECONDS,
+    /** Sensor state -> area id, for the states that don't match an area by name. */
+    val stateRooms: Map<String, String> = emptyMap()
+) {
+    /** Following without a sensor is meaningless; the component enforces the same rule. */
+    val isActive: Boolean get() = enabled && !sensorEntityId.isNullOrBlank()
+
+    companion object {
+        const val DEFAULT_DWELL_SECONDS = 20
+        const val MAX_DWELL_SECONDS = 600
+    }
 }
 
 /** Outcome of writing a policy through the companion component. */
@@ -1651,6 +1719,10 @@ enum class Hki7PolicySaveResult {
     /** The permissions were stored, but the installed component is older than the Visible/Invisible
      *  lists and per-item hiding, so those parts were dropped. Updating HKI 7 Cloud restores them. */
     SAVED_WITHOUT_SEARCH_ACCESS,
+
+    /** Everything else was stored, but the installed component predates room following, so those
+     *  settings were dropped. Updating HKI 7 Cloud restores them. */
+    SAVED_WITHOUT_ROOM_FOLLOW,
 
     /** Nothing was stored (not an admin, component absent, or offline). */
     FAILED;

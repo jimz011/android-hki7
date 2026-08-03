@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.DoorFront
 import androidx.compose.material.icons.filled.GasMeter
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Power
@@ -47,10 +48,14 @@ import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 private val DarkRoomLightAmber = Color(0xFFFFC247)
 private val DarkRoomMotionOrange = Color(0xFFFF8A3D)
 private val DarkRoomPresencePurple = Color(0xFFB39DDB)
+// Deliberately a deeper violet than the presence pill it sits beside: the two differ only by
+// icon otherwise, and at pill size that is not enough to tell them apart.
+private val DarkRoomPeopleViolet = Color(0xFF9575E8)
 private val DarkRoomSafetyRed = Color(0xFFFF6B67)
 private val LightRoomLightAmber = Color(0xFF795400)
 private val LightRoomMotionOrange = Color(0xFF8C3B00)
 private val LightRoomPresencePurple = Color(0xFF65458B)
+private val LightRoomPeopleViolet = Color(0xFF4A2C90)
 private val LightRoomSafetyRed = Color(0xFFB3261E)
 
 /**
@@ -162,6 +167,7 @@ private fun statusIcon(role: String): ImageVector = when (role) {
     RoomStatusRoles.WINDOWS -> Icons.Default.Window
     RoomStatusRoles.MOTION -> Icons.AutoMirrored.Filled.DirectionsWalk
     RoomStatusRoles.PRESENCE -> Icons.Default.SensorOccupied
+    RoomStatusRoles.PEOPLE -> Icons.Default.Groups
     RoomStatusRoles.LIGHTS -> Icons.Default.Lightbulb
     RoomStatusRoles.DEVICES -> Icons.Default.Power
     RoomStatusRoles.SMOKE -> Icons.Default.SmokeFree
@@ -178,6 +184,7 @@ private fun statusColor(role: String): Color {
         RoomStatusRoles.LIGHTS -> if (darkAppearance) DarkRoomLightAmber else LightRoomLightAmber
         RoomStatusRoles.MOTION -> if (darkAppearance) DarkRoomMotionOrange else LightRoomMotionOrange
         RoomStatusRoles.PRESENCE -> if (darkAppearance) DarkRoomPresencePurple else LightRoomPresencePurple
+        RoomStatusRoles.PEOPLE -> if (darkAppearance) DarkRoomPeopleViolet else LightRoomPeopleViolet
         RoomStatusRoles.SMOKE,
         RoomStatusRoles.GAS,
         RoomStatusRoles.FIRE -> if (darkAppearance) DarkRoomSafetyRed else LightRoomSafetyRed
@@ -190,12 +197,13 @@ private fun statusOrder(role: String): Int = when (role) {
     RoomStatusRoles.WINDOWS -> 1
     RoomStatusRoles.MOTION -> 2
     RoomStatusRoles.PRESENCE -> 3
-    RoomStatusRoles.LIGHTS -> 4
-    RoomStatusRoles.DEVICES -> 5
-    RoomStatusRoles.SMOKE -> 6
-    RoomStatusRoles.GAS -> 7
-    RoomStatusRoles.FIRE -> 8
-    else -> 9
+    RoomStatusRoles.PEOPLE -> 4
+    RoomStatusRoles.LIGHTS -> 5
+    RoomStatusRoles.DEVICES -> 6
+    RoomStatusRoles.SMOKE -> 7
+    RoomStatusRoles.GAS -> 8
+    RoomStatusRoles.FIRE -> 9
+    else -> 10
 }
 
 /** Group-dialog title for a room-status role (e.g. "Lights", "Open doors"). */

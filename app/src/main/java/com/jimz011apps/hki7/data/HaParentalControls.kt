@@ -24,9 +24,20 @@ object HaParentalControls {
     suspend fun refreshForCurrentUser(context: Context, prefs: PreferencesManager) {
         val result = Hki7Endpoint.withClient(context) { client ->
             val identity = client.hki7WhoAmI() ?: return@withClient null
-            if (identity.isAdmin || identity.isOwner) Hki7Policy() else client.hki7GetMyPolicy()
+            val policy = client.hki7GetMyPolicy()
+            // Admins and owners are never restricted, but they carry a phone like everyone else:
+            // keep their room following and drop only the restrictions.
+            if (identity.isAdmin || identity.isOwner) Hki7Policy(roomFollow = policy.roomFollow) else policy
         } ?: return
         prefs.saveEnforcedPolicy(result)
+    }
+
+    /** Refreshes the household's room-presence sensor roster used by the people-per-room counters.
+     *  Leaves the cache untouched when the component can't answer, so a transient outage doesn't
+     *  blank every counter. */
+    suspend fun refreshRoomFollowRoster(context: Context, prefs: PreferencesManager) {
+        val sensors = Hki7Endpoint.withClient(context) { it.hki7RoomFollowRoster() } ?: return
+        prefs.saveRoomFollowRoster(sensors)
     }
 
     // ── Admin editor ────────────────────────────────────────────────────

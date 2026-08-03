@@ -2631,6 +2631,26 @@
     <string name="settings_extra_paypal_logo">Logo do PayPal</string>
     <string name="settings_extra_policy_update_failed">Não foi possível atualizar a política.</string>
     <string name="settings_extra_policy_needs_component_update">Permissões salvas. Atualize o HKI 7 Cloud para salvar também as listas Visível e Invisível.</string>
+    <string name="settings_extra_policy_needs_component_update_room_follow">Permissões salvas. Atualize o HKI 7 Cloud para salvar também as configurações de acompanhamento de cômodos.</string>
+    <string name="settings_extra_tab_presence">Presença</string>
+    <string name="settings_extra_room_follow_title">Acompanhar cômodos</string>
+    <string name="settings_extra_room_follow_description">Escolha o sensor de presença que acompanha o celular de cada pessoa, como um sensor ESPresense. O app abre o cômodo em que ela está e oferece acompanhá-la quando ela se move.</string>
+    <string name="settings_extra_room_follow_sensor">Sensor de presença</string>
+    <string name="settings_extra_room_follow_none">Sem sensor</string>
+    <string name="settings_extra_room_follow_enabled">Acompanhar esta pessoa entre cômodos</string>
+    <string name="settings_extra_room_follow_open_on_launch">Abrir o cômodo dela ao iniciar o app</string>
+    <string name="settings_extra_room_follow_prompt_on_move">Perguntar antes de mudar de cômodo</string>
+    <string name="settings_extra_room_follow_dwell">Espera antes de contar uma mudança</string>
+    <string name="settings_extra_room_follow_dwell_value">%1$d s</string>
+    <string name="settings_extra_room_follow_dwell_hint">Sensores de presença oscilam entre cômodos vizinhos. Uma espera maior reduz mudanças falsas.</string>
+    <string name="settings_extra_room_follow_rooms">Estados do sensor</string>
+    <string name="settings_extra_room_follow_rooms_matched">Associado automaticamente</string>
+    <string name="settings_extra_room_follow_rooms_unmatched">Escolher um cômodo</string>
+    <string name="settings_extra_room_follow_no_states">Nenhum estado visto ainda. Eles aparecem aqui assim que o sensor os informar.</string>
+    <string name="room_follow_moved_title">Você foi para %1$s</string>
+    <string name="room_follow_moved_message">Mudar para esse cômodo ou ficar aqui?</string>
+    <string name="room_follow_moved_switch">Mudar</string>
+    <string name="room_follow_moved_stay">Ficar</string>
     <string name="settings_extra_rename_dashboard">Renomear %1$s</string>
     <string name="settings_extra_rename_instance">Renomear %1$s</string>
     <string name="settings_extra_restart_home_assistant_failed">Não foi possível reiniciar o Home Assistant.</string>
@@ -3224,6 +3244,8 @@
         <item>Nova ação Janela personalizada para botões, selos e botões de caixas de diálogo. Ligue qualquer toque, toque longo ou toque duplo a uma janela criada por você: ela abre com o título, o status, o histórico e o fechamento de sempre, e você a preenche com qualquer widget do app. As janelas ficam em Configurações › Aparência › Janelas, onde «Editar conteúdo» abre uma pronta para organizar. Elas são compartilhadas, então vários botões podem abrir a mesma, e as pilhas dentro delas podem usar até seis colunas em vez de três. Enquanto você organiza uma janela, um botão Concluído fica ao lado de Adicionar widget para sair do modo de edição sem fechá-la.</item>
         <item>Corrigidas as telas de detalhe de Energia (Solar, Eletricidade, Gás, Água, Aquecimento urbano, Bateria), que desenhavam os cartões colados e sem títulos. «Produção», «Previsão», «Inversores» e os demais ficavam atrás do cartão seguinte; agora os cartões mantêm os títulos e o espaçamento de sempre.</item>
         <item>Corrigido o Controle parental que não salvava. Um componente HKI 7 Cloud desatualizado rejeita as listas Visível e Invisível, o que antes fazia toda a política falhar; agora as permissões são salvas mesmo assim e a mensagem avisa que o componente precisa ser atualizado. Essas listas só filtram listas de entidades como a busca global — um botão em um painel da família continua visível a menos que seja ocultado explicitamente para essa pessoa.*</item>
+        <item>As notificações do Home Assistant agora podem incluir botões de ação. Ao adicionar actions a uma mensagem notify.mobile_app_…, cada uma aparece na notificação; ao tocar, a ação é enviada de volta ao Home Assistant, onde uma automação pode responder. Os botões também aparecem no aviso dentro do app e na gaveta de notificações, porque o HKI oculta as notificações do sistema enquanto está aberto. Uma ação URI abre o link, uma ação REPLY aceita uma resposta digitada e uma ação tocada sem conexão é entregue quando ela volta. Cada notificação pode ser usada uma vez.</item>
+        <item>O HKI agora pode acompanhar você de cômodo em cômodo. Aponte-o para um sensor de presença como o ESPresense: ao iniciar, o app abre o cômodo em que você está e oferece mudar de vista quando você se move. Os cômodos também ganham um contador roxo com quantas pessoas estão neles, ao lado dos contadores de movimento e presença. Um administrador configura isso para toda a família em Configurações › Compartilhamento familiar › Presença: o sensor de cada pessoa e quanto tempo um novo cômodo precisa se manter para contar como uma mudança. Cômodos do sensor com o nome das suas áreas do Home Assistant são associados automaticamente.*</item>
         <item>* É necessária a integração do componente HKI 7 Cloud.</item>
     </string-array>
 

@@ -872,8 +872,10 @@ fun RoomDetailScreen(
     }
     val mediaSummary = remember(mediaPlayers) { resolveRoomMediaStatus(mediaPlayers) }
     val mediaStatus = mediaSummary.localizedText()
-    val roomSummary = remember(areaConfig, allEntities, areaWidgets) {
-        resolveRoomStatus(areaConfig, allEntities, displayedRoomControlEntityIds(areaWidgets))
+    val peopleByArea by viewModel.peopleByAreaId.collectAsState()
+    val peopleHere = peopleByArea[areaId] ?: 0
+    val roomSummary = remember(areaConfig, allEntities, areaWidgets, peopleHere) {
+        resolveRoomStatus(areaConfig, allEntities, displayedRoomControlEntityIds(areaWidgets), peopleHere)
     }
     HKIPage(
         viewModel = viewModel,

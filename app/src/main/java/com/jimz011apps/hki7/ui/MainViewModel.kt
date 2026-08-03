@@ -1031,6 +1031,76 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private val _floors = MutableStateFlow<List<HAFloor>>(emptyList())
     val floors: StateFlow<List<HAFloor>> = _floors
 
+    // ── Room following (ESPresense and friends) ──────────────────────────
+    // The sensors publish the room name as their state, so everything below is ordinary entity
+    // reading — no MQTT client anywhere in the app.
+
+    /** This device owner's room-following settings, as configured by an admin in Family Sharing. */
+    val roomFollow: StateFlow<Hki7RoomFollow> =
+        prefs.roomFollow.stateIn(viewModelScope, SharingStarted.Eagerly, Hki7RoomFollow())
+
+    /** The household's tracked room-presence sensors, for the people-per-room counters. */
+    private val roomFollowRoster: StateFlow<List<String>> =
+        prefs.roomFollowRoster.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    /** How many tracked people are in each area right now, keyed by area id. */
+    val peopleByAreaId: StateFlow<Map<String, Int>> =
+        combine(roomFollowRoster, _entities, _areas, roomFollow) { roster, entities, areas, follow ->
+            peopleCountByArea(roster, entities.associateBy { it.entity_id }, areas, follow)
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
+
+    /** The area this device's owner is in right now, or null when following is off, the sensor
+     *  says they are away, or the state matches no area. Unlike [confirmedRoomMove] this tracks
+     *  the raw sensor with no dwell window — it is what the launch navigation reads. */
+    val followedAreaId: StateFlow<String?> =
+        combine(roomFollow, _entities, _areas) { follow, entities, areas ->
+            if (!follow.isActive) return@combine null
+            val state = entities.firstOrNull { it.entity_id == follow.sensorEntityId }?.state
+            resolveFollowedArea(state, areas, follow)
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    /** Areas whose room the user has been asked about and declined, so a room they chose to stay
+     *  out of doesn't ask again until they genuinely leave and come back. */
+    private var lastDeclinedAreaId: String? = null
+    private var dwellTracker: RoomDwellTracker? = null
+    private var dwellTrackerSeconds: Int = -1
+
+    private val _pendingRoomMove = MutableStateFlow<String?>(null)
+
+    /** An area the user has demonstrably settled into, waiting on a switch-or-stay answer. */
+    val pendingRoomMove: StateFlow<String?> = _pendingRoomMove
+
+    /**
+     * Feeds the latest resolved room into the dwell tracker. Called on a timer rather than on
+     * every state change, because confirming a move depends on elapsed time, not on the sensor
+     * saying the same thing again.
+     *
+     * [currentAreaId] is the room already on screen: arriving where the user is already looking
+     * is not a move worth interrupting them for.
+     */
+    fun observeRoomPresence(currentAreaId: String?, nowMillis: Long = System.currentTimeMillis()) {
+        val follow = roomFollow.value
+        if (!follow.isActive || !follow.promptOnMove) {
+            _pendingRoomMove.value = null
+            return
+        }
+        if (dwellTrackerSeconds != follow.dwellSeconds) {
+            dwellTracker = RoomDwellTracker(follow.dwellSeconds)
+            dwellTrackerSeconds = follow.dwellSeconds
+        }
+        val areaId = followedAreaId.value
+        if (areaId != lastDeclinedAreaId) lastDeclinedAreaId = null
+        val confirmed = dwellTracker?.update(areaId, nowMillis) ?: return
+        if (confirmed == currentAreaId || confirmed == lastDeclinedAreaId) return
+        if (_pendingRoomMove.value == null) _pendingRoomMove.value = confirmed
+    }
+
+    /** The user answered the move prompt. [accepted] false means they chose to stay put. */
+    fun resolveRoomMove(accepted: Boolean) {
+        if (!accepted) lastDeclinedAreaId = _pendingRoomMove.value
+        _pendingRoomMove.value = null
+    }
+
     private val _collapsedFloorIds = MutableStateFlow<Set<String>>(emptySet())
     val collapsedFloorIds: StateFlow<Set<String>> = _collapsedFloorIds
 
@@ -1422,6 +1492,39 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     fun unarchiveNotification(id: String) =
         updateNotifications { list -> list.map { if (it.id == id) it.copy(archived = false) else it } }
+
+    /**
+     * Fires a notification action tapped in the in-app panel or banner. Goes through the same
+     * [NotificationActions] dispatcher as the system-shade buttons, so HA receives an identical
+     * `mobile_app_notification_action` event either way. The entry is marked spent right away —
+     * HA has no notion of a used action and would accept the same one again.
+     */
+    fun fireNotificationAction(
+        notification: HKINotification,
+        action: HKINotificationAction,
+        replyText: String? = null
+    ) {
+        val context = appContext ?: return
+        updateNotifications { list ->
+            list.map {
+                if (it.id == notification.id) it.copy(firedAction = action.action, read = true) else it
+            }
+        }
+        viewModelScope.launch {
+            val result = runCatching {
+                NotificationActions.fire(
+                    context, notification.instanceId, action.action, action.actionData, replyText
+                )
+            }.getOrDefault(ActionDispatchResult.RETRY)
+            // Offline or mid-restart: hand off to the same retry worker the shade buttons use.
+            if (result == ActionDispatchResult.RETRY) {
+                NotificationActionWorker.enqueue(
+                    context, notification.instanceId, action.action,
+                    NotificationActions.encodeActionData(action.actionData), replyText
+                )
+            }
+        }
+    }
 
     private val undoStack = mutableListOf<Snapshot>()
     private val redoStack = mutableListOf<Snapshot>()
@@ -4034,6 +4137,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         if (sharedSyncJob?.isActive == true) return
         sharedSyncJob = viewModelScope.launch(Dispatchers.IO) {
             runCatching { HaParentalControls.refreshForCurrentUser(ctx, prefs) }
+            runCatching { HaParentalControls.refreshRoomFollowRoster(ctx, prefs) }
             // Owner side: push this user's local edits to any dashboards they've shared, so recipients
             // pick them up. Runs first so a recipient's pull below sees the freshest content.
             runCatching { HaDashboardSharing.pushOwnedUpdates(ctx, prefs) }

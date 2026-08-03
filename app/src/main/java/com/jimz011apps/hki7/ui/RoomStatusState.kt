@@ -25,6 +25,14 @@ internal object RoomStatusRoles {
     const val GAS = "gas"
     const val FIRE = "fire"
 
+    /**
+     * People currently in the room, from the household's room-presence sensors (see
+     * [com.jimz011apps.hki7.ui.peopleCountByArea]). Deliberately outside [ORDERED]: it is not
+     * discovered from the area's entities and has no per-room sensor configuration — the roster
+     * is set up once for the whole family in Family Sharing.
+     */
+    const val PEOPLE = "people"
+
     val ORDERED: List<String> = listOf(
         DOORS,
         WINDOWS,
@@ -126,10 +134,11 @@ internal fun discoverRoomStatus(
 internal fun resolveRoomStatus(
     config: HKIAreaConfig,
     entities: List<HAEntity>,
-    displayedControlEntityIds: Set<String>? = null
+    displayedControlEntityIds: Set<String>? = null,
+    peopleCount: Int = 0
 ): RoomStatusSummary {
     val entitiesById = entities.associateBy { it.entity_id }
-    val indicators = RoomStatusRoles.ORDERED.mapNotNull { role ->
+    val ordered = RoomStatusRoles.ORDERED.mapNotNull { role ->
         val configuredIds = config.roomStatusEntityIds[role].orEmpty()
         // Lights/devices auto-count every light/switch currently shown in the room (so adding a new
         // light button counts it immediately), plus any manually configured extras.
@@ -143,7 +152,7 @@ internal fun resolveRoomStatus(
     }
 
     return RoomStatusSummary(
-        indicators = indicators,
+        indicators = withPeopleIndicator(ordered, peopleCount),
         temperature = averageRoomMeasurement(
             entityIds = config.roomTemperatureSourceIds(),
             entitiesById = entitiesById,
@@ -155,6 +164,25 @@ internal fun resolveRoomStatus(
             type = RoomMeasurementType.HUMIDITY
         )
     )
+}
+
+/** Places the people counter next to the motion and presence counters it belongs with, rather
+ *  than after the safety ones. Nobody in the room means no pill at all. */
+private fun withPeopleIndicator(
+    indicators: List<RoomStatusIndicator>,
+    peopleCount: Int
+): List<RoomStatusIndicator> {
+    if (peopleCount <= 0) return indicators
+    val people = RoomStatusIndicator(RoomStatusRoles.PEOPLE, peopleCount)
+    val anchor = indicators.indexOfLast {
+        it.role == RoomStatusRoles.PRESENCE || it.role == RoomStatusRoles.MOTION
+    }
+    return if (anchor >= 0) {
+        indicators.toMutableList().apply { add(anchor + 1, people) }
+    } else {
+        // No motion or presence pill to sit beside; lead with it instead of trailing the safety ones.
+        listOf(people) + indicators
+    }
 }
 
 /** Resolves a deduplicated whole-home summary from the same sources configured on room cards. */

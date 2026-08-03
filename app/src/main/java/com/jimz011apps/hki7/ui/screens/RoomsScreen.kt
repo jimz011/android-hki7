@@ -681,6 +681,7 @@ fun AreaCard(
             }
 
             val mediaPlayerIds = remember(config) { config.roomMediaPlayerIds() }
+            val peopleByArea by viewModel.peopleByAreaId.collectAsState()
             val displayedControlIds = remember(widgets) { displayedRoomControlEntityIds(widgets) }
             val dependencyIds = remember(config, mediaPlayerIds, displayedControlIds) {
                 // Lights/devices counters auto-count every light/switch shown in the room, so their
@@ -696,8 +697,9 @@ fun AreaCard(
             val mediaSummary = remember(mediaPlayers) { resolveRoomMediaStatus(mediaPlayers) }
             val mediaStatus = mediaSummary.localizedText()
             val mediaIcon = mediaPlayerStateIcon(mediaSummary.representative)
-            val roomSummary = remember(config, roomEntities, displayedControlIds) {
-                resolveRoomStatus(config, roomEntities, displayedControlIds)
+            val peopleHere = peopleByArea[area.area_id] ?: 0
+            val roomSummary = remember(config, roomEntities, displayedControlIds, peopleHere) {
+                resolveRoomStatus(config, roomEntities, displayedControlIds, peopleHere)
             }
             val topIndicatorKinds = if (isEditMode) 0 else roomSummary.indicators.count { it.role in ROOM_CARD_TOP_STATUS_ROLES }
             val bottomIndicatorKinds = if (isEditMode) 0 else roomSummary.indicators.count { it.role in ROOM_CARD_BOTTOM_STATUS_ROLES }
@@ -834,6 +836,7 @@ private val ROOM_CARD_TOP_STATUS_ROLES = setOf(
 private val ROOM_CARD_BOTTOM_STATUS_ROLES = setOf(
     RoomStatusRoles.MOTION,
     RoomStatusRoles.PRESENCE,
+    RoomStatusRoles.PEOPLE,
     RoomStatusRoles.SMOKE,
     RoomStatusRoles.GAS,
     RoomStatusRoles.FIRE

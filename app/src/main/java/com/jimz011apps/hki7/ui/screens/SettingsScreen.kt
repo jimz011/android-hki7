@@ -40,6 +40,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BatterySaver
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.CloudUpload
@@ -94,6 +95,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -170,6 +172,12 @@ import com.jimz011apps.hki7.ui.components.SearchAccessSelection
 import com.jimz011apps.hki7.ui.components.SearchAccessSelectionDialog
 import com.jimz011apps.hki7.ui.components.WhatsNewDialog
 import com.jimz011apps.hki7.data.Hki7Policy
+import com.jimz011apps.hki7.data.Hki7RoomFollow
+import com.jimz011apps.hki7.data.HAArea
+import com.jimz011apps.hki7.ui.components.RoomFollowRoomDialog
+import com.jimz011apps.hki7.ui.components.RoomFollowSensorDialog
+import com.jimz011apps.hki7.ui.observedRoomStates
+import com.jimz011apps.hki7.ui.resolveFollowedArea
 import com.jimz011apps.hki7.ui.components.fadingEdges
 import com.jimz011apps.hki7.ui.components.itemCornerShape
 import com.jimz011apps.hki7.ui.components.CustomPopupSettingsDialog
@@ -1734,6 +1742,11 @@ fun SettingsDialog(
                         SettingsSection.FAMILY_SHARING -> {
                             val pcAreas by viewModel.areas.collectAsState()
                             val pcEntities by viewModel.entities.collectAsState()
+                            // Every sensor the admin has assigned to somebody, so the mapping table
+                            // can show the states actually being reported rather than a blank form.
+                            val presenceRoster = remember(parentalPolicies) {
+                                parentalPolicies.values.mapNotNull { it.roomFollow.sensorEntityId }.distinct()
+                            }
                             val pcCustomPages by prefs.customPages.collectAsState(initial = emptyList())
                             // (route, label) — Home is always visible; Settings is not a nav tab.
                             val viewOptions = listOf(
@@ -1766,6 +1779,8 @@ fun SettingsDialog(
                                         // drops the lists; say so instead of implying nothing saved.
                                         Hki7PolicySaveResult.SAVED_WITHOUT_SEARCH_ACCESS ->
                                             context.getString(R.string.settings_extra_policy_needs_component_update)
+                                        Hki7PolicySaveResult.SAVED_WITHOUT_ROOM_FOLLOW ->
+                                            context.getString(R.string.settings_extra_policy_needs_component_update_room_follow)
                                         Hki7PolicySaveResult.FAILED ->
                                             context.getString(R.string.settings_extra_policy_update_failed)
                                     }
@@ -1907,7 +1922,8 @@ fun SettingsDialog(
                                             tabs = listOf(
                                                 "parental" to stringResource(R.string.settings_extra_tab_parental_controls),
                                                 "dashboards" to stringResource(R.string.settings_extra_tab_dashboards),
-                                                "permissions" to stringResource(R.string.settings_extra_tab_permissions)
+                                                "permissions" to stringResource(R.string.settings_extra_tab_permissions),
+                                                "presence" to stringResource(R.string.settings_extra_tab_presence)
                                             ),
                                             selected = familyTab,
                                             onSelect = { familyTab = it }
@@ -2183,6 +2199,42 @@ fun SettingsDialog(
                                                         ) { savePolicy(user.id, policy.copy(showFlows = it)) }
                                                     }
                                                 }
+                                            }
+                                        }
+                                    }
+                                    if (familyTab == "presence") {
+                                        SettingsPanel {
+                                            Text(
+                                                stringResource(R.string.settings_extra_room_follow_title),
+                                                color = appColors.onSurface,
+                                                style = MaterialTheme.typography.titleMedium
+                                            )
+                                            Text(
+                                                stringResource(R.string.settings_extra_room_follow_description),
+                                                color = appColors.onMuted,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                            // Unlike the other tabs this lists admins too: an admin
+                                            // carries a phone and gets followed like anyone else.
+                                            if (parentalUsers.isEmpty()) {
+                                                Text(
+                                                    stringResource(R.string.ui_no_non_admin_users_found_on_this_home_assistant_e9e665d),
+                                                    color = appColors.onMuted,
+                                                    style = MaterialTheme.typography.bodySmall
+                                                )
+                                            }
+                                            parentalUsers.forEach { user ->
+                                                val policy = parentalPolicies[user.id] ?: Hki7Policy()
+                                                RoomFollowUserCard(
+                                                    userName = user.name,
+                                                    follow = policy.roomFollow,
+                                                    allEntities = pcEntities,
+                                                    areas = pcAreas,
+                                                    roster = presenceRoster,
+                                                    onChange = { updated ->
+                                                        savePolicy(user.id, policy.copy(roomFollow = updated))
+                                                    }
+                                                )
                                             }
                                         }
                                     }
@@ -3090,6 +3142,190 @@ private fun FamilyPermissionRow(
             Text(subtitle, color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
         }
         Switch(checked = checked, onCheckedChange = onCheckedChange)
+    }
+}
+
+/**
+ * One person's room-following setup: which sensor tracks their phone, what should happen when it
+ * moves, and any sensor states the area names could not resolve on their own.
+ */
+@Composable
+private fun RoomFollowUserCard(
+    userName: String,
+    follow: Hki7RoomFollow,
+    allEntities: List<HAEntity>,
+    areas: List<HAArea>,
+    roster: List<String>,
+    onChange: (Hki7RoomFollow) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    var showSensorPicker by remember { mutableStateOf(false) }
+    var mappingState by remember { mutableStateOf<String?>(null) }
+
+    val sensorLabel = follow.sensorEntityId?.let { id ->
+        allEntities.firstOrNull { it.entity_id == id }?.friendlyName ?: id
+    } ?: stringResource(R.string.settings_extra_room_follow_none)
+
+    if (showSensorPicker) {
+        RoomFollowSensorDialog(
+            allEntities = allEntities,
+            selected = follow.sensorEntityId,
+            onDismiss = { showSensorPicker = false },
+            onSelect = { picked ->
+                showSensorPicker = false
+                // Clearing the sensor must also stop following; the component enforces this too,
+                // but doing it here keeps the switches from showing a state that cannot be saved.
+                onChange(
+                    if (picked == null) follow.copy(sensorEntityId = null, enabled = false)
+                    else follow.copy(sensorEntityId = picked)
+                )
+            }
+        )
+    }
+
+    mappingState?.let { state ->
+        RoomFollowRoomDialog(
+            state = state,
+            areas = areas,
+            selected = follow.stateRooms[state],
+            onDismiss = { mappingState = null },
+            onSelect = { areaId ->
+                mappingState = null
+                val updated = follow.stateRooms.toMutableMap()
+                if (areaId == null) updated.remove(state) else updated[state] = areaId
+                onChange(follow.copy(stateRooms = updated))
+            }
+        )
+    }
+
+    Surface(Modifier.fillMaxWidth(), shape = itemCornerShape(), color = appColors.subtleSurface) {
+        Column(Modifier.padding(12.dp)) {
+            Text(userName, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp).clickable { showSensorPicker = true },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        stringResource(R.string.settings_extra_room_follow_sensor),
+                        color = appColors.onSurface,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        sensorLabel,
+                        color = appColors.onMuted,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                Icon(Icons.Default.ChevronRight, null, tint = appColors.onMuted, modifier = Modifier.size(20.dp))
+            }
+
+            if (follow.sensorEntityId != null) {
+                FamilyPermissionRow(
+                    title = stringResource(R.string.settings_extra_room_follow_enabled),
+                    subtitle = stringResource(R.string.settings_extra_room_follow_description),
+                    checked = follow.enabled
+                ) { onChange(follow.copy(enabled = it)) }
+
+                if (follow.enabled) {
+                    FamilyPermissionRow(
+                        title = stringResource(R.string.settings_extra_room_follow_open_on_launch),
+                        subtitle = stringResource(R.string.settings_extra_room_follow_open_on_launch),
+                        checked = follow.openOnLaunch
+                    ) { onChange(follow.copy(openOnLaunch = it)) }
+
+                    FamilyPermissionRow(
+                        title = stringResource(R.string.settings_extra_room_follow_prompt_on_move),
+                        subtitle = stringResource(R.string.settings_extra_room_follow_dwell_hint),
+                        checked = follow.promptOnMove
+                    ) { onChange(follow.copy(promptOnMove = it)) }
+
+                    if (follow.promptOnMove) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                stringResource(R.string.settings_extra_room_follow_dwell),
+                                color = appColors.onSurface,
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Text(
+                                stringResource(R.string.settings_extra_room_follow_dwell_value, follow.dwellSeconds),
+                                color = appColors.onMuted,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                        Slider(
+                            value = follow.dwellSeconds.toFloat(),
+                            onValueChange = { onChange(follow.copy(dwellSeconds = it.toInt())) },
+                            valueRange = 0f..120f,
+                            steps = 23,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    // Only the states the area names could not resolve need a decision, so matched
+                    // ones are shown as already handled rather than asking for input twice.
+                    val states = remember(roster, allEntities) {
+                        observedRoomStates(roster, allEntities.associateBy { it.entity_id })
+                    }
+                    Text(
+                        stringResource(R.string.settings_extra_room_follow_rooms),
+                        color = appColors.onSurface,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                    if (states.isEmpty()) {
+                        Text(
+                            stringResource(R.string.settings_extra_room_follow_no_states),
+                            color = appColors.onMuted,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    states.forEach { state ->
+                        val resolved = resolveFollowedArea(state, areas, follow)
+                        val areaName = areas.firstOrNull { it.area_id == resolved }?.name
+                        val isOverride = follow.stateRooms.keys.any { it.equals(state, ignoreCase = true) }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 6.dp)
+                                .clickable { mappingState = state },
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                state,
+                                color = appColors.onSurface,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.weight(1f),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                areaName ?: stringResource(R.string.settings_extra_room_follow_rooms_unmatched),
+                                color = if (areaName != null) appColors.onMuted else MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                            if (areaName != null && !isOverride) {
+                                Text(
+                                    stringResource(R.string.settings_extra_room_follow_rooms_matched),
+                                    color = appColors.onMuted.copy(alpha = 0.7f),
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
