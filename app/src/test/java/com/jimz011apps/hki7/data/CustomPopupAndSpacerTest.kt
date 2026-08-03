@@ -23,6 +23,39 @@ class CustomPopupAndSpacerTest {
     }
 
     @Test
+    fun `action items are recognised separately from spacers and real entities`() {
+        val action = newActionItemId()
+        val spacer = newSpacerEntityId()
+
+        assertTrue(isActionItemId(action))
+        assertFalse(isActionItemId(spacer))
+        assertFalse(isActionItemId("light.kitchen"))
+        assertFalse(isActionItemId("sensor.hki7_action_count"))
+        assertNotEquals(action, newActionItemId())
+
+        // Both kinds are synthetic: no state, no toggling, no more-info.
+        assertTrue(isSyntheticItemId(action))
+        assertTrue(isSyntheticItemId(spacer))
+        assertFalse(isSyntheticItemId("light.kitchen"))
+    }
+
+    @Test
+    fun `an action button carries its name, icon, and actions`() {
+        val json = Json { ignoreUnknownKeys = true }
+        val config = HKIButtonConfig(
+            name = "Go to Energy",
+            icon = "flash",
+            tapActionEx = HKIAction(type = "navigate", navigationTarget = "energy")
+        )
+
+        val restored = json.decodeFromString<HKIButtonConfig>(json.encodeToString(config))
+
+        assertEquals("Go to Energy", restored.name)
+        assertEquals("flash", restored.icon)
+        assertEquals("energy", restored.tapActionEx?.navigationTarget)
+    }
+
+    @Test
     fun `a popup keeps its widgets under its own widget area`() {
         val popup = HKICustomPopup(id = "abc", name = "Kitchen")
 

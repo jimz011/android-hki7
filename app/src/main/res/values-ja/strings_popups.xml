@@ -22,4 +22,8 @@
     <string name="popup_settings_hint">ポップアップは「カスタムポップアップ」アクションを設定したボタン・バッジ・ダイアログのボタンから開きます。「内容を編集」はポップアップ自体を開き、ウィジェットを配置できます。</string>
     <string name="button_icon_only">アイコンのみ</string>
     <string name="button_icon_only_description">名前と状態を非表示にして、アイコンをボタンの中央に配置します</string>
+    <string name="action_button">アクションボタン</string>
+    <string name="action_button_description">エンティティのないボタン。名前とアイコン、任意のアクションを設定できます</string>
+    <string name="action_button_add">アクションボタンを追加</string>
+    <string name="action_badge_add">アクションバッジを追加</string>
 </resources>

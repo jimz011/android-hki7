@@ -22,4 +22,8 @@
     <string name="popup_settings_hint">Les fenêtres s’ouvrent depuis un bouton, un badge ou un bouton de boîte de dialogue réglé sur l’action Fenêtre personnalisée. « Modifier le contenu » ouvre la fenêtre elle-même pour y organiser les widgets.</string>
     <string name="button_icon_only">Icône seule</string>
     <string name="button_icon_only_description">Masquer le nom et l’état, en centrant l’icône sur le bouton</string>
+    <string name="action_button">Bouton d’action</string>
+    <string name="action_button_description">Un bouton sans entité : donnez-lui un nom, une icône et une action</string>
+    <string name="action_button_add">Ajouter un bouton d’action</string>
+    <string name="action_badge_add">Ajouter un badge d’action</string>
 </resources>

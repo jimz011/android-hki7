@@ -22,4 +22,8 @@
     <string name="popup_settings_hint">Las ventanas se abren desde un botón, una insignia o un botón de diálogo con la acción Ventana personalizada. «Editar contenido» abre la propia ventana para organizar sus widgets.</string>
     <string name="button_icon_only">Solo icono</string>
     <string name="button_icon_only_description">Oculta el nombre y el estado y centra el icono en el botón</string>
+    <string name="action_button">Botón de acción</string>
+    <string name="action_button_description">Un botón sin entidad: dale un nombre, un icono y cualquier acción</string>
+    <string name="action_button_add">Añadir botón de acción</string>
+    <string name="action_badge_add">Añadir insignia de acción</string>
 </resources>

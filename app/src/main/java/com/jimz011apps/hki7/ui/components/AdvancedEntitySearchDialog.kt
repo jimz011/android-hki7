@@ -30,9 +30,9 @@ fun AdvancedEntitySearchDialog(
     title: String? = null,
     singleSelect: Boolean = false,
     preselectedIds: Set<String> = emptySet(),
-    /** Optional label + handler for an entry that isn't an entity at all (adding an empty button),
+    /** Optional label + handler entries that aren't entities at all (an empty or action button),
      *  shown above the list. The caller closes the dialog itself. */
-    extraAction: Pair<String, () -> Unit>? = null
+    extraActions: List<Pair<String, () -> Unit>> = emptyList()
 ) {
     val appColors = LocalHKIAppColors.current
     var searchQuery by remember { mutableStateOf("") }
@@ -127,13 +127,16 @@ fun AdvancedEntitySearchDialog(
 
                 Spacer(Modifier.height(16.dp))
 
-                extraAction?.let { (label, onClick) ->
-                    OutlinedButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
-                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(label)
+                if (extraActions.isNotEmpty()) {
+                    extraActions.forEach { (label, onClick) ->
+                        OutlinedButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(label)
+                        }
+                        Spacer(Modifier.height(6.dp))
                     }
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(6.dp))
                 }
 
                 val listState = androidx.compose.foundation.lazy.rememberLazyListState()

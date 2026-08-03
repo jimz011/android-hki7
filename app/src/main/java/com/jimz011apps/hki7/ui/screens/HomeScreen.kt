@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.newSpacerEntityId
+import com.jimz011apps.hki7.data.newActionItemId
 import com.jimz011apps.hki7.data.HKIButtonConfig
 import com.jimz011apps.hki7.data.HKIButtonStack
 import com.jimz011apps.hki7.data.HKIBatteryCardWidget
@@ -241,6 +242,14 @@ fun HAHomeScreen(
     fun newSpacerWidget() = HKISingleEntityWidget(
         id = UUID.randomUUID().toString(),
         entityId = newSpacerEntityId(),
+        kind = "button",
+        width = "half",
+        isSquare = true
+    )
+    // A button with no entity: everything it does comes from its configured actions.
+    fun newActionWidget() = HKISingleEntityWidget(
+        id = UUID.randomUUID().toString(),
+        entityId = newActionItemId(),
         kind = "button",
         width = "half",
         isSquare = true
@@ -1072,6 +1081,12 @@ fun HAHomeScreen(
             onAddEmptyStack = { viewModel.addEmptyStackToArea(HOME_WIDGET_AREA); showAddWidget = false },
             onAddButtonWidget = { pendingSingleWidgetKind = "button"; pendingSingleWidgetContainerId = null; showAddWidget = false },
             onAddSpacerWidget = { viewModel.addWidgetToArea(HOME_WIDGET_AREA, newSpacerWidget()); showAddWidget = false },
+            onAddActionWidget = {
+                val widget = newActionWidget()
+                viewModel.addWidgetToArea(HOME_WIDGET_AREA, widget)
+                showAddWidget = false
+                selectedSingleWidgetSettings = null to widget
+            },
             onAddAdaptiveLightingWidget = if (entityRegistry.any { it.platform == "adaptive_lighting" }) {
                 {
                     viewModel.addWidgetToArea(HOME_WIDGET_AREA, newAdaptiveLightingWidget())
@@ -1138,6 +1153,12 @@ fun HAHomeScreen(
             onAddEmptyStack = { addChildToSwipingStack(stackId, newEmptyStack()); addingToSwipingStackId = null },
             onAddButtonWidget = { pendingSingleWidgetKind = "button"; pendingSingleWidgetContainerId = stackId; addingToSwipingStackId = null },
             onAddSpacerWidget = { addChildToSwipingStack(stackId, newSpacerWidget()); addingToSwipingStackId = null },
+            onAddActionWidget = {
+                val widget = newActionWidget()
+                addChildToSwipingStack(stackId, widget)
+                addingToSwipingStackId = null
+                selectedSingleWidgetSettings = stackId to widget
+            },
             onAddAdaptiveLightingWidget = if (entityRegistry.any { it.platform == "adaptive_lighting" }) {
                 {
                     addChildToSwipingStack(stackId, newAdaptiveLightingWidget())
@@ -1441,15 +1462,26 @@ fun HAHomeScreen(
                     }
                     addingToStackId = null
                 },
-                extraAction = if (targetStack != null && targetStack.stackType == "buttons") {
-                    stringResource(R.string.spacer_add_empty_button) to {
-                        viewModel.updateWidget(
-                            HOME_WIDGET_AREA,
-                            targetStack.copy(entityIds = targetStack.entityIds + newSpacerEntityId())
-                        )
-                        addingToStackId = null
-                    }
-                } else null
+                extraActions = if (targetStack != null && targetStack.stackType == "buttons") {
+                    listOf(
+                        stringResource(R.string.spacer_add_empty_button) to {
+                            viewModel.updateWidget(
+                                HOME_WIDGET_AREA,
+                                targetStack.copy(entityIds = targetStack.entityIds + newSpacerEntityId())
+                            )
+                            addingToStackId = null
+                        },
+                        stringResource(R.string.action_button_add) to {
+                            val actionId = newActionItemId()
+                            val updated = targetStack.copy(entityIds = targetStack.entityIds + actionId)
+                            viewModel.updateWidget(HOME_WIDGET_AREA, updated)
+                            addingToStackId = null
+                            // Straight into its settings: an action button does nothing until it is
+                            // named and given an action.
+                            selectedButtonSettings = updated to actionId
+                        }
+                    )
+                } else emptyList()
             )
         }
     } else if (addingToStackId != null && cameraAddMode == "entity") {

@@ -22,4 +22,8 @@
     <string name="popup_settings_hint">弹窗可从设置为“自定义弹窗”操作的按钮、徽章或对话框按钮打开。“编辑内容”会打开弹窗本身，以便排列其中的微件。</string>
     <string name="button_icon_only">仅图标</string>
     <string name="button_icon_only_description">隐藏名称和状态，并将图标居中显示在按钮上</string>
+    <string name="action_button">操作按钮</string>
+    <string name="action_button_description">无需实体的按钮：为它设置名称、图标和任意操作</string>
+    <string name="action_button_add">添加操作按钮</string>
+    <string name="action_badge_add">添加操作徽章</string>
 </resources>

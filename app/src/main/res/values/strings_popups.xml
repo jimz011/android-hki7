@@ -22,4 +22,8 @@
     <string name="popup_settings_hint">Popups open from a button, badge, or dialog button set to the Custom popup action. Edit contents opens the popup itself so you can arrange its widgets.</string>
     <string name="button_icon_only">Icon only</string>
     <string name="button_icon_only_description">Hide the name and state, centering the icon on the button</string>
+    <string name="action_button">Action button</string>
+    <string name="action_button_description">A button without an entity: give it a name, an icon, and any action</string>
+    <string name="action_button_add">Add action button</string>
+    <string name="action_badge_add">Add action badge</string>
 </resources>

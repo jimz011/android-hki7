@@ -58,11 +58,13 @@ class RoomStatusStateTest {
     }
 
     @Test
-    fun `empty buttons never reach the room control counters`() {
+    fun `empty and action buttons never reach the room control counters`() {
         val spacer = com.jimz011apps.hki7.data.newSpacerEntityId()
+        val action = com.jimz011apps.hki7.data.newActionItemId()
         val widgets = listOf(
-            HKIButtonStack("lights", entityIds = listOf("light.visible", spacer)),
-            HKISingleEntityWidget("gap", entityId = com.jimz011apps.hki7.data.newSpacerEntityId())
+            HKIButtonStack("lights", entityIds = listOf("light.visible", spacer, action)),
+            HKISingleEntityWidget("gap", entityId = com.jimz011apps.hki7.data.newSpacerEntityId()),
+            HKISingleEntityWidget("shortcut", entityId = com.jimz011apps.hki7.data.newActionItemId())
         )
 
         assertEquals(setOf("light.visible"), displayedRoomControlEntityIds(widgets))

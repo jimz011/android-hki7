@@ -22,4 +22,8 @@
     <string name="popup_settings_hint">Pop-ups openen vanaf een knop, badge of dialoogknop met de actie Aangepaste pop-up. Inhoud bewerken opent de pop-up zelf, zodat je de widgets kunt indelen.</string>
     <string name="button_icon_only">Alleen pictogram</string>
     <string name="button_icon_only_description">Verberg de naam en status en centreer het pictogram op de knop</string>
+    <string name="action_button">Actieknop</string>
+    <string name="action_button_description">Een knop zonder entiteit: geef hem een naam, een pictogram en een actie</string>
+    <string name="action_button_add">Actieknop toevoegen</string>
+    <string name="action_badge_add">Actiebadge toevoegen</string>
 </resources>

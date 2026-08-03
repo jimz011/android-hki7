@@ -67,6 +67,7 @@ import androidx.compose.material.icons.automirrored.filled.ViewQuilt
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.CropSquare
+import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.BatteryAlert
@@ -157,8 +158,11 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.isActionItemId
 import com.jimz011apps.hki7.data.isSpacerEntityId
+import com.jimz011apps.hki7.data.isSyntheticItemId
 import com.jimz011apps.hki7.data.newSpacerEntityId
+import com.jimz011apps.hki7.data.newActionItemId
 import com.jimz011apps.hki7.data.isWidgetVisibleNow
 import com.jimz011apps.hki7.data.HAArea
 import com.jimz011apps.hki7.data.HAEntityRegistryEntry
@@ -526,6 +530,14 @@ fun RoomDetailScreen(
     fun newSpacerWidget() = HKISingleEntityWidget(
         id = UUID.randomUUID().toString(),
         entityId = newSpacerEntityId(),
+        kind = "button",
+        width = "half",
+        isSquare = true
+    )
+    // A button with no entity: everything it does comes from its configured actions.
+    fun newActionWidget() = HKISingleEntityWidget(
+        id = UUID.randomUUID().toString(),
+        entityId = newActionItemId(),
         kind = "button",
         width = "half",
         isSquare = true
@@ -1417,6 +1429,12 @@ fun RoomDetailScreen(
                 viewModel.addWidgetToArea(areaId, newSpacerWidget())
                 showAddWidgetDialog = false
             },
+            onAddActionWidget = {
+                val widget = newActionWidget()
+                viewModel.addWidgetToArea(areaId, widget)
+                showAddWidgetDialog = false
+                selectedSingleWidgetSettings = null to widget
+            },
             onAddAdaptiveLightingWidget = if (entityRegistry.any { it.platform == "adaptive_lighting" }) {
                 {
                     viewModel.addWidgetToArea(areaId, newAdaptiveLightingWidget())
@@ -1783,6 +1801,12 @@ fun RoomDetailScreen(
                 addChildToSwipingStack(stackId, newSpacerWidget())
                 addingToSwipingStackId = null
             },
+            onAddActionWidget = {
+                val widget = newActionWidget()
+                addChildToSwipingStack(stackId, widget)
+                addingToSwipingStackId = null
+                selectedSingleWidgetSettings = stackId to widget
+            },
             onAddAdaptiveLightingWidget = if (entityRegistry.any { it.platform == "adaptive_lighting" }) {
                 {
                     addChildToSwipingStack(stackId, newAdaptiveLightingWidget())
@@ -2116,15 +2140,26 @@ fun RoomDetailScreen(
                     }
                     addingToStackId = null
                 },
-                extraAction = if (targetStack != null && targetStack.stackType == "buttons") {
-                    stringResource(R.string.spacer_add_empty_button) to {
-                        viewModel.updateWidget(
-                            areaId,
-                            targetStack.copy(entityIds = targetStack.entityIds + newSpacerEntityId())
-                        )
-                        addingToStackId = null
-                    }
-                } else null
+                extraActions = if (targetStack != null && targetStack.stackType == "buttons") {
+                    listOf(
+                        stringResource(R.string.spacer_add_empty_button) to {
+                            viewModel.updateWidget(
+                                areaId,
+                                targetStack.copy(entityIds = targetStack.entityIds + newSpacerEntityId())
+                            )
+                            addingToStackId = null
+                        },
+                        stringResource(R.string.action_button_add) to {
+                            val actionId = newActionItemId()
+                            val updated = targetStack.copy(entityIds = targetStack.entityIds + actionId)
+                            viewModel.updateWidget(areaId, updated)
+                            addingToStackId = null
+                            // Straight into its settings: an action button does nothing until it is
+                            // named and given an action.
+                            selectedButtonSettings = updated to actionId
+                        }
+                    )
+                } else emptyList()
             )
         }
     } else if (addingToStackId != null && cameraAddMode == "entity") {
@@ -2768,6 +2803,8 @@ fun AddRoomWidgetDialog(
     onAddButtonWidget: (() -> Unit)? = null,
     /** Adds an empty (transparent) button: a placeholder that only reserves layout space. */
     onAddSpacerWidget: (() -> Unit)? = null,
+    /** Adds an action button: a button with no entity, driven purely by its configured actions. */
+    onAddActionWidget: (() -> Unit)? = null,
     onAddAdaptiveLightingWidget: (() -> Unit)? = null,
     onAddCameraWidget: (() -> Unit)? = null,
     onAddVacuumWidget: (() -> Unit)? = null,
@@ -2834,6 +2871,7 @@ fun AddRoomWidgetDialog(
         if (onAddEnergyCard != null) add(PickerWidget(Icons.Default.ElectricBolt, R.string.cr_widget_energy_card, R.string.cr_widget_energy_card_description, "power usage solar gas water consumption electricity", WidgetPickerCategory.ENERGY) { energyPickerSelection = emptyList(); widgetGroup = "energy_card" })
         if (onAddBatteryCard != null) add(PickerWidget(Icons.Default.BatteryAlert, R.string.cr_widget_battery_levels, R.string.cr_widget_battery_levels_description, "battery notes charge level power", WidgetPickerCategory.ENERGY) { widgetGroup = "battery_card" })
         if (onAddSpacerWidget != null) add(PickerWidget(Icons.Default.CropSquare, R.string.spacer_empty_button, R.string.spacer_empty_button_description, "empty blank spacer placeholder transparent gap align", WidgetPickerCategory.LAYOUT) { onAddSpacerWidget.invoke(); onDismiss() })
+        if (onAddActionWidget != null) add(PickerWidget(Icons.Default.TouchApp, R.string.action_button, R.string.action_button_description, "action no entity navigate navigation url script scene popup service call shortcut", WidgetPickerCategory.CONTROLS) { onAddActionWidget.invoke(); onDismiss() })
         add(PickerWidget(Icons.AutoMirrored.Filled.ShortText, R.string.cr_widget_header_text, R.string.cr_widget_header_text_description, "title subtitle label heading text divider", WidgetPickerCategory.LAYOUT) { configureWidget = "header" })
         if (onAddMarkdownWidget != null) add(PickerWidget(Icons.AutoMirrored.Filled.Notes, R.string.cr_widget_markdown, R.string.cr_widget_markdown_description, "text note markdown card content notes writing", WidgetPickerCategory.INFORMATION) { onAddMarkdownWidget.invoke(); onDismiss() })
         if (onAddIframeWidget != null) add(PickerWidget(Icons.Default.Public, R.string.cr_widget_iframe, R.string.cr_widget_iframe_description, "web page website url embed browser iframe html", WidgetPickerCategory.INFORMATION) { onAddIframeWidget.invoke(); onDismiss() })
@@ -3314,6 +3352,9 @@ fun ButtonConfigDialog(
     var appearRadius by remember(widgetAppearance) { mutableIntStateOf(widgetAppearance?.cornerRadius ?: 28) }
     var appearWidth by remember(widgetAppearance) { mutableStateOf(widgetAppearance?.width ?: "half") }
     var name by remember(config) { mutableStateOf(config.name ?: entity?.friendlyName ?: entity?.entity_id ?: "") }
+    /** No entity behind this button — an action button, or one whose entity is gone. Either way
+     *  there is no state to read, so only its name, icon, and actions apply. */
+    val isEntityLess = entity == null || isActionItemId(entity.entity_id)
     var stateAttribute by remember(config) { mutableStateOf(config.stateAttribute) }
     var stateUnit by remember(config) { mutableStateOf(config.stateUnit) }
     var stateAsTimer by remember(config) { mutableStateOf(config.stateAsTimer) }
@@ -3433,7 +3474,9 @@ fun ButtonConfigDialog(
                 if (settingsPage == "general") {
                     SettingsSubcategory(stringResource(R.string.ui_identity_7e5a975), stringResource(R.string.ui_the_text_shown_on_the_dashboard_fff5c98))
                     OutlinedTextField(name, { name = it }, label = { Text(stringResource(R.string.ui_name_709a232)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                    if (!isCameraItem && !isVacuumItem) {
+                    // An action button has no entity, so there is no state or attribute to show on
+                    // its secondary line — only its name, icon, and actions apply.
+                    if (!isCameraItem && !isVacuumItem && !isEntityLess) {
                         val attributes = remember(entity) { selectableEntityAttributes(entity) }
                         SettingsSubcategory(stringResource(R.string.ui_secondary_line_ca81690), stringResource(R.string.ui_show_the_entity_s_state_or_one_of_its_1008a4d))
                         Row(
@@ -4809,10 +4852,10 @@ private fun StackOrderRow(
     }
 }
 
-/** Stand-in entity for an empty button, so spacers travel through the same rendering path as real
- *  buttons without needing a Home Assistant entity. */
+/** Stand-in entity for an empty button or an action button, so both travel through the same
+ *  rendering path as real buttons without needing a Home Assistant entity. */
 internal fun spacerPlaceholderEntity(entityId: String): HAEntity? =
-    if (isSpacerEntityId(entityId)) HAEntity(entity_id = entityId, state = "") else null
+    if (isSyntheticItemId(entityId)) HAEntity(entity_id = entityId, state = "") else null
 
 @Composable
 fun ButtonStackItem(
@@ -5322,6 +5365,8 @@ fun SingleEntityWidgetItem(
         if (isEditMode) viewModel.entitySnapshotFor(dependencyIds) else viewModel.entitiesFor(dependencyIds)
     }
     val allEntities by dependencyFlow.collectAsState()
+    // Empty and action buttons have no Home Assistant entity; a stateless stand-in keeps them on
+    // the same rendering path.
     val entity = allEntities.find { it.entity_id == widget.entityId }
         ?: spacerPlaceholderEntity(widget.entityId)
 

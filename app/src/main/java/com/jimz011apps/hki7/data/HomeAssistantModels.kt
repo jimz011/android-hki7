@@ -65,6 +65,22 @@ fun isSpacerEntityId(entityId: String): Boolean = entityId.startsWith("$SPACER_E
 /** A fresh empty-button id. Each spacer gets its own so several can sit in the same stack. */
 fun newSpacerEntityId(): String = "$SPACER_ENTITY_DOMAIN.${java.util.UUID.randomUUID()}"
 
+/** Domain of the synthetic ids used by action buttons and badges: items that carry a name, an icon,
+ *  and their own tap/hold/double-tap actions without belonging to any Home Assistant entity. Use
+ *  them for navigation, a service call, a URL, or a custom popup. */
+const val ACTION_ITEM_DOMAIN = "hki7_action"
+
+/** True for an entity-less action button or badge. */
+fun isActionItemId(entityId: String): Boolean = entityId.startsWith("$ACTION_ITEM_DOMAIN.")
+
+/** A fresh action-button id, so several can live in the same stack or badge bar. */
+fun newActionItemId(): String = "$ACTION_ITEM_DOMAIN.${java.util.UUID.randomUUID()}"
+
+/** True for any id the app invents rather than reads from Home Assistant (spacers and action
+ *  items). These never resolve to an entity, so state, toggling, and more-info do not apply. */
+fun isSyntheticItemId(entityId: String): Boolean =
+    isSpacerEntityId(entityId) || isActionItemId(entityId)
+
 @Serializable
 @Immutable
 data class HAEntity(

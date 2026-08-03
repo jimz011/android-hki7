@@ -49,6 +49,8 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.isActionItemId
+import com.jimz011apps.hki7.data.newActionItemId
 import com.jimz011apps.hki7.data.visibilityConditionEntityIds
 import com.jimz011apps.hki7.data.HKIAction
 import com.jimz011apps.hki7.data.HKIBadge
@@ -193,6 +195,8 @@ fun HKIBadgeBar(
     fun resolveBadgeAction(badge: HKIBadge, trigger: String): HKIAction {
         val ex = if (trigger == "hold") badge.holdActionEx else badge.tapActionEx
         if (ex != null) return ex
+        // An action badge has no entity to open, so it only does what it was explicitly given.
+        if (isActionItemId(badge.entityId)) return HKIAction(type = "none")
         val legacy = if (trigger == "hold") badge.holdAction else badge.tapAction
         return HKIAction(type = if (legacy == "auto") "more_info" else legacy)
     }
@@ -384,6 +388,7 @@ fun HKIBadgeBar(
 
     // ── entity picker ─────────────────────────────────────────────────────────
     if (showEntityPicker) {
+        val actionBadgeName = stringResource(R.string.action_button)
         AdvancedEntitySearchDialog(
             allEntities = entityCatalog,
             onDismiss = { showEntityPicker = false },
@@ -394,7 +399,23 @@ fun HKIBadgeBar(
                 }
                 saveBadges(badges + newBadges)
                 showEntityPicker = false
-            }
+            },
+            extraActions = listOf(
+                // A badge with no entity: it shows its name and icon and runs its own actions.
+                stringResource(R.string.action_badge_add) to {
+                    val badge = HKIBadge(
+                        id = UUID.randomUUID().toString(),
+                        entityId = newActionItemId(),
+                        side = if (alignment == "split") pendingAddSide ?: "right" else "right",
+                        customName = actionBadgeName,
+                        showName = true,
+                        showState = false
+                    )
+                    saveBadges(badges + badge)
+                    showEntityPicker = false
+                    editingBadge = badge
+                }
+            )
         )
     }
 
@@ -707,7 +728,7 @@ private fun BadgeItem(
             it,
             lockDoorOpen = isDoorOpen,
         )
-    }
+    } ?: ACTION_ITEM_DEFAULT_ICON.takeIf { isActionItemId(badge.entityId) }
     val effectiveSlug = customSlug ?: defaultSlug
     val fallbackIcon = entity?.let { domainIcon(it) } ?: Icons.Default.Circle
     // "Use entity picture": render the HA picture when available, else fall back to the icon.

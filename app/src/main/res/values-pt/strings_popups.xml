@@ -22,4 +22,8 @@
     <string name="popup_settings_hint">As janelas abrem a partir de um botão, emblema ou botão de caixa de diálogo definido para a ação Janela personalizada. «Editar conteúdo» abre a própria janela para organizar os widgets.</string>
     <string name="button_icon_only">Apenas ícone</string>
     <string name="button_icon_only_description">Oculta o nome e o estado, centrando o ícone no botão</string>
+    <string name="action_button">Botão de ação</string>
+    <string name="action_button_description">Um botão sem entidade: dê-lhe um nome, um ícone e qualquer ação</string>
+    <string name="action_button_add">Adicionar botão de ação</string>
+    <string name="action_badge_add">Adicionar emblema de ação</string>
 </resources>

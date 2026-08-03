@@ -336,6 +336,7 @@
 
     <!-- Current release -->
     <string-array name="cr_whats_new_beta_12">
+        <item>New Action button: a button that needs no entity at all. Give it a name, an icon, and whatever tap, hold, or double-tap action you like — navigate to a view or room, call a Home Assistant action, open a URL or a custom popup. Add one from the widget picker, from a button stack, or as an action badge in the badge area beside the header.</item>
         <item>Button widgets and button stacks can now hold an empty, fully transparent button. It takes up a grid cell without drawing anything, so the buttons around it line up exactly where you want them.</item>
         <item>Buttons can show just their icon. The new Icon only switch under a button\'s Appearance settings drops the name and state and centers a larger icon on the button.</item>
         <item>New Custom popup action for buttons, badges, and dialog buttons. Point any tap, hold, or double tap at a popup you build yourself: it opens with the usual dialog title, status, history, and close controls, and you fill it with any widget the app offers. Popups are listed under Settings › Appearance › Popups, where Edit contents opens one ready to arrange. Popups are shared, so several buttons can open the same one, and stacks inside a popup can use up to six columns instead of three. While a popup is being arranged, a Done button sits beside Add widget to leave edit mode without closing it.</item>

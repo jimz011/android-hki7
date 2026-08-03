@@ -22,4 +22,8 @@
     <string name="popup_settings_hint">彈出視窗可從設定為「自訂彈出視窗」動作的按鈕、徽章或對話方塊按鈕開啟。「編輯內容」會開啟彈出視窗本身，以便排列其中的小工具。</string>
     <string name="button_icon_only">僅圖示</string>
     <string name="button_icon_only_description">隱藏名稱與狀態，並將圖示置中顯示在按鈕上</string>
+    <string name="action_button">動作按鈕</string>
+    <string name="action_button_description">不需要實體的按鈕：為它設定名稱、圖示與任何動作</string>
+    <string name="action_button_add">新增動作按鈕</string>
+    <string name="action_badge_add">新增動作徽章</string>
 </resources>

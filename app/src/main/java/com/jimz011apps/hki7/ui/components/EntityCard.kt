@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil3.compose.AsyncImage
 import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.isActionItemId
 import com.jimz011apps.hki7.ui.localizedHvacModeLabel
 import com.jimz011apps.hki7.ui.localizedStateLabel
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
@@ -198,6 +199,9 @@ fun appendUnit(value: String, unit: String?): String {
     return if (noSpace) "$value$u" else "$value $u"
 }
 
+/** Icon an action button falls back to until the user picks one. */
+const val ACTION_ITEM_DEFAULT_ICON = "gesture-tap-button"
+
 /** The empty (transparent) button: it reserves exactly the space a real button of the same style
  *  would take, so the buttons around it land where the user wants them. It draws nothing outside
  *  edit mode; in edit mode a dashed outline makes it selectable and removable. */
@@ -272,7 +276,11 @@ fun EntityCard(
     val coverIsDoor = domain == "cover" && isCoverDoorLike(entity)
     // Door-like covers: icon gets state color, bg/text follow normal cover-not-closed logic (primary or elevated)
     val coverDoorIconColor: Color? = if (coverIsDoor && !isUnavailable) coverDoorColor(entity.state) else null
-    val name = displayName ?: entity.friendlyName ?: entity.entity_id
+    // An action button has no entity behind it: no state line, and a generic name/icon until the
+    // user names it.
+    val isActionItem = isActionItemId(entity.entity_id)
+    val name = displayName ?: entity.friendlyName
+        ?: if (isActionItem) stringResource(R.string.action_button) else entity.entity_id
     val climateColor = hvacColor(
         entity.attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
             ?: entity.attributes?.get("hvac_mode")?.jsonPrimitive?.contentOrNull
@@ -375,7 +383,8 @@ fun EntityCard(
         val contentColor = if (tileActive) activeContent else appColors.onSurface
         val mutedContent = if (tileActive) activeContent.copy(alpha = 0.72f) else appColors.onMuted
         val tileIconSlug = iconName?.takeUnless { it.isBlank() }
-            ?: defaultEntityIconSlug(entity, lockDoorOpen = isLockDoorOpen)
+            ?: if (isActionItem) ACTION_ITEM_DEFAULT_ICON
+            else defaultEntityIconSlug(entity, lockDoorOpen = isLockDoorOpen)
         @Composable
         fun TileForeground(
             mainColor: Color,
@@ -402,7 +411,7 @@ fun EntityCard(
                 if (!iconOnly) {
                     Column(Modifier.weight(1f)) {
                         Text(name, style = MaterialTheme.typography.labelLarge, color = mainColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text(statusText, style = MaterialTheme.typography.bodySmall, color = secondaryColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        if (!isActionItem) Text(statusText, style = MaterialTheme.typography.bodySmall, color = secondaryColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     Icon(Icons.Default.ChevronRight, null, tint = secondaryColor.copy(alpha = 0.85f), modifier = Modifier.size(16.dp))
                 }
@@ -541,7 +550,7 @@ fun EntityCard(
             val iconTint = semanticColorForBackground(rawIconTint, cardBg)
             // User icon overrides; otherwise fall back to HA-provided/custom defaults and
             // device-class defaults that mirror Home Assistant's icon choices.
-            val defaultSlug = defaultEntityIconSlug(
+            val defaultSlug = if (isActionItem) ACTION_ITEM_DEFAULT_ICON else defaultEntityIconSlug(
                 entity,
                 lockDoorOpen = isLockDoorOpen,
             )
@@ -612,7 +621,7 @@ fun EntityCard(
                         )
                         Spacer(Modifier.width(5.dp))
                     }
-                    Text(
+                    if (!isActionItem) Text(
                         text = statusText,
                         style = MaterialTheme.typography.labelMedium,
                         color = when {

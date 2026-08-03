@@ -3861,8 +3861,17 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val type = action.type.takeUnless { it == "default" } ?: defaultActionType(ownerEntityId, trigger)
         return when (type) {
             "none" -> ActionOutcome.None
-            "toggle" -> { toggleEntity(action.targetEntityId ?: ownerEntityId); ActionOutcome.Handled }
-            "more_info" -> ActionOutcome.OpenMoreInfo(action.moreInfoEntityId ?: action.targetEntityId ?: ownerEntityId)
+            // An action button or spacer has no entity of its own, so a toggle or more-info that
+            // falls back to the owner has nothing to act on; only an explicit target counts.
+            "toggle" -> {
+                val target = action.targetEntityId ?: ownerEntityId.takeUnless(::isSyntheticItemId)
+                if (target == null) ActionOutcome.None else { toggleEntity(target); ActionOutcome.Handled }
+            }
+            "more_info" -> {
+                val target = action.moreInfoEntityId ?: action.targetEntityId
+                    ?: ownerEntityId.takeUnless(::isSyntheticItemId)
+                if (target == null) ActionOutcome.None else ActionOutcome.OpenMoreInfo(target)
+            }
             "navigate" -> action.navigationTarget?.let { ActionOutcome.Navigate(it) } ?: ActionOutcome.None
             "url" -> action.url?.takeIf { it.isNotBlank() }?.let { ActionOutcome.OpenUrl(it) } ?: ActionOutcome.None
             // The popup host lives at the app root, so opening one needs no per-surface plumbing.
@@ -3894,6 +3903,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             else -> config?.tapActionEx
         }
         if (ex != null) return ex
+        // An action button only does what it was explicitly given; there is no entity to fall back
+        // on, so the domain-based default (toggle / more-info) would be a no-op anyway.
+        if (isSyntheticItemId(entityId)) return HKIAction(type = "none")
         val legacy = when (trigger) {
             "double" -> config?.doubleTapAction
             "hold" -> config?.holdAction
