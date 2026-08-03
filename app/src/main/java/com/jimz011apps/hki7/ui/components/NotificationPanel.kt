@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
@@ -39,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -46,6 +48,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jimz011apps.hki7.data.HKINotification
+import com.jimz011apps.hki7.data.HKINotificationAction
 import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import kotlinx.coroutines.launch
@@ -88,7 +91,8 @@ fun NotificationBannerHost(
 
     LaunchedEffect(current?.id, visible) {
         if (current != null && visible) {
-            delay(5.seconds)
+            // An actionable notification stays up longer: there are buttons to read and aim for.
+            delay(if (current?.actions.isNullOrEmpty()) 5.seconds else 12.seconds)
             exitMode = "dismiss"
             visible = false
         }
@@ -117,42 +121,149 @@ fun NotificationBannerHost(
                 shadowElevation = 12.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    Modifier.padding(start = 16.dp, top = 12.dp, end = 8.dp, bottom = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                Column(Modifier.padding(start = 16.dp, top = 12.dp, end = 8.dp, bottom = 12.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Icon(Icons.Default.Notifications, null, tint = bannerForeground, modifier = Modifier.size(22.dp))
+                        Column(Modifier.weight(1f)) {
+                            notification.instanceName?.takeIf { it.isNotBlank() }?.let {
+                                Text(
+                                    it.uppercase(),
+                                    color = bannerMuted,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1
+                                )
+                            }
+                            notification.title?.takeIf { it.isNotBlank() }?.let {
+                                Text(it, color = bannerForeground, style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            }
+                            Text(notification.message, color = if (notification.title.isNullOrBlank()) bannerForeground else bannerMuted,
+                                style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        }
+                        TextButton(onClick = {
+                            exitMode = "dismiss"
+                            visible = false
+                        }) {
+                            Text(stringResource(R.string.ui_dismiss_70afe9e), color = bannerForeground)
+                        }
+                        IconButton(onClick = {
+                            exitMode = "delete"
+                            visible = false
+                            viewModel.deleteNotification(notification.id)
+                        }) {
+                            Icon(Icons.Default.Close, stringResource(R.string.notification_delete), tint = bannerForeground)
+                        }
+                    }
+                    // A reply needs a text field, which the banner has no room for — those hand off to
+                    // the drawer instead of answering inline.
+                    NotificationActionButtons(
+                        notification = notification,
+                        viewModel = viewModel,
+                        accentColor = bannerForeground,
+                        inlineReply = false,
+                        modifier = Modifier.padding(start = 34.dp, top = 2.dp),
+                        onActionFired = {
+                            exitMode = "dismiss"
+                            visible = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * The buttons from HA's `data.actions`. While HKI is visible no system notification is posted, so
+ * this is the user's only way to reach them; tapping one fires the same
+ * `mobile_app_notification_action` event the notification shade would.
+ *
+ * Only one action per notification can be fired — HA would accept a second, but a spent button in
+ * a list that sticks around for 48h is a trap, not a feature.
+ */
+@Composable
+private fun NotificationActionButtons(
+    notification: HKINotification,
+    viewModel: MainViewModel,
+    accentColor: Color,
+    inlineReply: Boolean,
+    modifier: Modifier = Modifier,
+    onActionFired: () -> Unit = {}
+) {
+    if (notification.actions.isEmpty()) return
+    val uriHandler = LocalUriHandler.current
+    val openPanel = LocalOpenNotifications.current
+    var replyingTo by remember(notification.id) { mutableStateOf<HKINotificationAction?>(null) }
+    var replyText by remember(notification.id) { mutableStateOf("") }
+    val spent = notification.firedAction != null
+
+    Column(modifier) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            notification.actions.forEach { action ->
+                val fired = notification.firedAction == action.action
+                TextButton(
+                    // A link is repeatable; it changes nothing on the server.
+                    enabled = action.isUri || !spent,
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                    onClick = {
+                        when {
+                            action.isUri -> {
+                                action.uri?.let { runCatching { uriHandler.openUri(it) } }
+                                onActionFired()
+                            }
+                            action.isReply && inlineReply -> replyingTo = action
+                            action.isReply -> {
+                                openPanel?.invoke()
+                                onActionFired()
+                            }
+                            else -> {
+                                viewModel.fireNotificationAction(notification, action)
+                                onActionFired()
+                            }
+                        }
+                    }
                 ) {
-                    Icon(Icons.Default.Notifications, null, tint = bannerForeground, modifier = Modifier.size(22.dp))
-                    Column(Modifier.weight(1f)) {
-                        notification.instanceName?.takeIf { it.isNotBlank() }?.let {
-                            Text(
-                                it.uppercase(),
-                                color = bannerMuted,
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1
-                            )
-                        }
-                        notification.title?.takeIf { it.isNotBlank() }?.let {
-                            Text(it, color = bannerForeground, style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        }
-                        Text(notification.message, color = if (notification.title.isNullOrBlank()) bannerForeground else bannerMuted,
-                            style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(
+                        action.title,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = if (fired) FontWeight.Normal else FontWeight.SemiBold,
+                        color = if (action.isUri || !spent) accentColor else accentColor.copy(alpha = 0.4f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+
+        replyingTo?.let { action ->
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                OutlinedTextField(
+                    value = replyText,
+                    onValueChange = { replyText = it },
+                    modifier = Modifier.weight(1f),
+                    placeholder = { Text(action.title, style = MaterialTheme.typography.bodySmall) },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    textStyle = MaterialTheme.typography.bodySmall
+                )
+                IconButton(
+                    enabled = replyText.isNotBlank(),
+                    onClick = {
+                        viewModel.fireNotificationAction(notification, action, replyText.trim())
+                        replyingTo = null
+                        replyText = ""
+                        onActionFired()
                     }
-                    TextButton(onClick = {
-                        exitMode = "dismiss"
-                        visible = false
-                    }) {
-                        Text(stringResource(R.string.ui_dismiss_70afe9e), color = bannerForeground)
-                    }
-                    IconButton(onClick = {
-                        exitMode = "delete"
-                        visible = false
-                        viewModel.deleteNotification(notification.id)
-                    }) {
-                        Icon(Icons.Default.Close, stringResource(R.string.notification_delete), tint = bannerForeground)
-                    }
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.Send, action.title, tint = accentColor, modifier = Modifier.size(18.dp))
                 }
             }
         }
@@ -497,6 +608,13 @@ private fun NotificationRow(
                         ).joinToString(" · "),
                         style = MaterialTheme.typography.labelSmall,
                         color = appColors.onMuted
+                    )
+                    NotificationActionButtons(
+                        notification = notification,
+                        viewModel = viewModel,
+                        accentColor = MaterialTheme.colorScheme.primary,
+                        inlineReply = true,
+                        modifier = Modifier.padding(top = 2.dp).offset(x = (-10).dp)
                     )
                 }
                 if (!notification.read) {

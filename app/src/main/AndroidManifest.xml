@@ -87,6 +87,10 @@
             android:exported="false" />
 
         <receiver
+            android:name=".data.NotificationActionReceiver"
+            android:exported="false" />
+
+        <receiver
             android:name=".data.PowerBroadcastReceiver"
             android:exported="false">
             <intent-filter>

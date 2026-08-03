@@ -11,9 +11,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.IBinder
 import com.jimz011apps.hki7.R
 import androidx.core.app.NotificationCompat
+import androidx.core.app.RemoteInput
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +31,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
@@ -70,20 +73,26 @@ class PushNotificationHandler(
             return
         }
 
-        // The in-app banner is enough while HKI is visible. Keep Android notifications enabled
-        // for this app in the background, where the banner cannot be seen.
+        val actions = parseNotificationActions(data)
+        val clickAction = data?.get("clickAction")?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
+        val historyId = UUID.randomUUID().toString()
+
+        // The in-app banner and panel carry the actions while HKI is visible. Keep Android
+        // notifications for the background, where neither can be seen.
         if (!AppVisibilityTracker.isVisible) {
-            postSystemNotification(title, message, data, tag, instanceId, instanceName)
+            postSystemNotification(title, message, data, tag, instanceId, instanceName, actions, clickAction, historyId)
         }
         appendHistory(
             HKINotification(
-                id = UUID.randomUUID().toString(),
+                id = historyId,
                 title = title,
                 message = message,
                 timestamp = System.currentTimeMillis(),
                 tag = tag,
                 instanceId = instanceId,
-                instanceName = instanceName
+                instanceName = instanceName,
+                actions = actions,
+                clickAction = clickAction
             )
         )
     }
@@ -94,7 +103,10 @@ class PushNotificationHandler(
         data: JsonObject?,
         tag: String?,
         instanceId: String?,
-        instanceName: String?
+        instanceName: String?,
+        actions: List<HKINotificationAction>,
+        clickAction: String?,
+        historyId: String
     ) {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
             != PackageManager.PERMISSION_GRANTED
@@ -118,42 +130,110 @@ class PushNotificationHandler(
             }
         )
 
-        val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
-            instanceId?.let { putExtra(EXTRA_HA_INSTANCE_ID, it) }
-        }
-        val contentIntent = launchIntent?.let {
-            PendingIntent.getActivity(
-                context,
-                instanceId?.hashCode() ?: 0,
-                it,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            )
-        }
+        val systemId = tag?.let { notificationId(instanceId, it) }
+            ?: (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
         val sticky = data?.get("sticky")?.jsonPrimitive?.contentOrNull == "true"
-        val notification = NotificationCompat.Builder(context, channelId)
+        val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_stat_hki)
             .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.hki_logo_round))
             .setContentTitle(title ?: instanceName ?: "Home Assistant")
             .setContentText(message)
             .setSubText(instanceName)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
-            .setContentIntent(contentIntent)
+            .setContentIntent(bodyIntent(clickAction, instanceId))
             .setAutoCancel(!sticky)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .build()
+
+        actions.forEachIndexed { index, action ->
+            builder.addAction(buildAction(action, index, systemId, instanceId, historyId))
+        }
 
         // Like the official app: the same tag replaces the previous notification.
-        manager.notify(
-            tag?.let { notificationId(instanceId, it) }
-                ?: (System.currentTimeMillis() % Int.MAX_VALUE).toInt(),
-            notification
+        manager.notify(systemId, builder.build())
+    }
+
+    /**
+     * What tapping the notification body does. `noAction` suppresses the tap entirely and a web
+     * URL opens the browser; everything else (HA's `/lovelace/…` paths, `entityId:…`) opens HKI on
+     * the sending server, since HKI's own dashboards don't share Lovelace's URL space.
+     */
+    private fun bodyIntent(clickAction: String?, instanceId: String?): PendingIntent? {
+        if (clickAction.equals("noAction", ignoreCase = true)) return null
+        webIntent(clickAction)?.let {
+            return PendingIntent.getActivity(
+                context, clickAction.hashCode(), it,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
+        }
+        val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
+            instanceId?.let { putExtra(EXTRA_HA_INSTANCE_ID, it) }
+        } ?: return null
+        return PendingIntent.getActivity(
+            context, instanceId?.hashCode() ?: 0, launchIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
+    }
+
+    private fun buildAction(
+        action: HKINotificationAction,
+        index: Int,
+        systemId: Int,
+        instanceId: String?,
+        historyId: String
+    ): NotificationCompat.Action {
+        val requestCode = 31 * systemId + index
+        // A URI action must go straight to an activity: since Android 12 a broadcast receiver may
+        // not start one on the notification's behalf (the "notification trampoline" ban).
+        webIntent(action.uri)?.let { intent ->
+            return NotificationCompat.Action.Builder(
+                0, action.title,
+                PendingIntent.getActivity(
+                    context, requestCode, intent,
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                )
+            ).build()
+        }
+
+        val intent = Intent(context, NotificationActionReceiver::class.java).apply {
+            // PendingIntent equality ignores extras, so make the intent itself unique per action.
+            this.action = "com.jimz011apps.hki7.action.NOTIFICATION_ACTION/$historyId/${action.action}"
+            putExtra(EXTRA_NOTIFICATION_ACTION, action.action)
+            putExtra(EXTRA_NOTIFICATION_ACTION_DATA, NotificationActions.encodeActionData(action.actionData))
+            putExtra(EXTRA_NOTIFICATION_HISTORY_ID, historyId)
+            putExtra(EXTRA_NOTIFICATION_SYSTEM_ID, systemId)
+            instanceId?.let { putExtra(EXTRA_HA_INSTANCE_ID, it) }
+        }
+        // Mutable is required for reply actions: the system writes the typed text into the intent.
+        val flags = if (action.isReply) {
+            PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        } else {
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        }
+        val builder = NotificationCompat.Action.Builder(
+            0, action.title, PendingIntent.getBroadcast(context, requestCode, intent, flags)
+        )
+        if (action.isReply) {
+            builder.addRemoteInput(
+                RemoteInput.Builder(NotificationActions.REPLY_RESULT_KEY)
+                    .setLabel(action.title)
+                    .build()
+            ).setAllowGeneratedReplies(true)
+        }
+        return builder.build()
+    }
+
+    /** An `ACTION_VIEW` intent for a web link, or null when [uri] isn't one. */
+    private fun webIntent(uri: String?): Intent? {
+        val target = uri?.takeIf {
+            it.startsWith("http://", ignoreCase = true) || it.startsWith("https://", ignoreCase = true)
+        } ?: return null
+        return Intent(Intent.ACTION_VIEW, Uri.parse(target)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     }
 
     private fun notificationId(instanceId: String?, tag: String): Int =
         "${instanceId.orEmpty()}:$tag".hashCode()
 
-    private suspend fun appendHistory(entry: HKINotification) = historyMutex.withLock {
+    private suspend fun appendHistory(entry: HKINotification) = notificationHistoryMutex.withLock {
         val cutoff = System.currentTimeMillis() - RETENTION_MS
         val current = prefs.notificationHistory.first()
             .filter { it.archived || it.timestamp >= cutoff }
@@ -167,9 +247,42 @@ class PushNotificationHandler(
         private const val HISTORY_CAP = 200
         /** Non-archived notifications are dropped after 48 hours. */
         const val RETENTION_MS = 48L * 60 * 60 * 1000
-        // One writer at a time: the ViewModel channel and the foreground service share the store.
-        private val historyMutex = Mutex()
     }
+}
+
+// One writer at a time: the ViewModel channel, the foreground service and notification-action
+// taps all share the history store.
+private val notificationHistoryMutex = Mutex()
+
+/** Reads HA's `data.actions` into the model. Entries without an `action` key are unusable. */
+internal fun parseNotificationActions(data: JsonObject?): List<HKINotificationAction> {
+    val entries = data?.get("actions") as? JsonArray ?: return emptyList()
+    return entries.mapNotNull { element ->
+        val entry = element as? JsonObject ?: return@mapNotNull null
+        val action = entry["action"]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
+            ?: return@mapNotNull null
+        HKINotificationAction(
+            action = action,
+            title = entry["title"]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() } ?: action,
+            uri = entry["uri"]?.jsonPrimitive?.contentOrNull,
+            actionData = entry["action_data"] as? JsonObject,
+            behavior = entry["behavior"]?.jsonPrimitive?.contentOrNull
+        )
+    }.take(NotificationActions.MAX_ACTIONS)
+}
+
+/** Records that an action was used so the in-app panel stops offering it. */
+internal suspend fun markNotificationActionFired(
+    context: Context,
+    historyId: String,
+    action: String
+) = notificationHistoryMutex.withLock {
+    val prefs = PreferencesManager(context.applicationContext)
+    val history = prefs.notificationHistory.first()
+    if (history.none { it.id == historyId }) return@withLock
+    prefs.saveNotificationHistory(
+        history.map { if (it.id == historyId) it.copy(firedAction = action) else it }
+    )
 }
 
 /**
