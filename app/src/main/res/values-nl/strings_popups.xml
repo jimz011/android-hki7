@@ -21,6 +21,13 @@
     <string name="popup_settings_subtitle_section">Bouw en bewerk je aangepaste pop-ups</string>
     <string name="popup_settings_hint">Pop-ups openen vanaf een knop, badge of dialoogknop met de actie Aangepaste pop-up. Inhoud bewerken opent de pop-up zelf, zodat je de widgets kunt indelen.</string>
     <string name="button_icon_only">Alleen pictogram</string>
+    <string name="button_icon_size">Pictogramgrootte</string>
+    <string name="button_icon_size_description">Automatisch verkleint het pictogram naarmate de stapel meer kolommen krijgt, zodat het op een smalle knop past.</string>
+    <string name="button_icon_size_auto">Automatisch</string>
+    <string name="button_icon_size_value">%1$d dp</string>
+    <string name="stack_child_icon_only">Alleen pictogram voor elke knop</string>
+    <string name="stack_child_icon_only_description">Geldt voor alle knoppen in deze stapel, zodat je het niet per knop hoeft in te stellen.</string>
+    <string name="stack_child_icon_size">Pictogramgrootte voor elke knop</string>
     <string name="button_icon_only_description">Verberg de naam en status en centreer het pictogram op de knop</string>
     <string name="action_button">Actieknop</string>
     <string name="action_button_description">Een knop zonder entiteit: geef hem een naam, een pictogram en een actie</string>

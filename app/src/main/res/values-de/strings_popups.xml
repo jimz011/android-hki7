@@ -21,6 +21,13 @@
     <string name="popup_settings_subtitle_section">Eigene Pop-ups erstellen und bearbeiten</string>
     <string name="popup_settings_hint">Pop-ups werden über eine Schaltfläche, ein Badge oder eine Dialogschaltfläche mit der Aktion „Eigenes Pop-up“ geöffnet. „Inhalt bearbeiten“ öffnet das Pop-up selbst, um seine Widgets anzuordnen.</string>
     <string name="button_icon_only">Nur Symbol</string>
+    <string name="button_icon_size">Symbolgröße</string>
+    <string name="button_icon_size_description">Automatisch verkleinert das Symbol, wenn der Stapel mehr Spalten hat, damit es auf eine schmale Schaltfläche passt.</string>
+    <string name="button_icon_size_auto">Automatisch</string>
+    <string name="button_icon_size_value">%1$d dp</string>
+    <string name="stack_child_icon_only">Nur Symbol für alle Schaltflächen</string>
+    <string name="stack_child_icon_only_description">Gilt für alle Schaltflächen in diesem Stapel, damit du es nicht einzeln einstellen musst.</string>
+    <string name="stack_child_icon_size">Symbolgröße für alle Schaltflächen</string>
     <string name="button_icon_only_description">Name und Status ausblenden und das Symbol auf der Schaltfläche zentrieren</string>
     <string name="action_button">Aktionsschaltfläche</string>
     <string name="action_button_description">Eine Schaltfläche ohne Entität: Name, Symbol und beliebige Aktion</string>

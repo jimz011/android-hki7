@@ -1065,6 +1065,14 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private var dwellTracker: RoomDwellTracker? = null
     private var dwellTrackerSeconds: Int = -1
 
+    /**
+     * "Don't ask again for now", chosen from the prompt itself. Deliberately in-memory only: it is
+     * meant to last until the app is started again, and a ViewModel field already has exactly that
+     * lifetime. Persisting it would be wrong, and putting it in the policy would make a passing
+     * per-device mood into an admin decision for the whole family.
+     */
+    private var promptSilencedUntilRestart = false
+
     private val _pendingRoomMove = MutableStateFlow<String?>(null)
 
     /** An area the user has demonstrably settled into, waiting on a switch-or-stay answer. */
@@ -1080,7 +1088,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
      */
     fun observeRoomPresence(currentAreaId: String?, nowMillis: Long = System.currentTimeMillis()) {
         val follow = roomFollow.value
-        if (!follow.isActive || !follow.promptOnMove) {
+        if (!follow.isActive || !follow.promptOnMove || promptSilencedUntilRestart) {
             _pendingRoomMove.value = null
             return
         }
@@ -1101,6 +1109,17 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     /** The user answered the move prompt. [accepted] false means they chose to stay put. */
     fun resolveRoomMove(accepted: Boolean) {
         if (!accepted) lastDeclinedAreaId = _pendingRoomMove.value
+        _pendingRoomMove.value = null
+    }
+
+    /** "Don't ask again" from the prompt: no more move prompts until the app is started again. */
+    fun silenceRoomMovePromptUntilRestart() {
+        promptSilencedUntilRestart = true
+        _pendingRoomMove.value = null
+    }
+
+    /** Retires a prompt that is no longer wanted — the toggle went off, or edit mode began. */
+    fun cancelRoomMovePrompt() {
         _pendingRoomMove.value = null
     }
 

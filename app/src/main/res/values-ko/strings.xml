@@ -2670,6 +2670,7 @@
     <string name="room_follow_moved_message">그 방으로 전환할까요, 아니면 그대로 있을까요?</string>
     <string name="room_follow_moved_switch">전환</string>
     <string name="room_follow_moved_stay">유지</string>
+    <string name="room_follow_moved_silence">앱을 다시 시작할 때까지 묻지 않기</string>
     <string name="settings_extra_rename_dashboard">%1$s 이름 바꾸기</string>
     <string name="settings_extra_rename_instance">%1$s 이름 바꾸기</string>
     <string name="settings_extra_restart_home_assistant_failed">홈어시스턴트를 다시 시작할 수 없습니다.</string>

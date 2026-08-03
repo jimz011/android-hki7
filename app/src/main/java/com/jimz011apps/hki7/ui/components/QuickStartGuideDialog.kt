@@ -17,6 +17,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -58,6 +60,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -67,6 +70,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -104,8 +108,15 @@ fun QuickStartGuideDialog(onComplete: () -> Unit) {
     val colors = LocalHKIAppColors.current
     var activeGesture by remember { mutableIntStateOf(0) }
     var completing by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        while (true) {
+    // Autoplay is a demo, not a rail: the moment the reader swipes or taps a dot they are driving,
+    // and cycling out from under them would fight the thing they just did.
+    var autoPlaying by remember { mutableStateOf(true) }
+    fun showGesture(index: Int) {
+        autoPlaying = false
+        activeGesture = ((index % gestureTips.size) + gestureTips.size) % gestureTips.size
+    }
+    LaunchedEffect(autoPlaying) {
+        while (autoPlaying) {
             delay(2_800.milliseconds)
             activeGesture = (activeGesture + 1) % gestureTips.size
         }
@@ -188,7 +199,17 @@ fun QuickStartGuideDialog(onComplete: () -> Unit) {
                     AnimatedContent(
                         targetState = activeGesture,
                         transitionSpec = { fadeIn(tween(350)) togetherWith fadeOut(tween(220)) },
-                        label = stringResource(R.string.ui_quick_start_gesture_23ee6fe)
+                        label = stringResource(R.string.ui_quick_start_gesture_23ee6fe),
+                        modifier = Modifier.pointerInput(Unit) {
+                            // Swiping the preview is the obvious thing to try on a carousel, so it
+                            // moves one step per swipe in the direction dragged.
+                            detectHorizontalDragGestures { change, amount ->
+                                if (kotlin.math.abs(amount) > 8f) {
+                                    change.consume()
+                                    showGesture(activeGesture + if (amount < 0) 1 else -1)
+                                }
+                            }
+                        }
                     ) { gesture ->
                         GesturePreview(gesture, stringResource(gestureTips[gesture].titleRes))
                     }
@@ -199,7 +220,10 @@ fun QuickStartGuideDialog(onComplete: () -> Unit) {
                         gestureTips.indices.forEach { index ->
                             Box(
                                 Modifier
-                                    .padding(horizontal = 3.dp)
+                                    // Generous touch target around a 7dp dot.
+                                    .clip(CircleShape)
+                                    .clickable { showGesture(index) }
+                                    .padding(horizontal = 3.dp, vertical = 8.dp)
                                     .size(width = if (index == activeGesture) 22.dp else 7.dp, height = 7.dp)
                                     .background(
                                         if (index == activeGesture) MaterialTheme.colorScheme.primary
@@ -211,7 +235,10 @@ fun QuickStartGuideDialog(onComplete: () -> Unit) {
                     }
 
                     gestureTips.forEachIndexed { index, tip ->
-                        QuickStartTipRow(tip, highlighted = index == activeGesture)
+                        // The rows below double as a table of contents: tapping one shows it.
+                        Box(Modifier.clickable { showGesture(index) }) {
+                            QuickStartTipRow(tip, highlighted = index == activeGesture)
+                        }
                         Spacer(Modifier.height(9.dp))
                     }
                     QuickStartTipRow(editTip, highlighted = false)

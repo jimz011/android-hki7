@@ -3244,32 +3244,32 @@ private fun RoomFollowUserCard(
                         checked = follow.promptOnMove
                     ) { onChange(follow.copy(promptOnMove = it)) }
 
-                    if (follow.promptOnMove) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text(
-                                stringResource(R.string.settings_extra_room_follow_dwell),
-                                color = appColors.onSurface,
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Text(
-                                stringResource(R.string.settings_extra_room_follow_dwell_value, follow.dwellSeconds),
-                                color = appColors.onMuted,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                        Slider(
-                            value = follow.dwellSeconds.toFloat(),
-                            onValueChange = { onChange(follow.copy(dwellSeconds = it.toInt())) },
-                            valueRange = 0f..120f,
-                            steps = 23,
-                            modifier = Modifier.fillMaxWidth()
+                    // Settable whether or not prompting is on, so the dwell time can be dialled in
+                    // before switching prompts on rather than only after.
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            stringResource(R.string.settings_extra_room_follow_dwell),
+                            color = appColors.onSurface,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            stringResource(R.string.settings_extra_room_follow_dwell_value, follow.dwellSeconds),
+                            color = appColors.onMuted,
+                            style = MaterialTheme.typography.bodySmall
                         )
                     }
+                    Slider(
+                        value = follow.dwellSeconds.toFloat(),
+                        onValueChange = { onChange(follow.copy(dwellSeconds = it.toInt())) },
+                        valueRange = 0f..120f,
+                        steps = 23,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
                     // Only the states the area names could not resolve need a decision, so matched
                     // ones are shown as already handled rather than asking for input twice.

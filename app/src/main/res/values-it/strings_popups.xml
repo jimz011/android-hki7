@@ -21,6 +21,13 @@
     <string name="popup_settings_subtitle_section">Crea e modifica le tue finestre personalizzate</string>
     <string name="popup_settings_hint">Le finestre si aprono da un pulsante, un badge o un pulsante di dialogo impostato sull’azione Finestra personalizzata. «Modifica contenuto» apre la finestra stessa per disporne i widget.</string>
     <string name="button_icon_only">Solo icona</string>
+    <string name="button_icon_size">Dimensione icona</string>
+    <string name="button_icon_size_description">Automatico riduce l\'icona man mano che la pila guadagna colonne, così sta in un pulsante stretto.</string>
+    <string name="button_icon_size_auto">Automatico</string>
+    <string name="button_icon_size_value">%1$d dp</string>
+    <string name="stack_child_icon_only">Solo icona per ogni pulsante</string>
+    <string name="stack_child_icon_only_description">Vale per tutti i pulsanti di questa pila, così non devi impostarlo su ognuno.</string>
+    <string name="stack_child_icon_size">Dimensione icona per ogni pulsante</string>
     <string name="button_icon_only_description">Nasconde nome e stato, centrando l’icona sul pulsante</string>
     <string name="action_button">Pulsante azione</string>
     <string name="action_button_description">Un pulsante senza entità: dagli un nome, un’icona e qualsiasi azione</string>

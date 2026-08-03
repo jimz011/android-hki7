@@ -252,6 +252,8 @@ fun EntityCard(
     cornerRadius: Int = LocalItemCornerRadius.current,
     /** Drops the name and state so only the icon shows, centered on the button. */
     iconOnly: Boolean = false,
+    /** Icon-only glyph size in dp; callers resolve it via `iconOnlyIconSizeDp`. */
+    iconOnlySize: Int = 40,
     interactionsEnabled: Boolean = true,
     doorOpen: Boolean = false,
     buttonStyle: String = if (isSquare) "square" else "standard",
@@ -562,8 +564,9 @@ fun EntityCard(
             // "Use entity picture": render the HA picture when available, else fall back to the icon.
             val pictureUrl = if (effectiveSlug == ENTITY_PICTURE_ICON && !currentUrl.isNullOrBlank())
                 resolveEntityPictureUrl(entity, currentUrl) else null
-            // Icon-only buttons have the whole face to themselves, so the glyph grows to match.
-            val glyphSize = if (iconOnly) 40.dp else 24.dp
+            // Icon-only buttons have the whole face to themselves, so the glyph grows to match —
+            // but only as far as the button is wide, hence the caller-resolved size.
+            val glyphSize = if (iconOnly) iconOnlySize.dp else 24.dp
             @Composable
             fun CardIcon() {
                 WithIconEffect(entity, iconEffect, glowColor = iconTint) { fx ->
@@ -572,7 +575,7 @@ fun EntityCard(
                             model = pictureUrl,
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
-                            modifier = Modifier.size(if (iconOnly) 48.dp else 32.dp).clip(CircleShape).then(fx)
+                            modifier = Modifier.size(if (iconOnly) (iconOnlySize * 1.2f).dp else 32.dp).clip(CircleShape).then(fx)
                         )
                     } else {
                         val slugForIcon = if (effectiveSlug == ENTITY_PICTURE_ICON) defaultSlug else effectiveSlug

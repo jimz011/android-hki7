@@ -21,6 +21,13 @@
     <string name="popup_settings_subtitle_section">カスタムポップアップの作成と編集</string>
     <string name="popup_settings_hint">ポップアップは「カスタムポップアップ」アクションを設定したボタン・バッジ・ダイアログのボタンから開きます。「内容を編集」はポップアップ自体を開き、ウィジェットを配置できます。</string>
     <string name="button_icon_only">アイコンのみ</string>
+    <string name="button_icon_size">アイコンサイズ</string>
+    <string name="button_icon_size_description">自動にすると、スタックの列が増えるほどアイコンが小さくなり、幅の狭いボタンにも収まります。</string>
+    <string name="button_icon_size_auto">自動</string>
+    <string name="button_icon_size_value">%1$d dp</string>
+    <string name="stack_child_icon_only">すべてのボタンをアイコンのみにする</string>
+    <string name="stack_child_icon_only_description">このスタック内のすべてのボタンに適用されるので、1つずつ設定する必要はありません。</string>
+    <string name="stack_child_icon_size">すべてのボタンのアイコンサイズ</string>
     <string name="button_icon_only_description">名前と状態を非表示にして、アイコンをボタンの中央に配置します</string>
     <string name="action_button">アクションボタン</string>
     <string name="action_button_description">エンティティのないボタン。名前とアイコン、任意のアクションを設定できます</string>

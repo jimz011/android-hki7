@@ -21,6 +21,13 @@
     <string name="popup_settings_subtitle_section">Créez et modifiez vos fenêtres personnalisées</string>
     <string name="popup_settings_hint">Les fenêtres s’ouvrent depuis un bouton, un badge ou un bouton de boîte de dialogue réglé sur l’action Fenêtre personnalisée. « Modifier le contenu » ouvre la fenêtre elle-même pour y organiser les widgets.</string>
     <string name="button_icon_only">Icône seule</string>
+    <string name="button_icon_size">Taille de l\'icône</string>
+    <string name="button_icon_size_description">Automatique réduit l\'icône à mesure que la pile gagne des colonnes, pour qu\'elle tienne sur un bouton étroit.</string>
+    <string name="button_icon_size_auto">Automatique</string>
+    <string name="button_icon_size_value">%1$d dp</string>
+    <string name="stack_child_icon_only">Icône seule pour tous les boutons</string>
+    <string name="stack_child_icon_only_description">S\'applique à tous les boutons de cette pile, pour ne pas avoir à le régler un par un.</string>
+    <string name="stack_child_icon_size">Taille d\'icône pour tous les boutons</string>
     <string name="button_icon_only_description">Masquer le nom et l’état, en centrant l’icône sur le bouton</string>
     <string name="action_button">Bouton d’action</string>
     <string name="action_button_description">Un bouton sans entité : donnez-lui un nom, une icône et une action</string>

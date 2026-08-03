@@ -111,6 +111,7 @@
     <string name="room_follow_moved_message">¿Cambiar a esa habitación o quedarte aquí?</string>
     <string name="room_follow_moved_switch">Cambiar</string>
     <string name="room_follow_moved_stay">Quedarme</string>
+    <string name="room_follow_moved_silence">No volver a preguntar hasta que reinicie la aplicación</string>
     <string name="settings_extra_rename_dashboard">Cambiar el nombre de %1$s</string>
     <string name="settings_extra_rename_instance">Cambiar el nombre de %1$s</string>
     <string name="settings_extra_restart_home_assistant_failed">No se pudo reiniciar Home Assistant.</string>

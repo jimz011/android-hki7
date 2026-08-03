@@ -111,6 +111,7 @@
     <string name="room_follow_moved_message">Naar die kamer wisselen, of blijven waar je bent?</string>
     <string name="room_follow_moved_switch">Wisselen</string>
     <string name="room_follow_moved_stay">Blijven</string>
+    <string name="room_follow_moved_silence">Niet meer vragen tot ik de app opnieuw start</string>
     <string name="settings_extra_rename_dashboard">%1$s hernoemen</string>
     <string name="settings_extra_rename_instance">%1$s hernoemen</string>
     <string name="settings_extra_restart_home_assistant_failed">Home Assistant kon niet opnieuw worden gestart.</string>

@@ -2670,6 +2670,7 @@
     <string name="room_follow_moved_message">その部屋に切り替えますか、それともこのままにしますか？</string>
     <string name="room_follow_moved_switch">切り替える</string>
     <string name="room_follow_moved_stay">このまま</string>
+    <string name="room_follow_moved_silence">アプリを次に起動するまで確認しない</string>
     <string name="settings_extra_rename_dashboard">%1$sの名前を変更</string>
     <string name="settings_extra_rename_instance">%1$sの名前を変更</string>
     <string name="settings_extra_restart_home_assistant_failed">Home Assistantを再起動できませんでした。</string>

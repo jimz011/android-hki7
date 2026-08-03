@@ -111,6 +111,7 @@
     <string name="room_follow_moved_message">O odaya geçilsin mi, yoksa burada mı kalınsın?</string>
     <string name="room_follow_moved_switch">Geç</string>
     <string name="room_follow_moved_stay">Kal</string>
+    <string name="room_follow_moved_silence">Uygulamayı yeniden başlatana kadar bir daha sorma</string>
     <string name="settings_extra_rename_dashboard">%1$s panosunu yeniden adlandır</string>
     <string name="settings_extra_rename_instance">%1$s bağlantısını yeniden adlandır</string>
     <string name="settings_extra_restart_home_assistant_failed">Home Assistant yeniden başlatılamadı.</string>

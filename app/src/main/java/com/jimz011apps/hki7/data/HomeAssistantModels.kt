@@ -1012,6 +1012,14 @@ data class HKIButtonStack(
     override val visibilityConditionNegate: Boolean = false,
     override val visibilityConditions: List<HKIVisibilityCondition> = emptyList(),
     override val visibilityMatch: String = VISIBILITY_MATCH_ALL,
+    /**
+     * Forces every button in this stack to render icon-only, so a stack of twenty buttons does not
+     * need the switch flipped twenty times. An override rather than a default, because a button's
+     * own `iconOnly = false` cannot be told apart from "never set".
+     */
+    val childIconOnly: Boolean = false,
+    /** Icon size handed down to this stack's buttons; a button's own size still wins. */
+    val childIconSize: Int = ICON_SIZE_AUTO,
     val collapsible: Boolean = true,
     val defaultCollapsed: Boolean = false,
     val isCollapsed: Boolean? = null,
@@ -1118,6 +1126,32 @@ data class HKISingleEntityWidget(
     val config: HKIButtonConfig = HKIButtonConfig()
 ) : HKIRoomWidget()
 
+/** Icon size sentinel: pick a size from how many columns the button's stack is showing. */
+const val ICON_SIZE_AUTO = 0
+
+/**
+ * Glyph size for an icon-only button.
+ *
+ * A fixed 40dp reads well at one or two columns but overflows a narrow button, which is what made
+ * icon-only unusable in the six-column custom popups. Sizes cascade: the button's own setting wins,
+ * then the stack's default for its children, then the column-derived size below.
+ */
+fun iconOnlyIconSizeDp(
+    buttonIconSize: Int = ICON_SIZE_AUTO,
+    stackIconSize: Int = ICON_SIZE_AUTO,
+    columns: Int = 1
+): Int {
+    if (buttonIconSize > ICON_SIZE_AUTO) return buttonIconSize
+    if (stackIconSize > ICON_SIZE_AUTO) return stackIconSize
+    return when (columns.coerceAtLeast(1)) {
+        1, 2 -> 40
+        3 -> 34
+        4 -> 28
+        5 -> 24
+        else -> 20
+    }
+}
+
 @Serializable
 data class HKIButtonConfig(
     val name: String? = null,
@@ -1171,6 +1205,8 @@ data class HKIButtonConfig(
     val visibilityMatch: String = VISIBILITY_MATCH_ALL,
     /** Drops the name and state, leaving only the icon centered on the button. */
     val iconOnly: Boolean = false,
+    /** Icon-only glyph size in dp. [ICON_SIZE_AUTO] scales it to the stack's column count. */
+    val iconSize: Int = ICON_SIZE_AUTO,
     /** Light-only Google Home-style full-height brightness control. */
     val showBrightnessSlider: Boolean = false,
     val cameraUrl: String? = null,

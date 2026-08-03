@@ -21,6 +21,13 @@
     <string name="popup_settings_subtitle_section">Crie e edite as suas janelas personalizadas</string>
     <string name="popup_settings_hint">As janelas abrem a partir de um botão, emblema ou botão de caixa de diálogo definido para a ação Janela personalizada. «Editar conteúdo» abre a própria janela para organizar os widgets.</string>
     <string name="button_icon_only">Apenas ícone</string>
+    <string name="button_icon_size">Tamanho do ícone</string>
+    <string name="button_icon_size_description">Automático reduz o ícone à medida que a pilha ganha colunas, para caber num botão estreito.</string>
+    <string name="button_icon_size_auto">Automático</string>
+    <string name="button_icon_size_value">%1$d dp</string>
+    <string name="stack_child_icon_only">Apenas ícone em todos os botões</string>
+    <string name="stack_child_icon_only_description">Aplica-se a todos os botões desta pilha, para não ter de definir um a um.</string>
+    <string name="stack_child_icon_size">Tamanho do ícone em todos os botões</string>
     <string name="button_icon_only_description">Oculta o nome e o estado, centrando o ícone no botão</string>
     <string name="action_button">Botão de ação</string>
     <string name="action_button_description">Um botão sem entidade: dê-lhe um nome, um ícone e qualquer ação</string>

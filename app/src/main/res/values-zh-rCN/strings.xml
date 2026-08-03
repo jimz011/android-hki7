@@ -1960,6 +1960,11 @@
         <item>HKI 现在可以在房间之间跟随你。指定一个像 ESPresense 这样的在室传感器后，启动应用时会打开你所在的房间，当你移动到别处时会询问是否切换视图。房间还会在动作和在室计数器旁显示一个紫色计数器，标明房间内的人数。管理员可在设置 › 家庭共享 › 在室 中为全家统一配置：每个人的传感器，以及新房间需要保持多久才算一次移动。与 Home Assistant 区域同名的传感器房间会自动匹配。*</item>
         <item>Home Assistant 的通知现在可以带操作按钮。在 notify.mobile_app_… 消息中添加 actions 后，每个按钮都会显示在通知上；点按后会把该操作发回 Home Assistant，自动化即可对其作出响应。由于 HKI 打开时不会发送系统通知，这些按钮同样会显示在应用内横幅和通知抽屉中。URI 操作会打开其链接，REPLY 操作可输入回复，离线时点按的操作会在连接恢复后送出。每条通知的操作只能使用一次。</item>
         <item>新增“操作按钮”：无需任何实体的按钮。为它设置名称和图标，并为轻点、长按或双击指定任意操作——跳转到某个页面或房间、调用 Home Assistant 操作、打开网址或自定义弹窗。可从微件选择器、按钮堆栈，或作为标题旁徽章区域中的操作徽章添加。</item>
+        <item>仅显示图标的按钮现在可以设置大小。自动会随着堆叠列数增加而缩小图标，使仅图标在四、五、六列弹窗中也能使用——此前固定大小会溢出按钮。单个按钮也可以设置自己的大小。</item>
+        <item>按钮堆叠可以把外观应用到其中的所有按钮：一个“所有按钮仅显示图标”开关即可，无需在二十个按钮上重复设置，图标大小也会被全部继承。单个按钮仍可覆盖大小。</item>
+        <item>快速入门指南现在可以手动浏览。滑动手势预览，或点按圆点、任意提示即可跳转。在你接管之前，它仍会自动播放。</item>
+        <item>修复了垃圾回收小组件在非荷兰语下所有类别都显示错误图标和颜色的问题：类别是与翻译后的名称比对的，因此显示为 Packaging 的 PMD 落到了通用的灰蓝色垃圾桶。PMD 恢复为带回收符号的橙色。</item>
+        <item>修复了关闭“切换房间前先询问”后仍出现房间切换询问，以及为当前已打开的房间询问的问题。询问中新增“在我重新启动应用前不要再询问”，等待时间也可随时设置。</item>
         <item>* 需要 HKI 7 Cloud 组件集成。</item>
     </string-array>
 
@@ -2849,6 +2854,7 @@
     <string name="room_follow_moved_message">切换到该房间，还是留在当前视图？</string>
     <string name="room_follow_moved_switch">切换</string>
     <string name="room_follow_moved_stay">留下</string>
+    <string name="room_follow_moved_silence">在我重新启动应用前不要再询问</string>
     <string name="settings_extra_rename_dashboard">重命名 %1$s</string>
     <string name="settings_extra_rename_instance">重命名 %1$s</string>
     <string name="settings_extra_restart_home_assistant_failed">无法重启 Home Assistant。</string>

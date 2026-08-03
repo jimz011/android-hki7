@@ -171,6 +171,8 @@ import com.jimz011apps.hki7.data.HAServiceCall
 import com.jimz011apps.hki7.data.HKIAction
 import com.jimz011apps.hki7.data.HKIButtonStack
 import com.jimz011apps.hki7.data.HKIButtonConfig
+import com.jimz011apps.hki7.data.ICON_SIZE_AUTO
+import com.jimz011apps.hki7.data.iconOnlyIconSizeDp
 import com.jimz011apps.hki7.data.VISIBILITY_MATCH_ALL
 import com.jimz011apps.hki7.data.isButtonVisibleNow
 import com.jimz011apps.hki7.data.visibilityConditionEntityIds
@@ -241,7 +243,9 @@ import com.jimz011apps.hki7.ui.components.parseHistoryMillis
 import com.jimz011apps.hki7.ui.components.HKICameraDialog
 import com.jimz011apps.hki7.ui.components.ZoomableCameraImage
 import com.jimz011apps.hki7.ui.components.DateTimePickerDialog
+import com.jimz011apps.hki7.ui.components.IconSizeSelector
 import com.jimz011apps.hki7.ui.components.MdiIconPickerDialog
+import com.jimz011apps.hki7.ui.components.StackChildAppearance
 import com.jimz011apps.hki7.ui.utils.MdiIcon
 import com.jimz011apps.hki7.ui.utils.handleActionOutcome
 import com.jimz011apps.hki7.ui.components.ActionEditor
@@ -3369,6 +3373,7 @@ fun ButtonConfigDialog(
     var visSpec by remember(config) { mutableStateOf(config.toVisibilitySpec()) }
     val isLightEntity = entity?.entity_id?.startsWith("light.") == true
     var iconOnly by remember(config) { mutableStateOf(config.iconOnly) }
+    var iconSize by remember(config) { mutableIntStateOf(config.iconSize) }
     var showBrightnessSlider by remember(config) { mutableStateOf(config.showBrightnessSlider) }
     var tapAction by remember(config) { mutableStateOf(config.tapActionEx ?: HKIAction(type = config.tapAction)) }
     var doubleAction by remember(config) { mutableStateOf(config.doubleTapActionEx ?: HKIAction(type = config.doubleTapAction)) }
@@ -3750,6 +3755,12 @@ fun ButtonConfigDialog(
                             }
                             Switch(checked = iconOnly, onCheckedChange = { iconOnly = it })
                         }
+                        if (iconOnly) {
+                            IconSizeSelector(
+                                value = iconSize,
+                                onValueChange = { iconSize = it }
+                            )
+                        }
                     }
                     if (isLightEntity) {
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -3864,6 +3875,7 @@ fun ButtonConfigDialog(
                             icon = if (isCameraItem || isVacuumItem) config.icon else iconName.takeUnless { it == "None" },
                             iconAnimation = iconAnimation,
                             iconOnly = iconOnly,
+                            iconSize = iconSize,
                             showBrightnessSlider = if (isLightEntity) showBrightnessSlider else false,
                             cameraUrl = if (isCameraItem && config.isCustomUrl) cameraUrl.ifBlank { null } else config.cameraUrl,
                             cameraRefreshInterval = if (isCameraItem) refreshInterval else config.cameraRefreshInterval,
@@ -4182,6 +4194,8 @@ fun StackSettingsDialog(
     var iconName by remember(stack) { mutableStateOf(stack.icon ?: "Lightbulb") }
     var width by remember(stack) { mutableStateOf(stack.width) }
     var columns by remember(stack, maxColumns) { mutableIntStateOf(stack.columns.coerceIn(1, maxColumns)) }
+    var childIconOnly by remember(stack) { mutableStateOf(stack.childIconOnly) }
+    var childIconSize by remember(stack) { mutableIntStateOf(stack.childIconSize) }
     var showBadge by remember(stack) { mutableStateOf(stack.showBadge) }
     var isSquare by remember(stack) { mutableStateOf(stack.isSquare) }
     var buttonStyle by remember(stack) {
@@ -4374,6 +4388,12 @@ fun StackSettingsDialog(
                             FilterChip(selected = columns == count, onClick = { columns = count }, label = { Text(stringResource(R.string.ui_text_c79f712, count)) })
                         }
                     }
+                    StackChildAppearance(
+                        childIconOnly = childIconOnly,
+                        onChildIconOnlyChange = { childIconOnly = it },
+                        childIconSize = childIconSize,
+                        onChildIconSizeChange = { childIconSize = it }
+                    )
                 }
                 if (stack.stackType != "weather") {
                     Text(if (isAdaptiveLighting) stringResource(R.string.ui_widget_height_b26de24) else stringResource(R.string.ui_button_type_890a578), style = MaterialTheme.typography.labelLarge)
@@ -4432,6 +4452,8 @@ fun StackSettingsDialog(
                             width = width,
                             icon = iconName.takeUnless { it == "None" },
                             columns = columns.coerceIn(1, maxColumns),
+                            childIconOnly = childIconOnly,
+                            childIconSize = childIconSize,
                             showBadge = if (stack.stackType in listOf("camera", "weather")) false else showBadge,
                             isSquare = if (stack.stackType == "weather") false else isSquare,
                             buttonStyle = if (stack.stackType in listOf("weather", "camera", "vacuum")) stack.buttonStyle else buttonStyle,
@@ -5137,7 +5159,8 @@ fun ButtonStackItem(
                                 timerMachineRunning = cfg?.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                                 iconName = cfg?.icon,
                                 iconAnimation = cfg?.iconAnimation ?: "auto",
-                                iconOnly = cfg?.iconOnly == true,
+                                iconOnly = stack.childIconOnly || cfg?.iconOnly == true,
+                                iconOnlySize = iconOnlyIconSizeDp(cfg?.iconSize ?: ICON_SIZE_AUTO, stack.childIconSize, 1),
                                 onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
                                 onLongClick = { handleButtonInteraction(entity.entity_id, cfg, "hold") { onEntityLongClick(entity.entity_id) } },
                                 onDoubleClick = { handleButtonInteraction(entity.entity_id, cfg, "double") { onEntityDoubleClick(entity.entity_id) } },
@@ -5237,7 +5260,8 @@ fun ButtonStackItem(
                                         timerMachineRunning = cfg?.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                                         iconName = cfg?.icon,
                                         iconAnimation = cfg?.iconAnimation ?: "auto",
-                                        iconOnly = cfg?.iconOnly == true,
+                                        iconOnly = stack.childIconOnly || cfg?.iconOnly == true,
+                                        iconOnlySize = iconOnlyIconSizeDp(cfg?.iconSize ?: ICON_SIZE_AUTO, stack.childIconSize, columns),
                                         onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
                                         onLongClick = { handleButtonInteraction(entity.entity_id, cfg, "hold") { onEntityLongClick(entity.entity_id) } },
                                         onDoubleClick = { handleButtonInteraction(entity.entity_id, cfg, "double") { onEntityDoubleClick(entity.entity_id) } },
@@ -5299,7 +5323,12 @@ fun ButtonStackItem(
                                         timerMachineRunning = buttonConfigs[entity.entity_id]?.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                                         iconName = buttonConfigs[entity.entity_id]?.icon,
                                         iconAnimation = buttonConfigs[entity.entity_id]?.iconAnimation ?: "auto",
-                                        iconOnly = buttonConfigs[entity.entity_id]?.iconOnly == true,
+                                        iconOnly = stack.childIconOnly || buttonConfigs[entity.entity_id]?.iconOnly == true,
+                                        iconOnlySize = iconOnlyIconSizeDp(
+                                            buttonConfigs[entity.entity_id]?.iconSize ?: ICON_SIZE_AUTO,
+                                            stack.childIconSize,
+                                            columns
+                                        ),
                                         onClick = { onEntityClick(entity.entity_id) },
                                         onLongClick = { onEntityLongClick(entity.entity_id) },
                                         onDoubleClick = { onEntityDoubleClick(entity.entity_id) },
@@ -5494,6 +5523,7 @@ fun SingleEntityWidgetItem(
                         iconName = widget.config.icon,
                         iconAnimation = widget.config.iconAnimation,
                         iconOnly = widget.config.iconOnly,
+                        iconOnlySize = iconOnlyIconSizeDp(widget.config.iconSize),
                         onClick = { handleSingleButtonInteraction("tap") { onEntityClick(widget.entityId) } },
                         onLongClick = { handleSingleButtonInteraction("hold") { onEntityLongClick(widget.entityId) } },
                         onDoubleClick = { handleSingleButtonInteraction("double") { onEntityDoubleClick(widget.entityId) } },

@@ -90,7 +90,15 @@ import java.util.Locale
 
 private data class WasteCategory(
     val entity: HAEntity,
+    /** What the user sees — translated where a fraction is recognised. */
     val name: String,
+    /**
+     * The untranslated sensor name, kept because the icon and colour are chosen by looking for
+     * fraction keywords like "pmd" or "gft". Matching those against [name] only works while the
+     * app runs in Dutch: "PMD" translated to "Packaging" contains none of them, so every fraction
+     * silently fell through to the grey-blue default bin.
+     */
+    val matchName: String,
     val date: LocalDate?
 )
 
@@ -249,6 +257,7 @@ fun WasteCollectionWidgetItem(
         WasteCategory(
             entity,
             wasteShortName(rawNames[index]) ?: strippedNames[index],
+            rawNames[index],
             wasteNextDate(entity, zone)
         )
     }.sortedWith(compareBy(nullsLast(naturalOrder())) { it.date })
@@ -287,7 +296,7 @@ private fun WasteCollectionCard(
     // Every fraction collected on the soonest upcoming day — shown as overlapping icons when > 1.
     val todays = categories.filter { it.date != null && it.date == nextDate }
     val nextNames = todays.joinToString(" · ") { it.name }
-    val accent = next?.let { wasteCategoryColor(it.name) } ?: appColors.onMuted
+    val accent = next?.let { wasteCategoryColor(it.matchName) } ?: appColors.onMuted
     val stateText = when {
         widget.entityIds.isEmpty() -> stringResource(R.string.ui_no_waste_sensors_selected_68b51ce)
         nextDate == null -> stringResource(R.string.ui_no_upcoming_collections_feff2a6)
@@ -327,7 +336,7 @@ private fun WasteCollectionCard(
                             Modifier.size(84.dp).background(accent.copy(alpha = 0.16f), RoundedCornerShape(21.dp)),
                             contentAlignment = Alignment.Center
                         ) {
-                            MdiIcon(next?.let { wasteCategoryIcon(it.name) } ?: widget.icon ?: "trash-can-outline", tint = accent, size = 44.dp)
+                            MdiIcon(next?.let { wasteCategoryIcon(it.matchName) } ?: widget.icon ?: "trash-can-outline", tint = accent, size = 44.dp)
                         }
                     }
                 }
@@ -372,7 +381,7 @@ private fun WasteCollectionCard(
  * carrier logos so multiple collections on one day read at a glance. */
 @Composable
 private fun WasteFractionBadge(category: WasteCategory, usePicture: Boolean, currentUrl: String, size: Int) {
-    val color = wasteCategoryColor(category.name)
+    val color = wasteCategoryColor(category.matchName)
     val picture = if (usePicture) category.entity?.let { wasteEntityPicture(it, currentUrl) } else null
     Surface(
         shape = RoundedCornerShape((size / 4).dp),
@@ -384,7 +393,7 @@ private fun WasteFractionBadge(category: WasteCategory, usePicture: Boolean, cur
             AsyncImage(picture, category.name, Modifier.fillMaxSize().padding((size / 10).dp), contentScale = ContentScale.Fit)
         } else {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                MdiIcon(wasteCategoryIcon(category.name), tint = color, size = (size / 2).dp)
+                MdiIcon(wasteCategoryIcon(category.matchName), tint = color, size = (size / 2).dp)
             }
         }
     }
@@ -431,7 +440,7 @@ private fun WasteCollectionDialog(
                     )
                 }
                 categories.forEach { category ->
-                    val color = wasteCategoryColor(category.name)
+                    val color = wasteCategoryColor(category.matchName)
                     val isToday = category.date == today
                     Surface(shape = itemCornerShape(), color = if (isToday) color.copy(alpha = 0.14f) else appColors.subtleSurface) {
                         Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -442,7 +451,7 @@ private fun WasteCollectionDialog(
                                 }
                             } else {
                                 Surface(shape = itemCornerShape(), color = color.copy(alpha = 0.16f)) {
-                                    MdiIcon(wasteCategoryIcon(category.name), tint = color, size = 18.dp, modifier = Modifier.padding(7.dp))
+                                    MdiIcon(wasteCategoryIcon(category.matchName), tint = color, size = 18.dp, modifier = Modifier.padding(7.dp))
                                 }
                             }
                             Spacer(Modifier.width(10.dp))

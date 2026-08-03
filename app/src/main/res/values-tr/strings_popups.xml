@@ -21,6 +21,13 @@
     <string name="popup_settings_subtitle_section">Özel açılır pencerelerinizi oluşturun ve düzenleyin</string>
     <string name="popup_settings_hint">Açılır pencereler, Özel açılır pencere eylemine ayarlanmış bir düğme, rozet veya iletişim kutusu düğmesinden açılır. «İçeriği düzenle», widget’ları yerleştirebilmeniz için pencerenin kendisini açar.</string>
     <string name="button_icon_only">Yalnızca simge</string>
+    <string name="button_icon_size">Simge boyutu</string>
+    <string name="button_icon_size_description">Otomatik, yığın sütun kazandıkça simgeyi küçültür; böylece dar bir düğmeye sığar.</string>
+    <string name="button_icon_size_auto">Otomatik</string>
+    <string name="button_icon_size_value">%1$d dp</string>
+    <string name="stack_child_icon_only">Her düğme için yalnızca simge</string>
+    <string name="stack_child_icon_only_description">Bu yığındaki tüm düğmelere uygulanır, böylece tek tek ayarlamanız gerekmez.</string>
+    <string name="stack_child_icon_size">Her düğme için simge boyutu</string>
     <string name="button_icon_only_description">Adı ve durumu gizler, simgeyi düğmenin ortasına yerleştirir</string>
     <string name="action_button">Eylem düğmesi</string>
     <string name="action_button_description">Varlığı olmayan bir düğme: ad, simge ve istediğiniz eylemi verin</string>

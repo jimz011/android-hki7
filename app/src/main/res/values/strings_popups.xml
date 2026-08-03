@@ -21,6 +21,13 @@
     <string name="popup_settings_subtitle_section">Build and edit your custom popups</string>
     <string name="popup_settings_hint">Popups open from a button, badge, or dialog button set to the Custom popup action. Edit contents opens the popup itself so you can arrange its widgets.</string>
     <string name="button_icon_only">Icon only</string>
+    <string name="button_icon_size">Icon size</string>
+    <string name="button_icon_size_description">Auto shrinks the icon as the stack gains columns, so it still fits a narrow button.</string>
+    <string name="button_icon_size_auto">Auto</string>
+    <string name="button_icon_size_value">%1$d dp</string>
+    <string name="stack_child_icon_only">Icon only for every button</string>
+    <string name="stack_child_icon_only_description">Applies to all buttons in this stack, so you don\'t have to set it on each one.</string>
+    <string name="stack_child_icon_size">Icon size for every button</string>
     <string name="button_icon_only_description">Hide the name and state, centering the icon on the button</string>
     <string name="action_button">Action button</string>
     <string name="action_button_description">A button without an entity: give it a name, an icon, and any action</string>

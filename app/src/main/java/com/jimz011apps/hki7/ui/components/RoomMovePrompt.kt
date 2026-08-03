@@ -1,5 +1,7 @@
 package com.jimz011apps.hki7.ui.components
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Groups
@@ -30,7 +32,8 @@ import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 fun RoomMovePrompt(
     roomName: String,
     onSwitch: () -> Unit,
-    onStay: () -> Unit
+    onStay: () -> Unit,
+    onSilenceUntilRestart: () -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
     AlertDialog(
@@ -53,11 +56,25 @@ fun RoomMovePrompt(
             )
         },
         text = {
-            Text(
-                stringResource(R.string.room_follow_moved_message),
-                style = MaterialTheme.typography.bodyMedium,
-                color = appColors.onMuted
-            )
+            Column {
+                Text(
+                    stringResource(R.string.room_follow_moved_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = appColors.onMuted
+                )
+                // An escape hatch for someone who is being asked more often than they want, without
+                // making them open Family Sharing (which a non-admin cannot do anyway).
+                TextButton(
+                    onClick = onSilenceUntilRestart,
+                    contentPadding = PaddingValues(horizontal = 0.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.room_follow_moved_silence),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = appColors.onMuted
+                    )
+                }
+            }
         },
         confirmButton = {
             TextButton(onClick = onSwitch) {

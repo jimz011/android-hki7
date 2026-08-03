@@ -1972,6 +1972,11 @@
         <item>HKI ahora puede seguirte de habitación en habitación. Indícale un sensor de presencia como ESPresense: al iniciarse, la app abre la habitación en la que estás y ofrece cambiar de vista cuando te mueves. Las habitaciones también muestran un contador morado con cuántas personas hay, junto a los contadores de movimiento y presencia. Un administrador lo configura para toda la familia en Ajustes › Compartir en familia › Presencia: el sensor de cada persona y cuánto debe mantenerse una habitación nueva antes de contar como un movimiento. Las habitaciones del sensor que se llaman como tus áreas de Home Assistant se emparejan automáticamente.*</item>
         <item>Las notificaciones de Home Assistant ahora pueden incluir botones de acción. Al agregar actions a un mensaje notify.mobile_app_…, cada una aparece en la notificación; al tocarla, la acción se envía de vuelta a Home Assistant, donde una automatización puede responder. Los botones también aparecen en el aviso dentro de la app y en el cajón de notificaciones, porque HKI oculta las notificaciones del sistema mientras está abierta. Una acción URI abre su enlace, una acción REPLY admite una respuesta escrita y una acción tocada sin conexión se entrega cuando esta vuelve. Cada notificación se puede accionar una vez.</item>
         <item>Nuevo: botón de acción, un botón que no necesita ninguna entidad. Dale un nombre, un ícono y la acción que quieras al tocar, mantener presionado o tocar dos veces: ir a una vista o una habitación, llamar a una acción de Home Assistant, abrir una URL o una ventana personalizada. Agrégalo desde el selector de widgets, desde una pila de botones o como insignia de acción en el área de insignias junto al encabezado.</item>
+        <item>Los botones de solo ícono ya se pueden dimensionar. Automático reduce el ícono a medida que la pila gana columnas, lo que hace usable el solo ícono en las ventanas de cuatro, cinco y seis columnas donde un tamaño fijo se desbordaba. Un botón también puede tener su propio tamaño.</item>
+        <item>Las pilas de botones pueden imponer su apariencia a todos sus botones: un solo interruptor Solo ícono en todos los botones en lugar del mismo en veinte botones, más un tamaño de ícono que todos heredan. Un botón concreto aún puede cambiarlo.</item>
+        <item>La guía rápida ya se puede recorrer a mano. Desliza la vista previa del gesto, toca un punto o cualquier consejo para ir allí. Sigue avanzando sola hasta que tomas el control.</item>
+        <item>Se corrigió que el widget de residuos mostrara el ícono y el color equivocados fuera del neerlandés: el tipo se comparaba con la etiqueta traducida, así que PMD mostrado como Packaging caía en un contenedor gris azulado genérico. PMD vuelve a ser naranja con símbolo de reciclaje.</item>
+        <item>Se corrigió que el aviso de cambio de habitación apareciera tras desactivar Preguntar antes de cambiar de habitación, y para la habitación ya en pantalla. Ahora también ofrece No volver a preguntar hasta reiniciar, y la espera se puede ajustar igualmente.</item>
         <item>* Requiere la integración de HKI 7 Cloud Component.</item>
     </string-array>
 
@@ -2874,6 +2879,7 @@
     <string name="room_follow_moved_message">¿Cambiar a esa habitación o quedarte aquí?</string>
     <string name="room_follow_moved_switch">Cambiar</string>
     <string name="room_follow_moved_stay">Quedarme</string>
+    <string name="room_follow_moved_silence">No volver a preguntar hasta que reinicie la app</string>
     <string name="settings_extra_rename_dashboard">Renombrar %1$s</string>
     <string name="settings_extra_rename_instance">Renombrar %1$s</string>
     <string name="settings_extra_restart_home_assistant_failed">No se pudo reiniciar Home Assistant.</string>

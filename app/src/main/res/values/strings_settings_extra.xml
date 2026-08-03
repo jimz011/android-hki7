@@ -134,6 +134,7 @@
     <string name="room_follow_moved_message">Switch to that room, or stay where you are?</string>
     <string name="room_follow_moved_switch">Switch</string>
     <string name="room_follow_moved_stay">Stay</string>
+    <string name="room_follow_moved_silence">Don\'t ask again until I restart the app</string>
     <string name="settings_extra_rename_dashboard">Rename %1$s</string>
     <string name="settings_extra_rename_instance">Rename %1$s</string>
     <string name="settings_extra_restart_home_assistant_failed">Could not restart Home Assistant.</string>

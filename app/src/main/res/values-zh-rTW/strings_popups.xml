@@ -21,6 +21,13 @@
     <string name="popup_settings_subtitle_section">建立與編輯自訂彈出視窗</string>
     <string name="popup_settings_hint">彈出視窗可從設定為「自訂彈出視窗」動作的按鈕、徽章或對話方塊按鈕開啟。「編輯內容」會開啟彈出視窗本身，以便排列其中的小工具。</string>
     <string name="button_icon_only">僅圖示</string>
+    <string name="button_icon_size">圖示大小</string>
+    <string name="button_icon_size_description">自動會隨著堆疊欄數增加而縮小圖示，使其能放進較窄的按鈕。</string>
+    <string name="button_icon_size_auto">自動</string>
+    <string name="button_icon_size_value">%1$d dp</string>
+    <string name="stack_child_icon_only">所有按鈕僅顯示圖示</string>
+    <string name="stack_child_icon_only_description">適用於此堆疊中的所有按鈕，不必逐一設定。</string>
+    <string name="stack_child_icon_size">所有按鈕的圖示大小</string>
     <string name="button_icon_only_description">隱藏名稱與狀態，並將圖示置中顯示在按鈕上</string>
     <string name="action_button">動作按鈕</string>
     <string name="action_button_description">不需要實體的按鈕：為它設定名稱、圖示與任何動作</string>

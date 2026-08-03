@@ -21,6 +21,13 @@
     <string name="popup_settings_subtitle_section">Crea y edita tus ventanas personalizadas</string>
     <string name="popup_settings_hint">Las ventanas se abren desde un botón, una insignia o un botón de diálogo con la acción Ventana personalizada. «Editar contenido» abre la propia ventana para organizar sus widgets.</string>
     <string name="button_icon_only">Solo icono</string>
+    <string name="button_icon_size">Tamaño del icono</string>
+    <string name="button_icon_size_description">Automático reduce el icono a medida que la pila gana columnas, para que quepa en un botón estrecho.</string>
+    <string name="button_icon_size_auto">Automático</string>
+    <string name="button_icon_size_value">%1$d dp</string>
+    <string name="stack_child_icon_only">Solo icono en todos los botones</string>
+    <string name="stack_child_icon_only_description">Se aplica a todos los botones de esta pila, así no tienes que ajustarlo uno por uno.</string>
+    <string name="stack_child_icon_size">Tamaño del icono en todos los botones</string>
     <string name="button_icon_only_description">Oculta el nombre y el estado y centra el icono en el botón</string>
     <string name="action_button">Botón de acción</string>
     <string name="action_button_description">Un botón sin entidad: dale un nombre, un icono y cualquier acción</string>

@@ -2651,6 +2651,7 @@
     <string name="room_follow_moved_message">Mudar para essa divisão ou ficar aqui?</string>
     <string name="room_follow_moved_switch">Mudar</string>
     <string name="room_follow_moved_stay">Ficar</string>
+    <string name="room_follow_moved_silence">Não perguntar novamente até reiniciar a aplicação</string>
     <string name="settings_extra_rename_dashboard">Renomear %1$s</string>
     <string name="settings_extra_rename_instance">Renomear %1$s</string>
     <string name="settings_extra_restart_home_assistant_failed">Não foi possível reiniciar o Home Assistant.</string>
@@ -3241,6 +3242,11 @@
         <item>O HKI pode agora segui-lo de divisão em divisão. Aponte-o para um sensor de presença como o ESPresense: ao arrancar, a aplicação abre a divisão onde está e propõe mudar de vista quando se desloca. As divisões passam também a ter um contador roxo com quantas pessoas estão lá, ao lado dos contadores de movimento e presença. Um administrador configura isto para toda a família em Definições › Partilha familiar › Presença: o sensor de cada pessoa e quanto tempo uma nova divisão tem de se manter para contar como uma mudança. As divisões do sensor com o nome das suas áreas do Home Assistant são associadas automaticamente.*</item>
         <item>As notificações do Home Assistant podem agora incluir botões de ação. Ao adicionar actions a uma mensagem notify.mobile_app_…, cada uma aparece na notificação; ao tocar, a ação é enviada de volta para o Home Assistant, onde uma automação pode responder. Os botões também aparecem no aviso dentro da aplicação e na gaveta de notificações, porque o HKI oculta as notificações do sistema enquanto está aberto. Uma ação URI abre a ligação, uma ação REPLY aceita uma resposta escrita e uma ação tocada sem ligação é entregue quando esta regressa. Cada notificação pode ser usada uma vez.</item>
         <item>Novo: botão de ação, um botão que não precisa de qualquer entidade. Dê-lhe um nome, um ícone e a ação que quiser para tocar, manter premido ou tocar duas vezes — navegar para uma vista ou divisão, chamar uma ação do Home Assistant, abrir um URL ou uma janela personalizada. Adicione-o a partir do seletor de widgets, de uma pilha de botões ou como emblema de ação na área de emblemas junto ao cabeçalho.</item>
+        <item>Os botões só com ícone já podem ser dimensionados. Automático reduz o ícone à medida que a pilha ganha colunas, o que torna o só-ícone utilizável nas janelas de quatro, cinco e seis colunas onde um tamanho fixo transbordava. Um botão pode também ter o seu próprio tamanho.</item>
+        <item>As pilhas de botões podem impor o seu aspeto a todos os botões: um único interruptor Apenas ícone em todos os botões em vez do mesmo em vinte botões, mais um tamanho de ícone que todos herdam. Um botão isolado ainda o pode alterar.</item>
+        <item>O guia rápido já pode ser percorrido à mão. Deslize a pré-visualização do gesto, toque num ponto ou numa dica para lá saltar. Continua a avançar sozinho até assumir o controlo.</item>
+        <item>Corrigido o widget de resíduos a mostrar o ícone e a cor errados fora do neerlandês: o tipo era comparado com a etiqueta traduzida, pelo que PMD mostrado como Packaging caía num contentor cinzento-azulado genérico. O PMD volta a ser laranja com símbolo de reciclagem.</item>
+        <item>Corrigido o aviso de mudança de divisão a aparecer depois de desligar Perguntar antes de mudar de divisão, e para a divisão já no ecrã. Passa a oferecer Não perguntar novamente até reiniciar, e a espera pode ser definida à mesma.</item>
         <item>* Requer a integração do Componente HKI 7 Cloud.</item>
     </string-array>
 

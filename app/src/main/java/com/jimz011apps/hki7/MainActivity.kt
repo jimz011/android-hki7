@@ -575,9 +575,12 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     // "already in that room" check below would never match.
     val latestAreaId by rememberUpdatedState(currentAreaId)
     LaunchedEffect(roomFollow.isActive, roomFollow.promptOnMove, isEditMode) {
-        if (!roomFollow.isActive || !roomFollow.promptOnMove) return@LaunchedEffect
-        // Never interrupt someone mid-edit with a navigation prompt.
-        if (isEditMode) return@LaunchedEffect
+        // Turning the toggle off, or entering edit mode, must also retire a prompt already on
+        // screen — otherwise it sits there waiting for an answer to a question no longer asked.
+        if (!roomFollow.isActive || !roomFollow.promptOnMove || isEditMode) {
+            viewModel.cancelRoomMovePrompt()
+            return@LaunchedEffect
+        }
         while (true) {
             viewModel.observeRoomPresence(latestAreaId)
             delay(2.seconds)
@@ -595,7 +598,8 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                     viewModel.resolveRoomMove(accepted = true)
                     navController.navigate(Screen.RoomDetail.createRoute(targetAreaId))
                 },
-                onStay = { viewModel.resolveRoomMove(accepted = false) }
+                onStay = { viewModel.resolveRoomMove(accepted = false) },
+                onSilenceUntilRestart = { viewModel.silenceRoomMovePromptUntilRestart() }
             )
         }
     }
