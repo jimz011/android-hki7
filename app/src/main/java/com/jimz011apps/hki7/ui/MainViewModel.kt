@@ -2015,7 +2015,14 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val handler = pushHandler ?: return
         pushJob = viewModelScope.launch(Dispatchers.IO) {
             while (currentCoroutineContext().isActive) {
-                if (prefs.shouldUsePushService.first()) { delay(30.seconds); continue }
+                // Stand aside only while the service is genuinely holding the channel. Deferring
+                // on the setting alone left nobody subscribed whenever Android refused to start
+                // the service, and Home Assistant then reports the device as "not connected to
+                // local push notifications" even with the app open.
+                if (prefs.shouldUsePushService.first() && PushForegroundService.isRunning) {
+                    delay(10.seconds)
+                    continue
+                }
                 if (prefs.activeHomeAssistantInstance.first()?.notificationsEnabled == false) {
                     delay(30.seconds)
                     continue
@@ -2024,9 +2031,26 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 val currentClient = client
                 if (webhookId.isNullOrBlank() || currentClient == null) { delay(10.seconds); continue }
                 try {
-                    currentClient.subscribePushNotifications(webhookId).collect { event ->
-                        runCatching { handler.handle(event) }
+                    addLog("Push channel subscribing (webhook ${webhookId.take(8)}…)")
+                    val subscription = launch {
+                        currentClient.subscribePushNotifications(webhookId).collect { event ->
+                            runCatching { handler.handle(event) }
+                        }
                     }
+                    // Hand the channel back the moment the service actually comes up, so the same
+                    // webhook is never subscribed twice and delivering duplicates.
+                    val watcher = launch {
+                        while (isActive) {
+                            delay(5.seconds)
+                            if (PushForegroundService.isRunning) {
+                                addLog("Push channel handed to the background service")
+                                subscription.cancel()
+                                break
+                            }
+                        }
+                    }
+                    subscription.join()
+                    watcher.cancel()
                 } catch (e: Exception) {
                     if (e.message != "AUTH_EXPIRED") addLog("Push channel interrupted: ${e.message}")
                 }

@@ -308,11 +308,14 @@ class PushForegroundService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         try {
             startForeground(NOTIFICATION_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+            isRunning = true
         } catch (e: Exception) {
             // Android 15+ forbids starting a dataSync foreground service from contexts like a
             // BOOT_COMPLETED receiver (ForegroundServiceStartNotAllowedException). Rather than
-            // crash, bow out quietly: the connection re-establishes the next time the app is
-            // opened, which re-invokes start() from a foreground-allowed context.
+            // crash, bow out quietly and leave [isRunning] false: the in-app subscription checks
+            // that flag and takes the channel over, so a refused start no longer means nobody is
+            // subscribed at all.
+            isRunning = false
             stopSelf()
             return START_NOT_STICKY
         }
@@ -379,6 +382,7 @@ class PushForegroundService : Service() {
     }
 
     override fun onDestroy() {
+        isRunning = false
         scope.cancel()
         super.onDestroy()
     }
@@ -437,6 +441,19 @@ class PushForegroundService : Service() {
     companion object {
         const val CHANNEL_ID = "hki7_push_connection"
         private const val NOTIFICATION_ID = 4712
+
+        /**
+         * Whether the service currently holds the push subscription.
+         *
+         * The in-app subscription stands aside for this service, and used to do so purely because
+         * the *settings* said the service should run. When Android refused to start it — a boot on
+         * 15+, a killed service, a blocked start — nothing was subscribed at all, and Home
+         * Assistant answered every notify with "not connected to local push notifications" even
+         * with the app open on screen. Intent is not the same as reality, so this reports reality.
+         */
+        @Volatile
+        var isRunning: Boolean = false
+            private set
 
         fun start(context: Context) {
             runCatching {
