@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -54,6 +56,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -86,6 +89,7 @@ import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 private data class WasteCategory(
@@ -430,7 +434,7 @@ private fun WasteCollectionDialog(
         text = {
             val scroll = rememberScrollState()
             Column(
-                modifier = Modifier.heightIn(max = 480.dp).fadingEdges(scroll).verticalScroll(scroll),
+                modifier = Modifier.fillMaxHeight().fadingEdges(scroll).verticalScroll(scroll),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 if (categories.isEmpty()) {
@@ -471,7 +475,7 @@ private fun WasteCollectionDialog(
                 }
                 widget.calendarEntityId?.let { calendarId ->
                     HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.12f))
-                    WasteWeekCalendar(calendarId, viewModel, zone)
+                    WasteWeekCalendar(calendarId, widget.calendarDaysAhead, viewModel, zone)
                 }
             }
         },
@@ -479,45 +483,150 @@ private fun WasteCollectionDialog(
     )
 }
 
+/** Look-ahead choices for the dialog's calendar, in days. */
+internal val WasteCalendarDayOptions = listOf(7, 14, 28)
+
+/**
+ * Month-style week grid of upcoming collections, matching the calendar widget's week view: one row
+ * per week, a cell per day, and a coloured dot per collection using the same per-fraction colours as
+ * the rest of the widget. Tapping a day lists what is collected then.
+ *
+ * The grid is aligned to the locale's first day of the week rather than starting on today, so the
+ * weekday columns line up the way every other calendar in the app does; days before today are dimmed
+ * rather than dropped, which keeps the current week from being a ragged partial row.
+ */
 @Composable
-private fun WasteWeekCalendar(calendarEntityId: String, viewModel: MainViewModel, zone: ZoneId) {
+private fun WasteWeekCalendar(
+    calendarEntityId: String,
+    daysAhead: Int,
+    viewModel: MainViewModel,
+    zone: ZoneId
+) {
     val appColors = LocalHKIAppColors.current
+    val locale = appLocale()
     val today = LocalDate.now(zone)
-    val endExclusive = today.plusDays(7)
-    val startMillis = today.atStartOfDay(zone).toInstant().toEpochMilli()
-    val endMillis = endExclusive.atStartOfDay(zone).toInstant().toEpochMilli()
+    val lastDay = today.plusDays((daysAhead - 1).toLong())
+    val gridStart = startOfLocaleWeek(today, locale)
+    // Whole weeks only, extended to cover the last day in range.
+    val weekCount = (ChronoUnit.DAYS.between(gridStart, lastDay).toInt() / 7) + 1
+    val gridEndExclusive = gridStart.plusDays(weekCount * 7L)
+
+    val startMillis = gridStart.atStartOfDay(zone).toInstant().toEpochMilli()
+    val endMillis = gridEndExclusive.atStartOfDay(zone).toInstant().toEpochMilli()
     val ids = remember(calendarEntityId) { listOf(calendarEntityId) }
     val cacheKey = remember(ids, startMillis, endMillis) { viewModel.calendarEventsCacheKey(ids, startMillis, endMillis) }
     val eventFlow = remember(viewModel, cacheKey) { viewModel.calendarEventsFor(cacheKey) }
     val events by eventFlow.collectAsState()
     LaunchedEffect(cacheKey) { viewModel.fetchCalendarEvents(ids, startMillis, endMillis) }
 
-    val byDay = remember(events, calendarEntityId, today) {
+    val byDay = remember(events, calendarEntityId, gridStart, gridEndExclusive) {
         events.asSequence().filter { it.entityId == calendarEntityId }
             .mapNotNull { event -> wasteEventDate(event, zone)?.let { it to event } }
-            .filter { (date, _) -> date in today..<endExclusive }
-            .sortedBy { it.first }
+            .filter { (date, _) -> date >= gridStart && date < gridEndExclusive }
             .groupBy({ it.first }, { it.second })
     }
-    if (byDay.isEmpty()) {
-        Text(stringResource(R.string.ui_no_collections_in_the_next_7_days_6d48bf4), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
-        return
+
+    // Default the selection to the next day that actually has a collection, so opening the dialog
+    // answers "what's next" without a tap.
+    val firstWithEvents = remember(byDay, today) {
+        byDay.keys.filter { it >= today }.minOrNull()
     }
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        val collectionLabel = stringResource(R.string.ui_collection_30c54a9)
-        byDay.forEach { (date, dayEvents) ->
-            Surface(shape = itemCornerShape(), color = appColors.subtleSurface) {
-                Row(Modifier.fillMaxWidth().padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        wasteDateLabel(date, zone),
-                        color = appColors.onSurface, style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold, modifier = Modifier.width(96.dp), maxLines = 1
-                    )
-                    Text(
-                        dayEvents.joinToString(", ") { it.summary?.takeIf { s -> s.isNotBlank() } ?: collectionLabel },
-                        color = appColors.onMuted, style = MaterialTheme.typography.bodySmall,
-                        maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f)
-                    )
+    var selected by remember(calendarEntityId, daysAhead) { mutableStateOf(firstWithEvents ?: today) }
+    LaunchedEffect(firstWithEvents) { firstWithEvents?.let { selected = it } }
+
+    val collectionLabel = stringResource(R.string.ui_collection_30c54a9)
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            localeWeekdayLabels(gridStart, locale).forEach { label ->
+                Text(
+                    label, modifier = Modifier.weight(1f), color = appColors.onMuted,
+                    style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+        (0 until weekCount).forEach { week ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                (0 until 7).forEach { dayIndex ->
+                    val day = gridStart.plusDays(week * 7L + dayIndex)
+                    val inRange = day >= today && day <= lastDay
+                    val dayEvents = byDay[day].orEmpty()
+                    val isSelected = day == selected
+                    Surface(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(46.dp)
+                            .clip(itemCornerShape())
+                            .clickable(enabled = dayEvents.isNotEmpty() || inRange) { selected = day },
+                        shape = itemCornerShape(),
+                        color = when {
+                            isSelected -> MaterialTheme.colorScheme.primary
+                            day == today -> MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
+                            else -> Color.Transparent
+                        }
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                day.dayOfMonth.toString(),
+                                color = when {
+                                    isSelected -> MaterialTheme.colorScheme.onPrimary
+                                    inRange -> appColors.onSurface
+                                    else -> appColors.onMuted.copy(alpha = 0.42f)
+                                },
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = if (isSelected || day == today) FontWeight.Bold else FontWeight.Normal
+                            )
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                modifier = Modifier.height(8.dp)
+                            ) {
+                                dayEvents.take(3).forEach { event ->
+                                    val dot = wasteCategoryColor(event.summary.orEmpty())
+                                    Box(
+                                        Modifier.size(4.dp).background(
+                                            if (isSelected) MaterialTheme.colorScheme.onPrimary else dot,
+                                            CircleShape
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        val selectedEvents = byDay[selected].orEmpty()
+        if (selectedEvents.isEmpty()) {
+            Text(
+                stringResource(R.string.widgets_waste_no_collection_on, wasteDateLabel(selected, zone)),
+                color = appColors.onMuted, style = MaterialTheme.typography.bodySmall
+            )
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                selectedEvents.forEach { event ->
+                    val name = event.summary?.takeIf { it.isNotBlank() } ?: collectionLabel
+                    val color = wasteCategoryColor(name)
+                    Surface(shape = itemCornerShape(), color = appColors.subtleSurface) {
+                        Row(Modifier.fillMaxWidth().padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Surface(shape = itemCornerShape(), color = color.copy(alpha = 0.16f)) {
+                                MdiIcon(wasteCategoryIcon(name), tint = color, size = 16.dp, modifier = Modifier.padding(6.dp))
+                            }
+                            Spacer(Modifier.width(10.dp))
+                            Text(
+                                name, color = appColors.onSurface, style = MaterialTheme.typography.labelMedium,
+                                maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f)
+                            )
+                            Text(
+                                wasteDateLabel(selected, zone),
+                                color = appColors.onMuted, style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -562,6 +671,7 @@ fun WasteCollectionSettingsDialog(
 ) {
     var entityIds by remember(widget) { mutableStateOf(widget.entityIds) }
     var calendarEntityId by remember(widget) { mutableStateOf(widget.calendarEntityId) }
+    var calendarDaysAhead by remember(widget) { mutableIntStateOf(widget.calendarDaysAhead) }
     var title by remember(widget) { mutableStateOf(widget.title ?: "") }
     var iconName by remember(widget) { mutableStateOf(widget.icon ?: "trash-can-outline") }
     var imageStyle by remember(widget) { mutableStateOf(widget.imageStyle) }
@@ -621,7 +731,7 @@ fun WasteCollectionSettingsDialog(
         },
         text = {
             Column(
-                modifier = Modifier.heightIn(max = 480.dp).fadingEdges(scroll).verticalScroll(scroll),
+                modifier = Modifier.fillMaxHeight().fadingEdges(scroll).verticalScroll(scroll),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 com.jimz011apps.hki7.ui.components.SettingsTabRow(
@@ -677,6 +787,23 @@ fun WasteCollectionSettingsDialog(
                     TextButton(onClick = { showCalendarPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
                     if (calendarEntityId != null) TextButton(onClick = { calendarEntityId = null }) { Text(stringResource(R.string.ui_clear_719ea39)) }
                 }
+                if (calendarEntityId != null) {
+                    Text(stringResource(R.string.widgets_waste_calendar_range), style = MaterialTheme.typography.labelLarge)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        WasteCalendarDayOptions.forEach { days ->
+                            FilterChip(
+                                selected = calendarDaysAhead == days,
+                                onClick = { calendarDaysAhead = days },
+                                label = { Text(stringResource(R.string.widgets_waste_calendar_days, days)) }
+                            )
+                        }
+                    }
+                    Text(
+                        stringResource(R.string.widgets_waste_calendar_range_help),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 }
                 if (settingsPage == "appearance") {
                 com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_appearance_41def7a), stringResource(R.string.ui_image_style_size_shape_and_background_40c17b6))
@@ -715,6 +842,7 @@ fun WasteCollectionSettingsDialog(
                     widget.copy(
                         entityIds = entityIds,
                         calendarEntityId = calendarEntityId,
+                        calendarDaysAhead = calendarDaysAhead,
                         title = title.ifBlank { null },
                         icon = iconName.ifBlank { null },
                         imageStyle = imageStyle,

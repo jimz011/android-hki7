@@ -296,6 +296,7 @@ private suspend fun reverseGeocode(lat: Double, lon: Double): String? = withCont
 private fun OpenStreetMapPreview(lat: Double, lon: Double, imageUrl: String?) {
     var zoom by remember(lat, lon) { mutableIntStateOf(15) }
     val context = LocalContext.current
+    val darkTiles = MapTiles.useDarkTiles()
     val density = LocalDensity.current
     var viewportSize by remember { mutableStateOf(IntSize.Zero) }
     val tileSizePx = with(density) { 256.dp.toPx() }
@@ -369,7 +370,7 @@ private fun OpenStreetMapPreview(lat: Double, lon: Double, imageUrl: String?) {
                     val wrappedX = wrapTileX(tileX, zoom)
                     AsyncImage(
                         model = ImageRequest.Builder(context)
-                            .data("https://tile.openstreetmap.org/$zoom/$wrappedX/$tileY.png")
+                            .data(MapTiles.url(zoom, wrappedX, tileY, darkTiles))
                             .httpHeaders(NetworkHeaders.Builder().add("User-Agent", "HKI7 Android").build())
                             .crossfade(true)
                             .build(),
@@ -432,7 +433,7 @@ private fun OpenStreetMapPreview(lat: Double, lon: Double, imageUrl: String?) {
             shape = RoundedCornerShape(8.dp)
         ) {
             Text(
-                stringResource(R.string.ui_openstreetmap_fa78a33),
+                MapTiles.MAP_ATTRIBUTION,
                 color = Color.White.copy(alpha = 0.75f),
                 fontSize = 9.sp,
                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
@@ -454,26 +455,4 @@ private fun MapZoomButton(icon: androidx.compose.ui.graphics.vector.ImageVector,
     }
 }
 
-private data class WorldPoint(val x: Double, val y: Double)
-
-private fun latLonToWorld(lat: Double, lon: Double, zoom: Int, tileSizePx: Float): WorldPoint {
-    val clampedLat = lat.coerceIn(-85.05112878, 85.05112878)
-    val latRad = Math.toRadians(clampedLat)
-    val tileCount = 1 shl zoom
-    val x = (lon + 180.0) / 360.0 * tileCount
-    val y = (1.0 - ln(tan(latRad) + 1.0 / cos(latRad)) / PI) / 2.0 * tileCount
-    return WorldPoint(x * tileSizePx, y.coerceIn(0.0, tileCount - 1.0) * tileSizePx)
-}
-
-private fun clampWorldPoint(point: WorldPoint, zoom: Int, tileSizePx: Float): WorldPoint {
-    val worldSize = (1 shl zoom) * tileSizePx
-    return WorldPoint(
-        x = ((point.x % worldSize) + worldSize) % worldSize,
-        y = point.y.coerceIn(0.0, worldSize.toDouble())
-    )
-}
-
-private fun wrapTileX(x: Int, zoom: Int): Int {
-    val tileCount = 1 shl zoom
-    return ((x % tileCount) + tileCount) % tileCount
-}
+// Web-Mercator helpers now live in MapTiles.kt, shared with the Find my devices map.

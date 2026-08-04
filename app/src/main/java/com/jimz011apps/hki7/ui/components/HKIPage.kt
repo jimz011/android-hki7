@@ -549,6 +549,22 @@ fun HKIPage(
                             val shownPeople =
                                 if (overflowCount > 0) visiblePeople.take(avatarCapacity - 1) else visiblePeople
                             val avatarRows = if (perRow > 0) shownPeople.chunked(perRow) else emptyList()
+
+                            // The "+N" bubble used to be inert, which made the hidden people simply
+                            // unreachable on a narrow header. Tapping it lists everyone, and picking
+                            // someone opens the same detail dialog their avatar would have.
+                            var showAllPeople by remember { mutableStateOf(false) }
+                            if (showAllPeople) {
+                                AllPeopleDialog(
+                                    people = visiblePeople,
+                                    currentUrl = currentUrl,
+                                    onDismiss = { showAllPeople = false },
+                                    onPersonClick = { person ->
+                                        showAllPeople = false
+                                        onPeopleClick?.invoke(person)
+                                    }
+                                )
+                            }
                             val wrappedPeopleCapacity = rowCapacity(maxWidth).coerceAtLeast(1)
                             // Follow the person layout's responsive principle: reduce the trailing
                             // counter columns as the header narrows. Badges wrap before they can take
@@ -695,7 +711,9 @@ fun HKIPage(
                                                         )
                                                     }
                                                     if (overflowCount > 0 && rowIndex == avatarRows.lastIndex) {
-                                                        PersonOverflowAvatar(overflowCount, headerTextColor)
+                                                        PersonOverflowAvatar(overflowCount, headerTextColor) {
+                                                            showAllPeople = true
+                                                        }
                                                     }
                                                 }
                                             }
@@ -996,10 +1014,10 @@ fun HKIPage(
 
 /** "+N" bubble closing the avatar grid when more people exist than the two-row cap allows. */
 @Composable
-private fun PersonOverflowAvatar(count: Int, headerTextColor: Color) {
+private fun PersonOverflowAvatar(count: Int, headerTextColor: Color, onClick: () -> Unit) {
     val appColors = LocalHKIAppColors.current
     Surface(
-        modifier = Modifier.size(44.dp),
+        modifier = Modifier.size(44.dp).clip(CircleShape).clickable { onClick() },
         shape = CircleShape,
         border = BorderStroke(1.dp, headerTextColor.copy(alpha = 0.7f)),
         color = appColors.elevated
@@ -1014,6 +1032,80 @@ private fun PersonOverflowAvatar(count: Int, headerTextColor: Color) {
             )
         }
     }
+}
+
+/** Everyone in the header, including the faces the "+N" bubble stands in for. */
+@Composable
+private fun AllPeopleDialog(
+    people: List<HAEntity>,
+    currentUrl: String,
+    onDismiss: () -> Unit,
+    onPersonClick: (HAEntity) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    val grayscaleFilter = remember {
+        ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
+    }
+    val scroll = rememberScrollState()
+    ModernAlertDialog(
+        onDismissRequest = onDismiss,
+        dismissOnTapOutside = true,
+        title = { Text(stringResource(R.string.ui_people_dialog_title)) },
+        text = {
+            Column(
+                modifier = Modifier.fadingEdges(scroll).verticalScroll(scroll),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                people.forEach { person ->
+                    val imageUrl = person.entityPicture?.let {
+                        if (it.startsWith("http") || it.startsWith("content:") || it.startsWith("file:")) it
+                        else "$currentUrl$it"
+                    }
+                    val isHome = person.state == "home"
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().clip(itemCornerShape()).clickable { onPersonClick(person) },
+                        shape = itemCornerShape(),
+                        color = appColors.subtleSurface
+                    ) {
+                        Row(
+                            Modifier.fillMaxWidth().padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(modifier = Modifier.size(38.dp), shape = CircleShape, color = appColors.elevated) {
+                                if (imageUrl != null) {
+                                    AsyncImage(
+                                        model = imageUrl,
+                                        contentDescription = person.friendlyName,
+                                        contentScale = ContentScale.Crop,
+                                        colorFilter = if (!isHome) grayscaleFilter else null,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                } else {
+                                    Icon(Icons.Default.Person, contentDescription = null, tint = appColors.onMuted)
+                                }
+                            }
+                            Spacer(Modifier.width(10.dp))
+                            Text(
+                                person.friendlyName ?: person.entity_id,
+                                color = appColors.onSurface,
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Text(
+                                person.state.replaceFirstChar { it.titlecase(java.util.Locale.getDefault()) },
+                                color = if (isHome) MaterialTheme.colorScheme.primary else appColors.onMuted,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {}
+    )
 }
 
 @Composable

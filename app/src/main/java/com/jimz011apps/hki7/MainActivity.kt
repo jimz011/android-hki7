@@ -575,16 +575,31 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     // "already in that room" check below would never match.
     val latestAreaId by rememberUpdatedState(currentAreaId)
     LaunchedEffect(roomFollow.isActive, roomFollow.promptOnMove, isEditMode) {
-        // Turning the toggle off, or entering edit mode, must also retire a prompt already on
+        // Turning following off, or entering edit mode, must also retire a prompt already on
         // screen — otherwise it sits there waiting for an answer to a question no longer asked.
-        if (!roomFollow.isActive || !roomFollow.promptOnMove || isEditMode) {
+        // Turning *prompting* off is not a reason to stop: the tracker keeps running and the move
+        // is opened silently instead (see observeRoomPresence).
+        if (!roomFollow.isActive || isEditMode) {
             viewModel.cancelRoomMovePrompt()
             return@LaunchedEffect
         }
+        if (!roomFollow.promptOnMove) viewModel.cancelRoomMovePrompt()
         while (true) {
             viewModel.observeRoomPresence(latestAreaId)
             delay(2.seconds)
         }
+    }
+
+    // Prompting off: a confirmed move opens straight away, with the same guards the prompt path
+    // applies — never into a room the admin hid, and never into the room already on screen.
+    val autoRoomMove by viewModel.autoRoomMove.collectAsState()
+    LaunchedEffect(autoRoomMove, isEditMode) {
+        val target = autoRoomMove ?: return@LaunchedEffect
+        if (isEditMode) return@LaunchedEffect
+        if (canOpenRoom(target) && target != latestAreaId) {
+            navController.navigate(Screen.RoomDetail.createRoute(target))
+        }
+        viewModel.consumeAutoRoomMove(target)
     }
 
     pendingRoomMove?.let { targetAreaId ->

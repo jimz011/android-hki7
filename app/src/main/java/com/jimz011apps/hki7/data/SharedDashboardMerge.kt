@@ -212,6 +212,10 @@ internal fun mergeWidgetAesthetics(incoming: HKIRoomWidget, local: HKIRoomWidget
             local as HKIWasteCollectionWidget
             incoming.copy(width = local.width, title = local.title, icon = local.icon, imageStyle = local.imageStyle, isSquare = local.isSquare, cornerRadius = local.cornerRadius, backgroundUrl = local.backgroundUrl)
         }
+        is HKIFindDevicesWidget -> {
+            local as HKIFindDevicesWidget
+            incoming.copy(width = local.width, title = local.title, icon = local.icon, isSquare = local.isSquare, cornerRadius = local.cornerRadius, backgroundUrl = local.backgroundUrl)
+        }
         is HKIBatteryCardWidget -> {
             local as HKIBatteryCardWidget
             incoming.copy(width = local.width, title = local.title, icon = local.icon, isSquare = local.isSquare, cornerRadius = local.cornerRadius, backgroundUrl = local.backgroundUrl)

@@ -116,14 +116,16 @@ private fun calendarViewLabel(view: String): String = when (view) {
     else -> stringResource(R.string.widgets_calendar_agenda)
 }
 
+// Shared with the waste widget's week calendar so both grids start their weeks on the same day and
+// label them identically — a Monday-first grid beside a Sunday-first one reads as a bug.
 @Composable
-private fun appLocale(): Locale =
+internal fun appLocale(): Locale =
     LocalConfiguration.current.locales[0] ?: Locale.getDefault()
 
-private fun startOfLocaleWeek(date: LocalDate, locale: Locale): LocalDate =
+internal fun startOfLocaleWeek(date: LocalDate, locale: Locale): LocalDate =
     date.with(TemporalAdjusters.previousOrSame(WeekFields.of(locale).firstDayOfWeek))
 
-private fun localeWeekdayLabels(start: LocalDate, locale: Locale): List<String> =
+internal fun localeWeekdayLabels(start: LocalDate, locale: Locale): List<String> =
     (0 until 7).map { start.plusDays(it.toLong()).format(DateTimeFormatter.ofPattern("EEEEE", locale)) }
 
 private val CalendarPalette = listOf(

@@ -31,6 +31,7 @@ import com.jimz011apps.hki7.data.HKIButtonConfig
 import com.jimz011apps.hki7.data.HKIButtonStack
 import com.jimz011apps.hki7.data.HKIBatteryCardWidget
 import com.jimz011apps.hki7.data.HKICalendarWidget
+import com.jimz011apps.hki7.data.HKIFindDevicesWidget
 import com.jimz011apps.hki7.data.HKIWasteCollectionWidget
 import com.jimz011apps.hki7.data.HKIParcelsWidget
 import com.jimz011apps.hki7.data.HKIEmptyStack
@@ -163,6 +164,8 @@ fun HAHomeScreen(
     var editingCalendarWidget by remember { mutableStateOf<Pair<String?, HKICalendarWidget>?>(null) }
     var editingWasteWidget by remember { mutableStateOf<Pair<String?, HKIWasteCollectionWidget>?>(null) }
     var pendingWasteWidgetContainerId by remember { mutableStateOf<String?>(null) }
+    var editingFindDevicesWidget by remember { mutableStateOf<Pair<String?, HKIFindDevicesWidget>?>(null) }
+    var pendingFindDevicesWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var pendingParcelsWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var editingBatteryWidget by remember { mutableStateOf<Pair<String?, HKIBatteryCardWidget>?>(null) }
     var editingParcelsWidget by remember { mutableStateOf<Pair<String?, HKIParcelsWidget>?>(null) }
@@ -258,6 +261,7 @@ fun HAHomeScreen(
         HKISingleEntityWidget(id = UUID.randomUUID().toString(), entityId = entityId, kind = kind, isSquare = kind != "camera", config = config)
     fun newCalendarWidget(entityIds: List<String>) = HKICalendarWidget(id = UUID.randomUUID().toString(), entityIds = entityIds, width = "full")
     fun newWasteWidget(entityIds: List<String>) = HKIWasteCollectionWidget(id = UUID.randomUUID().toString(), entityIds = entityIds, width = "full")
+    fun newFindDevicesWidget(entityIds: List<String>) = HKIFindDevicesWidget(id = UUID.randomUUID().toString(), entityIds = entityIds, width = "full")
     val defaultMarkdownContent = stringResource(R.string.home_default_markdown_content)
     val customCameraDefaultName = stringResource(R.string.custom_camera_default_name)
     fun newMarkdownWidget() = HKIMarkdownWidget(
@@ -428,6 +432,14 @@ fun HAHomeScreen(
                 isEditMode = isEditMode,
                 onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
                 onSettings = { editingWasteWidget = parent.id to child },
+                onUpdate = { updateChildInSwipingStack(parent.id, it) }
+            )
+            is HKIFindDevicesWidget -> FindDevicesWidgetItem(
+                widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                viewModel = viewModel,
+                isEditMode = isEditMode,
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingFindDevicesWidget = parent.id to child },
                 onUpdate = { updateChildInSwipingStack(parent.id, it) }
             )
             is HKIParcelsWidget -> ParcelsWidgetItem(
@@ -697,6 +709,10 @@ fun HAHomeScreen(
                                     widget = widget, viewModel = viewModel, isEditMode = false,
                                     onDelete = {}, onSettings = {}, onUpdate = {}
                                 )
+                                is HKIFindDevicesWidget -> FindDevicesWidgetItem(
+                                    widget = widget, viewModel = viewModel, isEditMode = false,
+                                    onDelete = {}, onSettings = {}, onUpdate = {}
+                                )
                                 is HKIParcelsWidget -> ParcelsWidgetItem(
                                     widget = widget, viewModel = viewModel, isEditMode = false,
                                     onDelete = {}, onSettings = {}
@@ -883,6 +899,14 @@ fun HAHomeScreen(
                                 isEditMode = isEditMode,
                                 onDelete = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
                                 onSettings = { editingWasteWidget = null to widget },
+                                onUpdate = { viewModel.updateWidget(HOME_WIDGET_AREA, it) }
+                            )
+                            is HKIFindDevicesWidget -> FindDevicesWidgetItem(
+                                widget = widget,
+                                viewModel = viewModel,
+                                isEditMode = isEditMode,
+                                onDelete = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
+                                onSettings = { editingFindDevicesWidget = null to widget },
                                 onUpdate = { viewModel.updateWidget(HOME_WIDGET_AREA, it) }
                             )
                             is HKIParcelsWidget -> ParcelsWidgetItem(
@@ -1098,6 +1122,7 @@ fun HAHomeScreen(
             onAddWeatherWidget = { pendingWeatherWidgetContainerId = "__top__"; showAddWidget = false },
             onAddCalendarWidget = { pendingCalendarWidgetContainerId = "__top__"; showAddWidget = false },
             onAddWasteWidget = { pendingWasteWidgetContainerId = "__top__"; showAddWidget = false },
+            onAddFindDevicesWidget = { pendingFindDevicesWidgetContainerId = "__top__"; showAddWidget = false },
             onAddParcelsWidget = {
                 pendingParcelsWidgetContainerId = "__top__"
                 showAddWidget = false
@@ -1170,6 +1195,7 @@ fun HAHomeScreen(
             onAddWeatherWidget = { pendingWeatherWidgetContainerId = stackId; addingToSwipingStackId = null },
             onAddCalendarWidget = { pendingCalendarWidgetContainerId = stackId; addingToSwipingStackId = null },
             onAddWasteWidget = { pendingWasteWidgetContainerId = stackId; addingToSwipingStackId = null },
+            onAddFindDevicesWidget = { pendingFindDevicesWidgetContainerId = stackId; addingToSwipingStackId = null },
             onAddParcelsWidget = {
                 pendingParcelsWidgetContainerId = stackId
                 addingToSwipingStackId = null
@@ -1933,6 +1959,18 @@ fun HAHomeScreen(
             }
         )
     }
+    editingFindDevicesWidget?.let { (containerId, widget) ->
+        FindDevicesSettingsDialog(
+            widget = widget,
+            allEntities = entities,
+            onDismiss = { editingFindDevicesWidget = null },
+            onSave = { updated ->
+                if (containerId == null) viewModel.updateWidget(HOME_WIDGET_AREA, updated)
+                else updateChildInSwipingStack(containerId, updated)
+                editingFindDevicesWidget = null
+            }
+        )
+    }
     editingParcelsWidget?.let { (containerId, widget) ->
         ParcelsWidgetSettingsDialog(widget, viewModel, onDismiss = { editingParcelsWidget = null }) { updated ->
             if (containerId == null) viewModel.updateWidget(HOME_WIDGET_AREA, updated)
@@ -2098,6 +2136,26 @@ fun HAHomeScreen(
             }
             pendingParcelsWidgetContainerId = null
         }
+    }
+    pendingFindDevicesWidgetContainerId?.let { target ->
+        FindDevicesEntityPickerDialog(
+            allEntities = entities,
+            onDismiss = {
+                if (pendingFindDevicesWidgetContainerId != null) {
+                    pendingFindDevicesWidgetContainerId = null
+                    if (target == "__top__") showAddWidget = true else addingToSwipingStackId = target
+                }
+            },
+            onSelected = { ids ->
+                val widget = newFindDevicesWidget(ids)
+                if (target == "__top__") {
+                    viewModel.addWidgetToArea(HOME_WIDGET_AREA, widget)
+                } else {
+                    addChildToSwipingStack(target, widget)
+                }
+                pendingFindDevicesWidgetContainerId = null
+            }
+        )
     }
     pendingWasteWidgetContainerId?.let { target ->
         WasteEntityPickerDialog(

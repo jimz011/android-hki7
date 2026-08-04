@@ -1313,12 +1313,18 @@ private fun parseParcelMoment(value: String): ZonedDateTime? =
     runCatching { OffsetDateTime.parse(value).atZoneSameInstant(ZoneId.systemDefault()) }.getOrNull()
 
 /**
- * Date portion of a parcel timestamp: the weekday name for anything in the next 6 days (avoids
- * colliding with the same weekday a week out), otherwise a locale-ordered date that only includes
- * the year when it differs from the current year.
+ * Date portion of a parcel timestamp: "Today"/"Tomorrow" for the two days people actually care
+ * about, the weekday name for the rest of the next 6 days (avoids colliding with the same weekday a
+ * week out), otherwise a locale-ordered date that only includes the year when it differs from the
+ * current year.
  */
+@Composable
 private fun formatParcelDatePart(moment: ZonedDateTime): String {
     val daysAhead = ChronoUnit.DAYS.between(LocalDate.now(), moment.toLocalDate())
+    // "Today" beats "Wednesday" when it is Wednesday — the whole question a delivery date answers
+    // is how soon, and a weekday name makes the reader work that out for themselves.
+    if (daysAhead == 0L) return stringResource(R.string.widgets_today)
+    if (daysAhead == 1L) return stringResource(R.string.widgets_tomorrow)
     if (daysAhead in 0..5) {
         return moment.format(DateTimeFormatter.ofPattern("EEEE", Locale.getDefault()))
             .replaceFirstChar { it.titlecase(Locale.getDefault()) }

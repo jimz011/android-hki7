@@ -1559,6 +1559,8 @@ data class HKIWasteCollectionWidget(
     val entityIds: List<String> = emptyList(),
     /** Optional calendar entity shown as a week overview inside the dialog. */
     val calendarEntityId: String? = null,
+    /** How far the dialog's week calendar looks ahead: 7, 14, or 28 days. */
+    val calendarDaysAhead: Int = 7,
     val title: String? = "Waste Collection",
     val icon: String? = "trash-can-outline",
     /** "icon" = waste-type MDI icon; "picture" = the sensor's entity_picture. */
@@ -1577,6 +1579,36 @@ data class HKIWasteCollectionWidget(
     override val visibilityConditions: List<HKIVisibilityCondition> = emptyList(),
     override val visibilityMatch: String = VISIBILITY_MATCH_ALL,
     /** Per-category visibility (hide/schedule/condition), keyed by sensor entity id. */
+    val itemConfigs: Map<String, HKIButtonConfig> = emptyMap()
+) : HKIRoomWidget()
+
+/**
+ * "Find my devices": a map of trackable things — phones, watches, tags, cars — built from Home
+ * Assistant `device_tracker` (and `person`) entities that report GPS coordinates.
+ */
+@Serializable
+@SerialName("find_devices")
+data class HKIFindDevicesWidget(
+    override val id: String,
+    override val width: String = "full",
+    /** `device_tracker.*` / `person.*` entities to plot. */
+    val entityIds: List<String> = emptyList(),
+    val title: String? = "Find my devices",
+    val icon: String? = "map-marker-radius-outline",
+    val isSquare: Boolean = false,
+    val cornerRadius: Int = 28,
+    val backgroundUrl: String? = null,
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none",
+    override val visibilityConditionEntityId: String? = null,
+    override val visibilityConditionState: String? = null,
+    override val visibilityConditionNegate: Boolean = false,
+    override val visibilityConditions: List<HKIVisibilityCondition> = emptyList(),
+    override val visibilityMatch: String = VISIBILITY_MATCH_ALL,
+    /** Per-device visibility (hide/schedule/condition), keyed by entity id. */
     val itemConfigs: Map<String, HKIButtonConfig> = emptyMap()
 ) : HKIRoomWidget()
 

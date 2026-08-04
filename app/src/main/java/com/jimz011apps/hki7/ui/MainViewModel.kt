@@ -1079,6 +1079,11 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     /** An area the user has demonstrably settled into, waiting on a switch-or-stay answer. */
     val pendingRoomMove: StateFlow<String?> = _pendingRoomMove
 
+    private val _autoRoomMove = MutableStateFlow<String?>(null)
+
+    /** A confirmed move to open straight away, used when the user turned prompting off. */
+    val autoRoomMove: StateFlow<String?> = _autoRoomMove
+
     /**
      * Feeds the latest resolved room into the dwell tracker. Called on a timer rather than on
      * every state change, because confirming a move depends on elapsed time, not on the sensor
@@ -1089,8 +1094,13 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
      */
     fun observeRoomPresence(currentAreaId: String?, nowMillis: Long = System.currentTimeMillis()) {
         val follow = roomFollow.value
-        if (!follow.isActive || !follow.promptOnMove || promptSilencedUntilRestart) {
+        // "Ask before switching rooms" being off means switch *without asking* — not stop following.
+        // Treating it as a master off-switch left room following doing nothing at all after launch.
+        // "Don't ask again until I restart" is different: that is the user asking to be left alone,
+        // so it suppresses the silent switch too rather than trading a prompt for a surprise jump.
+        if (!follow.isActive || promptSilencedUntilRestart) {
             _pendingRoomMove.value = null
+            _autoRoomMove.value = null
             return
         }
         // The room may have been reached in the meantime — by tapping Switch, by navigating there
@@ -1104,7 +1114,16 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         if (areaId != lastDeclinedAreaId) lastDeclinedAreaId = null
         val confirmed = dwellTracker?.update(areaId, nowMillis) ?: return
         if (confirmed == currentAreaId || confirmed == lastDeclinedAreaId) return
-        if (_pendingRoomMove.value == null) _pendingRoomMove.value = confirmed
+        if (follow.promptOnMove) {
+            if (_pendingRoomMove.value == null) _pendingRoomMove.value = confirmed
+        } else {
+            _autoRoomMove.value = confirmed
+        }
+    }
+
+    /** Consumed by the navigation host once it has actually opened the room. */
+    fun consumeAutoRoomMove(areaId: String) {
+        if (_autoRoomMove.value == areaId) _autoRoomMove.value = null
     }
 
     /** The user answered the move prompt. [accepted] false means they chose to stay put. */
