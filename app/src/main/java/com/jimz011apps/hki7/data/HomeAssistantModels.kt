@@ -1612,6 +1612,41 @@ data class HKIFindDevicesWidget(
     val itemConfigs: Map<String, HKIButtonConfig> = emptyMap()
 ) : HKIRoomWidget()
 
+/**
+ * Formula 1 race weekend, standings and results, read from the `f1_sensor` custom integration
+ * (github.com/Nicxe/f1_sensor).
+ *
+ * Deliberately stores no entity ids: that integration lets the user pick localized or legacy entity
+ * names, so its entity ids are not predictable and can be renamed. The widget finds its sensors
+ * through the entity registry by platform and `translation_key`, which is integration-defined and
+ * stable. [deviceId] only matters when more than one F1 config entry exists.
+ */
+@Serializable
+@SerialName("f1")
+data class HKIF1Widget(
+    override val id: String,
+    override val width: String = "full",
+    /** Disambiguates multiple f1_sensor config entries; null uses whichever is found first. */
+    val deviceId: String? = null,
+    val title: String? = null,
+    val icon: String? = "flag-checkered",
+    val isSquare: Boolean = false,
+    val cornerRadius: Int = 28,
+    val backgroundUrl: String? = null,
+    /** Which dialog tab opens first: "next" | "standings" | "results" | "live". */
+    val defaultTab: String = "next",
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none",
+    override val visibilityConditionEntityId: String? = null,
+    override val visibilityConditionState: String? = null,
+    override val visibilityConditionNegate: Boolean = false,
+    override val visibilityConditions: List<HKIVisibilityCondition> = emptyList(),
+    override val visibilityMatch: String = VISIBILITY_MATCH_ALL
+) : HKIRoomWidget()
+
 @Serializable
 @SerialName("battery_card")
 data class HKIBatteryCardWidget(

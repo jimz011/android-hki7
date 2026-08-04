@@ -93,6 +93,7 @@ import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Power
 import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.filled.SportsScore
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Sensors
@@ -179,6 +180,7 @@ import com.jimz011apps.hki7.data.isButtonVisibleNow
 import com.jimz011apps.hki7.data.visibilityConditionEntityIds
 import com.jimz011apps.hki7.data.HKIBatteryCardWidget
 import com.jimz011apps.hki7.data.HKICalendarWidget
+import com.jimz011apps.hki7.data.HKIF1Widget
 import com.jimz011apps.hki7.data.HKIFindDevicesWidget
 import com.jimz011apps.hki7.data.HKIWasteCollectionWidget
 import com.jimz011apps.hki7.data.HKIParcelsWidget
@@ -326,6 +328,7 @@ fun HKIRoomWidget.withStackChildStyle(isSquare: Boolean, cornerRadius: Int): HKI
     is HKIBatteryCardWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKIWasteCollectionWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKIFindDevicesWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
+    is HKIF1Widget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKIParcelsWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKIClimateCardWidget -> copy(cornerRadius = cornerRadius)
     is HKIClimateStack -> copy(cornerRadius = cornerRadius)
@@ -412,6 +415,7 @@ fun RoomDetailScreen(
     var editingWasteWidget by remember { mutableStateOf<Pair<String?, HKIWasteCollectionWidget>?>(null) }
     var editingFindDevicesWidget by remember { mutableStateOf<Pair<String?, HKIFindDevicesWidget>?>(null) }
     var pendingFindDevicesWidgetContainerId by remember { mutableStateOf<String?>(null) }
+    var editingF1Widget by remember { mutableStateOf<Pair<String?, HKIF1Widget>?>(null) }
     var pendingWasteWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var pendingParcelsWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var editingBatteryWidget by remember { mutableStateOf<Pair<String?, HKIBatteryCardWidget>?>(null) }
@@ -573,6 +577,7 @@ fun RoomDetailScreen(
         entityIds = entityIds,
         width = "full"
     )
+    fun newF1Widget() = HKIF1Widget(id = UUID.randomUUID().toString(), width = "full")
     fun newMarkdownWidget() = HKIMarkdownWidget(
         id = UUID.randomUUID().toString(),
         content = defaultMarkdownContent
@@ -684,6 +689,14 @@ fun RoomDetailScreen(
                 isEditMode = isEditMode,
                 onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
                 onSettings = { editingWasteWidget = parent.id to child },
+                onUpdate = { updateChildInSwipingStack(parent.id, it) }
+            )
+            is HKIF1Widget -> F1WidgetItem(
+                widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                viewModel = viewModel,
+                isEditMode = isEditMode,
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingF1Widget = parent.id to child },
                 onUpdate = { updateChildInSwipingStack(parent.id, it) }
             )
             is HKIFindDevicesWidget -> FindDevicesWidgetItem(
@@ -1092,6 +1105,10 @@ fun RoomDetailScreen(
                                     widget = widget, viewModel = viewModel, isEditMode = false,
                                     onDelete = {}, onSettings = {}, onUpdate = {}
                                 )
+                                is HKIF1Widget -> F1WidgetItem(
+                                    widget = widget, viewModel = viewModel, isEditMode = false,
+                                    onDelete = {}, onSettings = {}, onUpdate = {}
+                                )
                                 is HKIFindDevicesWidget -> FindDevicesWidgetItem(
                                     widget = widget, viewModel = viewModel, isEditMode = false,
                                     onDelete = {}, onSettings = {}, onUpdate = {}
@@ -1316,6 +1333,14 @@ fun RoomDetailScreen(
                             onSettings = { editingWasteWidget = null to widget },
                             onUpdate = { viewModel.updateWidget(areaId, it) }
                         )
+                        is HKIF1Widget -> F1WidgetItem(
+                            widget = widget,
+                            viewModel = viewModel,
+                            isEditMode = isEditMode,
+                            onDelete = { viewModel.deleteWidget(areaId, widget.id) },
+                            onSettings = { editingF1Widget = null to widget },
+                            onUpdate = { viewModel.updateWidget(areaId, it) }
+                        )
                         is HKIFindDevicesWidget -> FindDevicesWidgetItem(
                             widget = widget,
                             viewModel = viewModel,
@@ -1503,6 +1528,10 @@ fun RoomDetailScreen(
                 pendingFindDevicesWidgetContainerId = "__top__"
                 showAddWidgetDialog = false
             },
+            onAddF1Widget = {
+                viewModel.addWidgetToArea(areaId, newF1Widget())
+                showAddWidgetDialog = false
+            },
             onAddParcelsWidget = {
                 pendingParcelsWidgetContainerId = "__top__"
                 showAddWidgetDialog = false
@@ -1593,6 +1622,18 @@ fun RoomDetailScreen(
                 if (containerId == null) viewModel.updateWidget(areaId, updated)
                 else updateChildInSwipingStack(containerId, updated)
                 editingWasteWidget = null
+            }
+        )
+    }
+    editingF1Widget?.let { (containerId, widget) ->
+        F1WidgetSettingsDialog(
+            widget = widget,
+            viewModel = viewModel,
+            onDismiss = { editingF1Widget = null },
+            onSave = { updated ->
+                if (containerId == null) viewModel.updateWidget(areaId, updated)
+                else updateChildInSwipingStack(containerId, updated)
+                editingF1Widget = null
             }
         )
     }
@@ -1910,6 +1951,10 @@ fun RoomDetailScreen(
             },
             onAddFindDevicesWidget = {
                 pendingFindDevicesWidgetContainerId = stackId
+                addingToSwipingStackId = null
+            },
+            onAddF1Widget = {
+                addChildToSwipingStack(stackId, newF1Widget())
                 addingToSwipingStackId = null
             },
             onAddParcelsWidget = {
@@ -2889,6 +2934,7 @@ fun AddRoomWidgetDialog(
     onAddCalendarWidget: (() -> Unit)? = null,
     onAddWasteWidget: (() -> Unit)? = null,
     onAddFindDevicesWidget: (() -> Unit)? = null,
+    onAddF1Widget: (() -> Unit)? = null,
     onAddParcelsWidget: (() -> Unit)? = null,
     onAddEnergyCard: ((List<String>) -> Unit)? = null,
     onAddEnergyStack: ((List<String>) -> Unit)? = null,
@@ -2944,6 +2990,7 @@ fun AddRoomWidgetDialog(
         if (onAddCalendarWidget != null) add(PickerWidget(Icons.Default.CalendarMonth, R.string.cr_widget_calendar, R.string.cr_widget_calendar_description, "events schedule date agenda month week appointments", WidgetPickerCategory.INFORMATION) { onAddCalendarWidget.invoke(); onDismiss() })
         if (onAddWasteWidget != null) add(PickerWidget(Icons.Default.DeleteSweep, R.string.cr_widget_waste_collection, R.string.cr_widget_waste_collection_description, "waste afval trash garbage gft pmd papier rest collection pickup afvalbeheer", WidgetPickerCategory.INFORMATION) { onAddWasteWidget.invoke(); onDismiss() })
         if (onAddFindDevicesWidget != null) add(PickerWidget(Icons.Default.MyLocation, R.string.cr_widget_find_devices, R.string.cr_widget_find_devices_description, "find my devices tracker location map gps phone watch tag lost zoeken locatie", WidgetPickerCategory.INFORMATION) { onAddFindDevicesWidget.invoke(); onDismiss() })
+        if (onAddF1Widget != null) add(PickerWidget(Icons.Default.SportsScore, R.string.cr_widget_f1, R.string.cr_widget_f1_description, "f1 formula 1 one racing grand prix race standings drivers constructors circuit kwalificatie autosport", WidgetPickerCategory.INFORMATION) { onAddF1Widget.invoke(); onDismiss() })
         if (onAddParcelsWidget != null) add(PickerWidget(Icons.Default.LocalShipping, R.string.cr_widget_parcels, R.string.cr_widget_parcels_description, "packages delivery mail carrier tracking shipment", WidgetPickerCategory.INFORMATION) { onAddParcelsWidget.invoke(); onDismiss() })
         add(PickerWidget(Icons.Default.CameraAlt, R.string.cr_widget_camera, R.string.cr_widget_camera_description, "video stream live cctv feed", WidgetPickerCategory.CAMERAS) { onAddCameraWidget?.invoke() ?: run { cameraTitle = ""; cameraIcon = "None"; configureWidget = "camera" } })
         if (onAddClimateCard != null) add(PickerWidget(Icons.Default.Thermostat, R.string.cr_widget_climate_card, R.string.cr_widget_climate_card_description, "climate temperature humidity thermostat heating cooling sensors air", WidgetPickerCategory.CLIMATE) { climatePickerSelection = emptyList(); widgetGroup = "climate_card" })

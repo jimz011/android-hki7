@@ -31,6 +31,7 @@ import com.jimz011apps.hki7.data.HKIButtonConfig
 import com.jimz011apps.hki7.data.HKIButtonStack
 import com.jimz011apps.hki7.data.HKIBatteryCardWidget
 import com.jimz011apps.hki7.data.HKICalendarWidget
+import com.jimz011apps.hki7.data.HKIF1Widget
 import com.jimz011apps.hki7.data.HKIFindDevicesWidget
 import com.jimz011apps.hki7.data.HKIWasteCollectionWidget
 import com.jimz011apps.hki7.data.HKIParcelsWidget
@@ -166,6 +167,7 @@ fun HAHomeScreen(
     var pendingWasteWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var editingFindDevicesWidget by remember { mutableStateOf<Pair<String?, HKIFindDevicesWidget>?>(null) }
     var pendingFindDevicesWidgetContainerId by remember { mutableStateOf<String?>(null) }
+    var editingF1Widget by remember { mutableStateOf<Pair<String?, HKIF1Widget>?>(null) }
     var pendingParcelsWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var editingBatteryWidget by remember { mutableStateOf<Pair<String?, HKIBatteryCardWidget>?>(null) }
     var editingParcelsWidget by remember { mutableStateOf<Pair<String?, HKIParcelsWidget>?>(null) }
@@ -262,6 +264,7 @@ fun HAHomeScreen(
     fun newCalendarWidget(entityIds: List<String>) = HKICalendarWidget(id = UUID.randomUUID().toString(), entityIds = entityIds, width = "full")
     fun newWasteWidget(entityIds: List<String>) = HKIWasteCollectionWidget(id = UUID.randomUUID().toString(), entityIds = entityIds, width = "full")
     fun newFindDevicesWidget(entityIds: List<String>) = HKIFindDevicesWidget(id = UUID.randomUUID().toString(), entityIds = entityIds, width = "full")
+    fun newF1Widget() = HKIF1Widget(id = UUID.randomUUID().toString(), width = "full")
     val defaultMarkdownContent = stringResource(R.string.home_default_markdown_content)
     val customCameraDefaultName = stringResource(R.string.custom_camera_default_name)
     fun newMarkdownWidget() = HKIMarkdownWidget(
@@ -432,6 +435,14 @@ fun HAHomeScreen(
                 isEditMode = isEditMode,
                 onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
                 onSettings = { editingWasteWidget = parent.id to child },
+                onUpdate = { updateChildInSwipingStack(parent.id, it) }
+            )
+            is HKIF1Widget -> F1WidgetItem(
+                widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                viewModel = viewModel,
+                isEditMode = isEditMode,
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingF1Widget = parent.id to child },
                 onUpdate = { updateChildInSwipingStack(parent.id, it) }
             )
             is HKIFindDevicesWidget -> FindDevicesWidgetItem(
@@ -709,6 +720,10 @@ fun HAHomeScreen(
                                     widget = widget, viewModel = viewModel, isEditMode = false,
                                     onDelete = {}, onSettings = {}, onUpdate = {}
                                 )
+                                is HKIF1Widget -> F1WidgetItem(
+                                    widget = widget, viewModel = viewModel, isEditMode = false,
+                                    onDelete = {}, onSettings = {}, onUpdate = {}
+                                )
                                 is HKIFindDevicesWidget -> FindDevicesWidgetItem(
                                     widget = widget, viewModel = viewModel, isEditMode = false,
                                     onDelete = {}, onSettings = {}, onUpdate = {}
@@ -899,6 +914,14 @@ fun HAHomeScreen(
                                 isEditMode = isEditMode,
                                 onDelete = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
                                 onSettings = { editingWasteWidget = null to widget },
+                                onUpdate = { viewModel.updateWidget(HOME_WIDGET_AREA, it) }
+                            )
+                            is HKIF1Widget -> F1WidgetItem(
+                                widget = widget,
+                                viewModel = viewModel,
+                                isEditMode = isEditMode,
+                                onDelete = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
+                                onSettings = { editingF1Widget = null to widget },
                                 onUpdate = { viewModel.updateWidget(HOME_WIDGET_AREA, it) }
                             )
                             is HKIFindDevicesWidget -> FindDevicesWidgetItem(
@@ -1123,6 +1146,7 @@ fun HAHomeScreen(
             onAddCalendarWidget = { pendingCalendarWidgetContainerId = "__top__"; showAddWidget = false },
             onAddWasteWidget = { pendingWasteWidgetContainerId = "__top__"; showAddWidget = false },
             onAddFindDevicesWidget = { pendingFindDevicesWidgetContainerId = "__top__"; showAddWidget = false },
+            onAddF1Widget = { viewModel.addWidgetToArea(HOME_WIDGET_AREA, newF1Widget()); showAddWidget = false },
             onAddParcelsWidget = {
                 pendingParcelsWidgetContainerId = "__top__"
                 showAddWidget = false
@@ -1196,6 +1220,7 @@ fun HAHomeScreen(
             onAddCalendarWidget = { pendingCalendarWidgetContainerId = stackId; addingToSwipingStackId = null },
             onAddWasteWidget = { pendingWasteWidgetContainerId = stackId; addingToSwipingStackId = null },
             onAddFindDevicesWidget = { pendingFindDevicesWidgetContainerId = stackId; addingToSwipingStackId = null },
+            onAddF1Widget = { addChildToSwipingStack(stackId, newF1Widget()); addingToSwipingStackId = null },
             onAddParcelsWidget = {
                 pendingParcelsWidgetContainerId = stackId
                 addingToSwipingStackId = null
@@ -1956,6 +1981,18 @@ fun HAHomeScreen(
                 if (containerId == null) viewModel.updateWidget(HOME_WIDGET_AREA, updated)
                 else updateChildInSwipingStack(containerId, updated)
                 editingWasteWidget = null
+            }
+        )
+    }
+    editingF1Widget?.let { (containerId, widget) ->
+        F1WidgetSettingsDialog(
+            widget = widget,
+            viewModel = viewModel,
+            onDismiss = { editingF1Widget = null },
+            onSave = { updated ->
+                if (containerId == null) viewModel.updateWidget(HOME_WIDGET_AREA, updated)
+                else updateChildInSwipingStack(containerId, updated)
+                editingF1Widget = null
             }
         )
     }
