@@ -1708,6 +1708,89 @@ data class HKIParcelsWidget(
     val itemConfigs: Map<String, HKIButtonConfig> = emptyMap()
 ) : HKIRoomWidget()
 
+/** Who may add, check off, edit, or delete items on a [HKITodoWidget]. */
+const val TODO_EDIT_EVERYONE = "everyone"
+const val TODO_EDIT_SPECIFIC = "specific"
+const val TODO_EDIT_ADMIN_ONLY = "admin_only"
+
+/** One line item on a [HKITodoWidget]. */
+@Serializable
+data class HKITodoItem(
+    val id: String,
+    val text: String,
+    val checked: Boolean = false,
+    /** Optional free-text note, e.g. a brand or size for a shopping item. */
+    val note: String? = null,
+    /** Optional quantity label shown beside the text, e.g. "2x" or "1kg". */
+    val quantity: String? = null,
+    /** Optional grouping label, e.g. a shopping-list aisle ("Produce", "Dairy"). */
+    val category: String? = null,
+    val priority: String = TODO_ITEM_PRIORITY_NORMAL,
+    /** Optional ISO-8601 local date (yyyy-MM-dd) this item is due/needed by. */
+    val dueDate: String? = null,
+    val addedByUserId: String? = null,
+    val addedByName: String? = null,
+    val checkedByUserId: String? = null,
+    val checkedByName: String? = null
+)
+
+const val TODO_ITEM_PRIORITY_LOW = "low"
+const val TODO_ITEM_PRIORITY_NORMAL = "normal"
+const val TODO_ITEM_PRIORITY_HIGH = "high"
+
+/**
+ * Shared todo/shopping list. Items live on the widget itself and sync the same way every other
+ * widget does — through the normal dashboard save path, and across devices via the existing
+ * shared-dashboard publish/import flow ([HaDashboardSharing]) rather than a bespoke live channel.
+ *
+ * Editing can be restricted: [editPermission] gates whether a signed-in family member may add,
+ * check off, or remove items, evaluated against the [Hki7Identity] the `hki7` companion component
+ * reports for the signed-in user. Admins/owners can always edit, matching how every other
+ * admin-only feature in this app treats them (see [HaParentalControls]).
+ */
+@Serializable
+@SerialName("todo")
+data class HKITodoWidget(
+    override val id: String,
+    override val width: String = "full",
+    val title: String? = null,
+    val icon: String? = "format-list-checks",
+    /** "todo" | "shopping" — only changes the default title/icon suggested in settings. */
+    val listMode: String = "todo",
+    val items: List<HKITodoItem> = emptyList(),
+    /** [TODO_EDIT_EVERYONE], [TODO_EDIT_SPECIFIC], or [TODO_EDIT_ADMIN_ONLY]. */
+    val editPermission: String = TODO_EDIT_EVERYONE,
+    /** HA user ids allowed to edit when [editPermission] is [TODO_EDIT_SPECIFIC]. */
+    val editableMemberIds: List<String> = emptyList(),
+    /** "manual" (list order) | "alphabetical" | "priority" | "newest". */
+    val sortMode: String = "manual",
+    val showCompleted: Boolean = true,
+    val isSquare: Boolean = false,
+    val cornerRadius: Int = 28,
+    val backgroundUrl: String? = null,
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none",
+    override val visibilityConditionEntityId: String? = null,
+    override val visibilityConditionState: String? = null,
+    override val visibilityConditionNegate: Boolean = false,
+    override val visibilityConditions: List<HKIVisibilityCondition> = emptyList(),
+    override val visibilityMatch: String = VISIBILITY_MATCH_ALL
+) : HKIRoomWidget()
+
+/** Whether [userId] (already known non-admin) may add/check/remove items on [this] list. Admins and
+ *  owners should be passed as [isAdmin] = true, which always grants edit access. */
+fun HKITodoWidget.canEdit(userId: String?, isAdmin: Boolean): Boolean {
+    if (isAdmin) return true
+    return when (editPermission) {
+        TODO_EDIT_ADMIN_ONLY -> false
+        TODO_EDIT_SPECIFIC -> userId != null && userId in editableMemberIds
+        else -> true
+    }
+}
+
 /** Identity of the current HA user, as reported by the `hki7/whoami` companion command. */
 data class Hki7Identity(
     val userId: String,
@@ -1800,7 +1883,12 @@ data class Hki7RoomFollow(
     val enabled: Boolean = false,
     /** Open the resolved room as soon as the app launches. */
     val openOnLaunch: Boolean = true,
-    /** Offer to switch views when this person moves to another room. */
+    /** Keep tracking room moves after that initial placement. False means [openOnLaunch] is the
+     *  only thing this person's following ever does — no prompts, no silent moves once the app
+     *  is already open, matching someone who only wants to be placed in the right room on launch. */
+    val continueAfterLaunch: Boolean = true,
+    /** Offer to switch views when this person moves to another room. Only consulted while
+     *  [continueAfterLaunch] is true. */
     val promptOnMove: Boolean = true,
     /**
      * How long the new room must hold before it counts as a real move. Room-presence sensors flap

@@ -71,8 +71,8 @@ private val SecurityWindowWarm = Color(0xFFFFDF9E)
 
 private data class SecurityGroup(
     val key: String,
-    @StringRes val titleRes: Int,
-    @StringRes val subtitleRes: Int,
+    @param:StringRes val titleRes: Int,
+    @param:StringRes val subtitleRes: Int,
     val icon: ImageVector,
     val color: Color,
     val domains: Set<String> = setOf("binary_sensor"),

@@ -155,7 +155,7 @@ internal data class ParcelCarrier(
     }
 }
 
-private enum class ParcelTab(@StringRes val titleRes: Int, @StringRes val emptyRes: Int?) {
+private enum class ParcelTab(@param:StringRes val titleRes: Int, @param:StringRes val emptyRes: Int?) {
     Incoming(R.string.parcel_incoming, R.string.parcel_no_incoming),
     Delivered(R.string.parcel_delivered, R.string.parcel_no_delivered),
     Outgoing(R.string.parcel_outgoing, R.string.parcel_no_outgoing),
@@ -1320,28 +1320,30 @@ private fun parseParcelMoment(value: String): ZonedDateTime? =
  */
 @Composable
 private fun formatParcelDatePart(moment: ZonedDateTime): String {
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0] ?: Locale.getDefault()
     val daysAhead = ChronoUnit.DAYS.between(LocalDate.now(), moment.toLocalDate())
     // "Today" beats "Wednesday" when it is Wednesday — the whole question a delivery date answers
     // is how soon, and a weekday name makes the reader work that out for themselves.
     if (daysAhead == 0L) return stringResource(R.string.widgets_today)
     if (daysAhead == 1L) return stringResource(R.string.widgets_tomorrow)
     if (daysAhead in 0..5) {
-        return moment.format(DateTimeFormatter.ofPattern("EEEE", Locale.getDefault()))
-            .replaceFirstChar { it.titlecase(Locale.getDefault()) }
+        return moment.format(DateTimeFormatter.ofPattern("EEEE", locale))
+            .replaceFirstChar { it.titlecase(locale) }
     }
     val skeleton = if (moment.year == LocalDate.now().year) "MMMd" else "yMMMd"
-    val pattern = android.text.format.DateFormat.getBestDateTimePattern(Locale.getDefault(), skeleton)
-    return moment.format(DateTimeFormatter.ofPattern(pattern, Locale.getDefault()))
+    val pattern = android.text.format.DateFormat.getBestDateTimePattern(locale, skeleton)
+    return moment.format(DateTimeFormatter.ofPattern(pattern, locale))
 }
 
 /** Time portion, honoring the device's 12/24-hour clock setting rather than only the locale default. */
 @Composable
 private fun formatParcelTimePart(moment: ZonedDateTime): String {
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0] ?: Locale.getDefault()
     val is24Hour = android.text.format.DateFormat.is24HourFormat(LocalContext.current)
     val pattern = android.text.format.DateFormat.getBestDateTimePattern(
-        Locale.getDefault(), if (is24Hour) "Hm" else "hm"
+        locale, if (is24Hour) "Hm" else "hm"
     )
-    return moment.format(DateTimeFormatter.ofPattern(pattern, Locale.getDefault()))
+    return moment.format(DateTimeFormatter.ofPattern(pattern, locale))
 }
 
 @Composable

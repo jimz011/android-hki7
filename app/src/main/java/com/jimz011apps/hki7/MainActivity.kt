@@ -574,12 +574,12 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     // captured value would stay stuck on whatever was open when the loop started and the
     // "already in that room" check below would never match.
     val latestAreaId by rememberUpdatedState(currentAreaId)
-    LaunchedEffect(roomFollow.isActive, roomFollow.promptOnMove, isEditMode) {
-        // Turning following off, or entering edit mode, must also retire a prompt already on
-        // screen — otherwise it sits there waiting for an answer to a question no longer asked.
-        // Turning *prompting* off is not a reason to stop: the tracker keeps running and the move
-        // is opened silently instead (see observeRoomPresence).
-        if (!roomFollow.isActive || isEditMode) {
+    LaunchedEffect(roomFollow.isActive, roomFollow.continueAfterLaunch, roomFollow.promptOnMove, isEditMode) {
+        // Turning following off, entering edit mode, or turning off continued tracking must also
+        // retire a prompt already on screen — otherwise it sits there waiting for an answer to a
+        // question no longer asked. Turning *prompting* off is not a reason to stop: the tracker
+        // keeps running and the move is opened silently instead (see observeRoomPresence).
+        if (!roomFollow.isActive || !roomFollow.continueAfterLaunch || isEditMode) {
             viewModel.cancelRoomMovePrompt()
             return@LaunchedEffect
         }

@@ -85,8 +85,8 @@ import kotlin.math.sqrt
 import kotlin.time.Duration.Companion.milliseconds
 
 private data class QuickStartTip(
-    @StringRes val titleRes: Int,
-    @StringRes val instructionRes: Int,
+    @param:StringRes val titleRes: Int,
+    @param:StringRes val instructionRes: Int,
     val icon: ImageVector
 )
 

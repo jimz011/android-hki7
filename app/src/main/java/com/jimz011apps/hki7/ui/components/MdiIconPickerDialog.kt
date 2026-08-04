@@ -55,7 +55,7 @@ private const val COMMON_CATEGORY = "common"
 
 private data class IconCategory(
     val id: String,
-    @StringRes val labelRes: Int,
+    @param:StringRes val labelRes: Int,
     val tag: String?
 )
 

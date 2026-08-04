@@ -3483,8 +3483,8 @@ private fun IndividualWaterUsageContent(
 
 data class EnergyCardSpec(
     val key: String,
-    @StringRes val labelRes: Int,
-    @StringRes val categoryRes: Int,
+    @param:StringRes val labelRes: Int,
+    @param:StringRes val categoryRes: Int,
     val mdiIcon: String
 )
 
@@ -4166,7 +4166,7 @@ fun EnergyCardPickerDialog(
 
 private data class EnergyRole(
     val key: String,
-    @StringRes val labelRes: Int,
+    @param:StringRes val labelRes: Int,
     val multi: Boolean = false
 )
 

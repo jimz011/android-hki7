@@ -112,8 +112,8 @@ private val MistCyan    = Color(0xFF26C6DA)
 /** One sensor tile / detail tab: a set of related HA `device_class`es shown together. */
 private data class ClimateSensorGroup(
     val key: String,
-    @StringRes val titleRes: Int,
-    @StringRes val subtitleRes: Int,
+    @param:StringRes val titleRes: Int,
+    @param:StringRes val subtitleRes: Int,
     val icon: ImageVector,
     val color: Color,
     val deviceClasses: Set<String>
@@ -2627,7 +2627,7 @@ private fun ClimateSensorDetailPage(
 
     data class WeatherAttrSpec(
         val key: String,
-        @StringRes val labelRes: Int,
+        @param:StringRes val labelRes: Int,
         val unit: String,
         val color: Color
     )
@@ -2796,7 +2796,7 @@ private fun ClimateSensorDetailPage(
                     Text(
                         stringResource(
                             R.string.cr_no_sensors_found_for,
-                            stringResource(group.titleRes).lowercase(Locale.getDefault())
+                            stringResource(group.titleRes).lowercase(LocalConfiguration.current.locales[0] ?: Locale.getDefault())
                         ),
                         style = MaterialTheme.typography.bodySmall, color = appColors.onMuted,
                         modifier = Modifier.padding(16.dp)
@@ -3281,8 +3281,8 @@ private fun ClimateLiveTile(
 
 data class ClimateCardSpec(
     val key: String,
-    @StringRes val labelRes: Int,
-    @StringRes val categoryRes: Int,
+    @param:StringRes val labelRes: Int,
+    @param:StringRes val categoryRes: Int,
     val mdiIcon: String
 )
 
@@ -3647,7 +3647,7 @@ fun ClimateCardWidgetView(
                         Spacer(Modifier.height(8.dp))
                         Text(stringResource(
                             R.string.cr_no_sensors_found_for,
-                            stringResource(group.titleRes).lowercase(Locale.getDefault())
+                            stringResource(group.titleRes).lowercase(LocalConfiguration.current.locales[0] ?: Locale.getDefault())
                         ),
                             style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
                     }

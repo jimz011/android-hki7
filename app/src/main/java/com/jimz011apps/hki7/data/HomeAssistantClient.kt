@@ -457,6 +457,7 @@ open class HomeAssistantClient(
                 put("sensor_entity_id", policy.roomFollow.sensorEntityId?.let(::JsonPrimitive) ?: JsonNull)
                 put("enabled", policy.roomFollow.enabled)
                 put("open_on_launch", policy.roomFollow.openOnLaunch)
+                put("continue_after_launch", policy.roomFollow.continueAfterLaunch)
                 put("prompt_on_move", policy.roomFollow.promptOnMove)
                 put("dwell_seconds", policy.roomFollow.dwellSeconds)
                 put("state_rooms", buildJsonObject {
@@ -520,6 +521,7 @@ open class HomeAssistantClient(
                 sensorEntityId = follow["sensor_entity_id"]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() },
                 enabled = follow["enabled"]?.jsonPrimitive?.booleanOrNull ?: false,
                 openOnLaunch = follow["open_on_launch"]?.jsonPrimitive?.booleanOrNull ?: true,
+                continueAfterLaunch = follow["continue_after_launch"]?.jsonPrimitive?.booleanOrNull ?: true,
                 promptOnMove = follow["prompt_on_move"]?.jsonPrimitive?.booleanOrNull ?: true,
                 dwellSeconds = follow["dwell_seconds"]?.jsonPrimitive?.intOrNull
                     ?: Hki7RoomFollow.DEFAULT_DWELL_SECONDS,

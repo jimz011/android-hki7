@@ -99,6 +99,9 @@
     <plurals name="uif_flow_advanced_block_count">
         <item quantity="other">%1$d 高度な短縮ブロック (変更されないまま)</item>
     </plurals>
+    <plurals name="uif_flow_group_count">
+        <item quantity="other">%1$d 内の条件</item>
+    </plurals>
     <plurals name="uif_gas_detector_count">
         <item quantity="other">%1$d ガス検知器がアクティブです</item>
     </plurals>

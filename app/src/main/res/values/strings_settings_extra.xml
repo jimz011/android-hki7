@@ -122,6 +122,8 @@
     <string name="settings_extra_room_follow_none">No sensor</string>
     <string name="settings_extra_room_follow_enabled">Follow this person between rooms</string>
     <string name="settings_extra_room_follow_open_on_launch">Open their room when the app starts</string>
+    <string name="settings_extra_room_follow_continue_after_launch">Keep following while the app is open</string>
+    <string name="settings_extra_room_follow_continue_after_launch_hint">Turn off to only place them in the right room when the app starts, without switching rooms again while they\'re using it.</string>
     <string name="settings_extra_room_follow_prompt_on_move">Ask before switching rooms</string>
     <string name="settings_extra_room_follow_dwell">Wait before a move counts</string>
     <string name="settings_extra_room_follow_dwell_value">%1$d s</string>

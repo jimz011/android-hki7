@@ -3258,6 +3258,8 @@
         <item quantity="other">%1$d baterias precisam de atenção</item>
     </plurals>
     <string-array name="cr_whats_new_beta_14">
+        <item>Novo widget Lista de tarefas: uma lista de verificação ou lista de compras compartilhada que toda a família pode adicionar. Os itens suportam quantidade opcional, categoria, prioridade (baixa, normal ou alta, mostrada como um sinalizador) e data de vencimento, com atribuição Adicionado por e Marcado por quando mais de uma pessoa edita a lista. Escolha a ordem Manual, A–Z, Prioridade ou Mais recente e filtre entre Tarefas, Tudo e Concluído na caixa de diálogo. A edição pode ser limitada a todos, membros específicos da família escolhidos na lista real de usuários do Home Assistant ou apenas administradores, aplicados da mesma forma que o restante das permissões familiares do aplicativo. Ele segue o mesmo design de qualquer outro widget, com as habituais guias de configurações Geral, Permissões, Aparência e Visibilidade.</item>
+        <item>O acompanhamento de sala agora pode ser configurado para colocar apenas alguém na sala certa quando o aplicativo for iniciado, sem rastreá-lo pelo resto da sessão. A opção Perguntar antes de trocar de sala existente apenas escolhia entre perguntar e trocar silenciosamente; não havia como obter a colocação única sem que o aplicativo continuasse acompanhando cada movimento posteriormente. Um novo botão Continuar seguindo enquanto o aplicativo está aberto nas configurações de acompanhamento de sala de cada pessoa desativa esse rastreamento contínuo por conta própria, deixando Abrir a sala quando o aplicativo começar a fazer o posicionamento de sempre.*</item>
         <item>Novo widget de Fórmula 1 para a integração F1 Sensor. O cartão mostra a próxima corrida com contagem decrescente e o traçado do circuito; ao abrir há quatro separadores — Próxima corrida com o horário completo das sessões e o tempo na pista, Classificação de pilotos e construtores, Resultados do último grande prémio com os lugares ganhos ou perdidos, e um separador Em direto que só aparece durante uma sessão, com a bandeira e as mensagens da direção de corrida. Encontra os sensores sozinho: o F1 Sensor permite renomear entidades e escolher um idioma, por isso o widget procura pelas chaves internas estáveis da integração em vez de ids de entidade.</item>
         <item>Novo widget Encontrar os meus dispositivos: um mapa dos seus telemóveis, relógios, etiquetas e localizadores. Adicione qualquer entidade device_tracker ou person; as que reportam GPS aparecem como marcadores e as restantes continuam listadas com o seu estado. Selecione quantos quiser para os ver em conjunto, ou não selecione nenhum para ver tudo. Três filtros restringem a lista: Tudo, Dispositivos e Pessoas. O cartão segue o mesmo design dos outros widgets, por isso imagem de fundo, ícone, largura, forma e raio dos cantos funcionam como esperado.</item>
         <item>Os mapas da aplicação já não parecem um atlas impresso. O HKI usa agora o mesmo mapa base CARTO discreto que o cartão de mapa do próprio Home Assistant, em vez da renderização padrão do OpenStreetMap, pensada como referência para cartógrafos e não como fundo de uma aplicação. Tem também uma variante escura a sério, por isso o mapa passa finalmente a seguir o seu tema em vez de brilhar a branco numa janela escura.</item>
@@ -3270,6 +3272,8 @@
         <item>Corrigidas notificações que não chegavam enquanto o Home Assistant indicava o dispositivo como não ligado às notificações push locais, mesmo com a aplicação aberta. A aplicação afastava-se a favor da sua ligação em segundo plano assim que as definições diziam que esta devia estar a correr, mas se o Android recusasse iniciá-la — depois de reiniciar, por exemplo — ninguém ficava a ouvir. Agora verifica se essa ligação está mesmo a correr em vez de se deveria estar, assume o lugar quando não está, e devolve o canal assim que ela arranca.</item>
         <item>Corrigido o facto de as definições de seguimento de divisão não produzirem efeito no dispositivo a partir do qual eram alteradas. Desligar o seguimento, ou mudar quanto tempo uma divisão tem de se manter antes de contar como mudança, era escrito no componente companion mas não na cópia local do dispositivo — pelo que continuava a seguir, e a usar o tempo antigo, até a aplicação ser reiniciada. As alterações passam a aplicar-se de imediato. O cursor também já não oferece zero segundos, o que fazia a primeira leitura do sensor contar como mudança.</item>
         <item>O cartão de Fórmula 1 diz agora uma só coisa: o próximo grande prémio e quando é — “Hoje 15:00” no próprio dia, caso contrário a data e a hora, no seu fuso. O estado da pista sai dali: fora de uma sessão mostrava “Não a decorrer”, e não é para isso que se olha para o cartão. O estado fica na mesma pílula escura dos cartões de câmara, aspirador e resíduos, voltando a alinhar com o resto do painel. O traçado do circuito mantém-se como marca de água ténue e a bandeira do país anfitrião no canto. O widget também já não pergunta que instância de F1 usar — lê tudo o que a integração publica, para que a janela tenha sempre o quadro completo.</item>
+        <item>* Requer a integração do Componente HKI 7 Cloud.</item>
+
     </string-array>
 
     <string-array name="cr_whats_new_beta_13">
@@ -3449,4 +3453,137 @@
     <string name="family_dashboard_restore_disabled_reason">O administrador da família desativou a mudança de painel. Restaurar uma cópia pode substituir o painel familiar, por isso esta conta só pode escolher um painel partilhado.</string>
     <string name="family_settings_admin_only">Bloqueado — apenas um administrador do Home Assistant pode gerir a partilha familiar</string>
     <string name="family_aesthetics_only_explanation">O acesso apenas estético permite nomes, ícones, cores, fundos, estilos de cartões, formas, tamanhos e disposição locais. Entidades, ações, regras de visibilidade, conteúdo, controlos e outros comportamentos continuam a ser geridos pelo proprietário do painel.</string>
+    <string name="energy_extra_city_heating">Aquecimento urbano</string>
+    <string name="energy_extra_category_city_heating_subtitle">Energia térmica, produção atual e custo</string>
+    <string name="energy_extra_card_city_heating_usage">Uso de aquecimento urbano</string>
+    <string name="energy_extra_sensor_city_heating_total">Total de energia térmica (J/MJ/GJ/kWh)</string>
+    <string name="energy_extra_sensor_city_heating_current">Saída de calor atual (opcional)</string>
+    <string name="energy_extra_sensor_city_heating_cost">Custo de aquecimento da cidade</string>
+    <string name="energy_extra_estimated_gas_equivalent">Equivalente de gás estimado</string>
+    <string name="energy_extra_estimated_gas_note">Baseado em 35,17 MJ por m³ de gás natural</string>
+    <string name="ui_people_dialog_title">Pessoas</string>
+    <string name="widgets_f1_title">Fórmula 1</string>
+    <string name="widgets_f1_subtitle">Fim de semana de corrida, classificação e resultados</string>
+    <string name="widgets_f1_sources_subtitle">Leia a partir da integração do sensor F1</string>
+    <string name="widgets_f1_tab_next">Próxima corrida</string>
+    <string name="widgets_f1_tab_standings">Classificação</string>
+    <string name="widgets_f1_tab_results">Resultados</string>
+    <string name="widgets_f1_tab_live">Ao vivo</string>
+    <string name="widgets_f1_drivers">Motoristas</string>
+    <string name="widgets_f1_constructors">Construtores</string>
+    <string name="widgets_f1_schedule">Agenda da sessão</string>
+    <string name="widgets_f1_race_control">Controle de corrida</string>
+    <string name="widgets_f1_round">Rodada %1$s</string>
+    <string name="widgets_f1_lap_short">Volta %1$s</string>
+    <string name="widgets_f1_wins_short">%1$s vitórias</string>
+    <string name="widgets_f1_points_wins_legend">A coluna da direita mostra os pontos do campeonato.</string>
+    <string name="widgets_f1_lights_out_in">Luzes apagadas em %1$s</string>
+    <string name="widgets_f1_next_in">%1$s · %2$s</string>
+    <string name="widgets_f1_in_days_hours">em %1$dd %2$dh</string>
+    <string name="widgets_f1_in_hours_minutes">em %1$dh %2$dm</string>
+    <string name="widgets_f1_in_minutes">em %1$dm</string>
+    <string name="widgets_f1_no_upcoming">Nenhuma próxima corrida</string>
+    <string name="widgets_f1_today_at">Hoje %1$s</string>
+    <string name="widgets_f1_tomorrow_at">Amanhã %1$s</string>
+    <string name="widgets_f1_time_unknown">Hora de confirmar</string>
+    <string name="widgets_f1_sensors_used">Este widget usa a próxima corrida, classificação de pilotos e construtores, resultados da última corrida, clima, temporada atual e – durante uma sessão – status da pista, status da sessão e controle da corrida. Outras opções de sensor F1 não são necessárias para isso.</string>
+    <string name="widgets_f1_no_standings">Nenhuma classificação disponível ainda</string>
+    <string name="widgets_f1_no_results">Nenhum resultado de corrida disponível ainda</string>
+    <string name="widgets_f1_no_race_control">Nenhuma mensagem de controle de corrida</string>
+    <string name="widgets_f1_not_found">Sensor F1 não encontrado</string>
+    <string name="widgets_f1_not_found_long">A integração do Sensor F1 não foi encontrada. Instale-o no Home Assistant (HACS: Nicxe/f1_sensor) e seus sensores serão captados automaticamente.</string>
+    <string name="widgets_f1_found">Sensores %1$d F1 encontrados.</string>
+    <string name="widgets_f1_default_tab">Guia de abertura</string>
+    <string name="widgets_f1_background_help">Sem imagem de fundo, o cartão mostra a próxima corrida, com o contorno do circuito como uma marca d’água tênue atrás dele.</string>
+    <string name="widgets_f1_session_fp1">Prática 1</string>
+    <string name="widgets_f1_session_fp2">Prática 2</string>
+    <string name="widgets_f1_session_fp3">Prática 3</string>
+    <string name="widgets_f1_session_sprint_quali">Qualificação de sprint</string>
+    <string name="widgets_f1_session_sprint">Corrida</string>
+    <string name="widgets_f1_session_qualifying">Qualificação</string>
+    <string name="widgets_f1_session_race">Corrida</string>
+    <string name="widgets_f1_flag_green">Rastrear claro</string>
+    <string name="widgets_f1_flag_yellow">Bandeira amarela</string>
+    <string name="widgets_f1_flag_red">Bandeira vermelha</string>
+    <string name="widgets_f1_flag_safety_car">Carro de segurança</string>
+    <string name="widgets_f1_flag_vsc">Carro de segurança virtual</string>
+    <string name="widgets_f1_flag_chequered">Bandeira quadriculada</string>
+    <string name="widgets_f1_flag_unknown">Não está em execução</string>
+    <string name="cr_widget_f1">Fórmula 1</string>
+    <string name="cr_widget_f1_description">Fim de semana de corrida, classificação e resultados</string>
+    <string name="widgets_todo_title">Lista de tarefas</string>
+    <string name="widgets_todo_shopping_title">Lista de compras</string>
+    <string name="widgets_todo_subtitle">Uma lista de verificação compartilhada que sua família pode adicionar e marcar</string>
+    <string name="widgets_todo_empty">Nenhum item ainda</string>
+    <string name="widgets_todo_all_done">Tudo pronto</string>
+    <string name="widgets_todo_remaining">%1$d de %2$d restantes</string>
+    <string name="widgets_todo_remaining_short">%1$d/%2$d</string>
+    <string name="widgets_todo_add_placeholder">Adicione um item…</string>
+    <string name="widgets_todo_read_only">Você não tem permissão para editar esta lista.</string>
+    <string name="widgets_todo_filter_active">Pendência</string>
+    <string name="widgets_todo_filter_all">Tudo</string>
+    <string name="widgets_todo_filter_done">Concluído</string>
+    <string name="widgets_todo_clear_completed">Limpeza concluída</string>
+    <string name="widgets_todo_edit_item">Editar item</string>
+    <string name="widgets_todo_item_text">Item</string>
+    <string name="widgets_todo_quantity">Quantidade</string>
+    <string name="widgets_todo_category">Categoria</string>
+    <string name="widgets_todo_note">Observação</string>
+    <string name="widgets_todo_priority">Prioridade</string>
+    <string name="widgets_todo_priority_low">Baixo</string>
+    <string name="widgets_todo_priority_normal">Normal</string>
+    <string name="widgets_todo_priority_high">Alto</string>
+    <string name="widgets_todo_due_date">Data de vencimento</string>
+    <string name="widgets_todo_clear_due_date">Limpar data de vencimento</string>
+    <string name="widgets_todo_delete_item">Eliminar</string>
+    <string name="widgets_todo_checked_by">Verificado por %1$s</string>
+    <string name="widgets_todo_added_by">Adicionado por %1$s</string>
+    <string name="widgets_todo_tab_general">Geral</string>
+    <string name="widgets_todo_tab_permissions">Permissões</string>
+    <string name="widgets_todo_list_type">Tipo de lista</string>
+    <string name="widgets_todo_type_todo">Pendência</string>
+    <string name="widgets_todo_type_shopping">Compras</string>
+    <string name="widgets_todo_sort_mode">Ordem de classificação</string>
+    <string name="widgets_todo_sort_manual">Manual</string>
+    <string name="widgets_todo_sort_alphabetical">A–Z</string>
+    <string name="widgets_todo_sort_priority">Prioridade</string>
+    <string name="widgets_todo_sort_newest">O mais novo primeiro</string>
+    <string name="widgets_todo_show_completed">Mostrar itens concluídos por padrão</string>
+    <string name="widgets_todo_permissions_subtitle">Escolha quem pode adicionar, marcar ou remover itens</string>
+    <string name="widgets_todo_perm_everyone">Todos</string>
+    <string name="widgets_todo_perm_specific">Membros específicos da família</string>
+    <string name="widgets_todo_perm_admin_only">Somente administradores</string>
+    <string name="widgets_todo_permissions_admin_required">Somente um administrador pode escolher membros específicos</string>
+    <string name="widgets_todo_no_users_found">Nenhum usuário do Home Assistant encontrado</string>
+    <string name="cr_widget_todo">Lista de tarefas</string>
+    <string name="cr_widget_todo_description">Lista de verificação ou lista de compras compartilhada, editável por todos, membros escolhidos ou apenas administradores</string>
+    <string name="widgets_find_devices_title">Encontre meus dispositivos</string>
+    <string name="widgets_find_devices_subtitle">Dispositivos, mapa e aparência</string>
+    <string name="widgets_find_devices_label">Dispositivos</string>
+    <string name="widgets_find_select_devices">Selecione dispositivos</string>
+    <string name="widgets_find_sources_subtitle">Rastreadores para mostrar no mapa</string>
+    <string name="widgets_find_gps_help">Qualquer entidade device_tracker ou pessoa pode ser adicionada. Aqueles que reportam coordenadas GPS aparecem no mapa; o restante ainda está listado com seu estado.</string>
+    <string name="widgets_find_my_devices">Meus dispositivos</string>
+    <string name="widgets_find_filter_all">Tudo</string>
+    <string name="widgets_find_filter_devices">Dispositivos</string>
+    <string name="widgets_find_filter_persons">Pessoas</string>
+    <string name="widgets_find_showing_selected">Mostrando %1$d selecionado</string>
+    <string name="widgets_find_show_all">Mostrar tudo</string>
+    <string name="widgets_find_none_in_filter">Nada deste tipo neste widget</string>
+    <string name="widgets_find_refresh">Atualizar</string>
+    <string name="widgets_find_summary">%1$d de %2$d casa</string>
+    <string name="widgets_find_no_devices_selected">Nenhum dispositivo selecionado</string>
+    <string name="widgets_find_no_location">Nenhum desses dispositivos informa uma localização ainda</string>
+    <string name="widgets_find_no_gps">Sem localização</string>
+    <string name="widgets_find_state_home">Início</string>
+    <string name="widgets_find_state_away">Ausente</string>
+    <string name="widgets_find_state_unknown">Desconhecido</string>
+    <string name="cr_widget_find_devices">Encontre meus dispositivos</string>
+    <string name="cr_widget_find_devices_description">Mapa de seus telefones, tags e rastreadores</string>
+    <string name="widgets_waste_calendar_range">Intervalo de calendário</string>
+    <string name="widgets_waste_calendar_days">%1$d dias</string>
+    <string name="widgets_waste_calendar_range_help">Quão longe está o calendário da caixa de diálogo. É mostrado como uma grade semanal, arredondada para semanas inteiras.</string>
+    <string name="widgets_waste_no_collection_on">Nenhuma coleta em %1$s</string>
+    <string name="settings_extra_room_follow_continue_after_launch">Continue acompanhando enquanto o aplicativo estiver aberto</string>
+    <string name="settings_extra_room_follow_continue_after_launch_hint">Desligue para colocá-los apenas no cômodo certo quando o aplicativo for iniciado, sem trocar de cômodo novamente enquanto o estiverem usando.</string>
 </resources>

@@ -1047,6 +1047,7 @@ private fun AllPeopleDialog(
         ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
     }
     val scroll = rememberScrollState()
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0] ?: java.util.Locale.getDefault()
     ModernAlertDialog(
         onDismissRequest = onDismiss,
         dismissOnTapOutside = true,
@@ -1095,7 +1096,7 @@ private fun AllPeopleDialog(
                                 modifier = Modifier.weight(1f)
                             )
                             Text(
-                                person.state.replaceFirstChar { it.titlecase(java.util.Locale.getDefault()) },
+                                person.state.replaceFirstChar { it.titlecase(locale) },
                                 color = if (isHome) MaterialTheme.colorScheme.primary else appColors.onMuted,
                                 style = MaterialTheme.typography.labelSmall
                             )
@@ -1634,7 +1635,7 @@ private fun HeaderStatusPill(
     ) {
         if (showPill) {
             val now = LocalDateTime.now()
-            val locale = Locale.getDefault()
+            val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0] ?: java.util.Locale.getDefault()
             val timeSkeleton = if (use24hFormat) "Hm" else "hma"
             val daySkeleton = if (useFullDayName) "EEEE" else "EEE"
             fun pattern(skeleton: String) =

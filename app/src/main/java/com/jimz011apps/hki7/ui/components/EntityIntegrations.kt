@@ -30,7 +30,7 @@ import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
  *  device auto-fill, and which domains its manual picker is limited to. */
 data class HumidifierAuxSlot(
     val key: String,
-    @StringRes val labelRes: Int,
+    @param:StringRes val labelRes: Int,
     val matchKeys: List<String>,
     val domains: List<String>
 )

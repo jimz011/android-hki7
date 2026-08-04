@@ -3250,6 +3250,14 @@ private fun RoomFollowUserCard(
                     ) { onChange(follow.copy(openOnLaunch = it)) }
 
                     FamilyPermissionRow(
+                        title = stringResource(R.string.settings_extra_room_follow_continue_after_launch),
+                        subtitle = stringResource(R.string.settings_extra_room_follow_continue_after_launch_hint),
+                        checked = follow.continueAfterLaunch
+                    ) { onChange(follow.copy(continueAfterLaunch = it)) }
+                }
+
+                if (follow.enabled && follow.continueAfterLaunch) {
+                    FamilyPermissionRow(
                         title = stringResource(R.string.settings_extra_room_follow_prompt_on_move),
                         subtitle = stringResource(R.string.settings_extra_room_follow_dwell_hint),
                         checked = follow.promptOnMove
@@ -3295,9 +3303,13 @@ private fun RoomFollowUserCard(
                         steps = 22,
                         modifier = Modifier.fillMaxWidth()
                     )
+                }
 
+                if (follow.enabled) {
                     // Only the states the area names could not resolve need a decision, so matched
-                    // ones are shown as already handled rather than asking for input twice.
+                    // ones are shown as already handled rather than asking for input twice — and this
+                    // stays visible even with continued tracking off, since launch placement still
+                    // needs it to resolve which room a sensor state means.
                     val states = remember(roster, allEntities) {
                         observedRoomStates(roster, allEntities.associateBy { it.entity_id })
                     }

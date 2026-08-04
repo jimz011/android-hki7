@@ -181,6 +181,7 @@ import com.jimz011apps.hki7.data.visibilityConditionEntityIds
 import com.jimz011apps.hki7.data.HKIBatteryCardWidget
 import com.jimz011apps.hki7.data.HKICalendarWidget
 import com.jimz011apps.hki7.data.HKIF1Widget
+import com.jimz011apps.hki7.data.HKITodoWidget
 import com.jimz011apps.hki7.data.HKIFindDevicesWidget
 import com.jimz011apps.hki7.data.HKIWasteCollectionWidget
 import com.jimz011apps.hki7.data.HKIParcelsWidget
@@ -330,6 +331,7 @@ fun HKIRoomWidget.withStackChildStyle(isSquare: Boolean, cornerRadius: Int): HKI
     is HKIFindDevicesWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKIF1Widget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKIParcelsWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
+    is HKITodoWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
     is HKIClimateCardWidget -> copy(cornerRadius = cornerRadius)
     is HKIClimateStack -> copy(cornerRadius = cornerRadius)
     is HKIMediaPlayerWidget -> copy(isSquare = isSquare, cornerRadius = cornerRadius)
@@ -416,6 +418,7 @@ fun RoomDetailScreen(
     var editingFindDevicesWidget by remember { mutableStateOf<Pair<String?, HKIFindDevicesWidget>?>(null) }
     var pendingFindDevicesWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var editingF1Widget by remember { mutableStateOf<Pair<String?, HKIF1Widget>?>(null) }
+    var editingTodoWidget by remember { mutableStateOf<Pair<String?, HKITodoWidget>?>(null) }
     var pendingWasteWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var pendingParcelsWidgetContainerId by remember { mutableStateOf<String?>(null) }
     var editingBatteryWidget by remember { mutableStateOf<Pair<String?, HKIBatteryCardWidget>?>(null) }
@@ -578,6 +581,7 @@ fun RoomDetailScreen(
         width = "full"
     )
     fun newF1Widget() = HKIF1Widget(id = UUID.randomUUID().toString(), width = "full")
+    fun newTodoWidget() = HKITodoWidget(id = UUID.randomUUID().toString(), width = "full")
     fun newMarkdownWidget() = HKIMarkdownWidget(
         id = UUID.randomUUID().toString(),
         content = defaultMarkdownContent
@@ -697,6 +701,14 @@ fun RoomDetailScreen(
                 isEditMode = isEditMode,
                 onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
                 onSettings = { editingF1Widget = parent.id to child },
+                onUpdate = { updateChildInSwipingStack(parent.id, it) }
+            )
+            is HKITodoWidget -> TodoWidgetItem(
+                widget = styleOverride?.let { child.copy(width = "full", isSquare = it.isSquare, cornerRadius = it.cornerRadius) } ?: child.copy(width = "full"),
+                viewModel = viewModel,
+                isEditMode = isEditMode,
+                onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
+                onSettings = { editingTodoWidget = parent.id to child },
                 onUpdate = { updateChildInSwipingStack(parent.id, it) }
             )
             is HKIFindDevicesWidget -> FindDevicesWidgetItem(
@@ -1109,6 +1121,11 @@ fun RoomDetailScreen(
                                     widget = widget, viewModel = viewModel, isEditMode = false,
                                     onDelete = {}, onSettings = {}, onUpdate = {}
                                 )
+                                is HKITodoWidget -> TodoWidgetItem(
+                                    widget = widget, viewModel = viewModel, isEditMode = false,
+                                    onDelete = {}, onSettings = {},
+                                    onUpdate = { viewModel.updateWidget(areaId, it) }
+                                )
                                 is HKIFindDevicesWidget -> FindDevicesWidgetItem(
                                     widget = widget, viewModel = viewModel, isEditMode = false,
                                     onDelete = {}, onSettings = {}, onUpdate = {}
@@ -1341,6 +1358,14 @@ fun RoomDetailScreen(
                             onSettings = { editingF1Widget = null to widget },
                             onUpdate = { viewModel.updateWidget(areaId, it) }
                         )
+                        is HKITodoWidget -> TodoWidgetItem(
+                            widget = widget,
+                            viewModel = viewModel,
+                            isEditMode = isEditMode,
+                            onDelete = { viewModel.deleteWidget(areaId, widget.id) },
+                            onSettings = { editingTodoWidget = null to widget },
+                            onUpdate = { viewModel.updateWidget(areaId, it) }
+                        )
                         is HKIFindDevicesWidget -> FindDevicesWidgetItem(
                             widget = widget,
                             viewModel = viewModel,
@@ -1532,6 +1557,10 @@ fun RoomDetailScreen(
                 viewModel.addWidgetToArea(areaId, newF1Widget())
                 showAddWidgetDialog = false
             },
+            onAddTodoWidget = {
+                viewModel.addWidgetToArea(areaId, newTodoWidget())
+                showAddWidgetDialog = false
+            },
             onAddParcelsWidget = {
                 pendingParcelsWidgetContainerId = "__top__"
                 showAddWidgetDialog = false
@@ -1634,6 +1663,18 @@ fun RoomDetailScreen(
                 if (containerId == null) viewModel.updateWidget(areaId, updated)
                 else updateChildInSwipingStack(containerId, updated)
                 editingF1Widget = null
+            }
+        )
+    }
+    editingTodoWidget?.let { (containerId, widget) ->
+        TodoWidgetSettingsDialog(
+            widget = widget,
+            viewModel = viewModel,
+            onDismiss = { editingTodoWidget = null },
+            onSave = { updated ->
+                if (containerId == null) viewModel.updateWidget(areaId, updated)
+                else updateChildInSwipingStack(containerId, updated)
+                editingTodoWidget = null
             }
         )
     }
@@ -1955,6 +1996,10 @@ fun RoomDetailScreen(
             },
             onAddF1Widget = {
                 addChildToSwipingStack(stackId, newF1Widget())
+                addingToSwipingStackId = null
+            },
+            onAddTodoWidget = {
+                addChildToSwipingStack(stackId, newTodoWidget())
                 addingToSwipingStackId = null
             },
             onAddParcelsWidget = {
@@ -2848,8 +2893,8 @@ fun RoomDetailScreen(
 /** One entry in the Add-Widget picker; [keywords] add extra terms that the search field matches on. */
 private data class PickerWidget(
     val icon: ImageVector,
-    @StringRes val titleRes: Int,
-    @StringRes val subtitleRes: Int,
+    @param:StringRes val titleRes: Int,
+    @param:StringRes val subtitleRes: Int,
     val keywords: String,
     val category: WidgetPickerCategory,
     val isStack: Boolean = false,
@@ -2863,8 +2908,8 @@ private data class PickerWidget(
 
 private enum class WidgetPickerCategory(
     val key: String,
-    @StringRes val labelRes: Int,
-    @StringRes val descriptionRes: Int,
+    @param:StringRes val labelRes: Int,
+    @param:StringRes val descriptionRes: Int,
     val icon: ImageVector
 ) {
     CONTROLS(
@@ -2935,6 +2980,7 @@ fun AddRoomWidgetDialog(
     onAddWasteWidget: (() -> Unit)? = null,
     onAddFindDevicesWidget: (() -> Unit)? = null,
     onAddF1Widget: (() -> Unit)? = null,
+    onAddTodoWidget: (() -> Unit)? = null,
     onAddParcelsWidget: (() -> Unit)? = null,
     onAddEnergyCard: ((List<String>) -> Unit)? = null,
     onAddEnergyStack: ((List<String>) -> Unit)? = null,
@@ -2950,6 +2996,7 @@ fun AddRoomWidgetDialog(
 ) {
     val appColors = LocalHKIAppColors.current
     val context = LocalContext.current
+    val locale = LocalConfiguration.current.locales[0] ?: Locale.getDefault()
     val buttonsDefault = stringResource(R.string.cr_widget_buttons)
     val camerasDefault = stringResource(R.string.cr_widget_cameras)
     val vacuumDefault = stringResource(R.string.cr_widget_vacuum)
@@ -2991,6 +3038,7 @@ fun AddRoomWidgetDialog(
         if (onAddWasteWidget != null) add(PickerWidget(Icons.Default.DeleteSweep, R.string.cr_widget_waste_collection, R.string.cr_widget_waste_collection_description, "waste afval trash garbage gft pmd papier rest collection pickup afvalbeheer", WidgetPickerCategory.INFORMATION) { onAddWasteWidget.invoke(); onDismiss() })
         if (onAddFindDevicesWidget != null) add(PickerWidget(Icons.Default.MyLocation, R.string.cr_widget_find_devices, R.string.cr_widget_find_devices_description, "find my devices tracker location map gps phone watch tag lost zoeken locatie", WidgetPickerCategory.INFORMATION) { onAddFindDevicesWidget.invoke(); onDismiss() })
         if (onAddF1Widget != null) add(PickerWidget(Icons.Default.SportsScore, R.string.cr_widget_f1, R.string.cr_widget_f1_description, "f1 formula 1 one racing grand prix race standings drivers constructors circuit kwalificatie autosport", WidgetPickerCategory.INFORMATION) { onAddF1Widget.invoke(); onDismiss() })
+        if (onAddTodoWidget != null) add(PickerWidget(Icons.AutoMirrored.Filled.FormatListBulleted, R.string.cr_widget_todo, R.string.cr_widget_todo_description, "todo to-do checklist shopping list groceries tasks chores family shared reminders", WidgetPickerCategory.INFORMATION) { onAddTodoWidget.invoke(); onDismiss() })
         if (onAddParcelsWidget != null) add(PickerWidget(Icons.Default.LocalShipping, R.string.cr_widget_parcels, R.string.cr_widget_parcels_description, "packages delivery mail carrier tracking shipment", WidgetPickerCategory.INFORMATION) { onAddParcelsWidget.invoke(); onDismiss() })
         add(PickerWidget(Icons.Default.CameraAlt, R.string.cr_widget_camera, R.string.cr_widget_camera_description, "video stream live cctv feed", WidgetPickerCategory.CAMERAS) { onAddCameraWidget?.invoke() ?: run { cameraTitle = ""; cameraIcon = "None"; configureWidget = "camera" } })
         if (onAddClimateCard != null) add(PickerWidget(Icons.Default.Thermostat, R.string.cr_widget_climate_card, R.string.cr_widget_climate_card_description, "climate temperature humidity thermostat heating cooling sensors air", WidgetPickerCategory.CLIMATE) { climatePickerSelection = emptyList(); widgetGroup = "climate_card" })
@@ -3005,7 +3053,7 @@ fun AddRoomWidgetDialog(
         if (onAddSensorGraphWidget != null) add(PickerWidget(Icons.AutoMirrored.Filled.ShowChart, R.string.cr_widget_sensor_graph, R.string.cr_widget_sensor_graph_description, "graph chart history sensor temperature humidity line bar plot statistics", WidgetPickerCategory.INFORMATION) { onAddSensorGraphWidget.invoke(); onDismiss() })
         add(PickerWidget(Icons.Default.CleaningServices, R.string.cr_widget_vacuum, R.string.cr_widget_vacuum_description, "robot cleaner mop hoover", WidgetPickerCategory.CONTROLS) { onAddVacuumWidget?.invoke() ?: run { vacuumTitle = ""; vacuumIcon = "None"; configureWidget = "vacuum" } })
         add(PickerWidget(Icons.Default.WbSunny, R.string.cr_widget_weather, R.string.cr_widget_weather_description, "forecast temperature conditions rain sun", WidgetPickerCategory.CLIMATE) { onAddWeatherWidget?.invoke() ?: run { weatherTitle = ""; weatherIcon = "None"; configureWidget = "weather" } })
-    }.sortedBy { context.getString(it.titleRes).lowercase(Locale.getDefault()) }
+    }.sortedBy { context.getString(it.titleRes).lowercase(locale) }
     val stackWidgets = buildList {
         if (onAddEmptyStack != null) add(PickerWidget(Icons.AutoMirrored.Filled.ViewQuilt, R.string.cr_widget_empty_stack, R.string.cr_widget_empty_stack_description, "container group blank custom", WidgetPickerCategory.LAYOUT, isStack = true) { onAddEmptyStack.invoke(); onDismiss() })
         add(PickerWidget(Icons.AutoMirrored.Filled.ViewQuilt, R.string.cr_widget_button_stack, R.string.cr_widget_button_stack_description, "buttons group entities controls", WidgetPickerCategory.CONTROLS, isStack = true) { stackTitle = buttonsDefault; stackIcon = "Lightbulb"; configureWidget = "button_stack" })
@@ -3016,7 +3064,7 @@ fun AddRoomWidgetDialog(
         if (onAddSwipingStack != null) add(PickerWidget(Icons.AutoMirrored.Filled.ViewQuilt, R.string.cr_widget_swiping_stack, R.string.cr_widget_swiping_stack_description, "carousel swipe pager horizontal nested", WidgetPickerCategory.LAYOUT, isStack = true) { onAddSwipingStack.invoke(); onDismiss() })
         add(PickerWidget(Icons.Default.CleaningServices, R.string.cr_widget_vacuum_stack, R.string.cr_widget_vacuum_stack_description, "robot cleaner group map", WidgetPickerCategory.CONTROLS, isStack = true) { vacuumTitle = vacuumDefault; vacuumIcon = "CleaningServices"; configureWidget = "vacuum_stack" })
         add(PickerWidget(Icons.Default.WbSunny, R.string.cr_widget_weather_stack, R.string.cr_widget_weather_stack_description, "forecast group wind rain conditions", WidgetPickerCategory.CLIMATE, isStack = true) { weatherTitle = weatherDefault; weatherIcon = "weather-partly-cloudy"; configureWidget = "weather_stack" })
-    }.sortedBy { context.getString(it.titleRes).lowercase(Locale.getDefault()) }
+    }.sortedBy { context.getString(it.titleRes).lowercase(locale) }
 
     if (showIconPicker) {
         val currentForPicker = when (configureWidget) {
@@ -3169,7 +3217,7 @@ fun AddRoomWidgetDialog(
                                     context.getString(it.subtitleRes)
                                 )
                             }
-                            .sortedBy { context.getString(it.titleRes).lowercase(Locale.getDefault()) }
+                            .sortedBy { context.getString(it.titleRes).lowercase(locale) }
                         if (results.isEmpty()) {
                             Text(
                                 stringResource(R.string.ui_no_widgets_match_73a3c20, query),
@@ -4246,17 +4294,17 @@ fun PagedRoleDialog(
         titleOverride = headerConfig?.name,
         iconName = headerConfig?.icon?.takeUnless { it.isBlank() } ?: defaultEntityIconSlug(entity),
         statusText = if (role == "climate") {
-            val optimisticState = localizedClimateModeLabel(selectedClimateMode).uppercase(Locale.getDefault())
+            val optimisticState = localizedClimateModeLabel(selectedClimateMode).uppercase(LocalConfiguration.current.locales[0] ?: Locale.getDefault())
             if (entities.size > 1) "${page + 1}/${entities.size} - $optimisticState" else optimisticState
         } else if (entities.size > 1) {
             stringResource(
                 R.string.cr_paged_status,
                 page + 1,
                 entities.size,
-                localizedEntityState(entity).uppercase(Locale.getDefault())
+                localizedEntityState(entity).uppercase(LocalConfiguration.current.locales[0] ?: Locale.getDefault())
             )
         } else {
-            localizedEntityState(entity).uppercase(Locale.getDefault())
+            localizedEntityState(entity).uppercase(LocalConfiguration.current.locales[0] ?: Locale.getDefault())
         },
         extraGraphEntityIds = extraGraphEntityIds,
         tabs = when (role) {
@@ -6919,7 +6967,7 @@ fun AggregatedCoverDialog(
         Triple(stopLabel, Icons.Default.Stop, { selectedAction = stopLabel; viewModel.controlCover(entity.entity_id, "stop_cover") }),
         Triple(closeLabel, Icons.Default.ArrowDownward, { selectedAction = closeLabel; viewModel.controlCover(entity.entity_id, "close_cover") })
     )
-    val localizedState = localizedEntityState(entity).uppercase(Locale.getDefault())
+    val localizedState = localizedEntityState(entity).uppercase(LocalConfiguration.current.locales[0] ?: Locale.getDefault())
     val status = if (entities.size > 1) {
         stringResource(R.string.cr_paged_cover_status, page + 1, entities.size, pos, localizedState)
     } else {

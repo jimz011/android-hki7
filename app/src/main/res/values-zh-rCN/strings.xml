@@ -1961,6 +1961,8 @@
     <string name="cr_weekly">每周</string>
     <string name="cr_wet">潮湿</string>
     <string-array name="cr_whats_new_beta_14">
+        <item>新的待办事项列表小部件：全家人都可以添加的共享清单或购物清单。 Items support an optional quantity, category, priority (low, normal or high, shown as a flag) and due date, with Added by and Checked by attribution when more than one person edits the list.选择手动、A-Z、优先级或最新优先排序，然后从对话框中在“待办事项”、“全部”和“完成”之间进行筛选。 Editing can be limited to everyone, specific family members picked from the real Home Assistant user list, or admins only, enforced the same way the rest of the app\'s family permissions are.它遵循与其他小部件相同的设计，具有常见的“常规”、“权限”、“外观”和“可见性”设置选项卡。</item>
+        <item>现在可以将房间跟踪设置为仅在应用程序启动时将某人放置在正确的房间中，而不会在会话的其余部分跟踪他们。现有切换房间切换前询问，仅在询问和静默切换之间选择；如果应用程序不继续跟踪之后的每一步，就无法获得一次性展示位置。 A new Keep following while the app is open switch under each person\'s room-following settings turns that continued tracking off on its own, leaving Open their room when the app starts to do the one placement it always did.*</item>
         <item>新增一级方程式小组件，适用于 F1 Sensor 集成。卡片显示下一场比赛、倒计时和赛道轮廓；打开后有四个标签页 —— 含完整赛段时间表与赛道天气的“下一场比赛”、车手与车队“积分榜”、含名次升降的上一场大奖赛“成绩”，以及仅在赛段进行时出现、展示旗帜与赛事控制消息的“实时”标签页。它会自己找到传感器：F1 Sensor 允许重命名实体并选择语言，因此小组件按集成内部稳定的键匹配，而不是实体 ID。</item>
         <item>新增“查找我的设备”小组件：在地图上展示你的手机、手表、标签和追踪器。可添加任意 device_tracker 或 person 实体；上报 GPS 的会以标点显示在地图上，其余仍会列出并显示状态。可以同时勾选多个一起显示，不勾选则显示全部。三个筛选器：全部、设备、人物。卡片遵循与其他小组件相同的设计，背景图、图标、宽度、形状和圆角半径均按预期工作。</item>
         <item>应用内的地图不再像印刷地图册。标准的 OpenStreetMap 渲染本就是为制图者准备的参考图，而非应用背景，因此 HKI 现在改用与 Home Assistant 地图卡相同的淡雅 CARTO 底图。它还有真正的深色版本，地图终于会跟随你的主题，而不是在深色弹窗里白晶晶地刺眼。</item>
@@ -1973,6 +1975,8 @@
         <item>修复了即使应用处于打开状态，Home Assistant 仍报告设备未连接到本地推送通知、通知无法送达的问题。以前只要设置中启用了后台连接，应用就会让位；但当 Android 拒绝启动它（例如重启后），就没有任何一方在监听。现在应用会检查该连接是否真的在运行，而不是是否应该运行；没有运行时自己接管，并在连接真正启动后立即交还通道。</item>
         <item>修复了在哪台设备上修改房间跟随设置，该设备就不生效的问题。关闭跟随、或修改房间需保持多久才算一次移动，只写入了伴侣组件，没有写入设备自己的缓存 —— 因此直到下次启动应用之前，它仍在跟随并使用旧的时长。现在修改立即生效。滑块也不再提供 0 秒，那会让传感器的第一次读数就算作移动。</item>
         <item>一级方程式卡片现在只说一件事：下一场大奖赛及其时间 —— 当天显示“今天 15:00”，否则显示日期和时间，均使用你所在的时区。赛道状态从卡片上移除：非赛段期间它只会显示“未进行”，而没人为此看卡片。状态放在与摄像机、扫地机器人和垃圾卡片相同的深色胶囊里，因此又与仪表盘其余部分一致了。赛道轮廓仍作为淡淡的水印，主办国国旗仍在角落。小组件也不再询问使用哪个 F1 实例 —— 它会读取集成发布的全部内容，让弹窗始终完整。</item>
+        <item>* 需要 HKI 7 Cloud 组件集成。</item>
+
     </string-array>
 
     <string-array name="cr_whats_new_beta_13">
@@ -3401,4 +3405,137 @@
     <string name="family_dashboard_restore_disabled_reason">家庭管理员已禁止切换仪表板。恢复备份可能会替换家庭仪表板，因此此账户只能选择共享仪表板。</string>
     <string name="family_settings_admin_only">已锁定 — 只有 Home Assistant 管理员可以管理家庭共享</string>
     <string name="family_aesthetics_only_explanation">仅外观权限允许修改本地名称、图标、颜色、背景、卡片样式、形状、尺寸和布局。实体、操作、可见性规则、内容、控件及其他行为仍由仪表板所有者管理。</string>
+    <string name="energy_extra_city_heating">城市供热</string>
+    <string name="energy_extra_category_city_heating_subtitle">热能、电流输出和成本</string>
+    <string name="energy_extra_card_city_heating_usage">城市供热利用</string>
+    <string name="energy_extra_sensor_city_heating_total">热能总量（J/MJ/GJ/kWh）</string>
+    <string name="energy_extra_sensor_city_heating_current">当前热量输出（可选）</string>
+    <string name="energy_extra_sensor_city_heating_cost">城市供暖费用</string>
+    <string name="energy_extra_estimated_gas_equivalent">估计气体当量</string>
+    <string name="energy_extra_estimated_gas_note">基于每立方米天然气 35.17 兆焦耳</string>
+    <string name="ui_people_dialog_title">人们</string>
+    <string name="widgets_f1_title">一级方程式赛车</string>
+    <string name="widgets_f1_subtitle">比赛周末、排名和结果</string>
+    <string name="widgets_f1_sources_subtitle">从 F1 传感器集成中读取</string>
+    <string name="widgets_f1_tab_next">下一场比赛</string>
+    <string name="widgets_f1_tab_standings">积分榜</string>
+    <string name="widgets_f1_tab_results">结果</string>
+    <string name="widgets_f1_tab_live">居住</string>
+    <string name="widgets_f1_drivers">司机</string>
+    <string name="widgets_f1_constructors">构造函数</string>
+    <string name="widgets_f1_schedule">会议日程</string>
+    <string name="widgets_f1_race_control">比赛控制</string>
+    <string name="widgets_f1_round">第 %1$s 轮</string>
+    <string name="widgets_f1_lap_short">圈 %1$s</string>
+    <string name="widgets_f1_wins_short">%1$s 获胜</string>
+    <string name="widgets_f1_points_wins_legend">右侧栏显示冠军积分。</string>
+    <string name="widgets_f1_lights_out_in">%1$s 熄灯</string>
+    <string name="widgets_f1_next_in">%1$s · %2$s</string>
+    <string name="widgets_f1_in_days_hours">在 %1$dd %2$dh 中</string>
+    <string name="widgets_f1_in_hours_minutes">在 %1$dh %2$dm</string>
+    <string name="widgets_f1_in_minutes">%1$dm 内</string>
+    <string name="widgets_f1_no_upcoming">没有即将举行的比赛</string>
+    <string name="widgets_f1_today_at">今天%1$s</string>
+    <string name="widgets_f1_tomorrow_at">明天 %1$s</string>
+    <string name="widgets_f1_time_unknown">时间待确认</string>
+    <string name="widgets_f1_sensors_used">该小部件使用下一场比赛、车手和车队排名、上次比赛结果、天气、当前赛季以及在比赛期间的赛道状态、比赛状态和比赛控制。它不需要其他 F1 传感器选项。</string>
+    <string name="widgets_f1_no_standings">还没有可用的排名</string>
+    <string name="widgets_f1_no_results">尚未公布比赛结果</string>
+    <string name="widgets_f1_no_race_control">没有比赛控制消息</string>
+    <string name="widgets_f1_not_found">未找到 F1 传感器</string>
+    <string name="widgets_f1_not_found_long">未找到 F1 传感器集成。将其安装在 Home Assistant（HACS：Nicxe/f1_sensor）中，它的传感器会自动拾取。</string>
+    <string name="widgets_f1_found">找到 %1$d F1 传感器。</string>
+    <string name="widgets_f1_default_tab">打开选项卡</string>
+    <string name="widgets_f1_background_help">由于没有背景图像，该卡片显示了即将到来的比赛，赛道轮廓是其后面的微弱水印。</string>
+    <string name="widgets_f1_session_fp1">练习1</string>
+    <string name="widgets_f1_session_fp2">练习2</string>
+    <string name="widgets_f1_session_fp3">练习3</string>
+    <string name="widgets_f1_session_sprint_quali">冲刺排位赛</string>
+    <string name="widgets_f1_session_sprint">短跑</string>
+    <string name="widgets_f1_session_qualifying">资格赛</string>
+    <string name="widgets_f1_session_race">种族</string>
+    <string name="widgets_f1_flag_green">轨迹清晰</string>
+    <string name="widgets_f1_flag_yellow">黄旗</string>
+    <string name="widgets_f1_flag_red">红旗</string>
+    <string name="widgets_f1_flag_safety_car">安全车</string>
+    <string name="widgets_f1_flag_vsc">虚拟安全车</string>
+    <string name="widgets_f1_flag_chequered">方格旗</string>
+    <string name="widgets_f1_flag_unknown">未运行</string>
+    <string name="cr_widget_f1">一级方程式赛车</string>
+    <string name="cr_widget_f1_description">比赛周末、排名和结果</string>
+    <string name="widgets_todo_title">待办事项清单</string>
+    <string name="widgets_todo_shopping_title">购物清单</string>
+    <string name="widgets_todo_subtitle">您的家人可以添加和核对的共享清单</string>
+    <string name="widgets_todo_empty">还没有商品</string>
+    <string name="widgets_todo_all_done">全部完成</string>
+    <string name="widgets_todo_remaining">剩余 %2$d 中的 %1$d</string>
+    <string name="widgets_todo_remaining_short">%1$d/%2$d</string>
+    <string name="widgets_todo_add_placeholder">添加一个项目...</string>
+    <string name="widgets_todo_read_only">您无权编辑此列表。</string>
+    <string name="widgets_todo_filter_active">要做的事</string>
+    <string name="widgets_todo_filter_all">全部</string>
+    <string name="widgets_todo_filter_done">完毕</string>
+    <string name="widgets_todo_clear_completed">清除完成</string>
+    <string name="widgets_todo_edit_item">编辑项目</string>
+    <string name="widgets_todo_item_text">物品</string>
+    <string name="widgets_todo_quantity">数量</string>
+    <string name="widgets_todo_category">类别</string>
+    <string name="widgets_todo_note">笔记</string>
+    <string name="widgets_todo_priority">优先事项</string>
+    <string name="widgets_todo_priority_low">低的</string>
+    <string name="widgets_todo_priority_normal">普通的</string>
+    <string name="widgets_todo_priority_high">高的</string>
+    <string name="widgets_todo_due_date">到期日</string>
+    <string name="widgets_todo_clear_due_date">明确的截止日期</string>
+    <string name="widgets_todo_delete_item">删除</string>
+    <string name="widgets_todo_checked_by">由 %1$s 检查</string>
+    <string name="widgets_todo_added_by">由 %1$s 添加</string>
+    <string name="widgets_todo_tab_general">一般的</string>
+    <string name="widgets_todo_tab_permissions">权限</string>
+    <string name="widgets_todo_list_type">列表类型</string>
+    <string name="widgets_todo_type_todo">待办事项</string>
+    <string name="widgets_todo_type_shopping">购物</string>
+    <string name="widgets_todo_sort_mode">排序顺序</string>
+    <string name="widgets_todo_sort_manual">手动的</string>
+    <string name="widgets_todo_sort_alphabetical">A-Z</string>
+    <string name="widgets_todo_sort_priority">优先事项</string>
+    <string name="widgets_todo_sort_newest">最新的优先</string>
+    <string name="widgets_todo_show_completed">默认显示已完成的项目</string>
+    <string name="widgets_todo_permissions_subtitle">选择谁可以添加、勾选或删除项目</string>
+    <string name="widgets_todo_perm_everyone">每个人</string>
+    <string name="widgets_todo_perm_specific">具体家庭成员</string>
+    <string name="widgets_todo_perm_admin_only">仅限管理员</string>
+    <string name="widgets_todo_permissions_admin_required">只有管理员可以选择特定成员</string>
+    <string name="widgets_todo_no_users_found">找不到家庭助理用户</string>
+    <string name="cr_widget_todo">待办事项清单</string>
+    <string name="cr_widget_todo_description">共享清单或购物清单，可由所有人、选定的成员或管理员编辑</string>
+    <string name="widgets_find_devices_title">查找我的设备</string>
+    <string name="widgets_find_devices_subtitle">设备、地图和外观</string>
+    <string name="widgets_find_devices_label">设备</string>
+    <string name="widgets_find_select_devices">选择设备</string>
+    <string name="widgets_find_sources_subtitle">在地图上显示的追踪器</string>
+    <string name="widgets_find_gps_help">可以添加任何 device_tracker 或 person 实体。报告的 GPS 坐标出现在地图上；其余的仍以其状态列出。</string>
+    <string name="widgets_find_my_devices">我的设备</string>
+    <string name="widgets_find_filter_all">全部</string>
+    <string name="widgets_find_filter_devices">设备</string>
+    <string name="widgets_find_filter_persons">人们</string>
+    <string name="widgets_find_showing_selected">显示已选择 %1$d</string>
+    <string name="widgets_find_show_all">显示全部</string>
+    <string name="widgets_find_none_in_filter">此小部件中没有此类内容</string>
+    <string name="widgets_find_refresh">刷新</string>
+    <string name="widgets_find_summary">%2$d 家的 %1$d</string>
+    <string name="widgets_find_no_devices_selected">未选择设备</string>
+    <string name="widgets_find_no_location">这些设备尚未报告位置</string>
+    <string name="widgets_find_no_gps">没有位置</string>
+    <string name="widgets_find_state_home">家</string>
+    <string name="widgets_find_state_away">离开</string>
+    <string name="widgets_find_state_unknown">未知</string>
+    <string name="cr_widget_find_devices">查找我的设备</string>
+    <string name="cr_widget_find_devices_description">您的手机、标签和跟踪器的地图</string>
+    <string name="widgets_waste_calendar_range">日历范围</string>
+    <string name="widgets_waste_calendar_days">%1$d 天</string>
+    <string name="widgets_waste_calendar_range_help">对话框的日历看起来有多远。它显示为周网格，四舍五入为整周。</string>
+    <string name="widgets_waste_no_collection_on">%1$s 上没有收藏</string>
+    <string name="settings_extra_room_follow_continue_after_launch">在应用程序打开时继续关注</string>
+    <string name="settings_extra_room_follow_continue_after_launch_hint">关闭以仅在应用程序启动时将它们放置在正确的房间中，而无需在它们使用时再次切换房间。</string>
 </resources>

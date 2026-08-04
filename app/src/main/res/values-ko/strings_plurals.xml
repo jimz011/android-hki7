@@ -99,6 +99,9 @@
     <plurals name="uif_flow_advanced_block_count">
         <item quantity="other">%1$d 고급 단축 블록(변경되지 않은 상태로 유지됨)</item>
     </plurals>
+    <plurals name="uif_flow_group_count">
+        <item quantity="other">%1$d 조건 내부</item>
+    </plurals>
     <plurals name="uif_gas_detector_count">
         <item quantity="other">%1$d 가스 감지기가 활성화되었습니다.</item>
     </plurals>

@@ -237,6 +237,10 @@ internal fun mergeWidgetAesthetics(incoming: HKIRoomWidget, local: HKIRoomWidget
                 backgroundUrl = local.backgroundUrl,
             )
         }
+        is HKITodoWidget -> {
+            local as HKITodoWidget
+            incoming.copy(width = local.width, title = local.title, icon = local.icon, isSquare = local.isSquare, cornerRadius = local.cornerRadius, backgroundUrl = local.backgroundUrl)
+        }
     }
 }
 
