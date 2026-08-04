@@ -1811,6 +1811,14 @@ data class Hki7RoomFollow(
     companion object {
         const val DEFAULT_DWELL_SECONDS = 20
         const val MAX_DWELL_SECONDS = 600
+
+        /**
+         * Below this a dwell window stops doing its job: the first reading of a new room counts as
+         * a move, so the view flips on every flap between adjacent rooms. Enforced when the tracker
+         * is built as well as in the settings slider, because a policy written by an older build
+         * (or by hand through the component) can still carry a smaller value.
+         */
+        const val MIN_DWELL_SECONDS = 5
     }
 }
 

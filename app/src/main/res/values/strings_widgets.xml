@@ -97,6 +97,8 @@
     <string name="widgets_f1_in_hours_minutes">in %1$dh %2$dm</string>
     <string name="widgets_f1_in_minutes">in %1$dm</string>
     <string name="widgets_f1_no_upcoming">No upcoming race</string>
+    <string name="widgets_f1_under_way">Under way</string>
+    <string name="widgets_f1_sensors_used">This widget uses the next race, driver and constructor standings, last race results, weather, current season, and — during a session — track status, session status, and race control. Other F1 Sensor options are not needed for it.</string>
     <string name="widgets_f1_no_standings">No standings available yet</string>
     <string name="widgets_f1_no_results">No race results available yet</string>
     <string name="widgets_f1_no_race_control">No race control messages</string>
@@ -106,7 +108,7 @@
     <string name="widgets_f1_instance">Instance</string>
     <string name="widgets_f1_instance_auto">Auto</string>
     <string name="widgets_f1_default_tab">Opening tab</string>
-    <string name="widgets_f1_background_help">With no background image the card shows the circuit outline for the upcoming race, falling back to the icon.</string>
+    <string name="widgets_f1_background_help">With no background image the card shows the upcoming race, with the circuit outline as a faint watermark behind it.</string>
     <string name="widgets_f1_session_fp1">Practice 1</string>
     <string name="widgets_f1_session_fp2">Practice 2</string>
     <string name="widgets_f1_session_fp3">Practice 3</string>

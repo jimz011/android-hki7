@@ -1772,7 +1772,18 @@ fun SettingsDialog(
                                 scope.launch {
                                     val result = runCatching { HaParentalControls.setPolicy(context, uid, policy) }
                                         .getOrDefault(Hki7PolicySaveResult.FAILED)
-                                    if (result.isSaved) parentalPolicies = parentalPolicies + (uid to policy)
+                                    if (result.isSaved) {
+                                        parentalPolicies = parentalPolicies + (uid to policy)
+                                        // Saving only wrote to the component. This device runs from
+                                        // its own cached copy of its own policy, so without pulling
+                                        // it back the change does not take effect here until the
+                                        // next launch — which is why turning room following off, or
+                                        // changing its dwell time, appeared to be ignored on the
+                                        // very device the admin was editing from.
+                                        runCatching {
+                                            HaParentalControls.refreshForCurrentUser(context, prefs)
+                                        }
+                                    }
                                     setupChangedMessage = when (result) {
                                         Hki7PolicySaveResult.SAVED -> null
                                         // An out-of-date component saves the permissions but silently
@@ -3264,10 +3275,24 @@ private fun RoomFollowUserCard(
                         )
                     }
                     Slider(
-                        value = follow.dwellSeconds.toFloat(),
-                        onValueChange = { onChange(follow.copy(dwellSeconds = it.toInt())) },
-                        valueRange = 0f..120f,
-                        steps = 23,
+                        value = follow.dwellSeconds.coerceIn(
+                            Hki7RoomFollow.MIN_DWELL_SECONDS, 120
+                        ).toFloat(),
+                        // Rounded, not truncated: a slider step lands on 19.999999 often enough that
+                        // toInt() quietly turned 20 seconds into 19.
+                        onValueChange = {
+                            onChange(
+                                follow.copy(
+                                    dwellSeconds = kotlin.math.round(it).toInt()
+                                        .coerceAtLeast(Hki7RoomFollow.MIN_DWELL_SECONDS)
+                                )
+                            )
+                        },
+                        // Starts at the minimum rather than 0: a zero-second dwell means the very
+                        // first sensor reading counts as a move, so the room flips on every flap
+                        // between adjacent rooms — which is exactly what a dwell window is for.
+                        valueRange = Hki7RoomFollow.MIN_DWELL_SECONDS.toFloat()..120f,
+                        steps = 22,
                         modifier = Modifier.fillMaxWidth()
                     )
 

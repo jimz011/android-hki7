@@ -43,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -266,36 +267,20 @@ private fun F1Card(
         color = Color.Transparent
     ) {
         Box {
-            // Artwork precedence mirrors the other widgets: an explicit background wins, then the
-            // circuit outline (which is what makes the card recognisable at a glance), then the icon.
-            val outline = race?.circuitOutlineUrl
-            when {
-                !widget.backgroundUrl.isNullOrBlank() -> WidgetBackground(widget.backgroundUrl, currentUrl)
-                outline != null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            if (!widget.backgroundUrl.isNullOrBlank()) {
+                WidgetBackground(widget.backgroundUrl, currentUrl)
+            } else {
+                // The circuit outline is a white line drawing on transparent, sized as an accent —
+                // blown up to fill the card it just reads as a thin, aliased squiggle. Used small
+                // and faint on the right it does what it is for: hints at which track this is
+                // without competing with the race name.
+                race?.circuitOutlineUrl?.let { outline ->
                     AsyncImage(
-                        outline, race.circuitName,
-                        Modifier.fillMaxSize().padding(18.dp),
+                        outline, null,
+                        Modifier.align(Alignment.CenterEnd).fillMaxHeight(0.72f).padding(end = 12.dp)
+                            .alpha(0.16f),
                         contentScale = ContentScale.Fit
                     )
-                }
-                else -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Box(
-                        Modifier.size(84.dp).background(accent.copy(alpha = 0.16f), RoundedCornerShape(21.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        MdiIcon(widget.icon ?: "flag-checkered", tint = accent, size = 44.dp)
-                    }
-                }
-            }
-
-            // Country flag badge, top-right, when there is a race to show one for.
-            race?.countryFlagUrl?.let { flagUrl ->
-                Surface(
-                    modifier = Modifier.align(Alignment.TopEnd).padding(10.dp).size(34.dp),
-                    shape = RoundedCornerShape(7.dp),
-                    color = Color.Black.copy(alpha = 0.25f)
-                ) {
-                    AsyncImage(flagUrl, race.country, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                 }
             }
 
@@ -304,24 +289,73 @@ private fun F1Card(
                     Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent, appColors.elevated.copy(alpha = 0.88f)))
                 )
             )
-            Surface(
-                modifier = Modifier.align(Alignment.BottomStart).padding(10.dp),
-                color = Color.Black.copy(alpha = 0.55f),
-                shape = itemCornerShape()
+
+            // The upcoming race is the point of the card, so it is laid out as content rather than
+            // squeezed into the corner pill the other widgets use for a one-line state.
+            Column(
+                Modifier.fillMaxSize().padding(14.dp),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    MdiIcon(widget.icon ?: "flag-checkered", tint = accent, size = 16.dp)
                     Text(
                         widget.title ?: stringResource(R.string.widgets_f1_title),
-                        color = Color.White, style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis
+                        color = appColors.onSurface.copy(alpha = 0.75f),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
                     )
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Box(Modifier.size(5.dp).background(dotColor, CircleShape))
+                    race?.round?.let {
                         Text(
-                            stateText, color = Color.White.copy(alpha = 0.7f),
-                            style = MaterialTheme.typography.labelSmall, fontSize = 10.sp,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis
+                            stringResource(R.string.widgets_f1_round, it),
+                            color = appColors.onMuted, style = MaterialTheme.typography.labelSmall
                         )
+                    }
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    race?.countryFlagUrl?.let { flagUrl ->
+                        Surface(
+                            modifier = Modifier.size(38.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            color = Color.Black.copy(alpha = 0.25f)
+                        ) {
+                            AsyncImage(flagUrl, race.country, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                        }
+                    }
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            race?.raceName ?: stateText,
+                            color = appColors.onSurface,
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 2, overflow = TextOverflow.Ellipsis
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                            Box(Modifier.size(5.dp).background(dotColor, CircleShape))
+                            Text(
+                                when {
+                                    !bundle.available -> stringResource(R.string.widgets_f1_not_found)
+                                    bundle.isLive -> bundle.flag.label()
+                                    until != null -> countdownLabel(until)
+                                    race?.raceName != null -> stringResource(R.string.widgets_f1_under_way)
+                                    else -> stringResource(R.string.widgets_f1_no_upcoming)
+                                },
+                                color = if (bundle.isLive) bundle.flag.color() else appColors.onMuted,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1, overflow = TextOverflow.Ellipsis
+                            )
+                            listOfNotNull(race?.locality, race?.country).joinToString(", ")
+                                .takeIf { it.isNotBlank() }?.let {
+                                    Text(
+                                        "· $it", color = appColors.onMuted,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        maxLines = 1, overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                        }
                     }
                 }
             }
@@ -874,6 +908,13 @@ fun F1WidgetSettingsDialog(
                         style = MaterialTheme.typography.bodySmall,
                         color = if (found.isEmpty()) MaterialTheme.colorScheme.error
                         else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    // F1 Sensor's own setup offers a long list of optional data; say plainly which
+                    // of it this widget reads, so the choice there is not a guess.
+                    Text(
+                        stringResource(R.string.widgets_f1_sensors_used),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     // Only worth a control when there is genuinely a choice to make.
                     if (devices.size > 1) {

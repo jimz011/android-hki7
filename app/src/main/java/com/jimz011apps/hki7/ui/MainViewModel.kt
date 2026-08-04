@@ -1106,9 +1106,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         // The room may have been reached in the meantime — by tapping Switch, by navigating there
         // manually, or by the launch navigation — which makes a waiting prompt pointless.
         if (_pendingRoomMove.value == currentAreaId) _pendingRoomMove.value = null
-        if (dwellTrackerSeconds != follow.dwellSeconds) {
-            dwellTracker = RoomDwellTracker(follow.dwellSeconds)
-            dwellTrackerSeconds = follow.dwellSeconds
+        val dwell = follow.dwellSeconds.coerceAtLeast(Hki7RoomFollow.MIN_DWELL_SECONDS)
+        if (dwellTrackerSeconds != dwell) {
+            dwellTracker = RoomDwellTracker(dwell)
+            dwellTrackerSeconds = dwell
         }
         val areaId = followedAreaId.value
         if (areaId != lastDeclinedAreaId) lastDeclinedAreaId = null
@@ -1138,9 +1139,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         _pendingRoomMove.value = null
     }
 
-    /** Retires a prompt that is no longer wanted — the toggle went off, or edit mode began. */
+    /** Retires a move that is no longer wanted — the toggle went off, or edit mode began. Clears
+     *  the silent move as well as the prompt: a confirmed move left sitting in [autoRoomMove] would
+     *  otherwise still be waiting to navigate after following had been switched off. */
     fun cancelRoomMovePrompt() {
         _pendingRoomMove.value = null
+        _autoRoomMove.value = null
     }
 
     private val _collapsedFloorIds = MutableStateFlow<Set<String>>(emptySet())

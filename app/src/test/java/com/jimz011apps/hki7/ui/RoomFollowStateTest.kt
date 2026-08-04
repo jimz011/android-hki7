@@ -5,6 +5,7 @@ import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.Hki7RoomFollow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class RoomFollowStateTest {
@@ -208,10 +209,33 @@ class RoomFollowStateTest {
         assertEquals("kitchen", tracker.update("kitchen", 19_000L))
     }
 
+    /**
+     * The tracker itself still honours a zero window, but nothing in the app builds one any more:
+     * MainViewModel floors the dwell at [Hki7RoomFollow.MIN_DWELL_SECONDS] and the settings slider
+     * starts there. A zero dwell makes the first reading of a room a confirmed move, which is
+     * precisely the flapping the window exists to absorb.
+     */
     @Test
-    fun `a zero dwell confirms immediately for anyone who wants that`() {
+    fun `a zero dwell confirms immediately, which is why the app floors it`() {
         val tracker = RoomDwellTracker(dwellSeconds = 0)
 
         assertEquals("kitchen", tracker.update("kitchen", 0L))
+        assertTrue(
+            "the floor must be high enough to outlast a sensor flap",
+            Hki7RoomFollow.MIN_DWELL_SECONDS >= 5
+        )
+    }
+
+    @Test
+    fun `the shipped default dwell is long enough to survive a flap`() {
+        val tracker = RoomDwellTracker(dwellSeconds = Hki7RoomFollow.DEFAULT_DWELL_SECONDS)
+        var now = 0L
+        // Sensor bounces every 5s for a minute: nothing may confirm.
+        repeat(6) {
+            assertNull(tracker.update("kitchen", now))
+            now += 5_000L
+            assertNull(tracker.update("living_room", now))
+            now += 5_000L
+        }
     }
 }

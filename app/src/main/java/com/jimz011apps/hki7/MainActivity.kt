@@ -593,9 +593,12 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     // Prompting off: a confirmed move opens straight away, with the same guards the prompt path
     // applies — never into a room the admin hid, and never into the room already on screen.
     val autoRoomMove by viewModel.autoRoomMove.collectAsState()
-    LaunchedEffect(autoRoomMove, isEditMode) {
+    LaunchedEffect(autoRoomMove, isEditMode, roomFollow.isActive) {
         val target = autoRoomMove ?: return@LaunchedEffect
-        if (isEditMode) return@LaunchedEffect
+        // Re-checked here and not just where the move was confirmed: following can be switched off
+        // between confirming a move and this effect running, and navigating then would look exactly
+        // like the toggle being ignored.
+        if (isEditMode || !roomFollow.isActive) return@LaunchedEffect
         if (canOpenRoom(target) && target != latestAreaId) {
             navController.navigate(Screen.RoomDetail.createRoute(target))
         }
