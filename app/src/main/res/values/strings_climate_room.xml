@@ -347,6 +347,7 @@
         <item>Parcel dialogs now say Today or Tomorrow instead of naming the weekday. The whole question a delivery date answers is how soon, and “Wednesday” on a Wednesday made you work that out yourself.</item>
         <item>The +2 bubble in the header, shown when there are more people than fit, now opens. Tapping it lists everyone with their name and state, and picking someone opens their detail dialog as usual. Previously those people were simply unreachable on a narrow header.</item>
         <item>Fixed the map in the person dialog overflowing the dialog on a tablet or unfolded foldable. The map was drawn as a square as wide as the dialog, so on a 620dp-wide card it became 620dp tall and pushed the address off the bottom. It now takes the height left over instead.</item>
+        <item>Fixed notifications going undelivered while Home Assistant reported the device as not connected to local push notifications, even with the app open. The app stood aside for its background connection whenever the settings said that connection should be running — but when Android refused to start it, such as after a reboot, nothing was listening at all. The app now checks whether that connection is really running rather than whether it is meant to be, takes over when it is not, and hands the channel back the moment it does come up.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_13">

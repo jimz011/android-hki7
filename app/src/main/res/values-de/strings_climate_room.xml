@@ -341,6 +341,7 @@
         <item>Paket-Dialoge sagen jetzt Heute oder Morgen statt den Wochentag zu nennen. Ein Lieferdatum beantwortet die Frage „wie bald“, und „Mittwoch“ an einem Mittwoch ließ dich das selbst ausrechnen.</item>
         <item>Die „+2“-Blase im Header, die erscheint, wenn mehr Personen da sind als passen, reagiert jetzt. Ein Tippen listet alle mit Namen und Status auf; eine Person auszuwählen öffnet wie gewohnt ihren Detaildialog. Zuvor waren diese Personen bei schmalem Header schlicht nicht erreichbar.</item>
         <item>Behoben, dass die Karte im Personendialog auf Tablets und aufgeklappten Foldables über den Dialog hinauslief. Die Karte wurde als Quadrat in Dialogbreite gezeichnet, wurde also auf einer 620dp breiten Karte 620dp hoch und schob die Adresse hinaus. Sie nutzt jetzt die verbleibende Höhe.</item>
+        <item>Behoben, dass Benachrichtigungen nicht ankamen, während Home Assistant das Gerät als nicht mit lokalen Push-Benachrichtigungen verbunden meldete — selbst bei geöffneter App. Die App trat für ihre Hintergrundverbindung zurück, sobald die Einstellungen sagten, dass diese laufen soll — wenn Android sie aber nicht starten ließ, etwa nach einem Neustart, hörte niemand zu. Die App prüft jetzt, ob diese Verbindung tatsächlich läuft, statt ob sie laufen soll, übernimmt andernfalls selbst und gibt den Kanal zurück, sobald die Verbindung da ist.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_13">

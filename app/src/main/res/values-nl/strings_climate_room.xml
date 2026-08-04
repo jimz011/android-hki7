@@ -341,6 +341,7 @@
         <item>Pakketvensters tonen nu Vandaag of Morgen in plaats van de naam van de dag. De vraag die een bezorgdatum beantwoordt is hoe snel, en “woensdag” op een woensdag liet je dat zelf uitrekenen.</item>
         <item>De +2-bubbel in de koptekst, die verschijnt als er meer personen zijn dan passen, doet nu iets. Tik erop voor een lijst met iedereen, met naam en status; iemand aantikken opent zoals gewoonlijk zijn detailvenster. Voorheen waren die personen op een smalle koptekst simpelweg onbereikbaar.</item>
         <item>Opgelost dat de kaart in het personenvenster buiten het venster liep op een tablet of uitgevouwen foldable. De kaart werd getekend als vierkant zo breed als het venster, dus op een kaart van 620dp breed werd hij 620dp hoog en duwde het adres eruit. Hij gebruikt nu de resterende hoogte.</item>
+        <item>Opgelost dat meldingen niet aankwamen terwijl Home Assistant het apparaat als niet verbonden met lokale pushmeldingen aanmerkte, zelfs met de app open. De app deed een stap opzij voor zijn achtergrondverbinding zodra de instellingen zeiden dat die moest draaien — maar als Android weigerde die te starten, bijvoorbeeld na een herstart, luisterde er niets. De app controleert nu of die verbinding echt draait in plaats van of het de bedoeling is, neemt het anders zelf over en geeft het kanaal terug zodra de verbinding er wel is.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_13">

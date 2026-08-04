@@ -3266,6 +3266,7 @@
         <item>As janelas de encomendas dizem agora Hoje ou Amanhã em vez do nome do dia. O que uma data de entrega responde é daqui a quanto tempo, e “quarta-feira” numa quarta-feira obrigava-o a fazer a conta.</item>
         <item>A bolha “+2” no cabeçalho, mostrada quando há mais pessoas do que cabem, já responde. Tocar nela lista toda a gente com nome e estado, e escolher alguém abre a sua janela de detalhe como habitualmente. Antes essas pessoas eram simplesmente inalcançáveis num cabeçalho estreito.</item>
         <item>Corrigido o mapa da janela de pessoa transbordar a janela em tablets e dobráveis abertos. O mapa era desenhado como um quadrado com a largura da janela, pelo que num cartão de 620dp de largura ficava com 620dp de altura e empurrava a morada para fora. Passa a ocupar a altura restante.</item>
+        <item>Corrigidas notificações que não chegavam enquanto o Home Assistant indicava o dispositivo como não ligado às notificações push locais, mesmo com a aplicação aberta. A aplicação afastava-se a favor da sua ligação em segundo plano assim que as definições diziam que esta devia estar a correr, mas se o Android recusasse iniciá-la — depois de reiniciar, por exemplo — ninguém ficava a ouvir. Agora verifica se essa ligação está mesmo a correr em vez de se deveria estar, assume o lugar quando não está, e devolve o canal assim que ela arranca.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_13">

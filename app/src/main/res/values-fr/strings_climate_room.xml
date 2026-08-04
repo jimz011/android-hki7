@@ -347,6 +347,7 @@
         <item>Les boîtes de dialogue des colis affichent désormais Aujourd\'hui ou Demain au lieu du nom du jour. Une date de livraison répond à la question « dans combien de temps », et « mercredi » un mercredi vous laissait faire le calcul.</item>
         <item>La bulle « +2 » de l\'en-tête, affichée quand il y a plus de personnes que de place, réagit enfin. La toucher liste tout le monde avec nom et état ; choisir quelqu\'un ouvre sa fiche comme d\'habitude. Auparavant ces personnes étaient tout simplement inaccessibles sur un en-tête étroit.</item>
         <item>Correction : la carte de la fiche personne débordait de la boîte de dialogue sur tablette ou pliable déplié. Elle était dessinée en carré de la largeur du dialogue, donc sur une carte de 620dp de large elle faisait 620dp de haut et poussait l\'adresse hors de l\'écran. Elle occupe désormais la hauteur restante.</item>
+        <item>Correction : des notifications n\'étaient pas délivrées alors que Home Assistant signalait l\'appareil comme non connecté aux notifications push locales, même avec l\'application ouverte. L\'application s\'effaçait devant sa connexion en arrière-plan dès que les réglages indiquaient qu\'elle devait tourner — mais si Android refusait de la démarrer, après un redémarrage par exemple, plus personne n\'écoutait. L\'application vérifie désormais si cette connexion tourne réellement plutôt que si elle est censée tourner, prend le relais sinon, et rend la main dès qu\'elle démarre.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_13">

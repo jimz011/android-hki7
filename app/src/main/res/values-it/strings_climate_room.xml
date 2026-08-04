@@ -341,6 +341,7 @@
         <item>Le finestre dei pacchi ora dicono Oggi o Domani invece del nome del giorno. La domanda a cui risponde una data di consegna è fra quanto, e “mercoledì” di mercoledì te lo faceva calcolare da solo.</item>
         <item>La bolla “+2” nell\'intestazione, mostrata quando ci sono più persone di quante ne stiano, ora risponde. Toccandola vengono elencate tutte con nome e stato, e sceglierne una apre la sua finestra di dettaglio come sempre. Prima quelle persone erano semplicemente irraggiungibili con un\'intestazione stretta.</item>
         <item>Corretto il fatto che la mappa nella finestra della persona uscisse dalla finestra su tablet e pieghevoli aperti. La mappa veniva disegnata come quadrato largo quanto la finestra, quindi su una card larga 620dp diventava alta 620dp e spingeva fuori l\'indirizzo. Ora occupa l\'altezza rimanente.</item>
+        <item>Corretto il mancato arrivo delle notifiche mentre Home Assistant segnalava il dispositivo come non connesso alle notifiche push locali, anche con l\'app aperta. L\'app si faceva da parte per la sua connessione in background non appena le impostazioni dicevano che doveva essere attiva, ma se Android si rifiutava di avviarla — dopo un riavvio, ad esempio — non ascoltava nessuno. Ora controlla se quella connessione è davvero attiva anziché se dovrebbe esserlo, subentra quando non lo è e restituisce il canale appena parte.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_13">

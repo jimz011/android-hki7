@@ -341,6 +341,7 @@
         <item>Los diálogos de paquetes ahora dicen Hoy o Mañana en vez del nombre del día. Lo que responde una fecha de entrega es cuánto falta, y “miércoles” un miércoles te obligaba a calcularlo.</item>
         <item>La burbuja “+2” de la cabecera, que aparece cuando hay más personas de las que caben, ya responde. Al tocarla se listan todas con su nombre y estado, y elegir a alguien abre su diálogo de detalle como siempre. Antes esas personas eran sencillamente inalcanzables en una cabecera estrecha.</item>
         <item>Corregido que el mapa del diálogo de persona se saliera del diálogo en tablets y plegables abiertos. El mapa se dibujaba como un cuadrado del ancho del diálogo, así que en una tarjeta de 620dp de ancho medía 620dp de alto y empujaba la dirección fuera. Ahora ocupa la altura restante.</item>
+        <item>Corregido que las notificaciones no llegaran mientras Home Assistant indicaba que el dispositivo no estaba conectado a las notificaciones push locales, incluso con la app abierta. La app se apartaba en favor de su conexión en segundo plano en cuanto los ajustes decían que debía estar activa, pero si Android se negaba a iniciarla — por ejemplo tras reiniciar — no escuchaba nadie. Ahora comprueba si esa conexión está realmente activa en lugar de si debería estarlo, toma el relevo cuando no lo está y devuelve el canal en cuanto arranca.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_13">

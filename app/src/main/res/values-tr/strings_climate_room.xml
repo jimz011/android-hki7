@@ -341,6 +341,7 @@
         <item>Kargo pencereleri artık gün adı yerine Bugün veya Yarın diyor. Teslimat tarihinin yanıtladığı soru ne kadar yakın olduğu; çarşamba günü “çarşamba” demek hesabı size bırakıyordu.</item>
         <item>Başlıktaki, sığandan fazla kişi olduğunda çıkan “+2” balonu artık çalışıyor. Dokununca herkesi adı ve durumuyla listeler; birini seçmek her zamanki gibi ayrıntı penceresini açar. Önceden dar bir başlıkta o kişilere hiç ulaşılamıyordu.</item>
         <item>Kişi penceresindeki haritanın tablet ve açık katlanabilir cihazlarda pencereyi taşması düzeltildi. Harita pencere genişliğinde bir kare olarak çiziliyordu; 620dp genişliğindeki bir kartta 620dp yüksekliğe ulaşıp adresi dışarı itiyordu. Artık kalan yüksekliği kullanıyor.</item>
+        <item>Uygulama açıkken bile Home Assistant\'ın cihazı yerel anlık bildirimlere bağlı değil olarak bildirmesi ve bildirimlerin ulaşmaması düzeltildi. Ayarlar arka plan bağlantısının çalışması gerektiğini söylediği anda uygulama kenara çekiliyordu; ancak Android bu bağlantıyı başlatmayı reddettiğinde — örneğin yeniden başlatmadan sonra — hiç kimse dinlemiyordu. Uygulama artık bağlantının gerçekten çalışıp çalışmadığına bakıyor, çalışmıyorsa devralıyor ve bağlantı ayağa kalktığı anda kanalı geri veriyor.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_13">
