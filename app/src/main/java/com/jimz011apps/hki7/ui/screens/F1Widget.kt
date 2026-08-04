@@ -95,11 +95,25 @@ private class F1Bundle(
     /** False when the f1_sensor integration was not found at all. */
     val available: Boolean
 ) {
-    /** A session is running, so the Live tab is worth offering. */
+    /**
+     * A session is genuinely running, so the Live tab is worth offering.
+     *
+     * Deliberately an allow-list. Treating "anything that is not inactive/finished/unknown" as live
+     * made a track-status sensor sitting at some unrecognised idle wording count as a running
+     * session, which is how an empty Live tab and a "Not running" status appeared on a Tuesday.
+     */
     val isLive: Boolean
-        get() = flag != F1Flag.UNKNOWN ||
-            (sessionStatus != null && !sessionStatus.equals("inactive", true) &&
-                !sessionStatus.equals("finished", true) && !sessionStatus.equals("unknown", true))
+        get() = flag in RACING_FLAGS ||
+            sessionStatus?.trim()?.lowercase()?.replace(" ", "") in LIVE_SESSION_STATES
+
+    private companion object {
+        /** Flags that only exist while cars are on track. Chequered ends a session, so it is out. */
+        val RACING_FLAGS = setOf(
+            F1Flag.GREEN, F1Flag.YELLOW, F1Flag.RED,
+            F1Flag.SAFETY_CAR, F1Flag.VIRTUAL_SAFETY_CAR
+        )
+        val LIVE_SESSION_STATES = setOf("started", "running", "active", "live", "inprogress")
+    }
 }
 
 @Composable
@@ -107,7 +121,9 @@ private fun rememberF1Bundle(widget: HKIF1Widget, viewModel: MainViewModel): F1B
     val registry by viewModel.entityRegistry.collectAsState()
     LaunchedEffect(Unit) { viewModel.fetchRegistries() }
 
-    val byKey = remember(registry, widget.deviceId) { findF1Entities(registry, widget.deviceId) }
+    // Every F1 sensor found, whichever config entry it belongs to: the dialog is meant to show
+    // all the data there is, and picking an "instance" only ever meant hiding some of it.
+    val byKey = remember(registry) { findF1Entities(registry) }
     val ids = remember(byKey) { byKey.values.toList() }
     val entityFlow = remember(viewModel, ids) { viewModel.entitiesFor(ids) }
     val entities by entityFlow.collectAsState()
@@ -165,6 +181,25 @@ private fun countdownLabel(duration: Duration): String {
         days > 0 -> stringResource(R.string.widgets_f1_in_days_hours, days, hours)
         duration.toHours() > 0 -> stringResource(R.string.widgets_f1_in_hours_minutes, duration.toHours(), minutes)
         else -> stringResource(R.string.widgets_f1_in_minutes, duration.toMinutes().coerceAtLeast(0))
+    }
+}
+
+/**
+ * When the race is, for the card: "Today 15:00" on the day itself, "Tomorrow 15:00", otherwise the
+ * date and time. Shown in the viewer's own timezone — the sensor reports UTC, and a race "at 06:00"
+ * is only useful once it is the local hour someone has to be awake for.
+ */
+@Composable
+private fun raceWhenLabel(race: F1NextRace, now: ZonedDateTime): String {
+    val zone = ZoneId.systemDefault()
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0] ?: Locale.getDefault()
+    val start = race.raceStart?.withZoneSameInstant(zone) ?: return stringResource(R.string.widgets_f1_time_unknown)
+    val time = start.format(DateTimeFormatter.ofPattern("HH:mm", locale))
+    val today = now.withZoneSameInstant(zone).toLocalDate()
+    return when (start.toLocalDate()) {
+        today -> stringResource(R.string.widgets_f1_today_at, time)
+        today.plusDays(1) -> stringResource(R.string.widgets_f1_tomorrow_at, time)
+        else -> start.format(DateTimeFormatter.ofPattern("EEE d MMM · HH:mm", locale))
     }
 }
 
@@ -243,20 +278,15 @@ private fun F1Card(
     val appColors = LocalHKIAppColors.current
     val accent = MaterialTheme.colorScheme.primary
     val race = bundle.nextRace
-    val until = race?.timeUntil(now)
 
+    // Just the next race and when it is. Track status deliberately stays out of it: outside a
+    // session that reads "Not running", which says nothing anyone opened the card to learn.
     val stateText = when {
         !bundle.available -> stringResource(R.string.widgets_f1_not_found)
-        bundle.isLive -> bundle.flag.label()
         race?.raceName == null -> stringResource(R.string.widgets_f1_no_upcoming)
-        until != null -> stringResource(R.string.widgets_f1_next_in, race.raceName, countdownLabel(until))
-        else -> race.raceName
+        else -> stringResource(R.string.widgets_f1_next_in, race.raceName, raceWhenLabel(race, now))
     }
-    val dotColor = when {
-        !bundle.available -> appColors.onMuted
-        bundle.isLive -> bundle.flag.color()
-        else -> accent
-    }
+    val dotColor = if (bundle.available) accent else appColors.onMuted
 
     Surface(
         modifier = modifier.fillMaxWidth()
@@ -290,72 +320,37 @@ private fun F1Card(
                 )
             )
 
-            // The upcoming race is the point of the card, so it is laid out as content rather than
-            // squeezed into the corner pill the other widgets use for a one-line state.
-            Column(
-                Modifier.fillMaxSize().padding(14.dp),
-                verticalArrangement = Arrangement.SpaceBetween
+            // Country flag badge, top-right, when there is a race to show one for.
+            race?.countryFlagUrl?.let { flagUrl ->
+                Surface(
+                    modifier = Modifier.align(Alignment.TopEnd).padding(10.dp).size(34.dp),
+                    shape = RoundedCornerShape(7.dp),
+                    color = Color.Black.copy(alpha = 0.25f)
+                ) {
+                    AsyncImage(flagUrl, race.country, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                }
+            }
+
+            // Same bottom-left pill as the camera, vacuum, waste and parcel cards: title on top,
+            // coloured dot plus one line of state under it.
+            Surface(
+                modifier = Modifier.align(Alignment.BottomStart).padding(10.dp),
+                color = Color.Black.copy(alpha = 0.55f),
+                shape = itemCornerShape()
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    MdiIcon(widget.icon ?: "flag-checkered", tint = accent, size = 16.dp)
+                Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
                     Text(
                         widget.title ?: stringResource(R.string.widgets_f1_title),
-                        color = appColors.onSurface.copy(alpha = 0.75f),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 1, overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
+                        color = Color.White, style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis
                     )
-                    race?.round?.let {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Box(Modifier.size(5.dp).background(dotColor, CircleShape))
                         Text(
-                            stringResource(R.string.widgets_f1_round, it),
-                            color = appColors.onMuted, style = MaterialTheme.typography.labelSmall
+                            stateText, color = Color.White.copy(alpha = 0.7f),
+                            style = MaterialTheme.typography.labelSmall, fontSize = 10.sp,
+                            maxLines = 1, overflow = TextOverflow.Ellipsis
                         )
-                    }
-                }
-
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    race?.countryFlagUrl?.let { flagUrl ->
-                        Surface(
-                            modifier = Modifier.size(38.dp),
-                            shape = RoundedCornerShape(8.dp),
-                            color = Color.Black.copy(alpha = 0.25f)
-                        ) {
-                            AsyncImage(flagUrl, race.country, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-                        }
-                    }
-                    Column(Modifier.weight(1f)) {
-                        Text(
-                            race?.raceName ?: stateText,
-                            color = appColors.onSurface,
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 2, overflow = TextOverflow.Ellipsis
-                        )
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                            Box(Modifier.size(5.dp).background(dotColor, CircleShape))
-                            Text(
-                                when {
-                                    !bundle.available -> stringResource(R.string.widgets_f1_not_found)
-                                    bundle.isLive -> bundle.flag.label()
-                                    until != null -> countdownLabel(until)
-                                    race?.raceName != null -> stringResource(R.string.widgets_f1_under_way)
-                                    else -> stringResource(R.string.widgets_f1_no_upcoming)
-                                },
-                                color = if (bundle.isLive) bundle.flag.color() else appColors.onMuted,
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                maxLines = 1, overflow = TextOverflow.Ellipsis
-                            )
-                            listOfNotNull(race?.locality, race?.country).joinToString(", ")
-                                .takeIf { it.isNotBlank() }?.let {
-                                    Text(
-                                        "· $it", color = appColors.onMuted,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        maxLines = 1, overflow = TextOverflow.Ellipsis
-                                    )
-                                }
-                        }
                     }
                 }
             }
@@ -847,15 +842,13 @@ fun F1WidgetSettingsDialog(
     var cornerRadius by remember(widget) { mutableIntStateOf(widget.cornerRadius) }
     var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
     var defaultTab by remember(widget) { mutableStateOf(widget.defaultTab) }
-    var deviceId by remember(widget) { mutableStateOf(widget.deviceId) }
     var showIconPicker by remember { mutableStateOf(false) }
     var settingsPage by remember(widget) { mutableStateOf("sources") }
     var visSpec by remember(widget) { mutableStateOf(widget.toVisibilitySpec()) }
 
     val registry by viewModel.entityRegistry.collectAsState()
     LaunchedEffect(Unit) { viewModel.fetchRegistries() }
-    val found = remember(registry, deviceId) { findF1Entities(registry, deviceId) }
-    val devices = remember(registry) { f1DeviceIds(registry) }
+    val found = remember(registry) { findF1Entities(registry) }
 
     if (showIconPicker) {
         MdiIconPickerDialog(
@@ -916,24 +909,6 @@ fun F1WidgetSettingsDialog(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    // Only worth a control when there is genuinely a choice to make.
-                    if (devices.size > 1) {
-                        Text(stringResource(R.string.widgets_f1_instance), style = MaterialTheme.typography.labelLarge)
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            FilterChip(
-                                selected = deviceId == null,
-                                onClick = { deviceId = null },
-                                label = { Text(stringResource(R.string.widgets_f1_instance_auto), fontSize = 12.sp) }
-                            )
-                            devices.forEachIndexed { index, id ->
-                                FilterChip(
-                                    selected = deviceId == id,
-                                    onClick = { deviceId = id },
-                                    label = { Text("#${index + 1}", fontSize = 12.sp) }
-                                )
-                            }
-                        }
-                    }
                     Text(stringResource(R.string.widgets_f1_default_tab), style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(
@@ -985,7 +960,6 @@ fun F1WidgetSettingsDialog(
             Button(onClick = {
                 onSave(
                     widget.copy(
-                        deviceId = deviceId,
                         title = title.ifBlank { null },
                         icon = iconName.ifBlank { null },
                         width = width,

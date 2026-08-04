@@ -1626,7 +1626,12 @@ data class HKIFindDevicesWidget(
 data class HKIF1Widget(
     override val id: String,
     override val width: String = "full",
-    /** Disambiguates multiple f1_sensor config entries; null uses whichever is found first. */
+    /**
+     * No longer used. The widget reads every F1 sensor it can find, whichever config entry owns it,
+     * because narrowing to one only ever hid data the dialog is there to show. Kept so widgets
+     * saved by an earlier build still deserialize.
+     */
+    @Deprecated("The widget reads all F1 entities; this is ignored.")
     val deviceId: String? = null,
     val title: String? = null,
     val icon: String? = "flag-checkered",

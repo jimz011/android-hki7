@@ -62,14 +62,22 @@ class F1DataTest {
         assertTrue(findF1Entities(registry).isEmpty())
     }
 
+    /**
+     * The widget no longer asks which config entry to use — it reads everything F1 Sensor publishes,
+     * so a second entry contributes any key the first one did not have rather than replacing it.
+     */
     @Test
-    fun `narrows to one device when several config entries exist`() {
+    fun `several config entries merge into one view of the data`() {
         val registry = listOf(
             registryEntry("sensor.a", "f1_sensor", "next_race", device = "dev1"),
-            registryEntry("sensor.b", "f1_sensor", "next_race", device = "dev2")
+            registryEntry("sensor.b", "f1_sensor", "next_race", device = "dev2"),
+            registryEntry("sensor.c", "f1_sensor", "driver_standings", device = "dev2")
         )
-        assertEquals("sensor.b", findF1Entities(registry, deviceId = "dev2")[F1Keys.NEXT_RACE])
-        assertEquals(listOf("dev1", "dev2"), f1DeviceIds(registry))
+        val found = findF1Entities(registry)
+
+        // First match per key wins; the second entry still contributes what the first lacked.
+        assertEquals("sensor.a", found[F1Keys.NEXT_RACE])
+        assertEquals("sensor.c", found[F1Keys.DRIVER_STANDINGS])
     }
 
     // ── Next race ────────────────────────────────────────────────────────────

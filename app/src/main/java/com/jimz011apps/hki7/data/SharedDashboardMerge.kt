@@ -214,7 +214,7 @@ internal fun mergeWidgetAesthetics(incoming: HKIRoomWidget, local: HKIRoomWidget
         }
         is HKIF1Widget -> {
             local as HKIF1Widget
-            incoming.copy(width = local.width, title = local.title, icon = local.icon, isSquare = local.isSquare, cornerRadius = local.cornerRadius, backgroundUrl = local.backgroundUrl, defaultTab = local.defaultTab, deviceId = local.deviceId)
+            incoming.copy(width = local.width, title = local.title, icon = local.icon, isSquare = local.isSquare, cornerRadius = local.cornerRadius, backgroundUrl = local.backgroundUrl, defaultTab = local.defaultTab)
         }
         is HKIFindDevicesWidget -> {
             local as HKIFindDevicesWidget

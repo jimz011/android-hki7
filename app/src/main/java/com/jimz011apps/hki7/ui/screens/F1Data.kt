@@ -48,27 +48,18 @@ object F1Keys {
 /**
  * Maps `translation_key -> entity_id` for the F1 integration.
  *
- * [deviceId] narrows to one config entry when several exist; without it the first match per key
- * wins, which is the right answer for the overwhelmingly common single-entry setup.
+ * Every enabled F1 entity is considered, whichever config entry owns it: the widget shows all the
+ * data there is, so narrowing to one entry would only hide some of it. With more than one entry the
+ * first match for a given key wins and the others fill in keys it did not provide.
  */
-fun findF1Entities(
-    registry: List<HAEntityRegistryEntry>,
-    deviceId: String? = null
-): Map<String, String> = buildMap {
+fun findF1Entities(registry: List<HAEntityRegistryEntry>): Map<String, String> = buildMap {
     registry.asSequence()
         .filter { it.platform == F1_PLATFORM && it.disabled_by == null }
-        .filter { deviceId == null || it.device_id == deviceId }
         .forEach { entry ->
             val key = entry.translation_key ?: return@forEach
             if (key in F1Keys.ALL) putIfAbsent(key, entry.entity_id)
         }
 }
-
-/** Device ids that own F1 entities, for the settings picker when there is more than one. */
-fun f1DeviceIds(registry: List<HAEntityRegistryEntry>): List<String> =
-    registry.filter { it.platform == F1_PLATFORM && it.disabled_by == null }
-        .mapNotNull { it.device_id }
-        .distinct()
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Attribute helpers
