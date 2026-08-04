@@ -81,6 +81,12 @@
     <string name="widgets_find_sources_subtitle">Trackers to show on the map</string>
     <string name="widgets_find_gps_help">Any device_tracker or person entity can be added. Those reporting GPS coordinates appear on the map; the rest are still listed with their state.</string>
     <string name="widgets_find_my_devices">My devices</string>
+    <string name="widgets_find_filter_all">All</string>
+    <string name="widgets_find_filter_devices">Devices</string>
+    <string name="widgets_find_filter_persons">People</string>
+    <string name="widgets_find_showing_selected">Showing %1$d selected</string>
+    <string name="widgets_find_show_all">Show all</string>
+    <string name="widgets_find_none_in_filter">Nothing of this kind in this widget</string>
     <string name="widgets_find_refresh">Refresh</string>
     <string name="widgets_find_summary">%1$d of %2$d home</string>
     <string name="widgets_find_no_devices_selected">No devices selected</string>

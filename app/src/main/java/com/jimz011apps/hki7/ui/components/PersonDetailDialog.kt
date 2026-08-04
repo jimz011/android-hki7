@@ -117,11 +117,13 @@ fun PersonDetailDialog(
         customButtons = personButtons
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // Map
+            // Map. Takes the height left over after the address pill rather than a fixed square:
+            // a square keyed off the width overflows the dialog on a tablet or unfolded foldable,
+            // where the card is up to 620dp wide but no taller than on a phone.
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1f)
+                    .weight(1f)
                     .padding(horizontal = 16.dp)
                     .clip(itemCornerShape()),
                 color = if (lat != null && lon != null) Color.Black else appColors.elevated

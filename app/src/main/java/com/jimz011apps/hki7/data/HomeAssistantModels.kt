@@ -1594,7 +1594,7 @@ data class HKIFindDevicesWidget(
     /** `device_tracker.*` / `person.*` entities to plot. */
     val entityIds: List<String> = emptyList(),
     val title: String? = "Find my devices",
-    val icon: String? = "map-marker-radius-outline",
+    val icon: String? = "map-marker",
     val isSquare: Boolean = false,
     val cornerRadius: Int = 28,
     val backgroundUrl: String? = null,

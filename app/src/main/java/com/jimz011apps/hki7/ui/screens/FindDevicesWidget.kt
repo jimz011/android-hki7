@@ -49,6 +49,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -122,6 +123,18 @@ internal data class TrackedDevice(
     val pictureUrl: String?
 ) {
     val hasLocation: Boolean get() = lat != null && lon != null
+}
+
+/** Scope filter for the dialog list: everything, just things, or just people. */
+internal enum class FindFilter {
+    ALL, DEVICES, PERSONS;
+
+    fun matches(device: TrackedDevice): Boolean = when (this) {
+        ALL -> true
+        // `person` entities are the people; every other tracker is a thing.
+        PERSONS -> device.entity.entity_id.startsWith("person.")
+        DEVICES -> !device.entity.entity_id.startsWith("person.")
+    }
 }
 
 /**
@@ -250,28 +263,16 @@ private fun FindDevicesCard(
         Box {
             if (!widget.backgroundUrl.isNullOrBlank()) {
                 WidgetBackground(widget.backgroundUrl, currentUrl)
-            } else if (devices.size > 1) {
-                // Several devices: overlap their badges, matching the waste/parcel cards.
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy((-16).dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        devices.take(4).forEach { device ->
-                            DeviceBadge(device, accent, 68)
-                        }
-                    }
-                }
             } else {
+                // A single map-and-pin mark rather than a row of device icons: the card stands for
+                // "where things are", and a summary of per-device glyphs only invites reading it as
+                // a status list it was never able to be.
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Box(
                         Modifier.size(84.dp).background(accent.copy(alpha = 0.16f), RoundedCornerShape(21.dp)),
                         contentAlignment = Alignment.Center
                     ) {
-                        MdiIcon(
-                            devices.firstOrNull()?.iconSlug ?: widget.icon ?: "map-marker-radius-outline",
-                            tint = accent, size = 44.dp
-                        )
+                        MdiIcon(widget.icon ?: "map-marker", tint = accent, size = 44.dp)
                     }
                 }
             }
@@ -345,12 +346,19 @@ private fun FindDevicesDialog(
     onDismiss: () -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
-    // null = "My devices", i.e. show every device at once. Otherwise the focused entity id.
-    var selectedId by remember(widget.id) { mutableStateOf<String?>(null) }
     var refreshTick by remember { mutableIntStateOf(0) }
-    val located = devices.filter { it.hasLocation }
-    val focused = selectedId?.let { id -> devices.find { it.entity.entity_id == id } }
-    val shown = if (focused?.hasLocation == true) listOf(focused) else located
+
+    // Which kinds of tracker the list offers at all.
+    var filter by remember(widget.id) { mutableStateOf(FindFilter.ALL) }
+    // Explicitly ticked entity ids. Empty means "no manual selection", which shows everything the
+    // current filter allows — so the map is useful the moment it opens, and stays a multi-select
+    // rather than the single-focus toggle it started as.
+    val selectedIds = remember(widget.id) { mutableStateListOf<String>() }
+
+    val inFilter = devices.filter { filter.matches(it) }
+    // A selection made under one filter must not leak into another, so intersect the two.
+    val picked = inFilter.filter { it.entity.entity_id in selectedIds }
+    val shown = (if (picked.isEmpty()) inFilter else picked).filter { it.hasLocation }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -385,20 +393,24 @@ private fun FindDevicesDialog(
                     }
                 }
 
-                // Scope chip + refresh, mirroring the "My devices" control in the reference design.
+                // Scope chips + refresh. Changing scope clears the manual selection, since a
+                // selection carried over from another scope reads as the filter having done nothing.
                 Row(
                     Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    FilterChip(
-                        selected = selectedId == null,
-                        onClick = { selectedId = null },
-                        leadingIcon = {
-                            if (selectedId == null) Icon(Icons.Default.Check, null, modifier = Modifier.size(16.dp))
-                        },
-                        label = { Text(stringResource(R.string.widgets_find_my_devices), fontSize = 12.sp) }
-                    )
+                    listOf(
+                        FindFilter.ALL to R.string.widgets_find_filter_all,
+                        FindFilter.DEVICES to R.string.widgets_find_filter_devices,
+                        FindFilter.PERSONS to R.string.widgets_find_filter_persons
+                    ).forEach { (value, labelRes) ->
+                        FilterChip(
+                            selected = filter == value,
+                            onClick = { filter = value; selectedIds.clear() },
+                            label = { Text(stringResource(labelRes), fontSize = 12.sp) }
+                        )
+                    }
                     Spacer(Modifier.weight(1f))
                     IconButton(onClick = { refreshTick++ }) {
                         Icon(
@@ -409,24 +421,48 @@ private fun FindDevicesDialog(
                     }
                 }
 
+                // Says what the map is currently framing, and offers a way back to everything —
+                // without it, "3 ticked" and "nothing ticked so showing all 3" look identical.
+                if (picked.isNotEmpty()) {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            stringResource(R.string.widgets_find_showing_selected, picked.size),
+                            color = appColors.onMuted,
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.weight(1f)
+                        )
+                        TextButton(onClick = { selectedIds.clear() }) {
+                            Text(stringResource(R.string.widgets_find_show_all), fontSize = 11.sp)
+                        }
+                    }
+                }
+
                 val listScroll = rememberScrollState()
                 Column(
                     modifier = Modifier.weight(1f).fadingEdges(listScroll).verticalScroll(listScroll),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    if (devices.isEmpty()) {
+                    if (inFilter.isEmpty()) {
                         Text(
-                            stringResource(R.string.widgets_find_no_devices_selected),
+                            stringResource(
+                                if (devices.isEmpty()) R.string.widgets_find_no_devices_selected
+                                else R.string.widgets_find_none_in_filter
+                            ),
                             color = appColors.onMuted, style = MaterialTheme.typography.bodySmall
                         )
                     }
-                    devices.forEach { device ->
-                        val isSelected = selectedId == device.entity.entity_id
+                    inFilter.forEach { device ->
+                        val id = device.entity.entity_id
+                        val isSelected = id in selectedIds
                         Surface(
                             modifier = Modifier.fillMaxWidth().clip(itemCornerShape()).clickable {
-                                // Tapping the focused device returns to "all", so the list doubles as
-                                // a toggle rather than trapping the user on one pin.
-                                selectedId = if (isSelected) null else device.entity.entity_id
+                                // Plain multi-select: each row ticks independently, and clearing the
+                                // last tick falls back to showing everything in the current filter.
+                                if (isSelected) selectedIds.remove(id) else selectedIds.add(id)
                             },
                             shape = itemCornerShape(),
                             color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
@@ -697,7 +733,7 @@ fun FindDevicesSettingsDialog(
 ) {
     var entityIds by remember(widget) { mutableStateOf(widget.entityIds) }
     var title by remember(widget) { mutableStateOf(widget.title ?: "") }
-    var iconName by remember(widget) { mutableStateOf(widget.icon ?: "map-marker-radius-outline") }
+    var iconName by remember(widget) { mutableStateOf(widget.icon ?: "map-marker") }
     var width by remember(widget) { mutableStateOf(if (widget.width == "third") "half" else widget.width) }
     var isSquare by remember(widget) { mutableStateOf(widget.isSquare) }
     var cornerRadius by remember(widget) { mutableIntStateOf(widget.cornerRadius) }
