@@ -1869,6 +1869,7 @@
         <item quantity="other">圖表 %1$d · %2$d 個感測器</item>
     </plurals>
     <string-array name="cr_whats_new_beta_14">
+        <item>設定 › 家庭共享現在顯示安裝了哪個 HKI 7 Cloud 版本，如果落後，則顯示哪些家庭功能不可用，每個功能都標有解鎖它的版本。以前，找出元件是否已過時的唯一方法是進行保存，該保存會悄悄刪除您配置的部分內容。 *</item>
         <item>新的待辦事項清單小工具：全家人都可以新增的共享清單或購物清單。 Items support an optional quantity, category, priority (low, normal or high, shown as a flag) and due date, with Added by and Checked by attribution when more than one person edits the list.选择手动、A-Z、优先级或最新优先排序，然后从对话框中在“待办事项”、“全部”和“完成”之间进行筛选。 Editing can be limited to everyone, specific family members picked from the real Home Assistant user list, or admins only, enforced the same way the rest of the app\'s family permissions are.它遵循与其他小部件相同的设计，具有常见的“常规”、“权限”、“外观”和“可见性”设置选项卡。</item>
         <item>現在可以將房間追蹤設定為僅在應用程式啟動時將某人放置在正確的房間中，而不會在會話的其餘部分追蹤他們。現有切換房間切換前詢問，僅在詢問和靜默切換之間選擇；如果應用程式不繼續追蹤之後的每一步，就無法獲得一次性展示位置。每個人的房間跟踪設置下的一個新的“在應用程序打開時繼續跟踪”開關會自行關閉繼續跟踪，當應用程序開始執行其一貫的操作時，打開他們的房間。 *</item>
         <item>新增一級方程式小工具，適用於 F1 Sensor 整合。卡片顯示下一場比賽、倒數計時和賽道輪廓；打開後有四個標籤頁 —— 含完整賽段時間表與賽道天氣的「下一場比賽」、車手與車隊「積分榜」、含名次升降的上一場大獎賽「成績」，以及僅在賽段進行時出現、展示旗幟與賽事控制訊息的「即時」標籤頁。它會自己找到感測器：F1 Sensor 允許重新命名實體並選擇語言，因此小工具按整合內部穩定的金鑰對應，而不是實體 ID。</item>
@@ -3583,4 +3584,12 @@
     <string name="widgets_waste_no_collection_on">%1$s 上沒有收藏</string>
     <string name="settings_extra_room_follow_continue_after_launch">在應用程式開啟時繼續關注</string>
     <string name="settings_extra_room_follow_continue_after_launch_hint">關閉以僅在應用程式啟動時將它們放置在正確的房間中，而無需在它們使用時再次切換房間。</string>
+    <string name="settings_extra_hki_cloud_version">已安裝 HKI 7 Cloud v%1$s</string>
+    <string name="settings_extra_hki_cloud_version_unknown">已安裝 HKI 7 Cloud（更新以查看其版本）</string>
+    <string name="settings_extra_hki_cloud_update_to_unlock">更新解鎖：</string>
+    <string name="settings_extra_hki_cloud_feature_requires">%1$s（需要 v%2$s+）</string>
+    <string name="settings_extra_hki_cloud_feature_reimport">手動重新匯入或清除儀表板視圖數據</string>
+    <string name="settings_extra_hki_cloud_feature_search_lists">每人可見/不可見全域搜尋列表</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow">房間跟隨</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">房間追蹤：僅在啟動時放置某人，而不追蹤進一步的移動</string>
 </resources>

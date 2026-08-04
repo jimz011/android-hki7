@@ -161,6 +161,7 @@ import com.jimz011apps.hki7.ui.localizedName
 import com.jimz011apps.hki7.ui.components.ColorWheel
 import com.jimz011apps.hki7.ui.components.HKISlider
 import com.jimz011apps.hki7.ui.components.Hki7CloudInstallCard
+import com.jimz011apps.hki7.ui.components.Hki7ComponentVersionStatus
 import com.jimz011apps.hki7.ui.components.MdiIconPickerDialog
 import com.jimz011apps.hki7.ui.components.ModernSettingsHeader
 import com.jimz011apps.hki7.ui.components.ModernSettingsMenuItem
@@ -402,6 +403,9 @@ fun SettingsDialog(
     var sharingAvailable by remember { mutableStateOf(false) }
     var isHaAdmin by remember { mutableStateOf(false) }
     var currentHaUserId by remember { mutableStateOf<String?>(null) }
+    // Null against a component too old to report it (0.6.1 or earlier), not the same as the
+    // component being absent — that is sharingAvailable == false.
+    var hki7ComponentVersion by remember { mutableStateOf<String?>(null) }
     val familySettingsLocked = sharingAvailable && !isHaAdmin
     // ── Parental controls (admin editor) ──
     var parentalUsers by remember { mutableStateOf(emptyList<com.jimz011apps.hki7.data.Hki7User>()) }
@@ -413,6 +417,7 @@ fun SettingsDialog(
         sharingAvailable = id != null
         isHaAdmin = id?.isAdmin == true
         currentHaUserId = id?.userId
+        hki7ComponentVersion = id?.componentVersion
     }
     val avatarPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let {
@@ -1762,6 +1767,7 @@ fun SettingsDialog(
                                 val id = runCatching { HaDashboardSharing.whoami(context) }.getOrNull()
                                 sharingAvailable = id != null
                                 isHaAdmin = id?.isAdmin == true
+                                hki7ComponentVersion = id?.componentVersion
                                 sharedWithMe = if (id != null)
                                     runCatching { HaDashboardSharing.listSharedForMe(context) }.getOrDefault(emptyList())
                                 else emptyList()
@@ -1827,6 +1833,11 @@ fun SettingsDialog(
                                         )
                                     },
                                 )
+                            }
+                            if (sharingAvailable) {
+                                SettingsPanel {
+                                    Hki7ComponentVersionStatus(hki7ComponentVersion)
+                                }
                             }
                             when {
                                 !sharingAvailable -> {

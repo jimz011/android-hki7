@@ -1482,6 +1482,14 @@
     <string name="ui_your_dashboard_is_ready_0719f75">Tu panel de control está listo</string>
     <string name="ui_your_home_72412fa">tu casa</string>
     <string name="ui_your_location_is_shared_only_with_your_own_home_c75bd6d">Tu ubicación se comparte únicamente con tu propio servidor de Home Assistant. Es</string>
+    <string name="settings_extra_hki_cloud_version">HKI 7 Nube v%1$s instalado</string>
+    <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud instalado (actualiza para ver su versión)</string>
+    <string name="settings_extra_hki_cloud_update_to_unlock">Actualizar para desbloquear:</string>
+    <string name="settings_extra_hki_cloud_feature_requires">%1$s (necesita v%2$s+)</string>
+    <string name="settings_extra_hki_cloud_feature_reimport">Volver a importar o borrar manualmente los datos de la vista del panel</string>
+    <string name="settings_extra_hki_cloud_feature_search_lists">Listas de búsqueda globales visibles/invisibles por persona</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow">Seguimiento de habitaciones</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">Seguimiento de sala: solo coloca a alguien en el lanzamiento, sin seguir más movimientos</string>
     <string name="settings_extra_room_follow_continue_after_launch">Sigue siguiendo mientras la aplicación esté abierta.</string>
     <string name="settings_extra_room_follow_continue_after_launch_hint">Desactívelo para colocarlos solo en la habitación correcta cuando se inicie la aplicación, sin volver a cambiar de habitación mientras la usan.</string>
     <string name="ui_people_dialog_title">Personas</string>

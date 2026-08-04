@@ -2645,6 +2645,14 @@
     <string name="settings_extra_hki_cloud_step_install">新しい「HKI 7 Cloud」項目を開いてインストールし、Home Assistantを再起動してください。</string>
     <string name="settings_extra_hki_cloud_step_open_custom_repositories">Home Assistantで、HACS → 右上の⋮メニュー → カスタムリポジトリ を開きます。</string>
     <string name="settings_extra_hki_cloud_step_reopen">この画面を再度開いてください。機能は自動的に表示されます。</string>
+    <string name="settings_extra_hki_cloud_version">HKI 7 クラウド v%1$s がインストールされています</string>
+    <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud がインストールされている (バージョンを確認するには更新してください)</string>
+    <string name="settings_extra_hki_cloud_update_to_unlock">ロックを解除するには更新してください:</string>
+    <string name="settings_extra_hki_cloud_feature_requires">%1$s (v%2$s+ が必要)</string>
+    <string name="settings_extra_hki_cloud_feature_reimport">ダッシュボード ビュー データを手動で再インポートまたはクリアする</string>
+    <string name="settings_extra_hki_cloud_feature_search_lists">個人ごとの表示/非表示のグローバル検索リスト</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow">部屋の追従</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">ルームフォロー: 誰かを起動時に配置するだけで、それ以降の動きは追跡しません</string>
     <string name="settings_extra_location_allowed_always">常に許可</string>
     <string name="settings_extra_location_allowed_foreground">アプリ使用中のみ許可</string>
     <string name="settings_extra_location_not_allowed">許可しない</string>

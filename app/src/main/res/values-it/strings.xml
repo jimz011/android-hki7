@@ -1482,6 +1482,14 @@
     <string name="ui_your_dashboard_is_ready_0719f75">La tua dashboard è pronta</string>
     <string name="ui_your_home_72412fa">La tua casa</string>
     <string name="ui_your_location_is_shared_only_with_your_own_home_c75bd6d">La tua posizione è condivisa solo con il tuo server Home Assistant. È</string>
+    <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s installato</string>
+    <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud installato (aggiornare per vedere la sua versione)</string>
+    <string name="settings_extra_hki_cloud_update_to_unlock">Aggiorna per sbloccare:</string>
+    <string name="settings_extra_hki_cloud_feature_requires">%1$s (richiede v%2$s+)</string>
+    <string name="settings_extra_hki_cloud_feature_reimport">Reimportare o cancellare manualmente i dati della visualizzazione dashboard</string>
+    <string name="settings_extra_hki_cloud_feature_search_lists">Elenchi di ricerca globali visibili/invisibili per persona</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow">Inseguimento stanze</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">Seguimento della stanza: posiziona qualcuno solo al momento del lancio, senza tracciare ulteriori mosse</string>
     <string name="settings_extra_room_follow_continue_after_launch">Continua a seguire mentre l\'app è aperta</string>
     <string name="settings_extra_room_follow_continue_after_launch_hint">Disattiva per posizionarli solo nella stanza giusta all\'avvio dell\'app, senza cambiare nuovamente stanza mentre la utilizzano.</string>
     <string name="ui_people_dialog_title">Persone</string>

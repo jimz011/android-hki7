@@ -2645,6 +2645,14 @@
     <string name="settings_extra_hki_cloud_step_install">새로운 "HKI 7 Cloud" 항목을 열고 설치한 후 홈어시스턴트를 다시 시작하세요.</string>
     <string name="settings_extra_hki_cloud_step_open_custom_repositories">홈어시스턴트에서 HACS → 오른쪽 상단의 ⋮ 메뉴 → Custom repositories를 엽니다.</string>
     <string name="settings_extra_hki_cloud_step_reopen">이 화면을 다시 엽니다. 기능이 자동으로 나타납니다.</string>
+    <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s 설치됨</string>
+    <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud 설치됨(버전을 보려면 업데이트하세요)</string>
+    <string name="settings_extra_hki_cloud_update_to_unlock">잠금 해제 업데이트:</string>
+    <string name="settings_extra_hki_cloud_feature_requires">%1$s(v%2$s+ 필요)</string>
+    <string name="settings_extra_hki_cloud_feature_reimport">대시보드 보기 데이터를 수동으로 다시 가져오기 또는 지우기</string>
+    <string name="settings_extra_hki_cloud_feature_search_lists">개인별 Visible/Invisible 글로벌 검색 목록</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow">방 따라가기</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">방 추적: 추가 이동을 추적하지 않고 발사 시에만 누군가를 배치합니다.</string>
     <string name="settings_extra_location_allowed_always">항상 허용됨</string>
     <string name="settings_extra_location_allowed_foreground">앱을 사용하는 동안에만 허용됩니다.</string>
     <string name="settings_extra_location_not_allowed">허용되지 않음</string>

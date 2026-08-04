@@ -1791,12 +1791,16 @@ fun HKITodoWidget.canEdit(userId: String?, isAdmin: Boolean): Boolean {
     }
 }
 
-/** Identity of the current HA user, as reported by the `hki7/whoami` companion command. */
+/** Identity of the current HA user, as reported by the `hki7/whoami` companion command.
+ *  [componentVersion] is null against a component old enough to predate reporting it (0.6.1 or
+ *  earlier) — not the same as the component being absent entirely, which is `whoami` returning
+ *  null outright. */
 data class Hki7Identity(
     val userId: String,
     val name: String,
     val isAdmin: Boolean,
     val isOwner: Boolean,
+    val componentVersion: String? = null,
 )
 
 /** Metadata for one HA-local backup stored by the `hki7` companion component. */

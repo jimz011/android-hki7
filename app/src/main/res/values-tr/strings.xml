@@ -1482,6 +1482,14 @@
     <string name="ui_your_dashboard_is_ready_0719f75">Kontrol paneliniz hazır</string>
     <string name="ui_your_home_72412fa">Eviniz</string>
     <string name="ui_your_location_is_shared_only_with_your_own_home_c75bd6d">Konumunuz yalnızca kendi Ev Asistanı sunucunuzla paylaşılır. öyle</string>
+    <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s yüklü</string>
+    <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud yüklü (sürümünü görmek için güncelleyin)</string>
+    <string name="settings_extra_hki_cloud_update_to_unlock">Kilidi açmak için güncelleme:</string>
+    <string name="settings_extra_hki_cloud_feature_requires">%1$s (v%2$s+ gerekir)</string>
+    <string name="settings_extra_hki_cloud_feature_reimport">Kontrol paneli görünümü verilerini manuel olarak yeniden içe aktarma veya temizleme</string>
+    <string name="settings_extra_hki_cloud_feature_search_lists">Kişi başına Görünür/Görünmez global arama listeleri</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow">Oda takibi</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">Oda takibi: Daha sonraki hareketleri takip etmeden yalnızca birini fırlatma alanına yerleştirin</string>
     <string name="settings_extra_room_follow_continue_after_launch">Uygulama açıkken takip etmeye devam edin</string>
     <string name="settings_extra_room_follow_continue_after_launch_hint">Uygulamayı kullanırken tekrar oda değiştirmeden, onları yalnızca uygulama başlatıldığında doğru odaya yerleştirmek için kapatın.</string>
     <string name="ui_people_dialog_title">Kişiler</string>

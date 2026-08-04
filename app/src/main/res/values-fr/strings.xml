@@ -1482,6 +1482,14 @@
     <string name="ui_your_dashboard_is_ready_0719f75">Votre tableau de bord est prêt</string>
     <string name="ui_your_home_72412fa">Votre maison</string>
     <string name="ui_your_location_is_shared_only_with_your_own_home_c75bd6d">Votre position est partagée uniquement avec votre propre serveur Home Assistant. C\'est</string>
+    <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s installé</string>
+    <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud installé (mise à jour pour voir sa version)</string>
+    <string name="settings_extra_hki_cloud_update_to_unlock">Mise à jour pour débloquer :</string>
+    <string name="settings_extra_hki_cloud_feature_requires">%1$s (nécessite v%2$s+)</string>
+    <string name="settings_extra_hki_cloud_feature_reimport">Réimporter ou effacer manuellement les données de la vue du tableau de bord</string>
+    <string name="settings_extra_hki_cloud_feature_search_lists">Listes de recherche globales visibles/invisibles par personne</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow">Suivi des pièces</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">Suivi de pièce : placez quelqu\'un uniquement au lancement, sans suivre les mouvements ultérieurs</string>
     <string name="settings_extra_room_follow_continue_after_launch">Continuez à suivre pendant que l\'application est ouverte</string>
     <string name="settings_extra_room_follow_continue_after_launch_hint">Désactivez-le pour les placer uniquement dans la bonne pièce au démarrage de l\'application, sans changer de pièce à nouveau pendant qu\'ils l\'utilisent.</string>
     <string name="ui_people_dialog_title">Personnes</string>

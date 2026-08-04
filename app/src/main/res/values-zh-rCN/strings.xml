@@ -1961,6 +1961,7 @@
     <string name="cr_weekly">每周</string>
     <string name="cr_wet">潮湿</string>
     <string-array name="cr_whats_new_beta_14">
+        <item>设置 › 家庭共享现在显示安装了哪个 HKI 7 Cloud 版本，如果落后，则显示哪些家庭功能不可用，每个功能都标有解锁它的版本。以前，找出组件是否已过时的唯一方法是进行保存，该保存会悄悄删除您配置的部分内容。*</item>
         <item>新的待办事项列表小部件：全家人都可以添加的共享清单或购物清单。 Items support an optional quantity, category, priority (low, normal or high, shown as a flag) and due date, with Added by and Checked by attribution when more than one person edits the list.选择手动、A-Z、优先级或最新优先排序，然后从对话框中在“待办事项”、“全部”和“完成”之间进行筛选。 Editing can be limited to everyone, specific family members picked from the real Home Assistant user list, or admins only, enforced the same way the rest of the app\'s family permissions are.它遵循与其他小部件相同的设计，具有常见的“常规”、“权限”、“外观”和“可见性”设置选项卡。</item>
         <item>现在可以将房间跟踪设置为仅在应用程序启动时将某人放置在正确的房间中，而不会在会话的其余部分跟踪他们。现有切换房间切换前询问，仅在询问和静默切换之间选择；如果应用程序不继续跟踪之后的每一步，就无法获得一次性展示位置。 A new Keep following while the app is open switch under each person\'s room-following settings turns that continued tracking off on its own, leaving Open their room when the app starts to do the one placement it always did.*</item>
         <item>新增一级方程式小组件，适用于 F1 Sensor 集成。卡片显示下一场比赛、倒计时和赛道轮廓；打开后有四个标签页 —— 含完整赛段时间表与赛道天气的“下一场比赛”、车手与车队“积分榜”、含名次升降的上一场大奖赛“成绩”，以及仅在赛段进行时出现、展示旗帜与赛事控制消息的“实时”标签页。它会自己找到传感器：F1 Sensor 允许重命名实体并选择语言，因此小组件按集成内部稳定的键匹配，而不是实体 ID。</item>
@@ -3538,4 +3539,12 @@
     <string name="widgets_waste_no_collection_on">%1$s 上没有收藏</string>
     <string name="settings_extra_room_follow_continue_after_launch">在应用程序打开时继续关注</string>
     <string name="settings_extra_room_follow_continue_after_launch_hint">关闭以仅在应用程序启动时将它们放置在正确的房间中，而无需在它们使用时再次切换房间。</string>
+    <string name="settings_extra_hki_cloud_version">已安装 HKI 7 Cloud v%1$s</string>
+    <string name="settings_extra_hki_cloud_version_unknown">已安装 HKI 7 Cloud（更新以查看其版本）</string>
+    <string name="settings_extra_hki_cloud_update_to_unlock">更新解锁：</string>
+    <string name="settings_extra_hki_cloud_feature_requires">%1$s（需要 v%2$s+）</string>
+    <string name="settings_extra_hki_cloud_feature_reimport">手动重新导入或清除仪表板视图数据</string>
+    <string name="settings_extra_hki_cloud_feature_search_lists">每人可见/不可见全局搜索列表</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow">房间跟随</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">房间跟踪：仅在启动时放置某人，而不跟踪进一步的移动</string>
 </resources>

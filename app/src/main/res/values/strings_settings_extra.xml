@@ -74,6 +74,14 @@
     <string name="settings_extra_hki_cloud_step_install">Open the new “HKI 7 Cloud” entry, install it, and restart Home Assistant.</string>
     <string name="settings_extra_hki_cloud_step_open_custom_repositories">In Home Assistant, open HACS → the ⋮ menu in the top-right → Custom repositories.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Reopen this screen. The features will appear automatically.</string>
+    <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s installed</string>
+    <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud installed (update to see its version)</string>
+    <string name="settings_extra_hki_cloud_update_to_unlock">Update to unlock:</string>
+    <string name="settings_extra_hki_cloud_feature_requires">%1$s (needs v%2$s+)</string>
+    <string name="settings_extra_hki_cloud_feature_reimport">Manually re-importing or clearing dashboard view data</string>
+    <string name="settings_extra_hki_cloud_feature_search_lists">Per-person Visible/Invisible global search lists</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow">Room following</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">Room following: only place someone on launch, without tracking further moves</string>
     <string name="settings_extra_location_allowed_always">Allowed all the time</string>
     <string name="settings_extra_location_allowed_foreground">Allowed only while using the app</string>
     <string name="settings_extra_location_not_allowed">Not allowed</string>

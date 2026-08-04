@@ -310,6 +310,7 @@ open class HomeAssistantClient(
             name = result["name"]?.jsonPrimitive?.contentOrNull ?: "",
             isAdmin = result["is_admin"]?.jsonPrimitive?.booleanOrNull ?: false,
             isOwner = result["is_owner"]?.jsonPrimitive?.booleanOrNull ?: false,
+            componentVersion = result["version"]?.jsonPrimitive?.contentOrNull,
         )
     }
 

@@ -1482,6 +1482,14 @@
     <string name="ui_your_dashboard_is_ready_0719f75">Ihr Dashboard ist fertig</string>
     <string name="ui_your_home_72412fa">Ihr Zuhause</string>
     <string name="ui_your_location_is_shared_only_with_your_own_home_c75bd6d">Ihr Standort wird nur mit Ihrem eigenen Home Assistant-Server geteilt. Es ist</string>
+    <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s installiert</string>
+    <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud installiert (aktualisieren, um die Version anzuzeigen)</string>
+    <string name="settings_extra_hki_cloud_update_to_unlock">Update zum Entsperren:</string>
+    <string name="settings_extra_hki_cloud_feature_requires">%1$s (benötigt v%2$s+)</string>
+    <string name="settings_extra_hki_cloud_feature_reimport">Manuelles erneutes Importieren oder Löschen von Dashboard-Ansichtsdaten</string>
+    <string name="settings_extra_hki_cloud_feature_search_lists">Sichtbare/unsichtbare globale Suchlisten pro Person</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow">Raumverfolgung</string>
+    <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">Raumverfolgung: Platzieren Sie jemanden nur beim Start, ohne weitere Bewegungen zu verfolgen</string>
     <string name="settings_extra_room_follow_continue_after_launch">Folgen Sie weiter, während die App geöffnet ist</string>
     <string name="settings_extra_room_follow_continue_after_launch_hint">Deaktivieren Sie diese Option, um sie beim Starten der App nur im richtigen Raum zu platzieren, ohne den Raum erneut zu wechseln, während sie die App verwenden.</string>
     <string name="ui_people_dialog_title">Personen</string>
