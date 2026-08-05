@@ -558,15 +558,6 @@ private fun TodoDialog(
         title = {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(widget.title ?: defaultTitle, modifier = Modifier.weight(1f))
-                if (canEdit) {
-                    IconButton(onClick = { viewModel.undo() }, enabled = canUndo, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.AutoMirrored.Filled.Undo, stringResource(R.string.action_undo), modifier = Modifier.size(18.dp))
-                    }
-                    IconButton(onClick = { viewModel.redo() }, enabled = canRedo, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.AutoMirrored.Filled.Redo, stringResource(R.string.action_redo), modifier = Modifier.size(18.dp))
-                    }
-                    Spacer(Modifier.width(4.dp))
-                }
                 Text(
                     stringResource(R.string.widgets_todo_remaining_short, remaining, widget.items.size),
                     style = MaterialTheme.typography.labelMedium, color = appColors.onMuted
@@ -702,7 +693,19 @@ private fun TodoDialog(
                 }
             }
         },
-        confirmButton = {}
+        dismissButton = if (canEdit) {
+            {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { viewModel.undo() }, enabled = canUndo) {
+                        Icon(Icons.AutoMirrored.Filled.Undo, stringResource(R.string.action_undo))
+                    }
+                    IconButton(onClick = { viewModel.redo() }, enabled = canRedo) {
+                        Icon(Icons.AutoMirrored.Filled.Redo, stringResource(R.string.action_redo))
+                    }
+                }
+            }
+        } else null,
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_close_bbfa773)) } }
     )
 
     editingItem?.let { item ->

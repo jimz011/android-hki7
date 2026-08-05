@@ -22,6 +22,7 @@ Items marked with \* require the HKI 7 Cloud Component integration.
 - The waste dialog's calendar can now look 7, 14 or 28 days ahead, and is drawn as a week grid like the calendar widget rather than a flat list: weekday columns, one row per week, and a coloured dot per collection in its fraction's colour. Tap a day to see what is collected then; it opens on the next day that has a collection. The grid shares its week-start and weekday labels with the calendar widget, so the two never disagree about which day a week begins on.
 - Parcel dialogs now say "Today" or "Tomorrow" instead of naming the weekday. The whole question a delivery date answers is how soon, and "Wednesday" on a Wednesday made you work that out yourself.
 - The "+2" bubble in the header, shown when there are more people than fit across it, now opens. Tapping it lists everyone with their name and state, and picking someone opens their detail dialog as usual. Previously it had no click handler at all, so those people were simply unreachable on a narrow header.
+- The To-Do List dialog's undo/redo and Close buttons moved from the title row down to the bottom action bar, matching every other dialog in the app instead of being the one place buttons sat next to the title.
 
 ## 1.0.0-beta.13
 
