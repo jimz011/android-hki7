@@ -3994,7 +3994,7 @@ fun ClimateCardWidgetSettingsDialog(
                 com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_appearance_41def7a), stringResource(R.string.ui_optional_title_width_and_supported_shape_8b2e456))
                 OutlinedTextField(value = title, onValueChange = { title = it },
                     label = { Text(stringResource(R.string.ui_title_optional_932fc13)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
+                WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 // The thermostat dial can render as a compact 1:1 square, like the other widgets.
                 if (cardKey == "dial") {
                     Text(stringResource(R.string.ui_shape_ea5c1a2), style = MaterialTheme.typography.labelLarge)
@@ -4124,7 +4124,7 @@ fun ClimateStackSettingsDialog(
                     Text(stringResource(R.string.ui_collapsible_c932fac), style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
                     Switch(checked = collapsible, onCheckedChange = { collapsible = it })
                 }
-                WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
+                WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 }
                 if (settingsPage == "visibility") {
                     com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))

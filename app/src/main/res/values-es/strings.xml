@@ -1555,6 +1555,9 @@
     <string name="widgets_todo_filter_all">Todo</string>
     <string name="widgets_todo_filter_done">Hecho</string>
     <string name="widgets_todo_clear_completed">Borrar completado</string>
+    <string name="widgets_todo_completed_section">Completado (%1$d)</string>
+    <string name="widgets_todo_new_category">Nueva pestaña</string>
+    <string name="widgets_todo_manage_categories">Administrar pestañas</string>
     <string name="widgets_todo_edit_item">Editar elemento</string>
     <string name="widgets_todo_item_text">Artículo</string>
     <string name="widgets_todo_quantity">Cantidad</string>

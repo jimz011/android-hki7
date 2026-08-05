@@ -140,6 +140,9 @@
     <string name="widgets_todo_filter_all">All</string>
     <string name="widgets_todo_filter_done">Done</string>
     <string name="widgets_todo_clear_completed">Clear completed</string>
+    <string name="widgets_todo_completed_section">Completed (%1$d)</string>
+    <string name="widgets_todo_new_category">New tab</string>
+    <string name="widgets_todo_manage_categories">Manage tabs</string>
     <string name="widgets_todo_edit_item">Edit item</string>
     <string name="widgets_todo_item_text">Item</string>
     <string name="widgets_todo_quantity">Quantity</string>

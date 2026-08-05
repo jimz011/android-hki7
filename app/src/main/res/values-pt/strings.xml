@@ -3595,4 +3595,7 @@
     <string name="settings_extra_hki_cloud_feature_search_lists">Listas de pesquisa global visíveis/invisíveis por pessoa</string>
     <string name="settings_extra_hki_cloud_feature_room_follow">Seguimento de sala</string>
     <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">Seguimento de sala: coloque apenas alguém no lançamento, sem rastrear movimentos adicionais</string>
+    <string name="widgets_todo_completed_section">Concluído (%1$d)</string>
+    <string name="widgets_todo_new_category">Nova guia</string>
+    <string name="widgets_todo_manage_categories">Gerenciar guias</string>
 </resources>

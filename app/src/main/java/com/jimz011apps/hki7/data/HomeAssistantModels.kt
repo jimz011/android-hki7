@@ -1758,6 +1758,10 @@ data class HKITodoWidget(
     /** "todo" | "shopping" — only changes the default title/icon suggested in settings. */
     val listMode: String = "todo",
     val items: List<HKITodoItem> = emptyList(),
+    /** User-defined tabs (e.g. "Groceries", "Chores"), in display order. An item's own [HKITodoItem.category]
+     *  needs to case-insensitively match one of these to show under that tab; items whose category isn't
+     *  in this list any more (its tab was removed) still show under "All". */
+    val categories: List<String> = emptyList(),
     /** [TODO_EDIT_EVERYONE], [TODO_EDIT_SPECIFIC], or [TODO_EDIT_ADMIN_ONLY]. */
     val editPermission: String = TODO_EDIT_EVERYONE,
     /** HA user ids allowed to edit when [editPermission] is [TODO_EDIT_SPECIFIC]. */

@@ -42,7 +42,12 @@ fun WeatherStateIcon(
     loop: Boolean = true,
     fallbackTint: Color = weatherStateColor(state)
 ) {
-    val animationResource = weatherAnimationResource(state, isDaytime)
+    // Below this size the animated artwork is barely perceptible but each instance still parses
+    // and plays its own Lottie composition, so grids with a dozen+ small icons (forecast strips,
+    // hourly strips) were spending real frame budget on animations nobody could actually see —
+    // the main source of the weather dialog feeling laggy and stuttering mid-scroll.
+    val tooSmallToAnimate = size < 40.dp
+    val animationResource = if (tooSmallToAnimate) null else weatherAnimationResource(state, isDaytime)
     val descriptionModifier = if (contentDescription == null) {
         Modifier
     } else {

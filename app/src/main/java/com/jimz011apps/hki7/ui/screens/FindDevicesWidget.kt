@@ -56,6 +56,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -311,21 +312,24 @@ private fun FindDevicesCard(
 }
 
 @Composable
-private fun DeviceBadge(device: TrackedDevice, accent: Color, size: Int) {
-    val appColors = LocalHKIAppColors.current
+private fun DeviceBadge(device: TrackedDevice, accent: Color, size: Int, containerColor: Color = LocalHKIAppColors.current.elevated) {
+    val shape = RoundedCornerShape((size / 4).dp)
     Box(
-        Modifier.size(size.dp).background(appColors.elevated, RoundedCornerShape((size / 4).dp)),
+        Modifier.size(size.dp).background(containerColor, shape),
         contentAlignment = Alignment.Center
     ) {
         if (device.pictureUrl != null) {
+            // Many entity_picture sources bake in their own padding around the actual icon/photo,
+            // so a plain fillMaxSize crop still leaves a visible margin — zoom in slightly to crop
+            // that padding away and let the picture fill the badge edge-to-edge.
             AsyncImage(
                 device.pictureUrl, device.name,
-                Modifier.fillMaxSize().clip(RoundedCornerShape((size / 4).dp)),
+                Modifier.fillMaxSize().scale(1.35f).clip(shape),
                 contentScale = ContentScale.Crop
             )
         } else {
             Box(
-                Modifier.fillMaxSize().background(accent.copy(alpha = 0.16f), RoundedCornerShape((size / 4).dp)),
+                Modifier.fillMaxSize().background(accent.copy(alpha = 0.16f), shape),
                 contentAlignment = Alignment.Center
             ) {
                 MdiIcon(device.iconSlug, tint = accent, size = (size * 0.5).dp)
@@ -472,7 +476,11 @@ private fun FindDevicesDialog(
                                 Modifier.fillMaxWidth().padding(10.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                DeviceBadge(device, MaterialTheme.colorScheme.primary, 38)
+                                DeviceBadge(
+                                    device, MaterialTheme.colorScheme.primary, 38,
+                                    containerColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
+                                    else appColors.subtleSurface
+                                )
                                 Spacer(Modifier.width(10.dp))
                                 Column(Modifier.weight(1f)) {
                                     Text(
@@ -836,7 +844,7 @@ fun FindDevicesSettingsDialog(
                         stringResource(R.string.ui_appearance_41def7a),
                         stringResource(R.string.ui_image_style_size_shape_and_background_40c17b6)
                     )
-                    WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
+                    WidgetWidthSelector(width = width, onWidthChange = { width = it })
                     Text(stringResource(R.string.ui_shape_ea5c1a2), style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text(stringResource(R.string.ui_standard_2dfa660)) })

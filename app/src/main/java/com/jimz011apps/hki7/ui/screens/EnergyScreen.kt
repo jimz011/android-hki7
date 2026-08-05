@@ -4460,7 +4460,7 @@ fun EnergyCardWidgetSettingsDialog(
                 com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_appearance_41def7a), stringResource(R.string.ui_optional_title_and_dashboard_width_e04c6e8))
                 OutlinedTextField(value = title, onValueChange = { title = it },
                     label = { Text(stringResource(R.string.ui_title_optional_932fc13)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                com.jimz011apps.hki7.ui.components.WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
+                com.jimz011apps.hki7.ui.components.WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 }
                 if (settingsPage == "visibility") {
                     com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
@@ -4603,7 +4603,7 @@ fun EnergyStackSettingsDialog(
                     Text(stringResource(R.string.ui_collapsible_c932fac), style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
                     Switch(checked = collapsible, onCheckedChange = { collapsible = it })
                 }
-                com.jimz011apps.hki7.ui.components.WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
+                com.jimz011apps.hki7.ui.components.WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 }
                 if (settingsPage == "visibility") {
                     com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))

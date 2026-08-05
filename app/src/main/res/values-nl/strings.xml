@@ -1788,6 +1788,9 @@
     <string name="widgets_todo_filter_all">Alle</string>
     <string name="widgets_todo_filter_done">Klaar</string>
     <string name="widgets_todo_clear_completed">Duidelijk voltooid</string>
+    <string name="widgets_todo_completed_section">Voltooid (%1$d)</string>
+    <string name="widgets_todo_new_category">Nieuw tabblad</string>
+    <string name="widgets_todo_manage_categories">Beheer tabbladen</string>
     <string name="widgets_todo_edit_item">Artikel bewerken</string>
     <string name="widgets_todo_item_text">Item</string>
     <string name="widgets_todo_quantity">Aantal</string>

@@ -6,6 +6,7 @@ import com.jimz011apps.hki7.R
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,9 +25,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Redo
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Button
@@ -81,6 +86,7 @@ import com.jimz011apps.hki7.ui.components.EditRemoveBadge
 import com.jimz011apps.hki7.ui.components.EditSettingsButton
 import com.jimz011apps.hki7.ui.components.LocalVisibilityFamilyContext
 import com.jimz011apps.hki7.ui.components.MdiIconPickerDialog
+import com.jimz011apps.hki7.ui.components.VisibilityFamilyContext
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 import com.jimz011apps.hki7.ui.components.ModernSettingsDialogTitle
 import com.jimz011apps.hki7.ui.components.SettingsSubcategory
@@ -117,12 +123,21 @@ fun TodoWidgetItem(
 ) {
     if (!isWidgetVisibleNow(widget) && !isEditMode) return
     val currentUrl by viewModel.currentUrl.collectAsState()
+    val family = LocalVisibilityFamilyContext.current
+    val canEdit = remember(widget.editPermission, widget.editableMemberIds, family) {
+        widget.canEdit(family.currentUserId, family.isAdmin)
+    }
     var showDialog by remember(widget.id) { mutableStateOf(false) }
 
     Box(Modifier.fillMaxWidth()) {
         TodoCard(
             widget = widget,
             currentUrl = currentUrl,
+            // Checking an item off from the card is itself an edit, so it needs the same
+            // permission the dialog enforces — and never while the dashboard itself is being
+            // rearranged, when a tap means something else entirely.
+            canToggle = canEdit && !isEditMode,
+            onToggle = { itemId -> onUpdate(widget.withItemToggled(itemId, family)) },
             modifier = Modifier.clickable(enabled = !isEditMode) { showDialog = true }
         )
         if (isEditMode) {
@@ -131,12 +146,18 @@ fun TodoWidgetItem(
         }
     }
     if (showDialog) {
-        TodoDialog(widget, onUpdate) { showDialog = false }
+        TodoDialog(widget, viewModel, onUpdate) { showDialog = false }
     }
 }
 
 @Composable
-private fun TodoCard(widget: HKITodoWidget, currentUrl: String, modifier: Modifier = Modifier) {
+private fun TodoCard(
+    widget: HKITodoWidget,
+    currentUrl: String,
+    canToggle: Boolean,
+    onToggle: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val appColors = LocalHKIAppColors.current
     val accent = MaterialTheme.colorScheme.primary
     val remaining = widget.items.count { !it.checked }
@@ -146,12 +167,12 @@ private fun TodoCard(widget: HKITodoWidget, currentUrl: String, modifier: Modifi
     } else {
         stringResource(R.string.widgets_todo_title)
     }
-    val stateText = when {
-        total == 0 -> stringResource(R.string.widgets_todo_empty)
-        remaining == 0 -> stringResource(R.string.widgets_todo_all_done)
-        else -> stringResource(R.string.widgets_todo_remaining, remaining, total)
+    // A square card has the room to be genuinely useful rather than just a status icon: show the
+    // high-priority items still open, scrollable, and checkable right there — like the square
+    // calendar card's mini agenda, but for the things actually worth glancing at from the dashboard.
+    val highPriorityOpen = remember(widget.items) {
+        widget.items.filter { !it.checked && it.priority == TODO_ITEM_PRIORITY_HIGH }
     }
-    val dotColor = if (remaining > 0) accent else appColors.onMuted
 
     Surface(
         modifier = modifier.fillMaxWidth()
@@ -161,44 +182,91 @@ private fun TodoCard(widget: HKITodoWidget, currentUrl: String, modifier: Modifi
         shape = RoundedCornerShape(widget.cornerRadius.dp),
         color = Color.Transparent
     ) {
-        Box {
-            if (!widget.backgroundUrl.isNullOrBlank()) {
-                WidgetBackground(widget.backgroundUrl, currentUrl)
-            } else {
-                Box(
-                    Modifier.align(Alignment.Center).size(56.dp)
-                        .background(accent.copy(alpha = 0.14f), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    MdiIcon(widget.icon ?: "format-list-checks", tint = accent, size = 28.dp)
+        if (widget.isSquare && highPriorityOpen.isNotEmpty()) {
+            Box {
+                if (!widget.backgroundUrl.isNullOrBlank()) WidgetBackground(widget.backgroundUrl, currentUrl)
+                Column(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        MdiIcon(widget.icon ?: "format-list-checks", tint = accent, size = 16.dp)
+                        Text(
+                            widget.title ?: defaultTitle, color = appColors.onSurface,
+                            style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold,
+                            maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            stringResource(R.string.widgets_todo_remaining_short, remaining, total),
+                            color = appColors.onMuted, style = MaterialTheme.typography.labelSmall
+                        )
+                    }
+                    HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.12f))
+                    val heroScroll = rememberScrollState()
+                    Column(
+                        Modifier.weight(1f).fadingEdges(heroScroll).verticalScroll(heroScroll),
+                        verticalArrangement = Arrangement.spacedBy(0.dp)
+                    ) {
+                        highPriorityOpen.forEach { item ->
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                            ) {
+                                Checkbox(checked = item.checked, onCheckedChange = { onToggle(item.id) }, enabled = canToggle)
+                                Text(
+                                    item.text, color = appColors.onSurface,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
+                    }
                 }
             }
+        } else {
+            val stateText = when {
+                total == 0 -> stringResource(R.string.widgets_todo_empty)
+                remaining == 0 -> stringResource(R.string.widgets_todo_all_done)
+                else -> stringResource(R.string.widgets_todo_remaining, remaining, total)
+            }
+            val dotColor = if (remaining > 0) accent else appColors.onMuted
+            Box {
+                if (!widget.backgroundUrl.isNullOrBlank()) {
+                    WidgetBackground(widget.backgroundUrl, currentUrl)
+                } else {
+                    Box(
+                        Modifier.align(Alignment.Center).size(84.dp)
+                            .background(accent.copy(alpha = 0.16f), RoundedCornerShape(21.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        MdiIcon(widget.icon ?: "format-list-checks", tint = accent, size = 44.dp)
+                    }
+                }
 
-            Box(
-                Modifier.fillMaxSize().background(
-                    Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent, appColors.elevated.copy(alpha = 0.88f)))
-                )
-            )
-
-            // Same bottom-left pill as the F1/camera/vacuum/waste/parcel cards.
-            Surface(
-                modifier = Modifier.align(Alignment.BottomStart).padding(10.dp),
-                color = Color.Black.copy(alpha = 0.55f),
-                shape = itemCornerShape()
-            ) {
-                Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
-                    Text(
-                        widget.title ?: defaultTitle,
-                        color = Color.White, style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis
+                Box(
+                    Modifier.fillMaxSize().background(
+                        Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent, appColors.elevated.copy(alpha = 0.88f)))
                     )
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Box(Modifier.size(5.dp).background(dotColor, CircleShape))
+                )
+
+                // Same bottom-left pill as the F1/camera/vacuum/waste/parcel cards.
+                Surface(
+                    modifier = Modifier.align(Alignment.BottomStart).padding(10.dp),
+                    color = Color.Black.copy(alpha = 0.55f),
+                    shape = itemCornerShape()
+                ) {
+                    Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
                         Text(
-                            stateText, color = Color.White.copy(alpha = 0.7f),
-                            style = MaterialTheme.typography.labelSmall, fontSize = 10.sp,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis
+                            widget.title ?: defaultTitle,
+                            color = Color.White, style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis
                         )
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Box(Modifier.size(5.dp).background(dotColor, CircleShape))
+                            Text(
+                                stateText, color = Color.White.copy(alpha = 0.7f),
+                                style = MaterialTheme.typography.labelSmall, fontSize = 10.sp,
+                                maxLines = 1, overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
                 }
             }
@@ -209,6 +277,25 @@ private fun TodoCard(widget: HKITodoWidget, currentUrl: String, modifier: Modifi
 // ─────────────────────────────────────────────────────────────────────────────
 // Formatting helpers
 // ─────────────────────────────────────────────────────────────────────────────
+
+/** Checks or unchecks one item, recording who did it — shared by the card's hero list and the
+ *  dialog so both check off items exactly the same way. */
+private fun HKITodoWidget.withItemToggled(itemId: String, family: VisibilityFamilyContext): HKITodoWidget {
+    val target = items.find { it.id == itemId } ?: return this
+    val nowChecked = !target.checked
+    val userName = family.users.firstOrNull { it.id == family.currentUserId }?.name
+    return copy(
+        items = items.map {
+            if (it.id == itemId) {
+                it.copy(
+                    checked = nowChecked,
+                    checkedByUserId = if (nowChecked) family.currentUserId else null,
+                    checkedByName = if (nowChecked) userName else null
+                )
+            } else it
+        }
+    )
+}
 
 private fun priorityWeight(priority: String): Int = when (priority) {
     TODO_ITEM_PRIORITY_HIGH -> 2
@@ -361,13 +448,24 @@ private fun TodoEmptyState(message: String) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
-private fun TodoDialog(widget: HKITodoWidget, onUpdate: (HKITodoWidget) -> Unit, onDismiss: () -> Unit) {
+private fun TodoDialog(
+    widget: HKITodoWidget,
+    viewModel: MainViewModel,
+    onUpdate: (HKITodoWidget) -> Unit,
+    onDismiss: () -> Unit
+) {
     val appColors = LocalHKIAppColors.current
     val family = LocalVisibilityFamilyContext.current
     val canEdit = remember(widget.editPermission, widget.editableMemberIds, family) {
         widget.canEdit(family.currentUserId, family.isAdmin)
     }
+    val canUndo by viewModel.canUndo.collectAsState()
+    val canRedo by viewModel.canRedo.collectAsState()
     var filter by remember(widget.id) { mutableStateOf(if (widget.showCompleted) "all" else "active") }
+    // Null means the "All" tab — every item, regardless of category.
+    var selectedCategory by remember(widget.id) { mutableStateOf<String?>(null) }
+    var addingCategory by remember { mutableStateOf(false) }
+    var managingCategories by remember { mutableStateOf(false) }
     var newItemText by remember { mutableStateOf("") }
     var showAdvancedAdd by remember { mutableStateOf(false) }
     var newQuantity by remember { mutableStateOf("") }
@@ -387,7 +485,9 @@ private fun TodoDialog(widget: HKITodoWidget, onUpdate: (HKITodoWidget) -> Unit,
             id = UUID.randomUUID().toString(),
             text = text,
             quantity = newQuantity.trim().ifBlank { null },
-            category = newCategory.trim().ifBlank { null },
+            // Explicit category wins; otherwise an item added while a tab is open belongs to that
+            // tab, so switching to "Groceries" and typing is enough — no need to type it twice.
+            category = newCategory.trim().ifBlank { selectedCategory },
             priority = newPriority,
             dueDate = newDueDate,
             addedByUserId = family.currentUserId,
@@ -397,23 +497,31 @@ private fun TodoDialog(widget: HKITodoWidget, onUpdate: (HKITodoWidget) -> Unit,
         newItemText = ""; newQuantity = ""; newCategory = ""; newPriority = TODO_ITEM_PRIORITY_NORMAL; newDueDate = null
     }
 
-    fun toggleItem(item: HKITodoItem) {
-        val nowChecked = !item.checked
+    fun toggleItem(item: HKITodoItem) = onUpdate(widget.withItemToggled(item.id, family))
+
+    fun removeItem(item: HKITodoItem) = persist(widget.items.filterNot { it.id == item.id })
+    // Only the completed items actually visible on the current tab — clearing while looking at
+    // "Groceries" shouldn't reach across and wipe out completed items on other tabs too.
+    fun clearCompleted() {
+        val category = selectedCategory
         persist(
-            widget.items.map {
-                if (it.id == item.id) {
-                    it.copy(
-                        checked = nowChecked,
-                        checkedByUserId = if (nowChecked) family.currentUserId else null,
-                        checkedByName = if (nowChecked) currentUserName() else null
-                    )
-                } else it
+            widget.items.filterNot {
+                it.checked && (category == null || it.category?.equals(category, ignoreCase = true) == true)
             }
         )
     }
 
-    fun removeItem(item: HKITodoItem) = persist(widget.items.filterNot { it.id == item.id })
-    fun clearCompleted() = persist(widget.items.filterNot { it.checked })
+    fun addCategory(name: String) {
+        val trimmed = name.trim()
+        if (trimmed.isEmpty() || widget.categories.any { it.equals(trimmed, ignoreCase = true) }) return
+        onUpdate(widget.copy(categories = widget.categories + trimmed))
+        selectedCategory = trimmed
+    }
+
+    fun removeCategory(name: String) {
+        if (selectedCategory == name) selectedCategory = null
+        onUpdate(widget.copy(categories = widget.categories.filterNot { it == name }))
+    }
 
     val sorted = remember(widget.items, widget.sortMode) {
         when (widget.sortMode) {
@@ -423,11 +531,19 @@ private fun TodoDialog(widget: HKITodoWidget, onUpdate: (HKITodoWidget) -> Unit,
             else -> widget.items
         }
     }
-    val filtered = when (filter) {
-        "active" -> sorted.filterNot { it.checked }
-        "done" -> sorted.filter { it.checked }
-        else -> sorted
+    val categoryFiltered = remember(sorted, selectedCategory) {
+        val category = selectedCategory
+        if (category == null) sorted else sorted.filter { it.category?.equals(category, ignoreCase = true) == true }
     }
+    val filtered = when (filter) {
+        "active" -> categoryFiltered.filterNot { it.checked }
+        "done" -> categoryFiltered.filter { it.checked }
+        else -> categoryFiltered
+    }
+    // "All" keeps completed items out of the way, below their own header, so the list you actually
+    // came to check stays on top instead of being interleaved with things already done.
+    val activeRows = if (filter == "all") filtered.filterNot { it.checked } else filtered
+    val completedRows = if (filter == "all") filtered.filter { it.checked } else emptyList()
     val remaining = widget.items.count { !it.checked }
     val defaultTitle = if (widget.listMode == "shopping") {
         stringResource(R.string.widgets_todo_shopping_title)
@@ -442,6 +558,15 @@ private fun TodoDialog(widget: HKITodoWidget, onUpdate: (HKITodoWidget) -> Unit,
         title = {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(widget.title ?: defaultTitle, modifier = Modifier.weight(1f))
+                if (canEdit) {
+                    IconButton(onClick = { viewModel.undo() }, enabled = canUndo, modifier = Modifier.size(32.dp)) {
+                        Icon(Icons.AutoMirrored.Filled.Undo, stringResource(R.string.action_undo), modifier = Modifier.size(18.dp))
+                    }
+                    IconButton(onClick = { viewModel.redo() }, enabled = canRedo, modifier = Modifier.size(32.dp)) {
+                        Icon(Icons.AutoMirrored.Filled.Redo, stringResource(R.string.action_redo), modifier = Modifier.size(18.dp))
+                    }
+                    Spacer(Modifier.width(4.dp))
+                }
                 Text(
                     stringResource(R.string.widgets_todo_remaining_short, remaining, widget.items.size),
                     style = MaterialTheme.typography.labelMedium, color = appColors.onMuted
@@ -450,6 +575,43 @@ private fun TodoDialog(widget: HKITodoWidget, onUpdate: (HKITodoWidget) -> Unit,
         },
         text = {
             Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (widget.categories.isNotEmpty() || canEdit) {
+                    val categoryScroll = rememberScrollState()
+                    Row(
+                        Modifier.fillMaxWidth().horizontalScroll(categoryScroll),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        FilterChip(
+                            selected = selectedCategory == null,
+                            onClick = { selectedCategory = null },
+                            label = { Text(stringResource(R.string.widgets_todo_filter_all), fontSize = 12.sp) }
+                        )
+                        widget.categories.forEach { category ->
+                            FilterChip(
+                                selected = selectedCategory == category,
+                                onClick = { selectedCategory = if (selectedCategory == category) null else category },
+                                label = { Text(category, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                            )
+                        }
+                        if (canEdit) {
+                            FilterChip(
+                                selected = false,
+                                onClick = { addingCategory = true },
+                                label = { Icon(Icons.Default.Add, null, modifier = Modifier.size(14.dp)) }
+                            )
+                            // Deleting a tab lives behind its own dialog, not an "x" on the chip
+                            // itself — that sat too close to the tap target you actually reach for
+                            // (switching tabs) and made it easy to delete one by accident.
+                            if (widget.categories.isNotEmpty()) {
+                                FilterChip(
+                                    selected = false,
+                                    onClick = { managingCategories = true },
+                                    label = { Icon(Icons.Default.Edit, null, modifier = Modifier.size(14.dp)) }
+                                )
+                            }
+                        }
+                    }
+                }
                 if (canEdit) {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -504,7 +666,7 @@ private fun TodoDialog(widget: HKITodoWidget, onUpdate: (HKITodoWidget) -> Unit,
                         modifier = Modifier.weight(1f).fadingEdges(scroll).verticalScroll(scroll),
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        filtered.forEach { item ->
+                        activeRows.forEach { item ->
                             TodoItemRow(
                                 item = item,
                                 canEdit = canEdit,
@@ -513,9 +675,27 @@ private fun TodoDialog(widget: HKITodoWidget, onUpdate: (HKITodoWidget) -> Unit,
                                 onClick = { if (canEdit) editingItem = item }
                             )
                         }
+                        if (completedRows.isNotEmpty()) {
+                            Text(
+                                stringResource(R.string.widgets_todo_completed_section, completedRows.size),
+                                color = appColors.onMuted,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(top = 6.dp)
+                            )
+                            completedRows.forEach { item ->
+                                TodoItemRow(
+                                    item = item,
+                                    canEdit = canEdit,
+                                    onToggle = { toggleItem(item) },
+                                    onDelete = { removeItem(item) },
+                                    onClick = { if (canEdit) editingItem = item }
+                                )
+                            }
+                        }
                     }
                 }
-                if (canEdit && widget.items.any { it.checked }) {
+                if (canEdit && categoryFiltered.any { it.checked }) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                         TextButton(onClick = { clearCompleted() }) { Text(stringResource(R.string.widgets_todo_clear_completed)) }
                     }
@@ -537,6 +717,54 @@ private fun TodoDialog(widget: HKITodoWidget, onUpdate: (HKITodoWidget) -> Unit,
                 removeItem(item)
                 editingItem = null
             }
+        )
+    }
+
+    if (addingCategory) {
+        var name by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = { addingCategory = false },
+            title = { Text(stringResource(R.string.widgets_todo_new_category)) },
+            text = {
+                OutlinedTextField(
+                    value = name, onValueChange = { name = it },
+                    placeholder = { Text(stringResource(R.string.widgets_todo_category)) },
+                    singleLine = true, modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                Button(onClick = { addCategory(name); addingCategory = false }, enabled = name.isNotBlank()) {
+                    Text(stringResource(R.string.ui_save_efc007a))
+                }
+            },
+            dismissButton = { TextButton(onClick = { addingCategory = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
+        )
+    }
+
+    if (managingCategories) {
+        AlertDialog(
+            onDismissRequest = { managingCategories = false },
+            title = { Text(stringResource(R.string.widgets_todo_manage_categories)) },
+            text = {
+                if (widget.categories.isEmpty()) {
+                    managingCategories = false
+                } else {
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        widget.categories.forEach { category ->
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(category, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                IconButton(onClick = { removeCategory(category) }) {
+                                    Icon(Icons.Default.Delete, stringResource(R.string.widgets_todo_delete_item), tint = MaterialTheme.colorScheme.error)
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = { Button(onClick = { managingCategories = false }) { Text(stringResource(R.string.ui_done_e9b450d)) } }
         )
     }
 }
@@ -687,11 +915,6 @@ fun TodoWidgetSettingsDialog(
                         label = { Text(stringResource(R.string.ui_title_768e0c1)) },
                         singleLine = true, modifier = Modifier.fillMaxWidth()
                     )
-                    Text(stringResource(R.string.widgets_todo_list_type), style = MaterialTheme.typography.labelLarge)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(selected = listMode == "todo", onClick = { listMode = "todo" }, label = { Text(stringResource(R.string.widgets_todo_type_todo)) })
-                        FilterChip(selected = listMode == "shopping", onClick = { listMode = "shopping" }, label = { Text(stringResource(R.string.widgets_todo_type_shopping)) })
-                    }
                     Text(stringResource(R.string.widgets_todo_sort_mode), style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(

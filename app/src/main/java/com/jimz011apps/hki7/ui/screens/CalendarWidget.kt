@@ -1193,7 +1193,7 @@ fun CalendarWidgetSettingsDialog(
                 }
                 if (settingsPage == "appearance") {
                 com.jimz011apps.hki7.ui.components.SettingsSubcategory(stringResource(R.string.ui_appearance_41def7a), stringResource(R.string.ui_card_width_shape_icon_and_background_c3695b5))
-                WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
+                WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 Text(stringResource(R.string.ui_shape_ea5c1a2), style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text(stringResource(R.string.ui_standard_2dfa660)) })

@@ -1532,7 +1532,7 @@ fun BatteryCardWidgetSettingsDialog(
                     FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text(stringResource(R.string.ui_standard_2dfa660)) })
                     FilterChip(selected = isSquare, onClick = { isSquare = true }, label = { Text(stringResource(R.string.ui_square_82810cb)) })
                 }
-                WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
+                WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 WidgetBackgroundSelector(backgroundUrl) { backgroundUrl = it }
                 }
                 if (settingsPage == "visibility") {

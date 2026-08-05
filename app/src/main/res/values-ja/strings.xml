@@ -3112,6 +3112,9 @@
     <string name="widgets_todo_filter_all">すべて</string>
     <string name="widgets_todo_filter_done">完了</string>
     <string name="widgets_todo_clear_completed">クリア完了</string>
+    <string name="widgets_todo_completed_section">完了 (%1$d)</string>
+    <string name="widgets_todo_new_category">新しいタブ</string>
+    <string name="widgets_todo_manage_categories">タブの管理</string>
     <string name="widgets_todo_edit_item">項目を編集する</string>
     <string name="widgets_todo_item_text">アイテム</string>
     <string name="widgets_todo_quantity">量</string>

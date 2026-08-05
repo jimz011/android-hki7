@@ -929,7 +929,7 @@ fun F1WidgetSettingsDialog(
                         stringResource(R.string.ui_appearance_41def7a),
                         stringResource(R.string.ui_image_style_size_shape_and_background_40c17b6)
                     )
-                    WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
+                    WidgetWidthSelector(width = width, onWidthChange = { width = it })
                     Text(stringResource(R.string.ui_shape_ea5c1a2), style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text(stringResource(R.string.ui_standard_2dfa660)) })

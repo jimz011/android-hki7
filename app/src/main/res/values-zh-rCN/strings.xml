@@ -3547,4 +3547,7 @@
     <string name="settings_extra_hki_cloud_feature_search_lists">每人可见/不可见全局搜索列表</string>
     <string name="settings_extra_hki_cloud_feature_room_follow">房间跟随</string>
     <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">房间跟踪：仅在启动时放置某人，而不跟踪进一步的移动</string>
+    <string name="widgets_todo_completed_section">已完成 (%1$d)</string>
+    <string name="widgets_todo_new_category">新标签页</string>
+    <string name="widgets_todo_manage_categories">管理选项卡</string>
 </resources>

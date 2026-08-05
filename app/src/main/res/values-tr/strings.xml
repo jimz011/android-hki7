@@ -1555,6 +1555,9 @@
     <string name="widgets_todo_filter_all">Tüm</string>
     <string name="widgets_todo_filter_done">Tamamlamak</string>
     <string name="widgets_todo_clear_completed">Tamamlananları temizle</string>
+    <string name="widgets_todo_completed_section">Tamamlandı (%1$d)</string>
+    <string name="widgets_todo_new_category">Yeni sekme</string>
+    <string name="widgets_todo_manage_categories">Sekmeleri yönet</string>
     <string name="widgets_todo_edit_item">Öğeyi düzenle</string>
     <string name="widgets_todo_item_text">Öğe</string>
     <string name="widgets_todo_quantity">Adet</string>

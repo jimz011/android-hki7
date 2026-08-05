@@ -817,7 +817,7 @@ fun WasteCollectionSettingsDialog(
                     else stringResource(R.string.ui_shows_an_icon_matching_the_waste_type_gft_pmd_1966fe0),
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                WidgetWidthSelector(width = width, onWidthChange = { width = it }, includeThird = false)
+                WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 Text(stringResource(R.string.ui_shape_ea5c1a2), style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(selected = !isSquare, onClick = { isSquare = false }, label = { Text(stringResource(R.string.ui_standard_2dfa660)) })

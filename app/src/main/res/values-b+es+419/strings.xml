@@ -3592,4 +3592,7 @@
     <string name="settings_extra_hki_cloud_feature_search_lists">Listas de búsqueda globales visibles/invisibles por persona</string>
     <string name="settings_extra_hki_cloud_feature_room_follow">Seguimiento de la habitación</string>
     <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">Seguimiento de sala: solo coloca a alguien en el lanzamiento, sin seguir más movimientos</string>
+    <string name="widgets_todo_completed_section">Completado (%1$d)</string>
+    <string name="widgets_todo_new_category">Nueva pestaña</string>
+    <string name="widgets_todo_manage_categories">Administrar pestañas</string>
 </resources>
