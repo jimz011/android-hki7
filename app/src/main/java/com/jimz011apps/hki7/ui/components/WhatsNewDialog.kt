@@ -48,6 +48,7 @@ import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
  * future release needs.
  */
 private val changelog: Map<String, Int> = mapOf(
+    "1.0.0-beta.15" to R.array.cr_whats_new_beta_15,
     "1.0.0-beta.14" to R.array.cr_whats_new_beta_14,
     "1.0.0-beta.13" to R.array.cr_whats_new_beta_13,
     "1.0.0-beta.12" to R.array.cr_whats_new_beta_12,
