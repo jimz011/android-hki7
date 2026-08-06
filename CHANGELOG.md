@@ -5,6 +5,10 @@ file in sync with `app/src/main/java/com/jimz011apps/hki7/ui/components/WhatsNew
 
 Items marked with \* require the HKI 7 Cloud Component integration.
 
+## 1.0.0-beta.15
+
+- The Formula 1 widget gains two new tabs and expands two existing ones. **Calendar** lists the season's races in order, each with its circuit and the host country's flag. **Grid** shows the starting grid, with each driver's move up or down from where they qualified. **Standings** can now show a championship prediction alongside the regular points table — current and predicted final points, for drivers or constructors — when F1 Sensor's optional F1TV Auth is set up. **Live** gains a proper timing list: gap to the leader, interval to the car ahead, tyre compound and stint length, and pit/retired status for every driver, plus which lap the leader is on and the race distance.
+
 ## 1.0.0-beta.14
 
 - Settings › Family Sharing now shows which HKI 7 Cloud version is installed, and — if it's behind — exactly which family features that leaves unavailable (re-importing dashboard data, the global search Visible/Invisible lists, room following, or its launch-only mode), each labelled with the version that unlocks it. Previously the only way to find out a component was out of date was to hit a save that silently dropped part of what you configured.\*

@@ -47,6 +47,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -91,7 +92,12 @@ private class F1Bundle(
     val flag: F1Flag,
     val sessionStatus: String?,
     val raceControl: List<F1RaceControlMessage>,
-    val season: String?,
+    val season: F1Season?,
+    val startingGrid: F1StartingGrid?,
+    val driverPredictions: List<F1PredictionRow>,
+    val constructorPredictions: List<F1PredictionRow>,
+    val liveDrivers: List<F1LiveDriver>,
+    val lapCount: F1LapCount?,
     /** False when the f1_sensor integration was not found at all. */
     val available: Boolean
 ) {
@@ -140,7 +146,12 @@ private fun rememberF1Bundle(widget: HKIF1Widget, viewModel: MainViewModel): F1B
             flag = parseTrackFlag(of(F1Keys.TRACK_STATUS)),
             sessionStatus = of(F1Keys.SESSION_STATUS)?.state,
             raceControl = parseRaceControl(of(F1Keys.RACE_CONTROL)),
-            season = of(F1Keys.CURRENT_SEASON)?.state,
+            season = parseCurrentSeason(of(F1Keys.CURRENT_SEASON)),
+            startingGrid = parseStartingGrid(of(F1Keys.STARTING_GRID)),
+            driverPredictions = parseChampionshipPrediction(of(F1Keys.CHAMPIONSHIP_PREDICTION_DRIVERS)),
+            constructorPredictions = parseChampionshipPrediction(of(F1Keys.CHAMPIONSHIP_PREDICTION_TEAMS)),
+            liveDrivers = parseLiveDrivers(of(F1Keys.DRIVER_POSITIONS), of(F1Keys.CURRENT_TYRES)),
+            lapCount = parseLapCount(of(F1Keys.DRIVER_POSITIONS)),
             available = byKey.isNotEmpty()
         )
     }
@@ -303,13 +314,15 @@ private fun F1Card(
                 // The circuit outline is a white line drawing on transparent, sized as an accent —
                 // blown up to fill the card it just reads as a thin, aliased squiggle. Used small
                 // and faint on the right it does what it is for: hints at which track this is
-                // without competing with the race name.
+                // without competing with the race name. Tinted to onSurface so it stays visible
+                // against a light card background instead of vanishing as near-white-on-white.
                 race?.circuitOutlineUrl?.let { outline ->
                     AsyncImage(
                         outline, null,
                         Modifier.align(Alignment.CenterEnd).fillMaxHeight(0.72f).padding(end = 12.dp)
                             .alpha(0.16f),
-                        contentScale = ContentScale.Fit
+                        contentScale = ContentScale.Fit,
+                        colorFilter = ColorFilter.tint(appColors.onSurface)
                     )
                 }
             }
@@ -374,7 +387,9 @@ private fun F1Dialog(
     // rather than opening an empty tab on a Tuesday.
     val tabs = buildList {
         add("next" to stringResource(R.string.widgets_f1_tab_next))
+        add("calendar" to stringResource(R.string.widgets_f1_tab_calendar))
         add("standings" to stringResource(R.string.widgets_f1_tab_standings))
+        add("grid" to stringResource(R.string.widgets_f1_tab_grid))
         add("results" to stringResource(R.string.widgets_f1_tab_results))
         if (bundle.isLive) add("live" to stringResource(R.string.widgets_f1_tab_live))
     }
@@ -389,7 +404,7 @@ private fun F1Dialog(
         title = {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(widget.title ?: stringResource(R.string.widgets_f1_title), modifier = Modifier.weight(1f))
-                bundle.season?.takeIf { it.isNotBlank() && it != "unknown" }?.let {
+                bundle.season?.year?.takeIf { it.isNotBlank() && it != "unknown" }?.let {
                     Text(it, style = MaterialTheme.typography.labelMedium, color = appColors.onMuted)
                 }
             }
@@ -412,7 +427,9 @@ private fun F1Dialog(
                 ) {
                     when (tab) {
                         "next" -> F1NextRaceTab(bundle, now)
+                        "calendar" -> F1CalendarTab(bundle, now)
                         "standings" -> F1StandingsTab(bundle)
+                        "grid" -> F1GridTab(bundle)
                         "results" -> F1ResultsTab(bundle)
                         "live" -> F1LiveTab(bundle)
                     }
@@ -546,6 +563,18 @@ private fun F1NextRaceTab(bundle: F1Bundle, now: ZonedDateTime) {
     }
 }
 
+/** "▲3" in green when positions were gained, "▼2" in red when lost. Zero is not worth the ink. */
+@Composable
+private fun F1DeltaText(delta: Int?) {
+    delta?.takeIf { it != 0 }?.let {
+        Text(
+            if (it > 0) "▲$it" else "▼${-it}",
+            color = if (it > 0) Color(0xFF66BB6A) else Color(0xFFEF5350),
+            style = MaterialTheme.typography.labelSmall
+        )
+    }
+}
+
 @Composable
 private fun F1Stat(icon: String, value: String) {
     val appColors = LocalHKIAppColors.current
@@ -555,60 +584,204 @@ private fun F1Stat(icon: String, value: String) {
     }
 }
 
+// ── Season calendar ──────────────────────────────────────────────────────────
+
+@Composable
+private fun F1CalendarTab(bundle: F1Bundle, now: ZonedDateTime) {
+    val appColors = LocalHKIAppColors.current
+    val races = bundle.season?.races.orEmpty()
+    if (races.isEmpty()) {
+        F1EmptyState(stringResource(R.string.widgets_f1_no_calendar))
+        return
+    }
+    val zone = ZoneId.systemDefault()
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0] ?: Locale.getDefault()
+    val nextRound = bundle.nextRace?.round
+
+    races.forEach { race ->
+        val isNext = race.round != null && race.round == nextRound
+        val isPast = race.raceStart?.isBefore(now) == true
+        Surface(
+            shape = itemCornerShape(),
+            color = if (isNext) MaterialTheme.colorScheme.primary.copy(alpha = 0.14f) else appColors.subtleSurface
+        ) {
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                race.countryFlagUrl?.let {
+                    Surface(shape = RoundedCornerShape(4.dp), modifier = Modifier.size(22.dp)) {
+                        AsyncImage(it, race.country, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                    }
+                }
+                race.round?.let {
+                    Text(
+                        it, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.width(18.dp)
+                    )
+                }
+                Text(
+                    race.raceName ?: "—",
+                    color = if (isPast && !isNext) appColors.onMuted else appColors.onSurface,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = if (isNext) FontWeight.Bold else FontWeight.Normal,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    formatSessionTime(race.raceStart, zone, locale),
+                    color = appColors.onMuted, style = MaterialTheme.typography.labelSmall
+                )
+            }
+        }
+    }
+}
+
+// ── Starting grid ────────────────────────────────────────────────────────────
+
+@Composable
+private fun F1GridTab(bundle: F1Bundle) {
+    val grid = bundle.startingGrid
+    if (grid == null || grid.grid.isEmpty()) {
+        F1EmptyState(stringResource(R.string.widgets_f1_no_grid))
+        return
+    }
+    val appColors = LocalHKIAppColors.current
+    grid.targetSessionName?.let { F1SectionLabel(it) }
+    grid.grid.forEach { row ->
+        val podium = when (row.gridPosition) {
+            1 -> Color(0xFFFFD54F)
+            2 -> Color(0xFFB0BEC5)
+            3 -> Color(0xFFBCAAA4)
+            else -> null
+        }
+        Surface(shape = itemCornerShape(), color = appColors.subtleSurface) {
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    Modifier.size(24.dp).background(
+                        (podium ?: appColors.onMuted).copy(alpha = if (podium != null) 0.85f else 0.16f),
+                        CircleShape
+                    ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        row.gridPosition?.toString() ?: "–",
+                        color = if (podium != null) Color.Black else appColors.onSurface,
+                        style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold
+                    )
+                }
+                Spacer(Modifier.width(10.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        row.driverName ?: row.tla ?: "—", color = appColors.onSurface,
+                        style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis
+                    )
+                    row.teamName?.let {
+                        Text(
+                            it, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1, overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+                F1DeltaText(row.gridDelta)
+            }
+        }
+    }
+}
+
 // ── Standings ────────────────────────────────────────────────────────────────
 
 @Composable
 private fun F1StandingsTab(bundle: F1Bundle) {
-    var showTeams by remember { mutableStateOf(false) }
+    var mode by remember { mutableStateOf("drivers") }
     val appColors = LocalHKIAppColors.current
 
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         FilterChip(
-            selected = !showTeams,
-            onClick = { showTeams = false },
+            selected = mode == "drivers",
+            onClick = { mode = "drivers" },
             label = { Text(stringResource(R.string.widgets_f1_drivers), fontSize = 12.sp) }
         )
         FilterChip(
-            selected = showTeams,
-            onClick = { showTeams = true },
+            selected = mode == "constructors",
+            onClick = { mode = "constructors" },
             label = { Text(stringResource(R.string.widgets_f1_constructors), fontSize = 12.sp) }
+        )
+        FilterChip(
+            selected = mode == "prediction",
+            onClick = { mode = "prediction" },
+            label = { Text(stringResource(R.string.widgets_f1_prediction), fontSize = 12.sp) }
         )
     }
 
-    if (!showTeams) {
-        if (bundle.drivers.isEmpty()) {
-            F1EmptyState(stringResource(R.string.widgets_f1_no_standings))
-            return
-        }
-        bundle.drivers.forEach { row ->
-            F1StandingRow(
-                position = row.position,
-                primary = row.driverName ?: row.driverCode ?: "—",
-                secondary = row.constructor,
-                points = row.points,
-                wins = row.wins
+    when (mode) {
+        "drivers" -> {
+            if (bundle.drivers.isEmpty()) {
+                F1EmptyState(stringResource(R.string.widgets_f1_no_standings))
+                return
+            }
+            bundle.drivers.forEach { row ->
+                F1StandingRow(
+                    position = row.position,
+                    primary = row.driverName ?: row.driverCode ?: "—",
+                    secondary = row.constructor,
+                    points = row.points,
+                    wins = row.wins
+                )
+            }
+            Spacer(Modifier.height(2.dp))
+            Text(
+                stringResource(R.string.widgets_f1_points_wins_legend),
+                color = appColors.onMuted, style = MaterialTheme.typography.labelSmall
             )
         }
-    } else {
-        if (bundle.constructors.isEmpty()) {
-            F1EmptyState(stringResource(R.string.widgets_f1_no_standings))
-            return
+        "constructors" -> {
+            if (bundle.constructors.isEmpty()) {
+                F1EmptyState(stringResource(R.string.widgets_f1_no_standings))
+                return
+            }
+            bundle.constructors.forEach { row ->
+                F1StandingRow(
+                    position = row.position,
+                    primary = row.name ?: "—",
+                    secondary = row.nationality,
+                    points = row.points,
+                    wins = row.wins
+                )
+            }
+            Spacer(Modifier.height(2.dp))
+            Text(
+                stringResource(R.string.widgets_f1_points_wins_legend),
+                color = appColors.onMuted, style = MaterialTheme.typography.labelSmall
+            )
         }
-        bundle.constructors.forEach { row ->
-            F1StandingRow(
-                position = row.position,
-                primary = row.name ?: "—",
-                secondary = row.nationality,
-                points = row.points,
-                wins = row.wins
+        "prediction" -> {
+            val rows = bundle.driverPredictions.ifEmpty { bundle.constructorPredictions }
+            if (rows.isEmpty()) {
+                F1EmptyState(stringResource(R.string.widgets_f1_no_prediction))
+                return
+            }
+            rows.forEach { row ->
+                F1StandingRow(
+                    position = row.position,
+                    primary = row.name ?: "—",
+                    secondary = row.currentPoints?.let { stringResource(R.string.widgets_f1_prediction_now, it) },
+                    points = row.predictedPoints,
+                    wins = null
+                )
+            }
+            Spacer(Modifier.height(2.dp))
+            Text(
+                stringResource(R.string.widgets_f1_prediction_legend),
+                color = appColors.onMuted, style = MaterialTheme.typography.labelSmall
             )
         }
     }
-    Spacer(Modifier.height(2.dp))
-    Text(
-        stringResource(R.string.widgets_f1_points_wins_legend),
-        color = appColors.onMuted, style = MaterialTheme.typography.labelSmall
-    )
 }
 
 @Composable
@@ -743,14 +916,7 @@ private fun F1ResultRow(row: F1RaceResult) {
                             maxLines = 1, overflow = TextOverflow.Ellipsis
                         )
                     }
-                    // Only a non-zero change is worth the ink; "±0" is noise on twenty rows.
-                    row.gridDelta?.takeIf { it != 0 }?.let { delta ->
-                        Text(
-                            if (delta > 0) "▲$delta" else "▼${-delta}",
-                            color = if (delta > 0) Color(0xFF66BB6A) else Color(0xFFEF5350),
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                    }
+                    F1DeltaText(row.gridDelta)
                 }
             }
             Column(horizontalAlignment = Alignment.End) {
@@ -794,32 +960,92 @@ private fun F1LiveTab(bundle: F1Bundle) {
                     )
                 }
             }
+            bundle.lapCount?.currentLap?.let { current ->
+                val total = bundle.lapCount.totalLaps
+                Text(
+                    if (total != null) stringResource(R.string.widgets_f1_lap_of, current, total)
+                    else stringResource(R.string.widgets_f1_lap_short, current.toString()),
+                    color = appColors.onSurface, style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 
-    if (bundle.raceControl.isEmpty()) {
+    if (bundle.liveDrivers.isEmpty() && bundle.raceControl.isEmpty()) {
         F1EmptyState(stringResource(R.string.widgets_f1_no_race_control))
         return
     }
-    F1SectionLabel(stringResource(R.string.widgets_f1_race_control))
-    bundle.raceControl.take(30).forEach { message ->
-        Surface(shape = itemCornerShape(), color = appColors.subtleSurface) {
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp),
-                verticalAlignment = Alignment.Top
-            ) {
-                message.lap?.let {
+
+    if (bundle.liveDrivers.isNotEmpty()) {
+        F1SectionLabel(stringResource(R.string.widgets_f1_timing))
+        bundle.liveDrivers.forEach { driver -> F1LiveDriverRow(driver) }
+    }
+
+    if (bundle.raceControl.isNotEmpty()) {
+        F1SectionLabel(stringResource(R.string.widgets_f1_race_control))
+        bundle.raceControl.take(30).forEach { message ->
+            Surface(shape = itemCornerShape(), color = appColors.subtleSurface) {
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    message.lap?.let {
+                        Text(
+                            stringResource(R.string.widgets_f1_lap_short, it),
+                            color = appColors.onMuted, style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.width(46.dp)
+                        )
+                    }
                     Text(
-                        stringResource(R.string.widgets_f1_lap_short, it),
-                        color = appColors.onMuted, style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.width(46.dp)
+                        message.message, color = appColors.onSurface,
+                        style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f)
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun F1LiveDriverRow(driver: F1LiveDriver) {
+    val appColors = LocalHKIAppColors.current
+    val statusLabel = when (driver.status?.lowercase()) {
+        "pit_in", "pit_out" -> stringResource(R.string.widgets_f1_status_pit)
+        "out" -> stringResource(R.string.widgets_f1_status_out)
+        else -> null
+    }
+    Surface(shape = itemCornerShape(), color = appColors.subtleSurface) {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                driver.position ?: "–", color = appColors.onSurface,
+                style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold,
+                modifier = Modifier.width(22.dp)
+            )
+            Column(Modifier.weight(1f)) {
                 Text(
-                    message.message, color = appColors.onSurface,
-                    style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f)
+                    driver.name ?: driver.tla ?: "—", color = appColors.onSurface,
+                    style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis
+                )
+                statusLabel?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
+                }
+            }
+            driver.tyreCompound?.let { compound ->
+                Text(
+                    listOfNotNull(compound, driver.tyreStintLaps?.toString()).joinToString(" · "),
+                    color = appColors.onMuted, style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.padding(end = 10.dp)
                 )
             }
+            Text(
+                driver.gapToLeader ?: driver.intervalAhead ?: "—",
+                color = appColors.onMuted, style = MaterialTheme.typography.labelSmall
+            )
         }
     }
 }
@@ -913,7 +1139,9 @@ fun F1WidgetSettingsDialog(
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(
                             "next" to R.string.widgets_f1_tab_next,
+                            "calendar" to R.string.widgets_f1_tab_calendar,
                             "standings" to R.string.widgets_f1_tab_standings,
+                            "grid" to R.string.widgets_f1_tab_grid,
                             "results" to R.string.widgets_f1_tab_results
                         ).forEach { (value, labelRes) ->
                             FilterChip(

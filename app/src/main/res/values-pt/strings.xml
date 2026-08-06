@@ -3257,6 +3257,10 @@
         <item quantity="one">%1$d bateria precisa de atenção</item>
         <item quantity="other">%1$d baterias precisam de atenção</item>
     </plurals>
+    <string-array name="cr_whats_new_beta_15">
+        <item>O widget Fórmula 1 ganha duas novas abas e expande duas já existentes. O calendário lista as corridas da temporada em ordem, com cada circuito e a bandeira do país anfitrião. A grade mostra o grid de largada, com cada piloto subindo ou descendo de onde se classificou. A classificação agora pode mostrar uma previsão do campeonato junto com a tabela de pontos – pontos finais atuais e previstos, para pilotos ou construtores – quando o F1TV Auth opcional do F1 Sensor estiver configurado. Live ganha uma lista de cronometragem adequada: diferença para o líder, intervalo para o carro à frente, composto dos pneus e duração do stint, e status de pit/retirado para cada piloto, além da volta em que o líder está.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_14">
         <item>Configurações › Compartilhamento Familiar agora mostra qual versão do HKI 7 Cloud está instalada e, se estiver atrasada, exatamente quais recursos familiares deixam indisponíveis, cada um rotulado com a versão que o desbloqueia. Anteriormente, a única maneira de descobrir que um componente estava desatualizado era clicar em um salvamento que eliminava silenciosamente parte do que você configurou.*</item>
         <item>Novo widget Lista de tarefas: uma lista de verificação ou lista de compras compartilhada que toda a família pode adicionar. Os itens suportam quantidade opcional, categoria, prioridade (baixa, normal ou alta, mostrada como um sinalizador) e data de vencimento, com atribuição Adicionado por e Marcado por quando mais de uma pessoa edita a lista. Escolha a ordem Manual, A–Z, Prioridade ou Mais recente e filtre entre Tarefas, Tudo e Concluído na caixa de diálogo. A edição pode ser limitada a todos, membros específicos da família escolhidos na lista real de usuários do Home Assistant ou apenas administradores, aplicados da mesma forma que o restante das permissões familiares do aplicativo. Ele segue o mesmo design de qualquer outro widget, com as habituais guias de configurações Geral, Permissões, Aparência e Visibilidade.</item>
@@ -3468,17 +3472,29 @@
     <string name="widgets_f1_subtitle">Fim de semana de corrida, classificação e resultados</string>
     <string name="widgets_f1_sources_subtitle">Leia a partir da integração do sensor F1</string>
     <string name="widgets_f1_tab_next">Próxima corrida</string>
+    <string name="widgets_f1_tab_calendar">Calendário</string>
     <string name="widgets_f1_tab_standings">Classificação</string>
+    <string name="widgets_f1_tab_grid">Grade</string>
     <string name="widgets_f1_tab_results">Resultados</string>
     <string name="widgets_f1_tab_live">Ao vivo</string>
     <string name="widgets_f1_drivers">Motoristas</string>
     <string name="widgets_f1_constructors">Construtores</string>
+    <string name="widgets_f1_prediction">Previsão</string>
     <string name="widgets_f1_schedule">Agenda da sessão</string>
     <string name="widgets_f1_race_control">Controle de corrida</string>
+    <string name="widgets_f1_timing">Tempo</string>
     <string name="widgets_f1_round">Rodada %1$s</string>
     <string name="widgets_f1_lap_short">Volta %1$s</string>
+    <string name="widgets_f1_lap_of">Volta %1$d / %2$d</string>
     <string name="widgets_f1_wins_short">%1$s vitórias</string>
     <string name="widgets_f1_points_wins_legend">A coluna da direita mostra os pontos do campeonato.</string>
+    <string name="widgets_f1_prediction_now">Agora: %1$s pontos</string>
+    <string name="widgets_f1_prediction_legend">A coluna da direita mostra os pontos finais previstos. Precisa de autenticação F1TV no sensor F1.</string>
+    <string name="widgets_f1_status_pit">No poço</string>
+    <string name="widgets_f1_status_out">Aposentado</string>
+    <string name="widgets_f1_no_calendar">Ainda não há calendário da temporada disponível</string>
+    <string name="widgets_f1_no_grid">Ainda não há grid de largada disponível</string>
+    <string name="widgets_f1_no_prediction">Nenhuma previsão de campeonato disponível. Precisa de autenticação F1TV no sensor F1.</string>
     <string name="widgets_f1_lights_out_in">Luzes apagadas em %1$s</string>
     <string name="widgets_f1_next_in">%1$s · %2$s</string>
     <string name="widgets_f1_in_days_hours">em %1$dd %2$dh</string>
@@ -3488,7 +3504,7 @@
     <string name="widgets_f1_today_at">Hoje %1$s</string>
     <string name="widgets_f1_tomorrow_at">Amanhã %1$s</string>
     <string name="widgets_f1_time_unknown">Hora de confirmar</string>
-    <string name="widgets_f1_sensors_used">Este widget usa a próxima corrida, classificação de pilotos e construtores, resultados da última corrida, clima, temporada atual e – durante uma sessão – status da pista, status da sessão e controle da corrida. Outras opções de sensor F1 não são necessárias para isso.</string>
+    <string name="widgets_f1_sensors_used">Este widget usa a próxima corrida, calendário da temporada, grid de largada, classificação de pilotos e construtores, resultados da última corrida, clima e – durante uma sessão – status da pista, status da sessão, controle de corrida, posições do piloto e pneus atuais. Ele também mostra uma previsão do campeonato quando o F1TV Auth opcional do F1 Sensor está configurado. Outras opções de sensor F1 não são necessárias para isso.</string>
     <string name="widgets_f1_no_standings">Nenhuma classificação disponível ainda</string>
     <string name="widgets_f1_no_results">Nenhum resultado de corrida disponível ainda</string>
     <string name="widgets_f1_no_race_control">Nenhuma mensagem de controle de corrida</string>

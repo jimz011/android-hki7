@@ -338,6 +338,10 @@
     <string name="cr_quick_make_it_yours_instruction">In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.</string>
 
     <!-- Current release -->
+    <string-array name="cr_whats_new_beta_15">
+        <item>The Formula 1 widget gains two new tabs and expands two existing ones. Calendar lists the season\'s races in order, with each circuit and the host country\'s flag. Grid shows the starting grid, with each driver\'s move up or down from where they qualified. Standings can now show a championship prediction alongside the points table — current and predicted final points, for drivers or constructors — when F1 Sensor\'s optional F1TV Auth is set up. Live gains a proper timing list: gap to the leader, interval to the car ahead, tyre compound and stint length, and pit/retired status for every driver, plus which lap the leader is on.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_14">
         <item>Settings › Family Sharing now shows which HKI 7 Cloud version is installed, and — if it\'s behind — exactly which family features that leaves unavailable, each labelled with the version that unlocks it. Previously the only way to find out a component was out of date was to hit a save that silently dropped part of what you configured.*</item>
         <item>New To-Do List widget: a shared checklist or shopping list the whole family can add to. Items support an optional quantity, category, priority (low, normal or high, shown as a flag) and due date, with Added by and Checked by attribution when more than one person edits the list. Choose Manual, A–Z, Priority, or Newest-first ordering, and filter between To do, All, and Done from the dialog. Editing can be limited to everyone, specific family members picked from the real Home Assistant user list, or admins only, enforced the same way the rest of the app\'s family permissions are. It follows the same design as every other widget, with the usual General, Permissions, Appearance and Visibility settings tabs.</item>

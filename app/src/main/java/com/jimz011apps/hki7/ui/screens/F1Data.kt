@@ -6,6 +6,7 @@ import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HAEntityRegistryEntry
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.intOrNull
@@ -37,11 +38,18 @@ object F1Keys {
     const val SESSION_STATUS = "session_status"
     const val RACE_CONTROL = "race_control"
     const val CURRENT_SEASON = "current_season"
+    const val STARTING_GRID = "starting_grid"
+    const val CHAMPIONSHIP_PREDICTION_DRIVERS = "championship_prediction_drivers"
+    const val CHAMPIONSHIP_PREDICTION_TEAMS = "championship_prediction_teams"
+    const val DRIVER_POSITIONS = "driver_positions"
+    const val CURRENT_TYRES = "current_tyres"
 
     /** Everything the widget reads; used to keep the state subscription as narrow as possible. */
     val ALL = listOf(
         NEXT_RACE, DRIVER_STANDINGS, CONSTRUCTOR_STANDINGS, LAST_RACE, SEASON_RESULTS,
-        WEATHER, TRACK_STATUS, SESSION_STATUS, RACE_CONTROL, CURRENT_SEASON
+        WEATHER, TRACK_STATUS, SESSION_STATUS, RACE_CONTROL, CURRENT_SEASON,
+        STARTING_GRID, CHAMPIONSHIP_PREDICTION_DRIVERS, CHAMPIONSHIP_PREDICTION_TEAMS,
+        DRIVER_POSITIONS, CURRENT_TYRES
     )
 }
 
@@ -86,6 +94,22 @@ private fun JsonObject.text(vararg path: String): String? {
     return current?.get(path.last())
         ?.let { runCatching { it.jsonPrimitive.contentOrNull }.getOrNull() }
         ?.takeIf { it.isNotBlank() && it != "null" }
+}
+
+private fun JsonObject.number(vararg path: String): Double? {
+    var current: JsonObject? = this
+    path.dropLast(1).forEach { step ->
+        current = current?.get(step)?.let { runCatching { it.jsonObject }.getOrNull() }
+    }
+    return current?.get(path.last())?.let { runCatching { it.jsonPrimitive.doubleOrNull }.getOrNull() }
+}
+
+private fun JsonObject.boolean(vararg path: String): Boolean? {
+    var current: JsonObject? = this
+    path.dropLast(1).forEach { step ->
+        current = current?.get(step)?.let { runCatching { it.jsonObject }.getOrNull() }
+    }
+    return current?.get(path.last())?.let { runCatching { it.jsonPrimitive.booleanOrNull }.getOrNull() }
 }
 
 private fun JsonObject.firstArrayText(key: String, field: String): String? =
@@ -337,4 +361,177 @@ fun parseRaceControl(entity: HAEntity?): List<F1RaceControlMessage> {
             lap = row.text("lap") ?: row.text("Lap")
         )
     }.reversed()
+}
+
+// ── Season calendar ─────────────────────────────────────────────────────────
+
+data class F1CalendarRace(
+    val round: String?,
+    val raceName: String?,
+    val circuitName: String?,
+    val locality: String?,
+    val country: String?,
+    val countryFlagUrl: String?,
+    val raceStart: ZonedDateTime?
+)
+
+/** [year] is the championship year; [CURRENT_SEASON]'s own state is the race *count*, not this. */
+data class F1Season(val year: String?, val races: List<F1CalendarRace>)
+
+fun parseCurrentSeason(entity: HAEntity?): F1Season? {
+    val e = entity ?: return null
+    val races = e.arr("races").orEmpty().mapNotNull { element ->
+        val row = runCatching { element.jsonObject }.getOrNull() ?: return@mapNotNull null
+        val date = row.text("date")
+        val time = row.text("time")
+        val instant = parseF1Instant(
+            if (date != null && time != null) "${date}T$time" else date
+        )
+        F1CalendarRace(
+            round = row.text("round"),
+            raceName = row.text("raceName"),
+            circuitName = row.text("Circuit", "circuitName"),
+            locality = row.text("Circuit", "Location", "locality"),
+            country = row.text("Circuit", "Location", "country"),
+            countryFlagUrl = row.text("country_flag_url"),
+            raceStart = instant
+        )
+    }
+    val year = e.str("season")
+    if (year == null && races.isEmpty()) return null
+    return F1Season(year = year, races = races)
+}
+
+// ── Starting grid ────────────────────────────────────────────────────────────
+
+data class F1GridRow(
+    val gridPosition: Int?,
+    val qualifyingPosition: Int?,
+    val number: String?,
+    val tla: String?,
+    val driverName: String?,
+    val teamName: String?,
+    val gridDelta: Int?,
+    val changedFromQualifying: Boolean?
+)
+
+data class F1StartingGrid(
+    val status: String?,
+    val context: String?,
+    val targetSessionName: String?,
+    val grid: List<F1GridRow>
+)
+
+fun parseStartingGrid(entity: HAEntity?): F1StartingGrid? {
+    val e = entity ?: return null
+    val rows = e.arr("grid").orEmpty().mapNotNull { element ->
+        val row = runCatching { element.jsonObject }.getOrNull() ?: return@mapNotNull null
+        F1GridRow(
+            gridPosition = row.number("grid_position")?.toInt(),
+            qualifyingPosition = row.number("qualifying_position")?.toInt(),
+            number = row.text("racing_number"),
+            tla = row.text("tla"),
+            driverName = row.text("driver_name"),
+            teamName = row.text("team_name"),
+            gridDelta = row.number("grid_delta")?.toInt(),
+            changedFromQualifying = row.boolean("changed_from_qualifying")
+        )
+    }
+    return F1StartingGrid(
+        status = e.state.takeIf { it.isNotBlank() && it != "unknown" },
+        context = e.str("grid_context"),
+        targetSessionName = e.str("target_session_name"),
+        grid = rows
+    )
+}
+
+// ── Championship prediction ──────────────────────────────────────────────────
+
+/**
+ * Best-effort: the integration does not publish an attribute schema for these entities anywhere
+ * in its docs, and the feature itself needs optional F1TV Auth, so most installs never populate
+ * it. Every field below tries a few plausible names and degrades to null/empty rather than
+ * throwing — this may need a follow-up fix once seen against a real payload.
+ */
+data class F1PredictionRow(
+    val position: String?,
+    val name: String?,
+    val currentPoints: String?,
+    val predictedPoints: String?
+)
+
+fun parseChampionshipPrediction(entity: HAEntity?): List<F1PredictionRow> {
+    val e = entity ?: return emptyList()
+    val rows = e.arr("predictions") ?: e.arr("drivers") ?: e.arr("teams") ?: e.arr("results")
+        ?: return emptyList()
+    return rows.mapNotNull { element ->
+        val row = runCatching { element.jsonObject }.getOrNull() ?: return@mapNotNull null
+        val given = row.text("Driver", "givenName")
+        val family = row.text("Driver", "familyName")
+        val driverName = listOfNotNull(given, family).joinToString(" ").takeIf { it.isNotBlank() }
+        val name = driverName
+            ?: row.text("driver_name")
+            ?: row.text("name")
+            ?: row.text("Constructor", "name")
+            ?: row.text("team_name")
+            ?: row.firstArrayText("Constructors", "name")
+        val current = row.text("current_points") ?: row.text("currentPoints") ?: row.text("points")
+        val predicted = row.text("predicted_points") ?: row.text("predictedPoints")
+            ?: row.text("final_points") ?: row.text("finalPoints")
+        if (name == null && predicted == null) return@mapNotNull null
+        F1PredictionRow(
+            position = row.text("position"),
+            name = name,
+            currentPoints = current,
+            predictedPoints = predicted
+        )
+    }
+}
+
+// ── Live timing ──────────────────────────────────────────────────────────────
+
+data class F1LiveDriver(
+    val position: String?,
+    val tla: String?,
+    val name: String?,
+    val gapToLeader: String?,
+    val intervalAhead: String?,
+    val status: String?,
+    val tyreCompound: String?,
+    val tyreStintLaps: Int?
+)
+
+/** Leader's current lap and the race distance, when the session reports them. */
+data class F1LapCount(val currentLap: Int?, val totalLaps: Int?)
+
+fun parseLapCount(positions: HAEntity?): F1LapCount? {
+    val e = positions ?: return null
+    val current = e.state.toIntOrNull()
+    val total = e.num("total_laps")?.toInt()
+    if (current == null && total == null) return null
+    return F1LapCount(current, total)
+}
+
+fun parseLiveDrivers(positions: HAEntity?, tyres: HAEntity?): List<F1LiveDriver> {
+    val rows = positions?.arr("drivers") ?: return emptyList()
+    val tyresByNumber = tyres?.arr("drivers").orEmpty().mapNotNull { element ->
+        val row = runCatching { element.jsonObject }.getOrNull() ?: return@mapNotNull null
+        val number = row.text("racing_number") ?: return@mapNotNull null
+        number to row
+    }.toMap()
+    return rows.mapNotNull { element ->
+        val row = runCatching { element.jsonObject }.getOrNull() ?: return@mapNotNull null
+        val number = row.text("racing_number")
+        val tyre = number?.let { tyresByNumber[it] }
+        F1LiveDriver(
+            position = row.text("current_position"),
+            tla = row.text("tla"),
+            name = row.text("name"),
+            gapToLeader = row.text("gap_to_leader"),
+            intervalAhead = row.text("interval_to_position_ahead"),
+            status = row.text("status"),
+            tyreCompound = tyre?.text("compound_short"),
+            tyreStintLaps = tyre?.number("stint_laps")?.toInt()
+        )
+    }.sortedBy { it.position?.toIntOrNull() ?: Int.MAX_VALUE }
 }

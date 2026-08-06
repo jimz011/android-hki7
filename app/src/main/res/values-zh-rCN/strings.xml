@@ -1960,6 +1960,10 @@
     <string name="cr_vacuum_settings">扫地机器人设置</string>
     <string name="cr_weekly">每周</string>
     <string name="cr_wet">潮湿</string>
+    <string-array name="cr_whats_new_beta_15">
+        <item>Formula 1 小部件获得两个新选项卡并扩展了两个现有选项卡。日历按顺序列出了本赛季的比赛，并附有每条赛道和主办国的国旗。发车排位显示了起跑发车的发车排位，以及每位车手从他们的排位赛中向上或向下移动的情况。当设置 F1 Sensor 的可选 F1TV Auth 时，积分榜现在可以显示冠军预测以及积分表（车手或车队的当前积分和预测最终积分）。实时获得正确的计时列表：与领先者的差距、与前方车辆的间隔、轮胎配方和进站长度、每个车手的进站/退役状态，以及领先者所在的圈数。</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_14">
         <item>设置 › 家庭共享现在显示安装了哪个 HKI 7 Cloud 版本，如果落后，则显示哪些家庭功能不可用，每个功能都标有解锁它的版本。以前，找出组件是否已过时的唯一方法是进行保存，该保存会悄悄删除您配置的部分内容。*</item>
         <item>新的待办事项列表小部件：全家人都可以添加的共享清单或购物清单。 Items support an optional quantity, category, priority (low, normal or high, shown as a flag) and due date, with Added by and Checked by attribution when more than one person edits the list.选择手动、A-Z、优先级或最新优先排序，然后从对话框中在“待办事项”、“全部”和“完成”之间进行筛选。 Editing can be limited to everyone, specific family members picked from the real Home Assistant user list, or admins only, enforced the same way the rest of the app\'s family permissions are.它遵循与其他小部件相同的设计，具有常见的“常规”、“权限”、“外观”和“可见性”设置选项卡。</item>
@@ -3420,17 +3424,29 @@
     <string name="widgets_f1_subtitle">比赛周末、排名和结果</string>
     <string name="widgets_f1_sources_subtitle">从 F1 传感器集成中读取</string>
     <string name="widgets_f1_tab_next">下一场比赛</string>
+    <string name="widgets_f1_tab_calendar">日历</string>
     <string name="widgets_f1_tab_standings">积分榜</string>
+    <string name="widgets_f1_tab_grid">网格</string>
     <string name="widgets_f1_tab_results">结果</string>
     <string name="widgets_f1_tab_live">居住</string>
     <string name="widgets_f1_drivers">司机</string>
     <string name="widgets_f1_constructors">构造函数</string>
+    <string name="widgets_f1_prediction">预言</string>
     <string name="widgets_f1_schedule">会议日程</string>
     <string name="widgets_f1_race_control">比赛控制</string>
+    <string name="widgets_f1_timing">定时</string>
     <string name="widgets_f1_round">第 %1$s 轮</string>
     <string name="widgets_f1_lap_short">圈 %1$s</string>
+    <string name="widgets_f1_lap_of">圈 %1$d / %2$d</string>
     <string name="widgets_f1_wins_short">%1$s 获胜</string>
     <string name="widgets_f1_points_wins_legend">右侧栏显示冠军积分。</string>
+    <string name="widgets_f1_prediction_now">现在：%1$s 分</string>
+    <string name="widgets_f1_prediction_legend">右栏显示预测的最终分数。需要 F1 传感器中的 F1TV 身份验证。</string>
+    <string name="widgets_f1_status_pit">坑里</string>
+    <string name="widgets_f1_status_out">退休</string>
+    <string name="widgets_f1_no_calendar">还没有可用的赛季时间表</string>
+    <string name="widgets_f1_no_grid">还没有可用的起始网格</string>
+    <string name="widgets_f1_no_prediction">没有可用的冠军预测。需要 F1 传感器中的 F1TV 身份验证。</string>
     <string name="widgets_f1_lights_out_in">%1$s 熄灯</string>
     <string name="widgets_f1_next_in">%1$s · %2$s</string>
     <string name="widgets_f1_in_days_hours">在 %1$dd %2$dh 中</string>
@@ -3440,7 +3456,7 @@
     <string name="widgets_f1_today_at">今天%1$s</string>
     <string name="widgets_f1_tomorrow_at">明天 %1$s</string>
     <string name="widgets_f1_time_unknown">时间待确认</string>
-    <string name="widgets_f1_sensors_used">该小部件使用下一场比赛、车手和车队排名、上次比赛结果、天气、当前赛季以及在比赛期间的赛道状态、比赛状态和比赛控制。它不需要其他 F1 传感器选项。</string>
+    <string name="widgets_f1_sensors_used">该小部件使用下一场比赛、赛季日历、出发排位、车手和车队排名、上次比赛结果、天气，以及在比赛期间的赛道状态、比赛状态、比赛控制、车手位置和当前轮胎。当 F1 Sensor 的可选 F1TV Auth 设置时，它还会显示冠军预测。它不需要其他 F1 传感器选项。</string>
     <string name="widgets_f1_no_standings">还没有可用的排名</string>
     <string name="widgets_f1_no_results">尚未公布比赛结果</string>
     <string name="widgets_f1_no_race_control">没有比赛控制消息</string>

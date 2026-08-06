@@ -327,4 +327,153 @@ class F1DataTest {
         assertNull(parseF1Instant(""))
         assertNull(parseF1Instant(null))
     }
+
+    // ── Season calendar ──────────────────────────────────────────────────────
+
+    @Test
+    fun `reads the season year from the season attribute, not the race-count state`() {
+        // sensor.f1_current_season's state is the race COUNT, e.g. "24" - the year lives in the
+        // "season" attribute instead, and the dialog title badge must show the latter.
+        val season = parseCurrentSeason(
+            entity(
+                "sensor.current_season", "24",
+                """
+                {"season": "2026", "races": [
+                  {"round": "1", "raceName": "Bahrain Grand Prix",
+                   "date": "2026-03-08", "time": "15:00:00Z",
+                   "Circuit": {"circuitName": "Bahrain International Circuit",
+                               "Location": {"locality": "Sakhir", "country": "Bahrain"}},
+                   "country_flag_url": "https://flags/bh.png"}
+                ]}
+                """.trimIndent()
+            )
+        )
+        requireNotNull(season)
+        assertEquals("2026", season.year)
+        val race = season.races.single()
+        assertEquals("Bahrain Grand Prix", race.raceName)
+        assertEquals("Sakhir", race.locality)
+        assertEquals("Bahrain International Circuit", race.circuitName)
+        assertEquals(2026, race.raceStart?.year)
+    }
+
+    @Test
+    fun `season is null with nothing to show and tolerates malformed race rows`() {
+        assertNull(parseCurrentSeason(entity("sensor.x", "0")))
+        assertNull(parseCurrentSeason(null))
+
+        val season = parseCurrentSeason(
+            entity("sensor.x", "1", """{"season": "2026", "races": ["not an object"]}""")
+        )
+        requireNotNull(season)
+        assertTrue(season.races.isEmpty())
+    }
+
+    // ── Starting grid ────────────────────────────────────────────────────────
+
+    @Test
+    fun `parses a confirmed starting grid with the qualifying-to-grid delta`() {
+        val grid = parseStartingGrid(
+            entity(
+                "sensor.starting_grid", "confirmed",
+                """
+                {"grid_context": "race", "target_session_name": "Race",
+                 "grid": [
+                   {"grid_position": 1, "qualifying_position": 3, "racing_number": "1",
+                    "tla": "VER", "driver_name": "Max Verstappen", "team_name": "Red Bull",
+                    "grid_delta": 2, "changed_from_qualifying": true}
+                 ]}
+                """.trimIndent()
+            )
+        )
+        requireNotNull(grid)
+        assertEquals("confirmed", grid.status)
+        assertEquals("race", grid.context)
+        val row = grid.grid.single()
+        assertEquals(1, row.gridPosition)
+        assertEquals(3, row.qualifyingPosition)
+        assertEquals(2, row.gridDelta)
+        assertEquals(true, row.changedFromQualifying)
+    }
+
+    @Test
+    fun `starting grid is empty while waiting for qualifying, not null`() {
+        val grid = parseStartingGrid(entity("sensor.starting_grid", "waiting_for_qualifying"))
+        requireNotNull(grid)
+        assertEquals("waiting_for_qualifying", grid.status)
+        assertTrue(grid.grid.isEmpty())
+    }
+
+    // ── Championship prediction ──────────────────────────────────────────────
+
+    @Test
+    fun `parses a plausible championship prediction payload`() {
+        val rows = parseChampionshipPrediction(
+            entity(
+                "sensor.prediction", "20",
+                """
+                {"predictions": [
+                  {"position": "1", "driver_name": "Max Verstappen",
+                   "current_points": "575", "predicted_points": "620"}
+                ]}
+                """.trimIndent()
+            )
+        )
+        val row = rows.single()
+        assertEquals("Max Verstappen", row.name)
+        assertEquals("575", row.currentPoints)
+        assertEquals("620", row.predictedPoints)
+    }
+
+    @Test
+    fun `unrecognized prediction payloads degrade to an empty list rather than throwing`() {
+        assertTrue(parseChampionshipPrediction(entity("sensor.x", "0")).isEmpty())
+        assertTrue(parseChampionshipPrediction(null).isEmpty())
+        assertTrue(
+            parseChampionshipPrediction(entity("sensor.x", "1", """{"weird_key": []}""")).isEmpty()
+        )
+    }
+
+    // ── Live timing ──────────────────────────────────────────────────────────
+
+    @Test
+    fun `joins live driver positions with tyre data by racing number`() {
+        val positions = entity(
+            "sensor.driver_positions", "12",
+            """{"total_laps": 57, "drivers": [
+                 {"racing_number": "1", "tla": "VER", "name": "Max Verstappen",
+                  "current_position": "1", "gap_to_leader": "", "status": "on_track"},
+                 {"racing_number": "44", "tla": "HAM", "name": "Lewis Hamilton",
+                  "current_position": "2", "gap_to_leader": "+3.201", "status": "pit_in"}
+               ]}"""
+        )
+        val tyres = entity(
+            "sensor.current_tyres", "2",
+            """{"drivers": [
+                 {"racing_number": "1", "compound_short": "M", "stint_laps": 15},
+                 {"racing_number": "44", "compound_short": "H", "stint_laps": 3}
+               ]}"""
+        )
+        val drivers = parseLiveDrivers(positions, tyres)
+        assertEquals(listOf("1", "2"), drivers.map { it.position })
+        assertEquals("M", drivers[0].tyreCompound)
+        assertEquals(15, drivers[0].tyreStintLaps)
+        assertEquals("pit_in", drivers[1].status)
+
+        val lapCount = parseLapCount(positions)
+        requireNotNull(lapCount)
+        assertEquals(12, lapCount.currentLap)
+        assertEquals(57, lapCount.totalLaps)
+    }
+
+    @Test
+    fun `live timing degrades gracefully with no tyre entity or no drivers`() {
+        val positions = entity("sensor.driver_positions", "1", """{"drivers": [{"racing_number": "1"}]}""")
+        val drivers = parseLiveDrivers(positions, null)
+        assertEquals(1, drivers.size)
+        assertNull(drivers.single().tyreCompound)
+
+        assertTrue(parseLiveDrivers(null, null).isEmpty())
+        assertNull(parseLapCount(null))
+    }
 }
