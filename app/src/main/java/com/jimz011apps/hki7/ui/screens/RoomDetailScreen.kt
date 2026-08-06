@@ -160,6 +160,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.jsonPrimitiveOrNull
 import com.jimz011apps.hki7.data.isActionItemId
 import com.jimz011apps.hki7.data.isSpacerEntityId
 import com.jimz011apps.hki7.data.isSyntheticItemId
@@ -7636,7 +7637,7 @@ fun GenericEntityDialog(
     iconName: String? = null
 ) {
     val domain = entity.entity_id.substringBefore(".")
-    val unit = entity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull
+    val unit = entity.attributes?.get("unit_of_measurement")?.jsonPrimitiveOrNull?.contentOrNull
     val valueText = if (domain == "binary_sensor") {
         localizedBinarySensorFriendlyState(entity)
     } else {
@@ -7650,7 +7651,7 @@ fun GenericEntityDialog(
     // the active option. The dialog defaults to a pickable list, mirroring the light effects list.
     val selectOptions = remember(entity) {
         (entity.attributes?.get("options") as? kotlinx.serialization.json.JsonArray)
-            ?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
+            ?.mapNotNull { it.jsonPrimitiveOrNull?.contentOrNull }.orEmpty()
     }
     val icon = when (domain) {
         "switch", "input_boolean" -> Icons.Default.PowerSettingsNew

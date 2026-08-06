@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HAServiceCall
+import com.jimz011apps.hki7.data.jsonPrimitiveOrNull
 import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.ui.localizedStateLabel
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
@@ -279,7 +280,7 @@ private fun SelectControl(entity: HAEntity, domain: String, viewModel: MainViewM
 @Composable
 private fun NumberControl(entity: HAEntity, domain: String, viewModel: MainViewModel) {
     val appColors = LocalHKIAppColors.current
-    fun attr(name: String) = entity.attributes?.get(name)?.jsonPrimitive?.contentOrNull?.toFloatOrNull()
+    fun attr(name: String) = entity.attributes?.get(name)?.jsonPrimitiveOrNull?.contentOrNull?.toFloatOrNull()
     val step = attr("step")?.takeIf { it > 0f } ?: 1f
     val minV = attr("min")
     val maxV = attr("max")
@@ -337,7 +338,7 @@ private fun TextControl(entity: HAEntity, domain: String, viewModel: MainViewMod
 
 /** Best-effort MDI icon name for an entity: its own icon attribute, else a domain/class default. */
 fun entityMdiIcon(entity: HAEntity): String {
-    entity.attributes?.get("icon")?.jsonPrimitive?.contentOrNull
+    entity.attributes?.get("icon")?.jsonPrimitiveOrNull?.contentOrNull
         ?.removePrefix("mdi:")?.takeIf { it.isNotBlank() }?.let { return it }
     val domain = entity.entity_id.substringBefore(".")
     return when {
@@ -373,7 +374,7 @@ fun entityMdiIcon(entity: HAEntity): String {
 
 /** Human state: numbers keep their unit, on/off & friends get capitalized words. */
 fun entityStateDisplay(entity: HAEntity): String {
-    val unit = entity.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull
+    val unit = entity.attributes?.get("unit_of_measurement")?.jsonPrimitiveOrNull?.contentOrNull
     val num = entity.state.toFloatOrNull()
     if (num != null) {
         val v = if (num % 1f == 0f) "%.0f".format(num) else "%.1f".format(num)

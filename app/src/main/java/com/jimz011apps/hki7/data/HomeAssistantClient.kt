@@ -784,7 +784,14 @@ open class HomeAssistantClient(
         val history = nestedList.flatten().reversed()
         val logbook = runCatching { getEntityLogbook(entityId, start, end) }.getOrDefault(emptyList())
         val userNamesById = getUserNamesById()
-        return history.map { entry: HAHistoryEntry -> entry.withActor(entityId, logbook, userNamesById) }
+        // Parse each logbook entry's timestamp once instead of once per history entry. A quiet
+        // entity never noticed, but a busy motion sensor can log thousands of changes a day, and
+        // re-filtering + re-parsing the whole logbook for every one of them (an O(history x logbook)
+        // datetime-string parse) pegged the CPU for long enough to ANR the app outright.
+        val parsedLogbook = logbook
+            .filter { it.entity_id == null || it.entity_id == entityId }
+            .mapNotNull { entry -> parseHaInstant(entry.time)?.let { it to entry } }
+        return history.map { entry: HAHistoryEntry -> entry.withActor(entityId, parsedLogbook, userNamesById) }
     }
 
     private suspend fun getEntityLogbook(
@@ -1251,18 +1258,16 @@ open class HomeAssistantClient(
 
     private fun HAHistoryEntry.withActor(
         entityId: String,
-        logbookEntries: List<HALogbookEntry>,
+        parsedLogbook: List<Pair<Instant, HALogbookEntry>>,
         userNamesById: Map<String, String>
     ): HAHistoryEntry {
         val historyTime = parseHaInstant(last_changed)
         val matchingLogbook = historyTime?.let { target ->
-            logbookEntries
-                .filter { it.entity_id == null || it.entity_id == entityId }
-                .mapNotNull { logbook ->
-                    val logTime = parseHaInstant(logbook.time) ?: return@mapNotNull null
-                    logbook to abs(Duration.between(target, logTime).toMillis())
+            parsedLogbook
+                .mapNotNull { (logTime, logbook) ->
+                    val delta = abs(Duration.between(target, logTime).toMillis())
+                    if (delta <= 5000) logbook to delta else null
                 }
-                .filter { pair -> pair.second <= 5000 }
                 .minByOrNull { pair -> pair.second }
                 ?.first
         }

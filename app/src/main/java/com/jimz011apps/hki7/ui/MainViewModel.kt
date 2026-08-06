@@ -2697,7 +2697,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     fun fetchEntityHistory(entityId: String, hours: Long = 24, significantChangesOnly: Boolean = true) {
         val currentClient = client ?: return
-        viewModelScope.launch {
+        // Decoding a large history/logbook payload and matching actors across them is real CPU work,
+        // not just network I/O — on the default (main) dispatcher a busy entity's history has ANR'd
+        // the app outright. See the complexity fix in HAHistoryEntry.withActor() too.
+        viewModelScope.launch(Dispatchers.Default) {
             try {
                 val history = currentClient.getEntityHistory(entityId, hours, significantChangesOnly)
                 val current = _historyMapping.value.toMutableMap()

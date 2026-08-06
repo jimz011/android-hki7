@@ -81,6 +81,13 @@ fun newActionItemId(): String = "$ACTION_ITEM_DOMAIN.${java.util.UUID.randomUUID
 fun isSyntheticItemId(entityId: String): Boolean =
     isSpacerEntityId(entityId) || isActionItemId(entityId)
 
+/** Like [JsonElement.jsonPrimitive], but null instead of throwing when a normally-scalar attribute
+ *  arrives as an object/array. Some integrations attach richer per-entity payloads than Home
+ *  Assistant's own schema implies for that attribute name; one such mismatch on one entity
+ *  shouldn't crash every dialog that reads it. */
+val JsonElement.jsonPrimitiveOrNull: JsonPrimitive?
+    get() = this as? JsonPrimitive
+
 @Serializable
 @Immutable
 data class HAEntity(
@@ -90,63 +97,63 @@ data class HAEntity(
     val last_changed: String? = null
 ) {
     val friendlyName: String?
-        get() = attributes?.get("friendly_name")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("friendly_name")?.jsonPrimitiveOrNull?.contentOrNull
 
     val temperature: Double?
-        get() = attributes?.get("temperature")?.jsonPrimitive?.doubleOrNull
+        get() = attributes?.get("temperature")?.jsonPrimitiveOrNull?.doubleOrNull
 
     val humidity: Double?
-        get() = attributes?.get("humidity")?.jsonPrimitive?.doubleOrNull
+        get() = attributes?.get("humidity")?.jsonPrimitiveOrNull?.doubleOrNull
 
     val pressure: Double?
-        get() = attributes?.get("pressure")?.jsonPrimitive?.doubleOrNull
+        get() = attributes?.get("pressure")?.jsonPrimitiveOrNull?.doubleOrNull
 
     val windSpeed: Double?
-        get() = attributes?.get("wind_speed")?.jsonPrimitive?.doubleOrNull
+        get() = attributes?.get("wind_speed")?.jsonPrimitiveOrNull?.doubleOrNull
 
     val precipitation: Double?
-        get() = attributes?.get("precipitation")?.jsonPrimitive?.doubleOrNull
+        get() = attributes?.get("precipitation")?.jsonPrimitiveOrNull?.doubleOrNull
 
     val entityPicture: String?
-        get() = attributes?.get("entity_picture")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("entity_picture")?.jsonPrimitiveOrNull?.contentOrNull
 
     val icon: String?
-        get() = attributes?.get("icon")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("icon")?.jsonPrimitiveOrNull?.contentOrNull
 
     val mediaTitle: String?
-        get() = attributes?.get("media_title")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("media_title")?.jsonPrimitiveOrNull?.contentOrNull
 
     val mediaArtist: String?
-        get() = attributes?.get("media_artist")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("media_artist")?.jsonPrimitiveOrNull?.contentOrNull
 
     val brightness: Int?
-        get() = attributes?.get("brightness")?.jsonPrimitive?.intOrNull
+        get() = attributes?.get("brightness")?.jsonPrimitiveOrNull?.intOrNull
 
     val colorTempKelvin: Int?
-        get() = attributes?.get("color_temp_kelvin")?.jsonPrimitive?.intOrNull
+        get() = attributes?.get("color_temp_kelvin")?.jsonPrimitiveOrNull?.intOrNull
 
     val minKelvin: Int?
-        get() = attributes?.get("min_color_temp_kelvin")?.jsonPrimitive?.intOrNull
+        get() = attributes?.get("min_color_temp_kelvin")?.jsonPrimitiveOrNull?.intOrNull
         
     val maxKelvin: Int?
-        get() = attributes?.get("max_color_temp_kelvin")?.jsonPrimitive?.intOrNull
+        get() = attributes?.get("max_color_temp_kelvin")?.jsonPrimitiveOrNull?.intOrNull
 
     val rgbColor: List<Int>?
         get() {
             val arr = attributes?.get("rgb_color") as? JsonArray
-            return arr?.mapNotNull { it.jsonPrimitive.intOrNull }
+            return arr?.mapNotNull { it.jsonPrimitiveOrNull?.intOrNull }
         }
 
     val effect: String?
-        get() = attributes?.get("effect")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("effect")?.jsonPrimitiveOrNull?.contentOrNull
 
     val effectList: List<String>
         get() = (attributes?.get("effect_list") as? JsonArray)
-            ?.mapNotNull { it.jsonPrimitive.contentOrNull }
+            ?.mapNotNull { it.jsonPrimitiveOrNull?.contentOrNull }
             .orEmpty()
 
     val supportedColorModes: List<String>
-        get() = (attributes?.get("supported_color_modes") as? JsonArray)?.map { it.jsonPrimitive.content } ?: emptyList()
+        get() = (attributes?.get("supported_color_modes") as? JsonArray)?.mapNotNull { it.jsonPrimitiveOrNull?.content } ?: emptyList()
         
     val supportsBrightness: Boolean
         get() = brightness != null || supportedColorModes.any {
@@ -169,97 +176,97 @@ data class HAEntity(
     // `entity_id` attribute holding the list of member entity ids.
     val childEntityIds: List<String>
         get() = (attributes?.get("entity_id") as? JsonArray)
-            ?.mapNotNull { it.jsonPrimitive.contentOrNull }
+            ?.mapNotNull { it.jsonPrimitiveOrNull?.contentOrNull }
             .orEmpty()
 
     val hvacModes: List<String>
         get() = (attributes?.get("hvac_modes") as? JsonArray)
-            ?.mapNotNull { it.jsonPrimitive.contentOrNull }
+            ?.mapNotNull { it.jsonPrimitiveOrNull?.contentOrNull }
             .orEmpty()
 
     val deviceClass: String?
-        get() = attributes?.get("device_class")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("device_class")?.jsonPrimitiveOrNull?.contentOrNull
 
     // person.* entities carry the linked Home Assistant user id, used to match logbook actors to their avatar.
     val userId: String?
-        get() = attributes?.get("user_id")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("user_id")?.jsonPrimitiveOrNull?.contentOrNull
 
     // ── climate: fan / swing modes ──────────────────────────────────────────
     val fanMode: String?
-        get() = attributes?.get("fan_mode")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("fan_mode")?.jsonPrimitiveOrNull?.contentOrNull
     val fanModes: List<String>
-        get() = (attributes?.get("fan_modes") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
+        get() = (attributes?.get("fan_modes") as? JsonArray)?.mapNotNull { it.jsonPrimitiveOrNull?.contentOrNull }.orEmpty()
     val swingMode: String?
-        get() = attributes?.get("swing_mode")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("swing_mode")?.jsonPrimitiveOrNull?.contentOrNull
     val swingModes: List<String>
-        get() = (attributes?.get("swing_modes") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
+        get() = (attributes?.get("swing_modes") as? JsonArray)?.mapNotNull { it.jsonPrimitiveOrNull?.contentOrNull }.orEmpty()
     val swingHorizontalMode: String?
-        get() = attributes?.get("swing_horizontal_mode")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("swing_horizontal_mode")?.jsonPrimitiveOrNull?.contentOrNull
     val swingHorizontalModes: List<String>
-        get() = (attributes?.get("swing_horizontal_modes") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
+        get() = (attributes?.get("swing_horizontal_modes") as? JsonArray)?.mapNotNull { it.jsonPrimitiveOrNull?.contentOrNull }.orEmpty()
 
     // ── cover: tilt ──────────────────────────────────────────────────────────
     val tiltPosition: Int?
-        get() = attributes?.get("current_tilt_position")?.jsonPrimitive?.intOrNull
+        get() = attributes?.get("current_tilt_position")?.jsonPrimitiveOrNull?.intOrNull
     val supportsTilt: Boolean
         get() = attributes?.containsKey("current_tilt_position") == true
 
     // ── fan domain ───────────────────────────────────────────────────────────
     val fanPercentage: Int?
-        get() = attributes?.get("percentage")?.jsonPrimitive?.intOrNull
+        get() = attributes?.get("percentage")?.jsonPrimitiveOrNull?.intOrNull
     val fanPresetMode: String?
-        get() = attributes?.get("preset_mode")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("preset_mode")?.jsonPrimitiveOrNull?.contentOrNull
     val fanPresetModes: List<String>
-        get() = (attributes?.get("preset_modes") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
+        get() = (attributes?.get("preset_modes") as? JsonArray)?.mapNotNull { it.jsonPrimitiveOrNull?.contentOrNull }.orEmpty()
     val fanOscillating: Boolean?
-        get() = attributes?.get("oscillating")?.jsonPrimitive?.booleanOrNull
+        get() = attributes?.get("oscillating")?.jsonPrimitiveOrNull?.booleanOrNull
     val fanDirection: String?
-        get() = attributes?.get("direction")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("direction")?.jsonPrimitiveOrNull?.contentOrNull
 
     // ── humidifier domain ────────────────────────────────────────────────────
     val currentHumidity: Double?
-        get() = attributes?.get("current_humidity")?.jsonPrimitive?.doubleOrNull
+        get() = attributes?.get("current_humidity")?.jsonPrimitiveOrNull?.doubleOrNull
     val minHumidity: Int?
-        get() = attributes?.get("min_humidity")?.jsonPrimitive?.intOrNull
+        get() = attributes?.get("min_humidity")?.jsonPrimitiveOrNull?.intOrNull
     val maxHumidity: Int?
-        get() = attributes?.get("max_humidity")?.jsonPrimitive?.intOrNull
+        get() = attributes?.get("max_humidity")?.jsonPrimitiveOrNull?.intOrNull
     val humidifierMode: String?
-        get() = attributes?.get("mode")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("mode")?.jsonPrimitiveOrNull?.contentOrNull
     val humidifierAvailableModes: List<String>
-        get() = (attributes?.get("available_modes") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
+        get() = (attributes?.get("available_modes") as? JsonArray)?.mapNotNull { it.jsonPrimitiveOrNull?.contentOrNull }.orEmpty()
 
     // ── media_player domain ──────────────────────────────────────────────────
     val mediaAlbumName: String?
-        get() = attributes?.get("media_album_name")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("media_album_name")?.jsonPrimitiveOrNull?.contentOrNull
     val mediaDuration: Double?
-        get() = attributes?.get("media_duration")?.jsonPrimitive?.doubleOrNull
+        get() = attributes?.get("media_duration")?.jsonPrimitiveOrNull?.doubleOrNull
     val mediaPosition: Double?
-        get() = attributes?.get("media_position")?.jsonPrimitive?.doubleOrNull
+        get() = attributes?.get("media_position")?.jsonPrimitiveOrNull?.doubleOrNull
     val mediaPositionUpdatedAt: String?
-        get() = attributes?.get("media_position_updated_at")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("media_position_updated_at")?.jsonPrimitiveOrNull?.contentOrNull
     val volumeLevel: Double?
-        get() = attributes?.get("volume_level")?.jsonPrimitive?.doubleOrNull
+        get() = attributes?.get("volume_level")?.jsonPrimitiveOrNull?.doubleOrNull
     val isVolumeMuted: Boolean?
-        get() = attributes?.get("is_volume_muted")?.jsonPrimitive?.booleanOrNull
+        get() = attributes?.get("is_volume_muted")?.jsonPrimitiveOrNull?.booleanOrNull
     val mediaShuffle: Boolean?
-        get() = attributes?.get("shuffle")?.jsonPrimitive?.booleanOrNull
+        get() = attributes?.get("shuffle")?.jsonPrimitiveOrNull?.booleanOrNull
     val mediaRepeat: String?
-        get() = attributes?.get("repeat")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("repeat")?.jsonPrimitiveOrNull?.contentOrNull
     val mediaSource: String?
-        get() = attributes?.get("source")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("source")?.jsonPrimitiveOrNull?.contentOrNull
     val sourceList: List<String>
-        get() = (attributes?.get("source_list") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty()
+        get() = (attributes?.get("source_list") as? JsonArray)?.mapNotNull { it.jsonPrimitiveOrNull?.contentOrNull }.orEmpty()
     val appName: String?
-        get() = attributes?.get("app_name")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("app_name")?.jsonPrimitiveOrNull?.contentOrNull
 
     // ── alarm_control_panel domain ──────────────────────────────────────────
     val supportedFeatures: Int
-        get() = attributes?.get("supported_features")?.jsonPrimitive?.intOrNull ?: 0
+        get() = attributes?.get("supported_features")?.jsonPrimitiveOrNull?.intOrNull ?: 0
     // null = no code needed, "number" = numeric keypad, "text" = free text
     val alarmCodeFormat: String?
-        get() = attributes?.get("code_format")?.jsonPrimitive?.contentOrNull
+        get() = attributes?.get("code_format")?.jsonPrimitiveOrNull?.contentOrNull
     val alarmCodeArmRequired: Boolean
-        get() = attributes?.get("code_arm_required")?.jsonPrimitive?.booleanOrNull ?: true
+        get() = attributes?.get("code_arm_required")?.jsonPrimitiveOrNull?.booleanOrNull ?: true
 }
 
 /** Returns a presentation-only copy with a locally configured friendly name. */
@@ -299,11 +306,11 @@ data class HACalendarEvent(
 fun JsonElement.asHAWeatherForecast(): HAWeatherForecast {
     val obj = this.jsonObject
     return HAWeatherForecast(
-        datetime = obj["datetime"]?.jsonPrimitive?.content ?: "",
-        condition = obj["condition"]?.jsonPrimitive?.contentOrNull,
-        temperature = obj["temperature"]?.jsonPrimitive?.doubleOrNull,
-        templow = obj["templow"]?.jsonPrimitive?.doubleOrNull,
-        precipitation = obj["precipitation"]?.jsonPrimitive?.doubleOrNull
+        datetime = obj["datetime"]?.jsonPrimitiveOrNull?.content ?: "",
+        condition = obj["condition"]?.jsonPrimitiveOrNull?.contentOrNull,
+        temperature = obj["temperature"]?.jsonPrimitiveOrNull?.doubleOrNull,
+        templow = obj["templow"]?.jsonPrimitiveOrNull?.doubleOrNull,
+        precipitation = obj["precipitation"]?.jsonPrimitiveOrNull?.doubleOrNull
     )
 }
 
@@ -311,7 +318,7 @@ fun JsonElement.asHAWeatherForecast(): HAWeatherForecast {
 fun HAEntity.isBatteryPercentageSensor(): Boolean =
     entity_id.startsWith("sensor.") &&
         deviceClass.equals("battery", ignoreCase = true) &&
-        attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull?.trim() == "%"
+        attributes?.get("unit_of_measurement")?.jsonPrimitiveOrNull?.contentOrNull?.trim() == "%"
 
 @Serializable
 data class HAArea(
