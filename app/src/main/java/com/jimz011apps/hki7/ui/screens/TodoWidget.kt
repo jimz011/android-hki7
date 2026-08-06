@@ -168,10 +168,12 @@ private fun TodoCard(
         stringResource(R.string.widgets_todo_title)
     }
     // A square card has the room to be genuinely useful rather than just a status icon: show the
-    // high-priority items still open, scrollable, and checkable right there — like the square
-    // calendar card's mini agenda, but for the things actually worth glancing at from the dashboard.
-    val highPriorityOpen = remember(widget.items) {
-        widget.items.filter { !it.checked && it.priority == TODO_ITEM_PRIORITY_HIGH }
+    // featured list's items still open, scrollable, and checkable right there — like the square
+    // calendar card's mini agenda, but for the one list actually worth glancing at from the dashboard.
+    val heroCategory = widget.heroCategory
+    val heroOpen = remember(widget.items, heroCategory) {
+        if (heroCategory == null) emptyList()
+        else widget.items.filter { !it.checked && it.category?.equals(heroCategory, ignoreCase = true) == true }
     }
 
     Surface(
@@ -182,7 +184,7 @@ private fun TodoCard(
         shape = RoundedCornerShape(widget.cornerRadius.dp),
         color = Color.Transparent
     ) {
-        if (widget.isSquare && highPriorityOpen.isNotEmpty()) {
+        if (widget.isSquare && heroCategory != null && heroOpen.isNotEmpty()) {
             Box {
                 if (!widget.backgroundUrl.isNullOrBlank()) WidgetBackground(widget.backgroundUrl, currentUrl)
                 Column(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -198,13 +200,19 @@ private fun TodoCard(
                             color = appColors.onMuted, style = MaterialTheme.typography.labelSmall
                         )
                     }
+                    // Names the featured list so the card reads as "Chores", not just an unlabeled
+                    // subset of the whole to-do list.
+                    Text(
+                        heroCategory, color = accent, style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis
+                    )
                     HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.12f))
                     val heroScroll = rememberScrollState()
                     Column(
                         Modifier.weight(1f).fadingEdges(heroScroll).verticalScroll(heroScroll),
                         verticalArrangement = Arrangement.spacedBy(0.dp)
                     ) {
-                        highPriorityOpen.forEach { item ->
+                        heroOpen.forEach { item ->
                             Row(
                                 Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -520,7 +528,12 @@ private fun TodoDialog(
 
     fun removeCategory(name: String) {
         if (selectedCategory == name) selectedCategory = null
-        onUpdate(widget.copy(categories = widget.categories.filterNot { it == name }))
+        onUpdate(
+            widget.copy(
+                categories = widget.categories.filterNot { it == name },
+                heroCategory = widget.heroCategory?.takeUnless { it.equals(name, ignoreCase = true) }
+            )
+        )
     }
 
     val sorted = remember(widget.items, widget.sortMode) {
@@ -869,6 +882,7 @@ fun TodoWidgetSettingsDialog(
     var backgroundUrl by remember(widget) { mutableStateOf(widget.backgroundUrl) }
     var sortMode by remember(widget) { mutableStateOf(widget.sortMode) }
     var showCompleted by remember(widget) { mutableStateOf(widget.showCompleted) }
+    var heroCategory by remember(widget) { mutableStateOf(widget.heroCategory) }
     var editPermission by remember(widget) { mutableStateOf(widget.editPermission) }
     var editableMemberIds by remember(widget) { mutableStateOf(widget.editableMemberIds.toSet()) }
     var showIconPicker by remember { mutableStateOf(false) }
@@ -932,6 +946,31 @@ fun TodoWidgetSettingsDialog(
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Text(stringResource(R.string.widgets_todo_show_completed), modifier = Modifier.weight(1f))
                         Switch(checked = showCompleted, onCheckedChange = { showCompleted = it })
+                    }
+                    if (widget.categories.isNotEmpty()) {
+                        Text(stringResource(R.string.widgets_todo_hero_list), style = MaterialTheme.typography.labelLarge)
+                        Text(
+                            stringResource(R.string.widgets_todo_hero_list_hint),
+                            color = appColors.onMuted, style = MaterialTheme.typography.bodySmall
+                        )
+                        val heroScroll = rememberScrollState()
+                        Row(
+                            Modifier.fillMaxWidth().horizontalScroll(heroScroll),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            FilterChip(
+                                selected = heroCategory == null,
+                                onClick = { heroCategory = null },
+                                label = { Text(stringResource(R.string.cr_none), fontSize = 12.sp) }
+                            )
+                            widget.categories.forEach { category ->
+                                FilterChip(
+                                    selected = heroCategory.equals(category, ignoreCase = true),
+                                    onClick = { heroCategory = category },
+                                    label = { Text(category, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                                )
+                            }
+                        }
                     }
                 }
                 if (settingsPage == "permissions") {
@@ -1023,6 +1062,7 @@ fun TodoWidgetSettingsDialog(
                         backgroundUrl = backgroundUrl,
                         sortMode = sortMode,
                         showCompleted = showCompleted,
+                        heroCategory = heroCategory,
                         editPermission = editPermission,
                         editableMemberIds = editableMemberIds.toList(),
                         isHidden = visSpec.hidden,

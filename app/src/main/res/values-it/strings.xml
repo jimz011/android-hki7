@@ -1595,6 +1595,8 @@
     <string name="widgets_todo_sort_priority">Priorità</string>
     <string name="widgets_todo_sort_newest">Prima il più recente</string>
     <string name="widgets_todo_show_completed">Mostra gli elementi completati per impostazione predefinita</string>
+    <string name="widgets_todo_hero_list">Elenco degli eroi</string>
+    <string name="widgets_todo_hero_list_hint">Mostra gli elementi aperti di questo elenco sulla scheda quadrata.</string>
     <string name="widgets_todo_permissions_subtitle">Scegli chi può aggiungere, spuntare o rimuovere elementi</string>
     <string name="widgets_todo_perm_everyone">Tutti</string>
     <string name="widgets_todo_perm_specific">Membri specifici della famiglia</string>

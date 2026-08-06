@@ -1595,6 +1595,8 @@
     <string name="widgets_todo_sort_priority">Priorität</string>
     <string name="widgets_todo_sort_newest">Das Neueste zuerst</string>
     <string name="widgets_todo_show_completed">Abgeschlossene Elemente standardmäßig anzeigen</string>
+    <string name="widgets_todo_hero_list">Heldenliste</string>
+    <string name="widgets_todo_hero_list_hint">Zeigen Sie die offenen Posten dieser Liste auf der quadratischen Karte an.</string>
     <string name="widgets_todo_permissions_subtitle">Wählen Sie aus, wer Elemente hinzufügen, abhaken oder entfernen darf</string>
     <string name="widgets_todo_perm_everyone">Alle</string>
     <string name="widgets_todo_perm_specific">Bestimmte Familienmitglieder</string>

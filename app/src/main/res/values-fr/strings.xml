@@ -1595,6 +1595,8 @@
     <string name="widgets_todo_sort_priority">Priorité</string>
     <string name="widgets_todo_sort_newest">Le plus récent en premier</string>
     <string name="widgets_todo_show_completed">Afficher les éléments terminés par défaut</string>
+    <string name="widgets_todo_hero_list">Liste des héros</string>
+    <string name="widgets_todo_hero_list_hint">Afficher les postes non soldés de cette liste sur la carte carrée.</string>
     <string name="widgets_todo_permissions_subtitle">Choisissez qui peut ajouter, cocher ou supprimer des éléments</string>
     <string name="widgets_todo_perm_everyone">Tout le monde</string>
     <string name="widgets_todo_perm_specific">Membres spécifiques de la famille</string>

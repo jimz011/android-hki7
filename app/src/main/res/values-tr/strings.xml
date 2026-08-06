@@ -1595,6 +1595,8 @@
     <string name="widgets_todo_sort_priority">Öncelik</string>
     <string name="widgets_todo_sort_newest">Önce en yeni</string>
     <string name="widgets_todo_show_completed">Tamamlanan öğeleri varsayılan olarak göster</string>
+    <string name="widgets_todo_hero_list">Kahraman listesi</string>
+    <string name="widgets_todo_hero_list_hint">Bu listenin açık öğelerini kare kartta gösterin.</string>
     <string name="widgets_todo_permissions_subtitle">Öğeleri kimlerin ekleyebileceğini, işaretleyebileceğini veya kaldırabileceğini seçin</string>
     <string name="widgets_todo_perm_everyone">Herkes</string>
     <string name="widgets_todo_perm_specific">Belirli aile üyeleri</string>

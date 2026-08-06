@@ -1960,6 +1960,10 @@
     <string name="cr_vacuum_settings">扫地机器人设置</string>
     <string name="cr_weekly">每周</string>
     <string name="cr_wet">潮湿</string>
+    <string-array name="cr_whats_new_beta_16">
+        <item>待办事项小部件的方形卡片现在可以包含整个列表，而不是单独标记为高优先级的项目。小部件的“常规”选项卡中的新英雄列表选择器（一旦至少有一个选项卡就会显示）选择卡片上显示的列表的打开项目，并标有该列表的名称，因此您一眼看到的是像“杂务”这样的特定列表，而不是从每个选项卡中提取的分散组合。删除当前英雄列表中的选项卡会自动清除该设置。</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_15">
         <item>Formula 1 小部件获得两个新选项卡并扩展了两个现有选项卡。日历按顺序列出了本赛季的比赛，并附有每条赛道和主办国的国旗。发车排位显示了起跑发车的发车排位，以及每位车手从他们的排位赛中向上或向下移动的情况。当设置 F1 Sensor 的可选 F1TV Auth 时，积分榜现在可以显示冠军预测以及积分表（车手或车队的当前积分和预测最终积分）。实时获得正确的计时列表：与领先者的差距、与前方车辆的间隔、轮胎配方和进站长度、每个车手的进站/退役状态，以及领先者所在的圈数。</item>
         <item>修复了一旦所有者添加了较新应用程序版本中引入的小部件类型（例如待办事项列表或一级方程式小部件）后，共享家庭仪表板根本无法更新的问题。一个无法识别的小部件曾经导致整个仪表板失败，因此旧版本上的家庭成员停止接收该仪表板的任何更改，而不仅仅是错过新的小部件。现在，无法识别的小部件将被单独跳过，因此共享仪表板的其余部分可以跨应用程序版本继续工作。</item>
@@ -3520,6 +3524,8 @@
     <string name="widgets_todo_sort_priority">优先事项</string>
     <string name="widgets_todo_sort_newest">最新的优先</string>
     <string name="widgets_todo_show_completed">默认显示已完成的项目</string>
+    <string name="widgets_todo_hero_list">英雄列表</string>
+    <string name="widgets_todo_hero_list_hint">在方形卡片上显示此列表的未清项目。</string>
     <string name="widgets_todo_permissions_subtitle">选择谁可以添加、勾选或删除项目</string>
     <string name="widgets_todo_perm_everyone">每个人</string>
     <string name="widgets_todo_perm_specific">具体家庭成员</string>

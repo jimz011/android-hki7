@@ -1762,6 +1762,10 @@ data class HKITodoWidget(
      *  needs to case-insensitively match one of these to show under that tab; items whose category isn't
      *  in this list any more (its tab was removed) still show under "All". */
     val categories: List<String> = emptyList(),
+    /** Which [categories] entry (case-insensitively) is featured on the square hero card — its own
+     *  open items show there instead of the plain remaining-count pill. Null shows no hero list;
+     *  cleared automatically if that category is removed. */
+    val heroCategory: String? = null,
     /** [TODO_EDIT_EVERYONE], [TODO_EDIT_SPECIFIC], or [TODO_EDIT_ADMIN_ONLY]. */
     val editPermission: String = TODO_EDIT_EVERYONE,
     /** HA user ids allowed to edit when [editPermission] is [TODO_EDIT_SPECIFIC]. */

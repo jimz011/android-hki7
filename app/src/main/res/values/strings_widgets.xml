@@ -180,6 +180,8 @@
     <string name="widgets_todo_sort_priority">Priority</string>
     <string name="widgets_todo_sort_newest">Newest first</string>
     <string name="widgets_todo_show_completed">Show completed items by default</string>
+    <string name="widgets_todo_hero_list">Hero list</string>
+    <string name="widgets_todo_hero_list_hint">Show this list\'s open items on the square card.</string>
     <string name="widgets_todo_permissions_subtitle">Choose who can add, check off, or remove items</string>
     <string name="widgets_todo_perm_everyone">Everyone</string>
     <string name="widgets_todo_perm_specific">Specific family members</string>

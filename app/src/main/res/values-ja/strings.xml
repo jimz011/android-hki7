@@ -3152,6 +3152,8 @@
     <string name="widgets_todo_sort_priority">優先度</string>
     <string name="widgets_todo_sort_newest">新しい順</string>
     <string name="widgets_todo_show_completed">完了したアイテムをデフォルトで表示する</string>
+    <string name="widgets_todo_hero_list">ヒーローリスト</string>
+    <string name="widgets_todo_hero_list_hint">このリストの未解決の項目を正方形のカードに表示します。</string>
     <string name="widgets_todo_permissions_subtitle">項目を追加、チェックマークを付ける、または削除できる人を選択します</string>
     <string name="widgets_todo_perm_everyone">全員</string>
     <string name="widgets_todo_perm_specific">特定の家族</string>

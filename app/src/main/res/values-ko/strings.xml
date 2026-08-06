@@ -3152,6 +3152,8 @@
     <string name="widgets_todo_sort_priority">우선 사항</string>
     <string name="widgets_todo_sort_newest">최신순</string>
     <string name="widgets_todo_show_completed">기본적으로 완료된 항목 표시</string>
+    <string name="widgets_todo_hero_list">영웅 목록</string>
+    <string name="widgets_todo_hero_list_hint">이 목록의 열린 항목을 정사각형 카드에 표시합니다.</string>
     <string name="widgets_todo_permissions_subtitle">항목을 추가, 선택, 제거할 수 있는 사람을 선택하세요.</string>
     <string name="widgets_todo_perm_everyone">모두</string>
     <string name="widgets_todo_perm_specific">특정 가족 구성원</string>

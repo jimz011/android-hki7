@@ -1828,6 +1828,8 @@
     <string name="widgets_todo_sort_priority">Prioriteit</string>
     <string name="widgets_todo_sort_newest">Nieuwste eerst</string>
     <string name="widgets_todo_show_completed">Toon standaard voltooide items</string>
+    <string name="widgets_todo_hero_list">Helden lijst</string>
+    <string name="widgets_todo_hero_list_hint">Toon de open items van deze lijst op de vierkante kaart.</string>
     <string name="widgets_todo_permissions_subtitle">Kies wie items kan toevoegen, afvinken of verwijderen</string>
     <string name="widgets_todo_perm_everyone">Iedereen</string>
     <string name="widgets_todo_perm_specific">Specifieke familieleden</string>
