@@ -334,6 +334,7 @@
 
     <string-array name="cr_whats_new_beta_16">
         <item>La scheda quadrata del widget Cose da fare ora può contenere un intero elenco anziché elementi contrassegnati individualmente con priorità alta. Un nuovo selettore dell\'elenco degli eroi nella scheda Generale del widget, mostrato quando ha almeno una scheda, sceglie quali elementi aperti dell\'elenco appaiono sulla carta, etichettati con il nome di quell\'elenco, quindi quello che vedi a colpo d\'occhio è un elenco specifico come Lavori domestici piuttosto che un mix sparso estratto da ogni scheda. L\'eliminazione di una scheda che attualmente è l\'elenco degli eroi cancella automaticamente l\'impostazione.</item>
+        <item>Risolto il problema con l\'arresto anomalo dell\'app ogni volta che era necessario riconnettersi a Home Assistant o la connessione non riusciva. Il canale di notifica push in-app ha eseguito il suo abbonamento in modo tale da consentire all\'errore di una connessione interrotta di ignorare completamente la gestione degli errori circostanti e di bloccare completamente l\'app. Una mancata corrispondenza separata significava anche che ogni singola riconnessione distruggeva immediatamente l\'intero stack di sincronizzazione e lo ricostruiva una seconda volta, correndo con la propria connessione appena creata. Entrambi sono fissi.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_15">

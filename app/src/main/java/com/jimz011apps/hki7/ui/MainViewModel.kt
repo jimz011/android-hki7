@@ -1693,6 +1693,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private var ignoreWidgetPrefsUntil = 0L
     private var ignoreConfigPrefsUntil = 0L
     private var activeConnectionKey: String? = null
+    /** Every writer of [activeConnectionKey] must go through this so the format can never drift
+     *  between writers — a mismatch there previously made `observeSettings()` treat the client a
+     *  reconnect had just rebuilt as "stale" and tear the whole sync stack down a second time,
+     *  racing its own rebuild on literally every reconnect. */
+    private fun connectionKeyFor(url: String, token: String): String =
+        "$url|$token|${networkMonitor?.networkGeneration?.value ?: 0L}"
     private var observedHomeAssistantInstanceId: String? = null
     private var startupRefreshAttemptedFor: String? = null
     // Consecutive silent-refresh failures while the UI still shows CONNECTED. Brief websocket blips
@@ -2036,7 +2042,13 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 if (webhookId.isNullOrBlank() || currentClient == null) { delay(10.seconds); continue }
                 try {
                     addLog("Push channel subscribing (webhook ${webhookId.take(8)}…)")
-                    val subscription = launch {
+                    // async, not launch: a plain launch's exception propagates through the job
+                    // hierarchy instead of being retrievable here, so a dropped connection used to
+                    // skip this catch entirely and crash the app uncaught — on exactly the
+                    // "subscription fails, needs to reconnect" path. join() (unlike await()) still
+                    // doesn't throw on the watcher's own cancel() below, so that intentional
+                    // hand-off isn't mistaken for a failure either.
+                    val subscription = async {
                         currentClient.subscribePushNotifications(webhookId).collect { event ->
                             runCatching { handler.handle(event) }
                         }
@@ -2055,6 +2067,11 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     }
                     subscription.join()
                     watcher.cancel()
+                    subscription.getCompletionExceptionOrNull()
+                        ?.takeUnless { it is CancellationException }
+                        ?.let { throw it }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     if (e.message != "AUTH_EXPIRED") addLog("Push channel interrupted: ${e.message}")
                 }
@@ -2130,6 +2147,8 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     if (appVisible && _status.value != ConnectionStatus.ERROR) {
                         _status.value = ConnectionStatus.CONNECTING
                     }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     _connectionError.value = homeAssistantConnectionErrorLabel(e)
                     if (e.message == "AUTH_EXPIRED") tryTokenRefresh()
@@ -2166,6 +2185,8 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     currentClient.subscribeHki7DashboardUpdates().collect {
                         syncSharedDashboards()
                     }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     if (e.message != "AUTH_EXPIRED") {
                         addLog("Family dashboard channel interrupted: ${e.message}")
@@ -2578,7 +2599,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             val rebuilt = createHomeAssistantClient(url, token)
             client?.dispose()
             client = rebuilt
-            activeConnectionKey = "$url|$token"
+            activeConnectionKey = connectionKeyFor(url, token)
             return rebuilt
         }
         if (refresh != null && tryTokenRefresh()) {
@@ -2595,7 +2616,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             return@withLock true
         }
         val url = _currentUrl.value
-        val refresh = prefs.refreshToken.first()
+        // tryTokenRefresh() is invoked from inside other functions' own catch blocks (on
+        // AUTH_EXPIRED), so nothing downstream is positioned to catch a throw from here — a
+        // DataStore read hiccup escaping this call used to propagate all the way to the process's
+        // default (uncaught) exception handler and crash the app, deterministically on the exact
+        // "reconnect after a dropped/expired session" path users hit most.
+        val refresh = runCatching { prefs.refreshToken.first() }.getOrNull()
         if (url.isNotEmpty() && refresh != null) {
             val delays = listOf(0L, 1000L, 4000L, 10000L)
             for ((attempt, delayMs) in delays.withIndex()) {
@@ -2607,11 +2633,13 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     prefs.saveAuthTokens(response.access_token, response.refresh_token, response.expires_in)
                     client?.dispose()
                     client = HomeAssistantClient(url, response.access_token)
-                    activeConnectionKey = "$url|${response.access_token}"
+                    activeConnectionKey = connectionKeyFor(url, response.access_token)
                     lastTokenRefreshAt = SystemClock.elapsedRealtime()
                     scheduleProactiveRefresh(response.expires_in)
                     addLog("Token refreshed successfully")
                     return@withLock true
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     _connectionError.value = homeAssistantConnectionErrorLabel(e)
                     addLog("Token refresh attempt ${attempt + 1} failed: ${e.message}")
@@ -2619,7 +2647,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     if (e is TokenRefreshException && e.invalidGrant) {
                         addLog("Server rejected refresh token (invalid_grant); re-login required.")
                         _forcedLogoutReason.value = "Session expired. Please log in again."
-                        prefs.clearAuth()
+                        runCatching { prefs.clearAuth() }
                         return@withLock false
                     }
                 }

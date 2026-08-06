@@ -340,6 +340,7 @@
     <!-- Current release -->
     <string-array name="cr_whats_new_beta_16">
         <item>The To-Do widget\'s square card can now feature one whole list instead of items individually flagged high priority. A new Hero list picker in the widget\'s General tab — shown once it has at least one tab — chooses which list\'s open items appear on the card, labelled with that list\'s name, so what you see at a glance is a specific list like Chores rather than a scattered mix pulled from every tab. Deleting a tab that\'s currently the hero list clears the setting automatically.</item>
+        <item>Fixed the app crashing whenever it needed to reconnect to Home Assistant or the connection failed. The in-app push-notification channel ran its subscription in a way that let a dropped connection\'s error skip past the surrounding error handling entirely and crash the app outright. A separate mismatch also meant every single reconnect immediately tore the whole sync stack down and rebuilt it a second time, racing its own freshly made connection. Both are fixed.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_15">

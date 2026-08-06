@@ -8,6 +8,7 @@ Items marked with \* require the HKI 7 Cloud Component integration.
 ## 1.0.0-beta.16
 
 - The To-Do widget's square card can now feature one whole list instead of items individually flagged high priority. A new "Hero list" picker in the widget's General tab — shown once it has at least one tab — chooses which list's open items appear on the card, labelled with that list's name, so what you see at a glance is a specific list like "Chores" rather than a scattered mix of flagged items pulled from every tab. Deleting a tab that's currently the hero list clears the setting automatically.
+- Fixed the app crashing whenever it needed to reconnect to Home Assistant or the connection failed. The in-app push-notification channel ran its subscription inside a child coroutine whose completion was waited on but whose failure was never surfaced, so a dropped connection's exception skipped the surrounding error handling entirely and crashed the app outright — with nothing else in the app to catch it either, since there was no crash reporting in place. It's now the child's actual outcome that decides whether to retry, not just whether it finished. Separately, a formatting mismatch between where the app decides a reconnect is needed and where a session refresh actually reconnects meant every single reconnect immediately tore the whole sync stack down and rebuilt it a second time, racing its own freshly made connection; that key is now built in exactly one place so the two can no longer disagree.
 
 ## 1.0.0-beta.15
 

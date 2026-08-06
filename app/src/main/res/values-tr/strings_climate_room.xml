@@ -334,6 +334,7 @@
 
     <string-array name="cr_whats_new_beta_16">
         <item>Yapılacaklar widget\'ının kare kartında artık tek tek yüksek öncelik olarak işaretlenen öğeler yerine tek bir tam liste yer alabiliyor. Widget\'ın Genel sekmesindeki yeni Kahraman listesi seçici - en az bir sekme olduğunda gösterilir - kartta hangi listenin açık öğelerinin görüneceğini ve o listenin adıyla etiketlendiğini seçer; böylece ilk bakışta gördüğünüz şey, her sekmeden alınan dağınık bir karışım yerine Görevler gibi belirli bir listedir. Şu anda kahraman listesi olan bir sekmeyi silmek, ayarı otomatik olarak temizler.</item>
+        <item>Home Assistant\'a yeniden bağlanmak gerektiğinde veya bağlantı başarısız olduğunda uygulamanın çökmesi düzeltildi. Uygulama içi anlık bildirim kanalı, aboneliğini, kesilen bir bağlantının hatasının çevredeki hata işlemeyi tamamen geçmesine ve uygulamanın tamamen çökmesine izin verecek şekilde çalıştırdı. Ayrı bir uyumsuzluk aynı zamanda her yeniden bağlantının anında tüm senkronizasyon yığınını parçalayıp ikinci kez yeniden oluşturarak kendi yeni yapılan bağlantısıyla yarıştığı anlamına geliyordu. Her ikisi de sabittir.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_15">

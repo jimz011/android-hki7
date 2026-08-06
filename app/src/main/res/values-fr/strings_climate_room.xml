@@ -340,6 +340,7 @@
     <!-- Version actuelle -->
     <string-array name="cr_whats_new_beta_16">
         <item>La carte carrée du widget To-Do peut désormais comporter une liste complète au lieu d\'éléments marqués individuellement comme hautement prioritaires. Un nouveau sélecteur de liste de héros dans l\'onglet Général du widget - affiché une fois qu\'il comporte au moins un onglet - choisit les éléments ouverts de la liste qui apparaissent sur la carte, étiquetés avec le nom de cette liste, de sorte que ce que vous voyez en un coup d\'œil est une liste spécifique comme les tâches plutôt qu\'un mélange dispersé extrait de chaque onglet. La suppression d\'un onglet qui constitue actuellement la liste des héros efface automatiquement le paramètre.</item>
+        <item>Correction du plantage de l\'application chaque fois qu\'elle devait se reconnecter à Home Assistant ou que la connexion échouait. Le canal de notification push intégré à l\'application gérait son abonnement de manière à permettre à l\'erreur d\'une connexion interrompue de passer complètement au-delà de la gestion des erreurs environnantes et de faire planter l\'application. Une incompatibilité distincte signifiait également que chaque reconnexion déchirait immédiatement toute la pile de synchronisation et la reconstruisait une seconde fois, en exécutant sa propre connexion fraîchement établie. Les deux sont fixes.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_15">

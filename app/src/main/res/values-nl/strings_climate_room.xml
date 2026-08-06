@@ -334,6 +334,7 @@
 
     <string-array name="cr_whats_new_beta_16">
         <item>De vierkante kaart van de To-Do-widget kan nu één hele lijst bevatten in plaats van items die individueel met hoge prioriteit zijn gemarkeerd. Een nieuwe lijstkiezer voor helden op het tabblad Algemeen van de widget (die wordt weergegeven zodra deze ten minste één tabblad heeft) kiest welke lijst open items op de kaart verschijnen, gelabeld met de naam van die lijst, dus wat je in één oogopslag ziet is een specifieke lijst zoals Klusjes in plaats van een verspreide mix die uit elk tabblad wordt gehaald. Als u een tabblad verwijdert dat momenteel de heldenlijst is, wordt de instelling automatisch gewist.</item>
+        <item>Probleem opgelost dat de app crashte telkens wanneer opnieuw verbinding moest worden gemaakt met Home Assistant of de verbinding mislukte. Het in-app push-notificatiekanaal beheerde zijn abonnement op een manier waardoor de fout bij een verbroken verbinding volledig voorbij de omliggende foutafhandeling kon gaan en de app regelrecht crashte. Een afzonderlijke mismatch betekende ook dat elke nieuwe verbinding onmiddellijk de hele synchronisatiestack afbrak en voor de tweede keer opnieuw opbouwde, waarbij hij zijn eigen, vers gemaakte verbinding racete. Beide zijn opgelost.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_15">

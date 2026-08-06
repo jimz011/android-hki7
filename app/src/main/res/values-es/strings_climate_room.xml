@@ -334,6 +334,7 @@
 
     <string-array name="cr_whats_new_beta_16">
         <item>La tarjeta cuadrada del widget de tareas pendientes ahora puede presentar una lista completa en lugar de elementos individualmente marcados como de alta prioridad. Un nuevo selector de lista de héroes en la pestaña General del widget, que se muestra una vez que tiene al menos una pestaña, elige qué elementos abiertos de la lista aparecen en la tarjeta, etiquetados con el nombre de esa lista, de modo que lo que ve de un vistazo es una lista específica como Tareas en lugar de una mezcla dispersa extraída de cada pestaña. Al eliminar una pestaña que actualmente es la lista de héroes, se borra la configuración automáticamente.</item>
+        <item>Se corrigió que la aplicación fallara cada vez que necesitaba volver a conectarse a Home Assistant o fallaba la conexión. El canal de notificaciones push en la aplicación ejecutó su suscripción de una manera que permitía que el error de una conexión interrumpida omitiera por completo el manejo de errores circundante y bloqueara la aplicación por completo. Una discrepancia separada también significó que cada reconexión inmediatamente derribara toda la pila de sincronización y la reconstruyera por segunda vez, acelerando su propia conexión recién creada. Ambos están arreglados.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_15">

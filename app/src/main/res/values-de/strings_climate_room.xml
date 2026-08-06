@@ -334,6 +334,7 @@
 
     <string-array name="cr_whats_new_beta_16">
         <item>Die quadratische Karte des To-Do-Widgets kann jetzt eine ganze Liste anstelle von Elementen enthalten, die einzeln mit hoher Priorität gekennzeichnet sind. Eine neue Heldenlistenauswahl auf der Registerkarte „Allgemein“ des Widgets – die angezeigt wird, sobald mindestens eine Registerkarte vorhanden ist – wählt aus, welche offenen Elemente der Liste auf der Karte angezeigt werden und ist mit dem Namen dieser Liste beschriftet. Sie sehen also auf einen Blick eine bestimmte Liste wie „Aufgaben“ und nicht eine verstreute Mischung, die aus jeder Registerkarte gezogen wird. Durch das Löschen eines Tabs, der derzeit die Heldenliste ist, wird die Einstellung automatisch gelöscht.</item>
+        <item>Das Problem, dass die App immer dann abstürzte, wenn eine erneute Verbindung zum Home Assistant erforderlich war oder die Verbindung fehlschlug, wurde behoben. Der In-App-Push-Benachrichtigungskanal führte sein Abonnement so aus, dass der Fehler einer unterbrochenen Verbindung die umgebende Fehlerbehandlung vollständig überging und die App vollständig zum Absturz brachte. Eine separate Nichtübereinstimmung führte auch dazu, dass bei jeder einzelnen erneuten Verbindung sofort der gesamte Synchronisierungsstapel zerstört und ein zweites Mal neu aufgebaut wurde, wobei die eigene, frisch hergestellte Verbindung durcheinander kam. Beides ist behoben.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_15">

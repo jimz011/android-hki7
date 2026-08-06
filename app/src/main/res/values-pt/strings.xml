@@ -3259,6 +3259,7 @@
     </plurals>
     <string-array name="cr_whats_new_beta_16">
         <item>O cartão quadrado do widget To-Do agora pode apresentar uma lista inteira em vez de itens sinalizados individualmente como alta prioridade. Um novo seletor de lista de heróis na guia Geral do widget – mostrado quando ele tem pelo menos uma guia – escolhe quais itens abertos da lista aparecem no cartão, rotulados com o nome dessa lista, então o que você vê rapidamente é uma lista específica como Tarefas em vez de uma mistura dispersa extraída de cada guia. Excluir uma guia que atualmente é a lista de heróis limpa a configuração automaticamente.</item>
+        <item>Corrigido o travamento do aplicativo sempre que era necessário reconectar-se ao Home Assistant ou a conexão falhava. O canal de notificação push no aplicativo executou sua assinatura de uma forma que permitiu que o erro de uma conexão interrompida ignorasse totalmente o tratamento de erros circundante e travasse o aplicativo completamente. Uma incompatibilidade separada também significou que cada reconexão imediatamente destruiu toda a pilha de sincronização e a reconstruiu uma segunda vez, acelerando sua própria conexão recém-criada. Ambos são fixos.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_15">
