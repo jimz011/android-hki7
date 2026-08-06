@@ -340,6 +340,7 @@
     <!-- Current release -->
     <string-array name="cr_whats_new_beta_15">
         <item>The Formula 1 widget gains two new tabs and expands two existing ones. Calendar lists the season\'s races in order, with each circuit and the host country\'s flag. Grid shows the starting grid, with each driver\'s move up or down from where they qualified. Standings can now show a championship prediction alongside the points table — current and predicted final points, for drivers or constructors — when F1 Sensor\'s optional F1TV Auth is set up. Live gains a proper timing list: gap to the leader, interval to the car ahead, tyre compound and stint length, and pit/retired status for every driver, plus which lap the leader is on.</item>
+        <item>Fixed shared family dashboards failing to update at all once the owner added a widget type introduced in a newer app version, such as the To-Do List or Formula 1 widgets. A single unrecognized widget used to fail the whole dashboard, so a family member on an older build stopped receiving any of that dashboard\'s changes instead of just missing the new widget. Unrecognized widgets are now skipped individually, so the rest of a shared dashboard keeps working across app versions.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_14">

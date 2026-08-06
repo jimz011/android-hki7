@@ -241,6 +241,8 @@ internal fun mergeWidgetAesthetics(incoming: HKIRoomWidget, local: HKIRoomWidget
             local as HKITodoWidget
             incoming.copy(width = local.width, title = local.title, icon = local.icon, isSquare = local.isSquare, cornerRadius = local.cornerRadius, backgroundUrl = local.backgroundUrl)
         }
+        // A widget type this app build doesn't recognize (yet) has no aesthetics to preserve.
+        is HKIUnknownWidget -> incoming
     }
 }
 

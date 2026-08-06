@@ -52,6 +52,7 @@ import com.jimz011apps.hki7.data.HKISensorGraphWidget
 import com.jimz011apps.hki7.data.HKISingleEntityWidget
 import com.jimz011apps.hki7.data.HKISwipingStack
 import com.jimz011apps.hki7.data.HKISubtitleWidget
+import com.jimz011apps.hki7.data.HKIUnknownWidget
 import com.jimz011apps.hki7.data.HKIWeatherWidget
 import com.jimz011apps.hki7.data.isWidgetVisibleNow
 import com.jimz011apps.hki7.data.visibilityConditionEntityIds
@@ -567,6 +568,10 @@ fun HAHomeScreen(
                     )
                 }
             )
+            // A widget type this app build doesn't recognize (yet) — e.g. from a family dashboard
+            // shared by someone on a newer version. Skipped rather than crashing; it reappears once
+            // the app updates.
+            is HKIUnknownWidget -> {}
         }
         }
     }
@@ -783,6 +788,10 @@ fun HAHomeScreen(
                                     onToggleCollapsed = { viewModel.updateWidget(HOME_WIDGET_AREA, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
                                     onDelete = {}, onSettings = {}
                                 )
+                                // A widget type this app build doesn't recognize (yet) — e.g. from a
+                                // family dashboard shared by someone on a newer version. Skipped
+                                // rather than crashing; it reappears once the app updates.
+                                is HKIUnknownWidget -> {}
                             }
                         }
                     }
@@ -1006,6 +1015,10 @@ fun HAHomeScreen(
                                 onDelete = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
                                 onSettings = { editingSensorGraphStack = null to widget }
                             )
+                            // A widget type this app build doesn't recognize (yet) — e.g. from a
+                            // family dashboard shared by someone on a newer version. Skipped rather
+                            // than crashing; it reappears once the app updates.
+                            is HKIUnknownWidget -> {}
                         }
                     }
                 }

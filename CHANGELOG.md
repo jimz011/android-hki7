@@ -8,6 +8,7 @@ Items marked with \* require the HKI 7 Cloud Component integration.
 ## 1.0.0-beta.15
 
 - The Formula 1 widget gains two new tabs and expands two existing ones. **Calendar** lists the season's races in order, each with its circuit and the host country's flag. **Grid** shows the starting grid, with each driver's move up or down from where they qualified. **Standings** can now show a championship prediction alongside the regular points table — current and predicted final points, for drivers or constructors — when F1 Sensor's optional F1TV Auth is set up. **Live** gains a proper timing list: gap to the leader, interval to the car ahead, tyre compound and stint length, and pit/retired status for every driver, plus which lap the leader is on and the race distance.
+- Fixed shared family dashboards failing to update at all once the owner added a widget type introduced in a newer app version — the To-Do List and Formula 1 widgets, for instance. A single widget type the receiving app didn't recognize used to fail to decode the entire dashboard, so a family member on an older build silently stopped receiving that dashboard's changes rather than just missing the one new widget. Unrecognized widgets are now decoded as placeholders and skipped instead, so the rest of a shared dashboard keeps working across app versions; only the unfamiliar widget itself stays invisible until that device updates.
 
 ## 1.0.0-beta.14
 

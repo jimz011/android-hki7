@@ -1638,7 +1638,7 @@ data class HKIF1Widget(
     val isSquare: Boolean = false,
     val cornerRadius: Int = 28,
     val backgroundUrl: String? = null,
-    /** Which dialog tab opens first: "next" | "standings" | "results" | "live". */
+    /** Which dialog tab opens first: "next" | "calendar" | "standings" | "grid" | "results" | "live". */
     val defaultTab: String = "next",
     override val isHidden: Boolean = false,
     override val visibilityStart: String? = null,
@@ -1772,6 +1772,28 @@ data class HKITodoWidget(
     val isSquare: Boolean = false,
     val cornerRadius: Int = 28,
     val backgroundUrl: String? = null,
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none",
+    override val visibilityConditionEntityId: String? = null,
+    override val visibilityConditionState: String? = null,
+    override val visibilityConditionNegate: Boolean = false,
+    override val visibilityConditions: List<HKIVisibilityCondition> = emptyList(),
+    override val visibilityMatch: String = VISIBILITY_MATCH_ALL
+) : HKIRoomWidget()
+
+/** Fallback for a widget `type` this app build doesn't recognize — e.g. a family dashboard shared by
+ *  someone on a newer app version that added a widget type this build predates. The polymorphic
+ *  decoder (see the `appJson` default deserializer in PreferencesManager.kt) substitutes this instead
+ *  of failing to decode the whole dashboard, so the rest of a shared dashboard still loads on an older
+ *  app; this widget itself is simply skipped everywhere it would be rendered, until the app updates. */
+@Serializable
+@SerialName("unknown")
+data class HKIUnknownWidget(
+    override val id: String = "",
+    override val width: String = "full",
     override val isHidden: Boolean = false,
     override val visibilityStart: String? = null,
     override val visibilityEnd: String? = null,

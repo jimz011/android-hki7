@@ -201,6 +201,7 @@ import com.jimz011apps.hki7.data.HKISensorGraphWidget
 import com.jimz011apps.hki7.data.HKISingleEntityWidget
 import com.jimz011apps.hki7.data.HKISwipingStack
 import com.jimz011apps.hki7.data.HKISubtitleWidget
+import com.jimz011apps.hki7.data.HKIUnknownWidget
 import com.jimz011apps.hki7.data.HKIWeatherWidget
 import com.jimz011apps.hki7.ui.components.DevicePickerDialog
 import androidx.compose.animation.core.tween
@@ -832,6 +833,10 @@ fun RoomDetailScreen(
                     )
                 }
             )
+            // A widget type this app build doesn't recognize (yet) — e.g. from a family dashboard
+            // shared by someone on a newer version. Skipped rather than crashing; it reappears once
+            // the app updates.
+            is HKIUnknownWidget -> {}
         }
         }
     }
@@ -1169,6 +1174,10 @@ fun RoomDetailScreen(
                                     onToggleCollapsed = { viewModel.updateWidget(areaId, widget.copy(isCollapsed = !(widget.isCollapsed ?: widget.defaultCollapsed))) },
                                     onDelete = {}, onSettings = {}
                                 )
+                                // A widget type this app build doesn't recognize (yet) — e.g. from a
+                                // family dashboard shared by someone on a newer version. Skipped
+                                // rather than crashing; it reappears once the app updates.
+                                is HKIUnknownWidget -> {}
                             }
                         }
                     }
@@ -1424,6 +1433,10 @@ fun RoomDetailScreen(
                             onDelete = { viewModel.deleteWidget(areaId, widget.id) },
                             onSettings = { editingSensorGraphStack = null to widget }
                         )
+                        // A widget type this app build doesn't recognize (yet) — e.g. from a family
+                        // dashboard shared by someone on a newer version. Skipped rather than
+                        // crashing; it reappears once the app updates.
+                        is HKIUnknownWidget -> {}
                     }
                 }
                 }

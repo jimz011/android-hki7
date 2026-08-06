@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
 import java.util.UUID
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
@@ -19,7 +21,17 @@ private const val LEGACY_INSTANCE_ID = "legacy-default-instance"
 
 // Tolerates fields removed from saved config data classes across app updates — without this,
 // a stale key in a persisted blob throws on decode and the catch-all fallback wipes that store.
-private val appJson = Json { ignoreUnknownKeys = true }
+// The default deserializer additionally tolerates a widget `type` this app build predates (e.g. a
+// family dashboard shared by someone on a newer version): it decodes to HKIUnknownWidget instead of
+// failing the whole dashboard, so the rest of a shared dashboard still loads on an older app.
+internal val appJson = Json {
+    ignoreUnknownKeys = true
+    serializersModule = SerializersModule {
+        polymorphic(HKIRoomWidget::class) {
+            defaultDeserializer { HKIUnknownWidget.serializer() }
+        }
+    }
+}
 private inline fun <reified T> decodeBackup(value: String?, fallback: T): T =
     value?.let { runCatching { appJson.decodeFromString<T>(it) }.getOrNull() } ?: fallback
 
