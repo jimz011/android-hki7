@@ -5,6 +5,11 @@ file in sync with `app/src/main/java/com/jimz011apps/hki7/ui/components/WhatsNew
 
 Items marked with \* require the HKI 7 Cloud Component integration.
 
+## 1.0.0-beta.16
+
+- Fixed the app becoming unresponsive — and eventually killed by Android with an "isn't responding" dialog — when opening the history of a busy entity, such as a motion sensor that logs thousands of state changes a day. Matching each history entry to who/what triggered it re-scanned and re-parsed the *entire* logbook's timestamps from scratch for every single entry, work that scaled with history size squared; a quiet entity never noticed, but a busy one could peg the CPU for upwards of ten seconds straight. The logbook's timestamps are now parsed once instead of once per entry, and the whole fetch runs off the main thread instead of blocking it.
+- Hardened how the app reads attributes Home Assistant sends for an entity: a value present but shaped unexpectedly (an object or array where a plain number or piece of text was expected) used to throw and crash whatever screen read it, instead of just being treated as missing. Some integrations occasionally send richer attribute payloads than Home Assistant's own schema implies, so this closes off a whole class of "one entity's unusual data breaks an otherwise generic screen" crashes.
+
 ## 1.0.0-beta.15
 
 - The Formula 1 widget gains two new tabs and expands two existing ones. **Calendar** lists the season's races in order, each with its circuit and the host country's flag. **Grid** shows the starting grid, with each driver's move up or down from where they qualified. **Standings** can now show a championship prediction alongside the regular points table — current and predicted final points, for drivers or constructors — when F1 Sensor's optional F1TV Auth is set up. **Live** gains a proper timing list: gap to the leader, interval to the car ahead, tyre compound and stint length, and pit/retired status for every driver, plus which lap the leader is on and the race distance.
