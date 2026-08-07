@@ -128,7 +128,10 @@ object HaDashboardSharing {
             // The original publishing device keeps the source id; after a reinstall the owner may
             // re-import that same cloud dashboard, which deliberately uses "shared-<id>" locally.
             val local = localById[meta.id] ?: localById["shared-${meta.id}"] ?: continue
-            val currentRaw = prefs.exportDashboard(meta.id) ?: continue
+            // Must look the export up under the *local* id -- when it only exists under the
+            // "shared-<id>" fallback above, exportDashboard(meta.id) finds nothing and this
+            // dashboard is silently skipped on every push, regardless of what was edited.
+            val currentRaw = prefs.exportDashboard(local.id) ?: continue
             val currentJson = runCatching { json.parseToJsonElement(currentRaw) }.getOrNull() as? JsonObject ?: continue
             // Skip when the cloud copy already matches the local content (structural comparison, so
             // formatting differences from the round-trip don't cause a spurious push).
