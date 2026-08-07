@@ -341,6 +341,7 @@
     <string-array name="cr_whats_new_beta_16">
         <item>Fixed the app becoming unresponsive — and eventually killed by Android — when opening the history of a busy entity, such as a motion sensor that logs thousands of state changes a day. Matching each history entry to its actor re-scanned and re-parsed the entire logbook\'s timestamps from scratch for every single entry, work that scaled with history size squared; a quiet entity never noticed, but a busy one could peg the CPU for ten seconds straight. The logbook is now parsed once instead of once per entry, and the whole fetch runs off the main thread.</item>
         <item>Hardened how the app reads attributes Home Assistant sends for an entity: a value present but shaped unexpectedly (an object or array where a plain number or piece of text was expected) used to throw and crash whatever screen read it, instead of just being treated as missing.</item>
+        <item>Fixed "Push to family dashboard" reporting a dashboard as already up to date no matter what had changed. A dashboard re-imported after a reinstall is stored locally under a different id than the one the cloud copy is published under, and the push check was still looking up the local export by the cloud id, finding nothing, and silently skipping that dashboard on every push.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_15">
