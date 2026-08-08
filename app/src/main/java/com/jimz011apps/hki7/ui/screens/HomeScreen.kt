@@ -87,6 +87,38 @@ import java.util.UUID
 
 private const val DEFAULT_HOME_WIDGET_AREA = "__home__"
 
+/** The live entity list plus an `unavailable` placeholder for every registry entity that has no
+ *  state yet, so pickers can still offer entities Home Assistant hasn't reported on. */
+private fun mergeEntityCatalog(
+    live: List<HAEntity>,
+    registry: List<com.jimz011apps.hki7.data.HAEntityRegistryEntry>
+): List<HAEntity> {
+    val liveById = live.associateBy { it.entity_id }
+    return (live + registry.asSequence()
+        .filterNot { it.entity_id in liveById }
+        .map { HAEntity(entity_id = it.entity_id, state = "unavailable") }
+        .toList())
+        .distinctBy { it.entity_id }
+}
+
+/**
+ * The full entity catalog, subscribed **only where it is actually read**.
+ *
+ * Collecting the whole entity list at screen scope made every Home Assistant `state_changed` event
+ * (a motion sensor, a power meter — several per second on a busy install) invalidate the entire
+ * home screen, re-running this O(n) merge and recomposing every widget in the grid. Compose tracks
+ * state reads per composition pass, so calling this from inside the dialog/picker blocks that need
+ * it means no subscription exists at all while the dashboard is merely being scrolled.
+ */
+@Composable
+private fun rememberEntityCatalog(
+    viewModel: MainViewModel,
+    registry: List<com.jimz011apps.hki7.data.HAEntityRegistryEntry>
+): List<HAEntity> {
+    val live by viewModel.entities.collectAsState()
+    return remember(live, registry) { mergeEntityCatalog(live, registry) }
+}
+
 @Composable
 fun HAHomeScreen(
     viewModel: MainViewModel,
@@ -215,21 +247,14 @@ fun HAHomeScreen(
     var selectedVacuumEntityId by remember { mutableStateOf<String?>(null) }
     var selectedMediaPlayerId by remember { mutableStateOf<String?>(null) }
 
-    // Home has its own stack editor (separate from RoomDetailScreen). Its old conditional snapshot
-    // was created before HA finished loading and was never replaced when a picker opened.
-    val liveEntities by viewModel.entities.collectAsState()
     LaunchedEffect(Unit) {
         viewModel.fetchRegistries()
         if (viewModel.entities.value.isEmpty()) viewModel.refreshEntities(isSilent = true, includeDashboardRefresh = false)
     }
-    val entities = remember(liveEntities, entityRegistry) {
-        val liveById = liveEntities.associateBy { it.entity_id }
-        (liveEntities + entityRegistry.asSequence()
-            .filterNot { it.entity_id in liveById }
-            .map { HAEntity(entity_id = it.entity_id, state = "unavailable") }
-            .toList())
-            .distinctBy { it.entity_id }
-    }
+    // Read at tap time rather than captured during composition, so click handlers never make the
+    // screen depend on the live entity list (see rememberEntityCatalog). Reading on invocation is
+    // also strictly fresher than whatever the last recomposition happened to capture.
+    fun entityCatalogNow(): List<HAEntity> = mergeEntityCatalog(viewModel.entities.value, entityRegistry)
 
     fun newButtonStack(title: String?, icon: String?) = HKIButtonStack(id = UUID.randomUUID().toString(), title = title, icon = icon, columns = 3, isSquare = true)
     fun newCameraStack(title: String?, icon: String?) = HKIButtonStack(id = UUID.randomUUID().toString(), title = title, icon = icon, columns = 2, isSquare = true, stackType = "camera")
@@ -303,6 +328,7 @@ fun HAHomeScreen(
 
     fun openStackDialog(stack: HKIButtonStack, entityId: String) {
         // Stacks no longer aggregate: open just the tapped entity (aggregation lives in the badge bar).
+        val entities = entityCatalogNow()
         val tapped = entities.find { it.entity_id == entityId } ?: return
         selectedStackEntities = listOf(tapped)
         selectedStackConfigs = stack.buttonConfigs
@@ -310,6 +336,7 @@ fun HAHomeScreen(
     }
 
     fun openEntityDialog(entityId: String, stack: HKIButtonStack? = null) {
+        val entities = entityCatalogNow()
         if (entityId.startsWith("fan.")) {
             selectedFanEntity = entities.find { it.entity_id == entityId }
             selectedFanConfig = stack?.buttonConfigs?.get(entityId)
@@ -1097,6 +1124,7 @@ fun HAHomeScreen(
 
     // Universal stack dialog
     if (selectedStackEntities.isNotEmpty()) {
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         val liveEntities = selectedStackEntities.map { e -> entities.find { it.entity_id == e.entity_id } ?: e }
         UniversalStackDialog(
             entities = liveEntities,
@@ -1111,6 +1139,7 @@ fun HAHomeScreen(
 
     // Vacuum dialog: swipe between all vacuums in the same stack, with per-entity config.
     selectedVacuumEntityId?.let { vId ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         val nestedWidgets = homeWidgets.filterIsInstance<HKISwipingStack>().flatMap { it.widgets } +
             homeWidgets.filterIsInstance<HKIEmptyStack>().flatMap { it.widgets }
         val stack = (homeWidgets + nestedWidgets).filterIsInstance<HKIButtonStack>().find { it.entityIds.contains(vId) }
@@ -1134,6 +1163,7 @@ fun HAHomeScreen(
     }
 
     selectedMediaPlayerId?.let { id ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         val player = entities.find { it.entity_id == id }
         if (player != null) {
             com.jimz011apps.hki7.ui.components.HKIMediaPlayerDialog(player, viewModel, currentUrl) { selectedMediaPlayerId = null }
@@ -1144,6 +1174,7 @@ fun HAHomeScreen(
 
     // Badge list dialog
     selectedBadgeStack?.let { stack: HKIButtonStack ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         val live = stack.entityIds.mapNotNull { id -> entities.find { it.entity_id == id } }
         GroupEntityDialog(
             stack = stack,
@@ -1154,6 +1185,7 @@ fun HAHomeScreen(
     }
 
     if (showAddWidget) {
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         AddRoomWidgetDialog(
             onDismiss = { showAddWidget = false },
             onAddStack = { title, icon -> viewModel.addStackToArea(HOME_WIDGET_AREA, title, icon); showAddWidget = false },
@@ -1230,6 +1262,7 @@ fun HAHomeScreen(
     }
 
     addingToSwipingStackId?.let { stackId ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         AddRoomWidgetDialog(
             onDismiss = { addingToSwipingStackId = null },
             onAddStack = { title, icon -> addChildToSwipingStack(stackId, newButtonStack(title, icon)); addingToSwipingStackId = null },
@@ -1307,6 +1340,7 @@ fun HAHomeScreen(
     }
 
     pendingSingleWidgetKind?.let { kind ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         if (kind == "vacuum") {
             VacuumWidgetSetupDialog(
                 allEntities = entities,
@@ -1368,6 +1402,7 @@ fun HAHomeScreen(
     }
 
     if (pendingWeatherWidgetContainerId != null && pendingWeatherWidgetEntityId == null) {
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         val weatherEntities = entities.filter { it.entity_id.startsWith("weather.") }
         AdvancedEntitySearchDialog(
             allEntities = weatherEntities.ifEmpty { entities },
@@ -1438,6 +1473,7 @@ fun HAHomeScreen(
     }
 
     addingToNestedStack?.let { (swipingStackId, childStackId) ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         val parentWidgets = homeWidgets.filterIsInstance<HKISwipingStack>().find { it.id == swipingStackId }?.widgets
             ?: homeWidgets.filterIsInstance<HKIEmptyStack>().find { it.id == swipingStackId }?.widgets
         val targetStack = parentWidgets?.filterIsInstance<HKIButtonStack>()?.find { it.id == childStackId }
@@ -1478,6 +1514,7 @@ fun HAHomeScreen(
     }
 
     if (addingToStackId != null && cameraAddMode == null) {
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         val targetStack = homeWidgets.find { it.id == addingToStackId } as? HKIButtonStack
         when (targetStack?.stackType) {
             "vacuum" -> AdvancedEntitySearchDialog(
@@ -1575,6 +1612,7 @@ fun HAHomeScreen(
             )
         }
     } else if (addingToStackId != null && cameraAddMode == "entity") {
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         val targetStack = homeWidgets.find { it.id == addingToStackId } as? HKIButtonStack
         val cameraEntities = entities.filter {
             it.entity_id.substringBefore(".").equals("camera", ignoreCase = true)
@@ -1694,6 +1732,7 @@ fun HAHomeScreen(
     }
 
     orderingStack?.let { (containerId, stack) ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         StackOrderDialog(
             stack = stack,
             allEntities = entities,
@@ -1733,6 +1772,7 @@ fun HAHomeScreen(
     }
 
     editingChildWeather?.let { (containerId, widget) ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         WeatherWidgetSettingsDialog(
             widget = widget,
             allEntities = entities,
@@ -1756,6 +1796,7 @@ fun HAHomeScreen(
     }
 
     editingWeather?.let { widget ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         WeatherWidgetSettingsDialog(
             widget = widget,
             allEntities = entities,
@@ -1768,6 +1809,7 @@ fun HAHomeScreen(
     }
 
     selectedSingleWidgetSettings?.let { (containerId, widget) ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         ButtonConfigDialog(
             entity = entities.find { it.entity_id == widget.entityId },
             config = widget.config,
@@ -1808,6 +1850,7 @@ fun HAHomeScreen(
     }
 
     selectedChildButtonSettings?.let { (containerId, stack, entityId) ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         if (stack.stackType == "weather") {
             WeatherItemDialog(
                 initial = stack.buttonConfigs[entityId],
@@ -1839,6 +1882,7 @@ fun HAHomeScreen(
     }
 
     selectedButtonSettings?.let { (stack, entityId) ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         if (stack.stackType == "weather") {
             WeatherItemDialog(
                 initial = stack.buttonConfigs[entityId],
@@ -1889,6 +1933,7 @@ fun HAHomeScreen(
         LocalDialogNavController provides navController
     ) {
     selectedGenericEntity?.let { entity ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         GenericEntityDialog(
             entity = entities.find { it.entity_id == entity.entity_id } ?: entity,
             viewModel = viewModel,
@@ -1897,6 +1942,7 @@ fun HAHomeScreen(
     }
 
     selectedLightEntity?.let { entity ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         HKILightDialog(
             entity = entities.find { it.entity_id == entity.entity_id } ?: entity,
             viewModel = viewModel,
@@ -1905,6 +1951,7 @@ fun HAHomeScreen(
     }
 
     selectedClimateEntity?.let { entity ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         PagedRoleDialog(
             role = "climate",
             entities = listOf(entities.find { it.entity_id == entity.entity_id } ?: entity),
@@ -1914,6 +1961,7 @@ fun HAHomeScreen(
     }
 
     selectedLockEntity?.let { entity ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         PagedRoleDialog(
             role = "lock",
             entities = listOf(entities.find { it.entity_id == entity.entity_id } ?: entity),
@@ -1923,6 +1971,7 @@ fun HAHomeScreen(
     }
 
     selectedCoverEntity?.let { entity ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         PagedRoleDialog(
             role = "cover",
             entities = listOf(entities.find { it.entity_id == entity.entity_id } ?: entity),
@@ -1932,6 +1981,7 @@ fun HAHomeScreen(
     }
 
     selectedFanEntity?.let { entity ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         HKIFanDialog(
             entity = entities.find { it.entity_id == entity.entity_id } ?: entity,
             viewModel = viewModel,
@@ -1942,6 +1992,7 @@ fun HAHomeScreen(
     }
 
     selectedHumidifierEntity?.let { entity ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         HKIHumidifierDialog(
             entity = entities.find { it.entity_id == entity.entity_id } ?: entity,
             viewModel = viewModel,
@@ -1969,6 +2020,7 @@ fun HAHomeScreen(
         }
     }
     editingCalendarWidget?.let { (containerId, widget) ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         CalendarWidgetSettingsDialog(
             widget = widget,
             allEntities = entities,
@@ -1992,6 +2044,7 @@ fun HAHomeScreen(
         )
     }
     pendingCalendarWidgetContainerId?.let { target ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         CalendarEntityPickerDialog(
             allEntities = entities,
             onDismiss = {
@@ -2012,6 +2065,7 @@ fun HAHomeScreen(
         )
     }
     editingWasteWidget?.let { (containerId, widget) ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         WasteCollectionSettingsDialog(
             widget = widget,
             allEntities = entities,
@@ -2048,6 +2102,7 @@ fun HAHomeScreen(
         )
     }
     editingFindDevicesWidget?.let { (containerId, widget) ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         FindDevicesSettingsDialog(
             widget = widget,
             allEntities = entities,
@@ -2103,6 +2158,7 @@ fun HAHomeScreen(
         )
     }
     editingMediaPlayerWidget?.let { (containerId, widget) ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         MediaPlayerWidgetSettingsDialog(widget, entities, onDismiss = { editingMediaPlayerWidget = null }) { updated ->
             if (containerId == null) viewModel.updateWidget(HOME_WIDGET_AREA, updated)
             else updateChildInSwipingStack(containerId, updated)
@@ -2124,6 +2180,7 @@ fun HAHomeScreen(
         }
     }
     editingSensorGraphWidget?.let { (containerId, widget) ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         SensorGraphWidgetSettingsDialog(widget, entities, onDismiss = { editingSensorGraphWidget = null }) { updated ->
             if (containerId == null) viewModel.updateWidget(HOME_WIDGET_AREA, updated)
             else updateChildInSwipingStack(containerId, updated)
@@ -2131,6 +2188,7 @@ fun HAHomeScreen(
         }
     }
     editingSensorGraphStack?.let { (containerId, stack) ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         SensorGraphStackSettingsDialog(stack, entities, onDismiss = { editingSensorGraphStack = null }) { updated ->
             if (containerId == null) viewModel.updateWidget(HOME_WIDGET_AREA, updated)
             else updateChildInSwipingStack(containerId, updated)
@@ -2138,6 +2196,7 @@ fun HAHomeScreen(
         }
     }
     pendingSensorGraphStackContainerId?.let { target ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         val sensors = entities.filter {
             it.entity_id.startsWith("sensor.") || it.entity_id.startsWith("number.") || it.entity_id.startsWith("input_number.")
         }
@@ -2166,6 +2225,7 @@ fun HAHomeScreen(
         )
     }
     pendingSensorGraphWidgetContainerId?.let { target ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         val sensors = entities.filter {
             it.entity_id.startsWith("sensor.") || it.entity_id.startsWith("number.") || it.entity_id.startsWith("input_number.")
         }
@@ -2191,6 +2251,7 @@ fun HAHomeScreen(
         )
     }
     pendingMediaPlayerWidgetContainerId?.let { target ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         AdvancedEntitySearchDialog(
             allEntities = entities.filter { it.entity_id.startsWith("media_player.") },
             title = stringResource(R.string.ui_select_media_player_73f4f5b),
@@ -2226,6 +2287,7 @@ fun HAHomeScreen(
         }
     }
     pendingFindDevicesWidgetContainerId?.let { target ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         FindDevicesEntityPickerDialog(
             allEntities = entities,
             onDismiss = {
@@ -2246,6 +2308,7 @@ fun HAHomeScreen(
         )
     }
     pendingWasteWidgetContainerId?.let { target ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         WasteEntityPickerDialog(
             allEntities = entities,
             onDismiss = {
@@ -2267,6 +2330,7 @@ fun HAHomeScreen(
     }
 
     selectedAlarmEntity?.let { entity ->
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         CompositionLocalProvider(
             LocalDialogCustomButtons provides (selectedAlarmConfig?.customButtons ?: emptyList()),
             LocalDialogNavController provides navController
@@ -2282,6 +2346,7 @@ fun HAHomeScreen(
     }
 
     if (selectedCameraId != null) {
+        val entities = rememberEntityCatalog(viewModel, entityRegistry)
         val entity = entities.find { it.entity_id == selectedCameraId }
         val config = selectedCameraStack?.buttonConfigs?.get(selectedCameraId)
         val fallbackEntityUrl = if (selectedCameraId?.startsWith("camera.") == true) {
