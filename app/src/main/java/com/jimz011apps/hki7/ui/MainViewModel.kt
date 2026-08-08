@@ -1885,6 +1885,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     instanceId = identity.third
                 )
             }.collectLatest { settings ->
+              try {
                 // A single DataStore transaction fans out through several mapped flows. Let those
                 // emissions settle so an instance switch can never pair the new id with the old
                 // home's token/URL for one intermediate reconnect attempt.
@@ -1985,6 +1986,16 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                         _status.value = ConnectionStatus.IDLE
                     }
                 }
+              } catch (e: CancellationException) {
+                  throw e
+              } catch (e: Exception) {
+                  // This is the one coroutine that runs unconditionally on every app open (not a
+                  // retry loop like the four already-guarded ones) -- an uncaught throw here used
+                  // to crash the app outright before the UI could even show a connection error.
+                  _connectionError.value = homeAssistantConnectionErrorLabel(e)
+                  addLog("Connection setup failed: ${e.message}")
+                  _status.value = ConnectionStatus.ERROR
+              }
             }
         }
     }
