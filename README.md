@@ -4,7 +4,7 @@
 
 A modern [Home Assistant](https://www.home-assistant.io/) client for Android, built with Jetpack Compose and Material 3.
 
-> **Status:** beta (`1.0.0-beta.16`). Expect rough edges — issues and feedback are welcome.
+> **Status:** beta (`1.0.0-beta.17`). Expect rough edges — issues and feedback are welcome.
 
 ## Features
 
