@@ -77,7 +77,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /** Selectable history windows, in hours, shared by graphs and history dialogs. */
-val HistoryRangeOptions = listOf(6, 12, 24, 48, 72)
+val HistoryRangeOptions = listOf(3, 6, 12, 24, 48, 72)
 
 /** A single point on a timeline: an absolute time plus a numeric value and the raw state label. */
 data class HistoryPoint(val timeMillis: Long, val value: Float, val label: String)
@@ -298,32 +298,38 @@ fun HistoryRangeChips(
 ) {
     val appColors = LocalHKIAppColors.current
     val accent = MaterialTheme.colorScheme.primary
-    Row(
-        modifier = modifier.horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        HistoryRangeOptions.forEach { hours ->
-            val isSelected = hours == selectedHours
-            val chipShape = itemCornerShape()
-            Box(
-                modifier = Modifier
-                    .clip(chipShape)
-                    .background(if (isSelected) accent.copy(alpha = 0.22f) else appColors.subtleSurface)
-                    .border(
-                        width = 1.dp,
-                        color = if (isSelected) accent else appColors.onMuted.copy(alpha = 0.18f),
-                        shape = chipShape
+    // The Box is what fills the width and does the centring; the scrolling Row inside sizes itself
+    // to its chips. Setting an arrangement on the scrolling Row instead would do nothing — a
+    // scrollable Row measures to its content, so it has no spare width to distribute. When the
+    // chips do overflow, the Row grows to the Box's width and scrolls exactly as before.
+    Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            HistoryRangeOptions.forEach { hours ->
+                val isSelected = hours == selectedHours
+                val chipShape = itemCornerShape()
+                Box(
+                    modifier = Modifier
+                        .clip(chipShape)
+                        .background(if (isSelected) accent.copy(alpha = 0.22f) else appColors.subtleSurface)
+                        .border(
+                            width = 1.dp,
+                            color = if (isSelected) accent else appColors.onMuted.copy(alpha = 0.18f),
+                            shape = chipShape
+                        )
+                        .clickable { onSelect(hours) }
+                        .padding(horizontal = 14.dp, vertical = 7.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.ui_h_0be1674, hours),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                        color = if (isSelected) appColors.onSurface else appColors.onMuted
                     )
-                    .clickable { onSelect(hours) }
-                    .padding(horizontal = 14.dp, vertical = 7.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = stringResource(R.string.ui_h_0be1674, hours),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                    color = if (isSelected) appColors.onSurface else appColors.onMuted
-                )
+                }
             }
         }
     }

@@ -483,6 +483,77 @@ data class HALogbookEntry(
     val domain: String? = null
 )
 
+/**
+ * One humanified logbook event from the websocket `logbook/event_stream` subscription.
+ *
+ * Deliberately separate from [HALogbookEntry] rather than a shared model: the REST logbook sends
+ * `when` as an ISO-8601 string, while the websocket API sends it as a float of seconds since the
+ * epoch. Decoding one shape with the other's model fails outright, and the difference is in the
+ * wire format rather than anything meaningful about the event.
+ *
+ * [state] is the entity's new state; [message] is set instead for the domains Home Assistant
+ * phrases itself. [contextUserId] is who caused it, when it was a person rather than an automation.
+ */
+@Serializable
+data class HALogbookEvent(
+    @SerialName("entity_id") val entityId: String? = null,
+    val name: String? = null,
+    val state: String? = null,
+    val message: String? = null,
+    val domain: String? = null,
+    val icon: String? = null,
+    /** Seconds since the epoch, as a float — not the ISO string the REST logbook returns. */
+    @SerialName("when") val whenSeconds: Double = 0.0,
+    @SerialName("context_user_id") val contextUserId: String? = null,
+    @SerialName("context_name") val contextName: String? = null,
+    @SerialName("context_entity_id") val contextEntityId: String? = null,
+) {
+    val timestamp: Long get() = (whenSeconds * 1000).toLong()
+}
+
+/** The household event-timeline roster as it applies to one user.
+ *
+ * [visible] and [visibleDomains] are what the component says this caller may see, already
+ * filtered by their policy. [all]/[allDomains] are the unfiltered roster and are non-null for
+ * admins only — the roster editor needs them, and anyone else being able to read them would
+ * defeat the point of filtering [visible].
+ *
+ * Domains stay unexpanded all the way from storage to here so that they keep meaning "every
+ * entity of this kind, including ones added later"; [resolve] is what turns them into the
+ * concrete ids a logbook subscription needs. */
+data class Hki7EventsRoster(
+    val visible: List<String> = emptyList(),
+    val visibleDomains: List<String> = emptyList(),
+    val all: List<String>? = null,
+    val allDomains: List<String>? = null,
+) {
+    /** True when an admin has configured nothing at all — neither entities nor domains. */
+    val isEmpty: Boolean get() = visible.isEmpty() && visibleDomains.isEmpty()
+
+    /**
+     * The concrete entity ids to subscribe to: the named entities plus every entity belonging to
+     * a rostered domain, in [entities]' own order so the result is stable between calls.
+     *
+     * Capped at [limit]. One domain can cover hundreds of entities on a large install, and every
+     * one of them is a logbook subscription the phone pays for — the cap is what stops "all
+     * sensors" from being a decision an admin can make on someone else's battery.
+     */
+    fun resolve(entities: List<HAEntity>, limit: Int = MAX_RESOLVED_EVENT_ENTITIES): List<String> {
+        if (visibleDomains.isEmpty()) return visible.take(limit)
+        val named = visible.toSet()
+        val domains = visibleDomains.toSet()
+        val fromDomains = entities.asSequence()
+            .map { it.entity_id }
+            .filter { it.substringBefore('.') in domains && it !in named }
+        // Named entities first: an admin picked those deliberately, so they should never be the
+        // ones a domain's overflow pushes out of the list.
+        return (visible.asSequence() + fromDomains).take(limit).toList()
+    }
+}
+
+/** Ceiling on the entity ids one timeline subscription may cover once domains are expanded. */
+const val MAX_RESOLVED_EVENT_ENTITIES = 250
+
 /** One point from the recorder statistics API (per-hour or per-day aggregate). */
 data class HAStatPoint(
     val startMs: Long,
@@ -1934,6 +2005,12 @@ data class Hki7Policy(
     val allowReimport: Boolean = true,
     /** This person's room-following settings (see [Hki7RoomFollow]). */
     val roomFollow: Hki7RoomFollow = Hki7RoomFollow(),
+    /** Entities and whole domains taken out of this person's event timeline. Subtractive against
+     * the household roster an admin curates once for everybody, rather than a per-person
+     * allow-list. The component applies these itself before answering `hki7/events/roster`, so a
+     * restricted account is never told which ids it is being kept away from. */
+    val hiddenEventEntityIds: List<String> = emptyList(),
+    val hiddenEventDomains: List<String> = emptyList(),
 ) {
     val isEmpty: Boolean
         get() = hiddenViews.isEmpty() && hiddenRooms.isEmpty() && hiddenItemIds.isEmpty() &&
@@ -1941,7 +2018,8 @@ data class Hki7Policy(
             hiddenSearchDomains.isEmpty() && hiddenSearchEntityIds.isEmpty() &&
             allowEdit && !aestheticsOnly && showGlobalSearch && showFlows &&
             allowDashboardSwitch && allowDashboardCreate && allowReimport &&
-            roomFollow == Hki7RoomFollow()
+            roomFollow == Hki7RoomFollow() &&
+            hiddenEventEntityIds.isEmpty() && hiddenEventDomains.isEmpty()
 }
 
 /**
@@ -2005,6 +2083,11 @@ enum class Hki7PolicySaveResult {
     /** Everything else was stored, but the installed component predates room following, so those
      *  settings were dropped. Updating HKI 7 Cloud restores them. */
     SAVED_WITHOUT_ROOM_FOLLOW,
+
+    /** Everything else was stored, but the installed component predates per-person event
+     *  visibility, so this person would see the whole household roster. Updating HKI 7 Cloud
+     *  restores the restriction. */
+    SAVED_WITHOUT_EVENT_ACCESS,
 
     /** Nothing was stored (not an admin, component absent, or offline). */
     FAILED;

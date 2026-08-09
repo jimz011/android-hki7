@@ -30,6 +30,11 @@ import com.jimz011apps.hki7.ui.utils.MdiIcon
  * still-loading animation use a state-colored MDI glyph, so an icon is always available without a
  * network dependency. Set [isDaytime] when the caller has sun/forecast-time context; otherwise
  * partly-cloudy conditions use their daytime artwork and `clear-night` remains explicitly nocturnal.
+ *
+ * Whether the artwork actually animates follows the user's icon-animations setting (Settings ›
+ * Appearance › Icons), the same switch the entity-icon effects use. With it off, every surface
+ * gets the colored MDI fallback instead — which is also what a caller passing [animate] `false`
+ * gets for its own reasons.
  */
 @Composable
 fun WeatherStateIcon(
@@ -42,12 +47,19 @@ fun WeatherStateIcon(
     loop: Boolean = true,
     fallbackTint: Color = weatherStateColor(state)
 ) {
-    // Below this size the animated artwork is barely perceptible but each instance still parses
-    // and plays its own Lottie composition, so grids with a dozen+ small icons (forecast strips,
-    // hourly strips) were spending real frame budget on animations nobody could actually see —
-    // the main source of the weather dialog feeling laggy and stuttering mid-scroll.
-    val tooSmallToAnimate = size < 40.dp
-    val animationResource = if (tooSmallToAnimate) null else weatherAnimationResource(state, isDaytime)
+    // A grid of small Lottie icons (forecast and hourly strips) each parsing and playing its own
+    // composition is what used to make this dialog stutter mid-scroll, so animation here is not
+    // free. It is gated on the user's own icon-animations preference rather than on a size rule:
+    // someone who has asked for animated icons should get them in the forecast strip and the
+    // header pill too, and someone who has not should not pay for them at any size. The remaining
+    // floor is only where the artwork stops being resolvable at all.
+    val animationsEnabled = LocalIconAnimationsEnabled.current
+    val tooSmallToAnimate = size < 16.dp
+    val animationResource = if (!animationsEnabled || tooSmallToAnimate) {
+        null
+    } else {
+        weatherAnimationResource(state, isDaytime)
+    }
     val descriptionModifier = if (contentDescription == null) {
         Modifier
     } else {

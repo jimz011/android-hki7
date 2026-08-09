@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Event timeline: the Events tab in the notification drawer, and the phrasing that turns a raw
+  logbook state into a readable line. The verbs are deliberately past-tense and subject-less —
+  they are rendered after the entity's name, so "Front door" + "was opened".
+-->
+<resources>
+    <!-- Tab and empty states -->
+    <string name="events_tab">Events</string>
+    <string name="events_empty">No events yet</string>
+    <string name="events_empty_hint">Recent activity for the entities your family admin added to the timeline appears here.</string>
+    <string name="events_not_configured">No events are being tracked</string>
+    <string name="events_not_configured_admin">Choose which entities appear here in Settings › Family Sharing › Events.</string>
+    <string name="events_not_configured_member">Your family admin decides which entities appear here.</string>
+    <string name="events_unavailable">The event timeline needs HKI 7 Cloud %1$s.</string>
+    <string name="events_no_matches">No matching events</string>
+    <string name="events_loading">Loading events…</string>
+
+    <!-- Day grouping -->
+    <string name="events_today">Today</string>
+    <string name="events_yesterday">Yesterday</string>
+
+    <!-- Attribution: who or what caused the event -->
+    <string name="events_by">by %1$s</string>
+
+    <!-- Category filters. Only the ones actually present in the timeline are offered. -->
+    <string name="events_filter_all">All</string>
+    <string name="event_category_door">Doors</string>
+    <string name="event_category_window">Windows</string>
+    <string name="event_category_motion">Motion</string>
+    <string name="event_category_moisture">Water</string>
+    <string name="event_category_safety">Smoke &amp; gas</string>
+    <string name="event_category_problem">Problems</string>
+    <string name="event_category_battery">Batteries</string>
+    <string name="event_category_connectivity">Connectivity</string>
+    <string name="event_category_light">Lights</string>
+    <string name="event_category_switch">Switches</string>
+    <string name="event_category_lock">Locks</string>
+    <string name="event_category_cover">Covers</string>
+    <string name="event_category_climate">Climate</string>
+    <string name="event_category_presence">People</string>
+    <string name="event_category_alarm">Alarm</string>
+    <string name="event_category_media">Media</string>
+    <string name="event_category_vacuum">Vacuum</string>
+    <string name="event_category_automation">Automations</string>
+    <string name="event_category_sensor">Sensors</string>
+
+    <!-- Phrasing. Rendered after the entity name. -->
+    <string name="event_verb_opened">was opened</string>
+    <string name="event_verb_closed">was closed</string>
+    <string name="event_verb_opening">is opening</string>
+    <string name="event_verb_closing">is closing</string>
+    <string name="event_verb_locked">was locked</string>
+    <string name="event_verb_unlocked">was unlocked</string>
+    <string name="event_verb_motion_detected">detected motion</string>
+    <string name="event_verb_motion_cleared">stopped detecting motion</string>
+    <string name="event_verb_moisture_detected">detected moisture</string>
+    <string name="event_verb_moisture_cleared">is dry again</string>
+    <string name="event_verb_alarm_detected">raised an alarm</string>
+    <string name="event_verb_alarm_cleared">cleared</string>
+    <string name="event_verb_problem_detected">reported a problem</string>
+    <string name="event_verb_problem_cleared">is back to normal</string>
+    <string name="event_verb_battery_low">reported a low battery</string>
+    <string name="event_verb_battery_normal">has a healthy battery again</string>
+    <string name="event_verb_connected">came online</string>
+    <string name="event_verb_disconnected">went offline</string>
+    <string name="event_verb_turned_on">was turned on</string>
+    <string name="event_verb_turned_off">was turned off</string>
+    <string name="event_verb_detected">was triggered</string>
+    <string name="event_verb_cleared">cleared</string>
+    <string name="event_verb_arrived_home">arrived home</string>
+    <string name="event_verb_left_home">left home</string>
+    <string name="event_verb_arrived_at">arrived at %1$s</string>
+    <string name="event_verb_disarmed">was disarmed</string>
+    <string name="event_verb_armed">was armed</string>
+    <string name="event_verb_arming">is arming</string>
+    <string name="event_verb_pending">is counting down</string>
+    <string name="event_verb_triggered">was triggered</string>
+    <string name="event_verb_set_to">was set to %1$s</string>
+    <string name="event_verb_started_cleaning">started cleaning</string>
+    <string name="event_verb_returning_to_dock">is returning to its dock</string>
+    <string name="event_verb_docked">docked</string>
+    <string name="event_verb_started_playing">started playing</string>
+    <string name="event_verb_paused">was paused</string>
+    <string name="event_verb_stopped">stopped</string>
+    <string name="event_verb_generic">changed to %1$s</string>
+</resources>

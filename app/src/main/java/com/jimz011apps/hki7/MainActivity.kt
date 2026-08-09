@@ -803,7 +803,14 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                 drawerContainerColor = appColors.background,
                 drawerContentColor = appColors.onSurface
             ) {
-                NotificationPanel(viewModel)
+                // ModalNavigationDrawer keeps its sheet composed while closed — it only slides it
+                // off-screen — so the panel has to be told when it is actually being looked at.
+                // Without this the Events tab's logbook subscription would run for the whole
+                // session after one visit.
+                NotificationPanel(
+                    viewModel,
+                    isVisible = drawerState.targetValue == DrawerValue.Open
+                )
             }
         }
     ) {

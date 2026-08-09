@@ -175,6 +175,11 @@ private const val DASHBOARD_REFRESH_INTERVAL_MS = 5 * 60 * 1000L
  *  run rarely to self-heal any silently-missed events — not every minute. */
 private const val STATE_RESEED_INTERVAL_MS = 15 * 60 * 1000L
 
+/** Ceiling on how many timeline events are held in memory. A day of a busy household can be
+ *  thousands, and nobody scrolls that far — past this the oldest are dropped, which is also what
+ *  keeps the list a bounded amount of work to render. */
+private const val MAX_TIMELINE_EVENTS = 500
+
 /** Fast recovery probes after LAN fallback. Failed checks back off and then cap at ten seconds. */
 private val INTERNAL_URL_RETRY_DELAYS_MS = longArrayOf(1_000L, 3_000L, 5_000L, 10_000L)
 private const val INTERNAL_URL_PROBE_TIMEOUT_MS = 4_000L
@@ -1572,6 +1577,103 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         }
     }
 
+    // ── Event timeline ──────────────────────────────────────────────────
+    // Which entities are on the household roster, and the events themselves. Nothing here is
+    // persisted: Home Assistant's recorder is already the store, so re-reading on open is both
+    // cheaper than maintaining a local copy and always correct.
+
+    private val _eventRoster = MutableStateFlow<Hki7EventsRoster?>(null)
+    /** Null until the roster has been fetched, or when the component can't answer at all. */
+    val eventRoster: StateFlow<Hki7EventsRoster?> = _eventRoster
+
+    private val _eventTimeline = MutableStateFlow<List<HALogbookEvent>>(emptyList())
+    val eventTimeline: StateFlow<List<HALogbookEvent>> = _eventTimeline
+
+    private val _eventTimelineLoading = MutableStateFlow(false)
+    val eventTimelineLoading: StateFlow<Boolean> = _eventTimelineLoading
+
+    /**
+     * Starts streaming the household event timeline for the last [hours] hours.
+     *
+     * Called when the Events tab becomes visible and cancelled when it stops being — an extra
+     * websocket subscription held for the whole session would work against the event-driven,
+     * battery-conscious posture the rest of the app is built on, and nothing off-screen reads it.
+     */
+    fun startEventTimeline(hours: Long) {
+        eventTimelineJob?.cancel()
+        _eventTimelineLoading.value = true
+        _eventTimeline.value = emptyList()
+        eventTimelineJob = viewModelScope.launch(Dispatchers.IO) {
+            val context = appContext
+            val roster = if (context == null) null else {
+                runCatching { HaParentalControls.eventsRoster(context) }.getOrNull()
+            }
+            _eventRoster.value = roster
+            // Domains are stored unexpanded so they keep covering entities added after an admin
+            // picked them, which means resolving them here against the live entity list rather
+            // than trusting a snapshot the component took at save time.
+            val entityIds = roster?.resolve(_entities.value).orEmpty()
+            if (entityIds.isEmpty()) {
+                _eventTimelineLoading.value = false
+                return@launch
+            }
+            val since = System.currentTimeMillis() - hours.coerceAtLeast(1) * 60 * 60 * 1000
+            // The backfill for a day of a busy household is thousands of events, and it arrives as
+            // a burst. Publishing each one straight to the StateFlow would copy the whole list per
+            // event — the same quadratic shape that made opening a busy entity's history ANR — so
+            // events accumulate here and are published in batches instead.
+            val buffer = ArrayDeque<HALogbookEvent>()
+            val flushSignal = Channel<Unit>(Channel.CONFLATED)
+            fun publish() {
+                _eventTimeline.value = buffer.toList()
+                _eventTimelineLoading.value = false
+            }
+            while (currentCoroutineContext().isActive) {
+                val currentClient = client
+                if (currentClient == null) {
+                    delay(2.seconds)
+                    continue
+                }
+                val flusher = launch {
+                    for (signal in flushSignal) {
+                        delay(150.milliseconds)
+                        publish()
+                    }
+                }
+                try {
+                    currentClient.subscribeLogbook(entityIds, since).collect { event ->
+                        // Newest first, matching the notification list above it. History streams
+                        // oldest-first and live events follow, so adding at the front puts both in
+                        // the right place without ever re-sorting.
+                        buffer.addFirst(event)
+                        while (buffer.size > MAX_TIMELINE_EVENTS) buffer.removeLast()
+                        flushSignal.trySend(Unit)
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    if (e.message != "AUTH_EXPIRED") {
+                        addLog("Event timeline interrupted: ${e.message}")
+                    }
+                } finally {
+                    flusher.cancel()
+                }
+                publish()
+                // A reconnect re-runs the same window, so start clean rather than showing every
+                // backfilled event twice.
+                buffer.clear()
+                delay(3.seconds)
+            }
+        }
+    }
+
+    /** Stops the timeline subscription. Safe to call when it was never started. */
+    fun stopEventTimeline() {
+        eventTimelineJob?.cancel()
+        eventTimelineJob = null
+        _eventTimelineLoading.value = false
+    }
+
     private val undoStack = mutableListOf<Snapshot>()
     private val redoStack = mutableListOf<Snapshot>()
     private val _canUndo = MutableStateFlow(false)
@@ -1667,6 +1769,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private var client: HomeAssistantClient? = null
     private var pollJob: Job? = null
     private var realtimeJob: Job? = null
+    private var eventTimelineJob: Job? = null
     private var sharedDashboardEventsJob: Job? = null
     private var pushJob: Job? = null
     private val pushHandler by lazy { appContext?.let { PushNotificationHandler(it, prefs) } }

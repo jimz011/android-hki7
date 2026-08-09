@@ -16,6 +16,12 @@ import android.content.Context
  */
 object HaParentalControls {
 
+    /** Component version that first stored the event roster and per-person event visibility. */
+    const val MIN_EVENTS_COMPONENT_VERSION = "0.9.0"
+
+    /** Component version that first stored whole domains on the event roster. */
+    const val MIN_EVENT_DOMAINS_COMPONENT_VERSION = "0.10.0"
+
     /**
      * Fetches the current user's policy and caches it. Admins/owners get an empty policy.
      * On failure (no component, no credentials, offline) the cached policy is left as-is,
@@ -40,7 +46,26 @@ object HaParentalControls {
         prefs.saveRoomFollowRoster(sensors)
     }
 
+    /** The household event-timeline roster as it applies to the signed-in user.
+     *
+     *  The component has already removed whatever this person is not allowed to see, so the
+     *  returned ids can be subscribed to directly. Null when the component can't answer (absent,
+     *  or older than 0.9.0), which the caller shows as "the timeline isn't set up" rather than as
+     *  an empty roster. */
+    suspend fun eventsRoster(context: Context): Hki7EventsRoster? =
+        Hki7Endpoint.withClient(context) { it.hki7EventsRoster() }
+
     // ── Admin editor ────────────────────────────────────────────────────
+
+    /** Replaces the household's event roster (admin only). Returns what was stored — the component
+     *  caps entities and domains separately, so this can be shorter than what was sent. Null when
+     *  the save didn't happen. */
+    suspend fun setEventsRoster(
+        context: Context,
+        entityIds: List<String>,
+        domains: List<String>,
+    ): Hki7EventsRoster? =
+        Hki7Endpoint.withClient(context) { it.hki7SetEventsRoster(entityIds, domains) }
 
     /** Every stored policy keyed by user id (admin only). */
     suspend fun listPolicies(context: Context): Map<String, Hki7Policy> =

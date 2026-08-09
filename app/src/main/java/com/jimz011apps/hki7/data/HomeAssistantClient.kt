@@ -567,7 +567,7 @@ open class HomeAssistantClient(
             "hidden_search_domains" to JsonArray(policy.hiddenSearchDomains.map { JsonPrimitive(it) }),
             "hidden_search_entity_ids" to JsonArray(policy.hiddenSearchEntityIds.map { JsonPrimitive(it) }),
         )
-        val full = searchAccess + mapOf<String, JsonElement>(
+        val roomFollow = searchAccess + mapOf<String, JsonElement>(
             "room_follow" to buildJsonObject {
                 put("sensor_entity_id", policy.roomFollow.sensorEntityId?.let(::JsonPrimitive) ?: JsonNull)
                 put("enabled", policy.roomFollow.enabled)
@@ -580,10 +580,22 @@ open class HomeAssistantClient(
                 })
             }
         )
+        val full = roomFollow + mapOf<String, JsonElement>(
+            "hidden_event_entity_ids" to JsonArray(policy.hiddenEventEntityIds.map { JsonPrimitive(it) }),
+            "hidden_event_domains" to JsonArray(policy.hiddenEventDomains.map { JsonPrimitive(it) }),
+        )
         suspend fun send(payload: Map<String, JsonElement>): Boolean =
             sendCommand("hki7/policy/set", payload)["success"]?.jsonPrimitive?.booleanOrNull == true
 
         if (send(full)) return@withWebSocket Hki7PolicySaveResult.SAVED
+        // Component 0.8.x and older reject the event-visibility lists. Only report the drop when
+        // this policy actually restricts somebody's timeline.
+        val usesEventAccess = policy.hiddenEventEntityIds.isNotEmpty() ||
+            policy.hiddenEventDomains.isNotEmpty()
+        if (usesEventAccess && send(roomFollow)) {
+            return@withWebSocket Hki7PolicySaveResult.SAVED_WITHOUT_EVENT_ACCESS
+        }
+        if (send(roomFollow)) return@withWebSocket Hki7PolicySaveResult.SAVED
         // Component 0.5.x and older reject room_follow. Only report the drop when the policy
         // actually carries room-following settings.
         if (policy.roomFollow != Hki7RoomFollow() && send(searchAccess)) {
@@ -646,6 +658,8 @@ open class HomeAssistantClient(
                     .orEmpty()
             )
         } ?: Hki7RoomFollow(),
+        hiddenEventEntityIds = o["hidden_event_entity_ids"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty(),
+        hiddenEventDomains = o["hidden_event_domains"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty(),
     )
 
     /** The household's room-presence sensor ids, for the people-per-room counter. Readable by any
@@ -657,6 +671,57 @@ open class HomeAssistantClient(
         response["result"]?.jsonObject?.get("sensors")?.jsonArray
             ?.mapNotNull { it.jsonPrimitive.contentOrNull }
             ?: emptyList()
+    }
+
+    /** The household's event-timeline roster as it applies to *this* user.
+     *
+     * [Hki7EventsRoster.visible] is what the component decided the caller may see — it has already
+     * subtracted this person's hidden entities and domains, so the app never has to be trusted to
+     * apply the restriction itself, and a restricted account is never handed the ids it is being
+     * kept away from. [Hki7EventsRoster.all] is the unfiltered roster and arrives for admins only,
+     * because the roster editor is the one screen that has to show every entry.
+     *
+     * Null when the command is unavailable (older or absent component), so the caller can tell
+     * "no roster configured" apart from "this component can't answer". Requires 0.9.0. */
+    open suspend fun hki7EventsRoster(): Hki7EventsRoster? = withWebSocket {
+        val response = sendCommand("hki7/events/roster")
+        if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket null
+        val result = response["result"]?.jsonObject ?: return@withWebSocket null
+        fun ids(key: String) = result[key]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }
+        Hki7EventsRoster(
+            visible = ids("entity_ids") ?: emptyList(),
+            // A 0.9.0 component answers without domains at all, which is an empty list rather
+            // than a missing capability — it simply had no way to store any.
+            visibleDomains = ids("domains").orEmpty(),
+            all = ids("all_entity_ids"),
+            allDomains = ids("all_domains"),
+        )
+    }
+
+    /** Replaces the household's event roster (admin only). Returns what was actually stored, which
+     * may be shorter than what was sent — the component caps entities and domains separately.
+     * Null when the command is unavailable or the caller is not an admin. */
+    open suspend fun hki7SetEventsRoster(
+        entityIds: List<String>,
+        domains: List<String> = emptyList(),
+    ): Hki7EventsRoster? = withWebSocket {
+        val payload = mapOf<String, JsonElement>(
+            "entity_ids" to JsonArray(entityIds.map { JsonPrimitive(it) }),
+            "domains" to JsonArray(domains.map { JsonPrimitive(it) }),
+        )
+        val response = sendCommand("hki7/events/roster/set", payload)
+        if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket null
+        val result = response["result"]?.jsonObject
+        fun ids(key: String) = result?.get(key)?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }
+        val stored = ids("entity_ids").orEmpty()
+        val storedDomains = ids("domains").orEmpty()
+        // The caller is an admin by definition here, so the full roster is the visible one.
+        Hki7EventsRoster(
+            visible = stored,
+            visibleDomains = storedDomains,
+            all = stored,
+            allDomains = storedDomains,
+        )
     }
 
     private fun parseDashboardMeta(o: JsonObject): Hki7SharedDashboardMeta? {
@@ -1106,6 +1171,58 @@ open class HomeAssistantClient(
                     ?.takeUnless { it is JsonNull }
                     ?.let { runCatching { json.decodeFromJsonElement(HAEntity.serializer(), it) }.getOrNull() }
                 emit(HAStateChange(entityId, newState))
+            }
+        } finally {
+            conn.channels.remove(id)
+            runCatching {
+                conn.session.send(buildJsonObject {
+                    put("id", messageId.getAndIncrement())
+                    put("type", "unsubscribe_events")
+                    put("subscription", id)
+                }.toString())
+            }
+        }
+    }
+
+    /**
+     * Streams logbook events for [entityIds] — everything since [sinceMillis] first, then live
+     * events as they happen, over a single `logbook/event_stream` subscription.
+     *
+     * The backfill is why this is used rather than the app's own `state_changed` stream: the
+     * recorder saw what happened while HKI was closed, and a timeline whose history starts when
+     * you opened the app is missing exactly the events worth showing. Entities excluded from the
+     * recorder never appear, and neither does anything at all when the recorder is disabled.
+     *
+     * Like [subscribeStateChanges], the flow completes rather than errors when the socket drops,
+     * so a caller re-collects to reconnect. Emits nothing for an empty [entityIds]: Home Assistant
+     * reads a missing filter as "every entity in the house", which is emphatically not the
+     * intent when the roster happens to be empty.
+     */
+    open fun subscribeLogbook(entityIds: List<String>, sinceMillis: Long): Flow<HALogbookEvent> = flow {
+        if (entityIds.isEmpty()) return@flow
+        val conn = ensureConnected()
+        val id = messageId.getAndIncrement()
+        val channel = Channel<JsonObject>(Channel.UNLIMITED)
+        conn.channels[id] = channel
+        try {
+            conn.session.send(buildJsonObject {
+                put("id", id)
+                put("type", "logbook/event_stream")
+                put("start_time", Instant.ofEpochMilli(sinceMillis).toString())
+                put("entity_ids", JsonArray(entityIds.map { JsonPrimitive(it) }))
+            }.toString())
+
+            for (message in channel) {
+                if (message["type"]?.jsonPrimitive?.contentOrNull != "event") continue
+                // Historic and live events arrive in the same shape; the stream sends them in
+                // batches, so one message carries an array rather than a single event.
+                val events = message["event"]?.jsonObject?.get("events")?.jsonArray ?: continue
+                for (element in events) {
+                    val event = runCatching {
+                        json.decodeFromJsonElement(HALogbookEvent.serializer(), element)
+                    }.getOrNull() ?: continue
+                    emit(event)
+                }
             }
         } finally {
             conn.channels.remove(id)

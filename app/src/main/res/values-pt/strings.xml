@@ -3257,7 +3257,16 @@
         <item quantity="one">%1$d bateria precisa de atenção</item>
         <item quantity="other">%1$d baterias precisam de atenção</item>
     </plurals>
-    <string-array name="cr_whats_new_beta_18">
+<string-array name="cr_whats_new_beta_19">
+    <item>Novo separador Eventos na gaveta de notificações: uma linha do tempo do que a sua casa tem realmente feito. A porta da frente a abrir-se, uma luz a apagar-se, alguém a chegar a casa – cada um com a hora e, onde o Home Assistant sabe, quem o fez. Um administrador escolhe quais as entidades que aparecem em Definições › Partilha Familiar › Eventos, uma vez para toda a família, e não em todos os telefones. Lê o próprio diário de bordo do Home Assistant em vez de gravar qualquer coisa no dispositivo, por isso ainda mostra o que aconteceu durante a noite enquanto a aplicação estava fechada e abre nas últimas 3 horas – uma linha do tempo responde ao que acabou de acontecer – com 6h a 72h a um toque de distância. Os eventos nunca afetam a contagem de não lidas do sino de notificação: uma linha do tempo de abertura de portas deixaria este emblema permanentemente aceso e não significaria nada. Requer HKI 7 Cloud 0.9.0. *</item>
+    <item>Um administrador pode retirar partes da linha do tempo de membros individuais da família (um domínio inteiro ou entidades nomeadas) no mesmo separador Eventos. Todos veem a linha do tempo completa, a menos que algo lhes seja retirado, pelo que adicionar uma pessoa à família não significa construir a sua linha do tempo a partir do zero. A filtragem acontece no componente HKI 7 Cloud e não na aplicação, pelo que um dispositivo restrito nunca é informado de que entidades está a ser mantido afastado. Tal como acontece com as vistas e salas ocultas, isto oculta a linha do tempo em vez das entidades: o Home Assistant não tem permissão de leitura por entidade para contas que não sejam de administrador, pelo que qualquer pessoa ligada ainda pode ler essas entidades através do próprio Home Assistant. *</item>
+    <item>A lista de eventos recebe domínios inteiros, bem como entidades nomeadas, pelo que “cada bloqueio” é uma escolha em vez de onze. Os domínios são resolvidos sempre que a linha do tempo é aberta, pelo que é adicionado um bloqueio adicionado no mês seguinte, em vez da lista, o que significa o que existia no dia em que foi definido. O editor mostra o que cada domínio cobre atualmente, uma vez que um domínio pode conter centenas de entidades. Requer HKI 7 Cloud 0.10.0. *</item>
+    <item>Os acontecimentos são rotulados e filtráveis de acordo com o tipo de coisas que aconteceram – portas, janelas, movimento, luzes, fechaduras. A linha do filtro é construída a partir do que a sua linha do tempo realmente contém, pelo que nunca lhe será oferecido um filtro que só possa voltar vazio. Os dias permanecem como títulos de lista: uma linha do tempo que se reordena por categoria deixa de ser uma linha do tempo.</item>
+    <item>A arte do tempo é agora animada na previsão diária, na faixa horária e no cabeçalho, e não apenas no cartão do herói. Segue a mudança de animações de ícones em Definições › Aparência › Ícones em vez de serem desativados abaixo de um tamanho fixo, pelo que é a mesma preferência que rege os ícones de entidade – e desligá-la proporciona arte colorida estática em todo o lado.</item>
+    <item>O seletor de intervalo 6h/12h/24h/48h/72h está centrado em vez de estar alinhado à esquerda, em todos os locais onde aparece.</item>
+</string-array>
+
+<string-array name="cr_whats_new_beta_18">
         <item>Um administrador agora pode alterar com quem um painel familiar publicado é compartilhado, em vez de poder escolher apenas no momento da publicação. Configurações › Compartilhamento Familiar › Painéis lista quem é alcançado por cada painel publicado, com um botão Gerenciar acesso para adicionar ou remover pessoas. Até agora, a única maneira de retirar um painel de uma pessoa era excluí-lo para todos.*</item>
         <item>Perder o acesso a um painel familiar agora limpa o que estava sobre ele. O painel em si já foi removido, mas as salas, widgets, páginas, barra de navegação, cabeçalho e tema deixados no dispositivo permaneceram - então o próximo painel que um administrador compartilhou chegou em cima das sobras do anterior e parecia que não havia sido importado por completo. Tudo o que pertencia ao painel revogado agora é removido com ele. As conexões, perfis e configurações de notificação do Home Assistant permanecem intactas: perder um painel não significa desconectar-se.*</item>
         <item>Guia Novos dispositivos em Configurações › Compartilhamento familiar, mostrando qual versão HKI cada dispositivo da família está executando e sinalizando aqueles mais antigos que o seu, com a conta do Home Assistant, nome do dispositivo, versão do Android e quando foi relatado pela última vez. Cada instalação registra isso por meio do componente HKI 7 Cloud através da conexão que o aplicativo já usa, de modo que todos os dispositivos conectados são cobertos – incluindo um com localização e notificações desligados – e nada é adicionado à lista de entidades do Home Assistant. Um dispositivo só pode reportar a si mesmo. Um administrador pode esquecer um telefone que foi substituído; um ainda em uso reaparece na próxima vez que seu aplicativo for aberto. Requer HKI 7 Cloud 0.7.0.*</item>
@@ -3682,4 +3691,97 @@
     <string name="app_update_required_unavailable">O Google Play ainda não tem nenhuma atualização pronta para este dispositivo. Isso geralmente significa que o lançamento não chegou até você ou que esta cópia do HKI não veio da Play Store.</string>
     <string name="app_update_required_continue">Continuar sem atualizar</string>
     <string name="settings_extra_hki_cloud_feature_required_version">Exigir que a família atualize para uma determinada versão do HKI</string>
+    <string name="event_verb_alarm_cleared">limpo</string>
+    <string name="event_verb_alarm_detected">levantou um alarme</string>
+    <string name="event_verb_armed">estava armado</string>
+    <string name="event_verb_arming">está a armar</string>
+    <string name="event_verb_arrived_at">chegou a %1$s</string>
+    <string name="event_verb_arrived_home">chegou a casa</string>
+    <string name="event_verb_battery_low">reportou uma bateria fraca</string>
+    <string name="event_verb_battery_normal">tem novamente uma bateria saudável</string>
+    <string name="event_verb_cleared">limpo</string>
+    <string name="event_verb_closed">foi fechado</string>
+    <string name="event_verb_closing">está a fechar</string>
+    <string name="event_verb_connected">ficou on-line</string>
+    <string name="event_verb_detected">foi acionado</string>
+    <string name="event_verb_disarmed">foi desarmado</string>
+    <string name="event_verb_disconnected">ficou offline</string>
+    <string name="event_verb_docked">ancorado</string>
+    <string name="event_verb_generic">alterado para %1$s</string>
+    <string name="event_verb_left_home">saiu de casa</string>
+    <string name="event_verb_locked">estava bloqueado</string>
+    <string name="event_verb_moisture_cleared">está novamente seco</string>
+    <string name="event_verb_moisture_detected">humidade detectada</string>
+    <string name="event_verb_motion_cleared">deixou de detetar movimento</string>
+    <string name="event_verb_motion_detected">movimento detectado</string>
+    <string name="event_verb_opened">foi aberto</string>
+    <string name="event_verb_opening">está a abrir</string>
+    <string name="event_verb_paused">foi pausado</string>
+    <string name="event_verb_pending">está em contagem decrescente</string>
+    <string name="event_verb_problem_cleared">voltou ao normal</string>
+    <string name="event_verb_problem_detected">relatou um problema</string>
+    <string name="event_verb_returning_to_dock">está a regressar ao seu cais</string>
+    <string name="event_verb_set_to">foi definido como %1$s</string>
+    <string name="event_verb_started_cleaning">Comecei a limpar</string>
+    <string name="event_verb_started_playing">Comecei a jogar</string>
+    <string name="event_verb_stopped">parou</string>
+    <string name="event_verb_triggered">foi acionado</string>
+    <string name="event_verb_turned_off">foi desligado</string>
+    <string name="event_verb_turned_on">estava ligado</string>
+    <string name="event_verb_unlocked">foi desbloqueado</string>
+    <string name="events_by">por %1$s</string>
+    <string name="events_empty">Nenhum evento ainda</string>
+    <string name="events_empty_hint">As atividades recentes das entidades que o administrador da sua família adicionou à linha do tempo aparecem aqui.</string>
+    <string name="events_loading">Carregando eventos…</string>
+    <string name="events_no_matches">Nenhum evento correspondente</string>
+    <string name="events_not_configured">Nenhum evento está a ser rastreado</string>
+    <string name="events_not_configured_admin">Escolha que entidades aparecem aqui em Definições › Partilha Familiar › Eventos.</string>
+    <string name="events_not_configured_member">O administrador da sua família decide que entidades aqui aparecem.</string>
+    <string name="events_tab">Eventos</string>
+    <string name="events_today">Hoje</string>
+    <string name="events_unavailable">A linha de tempo do evento necessita do HKI 7 Cloud %1$s.</string>
+    <string name="events_yesterday">Ontem</string>
+    <string name="settings_extra_events_choose">Escolha entidades</string>
+    <string name="settings_extra_events_description">Escolha para que entidades a família vê as atividades recentes, no separador Eventos da gaveta de notificações. Defina uma vez aqui e não em cada telefone. Isto oculta a linha do tempo, não as entidades – qualquer pessoa ligada ao Home Assistant ainda pode lê-las lá.</string>
+    <string name="settings_extra_events_edit">Editar entidades</string>
+    <string name="settings_extra_events_empty">Nenhuma entidade está a ser rastreada ainda.</string>
+    <string name="settings_extra_events_hidden_count">%1$d oculto</string>
+    <string name="settings_extra_events_hidden_title">Esconda-se desta pessoa</string>
+    <string name="settings_extra_events_loading">Carregando a lista…</string>
+    <string name="settings_extra_events_manage">Gerir</string>
+    <string name="settings_extra_events_notifications_hint">O separador Eventos na gaveta de notificações mostra as atividades recentes das entidades escolhidas pelo administrador da família. Está definido para toda a família na Partilha Familiar, não por dispositivo.</string>
+    <string name="settings_extra_events_open_family_sharing">Abrir Partilha Familiar</string>
+    <string name="settings_extra_events_per_person_description">Toda a gente vê toda a linha do tempo, a menos que se tire algo dela para eles.</string>
+    <string name="settings_extra_events_per_person_title">Quem vê o que</string>
+    <string name="settings_extra_events_pick_title">Entidades para mostrar eventos</string>
+    <string name="settings_extra_events_save_failed">Não foi possível guardar a lista do evento.</string>
+    <string name="settings_extra_events_sees_everything">Vê toda a linha do tempo</string>
+    <string name="settings_extra_events_title">Cronograma do evento</string>
+    <string name="settings_extra_events_unavailable">Não foi possível ler a lista do HKI 7 Cloud.</string>
+    <string name="settings_extra_hki_cloud_feature_events">A linha do tempo do evento e a ocultação de partes do mesmo de pessoas individuais</string>
+    <string name="settings_extra_policy_needs_component_update_events">Permissões guardadas, mas esta nuvem HKI 7 é demasiado antiga para ocultar eventos desta pessoa – veria toda a linha temporal. Atualize-o para aplicar a restrição.</string>
+    <string name="settings_extra_tab_events">Eventos</string>
+    <string name="event_category_alarm">Alarme</string>
+    <string name="event_category_automation">Automações</string>
+    <string name="event_category_battery">Baterias</string>
+    <string name="event_category_climate">Clima</string>
+    <string name="event_category_connectivity">Conectividade</string>
+    <string name="event_category_cover">Capas</string>
+    <string name="event_category_door">Portas</string>
+    <string name="event_category_light">Luzes</string>
+    <string name="event_category_lock">Fechaduras</string>
+    <string name="event_category_media">Mídia</string>
+    <string name="event_category_moisture">Água</string>
+    <string name="event_category_motion">Movimento</string>
+    <string name="event_category_presence">Pessoas</string>
+    <string name="event_category_problem">Problemas</string>
+    <string name="event_category_safety">Fumo e gás</string>
+    <string name="event_category_sensor">Sensores</string>
+    <string name="event_category_switch">Interruptores</string>
+    <string name="event_category_vacuum">Vácuo</string>
+    <string name="event_category_window">Windows</string>
+    <string name="events_filter_all">Tudo</string>
+    <string name="settings_extra_events_capped">%1$d entidades e domínios %2$d guardados. A lista da linha do tempo está limitada.</string>
+    <string name="settings_extra_events_resolved_capped">Esta lista cobre as entidades %2$d, mas uma linha de tempo inscreve-se no máximo em %1$d. Remova um domínio ou adicione entidades por nome.</string>
+    <string name="settings_extra_events_whole_domain">Todas as %1$s (entidades %2$d)</string>
 </resources>

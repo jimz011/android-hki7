@@ -1868,7 +1868,16 @@
         <item quantity="one">圖表 %1$d · %2$d 個感測器</item>
         <item quantity="other">圖表 %1$d · %2$d 個感測器</item>
     </plurals>
-    <string-array name="cr_whats_new_beta_18">
+<string-array name="cr_whats_new_beta_19">
+    <item>通知抽屜中的新「事件」標籤：您的家實際所做的事情的時間表。前門打開，燈滅，有人到家——每個人都有時間，家庭助理知道是誰做的。管理員選擇在「設定」&gt;「家庭共享」&gt;「事件」下顯示哪些實體，一次為整個家庭而不是在每部手機上顯示。它讀取 Home Assistant 自己的日誌，而不是在設備上記錄任何內容，因此它仍然顯示應用程式關閉時夜間發生的事情，並且它會在過去 3 小時內打開 - 時間軸回答剛剛發生的事情 - 只需輕按一下 6 小時到 72 小時即可。事件永遠不會觸及通知鈴的未讀計數：開門的時間軸會讓該徽章永久亮起，毫無意義。需要 HKI 7 Cloud 0.9.0.*</item>
+    <item>管理員可以從相同「事件」標籤中將部分時間軸從各個家庭成員（整個網域或命名實體）移除。每個人都會看到完整的時間線，除非為他們刪除了一些東西，所以向家庭添加一個人並不意味著從頭開始建立他們的時間線。過濾發生在 HKI 7 Cloud 元件中，而不是在應用程式中，因此受限的裝置甚至不會被告知它遠離哪些實體。與隱藏視圖和房間一樣，這隱藏了時間軸而不是實體：Home Assistant 對於非管理員帳戶沒有每個實體的讀取權限，因此登入的任何人仍然可以透過 Home Assistant 本身讀取這些實體。 *</item>
+    <item>事件名冊包含整個網域以及命名實體，因此「每個鎖」都是一個選擇，而不是十一個。每次時間軸打開時都會重新解析域名，因此下個月添加的鎖會自行加入，而不是加入名冊，這意味著設置之日存在的任何內容。編輯器顯示每個網域目前涵蓋的內容，因為一個網域可以包含數百個實體。需要 HKI 7 Cloud 0.10.0.*</item>
+    <item>事件根據事件發生的類型進行標記和過濾——門、窗、動作、燈光、鎖。過濾器行是根據時間軸實際包含的內容構建的，因此永遠不會為您提供只能返回空的過濾器。天數保留為清單標題：按類別重新排序的時間軸不再是時間軸。</item>
+    <item>天氣藝術作品現在不僅在英雄卡上，還在每日天氣預報、每小時條和標題藥丸中以動畫形式呈現。它遵循“設定”&gt;“外觀”&gt;“圖示”中的圖示動畫切換，而不是在固定大小以下關閉，因此控制實體圖示的首選項相同 - 關閉該動畫會在各處提供靜態彩色藝術品。</item>
+    <item>6h/12h/24h/48h/72h 範圍選擇器無論出現在哪裡，都是居中而不是左對齊。</item>
+</string-array>
+
+<string-array name="cr_whats_new_beta_18">
         <item>管理員現在可以更改已發布的家庭儀表板的共享對象，而不僅僅是在發佈時才能選擇。設定 › 家庭分享 › 儀表板列出了每個已發佈的儀表板所涵蓋的人員，並透過「管理存取」按鈕來新增或刪除人員。到目前為止，從一個人手中奪走儀表板的唯一方法就是為所有人刪除它。 *</item>
         <item>現在，失去對家庭儀表板的存取權會清除其之上的內容。儀表板本身已經被刪除，但它留在設備上的房間、小部件、頁面、導航欄、標題藥丸和主題仍然保留 - 因此管理員共享的下一個儀表板到達了前一個儀表板的剩餘部分之上，看起來它未能完全導入。屬於已撤銷儀表板的所有內容現在都將隨之刪除。 Home Assistant 連線、設定檔和通知設定保持不變：遺失儀表板並不會被登出。 *</item>
         <item>「設定」&gt;「家庭共享」下的「新設備」標籤顯示每個家庭設備正在運行的 HKI 版本，並標記比您的設備舊的設備，以及 Home Assistant 帳戶、設備名稱、Android 版本以及上次報告的時間。每次安裝都會透過應用程式已使用的連接上的 HKI 7 Cloud 元件記錄這一點，因此每個登入的裝置都會被覆蓋 - 包括位置和通知都關閉的裝置 - 並且不會將任何內容新增至 Home Assistant 的實體清單中。設備只能報告其自身。管理員可能會忘記已更換的手機；仍在使用的應用程式下次開啟時會重新出現。需要 HKI 7 Cloud 0.7.0.*</item>
@@ -3679,4 +3688,97 @@
     <string name="app_update_required_unavailable">Google Play 尚未準備好適用於此裝置的更新。這通常意味著您尚未收到該版本，或者此 HKI 副本不是來自 Play 商店。</string>
     <string name="app_update_required_continue">繼續而不更新</string>
     <string name="settings_extra_hki_cloud_feature_required_version">要求家庭更新到給定的 HKI 版本</string>
+    <string name="event_verb_alarm_cleared">清除</string>
+    <string name="event_verb_alarm_detected">發出警報</string>
+    <string name="event_verb_armed">攜帶武器</string>
+    <string name="event_verb_arming">正在武裝</string>
+    <string name="event_verb_arrived_at">抵達%1$s</string>
+    <string name="event_verb_arrived_home">到家了</string>
+    <string name="event_verb_battery_low">報告電池電量低</string>
+    <string name="event_verb_battery_normal">電池又恢復健康了</string>
+    <string name="event_verb_cleared">清除</string>
+    <string name="event_verb_closed">已關閉</string>
+    <string name="event_verb_closing">正在關閉</string>
+    <string name="event_verb_connected">上線了</string>
+    <string name="event_verb_detected">被觸發</string>
+    <string name="event_verb_disarmed">被解除武裝</string>
+    <string name="event_verb_disconnected">離線了</string>
+    <string name="event_verb_docked">停靠的</string>
+    <string name="event_verb_generic">改為 %1$s</string>
+    <string name="event_verb_left_home">離家出走</string>
+    <string name="event_verb_locked">被鎖定</string>
+    <string name="event_verb_moisture_cleared">又乾了</string>
+    <string name="event_verb_moisture_detected">檢測到的水分</string>
+    <string name="event_verb_motion_cleared">停止偵測運動</string>
+    <string name="event_verb_motion_detected">偵測到的運動</string>
+    <string name="event_verb_opened">被打開</string>
+    <string name="event_verb_opening">正在開放</string>
+    <string name="event_verb_paused">被暫停</string>
+    <string name="event_verb_pending">正在倒數計時</string>
+    <string name="event_verb_problem_cleared">已恢復正常</string>
+    <string name="event_verb_problem_detected">報告了一個問題</string>
+    <string name="event_verb_returning_to_dock">正在返回碼頭</string>
+    <string name="event_verb_set_to">設定為 %1$s</string>
+    <string name="event_verb_started_cleaning">開始清潔</string>
+    <string name="event_verb_started_playing">開始玩</string>
+    <string name="event_verb_stopped">停止了</string>
+    <string name="event_verb_triggered">被觸發</string>
+    <string name="event_verb_turned_off">已關閉</string>
+    <string name="event_verb_turned_on">已開啟</string>
+    <string name="event_verb_unlocked">已解鎖</string>
+    <string name="events_by">透過 %1$s</string>
+    <string name="events_empty">還沒有活動</string>
+    <string name="events_empty_hint">此處顯示您的家庭管理員新增至時間軸的實體的近期活動。</string>
+    <string name="events_loading">正在加載事件...</string>
+    <string name="events_no_matches">沒有符合的事件</string>
+    <string name="events_not_configured">沒有跟踪任何事件</string>
+    <string name="events_not_configured_admin">選擇在「設定」&gt;「家庭共享」&gt;「事件」中顯示的實體。</string>
+    <string name="events_not_configured_member">您的家庭管理員決定此處顯示哪些實體。</string>
+    <string name="events_tab">活動</string>
+    <string name="events_today">今天</string>
+    <string name="events_unavailable">事件時間軸需要 HKI 7 Cloud %1$s。</string>
+    <string name="events_yesterday">昨天</string>
+    <string name="settings_extra_events_choose">選擇實體</string>
+    <string name="settings_extra_events_description">在通知抽屜的「事件」標籤中選擇家庭查看哪些實體的最近活動。在這裡設定一次，而不是在每支手機上設定一次。這隱藏了時間線，而不是實體——任何登入 Home Assistant 的人仍然可以在那裡閱讀它們。</string>
+    <string name="settings_extra_events_edit">編輯實體</string>
+    <string name="settings_extra_events_empty">尚未追蹤任何實體。</string>
+    <string name="settings_extra_events_hidden_count">%1$d 隱藏</string>
+    <string name="settings_extra_events_hidden_title">躲開這個人</string>
+    <string name="settings_extra_events_loading">正在加載名單...</string>
+    <string name="settings_extra_events_manage">管理</string>
+    <string name="settings_extra_events_notifications_hint">通知抽屜中的「事件」標籤顯示家庭管理員選擇的實體的最近活動。它是在“家庭共享”中為整個家庭設置的，而不是為每個設備設置的。</string>
+    <string name="settings_extra_events_open_family_sharing">開放家庭共享</string>
+    <string name="settings_extra_events_per_person_description">每個人都會看到整個時間線，除非你為他們從中取出一些東西。</string>
+    <string name="settings_extra_events_per_person_title">誰看到什麼</string>
+    <string name="settings_extra_events_pick_title">顯示事件的實體</string>
+    <string name="settings_extra_events_save_failed">無法儲存活動名冊。</string>
+    <string name="settings_extra_events_sees_everything">查看整個時間軸</string>
+    <string name="settings_extra_events_title">事件時間表</string>
+    <string name="settings_extra_events_unavailable">無法從 HKI 7 Cloud 讀取名冊。</string>
+    <string name="settings_extra_hki_cloud_feature_events">事件時間線，並對個人隱藏其中的一部分</string>
+    <string name="settings_extra_policy_needs_component_update_events">權限已保存，但 HKI 7 雲端太舊，無法向此人隱藏事件 - 他們會看到整個時間軸。更新它以應用限制。</string>
+    <string name="settings_extra_tab_events">活動</string>
+    <string name="event_category_alarm">警報</string>
+    <string name="event_category_automation">自動化</string>
+    <string name="event_category_battery">電池</string>
+    <string name="event_category_climate">氣候</string>
+    <string name="event_category_connectivity">連接性</string>
+    <string name="event_category_cover">封面</string>
+    <string name="event_category_door">門</string>
+    <string name="event_category_light">燈</string>
+    <string name="event_category_lock">鎖具</string>
+    <string name="event_category_media">媒體</string>
+    <string name="event_category_moisture">水</string>
+    <string name="event_category_motion">運動</string>
+    <string name="event_category_presence">人們</string>
+    <string name="event_category_problem">問題</string>
+    <string name="event_category_safety">煙霧和氣體</string>
+    <string name="event_category_sensor">感應器</string>
+    <string name="event_category_switch">開關</string>
+    <string name="event_category_vacuum">真空</string>
+    <string name="event_category_window">視窗</string>
+    <string name="events_filter_all">全部</string>
+    <string name="settings_extra_events_capped">已保存 %1$d 實體和 %2$d 域。時間軸名單已上限。</string>
+    <string name="settings_extra_events_resolved_capped">此名冊涵蓋 %2$d 個實體，但時間軸最多訂閱 %1$d 個。刪除網域，或按名稱新增實體。</string>
+    <string name="settings_extra_events_whole_domain">所有 %1$s（%2$d 實體）</string>
 </resources>

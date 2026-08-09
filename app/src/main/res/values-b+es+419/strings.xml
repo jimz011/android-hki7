@@ -1972,7 +1972,16 @@
     <string name="cr_vacuum_settings">Configuración de la aspiradora</string>
     <string name="cr_weekly">Semanal</string>
     <string name="cr_wet">Húmedo</string>
-    <string-array name="cr_whats_new_beta_18">
+<string-array name="cr_whats_new_beta_19">
+    <item>Nueva pestaña Eventos en el cajón de notificaciones: una cronología de lo que realmente ha estado haciendo su hogar. La puerta de entrada que se abre, una luz que se apaga, alguien que llega a casa, cada uno con la hora y, si Home Assistant sabe, quién lo hizo. Un administrador elige qué entidades aparecen en Configuración &gt; Compartir en familia &gt; Eventos, una vez para toda la familia en lugar de en cada teléfono. Lee el propio libro de registro de Home Assistant en lugar de registrar nada en el dispositivo, por lo que aún muestra lo que sucedió durante la noche mientras la aplicación estaba cerrada, y se abre en las últimas 3 horas (una línea de tiempo responde a lo que acaba de suceder) con entre 6 y 72 horas de distancia. Los eventos nunca tocan el recuento de no leídos de la campana de notificación: una línea de tiempo de puertas que se abren dejaría esa insignia encendida permanentemente y no significaría nada. Requiere HKI 7 Cloud 0.9.0.*</item>
+    <item>Un administrador puede quitar partes de la línea de tiempo de miembros individuales de la familia (un dominio completo o entidades con nombre) desde la misma pestaña Eventos. Todos ven la línea de tiempo completa a menos que se les quite algo, por lo que agregar una persona a la familia no significa construir su línea de tiempo desde cero. El filtrado se produce en el componente HKI 7 Cloud en lugar de en la aplicación, por lo que a un dispositivo restringido ni siquiera se le dice de qué entidades se mantiene alejado. Al igual que con las vistas y salas ocultas, esto oculta la línea de tiempo en lugar de las entidades: Home Assistant no tiene permiso de lectura por entidad para cuentas que no sean de administrador, por lo que cualquiera que haya iniciado sesión aún puede leer esas entidades a través del propio Home Assistant.*</item>
+    <item>La lista de eventos incluye dominios completos y entidades con nombre, por lo que "cada bloqueo" es una opción en lugar de once. Los dominios se resuelven de nuevo cada vez que se abre la línea de tiempo, por lo que un bloqueo agregado el próximo mes se une por sí solo en lugar de la lista, es decir, lo que existía el día en que se estableció. El editor muestra lo que cubre actualmente cada dominio, ya que un dominio puede tener cientos de entidades. Requiere HKI 7 Cloud 0.10.0.*</item>
+    <item>Los eventos están etiquetados y se pueden filtrar según el tipo de cosa que sucedió: puertas, ventanas, movimiento, luces, cerraduras. La fila de filtro se crea a partir de lo que realmente contiene su línea de tiempo, por lo que nunca se le ofrece un filtro que solo puede volver vacío. Los días quedan como encabezados de lista: una línea de tiempo que se reordena por categorías deja de ser una línea de tiempo.</item>
+    <item>Las ilustraciones meteorológicas ahora se animan en el pronóstico diario, la franja horaria y la píldora del encabezado, no solo en la tarjeta de héroe. Sigue el interruptor de animaciones de íconos en Configuración &gt; Apariencia &gt; Iconos en lugar de desactivarse por debajo de un tamaño fijo, por lo que es la misma preferencia la que gobierna los íconos de entidades, y desactivarlo proporciona ilustraciones estáticas en color en todas partes.</item>
+    <item>El selector de rango 6h/12h/24h/48h/72h está centrado en lugar de alineado a la izquierda, en todas partes donde aparece.</item>
+</string-array>
+
+<string-array name="cr_whats_new_beta_18">
         <item>Un administrador ahora puede cambiar con quién se comparte un panel familiar publicado, en lugar de poder elegir solo en el momento de la publicación. Configuración &gt; Compartir en familia &gt; Paneles enumera a quién llega cada panel publicado, con un botón Administrar acceso para agregar o eliminar personas. Hasta ahora, la única forma de quitarle un panel a una persona era eliminarlo para todos.*</item>
         <item>Perder el acceso a un panel familiar ahora borra lo que estaba encima de él. El panel en sí ya se eliminó, pero las salas, los widgets, las páginas, la barra de navegación, la píldora de encabezado y el tema que dejó en el dispositivo permanecieron, por lo que el siguiente panel que compartió un administrador llegó encima de los restos del anterior y parecía que no se había podido importar en su totalidad. Todo lo que pertenecía al panel revocado ahora se elimina con él. Las conexiones, los perfiles y la configuración de notificaciones de Home Assistant no se modifican: perder un panel no significa cerrar sesión.*</item>
         <item>Pestaña Nuevos dispositivos en Configuración › Compartir en familia, que muestra qué versión de HKI está ejecutando cada dispositivo familiar y marca los más antiguos que el suyo, con la cuenta de Home Assistant, el nombre del dispositivo, la versión de Android y cuándo se informó por última vez. Cada instalación registra esto a través del componente HKI 7 Cloud a través de la conexión que la aplicación ya usa, por lo que todos los dispositivos registrados están cubiertos, incluido uno con Ubicación y Notificaciones desactivadas, y no se agrega nada a la lista de entidades de Home Assistant. Un dispositivo sólo puede informarse a sí mismo. Un administrador puede olvidar un teléfono que ha sido reemplazado; uno que todavía está en uso reaparece la próxima vez que se abre la aplicación. Requiere HKI 7 Cloud 0.7.0.*</item>
@@ -3679,4 +3688,97 @@
     <string name="app_update_required_unavailable">Google Play aún no tiene ninguna actualización lista para este dispositivo. Por lo general, eso significa que el lanzamiento no le ha llegado o que esta copia de HKI no proviene de Play Store.</string>
     <string name="app_update_required_continue">Continuar sin actualizar</string>
     <string name="settings_extra_hki_cloud_feature_required_version">Requerir que la familia actualice a una versión HKI determinada</string>
+    <string name="event_verb_alarm_cleared">despejado</string>
+    <string name="event_verb_alarm_detected">dio la alarma</string>
+    <string name="event_verb_armed">estaba armado</string>
+    <string name="event_verb_arming">esta armando</string>
+    <string name="event_verb_arrived_at">llegó a %1$s</string>
+    <string name="event_verb_arrived_home">llegó a casa</string>
+    <string name="event_verb_battery_low">informó una batería baja</string>
+    <string name="event_verb_battery_normal">tiene una batería saludable nuevamente</string>
+    <string name="event_verb_cleared">despejado</string>
+    <string name="event_verb_closed">estaba cerrado</string>
+    <string name="event_verb_closing">esta cerrando</string>
+    <string name="event_verb_connected">vino en línea</string>
+    <string name="event_verb_detected">fue desencadenado</string>
+    <string name="event_verb_disarmed">fue desarmado</string>
+    <string name="event_verb_disconnected">se desconectó</string>
+    <string name="event_verb_docked">atracado</string>
+    <string name="event_verb_generic">cambiado a %1$s</string>
+    <string name="event_verb_left_home">salió de casa</string>
+    <string name="event_verb_locked">estaba bloqueado</string>
+    <string name="event_verb_moisture_cleared">está seco otra vez</string>
+    <string name="event_verb_moisture_detected">humedad detectada</string>
+    <string name="event_verb_motion_cleared">dejó de detectar movimiento</string>
+    <string name="event_verb_motion_detected">movimiento detectado</string>
+    <string name="event_verb_opened">fue abierto</string>
+    <string name="event_verb_opening">esta abriendo</string>
+    <string name="event_verb_paused">estaba en pausa</string>
+    <string name="event_verb_pending">está contando atrás</string>
+    <string name="event_verb_problem_cleared">ha vuelto a la normalidad</string>
+    <string name="event_verb_problem_detected">informó un problema</string>
+    <string name="event_verb_returning_to_dock">está regresando a su muelle</string>
+    <string name="event_verb_set_to">se estableció en %1$s</string>
+    <string name="event_verb_started_cleaning">comenzó a limpiar</string>
+    <string name="event_verb_started_playing">empezó a jugar</string>
+    <string name="event_verb_stopped">interrumpido</string>
+    <string name="event_verb_triggered">fue desencadenado</string>
+    <string name="event_verb_turned_off">estaba apagado</string>
+    <string name="event_verb_turned_on">estaba encendido</string>
+    <string name="event_verb_unlocked">fue desbloqueado</string>
+    <string name="events_by">por %1$s</string>
+    <string name="events_empty">Aún no hay eventos</string>
+    <string name="events_empty_hint">Aquí aparece la actividad reciente de las entidades que el administrador de su familia agregó a la línea de tiempo.</string>
+    <string name="events_loading">Cargando eventos…</string>
+    <string name="events_no_matches">No hay eventos coincidentes</string>
+    <string name="events_not_configured">No se están rastreando eventos</string>
+    <string name="events_not_configured_admin">Elija qué entidades aparecen aquí en Configuración › Compartir en familia › Eventos.</string>
+    <string name="events_not_configured_member">El administrador de su familia decide qué entidades aparecen aquí.</string>
+    <string name="events_tab">Eventos</string>
+    <string name="events_today">Hoy</string>
+    <string name="events_unavailable">La línea de tiempo del evento necesita HKI 7 Cloud %1$s.</string>
+    <string name="events_yesterday">Ayer</string>
+    <string name="settings_extra_events_choose">Elija entidades</string>
+    <string name="settings_extra_events_description">Elija para qué entidades ve la familia la actividad reciente, en la pestaña Eventos del cajón de notificaciones. Configúrelo una vez aquí en lugar de en cada teléfono. Esto oculta la línea de tiempo, no las entidades; cualquiera que haya iniciado sesión en Home Assistant aún puede leerlas allí.</string>
+    <string name="settings_extra_events_edit">Editar entidades</string>
+    <string name="settings_extra_events_empty">Aún no se está rastreando ninguna entidad.</string>
+    <string name="settings_extra_events_hidden_count">%1$d oculto</string>
+    <string name="settings_extra_events_hidden_title">Esconderse de esta persona</string>
+    <string name="settings_extra_events_loading">Cargando la lista...</string>
+    <string name="settings_extra_events_manage">Administrar</string>
+    <string name="settings_extra_events_notifications_hint">La pestaña Eventos en el cajón de notificaciones muestra la actividad reciente de las entidades que eligió el administrador de su familia. Está configurado para toda la familia en Family Sharing, no para cada dispositivo.</string>
+    <string name="settings_extra_events_open_family_sharing">Compartir en familia abierto</string>
+    <string name="settings_extra_events_per_person_description">Todos ven la línea de tiempo completa a menos que les saques algo.</string>
+    <string name="settings_extra_events_per_person_title">¿Quién ve qué?</string>
+    <string name="settings_extra_events_pick_title">Entidades para mostrar eventos para</string>
+    <string name="settings_extra_events_save_failed">No se pudo guardar la lista del evento.</string>
+    <string name="settings_extra_events_sees_everything">Ve toda la línea de tiempo</string>
+    <string name="settings_extra_events_title">Cronograma del evento</string>
+    <string name="settings_extra_events_unavailable">No se pudo leer la lista de HKI 7 Cloud.</string>
+    <string name="settings_extra_hki_cloud_feature_events">La línea de tiempo del evento y ocultar partes de ella a personas individuales.</string>
+    <string name="settings_extra_policy_needs_component_update_events">Los permisos se guardaron, pero esta nube HKI 7 es demasiado antigua para ocultar eventos a esta persona: vería toda la línea de tiempo. Actualícelo para aplicar la restricción.</string>
+    <string name="settings_extra_tab_events">Eventos</string>
+    <string name="event_category_alarm">Alarma</string>
+    <string name="event_category_automation">Automatizaciones</string>
+    <string name="event_category_battery">Baterías</string>
+    <string name="event_category_climate">Clima</string>
+    <string name="event_category_connectivity">Conectividad</string>
+    <string name="event_category_cover">Persianas</string>
+    <string name="event_category_door">Puertas</string>
+    <string name="event_category_light">Luces</string>
+    <string name="event_category_lock">Cerraduras</string>
+    <string name="event_category_media">Multimedia</string>
+    <string name="event_category_moisture">Agua</string>
+    <string name="event_category_motion">Movimiento</string>
+    <string name="event_category_presence">Personas</string>
+    <string name="event_category_problem">Problemas</string>
+    <string name="event_category_safety">Humo y gas</string>
+    <string name="event_category_sensor">Sensores</string>
+    <string name="event_category_switch">interruptores</string>
+    <string name="event_category_vacuum">Aspirador</string>
+    <string name="event_category_window">Ventanas</string>
+    <string name="events_filter_all">Todo</string>
+    <string name="settings_extra_events_capped">Se guardaron %1$d entidades y %2$d dominios. La lista de la línea de tiempo está limitada.</string>
+    <string name="settings_extra_events_resolved_capped">Esta lista cubre %2$d entidades, pero una línea de tiempo se suscribe como máximo a %1$d. Elimine un dominio o agregue entidades por nombre.</string>
+    <string name="settings_extra_events_whole_domain">Todas las %1$s (%2$d entidades)</string>
 </resources>

@@ -13,6 +13,8 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,6 +28,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.DoneAll
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MarkEmailRead
 import androidx.compose.material.icons.filled.MarkEmailUnread
 import androidx.compose.material.icons.filled.Notifications
@@ -47,10 +50,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.HALogbookEvent
 import com.jimz011apps.hki7.data.HKINotification
 import com.jimz011apps.hki7.data.HKINotificationAction
 import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
+import com.jimz011apps.hki7.ui.utils.MdiIcon
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
@@ -329,15 +335,34 @@ fun NotificationBellButton(
 
 /**
  * Contents of the left-edge swipe-in drawer: Home Assistant notification history with
- * Notifications/Archived tabs, search, unread/history sections, swipe-left row actions
+ * Notifications/Events/Archived tabs, search, unread/history sections, swipe-left row actions
  * (mark unread / archive / delete) and mark-all-read. Non-archived entries expire after 48h.
+ *
+ * Events are deliberately not notifications: they are read live from Home Assistant's logbook
+ * rather than stored, they carry no read/archive state, and they never touch the bell's unread
+ * badge — a timeline of doors opening would keep that badge permanently lit and drain it of
+ * meaning.
  */
 @Composable
-fun NotificationPanel(viewModel: MainViewModel) {
+fun NotificationPanel(viewModel: MainViewModel, isVisible: Boolean = true) {
     val appColors = LocalHKIAppColors.current
     val notifications by viewModel.notifications.collectAsState()
-    var tab by remember { mutableStateOf("inbox") }      // "inbox" | "archive"
+    var tab by remember { mutableStateOf("inbox") }      // "inbox" | "events" | "archive"
     var query by remember { mutableStateOf("") }
+    // Shorter than the history dialogs' 24h default on purpose: a timeline answers "what just
+    // happened", and a day of a busy household buries that under hundreds of older rows. The
+    // longer windows are one tap away for when the question really is about yesterday.
+    var eventHours by remember { mutableStateOf(3L) }
+
+    // Subscribed only while the Events tab is genuinely being looked at — [isVisible] is what
+    // distinguishes that from the drawer merely being composed off-screen. Holding an extra
+    // websocket subscription for the whole session would work against the app's event-driven
+    // battery posture, and nothing off this tab reads it.
+    val streaming = isVisible && tab == "events"
+    DisposableEffect(streaming, eventHours) {
+        if (streaming) viewModel.startEventTimeline(eventHours)
+        onDispose { if (streaming) viewModel.stopEventTimeline() }
+    }
 
     fun matches(n: HKINotification) =
         query.isBlank() ||
@@ -355,7 +380,7 @@ fun NotificationPanel(viewModel: MainViewModel) {
             .windowInsetsPadding(WindowInsets.systemBars)
             .padding(horizontal = 14.dp)
             .swipeToAdjacentTab(
-                tabs = listOf("inbox", "archive"),
+                tabs = listOf("inbox", "events", "archive"),
                 selected = tab,
                 onSelect = { tab = it }
             )
@@ -429,6 +454,12 @@ fun NotificationPanel(viewModel: MainViewModel) {
                 shape = RoundedCornerShape(12.dp)
             )
             FilterChip(
+                selected = tab == "events",
+                onClick = { tab = "events" },
+                label = { Text(stringResource(R.string.events_tab)) },
+                shape = RoundedCornerShape(12.dp)
+            )
+            FilterChip(
                 selected = tab == "archive",
                 onClick = { tab = "archive" },
                 label = { Text(stringResource(R.string.ui_archived_eddc813)) },
@@ -439,6 +470,16 @@ fun NotificationPanel(viewModel: MainViewModel) {
         Spacer(Modifier.height(6.dp))
 
         // ── list ────────────────────────────────────────────────────────────
+        if (tab == "events") {
+            EventsTab(
+                viewModel = viewModel,
+                query = query,
+                hours = eventHours,
+                onHoursChange = { eventHours = it }
+            )
+            return@Column
+        }
+
         val showEmpty = if (tab == "inbox") unread.isEmpty() && history.isEmpty() else archived.isEmpty()
         if (showEmpty) {
             Column(
@@ -488,6 +529,232 @@ fun NotificationPanel(viewModel: MainViewModel) {
                 } else {
                     items(archived, key = { it.id }) { n -> NotificationRow(n, viewModel, archivedTab = true) }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * The Events tab: a Homey-style timeline of what the household's entities have been doing.
+ *
+ * Read live from Home Assistant's logbook rather than stored on the device — the recorder is
+ * already the store, so re-reading on open is cheaper than keeping a copy and cannot drift. The
+ * roster is set once by an admin for the whole family; the component has already removed whatever
+ * this particular person is not allowed to see, so everything that arrives here is showable.
+ */
+@Composable
+private fun EventsTab(
+    viewModel: MainViewModel,
+    query: String,
+    hours: Long,
+    onHoursChange: (Long) -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    val family = LocalVisibilityFamilyContext.current
+    val events by viewModel.eventTimeline.collectAsState()
+    val roster by viewModel.eventRoster.collectAsState()
+    val loading by viewModel.eventTimelineLoading.collectAsState()
+    val entities by viewModel.entities.collectAsState()
+    val entitiesById = remember(entities) { entities.associateBy { it.entity_id } }
+
+    fun nameFor(event: HALogbookEvent): String =
+        event.name
+            ?: event.entityId?.let { entitiesById[it]?.friendlyName }
+            ?: event.entityId
+            ?: ""
+
+    var category by remember { mutableStateOf<String?>(null) }   // null = all
+
+    // Built from what the timeline actually holds rather than from every category HKI knows, so
+    // a household without a single water sensor is never offered a "Water" filter that can only
+    // ever come back empty. Ordered by how much of the timeline each one accounts for.
+    val categories = remember(events, entitiesById) {
+        events.groupingBy { eventCategoryKey(it, entitiesById[it.entityId]) }
+            .eachCount()
+            .entries
+            .sortedWith(compareByDescending<Map.Entry<String, Int>> { it.value }.thenBy { it.key })
+            .map { it.key }
+    }
+    // A filter for something that has since scrolled out of the window would silently show an
+    // empty list, so it drops back to All rather than stranding the user on a dead chip.
+    LaunchedEffect(categories) {
+        if (category != null && category !in categories) category = null
+    }
+
+    val visible = events.filter { event ->
+        val matchesQuery = query.isBlank() ||
+            nameFor(event).contains(query, ignoreCase = true) ||
+            event.state?.contains(query, ignoreCase = true) == true ||
+            event.message?.contains(query, ignoreCase = true) == true
+        val matchesCategory = category == null ||
+            eventCategoryKey(event, entitiesById[event.entityId]) == category
+        matchesQuery && matchesCategory
+    }
+
+    HistoryRangeChips(
+        selectedHours = hours.toInt(),
+        onSelect = { onHoursChange(it.toLong()) },
+        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp)
+    )
+
+    if (categories.size > 1) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .padding(bottom = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            FilterChip(
+                selected = category == null,
+                onClick = { category = null },
+                label = { Text(stringResource(R.string.events_filter_all)) },
+                shape = RoundedCornerShape(12.dp)
+            )
+            categories.forEach { key ->
+                FilterChip(
+                    selected = category == key,
+                    onClick = { category = if (category == key) null else key },
+                    label = { Text(eventCategoryLabel(key)) },
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
+        }
+    }
+
+    if (visible.isEmpty()) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (loading) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(28.dp),
+                    strokeWidth = 3.dp
+                )
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    stringResource(R.string.events_loading),
+                    color = appColors.onMuted, style = MaterialTheme.typography.bodyMedium
+                )
+            } else {
+                Icon(
+                    Icons.Default.History, null,
+                    tint = appColors.onMuted.copy(alpha = 0.6f), modifier = Modifier.size(48.dp)
+                )
+                Spacer(Modifier.height(12.dp))
+                // Three genuinely different situations, and saying "no events" for all of them
+                // would send an admin looking for a fault instead of to the roster editor.
+                val rosterEmpty = roster == null || roster?.isEmpty != false
+                Text(
+                    when {
+                        query.isNotBlank() -> stringResource(R.string.events_no_matches)
+                        rosterEmpty -> stringResource(R.string.events_not_configured)
+                        else -> stringResource(R.string.events_empty)
+                    },
+                    color = appColors.onSurface, style = MaterialTheme.typography.bodyMedium
+                )
+                if (query.isBlank()) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        when {
+                            !rosterEmpty -> stringResource(R.string.events_empty_hint)
+                            family.isAdmin -> stringResource(R.string.events_not_configured_admin)
+                            else -> stringResource(R.string.events_not_configured_member)
+                        },
+                        color = appColors.onMuted.copy(alpha = 0.75f),
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    )
+                }
+            }
+            Spacer(Modifier.height(96.dp))
+        }
+        return
+    }
+
+    // Resolved out here because LazyColumn's content block is not a composable scope, so the
+    // day label can't call stringResource from inside it.
+    val todayLabel = stringResource(R.string.events_today)
+    val yesterdayLabel = stringResource(R.string.events_yesterday)
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(top = 4.dp, bottom = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        var lastDay: String? = null
+        visible.forEachIndexed { index, event ->
+            val day = dayLabelFor(event.timestamp, todayLabel, yesterdayLabel)
+            if (day != lastDay) {
+                lastDay = day
+                item(key = "day_$day") { SectionLabel(day) }
+            }
+            // Logbook events carry no id of their own, so the key is what actually identifies
+            // one: this entity, at this instant. The index keeps it unique even then, since two
+            // entities can genuinely change in the same millisecond.
+            item(key = "${event.entityId}_${event.timestamp}_$index") {
+                EventRow(event = event, name = nameFor(event), entity = entitiesById[event.entityId])
+            }
+        }
+    }
+}
+
+/** "Today" / "Yesterday" / the date — the same grouping the rest of the app uses for history.
+ *  Takes its labels as arguments so it can be called from a LazyColumn's non-composable scope. */
+private fun dayLabelFor(timestamp: Long, todayLabel: String, yesterdayLabel: String): String {
+    val dayMs = 24L * 60 * 60 * 1000
+    val zone = java.util.TimeZone.getDefault()
+    // Day boundaries must be local, not UTC: an epoch-modulo split puts "today" in the wrong
+    // place for everyone west of Greenwich, and by a whole day for anyone far enough east.
+    fun localDayIndex(millis: Long): Long = (millis + zone.getOffset(millis)) / dayMs
+    val today = localDayIndex(System.currentTimeMillis())
+    return when (localDayIndex(timestamp)) {
+        today -> todayLabel
+        today - 1 -> yesterdayLabel
+        else -> formatHistoryClock(timestamp, withDate = true).substringBefore(' ')
+    }
+}
+
+/** One line of the timeline: what happened, to what, when — and who did it, when HA knows. */
+@Composable
+private fun EventRow(event: HALogbookEvent, name: String, entity: HAEntity?) {
+    val appColors = LocalHKIAppColors.current
+    val phrase = eventPhrase(event, entity)
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = appColors.elevated,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            event.icon?.takeIf { it.isNotBlank() }?.let { icon ->
+                MdiIcon(icon.removePrefix("mdi:"), tint = appColors.onMuted, size = 20.dp)
+                Spacer(Modifier.width(12.dp))
+            }
+            Column(Modifier.weight(1f)) {
+                Text(
+                    listOf(name, phrase).filter { it.isNotBlank() }.joinToString(" "),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = appColors.onSurface
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    listOfNotNull(
+                        // Category first: it is what makes a mixed timeline scannable, and it is
+                        // the same word as the filter chip above, so the two read as one idea.
+                        eventCategoryLabel(eventCategoryKey(event, entity)),
+                        formatHistoryClock(event.timestamp),
+                        event.contextName?.takeIf { it.isNotBlank() }
+                            ?.let { stringResource(R.string.events_by, it) }
+                    ).joinToString(" · "),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = appColors.onMuted
+                )
             }
         }
     }

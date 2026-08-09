@@ -142,6 +142,7 @@ import com.jimz011apps.hki7.data.HaDashboardSharing
 import com.jimz011apps.hki7.data.HaFamilyDevices
 import com.jimz011apps.hki7.data.Hki7AppUpdatePolicy
 import com.jimz011apps.hki7.data.Hki7FamilyDevice
+import com.jimz011apps.hki7.data.Hki7EventsRoster
 import androidx.compose.foundation.layout.FlowRow
 import com.jimz011apps.hki7.data.HaParentalControls
 import com.jimz011apps.hki7.ui.components.DefaultIconEffectByGroup
@@ -176,6 +177,7 @@ import com.jimz011apps.hki7.ui.components.SettingsGroup
 import com.jimz011apps.hki7.ui.components.SettingsChoiceChip
 import com.jimz011apps.hki7.ui.components.SettingsSubcategory
 import com.jimz011apps.hki7.ui.components.SettingsTabRow
+import com.jimz011apps.hki7.ui.components.AdvancedEntitySearchDialog
 import com.jimz011apps.hki7.ui.components.SearchAccessSelection
 import com.jimz011apps.hki7.ui.components.SearchAccessSelectionDialog
 import com.jimz011apps.hki7.ui.components.WhatsNewDialog
@@ -1088,6 +1090,28 @@ fun SettingsDialog(
                                     )
                                 }
                             }
+                            // The Events tab lives in the same drawer as notifications, so this is
+                            // where people look for it — but it is an admin-set family setting, so
+                            // it is configured in Family Sharing rather than duplicated here.
+                            SettingsPanel {
+                                Text(
+                                    stringResource(R.string.settings_extra_events_title),
+                                    color = appColors.onSurface,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Text(
+                                    stringResource(R.string.settings_extra_events_notifications_hint),
+                                    color = appColors.onMuted,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                OutlinedButton(
+                                    onClick = { section = SettingsSection.FAMILY_SHARING },
+                                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                                    shape = itemCornerShape()
+                                ) {
+                                    Text(stringResource(R.string.settings_extra_events_open_family_sharing))
+                                }
+                            }
                         }
                         SettingsSection.APPEARANCE -> {
                             SettingsSubcategory(stringResource(R.string.ui_visual_style_bc567f3), stringResource(R.string.ui_color_typography_and_component_shape_b82e582))
@@ -1801,6 +1825,11 @@ fun SettingsDialog(
                             ) + pcCustomPages.map { "custom_page/${it.id}" to it.name }
                             var familyTab by remember { mutableStateOf("parental") }
                             var searchAccessPicker by remember { mutableStateOf<Pair<String, Boolean>?>(null) }
+                            var eventsRoster by remember { mutableStateOf<Hki7EventsRoster?>(null) }
+                            var eventsRosterLoading by remember { mutableStateOf(false) }
+                            var eventsRosterBusy by remember { mutableStateOf(false) }
+                            var showEventsRosterPicker by remember { mutableStateOf(false) }
+                            var eventsHiddenPicker by remember { mutableStateOf<String?>(null) }
                             LaunchedEffect(Unit) {
                                 val id = runCatching { HaDashboardSharing.whoami(context) }.getOrNull()
                                 sharingAvailable = id != null
@@ -1836,6 +1865,11 @@ fun SettingsDialog(
                                             context.getString(R.string.settings_extra_policy_needs_component_update)
                                         Hki7PolicySaveResult.SAVED_WITHOUT_ROOM_FOLLOW ->
                                             context.getString(R.string.settings_extra_policy_needs_component_update_room_follow)
+                                        // Worth being blunt about: the admin asked to keep someone
+                                        // away from certain events and, until the component is
+                                        // updated, that person still sees all of them.
+                                        Hki7PolicySaveResult.SAVED_WITHOUT_EVENT_ACCESS ->
+                                            context.getString(R.string.settings_extra_policy_needs_component_update_events)
                                         Hki7PolicySaveResult.FAILED ->
                                             context.getString(R.string.settings_extra_policy_update_failed)
                                     }
@@ -1868,6 +1902,81 @@ fun SettingsDialog(
                                                     hiddenSearchEntityIds = selection.entityIds.sorted(),
                                                 )
                                             }
+                                        )
+                                    },
+                                )
+                            }
+                            // The household roster: which entities the whole family sees a
+                            // timeline for. Uses the full list, not the filtered one, so an admin
+                            // who has hidden something from themselves still edits the real roster.
+                            if (showEventsRosterPicker) {
+                                SearchAccessSelectionDialog(
+                                    allEntities = pcEntities,
+                                    title = stringResource(R.string.settings_extra_events_pick_title),
+                                    initialSelection = SearchAccessSelection(
+                                        domains = (eventsRoster?.allDomains ?: eventsRoster?.visibleDomains).orEmpty().toSet(),
+                                        entityIds = (eventsRoster?.all ?: eventsRoster?.visible).orEmpty().toSet(),
+                                    ),
+                                    onDismiss = { showEventsRosterPicker = false },
+                                    onSave = { selection ->
+                                        showEventsRosterPicker = false
+                                        eventsRosterBusy = true
+                                        val ids = selection.entityIds.sorted()
+                                        val domains = selection.domains.sorted()
+                                        scope.launch {
+                                            val stored = runCatching {
+                                                HaParentalControls.setEventsRoster(context, ids, domains)
+                                            }.getOrNull()
+                                            if (stored == null) {
+                                                setupChangedMessage =
+                                                    context.getString(R.string.settings_extra_events_save_failed)
+                                            } else {
+                                                eventsRoster = stored
+                                                // The component caps entities and domains, so say
+                                                // so rather than letting entries quietly vanish.
+                                                if (stored.visible.size < ids.size ||
+                                                    stored.visibleDomains.size < domains.size
+                                                ) {
+                                                    setupChangedMessage = context.getString(
+                                                        R.string.settings_extra_events_capped,
+                                                        stored.visible.size,
+                                                        stored.visibleDomains.size,
+                                                    )
+                                                }
+                                            }
+                                            eventsRosterBusy = false
+                                        }
+                                    },
+                                )
+                            }
+                            // Per-person: entities and domains taken back out of one family
+                            // member's timeline. Chosen from the roster rather than from every
+                            // entity — hiding something that was never on the timeline is a no-op.
+                            eventsHiddenPicker?.let { userId ->
+                                val policy = parentalPolicies[userId] ?: Hki7Policy()
+                                // Offer everything the roster actually covers, which for a
+                                // rostered domain means all of its entities, not just the ones
+                                // an admin also happened to name individually.
+                                val rosterIds = (eventsRoster?.all ?: eventsRoster?.visible).orEmpty().toSet()
+                                val rosterDomains = (eventsRoster?.allDomains ?: eventsRoster?.visibleDomains).orEmpty().toSet()
+                                SearchAccessSelectionDialog(
+                                    allEntities = pcEntities.filter {
+                                        it.entity_id in rosterIds ||
+                                            it.entity_id.substringBefore('.') in rosterDomains
+                                    },
+                                    title = stringResource(R.string.settings_extra_events_hidden_title),
+                                    initialSelection = SearchAccessSelection(
+                                        domains = policy.hiddenEventDomains.toSet(),
+                                        entityIds = policy.hiddenEventEntityIds.toSet(),
+                                    ),
+                                    onDismiss = { eventsHiddenPicker = null },
+                                    onSave = { selection ->
+                                        savePolicy(
+                                            userId,
+                                            policy.copy(
+                                                hiddenEventDomains = selection.domains.sorted(),
+                                                hiddenEventEntityIds = selection.entityIds.sorted(),
+                                            )
                                         )
                                     },
                                 )
@@ -1984,7 +2093,8 @@ fun SettingsDialog(
                                                 "dashboards" to stringResource(R.string.settings_extra_tab_dashboards),
                                                 "permissions" to stringResource(R.string.settings_extra_tab_permissions),
                                                 "presence" to stringResource(R.string.settings_extra_tab_presence),
-                                                "devices" to stringResource(R.string.settings_extra_tab_devices)
+                                                "devices" to stringResource(R.string.settings_extra_tab_devices),
+                                                "events" to stringResource(R.string.settings_extra_tab_events)
                                             ),
                                             selected = familyTab,
                                             onSelect = { familyTab = it }
@@ -2389,6 +2499,26 @@ fun SettingsDialog(
                                                     }
                                                 }
                                             },
+                                        )
+                                    }
+                                    if (familyTab == "events") {
+                                        // Re-read on every visit: another admin may have changed
+                                        // the roster from their own phone since this screen opened.
+                                        LaunchedEffect(familyTab) {
+                                            eventsRosterLoading = true
+                                            eventsRoster = runCatching { HaParentalControls.eventsRoster(context) }.getOrNull()
+                                            eventsRosterLoading = false
+                                        }
+                                        EventsRosterPanel(
+                                            roster = eventsRoster,
+                                            loading = eventsRosterLoading,
+                                            componentVersion = hki7ComponentVersion,
+                                            allEntities = pcEntities,
+                                            busy = eventsRosterBusy,
+                                            users = parentalUsers,
+                                            policies = parentalPolicies,
+                                            onEdit = { showEventsRosterPicker = true },
+                                            onEditHidden = { eventsHiddenPicker = it },
                                         )
                                     }
                                 }
@@ -3849,6 +3979,154 @@ private fun openGitHub(context: android.content.Context, url: String) {
 @Composable
 private fun SettingsPanel(content: @Composable ColumnScope.() -> Unit) {
     SettingsGroup(content = content)
+}
+
+/**
+ * The household event-timeline roster, plus who is kept away from which parts of it.
+ *
+ * Two deliberately separate ideas on one screen. The roster is set once for the whole family —
+ * configuring a timeline phone by phone would be miserable in a large household — and the
+ * per-person list underneath takes entries back out for individual people. It is subtractive
+ * rather than an allow-list, so adding somebody to the family does not mean rebuilding their
+ * timeline from nothing.
+ *
+ * Worth being plain about with anyone reading this: like the rest of parental controls, this
+ * hides the *timeline*. Home Assistant has no per-entity read permission for non-admin users, so
+ * everyone here can still read those entities through Home Assistant directly.
+ *
+ * [roster] is null when the component could not answer, which is not the same as an empty roster
+ * and is said differently.
+ */
+@Composable
+private fun EventsRosterPanel(
+    roster: Hki7EventsRoster?,
+    loading: Boolean,
+    componentVersion: String?,
+    allEntities: List<HAEntity>,
+    busy: Boolean,
+    users: List<com.jimz011apps.hki7.data.Hki7User>,
+    policies: Map<String, Hki7Policy>,
+    onEdit: () -> Unit,
+    onEditHidden: (String) -> Unit,
+) {
+    val appColors = LocalHKIAppColors.current
+    val rosterIds = (roster?.all ?: roster?.visible).orEmpty()
+    val rosterDomains = (roster?.allDomains ?: roster?.visibleDomains).orEmpty()
+    val isEmpty = rosterIds.isEmpty() && rosterDomains.isEmpty()
+    val namesById = remember(allEntities) { allEntities.associate { it.entity_id to (it.friendlyName ?: it.entity_id) } }
+    // What a domain currently expands to. Shown because "light" reads as one line but can be
+    // ninety subscriptions, and an admin choosing it for the whole family should see that first.
+    val domainCounts = remember(allEntities, rosterDomains) {
+        rosterDomains.associateWith { domain ->
+            allEntities.count { it.entity_id.substringBefore('.') == domain }
+        }
+    }
+
+    SettingsPanel {
+        Text(
+            stringResource(R.string.settings_extra_events_title),
+            color = appColors.onSurface,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Hki7RequiresComponent(componentVersion, HaParentalControls.MIN_EVENTS_COMPONENT_VERSION)
+        Text(
+            stringResource(R.string.settings_extra_events_description),
+            color = appColors.onMuted,
+            style = MaterialTheme.typography.bodySmall
+        )
+        when {
+            loading && roster == null ->
+                Text(stringResource(R.string.settings_extra_events_loading), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+            roster == null ->
+                Text(stringResource(R.string.settings_extra_events_unavailable), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+            isEmpty ->
+                Text(stringResource(R.string.settings_extra_events_empty), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+            else -> Surface(Modifier.fillMaxWidth(), shape = itemCornerShape(), color = appColors.subtleSurface) {
+                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    rosterDomains.forEach { domain ->
+                        Text(
+                            stringResource(
+                                R.string.settings_extra_events_whole_domain,
+                                domain.replace('_', ' '),
+                                domainCounts[domain] ?: 0,
+                            ),
+                            color = appColors.onSurface,
+                            fontWeight = FontWeight.SemiBold,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    rosterIds.forEach { entityId ->
+                        Text(
+                            namesById[entityId] ?: entityId,
+                            color = appColors.onSurface,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            }
+        }
+        // A domain-heavy roster can resolve past what one subscription will carry, and silently
+        // dropping the tail would look like the timeline just missing entities.
+        val resolved = roster?.resolve(allEntities).orEmpty().size
+        val requested = rosterIds.size + rosterDomains.sumOf { domainCounts[it] ?: 0 }
+        if (requested > resolved) {
+            Text(
+                stringResource(R.string.settings_extra_events_resolved_capped, resolved, requested),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+        OutlinedButton(
+            onClick = onEdit,
+            enabled = !busy && roster != null,
+            modifier = Modifier.fillMaxWidth().height(48.dp),
+            shape = itemCornerShape()
+        ) {
+            Text(
+                stringResource(
+                    if (isEmpty) R.string.settings_extra_events_choose
+                    else R.string.settings_extra_events_edit
+                )
+            )
+        }
+
+        // Per-person exceptions only make sense once there is a roster to take things out of.
+        if (!isEmpty && users.isNotEmpty()) {
+            Text(
+                stringResource(R.string.settings_extra_events_per_person_title),
+                color = appColors.onSurface,
+                style = MaterialTheme.typography.titleSmall
+            )
+            Text(
+                stringResource(R.string.settings_extra_events_per_person_description),
+                color = appColors.onMuted,
+                style = MaterialTheme.typography.bodySmall
+            )
+            users.forEach { user ->
+                val policy = policies[user.id] ?: Hki7Policy()
+                val hiddenCount = policy.hiddenEventEntityIds.size + policy.hiddenEventDomains.size
+                Surface(Modifier.fillMaxWidth(), shape = itemCornerShape(), color = appColors.subtleSurface) {
+                    Row(
+                        Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text(user.name, color = appColors.onSurface, style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                if (hiddenCount == 0) stringResource(R.string.settings_extra_events_sees_everything)
+                                else stringResource(R.string.settings_extra_events_hidden_count, hiddenCount),
+                                color = appColors.onMuted,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                        TextButton(onClick = { onEditHidden(user.id) }) {
+                            Text(stringResource(R.string.settings_extra_events_manage))
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 /**
