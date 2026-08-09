@@ -1855,6 +1855,21 @@ data class Hki7User(
     val isAdmin: Boolean,
 )
 
+/** One HKI install as reported to the `hki7` companion component and read back by an admin.
+ *  [userId]/[userName] are the Home Assistant account that device is signed in as, decided by the
+ *  component from the authenticated connection rather than by anything the device claims. */
+data class Hki7FamilyDevice(
+    val userId: String,
+    val userName: String,
+    val deviceId: String,
+    val deviceName: String,
+    val appVersion: String,
+    val appVersionCode: Int?,
+    val osVersion: String?,
+    val model: String?,
+    val reported: String,
+)
+
 /** Metadata for a shared dashboard stored by the `hki7` companion component. */
 data class Hki7SharedDashboardMeta(
     val id: String,

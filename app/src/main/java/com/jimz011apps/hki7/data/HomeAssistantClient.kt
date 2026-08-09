@@ -69,6 +69,9 @@ import kotlin.math.abs
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
+/** Length the `hki7` component caps its free-text fields at before storing them. */
+private const val HKI7_TEXT_LIMIT = 128
+
 private fun parseActionFieldDefinitions(fields: JsonObject): List<HAActionFieldDefinition> =
     fields.flatMap { (fieldKey, fieldElement) ->
         val field = fieldElement as? JsonObject ?: return@flatMap emptyList()
@@ -401,6 +404,64 @@ open class HomeAssistantClient(
         val response = sendCommand("hki7/dashboard/get", mapOf("dashboard_id" to JsonPrimitive(dashboardId)))
         if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket null
         response["result"]?.jsonObject?.get("payload")?.jsonObject?.toString()
+    }
+
+    /** Records this device's HKI version with the component (any authenticated user, for itself
+     *  only — the component files it under the connection's account, not under anything sent here).
+     *  Text is truncated to the component's field limit so an unusually long device name is stored
+     *  rather than rejected outright. Requires component 0.7.0; false against anything older. */
+    open suspend fun hki7ReportDevice(
+        deviceId: String,
+        deviceName: String,
+        appVersion: String,
+        appVersionCode: Int,
+        osVersion: String,
+        model: String,
+    ): Boolean = withWebSocket {
+        val data = mapOf<String, JsonElement>(
+            "device_id" to JsonPrimitive(deviceId.take(HKI7_TEXT_LIMIT)),
+            "device_name" to JsonPrimitive(deviceName.take(HKI7_TEXT_LIMIT)),
+            "app_version" to JsonPrimitive(appVersion.take(HKI7_TEXT_LIMIT)),
+            "app_version_code" to JsonPrimitive(appVersionCode),
+            "os_version" to JsonPrimitive(osVersion.take(HKI7_TEXT_LIMIT)),
+            "model" to JsonPrimitive(model.take(HKI7_TEXT_LIMIT)),
+        )
+        sendCommand("hki7/device/report", data)["success"]?.jsonPrimitive?.booleanOrNull == true
+    }
+
+    /** Every HKI install reported in this household (admin only). Null — as opposed to an empty
+     *  list — when the command isn't available, so the caller can tell "component too old" apart
+     *  from "nobody has reported yet" and say which. */
+    open suspend fun hki7ListDevices(): List<Hki7FamilyDevice>? = withWebSocket {
+        val response = sendCommand("hki7/device/list")
+        if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket null
+        val arr = response["result"]?.jsonObject?.get("devices")?.jsonArray ?: return@withWebSocket emptyList()
+        arr.mapNotNull { element ->
+            val o = element.jsonObject
+            Hki7FamilyDevice(
+                userId = o["user_id"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null,
+                userName = o["user_name"]?.jsonPrimitive?.contentOrNull ?: "",
+                deviceId = o["device_id"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null,
+                deviceName = o["device_name"]?.jsonPrimitive?.contentOrNull ?: "",
+                appVersion = o["app_version"]?.jsonPrimitive?.contentOrNull ?: "",
+                appVersionCode = o["app_version_code"]?.jsonPrimitive?.intOrNull,
+                osVersion = o["os_version"]?.jsonPrimitive?.contentOrNull,
+                model = o["model"]?.jsonPrimitive?.contentOrNull,
+                reported = o["reported"]?.jsonPrimitive?.contentOrNull ?: "",
+            )
+        }
+    }
+
+    /** Forgets one reported install (admin only). A device still in use reports itself again on
+     *  its next app launch, so this only clears out phones that are genuinely gone. */
+    open suspend fun hki7ForgetDevice(userId: String, deviceId: String): Boolean = withWebSocket {
+        val data = mapOf<String, JsonElement>(
+            "user_id" to JsonPrimitive(userId),
+            "device_id" to JsonPrimitive(deviceId),
+        )
+        val response = sendCommand("hki7/device/forget", data)
+        response["success"]?.jsonPrimitive?.booleanOrNull == true &&
+            response["result"]?.jsonObject?.get("removed")?.jsonPrimitive?.booleanOrNull == true
     }
 
     /** The current user's own parental-control policy (empty if none set or component absent). */

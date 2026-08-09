@@ -1493,9 +1493,13 @@
     <string name="family_versions_title">HKI versiyonları</string>
     <string name="family_versions_description">Her aile cihazında hangi HKI yapısı çalışıyor. Bu cihaz %1$s üzerinde. Bir cihaz yalnızca HKI 7 1.0.0-beta.18 veya daha yenisini en az bir kez çalıştırdıktan sonra görünür.</string>
     <string name="family_versions_empty">Henüz hiçbir aile cihazı bir sürüm bildirmedi.</string>
+    <string name="family_versions_loading">Aile cihazları yükleniyor…</string>
+    <string name="family_versions_unavailable">Ev Asistanı aile cihazı listesini döndüremedi. HKI 7 Cloud\'un güncel olup olmadığını kontrol edin.</string>
     <string name="family_versions_outdated">Seninkinden daha yaşlı</string>
     <string name="family_versions_android">Android %1$s</string>
     <string name="family_versions_reported">%1$s bildirildi</string>
+    <string name="family_versions_forget">Bu cihazı unut</string>
+    <string name="family_versions_forget_hint">Bir cihazı unutmak onu yalnızca bu listeden temizler. Halen kullanımda olan bir uygulama, uygulamanın bir sonraki açılışında yeniden görünür.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s yüklü</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud yüklü (sürümünü görmek için güncelleyin)</string>
     <string name="settings_extra_hki_cloud_update_to_unlock">Kilidi açmak için güncelleme:</string>
@@ -1504,8 +1508,11 @@
     <string name="settings_extra_hki_cloud_feature_search_lists">Kişi başına Görünür/Görünmez global arama listeleri</string>
     <string name="settings_extra_hki_cloud_feature_room_follow">Oda takibi</string>
     <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">Oda takibi: Daha sonraki hareketleri takip etmeden yalnızca birini fırlatma alanına yerleştirin</string>
+    <string name="settings_extra_hki_cloud_feature_devices">Her aile cihazının hangi HKI sürümünü çalıştırdığını görme</string>
+    <string name="settings_extra_hki_cloud_tab_requires">HKI 7 Cloud v%1$s veya daha yenisine ihtiyaç var. Bileşeni HACS\'ta güncelleyin; o zamana kadar burada ayarladığınız ayarlar geçerli olmayacaktır.</string>
     <string name="settings_extra_room_follow_continue_after_launch">Uygulama açıkken takip etmeye devam edin</string>
     <string name="settings_extra_room_follow_continue_after_launch_hint">Uygulamayı kullanırken tekrar oda değiştirmeden, onları yalnızca uygulama başlatıldığında doğru odaya yerleştirmek için kapatın.</string>
+    <string name="settings_extra_family_device_forget_failed">“%1$s.” unutulamadı.</string>
     <string name="settings_extra_shared_dashboard_access_failed">“%1$s” ifadesini kimlerin görebileceği değiştirilemedi.</string>
     <string name="settings_extra_shared_dashboard_access_updated">“%1$s” ifadesini kimlerin görebileceği güncellendi.</string>
     <string name="settings_extra_tab_devices">Cihazlar</string>

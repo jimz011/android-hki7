@@ -2589,9 +2589,13 @@
     <string name="family_versions_title">HKI バージョン</string>
     <string name="family_versions_description">各ファミリー デバイスが実行している HKI ビルド。このデバイスは %1$s 上にあります。デバイスは、HKI 7 1.0.0-beta.18 以降を少なくとも 1 回実行した場合にのみ表示されます。</string>
     <string name="family_versions_empty">まだバージョンを報告しているファミリー デバイスはありません。</string>
+    <string name="family_versions_loading">家族のデバイスを読み込んでいます…</string>
+    <string name="family_versions_unavailable">ホーム アシスタントはファミリー デバイスのリストを返すことができませんでした。 HKI 7 Cloud が最新であることを確認します。</string>
     <string name="family_versions_outdated">あなたよりも年上です</string>
     <string name="family_versions_android">アンドロイド %1$s</string>
     <string name="family_versions_reported">%1$s が報告されました</string>
+    <string name="family_versions_forget">このデバイスを忘れてください</string>
+    <string name="family_versions_forget_hint">デバイスを忘れても、このリストから削除されるだけです。まだ使用中のものは、次にアプリを開いたときに再表示されます。</string>
     <string name="settings_extra_active_instance">アクティブなインスタンス</string>
     <string name="settings_extra_automatic_cloud_backup_enabled">自動クラウドバックアップが有効になりました。</string>
     <string name="settings_extra_background_restricted_warning">制限あり — バックグラウンド同期は機能しません</string>
@@ -2667,6 +2671,8 @@
     <string name="settings_extra_hki_cloud_feature_search_lists">個人ごとの表示/非表示のグローバル検索リスト</string>
     <string name="settings_extra_hki_cloud_feature_room_follow">部屋の追従</string>
     <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">ルームフォロー: 誰かを起動時に配置するだけで、それ以降の動きは追跡しません</string>
+    <string name="settings_extra_hki_cloud_feature_devices">各ファミリー デバイスが実行する HKI バージョンの確認</string>
+    <string name="settings_extra_hki_cloud_tab_requires">HKI 7 Cloud v%1$s 以降が必要です。 HACS でコンポーネントを更新します。それまでは、ここで設定した内容は有効になりません。</string>
     <string name="settings_extra_location_allowed_always">常に許可</string>
     <string name="settings_extra_location_allowed_foreground">アプリ使用中のみ許可</string>
     <string name="settings_extra_location_not_allowed">許可しない</string>
@@ -2720,6 +2726,7 @@
     <string name="settings_extra_restore_failed">復元に失敗しました: %1$s</string>
     <string name="settings_extra_selected_file_open_failed">選択したファイルを開けませんでした</string>
     <string name="settings_extra_set_dashboard_default">%1$sをデフォルトダッシュボードに設定</string>
+    <string name="settings_extra_family_device_forget_failed">「%1$s」を忘れることはできませんでした。</string>
     <string name="settings_extra_shared_dashboard_access_failed">「%1$s」を閲覧できるユーザーを変更できませんでした。</string>
     <string name="settings_extra_shared_dashboard_access_updated">「%1$s」を閲覧できるユーザーを更新しました。</string>
     <string name="settings_extra_shared_dashboard_delete_failed">「%1$s」を削除できませんでした。</string>

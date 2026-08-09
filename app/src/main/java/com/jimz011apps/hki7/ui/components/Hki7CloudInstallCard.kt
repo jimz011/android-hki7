@@ -83,7 +83,34 @@ private val HKI7_COMPONENT_FEATURES = listOf(
     Hki7ComponentFeature("0.5.4", R.string.settings_extra_hki_cloud_feature_search_lists),
     Hki7ComponentFeature("0.6.0", R.string.settings_extra_hki_cloud_feature_room_follow),
     Hki7ComponentFeature("0.6.1", R.string.settings_extra_hki_cloud_feature_room_follow_launch_only),
+    Hki7ComponentFeature("0.7.0", R.string.settings_extra_hki_cloud_feature_devices),
 )
+
+/**
+ * Inline notice for a settings tab whose feature needs a newer component than the one installed.
+ * Renders nothing once the installed version covers [minVersion].
+ *
+ * The Family Sharing header already lists every missing feature at once, but that is easy to scroll
+ * past; this is the same warning where the setting actually is, so nobody configures a tab that
+ * cannot take effect yet. A null [installedVersion] means the component predates version reporting
+ * (0.6.1 or earlier), which is older than anything listed here, so the notice always shows.
+ */
+@Composable
+internal fun Hki7RequiresComponent(installedVersion: String?, minVersion: String) {
+    if (installedVersion != null && compareHki7ComponentVersions(installedVersion, minVersion) >= 0) return
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        MdiIcon("cloud-alert-outline", tint = MaterialTheme.colorScheme.error, size = 18.dp)
+        Text(
+            stringResource(R.string.settings_extra_hki_cloud_tab_requires, minVersion),
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
+}
 
 /** Dotted "major.minor.patch" compare, negative when [a] is older than [b]. Good enough for this
  *  component's plain numeric versions — it has never used a pre-release suffix. */

@@ -1963,7 +1963,8 @@
     <string-array name="cr_whats_new_beta_18">
         <item>管理员现在可以更改已发布的家庭仪表板的共享对象，而不仅仅是在发布时才能选择。设置 › 家庭共享 › 仪表板列出了每个已发布的仪表板所覆盖的人员，并通过“管理访问”按钮来添加或删除人员。到目前为止，从一个人手中夺走仪表板的唯一方法就是为所有人删除它。*</item>
         <item>现在，失去对家庭仪表板的访问权限会清除其之上的内容。仪表板本身已经被删除，但它留在设备上的房间、小部件、页面、导航栏、标题药丸和主题仍然保留 - 因此管理员共享的下一个仪表板到达了前一个仪表板的剩余部分之上，看起来它未能完全导入。属于已撤销仪表板的所有内容现在都将随之删除。 Home Assistant 连接、配置文件和通知设置保持不变：丢失仪表板并不会被注销。*</item>
-        <item>设置 › 家庭共享下的新设备选项卡，显示每个家庭设备正在运行的 HKI 版本，并标记比您的设备旧的版本。现在，每个安装都将其版本报告为其自己的 Home Assistant 设备上的诊断传感器，因此可以直接从 Home Assistant 读取此版本，无需轮询，也无需配置。一旦设备至少运行此版本一次，就会出现。</item>
+        <item>“设置”&gt;“家庭共享”下的“新设备”选项卡显示每个家庭设备正在运行的 HKI 版本，并标记比您的设备旧的设备，以及 Home Assistant 帐户、设备名称、Android 版本以及上次报告的时间。每次安装都会通过应用程序已使用的连接上的 HKI 7 Cloud 组件记录这一点，因此每个登录的设备都会被覆盖 - 包括位置和通知都关闭的设备 - 并且不会将任何内容添加到 Home Assistant 的实体列表中。设备只能报告其自身。管理员可能会忘记已更换的手机；仍在使用的应用程序下次打开时会重新出现。需要 HKI 7 Cloud 0.7.0.*</item>
+        <item>现在，每个“家庭共享”选项卡在需要比已安装的 HKI 7 Cloud 更新的 HKI 7 Cloud 时会自行说明，而不是仅显示在屏幕顶部的摘要中。家长控制、权限、状态和设备各自携带其所需的版本，因此在配置已安装组件尚无法存储其设置的选项卡之前，请先明确这一点。</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_17">
@@ -3596,7 +3597,7 @@
     <string name="family_access_unknown_user">未知用户</string>
     <string name="family_access_revoke_warning">失去访问权限会删除此仪表板的副本，以及他们在其中更改的任何颜色、图标和名称。</string>
     <string name="family_versions_title">HKI 版本</string>
-    <string name="family_versions_description">每个家庭设备正在运行哪个 HKI 构建。该设备位于 %1$s 上。设备仅在至少运行一次 HKI 7 1.0.0-beta.18 或更高版本后才会出现。</string>
+    <string name="family_versions_description">每个家庭设备正在运行哪个 HKI 构建。该设备位于 %1$s 上。一旦设备至少打开一次 HKI 7 1.0.0-beta.18 或更高版本，就会出现。</string>
     <string name="family_versions_empty">尚未有家庭设备报告版本。</string>
     <string name="family_versions_outdated">比你年纪大</string>
     <string name="family_versions_android">安卓 %1$s</string>
@@ -3604,4 +3605,11 @@
     <string name="settings_extra_shared_dashboard_access_failed">无法更改谁可以看到“%1$s”。</string>
     <string name="settings_extra_shared_dashboard_access_updated">更新了谁可以看到“%1$s”。</string>
     <string name="settings_extra_tab_devices">设备</string>
+    <string name="family_versions_loading">正在加载家庭设备...</string>
+    <string name="family_versions_unavailable">Home Assistant 无法返回家庭设备列表。检查 HKI 7 Cloud 是否是最新的。</string>
+    <string name="family_versions_forget">忘记这个设备</string>
+    <string name="family_versions_forget_hint">忘记设备只会将其从此列表中清除。仍在使用的应用程序会在下次打开其应用程序时重新出现。</string>
+    <string name="settings_extra_hki_cloud_feature_devices">查看每个家庭设备运行哪个 HKI 版本</string>
+    <string name="settings_extra_hki_cloud_tab_requires">需要 HKI 7 Cloud v%1$s 或更高版本。更新 HACS 中的组件 — 在此之前，您在此处设置的内容不会生效。</string>
+    <string name="settings_extra_family_device_forget_failed">无法忘记“%1$s”。</string>
 </resources>

@@ -1493,9 +1493,13 @@
     <string name="family_versions_title">Versiones HKI</string>
     <string name="family_versions_description">Qué compilación de HKI está ejecutando cada dispositivo familiar. Este dispositivo está en %1$s. Un dispositivo solo aparece una vez que ha ejecutado HKI 7 1.0.0-beta.18 o posterior al menos una vez.</string>
     <string name="family_versions_empty">Ningún dispositivo familiar ha reportado una versión todavía.</string>
+    <string name="family_versions_loading">Cargando dispositivos familiares...</string>
+    <string name="family_versions_unavailable">Home Assistant no pudo devolver la lista de dispositivos familiares. Compruebe que HKI 7 Cloud esté actualizado.</string>
     <string name="family_versions_outdated">mayor que el tuyo</string>
     <string name="family_versions_android">Android %1$s</string>
     <string name="family_versions_reported">reportado %1$s</string>
+    <string name="family_versions_forget">Olvídate de este dispositivo</string>
+    <string name="family_versions_forget_hint">Olvidar un dispositivo solo lo borra de esta lista. Uno que todavía está en uso reaparece la próxima vez que se abre su aplicación.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Nube v%1$s instalado</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud instalado (actualiza para ver su versión)</string>
     <string name="settings_extra_hki_cloud_update_to_unlock">Actualizar para desbloquear:</string>
@@ -1504,8 +1508,11 @@
     <string name="settings_extra_hki_cloud_feature_search_lists">Listas de búsqueda globales visibles/invisibles por persona</string>
     <string name="settings_extra_hki_cloud_feature_room_follow">Seguimiento de habitaciones</string>
     <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">Seguimiento de sala: solo coloca a alguien en el lanzamiento, sin seguir más movimientos</string>
+    <string name="settings_extra_hki_cloud_feature_devices">Ver qué versión de HKI ejecuta cada dispositivo familiar</string>
+    <string name="settings_extra_hki_cloud_tab_requires">Necesita HKI 7 Cloud v%1$s o más reciente. Actualice el componente en HACS; hasta entonces, lo que establezca aquí no tendrá efecto.</string>
     <string name="settings_extra_room_follow_continue_after_launch">Sigue siguiendo mientras la aplicación esté abierta.</string>
     <string name="settings_extra_room_follow_continue_after_launch_hint">Desactívelo para colocarlos solo en la habitación correcta cuando se inicie la aplicación, sin volver a cambiar de habitación mientras la usan.</string>
+    <string name="settings_extra_family_device_forget_failed">No pude olvidar "%1$s".</string>
     <string name="settings_extra_shared_dashboard_access_failed">No se pudo cambiar quién puede ver "%1$s".</string>
     <string name="settings_extra_shared_dashboard_access_updated">Se actualizó quién puede ver "%1$s".</string>
     <string name="settings_extra_tab_devices">Dispositivos</string>

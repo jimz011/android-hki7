@@ -4321,6 +4321,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         sharedSyncJob = viewModelScope.launch(Dispatchers.IO) {
             runCatching { HaParentalControls.refreshForCurrentUser(ctx, prefs) }
             runCatching { HaParentalControls.refreshRoomFollowRoster(ctx, prefs) }
+            // Tell the component which HKI version this device runs, so an admin can see who is
+            // behind. Deliberately here rather than on the mobile_app telemetry path: that one is
+            // gated on location or notifications being enabled, and this must cover every device.
+            runCatching { HaFamilyDevices.report(ctx, prefs) }
             // Owner side: push this user's local edits to any dashboards they've shared, so recipients
             // pick them up. Runs first so a recipient's pull below sees the freshest content.
             runCatching { HaDashboardSharing.pushOwnedUpdates(ctx, prefs) }

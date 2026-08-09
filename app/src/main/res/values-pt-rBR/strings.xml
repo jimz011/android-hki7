@@ -3260,7 +3260,8 @@
     <string-array name="cr_whats_new_beta_18">
         <item>Um administrador agora pode alterar com quem um painel familiar publicado é compartilhado, em vez de poder escolher apenas no momento da publicação. Configurações › Compartilhamento Familiar › Painéis lista quem é alcançado por cada painel publicado, com um botão Gerenciar acesso para adicionar ou remover pessoas. Até agora, a única maneira de retirar um painel de uma pessoa era excluí-lo para todos.*</item>
         <item>Perder o acesso a um painel familiar agora limpa o que estava sobre ele. O painel em si já foi removido, mas as salas, widgets, páginas, barra de navegação, cabeçalho e tema deixados no dispositivo permaneceram - então o próximo painel que um administrador compartilhou chegou em cima das sobras do anterior e parecia que não havia sido importado por completo. Tudo o que pertencia ao painel revogado agora é removido com ele. As conexões, perfis e configurações de notificação do Home Assistant permanecem intactas: perder um painel não significa desconectar-se.*</item>
-        <item>Guia Novos dispositivos em Configurações › Compartilhamento familiar, mostrando qual versão HKI cada dispositivo familiar está executando e sinalizando aqueles mais antigos que o seu. Cada instalação agora relata sua versão como um sensor de diagnóstico em seu próprio dispositivo Home Assistant, portanto, isso é lido diretamente no Home Assistant, sem pesquisa e nada para configurar. Um dispositivo aparece depois de executar esta versão pelo menos uma vez.</item>
+        <item>Guia Novos dispositivos em Configurações › Compartilhamento familiar, mostrando qual versão HKI cada dispositivo da família está executando e sinalizando aqueles mais antigos que o seu, com a conta do Home Assistant, nome do dispositivo, versão do Android e quando foi relatado pela última vez. Cada instalação registra isso por meio do componente HKI 7 Cloud através da conexão que o aplicativo já usa, de modo que todos os dispositivos conectados são cobertos – incluindo um com localização e notificações desligados – e nada é adicionado à lista de entidades do Home Assistant. Um dispositivo só pode reportar a si mesmo. Um administrador pode esquecer um telefone que foi substituído; um ainda em uso reaparece na próxima vez que seu aplicativo for aberto. Requer HKI 7 Cloud 0.7.0.*</item>
+        <item>Cada guia do Compartilhamento Familiar agora diz por si mesma quando precisa de um HKI 7 Cloud mais recente do que o instalado, em vez de aparecer apenas no resumo na parte superior da tela. Os controles dos pais, permissões, presença e dispositivos carregam a versão necessária, portanto, fica claro antes de você configurar uma guia cujas configurações o componente instalado ainda não pode armazenar.</item>
     </string-array>
 
     <string-array name="cr_whats_new_beta_17">
@@ -3641,7 +3642,7 @@
     <string name="family_access_unknown_user">Usuário desconhecido</string>
     <string name="family_access_revoke_warning">A perda de acesso exclui a cópia deste painel, juntamente com quaisquer cores, ícones e nomes que eles alteraram nele.</string>
     <string name="family_versions_title">Versões HKI</string>
-    <string name="family_versions_description">Qual versão do HKI cada dispositivo da família está executando. Este dispositivo está em %1$s. Um dispositivo só aparece depois de executar o HKI 7 1.0.0-beta.18 ou mais recente pelo menos uma vez.</string>
+    <string name="family_versions_description">Qual versão do HKI cada dispositivo da família está executando. Este dispositivo está em %1$s. Um dispositivo aparece depois de abrir o HKI 7 1.0.0-beta.18 ou mais recente pelo menos uma vez.</string>
     <string name="family_versions_empty">Nenhum dispositivo familiar relatou uma versão ainda.</string>
     <string name="family_versions_outdated">Mais velho que o seu</string>
     <string name="family_versions_android">Android%1$s</string>
@@ -3649,4 +3650,11 @@
     <string name="settings_extra_shared_dashboard_access_failed">Não foi possível alterar quem pode ver “%1$s.”</string>
     <string name="settings_extra_shared_dashboard_access_updated">Atualizado quem pode ver “%1$s.”</string>
     <string name="settings_extra_tab_devices">Dispositivos</string>
+    <string name="family_versions_loading">Carregando dispositivos familiares…</string>
+    <string name="family_versions_unavailable">O Home Assistant não conseguiu retornar a lista de dispositivos da família. Verifique se o HKI 7 Cloud está atualizado.</string>
+    <string name="family_versions_forget">Esqueça este dispositivo</string>
+    <string name="family_versions_forget_hint">Esquecer um dispositivo apenas o apaga desta lista. Um que ainda esteja em uso reaparecerá na próxima vez que seu aplicativo for aberto.</string>
+    <string name="settings_extra_hki_cloud_feature_devices">Ver qual versão HKI cada dispositivo da família executa</string>
+    <string name="settings_extra_hki_cloud_tab_requires">Precisa do HKI 7 Cloud v%1$s ou mais recente. Atualize o componente no HACS — até então, o que você definir aqui não terá efeito.</string>
+    <string name="settings_extra_family_device_forget_failed">Não poderia esquecer “%1$s.”</string>
 </resources>

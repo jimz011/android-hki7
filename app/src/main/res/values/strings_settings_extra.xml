@@ -16,11 +16,15 @@
     <string name="family_access_unknown_user">Unknown user</string>
     <string name="family_access_revoke_warning">Losing access deletes their copy of this dashboard, along with any colours, icons, and names they changed on it.</string>
     <string name="family_versions_title">HKI versions</string>
-    <string name="family_versions_description">Which HKI build each family device is running. This device is on %1$s. A device only appears once it has run HKI 7 1.0.0-beta.18 or newer at least once.</string>
+    <string name="family_versions_description">Which HKI build each family device is running. This device is on %1$s. A device appears once it has opened HKI 7 1.0.0-beta.18 or newer at least once.</string>
     <string name="family_versions_empty">No family devices have reported a version yet.</string>
+    <string name="family_versions_loading">Loading family devices…</string>
+    <string name="family_versions_unavailable">Home Assistant could not return the family device list. Check that HKI 7 Cloud is up to date.</string>
     <string name="family_versions_outdated">Older than yours</string>
     <string name="family_versions_android">Android %1$s</string>
     <string name="family_versions_reported">reported %1$s</string>
+    <string name="family_versions_forget">Forget this device</string>
+    <string name="family_versions_forget_hint">Forgetting a device only clears it from this list. One that is still in use reappears the next time its app opens.</string>
     <string name="settings_extra_active_instance">Active instance</string>
     <string name="settings_extra_automatic_cloud_backup_enabled">Automatic cloud backup enabled.</string>
     <string name="settings_extra_background_restricted_warning">Restricted — background sync will not work</string>
@@ -96,6 +100,8 @@
     <string name="settings_extra_hki_cloud_feature_search_lists">Per-person Visible/Invisible global search lists</string>
     <string name="settings_extra_hki_cloud_feature_room_follow">Room following</string>
     <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">Room following: only place someone on launch, without tracking further moves</string>
+    <string name="settings_extra_hki_cloud_feature_devices">Seeing which HKI version each family device runs</string>
+    <string name="settings_extra_hki_cloud_tab_requires">Needs HKI 7 Cloud v%1$s or newer. Update the component in HACS — until then, what you set here won\'t take effect.</string>
     <string name="settings_extra_location_allowed_always">Allowed all the time</string>
     <string name="settings_extra_location_allowed_foreground">Allowed only while using the app</string>
     <string name="settings_extra_location_not_allowed">Not allowed</string>
@@ -165,6 +171,7 @@
     <string name="settings_extra_restore_failed">Restore failed: %1$s</string>
     <string name="settings_extra_selected_file_open_failed">Could not open the selected file</string>
     <string name="settings_extra_set_dashboard_default">Set %1$s as the default dashboard</string>
+    <string name="settings_extra_family_device_forget_failed">Could not forget “%1$s.”</string>
     <string name="settings_extra_shared_dashboard_access_failed">Could not change who can see “%1$s.”</string>
     <string name="settings_extra_shared_dashboard_access_updated">Updated who can see “%1$s.”</string>
     <string name="settings_extra_shared_dashboard_delete_failed">Could not delete “%1$s.”</string>

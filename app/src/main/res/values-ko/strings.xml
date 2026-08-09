@@ -2589,9 +2589,13 @@
     <string name="family_versions_title">HKI 버전</string>
     <string name="family_versions_description">각 제품군 장치가 실행 중인 HKI 빌드입니다. 이 장치는 %1$s에 있습니다. 장치는 HKI 7 1.0.0-beta.18 이상을 한 번 이상 실행한 후에만 나타납니다.</string>
     <string name="family_versions_empty">아직 버전을 보고한 가족 기기가 없습니다.</string>
+    <string name="family_versions_loading">가족 기기 로드 중…</string>
+    <string name="family_versions_unavailable">홈어시스턴트가 가족 기기 목록을 반환할 수 없습니다. HKI 7 Cloud가 최신 상태인지 확인하세요.</string>
     <string name="family_versions_outdated">당신보다 나이가 많아요</string>
     <string name="family_versions_android">안드로이드 %1$s</string>
     <string name="family_versions_reported">%1$s을(를) 보고했습니다.</string>
+    <string name="family_versions_forget">이 장치를 잊어버리세요</string>
+    <string name="family_versions_forget_hint">장치를 잊어버리면 이 목록에서만 지워집니다. 아직 사용 중인 항목은 다음에 앱이 열릴 때 다시 나타납니다.</string>
     <string name="settings_extra_active_instance">활성 인스턴스</string>
     <string name="settings_extra_automatic_cloud_backup_enabled">자동 클라우드 백업이 활성화되었습니다.</string>
     <string name="settings_extra_background_restricted_warning">제한됨 — 백그라운드 동기화가 작동하지 않습니다</string>
@@ -2667,6 +2671,8 @@
     <string name="settings_extra_hki_cloud_feature_search_lists">개인별 Visible/Invisible 글로벌 검색 목록</string>
     <string name="settings_extra_hki_cloud_feature_room_follow">방 따라가기</string>
     <string name="settings_extra_hki_cloud_feature_room_follow_launch_only">방 추적: 추가 이동을 추적하지 않고 발사 시에만 누군가를 배치합니다.</string>
+    <string name="settings_extra_hki_cloud_feature_devices">각 제품군 장치가 실행되는 HKI 버전 확인</string>
+    <string name="settings_extra_hki_cloud_tab_requires">HKI 7 Cloud v%1$s 이상이 필요합니다. HACS에서 구성 요소를 업데이트합니다. 그때까지는 여기에서 설정한 내용이 적용되지 않습니다.</string>
     <string name="settings_extra_location_allowed_always">항상 허용됨</string>
     <string name="settings_extra_location_allowed_foreground">앱을 사용하는 동안에만 허용됩니다.</string>
     <string name="settings_extra_location_not_allowed">허용되지 않음</string>
@@ -2720,6 +2726,7 @@
     <string name="settings_extra_restore_failed">복원 실패: %1$s</string>
     <string name="settings_extra_selected_file_open_failed">선택한 파일을 열 수 없습니다</string>
     <string name="settings_extra_set_dashboard_default">%1$s을 기본 대시보드로 설정</string>
+    <string name="settings_extra_family_device_forget_failed">\'%1$s\'을(를) 잊어버릴 수 없습니다.</string>
     <string name="settings_extra_shared_dashboard_access_failed">\'%1$s\'을 볼 수 있는 사람을 변경할 수 없습니다.</string>
     <string name="settings_extra_shared_dashboard_access_updated">\'%1$s\'을 볼 수 있는 사람이 업데이트되었습니다.</string>
     <string name="settings_extra_shared_dashboard_delete_failed">\'%1$s\'을(를) 삭제할 수 없습니다.</string>

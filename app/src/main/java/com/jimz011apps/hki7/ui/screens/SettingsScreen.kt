@@ -129,10 +129,8 @@ import androidx.core.content.ContextCompat
 import com.jimz011apps.hki7.BuildConfig
 import com.jimz011apps.hki7.R
 import androidx.compose.ui.text.style.TextOverflow
-import com.jimz011apps.hki7.data.DeviceTelemetryReporter
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HomeAssistantConnectionRoute
-import com.jimz011apps.hki7.data.jsonPrimitiveOrNull
 import com.jimz011apps.hki7.data.HomeAssistantInstance
 import com.jimz011apps.hki7.data.CloudBackupStorage
 import com.jimz011apps.hki7.data.CloudBackupFile
@@ -140,6 +138,8 @@ import com.jimz011apps.hki7.data.CloudBackupWork
 import com.jimz011apps.hki7.data.HaBackupStorage
 import com.jimz011apps.hki7.data.hki7BackupName
 import com.jimz011apps.hki7.data.HaDashboardSharing
+import com.jimz011apps.hki7.data.HaFamilyDevices
+import com.jimz011apps.hki7.data.Hki7FamilyDevice
 import androidx.compose.foundation.layout.FlowRow
 import com.jimz011apps.hki7.data.HaParentalControls
 import com.jimz011apps.hki7.ui.components.DefaultIconEffectByGroup
@@ -166,6 +166,7 @@ import com.jimz011apps.hki7.ui.components.ColorWheel
 import com.jimz011apps.hki7.ui.components.HKISlider
 import com.jimz011apps.hki7.ui.components.Hki7CloudInstallCard
 import com.jimz011apps.hki7.ui.components.Hki7ComponentVersionStatus
+import com.jimz011apps.hki7.ui.components.Hki7RequiresComponent
 import com.jimz011apps.hki7.ui.components.MdiIconPickerDialog
 import com.jimz011apps.hki7.ui.components.ModernSettingsHeader
 import com.jimz011apps.hki7.ui.components.ModernSettingsMenuItem
@@ -193,9 +194,6 @@ import com.jimz011apps.hki7.ui.theme.appFontFamily
 import com.jimz011apps.hki7.ui.utils.MdiIcon
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
-import kotlinx.serialization.json.booleanOrNull
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.intOrNull
 import kotlin.math.roundToInt
 import java.util.UUID
 import coil3.compose.AsyncImage
@@ -442,6 +440,11 @@ fun SettingsDialog(
     var parentalUsers by remember { mutableStateOf(emptyList<com.jimz011apps.hki7.data.Hki7User>()) }
     var parentalPolicies by remember { mutableStateOf(emptyMap<String, com.jimz011apps.hki7.data.Hki7Policy>()) }
     var parentalExpandedUser by remember { mutableStateOf<String?>(null) }
+    // ── Family devices (which HKI version everyone runs) ──
+    // Null means the component could not answer — too old for hki7/device/list — which the tab
+    // reports as such instead of showing an empty list that would read as "nobody has HKI".
+    var familyDevices by remember { mutableStateOf<List<com.jimz011apps.hki7.data.Hki7FamilyDevice>?>(null) }
+    var familyDevicesLoading by remember { mutableStateOf(false) }
     // Probe the hki7 component once so the menu can show admin-only entries (Parental Controls).
     LaunchedEffect(Unit) {
         val id = runCatching { HaDashboardSharing.whoami(context) }.getOrNull()
@@ -1986,6 +1989,7 @@ fun SettingsDialog(
                                     if (familyTab == "parental") {
                                         SettingsPanel {
                                             Text(stringResource(R.string.ui_parental_controls_c4f61d0), color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                                            Hki7RequiresComponent(hki7ComponentVersion, "0.5.4")
                                             Text(
                                                 stringResource(R.string.ui_hide_certain_views_or_rooms_from_specific_people_to_f10458c),
                                                 color = appColors.onMuted,
@@ -2220,6 +2224,7 @@ fun SettingsDialog(
                                     if (familyTab == "permissions") {
                                         SettingsPanel {
                                             Text(stringResource(R.string.ui_permissions_d06d555), color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+                                            Hki7RequiresComponent(hki7ComponentVersion, "0.5.3")
                                             Text(
                                                 stringResource(R.string.ui_set_what_each_person_may_do_per_user_like_aa86ea2),
                                                 color = appColors.onMuted,
@@ -2287,6 +2292,7 @@ fun SettingsDialog(
                                                 color = appColors.onSurface,
                                                 style = MaterialTheme.typography.titleMedium
                                             )
+                                            Hki7RequiresComponent(hki7ComponentVersion, "0.6.1")
                                             Text(
                                                 stringResource(R.string.settings_extra_room_follow_description),
                                                 color = appColors.onMuted,
@@ -2317,7 +2323,34 @@ fun SettingsDialog(
                                         }
                                     }
                                     if (familyTab == "devices") {
-                                        FamilyAppVersionsPanel(pcEntities)
+                                        // Reloaded on every visit to the tab: a family member who
+                                        // just updated should appear without reopening Settings.
+                                        LaunchedEffect(familyTab) {
+                                            familyDevicesLoading = true
+                                            familyDevices = runCatching { HaFamilyDevices.list(context) }.getOrNull()
+                                            familyDevicesLoading = false
+                                        }
+                                        FamilyDevicesPanel(
+                                            devices = familyDevices,
+                                            loading = familyDevicesLoading,
+                                            componentVersion = hki7ComponentVersion,
+                                            onForget = { device ->
+                                                scope.launch {
+                                                    val ok = runCatching { HaFamilyDevices.forget(context, device) }
+                                                        .getOrDefault(false)
+                                                    if (ok) {
+                                                        familyDevices = familyDevices?.filterNot {
+                                                            it.userId == device.userId && it.deviceId == device.deviceId
+                                                        }
+                                                    } else {
+                                                        setupChangedMessage = context.getString(
+                                                            R.string.settings_extra_family_device_forget_failed,
+                                                            device.deviceName,
+                                                        )
+                                                    }
+                                                }
+                                            },
+                                        )
                                     }
                                 }
                             }
@@ -3779,92 +3812,94 @@ private fun SettingsPanel(content: @Composable ColumnScope.() -> Unit) {
     SettingsGroup(content = content)
 }
 
-/** One family device's reported HKI build, read off the version sensor it registers with Home
- *  Assistant through mobile_app. */
-private data class FamilyAppVersion(
-    val label: String,
-    val deviceName: String,
-    val version: String,
-    val versionCode: Int?,
-    val osVersion: String?,
-    val lastChanged: String?,
-)
-
 /**
- * Which HKI version each family member is running. Every HKI install registers its version as a
- * diagnostic sensor on its own mobile_app device, so this is simply that sensor read back — no
- * companion-component command and no polling. Devices are matched on the marker attribute rather
- * than an entity id, because entity ids are renameable and these are not ours to depend on.
+ * Which HKI version each family device is running, read from the `hki7` companion component.
+ *
+ * Each install reports itself over the WebSocket connection the app already holds, so this covers
+ * every signed-in device — including one that has location and notifications switched off, which
+ * the earlier mobile_app sensor approach could never see because such a device never registers
+ * with mobile_app at all.
+ *
+ * [devices] is null when the component could not answer, which is a different thing from nobody
+ * having reported yet and is said so rather than shown as an empty household.
  */
 @Composable
-private fun FamilyAppVersionsPanel(entities: List<HAEntity>) {
+private fun FamilyDevicesPanel(
+    devices: List<Hki7FamilyDevice>?,
+    loading: Boolean,
+    componentVersion: String?,
+    onForget: (Hki7FamilyDevice) -> Unit,
+) {
     val appColors = LocalHKIAppColors.current
-    val devices = remember(entities) {
-        entities.asSequence()
-            .filter { it.attributes?.get(DeviceTelemetryReporter.HKI_APP_ATTRIBUTE)?.jsonPrimitiveOrNull?.booleanOrNull == true }
-            .map { entity ->
-                fun attr(name: String) = entity.attributes?.get(name)?.jsonPrimitiveOrNull?.contentOrNull
-                val deviceName = attr("hki_device_name") ?: entity.friendlyName ?: entity.entity_id
-                FamilyAppVersion(
-                    label = attr("hki_user") ?: deviceName,
-                    deviceName = deviceName,
-                    version = entity.state,
-                    versionCode = entity.attributes?.get("hki_version_code")?.jsonPrimitiveOrNull?.intOrNull,
-                    osVersion = attr("hki_os_version"),
-                    lastChanged = entity.last_changed,
-                )
-            }
-            .sortedBy { it.label.lowercase() }
-            .toList()
-    }
     SettingsPanel {
         Text(stringResource(R.string.family_versions_title), color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+        Hki7RequiresComponent(componentVersion, HaFamilyDevices.MIN_COMPONENT_VERSION)
         Text(
             stringResource(R.string.family_versions_description, BuildConfig.VERSION_NAME),
             color = appColors.onMuted,
             style = MaterialTheme.typography.bodySmall
         )
-        if (devices.isEmpty()) {
-            Text(stringResource(R.string.family_versions_empty), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
-            return@SettingsPanel
-        }
-        devices.forEach { device ->
-            // Behind is decided on the version code, the only monotonic number in play: comparing
-            // "1.0.0-beta.9" to "1.0.0-beta.10" as text puts the older build ahead.
-            val behind = device.versionCode != null && device.versionCode < BuildConfig.VERSION_CODE
-            Surface(Modifier.fillMaxWidth(), shape = itemCornerShape(), color = appColors.subtleSurface) {
-                Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        Icons.Default.PhoneAndroid,
-                        null,
-                        tint = if (behind) MaterialTheme.colorScheme.error else appColors.onMuted,
-                        modifier = Modifier.size(22.dp)
-                    )
-                    Spacer(Modifier.width(12.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text(device.label, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
-                        val details = listOfNotNull(
-                            device.deviceName.takeIf { it != device.label },
-                            device.osVersion?.let { stringResource(R.string.family_versions_android, it) },
-                            formatSharedUpdated(device.lastChanged.orEmpty()).takeIf { it.isNotBlank() }
-                                ?.let { stringResource(R.string.family_versions_reported, it) },
+        when {
+            loading && devices == null ->
+                Text(stringResource(R.string.family_versions_loading), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+            devices == null ->
+                Text(stringResource(R.string.family_versions_unavailable), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+            devices.isEmpty() ->
+                Text(stringResource(R.string.family_versions_empty), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+            else -> devices.forEach { device ->
+                // Behind is decided on the version code, the only monotonic number in play:
+                // comparing "1.0.0-beta.9" to "1.0.0-beta.10" as text puts the older build ahead.
+                val behind = device.appVersionCode != null && device.appVersionCode < BuildConfig.VERSION_CODE
+                Surface(Modifier.fillMaxWidth(), shape = itemCornerShape(), color = appColors.subtleSurface) {
+                    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.PhoneAndroid,
+                            null,
+                            tint = if (behind) MaterialTheme.colorScheme.error else appColors.onMuted,
+                            modifier = Modifier.size(22.dp)
                         )
-                        if (details.isNotEmpty()) {
-                            Text(details.joinToString(" · "), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text(device.version, color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
-                        if (behind) {
+                        Spacer(Modifier.width(12.dp))
+                        Column(Modifier.weight(1f)) {
                             Text(
-                                stringResource(R.string.family_versions_outdated),
-                                color = MaterialTheme.colorScheme.error,
-                                style = MaterialTheme.typography.labelSmall
+                                device.userName.ifBlank { device.deviceName },
+                                color = appColors.onSurface,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            val details = listOfNotNull(
+                                device.deviceName.takeIf { it.isNotBlank() && it != device.userName },
+                                device.osVersion?.takeIf { it.isNotBlank() }
+                                    ?.let { stringResource(R.string.family_versions_android, it) },
+                                formatSharedUpdated(device.reported).takeIf { it.isNotBlank() }
+                                    ?.let { stringResource(R.string.family_versions_reported, it) },
+                            )
+                            if (details.isNotEmpty()) {
+                                Text(details.joinToString(" · "), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(device.appVersion, color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
+                            if (behind) {
+                                Text(
+                                    stringResource(R.string.family_versions_outdated),
+                                    color = MaterialTheme.colorScheme.error,
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
+                        }
+                        IconButton(onClick = { onForget(device) }) {
+                            Icon(
+                                Icons.Default.Delete,
+                                stringResource(R.string.family_versions_forget),
+                                tint = appColors.onMuted,
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }
                 }
             }
+        }
+        if (devices != null) {
+            Text(stringResource(R.string.family_versions_forget_hint), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
         }
     }
 }

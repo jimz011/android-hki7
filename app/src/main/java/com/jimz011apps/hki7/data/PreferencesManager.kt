@@ -271,6 +271,7 @@ class PreferencesManager(
     private val parentalAllowDashboardSwitchKey = booleanPreferencesKey("parental_allow_dashboard_switch")
     private val parentalAllowDashboardCreateKey = booleanPreferencesKey("parental_allow_dashboard_create")
     private val parentalAllowReimportKey = booleanPreferencesKey("parental_allow_reimport")
+    private val familyDeviceIdKey = stringPreferencesKey("family_device_id")
     private val lastSeenVersionCodeKey = intPreferencesKey("last_seen_version_code")
     private val homeAssistantInstancesKey = stringPreferencesKey("home_assistant_instances_v1")
     private val activeHomeAssistantInstanceIdKey = stringPreferencesKey("active_home_assistant_instance_id")
@@ -1106,6 +1107,20 @@ class PreferencesManager(
      * this preference; a full reset clears it along with the rest of DataStore. */
     suspend fun acknowledgeQuickStartGuide() {
         context.dataStore.edit { it.remove(quickStartGuidePendingKey) }
+    }
+
+    /** This install's stable id for family device reporting, created on first use.
+     *
+     * Deliberately not the mobile_app device id: that one only exists once the app has registered
+     * for location or notifications, and a phone with both switched off must still be able to
+     * report which HKI version it runs. A reinstall gets a new id, which is why the component caps
+     * how many it remembers per user. */
+    suspend fun familyDeviceId(): String {
+        var id: String? = null
+        context.dataStore.edit { p ->
+            id = p[familyDeviceIdKey] ?: UUID.randomUUID().toString().also { p[familyDeviceIdKey] = it }
+        }
+        return id.orEmpty()
     }
 
     suspend fun markFamilyDashboardSubscribed() {
