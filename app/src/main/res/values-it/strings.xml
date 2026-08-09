@@ -1630,6 +1630,17 @@
     <string name="settings_extra_shared_dashboard_access_failed">Impossibile modificare chi può vedere "%1$s".</string>
     <string name="settings_extra_shared_dashboard_access_updated">Aggiornato chi può vedere "%1$s".</string>
     <string name="settings_extra_tab_devices">Dispositivi</string>
+    <string name="weather_animate_title">Meteo animato</string>
+    <string name="weather_animate_description">Dove suona l\'opera d\'arte meteorologica a colori. Spegni una superficie per mostrare invece la sua grafica fissa: le strisce di previsione sono quelle che costano di più, poiché animano una dozzina di icone affiancate.</string>
+    <string name="weather_animate_applies_everywhere">Questi si applicano a questo dispositivo ovunque venga mostrato il meteo, non solo a questa pillola. Gli stessi interruttori si trovano in Impostazioni &gt; Aspetto &gt; Icone.</string>
+    <string name="weather_animate_pill">Pillola di testa</string>
+    <string name="weather_animate_pill_description">La piccola icona del meteo accanto al titolo della dashboard.</string>
+    <string name="weather_animate_dialog">Finestra di dialogo del meteo</string>
+    <string name="weather_animate_dialog_description">L\'icona grande sulla scheda del meteo attuale quando apri il meteo.</string>
+    <string name="weather_animate_forecast">Strisce di previsione</string>
+    <string name="weather_animate_forecast_description">Le righe giornaliere e orarie, nella finestra di dialogo e nel dashboard.</string>
+    <string name="weather_animate_widget">Widget meteo</string>
+    <string name="weather_animate_widget_description">La scheda meteo sul cruscotto stesso.</string>
     <string name="ui_people_dialog_title">Persone</string>
     <string name="widgets_f1_title">Formula 1</string>
     <string name="widgets_f1_subtitle">Fine settimana di gara, classifiche e risultati</string>

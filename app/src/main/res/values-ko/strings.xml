@@ -3123,6 +3123,17 @@
     <string name="uif_updated">%1$s 업데이트됨</string>
     <string name="uif_weather">날씨</string>
     <string name="uif_wind">바람</string>
+    <string name="weather_animate_title">애니메이션 날씨</string>
+    <string name="weather_animate_description">풀 컬러 날씨 예술 작품이 재생되는 곳입니다. 대신 표면을 끄고 스틸 아트웍을 표시합니다. 예보 스트립은 12개의 아이콘을 나란히 애니메이션화하기 때문에 비용이 가장 많이 드는 스트립입니다.</string>
+    <string name="weather_animate_applies_everywhere">이는 이 알약뿐만 아니라 날씨가 표시되는 모든 장치에 적용됩니다. 동일한 스위치가 설정 &gt; 모양 &gt; 아이콘에 있습니다.</string>
+    <string name="weather_animate_pill">헤더 필</string>
+    <string name="weather_animate_pill_description">대시보드 제목 옆에 있는 작은 날씨 아이콘입니다.</string>
+    <string name="weather_animate_dialog">날씨 대화상자</string>
+    <string name="weather_animate_dialog_description">날씨를 열면 현재 날씨 카드에 있는 큰 아이콘입니다.</string>
+    <string name="weather_animate_forecast">예측 스트립</string>
+    <string name="weather_animate_forecast_description">대화 상자와 대시보드의 일별 및 시간별 행입니다.</string>
+    <string name="weather_animate_widget">날씨 위젯</string>
+    <string name="weather_animate_widget_description">대시보드 자체에 있는 날씨 카드입니다.</string>
     <string name="widgets_tab_content">콘텐츠</string>
     <string name="widgets_tab_appearance">모양</string>
     <string name="widgets_tab_data">데이터</string>

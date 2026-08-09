@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Per-surface weather animation switches. Deliberately separate from the entity-icon animation
+  setting: that one is about icons glowing and spinning, this one is about the Lottie weather
+  artwork, and the two cost different amounts on different screens.
+-->
+<resources>
+    <string name="weather_animate_title">Animated weather</string>
+    <string name="weather_animate_description">Where the full-colour weather artwork plays. Turn a surface off to show its still artwork instead — the forecast strips are the ones that cost the most, since they animate a dozen icons side by side.</string>
+
+    <string name="weather_animate_applies_everywhere">These apply to this device everywhere weather is shown, not just to this pill. The same switches are in Settings › Appearance › Icons.</string>
+
+    <string name="weather_animate_pill">Header pill</string>
+    <string name="weather_animate_pill_description">The small weather icon beside the dashboard title.</string>
+    <string name="weather_animate_dialog">Weather dialog</string>
+    <string name="weather_animate_dialog_description">The large icon on the current-weather card when you open the weather.</string>
+    <string name="weather_animate_forecast">Forecast strips</string>
+    <string name="weather_animate_forecast_description">The daily and hourly rows, in the dialog and on the dashboard.</string>
+    <string name="weather_animate_widget">Weather widget</string>
+    <string name="weather_animate_widget_description">The weather card on the dashboard itself.</string>
+</resources>

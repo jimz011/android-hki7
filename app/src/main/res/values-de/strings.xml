@@ -1630,6 +1630,17 @@
     <string name="settings_extra_shared_dashboard_access_failed">Es konnte nicht geändert werden, wer „%1$s“ sehen kann.</string>
     <string name="settings_extra_shared_dashboard_access_updated">Aktualisiert, wer „%1$s“ sehen kann.</string>
     <string name="settings_extra_tab_devices">Geräte</string>
+    <string name="weather_animate_title">Animiertes Wetter</string>
+    <string name="weather_animate_description">Wo das farbige Wetterkunstwerk spielt. Schalten Sie eine Oberfläche aus, um stattdessen deren Standbild anzuzeigen – die Vorhersagestreifen sind diejenigen, die am meisten kosten, da sie ein Dutzend Symbole nebeneinander animieren.</string>
+    <string name="weather_animate_applies_everywhere">Diese gelten für dieses Gerät überall dort, wo das Wetter angezeigt wird, nicht nur für dieses Tablet. Die gleichen Schalter finden Sie unter „Einstellungen“ &gt; „Darstellung“ &gt; „Symbole“.</string>
+    <string name="weather_animate_pill">Kopfpille</string>
+    <string name="weather_animate_pill_description">Das kleine Wettersymbol neben dem Dashboard-Titel.</string>
+    <string name="weather_animate_dialog">Wetterdialog</string>
+    <string name="weather_animate_dialog_description">Das große Symbol auf der Karte für das aktuelle Wetter, wenn Sie das Wetter öffnen.</string>
+    <string name="weather_animate_forecast">Prognosestreifen</string>
+    <string name="weather_animate_forecast_description">Die täglichen und stündlichen Zeilen im Dialog und auf dem Dashboard.</string>
+    <string name="weather_animate_widget">Wetter-Widget</string>
+    <string name="weather_animate_widget_description">Die Wetterkarte auf dem Armaturenbrett selbst.</string>
     <string name="ui_people_dialog_title">Personen</string>
     <string name="widgets_f1_title">Formel 1</string>
     <string name="widgets_f1_subtitle">Rennwochenende, Rangliste und Ergebnisse</string>

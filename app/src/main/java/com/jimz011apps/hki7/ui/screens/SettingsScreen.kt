@@ -178,6 +178,9 @@ import com.jimz011apps.hki7.ui.components.SettingsChoiceChip
 import com.jimz011apps.hki7.ui.components.SettingsSubcategory
 import com.jimz011apps.hki7.ui.components.SettingsTabRow
 import com.jimz011apps.hki7.ui.components.AdvancedEntitySearchDialog
+import com.jimz011apps.hki7.ui.components.LocalWeatherAnimations
+import com.jimz011apps.hki7.ui.components.WeatherAnimationSwitches
+import com.jimz011apps.hki7.ui.components.saveWeatherAnimation
 import com.jimz011apps.hki7.ui.components.SearchAccessSelection
 import com.jimz011apps.hki7.ui.components.SearchAccessSelectionDialog
 import com.jimz011apps.hki7.ui.components.WhatsNewDialog
@@ -1638,6 +1641,23 @@ fun SettingsDialog(
                                         onCheckedChange = { scope.launch { prefs.saveIconAnimationsEnabled(it) } }
                                     )
                                 }
+                            }
+                            // Weather artwork is its own thing: Lottie animations rather than the
+                            // glow/spin/pulse above, and costly on entirely different screens, so
+                            // it gets its own switches rather than riding on that one.
+                            SettingsPanel {
+                                Text(stringResource(R.string.weather_animate_title), color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
+                                Text(
+                                    stringResource(R.string.weather_animate_description),
+                                    color = appColors.onMuted,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                WeatherAnimationSwitches(
+                                    settings = LocalWeatherAnimations.current,
+                                    onChange = { surface, enabled ->
+                                        scope.launch { prefs.saveWeatherAnimation(surface, enabled) }
+                                    }
+                                )
                             }
                             if (iconAnimationsEnabled) {
                                 SettingsPanel {

@@ -1863,6 +1863,17 @@
     <string name="settings_extra_shared_dashboard_access_failed">Kan niet wijzigen wie ‘%1$s’ kan zien.</string>
     <string name="settings_extra_shared_dashboard_access_updated">Bijgewerkt wie “%1$s” kan zien.</string>
     <string name="settings_extra_tab_devices">Apparaten</string>
+    <string name="weather_animate_title">Geanimeerd weer</string>
+    <string name="weather_animate_description">Waar het full-colour weerkunstwerk speelt. Schakel in plaats daarvan een oppervlak uit om de stilstaande illustraties weer te geven. De voorspellingsstroken kosten het meeste, omdat ze een tiental pictogrammen naast elkaar animeren.</string>
+    <string name="weather_animate_applies_everywhere">Deze zijn overal op dit apparaat van toepassing, niet alleen op deze pil. Dezelfde schakelaars bevinden zich in Instellingen › Uiterlijk › Pictogrammen.</string>
+    <string name="weather_animate_pill">Hoofd pil</string>
+    <string name="weather_animate_pill_description">Het kleine weerpictogram naast de titel van het dashboard.</string>
+    <string name="weather_animate_dialog">Weer dialoog</string>
+    <string name="weather_animate_dialog_description">Het grote pictogram op de huidige weerkaart wanneer u het weer opent.</string>
+    <string name="weather_animate_forecast">Prognosestroken</string>
+    <string name="weather_animate_forecast_description">De dag- en uurrijen, in het dialoogvenster en op het dashboard.</string>
+    <string name="weather_animate_widget">Weerwidget</string>
+    <string name="weather_animate_widget_description">De weerkaart op het dashboard zelf.</string>
     <string name="ui_people_dialog_title">Personen</string>
     <string name="widgets_f1_title">Formule 1</string>
     <string name="widgets_f1_subtitle">Raceweekend, klassement en resultaten</string>

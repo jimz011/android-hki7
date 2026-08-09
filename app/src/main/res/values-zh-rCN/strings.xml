@@ -1965,7 +1965,8 @@
     <item>管理员可以从同一“事件”选项卡中将部分时间线从各个家庭成员（整个域或命名实体）中移走。每个人都会看到完整的时间线，除非为他们删除了一些东西，所以向家庭添加一个人并不意味着从头开始构建他们的时间线。过滤发生在 HKI 7 Cloud 组件中，而不是在应用程序中，因此受限制的设备甚至不会被告知它远离哪些实体。与隐藏视图和房间一样，这隐藏了时间线而不是实体：Home Assistant 对于非管理员帐户没有每个实体的读取权限，因此登录的任何人仍然可以通过 Home Assistant 本身读取这些实体。*</item>
     <item>事件名册包含整个域以及命名实体，因此“每个锁”都是一个选择，而不是十一个。每次时间线打开时都会重新解析域名，因此下个月添加的锁会自行加入，而不是加入名册，这意味着设置之日存在的任何内容。编辑器显示每个域当前涵盖的内容，因为一个域可以包含数百个实体。需要 HKI 7 Cloud 0.10.0.*</item>
     <item>事件根据事件发生的类型进行标记和过滤——门、窗、动作、灯光、锁。过滤器行是根据时间线实际包含的内容构建的，因此永远不会为您提供只能返回空的过滤器。天数保留为列表标题：按类别重新排序的时间线不再是时间线。</item>
-    <item>天气艺术作品现在不仅在英雄卡上，还在每日天气预报、每小时条和标题药丸中以动画形式呈现。它遵循“设置”&gt;“外观”&gt;“图标”中的图标动画切换，而不是在固定大小以下关闭，因此控制实体图标的首选项相同 - 关闭该动画会在各处提供静态彩色艺术品。</item>
+    <item>天气艺术作品现在不仅在英雄卡上，还在每日天气预报、每小时条和标题药丸中以动画形式呈现。动画之前在固定尺寸以下被关闭，这导致了这三个问题。</item>
+    <item>天气图稿动画现在是四个独立的开关——标题药丸、天气对话框、预报条、天气小部件——而不是依赖于实体图标动画设置。预测条会并排显示十几个图标，并且是唯一需要花费任何明显费用的图标，因此关闭这些图标并不意味着会丢失标题栏中的单个小图标。默认情况下，所有四个选项均处于打开状态，并显示在“设置”&gt;“外观”&gt;“图标”和标题药丸自己的设置中。</item>
     <item>6h/12h/24h/48h/72h 范围选择器无论出现在哪里，都是居中而不是左对齐。</item>
 </string-array>
 
@@ -3736,4 +3737,15 @@
     <string name="settings_extra_events_capped">已保存 %1$d 实体和 %2$d 域。时间线名单已上限。</string>
     <string name="settings_extra_events_resolved_capped">该名册涵盖 %2$d 个实体，但时间线最多订阅 %1$d 个。删除域，或按名称添加实体。</string>
     <string name="settings_extra_events_whole_domain">所有 %1$s（%2$d 实体）</string>
+    <string name="weather_animate_applies_everywhere">这些适用于显示天气的任何地方的该设备，而不仅仅是该药丸。相同的开关位于“设置”&gt;“外观”&gt;“图标”中。</string>
+    <string name="weather_animate_description">全彩天气艺术作品播放的地方。关闭表面以显示其静止的艺术作品 - 预测条是成本最高的，因为它们并排动画了十几个图标。</string>
+    <string name="weather_animate_dialog">天气对话框</string>
+    <string name="weather_animate_dialog_description">打开天气时，当前天气卡上的大图标。</string>
+    <string name="weather_animate_forecast">预报带</string>
+    <string name="weather_animate_forecast_description">对话框和仪表板上的每日和每小时行。</string>
+    <string name="weather_animate_pill">头丸</string>
+    <string name="weather_animate_pill_description">仪表板标题旁边的小天气图标。</string>
+    <string name="weather_animate_title">动画天气</string>
+    <string name="weather_animate_widget">天气小部件</string>
+    <string name="weather_animate_widget_description">仪表板上的天气卡。</string>
 </resources>

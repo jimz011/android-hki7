@@ -1686,6 +1686,7 @@ private fun HeaderStatusPill(
                             WeatherStateIcon(
                                 state = weather?.state,
                                 size = 20.dp,
+                                surface = WeatherAnimationSurface.PILL,
                                 fallbackTint = semanticColorForBackground(
                                     weatherStateColor(weather?.state),
                                     resolvedPillBackground,

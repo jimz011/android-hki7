@@ -213,6 +213,14 @@ class PreferencesManager(
     private val fontFamilyKey = stringPreferencesKey("font_family")
     private val iconPackKey = stringPreferencesKey("default_icon_pack")
     private val iconAnimationsKey = booleanPreferencesKey("icon_animations_enabled")
+    // Weather artwork animates independently of entity icons, and independently per surface: the
+    // forecast strip is a dozen Lottie compositions at once while the pill is a single small one,
+    // so they are not one decision. Default on — the artwork animating is the intended look, and
+    // these exist to switch parts of it off.
+    private val weatherAnimatePillKey = booleanPreferencesKey("weather_animate_pill")
+    private val weatherAnimateDialogKey = booleanPreferencesKey("weather_animate_dialog")
+    private val weatherAnimateForecastKey = booleanPreferencesKey("weather_animate_forecast")
+    private val weatherAnimateWidgetKey = booleanPreferencesKey("weather_animate_widget")
     private val iconEffectDefaultsKey = stringPreferencesKey("icon_effect_defaults")
     private val itemCornerRadiusKey = intPreferencesKey("item_corner_radius")
     private val mobileAppWebhookIdKey = stringPreferencesKey("mobile_app_webhook_id")
@@ -510,6 +518,17 @@ class PreferencesManager(
      * seeded on during onboarding (see saveInitialConnectionDetails); the fallback stays false so
      * pre-existing users who never opted in are not flipped on. */
     val iconAnimationsEnabled: Flow<Boolean> = context.dataStore.data.map { it[iconAnimationsKey] ?: false }
+    /** Whether animated weather artwork plays, per surface it appears on. Separate from
+     * [iconAnimationsEnabled]: that one governs entity icons glowing and spinning, which is a
+     * different look and a different cost from a Lottie weather animation. Separate from each
+     * other because the forecast and hourly strips run a dozen compositions side by side while
+     * the header pill runs one, so switching the expensive surface off need not mean losing the
+     * cheap one. All default on. */
+    val weatherAnimatePill: Flow<Boolean> = context.dataStore.data.map { it[weatherAnimatePillKey] ?: true }
+    val weatherAnimateDialog: Flow<Boolean> = context.dataStore.data.map { it[weatherAnimateDialogKey] ?: true }
+    val weatherAnimateForecast: Flow<Boolean> = context.dataStore.data.map { it[weatherAnimateForecastKey] ?: true }
+    val weatherAnimateWidget: Flow<Boolean> = context.dataStore.data.map { it[weatherAnimateWidgetKey] ?: true }
+
     /** User-chosen default effect per icon group (group id → "glow"/"spin"/"pulse"/"none"). */
     val iconEffectDefaults: Flow<Map<String, String>> = context.dataStore.data.map {
         decodeBackup(it[iconEffectDefaultsKey], emptyMap())
@@ -1595,6 +1614,10 @@ class PreferencesManager(
     suspend fun saveFontFamily(family: String) { context.dataStore.edit { it[fontFamilyKey] = family } }
     suspend fun saveDefaultIconPack(pack: String) { context.dataStore.edit { it[iconPackKey] = pack } }
     suspend fun saveIconAnimationsEnabled(enabled: Boolean) { context.dataStore.edit { it[iconAnimationsKey] = enabled } }
+    suspend fun saveWeatherAnimatePill(enabled: Boolean) { context.dataStore.edit { it[weatherAnimatePillKey] = enabled } }
+    suspend fun saveWeatherAnimateDialog(enabled: Boolean) { context.dataStore.edit { it[weatherAnimateDialogKey] = enabled } }
+    suspend fun saveWeatherAnimateForecast(enabled: Boolean) { context.dataStore.edit { it[weatherAnimateForecastKey] = enabled } }
+    suspend fun saveWeatherAnimateWidget(enabled: Boolean) { context.dataStore.edit { it[weatherAnimateWidgetKey] = enabled } }
     suspend fun saveIconEffectDefault(group: String, effectId: String) {
         context.dataStore.edit { p ->
             val current = decodeBackup<Map<String, String>>(p[iconEffectDefaultsKey], emptyMap()).toMutableMap()

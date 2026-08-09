@@ -1873,7 +1873,8 @@
     <item>管理員可以從相同「事件」標籤中將部分時間軸從各個家庭成員（整個網域或命名實體）移除。每個人都會看到完整的時間線，除非為他們刪除了一些東西，所以向家庭添加一個人並不意味著從頭開始建立他們的時間線。過濾發生在 HKI 7 Cloud 元件中，而不是在應用程式中，因此受限的裝置甚至不會被告知它遠離哪些實體。與隱藏視圖和房間一樣，這隱藏了時間軸而不是實體：Home Assistant 對於非管理員帳戶沒有每個實體的讀取權限，因此登入的任何人仍然可以透過 Home Assistant 本身讀取這些實體。 *</item>
     <item>事件名冊包含整個網域以及命名實體，因此「每個鎖」都是一個選擇，而不是十一個。每次時間軸打開時都會重新解析域名，因此下個月添加的鎖會自行加入，而不是加入名冊，這意味著設置之日存在的任何內容。編輯器顯示每個網域目前涵蓋的內容，因為一個網域可以包含數百個實體。需要 HKI 7 Cloud 0.10.0.*</item>
     <item>事件根據事件發生的類型進行標記和過濾——門、窗、動作、燈光、鎖。過濾器行是根據時間軸實際包含的內容構建的，因此永遠不會為您提供只能返回空的過濾器。天數保留為清單標題：按類別重新排序的時間軸不再是時間軸。</item>
-    <item>天氣藝術作品現在不僅在英雄卡上，還在每日天氣預報、每小時條和標題藥丸中以動畫形式呈現。它遵循“設定”&gt;“外觀”&gt;“圖示”中的圖示動畫切換，而不是在固定大小以下關閉，因此控制實體圖示的首選項相同 - 關閉該動畫會在各處提供靜態彩色藝術品。</item>
+    <item>天氣藝術作品現在不僅在英雄卡上，還在每日天氣預報、每小時條和標題藥丸中以動畫形式呈現。動畫之前在固定尺寸以下被關閉，這導致了這三個問題。</item>
+    <item>天氣圖稿動畫現在是四個獨立的開關——標題藥丸、天氣對話框、預報條、天氣小部件——而不是依賴實體圖示動畫設定。預測條會並排顯示十幾個圖標，並且是唯一需要花費任何明顯費用的圖標，因此關閉這些圖標並不意味著會丟失標題欄中的單個小圖標。預設情況下，所有四個選項均處於開啟狀態，並顯示在「設定」&gt;「外觀」&gt;「圖示」和標題藥丸自己的設定中。</item>
     <item>6h/12h/24h/48h/72h 範圍選擇器無論出現在哪裡，都是居中而不是左對齊。</item>
 </string-array>
 
@@ -3781,4 +3782,15 @@
     <string name="settings_extra_events_capped">已保存 %1$d 實體和 %2$d 域。時間軸名單已上限。</string>
     <string name="settings_extra_events_resolved_capped">此名冊涵蓋 %2$d 個實體，但時間軸最多訂閱 %1$d 個。刪除網域，或按名稱新增實體。</string>
     <string name="settings_extra_events_whole_domain">所有 %1$s（%2$d 實體）</string>
+    <string name="weather_animate_applies_everywhere">這些適用於顯示天氣的任何地方的該設備，而不僅僅是該藥丸。相同的開關位於“設定”&gt;“外觀”&gt;“圖示”中。</string>
+    <string name="weather_animate_description">全彩天氣藝術作品播放的地方。關閉表面以顯示其靜止的藝術作品 - 預測條是成本最高的，因為它們並排動畫了十幾個圖示。</string>
+    <string name="weather_animate_dialog">天氣對話框</string>
+    <string name="weather_animate_dialog_description">打開天氣時，目前天氣卡上的大圖示。</string>
+    <string name="weather_animate_forecast">預報帶</string>
+    <string name="weather_animate_forecast_description">對話方塊和儀表板上的每日和每小時行。</string>
+    <string name="weather_animate_pill">頭丸</string>
+    <string name="weather_animate_pill_description">儀表板標題旁邊的小天氣圖示。</string>
+    <string name="weather_animate_title">動畫天氣</string>
+    <string name="weather_animate_widget">天氣小部件</string>
+    <string name="weather_animate_widget_description">儀表板上的天氣卡。</string>
 </resources>

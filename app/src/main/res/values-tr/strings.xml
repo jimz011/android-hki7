@@ -1630,6 +1630,17 @@
     <string name="settings_extra_shared_dashboard_access_failed">“%1$s” ifadesini kimlerin görebileceği değiştirilemedi.</string>
     <string name="settings_extra_shared_dashboard_access_updated">“%1$s” ifadesini kimlerin görebileceği güncellendi.</string>
     <string name="settings_extra_tab_devices">Cihazlar</string>
+    <string name="weather_animate_title">Animasyonlu hava durumu</string>
+    <string name="weather_animate_description">Tam renkli hava durumu sanat eserlerinin oynatıldığı yer. Bunun yerine hareketsiz resmini göstermek için bir yüzeyi kapatın; bir düzine simgeyi yan yana canlandırdıkları için tahmin şeritleri en pahalı olanlardır.</string>
+    <string name="weather_animate_applies_everywhere">Bunlar sadece bu hap için değil, hava durumunun gösterildiği her yerde bu cihaz için geçerlidir. Aynı anahtarlar Ayarlar › Görünüm › Simgeler\'de de bulunur.</string>
+    <string name="weather_animate_pill">Başlık hapı</string>
+    <string name="weather_animate_pill_description">Kontrol paneli başlığının yanındaki küçük hava durumu simgesi.</string>
+    <string name="weather_animate_dialog">Hava durumu iletişim kutusu</string>
+    <string name="weather_animate_dialog_description">Hava durumunu açtığınızda mevcut hava durumu kartındaki büyük simge.</string>
+    <string name="weather_animate_forecast">Tahmin şeritleri</string>
+    <string name="weather_animate_forecast_description">İletişim kutusunda ve kontrol panelinde günlük ve saatlik satırlar.</string>
+    <string name="weather_animate_widget">Hava durumu widget\'ı</string>
+    <string name="weather_animate_widget_description">Kontrol panelinin üzerindeki hava durumu kartı.</string>
     <string name="ui_people_dialog_title">Kişiler</string>
     <string name="widgets_f1_title">Formül 1</string>
     <string name="widgets_f1_subtitle">Yarış hafta sonu, sıralamalar ve sonuçlar</string>

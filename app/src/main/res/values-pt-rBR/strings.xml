@@ -3262,7 +3262,8 @@
     <item>Um administrador pode retirar partes da linha do tempo de membros individuais da família (um domínio inteiro ou entidades nomeadas) na mesma guia Eventos. Todos veem a linha do tempo completa, a menos que algo seja retirado para eles, portanto, adicionar uma pessoa à família não significa construir sua linha do tempo do zero. A filtragem acontece no componente HKI 7 Cloud e não no aplicativo, de modo que um dispositivo restrito nunca é informado de quais entidades ele está sendo mantido afastado. Tal como acontece com visualizações e salas ocultas, isso oculta a linha do tempo em vez das entidades: o Home Assistant não tem permissão de leitura por entidade para contas que não sejam de administrador, portanto, qualquer pessoa conectada ainda pode ler essas entidades por meio do próprio Home Assistant.*</item>
     <item>A lista de eventos leva domínios inteiros, bem como entidades nomeadas, portanto, “cada bloqueio” é uma escolha em vez de onze. Os domínios são resolvidos sempre que a linha do tempo é aberta, portanto, um bloqueio adicionado no próximo mês é adicionado por conta própria, em vez da lista, o que significa o que existia no dia em que foi definido. O editor mostra o que cada domínio cobre atualmente, já que um domínio pode conter centenas de entidades. Requer HKI 7 Cloud 0.10.0.*</item>
     <item>Os eventos são rotulados e filtráveis de acordo com o tipo de coisa que aconteceram – portas, janelas, movimento, luzes, fechaduras. A linha do filtro é construída a partir do que sua linha do tempo realmente contém, portanto, nunca será oferecido a você um filtro que só possa voltar vazio. Os dias permanecem como títulos de lista: uma linha do tempo que se reordena por categoria deixa de ser uma linha do tempo.</item>
-    <item>A arte do tempo agora é animada na previsão diária, na faixa horária e no cabeçalho, não apenas no cartão do herói. Ele segue a mudança de animações de ícones em Configurações › Aparência › Ícones em vez de serem desativados abaixo de um tamanho fixo, portanto, é a mesma preferência que rege os ícones de entidade – e desligá-la fornece arte colorida estática em todos os lugares.</item>
+    <item>A arte do tempo agora é animada na previsão diária, na faixa horária e no cabeçalho, não apenas no cartão do herói. A animação foi previamente desativada abaixo de um tamanho fixo, que capturou todos os três.</item>
+    <item>Onde a arte do tempo é animada agora há quatro opções separadas – pílula de cabeçalho, diálogo de clima, faixas de previsão, widget de clima – em vez de usar a configuração de animação do ícone da entidade. As faixas de previsão animam uma dúzia de ícones lado a lado e são as únicas que custam algo perceptível, portanto, desativá-las não significa necessariamente perder o único pequeno ícone na pílula do cabeçalho. Todos os quatro estão ativados por padrão e aparecem em Configurações › Aparência › Ícones e nas próprias configurações do painel de cabeçalho.</item>
     <item>O seletor de intervalo 6h/12h/24h/48h/72h está centralizado em vez de alinhado à esquerda, em todos os lugares em que aparece.</item>
 </string-array>
 
@@ -3781,4 +3782,15 @@
     <string name="settings_extra_events_capped">%1$d entidades e domínios %2$d salvos. A lista da linha do tempo está limitada.</string>
     <string name="settings_extra_events_resolved_capped">Esta lista cobre entidades %2$d, mas uma linha do tempo se inscreve no máximo em %1$d. Remova um domínio ou adicione entidades por nome.</string>
     <string name="settings_extra_events_whole_domain">Todas as %1$s (entidades %2$d)</string>
+    <string name="weather_animate_applies_everywhere">Isso se aplica a este dispositivo em todos os lugares onde o clima é mostrado, não apenas a esta pílula. As mesmas opções estão em Configurações › Aparência › Ícones.</string>
+    <string name="weather_animate_description">Onde a arte meteorológica colorida é reproduzida. Em vez disso, desligue uma superfície para mostrar sua arte estática – as faixas de previsão são as que custam mais, pois animam uma dúzia de ícones lado a lado.</string>
+    <string name="weather_animate_dialog">Diálogo de clima</string>
+    <string name="weather_animate_dialog_description">O ícone grande no cartão de previsão do tempo atual quando você abre a previsão do tempo.</string>
+    <string name="weather_animate_forecast">Faixas de previsão</string>
+    <string name="weather_animate_forecast_description">As linhas diárias e horárias, na caixa de diálogo e no painel.</string>
+    <string name="weather_animate_pill">Pílula de cabeçalho</string>
+    <string name="weather_animate_pill_description">O pequeno ícone de clima ao lado do título do painel.</string>
+    <string name="weather_animate_title">Clima animado</string>
+    <string name="weather_animate_widget">Widget meteorológico</string>
+    <string name="weather_animate_widget_description">O cartão meteorológico no próprio painel.</string>
 </resources>

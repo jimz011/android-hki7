@@ -100,6 +100,8 @@ import com.jimz011apps.hki7.ui.components.LocalEntityCatalogProvider
 import com.jimz011apps.hki7.ui.components.LocalVisibilityFamilyContext
 import com.jimz011apps.hki7.ui.components.VisibilityFamilyContext
 import com.jimz011apps.hki7.ui.components.LocalIconAnimationsEnabled
+import com.jimz011apps.hki7.ui.components.LocalWeatherAnimations
+import com.jimz011apps.hki7.ui.components.WeatherAnimationSettings
 import com.jimz011apps.hki7.ui.NavBarConfig
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -166,6 +168,20 @@ class MainActivity : ComponentActivity() {
             val fontWeightAdjust by prefs.fontWeightAdjust.collectAsState(initial = 0)
             val fontFamily by prefs.fontFamily.collectAsState(initial = "default")
             val iconAnimationsEnabled by prefs.iconAnimationsEnabled.collectAsState(initial = false)
+            val weatherAnimatePill by prefs.weatherAnimatePill.collectAsState(initial = true)
+            val weatherAnimateDialog by prefs.weatherAnimateDialog.collectAsState(initial = true)
+            val weatherAnimateForecast by prefs.weatherAnimateForecast.collectAsState(initial = true)
+            val weatherAnimateWidget by prefs.weatherAnimateWidget.collectAsState(initial = true)
+            val weatherAnimations = remember(
+                weatherAnimatePill, weatherAnimateDialog, weatherAnimateForecast, weatherAnimateWidget
+            ) {
+                WeatherAnimationSettings(
+                    pill = weatherAnimatePill,
+                    dialog = weatherAnimateDialog,
+                    forecast = weatherAnimateForecast,
+                    widget = weatherAnimateWidget,
+                )
+            }
             val iconEffectDefaults by prefs.iconEffectDefaults.collectAsState(initial = emptyMap())
             LaunchedEffect(iconEffectDefaults) { IconEffectDefaults.byGroup = iconEffectDefaults }
             val defaultIconPack by prefs.defaultIconPack.collectAsState(initial = "mdi")
@@ -186,6 +202,7 @@ class MainActivity : ComponentActivity() {
                 CompositionLocalProvider(
                     LocalItemCornerRadius provides itemCornerRadius,
                     LocalIconAnimationsEnabled provides iconAnimationsEnabled,
+                    LocalWeatherAnimations provides weatherAnimations,
                 ) {
                 val appColors = LocalHKIAppColors.current
                 val loading = "__hki_loading__"

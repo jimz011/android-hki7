@@ -58,7 +58,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -77,6 +80,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HAWeatherForecast
+import com.jimz011apps.hki7.data.PreferencesManager
 import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.ui.screens.HourlyForecastCard
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
@@ -393,6 +397,7 @@ fun WeatherMainCard(
                         WeatherStateIcon(
                             state = weather.state,
                             size = 54.dp,
+                            surface = LocalWeatherHostSurface.current,
                             contentDescription = localizedWeatherStateLabel(weather.state)
                         )
                         Text(
@@ -446,6 +451,8 @@ fun WeatherMainCard(
                         WeatherStateIcon(
                             state = weather.state,
                             size = if (compact) 62.dp else 92.dp,
+                            // Shared with the dashboard widget, so the host says which it is.
+                            surface = LocalWeatherHostSurface.current,
                             contentDescription = localizedWeatherStateLabel(weather.state)
                         )
                     }
@@ -1106,6 +1113,7 @@ fun ForecastItem(forecast: HAWeatherForecast) {
             WeatherStateIcon(
                 state = forecast.condition,
                 size = 38.dp,
+                surface = WeatherAnimationSurface.FORECAST,
                 contentDescription = forecast.condition?.let { localizedWeatherStateLabel(it) },
                 loop = false
             )
@@ -1204,6 +1212,28 @@ fun WeatherConfigView(
                     Text(stringResource(R.string.dlg_full_day_name), style = MaterialTheme.typography.labelLarge, color = appColors.onMuted, modifier = Modifier.weight(1f))
                     Switch(checked = useFullDayName, onCheckedChange = { viewModel.setUseFullDayName(it) })
                 }
+            }
+
+            // The same four switches as Settings › Appearance › Icons, reading and writing the
+            // same preferences — this is one setting shown in two places, not two settings. Here
+            // because the pill is where people meet the animation and go looking for its switch;
+            // there because that is where the app's other animation controls live. Device-wide,
+            // not per-pill, which the copy says so nobody expects otherwise.
+            if (settingsPage == "display" && currentDisplayType in listOf("Weather", "DateTime")) item {
+                val context = LocalContext.current
+                val scope = rememberCoroutineScope()
+                val prefs = remember(context) { PreferencesManager(context) }
+                SettingsSubcategory(
+                    stringResource(R.string.weather_animate_title),
+                    stringResource(R.string.weather_animate_applies_everywhere)
+                )
+                Spacer(Modifier.height(8.dp))
+                WeatherAnimationSwitches(
+                    settings = LocalWeatherAnimations.current,
+                    onChange = { surface, enabled ->
+                        scope.launch { prefs.saveWeatherAnimation(surface, enabled) }
+                    }
+                )
             }
 
             if (settingsPage == "entities" && currentDisplayType in listOf("Weather", "DateTime")) item {

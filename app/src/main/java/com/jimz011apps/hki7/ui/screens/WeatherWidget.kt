@@ -48,7 +48,10 @@ import com.jimz011apps.hki7.ui.components.EditSettingsButton
 import com.jimz011apps.hki7.ui.components.ForecastCard
 import com.jimz011apps.hki7.ui.components.HorizonCard
 import com.jimz011apps.hki7.ui.components.WeatherMainCard
+import androidx.compose.runtime.CompositionLocalProvider
 import com.jimz011apps.hki7.ui.components.WeatherStateIcon
+import com.jimz011apps.hki7.ui.components.LocalWeatherHostSurface
+import com.jimz011apps.hki7.ui.components.WeatherAnimationSurface
 import com.jimz011apps.hki7.ui.components.itemCornerShape
 import com.jimz011apps.hki7.ui.components.formatWeatherState
 import com.jimz011apps.hki7.ui.components.weatherStateColor
@@ -140,17 +143,23 @@ fun WeatherRoomWidget(
                     }
                 }
             } else {
-                when (widget.style) {
-                    "forecast" -> {
-                        val forecasts = rememberEntityForecast(weatherEntity, viewModel, "daily")
-                        ForecastCard(forecasts, cornerRadius = widget.cornerRadius)
+                // These cards are shared with the weather dialog, so say which host this is —
+                // the dashboard widget and the dialog have separate animation switches.
+                CompositionLocalProvider(
+                    LocalWeatherHostSurface provides WeatherAnimationSurface.WIDGET
+                ) {
+                    when (widget.style) {
+                        "forecast" -> {
+                            val forecasts = rememberEntityForecast(weatherEntity, viewModel, "daily")
+                            ForecastCard(forecasts, cornerRadius = widget.cornerRadius)
+                        }
+                        "hourly" -> {
+                            val forecasts = rememberEntityForecast(weatherEntity, viewModel, "hourly")
+                            HourlyForecastCard(forecasts, widget.cornerRadius)
+                        }
+                        "wind" -> WindCompassCard(weatherEntity, widget.cornerRadius)
+                        else -> WeatherMainCard(weatherEntity, cornerRadius = widget.cornerRadius)
                     }
-                    "hourly" -> {
-                        val forecasts = rememberEntityForecast(weatherEntity, viewModel, "hourly")
-                        HourlyForecastCard(forecasts, widget.cornerRadius)
-                    }
-                    "wind" -> WindCompassCard(weatherEntity, widget.cornerRadius)
-                    else -> WeatherMainCard(weatherEntity, cornerRadius = widget.cornerRadius)
                 }
             }
         }
@@ -244,6 +253,7 @@ private fun HourlyForecastItem(forecast: HAWeatherForecast) {
             WeatherStateIcon(
                 state = forecast.condition,
                 size = 34.dp,
+                surface = WeatherAnimationSurface.FORECAST,
                 contentDescription = forecast.condition?.let(::formatWeatherState),
                 loop = false
             )
@@ -634,12 +644,15 @@ private fun WeatherStackCard(
         }
         return
     }
-    when (style) {
-        "forecast" -> ForecastCard(rememberEntityForecast(weatherEntity!!, viewModel, "daily"), cornerRadius = cornerRadius)
-        "hourly" -> HourlyForecastCard(rememberEntityForecast(weatherEntity!!, viewModel, "hourly"), cornerRadius)
-        "wind" -> WindCompassCard(weatherEntity!!, cornerRadius)
-        "rainmap" -> RainMapCard(config?.weatherImageUrl, cornerRadius)
-        else -> WeatherMainCard(weatherEntity!!, cornerRadius = cornerRadius)
+    // A card inside a weather stack is still the dashboard widget, not the dialog.
+    CompositionLocalProvider(LocalWeatherHostSurface provides WeatherAnimationSurface.WIDGET) {
+        when (style) {
+            "forecast" -> ForecastCard(rememberEntityForecast(weatherEntity!!, viewModel, "daily"), cornerRadius = cornerRadius)
+            "hourly" -> HourlyForecastCard(rememberEntityForecast(weatherEntity!!, viewModel, "hourly"), cornerRadius)
+            "wind" -> WindCompassCard(weatherEntity!!, cornerRadius)
+            "rainmap" -> RainMapCard(config?.weatherImageUrl, cornerRadius)
+            else -> WeatherMainCard(weatherEntity!!, cornerRadius = cornerRadius)
+        }
     }
 }
 

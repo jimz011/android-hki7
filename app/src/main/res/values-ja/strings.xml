@@ -3123,6 +3123,17 @@
     <string name="uif_updated">%1$s が更新されました</string>
     <string name="uif_weather">天気</string>
     <string name="uif_wind">風</string>
+    <string name="weather_animate_title">アニメーション天気</string>
+    <string name="weather_animate_description">フルカラーの天気アートワークが再生される場所。サーフェスをオフにして、代わりに静止アートワークを表示します。予測ストリップは、12 個のアイコンを並べてアニメーション化するため、最もコストがかかります。</string>
+    <string name="weather_animate_applies_everywhere">これらは、この錠剤だけでなく、天気が表示されるあらゆる場所でこのデバイスに適用されます。同じスイッチは、設定 › 外観 › アイコンにあります。</string>
+    <string name="weather_animate_pill">ヘッダーピル</string>
+    <string name="weather_animate_pill_description">ダッシュボード タイトルの横にある小さな天気アイコン。</string>
+    <string name="weather_animate_dialog">天気ダイアログ</string>
+    <string name="weather_animate_dialog_description">天気を開いたときに現在の天気カードに表示される大きなアイコン。</string>
+    <string name="weather_animate_forecast">予測ストリップ</string>
+    <string name="weather_animate_forecast_description">ダイアログおよびダッシュボード上の日次および時間別の行。</string>
+    <string name="weather_animate_widget">天気ウィジェット</string>
+    <string name="weather_animate_widget_description">ダッシュボード自体にある天気カード。</string>
     <string name="widgets_tab_content">コンテンツ</string>
     <string name="widgets_tab_appearance">外観</string>
     <string name="widgets_tab_data">データ</string>
