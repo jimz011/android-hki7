@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -64,6 +65,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.OpenInNew
@@ -127,8 +129,10 @@ import androidx.core.content.ContextCompat
 import com.jimz011apps.hki7.BuildConfig
 import com.jimz011apps.hki7.R
 import androidx.compose.ui.text.style.TextOverflow
+import com.jimz011apps.hki7.data.DeviceTelemetryReporter
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HomeAssistantConnectionRoute
+import com.jimz011apps.hki7.data.jsonPrimitiveOrNull
 import com.jimz011apps.hki7.data.HomeAssistantInstance
 import com.jimz011apps.hki7.data.CloudBackupStorage
 import com.jimz011apps.hki7.data.CloudBackupFile
@@ -189,6 +193,9 @@ import com.jimz011apps.hki7.ui.theme.appFontFamily
 import com.jimz011apps.hki7.ui.utils.MdiIcon
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.intOrNull
 import kotlin.math.roundToInt
 import java.util.UUID
 import coil3.compose.AsyncImage
@@ -225,6 +232,25 @@ private fun relativeBackupTime(epochMillis: Long): String {
                 .ofLocalizedDateTime(java.time.format.FormatStyle.MEDIUM)
                 .withLocale(locale)
         )
+}
+
+/** One line naming who a published dashboard is currently shared with. Ids that no longer match a
+ * Home Assistant user are still counted rather than dropped, so a deleted account can't silently
+ * shrink the list and make it look like fewer people have access than the component records. */
+@Composable
+private fun sharedWithSummary(
+    meta: com.jimz011apps.hki7.data.Hki7SharedDashboardMeta,
+    users: List<com.jimz011apps.hki7.data.Hki7User>,
+): String {
+    if (HaDashboardSharing.EVERYONE in meta.sharedWith) return stringResource(R.string.family_access_shared_everyone)
+    val recipients = meta.sharedWith.filterNot { it == HaDashboardSharing.EVERYONE }
+    if (recipients.isEmpty()) return stringResource(R.string.family_access_shared_nobody)
+    val namesById = users.associate { it.id to it.name }
+    val unknown = stringResource(R.string.family_access_unknown_user)
+    return stringResource(
+        R.string.family_access_shared_with,
+        recipients.joinToString(", ") { namesById[it] ?: unknown }
+    )
 }
 
 /** Formats a shared-dashboard "updated" timestamp (stored by the component as a UTC ISO-8601 string,
@@ -400,6 +426,11 @@ fun SettingsDialog(
     var shareEveryone by remember { mutableStateOf(false) }
     var shareBusy by remember { mutableStateOf(false) }
     var sharedWithMe by remember { mutableStateOf(emptyList<com.jimz011apps.hki7.data.Hki7SharedDashboardMeta>()) }
+    // Editing an already-published dashboard's recipient list — granting and revoking access after
+    // the fact, without republishing from a local copy this device may not even have.
+    var manageAccessDashboard by remember { mutableStateOf<com.jimz011apps.hki7.data.Hki7SharedDashboardMeta?>(null) }
+    var accessSelected by remember { mutableStateOf(setOf<String>()) }
+    var accessEveryone by remember { mutableStateOf(false) }
     var sharingAvailable by remember { mutableStateOf(false) }
     var isHaAdmin by remember { mutableStateOf(false) }
     var currentHaUserId by remember { mutableStateOf<String?>(null) }
@@ -1945,7 +1976,8 @@ fun SettingsDialog(
                                                 "parental" to stringResource(R.string.settings_extra_tab_parental_controls),
                                                 "dashboards" to stringResource(R.string.settings_extra_tab_dashboards),
                                                 "permissions" to stringResource(R.string.settings_extra_tab_permissions),
-                                                "presence" to stringResource(R.string.settings_extra_tab_presence)
+                                                "presence" to stringResource(R.string.settings_extra_tab_presence),
+                                                "devices" to stringResource(R.string.settings_extra_tab_devices)
                                             ),
                                             selected = familyTab,
                                             onSelect = { familyTab = it }
@@ -2125,36 +2157,60 @@ fun SettingsDialog(
                                             }
                                             sharedWithMe.forEach { meta ->
                                                 Surface(Modifier.fillMaxWidth(), shape = itemCornerShape(), color = appColors.subtleSurface) {
-                                                    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                                                        Column(Modifier.weight(1f)) {
-                                                            Text(meta.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
-                                                            val updated = formatSharedUpdated(meta.updated)
+                                                    Column(Modifier.padding(12.dp)) {
+                                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                                            Column(Modifier.weight(1f)) {
+                                                                Text(meta.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                                                val updated = formatSharedUpdated(meta.updated)
+                                                                Text(
+                                                                    if (updated.isNotBlank()) stringResource(R.string.ui_updated_62d2331, updated) else stringResource(R.string.ui_shared_dashboard_86876c0),
+                                                                    color = appColors.onMuted,
+                                                                    style = MaterialTheme.typography.bodySmall
+                                                                )
+                                                            }
+                                                            TextButton(
+                                                                enabled = !shareBusy,
+                                                                onClick = {
+                                                                    shareBusy = true
+                                                                    scope.launch {
+                                                                        val localId = runCatching { HaDashboardSharing.import(context, prefs, meta) }.getOrNull()
+                                                                        setupChangedMessage = if (localId != null) {
+                                                                            context.getString(R.string.settings_extra_shared_dashboard_imported, meta.name)
+                                                                        } else {
+                                                                            context.getString(R.string.settings_extra_shared_dashboard_import_failed, meta.name)
+                                                                        }
+                                                                        shareBusy = false
+                                                                    }
+                                                                }
+                                                            ) { Text(stringResource(R.string.ui_import_d6fbc9d)) }
+                                                            if (meta.ownerId == currentHaUserId) {
+                                                                TextButton(
+                                                                    enabled = !shareBusy,
+                                                                    onClick = { pendingUnpublish = meta }
+                                                                ) { Text(stringResource(R.string.ui_delete_f6fdbe4), color = MaterialTheme.colorScheme.error) }
+                                                            }
+                                                        }
+                                                        if (meta.ownerId == currentHaUserId) {
                                                             Text(
-                                                                if (updated.isNotBlank()) stringResource(R.string.ui_updated_62d2331, updated) else stringResource(R.string.ui_shared_dashboard_86876c0),
+                                                                sharedWithSummary(meta, parentalUsers),
                                                                 color = appColors.onMuted,
                                                                 style = MaterialTheme.typography.bodySmall
                                                             )
-                                                        }
-                                                        TextButton(
-                                                            enabled = !shareBusy,
-                                                            onClick = {
-                                                                shareBusy = true
-                                                                scope.launch {
-                                                                    val localId = runCatching { HaDashboardSharing.import(context, prefs, meta) }.getOrNull()
-                                                                    setupChangedMessage = if (localId != null) {
-                                                                        context.getString(R.string.settings_extra_shared_dashboard_imported, meta.name)
-                                                                    } else {
-                                                                        context.getString(R.string.settings_extra_shared_dashboard_import_failed, meta.name)
-                                                                    }
-                                                                    shareBusy = false
-                                                                }
-                                                            }
-                                                        ) { Text(stringResource(R.string.ui_import_d6fbc9d)) }
-                                                        if (meta.ownerId == currentHaUserId) {
                                                             TextButton(
                                                                 enabled = !shareBusy,
-                                                                onClick = { pendingUnpublish = meta }
-                                                            ) { Text(stringResource(R.string.ui_delete_f6fdbe4), color = MaterialTheme.colorScheme.error) }
+                                                                onClick = {
+                                                                    accessEveryone = HaDashboardSharing.EVERYONE in meta.sharedWith
+                                                                    accessSelected = meta.sharedWith
+                                                                        .filterNot { it == HaDashboardSharing.EVERYONE }
+                                                                        .toSet()
+                                                                    manageAccessDashboard = meta
+                                                                },
+                                                                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
+                                                            ) {
+                                                                Icon(Icons.Default.ManageAccounts, null, Modifier.size(18.dp))
+                                                                Spacer(Modifier.width(6.dp))
+                                                                Text(stringResource(R.string.family_access_manage))
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -2259,6 +2315,9 @@ fun SettingsDialog(
                                                 )
                                             }
                                         }
+                                    }
+                                    if (familyTab == "devices") {
+                                        FamilyAppVersionsPanel(pcEntities)
                                     }
                                 }
                             }
@@ -2842,6 +2901,95 @@ fun SettingsDialog(
                 ) { Text(if (shareBusy) stringResource(R.string.ui_sharing_ad00590) else stringResource(R.string.ui_share_09ca55c)) }
             },
             dismissButton = { TextButton(enabled = !shareBusy, onClick = { shareDashboard = null }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
+        )
+    }
+
+    manageAccessDashboard?.let { meta ->
+        LaunchedEffect(meta.id) {
+            if (shareUsers.isEmpty()) shareUsers = runCatching { HaDashboardSharing.listUsers(context) }.getOrDefault(emptyList())
+        }
+        AlertDialog(
+            onDismissRequest = { if (!shareBusy) manageAccessDashboard = null },
+            title = { Text(stringResource(R.string.family_access_title, meta.name)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        stringResource(R.string.family_access_description),
+                        color = appColors.onMuted,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Surface(
+                        Modifier.fillMaxWidth().clickable { accessEveryone = !accessEveryone },
+                        shape = itemCornerShape(),
+                        color = if (accessEveryone) MaterialTheme.colorScheme.primaryContainer else appColors.subtleSurface
+                    ) {
+                        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text(stringResource(R.string.ui_everyone_c756f6a), color = appColors.onSurface, modifier = Modifier.weight(1f))
+                            if (accessEveryone) Icon(Icons.Default.CheckCircle, null, tint = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                    if (!accessEveryone) {
+                        shareUsers.forEach { user ->
+                            val selected = user.id in accessSelected
+                            Surface(
+                                Modifier.fillMaxWidth().clickable {
+                                    accessSelected = if (selected) accessSelected - user.id else accessSelected + user.id
+                                },
+                                shape = itemCornerShape(),
+                                color = if (selected) MaterialTheme.colorScheme.primaryContainer else appColors.subtleSurface
+                            ) {
+                                Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        if (user.isAdmin) stringResource(R.string.ui_admin_b38222e, user.name) else user.name,
+                                        color = appColors.onSurface,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    if (selected) Icon(Icons.Default.CheckCircle, null, tint = MaterialTheme.colorScheme.primary)
+                                }
+                            }
+                        }
+                        // Revoking is deliberately not a quiet checkbox change: what it costs the
+                        // person on the other end is the whole dashboard and everything they styled
+                        // on it, and that only becomes visible if it is spelled out here.
+                        val revoked = meta.sharedWith
+                            .filterNot { it == HaDashboardSharing.EVERYONE }
+                            .filterNot { it in accessSelected }
+                        if (revoked.isNotEmpty() || (HaDashboardSharing.EVERYONE in meta.sharedWith)) {
+                            Text(
+                                stringResource(R.string.family_access_revoke_warning),
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    enabled = !shareBusy,
+                    onClick = {
+                        shareBusy = true
+                        val recipients = if (accessEveryone) listOf(HaDashboardSharing.EVERYONE) else accessSelected.toList()
+                        scope.launch {
+                            val ok = runCatching { HaDashboardSharing.setSharedWith(context, meta, recipients) }
+                                .getOrDefault(false)
+                            sharedWithMe = runCatching { HaDashboardSharing.listSharedForMe(context) }.getOrDefault(sharedWithMe)
+                            setupChangedMessage = if (ok) {
+                                context.getString(R.string.settings_extra_shared_dashboard_access_updated, meta.name)
+                            } else {
+                                context.getString(R.string.settings_extra_shared_dashboard_access_failed, meta.name)
+                            }
+                            shareBusy = false
+                            manageAccessDashboard = null
+                        }
+                    }
+                ) { Text(if (shareBusy) stringResource(R.string.ui_sharing_ad00590) else stringResource(R.string.ui_save_efc007a)) }
+            },
+            dismissButton = {
+                TextButton(enabled = !shareBusy, onClick = { manageAccessDashboard = null }) {
+                    Text(stringResource(R.string.ui_cancel_77dfd21))
+                }
+            }
         )
     }
 
@@ -3629,6 +3777,96 @@ private fun openGitHub(context: android.content.Context, url: String) {
 @Composable
 private fun SettingsPanel(content: @Composable ColumnScope.() -> Unit) {
     SettingsGroup(content = content)
+}
+
+/** One family device's reported HKI build, read off the version sensor it registers with Home
+ *  Assistant through mobile_app. */
+private data class FamilyAppVersion(
+    val label: String,
+    val deviceName: String,
+    val version: String,
+    val versionCode: Int?,
+    val osVersion: String?,
+    val lastChanged: String?,
+)
+
+/**
+ * Which HKI version each family member is running. Every HKI install registers its version as a
+ * diagnostic sensor on its own mobile_app device, so this is simply that sensor read back — no
+ * companion-component command and no polling. Devices are matched on the marker attribute rather
+ * than an entity id, because entity ids are renameable and these are not ours to depend on.
+ */
+@Composable
+private fun FamilyAppVersionsPanel(entities: List<HAEntity>) {
+    val appColors = LocalHKIAppColors.current
+    val devices = remember(entities) {
+        entities.asSequence()
+            .filter { it.attributes?.get(DeviceTelemetryReporter.HKI_APP_ATTRIBUTE)?.jsonPrimitiveOrNull?.booleanOrNull == true }
+            .map { entity ->
+                fun attr(name: String) = entity.attributes?.get(name)?.jsonPrimitiveOrNull?.contentOrNull
+                val deviceName = attr("hki_device_name") ?: entity.friendlyName ?: entity.entity_id
+                FamilyAppVersion(
+                    label = attr("hki_user") ?: deviceName,
+                    deviceName = deviceName,
+                    version = entity.state,
+                    versionCode = entity.attributes?.get("hki_version_code")?.jsonPrimitiveOrNull?.intOrNull,
+                    osVersion = attr("hki_os_version"),
+                    lastChanged = entity.last_changed,
+                )
+            }
+            .sortedBy { it.label.lowercase() }
+            .toList()
+    }
+    SettingsPanel {
+        Text(stringResource(R.string.family_versions_title), color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+        Text(
+            stringResource(R.string.family_versions_description, BuildConfig.VERSION_NAME),
+            color = appColors.onMuted,
+            style = MaterialTheme.typography.bodySmall
+        )
+        if (devices.isEmpty()) {
+            Text(stringResource(R.string.family_versions_empty), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+            return@SettingsPanel
+        }
+        devices.forEach { device ->
+            // Behind is decided on the version code, the only monotonic number in play: comparing
+            // "1.0.0-beta.9" to "1.0.0-beta.10" as text puts the older build ahead.
+            val behind = device.versionCode != null && device.versionCode < BuildConfig.VERSION_CODE
+            Surface(Modifier.fillMaxWidth(), shape = itemCornerShape(), color = appColors.subtleSurface) {
+                Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.PhoneAndroid,
+                        null,
+                        tint = if (behind) MaterialTheme.colorScheme.error else appColors.onMuted,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(device.label, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                        val details = listOfNotNull(
+                            device.deviceName.takeIf { it != device.label },
+                            device.osVersion?.let { stringResource(R.string.family_versions_android, it) },
+                            formatSharedUpdated(device.lastChanged.orEmpty()).takeIf { it.isNotBlank() }
+                                ?.let { stringResource(R.string.family_versions_reported, it) },
+                        )
+                        if (details.isNotEmpty()) {
+                            Text(details.joinToString(" · "), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(device.version, color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
+                        if (behind) {
+                            Text(
+                                stringResource(R.string.family_versions_outdated),
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable

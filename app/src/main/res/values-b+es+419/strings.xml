@@ -1972,6 +1972,12 @@
     <string name="cr_vacuum_settings">Configuración de la aspiradora</string>
     <string name="cr_weekly">Semanal</string>
     <string name="cr_wet">Húmedo</string>
+    <string-array name="cr_whats_new_beta_18">
+        <item>Un administrador ahora puede cambiar con quién se comparte un panel familiar publicado, en lugar de poder elegir solo en el momento de la publicación. Configuración &gt; Compartir en familia &gt; Paneles enumera a quién llega cada panel publicado, con un botón Administrar acceso para agregar o eliminar personas. Hasta ahora, la única forma de quitarle un panel a una persona era eliminarlo para todos.*</item>
+        <item>Perder el acceso a un panel familiar ahora borra lo que estaba encima de él. El panel en sí ya se eliminó, pero las salas, los widgets, las páginas, la barra de navegación, la píldora de encabezado y el tema que dejó en el dispositivo permanecieron, por lo que el siguiente panel que compartió un administrador llegó encima de los restos del anterior y parecía que no se había podido importar en su totalidad. Todo lo que pertenecía al panel revocado ahora se elimina con él. Las conexiones, los perfiles y la configuración de notificaciones de Home Assistant no se modifican: perder un panel no significa cerrar sesión.*</item>
+        <item>Pestaña Nuevos dispositivos en Configuración › Compartir en familia, que muestra qué versión de HKI está ejecutando cada dispositivo familiar y marca los que son más antiguos que el suyo. Cada instalación ahora informa su versión como sensor de diagnóstico en su propio dispositivo Home Assistant, por lo que esto se lee directamente desde Home Assistant sin sondeo y sin nada que configurar. Un dispositivo aparece una vez que ha ejecutado esta versión al menos una vez.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_17">
         <item>Se corrigió un fallo que podía hacer caer toda la aplicación durante el primer intento de conexión después de abrirla, que decía "la aplicación ni siquiera se abre". La configuración que se ejecuta en cada inicio no tenía manejo de errores propio, por lo que una falla allí (generalmente una sesión caducada que se actualiza en una red inestable) se escapa como un error no controlado en lugar de surgir como un error de conexión que se puede volver a intentar. Como medida preventiva, un error inesperado en una tarea en segundo plano ya no puede finalizar la aplicación.</item>
         <item>El panel ya no se reconstruye cada vez que Home Assistant informa un cambio de estado. La pantalla de inicio rastreaba la lista completa de entidades, por lo que un solo disparo del sensor de movimiento o el tictac de un medidor de potencia (varias veces por segundo en una instalación ocupada) invalidaba toda la pantalla y todos los widgets que contenía, incluso cuando nada visible había cambiado. Ahora sólo observa lo que realmente dibuja.</item>
@@ -3626,4 +3632,21 @@
     <string name="widgets_todo_completed_section">Completado (%1$d)</string>
     <string name="widgets_todo_new_category">Nueva pestaña</string>
     <string name="widgets_todo_manage_categories">Administrar pestañas</string>
+    <string name="family_access_manage">Administrar acceso</string>
+    <string name="family_access_title">¿Quién puede ver %1$s?</string>
+    <string name="family_access_description">Agregar o eliminar personas. Todas las personas que elimines perderán este panel la próxima vez que se sincronice su aplicación.</string>
+    <string name="family_access_shared_everyone">Compartido con todos</string>
+    <string name="family_access_shared_nobody">compartido con nadie</string>
+    <string name="family_access_shared_with">Compartido con %1$s</string>
+    <string name="family_access_unknown_user">Usuario desconocido</string>
+    <string name="family_access_revoke_warning">Al perder el acceso, se elimina su copia de este panel, junto con los colores, íconos y nombres que cambiaron en él.</string>
+    <string name="family_versions_title">Versiones HKI</string>
+    <string name="family_versions_description">Qué compilación de HKI está ejecutando cada dispositivo familiar. Este dispositivo está en %1$s. Un dispositivo solo aparece una vez que ha ejecutado HKI 7 1.0.0-beta.18 o posterior al menos una vez.</string>
+    <string name="family_versions_empty">Ningún dispositivo familiar ha reportado una versión todavía.</string>
+    <string name="family_versions_outdated">mayor que el tuyo</string>
+    <string name="family_versions_android">Android %1$s</string>
+    <string name="family_versions_reported">reportado %1$s</string>
+    <string name="settings_extra_shared_dashboard_access_failed">No se pudo cambiar quién puede ver "%1$s".</string>
+    <string name="settings_extra_shared_dashboard_access_updated">Se actualizó quién puede ver "%1$s".</string>
+    <string name="settings_extra_tab_devices">Dispositivos</string>
 </resources>

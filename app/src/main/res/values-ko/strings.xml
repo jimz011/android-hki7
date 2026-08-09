@@ -2578,6 +2578,20 @@
     <string name="family_dashboard_tab_locked">가족 권한으로 잠김</string>
     <string name="family_dashboard_access_lost_title">가족 액세스가 제거됨</string>
     <string name="family_dashboard_access_lost_message">이 가족 대시보드를 통해 더 이상 HKI 7에 액세스할 수 없습니다. 공유된 다른 대시보드나 가족 권한이 허용하는 다른 옵션을 선택하세요.</string>
+    <string name="family_access_manage">액세스 관리</string>
+    <string name="family_access_title">%1$s을(를) 볼 수 있는 사람</string>
+    <string name="family_access_description">사람을 추가하거나 제거합니다. 제거한 모든 사람은 다음에 앱이 동기화될 때 이 대시보드를 잃게 됩니다.</string>
+    <string name="family_access_shared_everyone">모든 사람과 공유됨</string>
+    <string name="family_access_shared_nobody">누구와도 공유되지 않음</string>
+    <string name="family_access_shared_with">%1$s과(와) 공유됨</string>
+    <string name="family_access_unknown_user">알 수 없는 사용자</string>
+    <string name="family_access_revoke_warning">액세스 권한을 잃으면 대시보드에서 변경한 색상, 아이콘, 이름과 함께 이 대시보드의 사본이 삭제됩니다.</string>
+    <string name="family_versions_title">HKI 버전</string>
+    <string name="family_versions_description">각 제품군 장치가 실행 중인 HKI 빌드입니다. 이 장치는 %1$s에 있습니다. 장치는 HKI 7 1.0.0-beta.18 이상을 한 번 이상 실행한 후에만 나타납니다.</string>
+    <string name="family_versions_empty">아직 버전을 보고한 가족 기기가 없습니다.</string>
+    <string name="family_versions_outdated">당신보다 나이가 많아요</string>
+    <string name="family_versions_android">안드로이드 %1$s</string>
+    <string name="family_versions_reported">%1$s을(를) 보고했습니다.</string>
     <string name="settings_extra_active_instance">활성 인스턴스</string>
     <string name="settings_extra_automatic_cloud_backup_enabled">자동 클라우드 백업이 활성화되었습니다.</string>
     <string name="settings_extra_background_restricted_warning">제한됨 — 백그라운드 동기화가 작동하지 않습니다</string>
@@ -2706,6 +2720,8 @@
     <string name="settings_extra_restore_failed">복원 실패: %1$s</string>
     <string name="settings_extra_selected_file_open_failed">선택한 파일을 열 수 없습니다</string>
     <string name="settings_extra_set_dashboard_default">%1$s을 기본 대시보드로 설정</string>
+    <string name="settings_extra_shared_dashboard_access_failed">\'%1$s\'을 볼 수 있는 사람을 변경할 수 없습니다.</string>
+    <string name="settings_extra_shared_dashboard_access_updated">\'%1$s\'을 볼 수 있는 사람이 업데이트되었습니다.</string>
     <string name="settings_extra_shared_dashboard_delete_failed">\'%1$s\'을(를) 삭제할 수 없습니다.</string>
     <string name="settings_extra_shared_dashboard_deleted">\'%1$s\'이(가) 클라우드에서 삭제되었습니다.</string>
     <string name="settings_extra_shared_dashboard_import_failed">"%1$s"을(를) 가져올 수 없습니다.</string>
@@ -2715,6 +2731,7 @@
     <string name="settings_extra_shared_dashboards_up_to_date">공유 대시보드는 이미 최신 상태입니다.</string>
     <string name="settings_extra_show_tab">탭 표시</string>
     <string name="settings_extra_tab_dashboards">대시보드</string>
+    <string name="settings_extra_tab_devices">기기</string>
     <string name="settings_extra_tab_parental_controls">자녀 보호</string>
     <string name="settings_extra_tab_permissions">권한</string>
     <string name="settings_extra_technology_kotlin">코틀린</string>

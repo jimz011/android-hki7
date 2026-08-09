@@ -2578,6 +2578,20 @@
     <string name="family_dashboard_tab_locked">ファミリー権限によりロックされています</string>
     <string name="family_dashboard_access_lost_title">ファミリーアクセスが削除されました</string>
     <string name="family_dashboard_access_lost_message">このファミリーダッシュボード経由ではHKI 7にアクセスできなくなりました。共有されている別のダッシュボード、またはファミリー権限で許可された別の方法を選んでください。</string>
+    <string name="family_access_manage">アクセスを管理する</string>
+    <string name="family_access_title">%1$s を閲覧できる人</string>
+    <string name="family_access_description">人を追加または削除します。削除したユーザーは、次回アプリを同期するときにこのダッシュボードを失います。</string>
+    <string name="family_access_shared_everyone">みんなで共有</string>
+    <string name="family_access_shared_nobody">誰とも共有されない</string>
+    <string name="family_access_shared_with">%1$s と共有</string>
+    <string name="family_access_unknown_user">不明なユーザー</string>
+    <string name="family_access_revoke_warning">アクセスを失うと、このダッシュボードのコピーが、ダッシュボード上で変更した色、アイコン、名前とともに削除されます。</string>
+    <string name="family_versions_title">HKI バージョン</string>
+    <string name="family_versions_description">各ファミリー デバイスが実行している HKI ビルド。このデバイスは %1$s 上にあります。デバイスは、HKI 7 1.0.0-beta.18 以降を少なくとも 1 回実行した場合にのみ表示されます。</string>
+    <string name="family_versions_empty">まだバージョンを報告しているファミリー デバイスはありません。</string>
+    <string name="family_versions_outdated">あなたよりも年上です</string>
+    <string name="family_versions_android">アンドロイド %1$s</string>
+    <string name="family_versions_reported">%1$s が報告されました</string>
     <string name="settings_extra_active_instance">アクティブなインスタンス</string>
     <string name="settings_extra_automatic_cloud_backup_enabled">自動クラウドバックアップが有効になりました。</string>
     <string name="settings_extra_background_restricted_warning">制限あり — バックグラウンド同期は機能しません</string>
@@ -2706,6 +2720,8 @@
     <string name="settings_extra_restore_failed">復元に失敗しました: %1$s</string>
     <string name="settings_extra_selected_file_open_failed">選択したファイルを開けませんでした</string>
     <string name="settings_extra_set_dashboard_default">%1$sをデフォルトダッシュボードに設定</string>
+    <string name="settings_extra_shared_dashboard_access_failed">「%1$s」を閲覧できるユーザーを変更できませんでした。</string>
+    <string name="settings_extra_shared_dashboard_access_updated">「%1$s」を閲覧できるユーザーを更新しました。</string>
     <string name="settings_extra_shared_dashboard_delete_failed">「%1$s」を削除できませんでした。</string>
     <string name="settings_extra_shared_dashboard_deleted">「%1$s」をクラウドから削除しました。</string>
     <string name="settings_extra_shared_dashboard_import_failed">「%1$s」をインポートできませんでした。</string>
@@ -2715,6 +2731,7 @@
     <string name="settings_extra_shared_dashboards_up_to_date">共有ダッシュボードはすでに最新です。</string>
     <string name="settings_extra_show_tab">タブを表示</string>
     <string name="settings_extra_tab_dashboards">ダッシュボード</string>
+    <string name="settings_extra_tab_devices">デバイス</string>
     <string name="settings_extra_tab_parental_controls">ペアレンタルコントロール</string>
     <string name="settings_extra_tab_permissions">権限</string>
     <string name="settings_extra_technology_kotlin">Kotlin</string>

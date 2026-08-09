@@ -1868,6 +1868,12 @@
         <item quantity="one">圖表 %1$d · %2$d 個感測器</item>
         <item quantity="other">圖表 %1$d · %2$d 個感測器</item>
     </plurals>
+    <string-array name="cr_whats_new_beta_18">
+        <item>管理員現在可以更改已發布的家庭儀表板的共享對象，而不僅僅是在發佈時才能選擇。設定 › 家庭分享 › 儀表板列出了每個已發佈的儀表板所涵蓋的人員，並透過「管理存取」按鈕來新增或刪除人員。到目前為止，從一個人手中奪走儀表板的唯一方法就是為所有人刪除它。 *</item>
+        <item>現在，失去對家庭儀表板的存取權會清除其之上的內容。儀表板本身已經被刪除，但它留在設備上的房間、小部件、頁面、導航欄、標題藥丸和主題仍然保留 - 因此管理員共享的下一個儀表板到達了前一個儀表板的剩餘部分之上，看起來它未能完全導入。屬於已撤銷儀表板的所有內容現在都將隨之刪除。 Home Assistant 連線、設定檔和通知設定保持不變：遺失儀表板並不會被登出。 *</item>
+        <item>設定 › 家庭共享下的新設備選項卡，顯示每個家庭設備正在運行的 HKI 版本，並標記比您的設備舊的版本。現在，每個安裝都將其版本報告為其自己的 Home Assistant 裝置上的診斷感測器，因此可以直接從 Home Assistant 讀取此版本，無需輪詢，也無需配置。一旦設備至少運行此版本一次，就會出現。</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_17">
         <item>修復了打開應用程式後第一次連接嘗試期間可能導致整個應用程式崩潰的崩潰，即「應用程式甚至無法打開」。每次啟動時運行的設定都沒有自己的錯誤處理，因此出現故障（通常是在不穩定的網路上刷新過期會話）會作為未處理的錯誤轉義，而不是作為可以重試的連接錯誤出現。作為後備方案，後台任務中的意外錯誤根本無法再終止應用程式。</item>
         <item>每次 Home Assistant 報告狀態變更時，儀表板不再自行重建。主螢幕追蹤完整的實體列表，因此單個運動感應器跳閘或功率計滴答聲（在繁忙的安裝中每秒幾次）會使整個螢幕及其上的每個小部件失效，即使沒有任何可見的變化。現在它只觀察它實際繪製的內容。</item>
@@ -3626,4 +3632,21 @@
     <string name="widgets_todo_completed_section">已完成 (%1$d)</string>
     <string name="widgets_todo_new_category">新分頁</string>
     <string name="widgets_todo_manage_categories">管理選項卡</string>
+    <string name="family_access_manage">管理存取權限</string>
+    <string name="family_access_title">誰可以看到 %1$s</string>
+    <string name="family_access_description">新增或刪除人員。您刪除的每個人在下次應用程式同步時都會遺失此儀表板。</string>
+    <string name="family_access_shared_everyone">與大家分享</string>
+    <string name="family_access_shared_nobody">與任何人共享</string>
+    <string name="family_access_shared_with">與 %1$s 分享</string>
+    <string name="family_access_unknown_user">未知用戶</string>
+    <string name="family_access_revoke_warning">失去存取權限會刪除此儀表板的副本，以及他們在其中更改的任何顏色、圖示和名稱。</string>
+    <string name="family_versions_title">HKI 版本</string>
+    <string name="family_versions_description">每個家庭設備正在運行哪個 HKI 建置。該設備位於 %1$s 上。設備僅在至少運行一次 HKI 7 1.0.0-beta.18 或更高版本後才會出現。</string>
+    <string name="family_versions_empty">尚未有家庭設備報告版本。</string>
+    <string name="family_versions_outdated">比你年紀大</string>
+    <string name="family_versions_android">安卓 %1$s</string>
+    <string name="family_versions_reported">報告%1$s</string>
+    <string name="settings_extra_shared_dashboard_access_failed">無法更改誰可以看到“%1$s”。</string>
+    <string name="settings_extra_shared_dashboard_access_updated">更新了誰可以看到“%1$s”。</string>
+    <string name="settings_extra_tab_devices">裝置</string>
 </resources>

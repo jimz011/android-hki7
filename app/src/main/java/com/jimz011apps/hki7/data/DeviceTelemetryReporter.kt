@@ -113,9 +113,12 @@ class DeviceTelemetryReporter(
         }
 
         // Register sensors once per webhook (they persist in HA); plain state updates suffice after.
-        if (prefs.mobileAppSensorsWebhookId.first() != webhookId) {
+        // The marker carries SENSOR_SET_REVISION so a release that adds a sensor registers it on
+        // devices that already registered the previous set, instead of never creating it at all.
+        val sensorsMarker = "$webhookId@$SENSOR_SET_REVISION"
+        if (prefs.mobileAppSensorsWebhookId.first() != sensorsMarker) {
             val registered = registerSensors(client, webhookUrl, slug, deviceName, batteryLevel, charging, address, log)
-            if (registered) prefs.saveMobileAppSensorsRegistered(webhookId)
+            if (registered) prefs.saveMobileAppSensorsRegistered(sensorsMarker)
         }
 
         // HA's update_sensor_states requires "type" on every entry (matching the registered type),
@@ -143,6 +146,14 @@ class DeviceTelemetryReporter(
                     put("icon", "mdi:map-marker")
                 })
             }
+            // State only: HA merges each update into the sensor's stored config, so the attributes
+            // written at registration (including who is signed in) survive without being re-sent —
+            // which is what keeps the identity lookup off the periodic reporting path.
+            add(buildJsonObject {
+                put("unique_id", "${slug}_$HKI_VERSION_SENSOR_KEY")
+                put("type", "sensor")
+                put("state", BuildConfig.VERSION_NAME)
+            })
         }
         val updatePayload = buildJsonObject {
             put("type", "update_sensor_states")
@@ -157,7 +168,7 @@ class DeviceTelemetryReporter(
             sensorsNeedReRegistration(updateBody) -> {
                 log("HA doesn't recognize the sensors — re-registering and retrying")
                 registerSensors(client, webhookUrl, slug, deviceName, batteryLevel, charging, address, log)
-                prefs.saveMobileAppSensorsRegistered(webhookId)
+                prefs.saveMobileAppSensorsRegistered(sensorsMarker)
                 runCatching { client.postWebhook(webhookUrl, updatePayload) }
             }
         }
@@ -265,6 +276,28 @@ class DeviceTelemetryReporter(
         }.getOrDefault(false)
     }
 
+    /** Attributes carried by the HKI version sensor, so an admin reading it can tell whose phone it
+     *  is and how far behind it is without cross-referencing anything. [HKI_APP_ATTRIBUTE] is the
+     *  marker the app looks for when collecting these sensors out of the entity list. */
+    private fun hkiVersionAttributes(deviceName: String, haUserName: String?): JsonObject = buildJsonObject {
+        put(HKI_APP_ATTRIBUTE, true)
+        put("hki_version_code", BuildConfig.VERSION_CODE)
+        put("hki_device_name", deviceName)
+        put("hki_os_version", Build.VERSION.RELEASE)
+        if (!haUserName.isNullOrBlank()) put("hki_user", haUserName)
+    }
+
+    /** The Home Assistant account this device is signed in as, for the version sensor's `hki_user`
+     *  attribute. Resolved at most once per process per server — a name does not change under us,
+     *  and this is the only websocket command telemetry makes. Null when the companion component
+     *  isn't installed, which just leaves the sensor identified by its device name. */
+    private suspend fun haUserName(client: HomeAssistantClient): String? {
+        haUserNames[reportingScopeKey]?.let { return it.takeIf(String::isNotBlank) }
+        val name = runCatching { client.hki7WhoAmI()?.name }.getOrNull()
+        haUserNames[reportingScopeKey] = name.orEmpty()
+        return name?.takeIf(String::isNotBlank)
+    }
+
     private suspend fun registerSensors(
         client: HomeAssistantClient,
         webhookUrl: String,
@@ -275,7 +308,8 @@ class DeviceTelemetryReporter(
         address: String?,
         log: (String) -> Unit
     ): Boolean {
-        val batteryOk = post(client, webhookUrl, buildJsonObject {
+        val haUserName = haUserName(client)
+        val batteryOk = postRegistration(client, webhookUrl, buildJsonObject {
             put("type", "register_sensor")
             put("data", buildJsonObject {
                 put("unique_id", "${slug}_battery_level")
@@ -288,7 +322,7 @@ class DeviceTelemetryReporter(
                 put("icon", "mdi:battery")
             })
         }, "register battery", log)
-        val chargingOk = post(client, webhookUrl, buildJsonObject {
+        val chargingOk = postRegistration(client, webhookUrl, buildJsonObject {
             put("type", "register_sensor")
             put("data", buildJsonObject {
                 put("unique_id", "${slug}_charging")
@@ -299,7 +333,7 @@ class DeviceTelemetryReporter(
                 put("entity_category", "diagnostic")
             })
         }, "register charging", log)
-        val geocodedOk = post(client, webhookUrl, buildJsonObject {
+        val geocodedOk = postRegistration(client, webhookUrl, buildJsonObject {
             put("type", "register_sensor")
             put("data", buildJsonObject {
                 put("unique_id", "${slug}_geocoded_location")
@@ -309,7 +343,19 @@ class DeviceTelemetryReporter(
                 put("icon", "mdi:map-marker")
             })
         }, "register geocoded", log)
-        return batteryOk && chargingOk && geocodedOk
+        val versionOk = postRegistration(client, webhookUrl, buildJsonObject {
+            put("type", "register_sensor")
+            put("data", buildJsonObject {
+                put("unique_id", "${slug}_$HKI_VERSION_SENSOR_KEY")
+                put("name", "$deviceName HKI Version")
+                put("state", BuildConfig.VERSION_NAME)
+                put("type", "sensor")
+                put("entity_category", "diagnostic")
+                put("icon", "mdi:cellphone-arrow-down")
+                put("attributes", hkiVersionAttributes(deviceName, haUserName))
+            })
+        }, "register hki version", log)
+        return batteryOk && chargingOk && geocodedOk && versionOk
     }
 
     private suspend fun post(
@@ -323,6 +369,28 @@ class DeviceTelemetryReporter(
             .map { (status, body) ->
                 if (status !in 200..299) log("$label -> HTTP $status: ${body.take(200)}")
                 status in 200..299
+            }
+            .getOrElse { log("$label failed: ${it.message}"); false }
+    }
+
+    /**
+     * A register_sensor POST, where HA's 409 "already registered" counts as success. Every sensor
+     * is registered as a set, so the moment a release adds one, the devices that need it are
+     * precisely the devices that already have the others — and treating their 409s as failures
+     * would stop the whole set from ever being marked registered, re-POSTing it on every report.
+     */
+    private suspend fun postRegistration(
+        client: HomeAssistantClient,
+        webhookUrl: String,
+        payload: JsonObject,
+        label: String,
+        log: (String) -> Unit
+    ): Boolean {
+        return runCatching { client.postWebhook(webhookUrl, payload) }
+            .map { (status, body) ->
+                val ok = status in 200..299 || status == HTTP_CONFLICT
+                if (!ok) log("$label -> HTTP $status: ${body.take(200)}")
+                ok
             }
             .getOrElse { log("$label failed: ${it.message}"); false }
     }
@@ -486,5 +554,21 @@ class DeviceTelemetryReporter(
         private val registrationMutex = Mutex()
         private val json = Json { ignoreUnknownKeys = true }
         private val pushChannelEnsured = ConcurrentHashMap.newKeySet<String>()
+        // Empty string = "asked, and this server has no companion component to answer".
+        private val haUserNames = ConcurrentHashMap<String, String>()
+
+        /** Bumped whenever a sensor is added to [registerSensors], so devices that already
+         *  registered the previous set register the newcomer once rather than never. */
+        private const val SENSOR_SET_REVISION = 2
+
+        /** Unique-id suffix of the sensor reporting this device's HKI version. */
+        internal const val HKI_VERSION_SENSOR_KEY = "hki_version"
+
+        /** Attribute stamped on that sensor so the app can pick it out of the entity list without
+         *  guessing at entity ids (which people rename). */
+        internal const val HKI_APP_ATTRIBUTE = "hki_app"
+
+        /** HA's answer to register_sensor for a unique_id it already knows. */
+        private const val HTTP_CONFLICT = 409
     }
 }

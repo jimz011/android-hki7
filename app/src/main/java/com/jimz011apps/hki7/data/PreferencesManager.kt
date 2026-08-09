@@ -1289,7 +1289,9 @@ class PreferencesManager(
     /** Removes imported shared dashboards ("shared-*") whose source is no longer among [presentLocalIds]
      * (the admin unpublished them, or stopped sharing them with this user). If the active dashboard was
      * removed, clears the active selection and signals [SharedPruneResult.needsDashboardChoice] so the
-     * host can reopen the dashboard chooser instead of switching or creating something implicitly. */
+     * host can reopen the dashboard chooser instead of switching or creating something implicitly —
+     * and wipes this device's dashboard customization with it, so nothing the user layered on the
+     * dashboard they just lost survives into the next one an admin shares with them. */
     suspend fun pruneUnpublishedSharedDashboards(presentLocalIds: Set<String>): SharedPruneResult {
         var result = SharedPruneResult(removed = false, activeReplaced = false, needsDashboardChoice = false)
         context.dataStore.edit { p ->
@@ -1308,6 +1310,7 @@ class PreferencesManager(
                 p.remove(activeDashboardIdKey)
                 p.remove(defaultDashboardIdKey)
                 p[familyDashboardAccessLostKey] = true
+                clearDashboardCustomization(p)
                 p[dashboardsKey] = appJson.encodeToString(dashboards)
                 result = SharedPruneResult(removed = true, activeReplaced = removedActive, needsDashboardChoice = true)
                 return@edit
@@ -1319,6 +1322,9 @@ class PreferencesManager(
                 p.remove(activeDashboardIdKey)
                 p.remove(defaultDashboardIdKey)
                 p[familyDashboardAccessLostKey] = true
+                // The live keys still hold the revoked dashboard's contents and styling. Surviving
+                // dashboards keep their own copies in `dashboards`, and loading one rewrites these.
+                clearDashboardCustomization(p)
                 p[dashboardsKey] = appJson.encodeToString(dashboards)
                 result = SharedPruneResult(removed = true, activeReplaced = false, needsDashboardChoice = true)
                 return@edit
@@ -1467,6 +1473,38 @@ class PreferencesManager(
         val activeId = p[activeDashboardIdKey] ?: return
         val index = dashboards.indexOfFirst { it.id == activeId }
         if (index >= 0) dashboards[index] = dashboardFromPreferences(p, activeId, dashboards[index].name)
+    }
+
+    /** Every preference key holding "what this dashboard contains and how it looks": its rooms,
+     * widgets, pages and nav bar, plus the aesthetics an admin's aesthetics-only permission covers
+     * (theme, colors, icons, corner radius, fonts) and the header pill. Device-level preferences —
+     * refresh rate, clock format, icon animations — are not dashboard state and stay put. */
+    private val dashboardCustomizationKeys: List<Preferences.Key<*>>
+        get() = listOf(
+            areaOrderKey, savedAreasKey, savedFloorsKey, areaStacksKey, areaConfigsKey, pageConfigsKey,
+            customPagesKey, customPopupsKey, navBarOrderKey, navBarHiddenKey,
+            mediaPlayerNamesKey, mediaPlayerBarHiddenKey,
+            themeColorKey, themeModeKey, systemLightThemeColorKey, systemDarkThemeColorKey,
+            fontScaleKey, fontWeightAdjustKey, fontFamilyKey, iconPackKey, iconEffectDefaultsKey,
+            itemCornerRadiusKey, weatherEntityIdKey, weatherDisplayKey, headerLeftDisplayKey,
+            headerVisibleKey, weatherCardWidthsKey, alarmEntityKey, headerLeftAlarmEntityKey,
+            alarmPendingSecondsKey,
+        ) + headerWeatherRoleKeys.values
+
+    /** Wipes the local dashboard back to a blank slate. Used when an admin revokes this user's
+     * access to the family dashboard they were running: the dashboard itself is deleted, and
+     * anything they had layered on top of it must go with it. Otherwise the leftovers — a theme, a
+     * header pill, a weather entity, a nav-bar order — survive into whatever dashboard is shared
+     * next, which then looks like the new dashboard failing to import in full.
+     *
+     * The recipient's Home Assistant connection, profile, notification, and backup settings are
+     * deliberately untouched: losing a dashboard is not being signed out. */
+    private fun clearDashboardCustomization(p: MutablePreferences) {
+        dashboardCustomizationKeys.forEach { key -> p -= key }
+        // Not simply removed: an absent mode reads as "auto", which would offer an auto-generated
+        // dashboard the user never asked for while the chooser is still deciding what comes next.
+        p[dashboardModeKey] = "manual"
+        p.remove(pendingAutoTakeoverKey)
     }
 
     private fun loadDashboardIntoPreferences(p: MutablePreferences, dashboard: HKIDashboard) {

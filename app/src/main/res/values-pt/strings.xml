@@ -3257,6 +3257,12 @@
         <item quantity="one">%1$d bateria precisa de atenção</item>
         <item quantity="other">%1$d baterias precisam de atenção</item>
     </plurals>
+    <string-array name="cr_whats_new_beta_18">
+        <item>Um administrador agora pode alterar com quem um painel familiar publicado é compartilhado, em vez de poder escolher apenas no momento da publicação. Configurações › Compartilhamento Familiar › Painéis lista quem é alcançado por cada painel publicado, com um botão Gerenciar acesso para adicionar ou remover pessoas. Até agora, a única maneira de retirar um painel de uma pessoa era excluí-lo para todos.*</item>
+        <item>Perder o acesso a um painel familiar agora limpa o que estava sobre ele. O painel em si já foi removido, mas as salas, widgets, páginas, barra de navegação, cabeçalho e tema deixados no dispositivo permaneceram - então o próximo painel que um administrador compartilhou chegou em cima das sobras do anterior e parecia que não havia sido importado por completo. Tudo o que pertencia ao painel revogado agora é removido com ele. As conexões, perfis e configurações de notificação do Home Assistant permanecem intactas: perder um painel não significa desconectar-se.*</item>
+        <item>Guia Novos dispositivos em Configurações › Compartilhamento familiar, mostrando qual versão HKI cada dispositivo familiar está executando e sinalizando aqueles mais antigos que o seu. Cada instalação agora relata sua versão como um sensor de diagnóstico em seu próprio dispositivo Home Assistant, portanto, isso é lido diretamente no Home Assistant, sem pesquisa e nada para configurar. Um dispositivo aparece depois de executar esta versão pelo menos uma vez.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_17">
         <item>Corrigida uma falha que poderia derrubar todo o aplicativo durante a primeira tentativa de conexão após abri-lo, que dizia "o aplicativo nem abre". A configuração executada em cada inicialização não tinha tratamento de erros próprio, portanto, uma falha ali – geralmente uma sessão expirada sendo atualizada em uma rede instável – escapou como um erro não tratado em vez de aparecer como um erro de conexão que você poderia tentar novamente. Como solução, um erro inesperado em uma tarefa em segundo plano não pode mais encerrar o aplicativo.</item>
         <item>O painel não se reconstrói mais sempre que o Home Assistant relata uma mudança de estado. A tela inicial rastreava a lista completa de entidades, portanto, um único disparo do sensor de movimento ou um tique-taque do medidor de energia – várias vezes por segundo em uma instalação ocupada – invalidava a tela inteira e todos os widgets nela, mesmo quando nada visível havia mudado. Agora observa apenas o que realmente desenha.</item>
@@ -3629,4 +3635,21 @@
     <string name="widgets_todo_completed_section">Concluído (%1$d)</string>
     <string name="widgets_todo_new_category">Nova guia</string>
     <string name="widgets_todo_manage_categories">Gerenciar guias</string>
+    <string name="family_access_manage">Gerenciar acesso</string>
+    <string name="family_access_title">Quem pode ver %1$s</string>
+    <string name="family_access_description">Adicione ou remova pessoas. Todos que você remover perderão esse painel na próxima vez que o aplicativo for sincronizado.</string>
+    <string name="family_access_shared_everyone">Compartilhado com todos</string>
+    <string name="family_access_shared_nobody">Compartilhado com ninguém</string>
+    <string name="family_access_shared_with">Compartilhado com %1$s</string>
+    <string name="family_access_unknown_user">Usuário desconhecido</string>
+    <string name="family_access_revoke_warning">A perda de acesso exclui a cópia deste painel, juntamente com quaisquer cores, ícones e nomes que eles alteraram nele.</string>
+    <string name="family_versions_title">Versões HKI</string>
+    <string name="family_versions_description">Qual versão do HKI cada dispositivo da família está executando. Este dispositivo está em %1$s. Um dispositivo só aparece depois de executar o HKI 7 1.0.0-beta.18 ou mais recente pelo menos uma vez.</string>
+    <string name="family_versions_empty">Nenhum dispositivo familiar relatou uma versão ainda.</string>
+    <string name="family_versions_outdated">Mais velho que o seu</string>
+    <string name="family_versions_android">Android%1$s</string>
+    <string name="family_versions_reported">relatado %1$s</string>
+    <string name="settings_extra_shared_dashboard_access_failed">Não foi possível alterar quem pode ver “%1$s.”</string>
+    <string name="settings_extra_shared_dashboard_access_updated">Atualizado quem pode ver “%1$s.”</string>
+    <string name="settings_extra_tab_devices">Dispositivos</string>
 </resources>

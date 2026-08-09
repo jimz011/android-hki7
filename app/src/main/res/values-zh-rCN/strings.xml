@@ -1960,6 +1960,12 @@
     <string name="cr_vacuum_settings">扫地机器人设置</string>
     <string name="cr_weekly">每周</string>
     <string name="cr_wet">潮湿</string>
+    <string-array name="cr_whats_new_beta_18">
+        <item>管理员现在可以更改已发布的家庭仪表板的共享对象，而不仅仅是在发布时才能选择。设置 › 家庭共享 › 仪表板列出了每个已发布的仪表板所覆盖的人员，并通过“管理访问”按钮来添加或删除人员。到目前为止，从一个人手中夺走仪表板的唯一方法就是为所有人删除它。*</item>
+        <item>现在，失去对家庭仪表板的访问权限会清除其之上的内容。仪表板本身已经被删除，但它留在设备上的房间、小部件、页面、导航栏、标题药丸和主题仍然保留 - 因此管理员共享的下一个仪表板到达了前一个仪表板的剩余部分之上，看起来它未能完全导入。属于已撤销仪表板的所有内容现在都将随之删除。 Home Assistant 连接、配置文件和通知设置保持不变：丢失仪表板并不会被注销。*</item>
+        <item>设置 › 家庭共享下的新设备选项卡，显示每个家庭设备正在运行的 HKI 版本，并标记比您的设备旧的版本。现在，每个安装都将其版本报告为其自己的 Home Assistant 设备上的诊断传感器，因此可以直接从 Home Assistant 读取此版本，无需轮询，也无需配置。一旦设备至少运行此版本一次，就会出现。</item>
+    </string-array>
+
     <string-array name="cr_whats_new_beta_17">
         <item>修复了打开应用程序后第一次连接尝试期间可能导致整个应用程序崩溃的崩溃，即“应用程序甚至无法打开”。每次启动时运行的设置都没有自己的错误处理，因此出现故障（通常是在不稳定的网络上刷新过期会话）会作为未处理的错误转义，而不是作为可以重试的连接错误出现。作为后备方案，后台任务中的意外错误根本无法再终止应用程序。</item>
         <item>每次 Home Assistant 报告状态更改时，仪表板不再自行重建。主屏幕跟踪完整的实体列表，因此单个运动传感器跳闸或功率计滴答声（在繁忙的安装中每秒几次）会使整个屏幕及其上的每个小部件失效，即使没有任何可见的变化。现在它只观察它实际绘制的内容。</item>
@@ -3581,4 +3587,21 @@
     <string name="widgets_todo_completed_section">已完成 (%1$d)</string>
     <string name="widgets_todo_new_category">新标签页</string>
     <string name="widgets_todo_manage_categories">管理选项卡</string>
+    <string name="family_access_manage">管理访问权限</string>
+    <string name="family_access_title">谁可以看到 %1$s</string>
+    <string name="family_access_description">添加或删除人员。您删除的每个人在下次应用程序同步时都会丢失此仪表板。</string>
+    <string name="family_access_shared_everyone">与大家分享</string>
+    <string name="family_access_shared_nobody">与任何人共享</string>
+    <string name="family_access_shared_with">与 %1$s 共享</string>
+    <string name="family_access_unknown_user">未知用户</string>
+    <string name="family_access_revoke_warning">失去访问权限会删除此仪表板的副本，以及他们在其中更改的任何颜色、图标和名称。</string>
+    <string name="family_versions_title">HKI 版本</string>
+    <string name="family_versions_description">每个家庭设备正在运行哪个 HKI 构建。该设备位于 %1$s 上。设备仅在至少运行一次 HKI 7 1.0.0-beta.18 或更高版本后才会出现。</string>
+    <string name="family_versions_empty">尚未有家庭设备报告版本。</string>
+    <string name="family_versions_outdated">比你年纪大</string>
+    <string name="family_versions_android">安卓 %1$s</string>
+    <string name="family_versions_reported">报告%1$s</string>
+    <string name="settings_extra_shared_dashboard_access_failed">无法更改谁可以看到“%1$s”。</string>
+    <string name="settings_extra_shared_dashboard_access_updated">更新了谁可以看到“%1$s”。</string>
+    <string name="settings_extra_tab_devices">设备</string>
 </resources>

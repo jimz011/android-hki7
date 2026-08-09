@@ -47,6 +47,24 @@ object HaDashboardSharing {
     suspend fun unpublish(context: Context, sharedId: String): Boolean =
         Hki7Endpoint.withClient(context) { it.hki7UnpublishDashboard(sharedId) } ?: false
 
+    /** Replaces who a published dashboard is shared with, leaving its contents alone. Granting and
+     * revoking are the same call — the component stores the list it is given — so this republishes
+     * the dashboard's own current payload rather than the owner's local copy, which may not exist on
+     * this device at all (a reinstall, or an admin managing a dashboard from a second phone).
+     *
+     * Everyone dropped from [sharedWith] loses the dashboard the next time their app syncs, which
+     * deletes their local copy along with everything they styled on it. */
+    suspend fun setSharedWith(
+        context: Context,
+        meta: Hki7SharedDashboardMeta,
+        sharedWith: List<String>,
+    ): Boolean = Hki7Endpoint.withClient(context) { client ->
+        val raw = client.hki7GetDashboard(meta.id) ?: return@withClient false
+        val payload = runCatching { json.parseToJsonElement(raw) }.getOrNull() as? JsonObject
+            ?: return@withClient false
+        client.hki7PublishDashboard(meta.name, payload, sharedWith, meta.id) != null
+    } ?: false
+
     /** Dashboards visible to the current user (own + shared-with-them + everyone). */
     suspend fun listSharedForMe(context: Context): List<Hki7SharedDashboardMeta> =
         Hki7Endpoint.withClient(context) { it.hki7ListSharedDashboards() } ?: emptyList()

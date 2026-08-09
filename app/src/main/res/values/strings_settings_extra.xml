@@ -7,6 +7,20 @@
     <string name="family_dashboard_tab_locked">Locked by family permissions</string>
     <string name="family_dashboard_access_lost_title">Family access removed</string>
     <string name="family_dashboard_access_lost_message">You no longer have access to HKI 7 through this family dashboard. Choose another dashboard shared with you, or use any other option your family permissions allow.</string>
+    <string name="family_access_manage">Manage access</string>
+    <string name="family_access_title">Who can see %1$s</string>
+    <string name="family_access_description">Add or remove people. Everyone you remove loses this dashboard the next time their app syncs.</string>
+    <string name="family_access_shared_everyone">Shared with everyone</string>
+    <string name="family_access_shared_nobody">Shared with no one</string>
+    <string name="family_access_shared_with">Shared with %1$s</string>
+    <string name="family_access_unknown_user">Unknown user</string>
+    <string name="family_access_revoke_warning">Losing access deletes their copy of this dashboard, along with any colours, icons, and names they changed on it.</string>
+    <string name="family_versions_title">HKI versions</string>
+    <string name="family_versions_description">Which HKI build each family device is running. This device is on %1$s. A device only appears once it has run HKI 7 1.0.0-beta.18 or newer at least once.</string>
+    <string name="family_versions_empty">No family devices have reported a version yet.</string>
+    <string name="family_versions_outdated">Older than yours</string>
+    <string name="family_versions_android">Android %1$s</string>
+    <string name="family_versions_reported">reported %1$s</string>
     <string name="settings_extra_active_instance">Active instance</string>
     <string name="settings_extra_automatic_cloud_backup_enabled">Automatic cloud backup enabled.</string>
     <string name="settings_extra_background_restricted_warning">Restricted — background sync will not work</string>
@@ -151,6 +165,8 @@
     <string name="settings_extra_restore_failed">Restore failed: %1$s</string>
     <string name="settings_extra_selected_file_open_failed">Could not open the selected file</string>
     <string name="settings_extra_set_dashboard_default">Set %1$s as the default dashboard</string>
+    <string name="settings_extra_shared_dashboard_access_failed">Could not change who can see “%1$s.”</string>
+    <string name="settings_extra_shared_dashboard_access_updated">Updated who can see “%1$s.”</string>
     <string name="settings_extra_shared_dashboard_delete_failed">Could not delete “%1$s.”</string>
     <string name="settings_extra_shared_dashboard_deleted">“%1$s” was deleted from the cloud.</string>
     <string name="settings_extra_shared_dashboard_import_failed">Could not import “%1$s.”</string>
@@ -160,6 +176,7 @@
     <string name="settings_extra_shared_dashboards_up_to_date">Shared dashboards are already up to date.</string>
     <string name="settings_extra_show_tab">Show tab</string>
     <string name="settings_extra_tab_dashboards">Dashboards</string>
+    <string name="settings_extra_tab_devices">Devices</string>
     <string name="settings_extra_tab_parental_controls">Parental controls</string>
     <string name="settings_extra_tab_permissions">Permissions</string>
     <string name="settings_extra_technology_kotlin">Kotlin</string>
