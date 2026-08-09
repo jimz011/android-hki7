@@ -417,7 +417,7 @@ open class HomeAssistantClient(
         appVersionCode: Int,
         osVersion: String,
         model: String,
-    ): Boolean = withWebSocket {
+    ): Hki7DeviceReportResult? = withWebSocket {
         val data = mapOf<String, JsonElement>(
             "device_id" to JsonPrimitive(deviceId.take(HKI7_TEXT_LIMIT)),
             "device_name" to JsonPrimitive(deviceName.take(HKI7_TEXT_LIMIT)),
@@ -426,7 +426,58 @@ open class HomeAssistantClient(
             "os_version" to JsonPrimitive(osVersion.take(HKI7_TEXT_LIMIT)),
             "model" to JsonPrimitive(model.take(HKI7_TEXT_LIMIT)),
         )
-        sendCommand("hki7/device/report", data)["success"]?.jsonPrimitive?.booleanOrNull == true
+        val response = sendCommand("hki7/device/report", data)
+        if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket null
+        // 0.7.0 stored the report but answered with the record alone; the update fields arrived in
+        // 0.8.0, so their absence means "no requirement", not "requirement of zero".
+        val result = response["result"]?.jsonObject ?: return@withWebSocket Hki7DeviceReportResult()
+        val required = result["required"]?.jsonObject
+        Hki7DeviceReportResult(
+            requiredVersionCode = required?.get("min_version_code")?.jsonPrimitive?.intOrNull,
+            requiredVersionName = required?.get("min_version_name")?.jsonPrimitive?.contentOrNull.orEmpty(),
+            nudgeVersionCode = result["nudge_version_code"]?.jsonPrimitive?.intOrNull,
+            nudgeVersionName = result["nudge_version_name"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+        )
+    }
+
+    /** The household's minimum app version (any authenticated user). Null when the component is
+     *  older than 0.8.0, so the caller leaves whatever it already cached alone. */
+    open suspend fun hki7GetAppUpdatePolicy(): Hki7AppUpdatePolicy? = withWebSocket {
+        val response = sendCommand("hki7/app_update/get")
+        if (response["success"]?.jsonPrimitive?.booleanOrNull != true) return@withWebSocket null
+        val result = response["result"]?.jsonObject ?: return@withWebSocket null
+        Hki7AppUpdatePolicy(
+            minVersionCode = result["min_version_code"]?.jsonPrimitive?.intOrNull,
+            minVersionName = result["min_version_name"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+            setAt = result["set_at"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+        )
+    }
+
+    /** Sets or clears (null) the household's minimum app version. Admin only. False when the
+     *  component refuses it — including a version no device has reported, which it rejects so an
+     *  admin can't demand something nobody is able to install. */
+    open suspend fun hki7SetAppUpdatePolicy(minVersionCode: Int?, minVersionName: String): Boolean = withWebSocket {
+        val data = mapOf<String, JsonElement>(
+            "min_version_code" to (minVersionCode?.let(::JsonPrimitive) ?: JsonNull),
+            "min_version_name" to JsonPrimitive(minVersionName.take(HKI7_TEXT_LIMIT)),
+        )
+        sendCommand("hki7/app_update/set", data)["success"]?.jsonPrimitive?.booleanOrNull == true
+    }
+
+    /** Asks one device to update, or clears that request with a null [versionCode]. Admin only. */
+    open suspend fun hki7NudgeDevice(
+        userId: String,
+        deviceId: String,
+        versionCode: Int?,
+        versionName: String,
+    ): Boolean = withWebSocket {
+        val data = mapOf<String, JsonElement>(
+            "user_id" to JsonPrimitive(userId),
+            "device_id" to JsonPrimitive(deviceId),
+            "version_code" to (versionCode?.let(::JsonPrimitive) ?: JsonNull),
+            "version_name" to JsonPrimitive(versionName.take(HKI7_TEXT_LIMIT)),
+        )
+        sendCommand("hki7/device/nudge", data)["success"]?.jsonPrimitive?.booleanOrNull == true
     }
 
     /** Every HKI install reported in this household (admin only). Null — as opposed to an empty
@@ -448,6 +499,8 @@ open class HomeAssistantClient(
                 osVersion = o["os_version"]?.jsonPrimitive?.contentOrNull,
                 model = o["model"]?.jsonPrimitive?.contentOrNull,
                 reported = o["reported"]?.jsonPrimitive?.contentOrNull ?: "",
+                nudgeVersionCode = o["nudge_version_code"]?.jsonPrimitive?.intOrNull,
+                nudgeVersionName = o["nudge_version_name"]?.jsonPrimitive?.contentOrNull.orEmpty(),
             )
         }
     }

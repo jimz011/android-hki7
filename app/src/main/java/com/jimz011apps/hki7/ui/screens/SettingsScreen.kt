@@ -45,6 +45,7 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.CloudUpload
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -139,6 +140,7 @@ import com.jimz011apps.hki7.data.HaBackupStorage
 import com.jimz011apps.hki7.data.hki7BackupName
 import com.jimz011apps.hki7.data.HaDashboardSharing
 import com.jimz011apps.hki7.data.HaFamilyDevices
+import com.jimz011apps.hki7.data.Hki7AppUpdatePolicy
 import com.jimz011apps.hki7.data.Hki7FamilyDevice
 import androidx.compose.foundation.layout.FlowRow
 import com.jimz011apps.hki7.data.HaParentalControls
@@ -445,6 +447,8 @@ fun SettingsDialog(
     // reports as such instead of showing an empty list that would read as "nobody has HKI".
     var familyDevices by remember { mutableStateOf<List<com.jimz011apps.hki7.data.Hki7FamilyDevice>?>(null) }
     var familyDevicesLoading by remember { mutableStateOf(false) }
+    var familyDevicesBusy by remember { mutableStateOf(false) }
+    var familyUpdatePolicy by remember { mutableStateOf<com.jimz011apps.hki7.data.Hki7AppUpdatePolicy?>(null) }
     // Probe the hki7 component once so the menu can show admin-only entries (Parental Controls).
     LaunchedEffect(Unit) {
         val id = runCatching { HaDashboardSharing.whoami(context) }.getOrNull()
@@ -2328,12 +2332,47 @@ fun SettingsDialog(
                                         LaunchedEffect(familyTab) {
                                             familyDevicesLoading = true
                                             familyDevices = runCatching { HaFamilyDevices.list(context) }.getOrNull()
+                                            familyUpdatePolicy = runCatching { HaFamilyDevices.updatePolicy(context) }.getOrNull()
                                             familyDevicesLoading = false
+                                        }
+                                        // Both actions change what the component will tell devices,
+                                        // so the list and the requirement are re-read together.
+                                        val reloadFamilyDevices: suspend () -> Unit = {
+                                            familyDevices = runCatching { HaFamilyDevices.list(context) }.getOrNull() ?: familyDevices
+                                            familyUpdatePolicy = runCatching { HaFamilyDevices.updatePolicy(context) }.getOrNull() ?: familyUpdatePolicy
                                         }
                                         FamilyDevicesPanel(
                                             devices = familyDevices,
                                             loading = familyDevicesLoading,
                                             componentVersion = hki7ComponentVersion,
+                                            policy = familyUpdatePolicy,
+                                            busy = familyDevicesBusy,
+                                            onRequireVersion = { code, name ->
+                                                familyDevicesBusy = true
+                                                scope.launch {
+                                                    val ok = runCatching { HaFamilyDevices.setUpdatePolicy(context, code, name) }
+                                                        .getOrDefault(false)
+                                                    if (ok) reloadFamilyDevices() else {
+                                                        setupChangedMessage =
+                                                            context.getString(R.string.settings_extra_family_require_failed)
+                                                    }
+                                                    familyDevicesBusy = false
+                                                }
+                                            },
+                                            onNudge = { device, code, name ->
+                                                familyDevicesBusy = true
+                                                scope.launch {
+                                                    val ok = runCatching { HaFamilyDevices.nudge(context, device, code, name) }
+                                                        .getOrDefault(false)
+                                                    if (ok) reloadFamilyDevices() else {
+                                                        setupChangedMessage = context.getString(
+                                                            R.string.settings_extra_family_nudge_failed,
+                                                            device.deviceName,
+                                                        )
+                                                    }
+                                                    familyDevicesBusy = false
+                                                }
+                                            },
                                             onForget = { device ->
                                                 scope.launch {
                                                     val ok = runCatching { HaFamilyDevices.forget(context, device) }
@@ -3813,7 +3852,8 @@ private fun SettingsPanel(content: @Composable ColumnScope.() -> Unit) {
 }
 
 /**
- * Which HKI version each family device is running, read from the `hki7` companion component.
+ * Which HKI version each family device is running, read from the `hki7` companion component, plus
+ * the admin's controls for getting everyone onto the same one.
  *
  * Each install reports itself over the WebSocket connection the app already holds, so this covers
  * every signed-in device — including one that has location and notifications switched off, which
@@ -3828,9 +3868,21 @@ private fun FamilyDevicesPanel(
     devices: List<Hki7FamilyDevice>?,
     loading: Boolean,
     componentVersion: String?,
+    policy: Hki7AppUpdatePolicy?,
+    busy: Boolean,
+    onRequireVersion: (Int?, String) -> Unit,
+    onNudge: (Hki7FamilyDevice, Int?, String) -> Unit,
     onForget: (Hki7FamilyDevice) -> Unit,
 ) {
     val appColors = LocalHKIAppColors.current
+    // Only a version somebody actually runs can be demanded — the component enforces this too, but
+    // offering an impossible number and then reporting a failure would be a worse way to say so.
+    val newest = devices.orEmpty().mapNotNull { it.appVersionCode }.maxOrNull()
+    val newestName = devices.orEmpty()
+        .filter { it.appVersionCode == newest }
+        .firstNotNullOfOrNull { it.appVersion.takeIf(String::isNotBlank) }
+        .orEmpty()
+
     SettingsPanel {
         Text(stringResource(R.string.family_versions_title), color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
         Hki7RequiresComponent(componentVersion, HaFamilyDevices.MIN_COMPONENT_VERSION)
@@ -3850,49 +3902,84 @@ private fun FamilyDevicesPanel(
                 // Behind is decided on the version code, the only monotonic number in play:
                 // comparing "1.0.0-beta.9" to "1.0.0-beta.10" as text puts the older build ahead.
                 val behind = device.appVersionCode != null && device.appVersionCode < BuildConfig.VERSION_CODE
+                val nudged = device.nudgeVersionCode != null
                 Surface(Modifier.fillMaxWidth(), shape = itemCornerShape(), color = appColors.subtleSurface) {
-                    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Default.PhoneAndroid,
-                            null,
-                            tint = if (behind) MaterialTheme.colorScheme.error else appColors.onMuted,
-                            modifier = Modifier.size(22.dp)
-                        )
-                        Spacer(Modifier.width(12.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(
-                                device.userName.ifBlank { device.deviceName },
-                                color = appColors.onSurface,
-                                fontWeight = FontWeight.SemiBold
+                    Column(Modifier.padding(12.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.PhoneAndroid,
+                                null,
+                                tint = if (behind) MaterialTheme.colorScheme.error else appColors.onMuted,
+                                modifier = Modifier.size(22.dp)
                             )
-                            val details = listOfNotNull(
-                                device.deviceName.takeIf { it.isNotBlank() && it != device.userName },
-                                device.osVersion?.takeIf { it.isNotBlank() }
-                                    ?.let { stringResource(R.string.family_versions_android, it) },
-                                formatSharedUpdated(device.reported).takeIf { it.isNotBlank() }
-                                    ?.let { stringResource(R.string.family_versions_reported, it) },
-                            )
-                            if (details.isNotEmpty()) {
-                                Text(details.joinToString(" · "), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
-                            }
-                        }
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(device.appVersion, color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
-                            if (behind) {
+                            Spacer(Modifier.width(12.dp))
+                            Column(Modifier.weight(1f)) {
                                 Text(
-                                    stringResource(R.string.family_versions_outdated),
-                                    color = MaterialTheme.colorScheme.error,
-                                    style = MaterialTheme.typography.labelSmall
+                                    device.userName.ifBlank { device.deviceName },
+                                    color = appColors.onSurface,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                val details = listOfNotNull(
+                                    device.deviceName.takeIf { it.isNotBlank() && it != device.userName },
+                                    device.osVersion?.takeIf { it.isNotBlank() }
+                                        ?.let { stringResource(R.string.family_versions_android, it) },
+                                    formatSharedUpdated(device.reported).takeIf { it.isNotBlank() }
+                                        ?.let { stringResource(R.string.family_versions_reported, it) },
+                                )
+                                if (details.isNotEmpty()) {
+                                    Text(details.joinToString(" \u00b7 "), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(device.appVersion, color = appColors.onSurface, style = MaterialTheme.typography.labelLarge)
+                                if (behind) {
+                                    Text(
+                                        stringResource(R.string.family_versions_outdated),
+                                        color = MaterialTheme.colorScheme.error,
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
+                                }
+                            }
+                            IconButton(onClick = { onForget(device) }) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    stringResource(R.string.family_versions_forget),
+                                    tint = appColors.onMuted,
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
                         }
-                        IconButton(onClick = { onForget(device) }) {
-                            Icon(
-                                Icons.Default.Delete,
-                                stringResource(R.string.family_versions_forget),
-                                tint = appColors.onMuted,
-                                modifier = Modifier.size(18.dp)
-                            )
+                        // Asking one phone to update, for when the whole household doesn't need to
+                        // move. Only offered to a device that is actually behind something real.
+                        if (behind && newest != null) {
+                            TextButton(
+                                enabled = !busy,
+                                onClick = {
+                                    if (nudged) onNudge(device, null, "") else onNudge(device, newest, newestName)
+                                },
+                                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
+                            ) {
+                                Icon(
+                                    if (nudged) Icons.Default.Close else Icons.Default.CloudUpload,
+                                    null,
+                                    Modifier.size(18.dp)
+                                )
+                                Spacer(Modifier.width(6.dp))
+                                Text(
+                                    if (nudged) stringResource(R.string.family_versions_nudge_clear)
+                                    else stringResource(R.string.family_versions_nudge, newestName.ifBlank { newest.toString() })
+                                )
+                            }
+                            if (nudged) {
+                                Text(
+                                    stringResource(
+                                        R.string.family_versions_nudge_pending,
+                                        device.nudgeVersionName.ifBlank { device.nudgeVersionCode.toString() }
+                                    ),
+                                    color = appColors.onMuted,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
                         }
                     }
                 }
@@ -3901,6 +3988,44 @@ private fun FamilyDevicesPanel(
         if (devices != null) {
             Text(stringResource(R.string.family_versions_forget_hint), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
         }
+    }
+
+    if (devices.isNullOrEmpty()) return
+    SettingsPanel {
+        Text(stringResource(R.string.family_require_title), color = appColors.onSurface, style = MaterialTheme.typography.titleMedium)
+        Hki7RequiresComponent(componentVersion, HaFamilyDevices.MIN_UPDATE_POLICY_VERSION)
+        Text(stringResource(R.string.family_require_description), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+        val required = policy?.minVersionCode
+        if (required != null) {
+            Text(
+                stringResource(R.string.family_require_current, policy.minVersionName.ifBlank { required.toString() }),
+                color = appColors.onSurface,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        // Nothing here can install anything, so the honest ceiling is the newest version some
+        // device already runs. Demanding more would only leave the family staring at a prompt they
+        // cannot satisfy, which is why the component refuses it too.
+        if (newest != null && required != newest) {
+            Button(
+                enabled = !busy,
+                onClick = { onRequireVersion(newest, newestName) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.CloudUpload, null)
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.family_require_set, newestName.ifBlank { newest.toString() }))
+            }
+        }
+        if (required != null) {
+            OutlinedButton(
+                enabled = !busy,
+                onClick = { onRequireVersion(null, "") },
+                modifier = Modifier.fillMaxWidth()
+            ) { Text(stringResource(R.string.family_require_clear)) }
+        }
+        Text(stringResource(R.string.family_require_hint), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
     }
 }
 

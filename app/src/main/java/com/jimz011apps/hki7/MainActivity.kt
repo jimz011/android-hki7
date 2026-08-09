@@ -93,6 +93,7 @@ import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.data.HaParentalControls
 import com.jimz011apps.hki7.data.HaDashboardSharing
 import com.jimz011apps.hki7.data.VisibilityUserSession
+import com.jimz011apps.hki7.ui.components.AppUpdateRequiredScreen
 import com.jimz011apps.hki7.ui.components.IconEffectDefaults
 import com.jimz011apps.hki7.ui.components.RoomMovePrompt
 import com.jimz011apps.hki7.ui.components.LocalEntityCatalogProvider
@@ -385,6 +386,39 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     })
+    // Registered before the two full-screen gates below, both of which return early. They still
+    // need the view model going through its normal foreground path — connecting, refreshing an
+    // expired token, and re-reading what the admin currently requires — or a device could be shown
+    // a gate it has no way of ever getting out of, because nothing would fetch the change that
+    // lifts it.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> viewModel.setAppVisible(true)
+                Lifecycle.Event.ON_STOP -> viewModel.setAppVisible(false)
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    // "Your family expects a newer HKI." Shown ahead of everything else, including the dashboard
+    // chooser, because being on a version the household has moved past is exactly the case where
+    // the rest of the app may misbehave. Dismissal lives in this composable rather than in storage:
+    // it lasts the session, and the next launch re-checks whether Play can serve the update now.
+    val requiredAppUpdate by prefs.requiredAppUpdate.collectAsState(initial = null)
+    var updatePromptDismissed by remember { mutableStateOf(false) }
+    requiredAppUpdate?.takeIf { it.applies && !updatePromptDismissed }?.let { required ->
+        AppUpdateRequiredScreen(
+            required = required,
+            prefs = prefs,
+            onContinue = { updatePromptDismissed = true },
+        )
+        return
+    }
+
     val familyDashboardAccessLost by prefs.familyDashboardAccessLost.collectAsState(initial = false)
     if (familyDashboardAccessLost) {
         OnboardingScreen(
@@ -691,19 +725,6 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         if (permissions.values.any { it }) viewModel.startLocationReporting(context)
-    }
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_START -> viewModel.setAppVisible(true)
-                Lifecycle.Event.ON_STOP -> viewModel.setAppVisible(false)
-                else -> {}
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     val notificationPermissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(

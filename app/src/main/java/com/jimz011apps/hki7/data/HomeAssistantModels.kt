@@ -1868,6 +1868,28 @@ data class Hki7FamilyDevice(
     val osVersion: String?,
     val model: String?,
     val reported: String,
+    /** A pending "please update this phone" request from an admin, cleared by the component as
+     *  soon as the device reports a version that satisfies it. */
+    val nudgeVersionCode: Int? = null,
+    val nudgeVersionName: String = "",
+)
+
+/** The household's minimum app version, as set by an admin. A null [minVersionCode] means no
+ *  requirement — nobody is prompted to update. */
+data class Hki7AppUpdatePolicy(
+    val minVersionCode: Int?,
+    val minVersionName: String,
+    val setAt: String,
+)
+
+/** What `hki7/device/report` tells a device about the version it is expected to be on. Every field
+ *  is null/blank against component 0.7.0, which stored the report but answered with the record
+ *  alone — absence therefore means "nothing is being asked of this device". */
+data class Hki7DeviceReportResult(
+    val requiredVersionCode: Int? = null,
+    val requiredVersionName: String = "",
+    val nudgeVersionCode: Int? = null,
+    val nudgeVersionName: String = "",
 )
 
 /** Metadata for a shared dashboard stored by the `hki7` companion component. */

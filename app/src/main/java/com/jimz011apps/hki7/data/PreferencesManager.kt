@@ -272,6 +272,12 @@ class PreferencesManager(
     private val parentalAllowDashboardCreateKey = booleanPreferencesKey("parental_allow_dashboard_create")
     private val parentalAllowReimportKey = booleanPreferencesKey("parental_allow_reimport")
     private val familyDeviceIdKey = stringPreferencesKey("family_device_id")
+    // Last-known "the family expects at least this version" from the companion component, cached so
+    // the prompt can show at launch (before the first report of the session comes back) and doesn't
+    // vanish the moment Home Assistant is briefly unreachable.
+    private val requiredAppVersionCodeKey = intPreferencesKey("required_app_version_code")
+    private val requiredAppVersionNameKey = stringPreferencesKey("required_app_version_name")
+    private val requiredAppVersionIsDeviceKey = booleanPreferencesKey("required_app_version_is_device")
     private val lastSeenVersionCodeKey = intPreferencesKey("last_seen_version_code")
     private val homeAssistantInstancesKey = stringPreferencesKey("home_assistant_instances_v1")
     private val activeHomeAssistantInstanceIdKey = stringPreferencesKey("active_home_assistant_instance_id")
@@ -1121,6 +1127,33 @@ class PreferencesManager(
             id = p[familyDeviceIdKey] ?: UUID.randomUUID().toString().also { p[familyDeviceIdKey] = it }
         }
         return id.orEmpty()
+    }
+
+    /** The version this device is being asked to be on, or null when nothing is required of it. */
+    val requiredAppUpdate: Flow<Hki7RequiredUpdate?> = context.dataStore.data.map { p ->
+        p[requiredAppVersionCodeKey]?.takeIf { it > 0 }?.let { code ->
+            Hki7RequiredUpdate(
+                versionCode = code,
+                versionName = p[requiredAppVersionNameKey].orEmpty(),
+                deviceSpecific = p[requiredAppVersionIsDeviceKey] ?: false,
+            )
+        }
+    }
+
+    /** Caches what the component last said this device must run. Passing null clears it, which is
+     * how an admin lifting the requirement reaches the device that was being blocked. */
+    suspend fun saveRequiredAppUpdate(update: Hki7RequiredUpdate?) {
+        context.dataStore.edit { p ->
+            if (update == null) {
+                p.remove(requiredAppVersionCodeKey)
+                p.remove(requiredAppVersionNameKey)
+                p.remove(requiredAppVersionIsDeviceKey)
+            } else {
+                p[requiredAppVersionCodeKey] = update.versionCode
+                p[requiredAppVersionNameKey] = update.versionName
+                p[requiredAppVersionIsDeviceKey] = update.deviceSpecific
+            }
+        }
     }
 
     suspend fun markFamilyDashboardSubscribed() {

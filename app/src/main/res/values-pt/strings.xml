@@ -3261,6 +3261,7 @@
         <item>Um administrador agora pode alterar com quem um painel familiar publicado é compartilhado, em vez de poder escolher apenas no momento da publicação. Configurações › Compartilhamento Familiar › Painéis lista quem é alcançado por cada painel publicado, com um botão Gerenciar acesso para adicionar ou remover pessoas. Até agora, a única maneira de retirar um painel de uma pessoa era excluí-lo para todos.*</item>
         <item>Perder o acesso a um painel familiar agora limpa o que estava sobre ele. O painel em si já foi removido, mas as salas, widgets, páginas, barra de navegação, cabeçalho e tema deixados no dispositivo permaneceram - então o próximo painel que um administrador compartilhou chegou em cima das sobras do anterior e parecia que não havia sido importado por completo. Tudo o que pertencia ao painel revogado agora é removido com ele. As conexões, perfis e configurações de notificação do Home Assistant permanecem intactas: perder um painel não significa desconectar-se.*</item>
         <item>Guia Novos dispositivos em Configurações › Compartilhamento familiar, mostrando qual versão HKI cada dispositivo da família está executando e sinalizando aqueles mais antigos que o seu, com a conta do Home Assistant, nome do dispositivo, versão do Android e quando foi relatado pela última vez. Cada instalação registra isso por meio do componente HKI 7 Cloud através da conexão que o aplicativo já usa, de modo que todos os dispositivos conectados são cobertos – incluindo um com localização e notificações desligados – e nada é adicionado à lista de entidades do Home Assistant. Um dispositivo só pode reportar a si mesmo. Um administrador pode esquecer um telefone que foi substituído; um ainda em uso reaparece na próxima vez que seu aplicativo for aberto. Requer HKI 7 Cloud 0.7.0.*</item>
+        <item>Um administrador agora pode exigir que a família seja atualizada. "Exigir que todos estejam nesta versão" na guia Dispositivos define um mínimo doméstico; qualquer pessoa abaixo dele recebe um aviso em tela cheia no próximo lançamento, em vez do painel, com a atualização do aplicativo do Google Play fazendo a instalação. Há também um “Pedir para atualizar” por dispositivo para quando um telefone está atrasado em vez de todos, que é apagado automaticamente assim que o dispositivo é atualizado. Nenhum aplicativo pode instalar uma versão mais recente de si mesmo, então o Play faz o trabalho real – o que também significa que o prompt só pode insistir quando o Play realmente tiver a atualização pronta. Quando isso não acontece, o prompt explica o motivo e permite que você passe para aquela sessão, em vez de bloquear alguém de seus próprios bloqueios e alarmes por causa de uma atualização que ele não consegue obter. Você só pode exigir uma versão que algum dispositivo da família já execute. Requer HKI 7 Cloud 0.8.0.*</item>
         <item>Cada guia do Compartilhamento Familiar agora diz por si mesma quando precisa de um HKI 7 Cloud mais recente do que o instalado, em vez de aparecer apenas no resumo na parte superior da tela. Os controles dos pais, permissões, presença e dispositivos carregam a versão necessária, portanto, fica claro antes de você configurar uma guia cujas configurações o componente instalado ainda não pode armazenar.</item>
     </string-array>
 
@@ -3660,4 +3661,25 @@
     <string name="settings_extra_hki_cloud_feature_devices">Ver qual versão HKI cada dispositivo da família executa</string>
     <string name="settings_extra_hki_cloud_tab_requires">Precisa do HKI 7 Cloud v%1$s ou mais recente. Atualize o componente no HACS — até então, o que você definir aqui não terá efeito.</string>
     <string name="settings_extra_family_device_forget_failed">Não poderia esquecer “%1$s.”</string>
+    <string name="family_versions_nudge">Peça para atualizar para %1$s</string>
+    <string name="family_versions_nudge_clear">Cancelar solicitação de atualização</string>
+    <string name="family_versions_nudge_pending">Aguardando a atualização deste dispositivo para %1$s. A solicitação é limpa automaticamente assim que isso acontece.</string>
+    <string name="family_require_title">Exigir uma versão HKI</string>
+    <string name="family_require_description">Todos abaixo da versão que você precisa serão solicitados a atualizar antes de continuarem usando o HKI. Nada aqui instala nada – o Google Play faz a atualização, então as pessoas só ficam paradas quando o Play realmente o tiver pronto para elas.</string>
+    <string name="family_require_current">Atualmente necessário: %1$s</string>
+    <string name="family_require_set">Exigir que todos estejam em %1$s</string>
+    <string name="family_require_clear">Limpe o requisito</string>
+    <string name="family_require_hint">Você só pode exigir uma versão que algum dispositivo já execute, portanto, um requisito nunca pode ser aquele que ninguém consegue instalar.</string>
+    <string name="settings_extra_family_require_failed">Não foi possível alterar a versão necessária. Tem que ser um dispositivo familiar que já esteja em execução.</string>
+    <string name="settings_extra_family_nudge_failed">Não foi possível solicitar “%1$s” para atualizar.</string>
+    <string name="app_update_required_title">Hora de atualizar o HKI</string>
+    <string name="app_update_required_title_device">Este dispositivo precisa de uma atualização HKI</string>
+    <string name="app_update_required_message">Sua família está em HKI %1$s. Este dispositivo está em %2$s.</string>
+    <string name="app_update_required_checking">Verificando o Google Play…</string>
+    <string name="app_update_required_update">Atualizar agora</string>
+    <string name="app_update_required_open_store">Abra o HKI na Play Store</string>
+    <string name="app_update_required_opened_store">O Google Play não pôde assumir o controle aqui, então a página da loja foi aberta.</string>
+    <string name="app_update_required_unavailable">O Google Play ainda não tem nenhuma atualização pronta para este dispositivo. Isso geralmente significa que o lançamento não chegou até você ou que esta cópia do HKI não veio da Play Store.</string>
+    <string name="app_update_required_continue">Continuar sem atualizar</string>
+    <string name="settings_extra_hki_cloud_feature_required_version">Exigir que a família atualize para uma determinada versão do HKI</string>
 </resources>

@@ -84,6 +84,7 @@ private val HKI7_COMPONENT_FEATURES = listOf(
     Hki7ComponentFeature("0.6.0", R.string.settings_extra_hki_cloud_feature_room_follow),
     Hki7ComponentFeature("0.6.1", R.string.settings_extra_hki_cloud_feature_room_follow_launch_only),
     Hki7ComponentFeature("0.7.0", R.string.settings_extra_hki_cloud_feature_devices),
+    Hki7ComponentFeature("0.8.0", R.string.settings_extra_hki_cloud_feature_required_version),
 )
 
 /**
