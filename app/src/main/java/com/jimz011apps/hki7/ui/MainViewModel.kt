@@ -180,6 +180,10 @@ private const val STATE_RESEED_INTERVAL_MS = 15 * 60 * 1000L
  *  keeps the list a bounded amount of work to render. */
 private const val MAX_TIMELINE_EVENTS = 500
 
+/** Lines kept in the in-app connection log. Enough to cover a reconnect loop or a failed startup
+ *  sequence, which is what anyone reading it is trying to diagnose. */
+private const val MAX_LOG_LINES = 300
+
 /** Fast recovery probes after LAN fallback. Failed checks back off and then cap at ten seconds. */
 private val INTERNAL_URL_RETRY_DELAYS_MS = longArrayOf(1_000L, 3_000L, 5_000L, 10_000L)
 private const val INTERNAL_URL_PROBE_TIMEOUT_MS = 4_000L
@@ -1640,6 +1644,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                         publish()
                     }
                 }
+                addLog("Event timeline: subscribing to ${entityIds.size} entities over ${hours}h")
                 try {
                     currentClient.subscribeLogbook(entityIds, since).collect { event ->
                         // Newest first, matching the notification list above it. History streams
@@ -1669,6 +1674,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     /** Stops the timeline subscription. Safe to call when it was never started. */
     fun stopEventTimeline() {
+        // Logged so "did the subscription actually stop when I closed the drawer?" is answerable
+        // from Settings › Connection rather than only from Home Assistant's own websocket log.
+        if (eventTimelineJob != null) addLog("Event timeline: unsubscribed")
         eventTimelineJob?.cancel()
         eventTimelineJob = null
         _eventTimelineLoading.value = false
@@ -1950,7 +1958,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
 
     private fun addLog(message: String) {
         val timestamp = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
-        _logs.value = (listOf("[$timestamp] $message") + _logs.value).take(100)
+        _logs.value = (listOf("[$timestamp] $message") + _logs.value).take(MAX_LOG_LINES)
+    }
+
+    /** Empties the connection log shown in Settings › Connection. */
+    fun clearLogs() {
+        _logs.value = emptyList()
     }
 
     private fun observeSettings() {

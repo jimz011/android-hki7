@@ -252,7 +252,6 @@
     <string name="settings_subtitle_backup_restore">Proteja ou transfira a configuração do seu painel</string>
     <string name="settings_subtitle_connection">Rotas de servidor e preferências de rede local</string>
     <string name="settings_subtitle_corners">Arredondamento de botões, cartões e widgets</string>
-    <string name="settings_subtitle_dashboard">Crie, alterne, renomeie e organize painéis</string>
     <string name="settings_subtitle_family_sharing">Controle parental, compartilhamento de painel e permissões de destinatários</string>
     <string name="settings_subtitle_fonts">Tamanho, peso e legibilidade da fonte</string>
     <string name="settings_subtitle_header">Escolha se o cabeçalho do painel é exibido</string>
@@ -3257,14 +3256,25 @@
         <item quantity="one">Gráfico %1$d · %2$d sensor</item>
         <item quantity="other">Gráfico %1$d · %2$d sensores</item>
     </plurals>
-<string-array name="cr_whats_new_beta_19">
+<string-array name="cr_whats_new_1_0_0">
     <item>Nova guia Eventos na gaveta de notificações: uma linha do tempo do que sua casa realmente tem feito. A porta da frente se abrindo, uma luz se apagando, alguém chegando em casa – cada um com a hora e, onde o Home Assistant sabe, quem fez isso. Um administrador escolhe quais entidades aparecem em Configurações › Compartilhamento Familiar › Eventos, uma vez para toda a família, e não em todos os telefones. Ele lê o próprio diário de bordo do Home Assistant em vez de gravar qualquer coisa no dispositivo, então ainda mostra o que aconteceu durante a noite enquanto o aplicativo estava fechado e abre nas últimas 3 horas – uma linha do tempo responde o que acabou de acontecer – com 6h a 72h a um toque de distância. Os eventos nunca afetam a contagem de não lidas do sino de notificação: uma linha do tempo de abertura de portas deixaria esse emblema permanentemente aceso e não significaria nada. Requer HKI 7 Cloud 0.9.0.*</item>
     <item>Um administrador pode retirar partes da linha do tempo de membros individuais da família (um domínio inteiro ou entidades nomeadas) na mesma guia Eventos. Todos veem a linha do tempo completa, a menos que algo seja retirado para eles, portanto, adicionar uma pessoa à família não significa construir sua linha do tempo do zero. A filtragem acontece no componente HKI 7 Cloud e não no aplicativo, de modo que um dispositivo restrito nunca é informado de quais entidades ele está sendo mantido afastado. Tal como acontece com visualizações e salas ocultas, isso oculta a linha do tempo em vez das entidades: o Home Assistant não tem permissão de leitura por entidade para contas que não sejam de administrador, portanto, qualquer pessoa conectada ainda pode ler essas entidades por meio do próprio Home Assistant.*</item>
     <item>A lista de eventos leva domínios inteiros, bem como entidades nomeadas, portanto, “cada bloqueio” é uma escolha em vez de onze. Os domínios são resolvidos sempre que a linha do tempo é aberta, portanto, um bloqueio adicionado no próximo mês é adicionado por conta própria, em vez da lista, o que significa o que existia no dia em que foi definido. O editor mostra o que cada domínio cobre atualmente, já que um domínio pode conter centenas de entidades. Requer HKI 7 Cloud 0.10.0.*</item>
     <item>Os eventos são rotulados e filtráveis de acordo com o tipo de coisa que aconteceram – portas, janelas, movimento, luzes, fechaduras. A linha do filtro é construída a partir do que sua linha do tempo realmente contém, portanto, nunca será oferecido a você um filtro que só possa voltar vazio. Os dias permanecem como títulos de lista: uma linha do tempo que se reordena por categoria deixa de ser uma linha do tempo.</item>
     <item>A arte do tempo agora é animada na previsão diária, na faixa horária e no cabeçalho, não apenas no cartão do herói. A animação foi previamente desativada abaixo de um tamanho fixo, que capturou todos os três.</item>
     <item>Onde a arte do tempo é animada agora há quatro opções separadas – pílula de cabeçalho, diálogo de clima, faixas de previsão, widget de clima – em vez de usar a configuração de animação do ícone da entidade. As faixas de previsão animam uma dúzia de ícones lado a lado e são as únicas que custam algo perceptível, portanto, desativá-las não significa necessariamente perder o único pequeno ícone na pílula do cabeçalho. Todos os quatro estão ativados por padrão e aparecem em Configurações › Aparência › Ícones e nas próprias configurações do painel de cabeçalho.</item>
-    <item>O seletor de intervalo 6h/12h/24h/48h/72h está centralizado em vez de alinhado à esquerda, em todos os lugares em que aparece.</item>
+    <item>O seletor de faixa 6h/12h/24h/48h/72h é centralizado em vez de alinhado à esquerda em todos os lugares que aparece e ganha uma opção de 3h.</item>
+    <item>Novo registro de conexão na parte inferior de Configurações › Conexão: o que a conexão do aplicativo realmente tem feito – tentativas de conexão, reconexões, sincronização e assinaturas – com botões para copiar ou limpar. Tudo isso já estava sendo gravado; nada exibiu isso. Ele contém as últimas 300 linhas e começa vazio a cada inicialização.</item>
+    <item>As opções de layout de uma pilha de botões agora têm o mesmo nome de um único botão. A mesma forma foi chamada de Tile on a button e Compact on a stack, o que os fazia parecer características diferentes.</item>
+    <item>Novo layout de botão centralizado ao lado de Padrão, Quadrado e Bloco: um cartão quadrado cujo ícone fica no meio do espaço acima do texto, com o nome e o estado centralizados abaixo dele. O ícone é empurrado para cima em vez de aglomerado à medida que o texto aumenta. Uma grade deles funciona como um teclado, que é o que torna possível um controle remoto.</item>
+    <item>O ícone, o nome e o estado de um botão são mostrados ou ocultados por conta própria, em uma nova seção Elementos em suas configurações. A antiga opção apenas de ícone desapareceu – ocultar o nome e o estado foi o que aconteceu, e isso também permite que você mantenha um deles. Os botões existentes apenas com ícones continuam funcionando.</item>
+    <item>Uma pilha de botões carrega os mesmos três interruptores para todos os seus filhos, portanto, uma pilha de vinte botões não precisa ser configurada vinte vezes. Desativar um na pilha oculta-o em todos os botões; deixá-lo ativado permite que cada botão decida.</item>
+    <item>Corrigida a caixa de diálogo de configurações da pilha de botões parando cerca de dois terços do caminho com espaço vazio abaixo dela, deixando o restante inacessível em um telefone alto ou tablet.</item>
+    <item>Barra de navegação, reprodutores de mídia e pop-ups movidos de Configurações › Aparência para Configurações › Painel, abaixo dos próprios painéis. Eles são partes da composição do painel, e não de seu estilo.</item>
+    <item>Configurações › A conexão termina com o registro de conexão, e Reiniciar o Home Assistant agora fica abaixo dele, e não acima – é a coisa mais perturbadora na tela e a menos desejada.</item>
+    <item>A guia Eventos oferece ao administrador um botão direto para Configurações › Compartilhamento Familiar › Eventos quando nada está sendo rastreado ainda, em vez de apenas indicar para onde ir.</item>
+    <item>Os seletores de entidades e domínios listam o que já está selecionado primeiro, portanto, desfazer uma escolha não significa procurá-la em ordem alfabética. A ordem é fixada quando o selecionador abre, então marcar algo não faz com que ele salte do seu dedo.</item>
+    <item>O cabeçalho de uma pilha de botões agora possui opções explícitas de Mostrar nome e Mostrar ícone, além de uma opção para centralizá-los. Limpar o campo de texto costumava ser a única maneira de obter uma pilha sem cabeçalho, o que escondia que isso era possível e significava perder o nome para ocultá-lo.</item>
 </string-array>
 
 <string-array name="cr_whats_new_beta_18">
@@ -3779,7 +3789,6 @@
     <string name="event_category_vacuum">Vácuo</string>
     <string name="event_category_window">Windows</string>
     <string name="events_filter_all">Todos</string>
-    <string name="settings_extra_events_capped">%1$d entidades e domínios %2$d salvos. A lista da linha do tempo está limitada.</string>
     <string name="settings_extra_events_resolved_capped">Esta lista cobre entidades %2$d, mas uma linha do tempo se inscreve no máximo em %1$d. Remova um domínio ou adicione entidades por nome.</string>
     <string name="settings_extra_events_whole_domain">Todas as %1$s (entidades %2$d)</string>
     <string name="weather_animate_applies_everywhere">Isso se aplica a este dispositivo em todos os lugares onde o clima é mostrado, não apenas a esta pílula. As mesmas opções estão em Configurações › Aparência › Ícones.</string>
@@ -3793,4 +3802,30 @@
     <string name="weather_animate_title">Clima animado</string>
     <string name="weather_animate_widget">Widget meteorológico</string>
     <string name="weather_animate_widget_description">O cartão meteorológico no próprio painel.</string>
+    <string name="logs_clear">Limpe o registro</string>
+    <string name="logs_copy">Copie o registro</string>
+    <string name="logs_count">Registro de conexão (%1$d)</string>
+    <string name="logs_empty">Registro de conexão</string>
+    <string name="logs_empty_hint">Nada registrado ainda. Tentativas de conexão, reconexões, sincronização e assinaturas aparecem aqui conforme acontecem.</string>
+    <string name="logs_show_all">Mostrar tudo %1$d</string>
+    <string name="logs_show_less">Mostrar menos</string>
+    <string name="logs_subtitle">O que a conexão do aplicativo com o Home Assistant tem feito</string>
+    <string name="logs_title">Registro de conexão</string>
+    <string name="stack_center_title_description">Coloca o ícone e o nome no meio, em vez de na borda esquerda.</string>
+    <string name="stack_show_icon">Mostrar ícone</string>
+    <string name="stack_show_icon_description">O ícone ao lado do título.</string>
+    <string name="stack_show_title">Mostrar nome</string>
+    <string name="stack_show_title_description">Desligue para uma pilha sem título algum.</string>
+    <string name="settings_extra_events_capped">%1$d entidades e domínios %2$d salvos. A lista da linha do tempo está limitada.</string>
+    <string name="settings_subtitle_dashboard">Painéis, guias, reprodutores de mídia e pop-ups</string>
+    <string name="stack_center_title">Centralize o título</string>
+    <string name="button_element_icon">Ícone</string>
+    <string name="button_element_name">Nome</string>
+    <string name="button_element_state">Estado</string>
+    <string name="button_elements">Elementos</string>
+    <string name="events_set_up_button">Escolha entidades</string>
+    <string name="button_elements_description">O que aparece neste botão. Oculte o nome e o estado de um ícone por conta própria.</string>
+    <string name="button_style_centered">Centralizado</string>
+    <string name="stack_elements_title">Elementos em cada botão desta pilha</string>
+    <string name="stack_elements_description">Eles se aplicam a toda a pilha, não a um botão. Desativar algo aqui oculta todos os botões da pilha; deixá-lo ativado permite que cada botão decida por si mesmo em suas próprias configurações.</string>
 </resources>

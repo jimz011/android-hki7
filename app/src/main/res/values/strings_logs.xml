@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The in-app connection log, under Settings › Connection. A live diagnostic of what the app's
+  connection is doing, not a persisted history — it is cleared when the app restarts.
+-->
+<resources>
+    <string name="logs_title">Connection log</string>
+    <string name="logs_subtitle">What the app\'s connection to Home Assistant has been doing</string>
+    <string name="logs_empty">Connection log</string>
+    <string name="logs_empty_hint">Nothing logged yet. Connection attempts, reconnects, sync and subscriptions appear here as they happen.</string>
+    <string name="logs_count">Connection log (%1$d)</string>
+    <string name="logs_copy">Copy the log</string>
+    <string name="logs_clear">Clear the log</string>
+    <string name="logs_show_all">Show all %1$d</string>
+    <string name="logs_show_less">Show less</string>
+</resources>

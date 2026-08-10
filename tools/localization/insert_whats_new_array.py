@@ -87,13 +87,30 @@ def remove_array(path: Path, array_name: str) -> None:
 
 
 def main() -> None:
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    replace = "--replace" in sys.argv
+    argv = sys.argv[1:]
+    replace = "--replace" in argv
+    previous_override = None
+    if "--previous" in argv:
+        previous_override = argv[argv.index("--previous") + 1]
+    args = [
+        a for i, a in enumerate(argv)
+        if not a.startswith("--") and (i == 0 or argv[i - 1] != "--previous")
+    ]
     if len(args) != 1:
-        raise SystemExit("Usage: insert_whats_new_array.py <beta_N> [--replace]")
+        raise SystemExit(
+            "Usage: insert_whats_new_array.py <release> [--previous <array_name>] [--replace]\n"
+            "  <release> is the suffix, e.g. beta_19 or 1_0_0.\n"
+            "  --previous is required for a release whose predecessor cannot be derived by\n"
+            "  counting down, which is any name that is not beta_N."
+        )
     release = args[0]
     array_name = f"cr_whats_new_{release}"
-    previous = f"cr_whats_new_beta_{int(release.rsplit('_', 1)[1]) - 1}"
+    if previous_override:
+        previous = previous_override
+    elif release.startswith("beta_"):
+        previous = f"cr_whats_new_beta_{int(release.rsplit('_', 1)[1]) - 1}"
+    else:
+        raise SystemExit(f"Cannot derive the previous array for {release!r}; pass --previous.")
 
     items = english_items(array_name)
     cache: dict[str, str] = json.loads(CACHE_FILE.read_text("utf-8")) if CACHE_FILE.exists() else {}

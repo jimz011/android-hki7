@@ -43,6 +43,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BatterySaver
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Close
@@ -119,6 +120,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -145,6 +150,7 @@ import com.jimz011apps.hki7.data.Hki7FamilyDevice
 import com.jimz011apps.hki7.data.Hki7EventsRoster
 import androidx.compose.foundation.layout.FlowRow
 import com.jimz011apps.hki7.data.HaParentalControls
+import com.jimz011apps.hki7.ui.components.SETTINGS_ROUTE_FAMILY_EVENTS
 import com.jimz011apps.hki7.ui.components.DefaultIconEffectByGroup
 import com.jimz011apps.hki7.ui.components.IconEffectGroups
 import com.jimz011apps.hki7.data.driveAuthorizationRequest
@@ -351,9 +357,13 @@ private fun sectionIcon(section: SettingsSection): ImageVector = when (section) 
     SettingsSection.SUPPORT -> Icons.Default.Favorite
 }
 
-// Subsections nested under Appearance return there on back; everything else returns to the menu.
+// Back returns to the section a subsection is actually listed under. Nav bar, media players and
+// popups moved to Dashboard, so they must go back there rather than to Appearance where they used
+// to live — otherwise back lands somewhere the user was never at.
 private fun parentSection(section: SettingsSection): SettingsSection = when (section) {
-    SettingsSection.HEADER, SettingsSection.THEME, SettingsSection.FONTS, SettingsSection.LANGUAGE, SettingsSection.CORNERS, SettingsSection.ICONS, SettingsSection.NAV_BAR, SettingsSection.MEDIA_PLAYERS, SettingsSection.POPUPS -> SettingsSection.APPEARANCE
+    SettingsSection.HEADER, SettingsSection.THEME, SettingsSection.FONTS, SettingsSection.LANGUAGE,
+    SettingsSection.CORNERS, SettingsSection.ICONS -> SettingsSection.APPEARANCE
+    SettingsSection.NAV_BAR, SettingsSection.MEDIA_PLAYERS, SettingsSection.POPUPS -> SettingsSection.DASHBOARD
     SettingsSection.PROFILE -> SettingsSection.ACCOUNT
     else -> SettingsSection.MENU
 }
@@ -362,8 +372,18 @@ private fun parentSection(section: SettingsSection): SettingsSection = when (sec
 fun SettingsDialog(
     prefs: PreferencesManager,
     viewModel: MainViewModel,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    /** Opens straight at a destination instead of the settings menu, for deep links from
+     *  elsewhere in the app (see the SETTINGS_ROUTE_* constants). A route rather than the section
+     *  enum, which stays private to this file. Back still walks up through [parentSection], so
+     *  arriving here deep does not strand anyone. */
+    initialRoute: String? = null,
 ) {
+    val initialSection = when (initialRoute) {
+        SETTINGS_ROUTE_FAMILY_EVENTS -> SettingsSection.FAMILY_SHARING
+        else -> SettingsSection.MENU
+    }
+    val initialFamilyTab = if (initialRoute == SETTINGS_ROUTE_FAMILY_EVENTS) "events" else null
     val appColors = LocalHKIAppColors.current
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -399,7 +419,7 @@ fun SettingsDialog(
     val activityManager = context.getSystemService(android.app.ActivityManager::class.java)
     val isBackgroundRestricted = activityManager?.isBackgroundRestricted ?: false
 
-    var section by remember { mutableStateOf(SettingsSection.MENU) }
+    var section by remember { mutableStateOf(initialSection) }
     var showNewConfigConfirm by remember { mutableStateOf(false) }
     var newDashboardName by remember { mutableStateOf("") }
     var dashboardEditMode by remember { mutableStateOf(false) }
@@ -864,6 +884,14 @@ fun SettingsDialog(
                                     color = appColors.onMuted
                                 )
                             }
+                            SettingsSubcategory(
+                                stringResource(R.string.logs_title),
+                                stringResource(R.string.logs_subtitle)
+                            )
+                            ConnectionLogPanel(viewModel)
+                            // Last on the screen: restarting Home Assistant is the most disruptive
+                            // thing here and the least often wanted, so it should not sit above
+                            // the things people came to read.
                             SettingsSubcategory(stringResource(R.string.ui_maintenance_94de303), stringResource(R.string.ui_administrative_controls_for_your_home_assistant_server_e56ebd9))
                             SettingsPanel {
                                 OutlinedButton(
@@ -1124,10 +1152,6 @@ fun SettingsDialog(
                             SettingsChoice(Icons.Default.RoundedCorner, stringResource(R.string.ui_corners_f1fb139), stringResource(R.string.ui_roundness_of_buttons_cards_and_widgets_3573fff)) { section = SettingsSection.CORNERS }
                             SettingsChoice(Icons.Default.AutoAwesome, stringResource(R.string.ui_icons_edb8f6c), stringResource(R.string.ui_icon_animations_and_effects_db0dea4)) { section = SettingsSection.ICONS }
                             SettingsChoice(Icons.Default.Tune, stringResource(R.string.ui_header_31341c6), stringResource(R.string.ui_choose_an_expanded_or_compact_dashboard_header_815902d)) { section = SettingsSection.HEADER }
-                            SettingsSubcategory(stringResource(R.string.ui_everyday_navigation_e2f1711), stringResource(R.string.ui_tabs_and_media_controls_shown_throughout_the_app_5d9c1ff))
-                            SettingsChoice(Icons.Default.Menu, stringResource(R.string.ui_navigation_bar_e90e3de), stringResource(R.string.ui_reorder_and_hide_tabs_39de701)) { section = SettingsSection.NAV_BAR }
-                            SettingsChoice(Icons.Default.MusicNote, stringResource(R.string.ui_media_players_ec25525), stringResource(R.string.ui_rename_players_and_mini_player_visibility_8d0e1f7)) { section = SettingsSection.MEDIA_PLAYERS }
-                            SettingsChoice(Icons.Default.OpenInNew, stringResource(R.string.popup_settings_title), stringResource(R.string.popup_settings_subtitle_section)) { section = SettingsSection.POPUPS }
                         }
                         SettingsSection.HEADER -> {
                             val headerVisible by prefs.headerVisible.collectAsState(initial = true)
@@ -1825,6 +1849,14 @@ fun SettingsDialog(
                                     }
                                 }
                             }
+                            // Nav bar, media players and popups are what the dashboard is made of
+                            // rather than how it is styled, so they live here rather than under
+                            // Appearance alongside theme, fonts and corners. Last, because the
+                            // dashboards themselves are what people open this screen for.
+                            SettingsSubcategory(stringResource(R.string.ui_everyday_navigation_e2f1711), stringResource(R.string.ui_tabs_and_media_controls_shown_throughout_the_app_5d9c1ff))
+                            SettingsChoice(Icons.Default.Menu, stringResource(R.string.ui_navigation_bar_e90e3de), stringResource(R.string.ui_reorder_and_hide_tabs_39de701)) { section = SettingsSection.NAV_BAR }
+                            SettingsChoice(Icons.Default.MusicNote, stringResource(R.string.ui_media_players_ec25525), stringResource(R.string.ui_rename_players_and_mini_player_visibility_8d0e1f7)) { section = SettingsSection.MEDIA_PLAYERS }
+                            SettingsChoice(Icons.Default.OpenInNew, stringResource(R.string.popup_settings_title), stringResource(R.string.popup_settings_subtitle_section)) { section = SettingsSection.POPUPS }
                         }
                         SettingsSection.FAMILY_SHARING -> {
                             val pcAreas by viewModel.areas.collectAsState()
@@ -1843,7 +1875,7 @@ fun SettingsDialog(
                                 "energy" to stringResource(R.string.settings_extra_view_energy),
                                 "battery" to stringResource(R.string.settings_extra_view_battery)
                             ) + pcCustomPages.map { "custom_page/${it.id}" to it.name }
-                            var familyTab by remember { mutableStateOf("parental") }
+                            var familyTab by remember { mutableStateOf(initialFamilyTab ?: "parental") }
                             var searchAccessPicker by remember { mutableStateOf<Pair<String, Boolean>?>(null) }
                             var eventsRoster by remember { mutableStateOf<Hki7EventsRoster?>(null) }
                             var eventsRosterLoading by remember { mutableStateOf(false) }
@@ -3999,6 +4031,87 @@ private fun openGitHub(context: android.content.Context, url: String) {
 @Composable
 private fun SettingsPanel(content: @Composable ColumnScope.() -> Unit) {
     SettingsGroup(content = content)
+}
+
+/**
+ * The app's own connection log — what it did, in order, newest first.
+ *
+ * The entries were always being collected; until now nothing displayed them, so a reconnect loop
+ * or a subscription that failed to start left no trace anyone could read without a cable and
+ * `adb logcat`. Everything here already goes through the view model's `addLog`, which is why this
+ * is a viewer and not a second logging mechanism.
+ *
+ * Deliberately not persisted: it is a live diagnostic for "what is happening right now", and a log
+ * that survives restarts would need a retention policy and a privacy story it does not have — the
+ * lines can name entities and Home Assistant URLs.
+ */
+@Composable
+private fun ConnectionLogPanel(viewModel: MainViewModel) {
+    val appColors = LocalHKIAppColors.current
+    val clipboard = LocalClipboardManager.current
+    val logs by viewModel.logs.collectAsState()
+    var expanded by rememberSaveable { mutableStateOf(false) }
+
+    SettingsPanel {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                if (logs.isEmpty()) stringResource(R.string.logs_empty)
+                else stringResource(R.string.logs_count, logs.size),
+                color = appColors.onSurface,
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.weight(1f)
+            )
+            if (logs.isNotEmpty()) {
+                IconButton(onClick = { clipboard.setText(AnnotatedString(logs.joinToString("\n"))) }) {
+                    Icon(
+                        Icons.Default.ContentCopy,
+                        stringResource(R.string.logs_copy),
+                        tint = appColors.onMuted,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                IconButton(onClick = { viewModel.clearLogs() }) {
+                    Icon(
+                        Icons.Default.DeleteSweep,
+                        stringResource(R.string.logs_clear),
+                        tint = appColors.onMuted,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+        }
+        if (logs.isNotEmpty()) {
+            // Capped rather than scrolled inside its own box: this panel already sits in a
+            // scrolling settings page, and a nested scroll container here would fight it.
+            val shown = if (expanded) logs else logs.take(12)
+            Surface(Modifier.fillMaxWidth(), shape = itemCornerShape(), color = appColors.subtleSurface) {
+                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    shown.forEach { line ->
+                        Text(
+                            line,
+                            color = appColors.onSurface.copy(alpha = 0.85f),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    }
+                }
+            }
+            if (logs.size > 12) {
+                TextButton(onClick = { expanded = !expanded }) {
+                    Text(
+                        if (expanded) stringResource(R.string.logs_show_less)
+                        else stringResource(R.string.logs_show_all, logs.size)
+                    )
+                }
+            }
+        } else {
+            Text(
+                stringResource(R.string.logs_empty_hint),
+                color = appColors.onMuted,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
 }
 
 /**

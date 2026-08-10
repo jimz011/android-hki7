@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The Centered button layout, and the show/hide switches for a button's three elements.
+  Centered is a shape option beside Standard / Square / Tile rather than a set of alignment
+  controls: per-element alignment was tried and was more fiddly than the one arrangement people
+  actually wanted.
+-->
+<resources>
+    <string name="button_style_centered">Centered</string>
+    <string name="button_elements">Elements</string>
+    <string name="button_elements_description">What appears on this button. Hide the name and state for an icon on its own.</string>
+    <string name="stack_elements_title">Elements on every button in this stack</string>
+    <string name="stack_elements_description">These apply to the whole stack, not to one button. Turning something off here hides it on every button in the stack; leaving it on lets each button decide for itself in its own settings.</string>
+    <string name="button_element_icon">Icon</string>
+    <string name="button_element_name">Name</string>
+    <string name="button_element_state">State</string>
+
+    <!-- Stack header -->
+    <string name="stack_show_title">Show name</string>
+    <string name="stack_show_title_description">Turn off for a stack with no heading at all.</string>
+    <string name="stack_show_icon">Show icon</string>
+    <string name="stack_show_icon_description">The icon beside the heading.</string>
+    <string name="stack_center_title">Center the heading</string>
+    <string name="stack_center_title_description">Puts the icon and name in the middle instead of against the left edge.</string>
+</resources>

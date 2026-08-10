@@ -37,7 +37,7 @@
     <string name="settings_subtitle_profile">Personal details used throughout your dashboard</string>
     <string name="settings_subtitle_connection">Server routes and local-network preferences</string>
     <string name="settings_subtitle_location">Presence updates and background access</string>
-    <string name="settings_subtitle_dashboard">Create, switch, rename, and organize dashboards</string>
+    <string name="settings_subtitle_dashboard">Dashboards, tabs, media players, and popups</string>
     <string name="settings_subtitle_appearance">Make the dashboard feel like yours</string>
     <string name="settings_subtitle_corners">Roundness of buttons, cards, and widgets</string>
     <string name="settings_subtitle_icons">Icon animations and per-domain effects</string>

@@ -19,44 +19,73 @@ import com.jimz011apps.hki7.R
 import com.jimz011apps.hki7.data.ICON_SIZE_AUTO
 
 /**
- * Stack-level appearance that every button in the stack inherits, so a stack of twenty buttons
- * does not need the icon-only switch flipped twenty times. The size here is a default a single
- * button can still override; the icon-only switch is an override, because a button's own
- * `iconOnly = false` cannot be told apart from "never set".
+ * Stack-level appearance every button in the stack inherits, so a stack of twenty buttons does not
+ * need the same thing set twenty times. The size is a default a single button can still override.
+ *
+ * The icon-only switch that used to live here is now the stack's Compact button type, so this only
+ * appears once that is chosen — [isCompact] is the caller saying so.
  */
 @Composable
 fun StackChildAppearance(
-    childIconOnly: Boolean,
-    onChildIconOnlyChange: (Boolean) -> Unit,
+    isCompact: Boolean,
     childIconSize: Int,
     onChildIconSizeChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    if (!isCompact) return
     Column(modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Column(Modifier.weight(1f)) {
+        IconSizeSelector(
+            value = childIconSize,
+            onValueChange = onChildIconSizeChange,
+            label = stringResource(R.string.stack_child_icon_size)
+        )
+    }
+}
+
+/**
+ * The three show/hide switches for a button's face, shared by a single button and by a stack
+ * setting them for all its children.
+ *
+ * [title] and [description] differ between those two callers: on a stack these mask what every
+ * child may show, which needs saying in the heading and not only in the small print underneath —
+ * the switches look identical either way, so the label is the only thing that says whose buttons
+ * are about to change.
+ */
+@Composable
+fun ButtonElementSwitches(
+    showIcon: Boolean,
+    onShowIconChange: (Boolean) -> Unit,
+    showName: Boolean,
+    onShowNameChange: (Boolean) -> Unit,
+    showState: Boolean,
+    onShowStateChange: (Boolean) -> Unit,
+    description: String,
+    modifier: Modifier = Modifier,
+    title: String = stringResource(R.string.button_elements),
+) {
+    Column(modifier.fillMaxWidth()) {
+        Text(title, style = MaterialTheme.typography.labelLarge)
+        Text(
+            description,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        listOf(
+            Triple(R.string.button_element_icon, showIcon, onShowIconChange),
+            Triple(R.string.button_element_name, showName, onShowNameChange),
+            Triple(R.string.button_element_state, showState, onShowStateChange),
+        ).forEach { (labelRes, checked, onChange) ->
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
-                    stringResource(R.string.stack_child_icon_only),
-                    style = MaterialTheme.typography.labelLarge
+                    stringResource(labelRes),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f)
                 )
-                Text(
-                    stringResource(R.string.stack_child_icon_only_description),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Switch(checked = checked, onCheckedChange = onChange)
             }
-            Switch(checked = childIconOnly, onCheckedChange = onChildIconOnlyChange)
-        }
-        if (childIconOnly) {
-            IconSizeSelector(
-                value = childIconSize,
-                onValueChange = onChildIconSizeChange,
-                label = stringResource(R.string.stack_child_icon_size)
-            )
         }
     }
 }

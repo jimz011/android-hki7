@@ -1078,6 +1078,15 @@ data class HKIButtonStack(
     val showBadge: Boolean = true,
     /** Used by standalone-style widgets such as Adaptive Lighting to hide their heading. */
     val showName: Boolean = true,
+    /** Whether the stack's heading text and icon appear.
+     *
+     * Both default on, so a stack saved before these existed looks exactly as it did — a blank
+     * title still shows nothing. They exist because clearing the text field was previously the
+     * only way to get a heading-less stack, which hid that such a thing was even possible. */
+    val showTitle: Boolean = true,
+    val showTitleIcon: Boolean = true,
+    /** Centres the heading's icon and text instead of aligning them to the left edge. */
+    val centerTitle: Boolean = false,
     val isSquare: Boolean = true,
     val cornerRadius: Int = 28,
     override val isHidden: Boolean = false,
@@ -1096,6 +1105,13 @@ data class HKIButtonStack(
      * own `iconOnly = false` cannot be told apart from "never set".
      */
     val childIconOnly: Boolean = false,
+    /** Which elements this stack's buttons may show, so a stack of twenty need not be set twenty
+     *  times. These mask the buttons' own switches rather than overriding them: turning one off
+     *  here turns it off for every child, while leaving it on lets each button decide. There is no
+     *  third state to mean "unset", and a mask gets the useful direction without inventing one. */
+    val childShowIcon: Boolean = true,
+    val childShowName: Boolean = true,
+    val childShowState: Boolean = true,
     /** Icon size handed down to this stack's buttons; a button's own size still wins. */
     val childIconSize: Int = ICON_SIZE_AUTO,
     val collapsible: Boolean = true,
@@ -1208,6 +1224,93 @@ data class HKISingleEntityWidget(
 const val ICON_SIZE_AUTO = 0
 
 /**
+ * Square button whose icon is centred on both axes above the name and state.
+ *
+ * A fourth option beside Standard/Square/Tile rather than a set of per-element alignment
+ * controls: those were tried and were more fiddly than the one arrangement anyone actually
+ * wanted. The card is square exactly as [Square] is; what differs is that the icon owns the space
+ * above the text and sits in the middle of it, so a grid of these reads as a keypad.
+ */
+const val BUTTON_STYLE_CENTERED = "centered"
+
+/** The value the first attempt at this layout was stored under, before it was reworked. Buttons
+ *  saved during that build still carry it, so it is read as [BUTTON_STYLE_CENTERED]. */
+private const val LEGACY_STYLE_CENTERED = "compact"
+
+/**
+ * How one button actually draws: its shape, and where each element sits inside it.
+ *
+ * Two legacy inputs are folded in here rather than migrated destructively, because nothing
+ * rewrites a stored dashboard on read and a family-shared one is not ours to rewrite at all:
+ * [HKIButtonConfig.iconOnly] from before name/state could be hidden individually, and the
+ * short-lived `"compact"` style from the build where centring was a shape. Both mean the same
+ * thing — icon alone, centred — so both resolve to it.
+ */
+data class ButtonLayout(
+    /** The face to draw on: "standard", "square" or "tile". Centred is not one of these — it is a
+     *  square face with a different arrangement inside, which [centered] carries. */
+    val shape: String,
+    /** Icon centred on both axes above the text, rather than sitting at the top-left. */
+    val centered: Boolean,
+    val showIcon: Boolean,
+    val showName: Boolean,
+    val showState: Boolean,
+) {
+    /** True when the icon has the card to itself, which is what the old icon-only switch produced
+     *  and what the tile layout needs to know to centre its glyph. */
+    val iconOnly: Boolean get() = showIcon && !showName && !showState
+}
+
+private fun shapeFrom(style: String, isSquare: Boolean): String = when {
+    // Centred is square plus an arrangement; the shape underneath it is a square card.
+    style == BUTTON_STYLE_CENTERED || style == LEGACY_STYLE_CENTERED -> "square"
+    style.isNotBlank() -> style
+    isSquare -> "square"
+    else -> "standard"
+}
+
+private fun isCentered(style: String): Boolean =
+    style == BUTTON_STYLE_CENTERED || style == LEGACY_STYLE_CENTERED
+
+/**
+ * Layout for a button inside a stack.
+ *
+ * The stack decides the shape and masks which elements its children may show; the child decides
+ * the rest. The stack's legacy `childIconOnly`, and the child's own legacy `iconOnly`, both mean
+ * "icon alone, centred" and are honoured here rather than migrated — nothing rewrites a stored
+ * dashboard on read, and a family-shared one is not ours to rewrite at all.
+ */
+fun resolvedButtonLayout(stack: HKIButtonStack, config: HKIButtonConfig?): ButtonLayout {
+    val shape = shapeFrom(stack.buttonStyle, stack.isSquare)
+    val legacyIconOnly = stack.childIconOnly || config?.iconOnly == true
+    if (legacyIconOnly) {
+        return ButtonLayout(shape, centered = true, showIcon = true, showName = false, showState = false)
+    }
+    return ButtonLayout(
+        shape = shape,
+        centered = isCentered(stack.buttonStyle),
+        showIcon = stack.childShowIcon && (config?.showIcon ?: true),
+        showName = stack.childShowName && (config?.showName ?: true),
+        showState = stack.childShowState && (config?.showState ?: true),
+    )
+}
+
+/** Layout for a standalone single-entity button. */
+fun resolvedButtonLayout(widget: HKISingleEntityWidget): ButtonLayout {
+    val shape = shapeFrom(widget.buttonStyle, widget.isSquare)
+    if (widget.config.iconOnly) {
+        return ButtonLayout(shape, centered = true, showIcon = true, showName = false, showState = false)
+    }
+    return ButtonLayout(
+        shape = shape,
+        centered = isCentered(widget.buttonStyle),
+        showIcon = widget.config.showIcon,
+        showName = widget.config.showName,
+        showState = widget.config.showState,
+    )
+}
+
+/**
  * Glyph size for an icon-only button.
  *
  * A fixed 40dp reads well at one or two columns but overflows a narrow button, which is what made
@@ -1281,8 +1384,15 @@ data class HKIButtonConfig(
      * before blocks existed keep working (see [normalizedVisibilityConditions]). */
     val visibilityConditions: List<HKIVisibilityCondition> = emptyList(),
     val visibilityMatch: String = VISIBILITY_MATCH_ALL,
-    /** Drops the name and state, leaving only the icon centered on the button. */
+    /** Superseded by [showName]/[showState] plus centred alignment. Kept because dashboards saved
+     *  before those existed still carry it, including family dashboards published from a phone
+     *  that has not updated yet; [resolvedButtonLayout] is what reconciles them. */
     val iconOnly: Boolean = false,
+    /** Which of the button's three elements are drawn. All on by default; hiding the name and the
+     *  state is what the old icon-only switch did, and that is now two of these plus an icon size. */
+    val showIcon: Boolean = true,
+    val showName: Boolean = true,
+    val showState: Boolean = true,
     /** Icon-only glyph size in dp. [ICON_SIZE_AUTO] scales it to the stack's column count. */
     val iconSize: Int = ICON_SIZE_AUTO,
     /** Light-only Google Home-style full-height brightness control. */

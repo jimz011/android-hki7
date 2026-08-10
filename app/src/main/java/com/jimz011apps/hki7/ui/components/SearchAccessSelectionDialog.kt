@@ -59,18 +59,29 @@ fun SearchAccessSelectionDialog(
     val availableDomains = remember(allEntities) {
         allEntities.map { it.entity_id.substringBefore('.') }.distinct().sorted()
     }
-    val filteredDomains = remember(availableDomains, normalizedQuery) {
-        availableDomains.filter {
-            normalizedQuery.isBlank() || it.replace('_', ' ').contains(normalizedQuery, ignoreCase = true)
-        }
+    // Already-chosen entries sort to the top, so reviewing or undoing a selection does not mean
+    // hunting for it alphabetically among hundreds of entities. Keyed on the *initial* selection
+    // rather than the live one so that ticking something does not make it leap up the list under
+    // the finger that just tapped it.
+    val initiallyCheckedDomains = remember(initialSelection) { initialSelection.domains }
+    val initiallyCheckedEntities = remember(initialSelection) { initialSelection.entityIds }
+    val filteredDomains = remember(availableDomains, normalizedQuery, initiallyCheckedDomains) {
+        availableDomains
+            .filter {
+                normalizedQuery.isBlank() || it.replace('_', ' ').contains(normalizedQuery, ignoreCase = true)
+            }
+            .sortedWith(compareByDescending<String> { it in initiallyCheckedDomains }.thenBy { it })
     }
-    val filteredEntities = remember(allEntities, normalizedQuery) {
+    val filteredEntities = remember(allEntities, normalizedQuery, initiallyCheckedEntities) {
         allEntities.asSequence()
             .filter {
                 normalizedQuery.isBlank() || it.entity_id.contains(normalizedQuery, ignoreCase = true) ||
                     it.friendlyName.orEmpty().contains(normalizedQuery, ignoreCase = true)
             }
-            .sortedBy { (it.friendlyName ?: it.entity_id).lowercase() }
+            .sortedWith(
+                compareByDescending<HAEntity> { it.entity_id in initiallyCheckedEntities }
+                    .thenBy { (it.friendlyName ?: it.entity_id).lowercase() }
+            )
             .toList()
     }
 

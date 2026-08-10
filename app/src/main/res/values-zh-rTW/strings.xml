@@ -252,7 +252,6 @@
     <string name="settings_subtitle_backup_restore">保護或轉移您的儀表板設定</string>
     <string name="settings_subtitle_connection">伺服器路由與本機網路偏好設定</string>
     <string name="settings_subtitle_corners">按鈕、卡片與小工具的圓角程度</string>
-    <string name="settings_subtitle_dashboard">建立、切換、重新命名與整理儀表板</string>
     <string name="settings_subtitle_family_sharing">家長監護、儀表板分享與接收者權限</string>
     <string name="settings_subtitle_fonts">字型大小、粗細與易讀性</string>
     <string name="settings_subtitle_header">選擇是否顯示儀表板標題列</string>
@@ -1868,14 +1867,25 @@
         <item quantity="one">圖表 %1$d · %2$d 個感測器</item>
         <item quantity="other">圖表 %1$d · %2$d 個感測器</item>
     </plurals>
-<string-array name="cr_whats_new_beta_19">
+<string-array name="cr_whats_new_1_0_0">
     <item>通知抽屜中的新「事件」標籤：您的家實際所做的事情的時間表。前門打開，燈滅，有人到家——每個人都有時間，家庭助理知道是誰做的。管理員選擇在「設定」&gt;「家庭共享」&gt;「事件」下顯示哪些實體，一次為整個家庭而不是在每部手機上顯示。它讀取 Home Assistant 自己的日誌，而不是在設備上記錄任何內容，因此它仍然顯示應用程式關閉時夜間發生的事情，並且它會在過去 3 小時內打開 - 時間軸回答剛剛發生的事情 - 只需輕按一下 6 小時到 72 小時即可。事件永遠不會觸及通知鈴的未讀計數：開門的時間軸會讓該徽章永久亮起，毫無意義。需要 HKI 7 Cloud 0.9.0.*</item>
     <item>管理員可以從相同「事件」標籤中將部分時間軸從各個家庭成員（整個網域或命名實體）移除。每個人都會看到完整的時間線，除非為他們刪除了一些東西，所以向家庭添加一個人並不意味著從頭開始建立他們的時間線。過濾發生在 HKI 7 Cloud 元件中，而不是在應用程式中，因此受限的裝置甚至不會被告知它遠離哪些實體。與隱藏視圖和房間一樣，這隱藏了時間軸而不是實體：Home Assistant 對於非管理員帳戶沒有每個實體的讀取權限，因此登入的任何人仍然可以透過 Home Assistant 本身讀取這些實體。 *</item>
     <item>事件名冊包含整個網域以及命名實體，因此「每個鎖」都是一個選擇，而不是十一個。每次時間軸打開時都會重新解析域名，因此下個月添加的鎖會自行加入，而不是加入名冊，這意味著設置之日存在的任何內容。編輯器顯示每個網域目前涵蓋的內容，因為一個網域可以包含數百個實體。需要 HKI 7 Cloud 0.10.0.*</item>
     <item>事件根據事件發生的類型進行標記和過濾——門、窗、動作、燈光、鎖。過濾器行是根據時間軸實際包含的內容構建的，因此永遠不會為您提供只能返回空的過濾器。天數保留為清單標題：按類別重新排序的時間軸不再是時間軸。</item>
     <item>天氣藝術作品現在不僅在英雄卡上，還在每日天氣預報、每小時條和標題藥丸中以動畫形式呈現。動畫之前在固定尺寸以下被關閉，這導致了這三個問題。</item>
     <item>天氣圖稿動畫現在是四個獨立的開關——標題藥丸、天氣對話框、預報條、天氣小部件——而不是依賴實體圖示動畫設定。預測條會並排顯示十幾個圖標，並且是唯一需要花費任何明顯費用的圖標，因此關閉這些圖標並不意味著會丟失標題欄中的單個小圖標。預設情況下，所有四個選項均處於開啟狀態，並顯示在「設定」&gt;「外觀」&gt;「圖示」和標題藥丸自己的設定中。</item>
-    <item>6h/12h/24h/48h/72h 範圍選擇器無論出現在哪裡，都是居中而不是左對齊。</item>
+    <item>6h/12h/24h/48h/72h 範圍選擇器在出現的任何地方都居中而不是左對齊，並且獲得了 3h 選項。</item>
+    <item>設定底部的新連線日誌 › 連線：應用程式的連線實際執行的操作 - 連線嘗試、重新連線、同步和訂閱 - 以及用於複製或清除它的按鈕。所有這一切都已經被記錄下來了；沒有任何顯示。它保存最後 300 條線，並且每次發射時都是空的。</item>
+    <item>按鈕堆疊的佈局選項現在與單一按鈕的命名相同。相同的形狀被稱為“平鋪按鈕”和“緊湊堆疊”，這使它們看起來像是不同的功能。</item>
+    <item>標準、方形和平鋪旁的新居中按鈕佈局：方形卡片，其圖示位於文字上方空間的中間，名稱和狀態位於其下方居中。隨著文字的增長，圖標被向上推，而不是擁擠。這些網格讀取為鍵盤，這使得遠端控製成為可能。</item>
+    <item>按鈕的圖示、名稱和狀態各自在其設定中的新元素部分下顯示或隱藏。舊的僅圖示開關消失了 - 隱藏名稱和狀態就是它所做的，這也讓你保留其中之一。現有的純圖示按鈕繼續運作。</item>
+    <item>按鈕堆疊為其所有子按鈕攜帶相同的三個開關，因此二十個按鈕的堆疊不需要設定二十次。關閉堆疊上的一個會將其隱藏在每個按鈕上；保留它讓每個按鈕決定。</item>
+    <item>修正了按鈕堆疊設定對話方塊停止到大約三分之二的位置，其下方有空白區域，導致在高手機或平板電腦上無法存取其餘部分。</item>
+    <item>導覽列、媒體播放器和彈出視窗從「設定」&gt;「外觀」移至「設定」&gt;儀表板，位於儀表板本身下方。它們是儀表板構成的一部分，而不是儀表板樣式的一部分。</item>
+    <item>設定 › 連線以連線日誌結束，重新啟動 Home Assistant 現在位於其下方而不是上方 - 這是螢幕上最具破壞性的內容，也是最不常用的內容。</item>
+    <item>當尚未追蹤任何內容時，「事件」標籤為管理員提供了一個直接進入「設定」&gt;「家庭共享」&gt;「事件」的按鈕，而不是僅指定去向。</item>
+    <item>實體和網域選擇器首先列出已選取的內容，因此撤銷選擇並不意味著按字母順序尋找它。當選擇器打開時，順序是固定的，因此勾選某些內容不會使其從您的手指上跳開。</item>
+    <item>按鈕堆疊的標題現在具有明確的顯示名稱和顯示圖示開關，以及將它們置中的選項。清除文字欄位曾經是獲得沒有標題的堆疊的唯一方法，這隱藏了它的可能性，並且意味著丟失名稱來隱藏它。</item>
 </string-array>
 
 <string-array name="cr_whats_new_beta_18">
@@ -3779,7 +3789,6 @@
     <string name="event_category_vacuum">真空</string>
     <string name="event_category_window">視窗</string>
     <string name="events_filter_all">全部</string>
-    <string name="settings_extra_events_capped">已保存 %1$d 實體和 %2$d 域。時間軸名單已上限。</string>
     <string name="settings_extra_events_resolved_capped">此名冊涵蓋 %2$d 個實體，但時間軸最多訂閱 %1$d 個。刪除網域，或按名稱新增實體。</string>
     <string name="settings_extra_events_whole_domain">所有 %1$s（%2$d 實體）</string>
     <string name="weather_animate_applies_everywhere">這些適用於顯示天氣的任何地方的該設備，而不僅僅是該藥丸。相同的開關位於“設定”&gt;“外觀”&gt;“圖示”中。</string>
@@ -3793,4 +3802,30 @@
     <string name="weather_animate_title">動畫天氣</string>
     <string name="weather_animate_widget">天氣小部件</string>
     <string name="weather_animate_widget_description">儀表板上的天氣卡。</string>
+    <string name="logs_clear">清除日誌</string>
+    <string name="logs_copy">複製日誌</string>
+    <string name="logs_count">連線日誌 (%1$d)</string>
+    <string name="logs_empty">連線日誌</string>
+    <string name="logs_empty_hint">尚未記錄任何內容。連線嘗試、重新連線、同步和訂閱都會在發生時顯示在此。</string>
+    <string name="logs_show_all">顯示全部 %1$d</string>
+    <string name="logs_show_less">顯示較少</string>
+    <string name="logs_subtitle">應用程式與 Home Assistant 的連接做了什麼</string>
+    <string name="logs_title">連線日誌</string>
+    <string name="stack_center_title_description">將圖示和名稱放在中間，而不是靠左邊緣。</string>
+    <string name="stack_show_icon">顯示圖示</string>
+    <string name="stack_show_icon_description">標題旁邊的圖示。</string>
+    <string name="stack_show_title">顯示名稱</string>
+    <string name="stack_show_title_description">關閉根本沒有標題的堆疊。</string>
+    <string name="settings_extra_events_capped">已保存 %1$d 實體和 %2$d 域。時間軸名單已上限。</string>
+    <string name="settings_subtitle_dashboard">儀表板、選項卡、媒體播放器和彈出窗口</string>
+    <string name="stack_center_title">標題居中</string>
+    <string name="button_element_icon">圖示</string>
+    <string name="button_element_name">姓名</string>
+    <string name="button_element_state">狀態</string>
+    <string name="button_elements">元素</string>
+    <string name="events_set_up_button">選擇實體</string>
+    <string name="button_elements_description">該按鈕上顯示的內容。隱藏圖示本身的名稱和狀態。</string>
+    <string name="button_style_centered">居中</string>
+    <string name="stack_elements_title">該堆疊中每個按鈕上的元素</string>
+    <string name="stack_elements_description">這些適用於整個堆疊，而不是單一按鈕。在這裡關閉某些功能會將其隱藏在堆疊中的每個按鈕上；保持開啟狀態可讓每個按鈕在自己的設定中自行決定。</string>
 </resources>

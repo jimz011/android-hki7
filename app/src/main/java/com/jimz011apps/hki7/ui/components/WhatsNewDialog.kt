@@ -48,7 +48,8 @@ import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
  * future release needs.
  */
 private val changelog: Map<String, Int> = mapOf(
-    "1.0.0-beta.19" to R.array.cr_whats_new_beta_19,
+    // beta.19 was never released; everything written for it ships as 1.0.0 instead.
+    "1.0.0" to R.array.cr_whats_new_1_0_0,
     "1.0.0-beta.18" to R.array.cr_whats_new_beta_18,
     // beta.16 was uploaded to Play before the fixes below existed, so its version could not be
     // reused; its notes are carried forward inside cr_whats_new_beta_17.

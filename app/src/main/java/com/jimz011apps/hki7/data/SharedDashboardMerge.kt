@@ -102,6 +102,11 @@ internal fun mergeWidgetAesthetics(incoming: HKIRoomWidget, local: HKIRoomWidget
                 columns = local.columns,
                 showBadge = local.showBadge,
                 showName = local.showName,
+                // Same category as showName above: how this person chose to present the heading on
+                // their own device, which a push from the admin should not silently undo.
+                showTitle = local.showTitle,
+                showTitleIcon = local.showTitleIcon,
+                centerTitle = local.centerTitle,
                 isSquare = local.isSquare,
                 cornerRadius = local.cornerRadius,
                 buttonStyle = local.buttonStyle,

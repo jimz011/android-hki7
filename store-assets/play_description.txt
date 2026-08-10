@@ -1,0 +1,55 @@
+HKI 7 is a modern, fast, and beautiful client for Home Assistant — the open-source home automation platform you host yourself.
+
+Connect to your own Home Assistant server and control your entire smart home from a polished, thoughtfully designed interface. Not sure yet? Try the built-in demo home — no server or account needed. Running more than one Home Assistant? Connect to all of them.
+
+BEAUTIFUL DASHBOARDS
+• Automatic dashboard import from your Home Assistant setup — get started in minutes
+• Room views with per-room device details and controls
+• Fully customizable layouts, icons, and appearance
+• Material Design Icons and Simple Icons, built in
+• Design your own buttons, button stacks, badges, and popups
+
+CONTROL EVERYTHING
+• Lights, climate, covers, fans, locks, media players, vacuums, humidifiers, alarms, and more
+• Rich, dedicated controls for every device type
+• Live camera streams, and live cleaning maps for Valetudo robots
+• Dedicated screens for climate, energy, security, vacuum, and battery overviews
+• Per-room Adaptive Lighting controls
+
+WIDGETS
+• Weather, calendar, media player, sensor graphs, markdown, parcels, and waste collection
+• Shared to-do and shopping lists the whole family can add to
+• Find my devices — phones, watches, tags, and trackers on a map
+• Formula 1 race weekends (with the F1 Sensor integration), and any web page via iFrame
+
+SHARE IT WITH YOUR FAMILY
+Install the free HKI 7 Cloud integration on your Home Assistant and everything below is stored on your own server — nothing leaves your home.
+• Build one dashboard and share it with your family, instead of passing backup files around
+• Parental controls: hide views, rooms, or individual entities from specific people
+• Per-user permissions for editing, search, and dashboards
+• See which HKI version each family device runs, and ask everyone to update
+• Follow people room to room with ESPresense or mqtt_room presence sensors
+• Parental controls hide things from the app's own interface; they are not a Home Assistant security boundary
+
+SEE WHAT JUST HAPPENED
+• Events timeline — the front door opening, a light going off, someone arriving home, each with the time and who did it
+• Notifications from your own server, with action buttons you can tap
+• Global search across every entity
+
+BATTERY-FRIENDLY PRESENCE
+• Event-driven location using geofences instead of continuous tracking
+• Presence detection and zone automations with battery usage on par with the official app
+• Fully optional — the app works great without location access
+
+YOUR DATA STAYS YOURS
+• Connects only to your own Home Assistant server — no developer servers, no analytics, no ads, no tracking
+• Optional backup of your dashboard to your own Google Drive, or to your own Home Assistant
+• Open-source community core (MPL-2.0) — source code available on GitHub
+
+Available in English, Dutch, German, French, Spanish, Italian, Portuguese, Turkish, Japanese, Korean, and Chinese.
+
+REQUIREMENTS
+• A Home Assistant server (local network, remote URL, or Home Assistant Cloud / Nabu Casa)
+• Android 14 or newer
+
+HKI 7 is an independent client and is not affiliated with or endorsed by Home Assistant or Nabu Casa. Home Assistant is a trademark of its respective owners.

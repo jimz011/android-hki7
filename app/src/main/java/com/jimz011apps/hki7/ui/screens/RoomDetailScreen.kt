@@ -176,6 +176,8 @@ import com.jimz011apps.hki7.data.HKIButtonStack
 import com.jimz011apps.hki7.data.HKIButtonConfig
 import com.jimz011apps.hki7.data.ICON_SIZE_AUTO
 import com.jimz011apps.hki7.data.iconOnlyIconSizeDp
+import com.jimz011apps.hki7.data.BUTTON_STYLE_CENTERED
+import com.jimz011apps.hki7.data.resolvedButtonLayout
 import com.jimz011apps.hki7.data.VISIBILITY_MATCH_ALL
 import com.jimz011apps.hki7.data.isButtonVisibleNow
 import com.jimz011apps.hki7.data.visibilityConditionEntityIds
@@ -251,6 +253,7 @@ import com.jimz011apps.hki7.ui.components.HKICameraDialog
 import com.jimz011apps.hki7.ui.components.ZoomableCameraImage
 import com.jimz011apps.hki7.ui.components.DateTimePickerDialog
 import com.jimz011apps.hki7.ui.components.IconSizeSelector
+import com.jimz011apps.hki7.ui.components.ButtonElementSwitches
 import com.jimz011apps.hki7.ui.components.MdiIconPickerDialog
 import com.jimz011apps.hki7.ui.components.StackChildAppearance
 import com.jimz011apps.hki7.ui.utils.MdiIcon
@@ -3554,8 +3557,10 @@ fun ButtonConfigDialog(
     var iconAnimation by remember(config) { mutableStateOf(config.iconAnimation) }
     var visSpec by remember(config) { mutableStateOf(config.toVisibilitySpec()) }
     val isLightEntity = entity?.entity_id?.startsWith("light.") == true
-    var iconOnly by remember(config) { mutableStateOf(config.iconOnly) }
     var iconSize by remember(config) { mutableIntStateOf(config.iconSize) }
+    var showIconGlyph by remember(config) { mutableStateOf(config.showIcon) }
+    var showNameLine by remember(config) { mutableStateOf(config.showName) }
+    var showStateLine by remember(config) { mutableStateOf(config.showState) }
     var showBrightnessSlider by remember(config) { mutableStateOf(config.showBrightnessSlider) }
     var tapAction by remember(config) { mutableStateOf(config.tapActionEx ?: HKIAction(type = config.tapAction)) }
     var doubleAction by remember(config) { mutableStateOf(config.doubleTapActionEx ?: HKIAction(type = config.doubleTapAction)) }
@@ -3946,22 +3951,6 @@ fun ButtonConfigDialog(
                             )
                         }
                     }
-                    // Cameras and vacuums draw their own card, which has no name/state line to drop.
-                    if (!isCameraItem && !isVacuumItem) {
-                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Column(Modifier.weight(1f)) {
-                                Text(stringResource(R.string.button_icon_only), style = MaterialTheme.typography.labelLarge)
-                                Text(stringResource(R.string.button_icon_only_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                            Switch(checked = iconOnly, onCheckedChange = { iconOnly = it })
-                        }
-                        if (iconOnly) {
-                            IconSizeSelector(
-                                value = iconSize,
-                                onValueChange = { iconSize = it }
-                            )
-                        }
-                    }
                     if (isLightEntity) {
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Column(Modifier.weight(1f)) {
@@ -4044,12 +4033,40 @@ fun ButtonConfigDialog(
                 if (settingsPage == "appearance" && widgetAppearance != null) {
                     SettingsSubcategory(stringResource(R.string.ui_card_layout_f83b655), stringResource(R.string.ui_shape_and_width_on_the_dashboard_c89fefa))
                     Text(stringResource(R.string.ui_type_3deb745), style = MaterialTheme.typography.labelLarge)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(selected = appearButtonStyle == "standard", onClick = { appearButtonStyle = "standard"; appearIsSquare = false }, label = { Text(stringResource(R.string.ui_standard_2dfa660)) })
                         FilterChip(selected = appearButtonStyle == "square", onClick = { appearButtonStyle = "square"; appearIsSquare = true }, label = { Text(stringResource(R.string.ui_square_82810cb)) })
                         FilterChip(selected = appearButtonStyle == "tile", onClick = { appearButtonStyle = "tile"; appearIsSquare = false }, label = { Text(stringResource(R.string.ui_tile_2dd2c66)) })
+                        // isSquare true as well: Centered *is* a square card, and anything still
+                        // reading the flag rather than the style should agree with what is drawn.
+                        FilterChip(
+                            selected = appearButtonStyle == BUTTON_STYLE_CENTERED,
+                            onClick = { appearButtonStyle = BUTTON_STYLE_CENTERED; appearIsSquare = true },
+                            label = { Text(stringResource(R.string.button_style_centered)) }
+                        )
                     }
                     WidgetWidthSelector(width = appearWidth, onWidthChange = { appearWidth = it })
+                }
+                // Last on the page, under the shape it applies to: pick the card, then decide what
+                // goes on it. Cameras and vacuums draw their own card with no name/state line.
+                if (settingsPage == "appearance" && !isCameraItem && !isVacuumItem) {
+                    ButtonElementSwitches(
+                        showIcon = showIconGlyph,
+                        onShowIconChange = { showIconGlyph = it },
+                        showName = showNameLine,
+                        onShowNameChange = { showNameLine = it },
+                        showState = showStateLine,
+                        onShowStateChange = { showStateLine = it },
+                        description = stringResource(R.string.button_elements_description)
+                    )
+                    // Only meaningful once the icon has the card to itself — at normal size it is
+                    // a 24dp glyph above the text and there is nothing to scale into.
+                    if (showIconGlyph && !showNameLine && !showStateLine) {
+                        IconSizeSelector(
+                            value = iconSize,
+                            onValueChange = { iconSize = it }
+                        )
+                    }
                 }
             }
         },
@@ -4074,8 +4091,14 @@ fun ButtonConfigDialog(
                             timerStateEntityId = if (isCameraItem || isVacuumItem) config.timerStateEntityId else timerStateEntityId,
                             icon = if (isCameraItem || isVacuumItem) config.icon else iconName.takeUnless { it == "None" },
                             iconAnimation = iconAnimation,
-                            iconOnly = iconOnly,
+                            // The legacy flag is cleared on save: this button now says what it is
+                            // through its style, and leaving both set would make a later change
+                            // away from Compact silently fail to take effect.
+                            iconOnly = false,
                             iconSize = iconSize,
+                            showIcon = showIconGlyph,
+                            showName = showNameLine,
+                            showState = showStateLine,
                             showBrightnessSlider = if (isLightEntity) showBrightnessSlider else false,
                             cameraUrl = if (isCameraItem && config.isCustomUrl) cameraUrl.ifBlank { null } else config.cameraUrl,
                             cameraRefreshInterval = if (isCameraItem) refreshInterval else config.cameraRefreshInterval,
@@ -4391,10 +4414,16 @@ fun StackSettingsDialog(
     val maxColumns = LocalMaxStackColumns.current
     var title by remember(stack) { mutableStateOf(stack.title ?: "") }
     var showName by remember(stack) { mutableStateOf(stack.showName) }
+    var showTitle by remember(stack) { mutableStateOf(stack.showTitle) }
+    var showTitleIcon by remember(stack) { mutableStateOf(stack.showTitleIcon) }
+    var centerTitle by remember(stack) { mutableStateOf(stack.centerTitle) }
     var iconName by remember(stack) { mutableStateOf(stack.icon ?: "Lightbulb") }
     var width by remember(stack) { mutableStateOf(stack.width) }
     var columns by remember(stack, maxColumns) { mutableIntStateOf(stack.columns.coerceIn(1, maxColumns)) }
     var childIconOnly by remember(stack) { mutableStateOf(stack.childIconOnly) }
+    var childShowIcon by remember(stack) { mutableStateOf(stack.childShowIcon) }
+    var childShowName by remember(stack) { mutableStateOf(stack.childShowName) }
+    var childShowState by remember(stack) { mutableStateOf(stack.childShowState) }
     var childIconSize by remember(stack) { mutableIntStateOf(stack.childIconSize) }
     var showBadge by remember(stack) { mutableStateOf(stack.showBadge) }
     var isSquare by remember(stack) { mutableStateOf(stack.isSquare) }
@@ -4462,7 +4491,11 @@ fun StackSettingsDialog(
         text = {
             val settingsScroll = rememberScrollState()
             Column(
-                modifier = Modifier.heightIn(max = 480.dp).fadingEdges(settingsScroll).verticalScroll(settingsScroll),
+                // fillMaxHeight, not a fixed cap: `stableHeight` already gives this dialog a card
+                // of 88% of the screen (up to 720dp), so a 480dp ceiling here stopped the scroll
+                // area about two thirds of the way down and left the rest of the card empty on
+                // anything tall. The card is what bounds the height; the content just fills it.
+                modifier = Modifier.fillMaxHeight().fadingEdges(settingsScroll).verticalScroll(settingsScroll),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 SettingsTabRow(
@@ -4499,8 +4532,47 @@ fun StackSettingsDialog(
                         value = title,
                         onValueChange = { title = it },
                         label = { Text(stringResource(R.string.ui_stack_title_cc2f1ed)) },
+                        enabled = showTitle,
                         singleLine = true
                     )
+                    // Explicit switches rather than "clear the field to hide it": a blank text box
+                    // gave no hint that a heading-less stack was a thing you could ask for, and it
+                    // meant losing the name to hide it.
+                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text(stringResource(R.string.stack_show_title), style = MaterialTheme.typography.labelLarge)
+                            Text(
+                                stringResource(R.string.stack_show_title_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Switch(checked = showTitle, onCheckedChange = { showTitle = it })
+                    }
+                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text(stringResource(R.string.stack_show_icon), style = MaterialTheme.typography.labelLarge)
+                            Text(
+                                stringResource(R.string.stack_show_icon_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Switch(checked = showTitleIcon, onCheckedChange = { showTitleIcon = it })
+                    }
+                    if (showTitle || showTitleIcon) {
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text(stringResource(R.string.stack_center_title), style = MaterialTheme.typography.labelLarge)
+                                Text(
+                                    stringResource(R.string.stack_center_title_description),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Switch(checked = centerTitle, onCheckedChange = { centerTitle = it })
+                        }
+                    }
                 }
                 WidgetWidthSelector(width = width, onWidthChange = { width = it })
                 Text(stringResource(R.string.ui_icon_716f63b), style = MaterialTheme.typography.labelLarge)
@@ -4588,20 +4660,39 @@ fun StackSettingsDialog(
                             FilterChip(selected = columns == count, onClick = { columns = count }, label = { Text(stringResource(R.string.ui_text_c79f712, count)) })
                         }
                     }
-                    StackChildAppearance(
-                        childIconOnly = childIconOnly,
-                        onChildIconOnlyChange = { childIconOnly = it },
-                        childIconSize = childIconSize,
-                        onChildIconSizeChange = { childIconSize = it }
-                    )
                 }
                 if (stack.stackType != "weather") {
                     Text(if (isAdaptiveLighting) stringResource(R.string.ui_widget_height_b26de24) else stringResource(R.string.ui_button_type_890a578), style = MaterialTheme.typography.labelLarge)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    // Same four names as a single button's own Type picker. These used to disagree
+                    // — "tile" was labelled Compact here and Tile there, for the same value.
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(selected = buttonStyle == "standard", onClick = { buttonStyle = "standard"; isSquare = false }, label = { Text(stringResource(R.string.ui_standard_2dfa660)) })
                         FilterChip(selected = buttonStyle == "square", onClick = { buttonStyle = "square"; isSquare = true }, label = { Text(stringResource(R.string.ui_square_82810cb)) })
-                        FilterChip(selected = buttonStyle == "tile", onClick = { buttonStyle = "tile"; isSquare = false }, label = { Text(stringResource(R.string.ui_compact_1df39aa)) })
+                        FilterChip(selected = buttonStyle == "tile", onClick = { buttonStyle = "tile"; isSquare = false }, label = { Text(stringResource(R.string.ui_tile_2dd2c66)) })
+                        FilterChip(selected = buttonStyle == BUTTON_STYLE_CENTERED, onClick = { buttonStyle = BUTTON_STYLE_CENTERED; isSquare = true }, label = { Text(stringResource(R.string.button_style_centered)) })
                     }
+                }
+                // Last on the page, under the button type it applies to. Set once here instead of
+                // on every button in the stack; these mask what the children may show, so turning
+                // one off hides it everywhere and leaving it on lets each button decide.
+                if (!isAdaptiveLighting) {
+                    ButtonElementSwitches(
+                        showIcon = childShowIcon,
+                        onShowIconChange = { childShowIcon = it },
+                        showName = childShowName,
+                        onShowNameChange = { childShowName = it },
+                        showState = childShowState,
+                        onShowStateChange = { childShowState = it },
+                        title = stringResource(R.string.stack_elements_title),
+                        description = stringResource(R.string.stack_elements_description)
+                    )
+                    StackChildAppearance(
+                        // childIconOnly still counts: a stack saved before these switches existed
+                        // carries it, and so does one shared from a phone that has not updated.
+                        isCompact = childIconOnly || (childShowIcon && !childShowName && !childShowState),
+                        childIconSize = childIconSize,
+                        onChildIconSizeChange = { childIconSize = it }
+                    )
                 }
                 }
                 if (settingsPage == "behavior") {
@@ -4649,10 +4740,16 @@ fun StackSettingsDialog(
                         stack.copy(
                             title = title.ifBlank { null },
                             showName = if (isAdaptiveLighting) showName else stack.showName,
+                            showTitle = showTitle,
+                            showTitleIcon = showTitleIcon,
+                            centerTitle = centerTitle,
                             width = width,
                             icon = iconName.takeUnless { it == "None" },
                             columns = columns.coerceIn(1, maxColumns),
                             childIconOnly = childIconOnly,
+                            childShowIcon = childShowIcon,
+                            childShowName = childShowName,
+                            childShowState = childShowState,
                             childIconSize = childIconSize,
                             showBadge = if (stack.stackType in listOf("camera", "weather")) false else showBadge,
                             isSquare = if (stack.stackType == "weather") false else isSquare,
@@ -5214,7 +5311,12 @@ fun ButtonStackItem(
     val canCollapse = stack.collapsible
     val isCollapsed = canCollapse && (stack.isCollapsed ?: stack.defaultCollapsed)
     Column(modifier = Modifier.fillMaxWidth()) {
-        val hasLabel = !stack.title.isNullOrBlank() || !stack.icon.isNullOrBlank()
+        // What the user actually asked to see. Switched off is different from blank: the name is
+        // kept so turning it back on restores it, rather than making "hide the heading" mean
+        // "delete the heading" as clearing the text field used to.
+        val headerIcon = stack.icon?.takeIf { it.isNotBlank() && stack.showTitleIcon }
+        val headerName = stack.title?.takeIf { it.isNotBlank() && stack.showTitle }
+        val hasLabel = headerName != null || headerIcon != null
         // Show the collapse chevron when the stack can collapse and has a header anchor.
         // Also show it in edit mode so large stacks can be folded away while reordering.
         // If collapsed, keep the chevron visible so it can always be expanded.
@@ -5229,14 +5331,19 @@ fun ButtonStackItem(
                     modifier = Modifier
                         .weight(1f)
                         .clickable(enabled = showChevron) { onToggleCollapsed() },
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    // Not while editing: the row shares its width with the delete and settings
+                    // buttons there, so a centred heading would sit off-centre anyway and shift
+                    // as those appear.
+                    horizontalArrangement = if (stack.centerTitle && !isEditMode) Arrangement.Center
+                    else Arrangement.Start
                 ) {
-                if (!stack.icon.isNullOrBlank()) {
-                MdiIcon(stack.icon, tint = Color.Gray, size = 16.dp)
+                if (headerIcon != null) {
+                MdiIcon(headerIcon, tint = Color.Gray, size = 16.dp)
                     Spacer(Modifier.width(8.dp))
                 }
-                if (!stack.title.isNullOrBlank()) {
-                    Text(stack.title, color = Color.Gray, style = MaterialTheme.typography.labelMedium)
+                if (headerName != null) {
+                    Text(headerName, color = Color.Gray, style = MaterialTheme.typography.labelMedium)
                 }
                 if (showChevron) {
                     Spacer(Modifier.width(6.dp))
@@ -5360,14 +5467,18 @@ fun ButtonStackItem(
                                 timerMachineRunning = cfg?.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                                 iconName = cfg?.icon,
                                 iconAnimation = cfg?.iconAnimation ?: "auto",
-                                iconOnly = stack.childIconOnly || cfg?.iconOnly == true,
+                                iconOnly = resolvedButtonLayout(stack, cfg).iconOnly,
+                                showNameLine = resolvedButtonLayout(stack, cfg).showName,
+                                showStateLine = resolvedButtonLayout(stack, cfg).showState,
+                                showIconGlyph = resolvedButtonLayout(stack, cfg).showIcon,
+                                centered = resolvedButtonLayout(stack, cfg).centered,
                                 iconOnlySize = iconOnlyIconSizeDp(cfg?.iconSize ?: ICON_SIZE_AUTO, stack.childIconSize, 1),
                                 onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
                                 onLongClick = { handleButtonInteraction(entity.entity_id, cfg, "hold") { onEntityLongClick(entity.entity_id) } },
                                 onDoubleClick = { handleButtonInteraction(entity.entity_id, cfg, "double") { onEntityDoubleClick(entity.entity_id) } },
                                 isSquare = stack.isSquare,
                                 cornerRadius = stack.cornerRadius,
-                                buttonStyle = stack.buttonStyle.takeIf { it.isNotBlank() } ?: if (stack.isSquare) "square" else "standard",
+                                buttonStyle = resolvedButtonLayout(stack, null).shape,
                                 showBrightnessSlider = cfg?.showBrightnessSlider == true,
                                 onBrightnessChange = { viewModel.setOptimisticBrightness(entity.entity_id, it) },
                                 onBrightnessChangeFinished = { viewModel.setBrightness(entity.entity_id, it) },
@@ -5442,8 +5553,7 @@ fun ButtonStackItem(
                                 if (isSpacerEntityId(entity.entity_id)) {
                                     SpacerButtonCard(
                                         isSquare = stack.isSquare,
-                                        buttonStyle = stack.buttonStyle.takeIf { it.isNotBlank() }
-                                            ?: if (stack.isSquare) "square" else "standard",
+                                        buttonStyle = resolvedButtonLayout(stack, null).shape,
                                         cornerRadius = stack.cornerRadius,
                                         showOutline = false,
                                         modifier = Modifier.weight(1f)
@@ -5462,14 +5572,18 @@ fun ButtonStackItem(
                                         timerMachineRunning = cfg?.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                                         iconName = cfg?.icon,
                                         iconAnimation = cfg?.iconAnimation ?: "auto",
-                                        iconOnly = stack.childIconOnly || cfg?.iconOnly == true,
+                                        iconOnly = resolvedButtonLayout(stack, cfg).iconOnly,
+                                showNameLine = resolvedButtonLayout(stack, cfg).showName,
+                                showStateLine = resolvedButtonLayout(stack, cfg).showState,
+                                showIconGlyph = resolvedButtonLayout(stack, cfg).showIcon,
+                                centered = resolvedButtonLayout(stack, cfg).centered,
                                         iconOnlySize = iconOnlyIconSizeDp(cfg?.iconSize ?: ICON_SIZE_AUTO, stack.childIconSize, columns),
                                         onClick = { handleButtonInteraction(entity.entity_id, cfg, "tap") { onEntityClick(entity.entity_id) } },
                                         onLongClick = { handleButtonInteraction(entity.entity_id, cfg, "hold") { onEntityLongClick(entity.entity_id) } },
                                         onDoubleClick = { handleButtonInteraction(entity.entity_id, cfg, "double") { onEntityDoubleClick(entity.entity_id) } },
                                         isSquare = stack.isSquare,
                                         cornerRadius = stack.cornerRadius,
-                                        buttonStyle = stack.buttonStyle.takeIf { it.isNotBlank() } ?: if (stack.isSquare) "square" else "standard",
+                                        buttonStyle = resolvedButtonLayout(stack, null).shape,
                                         showBrightnessSlider = cfg?.showBrightnessSlider == true,
                                         onBrightnessChange = { viewModel.setOptimisticBrightness(entity.entity_id, it) },
                                         onBrightnessChangeFinished = { viewModel.setBrightness(entity.entity_id, it) },
@@ -5504,8 +5618,7 @@ fun ButtonStackItem(
                                     Box(modifier = Modifier.weight(1f)) {
                                         SpacerButtonCard(
                                             isSquare = stack.isSquare,
-                                            buttonStyle = stack.buttonStyle.takeIf { it.isNotBlank() }
-                                                ?: if (stack.isSquare) "square" else "standard",
+                                            buttonStyle = resolvedButtonLayout(stack, null).shape,
                                             cornerRadius = stack.cornerRadius,
                                             showOutline = true
                                         )
@@ -5525,7 +5638,11 @@ fun ButtonStackItem(
                                         timerMachineRunning = buttonConfigs[entity.entity_id]?.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                                         iconName = buttonConfigs[entity.entity_id]?.icon,
                                         iconAnimation = buttonConfigs[entity.entity_id]?.iconAnimation ?: "auto",
-                                        iconOnly = stack.childIconOnly || buttonConfigs[entity.entity_id]?.iconOnly == true,
+                                        iconOnly = resolvedButtonLayout(stack, buttonConfigs[entity.entity_id]).iconOnly,
+                                        showNameLine = resolvedButtonLayout(stack, buttonConfigs[entity.entity_id]).showName,
+                                        showStateLine = resolvedButtonLayout(stack, buttonConfigs[entity.entity_id]).showState,
+                                        showIconGlyph = resolvedButtonLayout(stack, buttonConfigs[entity.entity_id]).showIcon,
+                                        centered = resolvedButtonLayout(stack, buttonConfigs[entity.entity_id]).centered,
                                         iconOnlySize = iconOnlyIconSizeDp(
                                             buttonConfigs[entity.entity_id]?.iconSize ?: ICON_SIZE_AUTO,
                                             stack.childIconSize,
@@ -5536,7 +5653,7 @@ fun ButtonStackItem(
                                         onDoubleClick = { onEntityDoubleClick(entity.entity_id) },
                                         isSquare = stack.isSquare,
                                         cornerRadius = stack.cornerRadius,
-                                        buttonStyle = stack.buttonStyle.takeIf { it.isNotBlank() } ?: if (stack.isSquare) "square" else "standard",
+                                        buttonStyle = resolvedButtonLayout(stack, null).shape,
                                         showBrightnessSlider = buttonConfigs[entity.entity_id]?.showBrightnessSlider == true,
                                         onBrightnessChange = { viewModel.setOptimisticBrightness(entity.entity_id, it) },
                                         onBrightnessChangeFinished = { viewModel.setBrightness(entity.entity_id, it) },
@@ -5609,8 +5726,9 @@ fun SingleEntityWidgetItem(
         Box(modifier = Modifier.fillMaxWidth()) {
             SpacerButtonCard(
                 isSquare = widget.isSquare,
-                buttonStyle = widget.buttonStyle.takeIf { it.isNotBlank() }
-                    ?: if (widget.isSquare) "square" else "standard",
+                // Through the resolver, so a Centered empty button reserves a square like the
+                // real ones around it rather than resolving to an unknown style and going tall.
+                buttonStyle = resolvedButtonLayout(widget).shape,
                 cornerRadius = widget.cornerRadius,
                 showOutline = isEditMode
             )
@@ -5725,14 +5843,20 @@ fun SingleEntityWidgetItem(
                         timerMachineRunning = widget.config.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                         iconName = widget.config.icon,
                         iconAnimation = widget.config.iconAnimation,
-                        iconOnly = widget.config.iconOnly,
+                        iconOnly = resolvedButtonLayout(widget).iconOnly,
                         iconOnlySize = iconOnlyIconSizeDp(widget.config.iconSize),
+                        showNameLine = resolvedButtonLayout(widget).showName,
+                        showStateLine = resolvedButtonLayout(widget).showState,
+                        showIconGlyph = resolvedButtonLayout(widget).showIcon,
+                        centered = resolvedButtonLayout(widget).centered,
                         onClick = { handleSingleButtonInteraction("tap") { onEntityClick(widget.entityId) } },
                         onLongClick = { handleSingleButtonInteraction("hold") { onEntityLongClick(widget.entityId) } },
                         onDoubleClick = { handleSingleButtonInteraction("double") { onEntityDoubleClick(widget.entityId) } },
                         isSquare = widget.isSquare,
                         cornerRadius = widget.cornerRadius,
-                        buttonStyle = widget.buttonStyle.takeIf { it.isNotBlank() } ?: if (widget.isSquare) "square" else "standard",
+                        // Compact reuses the standard/square face and centres its content, so the
+                        // style handed down is the underlying shape rather than "compact" itself.
+                        buttonStyle = resolvedButtonLayout(widget).shape,
                         showBrightnessSlider = widget.config.showBrightnessSlider,
                         onBrightnessChange = { viewModel.setOptimisticBrightness(widget.entityId, it) },
                         onBrightnessChangeFinished = { viewModel.setBrightness(widget.entityId, it) },

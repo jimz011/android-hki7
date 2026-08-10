@@ -33,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -214,8 +215,12 @@ fun SpacerButtonCard(
     modifier: Modifier = Modifier
 ) {
     val appColors = LocalHKIAppColors.current
+    // Matches EntityCard's own rule, so an empty button reserves exactly the space a real one of
+    // the same style would take — including a Centered stack, where the style says square even
+    // when the stack's own flag does not.
     val sizeModifier = when {
         buttonStyle == "tile" -> Modifier.height(58.dp)
+        buttonStyle.isNotBlank() -> if (buttonStyle == "square") Modifier.aspectRatio(1f) else Modifier.height(110.dp)
         isSquare -> Modifier.aspectRatio(1f)
         else -> Modifier.height(110.dp)
     }
@@ -250,10 +255,16 @@ fun EntityCard(
     iconAnimation: String = "auto",
     isSquare: Boolean = false,
     cornerRadius: Int = LocalItemCornerRadius.current,
-    /** Drops the name and state so only the icon shows, centered on the button. */
+    /** True when neither text line is shown, so the icon has the button to itself. */
     iconOnly: Boolean = false,
     /** Icon-only glyph size in dp; callers resolve it via `iconOnlyIconSizeDp`. */
     iconOnlySize: Int = 40,
+    /** Which of the three elements are drawn. */
+    showIconGlyph: Boolean = true,
+    showNameLine: Boolean = true,
+    showStateLine: Boolean = true,
+    /** Centered layout: the icon owns the space above the text and sits in the middle of it. */
+    centered: Boolean = false,
     interactionsEnabled: Boolean = true,
     doorOpen: Boolean = false,
     buttonStyle: String = if (isSquare) "square" else "standard",
@@ -498,11 +509,18 @@ fun EntityCard(
         return
     }
 
+    // The style is the authority on shape; [isSquare] is only the fallback for callers that
+    // predate it. Sizing off the flag alone is what made a Centered button on a non-square stack
+    // come out 110dp tall — the resolver had already said "square" and nothing was reading it.
+    val rendersSquare = when {
+        buttonStyle.isBlank() -> isSquare
+        else -> buttonStyle == "square"
+    }
     Card(
         modifier = modifier
             .fillMaxWidth()
             .then(if (isUnavailable) Modifier.alpha(0.6f) else Modifier)
-            .then(if (isSquare) Modifier.aspectRatio(1f) else Modifier.height(110.dp))
+            .then(if (rendersSquare) Modifier.aspectRatio(1f) else Modifier.height(110.dp))
             .then(
                 if (interactionsEnabled) {
                     Modifier.combinedClickable(
@@ -592,22 +610,42 @@ fun EntityCard(
                     }
                 }
             }
-            if (iconOnly) {
-                Box(Modifier.fillMaxSize().padding(12.dp), contentAlignment = Alignment.Center) {
+            val textShown = showNameLine || (showStateLine && !isActionItem)
+            // Centered gives the icon a weighted Box, so it sits in the middle of whatever height
+            // is left once the text has taken what it needs — and is pushed up rather than
+            // overlapped as that text grows. Standard keeps the icon pinned top-left with the text
+            // against the bottom, which is what every existing dashboard looks like.
+            Column(
+                modifier = Modifier.padding(if (centered || !textShown) 12.dp else 16.dp).fillMaxSize(),
+                horizontalAlignment = if (centered) Alignment.CenterHorizontally else Alignment.Start,
+                verticalArrangement = when {
+                    centered -> Arrangement.Top
+                    textShown -> Arrangement.SpaceBetween
+                    else -> Arrangement.Center
+                }
+            ) {
+            if (showIconGlyph) {
+                if (centered) {
+                    Box(
+                        Modifier.fillMaxWidth().weight(1f, fill = true),
+                        contentAlignment = Alignment.Center
+                    ) { CardIcon() }
+                } else {
                     CardIcon()
                 }
-            } else {
+            }
+            if (textShown) {
             Column(
-                modifier = Modifier.padding(16.dp).fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceBetween
+                Modifier.fillMaxWidth(),
+                horizontalAlignment = if (centered) Alignment.CenterHorizontally else Alignment.Start
             ) {
-            CardIcon()
-            Column {
-                Text(
+                if (showNameLine) Text(
                     text = name,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
+                    textAlign = if (centered) TextAlign.Center else TextAlign.Start,
+                    modifier = Modifier.fillMaxWidth(),
                     color = when {
                         isCoverNotClosed -> primaryContent
                         isLockDoorOpen || isLockUnlocked -> primaryContent
@@ -615,7 +653,11 @@ fun EntityCard(
                         else            -> appColors.onSurface
                     }
                 )
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                if (showStateLine) Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = if (centered) Arrangement.Center else Arrangement.Start
+                ) {
                     if (domain == "camera" && entity.state.equals("recording", ignoreCase = true)) {
                         Box(
                             Modifier

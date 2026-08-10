@@ -115,6 +115,8 @@ import com.jimz011apps.hki7.ui.components.MediaPlayerMiniBar
 import com.jimz011apps.hki7.ui.components.LocalMediaPlayerBarInset
 import com.jimz011apps.hki7.ui.components.LocalItemCornerRadius
 import com.jimz011apps.hki7.ui.components.LocalOpenNotifications
+import com.jimz011apps.hki7.ui.components.LocalOpenSettingsRoute
+import com.jimz011apps.hki7.ui.screens.SettingsDialog
 import com.jimz011apps.hki7.ui.components.itemCornerShape
 import com.jimz011apps.hki7.ui.utils.IconPack
 import com.jimz011apps.hki7.ui.utils.IconPreferences
@@ -805,8 +807,23 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     val edgeStripHeightPx = with(density) { 200.dp.toPx() }
     val instanceStripHeightPx = with(density) { (if (headerVisible) 200.dp else 72.dp).toPx() }
     val screenWidthPx = windowInfo.containerSize.width.toFloat()
+    // Hosted here rather than on the page, because the drawer sheet is a sibling of the page and
+    // cannot see anything the page provides — and the drawer is where the deep link comes from.
+    var settingsRoute by remember { mutableStateOf<String?>(null) }
+    settingsRoute?.let { route ->
+        SettingsDialog(
+            prefs = prefs,
+            viewModel = viewModel,
+            onDismiss = { settingsRoute = null },
+            initialRoute = route,
+        )
+    }
     CompositionLocalProvider(
         LocalOpenNotifications provides { drawerScope.launch { drawerState.open() } },
+        LocalOpenSettingsRoute provides { route: String ->
+            drawerScope.launch { drawerState.close() }
+            settingsRoute = route
+        },
         LocalCameraFullscreenLauncher provides launchFullscreenCamera
     ) {
     ModalNavigationDrawer(

@@ -13,6 +13,7 @@
     <string name="events_not_configured_admin">Choose which entities appear here in Settings › Family Sharing › Events.</string>
     <string name="events_not_configured_member">Your family admin decides which entities appear here.</string>
     <string name="events_unavailable">The event timeline needs HKI 7 Cloud %1$s.</string>
+    <string name="events_set_up_button">Choose entities</string>
     <string name="events_no_matches">No matching events</string>
     <string name="events_loading">Loading events…</string>
 

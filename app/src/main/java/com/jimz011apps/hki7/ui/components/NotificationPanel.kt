@@ -46,6 +46,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -64,6 +65,20 @@ import kotlin.time.Duration.Companion.seconds
 
 /** Opens the notification drawer from anywhere in the app (provided by MainApp). */
 val LocalOpenNotifications = staticCompositionLocalOf<(() -> Unit)?> { null }
+
+/**
+ * Opens Settings at a named destination, for the few places that need to send someone straight to
+ * a specific setting rather than to the settings menu.
+ *
+ * Keyed by a short route string rather than by the section enum because that enum lives in the
+ * screens package, and the drawer is a component — the string keeps the dependency pointing one
+ * way. Provided above the drawer (in MainApp), since the drawer sheet is a sibling of the page
+ * and cannot see anything the page provides.
+ */
+val LocalOpenSettingsRoute = staticCompositionLocalOf<((String) -> Unit)?> { null }
+
+/** Route for Settings › Family Sharing › Events. */
+const val SETTINGS_ROUTE_FAMILY_EVENTS = "family_events"
 
 /** Brief, inverted-theme banner for notifications received while the app is visible. */
 @Composable
@@ -654,7 +669,9 @@ private fun EventsTab(
                         rosterEmpty -> stringResource(R.string.events_not_configured)
                         else -> stringResource(R.string.events_empty)
                     },
-                    color = appColors.onSurface, style = MaterialTheme.typography.bodyMedium
+                    color = appColors.onSurface,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
                 )
                 if (query.isBlank()) {
                     Spacer(Modifier.height(4.dp))
@@ -666,8 +683,22 @@ private fun EventsTab(
                         },
                         color = appColors.onMuted.copy(alpha = 0.75f),
                         style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center,
                         modifier = Modifier.padding(horizontal = 24.dp)
                     )
+                    // Only an admin can act on this, and only when there is nothing to act on
+                    // yet — telling a family member to go and configure something they have no
+                    // permission for would be a dead end.
+                    val openSettings = LocalOpenSettingsRoute.current
+                    if (rosterEmpty && family.isAdmin && openSettings != null) {
+                        Spacer(Modifier.height(14.dp))
+                        Button(
+                            onClick = { openSettings(SETTINGS_ROUTE_FAMILY_EVENTS) },
+                            shape = RoundedCornerShape(14.dp)
+                        ) {
+                            Text(stringResource(R.string.events_set_up_button))
+                        }
+                    }
                 }
             }
             Spacer(Modifier.height(96.dp))
