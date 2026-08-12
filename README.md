@@ -2,11 +2,12 @@
 
 <img width="1024" height="500" alt="play_feature_graphic_1024x500" src="https://github.com/user-attachments/assets/452d7a45-3aa8-4306-acbd-cbb0722425a9" />
 
-<a href="https://play.google.com/store/apps/details?id=com.jimz011apps.hki7">
-  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
-       alt="Get it on Google Play"
-       height="80">
-</a>
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.jimz011apps.hki7">
+    <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+         alt="Get it on Google Play"
+         height="80">
+  </a>
 
 A modern [Home Assistant](https://www.home-assistant.io/) client for Android, built with Jetpack Compose and Material 3.
 
