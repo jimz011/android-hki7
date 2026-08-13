@@ -23,3 +23,6 @@ local.properties
 /*.xml
 /.xml
 /.descriptions.xml
+
+# MkDocs build output (docs/ itself is tracked; this is what `mkdocs build` renders)
+/site

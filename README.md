@@ -16,6 +16,13 @@ A modern [Home Assistant](https://www.home-assistant.io/) client for Android, bu
 
 > **Status:** `1.0.0`. Issues and feedback are welcome.
 
+**📖 [Documentation](https://jimz011.github.io/android-hki7/)** — setup guide, feature reference,
+[FAQ](https://jimz011.github.io/android-hki7/faq/) and
+[troubleshooting](https://jimz011.github.io/android-hki7/troubleshooting/).
+
+**💬 [Home Assistant Community thread](https://community.home-assistant.io/t/hki-7-a-highly-customizable-android-companion-download-from-the-play-store-today/1017467)**
+— questions, screenshots and feature requests.
+
 Connects to your own Home Assistant server and nothing else — no developer servers, no
 analytics, no ads, no tracking. Not set up yet? A built-in demo home runs without a server or an
 account. Running more than one Home Assistant? Connect to all of them.
@@ -113,6 +120,20 @@ Release notes live in [CHANGELOG.md](CHANGELOG.md) and, for the in-app "What's n
 `cr_whats_new_*` string arrays. New user-facing strings ship in `values/` (English) only —
 `tools/localization/` holds the scripts that translate and backfill the other twelve locales, and
 `verify_translations.py` is what decides whether a locale is complete.
+
+The full development setup, project layout and localization workflow are in the
+[contributing guide](https://jimz011.github.io/android-hki7/contributing/).
+
+## Documentation
+
+The docs site is [MkDocs](https://www.mkdocs.org/) with
+[Material for MkDocs](https://squidfunk.github.io/mkdocs-material/); sources live in `docs/` and
+`mkdocs.yml`. Pushing to `main` publishes it to GitHub Pages. To work on it locally:
+
+```
+pip install -r docs/requirements.txt
+mkdocs serve
+```
 
 ## License
 

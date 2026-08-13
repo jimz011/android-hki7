@@ -1,0 +1,133 @@
+site_name: HKI 7
+site_description: >-
+  Documentation for HKI 7 — a modern Home Assistant client for Android, built with
+  Jetpack Compose and Material 3.
+site_url: https://jimz011.github.io/android-hki7/
+site_author: Jimz011
+
+repo_name: jimz011/android-hki7
+repo_url: https://github.com/jimz011/android-hki7
+edit_uri: edit/main/docs/
+
+copyright: >-
+  Copyright &copy; 2026 Jimz011 &mdash;
+  <a href="https://github.com/jimz011/android-hki7/blob/main/LICENSE">MPL-2.0 community core</a>.
+  HKI 7 is an independent client and is not affiliated with or endorsed by Home Assistant.
+
+theme:
+  name: material
+  language: en
+  logo: assets/logo.png
+  favicon: assets/logo.png
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Follow the system theme
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.action.edit
+    - content.code.copy
+    - content.tooltips
+
+extra_css:
+  - assets/extra.css
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.snippets:
+      base_path:
+        - .
+        - docs
+      check_paths: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+plugins:
+  - search
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/jimz011/android-hki7
+      name: HKI 7 on GitHub
+    - icon: fontawesome/solid/envelope
+      link: mailto:jimz011apps@gmail.com
+      name: Email the developer
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - getting-started/index.md
+      - Install HKI 7: getting-started/install.md
+      - Connect to Home Assistant: getting-started/connect.md
+      - Your first dashboard: getting-started/first-dashboard.md
+      - Gestures: getting-started/gestures.md
+  - User guide:
+      - guide/index.md
+      - Dashboards: guide/dashboards.md
+      - Widgets: guide/widgets.md
+      - Rooms: guide/rooms.md
+      - Controls and screens: guide/controls.md
+      - Appearance: guide/appearance.md
+      - Notifications: guide/notifications.md
+      - Event timeline: guide/events.md
+      - Presence and location: guide/presence.md
+      - Family sharing: guide/family-sharing.md
+      - Backup and restore: guide/backup.md
+      - Multiple homes: guide/multiple-homes.md
+  - Reference:
+      - reference/index.md
+      - Settings map: reference/settings.md
+      - Integrations: reference/integrations.md
+      - Android permissions: reference/permissions.md
+      - Privacy policy: reference/privacy.md
+      - Changelog: reference/changelog.md
+  - Help:
+      - FAQ: faq.md
+      - Troubleshooting: troubleshooting.md
+      - Contributing: contributing.md
