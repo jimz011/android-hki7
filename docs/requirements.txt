@@ -1,0 +1,8 @@
+# Documentation build dependencies.
+#   pip install -r docs/requirements.txt
+#   mkdocs serve
+#
+# Only the theme is listed: mkdocs-material pulls in mkdocs itself and already
+# constrains it (>=1.6,<2), so pinning mkdocs here too would be redundant and
+# would block a future Material release that supports a newer MkDocs.
+mkdocs-material>=9.5,<10
