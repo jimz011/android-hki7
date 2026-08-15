@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="core_last_seen_days">
+        <item quantity="zero">آخر ظهور منذ %1$d أيام</item>
+        <item quantity="one">شوهد آخر مرة منذ %1$d منذ يوم واحد</item>
+        <item quantity="two">آخر ظهور منذ %1$d أيام</item>
+        <item quantity="few">آخر ظهور منذ %1$d أيام</item>
+        <item quantity="many">آخر ظهور منذ %1$d أيام</item>
+        <item quantity="other">آخر ظهور منذ %1$d أيام</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="zero">آخر ظهور منذ %1$d قبل ساعات</item>
+        <item quantity="one">آخر ظهور منذ %1$d قبل ساعة</item>
+        <item quantity="two">آخر ظهور منذ %1$d قبل ساعات</item>
+        <item quantity="few">آخر ظهور منذ %1$d قبل ساعات</item>
+        <item quantity="many">آخر ظهور منذ %1$d قبل ساعات</item>
+        <item quantity="other">آخر ظهور منذ %1$d قبل ساعات</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="zero">آخر ظهور منذ %1$d دقيقة</item>
+        <item quantity="one">شوهد آخر مرة منذ %1$d قبل دقيقة</item>
+        <item quantity="two">آخر ظهور منذ %1$d دقيقة</item>
+        <item quantity="few">آخر ظهور منذ %1$d دقيقة</item>
+        <item quantity="many">آخر ظهور منذ %1$d دقيقة</item>
+        <item quantity="other">آخر ظهور منذ %1$d دقيقة</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="zero">شوهد آخر مرة منذ %1$d منذ أسابيع</item>
+        <item quantity="one">آخر ظهور منذ %1$d قبل أسبوع</item>
+        <item quantity="two">شوهد آخر مرة منذ %1$d منذ أسابيع</item>
+        <item quantity="few">شوهد آخر مرة منذ %1$d منذ أسابيع</item>
+        <item quantity="many">شوهد آخر مرة منذ %1$d منذ أسابيع</item>
+        <item quantity="other">شوهد آخر مرة منذ %1$d منذ أسابيع</item>
+    </plurals>
+    <plurals name="core_media_players_playing">
+        <item quantity="zero">%1$d مشغلات الوسائط قيد التشغيل</item>
+        <item quantity="one">مشغل الوسائط %1$d قيد التشغيل</item>
+        <item quantity="two">%1$d مشغلات الوسائط قيد التشغيل</item>
+        <item quantity="few">%1$d مشغلات الوسائط قيد التشغيل</item>
+        <item quantity="many">%1$d مشغلات الوسائط قيد التشغيل</item>
+        <item quantity="other">%1$d مشغلات الوسائط قيد التشغيل</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="zero">تلقائي + دليل %d</item>
+        <item quantity="one">تلقائي + دليل %d</item>
+        <item quantity="two">تلقائي + دليل %d</item>
+        <item quantity="few">تلقائي + دليل %d</item>
+        <item quantity="many">تلقائي + دليل %d</item>
+        <item quantity="other">تلقائي + دليل %d</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="zero">تم تكوين %d من الأضواء</item>
+        <item quantity="one">%d ضوء تم تكوينه</item>
+        <item quantity="two">تم تكوين %d من الأضواء</item>
+        <item quantity="few">تم تكوين %d من الأضواء</item>
+        <item quantity="many">تم تكوين %d من الأضواء</item>
+        <item quantity="other">تم تكوين %d من الأضواء</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="zero">%1$d الأجهزة · %2$d قيد التشغيل</item>
+        <item quantity="one">جهاز %1$d · %2$d قيد التشغيل</item>
+        <item quantity="two">%1$d الأجهزة · %2$d قيد التشغيل</item>
+        <item quantity="few">%1$d الأجهزة · %2$d قيد التشغيل</item>
+        <item quantity="many">%1$d الأجهزة · %2$d قيد التشغيل</item>
+        <item quantity="other">%1$d الأجهزة · %2$d قيد التشغيل</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="zero">تم تعيين %d من أجهزة الاستشعار الخارجية</item>
+        <item quantity="one">%d مجموعة أجهزة استشعار خارجية</item>
+        <item quantity="two">تم تعيين %d من أجهزة الاستشعار الخارجية</item>
+        <item quantity="few">تم تعيين %d من أجهزة الاستشعار الخارجية</item>
+        <item quantity="many">تم تعيين %d من أجهزة الاستشعار الخارجية</item>
+        <item quantity="other">تم تعيين %d من أجهزة الاستشعار الخارجية</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="zero">تمت إزالة %d</item>
+        <item quantity="one">تمت إزالة %d</item>
+        <item quantity="two">تمت إزالة %d</item>
+        <item quantity="few">تمت إزالة %d</item>
+        <item quantity="many">تمت إزالة %d</item>
+        <item quantity="other">تمت إزالة %d</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="zero">تم تحديد %d</item>
+        <item quantity="one">تم تحديد %d</item>
+        <item quantity="two">تم تحديد %d</item>
+        <item quantity="few">تم تحديد %d</item>
+        <item quantity="many">تم تحديد %d</item>
+        <item quantity="other">تم تحديد %d</item>
+    </plurals>
+    <plurals name="cr_sensor_count">
+        <item quantity="zero">%d أجهزة استشعار</item>
+        <item quantity="one">%d مستشعر</item>
+        <item quantity="two">%d أجهزة استشعار</item>
+        <item quantity="few">%d أجهزة استشعار</item>
+        <item quantity="many">%d أجهزة استشعار</item>
+        <item quantity="other">%d أجهزة استشعار</item>
+    </plurals>
+    <plurals name="cr_widget_option_count">
+        <item quantity="zero">%d خيار</item>
+        <item quantity="one">خيار %d</item>
+        <item quantity="two">%d خيار</item>
+        <item quantity="few">%d خيار</item>
+        <item quantity="many">%d خيار</item>
+        <item quantity="other">%d خيار</item>
+    </plurals>
+    <plurals name="dlg_action_data_value_summary">
+        <item quantity="zero">%1$s · %2$d قيم البيانات</item>
+        <item quantity="one">%1$s · %2$d قيمة البيانات</item>
+        <item quantity="two">%1$s · %2$d قيم البيانات</item>
+        <item quantity="few">%1$s · %2$d قيم البيانات</item>
+        <item quantity="many">%1$s · %2$d قيم البيانات</item>
+        <item quantity="other">%1$s · %2$d قيم البيانات</item>
+    </plurals>
+    <plurals name="dlg_arming_in_seconds">
+        <item quantity="zero">يتم التسليح خلال %d ثانية</item>
+        <item quantity="one">يتم التسليح خلال %d ثانية</item>
+        <item quantity="two">يتم التسليح خلال %d ثانية</item>
+        <item quantity="few">يتم التسليح خلال %d ثانية</item>
+        <item quantity="many">يتم التسليح خلال %d ثانية</item>
+        <item quantity="other">يتم التسليح خلال %d ثانية</item>
+    </plurals>
+    <plurals name="dlg_seconds_short">
+        <item quantity="zero">%d ثانية</item>
+        <item quantity="one">%d ثانية</item>
+        <item quantity="two">%d ثانية</item>
+        <item quantity="few">%d ثانية</item>
+        <item quantity="many">%d ثانية</item>
+        <item quantity="other">%d ثانية</item>
+    </plurals>
+    <plurals name="dlg_selected_entities_summary">
+        <item quantity="zero">%1$d تم التحديد · %2$s</item>
+        <item quantity="one">%1$d تم التحديد · %2$s</item>
+        <item quantity="two">%1$d تم التحديد · %2$s</item>
+        <item quantity="few">%1$d تم التحديد · %2$s</item>
+        <item quantity="many">%1$d تم التحديد · %2$s</item>
+        <item quantity="other">%1$d تم التحديد · %2$s</item>
+    </plurals>
+    <plurals name="global_search_browse_entities">
+        <item quantity="zero">تصفح كيانات %1$d على هذا الجهاز</item>
+        <item quantity="one">تصفح كيان %1$d على هذا الجهاز</item>
+        <item quantity="two">تصفح كيانات %1$d على هذا الجهاز</item>
+        <item quantity="few">تصفح كيانات %1$d على هذا الجهاز</item>
+        <item quantity="many">تصفح كيانات %1$d على هذا الجهاز</item>
+        <item quantity="other">تصفح كيانات %1$d على هذا الجهاز</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="zero">%1$d الكيانات</item>
+        <item quantity="one">%1$d الكيان</item>
+        <item quantity="two">%1$d الكيانات</item>
+        <item quantity="few">%1$d الكيانات</item>
+        <item quantity="many">%1$d الكيانات</item>
+        <item quantity="other">%1$d الكيانات</item>
+    </plurals>
+    <plurals name="parcel_letter_count">
+        <item quantity="zero">%1$d الحروف</item>
+        <item quantity="one">%1$d الرسالة</item>
+        <item quantity="two">%1$d الحروف</item>
+        <item quantity="few">%1$d الحروف</item>
+        <item quantity="many">%1$d الحروف</item>
+        <item quantity="other">%1$d الحروف</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="zero">%1$d الغرف</item>
+        <item quantity="one">%1$d غرفة</item>
+        <item quantity="two">%1$d الغرف</item>
+        <item quantity="few">%1$d الغرف</item>
+        <item quantity="many">%1$d الغرف</item>
+        <item quantity="other">%1$d الغرف</item>
+    </plurals>
+    <plurals name="security_entity_count">
+        <item quantity="zero">%1$d الكيانات</item>
+        <item quantity="one">%1$d الكيان</item>
+        <item quantity="two">%1$d الكيانات</item>
+        <item quantity="few">%1$d الكيانات</item>
+        <item quantity="many">%1$d الكيانات</item>
+        <item quantity="other">%1$d الكيانات</item>
+    </plurals>
+    <plurals name="settings_extra_days_ago">
+        <item quantity="zero">%1$d قبل أيام</item>
+        <item quantity="one">%1$d منذ يوم واحد</item>
+        <item quantity="two">%1$d قبل أيام</item>
+        <item quantity="few">%1$d قبل أيام</item>
+        <item quantity="many">%1$d قبل أيام</item>
+        <item quantity="other">%1$d قبل أيام</item>
+    </plurals>
+    <plurals name="settings_extra_hours_ago">
+        <item quantity="zero">%1$d قبل ساعات</item>
+        <item quantity="one">%1$d قبل ساعة</item>
+        <item quantity="two">%1$d قبل ساعات</item>
+        <item quantity="few">%1$d قبل ساعات</item>
+        <item quantity="many">%1$d قبل ساعات</item>
+        <item quantity="other">%1$d قبل ساعات</item>
+    </plurals>
+    <plurals name="settings_extra_minutes_ago">
+        <item quantity="zero">%1$d قبل دقائق</item>
+        <item quantity="one">%1$d قبل دقيقة</item>
+        <item quantity="two">%1$d قبل دقائق</item>
+        <item quantity="few">%1$d قبل دقائق</item>
+        <item quantity="many">%1$d قبل دقائق</item>
+        <item quantity="other">%1$d قبل دقائق</item>
+    </plurals>
+    <plurals name="settings_extra_shared_dashboards_pushed">
+        <item quantity="zero">تم إجراء تغييرات على لوحات المعلومات المشتركة %1$d.</item>
+        <item quantity="one">تم إجراء تغييرات على لوحة التحكم المشتركة %1$d.</item>
+        <item quantity="two">تم إجراء تغييرات على لوحات المعلومات المشتركة %1$d.</item>
+        <item quantity="few">تم إجراء تغييرات على لوحات المعلومات المشتركة %1$d.</item>
+        <item quantity="many">تم إجراء تغييرات على لوحات المعلومات المشتركة %1$d.</item>
+        <item quantity="other">تم إجراء تغييرات على لوحات المعلومات المشتركة %1$d.</item>
+    </plurals>
+    <plurals name="uif_active_device_count">
+        <item quantity="zero">%1$d الأجهزة النشطة</item>
+        <item quantity="one">%1$d جهاز نشط</item>
+        <item quantity="two">%1$d الأجهزة النشطة</item>
+        <item quantity="few">%1$d الأجهزة النشطة</item>
+        <item quantity="many">%1$d الأجهزة النشطة</item>
+        <item quantity="other">%1$d الأجهزة النشطة</item>
+    </plurals>
+    <plurals name="uif_adaptive_group_paused_count">
+        <item quantity="zero">%1$d أضواء المجموعة متوقفة مؤقتًا للتحكم اليدوي.</item>
+        <item quantity="one">%1$d تم إيقاف ضوء المجموعة مؤقتًا للتحكم اليدوي.</item>
+        <item quantity="two">%1$d أضواء المجموعة متوقفة مؤقتًا للتحكم اليدوي.</item>
+        <item quantity="few">%1$d أضواء المجموعة متوقفة مؤقتًا للتحكم اليدوي.</item>
+        <item quantity="many">%1$d أضواء المجموعة متوقفة مؤقتًا للتحكم اليدوي.</item>
+        <item quantity="other">%1$d أضواء المجموعة متوقفة مؤقتًا للتحكم اليدوي.</item>
+    </plurals>
+    <plurals name="uif_adaptive_profile_light_count">
+        <item quantity="zero">يتحكم في أضواء %1$d في هذا الملف الشخصي.</item>
+        <item quantity="one">يتحكم في %1$d الضوء في هذا الملف الشخصي.</item>
+        <item quantity="two">يتحكم في أضواء %1$d في هذا الملف الشخصي.</item>
+        <item quantity="few">يتحكم في أضواء %1$d في هذا الملف الشخصي.</item>
+        <item quantity="many">يتحكم في أضواء %1$d في هذا الملف الشخصي.</item>
+        <item quantity="other">يتحكم في أضواء %1$d في هذا الملف الشخصي.</item>
+    </plurals>
+    <plurals name="uif_days_to_season">
+        <item quantity="zero">%1$d يوم حتى %2$s</item>
+        <item quantity="one">%1$d يوم إلى %2$s</item>
+        <item quantity="two">%1$d يوم حتى %2$s</item>
+        <item quantity="few">%1$d يوم حتى %2$s</item>
+        <item quantity="many">%1$d يوم حتى %2$s</item>
+        <item quantity="other">%1$d يوم حتى %2$s</item>
+    </plurals>
+    <plurals name="uif_device_on_count">
+        <item quantity="zero">%1$d الأجهزة قيد التشغيل</item>
+        <item quantity="one">%1$d الجهاز قيد التشغيل</item>
+        <item quantity="two">%1$d الأجهزة قيد التشغيل</item>
+        <item quantity="few">%1$d الأجهزة قيد التشغيل</item>
+        <item quantity="many">%1$d الأجهزة قيد التشغيل</item>
+        <item quantity="other">%1$d الأجهزة قيد التشغيل</item>
+    </plurals>
+    <plurals name="uif_fire_detector_count">
+        <item quantity="zero">%1$d أجهزة كشف الحريق نشطة</item>
+        <item quantity="one">%1$d كاشف الحريق نشط</item>
+        <item quantity="two">%1$d أجهزة كشف الحريق نشطة</item>
+        <item quantity="few">%1$d أجهزة كشف الحريق نشطة</item>
+        <item quantity="many">%1$d أجهزة كشف الحريق نشطة</item>
+        <item quantity="other">%1$d أجهزة كشف الحريق نشطة</item>
+    </plurals>
+    <plurals name="uif_flow_advanced_block_count">
+        <item quantity="zero">%1$d كتل مختصرة متقدمة (تظل دون تغيير)</item>
+        <item quantity="one">%1$d كتلة الاختصار المتقدمة (لم تتغير)</item>
+        <item quantity="two">%1$d كتل مختصرة متقدمة (تظل دون تغيير)</item>
+        <item quantity="few">%1$d كتل مختصرة متقدمة (تظل دون تغيير)</item>
+        <item quantity="many">%1$d كتل مختصرة متقدمة (تظل دون تغيير)</item>
+        <item quantity="other">%1$d كتل مختصرة متقدمة (تظل دون تغيير)</item>
+    </plurals>
+    <plurals name="uif_flow_group_count">
+        <item quantity="zero">%1$d الظروف بالداخل</item>
+        <item quantity="one">%1$d الحالة بالداخل</item>
+        <item quantity="two">%1$d الظروف بالداخل</item>
+        <item quantity="few">%1$d الظروف بالداخل</item>
+        <item quantity="many">%1$d الظروف بالداخل</item>
+        <item quantity="other">%1$d الظروف بالداخل</item>
+    </plurals>
+    <plurals name="uif_gas_detector_count">
+        <item quantity="zero">%1$d أجهزة كشف الغاز نشطة</item>
+        <item quantity="one">%1$d كاشف الغاز نشط</item>
+        <item quantity="two">%1$d أجهزة كشف الغاز نشطة</item>
+        <item quantity="few">%1$d أجهزة كشف الغاز نشطة</item>
+        <item quantity="many">%1$d أجهزة كشف الغاز نشطة</item>
+        <item quantity="other">%1$d أجهزة كشف الغاز نشطة</item>
+    </plurals>
+    <plurals name="uif_light_on_count">
+        <item quantity="zero">%1$d الأضواء مضاءة</item>
+        <item quantity="one">%1$d الضوء مضاء</item>
+        <item quantity="two">%1$d الأضواء مضاءة</item>
+        <item quantity="few">%1$d الأضواء مضاءة</item>
+        <item quantity="many">%1$d الأضواء مضاءة</item>
+        <item quantity="other">%1$d الأضواء مضاءة</item>
+    </plurals>
+    <plurals name="uif_media_item_count">
+        <item quantity="zero">%1$d العناصر</item>
+        <item quantity="one">%1$d عنصر</item>
+        <item quantity="two">%1$d العناصر</item>
+        <item quantity="few">%1$d العناصر</item>
+        <item quantity="many">%1$d العناصر</item>
+        <item quantity="other">%1$d العناصر</item>
+    </plurals>
+    <plurals name="uif_motion_sensor_count">
+        <item quantity="zero">%1$d أجهزة استشعار الحركة نشطة</item>
+        <item quantity="one">%1$d مستشعر الحركة نشط</item>
+        <item quantity="two">%1$d أجهزة استشعار الحركة نشطة</item>
+        <item quantity="few">%1$d أجهزة استشعار الحركة نشطة</item>
+        <item quantity="many">%1$d أجهزة استشعار الحركة نشطة</item>
+        <item quantity="other">%1$d أجهزة استشعار الحركة نشطة</item>
+    </plurals>
+    <plurals name="uif_open_door_count">
+        <item quantity="zero">%1$d الأبواب المفتوحة</item>
+        <item quantity="one">%1$d الباب مفتوح</item>
+        <item quantity="two">%1$d الأبواب المفتوحة</item>
+        <item quantity="few">%1$d الأبواب المفتوحة</item>
+        <item quantity="many">%1$d الأبواب المفتوحة</item>
+        <item quantity="other">%1$d الأبواب المفتوحة</item>
+    </plurals>
+    <plurals name="uif_open_window_count">
+        <item quantity="zero">%1$d النوافذ المفتوحة</item>
+        <item quantity="one">%1$d نافذة مفتوحة</item>
+        <item quantity="two">%1$d النوافذ المفتوحة</item>
+        <item quantity="few">%1$d النوافذ المفتوحة</item>
+        <item quantity="many">%1$d النوافذ المفتوحة</item>
+        <item quantity="other">%1$d النوافذ المفتوحة</item>
+    </plurals>
+    <plurals name="uif_presence_sensor_count">
+        <item quantity="zero">%1$d أجهزة استشعار التواجد نشطة</item>
+        <item quantity="one">%1$d مستشعر التواجد نشط</item>
+        <item quantity="two">%1$d أجهزة استشعار التواجد نشطة</item>
+        <item quantity="few">%1$d أجهزة استشعار التواجد نشطة</item>
+        <item quantity="many">%1$d أجهزة استشعار التواجد نشطة</item>
+        <item quantity="other">%1$d أجهزة استشعار التواجد نشطة</item>
+    </plurals>
+    <plurals name="uif_smoke_detector_count">
+        <item quantity="zero">%1$d أجهزة كشف الدخان نشطة</item>
+        <item quantity="one">%1$d كاشف الدخان نشط</item>
+        <item quantity="two">%1$d أجهزة كشف الدخان نشطة</item>
+        <item quantity="few">%1$d أجهزة كشف الدخان نشطة</item>
+        <item quantity="many">%1$d أجهزة كشف الدخان نشطة</item>
+        <item quantity="other">%1$d أجهزة كشف الدخان نشطة</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="zero">%1$d تحتاج البطاريات إلى الاهتمام</item>
+        <item quantity="one">%1$d بطارية تحتاج إلى الاهتمام</item>
+        <item quantity="two">%1$d تحتاج البطاريات إلى الاهتمام</item>
+        <item quantity="few">%1$d تحتاج البطاريات إلى الاهتمام</item>
+        <item quantity="many">%1$d تحتاج البطاريات إلى الاهتمام</item>
+        <item quantity="other">%1$d تحتاج البطاريات إلى الاهتمام</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="zero">%1$d البطاريات الحرجة</item>
+        <item quantity="one">%1$d بطارية حرجة</item>
+        <item quantity="two">%1$d البطاريات الحرجة</item>
+        <item quantity="few">%1$d البطاريات الحرجة</item>
+        <item quantity="many">%1$d البطاريات الحرجة</item>
+        <item quantity="other">%1$d البطاريات الحرجة</item>
+    </plurals>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="zero">%1$d بطاريات منخفضة</item>
+        <item quantity="one">%1$d بطارية منخفضة</item>
+        <item quantity="two">%1$d بطاريات منخفضة</item>
+        <item quantity="few">%1$d بطاريات منخفضة</item>
+        <item quantity="many">%1$d بطاريات منخفضة</item>
+        <item quantity="other">%1$d بطاريات منخفضة</item>
+    </plurals>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="zero">الرسم البياني %1$d · أجهزة الاستشعار %2$d</item>
+        <item quantity="one">الرسم البياني %1$d · مستشعر %2$d</item>
+        <item quantity="two">الرسم البياني %1$d · أجهزة الاستشعار %2$d</item>
+        <item quantity="few">الرسم البياني %1$d · أجهزة الاستشعار %2$d</item>
+        <item quantity="many">الرسم البياني %1$d · أجهزة الاستشعار %2$d</item>
+        <item quantity="other">الرسم البياني %1$d · أجهزة الاستشعار %2$d</item>
+    </plurals>
+</resources>

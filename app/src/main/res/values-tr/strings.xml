@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">HKI7</string>
     <string name="language_title">Dil</string>
     <string name="language_display_title">Ekran dili</string>
     <string name="language_display_subtitle">Cihazınızı varsayılan olarak takip eder; geçersiz kılmak için birini seçin</string>

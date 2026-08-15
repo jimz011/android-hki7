@@ -394,11 +394,9 @@ fun NotificationPanel(viewModel: MainViewModel, isVisible: Boolean = true) {
             .fillMaxSize()
             .windowInsetsPadding(WindowInsets.systemBars)
             .padding(horizontal = 14.dp)
-            .swipeToAdjacentTab(
-                tabs = listOf("inbox", "events", "archive"),
-                selected = tab,
-                onSelect = { tab = it }
-            )
+            // No tab swiping here: this panel is an edge sheet, and a horizontal drag on it means
+            // "put it back" — the gesture people reach for first on a drawer. Its three tabs are
+            // always on screen a tap away, so nothing is out of reach.
     ) {
         // ── header ──────────────────────────────────────────────────────────
         Row(

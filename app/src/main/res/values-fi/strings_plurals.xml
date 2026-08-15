@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="core_last_seen_days">
+        <item quantity="one">Viimeksi nähty %1$d päivä sitten</item>
+        <item quantity="other">Nähty viimeksi %1$d päivää sitten</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="one">Nähty viimeksi %1$d tunti sitten</item>
+        <item quantity="other">Nähty viimeksi %1$d tuntia sitten</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="one">Viimeksi nähty %1$d minuutti sitten</item>
+        <item quantity="other">Nähty viimeksi %1$d minuuttia sitten</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="one">Nähty viimeksi %1$d viikko sitten</item>
+        <item quantity="other">Nähty viimeksi %1$d viikkoa sitten</item>
+    </plurals>
+    <plurals name="core_media_players_playing">
+        <item quantity="one">%1$d mediasoitinta toistetaan</item>
+        <item quantity="other">%1$d mediasoittimia toistetaan</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="one">Automaattinen + %d manuaalinen</item>
+        <item quantity="other">Automaattinen + %d manuaalinen</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="one">%d määritetty valo</item>
+        <item quantity="other">%d määritettyä valoa</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="one">%1$d laite · %2$d päällä</item>
+        <item quantity="other">%1$d laitteet · %2$d päällä</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="one">%d ulkoanturi asetettu</item>
+        <item quantity="other">%d ulkoanturia asetettu</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="one">%d poistettu</item>
+        <item quantity="other">%d poistettu</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="one">%d valittu</item>
+        <item quantity="other">%d valittu</item>
+    </plurals>
+    <plurals name="cr_sensor_count">
+        <item quantity="one">%d anturi</item>
+        <item quantity="other">%d anturia</item>
+    </plurals>
+    <plurals name="cr_widget_option_count">
+        <item quantity="one">%d vaihtoehto</item>
+        <item quantity="other">%d vaihtoehtoa</item>
+    </plurals>
+    <plurals name="dlg_action_data_value_summary">
+        <item quantity="one">%1$s · %2$d data-arvo</item>
+        <item quantity="other">%1$s · %2$d data-arvot</item>
+    </plurals>
+    <plurals name="dlg_arming_in_seconds">
+        <item quantity="one">Viritetään %d sekunnissa</item>
+        <item quantity="other">Viritetään %d sekunnissa</item>
+    </plurals>
+    <plurals name="dlg_seconds_short">
+        <item quantity="one">%d sek</item>
+        <item quantity="other">%d sek</item>
+    </plurals>
+    <plurals name="dlg_selected_entities_summary">
+        <item quantity="one">%1$d valittu · %2$s</item>
+        <item quantity="other">%1$d valittu · %2$s</item>
+    </plurals>
+    <plurals name="global_search_browse_entities">
+        <item quantity="one">Selaa %1$d entiteettiä tällä laitteella</item>
+        <item quantity="other">Selaa %1$d entiteettiä tällä laitteella</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="one">%1$d entiteetti</item>
+        <item quantity="other">%1$d entiteetit</item>
+    </plurals>
+    <plurals name="parcel_letter_count">
+        <item quantity="one">%1$d kirjain</item>
+        <item quantity="other">%1$d kirjainta</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="one">%1$d huone</item>
+        <item quantity="other">%1$d huonetta</item>
+    </plurals>
+    <plurals name="security_entity_count">
+        <item quantity="one">%1$d entiteetti</item>
+        <item quantity="other">%1$d entiteetit</item>
+    </plurals>
+    <plurals name="settings_extra_days_ago">
+        <item quantity="one">%1$d päivä sitten</item>
+        <item quantity="other">%1$d päivää sitten</item>
+    </plurals>
+    <plurals name="settings_extra_hours_ago">
+        <item quantity="one">%1$d tunti sitten</item>
+        <item quantity="other">%1$d tuntia sitten</item>
+    </plurals>
+    <plurals name="settings_extra_minutes_ago">
+        <item quantity="one">%1$d minuutti sitten</item>
+        <item quantity="other">%1$d minuuttia sitten</item>
+    </plurals>
+    <plurals name="settings_extra_shared_dashboards_pushed">
+        <item quantity="one">Muutoksia työnnettiin %1$d jaettuun hallintapaneeliin.</item>
+        <item quantity="other">Työnnettiin muutoksia %1$d jaettuun hallintapaneeliin.</item>
+    </plurals>
+    <plurals name="uif_active_device_count">
+        <item quantity="one">%1$d aktiivinen laite</item>
+        <item quantity="other">%1$d aktiivisia laitteita</item>
+    </plurals>
+    <plurals name="uif_adaptive_group_paused_count">
+        <item quantity="one">%1$d ryhmävalo on keskeytetty manuaalista ohjausta varten.</item>
+        <item quantity="other">%1$d ryhmävalot on keskeytetty manuaalista ohjausta varten.</item>
+    </plurals>
+    <plurals name="uif_adaptive_profile_light_count">
+        <item quantity="one">Ohjaa %1$d valoa tässä profiilissa.</item>
+        <item quantity="other">Ohjaa %1$d valoa tässä profiilissa.</item>
+    </plurals>
+    <plurals name="uif_days_to_season">
+        <item quantity="one">%1$d päivää %2$s</item>
+        <item quantity="other">%1$d päivää - %2$s</item>
+    </plurals>
+    <plurals name="uif_device_on_count">
+        <item quantity="one">%1$d laite päällä</item>
+        <item quantity="other">%1$d laitteet päällä</item>
+    </plurals>
+    <plurals name="uif_fire_detector_count">
+        <item quantity="one">%1$d paloilmaisin aktiivinen</item>
+        <item quantity="other">%1$d paloilmaisimet käytössä</item>
+    </plurals>
+    <plurals name="uif_flow_advanced_block_count">
+        <item quantity="one">%1$d edistynyt pikavalintalohko (pidetty ennallaan)</item>
+        <item quantity="other">%1$d edistyneet pikasanat (pidetty ennallaan)</item>
+    </plurals>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d ehto sisällä</item>
+        <item quantity="other">%1$d ehtoja sisällä</item>
+    </plurals>
+    <plurals name="uif_gas_detector_count">
+        <item quantity="one">%1$d kaasuilmaisin aktiivinen</item>
+        <item quantity="other">%1$d kaasuilmaisimet käytössä</item>
+    </plurals>
+    <plurals name="uif_light_on_count">
+        <item quantity="one">%1$d valo palaa</item>
+        <item quantity="other">%1$d valot päällä</item>
+    </plurals>
+    <plurals name="uif_media_item_count">
+        <item quantity="one">%1$d kohde</item>
+        <item quantity="other">%1$d kohdetta</item>
+    </plurals>
+    <plurals name="uif_motion_sensor_count">
+        <item quantity="one">%1$d liiketunnistin aktiivinen</item>
+        <item quantity="other">%1$d liiketunnistimet käytössä</item>
+    </plurals>
+    <plurals name="uif_open_door_count">
+        <item quantity="one">%1$d avaa ovi</item>
+        <item quantity="other">%1$d avoimia ovia</item>
+    </plurals>
+    <plurals name="uif_open_window_count">
+        <item quantity="one">%1$d avoin ikkuna</item>
+        <item quantity="other">%1$d avoimet ikkunat</item>
+    </plurals>
+    <plurals name="uif_presence_sensor_count">
+        <item quantity="one">%1$d läsnäolotunnistin aktiivinen</item>
+        <item quantity="other">%1$d läsnäoloanturit käytössä</item>
+    </plurals>
+    <plurals name="uif_smoke_detector_count">
+        <item quantity="one">%1$d savuilmaisin aktiivinen</item>
+        <item quantity="other">%1$d palovaroittimet käytössä</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="one">%1$d akku vaatii huomiota</item>
+        <item quantity="other">%1$d akut vaativat huomiota</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="one">%1$d kriittinen akku</item>
+        <item quantity="other">%1$d kriittiset akut</item>
+    </plurals>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="one">%1$d akku vähissä</item>
+        <item quantity="other">%1$d paristot vähissä</item>
+    </plurals>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="one">Kaavio %1$d · %2$d anturi</item>
+        <item quantity="other">Kaavio %1$d · %2$d anturia</item>
+    </plurals>
+</resources>

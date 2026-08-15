@@ -14,8 +14,8 @@ android {
         targetSdk = 37
         // 8 was consumed by an upload that was never released (Play reserves version codes
         // permanently, even for bundles left inactive).
-        versionCode = 27
-        versionName = "1.0.0"
+        versionCode = 28
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -93,4 +93,10 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    // Compose UI tests, so gesture behaviour can be driven and asserted directly instead of being
+    // reasoned about — the tab-swipe rules are exactly the kind of thing that reads correct and
+    // behaves otherwise.
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }

@@ -43,7 +43,15 @@ LOCALE_TARGETS = {
     "b+es+419": "es",
     "zh-rCN": "zh-CN",
     "zh-rTW": "zh-TW",
+    "nb": "no",
+    "sv": "sv",
+    "fi": "fi",
+    "ar": "ar",
 }
+
+# Where the release-note arrays live in the English resources, and so where a locale that has no
+# previous array to sit beside gets its first one.
+DEFAULT_ARRAY_FILE = "strings_climate_room.xml"
 
 
 def english_items(array_name: str) -> list[str]:
@@ -73,6 +81,14 @@ def insert_array(path: Path, array_name: str, previous_array: str, items: list[s
     body = "".join(f"{indent}    <item>{android_escape(item)}</item>\n" for item in items)
     block = f'{indent}<string-array name="{array_name}">\n{body}{indent}</string-array>\n\n'
     path.write_text(text[:line_start] + block + text[line_start:], "utf-8")
+
+
+def append_array(path: Path, array_name: str, items: list[str]) -> None:
+    """Add the array to a file that holds no release notes yet, just inside </resources>."""
+    text = path.read_text("utf-8")
+    body = "".join(f"        <item>{android_escape(item)}</item>\n" for item in items)
+    block = f'    <string-array name="{array_name}">\n{body}    </string-array>\n'
+    path.write_text(text.replace("</resources>", block + "</resources>", 1), "utf-8")
 
 
 def remove_array(path: Path, array_name: str) -> None:
@@ -118,8 +134,17 @@ def main() -> None:
     for locale, target in LOCALE_TARGETS.items():
         path = locale_file(locale, previous)
         if path is None:
-            print(f"{locale}: no file holds {previous}, skipped")
-            continue
+            # A locale added after the previous release has no earlier array to sit beside. Start
+            # its collection in the same file the English one lives in, creating it if needed,
+            # rather than skipping the locale and leaving it silently on English notes.
+            path = RES / f"values-{locale}" / DEFAULT_ARRAY_FILE
+            if not path.exists():
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(
+                    '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>\n',
+                    encoding="utf-8",
+                )
+            print(f"{locale}: no earlier array; starting one in {path.name}")
         if f'"{array_name}"' in path.read_text("utf-8"):
             if not replace:
                 print(f"{locale}: already has {array_name}")
@@ -131,7 +156,10 @@ def main() -> None:
             if key not in cache:
                 cache[key] = translate_one(target, item)
             translated.append(cache[key])
-        insert_array(path, array_name, previous, translated)
+        if f'<string-array name="{previous}">' in path.read_text("utf-8"):
+            insert_array(path, array_name, previous, translated)
+        else:
+            append_array(path, array_name, translated)
         print(f"{locale}: inserted {len(translated)} items into {path.name}")
 
     CACHE_FILE.write_text(json.dumps(cache, ensure_ascii=False, indent=2, sort_keys=True), "utf-8")

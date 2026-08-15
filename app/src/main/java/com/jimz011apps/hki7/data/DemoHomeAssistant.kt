@@ -141,6 +141,88 @@ class DemoHomeAssistantClient : HomeAssistantClient(DEMO_SERVER_URL, DEMO_ACCESS
 
     override fun subscribePushNotifications(webhookId: String): Flow<JsonObject> = flow { awaitCancellation() }
 
+    override fun subscribeLogbook(entityIds: List<String>, sinceMillis: Long): Flow<HALogbookEvent> =
+        flow { awaitCancellation() }
+
+    override suspend fun getCameraImageBytes(entityId: String): ByteArray = ByteArray(0)
+
+    override suspend fun getVacuumAreaMapping(entityId: String): Map<String, List<String>> = emptyMap()
+
+    // ── HKI 7 Cloud companion component ──────────────────────────────────────
+    // Every hki7/* call in the base class routes through withWebSocket, which opens a real socket to
+    // DEMO_SERVER_URL before it can fail. Left inherited they hammer an unresolvable host: the
+    // dashboard-update subscription in particular retries every 3 seconds for the whole session and
+    // fills the connection log. The demo therefore answers exactly as a Home Assistant *without* the
+    // optional component does — null/empty/FAILED — which is also the degradation path the rest of
+    // the app is already written against, so the demo exercises a real configuration.
+
+    override suspend fun hki7WhoAmI(): Hki7Identity? = null
+
+    override suspend fun hki7PutBackup(payload: JsonObject, label: String?): Boolean = false
+
+    override suspend fun hki7ListBackups(): List<Hki7BackupMeta> = emptyList()
+
+    override suspend fun hki7GetBackup(backupId: String): String? = null
+
+    override suspend fun hki7ListUsers(): List<Hki7User> = emptyList()
+
+    override suspend fun hki7PublishDashboard(
+        name: String,
+        payload: JsonObject,
+        sharedWith: List<String>,
+        dashboardId: String?,
+    ): Hki7SharedDashboardMeta? = null
+
+    override suspend fun hki7UnpublishDashboard(dashboardId: String): Boolean = false
+
+    override suspend fun hki7ListSharedDashboards(): List<Hki7SharedDashboardMeta> = emptyList()
+
+    override suspend fun hki7GetDashboard(dashboardId: String): String? = null
+
+    override suspend fun hki7ReportDevice(
+        deviceId: String,
+        deviceName: String,
+        appVersion: String,
+        appVersionCode: Int,
+        osVersion: String,
+        model: String,
+    ): Hki7DeviceReportResult? = null
+
+    override suspend fun hki7GetAppUpdatePolicy(): Hki7AppUpdatePolicy? = null
+
+    override suspend fun hki7SetAppUpdatePolicy(minVersionCode: Int?, minVersionName: String): Boolean = false
+
+    override suspend fun hki7NudgeDevice(
+        userId: String,
+        deviceId: String,
+        versionCode: Int?,
+        versionName: String,
+    ): Boolean = false
+
+    override suspend fun hki7ListDevices(): List<Hki7FamilyDevice>? = null
+
+    override suspend fun hki7ForgetDevice(userId: String, deviceId: String): Boolean = false
+
+    override suspend fun hki7GetMyPolicy(): Hki7Policy = Hki7Policy()
+
+    override suspend fun hki7AdaptiveLightingLights(): Map<String, List<String>>? = null
+
+    override suspend fun hki7SetPolicy(userId: String, policy: Hki7Policy): Hki7PolicySaveResult =
+        Hki7PolicySaveResult.FAILED
+
+    override suspend fun hki7ListPolicies(): Map<String, Hki7Policy> = emptyMap()
+
+    override suspend fun hki7RoomFollowRoster(): List<String>? = null
+
+    override suspend fun hki7EventsRoster(): Hki7EventsRoster? = null
+
+    override suspend fun hki7SetEventsRoster(
+        entityIds: List<String>,
+        domains: List<String>,
+    ): Hki7EventsRoster? = null
+
+    override fun subscribeHki7DashboardUpdates(): Flow<String?> = flow { awaitCancellation() }
+
     override fun closeSession() = Unit
 
     override fun dispose() {

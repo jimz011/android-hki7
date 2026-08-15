@@ -51,6 +51,15 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.core.graphics.toColorInt
 import androidx.core.view.WindowCompat
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.spring
+import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.input.pointer.util.addPointerInputChange
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.math.abs
+import kotlin.time.Duration.Companion.seconds
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -149,12 +158,41 @@ fun HKIPage(
     var showRoomConfig by remember { mutableStateOf(false) }
     var showPageConfig by remember { mutableStateOf(false) }
     var previewHeaderColor by remember { mutableStateOf<String?>(null) }
-    var pullOffset by remember { mutableFloatStateOf(0f) }
     var showSettings by remember { mutableStateOf(false) }
     var showSearch by remember { mutableStateOf(false) }
     var showFlows by remember { mutableStateOf(false) }
-    
-    val maxPull = 450f 
+
+    val maxPull = 450f
+    // Animatable, not a bare Float: the panel has to settle to an anchor when the finger lifts.
+    // Assigning the raw value teleported the header — a partial pull resolved to fully open or fully
+    // closed in a single frame, and anything past the old 400f threshold simply stayed wherever the
+    // finger stopped because nothing ever moved it the rest of the way.
+    val pullAnimatable = remember { Animatable(0f) }
+    val pullScope = rememberCoroutineScope()
+    val pullOffset = pullAnimatable.value
+    /** Settles to whichever anchor the gesture is closest to, carrying fling velocity into the
+     *  decision so a quick flick opens the menu without travelling the full distance. */
+    fun settlePull(velocity: Float) {
+        pullScope.launch {
+            val flung = abs(velocity) > 900f
+            val target = when {
+                flung -> if (velocity > 0f) maxPull else 0f
+                pullAnimatable.value > maxPull / 2f -> maxPull
+                else -> 0f
+            }
+            pullAnimatable.animateTo(
+                targetValue = target,
+                animationSpec = spring(dampingRatio = 0.85f, stiffness = 380f),
+                initialVelocity = velocity
+            )
+        }
+    }
+    /** Closes the menu with the same animation the gesture uses, for the action buttons. */
+    fun closePull() {
+        pullScope.launch {
+            pullAnimatable.animateTo(0f, spring(dampingRatio = 0.9f, stiffness = 420f))
+        }
+    }
     val pullOffsetDp = (pullOffset / 3f).dp
     val menuVisible = pullOffset > 120f
     val headerColorSource = previewHeaderColor ?: headerColor ?: pageConfig.headerColor
@@ -248,16 +286,30 @@ fun HKIPage(
         .fillMaxSize()
         .background(appColors.background)
         .pointerInput(Unit) {
+            // Tracks velocity so a flick settles the way the finger was going, and stops any
+            // in-flight settle on touch-down so the panel can be caught and re-dragged mid-animation.
+            val velocityTracker = VelocityTracker()
             detectVerticalDragGestures(
-                onDragEnd = {
-                    if (pullOffset < 400f) pullOffset = 0f
+                onDragStart = {
+                    velocityTracker.resetTracking()
+                    pullScope.launch { pullAnimatable.stop() }
                 },
+                onDragEnd = { settlePull(velocityTracker.calculateVelocity().y) },
+                onDragCancel = { settlePull(0f) },
                 onVerticalDrag = { change, dragAmount ->
                     val isHeaderGesture = change.position.y < 260.dp.toPx()
-                    val isPullingMenu = pullOffset > 0f || dragAmount > 0f
-                    if ((isHeaderGesture || pullOffset > 0f) && isPullingMenu) {
+                    val current = pullAnimatable.value
+                    val isPullingMenu = current > 0f || dragAmount > 0f
+                    if ((isHeaderGesture || current > 0f) && isPullingMenu) {
                         change.consume()
-                        pullOffset = (pullOffset + dragAmount).coerceIn(0f, maxPull)
+                        velocityTracker.addPointerInputChange(change)
+                        // Rubber-band past the anchor instead of stopping dead, so overshoot reads
+                        // as resistance rather than a broken gesture.
+                        val next = current + dragAmount
+                        val damped = if (next > maxPull) maxPull + (next - maxPull) * 0.25f else next
+                        pullScope.launch {
+                            pullAnimatable.snapTo(damped.coerceIn(0f, maxPull * 1.15f))
+                        }
                     }
                 }
             )
@@ -310,17 +362,25 @@ fun HKIPage(
         val allowEdit by prefs.enforcedAllowEdit.collectAsState(initial = true)
         val showGlobalSearchAllowed by prefs.enforcedShowGlobalSearch.collectAsState(initial = true)
         val showFlowsAllowed by prefs.enforcedShowFlows.collectAsState(initial = true)
+        val openNotificationsPanel = LocalOpenNotifications.current
         val headerMenuActions = buildList {
+            // The notification panel used to be reachable only by a left-edge swipe, which meant the
+            // gesture-exclusion strip that made it work had to be large enough to find. With a button
+            // here that strip could shrink back out of the system back gesture's way.
+            add(HeaderMenuAction(Icons.Default.Notifications, stringResource(R.string.ui_notifications_753a22b)) {
+                closePull()
+                openNotificationsPanel?.invoke()
+            })
             if (showGlobalSearchAllowed) {
                 add(HeaderMenuAction(Icons.Default.Search, stringResource(R.string.ui_search_bce0641)) {
                     showSearch = true
-                    pullOffset = 0f
+                    closePull()
                 })
             }
             if (showFlowsAllowed) {
                 add(HeaderMenuAction(Icons.Default.AccountTree, stringResource(R.string.ui_flows_1242655)) {
                     showFlows = true
-                    pullOffset = 0f
+                    closePull()
                 })
             }
             if (allowEdit) {
@@ -330,24 +390,24 @@ fun HKIPage(
                     else stringResource(R.string.ui_edit_5301648)
                 ) {
                     viewModel.toggleEditMode()
-                    pullOffset = 0f
+                    closePull()
                 })
             }
             if (pageKey != null && pageSettingsTitle != null) {
                 add(HeaderMenuAction(Icons.Default.Tune, pageSettingsTitle) {
                     showPageConfig = true
-                    pullOffset = 0f
+                    closePull()
                 })
             }
             if (title != null && areaId != null) {
                 add(HeaderMenuAction(Icons.Default.Tune, stringResource(R.string.room_config_title)) {
                     showRoomConfig = true
-                    pullOffset = 0f
+                    closePull()
                 })
             }
             add(HeaderMenuAction(Icons.Default.Settings, stringResource(R.string.ui_settings_c7f73bb)) {
                 showSettings = true
-                pullOffset = 0f
+                closePull()
             })
         }
         BoxWithConstraints(
@@ -1195,6 +1255,8 @@ fun PageSettingsDialog(
     var badgeLeftOverflow by remember(config) { mutableStateOf(config.badgeBar?.leftOverflow ?: false) }
     var badgeRightOverflow by remember(config) { mutableStateOf(config.badgeBar?.rightOverflow ?: false) }
     var section by remember { mutableStateOf("menu") }
+    // Where the section list was left, so returning from a sub-page doesn't snap back to the top.
+    var menuScrollOffset by remember { mutableIntStateOf(0) }
     var extraSectionInnerBack by remember { mutableStateOf<(() -> Unit)?>(null) }
     var customOrder by remember(config, people) {
         mutableStateOf(
@@ -1242,6 +1304,23 @@ fun PageSettingsDialog(
         onBack = if (section == "menu") null else ::navigateBack,
         content = {
             val settingsScrollState = rememberScrollState()
+            // One scroll state serves every section here, so it needs the same save/restore the
+            // main settings dialog does — otherwise a deep scroll in one sub-page carries straight
+            // into the next one. This hierarchy is only two levels: back always means "menu".
+            LaunchedEffect(section) {
+                val target = if (section == "menu") menuScrollOffset else 0
+                if (target > 0) {
+                    withTimeoutOrNull(1.seconds) {
+                        snapshotFlow { settingsScrollState.maxValue }.first { it > 0 }
+                    }
+                    settingsScrollState.scrollTo(target.coerceAtMost(settingsScrollState.maxValue))
+                } else {
+                    settingsScrollState.scrollTo(0)
+                }
+                if (section == "menu") {
+                    snapshotFlow { settingsScrollState.value }.collect { menuScrollOffset = it }
+                }
+            }
             Column(
                 modifier = Modifier.fillMaxSize().fadingEdges(settingsScrollState).verticalScroll(settingsScrollState),
                 verticalArrangement = Arrangement.spacedBy(14.dp)

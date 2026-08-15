@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">HKI7</string>
     <string name="language_title">Sprache</string>
     <string name="language_display_title">Anzeigesprache</string>
     <string name="language_display_subtitle">Folgt standardmäßig Ihrem Gerät; Wählen Sie eine aus, um sie zu überschreiben</string>

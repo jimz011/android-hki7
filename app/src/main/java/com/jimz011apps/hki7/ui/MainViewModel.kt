@@ -194,6 +194,10 @@ private val CONNECTION_RETRY_DELAYS_MS = longArrayOf(1_000L, 3_000L)
 /** Restart monitoring is intentionally finite. After this, the normal connection/error UI takes
  * over so a failed restart cannot leave HKI7 saying "restarting" forever. */
 private const val HOME_ASSISTANT_RESTART_TIMEOUT_MS = 2 * 60 * 1000L
+
+/** Longest a pager swipe may hold state updates back. Comfortably longer than a swipe and its
+ *  settle, short enough that a missed "scroll ended" signal is never noticeable. */
+private const val MAX_UI_UPDATE_PAUSE_MS = 1_500L
 private const val HOME_ASSISTANT_RESTART_FALLBACK_CONNECTED_MS = 8_000L
 
 /** How long a fetched weather forecast is served from cache before re-fetching. */
@@ -1782,6 +1786,8 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private var pushJob: Job? = null
     private val pushHandler by lazy { appContext?.let { PushNotificationHandler(it, prefs) } }
     private val realtimeBuffer = ConcurrentHashMap<String, HAStateChange>()
+    @Volatile private var uiUpdatesPaused = false
+    @Volatile private var uiUpdatesPausedAt = 0L
     private var refreshJob: Job? = null
     private var internalUrlRetryJob: Job? = null
     private var initialAutoGenerationJob: Job? = null
@@ -2329,10 +2335,29 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         sharedDashboardEventsJob = null
     }
 
+    /** Holds buffered state updates back while a pager is mid-swipe. A pager keeps several pages
+     *  composed at once, so every flush during a drag recomposes all of them — and a room page is
+     *  expensive enough that a couple of those cost visible frames. A swipe lasts 300-400ms and
+     *  nobody is reading a sensor while the page is moving, so the updates simply wait: the buffer
+     *  is keyed by entity id and coalesces, and unpausing flushes immediately. */
+    fun setUiUpdatesPaused(paused: Boolean) {
+        uiUpdatesPaused = paused
+        if (paused) {
+            uiUpdatesPausedAt = SystemClock.elapsedRealtime()
+        } else {
+            viewModelScope.launch { flushRealtimeBuffer() }
+        }
+    }
+
     /** Applies all buffered state changes in one batch so a burst of events causes a single UI
      *  update rather than one recomposition per event. */
     private fun flushRealtimeBuffer() {
         if (realtimeBuffer.isEmpty()) return
+        // Bounded, so a pause flag left set by a scroll that never reported its end can delay the
+        // dashboard briefly but can never freeze it.
+        if (uiUpdatesPaused &&
+            SystemClock.elapsedRealtime() - uiUpdatesPausedAt < MAX_UI_UPDATE_PAUSE_MS
+        ) return
         val snapshot = HashMap(realtimeBuffer)
         snapshot.forEach { (k, v) -> realtimeBuffer.remove(k, v) }
         val ordered = LinkedHashMap<String, HAEntity>(_entities.value.size + snapshot.size)
@@ -3801,6 +3826,14 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         _homeAssistantRestartPhase.value = HomeAssistantRestartPhase.RESTARTING
         _status.value = ConnectionStatus.CONNECTING
 
+        // The demo has no core to restart. Left to the real path it would sit on "restarting" for the
+        // full HOME_ASSISTANT_RESTART_TIMEOUT_MS: the demo client always answers RUNNING, so the
+        // monitor never observes a transition and never satisfies its completion check.
+        if (isDemoServerUrl(_currentUrl.value)) {
+            simulateHomeAssistantRestart(previousStatus)
+            return
+        }
+
         try {
             currentClient.callServiceRaw("homeassistant", "restart", buildJsonObject { })
         } catch (error: Exception) {
@@ -3810,6 +3843,29 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         }
 
         monitorHomeAssistantRestart(currentClient)
+    }
+
+    /** Walks the demo through the phases a real restart reports, at a pace that reads as a restart
+     *  without making a reviewer wait. Shows off the feature rather than disabling it. */
+    private fun simulateHomeAssistantRestart(previousStatus: ConnectionStatus) {
+        homeAssistantRestartMonitorJob?.cancel()
+        homeAssistantRestartMonitorJob = viewModelScope.launch {
+            addLog("Demo: simulating a Home Assistant restart.")
+            delay(1.5.seconds)
+            _homeAssistantRestartPhase.value = HomeAssistantRestartPhase.STOPPING
+            delay(1.5.seconds)
+            _homeAssistantRestartPhase.value = HomeAssistantRestartPhase.STARTING
+            delay(2.seconds)
+            _homeAssistantRestartPhase.value = HomeAssistantRestartPhase.RESTORING
+            refreshEntities(includeDashboardRefresh = false)
+            refreshJob?.join()
+            delay(1.seconds)
+            _homeAssistantRestartPhase.value = HomeAssistantRestartPhase.NONE
+            _status.value = if (previousStatus == ConnectionStatus.CONNECTED) {
+                ConnectionStatus.CONNECTED
+            } else previousStatus
+            addLog("Demo: restart finished.")
+        }
     }
 
     private fun monitorHomeAssistantRestart(restartingClient: HomeAssistantClient) {

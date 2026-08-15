@@ -242,7 +242,14 @@ private fun energyOffsetForDate(range: EnergyRange, selectedDate: LocalDate, loc
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EnergyScreen(viewModel: MainViewModel) {
+fun EnergyScreen(
+    viewModel: MainViewModel,
+    /** False while this page is only composed because the pager is mid-drag towards it. Energy is
+     *  the one tab whose root kicks off real work on composition — statistics windows, per-device
+     *  history, solar forecasts — so it waits until the page is actually settled rather than
+     *  spending a round trip on a swipe the user reverses. */
+    isActive: Boolean = true,
+) {
     val locale = LocalConfiguration.current.locales[0] ?: Locale.getDefault()
     val energyEntityFlow = remember(viewModel) {
         viewModel.entitiesMatching("domain:sensor") { it.entity_id.startsWith("sensor.") }
@@ -266,9 +273,11 @@ fun EnergyScreen(viewModel: MainViewModel) {
     LaunchedEffect(
         rawEntities.isNotEmpty(),
         energyConfig.usesHomeAssistantEnergyPreferences,
-        energyConfig.gridCarbonFootprintEntityId
+        energyConfig.gridCarbonFootprintEntityId,
+        isActive
     ) {
         if (
+            isActive &&
             rawEntities.isNotEmpty() &&
             !energyConfig.manualOnly &&
             (!energyConfig.usesHomeAssistantEnergyPreferences || energyConfig.gridCarbonFootprintEntityId == null)
@@ -276,8 +285,8 @@ fun EnergyScreen(viewModel: MainViewModel) {
             viewModel.importHomeAssistantEnergyPreferences(ENERGY_PAGE_KEY)
         }
     }
-    LaunchedEffect(energyConfig.usesHomeAssistantEnergyPreferences, energyConfig.solarForecastConfigEntryIds) {
-        if (energyConfig.usesHomeAssistantEnergyPreferences && energyConfig.solarForecastConfigEntryIds.isNotEmpty()) {
+    LaunchedEffect(energyConfig.usesHomeAssistantEnergyPreferences, energyConfig.solarForecastConfigEntryIds, isActive) {
+        if (isActive && energyConfig.usesHomeAssistantEnergyPreferences && energyConfig.solarForecastConfigEntryIds.isNotEmpty()) {
             viewModel.fetchHomeAssistantEnergySolarForecasts()
         }
     }
@@ -473,21 +482,24 @@ fun EnergyScreen(viewModel: MainViewModel) {
     val statIds = (listOfNotNull(
         chartPowerId, solarPowerId, gasId, waterId, cityHeatingId, solarEnergyId, batteryPowerId
     ) + importStatIds + exportStatIds + phaseIds.filterNotNull()).distinct()
-    LaunchedEffect(statIds, window) {
+    LaunchedEffect(statIds, window, isActive) {
+        if (!isActive) return@LaunchedEffect
         viewModel.fetchEnergyStatistics(statIds, window.startMs, window.statPeriod(), window.key(), window.endMs)
     }
     // Today's gas/water usage for the live tiles — always the current day, whatever the filter.
     val todayWindow = remember(locale) { energyWindow(EnergyRange.DAY, 0, locale) }
-    LaunchedEffect(gasId, waterId, cityHeatingId) {
+    LaunchedEffect(gasId, waterId, cityHeatingId, isActive) {
+        if (!isActive) return@LaunchedEffect
         val ids = listOfNotNull(gasId, waterId, cityHeatingId)
         if (ids.isNotEmpty())
             viewModel.fetchEnergyStatistics(ids, todayWindow.startMs, "hour", "TODAY", todayWindow.endMs)
     }
     // Forecast sensors usually have no long-term statistics; chart them from raw history (today only).
-    LaunchedEffect(forecastPowerIds, window) {
+    LaunchedEffect(forecastPowerIds, window, isActive) {
+        if (!isActive) return@LaunchedEffect
         if (range == EnergyRange.DAY && rangeOffset == 0) forecastPowerIds.forEach { viewModel.fetchEntityHistory(it, 24) }
     }
-    LaunchedEffect(Unit) { viewModel.fetchRegistries() }
+    LaunchedEffect(isActive) { if (isActive) viewModel.fetchRegistries() }
 
     // Bucketed chart data + labels for the active window. Charts always render, even without data.
     val tooltipLabels = remember(window, locale) { window.tooltipLabels(locale) }

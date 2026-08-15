@@ -14,4 +14,8 @@
     <locale android:name="zh-TW"/>
     <locale android:name="ja"/>
     <locale android:name="ko"/>
+    <locale android:name="nb"/>
+    <locale android:name="sv"/>
+    <locale android:name="fi"/>
+    <locale android:name="ar"/>
 </locale-config>

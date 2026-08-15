@@ -109,10 +109,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -206,7 +208,9 @@ import com.jimz011apps.hki7.ui.theme.AppFontFamilyOptions
 import com.jimz011apps.hki7.ui.theme.appFontFamily
 import com.jimz011apps.hki7.ui.utils.MdiIcon
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.first
+import kotlin.time.Duration.Companion.seconds
 import kotlin.math.roundToInt
 import java.util.UUID
 import coil3.compose.AsyncImage
@@ -420,6 +424,11 @@ fun SettingsDialog(
     val isBackgroundRestricted = activityManager?.isBackgroundRestricted ?: false
 
     var section by remember { mutableStateOf(initialSection) }
+    // Scroll offset per section, so walking back up to a parent lands where you left it instead of
+    // at the top. Only entries reached by *going back* are restored — opening a child fresh always
+    // starts at 0, which is why the previous section is tracked rather than just the saved offsets.
+    val sectionScrollOffsets = remember { mutableStateMapOf<SettingsSection, Int>() }
+    var previousSection by remember { mutableStateOf<SettingsSection?>(null) }
     var showNewConfigConfirm by remember { mutableStateOf(false) }
     var newDashboardName by remember { mutableStateOf("") }
     var dashboardEditMode by remember { mutableStateOf(false) }
@@ -610,7 +619,29 @@ fun SettingsDialog(
                 )
 
                 val contentScroll = rememberScrollState()
-                LaunchedEffect(section) { contentScroll.scrollTo(0) }
+                LaunchedEffect(section) {
+                    // Coming back up to a parent restores where that parent was left; going down
+                    // into a child always starts at the top.
+                    val from = previousSection
+                    val wentBack = from != null && parentSection(from) == section
+                    val target = if (wentBack) sectionScrollOffsets[section] ?: 0 else 0
+                    previousSection = section
+                    if (target > 0) {
+                        // The new section's content is measured a frame or two after this effect
+                        // starts. Restoring before the scroll range exists would clamp to 0.
+                        withTimeoutOrNull(1.seconds) {
+                            snapshotFlow { contentScroll.maxValue }.first { it > 0 }
+                        }
+                        // scrollTo, not animateScrollTo: the content has already swapped, so an
+                        // animation would visibly slide through the new page on the way down.
+                        contentScroll.scrollTo(target.coerceAtMost(contentScroll.maxValue))
+                    } else {
+                        contentScroll.scrollTo(0)
+                    }
+                    // Then track this section's offset for as long as it is shown. Recording live
+                    // rather than on the way out avoids racing the section swap for the final value.
+                    snapshotFlow { contentScroll.value }.collect { sectionScrollOffsets[section] = it }
+                }
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -1497,7 +1528,11 @@ fun SettingsDialog(
                                 Triple("ja", stringResource(R.string.settings_extra_language_japanese), stringResource(R.string.settings_extra_language_japanese_hint)),
                                 Triple("ko", stringResource(R.string.settings_extra_language_korean), stringResource(R.string.settings_extra_language_korean_hint)),
                                 Triple("zh-CN", stringResource(R.string.settings_extra_language_chinese_simplified), stringResource(R.string.settings_extra_language_chinese_simplified_hint)),
-                                Triple("zh-TW", stringResource(R.string.settings_extra_language_chinese_traditional), stringResource(R.string.settings_extra_language_chinese_traditional_hint))
+                                Triple("zh-TW", stringResource(R.string.settings_extra_language_chinese_traditional), stringResource(R.string.settings_extra_language_chinese_traditional_hint)),
+                                Triple("nb", stringResource(R.string.settings_extra_language_norwegian), stringResource(R.string.settings_extra_language_norwegian_hint)),
+                                Triple("sv", stringResource(R.string.settings_extra_language_swedish), stringResource(R.string.settings_extra_language_swedish_hint)),
+                                Triple("fi", stringResource(R.string.settings_extra_language_finnish), stringResource(R.string.settings_extra_language_finnish_hint)),
+                                Triple("ar", stringResource(R.string.settings_extra_language_arabic), stringResource(R.string.settings_extra_language_arabic_hint))
                             )
                             SettingsSubcategory(
                                 stringResource(R.string.language_display_title),

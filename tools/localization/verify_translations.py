@@ -14,6 +14,7 @@ RES = ROOT / "app/src/main/res"
 LOCALES = (
     "nl", "de", "fr", "es", "it", "tr",
     "pt", "pt-rBR", "b+es+419", "ja", "ko", "zh-rCN", "zh-rTW",
+    "nb", "sv", "fi", "ar",
 )
 # CLDR defines only the "other" plural category for these languages, so a plurals resource with
 # just that one item is complete, not missing "one"/"few"/etc.
@@ -90,6 +91,19 @@ def main() -> int:
                     failures.append(f"{locale}/{name}: missing 'other' quantity")
                 elif frozenset(PLACEHOLDER.findall(other)) != frozenset(PLACEHOLDER.findall(expected_other or "")):
                     failures.append(f"{locale}/{name}: placeholders in 'other' item don't match")
+            elif actual.kind == "plurals":
+                # A locale legitimately has a different number of quantity items from English —
+                # Arabic uses all six CLDR categories where English uses two — so the items cannot
+                # be compared pairwise. What must hold is that every item carries the placeholders
+                # the English plural uses.
+                required = frozenset().union(*expected.placeholders) if expected.placeholders else frozenset()
+                for item, present in zip(actual.values, actual.placeholders):
+                    if present != required:
+                        quantity = item.split("\0", 1)[0]
+                        failures.append(
+                            f"{locale}/{name}: '{quantity}' has placeholders {set(present)}, "
+                            f"expected {set(required)}"
+                        )
             elif actual.placeholders != expected.placeholders:
                 failures.append(
                     f"{locale}/{name}: placeholders {actual.placeholders} "

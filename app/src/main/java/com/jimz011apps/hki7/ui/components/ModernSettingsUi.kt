@@ -58,6 +58,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
@@ -337,6 +339,7 @@ fun SettingsTabRow(
  * control (slider, pager, swipe row, etc.) consumes the drag and wins. Tab strips can opt out so a
  * drag directly on the strip always selects the adjacent tab while preserving its own scrolling.
  */
+@Composable
 fun Modifier.swipeToAdjacentTab(
     tabs: List<String>,
     selected: String?,
@@ -345,13 +348,20 @@ fun Modifier.swipeToAdjacentTab(
     onSelect: (String) -> Unit
 ): Modifier {
     if (!enabled || tabs.size < 2 || selected !in tabs) return this
-    return pointerInput(tabs, selected, respectChildGestures, onSelect) {
+    // Composable so the reading direction is available: in Arabic the tabs run the other way, so
+    // the swipe that advances them does too.
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    return pointerInput(tabs, selected, respectChildGestures, rtl, onSelect) {
         awaitHorizontalTabSwipes(
             respectChildGestures = respectChildGestures,
             pass = if (respectChildGestures) PointerEventPass.Final else PointerEventPass.Initial,
-            commitDistancePx = 44.dp.toPx(),
-            flingDistancePx = 16.dp.toPx(),
-            flingVelocityPxPerSecond = 550.dp.toPx()
+            // 44dp asked for a deliberate drag before anything happened, which read as the swipe
+            // being ignored. A tab strip has only a handful of destinations and a wrong one costs a
+            // tap to undo, so it can afford to be answered sooner.
+            commitDistancePx = 28.dp.toPx(),
+            flingDistancePx = 12.dp.toPx(),
+            flingVelocityPxPerSecond = 420.dp.toPx(),
+            rtl = rtl
         ) { forward ->
             val targetIndex = tabs.indexOf(selected) + if (forward) 1 else -1
             tabs.getOrNull(targetIndex)?.let(onSelect)
@@ -456,6 +466,17 @@ fun ModernSettingsDialogFrame(
                         onClose = onDismiss
                     )
                     Box(modifier = Modifier.weight(1f).fillMaxWidth()) { content() }
+                    // Sits with the footer rather than under the tab strip: the chips already say
+                    // which tab is open, so up there the dots only repeated them. Down here they
+                    // read as what they are — how many pages there are, and how far along you are.
+                    tabSwipeRegistration?.let { registration ->
+                        PagerIndicator(
+                            pageCount = registration.tabs.size,
+                            currentPage = registration.tabs.indexOf(registration.selected).coerceAtLeast(0),
+                            elevated = false,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                    }
                     HorizontalDivider(color = colors.onMuted.copy(alpha = 0.22f))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -518,15 +539,6 @@ fun ModernAlertDialog(
                         .then(
                             if (stableHeight) Modifier.fillMaxHeight(0.88f).heightIn(max = 720.dp)
                             else Modifier
-                        )
-                        .then(
-                            tabSwipeRegistration?.let { registration ->
-                                Modifier.swipeToAdjacentTab(
-                                    tabs = registration.tabs,
-                                    selected = registration.selected,
-                                    onSelect = registration.onSelect
-                                )
-                            } ?: Modifier
                         ),
                     shape = RoundedCornerShape(30.dp),
                     color = colors.elevated,
@@ -536,6 +548,17 @@ fun ModernAlertDialog(
                     CompositionLocalProvider(LocalDialogTabSwipeRegistrar provides registerTabSwipe) {
                     Column(
                         modifier = (if (stableHeight) Modifier.fillMaxSize() else Modifier.heightIn(max = 720.dp))
+                            // On the content node rather than the Surface, so the modifier and the
+                            // registration that drives it live in the same subtree.
+                            .then(
+                                tabSwipeRegistration?.let { registration ->
+                                    Modifier.swipeToAdjacentTab(
+                                        tabs = registration.tabs,
+                                        selected = registration.selected,
+                                        onSelect = registration.onSelect
+                                    )
+                                } ?: Modifier
+                            )
                             .background(
                                 Brush.verticalGradient(
                                     listOf(
@@ -595,6 +618,17 @@ fun ModernAlertDialog(
                         }
                     }
 
+                    // Widget settings live in this frame rather than ModernSettingsDialogFrame, so
+                    // it needs the same indicator — without it the tabbed dialogs people actually
+                    // open every day were the ones showing nothing.
+                    tabSwipeRegistration?.let { registration ->
+                        PagerIndicator(
+                            pageCount = registration.tabs.size,
+                            currentPage = registration.tabs.indexOf(registration.selected).coerceAtLeast(0),
+                            elevated = false,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                    }
                     HorizontalDivider(color = colors.onMuted.copy(alpha = 0.22f))
                     Row(
                         modifier = Modifier.fillMaxWidth(),

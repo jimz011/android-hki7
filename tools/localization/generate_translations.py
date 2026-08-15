@@ -20,13 +20,28 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 RES = ROOT / "app/src/main/res"
 CACHE_FILE = Path(__file__).with_name("translation_cache.json")
-LOCALES = ("nl", "de", "fr", "es", "it", "tr", "ja", "ko")
+LOCALES = ("nl", "de", "fr", "es", "it", "tr", "ja", "ko", "nb", "sv", "fi", "ar")
+# Android resource qualifier -> the code the translation endpoint expects, for the few that differ.
+# Norwegian is the odd one: Android names the Bokmal resource folder `nb`, the endpoint calls the
+# language `no`. Everything absent from this map is passed through unchanged.
+TRANSLATE_TARGETS = {"nb": "no"}
 # pt-rBR, b+es+419, and zh-rCN/zh-rTW are deliberately excluded: their Android resource-folder
 # qualifiers aren't valid Google Translate target codes (need pt-BR/es-419/zh-CN/zh-TW), and unlike
 # ja/ko their <plurals> live inside strings.xml itself, which this script fully overwrites — running
 # it for them silently mistranslates (falls back to English) and drops their plurals. Add new keys to
 # those locales with a small standalone insert-only script instead (see git history for an example).
 SOURCE_FILES = tuple(sorted((RES / "values").glob("strings*.xml")))
+# Names that are the same in every language. Ordered longest-first: each is taken out of the text
+# before the shorter ones, so a compound name is never broken up by a substring of itself.
+BRAND_TERMS = (
+    "HKI 7 Cloud",
+    "Home Assistant",
+    "Google Drive",
+    "Nabu Casa",
+    "Valetudo",
+    "HKI 7",
+    "HKI7",
+)
 FORMAT_ARGUMENT = re.compile(r"%\d+\$[a-zA-Z]")
 NONPOSITIONAL_FORMAT = re.compile(r"%(?!\d+\$)[.\d]*[a-zA-Z]")
 ZERO_WIDTH = re.compile("[\u200b-\u200d\ufeff]")
@@ -71,6 +86,14 @@ def protected_text(value: str) -> tuple[str, list[str]]:
     protected = value
     for index, argument in enumerate(arguments):
         protected = protected.replace(argument, f"__HKI_ARG_{index}__", 1)
+    # Product names ride through on the same mechanism as format arguments. A Latin-script target
+    # tends to leave them alone by chance, which is why this went unnoticed; Arabic does not, and
+    # rendered "Home Assistant" as "المساعد المنزلي" and the app's own name as "Hong Kong 7".
+    # Longest first, so "HKI 7 Cloud" is taken before the "HKI 7" inside it.
+    for term in BRAND_TERMS:
+        while term in protected:
+            protected = protected.replace(term, f"__HKI_ARG_{len(arguments)}__", 1)
+            arguments.append(term)
     return protected, arguments
 
 
@@ -83,12 +106,23 @@ def restore_arguments(value: str, arguments: list[str]) -> str:
     return value
 
 
+def brands_intact(english: str, translated: str) -> bool:
+    """Every product name present in the English must survive verbatim in the translation."""
+    return all(term not in english or term in translated for term in BRAND_TERMS)
+
+
 def translate_one(locale: str, value: str) -> str:
     if not re.search(r"[^\W\d_]", value, re.UNICODE):
         return value
     protected, arguments = protected_text(value)
     query = urllib.parse.urlencode(
-        {"client": "gtx", "sl": "en", "tl": locale, "dt": "t", "q": protected}
+        {
+            "client": "gtx",
+            "sl": "en",
+            "tl": TRANSLATE_TARGETS.get(locale, locale),
+            "dt": "t",
+            "q": protected,
+        }
     )
     request = urllib.request.Request(
         "https://translate.googleapis.com/translate_a/single?" + query,

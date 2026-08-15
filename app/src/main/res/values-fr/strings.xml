@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">HKI7</string>
     <string name="language_title">Langue</string>
     <string name="language_display_title">Langue d\'affichage</string>
     <string name="language_display_subtitle">Suit votre appareil par défaut ; choisissez-en un pour le remplacer</string>
