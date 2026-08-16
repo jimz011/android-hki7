@@ -35,7 +35,11 @@ RES = ROOT / "app/src/main/res"
 OUT_DIR = ROOT / "translations"
 TEMPLATE_FILE = OUT_DIR / "_new-language-template.csv"
 
-COLUMNS = ("key", "type", "item", "english", "translation", "notes")
+# No `type` column: `item` already tells the two apart — empty for a plain string, a CLDR category
+# for a plural, a position number for a list — and the importer takes the real type from the
+# English source rather than trusting the file. One less column to explain, and it keeps every
+# export under the 512 KB that GitHub will render as a table.
+COLUMNS = ("key", "item", "english", "translation", "notes")
 
 # Every locale the app ships, in the order verify_translations.py lists them.
 LOCALES = (
@@ -83,7 +87,6 @@ class Resource:
 @dataclass(frozen=True)
 class Row:
     key: str
-    type: str
     item: str
     english: str
     translation: str
@@ -124,6 +127,25 @@ def to_xml_text(text: str) -> str:
 def is_quote_wrapped(text: str) -> bool:
     """True for the one shape where aapt strips double quotes instead of showing them."""
     return len(text) > 1 and text.startswith('"') and text.endswith('"')
+
+
+# Units written the same way in every language HKI 7 ships. Deliberately tiny: "Min", "OK" and the
+# compass points are NOT here, because they really are translated — Dutch writes NNE as NNO.
+LANGUAGE_NEUTRAL_UNITS = frozenset({"kwh", "wh", "kw", "mwh", "c", "f"})
+
+
+def has_translatable_words(text: str) -> bool:
+    """Is there anything here a translator could actually improve?
+
+    Roughly seventy of the app's strings are pure formatting glue — `%.1f`, `%1$s°`,
+    `%1$s. %2$s`, `✓ %1$s`. They carry no language at all, so listing them in a translation file
+    asks a native speaker to proofread a printf specifier. Worse, they are precisely what machine
+    translation mangles: `%.1f` came back from Greek as `%.1στ`, and from Czech as `%.lf`, both of
+    which crash. Take the format specifiers out and see whether a real word is left.
+    """
+    remainder = FORMAT_ARGUMENT.sub(" ", text)
+    words = re.findall(r"[^\W\d_]+", remainder, re.UNICODE)
+    return any(word.lower() not in LANGUAGE_NEUTRAL_UNITS for word in words)
 
 
 def load_resources(directory: Path) -> dict[str, Resource]:

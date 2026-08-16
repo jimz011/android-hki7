@@ -30,6 +30,7 @@ from translation_csv import (
     TEMPLATE_FILE,
     Row,
     format_arguments,
+    has_translatable_words,
     load_resources,
     locale_path,
 )
@@ -43,7 +44,9 @@ def notes_for(english: str, translation: str) -> str:
         notes.append("needs translation")
     arguments = list(dict.fromkeys(format_arguments(english)))
     if arguments:
-        notes.append("keep " + " ".join(arguments))
+        # Terse on purpose: this repeats on hundreds of rows, and the README explains what a
+        # placeholder is once, properly, with examples. Here it only has to say which to keep.
+        notes.append("app fills in " + " ".join(arguments) + " — keep them")
     brands = [term for term in BRAND_TERMS if term in english]
     if brands:
         # BRAND_TERMS is longest-first, so "HKI 7 Cloud" matches before the "HKI 7" inside it.
@@ -69,6 +72,11 @@ def rows_for(locale: str | None) -> list[Row]:
 
     rows: list[Row] = []
     for key, resource in source.items():
+        # Strings that are nothing but format specifiers and punctuation are left out entirely.
+        # There is no language in them to get right, and putting them in front of a translator is
+        # how "%.1f" comes back as "%.1στ". A maintainer edits those few in the XML directly.
+        if not any(has_translatable_words(text) for text in resource.items.values()):
+            continue
         existing = translated.get(key)
         items = dict(resource.items)
         if existing:
@@ -83,7 +91,6 @@ def rows_for(locale: str | None) -> list[Row]:
             rows.append(
                 Row(
                     key=key,
-                    type=resource.type,
                     item=item_id,
                     english=english,
                     translation=translation,
@@ -98,9 +105,7 @@ def render(rows: list[Row]) -> str:
     writer = csv.writer(buffer, lineterminator="\n")
     writer.writerow(COLUMNS)
     for row in rows:
-        writer.writerow(
-            [row.key, row.type, row.item, row.english, row.translation, row.notes]
-        )
+        writer.writerow([row.key, row.item, row.english, row.translation, row.notes])
     return buffer.getvalue()
 
 

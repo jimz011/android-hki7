@@ -72,10 +72,10 @@ def read_csv(path: Path) -> list[dict[str, str]]:
                 f"{path.name}: missing column(s) {', '.join(missing)}.\n"
                 f"The header must be: {','.join(COLUMNS)}"
             )
-        # key/type/item are structural and safe to tidy. english/translation are not: a couple of
-        # dozen strings are layout glue whose leading or trailing space is load-bearing (" is",
-        # " (required)", "%1$s · "), and stripping them silently closes up the gap in the UI.
-        structural = {"key", "type", "item"}
+        # key/item are structural and safe to tidy. english/translation are not: some strings are
+        # layout glue whose leading or trailing space is load-bearing (" is", " (required)"), and
+        # stripping them silently closes up the gap in the UI.
+        structural = {"key", "item"}
         return [
             {
                 column: (row.get(column) or "").strip() if column in structural

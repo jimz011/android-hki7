@@ -25,29 +25,42 @@ One CSV per language, named by its Android locale qualifier:
 `pt-rBR` Portuguese (Brazil) · `ro` Romanian · `ru` Russian · `sk` Slovak · `sv` Swedish ·
 `th` Thai · `tr` Turkish · `zh-rCN` Chinese (Simplified) · `zh-rTW` Chinese (Traditional)
 
-Each has about 3,800 rows and six columns:
+Each has about 3,700 rows and five columns:
 
 | Column | What it is |
 | --- | --- |
 | `key` | The internal name. **Never change this** — it is how the text finds its way back into the app. |
-| `type` | `string`, `plural`, or `array`. |
-| `item` | Empty for a plain string; a plural category (`one`, `other`, …) or a position number otherwise. |
+| `item` | Empty on almost every row. A counting category (`one`, `other`, …) or a position number where a string has several forms. |
 | `english` | The original. Also **do not change** — it is what the tooling checks your row against. |
 | `translation` | **This is the column you edit.** |
 | `notes` | Anything the row requires of you, generated automatically. |
 
-Only `translation` is yours. The other five let the importer put your work in the right place and
+Only `translation` is yours. The other four let the importer put your work in the right place and
 tell you if something drifted.
+
+Nine rows in ten are an ordinary sentence with nothing technical in them. The app's pure
+formatting fragments — things like `%.1f °C` and `%1$s. %2$s`, which contain no language to get
+right — are left out of these files on purpose, so you should never be asked to proofread a
+number format. If your language needs different punctuation or spacing in one of those, open an
+issue and a maintainer will change it directly.
 
 ## Editing
 
 Open the file in a spreadsheet (Excel, LibreOffice, Numbers, Google Sheets) or a text editor —
 whatever you prefer. A few rules the tooling enforces:
 
-**Keep the format arguments.** `%1$s`, `%2$d`, `%.1f` and friends are replaced with real values
-when the app runs. They may move to wherever your language needs them, but every one has to
-survive. `%%` is a literal percent sign. Getting this wrong is how a translation crashes the app,
-so the importer refuses a file that loses one.
+**Keep the placeholders.** About one row in eleven contains something like `%1$s` or `%2$d` —
+a slot the app fills in with a real value when it runs:
+
+| English | Dutch | What the user sees |
+| --- | --- | --- |
+| `No %1$s parcels.` | `Geen %1$s-pakketten.` | No PostNL parcels. |
+| `%1$d of %2$d active` | `%1$d van %2$d actief` | 3 of 8 active |
+
+Move them wherever your language needs them — word order changes are the whole point — but keep
+each one exactly as written, and keep all of them. `%%` is a literal percent sign. This is the one
+thing that can crash the app if it goes wrong, so the importer checks every row and refuses the
+file rather than letting a broken one through.
 
 **Keep product names in English.** Home Assistant, HKI 7, HKI 7 Cloud, Google Drive, Nabu Casa and
 Valetudo stay as they are. The `notes` column flags the rows where this applies.
@@ -64,9 +77,11 @@ importer escapes them for Android.
 **Leave a row blank if you're unsure.** An empty `translation` is skipped, never used to erase what
 is already there. A partly finished file is a perfectly good pull request.
 
-**Plurals** get one row per category. If your language needs categories English doesn't have —
-Arabic uses all six of `zero`, `one`, `two`, `few`, `many`, `other` — add rows for them, copying the
-`key` and setting `item` to the category name.
+**Counting words** get one row per category, sharing a `key` and differing in `item`. English has
+only `one` and `other`; if your language needs more — Arabic uses all six of `zero`, `one`, `two`,
+`few`, `many`, `other` — add rows for them, copying the `key` and putting the category in `item`.
+Rows whose `item` is a number are an ordered list, like the sixteen compass points; keep them in
+order.
 
 ## Sending it back
 
