@@ -14,8 +14,8 @@ android {
         targetSdk = 37
         // 8 was consumed by an upload that was never released (Play reserves version codes
         // permanently, even for bundles left inactive).
-        versionCode = 29
-        versionName = "1.1.0"
+        versionCode = 30
+        versionName = "1.1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -257,6 +257,8 @@ class PreferencesManager(
     private val familyDashboardAccessLostKey = booleanPreferencesKey("family_dashboard_access_lost")
     private val legacyFamilyDashboardCreationLockedKey = booleanPreferencesKey("family_dashboard_creation_locked")
     private val cloudBackupEnabledKey = booleanPreferencesKey("cloud_backup_enabled")
+    private val updateChecksEnabledKey = booleanPreferencesKey("update_checks_enabled")
+    private val lastNotifiedUpdateVersionKey = stringPreferencesKey("last_notified_update_version")
     private val haBackupEnabledKey = booleanPreferencesKey("ha_backup_enabled")
     // Wall-clock time (epoch millis) of the most recent successful backup to each destination,
     // recorded by CloudBackupWorker so the settings screen can show "Last backup …" without a
@@ -336,6 +338,11 @@ class PreferencesManager(
     }
     val familyDashboardAccessLost: Flow<Boolean> = context.dataStore.data.map { it[familyDashboardAccessLostKey] ?: false }
     val cloudBackupEnabled: Flow<Boolean> = context.dataStore.data.map { it[cloudBackupEnabledKey] ?: false }
+    /** Watch GitHub releases and notify about newer versions. On by default: a Play install is
+     *  updated by Play anyway, and a sideloaded one has no other way to find out. */
+    val updateChecksEnabled: Flow<Boolean> = context.dataStore.data.map { it[updateChecksEnabledKey] ?: true }
+    /** The version already announced, so one release is not notified about every day until installed. */
+    val lastNotifiedUpdateVersion: Flow<String?> = context.dataStore.data.map { it[lastNotifiedUpdateVersionKey] }
     /** Daily backup to the user's own Home Assistant instance via the hki7 companion component. */
     val haBackupEnabled: Flow<Boolean> = context.dataStore.data.map { it[haBackupEnabledKey] ?: false }
     /** Epoch millis of the last successful Google Drive backup, or null if none yet. */
@@ -430,6 +437,14 @@ class PreferencesManager(
 
     suspend fun saveCloudBackup(enabled: Boolean) {
         context.dataStore.edit { it[cloudBackupEnabledKey] = enabled }
+    }
+
+    suspend fun saveUpdateChecksEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[updateChecksEnabledKey] = enabled }
+    }
+
+    suspend fun saveLastNotifiedUpdateVersion(version: String) {
+        context.dataStore.edit { it[lastNotifiedUpdateVersionKey] = version }
     }
 
     suspend fun saveHaBackup(enabled: Boolean) {

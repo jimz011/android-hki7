@@ -626,6 +626,15 @@ cr_quick_media_player,,Media player,Медиен плейър,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.","Когато се появи манипулаторът, плъзнете нагоре по долната лента, за да възстановите плейъра.",
 cr_quick_make_it_yours,,Make it yours,Направи го твое,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","В режим на редактиране добавяйте и пренареждайте стаи, етажи и приспособления. Докоснете елемент, за да го конфигурирате.",
+cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, with seven face designs each — Classic, Minimal, Roman, Railway, Bauhaus, Neon and Skeleton for analog; Plain, Segment, Monospace, Flip, Outline, Stacked and Dots for digital — plus 12 or 24-hour time, optional seconds, and your choice of day, date and year underneath. Tapping it shows your next alarm.","Нова джаджа за часовник. Аналогов или дигитален, със седем дизайна на лицето всеки — Classic, Minimal, Roman, Railway, Bauhaus, Neon и Skeleton за аналогови; Обикновен, сегментиран, монопространствен, обърнат, контурен, подреден и точки за цифрово — плюс 12 или 24-часово време, незадължителни секунди и избор на ден, дата и година отдолу. Докосването му показва следващата ви аларма.",
+cr_whats_new_1_1_1,2,"Home Assistant's own pages open inside HKI 7. A new Home Assistant section in Settings takes you straight to your server's Settings, Developer tools and HACS, already signed in, without leaving the app.","Собствените страници на Home Assistant се отварят в HKI 7. Нова секция Home Assistant в Настройки ви отвежда направо до настройките на вашия сървър, инструментите за разработчици и HACS, когато вече сте влезли, без да напускате приложението.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_1,3,"HKI 7 now tells you when a new version is released. It watches the GitHub releases once a day and notifies you, which matters most if you installed the APK yourself rather than from Play — Update now sends you to Play or to the release page depending on where this copy came from. It can be turned off in Settings › About.","HKI 7 сега ви казва кога е пусната нова версия. Той следи изданията на GitHub веднъж на ден и ви уведомява, което е най-важно, ако сте инсталирали APK сами, а не от Play — Update сега ви изпраща до Play или до страницата за издание в зависимост от това откъде идва това копие. Може да се изключи в Настройки › Относно.",don't translate HKI 7
+cr_whats_new_1_1_1,4,"A Next Alarm sensor joins the ones the app already reports to Home Assistant, matching the official companion app. Android only exposes the next alarm rather than the whole list, so that is what the sensor carries, along with which app set it.","Сензор за следваща аларма се присъединява към тези, които приложението вече докладва на Home Assistant, съответствайки на официалното придружаващо приложение. Android излага само следващата аларма, а не целия списък, така че това е, което носи сензорът, заедно с това кое приложение го задава.",don't translate Home Assistant
+cr_whats_new_1_1_1,5,"The wind card is now a proper compass. A graduated dial with a marked ring, an eight-point rose and a two-tone needle, in place of the plain circle and line it had before.","Картата на вятъра вече е правилен компас. Градуиран циферблат с маркиран пръстен, роза с осем точки и двуцветна игла, вместо обикновения кръг и линия, които имаше преди.",
+cr_whats_new_1_1_1,6,"Media players say what is playing, not just which app is open. An Android TV streaming a series now shows the programme, the season and episode, and the episode title, with the app named underneath; live TV shows the channel.","Медийните плейъри казват какво се възпроизвежда, а не само кое приложение е отворено. Android TV, предаващ поточно серия, вече показва програмата, сезона и епизода, както и заглавието на епизода, с името на приложението отдолу; телевизия на живо показва канала.",
+cr_whats_new_1_1_1,7,"Fixed the back gesture leaving you on the Rooms overview. Opening a room, switching to another tab and pressing back now returns to the room you were actually in, rather than to the list of rooms.","Поправен е жестът за връщане назад, който ви оставя в общия преглед на стаите. Отварянето на стая, превключването към друг раздел и натискането на назад вече връща към стаята, в която сте били в действителност, а не към списъка със стаи.",
+cr_whats_new_1_1_1,8,"Fixed temperature and energy readings in Czech, Slovak, Greek, Norwegian, Swedish and Danish. Machine translation had damaged the number formatting behind them, which showed the wrong number of decimals in the Nordic languages and could crash the screen in the other three.","Фиксирани показания за температура и енергия на чешки, словашки, гръцки, норвежки, шведски и датски. Машинният превод беше повредил форматирането на числата зад тях, което показваше грешен брой десетични знаци в скандинавските езици и можеше да срине екрана в останалите три.",
+cr_whats_new_1_1_1,9,"Every language now has a single file anyone can correct. The translations folder in the repository holds one spreadsheet-friendly file per language, English beside the translation, so a native speaker can fix what reads wrong without touching any code.","Всеки език вече има един файл, който всеки може да коригира. Папката за преводи в хранилището съдържа по един удобен за електронна таблица файл за всеки език, английски до превода, така че носителят на езика може да поправи това, което се чете грешно, без да докосва никакъв код.",
 cr_whats_new_1_1_0,1,"Eighteen more languages, taking HKI 7 to 36. Polish, Russian, Czech, Slovak, Hungarian, Romanian, Bulgarian, Croatian, Greek, Lithuanian, Latvian, Estonian, Danish, Thai and Hebrew join the list, along with Austrian German, Swiss German and Mexican Spanish. Hebrew lays the interface out right to left, as Arabic does.","Още осемнадесет езика, като HKI 7 достига 36. Полски, руски, чешки, словашки, унгарски, румънски, български, хърватски, гръцки, литовски, латвийски, естонски, датски, тайландски и иврит се присъединяват към списъка, заедно с австрийски немски, швейцарски немски и мексикански испански. Ивритът разполага с интерфейса отдясно наляво, както и арабският.",don't translate HKI 7
 cr_whats_new_1_1_0,2,"HKI 7 now runs on Android 12 and later. It previously needed Android 14, which ruled out a lot of perfectly capable phones and tablets.","HKI 7 вече работи на Android 12 и по-нови версии. Преди това се нуждаеше от Android 14, което изключваше много напълно способни телефони и таблети.",don't translate HKI 7
 cr_whats_new_1_1_0,3,"Energy costs are shown in your own currency instead of always in euros. HKI 7 follows what your cost sensors report, and there is a Currency setting in Energy settings if you would rather choose one yourself.","Разходите за енергия се показват във вашата собствена валута вместо винаги в евро. HKI 7 следва това, което отчитат вашите сензори за разходи, и има настройка за валута в настройките за енергия, ако предпочитате да изберете такава сами.",don't translate HKI 7
@@ -3148,6 +3157,27 @@ parental_search_picker_subtitle,,Select entire domains or individual entities,И
 parental_search_domains,,Domains,Домейни,
 parental_search_entire_domain,,Entire domain,Целият домейн,
 parental_search_domain_chip,,Domain: %1$s,Домейн: %1$s,app fills in %1$s — keep them
+ha_page_category,,Home Assistant,Home Assistant,don't translate Home Assistant
+ha_page_category_subtitle,,Open your server's own pages without leaving HKI 7,"Отворете собствените страници на вашия сървър, без да напускате HKI 7",don't translate HKI 7
+ha_page_settings,,Home Assistant settings,Home Assistant настройки,don't translate Home Assistant
+ha_page_settings_subtitle,,"Integrations, devices, areas and automations","Интеграции, устройства, области и автоматизация",
+ha_page_dev_tools,,Developer tools,Инструменти за разработчици,
+ha_page_dev_tools_subtitle,,"States, services, templates and events","Състояния, услуги, шаблони и събития",
+ha_page_hacs,,HACS,HACS,
+ha_page_hacs_subtitle,,Community integrations and frontend add-ons,Интеграции на общността и добавки за интерфейс,
+ha_page_no_server,,Connect to a Home Assistant server first.,Първо се свържете със сървър Home Assistant.,don't translate Home Assistant
+update_channel_name,,App updates,Актуализации на приложения,
+update_channel_description,,Tells you when a newer version of HKI 7 has been released,Казва ви кога е пусната по-нова версия на HKI 7,don't translate HKI 7
+update_available_title,,HKI 7 %1$s is available,HKI 7 %1$s е наличен,app fills in %1$s — keep them; don't translate HKI 7
+update_available_body,,Tap to see what changed and update,"Докоснете, за да видите какво се е променило и актуализирайте",
+update_title,,App updates,Актуализации на приложения,
+update_subtitle_checking,,Checking for a newer version…,Проверява се за по-нова версия...,
+update_subtitle_current,,You are on the latest version,Вие сте на най-новата версия,
+update_subtitle_available,,Version %1$s is available,Версия %1$s е налична,app fills in %1$s — keep them
+update_check_now,,Check for updates,Проверете за актуализации,
+update_now,,Update now,Актуализирайте сега,
+update_watch_releases,,Tell me about new releases,Разкажете ми за новите издания,
+update_watch_releases_subtitle,,Checks GitHub once a day and notifies you when a newer version is published,Проверява GitHub веднъж на ден и ви уведомява при публикуване на по-нова версия,
 uif_a_state,,a state,състояние,
 uif_a_time,,a time,време,
 uif_actions,,Actions,Действия,
@@ -3732,3 +3762,39 @@ widgets_energy_ha_forecast,,Home Assistant forecast,Home Assistant прогно�
 widgets_battery_search,,Search devices,Търсене на устройства,
 widgets_battery_none,,No batteries match that search.,"Няма батерии, отговарящи на това търсене.",
 widgets_battery_open_page,,Open battery page,Отворете страницата за батерията,
+cr_widget_clock,,Clock,Часовник,
+cr_widget_clock_description,,"An analog or digital clock, in the style you pick, with the date and your next alarm.","Аналогов или цифров часовник, в избран от вас стил, с датата и следващата ви аларма.",
+clock_widget_title,,Clock,Часовник,
+clock_widget_subtitle,,"Face, styling and what it shows","Лице, стайлинг и какво показва",
+clock_title_label,,Title (optional),Заглавие (по избор),
+clock_face_section,,Face,Лице,
+clock_face_section_subtitle,,"Analog or digital, and which design",Аналогов или цифров и какъв дизайн,
+clock_shows_section,,Shows,Показва,
+clock_shows_section_subtitle,,Choose what appears alongside the time,Изберете какво да се показва до часа,
+clock_mode_analog,,Analog,Аналогов,
+clock_mode_digital,,Digital,Дигитален,
+clock_style,,Style,стил,
+clock_24_hour,,24-hour clock,24-часов часовник,
+clock_seconds,,Seconds,Секунди,
+clock_date,,Date,Дата,
+clock_day_name,,Day of the week,Ден от седмицата,
+clock_year,,Year,година,
+clock_style_classic,,Classic,Класически,
+clock_style_minimal,,Minimal,Минимална,
+clock_style_roman,,Roman,римски,
+clock_style_railway,,Railway,ЖП,
+clock_style_bauhaus,,Bauhaus,Баухаус,
+clock_style_neon,,Neon,Неон,
+clock_style_skeleton,,Skeleton,Скелет,
+clock_style_plain,,Plain,Обикновен,
+clock_style_segment,,Segment,сегмент,
+clock_style_mono,,Monospace,Монопространство,
+clock_style_flip,,Flip,Обръщане,
+clock_style_outline,,Outline,Контур,
+clock_style_stacked,,Stacked,Подредени,
+clock_style_dots,,Dots,Точки,
+clock_alarms_title,,Next alarm,Следваща аларма,
+clock_no_alarm,,No alarm is set.,Няма зададена аларма.,
+clock_alarm_set_by,,Set by %1$s,Зададено от %1$s,app fills in %1$s — keep them
+clock_alarms_platform_note,,"Android only tells other apps about the next alarm, so alarms cannot be listed or switched on and off from here.","Android само съобщава на другите приложения за следващата аларма, така че алармите не могат да бъдат изброявани или включвани и изключвани от тук.",
+clock_open_clock_app,,Open Clock app,Отворете приложението Часовник,

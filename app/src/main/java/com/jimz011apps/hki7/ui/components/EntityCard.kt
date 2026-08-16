@@ -146,17 +146,52 @@ fun RenameCardDialog(currentName: String, defaultName: String, onDismiss: () -> 
 @Composable
 fun mediaPlayerStatus(entity: HAEntity?): String? {
     entity ?: return null
-    val title = entity.mediaTitle
-    return if ((entity.state == "playing" || entity.state == "paused") && !title.isNullOrBlank()) {
-        val artist = entity.mediaArtist
-        val track = if (!artist.isNullOrBlank()) "$title • $artist" else title
+    val track = mediaPlayerContentLine(entity)
+    return if ((entity.state == "playing" || entity.state == "paused") && track != null) {
         if (entity.state == "paused") {
             stringResource(R.string.core_media_paused_track, track)
         } else {
             track
         }
     } else {
-        entity.localizedStateLabel()
+        // Nothing identifiable playing. An Android TV that reports only which app is open still
+        // has something worth saying — "Netflix" beats "Playing".
+        entity.appName?.takeIf { it.isNotBlank() && entity.state == "playing" }
+            ?: entity.localizedStateLabel()
+    }
+}
+
+/**
+ * What is actually playing, as one line.
+ *
+ * Players disagree about which attributes they fill in. Music sets `media_title` and
+ * `media_artist`; an Android TV streaming a series sets `media_series_title` plus season and
+ * episode, and puts the *episode* name in `media_title`, so showing the title alone gives
+ * "Ozymandias" with no clue which programme it belongs to. Live TV sets `media_channel` and
+ * frequently nothing else. Returns null when the player exposes no content at all, which is the
+ * case for Android TV apps that report only their package.
+ */
+fun mediaPlayerContentLine(entity: HAEntity): String? {
+    val title = entity.mediaTitle?.takeIf { it.isNotBlank() }
+    val series = entity.mediaSeriesTitle?.takeIf { it.isNotBlank() }
+    val channel = entity.mediaChannel?.takeIf { it.isNotBlank() }
+    val artist = entity.mediaArtist?.takeIf { it.isNotBlank() }
+
+    val episodeCode = listOfNotNull(
+        entity.mediaSeason?.takeIf { it.isNotBlank() }?.let { "S$it" },
+        entity.mediaEpisode?.takeIf { it.isNotBlank() }?.let { "E$it" }
+    ).joinToString("").takeIf { it.isNotEmpty() }
+
+    return when {
+        // A series: lead with the programme, then the episode number, then the episode name.
+        series != null -> listOfNotNull(series, episodeCode, title).joinToString(" • ")
+        title != null && artist != null -> "$title • $artist"
+        // A bare episode number with a title but no series still beats the title alone.
+        title != null && episodeCode != null -> "$episodeCode • $title"
+        title != null -> title
+        // Live TV, where the channel is the only thing the player knows.
+        channel != null -> channel
+        else -> null
     }
 }
 

@@ -626,6 +626,15 @@ cr_quick_media_player,,Media player,เครื่องเล่นมีเ�
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.",เมื่อขอบจับปรากฏขึ้น ให้ปัดขึ้นบนแถบด้านล่างเพื่อคืนค่าเครื่องเล่น,
 cr_quick_make_it_yours,,Make it yours,ทำให้มันเป็นของคุณ,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.",ในโหมดแก้ไข เพิ่มและจัดลำดับห้อง ชั้น และวิดเจ็ตใหม่ แตะรายการเพื่อกำหนดค่า,
+cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, with seven face designs each — Classic, Minimal, Roman, Railway, Bauhaus, Neon and Skeleton for analog; Plain, Segment, Monospace, Flip, Outline, Stacked and Dots for digital — plus 12 or 24-hour time, optional seconds, and your choice of day, date and year underneath. Tapping it shows your next alarm.","วิดเจ็ตนาฬิกาใหม่ อะนาล็อกหรือดิจิทัล โดยมีหน้าปัดให้เลือก 7 แบบ ได้แก่ Classic, Minimal, Roman, Railway, Bauhaus, Neon และ Skeleton สำหรับอะนาล็อก ธรรมดา, ส่วน, โมโนสเปซ, พลิก, โครงร่าง, เรียงซ้อน และจุดสำหรับดิจิทัล — บวกเวลา 12 หรือ 24 ชั่วโมง ตัวเลือกวินาที และเลือกวัน วันที่ และปีที่อยู่ข้างใต้ การแตะจะแสดงการปลุกครั้งต่อไปของคุณ",
+cr_whats_new_1_1_1,2,"Home Assistant's own pages open inside HKI 7. A new Home Assistant section in Settings takes you straight to your server's Settings, Developer tools and HACS, already signed in, without leaving the app.",หน้าของ Home Assistant เปิดภายใน HKI 7 ส่วน Home Assistant ใหม่ในการตั้งค่าจะนำคุณตรงไปยังการตั้งค่าของเซิร์ฟเวอร์ เครื่องมือสำหรับนักพัฒนา และ HACS ซึ่งลงชื่อเข้าใช้แล้วโดยไม่ต้องออกจากแอป,"don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_1,3,"HKI 7 now tells you when a new version is released. It watches the GitHub releases once a day and notifies you, which matters most if you installed the APK yourself rather than from Play — Update now sends you to Play or to the release page depending on where this copy came from. It can be turned off in Settings › About.",HKI 7 จะแจ้งให้คุณทราบเมื่อมีการเปิดตัวเวอร์ชันใหม่ โดยจะเฝ้าดูการเผยแพร่ GitHub วันละครั้งและแจ้งให้คุณทราบ สิ่งที่สำคัญที่สุดหากคุณติดตั้ง APK ด้วยตัวเองแทนที่จะติดตั้งจาก Play — ตอนนี้การอัปเดตจะส่งคุณไปที่ Play หรือไปยังหน้าการเผยแพร่ ขึ้นอยู่กับว่าสำเนานี้มาจากไหน สามารถปิดได้ในการตั้งค่า > เกี่ยวกับ,don't translate HKI 7
+cr_whats_new_1_1_1,4,"A Next Alarm sensor joins the ones the app already reports to Home Assistant, matching the official companion app. Android only exposes the next alarm rather than the whole list, so that is what the sensor carries, along with which app set it.",เซ็นเซอร์ Next Alarm จะรวมเข้ากับเซ็นเซอร์ที่แอปรายงานไปยัง Home Assistant แล้ว ซึ่งตรงกับแอปที่แสดงร่วมอย่างเป็นทางการ Android เปิดเผยเฉพาะการเตือนครั้งถัดไปแทนที่จะเป็นรายการทั้งหมด ดังนั้นนั่นคือสิ่งที่เซ็นเซอร์พกพาไปพร้อมกับแอปที่ตั้งค่าไว้,don't translate Home Assistant
+cr_whats_new_1_1_1,5,"The wind card is now a proper compass. A graduated dial with a marked ring, an eight-point rose and a two-tone needle, in place of the plain circle and line it had before.",ตอนนี้การ์ดลมเป็นเข็มทิศที่เหมาะสมแล้ว หน้าปัดไล่ระดับที่มีวงแหวนทำเครื่องหมาย ดอกกุหลาบแปดแฉก และเข็มทูโทน แทนที่วงกลมธรรมดาและเส้นที่เคยมีมาก่อน,
+cr_whats_new_1_1_1,6,"Media players say what is playing, not just which app is open. An Android TV streaming a series now shows the programme, the season and episode, and the episode title, with the app named underneath; live TV shows the channel.",เครื่องเล่นสื่อบอกว่ากำลังเล่นอะไรอยู่ ไม่ใช่แค่แอปใดที่เปิดอยู่ ตอนนี้ซีรีส์ที่สตรีมมิงบน Android TV จะแสดงโปรแกรม ซีซั่นและตอน และชื่อตอน โดยมีแอปชื่ออยู่ข้างใต้ รายการทีวีถ่ายทอดสดทางช่อง,
+cr_whats_new_1_1_1,7,"Fixed the back gesture leaving you on the Rooms overview. Opening a room, switching to another tab and pressing back now returns to the room you were actually in, rather than to the list of rooms.",แก้ไขท่าทางด้านหลังที่ทำให้คุณอยู่ในภาพรวมของห้อง การเปิดห้อง สลับไปที่แท็บอื่นแล้วกดกลับจะกลับไปยังห้องที่คุณอยู่จริง แทนที่จะไปที่รายการห้อง,
+cr_whats_new_1_1_1,8,"Fixed temperature and energy readings in Czech, Slovak, Greek, Norwegian, Swedish and Danish. Machine translation had damaged the number formatting behind them, which showed the wrong number of decimals in the Nordic languages and could crash the screen in the other three.",การอ่านค่าอุณหภูมิและพลังงานคงที่ในภาษาเช็ก สโลวัก กรีก นอร์เวย์ สวีเดน และเดนมาร์ก การแปลด้วยเครื่องทำให้การจัดรูปแบบตัวเลขด้านหลังเสียหาย ซึ่งแสดงจำนวนทศนิยมไม่ถูกต้องในภาษานอร์ดิก และอาจทำให้หน้าจอในอีกสามภาษาที่เหลือเสียหายได้,
+cr_whats_new_1_1_1,9,"Every language now has a single file anyone can correct. The translations folder in the repository holds one spreadsheet-friendly file per language, English beside the translation, so a native speaker can fix what reads wrong without touching any code.",ตอนนี้ทุกภาษามีไฟล์เดียวที่ทุกคนสามารถแก้ไขได้ โฟลเดอร์การแปลในพื้นที่เก็บข้อมูลจะเก็บไฟล์ที่เหมาะกับสเปรดชีตไว้หนึ่งไฟล์ต่อภาษา โดยมีภาษาอังกฤษอยู่ข้างๆ การแปล ดังนั้นเจ้าของภาษาจึงสามารถแก้ไขสิ่งที่อ่านผิดได้โดยไม่ต้องแตะโค้ดใดๆ,
 cr_whats_new_1_1_0,1,"Eighteen more languages, taking HKI 7 to 36. Polish, Russian, Czech, Slovak, Hungarian, Romanian, Bulgarian, Croatian, Greek, Lithuanian, Latvian, Estonian, Danish, Thai and Hebrew join the list, along with Austrian German, Swiss German and Mexican Spanish. Hebrew lays the interface out right to left, as Arabic does.",อีก 18 ภาษา โดยเพิ่ม HKI 7 เป็น 36 ภาษา โปแลนด์ รัสเซีย เช็ก สโลวัก ฮังการี โรมาเนีย บัลแกเรีย โครเอเชีย กรีก ลิทัวเนีย ลัตเวีย เอสโตเนีย เดนมาร์ก ไทย และฮิบรู เข้าร่วมรายการ พร้อมด้วยออสเตรียเยอรมัน เยอรมันสวิส และสเปนเม็กซิกัน ภาษาฮิบรูวางอินเทอร์เฟซจากขวาไปซ้ายเช่นเดียวกับภาษาอาหรับ,don't translate HKI 7
 cr_whats_new_1_1_0,2,"HKI 7 now runs on Android 12 and later. It previously needed Android 14, which ruled out a lot of perfectly capable phones and tablets.",HKI 7 ทำงานบน Android 12 และใหม่กว่าแล้ว ก่อนหน้านี้จำเป็นต้องใช้ Android 14 ซึ่งทำให้โทรศัพท์และแท็บเล็ตที่มีความสามารถสมบูรณ์แบบจำนวนมากขาดหายไป,don't translate HKI 7
 cr_whats_new_1_1_0,3,"Energy costs are shown in your own currency instead of always in euros. HKI 7 follows what your cost sensors report, and there is a Currency setting in Energy settings if you would rather choose one yourself.",ค่าใช้จ่ายด้านพลังงานจะแสดงเป็นสกุลเงินของคุณเองแทนที่จะเป็นสกุลเงินยูโรเสมอไป HKI 7 ติดตามสิ่งที่เซ็นเซอร์ต้นทุนของคุณรายงาน และมีการตั้งค่าสกุลเงินในการตั้งค่าพลังงาน หากคุณต้องการเลือกด้วยตัวเอง,don't translate HKI 7
@@ -3148,6 +3157,27 @@ parental_search_picker_subtitle,,Select entire domains or individual entities,�
 parental_search_domains,,Domains,โดเมน,
 parental_search_entire_domain,,Entire domain,ทั้งโดเมน,
 parental_search_domain_chip,,Domain: %1$s,โดเมน: %1$s,app fills in %1$s — keep them
+ha_page_category,,Home Assistant,Home Assistant,don't translate Home Assistant
+ha_page_category_subtitle,,Open your server's own pages without leaving HKI 7,เปิดหน้าเซิร์ฟเวอร์ของคุณโดยไม่ต้องออก HKI 7,don't translate HKI 7
+ha_page_settings,,Home Assistant settings,Home Assistant การตั้งค่า,don't translate Home Assistant
+ha_page_settings_subtitle,,"Integrations, devices, areas and automations",การบูรณาการ อุปกรณ์ พื้นที่ และระบบอัตโนมัติ,
+ha_page_dev_tools,,Developer tools,เครื่องมือสำหรับนักพัฒนา,
+ha_page_dev_tools_subtitle,,"States, services, templates and events",สถานะ บริการ เทมเพลต และเหตุการณ์ต่างๆ,
+ha_page_hacs,,HACS,แฮคส์,
+ha_page_hacs_subtitle,,Community integrations and frontend add-ons,การบูรณาการชุมชนและส่วนเสริมส่วนหน้า,
+ha_page_no_server,,Connect to a Home Assistant server first.,เชื่อมต่อกับเซิร์ฟเวอร์ Home Assistant ก่อน,don't translate Home Assistant
+update_channel_name,,App updates,การอัปเดตแอป,
+update_channel_description,,Tells you when a newer version of HKI 7 has been released,แจ้งให้คุณทราบเมื่อ HKI 7 เวอร์ชันใหม่ออกวางจำหน่าย,don't translate HKI 7
+update_available_title,,HKI 7 %1$s is available,HKI 7 %1$s พร้อมใช้งาน,app fills in %1$s — keep them; don't translate HKI 7
+update_available_body,,Tap to see what changed and update,แตะเพื่อดูว่ามีอะไรเปลี่ยนแปลงและอัปเดต,
+update_title,,App updates,การอัปเดตแอป,
+update_subtitle_checking,,Checking for a newer version…,กำลังตรวจสอบเวอร์ชันที่ใหม่กว่า...,
+update_subtitle_current,,You are on the latest version,คุณอยู่ในเวอร์ชันล่าสุด,
+update_subtitle_available,,Version %1$s is available,เวอร์ชัน %1$s พร้อมใช้งานแล้ว,app fills in %1$s — keep them
+update_check_now,,Check for updates,ตรวจสอบการอัปเดต,
+update_now,,Update now,อัปเดตตอนนี้,
+update_watch_releases,,Tell me about new releases,บอกฉันเกี่ยวกับการเปิดตัวใหม่,
+update_watch_releases_subtitle,,Checks GitHub once a day and notifies you when a newer version is published,ตรวจสอบ GitHub วันละครั้งและแจ้งให้คุณทราบเมื่อมีการเผยแพร่เวอร์ชันที่ใหม่กว่า,
 uif_a_state,,a state,รัฐ,
 uif_a_time,,a time,เวลา,
 uif_actions,,Actions,การดำเนินการ,
@@ -3732,3 +3762,39 @@ widgets_energy_ha_forecast,,Home Assistant forecast,Home Assistant พยาก�
 widgets_battery_search,,Search devices,ค้นหาอุปกรณ์,
 widgets_battery_none,,No batteries match that search.,ไม่มีแบตเตอรี่ที่ตรงกับการค้นหานั้น,
 widgets_battery_open_page,,Open battery page,เปิดหน้าแบตเตอรี่,
+cr_widget_clock,,Clock,นาฬิกา,
+cr_widget_clock_description,,"An analog or digital clock, in the style you pick, with the date and your next alarm.",นาฬิกาอะนาล็อกหรือดิจิตอล ในรูปแบบที่คุณเลือก พร้อมวันที่และการปลุกครั้งถัดไป,
+clock_widget_title,,Clock,นาฬิกา,
+clock_widget_subtitle,,"Face, styling and what it shows",ใบหน้า สไตล์ และสิ่งที่แสดงให้เห็น,
+clock_title_label,,Title (optional),ชื่อเรื่อง (ไม่บังคับ),
+clock_face_section,,Face,ใบหน้า,
+clock_face_section_subtitle,,"Analog or digital, and which design",อนาล็อกหรือดิจิตอลและการออกแบบใด,
+clock_shows_section,,Shows,การแสดง,
+clock_shows_section_subtitle,,Choose what appears alongside the time,เลือกสิ่งที่ปรากฏข้างเวลา,
+clock_mode_analog,,Analog,อนาล็อก,
+clock_mode_digital,,Digital,ดิจิตอล,
+clock_style,,Style,สไตล์,
+clock_24_hour,,24-hour clock,นาฬิกาแบบ 24 ชม,
+clock_seconds,,Seconds,วินาที,
+clock_date,,Date,วันที่,
+clock_day_name,,Day of the week,วันในสัปดาห์,
+clock_year,,Year,ปี,
+clock_style_classic,,Classic,คลาสสิค,
+clock_style_minimal,,Minimal,น้อยที่สุด,
+clock_style_roman,,Roman,โรมัน,
+clock_style_railway,,Railway,ทางรถไฟ,
+clock_style_bauhaus,,Bauhaus,เบาเฮาส์,
+clock_style_neon,,Neon,นีออน,
+clock_style_skeleton,,Skeleton,โครงกระดูก,
+clock_style_plain,,Plain,ธรรมดา,
+clock_style_segment,,Segment,เซ็กเมนต์,
+clock_style_mono,,Monospace,โมโนสเปซ,
+clock_style_flip,,Flip,พลิก,
+clock_style_outline,,Outline,โครงร่าง,
+clock_style_stacked,,Stacked,ซ้อนกัน,
+clock_style_dots,,Dots,จุด,
+clock_alarms_title,,Next alarm,ปลุกครั้งถัดไป,
+clock_no_alarm,,No alarm is set.,ไม่มีการตั้งปลุก,
+clock_alarm_set_by,,Set by %1$s,กำหนดโดย %1$s,app fills in %1$s — keep them
+clock_alarms_platform_note,,"Android only tells other apps about the next alarm, so alarms cannot be listed or switched on and off from here.",Android จะบอกแอปอื่นๆ เกี่ยวกับการปลุกครั้งถัดไปเท่านั้น ดังนั้นจึงไม่สามารถแสดงรายการหรือเปิดหรือปิดการปลุกได้จากที่นี่,
+clock_open_clock_app,,Open Clock app,เปิดแอปนาฬิกา,

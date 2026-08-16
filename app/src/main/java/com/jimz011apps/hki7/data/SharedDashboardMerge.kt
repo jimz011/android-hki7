@@ -205,6 +205,18 @@ internal fun mergeWidgetAesthetics(incoming: HKIRoomWidget, local: HKIRoomWidget
             local as HKIIframeWidget
             incoming.copy(width = local.width, title = local.title, icon = local.icon, aspectRatio = local.aspectRatio, cornerRadius = local.cornerRadius)
         }
+        is HKIClockWidget -> {
+            local as HKIClockWidget
+            // Face and styling are the recipient's own taste, not the publisher's; only the fact
+            // that there is a clock here travels with a shared dashboard.
+            incoming.copy(
+                width = local.width, title = local.title, mode = local.mode,
+                analogStyle = local.analogStyle, digitalStyle = local.digitalStyle,
+                use24Hour = local.use24Hour, showSeconds = local.showSeconds,
+                showDate = local.showDate, showDayName = local.showDayName, showYear = local.showYear,
+                isSquare = local.isSquare, cornerRadius = local.cornerRadius, backgroundUrl = local.backgroundUrl
+            )
+        }
         is HKIWeatherWidget -> {
             local as HKIWeatherWidget
             incoming.copy(width = local.width, style = local.style, title = local.title, icon = local.icon, cornerRadius = local.cornerRadius, backgroundUrl = local.backgroundUrl)

@@ -1282,12 +1282,12 @@
     <string name="ui_1f_16b5d7d" formatted="false">%.1f</string>
     <string name="ui_1f_b07a377" formatted="false">%.1f°</string>
     <string name="ui_1f_c_5b83308" formatted="false">%.1f °C</string>
-    <string name="ui_1f_kwh_507c039">%.1f kWh</string>
+    <string name="ui_1f_kwh_507c039" formatted="false">%.1f kWh</string>
     <string name="ui_1f_kwh_self_used_b4798a5" formatted="false">· %%.1f kWh självanvänd (%1$s%%%%)</string>
     <string name="ui_1f_of_1f_kwh_d_00c25f6" formatted="false">%.1f av %.1f kWh · %d%%</string>
     <string name="ui_1f_s_0cafc63" formatted="false">%.1f %s</string>
     <string name="ui_24_hour_format_b195a8f">24-timmarsformat</string>
-    <string name="ui_2f_kwh_76c1688">%.2f kWh</string>
+    <string name="ui_2f_kwh_76c1688" formatted="false">%.2f kWh</string>
     <string name="ui_a_fast_auto_generating_dashboard_for_home_assistant_let_0fad4a9">En snabb, automatiskt genererande instrumentpanel för Home Assistant\nLåt oss ansluta till din server.</string>
     <string name="ui_a_modern_touch_first_android_dashboard_and_companion_for_814cbdb">En modern, touch-first Android-instrumentpanel och följeslagare för Home Assistant.</string>
     <string name="ui_about_6b21fb7">Om</string>
@@ -2967,6 +2967,27 @@
     <string name="parental_search_domains">Domäner</string>
     <string name="parental_search_entire_domain">Hela domänen</string>
     <string name="parental_search_domain_chip">Domän: %1$s</string>
+    <string name="ha_page_category">Home Assistant</string>
+    <string name="ha_page_category_subtitle">Öppna din servers egna sidor utan att lämna HKI 7</string>
+    <string name="ha_page_settings">Home Assistant inställningar</string>
+    <string name="ha_page_settings_subtitle">Integrationer, enheter, ytor och automatiseringar</string>
+    <string name="ha_page_dev_tools">Utvecklarverktyg</string>
+    <string name="ha_page_dev_tools_subtitle">Stater, tjänster, mallar och evenemang</string>
+    <string name="ha_page_hacs">HACS</string>
+    <string name="ha_page_hacs_subtitle">Community-integrationer och frontend-tillägg</string>
+    <string name="ha_page_no_server">Anslut först till en Home Assistant-server.</string>
+    <string name="update_channel_name">Appuppdateringar</string>
+    <string name="update_channel_description">Meddelar dig när en nyare version av HKI 7 har släppts</string>
+    <string name="update_available_title">HKI 7 %1$s är tillgänglig</string>
+    <string name="update_available_body">Tryck för att se vad som ändrades och uppdatera</string>
+    <string name="update_title">Appuppdateringar</string>
+    <string name="update_subtitle_checking">Söker efter en nyare version...</string>
+    <string name="update_subtitle_current">Du har den senaste versionen</string>
+    <string name="update_subtitle_available">Version %1$s är tillgänglig</string>
+    <string name="update_check_now">Sök efter uppdateringar</string>
+    <string name="update_now">Uppdatera nu</string>
+    <string name="update_watch_releases">Berätta om nya släpp</string>
+    <string name="update_watch_releases_subtitle">Kontrollerar GitHub en gång om dagen och meddelar dig när en nyare version publiceras</string>
     <string name="uif_a_state">en stat</string>
     <string name="uif_a_time">en gång</string>
     <string name="uif_actions">Åtgärder</string>
@@ -3503,4 +3524,40 @@
     <string name="widgets_battery_search">Sök enheter</string>
     <string name="widgets_battery_none">Inga batterier matchar den sökningen.</string>
     <string name="widgets_battery_open_page">Öppna batterisidan</string>
+    <string name="cr_widget_clock">Klocka</string>
+    <string name="cr_widget_clock_description">En analog eller digital klocka, i den stil du väljer, med datum och ditt nästa alarm.</string>
+    <string name="clock_widget_title">Klocka</string>
+    <string name="clock_widget_subtitle">Ansikte, styling och vad det visar</string>
+    <string name="clock_title_label">Titel (valfritt)</string>
+    <string name="clock_face_section">Ansikte</string>
+    <string name="clock_face_section_subtitle">Analog eller digital, och vilken design</string>
+    <string name="clock_shows_section">Shower</string>
+    <string name="clock_shows_section_subtitle">Välj vad som visas vid sidan av tiden</string>
+    <string name="clock_mode_analog">Analog</string>
+    <string name="clock_mode_digital">Digital</string>
+    <string name="clock_style">Stil</string>
+    <string name="clock_24_hour">24-timmars klocka</string>
+    <string name="clock_seconds">Sekunder</string>
+    <string name="clock_date">Datum</string>
+    <string name="clock_day_name">Veckodag</string>
+    <string name="clock_year">År</string>
+    <string name="clock_style_classic">Klassisk</string>
+    <string name="clock_style_minimal">Minimal</string>
+    <string name="clock_style_roman">Roman</string>
+    <string name="clock_style_railway">Järnväg</string>
+    <string name="clock_style_bauhaus">Bauhaus</string>
+    <string name="clock_style_neon">Neon</string>
+    <string name="clock_style_skeleton">Skelett</string>
+    <string name="clock_style_plain">Vanlig</string>
+    <string name="clock_style_segment">Segment</string>
+    <string name="clock_style_mono">Monospace</string>
+    <string name="clock_style_flip">Flip</string>
+    <string name="clock_style_outline">Skissera</string>
+    <string name="clock_style_stacked">Staplad</string>
+    <string name="clock_style_dots">Prickar</string>
+    <string name="clock_alarms_title">Nästa larm</string>
+    <string name="clock_no_alarm">Inget larm är inställt.</string>
+    <string name="clock_alarm_set_by">Set av %1$s</string>
+    <string name="clock_alarms_platform_note">Android berättar bara för andra appar om nästa larm, så larm kan inte listas eller slås på och av härifrån.</string>
+    <string name="clock_open_clock_app">Öppna appen Klocka</string>
 </resources>

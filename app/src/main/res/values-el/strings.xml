@@ -1279,7 +1279,7 @@
     <string name="event_verb_generic">άλλαξε σε %1$s</string>
     <string name="ui_0f_s_788ca6f" formatted="false">%.0f %s</string>
     <string name="ui_1_advanced_shorthand_block_kept_unchanged_d4dcbd7">1 σύνθετο μπλοκ στενογραφίας (διατηρήθηκε αμετάβλητο)</string>
-    <string name="ui_1f_16b5d7d">%.1f</string>
+    <string name="ui_1f_16b5d7d" formatted="false">%.1f</string>
     <string name="ui_1f_b07a377" formatted="false">%.1f°</string>
     <string name="ui_1f_c_5b83308" formatted="false">%.1f °C</string>
     <string name="ui_1f_kwh_507c039" formatted="false">%.1f kWh</string>
@@ -2967,6 +2967,27 @@
     <string name="parental_search_domains">Τομείς</string>
     <string name="parental_search_entire_domain">Ολόκληρο το domain</string>
     <string name="parental_search_domain_chip">Τομέας: %1$s</string>
+    <string name="ha_page_category">Home Assistant</string>
+    <string name="ha_page_category_subtitle">Ανοίξτε τις σελίδες του διακομιστή σας χωρίς να φύγετε από HKI 7</string>
+    <string name="ha_page_settings">ρυθμίσεις Home Assistant</string>
+    <string name="ha_page_settings_subtitle">Ενσωματώσεις, συσκευές, περιοχές και αυτοματισμοί</string>
+    <string name="ha_page_dev_tools">Εργαλεία προγραμματιστών</string>
+    <string name="ha_page_dev_tools_subtitle">Πολιτεία, υπηρεσίες, πρότυπα και εκδηλώσεις</string>
+    <string name="ha_page_hacs">HACS</string>
+    <string name="ha_page_hacs_subtitle">Ενσωματώσεις κοινότητας και πρόσθετα frontend</string>
+    <string name="ha_page_no_server">Συνδεθείτε πρώτα σε έναν διακομιστή Home Assistant.</string>
+    <string name="update_channel_name">Ενημερώσεις εφαρμογών</string>
+    <string name="update_channel_description">Σας ενημερώνει πότε έχει κυκλοφορήσει μια νεότερη έκδοση του HKI 7</string>
+    <string name="update_available_title">HKI 7 %1$s είναι διαθέσιμο</string>
+    <string name="update_available_body">Πατήστε για να δείτε τι άλλαξε και να ενημερώσετε</string>
+    <string name="update_title">Ενημερώσεις εφαρμογών</string>
+    <string name="update_subtitle_checking">Έλεγχος για νεότερη έκδοση…</string>
+    <string name="update_subtitle_current">Βρίσκεστε στην πιο πρόσφατη έκδοση</string>
+    <string name="update_subtitle_available">Η έκδοση %1$s είναι διαθέσιμη</string>
+    <string name="update_check_now">Ελέγξτε για ενημερώσεις</string>
+    <string name="update_now">Ενημέρωση τώρα</string>
+    <string name="update_watch_releases">Πες μου για νέες κυκλοφορίες</string>
+    <string name="update_watch_releases_subtitle">Ελέγχει το GitHub μία φορά την ημέρα και σας ειδοποιεί όταν δημοσιεύεται μια νεότερη έκδοση</string>
     <string name="uif_a_state">ένα κράτος</string>
     <string name="uif_a_time">μια φορά</string>
     <string name="uif_actions">Δράσεις</string>
@@ -3503,4 +3524,40 @@
     <string name="widgets_battery_search">Αναζήτηση συσκευών</string>
     <string name="widgets_battery_none">Δεν υπάρχουν μπαταρίες που να ταιριάζουν με αυτήν την αναζήτηση.</string>
     <string name="widgets_battery_open_page">Ανοίξτε τη σελίδα μπαταρίας</string>
+    <string name="cr_widget_clock">Ρολόι</string>
+    <string name="cr_widget_clock_description">Ένα αναλογικό ή ψηφιακό ρολόι, στο στυλ που επιλέγετε, με την ημερομηνία και το επόμενο ξυπνητήρι σας.</string>
+    <string name="clock_widget_title">Ρολόι</string>
+    <string name="clock_widget_subtitle">Πρόσωπο, styling και τι δείχνει</string>
+    <string name="clock_title_label">Τίτλος (προαιρετικό)</string>
+    <string name="clock_face_section">Πρόσωπο</string>
+    <string name="clock_face_section_subtitle">Αναλογικό ή ψηφιακό, και ποιο σχέδιο</string>
+    <string name="clock_shows_section">Εκπομπές</string>
+    <string name="clock_shows_section_subtitle">Επιλέξτε αυτό που εμφανίζεται παράλληλα με την ώρα</string>
+    <string name="clock_mode_analog">Αναλογικό</string>
+    <string name="clock_mode_digital">Ψηφιακό</string>
+    <string name="clock_style">Στυλ</string>
+    <string name="clock_24_hour">24ωρο ρολόι</string>
+    <string name="clock_seconds">Δευτερόλεπτα</string>
+    <string name="clock_date">Ημερομηνία</string>
+    <string name="clock_day_name">Ημέρα της εβδομάδας</string>
+    <string name="clock_year">Ετος</string>
+    <string name="clock_style_classic">Κλασσικός</string>
+    <string name="clock_style_minimal">Ελάχιστος</string>
+    <string name="clock_style_roman">ρωμαϊκός</string>
+    <string name="clock_style_railway">Σιδηροδρομικός</string>
+    <string name="clock_style_bauhaus">Μπάουχαους</string>
+    <string name="clock_style_neon">Νέο</string>
+    <string name="clock_style_skeleton">Σκελετός</string>
+    <string name="clock_style_plain">Πεδιάδα</string>
+    <string name="clock_style_segment">Τμήμα</string>
+    <string name="clock_style_mono">Μονοδιάστημα</string>
+    <string name="clock_style_flip">Αναρρίπτω</string>
+    <string name="clock_style_outline">Περίγραμμα</string>
+    <string name="clock_style_stacked">Στοιβαγμένα</string>
+    <string name="clock_style_dots">Αποσιωπητικά</string>
+    <string name="clock_alarms_title">Επόμενος συναγερμός</string>
+    <string name="clock_no_alarm">Δεν έχει οριστεί ξυπνητήρι.</string>
+    <string name="clock_alarm_set_by">Ορίστηκε από %1$s</string>
+    <string name="clock_alarms_platform_note">Το Android ενημερώνει μόνο άλλες εφαρμογές για το επόμενο ξυπνητήρι, επομένως οι συναγερμοί δεν μπορούν να παρατίθενται ή να ενεργοποιούνται και να απενεργοποιούνται από εδώ.</string>
+    <string name="clock_open_clock_app">Ανοίξτε την εφαρμογή Ρολόι</string>
 </resources>

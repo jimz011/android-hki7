@@ -53,6 +53,15 @@ BRAND_TERMS = (
 )
 FORMAT_ARGUMENT = re.compile(r"%\d+\$[a-zA-Z]")
 NONPOSITIONAL_FORMAT = re.compile(r"%(?!\d+\$)[.\d]*[a-zA-Z]")
+# Every runtime-substituted argument, positional or not: %1$s, %d, %.1f, %,2f, %-5s.
+# `%%` matches as a conversion of '%' purely so an escaped percent is consumed here rather than
+# being read as the opening of a real argument; [any_format_arguments] then drops it.
+ANY_FORMAT = re.compile(r"%(?:\d+\$)?[-#+ 0,(]*\d*(?:\.\d+)?[a-zA-Z%]")
+
+
+def any_format_arguments(value: str) -> list[str]:
+    """Format specifiers in order of appearance, escaped percent signs excluded."""
+    return [m.group() for m in ANY_FORMAT.finditer(value) if m.group() != "%%"]
 ZERO_WIDTH = re.compile("[\u200b-\u200d\ufeff]")
 
 
@@ -91,10 +100,28 @@ def load_locale_strings(locale: str) -> dict[str, str]:
 
 
 def protected_text(value: str) -> tuple[str, list[str], int]:
-    arguments = FORMAT_ARGUMENT.findall(value)
+    # Non-positional specifiers are protected alongside positional ones. They used not to be, and
+    # the translator treated them as ordinary text: %.1f came back from Greek as %.1στ (the `f`
+    # conversion translated) and from Czech as %.lf (digit 1 read as letter l), both of which throw
+    # when the string is formatted, while Norwegian, Swedish and Danish localized the decimal point
+    # to %,1f — a grouping flag, which silently prints six decimals. Repaired in 1.1.1; protecting
+    # them here is what stops it happening again on the next run.
+    arguments = any_format_arguments(value)
     protected = value
-    for index, argument in enumerate(arguments):
-        protected = protected.replace(argument, f"__HKI_ARG_{index}__", 1)
+    # Rebuilt by position rather than by str.replace, so a specifier that is a substring of another
+    # occurrence ("%d" inside "%%d") cannot be swapped for the wrong one.
+    pieces: list[str] = []
+    cursor = 0
+    index = 0
+    for match in ANY_FORMAT.finditer(value):
+        if match.group() == "%%":
+            continue
+        pieces.append(value[cursor:match.start()])
+        pieces.append(f"__HKI_ARG_{index}__")
+        cursor = match.end()
+        index += 1
+    pieces.append(value[cursor:])
+    protected = "".join(pieces)
     # Product names ride through on the same mechanism as format arguments. A Latin-script target
     # tends to leave them alone by chance, which is why this went unnoticed; Arabic does not, and
     # rendered "Home Assistant" as "المساعد المنزلي" and the app's own name as "Hong Kong 7".
@@ -227,8 +254,10 @@ def main() -> None:
     # Positional placeholders (%1$s, %2$d, ...) may legitimately appear reordered or repeated once
     # translated (different word order, or the same argument needed twice for grammatical
     # agreement), so compare the set of distinct placeholders used, not order or count.
+    # Checked over every specifier, not only the positional ones — a mangled %.1f is exactly the
+    # failure this pass exists to catch, and it used to sail straight through.
     english_placeholders = {
-        name: frozenset(FORMAT_ARGUMENT.findall(value)) for name, value in source.items()
+        name: frozenset(any_format_arguments(value)) for name, value in source.items()
     }
     for locale in LOCALES:
         output_dir = RES / f"values-{locale}"
@@ -248,8 +277,16 @@ def main() -> None:
             if name in supplied_elsewhere:
                 continue
             translated = cache[f"{locale}\0{value}"]
-            if frozenset(FORMAT_ARGUMENT.findall(translated)) != english_placeholders[name]:
-                raise RuntimeError(f"Placeholder mismatch for {locale}/{name}")
+            expected = english_placeholders[name]
+            # Only enforced where the English actually takes arguments. A string that takes none is
+            # never handed to String.format, so a "% d" that a translation happens to form around a
+            # literal percent sign — Spanish writes "% de unidad" for "unit_of_measurement %" — is
+            # ordinary prose, not a broken specifier.
+            if expected and frozenset(any_format_arguments(translated)) != expected:
+                raise RuntimeError(
+                    f"Placeholder mismatch for {locale}/{name}: "
+                    f"{sorted(any_format_arguments(translated))} != {sorted(expected)}"
+                )
             formatted = ' formatted="false"' if NONPOSITIONAL_FORMAT.search(translated) else ""
             lines.append(f'    <string name="{name}"{formatted}>{android_escape(translated)}</string>')
         lines.append("</resources>")

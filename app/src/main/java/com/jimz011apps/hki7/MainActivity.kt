@@ -406,6 +406,20 @@ class MainActivity : ComponentActivity() {
 /** The single nav destination that hosts every bottom-bar tab as a page of one [HorizontalPager]. */
 private const val TABS_ROUTE = "tabs"
 
+/**
+ * Somewhere the user has been, in the order they went there.
+ *
+ * Tabs are pages of one pager rather than back-stack entries, so back through them has to be
+ * tracked by hand. Detail screens *are* back-stack entries — but tapping a tab from one pops it,
+ * because the page change must not happen behind it, and that pop is what used to lose it. A
+ * room the user tabbed away from is recorded here so back can return to the room itself instead
+ * of stranding them on the Rooms overview.
+ */
+private sealed interface VisitedPlace {
+    data class Tab(val index: Int) : VisitedPlace
+    data class Detail(val route: String) : VisitedPlace
+}
+
 /** Tab routes kept in the graph purely as redirects into the pager, so route-based navigation from
  *  dashboard actions, badges, and popups (via `navRouteForTarget`) keeps resolving. Custom pages
  *  are handled separately because their route carries a `pageId` argument. */
@@ -617,6 +631,10 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     LaunchedEffect(Unit) {
         runCatching { HaParentalControls.refreshForCurrentUser(appCtx, prefs) }
         runCatching { HaParentalControls.refreshRoomFollowRoster(appCtx, prefs) }
+        // Idempotent — WorkManager keeps one daily job whatever the launch count.
+        if (prefs.updateChecksEnabled.first()) {
+            runCatching { com.jimz011apps.hki7.data.UpdateCheckWorker.schedule(appCtx) }
+        }
     }
     val isEditMode by viewModel.isEditMode.collectAsState()
     val canUndo by viewModel.canUndo.collectAsState()
@@ -731,13 +749,13 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     // straight home, so it undoes where you have been instead of discarding it.
     // Re-tapping the tab you are already on returns that view to the top.
     val scrollToTopSignals = remember { mutableStateMapOf<String, Int>() }
-    val visitedPages = remember { mutableStateListOf<Int>() }
+    val visitedPages = remember { mutableStateListOf<VisitedPlace>() }
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.settledPage }.distinctUntilChanged().collect { page ->
             // Revisiting a tab moves it to the top rather than stacking another copy, so back can
             // never walk the same pair of tabs over and over.
-            visitedPages.remove(page)
-            visitedPages.add(page)
+            visitedPages.removeAll { it is VisitedPlace.Tab && it.index == page }
+            visitedPages.add(VisitedPlace.Tab(page))
         }
     }
     var pageSwipeInProgress by remember { mutableStateOf(false) }
@@ -767,10 +785,28 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             // Already here: the tap means "take me back to the top", not "go to this tab".
             scrollToTopSignals[screen.route] = (scrollToTopSignals[screen.route] ?: 0) + 1
         } else if (index >= 0) {
+            // Read before the pop, because after it there is no detail screen left to ask. The
+            // room pager owns which room is showing, so the areaId the route was opened with may
+            // be several swipes stale — take the room actually on screen.
+            val leaving: String? = when {
+                onTabsDestination -> null
+                onRoomDetail -> visibleRooms.getOrNull(roomPagerState.currentPage)
+                    ?.area_id?.let(Screen.RoomDetail::createRoute)
+                // Anything else parameterless (the battery screen) can be navigated back to as-is.
+                // Routes still carrying a `{placeholder}` are redirects into the pager, not places.
+                currentRoute != null && !currentRoute.contains('{') -> currentRoute
+                else -> null
+            }
             pagerScope.launch {
                 // A tab tap from a detail screen (room, battery widget) has to come back to the
                 // pager first, otherwise the page change would happen behind that screen.
-                if (!onTabsDestination) navController.popBackStack(TABS_ROUTE, inclusive = false)
+                if (!onTabsDestination) {
+                    leaving?.let { route ->
+                        visitedPages.removeAll { it is VisitedPlace.Detail && it.route == route }
+                        visitedPages.add(VisitedPlace.Detail(route))
+                    }
+                    navController.popBackStack(TABS_ROUTE, inclusive = false)
+                }
                 pagerState.animateScrollToPage(index)
             }
         }
@@ -844,8 +880,14 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             // Drop where we are, go back to where we were. Falls through to leaving the app once
             // there is nothing behind the current tab.
             visitedPages.removeLastOrNull()
-            visitedPages.lastOrNull()?.let { previous ->
-                if (previous in screens.indices) pagerState.animateScrollToPage(previous)
+            when (val previous = visitedPages.lastOrNull()) {
+                is VisitedPlace.Tab ->
+                    if (previous.index in screens.indices) pagerState.animateScrollToPage(previous.index)
+                // A detail screen the user tabbed away from. Pushing it makes it the current
+                // destination again, which hands back to the nav graph — this handler switches
+                // itself off the moment we are no longer on the pager.
+                is VisitedPlace.Detail -> navController.navigate(previous.route)
+                null -> Unit
             }
         }
     }

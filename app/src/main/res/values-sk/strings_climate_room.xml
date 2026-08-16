@@ -17,4 +17,15 @@
         <item>Sledovanie zásielok pokrýva ďalších pätnásť prepravcov vrátane PostNord, InPost, Swiss Post, An Post, Budbee, Sameday a Nova Post, pričom každý má svoje vlastné logo.</item>
         <item>Robotický vysávač Valetudo automaticky vyberie svoju živú mapu, keď sa importujú vaše izby, namiesto toho, aby potreboval kameru vyberanú ručne.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_1">
+        <item>Nový widget Hodiny. Analógové alebo digitálne, každý so siedmimi vzormi tváre – klasický, minimálny, rímsky, železničný, Bauhaus, neón a skelet pre analógový; Obyčajný, segmentový, jednopriestorový, prevrátený, obrysový, skladaný a bodky pre digitálne – plus 12 alebo 24-hodinový čas, voliteľné sekundy a pod ním váš výber dňa, dátumu a roku. Klepnutím naň zobrazíte ďalší budík.</item>
+        <item>Vlastné stránky Home Assistant sa otvárajú v HKI 7. Nová sekcia Home Assistant v Nastaveniach vás zavedie priamo do nastavení, nástrojov pre vývojárov a HACS vášho servera, kde ste už prihlásení, bez toho, aby ste museli opustiť aplikáciu.</item>
+        <item>HKI 7 vám teraz povie, kedy bude vydaná nová verzia. Sleduje vydania GitHub raz denne a upozorní vás, čo je najdôležitejšie, ak ste si nainštalovali súbor APK sami a nie zo služby Play – aktualizácia vás teraz pošle do služby Play alebo na stránku vydania v závislosti od toho, odkiaľ táto kópia pochádza. Dá sa vypnúť v Nastavenia › Informácie.</item>
+        <item>Senzor Next Alarm sa pripojí k tým, ktoré aplikácia už hlási Home Assistant, pričom sa zhoduje s oficiálnou sprievodnou aplikáciou. Android zobrazuje iba nasledujúci budík a nie celý zoznam, takže to je to, čo snímač nesie spolu s aplikáciou, ktorá ho nastavila.</item>
+        <item>Veterná karta je teraz poriadny kompas. Odstupňovaný ciferník s vyznačeným krúžkom, osemcípou ružičkou a dvojfarebnou ihlou namiesto obyčajného kruhu a čiary, ktorú mal predtým.</item>
+        <item>Prehrávače médií povedia, čo sa prehráva, nielen to, ktorá aplikácia je otvorená. Android TV, ktorá streamuje sériu, teraz zobrazuje program, sériu a epizódu a názov epizódy, pričom aplikácia je uvedená nižšie. živé televízne vysielanie kanála.</item>
+        <item>Opravené gesto späť, ktoré vás ponechá na prehľade miestností. Otvorením miestnosti, prepnutím na inú kartu a stlačením späť sa teraz vrátite do miestnosti, v ktorej ste skutočne boli, a nie do zoznamu miestností.</item>
+        <item>Pevné údaje o teplote a energii v češtine, slovenčine, gréčtine, nórčine, švédčine a dánčine. Strojový preklad poškodil formátovanie čísel za nimi, ktoré ukazovalo nesprávny počet desatinných miest v severských jazykoch a mohlo spôsobiť zlyhanie obrazovky v ostatných troch.</item>
+        <item>Každý jazyk má teraz jeden súbor, ktorý môže ktokoľvek opraviť. Priečinok prekladov v úložisku obsahuje jeden tabuľkový súbor pre každý jazyk, angličtinu okrem prekladu, takže rodený hovorca môže opraviť, čo sa číta, bez toho, aby sa dotkol akéhokoľvek kódu.</item>
+    </string-array>
 </resources>

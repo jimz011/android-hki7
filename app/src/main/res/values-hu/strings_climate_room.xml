@@ -17,4 +17,15 @@
         <item>A csomagkövetés további tizenöt fuvarozóra terjed ki, köztük a PostNord, az InPost, a Swiss Post, az An Post, a Budbee, a Sameday és a Nova Post, mindegyik saját logóval.</item>
         <item>A Valetudo robotporszívó automatikusan felveszi élő térképét a szobák importálásakor, ahelyett, hogy a kézzel kiválasztott kamerára lenne szüksége.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_1">
+        <item>Új Óra widget. Analóg vagy digitális, egyenként hét arckialakítással – Klasszikus, Minimal, Roman, Railway, Bauhaus, Neon és Skeleton az analóghoz; Sima, Szegmens, Monospace, Flip, Körvonal, Halmozott és Pontok a digitálishoz – plusz 12 vagy 24 órás idő, opcionális másodpercek, és alatta az Ön által választott nap, dátum és év. Ha megérinti, megjelenik a következő riasztás.</item>
+        <item>Home Assistant saját oldalai a HKI 7-on belül nyílnak meg. A Beállítások új Home Assistant szakasza közvetlenül a szerver beállításaihoz, a Fejlesztői eszközökhöz és a HACS-hoz vezet, már bejelentkezve, anélkül, hogy elhagyná az alkalmazást.</item>
+        <item>A HKI 7 mostantól jelzi, ha új verzió jelenik meg. Naponta egyszer figyeli a GitHub-kiadásokat, és értesíti Önt, ami leginkább akkor számít, ha saját maga telepítette az APK-t, nem pedig a Playről – A frissítés mostantól a Playre vagy a kiadási oldalra küldi, attól függően, honnan származik ez a példány. Kikapcsolható a Beállítások › Névjegy menüpontban.</item>
+        <item>Egy Következő riasztás érzékelő csatlakozik azokhoz, amelyeket az alkalmazás már jelent a Home Assistant számára, és megegyezik a hivatalos kísérőalkalmazással. Az Android csak a következő riasztást teszi ki, nem pedig a teljes listát, tehát ezt hordozza az érzékelő, és azt, hogy melyik alkalmazás állította be.</item>
+        <item>A szélkártya most megfelelő iránytű. Beosztásos számlap jelölt gyűrűvel, nyolcpontos rózsával és kéttónusú tűvel, a korábbi sima kör és vonal helyén.</item>
+        <item>A médialejátszók azt mondják, hogy mit játszik le, nem csak azt, hogy melyik alkalmazás van nyitva. A sorozatot streamelő Android TV-n most látható a program, az évad és az epizód, valamint az epizód címe, alatta pedig az alkalmazás neve látható; élő tévéadás mutatja a csatornát.</item>
+        <item>Javítva a hátsó kézmozdulat, így a szobák áttekintése látható. Ha megnyit egy szobát, átvált egy másik lapra, és megnyomja a vissza gombot, akkor a szobák listájának helyett abba a szobába tér vissza, amelyben valójában volt.</item>
+        <item>Rögzített hőmérséklet- és energiaértékek cseh, szlovák, görög, norvég, svéd és dán nyelven. A gépi fordítás megsértette a mögöttük lévő számformátumot, ami rossz számú tizedesjegyet mutatott a skandináv nyelvekben, és összeomolhatta a képernyőt a másik háromban.</item>
+        <item>Mostantól minden nyelv egyetlen fájllal rendelkezik, amelyet bárki javíthat. A tárolóban található fordítási mappa nyelvenként egy táblázatkezelő-barát fájlt tartalmaz, a fordítás mellett angolul, így az anyanyelvi beszélő a kód érintése nélkül kijavíthatja a hibát.</item>
+    </string-array>
 </resources>

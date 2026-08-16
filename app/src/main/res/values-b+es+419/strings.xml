@@ -3888,4 +3888,72 @@
     <string name="widgets_battery_none">Ninguna batería coincide con esa búsqueda.</string>
     <string name="widgets_battery_open_page">Abrir página de batería</string>
     <string name="widgets_battery_search">Dispositivos de búsqueda</string>
+    <string name="clock_24_hour">reloj de 24 horas</string>
+    <string name="clock_alarm_set_by">Establecido por %1$s</string>
+    <string name="clock_alarms_platform_note">Android solo informa a otras aplicaciones sobre la próxima alarma, por lo que las alarmas no se pueden enumerar ni activar y desactivar desde aquí.</string>
+    <string name="clock_alarms_title">Próxima alarma</string>
+    <string name="clock_date">Fecha</string>
+    <string name="clock_day_name">Día de la semana</string>
+    <string name="clock_face_section">Rostro</string>
+    <string name="clock_face_section_subtitle">Analógico o digital, y qué diseño</string>
+    <string name="clock_mode_analog">Cosa análoga</string>
+    <string name="clock_mode_digital">Digital</string>
+    <string name="clock_no_alarm">No hay ninguna alarma configurada.</string>
+    <string name="clock_open_clock_app">Abrir la aplicación Reloj</string>
+    <string name="clock_seconds">Artículos de segunda clase</string>
+    <string name="clock_shows_section">Espectáculos</string>
+    <string name="clock_shows_section_subtitle">Elige lo que aparece junto a la hora</string>
+    <string name="clock_style">Estilo</string>
+    <string name="clock_style_bauhaus">Bauhaus</string>
+    <string name="clock_style_classic">Clásico</string>
+    <string name="clock_style_dots">Puntos</string>
+    <string name="clock_style_flip">Voltear</string>
+    <string name="clock_style_minimal">Mínimo</string>
+    <string name="clock_style_mono">Monoespaciada</string>
+    <string name="clock_style_neon">Neón</string>
+    <string name="clock_style_outline">Describir</string>
+    <string name="clock_style_plain">Plano</string>
+    <string name="clock_style_railway">Ferrocarril</string>
+    <string name="clock_style_roman">romano</string>
+    <string name="clock_style_segment">Segmento</string>
+    <string name="clock_style_skeleton">Esqueleto</string>
+    <string name="clock_style_stacked">apilados</string>
+    <string name="clock_title_label">Título (opcional)</string>
+    <string name="clock_widget_subtitle">Rostro, estilismo y lo que muestra.</string>
+    <string name="clock_widget_title">Reloj</string>
+    <string name="clock_year">Año</string>
+    <string name="cr_widget_clock">Reloj</string>
+    <string name="cr_widget_clock_description">Un reloj analógico o digital, del estilo que elijas, con la fecha y tu próxima alarma.</string>
+    <string name="ha_page_category">Asistente de hogar</string>
+    <string name="ha_page_category_subtitle">Abra las páginas propias de su servidor sin salir de HKI 7</string>
+    <string name="ha_page_dev_tools">Herramientas de desarrollador</string>
+    <string name="ha_page_dev_tools_subtitle">Estados, servicios, plantillas y eventos.</string>
+    <string name="ha_page_hacs">HACS</string>
+    <string name="ha_page_hacs_subtitle">Integraciones comunitarias y complementos de interfaz</string>
+    <string name="ha_page_no_server">Conéctese primero a un servidor Home Assistant.</string>
+    <string name="ha_page_settings">Home Assistant configuración</string>
+    <string name="ha_page_settings_subtitle">Integraciones, dispositivos, áreas y automatizaciones.</string>
+    <string name="update_available_body">Toca para ver qué cambió y actualizar</string>
+    <string name="update_available_title">HKI 7 %1$s está disponible</string>
+    <string name="update_channel_description">Le avisa cuando se ha lanzado una versión más nueva de HKI 7</string>
+    <string name="update_channel_name">Actualizaciones de aplicaciones</string>
+    <string name="update_check_now">Buscar actualizaciones</string>
+    <string name="update_now">Actualizar ahora</string>
+    <string name="update_subtitle_available">La versión %1$s está disponible</string>
+    <string name="update_subtitle_checking">Buscando una versión más nueva...</string>
+    <string name="update_subtitle_current">Estás en la última versión.</string>
+    <string name="update_title">Actualizaciones de aplicaciones</string>
+    <string name="update_watch_releases">Cuéntame sobre nuevos lanzamientos.</string>
+    <string name="update_watch_releases_subtitle">Comprueba GitHub una vez al día y te notifica cuando se publica una versión más nueva.</string>
+    <string-array name="cr_whats_new_1_1_1">
+        <item>Nuevo widget de reloj. Analógico o digital, con siete diseños de esferas cada uno: Clásico, Minimal, Romano, Ferroviario, Bauhaus, Neón y Esqueleto para analógico; Simple, Segmentado, Monoespaciado, Invertido, Contorno, Apilado y Puntos para formato digital, además de formato de 12 o 24 horas, segundos opcionales y su elección de día, fecha y año debajo. Al tocarlo se muestra tu próxima alarma.</item>
+        <item>Las propias páginas de Home Assistant se abren dentro de HKI 7. Una nueva sección Home Assistant en Configuración lo lleva directamente a la Configuración, Herramientas de desarrollador y HACS de su servidor, una vez que haya iniciado sesión, sin salir de la aplicación.</item>
+        <item>HKI 7 ahora te informa cuando se lanza una nueva versión. Observa los lanzamientos de GitHub una vez al día y te notifica, lo que es más importante si instalaste el APK tú mismo en lugar de desde Play: la actualización ahora te envía a Play o a la página de lanzamiento dependiendo de dónde vino esta copia. Se puede desactivar en Configuración &gt; Acerca de.</item>
+        <item>Un sensor de Próxima Alarma se une a los que la aplicación ya informa a Home Assistant, coincidiendo con la aplicación complementaria oficial. Android solo expone la siguiente alarma en lugar de la lista completa, por lo que eso es lo que lleva el sensor, junto con la aplicación que lo configuró.</item>
+        <item>La carta de viento es ahora una auténtica brújula. Una esfera graduada con un anillo marcado, una rosa de ocho puntas y una aguja bicolor, en lugar del círculo y la línea lisos que tenía antes.</item>
+        <item>Los reproductores multimedia dicen qué se está reproduciendo, no solo qué aplicación está abierta. Un Android TV que transmite una serie ahora muestra el programa, la temporada y el episodio, y el título del episodio, con la aplicación nombrada debajo; La televisión en vivo muestra el canal.</item>
+        <item>Se corrigió el gesto hacia atrás que lo dejaba en la descripción general de Habitaciones. Al abrir una habitación, cambiar a otra pestaña y presionar hacia atrás, ahora se regresa a la habitación en la que se encontraba en realidad, en lugar de a la lista de habitaciones.</item>
+        <item>Lecturas fijas de temperatura y energía en checo, eslovaco, griego, noruego, sueco y danés. La traducción automática había dañado el formato numérico detrás de ellos, lo que mostraba un número incorrecto de decimales en los idiomas nórdicos y podía bloquear la pantalla en los otros tres.</item>
+        <item>Cada idioma ahora tiene un único archivo que cualquiera puede corregir. La carpeta de traducciones en el repositorio contiene un archivo compatible con hojas de cálculo por idioma, inglés al lado de la traducción, por lo que un hablante nativo puede corregir lo que se lee mal sin tocar ningún código.</item>
+    </string-array>
 </resources>

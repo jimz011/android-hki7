@@ -17,4 +17,15 @@
         <item>Praćenje paketa pokriva još petnaest prijevoznika, uključujući PostNord, InPost, Swiss Post, An Post, Budbee, Sameday i Novu poštu, svaki sa svojim logotipom.</item>
         <item>Valetudo robotski usisivač automatski preuzima svoju mapu uživo kada se uvezu vaše sobe, umjesto da je potrebna kamera koju ručno odaberete.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_1">
+        <item>Novi widget za sat. Analogni ili digitalni, sa sedam dizajna lica svaki — Classic, Minimal, Roman, Railway, Bauhaus, Neon i Skeleton za analogni; Plain, Segment, Monospace, Flip, Outline, Stacked i Dots za digitalno — plus 12 ili 24-satno vrijeme, dodatne sekunde i vaš izbor dana, datuma i godine ispod. Dodirom na njega prikazuje se vaš sljedeći alarm.</item>
+        <item>Vlastite stranice Home Assistant otvaraju se unutar HKI 7. Novi odjeljak Home Assistant u Postavkama vodi vas ravno do postavki vašeg poslužitelja, alata za razvojne programere i HACS-a, kada ste već prijavljeni, bez napuštanja aplikacije.</item>
+        <item>HKI 7 sada vam govori kada je nova verzija objavljena. Jednom dnevno prati izdanja GitHuba i obavještava vas, što je najvažnije ako ste APK instalirali sami, a ne s Playa — ažuriranje vas sada šalje na Play ili na stranicu s izdanjem, ovisno o tome odakle je ova kopija došla. Može se isključiti u Postavkama › O aplikaciji.</item>
+        <item>Senzor sljedećeg alarma pridružuje se onima koje aplikacija već prijavljuje Home Assistant, podudarajući se sa službenom popratnom aplikacijom. Android izlaže samo sljedeći alarm, a ne cijeli popis, tako da je to ono što senzor nosi, zajedno s aplikacijom koja ga je postavila.</item>
+        <item>Karta vjetra sada je pravi kompas. Brojčanik s označenim prstenom, ružom s osam šiljaka i dvobojnom iglom, umjesto običnog kruga i linije koje je prije imao.</item>
+        <item>Media playeri govore što se reproducira, a ne samo koja je aplikacija otvorena. Android TV koji struji seriju sada prikazuje program, sezonu i epizodu te naslov epizode, s aplikacijom koja se nalazi ispod; TV uživo prikazuje kanal.</item>
+        <item>Ispravljena je gesta za povratak koja vas ostavlja na pregledu soba. Otvaranjem sobe, prebacivanjem na drugu karticu i pritiskom na natrag sada se vraćate u sobu u kojoj ste zapravo bili, a ne na popis soba.</item>
+        <item>Fiksna očitanja temperature i energije na češkom, slovačkom, grčkom, norveškom, švedskom i danskom. Strojno prevođenje oštetilo je formatiranje brojeva iza njih, koje je prikazivalo pogrešan broj decimala u nordijskim jezicima i moglo srušiti zaslon u ostala tri.</item>
+        <item>Svaki jezik sada ima jednu datoteku koju svatko može ispraviti. Mapa prijevoda u repozitoriju sadrži jednu datoteku pogodnu za proračunsku tablicu po jeziku, engleski pored prijevoda, tako da izvorni govornik može popraviti ono što se pogrešno čita bez diranja koda.</item>
+    </string-array>
 </resources>

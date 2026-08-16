@@ -336,4 +336,29 @@
     <string name="parental_search_domains">Domains</string>
     <string name="parental_search_entire_domain">Entire domain</string>
     <string name="parental_search_domain_chip">Domain: %1$s</string>
+
+    <!-- Home Assistant's own pages, opened inside the app from Settings. -->
+    <string name="ha_page_category">Home Assistant</string>
+    <string name="ha_page_category_subtitle">Open your server\'s own pages without leaving HKI 7</string>
+    <string name="ha_page_settings">Home Assistant settings</string>
+    <string name="ha_page_settings_subtitle">Integrations, devices, areas and automations</string>
+    <string name="ha_page_dev_tools">Developer tools</string>
+    <string name="ha_page_dev_tools_subtitle">States, services, templates and events</string>
+    <string name="ha_page_hacs">HACS</string>
+    <string name="ha_page_hacs_subtitle">Community integrations and frontend add-ons</string>
+    <string name="ha_page_no_server">Connect to a Home Assistant server first.</string>
+
+    <!-- GitHub release update checker. -->
+    <string name="update_channel_name">App updates</string>
+    <string name="update_channel_description">Tells you when a newer version of HKI 7 has been released</string>
+    <string name="update_available_title">HKI 7 %1$s is available</string>
+    <string name="update_available_body">Tap to see what changed and update</string>
+    <string name="update_title">App updates</string>
+    <string name="update_subtitle_checking">Checking for a newer version…</string>
+    <string name="update_subtitle_current">You are on the latest version</string>
+    <string name="update_subtitle_available">Version %1$s is available</string>
+    <string name="update_check_now">Check for updates</string>
+    <string name="update_now">Update now</string>
+    <string name="update_watch_releases">Tell me about new releases</string>
+    <string name="update_watch_releases_subtitle">Checks GitHub once a day and notifies you when a newer version is published</string>
 </resources>

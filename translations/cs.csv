@@ -642,6 +642,15 @@ cr_quick_media_player,,Media player,Přehrávač médií,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.","Když se objeví úchyt, přejeďte po spodní liště nahoru a obnovte přehrávač.",
 cr_quick_make_it_yours,,Make it yours,Udělejte to po svém,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","V režimu úprav můžete přidávat a měnit pořadí místností, podlaží a widgetů. Klepnutím na položku ji nakonfigurujte.",
+cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, with seven face designs each — Classic, Minimal, Roman, Railway, Bauhaus, Neon and Skeleton for analog; Plain, Segment, Monospace, Flip, Outline, Stacked and Dots for digital — plus 12 or 24-hour time, optional seconds, and your choice of day, date and year underneath. Tapping it shows your next alarm.","Nový widget Hodiny. Analogové nebo digitální, každý se sedmi designy obličeje — Classic, Minimal, Roman, Railway, Bauhaus, Neon a Skeleton pro analog; Obyčejný, Segment, Monospace, Flip, Outline, Stacked a Dots pro digitální — plus 12 nebo 24hodinový čas, volitelné sekundy a pod ním váš výběr dne, data a roku. Klepnutím na něj zobrazíte další budík.",
+cr_whats_new_1_1_1,2,"Home Assistant's own pages open inside HKI 7. A new Home Assistant section in Settings takes you straight to your server's Settings, Developer tools and HACS, already signed in, without leaving the app.","Vlastní stránky Home Assistant se otevírají v HKI 7. Nová sekce Home Assistant v Nastavení vás zavede přímo do Nastavení, vývojářských nástrojů a HACS vašeho serveru, aniž byste museli opustit aplikaci.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_1,3,"HKI 7 now tells you when a new version is released. It watches the GitHub releases once a day and notifies you, which matters most if you installed the APK yourself rather than from Play — Update now sends you to Play or to the release page depending on where this copy came from. It can be turned off in Settings › About.","HKI 7 vám nyní řekne, kdy bude vydána nová verze. Sleduje vydání GitHubu jednou denně a upozorní vás, což je nejdůležitější, pokud jste si soubor APK nainstalovali sami, nikoli ze služby Play – aktualizace vás nyní pošle do služby Play nebo na stránku vydání v závislosti na tom, odkud tato kopie pochází. Lze ji vypnout v Nastavení › O aplikaci.",don't translate HKI 7
+cr_whats_new_1_1_1,4,"A Next Alarm sensor joins the ones the app already reports to Home Assistant, matching the official companion app. Android only exposes the next alarm rather than the whole list, so that is what the sensor carries, along with which app set it.","Senzor Next Alarm se připojí k těm, které aplikace již hlásí Home Assistant, a odpovídá oficiální doprovodné aplikaci. Android odhaluje pouze další budík, nikoli celý seznam, takže to nese senzor spolu s aplikací, která jej nastavila.",don't translate Home Assistant
+cr_whats_new_1_1_1,5,"The wind card is now a proper compass. A graduated dial with a marked ring, an eight-point rose and a two-tone needle, in place of the plain circle and line it had before.","Větrná karta je nyní pořádný kompas. Odstupňovaný ciferník s vyznačeným prstencem, osmicípou růžicí a dvoubarevnou jehlou na místě hladkého kruhu a rysky, kterou měl předtím.",
+cr_whats_new_1_1_1,6,"Media players say what is playing, not just which app is open. An Android TV streaming a series now shows the programme, the season and episode, and the episode title, with the app named underneath; live TV shows the channel.","Přehrávače médií říkají, co se hraje, ne jen která aplikace je otevřená. Android TV streamující seriál nyní zobrazuje program, sezónu a epizodu a název epizody s aplikací pojmenovanou níže; živé televizní vysílání kanálu.",
+cr_whats_new_1_1_1,7,"Fixed the back gesture leaving you on the Rooms overview. Opening a room, switching to another tab and pressing back now returns to the room you were actually in, rather than to the list of rooms.","Opraveno gesto zpět, které vás nechalo na přehledu místností. Otevřením místnosti, přepnutím na jinou kartu a stisknutím zpět se nyní vrátíte do místnosti, ve které jste skutečně byli, nikoli do seznamu místností.",
+cr_whats_new_1_1_1,8,"Fixed temperature and energy readings in Czech, Slovak, Greek, Norwegian, Swedish and Danish. Machine translation had damaged the number formatting behind them, which showed the wrong number of decimals in the Nordic languages and could crash the screen in the other three.","Opravené údaje o teplotě a energii v češtině, slovenštině, řečtině, norštině, švédštině a dánštině. Strojový překlad poškodil formátování čísel za nimi, což ukazovalo nesprávný počet desetinných míst v severských jazycích a mohlo způsobit zhroucení obrazovky ve zbývajících třech.",
+cr_whats_new_1_1_1,9,"Every language now has a single file anyone can correct. The translations folder in the repository holds one spreadsheet-friendly file per language, English beside the translation, so a native speaker can fix what reads wrong without touching any code.","Každý jazyk má nyní jeden soubor, který může kdokoli opravit. Složka překladů v úložišti obsahuje jeden soubor vhodný pro tabulkový procesor pro každý jazyk, angličtinu vedle překladu, takže rodilý mluvčí může opravit to, co se čte špatně, aniž by se dotkl jakéhokoli kódu.",
 cr_whats_new_1_1_0,1,"Eighteen more languages, taking HKI 7 to 36. Polish, Russian, Czech, Slovak, Hungarian, Romanian, Bulgarian, Croatian, Greek, Lithuanian, Latvian, Estonian, Danish, Thai and Hebrew join the list, along with Austrian German, Swiss German and Mexican Spanish. Hebrew lays the interface out right to left, as Arabic does.","Osmnáct dalších jazyků, z HKI 7 na 36. Polština, ruština, čeština, slovenština, maďarština, rumunština, bulharština, chorvatština, řečtina, litevština, lotyština, estonština, dánština, thajština a hebrejština, spolu s rakouskou němčinou, švýcarskou němčinou a mexickou španělštinou. Hebrejština rozkládá rozhraní zprava doleva, stejně jako arabština.",don't translate HKI 7
 cr_whats_new_1_1_0,2,"HKI 7 now runs on Android 12 and later. It previously needed Android 14, which ruled out a lot of perfectly capable phones and tablets.","HKI 7 nyní běží na Androidu 12 a novějším. Dříve potřeboval Android 14, který vylučoval spoustu dokonale schopných telefonů a tabletů.",don't translate HKI 7
 cr_whats_new_1_1_0,3,"Energy costs are shown in your own currency instead of always in euros. HKI 7 follows what your cost sensors report, and there is a Currency setting in Energy settings if you would rather choose one yourself.","Náklady na energii jsou uvedeny ve vaší vlastní měně, nikoli vždy v eurech. HKI 7 se řídí tím, co hlásí vaše nákladové senzory, a v nastavení energie je k dispozici nastavení měny, pokud byste si ji raději vybrali sami.",don't translate HKI 7
@@ -3200,6 +3209,27 @@ parental_search_picker_subtitle,,Select entire domains or individual entities,Vy
 parental_search_domains,,Domains,domény,
 parental_search_entire_domain,,Entire domain,Celá doména,
 parental_search_domain_chip,,Domain: %1$s,Doména: %1$s,app fills in %1$s — keep them
+ha_page_category,,Home Assistant,Home Assistant,don't translate Home Assistant
+ha_page_category_subtitle,,Open your server's own pages without leaving HKI 7,"Otevřete vlastní stránky serveru, aniž byste opustili HKI 7",don't translate HKI 7
+ha_page_settings,,Home Assistant settings,Home Assistant nastavení,don't translate Home Assistant
+ha_page_settings_subtitle,,"Integrations, devices, areas and automations","Integrace, zařízení, oblasti a automatizace",
+ha_page_dev_tools,,Developer tools,Vývojářské nástroje,
+ha_page_dev_tools_subtitle,,"States, services, templates and events","Stavy, služby, šablony a události",
+ha_page_hacs,,HACS,HACS,
+ha_page_hacs_subtitle,,Community integrations and frontend add-ons,Komunitní integrace a frontendové doplňky,
+ha_page_no_server,,Connect to a Home Assistant server first.,Nejprve se připojte k serveru Home Assistant.,don't translate Home Assistant
+update_channel_name,,App updates,Aktualizace aplikací,
+update_channel_description,,Tells you when a newer version of HKI 7 has been released,"Řekne vám, kdy byla vydána novější verze HKI 7",don't translate HKI 7
+update_available_title,,HKI 7 %1$s is available,HKI 7 %1$s je k dispozici,app fills in %1$s — keep them; don't translate HKI 7
+update_available_body,,Tap to see what changed and update,Klepnutím zobrazíte změny a aktualizace,
+update_title,,App updates,Aktualizace aplikací,
+update_subtitle_checking,,Checking for a newer version…,Kontrola novější verze…,
+update_subtitle_current,,You are on the latest version,Jste na nejnovější verzi,
+update_subtitle_available,,Version %1$s is available,Verze %1$s je k dispozici,app fills in %1$s — keep them
+update_check_now,,Check for updates,Zkontrolujte aktualizace,
+update_now,,Update now,Aktualizujte nyní,
+update_watch_releases,,Tell me about new releases,Řekněte mi o nových vydáních,
+update_watch_releases_subtitle,,Checks GitHub once a day and notifies you when a newer version is published,"Kontroluje GitHub jednou denně a upozorní vás, když bude publikována novější verze",
 uif_a_state,,a state,stát,
 uif_a_time,,a time,čas,
 uif_actions,,Actions,Akce,
@@ -3824,3 +3854,39 @@ widgets_energy_ha_forecast,,Home Assistant forecast,Home Assistant předpověď,
 widgets_battery_search,,Search devices,Vyhledejte zařízení,
 widgets_battery_none,,No batteries match that search.,Tomuto vyhledávání neodpovídají žádné baterie.,
 widgets_battery_open_page,,Open battery page,Otevřete stránku baterie,
+cr_widget_clock,,Clock,Hodiny,
+cr_widget_clock_description,,"An analog or digital clock, in the style you pick, with the date and your next alarm.","Analogové nebo digitální hodiny ve stylu, který si vyberete, s datem a dalším budíkem.",
+clock_widget_title,,Clock,Hodiny,
+clock_widget_subtitle,,"Face, styling and what it shows","Obličej, styling a to, co ukazuje",
+clock_title_label,,Title (optional),Název (volitelné),
+clock_face_section,,Face,Tvář,
+clock_face_section_subtitle,,"Analog or digital, and which design",Analogové nebo digitální a v jakém provedení,
+clock_shows_section,,Shows,Přehlídky,
+clock_shows_section_subtitle,,Choose what appears alongside the time,"Vyberte, co se zobrazí vedle času",
+clock_mode_analog,,Analog,Analogový,
+clock_mode_digital,,Digital,Digitální,
+clock_style,,Style,Styl,
+clock_24_hour,,24-hour clock,24hodinové hodiny,
+clock_seconds,,Seconds,Sekundy,
+clock_date,,Date,Datum,
+clock_day_name,,Day of the week,den v týdnu,
+clock_year,,Year,Rok,
+clock_style_classic,,Classic,Klasický,
+clock_style_minimal,,Minimal,Minimální,
+clock_style_roman,,Roman,římský,
+clock_style_railway,,Railway,Železnice,
+clock_style_bauhaus,,Bauhaus,Bauhaus,
+clock_style_neon,,Neon,Neon,
+clock_style_skeleton,,Skeleton,Kostra,
+clock_style_plain,,Plain,Prostý,
+clock_style_segment,,Segment,Segment,
+clock_style_mono,,Monospace,Jednoprostorový,
+clock_style_flip,,Flip,Překlopit,
+clock_style_outline,,Outline,Obrys,
+clock_style_stacked,,Stacked,Skládaný,
+clock_style_dots,,Dots,Tečky,
+clock_alarms_title,,Next alarm,Další budík,
+clock_no_alarm,,No alarm is set.,Není nastaven žádný budík.,
+clock_alarm_set_by,,Set by %1$s,Nastaveno uživatelem %1$s,app fills in %1$s — keep them
+clock_alarms_platform_note,,"Android only tells other apps about the next alarm, so alarms cannot be listed or switched on and off from here.","Android pouze informuje ostatní aplikace o příštím budíku, takže budíky odtud nelze vypsat ani zapnout a vypnout.",
+clock_open_clock_app,,Open Clock app,Otevřete aplikaci Hodiny,

@@ -27,8 +27,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -288,27 +291,27 @@ fun WindCompassCard(weather: HAEntity, cornerRadius: Int = 24) {
                 Spacer(Modifier.height(if (compact) 6.dp else 12.dp))
                 Box(modifier = Modifier.size(compassSize), contentAlignment = Alignment.Center) {
                     Canvas(modifier = Modifier.fillMaxSize()) {
-                        val radius = size.minDimension / 2f * 0.86f
-                        val center = Offset(size.width / 2f, size.height / 2f)
-                        drawCircle(color = appColors.onMuted.copy(alpha = 0.18f), radius = radius, center = center, style = Stroke(width = 2.dp.toPx()))
-                        for (deg in 0 until 360 step 30) {
-                            val rad = Math.toRadians(deg.toDouble() - 90)
-                            val outer = Offset(center.x + radius * cos(rad).toFloat(), center.y + radius * sin(rad).toFloat())
-                            val inner = Offset(center.x + (radius - 8.dp.toPx()) * cos(rad).toFloat(), center.y + (radius - 8.dp.toPx()) * sin(rad).toFloat())
-                            drawLine(appColors.onMuted.copy(alpha = 0.35f), inner, outer, strokeWidth = 2.dp.toPx())
-                        }
-                        val needleRad = Math.toRadians(bearing - 90)
-                        val tip = Offset(center.x + radius * 0.82f * cos(needleRad).toFloat(), center.y + radius * 0.82f * sin(needleRad).toFloat())
-                        val tailRad = Math.toRadians(bearing - 90 + 180)
-                        val tail = Offset(center.x + radius * 0.35f * cos(tailRad).toFloat(), center.y + radius * 0.35f * sin(tailRad).toFloat())
-                        drawLine(needleColor, tail, tip, strokeWidth = 5.dp.toPx(), cap = StrokeCap.Round)
-                        drawCircle(needleColor, radius = 5.dp.toPx(), center = tip)
-                        drawCircle(appColors.onSurface, radius = 4.dp.toPx(), center = center)
+                        drawCompassDial(
+                            face = appColors.elevated,
+                            ink = appColors.onSurface,
+                            muted = appColors.onMuted,
+                            compact = compact
+                        )
+                        drawCompassNeedle(
+                            bearing = bearing,
+                            north = northColor,
+                            south = appColors.onMuted,
+                            pivot = appColors.onSurface
+                        )
                     }
-                    Text(compassDirections[0], color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, modifier = Modifier.align(Alignment.TopCenter).padding(top = 2.dp))
-                    Text(compassDirections[4], color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, modifier = Modifier.align(Alignment.CenterEnd).padding(end = 2.dp))
-                    Text(compassDirections[8], color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 2.dp))
-                    Text(compassDirections[12], color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, modifier = Modifier.align(Alignment.CenterStart).padding(start = 2.dp))
+                    // The cardinals ride outside the dial's tick ring rather than on the face, so
+                    // the needle never crosses them. Only the four majors are lettered — at 128dp
+                    // the sixteen-point rose is drawn, not written, or nothing stays legible.
+                    val cardinalPad = if (compact) 0.dp else 2.dp
+                    CompassCardinal(compassDirections[0], northColor, FontWeight.Bold, Modifier.align(Alignment.TopCenter).padding(top = cardinalPad))
+                    CompassCardinal(compassDirections[4], appColors.onMuted, FontWeight.Medium, Modifier.align(Alignment.CenterEnd).padding(end = cardinalPad))
+                    CompassCardinal(compassDirections[8], appColors.onMuted, FontWeight.Medium, Modifier.align(Alignment.BottomCenter).padding(bottom = cardinalPad))
+                    CompassCardinal(compassDirections[12], appColors.onMuted, FontWeight.Medium, Modifier.align(Alignment.CenterStart).padding(start = cardinalPad))
                 }
                 Spacer(Modifier.height(12.dp))
                 Text(
@@ -326,6 +329,133 @@ private fun bearingToCompassLabel(bearing: Double, dirs: Array<String>): String 
     val normalized = ((bearing % 360) + 360) % 360
     val idx = (normalized / 22.5).toInt().coerceIn(0, 15)
     return dirs[idx]
+}
+
+@Composable
+private fun CompassCardinal(text: String, color: Color, weight: FontWeight, modifier: Modifier) {
+    Text(
+        text,
+        color = color,
+        style = MaterialTheme.typography.labelSmall,
+        fontWeight = weight,
+        modifier = modifier
+    )
+}
+
+/** North is red on every compass ever made; keeping that is most of what makes this one read as one. */
+private val northColor = Color(0xFFE0503A)
+
+/**
+ * The dial an instrument compass has: a recessed face, a bezel, and a graduated ring reading
+ * clockwise from north — minor ticks every 15°, longer ones every 45°, longest at the cardinals —
+ * with an eight-point rose beneath the needle.
+ *
+ * Everything is proportional to the canvas rather than fixed in dp, because this same card renders
+ * at 72dp inside a compact widget and at 160dp on the weather screen, and a rose drawn in absolute
+ * units turns into a smudge at the small end.
+ */
+private fun DrawScope.drawCompassDial(face: Color, ink: Color, muted: Color, compact: Boolean) {
+    val center = Offset(size.width / 2f, size.height / 2f)
+    val outer = size.minDimension / 2f * 0.94f
+
+    // Face, lit from the top left the way a physical dial catches the light.
+    drawCircle(
+        brush = Brush.radialGradient(
+            colors = listOf(face.copy(alpha = 0.95f), face.copy(alpha = 0.55f)),
+            center = Offset(center.x - outer * 0.35f, center.y - outer * 0.35f),
+            radius = outer * 1.7f
+        ),
+        radius = outer,
+        center = center
+    )
+    drawCircle(muted.copy(alpha = 0.30f), radius = outer, center = center, style = Stroke(width = outer * 0.035f))
+    drawCircle(muted.copy(alpha = 0.16f), radius = outer * 0.88f, center = center, style = Stroke(width = outer * 0.014f))
+
+    // Graduated ring. Three tick lengths give the eye something to measure against, which is the
+    // difference between a dial and a plain circle with a line through it.
+    for (deg in 0 until 360 step 15) {
+        val cardinal = deg % 90 == 0
+        val intercardinal = deg % 45 == 0
+        val length = outer * when {
+            cardinal -> 0.16f
+            intercardinal -> 0.11f
+            else -> 0.06f
+        }
+        val width = outer * if (cardinal) 0.035f else 0.018f
+        val alpha = when {
+            cardinal -> 0.75f
+            intercardinal -> 0.5f
+            else -> 0.28f
+        }
+        val rad = Math.toRadians(deg.toDouble() - 90)
+        val from = Offset(
+            center.x + (outer - length) * cos(rad).toFloat(),
+            center.y + (outer - length) * sin(rad).toFloat()
+        )
+        val to = Offset(center.x + outer * 0.96f * cos(rad).toFloat(), center.y + outer * 0.96f * sin(rad).toFloat())
+        drawLine(if (deg == 0) northColor.copy(alpha = 0.9f) else muted.copy(alpha = alpha), from, to, strokeWidth = width)
+    }
+
+    // Eight-point rose. Dropped when compact — below about 100dp the points collide with the
+    // needle and the whole face turns to mud.
+    if (compact) return
+    val long = outer * 0.62f
+    val short = outer * 0.34f
+    for (step in 0 until 8) {
+        val primary = step % 2 == 0
+        rotate(degrees = step * 45f, pivot = center) {
+            val reach = if (primary) long else short
+            val waist = if (primary) outer * 0.11f else outer * 0.07f
+            val point = Path().apply {
+                moveTo(center.x, center.y - reach)
+                lineTo(center.x + waist, center.y)
+                lineTo(center.x, center.y + waist * 0.25f)
+                lineTo(center.x - waist, center.y)
+                close()
+            }
+            // Two tones per point, so each reads as a folded facet rather than a flat triangle.
+            drawPath(point, ink.copy(alpha = if (primary) 0.13f else 0.08f))
+            val facet = Path().apply {
+                moveTo(center.x, center.y - reach)
+                lineTo(center.x + waist, center.y)
+                lineTo(center.x, center.y + waist * 0.25f)
+                close()
+            }
+            drawPath(facet, ink.copy(alpha = if (primary) 0.07f else 0.04f))
+        }
+    }
+}
+
+/**
+ * The needle, pointing the way the wind is coming from — which is what `wind_bearing` reports.
+ * Two-tone and diamond-shaped rather than a plain line: the red half is north-seeking on a real
+ * compass, and here it is the business end, so the card can be read at a glance from across a room.
+ */
+private fun DrawScope.drawCompassNeedle(bearing: Double, north: Color, south: Color, pivot: Color) {
+    val center = Offset(size.width / 2f, size.height / 2f)
+    val outer = size.minDimension / 2f * 0.94f
+    val reach = outer * 0.70f
+    val waist = outer * 0.085f
+
+    rotate(degrees = bearing.toFloat(), pivot = center) {
+        val head = Path().apply {
+            moveTo(center.x, center.y - reach)
+            lineTo(center.x + waist, center.y)
+            lineTo(center.x - waist, center.y)
+            close()
+        }
+        val tail = Path().apply {
+            moveTo(center.x, center.y + reach * 0.72f)
+            lineTo(center.x + waist, center.y)
+            lineTo(center.x - waist, center.y)
+            close()
+        }
+        drawPath(tail, south.copy(alpha = 0.45f))
+        drawPath(head, north)
+    }
+    // Cap, drawn unrotated so it stays a circle and hides where the two halves meet.
+    drawCircle(pivot.copy(alpha = 0.85f), radius = outer * 0.075f, center = center)
+    drawCircle(south.copy(alpha = 0.5f), radius = outer * 0.075f, center = center, style = Stroke(width = outer * 0.02f))
 }
 
 @Composable

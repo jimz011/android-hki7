@@ -17,4 +17,15 @@
         <item>Sledování zásilek pokrývá dalších patnáct dopravců, včetně PostNord, InPost, Swiss Post, An Post, Budbee, Sameday a Nova Post, z nichž každý má své vlastní logo.</item>
         <item>Robotický vysavač Valetudo automaticky snímá svou živou mapu při importu vašich místností, aniž by potřeboval ručně vybranou kameru.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_1">
+        <item>Nový widget Hodiny. Analogové nebo digitální, každý se sedmi designy obličeje — Classic, Minimal, Roman, Railway, Bauhaus, Neon a Skeleton pro analog; Obyčejný, Segment, Monospace, Flip, Outline, Stacked a Dots pro digitální — plus 12 nebo 24hodinový čas, volitelné sekundy a pod ním váš výběr dne, data a roku. Klepnutím na něj zobrazíte další budík.</item>
+        <item>Vlastní stránky Home Assistant se otevírají v HKI 7. Nová sekce Home Assistant v Nastavení vás zavede přímo do Nastavení, vývojářských nástrojů a HACS vašeho serveru, aniž byste museli opustit aplikaci.</item>
+        <item>HKI 7 vám nyní řekne, kdy bude vydána nová verze. Sleduje vydání GitHubu jednou denně a upozorní vás, což je nejdůležitější, pokud jste si soubor APK nainstalovali sami, nikoli ze služby Play – aktualizace vás nyní pošle do služby Play nebo na stránku vydání v závislosti na tom, odkud tato kopie pochází. Lze ji vypnout v Nastavení › O aplikaci.</item>
+        <item>Senzor Next Alarm se připojí k těm, které aplikace již hlásí Home Assistant, a odpovídá oficiální doprovodné aplikaci. Android odhaluje pouze další budík, nikoli celý seznam, takže to nese senzor spolu s aplikací, která jej nastavila.</item>
+        <item>Větrná karta je nyní pořádný kompas. Odstupňovaný ciferník s vyznačeným prstencem, osmicípou růžicí a dvoubarevnou jehlou na místě hladkého kruhu a rysky, kterou měl předtím.</item>
+        <item>Přehrávače médií říkají, co se hraje, ne jen která aplikace je otevřená. Android TV streamující seriál nyní zobrazuje program, sezónu a epizodu a název epizody s aplikací pojmenovanou níže; živé televizní vysílání kanálu.</item>
+        <item>Opraveno gesto zpět, které vás nechalo na přehledu místností. Otevřením místnosti, přepnutím na jinou kartu a stisknutím zpět se nyní vrátíte do místnosti, ve které jste skutečně byli, nikoli do seznamu místností.</item>
+        <item>Opravené údaje o teplotě a energii v češtině, slovenštině, řečtině, norštině, švédštině a dánštině. Strojový překlad poškodil formátování čísel za nimi, což ukazovalo nesprávný počet desetinných míst v severských jazycích a mohlo způsobit zhroucení obrazovky ve zbývajících třech.</item>
+        <item>Každý jazyk má nyní jeden soubor, který může kdokoli opravit. Složka překladů v úložišti obsahuje jeden soubor vhodný pro tabulkový procesor pro každý jazyk, angličtinu vedle překladu, takže rodilý mluvčí může opravit to, co se čte špatně, aniž by se dotkl jakéhokoli kódu.</item>
+    </string-array>
 </resources>

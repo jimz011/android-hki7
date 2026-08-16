@@ -626,6 +626,15 @@ cr_quick_media_player,,Media player,Leitor de média,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.","Quando a pega aparecer, deslize para cima na barra inferior para restaurar o leitor.",
 cr_quick_make_it_yours,,Make it yours,Torne-o seu,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","No modo de edição, adicione e reordene divisões, andares e widgets. Toque num item para o configurar.",
+cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, with seven face designs each — Classic, Minimal, Roman, Railway, Bauhaus, Neon and Skeleton for analog; Plain, Segment, Monospace, Flip, Outline, Stacked and Dots for digital — plus 12 or 24-hour time, optional seconds, and your choice of day, date and year underneath. Tapping it shows your next alarm.","Novo widget de relógio. Analógico ou digital, com sete designs de face cada – Clássico, Minimal, Romano, Ferroviário, Bauhaus, Néon e Esqueleto para analógico; Simples, Segmentado, Monoespaçado, Inverter, Contorno, Empilhado e Pontos para digital — além de horário de 12 ou 24 horas, segundos opcionais e a sua escolha de dia, data e ano abaixo. Tocar nele mostra o seu próximo alarme.",
+cr_whats_new_1_1_1,2,"Home Assistant's own pages open inside HKI 7. A new Home Assistant section in Settings takes you straight to your server's Settings, Developer tools and HACS, already signed in, without leaving the app.","As próprias páginas de Home Assistant abrem dentro de HKI 7. Uma nova secção Home Assistant em Definições leva-o diretamente para as definições do servidor, ferramentas de programador e HACS, já ligado, sem sair da aplicação.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_1,3,"HKI 7 now tells you when a new version is released. It watches the GitHub releases once a day and notifies you, which matters most if you installed the APK yourself rather than from Play — Update now sends you to Play or to the release page depending on where this copy came from. It can be turned off in Settings › About.","HKI 7 informa agora quando é lançada uma nova versão. Observa os lançamentos do GitHub uma vez por dia e notifica-o, o que é mais importante se tiver instalado o APK sozinho e não no Play – a actualização envia-o agora para o Play ou para a página de lançamento, dependendo de onde esta cópia veio. Pode ser desativado em Configurações › Sobre.",don't translate HKI 7
+cr_whats_new_1_1_1,4,"A Next Alarm sensor joins the ones the app already reports to Home Assistant, matching the official companion app. Android only exposes the next alarm rather than the whole list, so that is what the sensor carries, along with which app set it.","Um sensor de próximo alarme junta-se àqueles que a aplicação já reporta para Home Assistant, correspondendo à aplicação complementar oficial. O Android expõe apenas o próximo alarme em vez de toda a lista, por isso é isso que o sensor carrega, juntamente com a aplicação que o define.",don't translate Home Assistant
+cr_whats_new_1_1_1,5,"The wind card is now a proper compass. A graduated dial with a marked ring, an eight-point rose and a two-tone needle, in place of the plain circle and line it had before.","A carta do vento é agora uma bússola adequada. Mostrador graduado com anel marcado, rosa de oito pontas e agulha bicolor, no lugar do círculo e linha lisos que tinha antes.",
+cr_whats_new_1_1_1,6,"Media players say what is playing, not just which app is open. An Android TV streaming a series now shows the programme, the season and episode, and the episode title, with the app named underneath; live TV shows the channel.","Os media players dizem o que está a ser reproduzido, não apenas qual a aplicação que está aberta. Uma Android TV a transmitir uma série mostra agora o programa, a temporada e o episódio, e o título do episódio, com o nome da aplicação abaixo; A TV ao vivo mostra o canal.",
+cr_whats_new_1_1_1,7,"Fixed the back gesture leaving you on the Rooms overview. Opening a room, switching to another tab and pressing back now returns to the room you were actually in, rather than to the list of rooms.","Corrigido o gesto de voltar atrás, deixando-o na vista geral das Salas. Abrir uma sala, mudar para outro separador e premir Voltar regressa agora à sala em que estava, e não à lista de salas.",
+cr_whats_new_1_1_1,8,"Fixed temperature and energy readings in Czech, Slovak, Greek, Norwegian, Swedish and Danish. Machine translation had damaged the number formatting behind them, which showed the wrong number of decimals in the Nordic languages and could crash the screen in the other three.","Leituras fixas de temperatura e energia em checo, eslovaco, grego, norueguês, sueco e dinamarquês. A tradução automática danificou a formatação dos números por trás deles, que mostrava o número errado de decimais nas línguas nórdicas e podia bloquear o ecrã nas outras três.",
+cr_whats_new_1_1_1,9,"Every language now has a single file anyone can correct. The translations folder in the repository holds one spreadsheet-friendly file per language, English beside the translation, so a native speaker can fix what reads wrong without touching any code.","Cada idioma tem agora um único ficheiro que qualquer pessoa pode corrigir. A pasta de traduções no repositório contém um ficheiro compatível com folhas de cálculo por idioma, o inglês ao lado da tradução, para que um falante nativo possa corrigir o que está errado sem mexer em qualquer código.",
 cr_whats_new_1_1_0,1,"Eighteen more languages, taking HKI 7 to 36. Polish, Russian, Czech, Slovak, Hungarian, Romanian, Bulgarian, Croatian, Greek, Lithuanian, Latvian, Estonian, Danish, Thai and Hebrew join the list, along with Austrian German, Swiss German and Mexican Spanish. Hebrew lays the interface out right to left, as Arabic does.","Mais dezoito línguas, que vão de HKI 7 a 36. Polaco, russo, checo, eslovaco, húngaro, romeno, búlgaro, croata, grego, lituano, letão, estónio, dinamarquês, tailandês e hebraico juntam-se à lista, juntamente com o alemão austríaco, o alemão suíço e o espanhol mexicano. O hebraico apresenta a interface da direita para a esquerda, tal como o árabe.",don't translate HKI 7
 cr_whats_new_1_1_0,2,"HKI 7 now runs on Android 12 and later. It previously needed Android 14, which ruled out a lot of perfectly capable phones and tablets.","HKI 7 funciona agora no Android 12 e posteriores. Anteriormente, precisava do Android 14, o que excluía muitos telefones e tablets perfeitamente capazes.",don't translate HKI 7
 cr_whats_new_1_1_0,3,"Energy costs are shown in your own currency instead of always in euros. HKI 7 follows what your cost sensors report, and there is a Currency setting in Energy settings if you would rather choose one yourself.","Os custos de energia são apresentados na sua própria moeda e não sempre em euros. HKI 7 segue o que os seus sensores de custo reportam e existe uma definição de Moeda nas definições de Energia, se preferir escolher uma.",don't translate HKI 7
@@ -3148,6 +3157,27 @@ parental_search_picker_subtitle,,Select entire domains or individual entities,Se
 parental_search_domains,,Domains,Domínios,
 parental_search_entire_domain,,Entire domain,Domínio completo,
 parental_search_domain_chip,,Domain: %1$s,Domínio: %1$s,app fills in %1$s — keep them
+ha_page_category,,Home Assistant,Home Assistant,don't translate Home Assistant
+ha_page_category_subtitle,,Open your server's own pages without leaving HKI 7,Abra as próprias páginas do seu servidor sem sair de HKI 7,don't translate HKI 7
+ha_page_settings,,Home Assistant settings,Home Assistant definições,don't translate Home Assistant
+ha_page_settings_subtitle,,"Integrations, devices, areas and automations","Integrações, dispositivos, áreas e automatizações",
+ha_page_dev_tools,,Developer tools,Ferramentas de programador,
+ha_page_dev_tools_subtitle,,"States, services, templates and events","Estados, serviços, modelos e eventos",
+ha_page_hacs,,HACS,HACS,
+ha_page_hacs_subtitle,,Community integrations and frontend add-ons,Integrações de comunidades e add-ons de front-end,
+ha_page_no_server,,Connect to a Home Assistant server first.,Ligue-se primeiro a um servidor Home Assistant.,don't translate Home Assistant
+update_channel_name,,App updates,Atualizações de aplicações,
+update_channel_description,,Tells you when a newer version of HKI 7 has been released,Informa quando foi lançada uma versão mais recente de HKI 7,don't translate HKI 7
+update_available_title,,HKI 7 %1$s is available,HKI 7 %1$s está disponível,app fills in %1$s — keep them; don't translate HKI 7
+update_available_body,,Tap to see what changed and update,Toque para ver o que mudou e atualize,
+update_title,,App updates,Atualizações de aplicações,
+update_subtitle_checking,,Checking for a newer version…,Procura uma versão mais recente…,
+update_subtitle_current,,You are on the latest version,Está na versão mais recente,
+update_subtitle_available,,Version %1$s is available,A versão %1$s está disponível,app fills in %1$s — keep them
+update_check_now,,Check for updates,Verifique se existem atualizações,
+update_now,,Update now,Atualizar agora,
+update_watch_releases,,Tell me about new releases,Fale-me sobre novos lançamentos,
+update_watch_releases_subtitle,,Checks GitHub once a day and notifies you when a newer version is published,Verifica o GitHub uma vez por dia e notifica quando é publicada uma versão mais recente,
 uif_a_state,,a state,um estado,
 uif_a_time,,a time,uma hora,
 uif_actions,,Actions,Ações,
@@ -3732,3 +3762,39 @@ widgets_energy_ha_forecast,,Home Assistant forecast,Previsão do Home Assistant,
 widgets_battery_search,,Search devices,Pesquisar dispositivos,
 widgets_battery_none,,No batteries match that search.,Nenhuma bateria corresponde a esta pesquisa.,
 widgets_battery_open_page,,Open battery page,Abrir página da bateria,
+cr_widget_clock,,Clock,Relógio,
+cr_widget_clock_description,,"An analog or digital clock, in the style you pick, with the date and your next alarm.","Um relógio analógico ou digital, no estilo que escolher, com a data e o próximo alarme.",
+clock_widget_title,,Clock,Relógio,
+clock_widget_subtitle,,"Face, styling and what it shows","Rosto, estilo e o que mostra",
+clock_title_label,,Title (optional),Título (opcional),
+clock_face_section,,Face,Rosto,
+clock_face_section_subtitle,,"Analog or digital, and which design","Analógico ou digital, e qual o design",
+clock_shows_section,,Shows,Programas,
+clock_shows_section_subtitle,,Choose what appears alongside the time,Escolha o que aparece ao lado da hora,
+clock_mode_analog,,Analog,Analógico,
+clock_mode_digital,,Digital,Digital,
+clock_style,,Style,Estilo,
+clock_24_hour,,24-hour clock,Relógio de 24 horas,
+clock_seconds,,Seconds,Segundos,
+clock_date,,Date,Data,
+clock_day_name,,Day of the week,Dia da semana,
+clock_year,,Year,Ano,
+clock_style_classic,,Classic,Clássico,
+clock_style_minimal,,Minimal,Mínimo,
+clock_style_roman,,Roman,romano,
+clock_style_railway,,Railway,Ferrovia,
+clock_style_bauhaus,,Bauhaus,Bauhaus,
+clock_style_neon,,Neon,Néon,
+clock_style_skeleton,,Skeleton,Esqueleto,
+clock_style_plain,,Plain,Plano,
+clock_style_segment,,Segment,Segmento,
+clock_style_mono,,Monospace,Monoespaçado,
+clock_style_flip,,Flip,Piparote,
+clock_style_outline,,Outline,Delimitar,
+clock_style_stacked,,Stacked,Empilhado,
+clock_style_dots,,Dots,Pontos,
+clock_alarms_title,,Next alarm,Próximo alarme,
+clock_no_alarm,,No alarm is set.,Nenhum alarme está definido.,
+clock_alarm_set_by,,Set by %1$s,Definido por %1$s,app fills in %1$s — keep them
+clock_alarms_platform_note,,"Android only tells other apps about the next alarm, so alarms cannot be listed or switched on and off from here.","O Android apenas informa outras aplicações sobre o próximo alarme, pelo que os alarmes não podem ser listados ou ativados e desativados aqui.",
+clock_open_clock_app,,Open Clock app,Abra a aplicação Relógio,

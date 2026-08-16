@@ -45,6 +45,7 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Groups
@@ -145,6 +146,8 @@ import com.jimz011apps.hki7.data.HomeAssistantConnectionRoute
 import com.jimz011apps.hki7.data.HomeAssistantInstance
 import com.jimz011apps.hki7.data.CloudBackupStorage
 import com.jimz011apps.hki7.data.CloudBackupFile
+import com.jimz011apps.hki7.data.GithubReleaseChecker
+import com.jimz011apps.hki7.data.UpdateCheckWorker
 import com.jimz011apps.hki7.data.CloudBackupWork
 import com.jimz011apps.hki7.data.HaBackupStorage
 import com.jimz011apps.hki7.data.hki7BackupName
@@ -219,8 +222,13 @@ import java.util.UUID
 import coil3.compose.AsyncImage
 
 private enum class SettingsSection {
-    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, LANGUAGE, CORNERS, ICONS, NAV_BAR, MEDIA_PLAYERS, POPUPS, DASHBOARD, FAMILY_SHARING, BACKUP_RESTORE, ACCOUNT, ABOUT, LICENSE, SUPPORT
+    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, LANGUAGE, CORNERS, ICONS, NAV_BAR, MEDIA_PLAYERS, POPUPS, DASHBOARD, FAMILY_SHARING, BACKUP_RESTORE, ACCOUNT, HA_SETTINGS, HA_DEV_TOOLS, HA_HACS, ABOUT, LICENSE, SUPPORT
 }
+
+/** The Home Assistant frontend paths reachable from the Home Assistant category. */
+private const val HA_PATH_SETTINGS = "config/dashboard"
+private const val HA_PATH_DEV_TOOLS = "developer-tools/state"
+private const val HA_PATH_HACS = "hacs"
 
 /** Human-friendly "5 minutes ago" / "yesterday" label for the last-backup subtitle. */
 @Composable
@@ -310,6 +318,9 @@ private fun sectionTitle(section: SettingsSection): String = stringResource(when
     SettingsSection.FAMILY_SHARING -> R.string.settings_title_family_sharing
     SettingsSection.BACKUP_RESTORE -> R.string.settings_title_backup_restore
     SettingsSection.ACCOUNT -> R.string.settings_title_account
+    SettingsSection.HA_SETTINGS -> R.string.ha_page_settings
+    SettingsSection.HA_DEV_TOOLS -> R.string.ha_page_dev_tools
+    SettingsSection.HA_HACS -> R.string.ha_page_hacs
     SettingsSection.ABOUT -> R.string.settings_title_about
     SettingsSection.LICENSE -> R.string.settings_title_license
     SettingsSection.SUPPORT -> R.string.settings_title_support
@@ -336,6 +347,9 @@ private fun sectionSubtitle(section: SettingsSection): String = stringResource(w
     SettingsSection.NOTIFICATIONS -> R.string.settings_subtitle_notifications
     SettingsSection.BACKUP_RESTORE -> R.string.settings_subtitle_backup_restore
     SettingsSection.FAMILY_SHARING -> R.string.settings_subtitle_family_sharing
+    SettingsSection.HA_SETTINGS -> R.string.ha_page_settings_subtitle
+    SettingsSection.HA_DEV_TOOLS -> R.string.ha_page_dev_tools_subtitle
+    SettingsSection.HA_HACS -> R.string.ha_page_hacs_subtitle
     SettingsSection.ABOUT -> R.string.settings_subtitle_about
     SettingsSection.LICENSE -> R.string.settings_subtitle_license
     SettingsSection.SUPPORT -> R.string.settings_subtitle_support
@@ -359,6 +373,9 @@ private fun sectionIcon(section: SettingsSection): ImageVector = when (section) 
     SettingsSection.NOTIFICATIONS -> Icons.Default.Notifications
     SettingsSection.BACKUP_RESTORE -> Icons.Default.Backup
     SettingsSection.FAMILY_SHARING -> Icons.Default.Shield
+    SettingsSection.HA_SETTINGS -> Icons.Default.Tune
+    SettingsSection.HA_DEV_TOOLS -> Icons.Default.Build
+    SettingsSection.HA_HACS -> Icons.Default.Dashboard
     SettingsSection.ABOUT -> Icons.Default.Info
     SettingsSection.LICENSE -> Icons.Default.Description
     SettingsSection.SUPPORT -> Icons.Default.Favorite
@@ -689,6 +706,18 @@ fun SettingsDialog(
                                 else stringResource(R.string.family_settings_admin_only),
                                 enabled = !familySettingsLocked,
                             ) { section = SettingsSection.FAMILY_SHARING }
+                            // Home Assistant's own pages, above the HKI 7 block: they are about the
+                            // server rather than about this app. Hidden on the demo home, which has
+                            // no server behind it to open.
+                            if (!com.jimz011apps.hki7.data.isDemoServerUrl(serverUrl)) {
+                                SettingsSubcategory(
+                                    stringResource(R.string.ha_page_category),
+                                    stringResource(R.string.ha_page_category_subtitle)
+                                )
+                                SettingsChoice(Icons.Default.Tune, stringResource(R.string.ha_page_settings), stringResource(R.string.ha_page_settings_subtitle)) { section = SettingsSection.HA_SETTINGS }
+                                SettingsChoice(Icons.Default.Build, stringResource(R.string.ha_page_dev_tools), stringResource(R.string.ha_page_dev_tools_subtitle)) { section = SettingsSection.HA_DEV_TOOLS }
+                                SettingsChoice(Icons.Default.Dashboard, stringResource(R.string.ha_page_hacs), stringResource(R.string.ha_page_hacs_subtitle)) { section = SettingsSection.HA_HACS }
+                            }
                             SettingsSubcategory(stringResource(R.string.ui_hki_7_68a9e17), stringResource(R.string.ui_project_information_licensing_and_community_support_9fc47d6))
                             SettingsChoice(Icons.Default.Info, stringResource(R.string.ui_about_6b21fb7), stringResource(R.string.ui_what_hki_7_is_and_how_it_is_built_247bace)) { section = SettingsSection.ABOUT }
                             SettingsChoice(Icons.Default.Description, stringResource(R.string.ui_license_3229609), stringResource(R.string.ui_open_source_and_premium_licensing_0328125)) { section = SettingsSection.LICENSE }
@@ -2878,6 +2907,23 @@ fun SettingsDialog(
                                 }
                             }
                         }
+                        SettingsSection.HA_SETTINGS, SettingsSection.HA_DEV_TOOLS, SettingsSection.HA_HACS -> {
+                            val accessToken by prefs.accessToken.collectAsState(initial = null)
+                            val refreshToken by prefs.refreshToken.collectAsState(initial = null)
+                            val tokenExpiry by prefs.accessTokenExpiry.collectAsState(initial = null)
+                            com.jimz011apps.hki7.ui.components.HaWebPage(
+                                baseUrl = serverUrl.orEmpty(),
+                                path = when (section) {
+                                    SettingsSection.HA_DEV_TOOLS -> HA_PATH_DEV_TOOLS
+                                    SettingsSection.HA_HACS -> HA_PATH_HACS
+                                    else -> HA_PATH_SETTINGS
+                                },
+                                accessToken = accessToken,
+                                refreshToken = refreshToken,
+                                accessTokenExpiry = tokenExpiry,
+                                onBack = { section = SettingsSection.MENU }
+                            )
+                        }
                         SettingsSection.ABOUT -> {
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
@@ -2913,6 +2959,66 @@ fun SettingsDialog(
                                     style = MaterialTheme.typography.bodyMedium,
                                     textAlign = TextAlign.Center
                                 )
+                            }
+                            // Update checking lives here rather than in its own category: it is
+                            // about this app, and About is where people already come to see which
+                            // version they are on.
+                            run {
+                                val updatesOn by prefs.updateChecksEnabled.collectAsState(initial = true)
+                                var checking by remember { mutableStateOf(false) }
+                                var latest by remember { mutableStateOf<GithubReleaseChecker.Available?>(null) }
+                                var checkedOnce by remember { mutableStateOf(false) }
+                                SettingsSubcategory(
+                                    stringResource(R.string.update_title),
+                                    when {
+                                        checking -> stringResource(R.string.update_subtitle_checking)
+                                        latest != null -> stringResource(R.string.update_subtitle_available, latest?.versionName.orEmpty())
+                                        checkedOnce -> stringResource(R.string.update_subtitle_current)
+                                        else -> stringResource(R.string.settings_subtitle_about)
+                                    }
+                                )
+                                SettingsPanel {
+                                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                        Column(Modifier.weight(1f)) {
+                                            Text(stringResource(R.string.update_watch_releases), color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
+                                            Text(
+                                                stringResource(R.string.update_watch_releases_subtitle),
+                                                color = appColors.onMuted,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                        }
+                                        Switch(
+                                            checked = updatesOn,
+                                            onCheckedChange = { on ->
+                                                scope.launch {
+                                                    prefs.saveUpdateChecksEnabled(on)
+                                                    if (on) UpdateCheckWorker.schedule(context)
+                                                    else UpdateCheckWorker.cancel(context)
+                                                }
+                                            }
+                                        )
+                                    }
+                                    OutlinedButton(
+                                        onClick = {
+                                            scope.launch {
+                                                checking = true
+                                                latest = GithubReleaseChecker.check()
+                                                checkedOnce = true
+                                                checking = false
+                                            }
+                                        },
+                                        enabled = !checking,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = itemCornerShape()
+                                    ) { Text(stringResource(R.string.update_check_now)) }
+                                    latest?.let { available ->
+                                        Button(
+                                            onClick = { GithubReleaseChecker.openUpdate(context, available) },
+                                            modifier = Modifier.fillMaxWidth(),
+                                            shape = itemCornerShape()
+                                        ) { Text(stringResource(R.string.update_now)) }
+                                    }
+                                }
                             }
                             SettingsSubcategory(stringResource(R.string.ui_what_it_does_ca032b5))
                             SettingsPanel {

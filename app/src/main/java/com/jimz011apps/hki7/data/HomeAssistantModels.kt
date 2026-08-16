@@ -259,6 +259,22 @@ data class HAEntity(
     val appName: String?
         get() = attributes?.get("app_name")?.jsonPrimitiveOrNull?.contentOrNull
 
+    // Episodic and broadcast metadata. Android TV players in particular report the show and
+    // episode separately from media_title, so a title on its own reads as "Chapter 4" with no
+    // indication of what it is a chapter of.
+    val mediaSeriesTitle: String?
+        get() = attributes?.get("media_series_title")?.jsonPrimitiveOrNull?.contentOrNull
+    val mediaSeason: String?
+        get() = attributes?.get("media_season")?.jsonPrimitiveOrNull?.let {
+            it.contentOrNull ?: it.intOrNull?.toString()
+        }
+    val mediaEpisode: String?
+        get() = attributes?.get("media_episode")?.jsonPrimitiveOrNull?.let {
+            it.contentOrNull ?: it.intOrNull?.toString()
+        }
+    val mediaChannel: String?
+        get() = attributes?.get("media_channel")?.jsonPrimitiveOrNull?.contentOrNull
+
     // ── alarm_control_panel domain ──────────────────────────────────────────
     val supportedFeatures: Int
         get() = attributes?.get("supported_features")?.jsonPrimitiveOrNull?.intOrNull ?: 0
@@ -1674,6 +1690,58 @@ data class HKIMarkdownWidget(
     override val visibilityConditions: List<HKIVisibilityCondition> = emptyList(),
     override val visibilityMatch: String = VISIBILITY_MATCH_ALL
 ) : HKIRoomWidget()
+
+/**
+ * A clock face, analog or digital, in one of seven styles each.
+ *
+ * The styles are deliberately data rather than separate widget types: they change how the same
+ * time is drawn and nothing else, so a user switching from Roman to Minimal keeps every other
+ * setting they had chosen.
+ */
+@Serializable
+@SerialName("clock")
+data class HKIClockWidget(
+    override val id: String,
+    override val width: String = "full",
+    val title: String? = null,
+    /** "analog" or "digital". */
+    val mode: String = CLOCK_MODE_ANALOG,
+    /** One of [CLOCK_ANALOG_STYLES] or [CLOCK_DIGITAL_STYLES], depending on [mode]. */
+    val analogStyle: String = "classic",
+    val digitalStyle: String = "plain",
+    /** Digital only; analog faces have no am/pm to show. */
+    val use24Hour: Boolean = true,
+    val showSeconds: Boolean = false,
+    val showDate: Boolean = true,
+    val showDayName: Boolean = true,
+    val showYear: Boolean = false,
+    /** Blank means the device's own zone. An IANA id ("Europe/Amsterdam") otherwise. */
+    val timeZoneId: String? = null,
+    val isSquare: Boolean = true,
+    val cornerRadius: Int = 28,
+    val backgroundUrl: String? = null,
+    override val isHidden: Boolean = false,
+    override val visibilityStart: String? = null,
+    override val visibilityEnd: String? = null,
+    override val visibilityRangeMode: String = "show",
+    override val visibilityRecurrence: String = "none",
+    override val visibilityConditionEntityId: String? = null,
+    override val visibilityConditionState: String? = null,
+    override val visibilityConditionNegate: Boolean = false,
+    override val visibilityConditions: List<HKIVisibilityCondition> = emptyList(),
+    override val visibilityMatch: String = VISIBILITY_MATCH_ALL
+) : HKIRoomWidget()
+
+const val CLOCK_MODE_ANALOG = "analog"
+const val CLOCK_MODE_DIGITAL = "digital"
+
+/** Face designs, in the order the settings dialog offers them. */
+val CLOCK_ANALOG_STYLES = listOf(
+    "classic", "minimal", "roman", "railway", "bauhaus", "neon", "skeleton"
+)
+val CLOCK_DIGITAL_STYLES = listOf(
+    "plain", "segment", "mono", "flip", "outline", "stacked", "dots"
+)
 
 @Serializable
 @SerialName("iframe")

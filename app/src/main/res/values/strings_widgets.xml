@@ -316,4 +316,42 @@
     <string name="widgets_battery_search">Search devices</string>
     <string name="widgets_battery_none">No batteries match that search.</string>
     <string name="widgets_battery_open_page">Open battery page</string>
+
+    <!-- Clock widget. -->
+    <string name="cr_widget_clock">Clock</string>
+    <string name="cr_widget_clock_description">An analog or digital clock, in the style you pick, with the date and your next alarm.</string>
+    <string name="clock_widget_title">Clock</string>
+    <string name="clock_widget_subtitle">Face, styling and what it shows</string>
+    <string name="clock_title_label">Title (optional)</string>
+    <string name="clock_face_section">Face</string>
+    <string name="clock_face_section_subtitle">Analog or digital, and which design</string>
+    <string name="clock_shows_section">Shows</string>
+    <string name="clock_shows_section_subtitle">Choose what appears alongside the time</string>
+    <string name="clock_mode_analog">Analog</string>
+    <string name="clock_mode_digital">Digital</string>
+    <string name="clock_style">Style</string>
+    <string name="clock_24_hour">24-hour clock</string>
+    <string name="clock_seconds">Seconds</string>
+    <string name="clock_date">Date</string>
+    <string name="clock_day_name">Day of the week</string>
+    <string name="clock_year">Year</string>
+    <string name="clock_style_classic">Classic</string>
+    <string name="clock_style_minimal">Minimal</string>
+    <string name="clock_style_roman">Roman</string>
+    <string name="clock_style_railway">Railway</string>
+    <string name="clock_style_bauhaus">Bauhaus</string>
+    <string name="clock_style_neon">Neon</string>
+    <string name="clock_style_skeleton">Skeleton</string>
+    <string name="clock_style_plain">Plain</string>
+    <string name="clock_style_segment">Segment</string>
+    <string name="clock_style_mono">Monospace</string>
+    <string name="clock_style_flip">Flip</string>
+    <string name="clock_style_outline">Outline</string>
+    <string name="clock_style_stacked">Stacked</string>
+    <string name="clock_style_dots">Dots</string>
+    <string name="clock_alarms_title">Next alarm</string>
+    <string name="clock_no_alarm">No alarm is set.</string>
+    <string name="clock_alarm_set_by">Set by %1$s</string>
+    <string name="clock_alarms_platform_note">Android only tells other apps about the next alarm, so alarms cannot be listed or switched on and off from here.</string>
+    <string name="clock_open_clock_app">Open Clock app</string>
 </resources>

@@ -4,6 +4,7 @@ package com.jimz011apps.hki7.data
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -38,6 +39,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
+import java.time.Instant
 import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -106,6 +108,7 @@ class DeviceTelemetryReporter(
 
         val charging = isCharging()
         val address = location?.let { geocodeThrottled(it) }
+        val nextAlarmNow = nextAlarm()
 
         // Upgrade pre-existing registrations (made before push support) so HA creates the
         // notify.mobile_app_<device> service. Once per process; harmless when already set.
@@ -150,6 +153,17 @@ class DeviceTelemetryReporter(
             // Only when an address actually resolved — the official app never writes raw
             // coordinates here, and skipping the entry keeps HA's recorder free of churn from
             // GPS jitter (an omitted sensor simply keeps its previous state).
+            add(buildJsonObject {
+                put("unique_id", "${slug}_next_alarm")
+                put("type", "sensor")
+                put("state", nextAlarmNow?.timestamp ?: "unavailable")
+                put("icon", "mdi:alarm")
+                // Which app owns the alarm — the stock Clock, a third-party one, or a sleep
+                // tracker. Useful for automations that should only act on the real wake-up alarm.
+                nextAlarmNow?.packageName?.let {
+                    put("attributes", buildJsonObject { put("package", it) })
+                }
+            })
             if (address != null) {
                 add(buildJsonObject {
                     put("unique_id", "${slug}_geocoded_location")
@@ -324,7 +338,22 @@ class DeviceTelemetryReporter(
                 put("icon", "mdi:map-marker")
             })
         }, "register geocoded", log)
-        return batteryOk && chargingOk && geocodedOk
+        val alarm = nextAlarm()
+        val nextAlarmOk = post(client, webhookUrl, buildJsonObject {
+            put("type", "register_sensor")
+            put("data", buildJsonObject {
+                put("unique_id", "${slug}_next_alarm")
+                put("name", "$deviceName Next Alarm")
+                // "unavailable" rather than a made-up time: a timestamp sensor with no alarm set
+                // has no value, and inventing one would fire time-based automations.
+                put("state", alarm?.timestamp ?: "unavailable")
+                put("type", "sensor")
+                put("device_class", "timestamp")
+                put("entity_category", "diagnostic")
+                put("icon", "mdi:alarm")
+            })
+        }, "register next alarm", log)
+        return batteryOk && chargingOk && geocodedOk && nextAlarmOk
     }
 
     private suspend fun post(
@@ -358,6 +387,28 @@ class DeviceTelemetryReporter(
         val status = batteryIntent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
         return status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
     }
+
+    /**
+     * The next alarm the device has scheduled, and the app that set it.
+     *
+     * Android exposes exactly one alarm — the next one due, across every app on the device —
+     * through [AlarmManager.getNextAlarmClock]. There is no API to list alarms or to change them,
+     * which is why this is a single instant rather than a schedule, and why the official companion
+     * app's sensor is shaped the same way. Needs no permission.
+     */
+    private fun nextAlarm(): NextAlarm? {
+        val info = runCatching {
+            (context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager)?.nextAlarmClock
+        }.getOrNull() ?: return null
+        return NextAlarm(
+            // device_class "timestamp" requires ISO-8601 with an offset; Instant renders UTC with a
+            // trailing Z, which HA parses and then displays in the user's own timezone.
+            timestamp = Instant.ofEpochMilli(info.triggerTime).toString(),
+            packageName = runCatching { info.showIntent?.creatorPackage }.getOrNull()
+        )
+    }
+
+    private data class NextAlarm(val timestamp: String, val packageName: String?)
 
     /**
      * Reverse-geocodes with the official app's geocode-sensor gates. On API 33+ the Geocoder hits
@@ -513,6 +564,8 @@ class DeviceTelemetryReporter(
         private val pushChannelEnsured = ConcurrentHashMap.newKeySet<String>()
         /** Bumped whenever the set of sensors registered below changes, so a device that already
          *  registered the previous set registers the difference once rather than never. */
-        private const val SENSOR_SET_REVISION = 2
+        // Bumped to 3 in 1.1.1, which added the Next Alarm sensor: devices already registered on
+        // revision 2 have to re-register or the new entity would never be created for them.
+        private const val SENSOR_SET_REVISION = 3
     }
 }

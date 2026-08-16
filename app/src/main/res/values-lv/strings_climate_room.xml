@@ -17,4 +17,15 @@
         <item>Sūtījumu izsekošana aptver vēl piecpadsmit pārvadātājus, tostarp PostNord, InPost, Swiss Post, An Post, Budbee, Sameday un Nova Post, katram ir savs logotips.</item>
         <item>Valetudo robotu putekļsūcējs automātiski paņem savu reāllaika karti, kad tiek importētas jūsu telpas, nevis ar roku izvēlēta kamera.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_1">
+        <item>Jauns pulksteņa logrīks. Analogs vai digitāls, ar septiņiem sejas dizainiem katrā — klasiskais, minimālais, romiešu, dzelzceļa, Bauhaus, neons un skelets analogam; Plain, Segment, Monospace, Flip, Outline, Stacked un Dots ciparu formātā — plus 12 vai 24 stundu laiks, izvēles sekundes un jūsu izvēles diena, datums un gads zem tā. Pieskaroties tam, tiek parādīts nākamais modinātājs.</item>
+        <item>Home Assistant pašas lapas tiek atvērtas iekšā HKI 7. Jaunā Home Assistant sadaļa sadaļā Iestatījumi novirzīs jūs tieši uz servera iestatījumiem, izstrādātāja rīkiem un HACS, kas jau ir pierakstījies, neizejot no lietotnes.</item>
+        <item>HKI 7 tagad informē, kad tiek izlaista jauna versija. Tas skatās GitHub izlaidumus reizi dienā un paziņo jums, kas ir vissvarīgākais, ja APK instalējāt pats, nevis no Play — Atjauninājums tagad novirza jūs uz Play vai laidiena lapu atkarībā no tā, no kurienes šī kopija ir iegūta. To var izslēgt sadaļā Iestatījumi › Par.</item>
+        <item>Nākamā trauksmes sensors pievienojas tiem, par kuriem lietotne jau ziņo Home Assistant, kas atbilst oficiālajai pavadošajai lietotnei. Android parāda tikai nākamo trauksmi, nevis visu sarakstu, tāpēc sensors to nodrošina kopā ar to, kura lietotne to iestatīja.</item>
+        <item>Vēja kārts tagad ir kārtīgs kompass. Graduēta ciparnīca ar iezīmētu gredzenu, astoņu punktu rozi un divu toņu adatu, kas atrodas agrākā vienkāršā apļa un līnijas vietā.</item>
+        <item>Multivides atskaņotāji saka, kas tiek atskaņots, nevis tikai to, kura lietotne ir atvērta. Android TV, kas straumē seriālu, tagad parāda programmu, sezonu un sēriju, kā arī sērijas nosaukumu ar lietotnes nosaukumu zem tā; TV tiešraidē rāda kanālu.</item>
+        <item>Izlabots aizmugures žests, atstājot jūs telpu pārskatā. Atverot telpu, pārslēdzoties uz citu cilni un nospiežot atpakaļ, tagad tiek atgriezta telpa, kurā bijāt faktiski, nevis telpu saraksts.</item>
+        <item>Fiksēti temperatūras un enerģijas rādījumi čehu, slovāku, grieķu, norvēģu, zviedru un dāņu valodā. Mašīntulkošana bija sabojājusi aiz tiem esošo skaitļu formatējumu, kas ziemeļvalstu valodās uzrādīja nepareizu decimāldaļu skaitu un var izraisīt ekrāna avāriju pārējās trīs valodās.</item>
+        <item>Katrai valodai tagad ir viens fails, ko ikviens var labot. Repozitorijā esošajā tulkojumu mapē ir viens izklājlapām piemērots fails katrā valodā, turklāt angļu valoda līdzās tulkojumam, tāpēc dzimtā valoda var labot to, kas lasāms nepareizi, nepieskaroties nevienam kodam.</item>
+    </string-array>
 </resources>

@@ -626,6 +626,15 @@ cr_quick_media_player,,Media player,,needs translation
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.",,needs translation
 cr_quick_make_it_yours,,Make it yours,,needs translation
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.",,needs translation
+cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, with seven face designs each — Classic, Minimal, Roman, Railway, Bauhaus, Neon and Skeleton for analog; Plain, Segment, Monospace, Flip, Outline, Stacked and Dots for digital — plus 12 or 24-hour time, optional seconds, and your choice of day, date and year underneath. Tapping it shows your next alarm.",,needs translation
+cr_whats_new_1_1_1,2,"Home Assistant's own pages open inside HKI 7. A new Home Assistant section in Settings takes you straight to your server's Settings, Developer tools and HACS, already signed in, without leaving the app.",,"needs translation; don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_1,3,"HKI 7 now tells you when a new version is released. It watches the GitHub releases once a day and notifies you, which matters most if you installed the APK yourself rather than from Play — Update now sends you to Play or to the release page depending on where this copy came from. It can be turned off in Settings › About.",,needs translation; don't translate HKI 7
+cr_whats_new_1_1_1,4,"A Next Alarm sensor joins the ones the app already reports to Home Assistant, matching the official companion app. Android only exposes the next alarm rather than the whole list, so that is what the sensor carries, along with which app set it.",,needs translation; don't translate Home Assistant
+cr_whats_new_1_1_1,5,"The wind card is now a proper compass. A graduated dial with a marked ring, an eight-point rose and a two-tone needle, in place of the plain circle and line it had before.",,needs translation
+cr_whats_new_1_1_1,6,"Media players say what is playing, not just which app is open. An Android TV streaming a series now shows the programme, the season and episode, and the episode title, with the app named underneath; live TV shows the channel.",,needs translation
+cr_whats_new_1_1_1,7,"Fixed the back gesture leaving you on the Rooms overview. Opening a room, switching to another tab and pressing back now returns to the room you were actually in, rather than to the list of rooms.",,needs translation
+cr_whats_new_1_1_1,8,"Fixed temperature and energy readings in Czech, Slovak, Greek, Norwegian, Swedish and Danish. Machine translation had damaged the number formatting behind them, which showed the wrong number of decimals in the Nordic languages and could crash the screen in the other three.",,needs translation
+cr_whats_new_1_1_1,9,"Every language now has a single file anyone can correct. The translations folder in the repository holds one spreadsheet-friendly file per language, English beside the translation, so a native speaker can fix what reads wrong without touching any code.",,needs translation
 cr_whats_new_1_1_0,1,"Eighteen more languages, taking HKI 7 to 36. Polish, Russian, Czech, Slovak, Hungarian, Romanian, Bulgarian, Croatian, Greek, Lithuanian, Latvian, Estonian, Danish, Thai and Hebrew join the list, along with Austrian German, Swiss German and Mexican Spanish. Hebrew lays the interface out right to left, as Arabic does.",,needs translation; don't translate HKI 7
 cr_whats_new_1_1_0,2,"HKI 7 now runs on Android 12 and later. It previously needed Android 14, which ruled out a lot of perfectly capable phones and tablets.",,needs translation; don't translate HKI 7
 cr_whats_new_1_1_0,3,"Energy costs are shown in your own currency instead of always in euros. HKI 7 follows what your cost sensors report, and there is a Currency setting in Energy settings if you would rather choose one yourself.",,needs translation; don't translate HKI 7
@@ -3148,6 +3157,27 @@ parental_search_picker_subtitle,,Select entire domains or individual entities,,n
 parental_search_domains,,Domains,,needs translation
 parental_search_entire_domain,,Entire domain,,needs translation
 parental_search_domain_chip,,Domain: %1$s,,needs translation; app fills in %1$s — keep them
+ha_page_category,,Home Assistant,,needs translation; don't translate Home Assistant
+ha_page_category_subtitle,,Open your server's own pages without leaving HKI 7,,needs translation; don't translate HKI 7
+ha_page_settings,,Home Assistant settings,,needs translation; don't translate Home Assistant
+ha_page_settings_subtitle,,"Integrations, devices, areas and automations",,needs translation
+ha_page_dev_tools,,Developer tools,,needs translation
+ha_page_dev_tools_subtitle,,"States, services, templates and events",,needs translation
+ha_page_hacs,,HACS,,needs translation
+ha_page_hacs_subtitle,,Community integrations and frontend add-ons,,needs translation
+ha_page_no_server,,Connect to a Home Assistant server first.,,needs translation; don't translate Home Assistant
+update_channel_name,,App updates,,needs translation
+update_channel_description,,Tells you when a newer version of HKI 7 has been released,,needs translation; don't translate HKI 7
+update_available_title,,HKI 7 %1$s is available,,needs translation; app fills in %1$s — keep them; don't translate HKI 7
+update_available_body,,Tap to see what changed and update,,needs translation
+update_title,,App updates,,needs translation
+update_subtitle_checking,,Checking for a newer version…,,needs translation
+update_subtitle_current,,You are on the latest version,,needs translation
+update_subtitle_available,,Version %1$s is available,,needs translation; app fills in %1$s — keep them
+update_check_now,,Check for updates,,needs translation
+update_now,,Update now,,needs translation
+update_watch_releases,,Tell me about new releases,,needs translation
+update_watch_releases_subtitle,,Checks GitHub once a day and notifies you when a newer version is published,,needs translation
 uif_a_state,,a state,,needs translation
 uif_a_time,,a time,,needs translation
 uif_actions,,Actions,,needs translation
@@ -3732,3 +3762,39 @@ widgets_energy_ha_forecast,,Home Assistant forecast,,needs translation; don't tr
 widgets_battery_search,,Search devices,,needs translation
 widgets_battery_none,,No batteries match that search.,,needs translation
 widgets_battery_open_page,,Open battery page,,needs translation
+cr_widget_clock,,Clock,,needs translation
+cr_widget_clock_description,,"An analog or digital clock, in the style you pick, with the date and your next alarm.",,needs translation
+clock_widget_title,,Clock,,needs translation
+clock_widget_subtitle,,"Face, styling and what it shows",,needs translation
+clock_title_label,,Title (optional),,needs translation
+clock_face_section,,Face,,needs translation
+clock_face_section_subtitle,,"Analog or digital, and which design",,needs translation
+clock_shows_section,,Shows,,needs translation
+clock_shows_section_subtitle,,Choose what appears alongside the time,,needs translation
+clock_mode_analog,,Analog,,needs translation
+clock_mode_digital,,Digital,,needs translation
+clock_style,,Style,,needs translation
+clock_24_hour,,24-hour clock,,needs translation
+clock_seconds,,Seconds,,needs translation
+clock_date,,Date,,needs translation
+clock_day_name,,Day of the week,,needs translation
+clock_year,,Year,,needs translation
+clock_style_classic,,Classic,,needs translation
+clock_style_minimal,,Minimal,,needs translation
+clock_style_roman,,Roman,,needs translation
+clock_style_railway,,Railway,,needs translation
+clock_style_bauhaus,,Bauhaus,,needs translation
+clock_style_neon,,Neon,,needs translation
+clock_style_skeleton,,Skeleton,,needs translation
+clock_style_plain,,Plain,,needs translation
+clock_style_segment,,Segment,,needs translation
+clock_style_mono,,Monospace,,needs translation
+clock_style_flip,,Flip,,needs translation
+clock_style_outline,,Outline,,needs translation
+clock_style_stacked,,Stacked,,needs translation
+clock_style_dots,,Dots,,needs translation
+clock_alarms_title,,Next alarm,,needs translation
+clock_no_alarm,,No alarm is set.,,needs translation
+clock_alarm_set_by,,Set by %1$s,,needs translation; app fills in %1$s — keep them
+clock_alarms_platform_note,,"Android only tells other apps about the next alarm, so alarms cannot be listed or switched on and off from here.",,needs translation
+clock_open_clock_app,,Open Clock app,,needs translation

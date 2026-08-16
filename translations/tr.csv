@@ -626,6 +626,15 @@ cr_quick_media_player,,Media player,Medya oynatıcı,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.",Tutamak göründüğünde oynatıcıyı geri getirmek için alt çubuğu yukarı kaydır.,
 cr_quick_make_it_yours,,Make it yours,Kendine göre düzenle,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","Düzenleme modunda odaları, katları ve widget’ları ekleyip sırala. Yapılandırmak için bir öğeye dokun.",
+cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, with seven face designs each — Classic, Minimal, Roman, Railway, Bauhaus, Neon and Skeleton for analog; Plain, Segment, Monospace, Flip, Outline, Stacked and Dots for digital — plus 12 or 24-hour time, optional seconds, and your choice of day, date and year underneath. Tapping it shows your next alarm.","Yeni Saat widget'ı. Her biri yedi yüz tasarımına sahip analog veya dijital - Analog için Klasik, Minimal, Roman, Demiryolu, Bauhaus, Neon ve Skeleton; Dijital için Düz, Segment, Monospace, Çevirme, Anahat, Yığılmış ve Noktalar — artı 12 veya 24 saatlik zaman, isteğe bağlı saniye ve altında seçtiğiniz gün, tarih ve yıl. Buna dokunduğunuzda bir sonraki alarmınız gösterilir.",
+cr_whats_new_1_1_1,2,"Home Assistant's own pages open inside HKI 7. A new Home Assistant section in Settings takes you straight to your server's Settings, Developer tools and HACS, already signed in, without leaving the app.","Home Assistant'nin kendi sayfaları HKI 7 içinde açılır. Ayarlar'daki yeni Home Assistant bölümü, uygulamadan çıkmadan sizi doğrudan sunucunuzun Ayarlar'ına, Geliştirici araçlarına ve zaten oturum açmış olan HACS'ye götürür.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_1,3,"HKI 7 now tells you when a new version is released. It watches the GitHub releases once a day and notifies you, which matters most if you installed the APK yourself rather than from Play — Update now sends you to Play or to the release page depending on where this copy came from. It can be turned off in Settings › About.","HKI 7 artık yeni bir sürümün ne zaman yayınlanacağını size bildiriyor. GitHub sürümlerini günde bir kez izler ve sizi bilgilendirir; bu, APK'yı Play'den ziyade kendiniz yüklediyseniz en önemli şeydir - Güncelleme artık bu kopyanın nereden geldiğine bağlı olarak sizi Play'e veya sürüm sayfasına gönderiyor. Ayarlar › Hakkında bölümünden kapatılabilir.",don't translate HKI 7
+cr_whats_new_1_1_1,4,"A Next Alarm sensor joins the ones the app already reports to Home Assistant, matching the official companion app. Android only exposes the next alarm rather than the whole list, so that is what the sensor carries, along with which app set it.","Bir Sonraki Alarm sensörü, uygulamanın halihazırda Home Assistant'ye rapor ettiği sensörlere katılarak resmi yardımcı uygulamayla eşleşir. Android, tüm liste yerine yalnızca bir sonraki alarmı gösterir; dolayısıyla sensörün taşıdığı ve uygulamanın ayarladığı alarm budur.",don't translate Home Assistant
+cr_whats_new_1_1_1,5,"The wind card is now a proper compass. A graduated dial with a marked ring, an eight-point rose and a two-tone needle, in place of the plain circle and line it had before.","Rüzgar kartı artık tam bir pusula. Daha önce sahip olduğu düz daire ve çizginin yerine, işaretli bir halka, sekiz noktalı bir gül ve iki tonlu bir iğne ile derecelendirilmiş bir kadran.",
+cr_whats_new_1_1_1,6,"Media players say what is playing, not just which app is open. An Android TV streaming a series now shows the programme, the season and episode, and the episode title, with the app named underneath; live TV shows the channel.","Medya oynatıcılar yalnızca hangi uygulamanın açık olduğunu değil, neyin oynatıldığını da söyler. Bir diziyi yayınlayan bir Android TV artık programı, sezonu, bölümü ve bölüm başlığını altında adı verilen uygulamayla birlikte gösteriyor; canlı TV kanalı gösterir.",
+cr_whats_new_1_1_1,7,"Fixed the back gesture leaving you on the Rooms overview. Opening a room, switching to another tab and pressing back now returns to the room you were actually in, rather than to the list of rooms.","Geriye gitme hareketinin sizi Odalar genel görünümünde bırakması düzeltildi. Bir odayı açmak, başka bir sekmeye geçmek ve geri tuşuna basmak artık oda listesi yerine gerçekte bulunduğunuz odaya geri dönüyor.",
+cr_whats_new_1_1_1,8,"Fixed temperature and energy readings in Czech, Slovak, Greek, Norwegian, Swedish and Danish. Machine translation had damaged the number formatting behind them, which showed the wrong number of decimals in the Nordic languages and could crash the screen in the other three.","Çekçe, Slovakça, Yunanca, Norveççe, İsveççe ve Danca dillerinde sabit sıcaklık ve enerji okumaları. Makine çevirisi, arkalarındaki sayı biçimlendirmesine zarar vermişti; bu da Kuzey dillerinde yanlış sayıda ondalık sayı gösteriyordu ve diğer üçünde ekranın çökmesine neden olabilirdi.",
+cr_whats_new_1_1_1,9,"Every language now has a single file anyone can correct. The translations folder in the repository holds one spreadsheet-friendly file per language, English beside the translation, so a native speaker can fix what reads wrong without touching any code.",Artık her dilde herkesin düzeltebileceği tek bir dosya var. Depodaki çeviriler klasöründe her dil için e-tablo dostu bir dosya bulunur; çevirinin yanında İngilizce de bulunur; böylece anadili İngilizce olan biri herhangi bir koda dokunmadan yanlış okunanları düzeltebilir.,
 cr_whats_new_1_1_0,1,"Eighteen more languages, taking HKI 7 to 36. Polish, Russian, Czech, Slovak, Hungarian, Romanian, Bulgarian, Croatian, Greek, Lithuanian, Latvian, Estonian, Danish, Thai and Hebrew join the list, along with Austrian German, Swiss German and Mexican Spanish. Hebrew lays the interface out right to left, as Arabic does.","HKI 7 ile 36'ya çıkan on sekiz dil daha. Lehçe, Rusça, Çekçe, Slovakça, Macarca, Romence, Bulgarca, Hırvatça, Yunanca, Litvanca, Letonca, Estonca, Danca, Tayca ve İbranice'nin yanı sıra Avusturya Almancası, İsviçre Almancası ve Meksika İspanyolcası da listeye katılıyor. İbranice, Arapça'nın yaptığı gibi arayüzü sağdan sola doğru yerleştirir.",don't translate HKI 7
 cr_whats_new_1_1_0,2,"HKI 7 now runs on Android 12 and later. It previously needed Android 14, which ruled out a lot of perfectly capable phones and tablets.",HKI 7 artık Android 12 ve sonraki sürümlerde çalışıyor. Daha önce Android 14'e ihtiyaç duyuluyordu ve bu da pek çok mükemmel yetenekli telefonu ve tableti devre dışı bırakıyordu.,don't translate HKI 7
 cr_whats_new_1_1_0,3,"Energy costs are shown in your own currency instead of always in euros. HKI 7 follows what your cost sensors report, and there is a Currency setting in Energy settings if you would rather choose one yourself.",Enerji maliyetleri her zaman Euro yerine kendi para biriminizde gösterilir. HKI 7 maliyet sensörlerinizin raporlarını takip eder ve kendiniz seçmeyi tercih ederseniz Enerji ayarlarında bir Para Birimi ayarı bulunur.,don't translate HKI 7
@@ -3148,6 +3157,27 @@ parental_search_picker_subtitle,,Select entire domains or individual entities,T�
 parental_search_domains,,Domains,Alanlar,
 parental_search_entire_domain,,Entire domain,Tüm alan,
 parental_search_domain_chip,,Domain: %1$s,Alan: %1$s,app fills in %1$s — keep them
+ha_page_category,,Home Assistant,Ev Asistanı,don't translate Home Assistant
+ha_page_category_subtitle,,Open your server's own pages without leaving HKI 7,HKI 7'den ayrılmadan sunucunuzun kendi sayfalarını açın,don't translate HKI 7
+ha_page_settings,,Home Assistant settings,Home Assistant ayarlar,don't translate Home Assistant
+ha_page_settings_subtitle,,"Integrations, devices, areas and automations","Entegrasyonlar, cihazlar, alanlar ve otomasyonlar",
+ha_page_dev_tools,,Developer tools,Geliştirici araçları,
+ha_page_dev_tools_subtitle,,"States, services, templates and events","Durumlar, hizmetler, şablonlar ve olaylar",
+ha_page_hacs,,HACS,HACS,
+ha_page_hacs_subtitle,,Community integrations and frontend add-ons,Topluluk entegrasyonları ve ön uç eklentileri,
+ha_page_no_server,,Connect to a Home Assistant server first.,Önce bir Home Assistant sunucusuna bağlanın.,don't translate Home Assistant
+update_channel_name,,App updates,Uygulama güncellemeleri,
+update_channel_description,,Tells you when a newer version of HKI 7 has been released,HKI 7'nin daha yeni bir sürümünün ne zaman yayınlandığını size bildirir,don't translate HKI 7
+update_available_title,,HKI 7 %1$s is available,HKI 7 %1$s mevcut,app fills in %1$s — keep them; don't translate HKI 7
+update_available_body,,Tap to see what changed and update,Nelerin değiştiğini görmek ve güncellemek için dokunun,
+update_title,,App updates,Uygulama güncellemeleri,
+update_subtitle_checking,,Checking for a newer version…,Daha yeni bir sürüm kontrol ediliyor…,
+update_subtitle_current,,You are on the latest version,En son sürümdesiniz,
+update_subtitle_available,,Version %1$s is available,%1$s sürümü mevcut,app fills in %1$s — keep them
+update_check_now,,Check for updates,Güncellemeleri kontrol edin,
+update_now,,Update now,Şimdi güncelle,
+update_watch_releases,,Tell me about new releases,Bana yeni çıkanlardan bahset,
+update_watch_releases_subtitle,,Checks GitHub once a day and notifies you when a newer version is published,GitHub'ı günde bir kez kontrol eder ve daha yeni bir sürüm yayınlandığında sizi bilgilendirir,
 uif_a_state,,a state,bir durum,
 uif_a_time,,a time,bir saat,
 uif_actions,,Actions,Eylemler,
@@ -3732,3 +3762,39 @@ widgets_energy_ha_forecast,,Home Assistant forecast,Home Assistant tahmini,don't
 widgets_battery_search,,Search devices,Cihazları arayın,
 widgets_battery_none,,No batteries match that search.,Bu aramayla eşleşen pil yok.,
 widgets_battery_open_page,,Open battery page,Pil sayfasını aç,
+cr_widget_clock,,Clock,Saat,
+cr_widget_clock_description,,"An analog or digital clock, in the style you pick, with the date and your next alarm.","Tarih ve bir sonraki alarmınızın yer aldığı, seçtiğiniz tarzda bir analog veya dijital saat.",
+clock_widget_title,,Clock,Saat,
+clock_widget_subtitle,,"Face, styling and what it shows","Yüz, stil ve gösterdiği şey",
+clock_title_label,,Title (optional),Başlık (isteğe bağlı),
+clock_face_section,,Face,Yüz,
+clock_face_section_subtitle,,"Analog or digital, and which design",Analog mu dijital mi ve hangi tasarım,
+clock_shows_section,,Shows,Gösteriler,
+clock_shows_section_subtitle,,Choose what appears alongside the time,Zamanın yanında neyin görüneceğini seçin,
+clock_mode_analog,,Analog,Analog,
+clock_mode_digital,,Digital,Dijital,
+clock_style,,Style,Stil,
+clock_24_hour,,24-hour clock,24 saatlik format,
+clock_seconds,,Seconds,Saniye,
+clock_date,,Date,Tarih,
+clock_day_name,,Day of the week,Haftanın günü,
+clock_year,,Year,Yıl,
+clock_style_classic,,Classic,Klasik,
+clock_style_minimal,,Minimal,Asgari,
+clock_style_roman,,Roman,Roma,
+clock_style_railway,,Railway,Demiryolu,
+clock_style_bauhaus,,Bauhaus,Bauhaus,
+clock_style_neon,,Neon,Neon,
+clock_style_skeleton,,Skeleton,İskelet,
+clock_style_plain,,Plain,Ova,
+clock_style_segment,,Segment,Segment,
+clock_style_mono,,Monospace,Eş aralıklı,
+clock_style_flip,,Flip,Çevir,
+clock_style_outline,,Outline,Taslak,
+clock_style_stacked,,Stacked,Yığılmış,
+clock_style_dots,,Dots,Noktalar,
+clock_alarms_title,,Next alarm,Sonraki alarm,
+clock_no_alarm,,No alarm is set.,Hiçbir alarm ayarlanmadı.,
+clock_alarm_set_by,,Set by %1$s,%1$s tarafından belirlendi,app fills in %1$s — keep them
+clock_alarms_platform_note,,"Android only tells other apps about the next alarm, so alarms cannot be listed or switched on and off from here.","Android yalnızca diğer uygulamalara bir sonraki alarm hakkında bilgi verir, dolayısıyla alarmlar buradan listelenemez veya açılıp kapatılamaz.",
+clock_open_clock_app,,Open Clock app,Saat uygulamasını aç,

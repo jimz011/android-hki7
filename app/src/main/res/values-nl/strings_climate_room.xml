@@ -569,4 +569,15 @@
         <item>Camera’s respecteren de vergrendelde schermstand weer.</item>
         <item>Zoomen in cameravensters en camera’s op volledig scherm werkt weer.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_1">
+        <item>Nieuwe klokwidget. Analoog of digitaal, met elk zeven gezichtsontwerpen: Klassiek, Minimal, Roman, Railway, Bauhaus, Neon en Skeleton voor analoog; Gewoon, Segment, Monospace, Flip, Outline, Stacked en Dots voor digitaal – plus 12- of 24-uurs tijd, optionele seconden en uw keuze van dag, datum en jaar daaronder. Als u erop tikt, wordt uw volgende alarm weergegeven.</item>
+        <item>De eigen pagina\'s van Home Assistant worden geopend in HKI 7. Een nieuwe sectie Home Assistant in Instellingen brengt u rechtstreeks naar de instellingen van uw server, ontwikkelaarstools en HACS, waar u al bent ingelogd, zonder de app te verlaten.</item>
+        <item>HKI 7 vertelt je nu wanneer er een nieuwe versie is uitgebracht. Het bekijkt de GitHub-releases één keer per dag en geeft je een melding, wat het belangrijkst is als je de APK zelf hebt geïnstalleerd in plaats van vanuit Play. Update stuurt je nu naar Play of naar de releasepagina, afhankelijk van waar deze kopie vandaan komt. It can be turned off in Settings › About.</item>
+        <item>Een Next Alarm-sensor voegt zich bij de sensoren die de app al rapporteert aan Home Assistant, passend bij de officiële begeleidende app. Android geeft alleen het volgende alarm weer in plaats van de hele lijst, dus dat is wat de sensor draagt, samen met welke app deze heeft ingesteld.</item>
+        <item>De windkaart is nu een echt kompas. Een wijzerplaat met schaalverdeling, een gemarkeerde ring, een achtpuntige roos en een tweekleurige naald, in plaats van de gewone cirkel en lijn die hij voorheen had.</item>
+        <item>Mediaspelers zeggen wat er wordt afgespeeld, niet alleen welke app geopend is. Een Android TV die een serie streamt, toont nu het programma, het seizoen en de aflevering, en de titel van de aflevering, met de app eronder genoemd; live tv toont het kanaal.</item>
+        <item>Het teruggebaar waardoor je in het kamersoverzicht terechtkwam, is opgelost. Als u een kamer opent, naar een ander tabblad gaat en op Terug drukt, keert u nu terug naar de kamer waar u zich daadwerkelijk bevond, in plaats van naar de lijst met kamers.</item>
+        <item>Vaste temperatuur- en energiemetingen in het Tsjechisch, Slowaaks, Grieks, Noors, Zweeds en Deens. Machinevertaling had de getalnotatie daarachter beschadigd, waardoor in de Scandinavische talen het verkeerde aantal decimalen werd weergegeven en het scherm in de andere drie talen kon crashen.</item>
+        <item>Elke taal heeft nu één bestand dat iedereen kan corrigeren. De map vertalingen in de repository bevat één spreadsheetvriendelijk bestand per taal, Engels naast de vertaling, zodat een moedertaalspreker kan corrigeren wat er verkeerd leest zonder enige code aan te raken.</item>
+    </string-array>
 </resources>

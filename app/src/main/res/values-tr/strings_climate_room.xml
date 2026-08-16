@@ -568,4 +568,15 @@
         <item>Kameraların ekran yönü kilidini yok sayması düzeltildi.</item>
         <item>Kamera pencerelerinde ve tam ekran kameralarda yakınlaştırma düzeltildi.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_1">
+        <item>Yeni Saat widget\'ı. Her biri yedi yüz tasarımına sahip analog veya dijital - Analog için Klasik, Minimal, Roman, Demiryolu, Bauhaus, Neon ve Skeleton; Dijital için Düz, Segment, Monospace, Çevirme, Anahat, Yığılmış ve Noktalar — artı 12 veya 24 saatlik zaman, isteğe bağlı saniye ve altında seçtiğiniz gün, tarih ve yıl. Buna dokunduğunuzda bir sonraki alarmınız gösterilir.</item>
+        <item>Home Assistant\'nin kendi sayfaları HKI 7 içinde açılır. Ayarlar\'daki yeni Home Assistant bölümü, uygulamadan çıkmadan sizi doğrudan sunucunuzun Ayarlar\'ına, Geliştirici araçlarına ve zaten oturum açmış olan HACS\'ye götürür.</item>
+        <item>HKI 7 artık yeni bir sürümün ne zaman yayınlanacağını size bildiriyor. GitHub sürümlerini günde bir kez izler ve sizi bilgilendirir; bu, APK\'yı Play\'den ziyade kendiniz yüklediyseniz en önemli şeydir - Güncelleme artık bu kopyanın nereden geldiğine bağlı olarak sizi Play\'e veya sürüm sayfasına gönderiyor. Ayarlar › Hakkında bölümünden kapatılabilir.</item>
+        <item>Bir Sonraki Alarm sensörü, uygulamanın halihazırda Home Assistant\'ye rapor ettiği sensörlere katılarak resmi yardımcı uygulamayla eşleşir. Android, tüm liste yerine yalnızca bir sonraki alarmı gösterir; dolayısıyla sensörün taşıdığı ve uygulamanın ayarladığı alarm budur.</item>
+        <item>Rüzgar kartı artık tam bir pusula. Daha önce sahip olduğu düz daire ve çizginin yerine, işaretli bir halka, sekiz noktalı bir gül ve iki tonlu bir iğne ile derecelendirilmiş bir kadran.</item>
+        <item>Medya oynatıcılar yalnızca hangi uygulamanın açık olduğunu değil, neyin oynatıldığını da söyler. Bir diziyi yayınlayan bir Android TV artık programı, sezonu, bölümü ve bölüm başlığını altında adı verilen uygulamayla birlikte gösteriyor; canlı TV kanalı gösterir.</item>
+        <item>Geriye gitme hareketinin sizi Odalar genel görünümünde bırakması düzeltildi. Bir odayı açmak, başka bir sekmeye geçmek ve geri tuşuna basmak artık oda listesi yerine gerçekte bulunduğunuz odaya geri dönüyor.</item>
+        <item>Çekçe, Slovakça, Yunanca, Norveççe, İsveççe ve Danca dillerinde sabit sıcaklık ve enerji okumaları. Makine çevirisi, arkalarındaki sayı biçimlendirmesine zarar vermişti; bu da Kuzey dillerinde yanlış sayıda ondalık sayı gösteriyordu ve diğer üçünde ekranın çökmesine neden olabilirdi.</item>
+        <item>Artık her dilde herkesin düzeltebileceği tek bir dosya var. Depodaki çeviriler klasöründe her dil için e-tablo dostu bir dosya bulunur; çevirinin yanında İngilizce de bulunur; böylece anadili İngilizce olan biri herhangi bir koda dokunmadan yanlış okunanları düzeltebilir.</item>
+    </string-array>
 </resources>

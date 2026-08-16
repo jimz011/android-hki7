@@ -53,6 +53,7 @@ import com.jimz011apps.hki7.ui.components.EditSettingsButton
 import com.jimz011apps.hki7.ui.components.WidgetWidthSelector
 import com.jimz011apps.hki7.ui.components.WidgetBackground
 import com.jimz011apps.hki7.ui.components.WidgetBackgroundSelector
+import com.jimz011apps.hki7.ui.components.mediaPlayerContentLine
 import com.jimz011apps.hki7.ui.components.mediaPlayerStatus
 import com.jimz011apps.hki7.ui.components.surfaceGradient
 import com.jimz011apps.hki7.ui.components.itemCornerShape
@@ -129,6 +130,15 @@ fun MediaPlayerWidgetItem(
                             fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Text(status, color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.labelSmall,
                             maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        // Which app it is coming from, but only once the line above is already
+                        // saying what is playing — otherwise `status` has fallen back to the app
+                        // name itself and this would print it twice.
+                        val app = entity?.appName?.takeIf { it.isNotBlank() }
+                        if (app != null && mediaPlayerContentLine(entity) != null) {
+                            Text(app, color = Color.White.copy(alpha = 0.5f),
+                                style = MaterialTheme.typography.labelSmall,
+                                maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        }
                     }
                 }
             }

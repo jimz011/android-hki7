@@ -626,6 +626,15 @@ cr_quick_media_player,,Media player,媒體播放器,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.",當把手出現時，於底部列向上滑動即可還原播放器。,
 cr_quick_make_it_yours,,Make it yours,打造專屬設定,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.",在編輯模式中，新增並重新排序房間、樓層與小工具。點按項目即可設定。,
+cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, with seven face designs each — Classic, Minimal, Roman, Railway, Bauhaus, Neon and Skeleton for analog; Plain, Segment, Monospace, Flip, Outline, Stacked and Dots for digital — plus 12 or 24-hour time, optional seconds, and your choice of day, date and year underneath. Tapping it shows your next alarm.",新的時鐘小工具。模擬或數字，各有七種表面設計——模擬的經典、簡約、羅馬、鐵路、包浩斯、霓虹燈和骷髏；數字格式為普通、分段、等寬、翻轉、輪廓、堆疊和點 - 加上 12 或 24 小時時間、可選秒數以及您在下方選擇的日、日期和年份。點擊它會顯示您的下一個鬧鐘。,
+cr_whats_new_1_1_1,2,"Home Assistant's own pages open inside HKI 7. A new Home Assistant section in Settings takes you straight to your server's Settings, Developer tools and HACS, already signed in, without leaving the app.",Home Assistant 自己的頁面在 HKI 7 內開啟。設定中的新 Home Assistant 部分可讓您直接進入已登入的伺服器設定、開發人員工具和 HACS，而無需離開應用程式。,"don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_1,3,"HKI 7 now tells you when a new version is released. It watches the GitHub releases once a day and notifies you, which matters most if you installed the APK yourself rather than from Play — Update now sends you to Play or to the release page depending on where this copy came from. It can be turned off in Settings › About.",HKI 7 現在會告訴您新版本何時發布。它每天查看一次 GitHub 版本並通知您，如果您自己安裝 APK 而不是從 Play 安裝 APK，這一點最為重要 — 更新現在會將您發送到 Play 或發布頁面，具體取決於此副本的來源。可以在“設定”>“關於”中關閉。,don't translate HKI 7
+cr_whats_new_1_1_1,4,"A Next Alarm sensor joins the ones the app already reports to Home Assistant, matching the official companion app. Android only exposes the next alarm rather than the whole list, so that is what the sensor carries, along with which app set it.",下一個警報感測器加入了應用程式已向 Home Assistant 報告的感測器，與官方配套應用程式相符。 Android 僅公開下一個警報，而不是整個列表，因此這就是感測器攜帶的內容以及設定它的應用程式。,don't translate Home Assistant
+cr_whats_new_1_1_1,5,"The wind card is now a proper compass. A graduated dial with a marked ring, an eight-point rose and a two-tone needle, in place of the plain circle and line it had before.",風卡現在是合適的指南針。刻度盤上有一個標記環、一個八點玫瑰和一個雙音針，取代了以前的普通圓圈和線條。,
+cr_whats_new_1_1_1,6,"Media players say what is playing, not just which app is open. An Android TV streaming a series now shows the programme, the season and episode, and the episode title, with the app named underneath; live TV shows the channel.",媒體播放器會顯示正在播放的內容，而不僅僅是開啟了哪個應用程式。串流播放劇集的 Android TV 現在會顯示節目、季節和劇集以及劇集標題，並在下方顯示應用程式名稱；電視直播該頻道。,
+cr_whats_new_1_1_1,7,"Fixed the back gesture leaving you on the Rooms overview. Opening a room, switching to another tab and pressing back now returns to the room you were actually in, rather than to the list of rooms.",修正了後退手勢讓您停留在房間概覽的問題。打開一個房間，切換到另一個選項卡並按返回，現在會返回您實際所在的房間，而不是房間列表。,
+cr_whats_new_1_1_1,8,"Fixed temperature and energy readings in Czech, Slovak, Greek, Norwegian, Swedish and Danish. Machine translation had damaged the number formatting behind them, which showed the wrong number of decimals in the Nordic languages and could crash the screen in the other three.",捷克語、斯洛伐克語、希臘語、挪威語、瑞典語和丹麥語的固定溫度和能量讀數。機器翻譯損壞了它們背後的數字格式，這導致北歐語言中的小數位數顯示錯誤，並可能導致其他三種語言的螢幕崩潰。,
+cr_whats_new_1_1_1,9,"Every language now has a single file anyone can correct. The translations folder in the repository holds one spreadsheet-friendly file per language, English beside the translation, so a native speaker can fix what reads wrong without touching any code.",現在每種語言都有一個任何人都可以更正的檔案。儲存庫中的翻譯資料夾為每種語言保存一個電子表格友善的文件，翻譯旁邊有英文，因此母語人士可以在不接觸任何程式碼的情況下修復錯誤的內容。,
 cr_whats_new_1_1_0,1,"Eighteen more languages, taking HKI 7 to 36. Polish, Russian, Czech, Slovak, Hungarian, Romanian, Bulgarian, Croatian, Greek, Lithuanian, Latvian, Estonian, Danish, Thai and Hebrew join the list, along with Austrian German, Swiss German and Mexican Spanish. Hebrew lays the interface out right to left, as Arabic does.",另外還有 18 種語言，從 HKI 7 增加到 36 種。波蘭語、俄語、捷克語、斯洛伐克語、匈牙利語、羅馬尼亞語、保加利亞語、克羅埃西亞語、希臘語、立陶宛語、拉脫維亞語、愛沙尼亞語、丹麥語、泰語和希伯來語以及奧地利德語、瑞士德語和墨西哥西班牙語也加入了這份名單。希伯來語將介面從右向左排列，就像阿拉伯語一樣。,don't translate HKI 7
 cr_whats_new_1_1_0,2,"HKI 7 now runs on Android 12 and later. It previously needed Android 14, which ruled out a lot of perfectly capable phones and tablets.",HKI 7 現在在 Android 12 及更高版本上運行。它之前需要 Android 14，這排除了許多完美功能的手機和平板電腦。,don't translate HKI 7
 cr_whats_new_1_1_0,3,"Energy costs are shown in your own currency instead of always in euros. HKI 7 follows what your cost sensors report, and there is a Currency setting in Energy settings if you would rather choose one yourself.",能源成本以您自己的貨幣顯示，而不是始終以歐元顯示。 HKI 7 遵循您的成本感測器報告的內容，如果您想自己選擇一個，則能源設定中有一個貨幣設定。,don't translate HKI 7
@@ -3148,6 +3157,27 @@ parental_search_picker_subtitle,,Select entire domains or individual entities,�
 parental_search_domains,,Domains,網域,
 parental_search_entire_domain,,Entire domain,整個網域,
 parental_search_domain_chip,,Domain: %1$s,網域：%1$s,app fills in %1$s — keep them
+ha_page_category,,Home Assistant,Home Assistant,don't translate Home Assistant
+ha_page_category_subtitle,,Open your server's own pages without leaving HKI 7,打開伺服器自己的頁面而不離開 HKI 7,don't translate HKI 7
+ha_page_settings,,Home Assistant settings,Home Assistant 設定,don't translate Home Assistant
+ha_page_settings_subtitle,,"Integrations, devices, areas and automations",整合、設備、領域和自動化,
+ha_page_dev_tools,,Developer tools,開發者工具,
+ha_page_dev_tools_subtitle,,"States, services, templates and events",狀態、服務、範本和事件,
+ha_page_hacs,,HACS,熱氣流控制系統,
+ha_page_hacs_subtitle,,Community integrations and frontend add-ons,社區整合和前端附加元件,
+ha_page_no_server,,Connect to a Home Assistant server first.,首先連接到 Home Assistant 伺服器。,don't translate Home Assistant
+update_channel_name,,App updates,應用程式更新,
+update_channel_description,,Tells you when a newer version of HKI 7 has been released,告訴您 HKI 7 的新版本何時發布,don't translate HKI 7
+update_available_title,,HKI 7 %1$s is available,HKI 7 %1$s 可用,app fills in %1$s — keep them; don't translate HKI 7
+update_available_body,,Tap to see what changed and update,點擊查看更改和更新內容,
+update_title,,App updates,應用程式更新,
+update_subtitle_checking,,Checking for a newer version…,正在檢查更新版本...,
+update_subtitle_current,,You are on the latest version,您使用的是最新版本,
+update_subtitle_available,,Version %1$s is available,版本 %1$s 可用,app fills in %1$s — keep them
+update_check_now,,Check for updates,檢查更新,
+update_now,,Update now,立即更新,
+update_watch_releases,,Tell me about new releases,告訴我有關新版本的信息,
+update_watch_releases_subtitle,,Checks GitHub once a day and notifies you when a newer version is published,每天檢查 GitHub 一次，並在發布新版本時通知您,
 uif_a_state,,a state,狀態,
 uif_a_time,,a time,時間,
 uif_actions,,Actions,動作,
@@ -3732,3 +3762,39 @@ widgets_energy_ha_forecast,,Home Assistant forecast,Home Assistant 預測,don't 
 widgets_battery_search,,Search devices,搜尋設備,
 widgets_battery_none,,No batteries match that search.,沒有與該搜尋相符的電池。,
 widgets_battery_open_page,,Open battery page,開啟電池頁面,
+cr_widget_clock,,Clock,鐘,
+cr_widget_clock_description,,"An analog or digital clock, in the style you pick, with the date and your next alarm.",您選擇的風格的類比或數位時鐘，帶有日期和下一個鬧鐘。,
+clock_widget_title,,Clock,鐘,
+clock_widget_subtitle,,"Face, styling and what it shows",臉孔、造型及其所展示的內容,
+clock_title_label,,Title (optional),標題（可選）,
+clock_face_section,,Face,臉,
+clock_face_section_subtitle,,"Analog or digital, and which design",類比還是數字，以及哪種設計,
+clock_shows_section,,Shows,演出,
+clock_shows_section_subtitle,,Choose what appears alongside the time,選擇與時間一起出現的內容,
+clock_mode_analog,,Analog,模擬,
+clock_mode_digital,,Digital,數位的,
+clock_style,,Style,風格,
+clock_24_hour,,24-hour clock,24小時制,
+clock_seconds,,Seconds,秒數,
+clock_date,,Date,日期,
+clock_day_name,,Day of the week,星期幾,
+clock_year,,Year,年,
+clock_style_classic,,Classic,經典的,
+clock_style_minimal,,Minimal,最小,
+clock_style_roman,,Roman,羅馬,
+clock_style_railway,,Railway,鐵路,
+clock_style_bauhaus,,Bauhaus,包浩斯,
+clock_style_neon,,Neon,氖,
+clock_style_skeleton,,Skeleton,骨骼,
+clock_style_plain,,Plain,清楚的,
+clock_style_segment,,Segment,部分,
+clock_style_mono,,Monospace,等寬字體,
+clock_style_flip,,Flip,翻動,
+clock_style_outline,,Outline,大綱,
+clock_style_stacked,,Stacked,堆疊式,
+clock_style_dots,,Dots,點,
+clock_alarms_title,,Next alarm,下一個鬧鐘,
+clock_no_alarm,,No alarm is set.,未設定鬧鐘。,
+clock_alarm_set_by,,Set by %1$s,由 %1$s 設定,app fills in %1$s — keep them
+clock_alarms_platform_note,,"Android only tells other apps about the next alarm, so alarms cannot be listed or switched on and off from here.",Android 僅告訴其他應用程式下一個鬧鐘，因此無法從此處列出或開啟和關閉鬧鐘。,
+clock_open_clock_app,,Open Clock app,打開時鐘應用程式,
