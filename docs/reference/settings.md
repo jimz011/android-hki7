@@ -109,8 +109,8 @@ The subtitle shows whether the dashboard is in **Automatic** or **Manual** mode.
 
 ### Family Sharing
 
-*Parental controls, dashboard sharing and permissions.* Needs the HKI 7 Cloud component, and is
-admin-only.
+*Parental controls, dashboard sharing and permissions.* Needs the
+[HKI 7 Cloud](https://github.com/jimz011/HKI7-Cloud-Component) component, and is admin-only.
 
 Tabs: **Dashboards**, **Parental controls**, **Permissions**, **Presence**, **Devices**,
 **Events**. Each says for itself if it needs a newer component than the one installed.

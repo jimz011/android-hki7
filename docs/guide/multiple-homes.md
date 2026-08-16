@@ -46,6 +46,7 @@ with a zone called `home` do not collide.
 
 ## Family sharing across homes
 
-Family sharing is per-server: the HKI 7 Cloud component stores the household's state on the Home
-Assistant it is installed on. Two homes with the component installed each have their own admins,
+Family sharing is per-server: the
+[HKI 7 Cloud](https://github.com/jimz011/HKI7-Cloud-Component) component stores the household's
+state on the Home Assistant it is installed on. Two homes with the component installed each have their own admins,
 their own shared dashboards, and their own parental controls.

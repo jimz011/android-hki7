@@ -20,6 +20,9 @@ A modern [Home Assistant](https://www.home-assistant.io/) client for Android, bu
 [FAQ](https://jimz011.github.io/android-hki7/faq/) and
 [troubleshooting](https://jimz011.github.io/android-hki7/troubleshooting/).
 
+**☁️ [HKI 7 Cloud Component](https://github.com/jimz011/HKI7-Cloud-Component)** — the optional Home
+Assistant integration behind family sharing, parental controls and presence.
+
 **💬 [Home Assistant Community thread](https://community.home-assistant.io/t/hki-7-a-highly-customizable-android-companion-download-from-the-play-store-today/1017467)**
 — questions, screenshots and feature requests.
 

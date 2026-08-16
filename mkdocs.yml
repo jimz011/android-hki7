@@ -95,6 +95,9 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/jimz011/android-hki7
       name: HKI 7 on GitHub
+    - icon: fontawesome/solid/cloud
+      link: https://github.com/jimz011/HKI7-Cloud-Component
+      name: HKI 7 Cloud Component on GitHub
     - icon: fontawesome/solid/envelope
       link: mailto:jimz011apps@gmail.com
       name: Email the developer

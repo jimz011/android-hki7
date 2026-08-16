@@ -65,8 +65,8 @@
 
 ??? question "Does family sharing send anything to the internet?"
 
-    No. The HKI 7 Cloud component stores everything on your own Home Assistant. "Cloud" is the
-    feature's name, not its architecture.
+    No. The [HKI 7 Cloud](https://github.com/jimz011/HKI7-Cloud-Component) component stores
+    everything on your own Home Assistant. "Cloud" is the feature's name, not its architecture.
 
 ## Setup
 

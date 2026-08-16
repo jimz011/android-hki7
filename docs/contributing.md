@@ -93,7 +93,8 @@ Every user-facing change goes in **two** places:
 2. The `cr_whats_new_*` string arrays — what the in-app "What's new" dialog shows. Keep them in
    sync with `ui/components/WhatsNewDialog.kt`.
 
-Items that require the HKI 7 Cloud component are marked with `\*` in the changelog.
+Items that require the [HKI 7 Cloud](https://github.com/jimz011/HKI7-Cloud-Component) component
+are marked with `\*` in the changelog.
 
 ## Documentation
 
