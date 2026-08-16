@@ -1,0 +1,65 @@
+name: Translations
+
+# Three things, in the order they are worth knowing about:
+#
+#   1. Every locale is complete and its placeholders match English (verify_translations.py).
+#   2. Every CSV under translations/ matches the resources it was generated from, so a
+#      contributor is never translating against English the app no longer ships.
+#   3. Every CSV imports cleanly — which is also a strict audit of the checked-in translations,
+#      catching format specifiers that machine translation mangled (%,1f, %.lf, %.1στ) and that
+#      verify_translations.py does not look at, because it only checks positional arguments.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - app/src/main/res/values*/**
+      - translations/**
+      - tools/localization/**
+      - .github/workflows/translations.yml
+  pull_request:
+    paths:
+      - app/src/main/res/values*/**
+      - translations/**
+      - tools/localization/**
+      - .github/workflows/translations.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: translations-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Every locale is complete
+        run: python tools/localization/verify_translations.py
+
+      - name: Exports are up to date
+        run: python tools/localization/export_translations.py --check
+
+      - name: Every export imports cleanly
+        run: |
+          status=0
+          for file in translations/*.csv; do
+            case "$(basename "$file")" in _*) continue ;; esac
+            if ! python tools/localization/import_translations.py "$file" --dry-run > /tmp/out 2>&1; then
+              echo "::group::$file"
+              cat /tmp/out
+              echo "::endgroup::"
+              echo "::error file=$file::translation file failed validation"
+              status=1
+            fi
+          done
+          exit $status

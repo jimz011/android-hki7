@@ -1279,7 +1279,7 @@
     <string name="event_verb_generic">άλλαξε σε %1$s</string>
     <string name="ui_0f_s_788ca6f" formatted="false">%.0f %s</string>
     <string name="ui_1_advanced_shorthand_block_kept_unchanged_d4dcbd7">1 σύνθετο μπλοκ στενογραφίας (διατηρήθηκε αμετάβλητο)</string>
-    <string name="ui_1f_16b5d7d">%.1στ</string>
+    <string name="ui_1f_16b5d7d">%.1f</string>
     <string name="ui_1f_b07a377" formatted="false">%.1f°</string>
     <string name="ui_1f_c_5b83308" formatted="false">%.1f °C</string>
     <string name="ui_1f_kwh_507c039" formatted="false">%.1f kWh</string>

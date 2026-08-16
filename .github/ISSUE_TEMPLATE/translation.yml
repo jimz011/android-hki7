@@ -1,0 +1,71 @@
+name: Translation correction
+description: Something reads wrong in your language, or you want to offer a new one
+title: "[i18n] "
+labels: ["translation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping. Most of HKI 7's languages were machine-translated to get them
+        started, so a native speaker spotting something clumsy is genuinely useful.
+
+        If you are comfortable with git, editing
+        [the CSV for your language](https://github.com/jimz011/android-hki7/tree/main/translations)
+        and opening a pull request is the fastest route — one file, one column to change. This
+        form is for everything else.
+
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      description: Which language, and the regional variant if it matters.
+      placeholder: Dutch, or Portuguese (Brazil)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is this about?
+      options:
+        - A few strings read wrong
+        - A whole screen or area reads wrong
+        - Text is cut off or overflows
+        - I want to add a new language
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: corrections
+    attributes:
+      label: What should it say?
+      description: |
+        The current wording and what it should be. If you have the `key` from the CSV, include
+        it — it removes all guesswork. Otherwise say where in the app you saw it.
+      placeholder: |
+        key: nav_rooms
+        currently: Rom
+        should be: Rommene — "Rom" is singular, this is the tab for all rooms
+
+        On the Energy screen, "Zelf verbruikt" should be "Eigen verbruik"
+      render: text
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Settings → About. Skip it if you are offering a new language.
+      placeholder: "1.1.0"
+
+  - type: checkboxes
+    id: acknowledgement
+    attributes:
+      label: Before you post
+      options:
+        - label: I have checked that an issue for this language isn't already open
+          required: false
+        - label: I am a fluent or native speaker of this language
+          required: false

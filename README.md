@@ -129,6 +129,16 @@ Release notes live in [CHANGELOG.md](CHANGELOG.md) and, for the in-app "What's n
 The full development setup, project layout and localization workflow are in the
 [contributing guide](https://jimz011.github.io/android-hki7/contributing/).
 
+### Translations
+
+Most of the thirty-six languages started out machine-translated, so they are complete without
+always being *right*. [`translations/`](translations/) has one CSV per language — every string in
+the app, English beside the translation — so a native speaker can read their whole language in one
+file and fix what reads wrong, without touching any Android code.
+
+**🌍 [How to translate](translations/README.md)** ·
+[report a wording problem](https://github.com/jimz011/android-hki7/issues/new?template=translation.yml)
+
 ## Documentation
 
 The docs site is [MkDocs](https://www.mkdocs.org/) with

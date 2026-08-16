@@ -1282,12 +1282,12 @@
     <string name="ui_1f_16b5d7d" formatted="false">%.1f</string>
     <string name="ui_1f_b07a377" formatted="false">%.1f°</string>
     <string name="ui_1f_c_5b83308" formatted="false">%.1f °C</string>
-    <string name="ui_1f_kwh_507c039">%,1f kWh</string>
+    <string name="ui_1f_kwh_507c039">%.1f kWh</string>
     <string name="ui_1f_kwh_self_used_b4798a5" formatted="false">· %%.1f kWh selvbrugt (%1$s%%%%)</string>
-    <string name="ui_1f_of_1f_kwh_d_00c25f6" formatted="false">%,1f af %,1f kWh · %d%%</string>
+    <string name="ui_1f_of_1f_kwh_d_00c25f6" formatted="false">%.1f af %.1f kWh · %d%%</string>
     <string name="ui_1f_s_0cafc63" formatted="false">%.1f %s</string>
     <string name="ui_24_hour_format_b195a8f">24-timers format</string>
-    <string name="ui_2f_kwh_76c1688">%,2f kWh</string>
+    <string name="ui_2f_kwh_76c1688">%.2f kWh</string>
     <string name="ui_a_fast_auto_generating_dashboard_for_home_assistant_let_0fad4a9">Et hurtigt, autogenererende dashboard til Home Assistant\nLad os oprette forbindelse til din server.</string>
     <string name="ui_a_modern_touch_first_android_dashboard_and_companion_for_814cbdb">Et moderne, touch-first Android-dashboard og ledsager til Home Assistant.</string>
     <string name="ui_about_6b21fb7">Om</string>

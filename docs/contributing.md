@@ -59,7 +59,17 @@ The scripts live in `tools/localization/`:
 | `generate_plurals.py` | Fills `<plurals>` with each locale's own CLDR quantity categories |
 | `derive_regional_variants.py` | Builds `de-rCH`, `de-rAT` and `es-rMX` from their parent locale |
 | `insert_whats_new_array.py` | Translates one `cr_whats_new_*` release-notes array into every locale |
+| `export_translations.py` | Writes each locale out as one reviewable CSV under `translations/` |
+| `import_translations.py` | Merges a contributed CSV back into `values-<locale>/`, validating it |
 | `verify_translations.py` | **The one that decides whether a locale is complete** |
+
+!!! tip "Native-speaker corrections come in as CSV"
+
+    Machine translation gets a locale to *complete*, not to *good*. `translations/` holds one CSV
+    per language for people who actually speak it to correct, and `import_translations.py` puts
+    their work back where it belongs.
+
+    [:octicons-arrow-right-24: Translations](translations.md)
 
 Typical flow after adding English strings:
 
@@ -69,10 +79,12 @@ python tools/localization/insert_missing_translations.py
 python tools/localization/generate_plurals.py
 python tools/localization/derive_regional_variants.py
 python tools/localization/verify_translations.py
+python tools/localization/export_translations.py
 ```
 
-`derive_regional_variants.py` runs last: it copies whole files out of the parent locale, so the
-parent has to be finished first.
+`derive_regional_variants.py` runs last of the generators: it copies whole files out of the parent
+locale, so the parent has to be finished first. `export_translations.py` comes after everything,
+refreshing `translations/` from the finished resources — CI fails if you forget it.
 
 !!! warning "verify_translations.py does not check string-arrays"
 
