@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="core_last_seen_days">
+        <item quantity="one">Sidst set for %1$d dag siden</item>
+        <item quantity="other">Sidst set for %1$d dage siden</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="one">Sidst set for %1$d time siden</item>
+        <item quantity="other">Sidst set for %1$d timer siden</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="one">Sidst set for %1$d minut siden</item>
+        <item quantity="other">Sidst set for %1$d minutter siden</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="one">Sidst set for %1$d for uge siden</item>
+        <item quantity="other">Sidst set for %1$d uger siden</item>
+    </plurals>
+    <plurals name="core_media_players_playing">
+        <item quantity="one">%1$d medieafspiller afspiller</item>
+        <item quantity="other">%1$d medieafspillere afspiller</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="one">Automatisk + %d manuel</item>
+        <item quantity="other">Automatisk + %d manuel</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="one">%d konfigureret lys</item>
+        <item quantity="other">%d konfigurerede lys</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="one">%1$d enhed · %2$d tændt</item>
+        <item quantity="other">%1$d enheder · %2$d tændt</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="one">%d udvendig sensor sæt</item>
+        <item quantity="other">%d udvendige sensorer indstillet</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="one">%d fjernet</item>
+        <item quantity="other">%d fjernet</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="one">%d valgt</item>
+        <item quantity="other">%d valgt</item>
+    </plurals>
+    <plurals name="cr_sensor_count">
+        <item quantity="one">%d sensor</item>
+        <item quantity="other">%d sensorer</item>
+    </plurals>
+    <plurals name="cr_widget_option_count">
+        <item quantity="one">%d mulighed</item>
+        <item quantity="other">%d muligheder</item>
+    </plurals>
+    <plurals name="dlg_action_data_value_summary">
+        <item quantity="one">%1$s · %2$d dataværdi</item>
+        <item quantity="other">%1$s · %2$d dataværdier</item>
+    </plurals>
+    <plurals name="dlg_arming_in_seconds">
+        <item quantity="one">Tilkobling om %d sekund</item>
+        <item quantity="other">Tilkobling om %d sekunder</item>
+    </plurals>
+    <plurals name="dlg_seconds_short">
+        <item quantity="one">%d sek</item>
+        <item quantity="other">%d sek</item>
+    </plurals>
+    <plurals name="dlg_selected_entities_summary">
+        <item quantity="one">%1$d valgt · %2$s</item>
+        <item quantity="other">%1$d valgt · %2$s</item>
+    </plurals>
+    <plurals name="global_search_browse_entities">
+        <item quantity="one">Gennemse %1$d enhed på denne enhed</item>
+        <item quantity="other">Gennemse %1$d enheder på denne enhed</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="one">%1$d enhed</item>
+        <item quantity="other">%1$d enheder</item>
+    </plurals>
+    <plurals name="parcel_letter_count">
+        <item quantity="one">%1$d brev</item>
+        <item quantity="other">%1$d bogstaver</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="one">%1$d værelse</item>
+        <item quantity="other">%1$d værelser</item>
+    </plurals>
+    <plurals name="security_entity_count">
+        <item quantity="one">%1$d enhed</item>
+        <item quantity="other">%1$d enheder</item>
+    </plurals>
+    <plurals name="settings_extra_days_ago">
+        <item quantity="one">%1$d dag siden</item>
+        <item quantity="other">%1$d dage siden</item>
+    </plurals>
+    <plurals name="settings_extra_hours_ago">
+        <item quantity="one">%1$d time siden</item>
+        <item quantity="other">%1$d timer siden</item>
+    </plurals>
+    <plurals name="settings_extra_minutes_ago">
+        <item quantity="one">%1$d minut siden</item>
+        <item quantity="other">%1$d minutter siden</item>
+    </plurals>
+    <plurals name="settings_extra_shared_dashboards_pushed">
+        <item quantity="one">Skubbede ændringer til %1$d delt dashboard.</item>
+        <item quantity="other">Skubbede ændringer til %1$d delte dashboards.</item>
+    </plurals>
+    <plurals name="uif_active_device_count">
+        <item quantity="one">%1$d aktiv enhed</item>
+        <item quantity="other">%1$d aktive enheder</item>
+    </plurals>
+    <plurals name="uif_adaptive_group_paused_count">
+        <item quantity="one">%1$d gruppelyset er sat på pause for manuel styring.</item>
+        <item quantity="other">%1$d gruppelys er sat på pause for manuel styring.</item>
+    </plurals>
+    <plurals name="uif_adaptive_profile_light_count">
+        <item quantity="one">Styrer %1$d lys i denne profil.</item>
+        <item quantity="other">Styrer %1$d lys i denne profil.</item>
+    </plurals>
+    <plurals name="uif_days_to_season">
+        <item quantity="one">%1$d dag til %2$s</item>
+        <item quantity="other">%1$d dage til %2$s</item>
+    </plurals>
+    <plurals name="uif_device_on_count">
+        <item quantity="one">%1$d enhed tændt</item>
+        <item quantity="other">%1$d enheder tændt</item>
+    </plurals>
+    <plurals name="uif_fire_detector_count">
+        <item quantity="one">%1$d branddetektor aktiv</item>
+        <item quantity="other">%1$d branddetektorer aktive</item>
+    </plurals>
+    <plurals name="uif_flow_advanced_block_count">
+        <item quantity="one">%1$d avanceret stenografiblok (holdes uændret)</item>
+        <item quantity="other">%1$d avancerede stenografiblokke (holdes uændret)</item>
+    </plurals>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d stand indvendig</item>
+        <item quantity="other">%1$d forhold indeni</item>
+    </plurals>
+    <plurals name="uif_gas_detector_count">
+        <item quantity="one">%1$d gasdetektor aktiv</item>
+        <item quantity="other">%1$d gasdetektorer aktive</item>
+    </plurals>
+    <plurals name="uif_light_on_count">
+        <item quantity="one">%1$d lys tændt</item>
+        <item quantity="other">%1$d lyser</item>
+    </plurals>
+    <plurals name="uif_media_item_count">
+        <item quantity="one">%1$d vare</item>
+        <item quantity="other">%1$d elementer</item>
+    </plurals>
+    <plurals name="uif_motion_sensor_count">
+        <item quantity="one">%1$d bevægelsessensor aktiv</item>
+        <item quantity="other">%1$d bevægelsessensorer aktive</item>
+    </plurals>
+    <plurals name="uif_open_door_count">
+        <item quantity="one">%1$d åben dør</item>
+        <item quantity="other">%1$d åbne døre</item>
+    </plurals>
+    <plurals name="uif_open_window_count">
+        <item quantity="one">%1$d åbent vindue</item>
+        <item quantity="other">%1$d åbne vinduer</item>
+    </plurals>
+    <plurals name="uif_presence_sensor_count">
+        <item quantity="one">%1$d tilstedeværelsessensor aktiv</item>
+        <item quantity="other">%1$d tilstedeværelsessensorer aktive</item>
+    </plurals>
+    <plurals name="uif_smoke_detector_count">
+        <item quantity="one">%1$d røgdetektor aktiv</item>
+        <item quantity="other">%1$d røgdetektorer aktive</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="one">%1$d batteri kræver opmærksomhed</item>
+        <item quantity="other">%1$d batterier kræver opmærksomhed</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="one">%1$d kritisk batteri</item>
+        <item quantity="other">%1$d kritiske batterier</item>
+    </plurals>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="one">%1$d lavt batteri</item>
+        <item quantity="other">%1$d lavt batteriniveau</item>
+    </plurals>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="one">Graf %1$d · %2$d sensor</item>
+        <item quantity="other">Graf %1$d · %2$d sensorer</item>
+    </plurals>
+</resources>

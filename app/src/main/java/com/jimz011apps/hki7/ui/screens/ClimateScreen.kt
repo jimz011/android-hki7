@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -509,7 +510,17 @@ fun ClimateScreen(viewModel: MainViewModel) {
     var entitySearch by rememberSaveable { mutableStateOf("") }
     var entitySort by rememberSaveable { mutableStateOf("custom") }
     androidx.activity.compose.BackHandler(enabled = page != "climate") { page = "climate" }
+    // Tell the host a sub-page is open so a sideways swipe does not carry the user out of it into
+    // an unrelated tab. Reported per route because the pager keeps neighbours composed.
+    val subPageReporter = com.jimz011apps.hki7.ui.components.LocalSubPageReporter.current
+    androidx.compose.runtime.DisposableEffect(subPageReporter, page) {
+        subPageReporter?.invoke("climate", page != "climate")
+        onDispose { subPageReporter?.invoke("climate", false) }
+    }
     val activeGroup = climateSensorGroups.find { it.key == page }
+    val pageScrollStates = rememberSaveableStateHolder()
+    val climateListState = androidx.compose.foundation.lazy.rememberLazyListState()
+    com.jimz011apps.hki7.ui.components.ScrollToTopOnTabReselect("climate") { climateListState.animateScrollToItem(0) }
     LaunchedEffect(page) { entitySearch = "" }
 
     fun filteredEntities(source: List<HAEntity>): List<HAEntity> {
@@ -605,6 +616,11 @@ fun ClimateScreen(viewModel: MainViewModel) {
         onBack = if (page != "climate") ({ page = "climate" }) else null
     ) { padding ->
         key(uiRevision) {
+        // Each page is a separate composable, so switching pages disposes the one you left and its
+        // scroll position with it — the overview jumped back to the top every time you came back
+        // from a group. Holding the state per page keeps each where you left it, matching Energy
+        // and Settings.
+        pageScrollStates.SaveableStateProvider(page) {
         when {
             activeGroup != null -> ClimateSensorDetailPage(
                 group = activeGroup,
@@ -647,6 +663,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
                     stringResource(R.string.cr_empty_climate_view)
                 )
             } else LazyColumn(
+                state = climateListState,
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentPadding = PaddingValues(bottom = 96.dp + com.jimz011apps.hki7.ui.components.LocalMediaPlayerBarInset.current)
             ) {
@@ -847,6 +864,7 @@ fun ClimateScreen(viewModel: MainViewModel) {
                     }
                 }
             }
+        }
         }
         }
     }

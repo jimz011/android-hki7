@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="energy_extra_sensors">Energiesensoren</string>
+    <string name="energy_extra_settings">Energieeinstellungen</string>
+    <string name="energy_extra_previous_period">Vorheriger Zeitraum</string>
+    <string name="energy_extra_next_period">Nächster Zeitraum</string>
+    <string name="energy_extra_empty_view_hint">Diese Energieansicht ist leer. Wische in der Kopfzeile nach unten und öffne die Energieeinstellungen, um Entitäten manuell hinzuzufügen.</string>
+
+    <string name="energy_extra_electricity">Strom</string>
+    <string name="energy_extra_solar">Solarenergie</string>
+    <string name="energy_extra_home">Zuhause</string>
+    <string name="energy_extra_battery">Batterie</string>
+    <string name="energy_extra_gas">Gas</string>
+    <string name="energy_extra_water">Wasser</string>
+    <string name="energy_extra_energy">Energie</string>
+    <string name="energy_extra_power">Leistung</string>
+    <string name="energy_extra_carbon">CO₂</string>
+    <string name="energy_extra_devices">Geräte</string>
+    <string name="energy_extra_device">Gerät</string>
+
+    <string name="energy_extra_importing">Bezug</string>
+    <string name="energy_extra_exporting">Einspeisung</string>
+    <string name="energy_extra_idle">Inaktiv</string>
+    <string name="energy_extra_charging">Laden</string>
+    <string name="energy_extra_discharging">Entladen</string>
+    <string name="energy_extra_producing">Erzeugung</string>
+    <string name="energy_extra_consuming">Verbrauch</string>
+    <string name="energy_extra_grid_idle">Netz inaktiv</string>
+    <string name="energy_extra_importing_power">Strombezug</string>
+    <string name="energy_extra_exporting_power">Stromeinspeisung</string>
+    <string name="energy_extra_battery_supporting">Batterie liefert Strom</string>
+    <string name="energy_extra_battery_charging">Batterie wird geladen</string>
+    <string name="energy_extra_solar_producing">Solaranlage erzeugt Strom</string>
+    <string name="energy_extra_home_consuming">Haus verbraucht Strom</string>
+    <string name="energy_extra_energy_idle">Kein Energiefluss</string>
+
+    <string name="energy_extra_today_value">%1$s heute</string>
+    <string name="energy_extra_used_period">Verbraucht: %1$s</string>
+    <string name="energy_extra_produced_period">Erzeugt: %1$s</string>
+    <string name="energy_extra_fossil_percentage">%1$s%% fossil</string>
+    <string name="energy_extra_self_used_percentage">Eigenverbrauch · %1$d%%</string>
+
+    <string name="energy_extra_electricity_total">Strom gesamt</string>
+    <string name="energy_extra_top_consumers">Grösste Verbraucher</string>
+    <string name="energy_extra_device_energy">Energie je Gerät</string>
+    <string name="energy_extra_individual_water_usage">Wasserverbrauch je Gerät</string>
+    <string name="energy_extra_production">Erzeugung</string>
+    <string name="energy_extra_forecast">Prognose</string>
+    <string name="energy_extra_inverters">Wechselrichter</string>
+    <string name="energy_extra_now">Jetzt</string>
+    <string name="energy_extra_usage">Verbrauch</string>
+    <string name="energy_extra_total">Gesamt</string>
+    <string name="energy_extra_cost">Kosten</string>
+    <string name="energy_extra_charge">Ladestand</string>
+    <string name="energy_extra_grid_flow">Netzfluss</string>
+    <string name="energy_extra_self_sufficient">Autarkie</string>
+    <string name="energy_extra_carbon_footprint">CO₂-Fussabdruck</string>
+    <string name="energy_extra_self_used">Eigenverbrauch</string>
+    <string name="energy_extra_last_seven_days">Letzte 7 Tage</string>
+    <string name="energy_extra_lifetime">Gesamtlaufzeit</string>
+    <string name="energy_extra_power_per_phase">Leistung je Phase</string>
+    <string name="energy_extra_tariff_meter_readings">Zählerstände nach Tarif</string>
+    <string name="energy_extra_tariff_one">Tarif 1</string>
+    <string name="energy_extra_tariff_two">Tarif 2</string>
+    <string name="energy_extra_solar_production">Solarerzeugung</string>
+
+    <string name="energy_extra_category_overview">Übersicht</string>
+    <string name="energy_extra_category_electricity_subtitle">Netzleistung, Phasen, Bezug, Einspeisung, Tarife und Kosten</string>
+    <string name="energy_extra_category_solar_subtitle">Erzeugung, Prognose und Wechselrichter</string>
+    <string name="energy_extra_category_battery_subtitle">Ladestand und Batterieleistung</string>
+    <string name="energy_extra_category_carbon_subtitle">Gerät für den CO₂-Fussabdruck des Stromnetzes</string>
+    <string name="energy_extra_category_usage_cost_subtitle">Verbrauch und Kosten</string>
+    <string name="energy_extra_category_devices_subtitle">Leistung, Energie und einzelne Wasserzähler</string>
+
+    <string name="energy_extra_card_live_source_tiles">Live-Quellkacheln</string>
+    <string name="energy_extra_card_electricity_totals_usage">Stromsummen und Verbrauch</string>
+    <string name="energy_extra_card_home_battery">Heimbatterie</string>
+    <string name="energy_extra_card_gas_usage">Gasverbrauch</string>
+    <string name="energy_extra_card_water_usage">Wasserverbrauch</string>
+    <string name="energy_extra_card_device_energy_bars">Energie je Gerät</string>
+    <string name="energy_extra_select_energy_cards">Energiekarten auswählen</string>
+
+    <string name="energy_extra_role_grid_power">Netzleistung (W)</string>
+    <string name="energy_extra_role_home_power">Hausleistung (W)</string>
+    <string name="energy_extra_role_solar_power">Solarleistung (W)</string>
+    <string name="energy_extra_role_battery_power">Batterieleistung (W)</string>
+    <string name="energy_extra_role_battery_level" formatted="false">Batteriestand (%)</string>
+    <string name="energy_extra_role_grid_import">Netzbezug (kWh)</string>
+    <string name="energy_extra_role_grid_export">Netzeinspeisung (kWh)</string>
+    <string name="energy_extra_role_solar_production">Solarerzeugung (kWh)</string>
+    <string name="energy_extra_role_phase_one_power">Leistung Phase 1</string>
+    <string name="energy_extra_role_phase_two_power">Leistung Phase 2</string>
+    <string name="energy_extra_role_phase_three_power">Leistung Phase 3</string>
+    <string name="energy_extra_role_import_meter_tariff_one">Bezugszähler Tarif 1</string>
+    <string name="energy_extra_role_import_meter_tariff_two">Bezugszähler Tarif 2</string>
+    <string name="energy_extra_role_export_meter_tariff_one">Einspeisezähler Tarif 1</string>
+    <string name="energy_extra_role_export_meter_tariff_two">Einspeisezähler Tarif 2</string>
+    <string name="energy_extra_role_energy_cost">Energiekosten</string>
+    <string name="energy_extra_role_gas_total">Gas gesamt (m³)</string>
+    <string name="energy_extra_role_gas_flow_now">Gasdurchfluss (jetzt)</string>
+    <string name="energy_extra_role_gas_cost">Gaskosten</string>
+    <string name="energy_extra_role_water_total">Wasser gesamt</string>
+    <string name="energy_extra_role_water_flow_now">Wasserdurchfluss (jetzt)</string>
+    <string name="energy_extra_role_water_cost">Wasserkosten</string>
+    <string name="energy_extra_role_individual_water_devices">Einzelne Wasserzähler</string>
+    <string name="energy_extra_role_power_devices">Leistungsgeräte</string>
+    <string name="energy_extra_role_energy_devices">Energiegeräte</string>
+
+    <string name="energy_extra_sensor_current_power_import">Aktuelle Leistung (W, + = Bezug)</string>
+    <string name="energy_extra_sensor_power_phase_one">Leistung Phase 1 (W)</string>
+    <string name="energy_extra_sensor_power_phase_two">Leistung Phase 2 (W)</string>
+    <string name="energy_extra_sensor_power_phase_three">Leistung Phase 3 (W)</string>
+    <string name="energy_extra_sensor_current_phase_one">Strom Phase 1 (A)</string>
+    <string name="energy_extra_sensor_current_phase_two">Strom Phase 2 (A)</string>
+    <string name="energy_extra_sensor_current_phase_three">Strom Phase 3 (A)</string>
+    <string name="energy_extra_sensor_voltage_phase_one">Spannung Phase 1 (V)</string>
+    <string name="energy_extra_sensor_voltage_phase_two">Spannung Phase 2 (V)</string>
+    <string name="energy_extra_sensor_voltage_phase_three">Spannung Phase 3 (V)</string>
+    <string name="energy_extra_sensor_home_consumption_power">Verbrauchsleistung des Hauses (W)</string>
+    <string name="energy_extra_sensor_energy_import">Energiebezug (kWh)</string>
+    <string name="energy_extra_sensor_energy_import_tariff_one">Energiebezug Tarif 1 (kWh)</string>
+    <string name="energy_extra_sensor_energy_import_tariff_two">Energiebezug Tarif 2 (kWh)</string>
+    <string name="energy_extra_sensor_energy_export">Einspeisung (kWh)</string>
+    <string name="energy_extra_sensor_energy_export_tariff_one">Einspeisung Tarif 1 (kWh)</string>
+    <string name="energy_extra_sensor_energy_export_tariff_two">Einspeisung Tarif 2 (kWh)</string>
+    <string name="energy_extra_sensor_energy_cost_today">Energiekosten heute</string>
+    <string name="energy_extra_sensor_current_power_production">Aktuelle Stromerzeugung (W)</string>
+    <string name="energy_extra_sensor_energy_production_today">Energieerzeugung heute (kWh)</string>
+    <string name="energy_extra_sensor_energy_production_seven_days">Energieerzeugung der letzten 7 Tage</string>
+    <string name="energy_extra_sensor_lifetime_energy_production">Gesamte Energieerzeugung</string>
+    <string name="energy_extra_sensor_battery_power_charging">Batterieleistung (W, + = Laden)</string>
+    <string name="energy_extra_sensor_gas_used_today">Gasverbrauch heute (m³)</string>
+    <string name="energy_extra_sensor_current_gas_flow">Aktueller Gasdurchfluss (m³/h, optional)</string>
+    <string name="energy_extra_sensor_gas_cost_today">Gaskosten heute</string>
+    <string name="energy_extra_sensor_water_used_today">Wasserverbrauch heute (L/m³)</string>
+    <string name="energy_extra_sensor_current_water_flow">Aktueller Wasserdurchfluss (L/min, optional)</string>
+    <string name="energy_extra_sensor_water_cost_today">Wasserkosten heute</string>
+
+    <string name="energy_extra_picker_top_consumer_devices">Geräte mit dem höchsten Verbrauch</string>
+    <string name="energy_extra_picker_device_energy_counters">Energiezähler je Gerät</string>
+    <string name="energy_extra_auto_power_sensors_help">Alle Sensoren mit device_class power werden automatisch einbezogen. Entferne ein Gerät, um eine eigene Liste anzulegen.</string>
+    <string name="energy_extra_auto_energy_sensors_help">Alle Sensoren mit device_class energy werden automatisch einbezogen. Ihre Zähleränderungen werden für den ausgewählten Zeitraum verwendet.</string>
+
+    <string name="energy_extra_energy_card">Energiekarte</string>
+    <string name="energy_extra_energy_card_subtitle">Datenquellen und Kartendarstellung</string>
+    <string name="energy_extra_card_and_data">Karte und Daten</string>
+    <string name="energy_extra_energy_stack">Energiestapel</string>
+    <string name="energy_extra_energy_stack_subtitle">Karten, Datenquellen und Layout</string>
+    <string name="energy_extra_cards_and_data">Karten und Daten</string>
+</resources>

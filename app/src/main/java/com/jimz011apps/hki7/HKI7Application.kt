@@ -1,10 +1,19 @@
 package com.jimz011apps.hki7
 
 import android.app.Application
+import android.content.Context
 import android.os.Looper
 import android.util.Log
+import com.jimz011apps.hki7.data.withStoredAppLocale
 
 class HKI7Application : Application() {
+    // Below API 33 the platform has no per-app locale, so the stored choice has to be applied to
+    // the application context too — otherwise anything built outside an Activity (notifications,
+    // foreground-service text) would come out in the device language. A no-op on API 33+.
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(base.withStoredAppLocale())
+    }
+
     override fun onCreate() {
         super.onCreate()
         installBackgroundThreadSafetyNet()

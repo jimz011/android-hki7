@@ -2,6 +2,7 @@ package com.jimz011apps.hki7.ui
 
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HKIAreaConfig
+import com.jimz011apps.hki7.data.HKIButtonConfig
 import com.jimz011apps.hki7.data.HKIButtonStack
 import com.jimz011apps.hki7.data.HKIEmptyStack
 import com.jimz011apps.hki7.data.HKIRoomWidget
@@ -135,7 +136,10 @@ internal fun resolveRoomStatus(
     config: HKIAreaConfig,
     entities: List<HAEntity>,
     displayedControlEntityIds: Set<String>? = null,
-    peopleCount: Int = 0
+    peopleCount: Int = 0,
+    /** The roster sensors resolved to this room. Carried onto the people indicator so tapping it
+     *  can name who is here — without them the pill had nothing to list and did nothing at all. */
+    peopleEntityIds: List<String> = emptyList()
 ): RoomStatusSummary {
     val entitiesById = entities.associateBy { it.entity_id }
     val ordered = RoomStatusRoles.ORDERED.mapNotNull { role ->
@@ -152,7 +156,7 @@ internal fun resolveRoomStatus(
     }
 
     return RoomStatusSummary(
-        indicators = withPeopleIndicator(ordered, peopleCount),
+        indicators = withPeopleIndicator(ordered, peopleCount, peopleEntityIds),
         temperature = averageRoomMeasurement(
             entityIds = config.roomTemperatureSourceIds(),
             entitiesById = entitiesById,
@@ -170,10 +174,11 @@ internal fun resolveRoomStatus(
  *  than after the safety ones. Nobody in the room means no pill at all. */
 private fun withPeopleIndicator(
     indicators: List<RoomStatusIndicator>,
-    peopleCount: Int
+    peopleCount: Int,
+    peopleEntityIds: List<String> = emptyList()
 ): List<RoomStatusIndicator> {
     if (peopleCount <= 0) return indicators
-    val people = RoomStatusIndicator(RoomStatusRoles.PEOPLE, peopleCount)
+    val people = RoomStatusIndicator(RoomStatusRoles.PEOPLE, peopleCount, peopleEntityIds)
     val anchor = indicators.indexOfLast {
         it.role == RoomStatusRoles.PRESENCE || it.role == RoomStatusRoles.MOTION
     }
@@ -189,7 +194,10 @@ private fun withPeopleIndicator(
 internal fun resolveWholeHomeStatus(
     configs: Collection<HKIAreaConfig>,
     entities: List<HAEntity>,
-    displayedControlEntityIds: Set<String>? = null
+    displayedControlEntityIds: Set<String>? = null,
+    /** Everyone the room-presence sensors currently place somewhere in the home, so the Rooms
+     *  header can show a household total beside the other whole-home counters. */
+    peopleEntityIds: List<String> = emptyList()
 ): RoomStatusSummary {
     val entitiesById = entities.associateBy { it.entity_id }
     val indicators = RoomStatusRoles.ORDERED.mapNotNull { role ->
@@ -205,7 +213,7 @@ internal fun resolveWholeHomeStatus(
     }
 
     return RoomStatusSummary(
-        indicators = indicators,
+        indicators = withPeopleIndicator(indicators, peopleEntityIds.size, peopleEntityIds),
         temperature = averageConfiguredMeasurements(
             entityIds = configs.flatMap(HKIAreaConfig::roomTemperatureSourceIds),
             entitiesById = entitiesById,
@@ -239,11 +247,17 @@ private fun autoRoleEntityIds(
 
 /** Light and switch controls reachable from the visible room widget tree. */
 internal fun displayedRoomControlEntityIds(widgets: List<HKIRoomWidget>): Set<String> = buildSet {
+    // Each widget carries its own per-button settings, so a button marked "leave out of counters"
+    // is still shown but no longer tallied.
+    fun counted(entityId: String, config: HKIButtonConfig?) =
+        !isSyntheticItemId(entityId) && config?.excludeFromCounters != true
     fun collect(widget: HKIRoomWidget) {
         when (widget) {
             // Empty and action buttons carry a synthetic id with no entity behind it: never counted.
-            is HKIButtonStack -> if (!widget.isHidden) addAll(widget.entityIds.filterNot(::isSyntheticItemId))
-            is HKISingleEntityWidget -> if (!widget.isHidden && !isSyntheticItemId(widget.entityId)) add(widget.entityId)
+            is HKIButtonStack -> if (!widget.isHidden) {
+                addAll(widget.entityIds.filter { counted(it, widget.buttonConfigs[it]) })
+            }
+            is HKISingleEntityWidget -> if (!widget.isHidden && counted(widget.entityId, widget.config)) add(widget.entityId)
             is HKIEmptyStack -> if (!widget.isHidden) widget.widgets.forEach(::collect)
             is HKISwipingStack -> if (!widget.isHidden) widget.widgets.forEach(::collect)
             else -> Unit

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="core_last_seen_days">
+        <item quantity="one">Viimati nähtud %1$d päev tagasi</item>
+        <item quantity="other">Viimati nähtud %1$d päeva tagasi</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="one">Viimati nähtud %1$d tund tagasi</item>
+        <item quantity="other">Viimati nähtud %1$d tundi tagasi</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="one">Viimati nähtud %1$d minut tagasi</item>
+        <item quantity="other">Viimati nähtud %1$d minutit tagasi</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="one">Viimati nähtud %1$d nädal tagasi</item>
+        <item quantity="other">Viimati nähtud %1$d nädalat tagasi</item>
+    </plurals>
+    <plurals name="core_media_players_playing">
+        <item quantity="one">%1$d meediapleier mängib</item>
+        <item quantity="other">%1$d meediapleierid mängivad</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="one">Automaatne + %d käsitsi</item>
+        <item quantity="other">Automaatne + %d käsitsi</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="one">%d konfigureeritud tuli</item>
+        <item quantity="other">%d seadistatud valgust</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="one">%1$d seade · %2$d sees</item>
+        <item quantity="other">%1$d seadmed · %2$d sees</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="one">%d välisanduri komplekt</item>
+        <item quantity="other">%d välisandurit seadistatud</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="one">%d eemaldatud</item>
+        <item quantity="other">%d eemaldatud</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="one">%d valitud</item>
+        <item quantity="other">%d valitud</item>
+    </plurals>
+    <plurals name="cr_sensor_count">
+        <item quantity="one">%d andur</item>
+        <item quantity="other">%d andurit</item>
+    </plurals>
+    <plurals name="cr_widget_option_count">
+        <item quantity="one">%d valik</item>
+        <item quantity="other">%d valikut</item>
+    </plurals>
+    <plurals name="dlg_action_data_value_summary">
+        <item quantity="one">%1$s · %2$d andmeväärtus</item>
+        <item quantity="other">%1$s · %2$d andmeväärtusi</item>
+    </plurals>
+    <plurals name="dlg_arming_in_seconds">
+        <item quantity="one">Valvestamine %d sekundi pärast</item>
+        <item quantity="other">Valvestamine %d sekundi pärast</item>
+    </plurals>
+    <plurals name="dlg_seconds_short">
+        <item quantity="one">%d sek</item>
+        <item quantity="other">%d sek</item>
+    </plurals>
+    <plurals name="dlg_selected_entities_summary">
+        <item quantity="one">%1$d valitud · %2$s</item>
+        <item quantity="other">%1$d valitud · %2$s</item>
+    </plurals>
+    <plurals name="global_search_browse_entities">
+        <item quantity="one">Sirvige selles seadmes olemit %1$d</item>
+        <item quantity="other">Sirvige selles seadmes %1$d olemit</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="one">%1$d üksus</item>
+        <item quantity="other">%1$d üksused</item>
+    </plurals>
+    <plurals name="parcel_letter_count">
+        <item quantity="one">%1$d täht</item>
+        <item quantity="other">%1$d tähte</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="one">%1$d tuba</item>
+        <item quantity="other">%1$d tuba</item>
+    </plurals>
+    <plurals name="security_entity_count">
+        <item quantity="one">%1$d üksus</item>
+        <item quantity="other">%1$d üksused</item>
+    </plurals>
+    <plurals name="settings_extra_days_ago">
+        <item quantity="one">%1$d päev tagasi</item>
+        <item quantity="other">%1$d päeva tagasi</item>
+    </plurals>
+    <plurals name="settings_extra_hours_ago">
+        <item quantity="one">%1$d tund tagasi</item>
+        <item quantity="other">%1$d tundi tagasi</item>
+    </plurals>
+    <plurals name="settings_extra_minutes_ago">
+        <item quantity="one">%1$d minut tagasi</item>
+        <item quantity="other">%1$d minutit tagasi</item>
+    </plurals>
+    <plurals name="settings_extra_shared_dashboards_pushed">
+        <item quantity="one">Muudatused lükati %1$d jagatud armatuurlauale.</item>
+        <item quantity="other">Muudatused lükati %1$d jagatud armatuurlauale.</item>
+    </plurals>
+    <plurals name="uif_active_device_count">
+        <item quantity="one">%1$d aktiivne seade</item>
+        <item quantity="other">%1$d aktiivset seadet</item>
+    </plurals>
+    <plurals name="uif_adaptive_group_paused_count">
+        <item quantity="one">%1$d rühma tuli on käsitsi juhtimiseks peatatud.</item>
+        <item quantity="other">%1$d rühma tuled on käsitsi juhtimiseks peatatud.</item>
+    </plurals>
+    <plurals name="uif_adaptive_profile_light_count">
+        <item quantity="one">Juhib sellel profiilil valgust %1$d.</item>
+        <item quantity="other">Juhib sellel profiilil %1$d tulesid.</item>
+    </plurals>
+    <plurals name="uif_days_to_season">
+        <item quantity="one">%1$d päev kuni %2$s</item>
+        <item quantity="other">%1$d päeva kuni %2$s</item>
+    </plurals>
+    <plurals name="uif_device_on_count">
+        <item quantity="one">%1$d seade on sisse lülitatud</item>
+        <item quantity="other">%1$d seadmed sisse lülitatud</item>
+    </plurals>
+    <plurals name="uif_fire_detector_count">
+        <item quantity="one">%1$d tulekahjuandur on aktiivne</item>
+        <item quantity="other">%1$d tulekahjuandurid on aktiivsed</item>
+    </plurals>
+    <plurals name="uif_flow_advanced_block_count">
+        <item quantity="one">%1$d täiustatud kiirkirjaplokk (jäi muutmata)</item>
+        <item quantity="other">%1$d täpsemad kiirkirjaplokid (jäi muutmata)</item>
+    </plurals>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d tingimus sees</item>
+        <item quantity="other">%1$d tingimused sees</item>
+    </plurals>
+    <plurals name="uif_gas_detector_count">
+        <item quantity="one">%1$d gaasidetektor on aktiivne</item>
+        <item quantity="other">%1$d gaasidetektorid on aktiivsed</item>
+    </plurals>
+    <plurals name="uif_light_on_count">
+        <item quantity="one">%1$d tuli põleb</item>
+        <item quantity="other">%1$d tuled põlevad</item>
+    </plurals>
+    <plurals name="uif_media_item_count">
+        <item quantity="one">%1$d üksus</item>
+        <item quantity="other">%1$d üksust</item>
+    </plurals>
+    <plurals name="uif_motion_sensor_count">
+        <item quantity="one">%1$d liikumisandur on aktiivne</item>
+        <item quantity="other">%1$d liikumisandurid on aktiivsed</item>
+    </plurals>
+    <plurals name="uif_open_door_count">
+        <item quantity="one">%1$d avatud uks</item>
+        <item quantity="other">%1$d avatud uksed</item>
+    </plurals>
+    <plurals name="uif_open_window_count">
+        <item quantity="one">%1$d avatud aken</item>
+        <item quantity="other">%1$d avatud aknad</item>
+    </plurals>
+    <plurals name="uif_presence_sensor_count">
+        <item quantity="one">%1$d kohalolekuandur on aktiivne</item>
+        <item quantity="other">%1$d kohalolekuandurid on aktiivsed</item>
+    </plurals>
+    <plurals name="uif_smoke_detector_count">
+        <item quantity="one">%1$d suitsuandur aktiivne</item>
+        <item quantity="other">%1$d suitsuandurid on aktiivsed</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="one">%1$d aku vajab tähelepanu</item>
+        <item quantity="other">%1$d akud vajavad tähelepanu</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="one">%1$d kriitiline aku</item>
+        <item quantity="other">%1$d kriitilised akud</item>
+    </plurals>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="one">%1$d aku on tühi</item>
+        <item quantity="other">%1$d tühjad patareid</item>
+    </plurals>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="one">Graafik %1$d · %2$d andur</item>
+        <item quantity="other">Graafik %1$d · %2$d andurid</item>
+    </plurals>
+</resources>

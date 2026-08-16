@@ -127,6 +127,10 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
     val allowReimport by viewModel.allowReimport.collectAsState()
     val currentUrl by viewModel.currentUrl.collectAsState()
     val entities by viewModel.entities.collectAsState()
+    val peopleIdsByArea by viewModel.peopleEntityIdsByAreaId.collectAsState()
+    // Everyone tracked anywhere in the home, so the header counter answers "where is everybody"
+    // without opening each room in turn.
+    val everyoneTrackedIds = remember(peopleIdsByArea) { peopleIdsByArea.values.flatten() }
     // Tapping a room-status counter lists exactly the entities it counts (the currently-active ones)
     // in the same aggregated dialog a badge uses.
     var activityRole by remember { mutableStateOf<String?>(null) }
@@ -147,7 +151,31 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
             )
         }
         val closeActivity = { activityRole = null; activityEntityIds = emptyList() }
-        if (groupEntities.isNotEmpty()) {
+        if (role == com.jimz011apps.hki7.ui.RoomStatusRoles.PEOPLE) {
+            // People are not devices: listing their sensor cards would answer the wrong question.
+            // What the counter is asked is who, and — from the household counter — where.
+            val entitiesById = entities.associateBy { it.entity_id }
+            val wholeHome = activityEntityIds.toSet() == everyoneTrackedIds.toSet()
+            com.jimz011apps.hki7.ui.components.PeoplePresenceDialog(
+                people = if (wholeHome) {
+                    com.jimz011apps.hki7.ui.components.allPersonPresenceRows(
+                        peopleIdsByArea = peopleIdsByArea,
+                        areas = areas,
+                        entitiesById = entitiesById,
+                        baseUrl = currentUrl
+                    )
+                } else {
+                    com.jimz011apps.hki7.ui.components.personPresenceRows(
+                        entityIds = activityEntityIds,
+                        entitiesById = entitiesById,
+                        baseUrl = currentUrl,
+                        roomNameOf = { state -> areas.firstOrNull { it.name.equals(state, ignoreCase = true) }?.name }
+                    )
+                },
+                showRooms = wholeHome,
+                onDismiss = closeActivity
+            )
+        } else if (groupEntities.isNotEmpty()) {
             GroupEntityDialog(
                 stack = syntheticStack,
                 entities = groupEntities,
@@ -195,12 +223,13 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
         viewModel.entitiesFor(wholeHomeDependencyIds)
     }
     val wholeHomeEntities by wholeHomeEntityFlow.collectAsState()
-    val wholeHomeSummary = remember(activeRoomConfigs, wholeHomeEntities, wholeHomeDisplayedControlIds) {
-        resolveWholeHomeStatus(activeRoomConfigs, wholeHomeEntities, wholeHomeDisplayedControlIds)
+    val wholeHomeSummary = remember(activeRoomConfigs, wholeHomeEntities, wholeHomeDisplayedControlIds, everyoneTrackedIds) {
+        resolveWholeHomeStatus(activeRoomConfigs, wholeHomeEntities, wholeHomeDisplayedControlIds, everyoneTrackedIds)
     }
     val roomsSubtitle = wholeHomeSummary.environmentText
         ?: pluralStringResource(R.plurals.rooms_count, areas.size, areas.size)
     val roomsScrollState = rememberScrollState()
+    com.jimz011apps.hki7.ui.components.ScrollToTopOnTabReselect("rooms") { roomsScrollState.animateScrollTo(0) }
 
     HKIPage(
         viewModel = viewModel,
@@ -697,9 +726,11 @@ fun AreaCard(
             val mediaSummary = remember(mediaPlayers) { resolveRoomMediaStatus(mediaPlayers) }
             val mediaStatus = mediaSummary.localizedText()
             val mediaIcon = mediaPlayerStateIcon(mediaSummary.representative)
+            val peopleIdsByArea by viewModel.peopleEntityIdsByAreaId.collectAsState()
             val peopleHere = peopleByArea[area.area_id] ?: 0
-            val roomSummary = remember(config, roomEntities, displayedControlIds, peopleHere) {
-                resolveRoomStatus(config, roomEntities, displayedControlIds, peopleHere)
+            val peopleHereIds = peopleIdsByArea[area.area_id].orEmpty()
+            val roomSummary = remember(config, roomEntities, displayedControlIds, peopleHere, peopleHereIds) {
+                resolveRoomStatus(config, roomEntities, displayedControlIds, peopleHere, peopleHereIds)
             }
             val topIndicatorKinds = if (isEditMode) 0 else roomSummary.indicators.count { it.role in ROOM_CARD_TOP_STATUS_ROLES }
             val bottomIndicatorKinds = if (isEditMode) 0 else roomSummary.indicators.count { it.role in ROOM_CARD_BOTTOM_STATUS_ROLES }

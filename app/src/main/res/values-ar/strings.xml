@@ -446,6 +446,14 @@
     <string name="cr_name_z_a">الاسم Z-A</string>
     <string name="cr_climate_device">جهاز المناخ</string>
     <string name="cr_climate_device_subtitle">الاسم والرمز ونمط البطاقة والعرض</string>
+    <string name="cr_widget_requires_f1">يحتاج إلى تكامل مستشعر F1، والذي لم يتم العثور عليه في Home Assistant</string>
+    <string name="cr_widget_requires_parcels">يحتاج إلى تكامل الطرود، ولم يتم العثور على أي منها على Home Assistant</string>
+    <string name="cr_widget_requires_waste">يحتاج إلى تكامل جمع النفايات، ولم يتم العثور على أي شيء على Home Assistant الخاص بك</string>
+    <string name="cr_people_here_title">من هو هنا</string>
+    <string name="cr_people_here_empty">لا يتم تعقب أحد في هذه الغرفة الآن.</string>
+    <string name="cr_people_here_unknown_room">الغرفة غير معروفة</string>
+    <string name="cr_button_exclude_counters">ترك خارج العدادات</string>
+    <string name="cr_button_exclude_counters_hint">احتفظ بالزر، لكن أوقفه عن العد ضمن إجماليات الأضواء والأجهزة في هذه الغرفة</string>
     <string name="cr_count_with_average">%1$s · المتوسط %2$s%3$s</string>
     <string name="cr_outside_temperature">درجة الحرارة الخارجية</string>
     <string name="cr_outside_humidity">الرطوبة الخارجية</string>
@@ -1185,6 +1193,13 @@
     <string name="energy_extra_picker_device_energy_counters">عدادات طاقة الجهاز</string>
     <string name="energy_extra_auto_power_sensors_help">يتم تضمين كافة أجهزة الاستشعار ذات طاقة فئة_الجهاز تلقائيًا. قم بإزالة جهاز لإنشاء قائمتك الخاصة.</string>
     <string name="energy_extra_auto_energy_sensors_help">يتم تضمين كافة أجهزة الاستشعار ذات طاقة فئة_الجهاز تلقائيًا. يتم استخدام تغييرات العداد الخاصة بهم للفترة المحددة.</string>
+    <string name="energy_extra_currency">عملة</string>
+    <string name="energy_extra_currency_subtitle">ما هي العملة التي تظهر بها إحصائيات التكلفة؟</string>
+    <string name="energy_extra_currency_search">بحث في العملات</string>
+    <string name="energy_extra_currency_automatic">تلقائي</string>
+    <string name="energy_extra_currency_automatic_subtitle">اتبع أجهزة استشعار التكلفة الخاصة بك، ثم منطقة جهازك</string>
+    <string name="energy_extra_currency_automatic_value">تلقائي (%1$s)</string>
+    <string name="energy_extra_currency_manual_value">%1$s (%2$s)</string>
     <string name="energy_extra_energy_card">بطاقة الطاقة</string>
     <string name="energy_extra_energy_card_subtitle">مصادر البيانات ومظهر البطاقة</string>
     <string name="energy_extra_card_and_data">البطاقة والبيانات</string>
@@ -2486,7 +2501,6 @@
     <string name="ui_text_98d3f75">✓ %1$s</string>
     <string name="ui_text_9e5a283">%1$s×</string>
     <string name="ui_text_a105b80">%1$s/%2$s</string>
-    <string name="ui_text_b92cdc7">€ %1$s</string>
     <string name="ui_text_be10035">· %1$s</string>
     <string name="ui_text_c1aacd9">%1$s · %2$s</string>
     <string name="ui_text_c3328c3">نص</string>
@@ -2760,6 +2774,13 @@
     <string name="settings_extra_dashboard_backup_saved">تم حفظ النسخة الاحتياطية للوحة المعلومات.</string>
     <string name="settings_extra_dashboard_copy_name">%1$s نسخة</string>
     <string name="settings_extra_dashboard_default_name">لوحة التحكم %1$d</string>
+    <string name="settings_extra_new_dashboard_confirm_body">يؤدي هذا إلى إضافة لوحة معلومات إلى جانب اللوحة التي تستخدمها. يتم الاحتفاظ بلوحة التحكم الحالية كما هي تمامًا ولا يتم استبدالها مطلقًا — ويمكنك التبديل بينها في أي وقت.</string>
+    <string name="settings_extra_new_dashboard_confirm_action">يكمل</string>
+    <string name="settings_extra_new_dashboard_created">تم إنشاء "%1$s"</string>
+    <string name="uif_onboarding_shared_already_added">تمت إضافتها بالفعل</string>
+    <string name="settings_extra_dashboard_shared_badge">مشترك</string>
+    <string name="settings_extra_dashboard_shared_subtitle">تمت مشاركتها معك من قبل عائلتك. انقر للتحميل</string>
+    <string name="settings_extra_dashboard_shared_loaded">تمت مشاركتها معك من قبل عائلتك. محملة حاليا</string>
     <string name="settings_extra_dashboard_generating">يتم إنشاء لوحة المعلومات الجديدة الخاصة بك تلقائيًا.</string>
     <string name="settings_extra_dashboard_mode_auto">تلقائي</string>
     <string name="settings_extra_dashboard_mode_manual">يدوي</string>
@@ -2823,6 +2844,8 @@
     <string name="settings_extra_location_allowed_always">مسموح به في كل وقت</string>
     <string name="settings_extra_location_allowed_foreground">مسموح به فقط أثناء استخدام التطبيق</string>
     <string name="settings_extra_location_not_allowed">غير مسموح</string>
+    <string name="language_search_placeholder">لغات البحث</string>
+    <string name="language_search_no_matches">لا توجد لغة تطابق "%1$s"</string>
     <string name="settings_extra_language_dutch">هولندا</string>
     <string name="settings_extra_language_english">إنجليزي</string>
     <string name="settings_extra_language_french">الفرنسية</string>
@@ -3477,4 +3500,7 @@
     <string name="widgets_energy_phase_number">المرحلة %1$d</string>
     <string name="widgets_energy_forecast_number">التوقعات %1$d</string>
     <string name="widgets_energy_ha_forecast">Home Assistant التوقعات</string>
+    <string name="widgets_battery_search">أجهزة البحث</string>
+    <string name="widgets_battery_none">لا توجد بطاريات تطابق هذا البحث.</string>
+    <string name="widgets_battery_open_page">افتح صفحة البطارية</string>
 </resources>

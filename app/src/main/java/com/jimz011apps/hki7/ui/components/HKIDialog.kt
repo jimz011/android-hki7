@@ -369,21 +369,7 @@ fun HKIDialog(
                                 }
                             }
 
-                            val closeButton: @Composable () -> Unit = {
-                                IconButton(
-                                    onClick = onDismiss,
-                                    modifier = Modifier
-                                        .background(appColors.subtleSurface, CircleShape)
-                                        .size(48.dp)
-                                ) {
-                                    Icon(
-                                        Icons.Default.Close,
-                                        contentDescription = stringResource(R.string.ui_close_bbfa773),
-                                        tint = appColors.onSurface,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                }
-                            }
+                            val closeButton: @Composable () -> Unit = { DialogCloseButton(onClick = onDismiss) }
 
                             if (compactHeader) {
                                 Column(Modifier.padding(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 12.dp)) {

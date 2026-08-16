@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="core_last_seen_days">
+        <item quantity="one">Τελευταία επίσκεψη πριν από %1$d ημέρα</item>
+        <item quantity="other">Τελευταία επίσκεψη πριν από %1$d ημέρες</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="one">Τελευταία εμφάνιση πριν από %1$d ώρα</item>
+        <item quantity="other">Τελευταία επίσκεψη πριν από %1$d ώρες</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="one">Τελευταία εμφάνιση πριν από %1$d λεπτό</item>
+        <item quantity="other">Τελευταία εμφάνιση πριν από %1$d λεπτά</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="one">Τελευταία επίσκεψη πριν από %1$d εβδομάδα</item>
+        <item quantity="other">Τελευταία επίσκεψη πριν από %1$d εβδομάδες</item>
+    </plurals>
+    <plurals name="core_media_players_playing">
+        <item quantity="one">Αναπαράγεται το πρόγραμμα αναπαραγωγής πολυμέσων %1$d</item>
+        <item quantity="other">Παίζουν τα προγράμματα αναπαραγωγής πολυμέσων %1$d</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="one">Αυτόματο + %d χειροκίνητο</item>
+        <item quantity="other">Αυτόματο + %d χειροκίνητο</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="one">%d διαμορφωμένο φως</item>
+        <item quantity="other">%d διαμορφωμένα φώτα</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="one">%1$d συσκευή · %2$d ενεργοποιημένη</item>
+        <item quantity="other">%1$d συσκευές · %2$d ενεργοποιημένη</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="one">%d σύνολο εξωτερικών αισθητήρων</item>
+        <item quantity="other">Ορίστηκαν %d εξωτερικοί αισθητήρες</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="one">%d καταργήθηκε</item>
+        <item quantity="other">%d καταργήθηκε</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="one">Επιλέχθηκε %d</item>
+        <item quantity="other">Επιλέχθηκε %d</item>
+    </plurals>
+    <plurals name="cr_sensor_count">
+        <item quantity="one">%d αισθητήρας</item>
+        <item quantity="other">%d αισθητήρες</item>
+    </plurals>
+    <plurals name="cr_widget_option_count">
+        <item quantity="one">%d επιλογή</item>
+        <item quantity="other">%d επιλογές</item>
+    </plurals>
+    <plurals name="dlg_action_data_value_summary">
+        <item quantity="one">%1$s · τιμή δεδομένων %2$d</item>
+        <item quantity="other">%1$s · %2$d τιμές δεδομένων</item>
+    </plurals>
+    <plurals name="dlg_arming_in_seconds">
+        <item quantity="one">Όπλιση σε %d δευτερόλεπτο</item>
+        <item quantity="other">Όπλιση σε %d δευτερόλεπτα</item>
+    </plurals>
+    <plurals name="dlg_seconds_short">
+        <item quantity="one">%d δευτ</item>
+        <item quantity="other">%d δευτ</item>
+    </plurals>
+    <plurals name="dlg_selected_entities_summary">
+        <item quantity="one">Επιλέχτηκε %1$d · %2$s</item>
+        <item quantity="other">Επιλέχτηκε %1$d · %2$s</item>
+    </plurals>
+    <plurals name="global_search_browse_entities">
+        <item quantity="one">Περιηγηθείτε στην οντότητα %1$d σε αυτήν τη συσκευή</item>
+        <item quantity="other">Περιηγηθείτε σε %1$d οντότητες σε αυτήν τη συσκευή</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="one">%1$d οντότητα</item>
+        <item quantity="other">%1$d οντότητες</item>
+    </plurals>
+    <plurals name="parcel_letter_count">
+        <item quantity="one">%1$d επιστολή</item>
+        <item quantity="other">%1$d γράμματα</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="one">%1$d δωμάτιο</item>
+        <item quantity="other">%1$d δωμάτια</item>
+    </plurals>
+    <plurals name="security_entity_count">
+        <item quantity="one">%1$d οντότητα</item>
+        <item quantity="other">%1$d οντότητες</item>
+    </plurals>
+    <plurals name="settings_extra_days_ago">
+        <item quantity="one">%1$d πριν από ημέρα</item>
+        <item quantity="other">%1$d πριν από ημέρες</item>
+    </plurals>
+    <plurals name="settings_extra_hours_ago">
+        <item quantity="one">%1$d ώρα πριν</item>
+        <item quantity="other">%1$d πριν από ώρες</item>
+    </plurals>
+    <plurals name="settings_extra_minutes_ago">
+        <item quantity="one">%1$d πριν από ένα λεπτό</item>
+        <item quantity="other">%1$d πριν από λεπτά</item>
+    </plurals>
+    <plurals name="settings_extra_shared_dashboards_pushed">
+        <item quantity="one">Πραγματοποιήθηκαν αλλαγές στον κοινόχρηστο πίνακα ελέγχου %1$d.</item>
+        <item quantity="other">Πραγματοποιήθηκαν αλλαγές στους κοινόχρηστους πίνακες ελέγχου %1$d.</item>
+    </plurals>
+    <plurals name="uif_active_device_count">
+        <item quantity="one">%1$d ενεργή συσκευή</item>
+        <item quantity="other">%1$d ενεργές συσκευές</item>
+    </plurals>
+    <plurals name="uif_adaptive_group_paused_count">
+        <item quantity="one">Το ομαδικό φως %1$d έχει τεθεί σε παύση για χειροκίνητο έλεγχο.</item>
+        <item quantity="other">Τα φώτα ομάδας %1$d έχουν τεθεί σε παύση για χειροκίνητο έλεγχο.</item>
+    </plurals>
+    <plurals name="uif_adaptive_profile_light_count">
+        <item quantity="one">Ελέγχει το φως %1$d σε αυτό το προφίλ.</item>
+        <item quantity="other">Ελέγχει τα φώτα %1$d σε αυτό το προφίλ.</item>
+    </plurals>
+    <plurals name="uif_days_to_season">
+        <item quantity="one">%1$d ημέρα έως %2$s</item>
+        <item quantity="other">%1$d ημέρες έως %2$s</item>
+    </plurals>
+    <plurals name="uif_device_on_count">
+        <item quantity="one">Η συσκευή %1$d είναι ενεργοποιημένη</item>
+        <item quantity="other">συσκευές %1$d ενεργοποιημένες</item>
+    </plurals>
+    <plurals name="uif_fire_detector_count">
+        <item quantity="one">%1$d ανιχνευτής πυρκαγιάς ενεργός</item>
+        <item quantity="other">%1$d ενεργοί ανιχνευτές πυρκαγιάς</item>
+    </plurals>
+    <plurals name="uif_flow_advanced_block_count">
+        <item quantity="one">%1$d σύνθετο μπλοκ στενογραφίας (διατηρήθηκε αμετάβλητο)</item>
+        <item quantity="other">%1$d προηγμένα μπλοκ συντομογραφίας (διατηρούνται αμετάβλητα)</item>
+    </plurals>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d κατάσταση μέσα</item>
+        <item quantity="other">%1$d συνθήκες εντός</item>
+    </plurals>
+    <plurals name="uif_gas_detector_count">
+        <item quantity="one">%1$d ανιχνευτής αερίου ενεργός</item>
+        <item quantity="other">%1$d ενεργοί ανιχνευτές αερίου</item>
+    </plurals>
+    <plurals name="uif_light_on_count">
+        <item quantity="one">Η φωτεινή ένδειξη %1$d είναι αναμμένη</item>
+        <item quantity="other">%1$d αναμμένα φώτα</item>
+    </plurals>
+    <plurals name="uif_media_item_count">
+        <item quantity="one">%1$d στοιχείο</item>
+        <item quantity="other">%1$d στοιχεία</item>
+    </plurals>
+    <plurals name="uif_motion_sensor_count">
+        <item quantity="one">%1$d ενεργός αισθητήρας κίνησης</item>
+        <item quantity="other">%1$d αισθητήρες κίνησης ενεργοί</item>
+    </plurals>
+    <plurals name="uif_open_door_count">
+        <item quantity="one">%1$d ανοιχτή πόρτα</item>
+        <item quantity="other">%1$d ανοιχτές πόρτες</item>
+    </plurals>
+    <plurals name="uif_open_window_count">
+        <item quantity="one">%1$d ανοιχτό παράθυρο</item>
+        <item quantity="other">%1$d ανοιχτά παράθυρα</item>
+    </plurals>
+    <plurals name="uif_presence_sensor_count">
+        <item quantity="one">%1$d ενεργός αισθητήρας παρουσίας</item>
+        <item quantity="other">%1$d ενεργοί αισθητήρες παρουσίας</item>
+    </plurals>
+    <plurals name="uif_smoke_detector_count">
+        <item quantity="one">%1$d ανιχνευτής καπνού ενεργός</item>
+        <item quantity="other">%1$d ενεργοί ανιχνευτές καπνού</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="one">Η μπαταρία %1$d χρειάζεται προσοχή</item>
+        <item quantity="other">Οι μπαταρίες %1$d χρειάζονται προσοχή</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="one">%1$d κρίσιμη μπαταρία</item>
+        <item quantity="other">%1$d κρίσιμες μπαταρίες</item>
+    </plurals>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="one">%1$d χαμηλή μπαταρία</item>
+        <item quantity="other">%1$d χαμηλή μπαταρία</item>
+    </plurals>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="one">Γράφημα %1$d · %2$d αισθητήρας</item>
+        <item quantity="other">Γράφημα %1$d · %2$d αισθητήρες</item>
+    </plurals>
+</resources>

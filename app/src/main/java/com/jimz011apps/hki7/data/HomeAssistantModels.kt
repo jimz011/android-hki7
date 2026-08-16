@@ -1005,6 +1005,12 @@ data class HKIEnergyConfig(
     val gasDeviceId: String? = null,
     val cityHeatingDeviceId: String? = null,
     val waterDeviceId: String? = null,
+    /**
+     * Currency for the cost stats on the Energy view: an ISO-4217 code ("EUR", "SEK") or a bare
+     * symbol. Null/blank means automatic — the cost sensor's own `unit_of_measurement` decides,
+     * and the device region is the last resort.
+     */
+    val currencyCode: String? = null,
     /** Energy sensor roles explicitly changed by the user; source-device guesses must preserve them. */
     val customizedEntityRoles: Set<String> = emptySet()
 )
@@ -1337,6 +1343,12 @@ fun iconOnlyIconSizeDp(
 data class HKIButtonConfig(
     val name: String? = null,
     val icon: String? = null,
+    /** Leaves this button out of the room's automatic counters. The Lights and Devices counters
+     *  tally every light and switch shown in a room, which is right until a room contains one that
+     *  is not really part of it — a TV backlight, a server-rack fan, a switch that drives something
+     *  in another room entirely. Hiding the button would remove the control too; this keeps it and
+     *  only stops it being counted. */
+    val excludeFromCounters: Boolean = false,
     // Per-icon animation override: "auto" (follow the global setting + domain default), "off",
     // or a forced effect: "glow", "spin", "pulse".
     val iconAnimation: String = "auto",

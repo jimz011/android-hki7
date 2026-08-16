@@ -446,6 +446,14 @@
     <string name="cr_name_z_a">Navn Z–A</string>
     <string name="cr_climate_device">Klimaenhet</string>
     <string name="cr_climate_device_subtitle">Navn, ikon, kortstil og bredde</string>
+    <string name="cr_widget_requires_f1">Trenger F1-sensorintegrasjonen, som ikke ble funnet på din Home Assistant</string>
+    <string name="cr_widget_requires_parcels">Trenger en pakkeintegrasjon, og ingen ble funnet på din Home Assistant</string>
+    <string name="cr_widget_requires_waste">Trenger en avfallsinnsamlingsintegrasjon, og ingen ble funnet på din Home Assistant</string>
+    <string name="cr_people_here_title">Hvem er her</string>
+    <string name="cr_people_here_empty">Ingen blir sporet i dette rommet akkurat nå.</string>
+    <string name="cr_people_here_unknown_room">Rom ukjent</string>
+    <string name="cr_button_exclude_counters">La ut av tellere</string>
+    <string name="cr_button_exclude_counters_hint">Behold knappen, men stopp den med å telle mot summen av lys og enheter i dette rommet</string>
     <string name="cr_count_with_average">%1$s · gjennomsnitt %2$s%3$s</string>
     <string name="cr_outside_temperature">Utetemperatur</string>
     <string name="cr_outside_humidity">Utenfor fuktighet</string>
@@ -1185,6 +1193,13 @@
     <string name="energy_extra_picker_device_energy_counters">Enhetsenergitellere</string>
     <string name="energy_extra_auto_power_sensors_help">Alle sensorer med device_class strøm er inkludert automatisk. Fjern en enhet for å lage din egen liste.</string>
     <string name="energy_extra_auto_energy_sensors_help">Alle sensorer med device_class energi er inkludert automatisk. Tellerendringene deres brukes for den valgte perioden.</string>
+    <string name="energy_extra_currency">Valuta</string>
+    <string name="energy_extra_currency_subtitle">Hvilken valuta kostnadsstatistikken vises i</string>
+    <string name="energy_extra_currency_search">Søk etter valutaer</string>
+    <string name="energy_extra_currency_automatic">Automatisk</string>
+    <string name="energy_extra_currency_automatic_subtitle">Følg kostnadssensorene dine, deretter enhetens region</string>
+    <string name="energy_extra_currency_automatic_value">Automatisk (%1$s)</string>
+    <string name="energy_extra_currency_manual_value">%1$s (%2$s)</string>
     <string name="energy_extra_energy_card">Energikort</string>
     <string name="energy_extra_energy_card_subtitle">Datakilder og kortets utseende</string>
     <string name="energy_extra_card_and_data">Kort og data</string>
@@ -2486,7 +2501,6 @@
     <string name="ui_text_98d3f75">✓ %1$s</string>
     <string name="ui_text_9e5a283">%1$s×</string>
     <string name="ui_text_a105b80">%1$s/%2$s</string>
-    <string name="ui_text_b92cdc7">€ %1$s</string>
     <string name="ui_text_be10035">· %1$s</string>
     <string name="ui_text_c1aacd9">%1$s · %2$s</string>
     <string name="ui_text_c3328c3">Tekst</string>
@@ -2760,6 +2774,13 @@
     <string name="settings_extra_dashboard_backup_saved">Dashboard-sikkerhetskopi lagret.</string>
     <string name="settings_extra_dashboard_copy_name">%1$s kopi</string>
     <string name="settings_extra_dashboard_default_name">Dashboard %1$d</string>
+    <string name="settings_extra_new_dashboard_confirm_body">Dette legger til et dashbord ved siden av det du bruker. Det nåværende dashbordet ditt beholdes nøyaktig slik det er og blir aldri overskrevet – du kan bytte mellom dem når som helst.</string>
+    <string name="settings_extra_new_dashboard_confirm_action">Fortsette</string>
+    <string name="settings_extra_new_dashboard_created">Opprettet «%1$s»</string>
+    <string name="uif_onboarding_shared_already_added">Allerede lagt til</string>
+    <string name="settings_extra_dashboard_shared_badge">Delt</string>
+    <string name="settings_extra_dashboard_shared_subtitle">Delt med deg av familien din. Trykk for å laste</string>
+    <string name="settings_extra_dashboard_shared_loaded">Delt med deg av familien din. For øyeblikket lastet</string>
     <string name="settings_extra_dashboard_generating">Det nye dashbordet ditt genereres automatisk.</string>
     <string name="settings_extra_dashboard_mode_auto">Automatisk</string>
     <string name="settings_extra_dashboard_mode_manual">Håndbok</string>
@@ -2823,6 +2844,8 @@
     <string name="settings_extra_location_allowed_always">Tillatt hele tiden</string>
     <string name="settings_extra_location_allowed_foreground">Kun tillatt mens du bruker appen</string>
     <string name="settings_extra_location_not_allowed">Ikke tillatt</string>
+    <string name="language_search_placeholder">Søk etter språk</string>
+    <string name="language_search_no_matches">Ingen språk samsvarer med «%1$s»</string>
     <string name="settings_extra_language_dutch">Nederlands</string>
     <string name="settings_extra_language_english">engelsk</string>
     <string name="settings_extra_language_french">Français</string>
@@ -3477,4 +3500,7 @@
     <string name="widgets_energy_phase_number">Fase %1$d</string>
     <string name="widgets_energy_forecast_number">Værmelding %1$d</string>
     <string name="widgets_energy_ha_forecast">Home Assistant-prognose</string>
+    <string name="widgets_battery_search">Søk etter enheter</string>
+    <string name="widgets_battery_none">Ingen batterier samsvarer med det søket.</string>
+    <string name="widgets_battery_open_page">Åpne batterisiden</string>
 </resources>

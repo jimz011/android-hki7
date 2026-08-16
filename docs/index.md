@@ -101,7 +101,7 @@ access at all.
 
 | | |
 |---|---|
-| **Android** | 14 or newer (minSdk 34) |
+| **Android** | 12 or newer (minSdk 31) |
 | **Home Assistant** | Any reachable instance — local URL, remote URL, or Home Assistant Cloud (Nabu Casa) |
 | **Family sharing** | Additionally needs [HKI 7 Cloud](https://github.com/jimz011/HKI7-Cloud-Component) `0.10.0` or newer, installed via HACS |
 

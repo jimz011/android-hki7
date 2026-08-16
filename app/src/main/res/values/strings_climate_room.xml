@@ -135,6 +135,14 @@
     <string name="cr_name_z_a">Name Z–A</string>
     <string name="cr_climate_device">Climate device</string>
     <string name="cr_climate_device_subtitle">Name, icon, card style, and width</string>
+    <string name="cr_widget_requires_f1">Needs the F1 Sensor integration, which was not found on your Home Assistant</string>
+    <string name="cr_widget_requires_parcels">Needs a parcel integration, and none was found on your Home Assistant</string>
+    <string name="cr_widget_requires_waste">Needs a waste collection integration, and none was found on your Home Assistant</string>
+    <string name="cr_people_here_title">Who is here</string>
+    <string name="cr_people_here_empty">Nobody is being tracked in this room right now.</string>
+    <string name="cr_people_here_unknown_room">Room unknown</string>
+    <string name="cr_button_exclude_counters">Leave out of counters</string>
+    <string name="cr_button_exclude_counters_hint">Keep the button, but stop it counting towards this room’s Lights and Devices totals</string>
     <string name="cr_count_with_average">%1$s · avg %2$s%3$s</string>
     <string name="cr_outside_temperature">Outside temperature</string>
     <string name="cr_outside_humidity">Outside humidity</string>
@@ -338,6 +346,24 @@
     <string name="cr_quick_make_it_yours_instruction">In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.</string>
 
     <!-- Current release -->
+    <string-array name="cr_whats_new_1_1_0">
+        <item>Eighteen more languages, taking HKI 7 to 36. Polish, Russian, Czech, Slovak, Hungarian, Romanian, Bulgarian, Croatian, Greek, Lithuanian, Latvian, Estonian, Danish, Thai and Hebrew join the list, along with Austrian German, Swiss German and Mexican Spanish. Hebrew lays the interface out right to left, as Arabic does.</item>
+        <item>HKI 7 now runs on Android 12 and later. It previously needed Android 14, which ruled out a lot of perfectly capable phones and tablets.</item>
+        <item>Energy costs are shown in your own currency instead of always in euros. HKI 7 follows what your cost sensors report, and there is a Currency setting in Energy settings if you would rather choose one yourself.</item>
+        <item>The language picker has a search box and is sorted, which it needed at 36 entries. If you ever land in a language you cannot read, the way back is still the first thing on screen.</item>
+        <item>Views remember where you had scrolled to, and tapping the tab you are already on takes you back to the top.</item>
+        <item>Swiping sideways no longer carries you out of a page you have opened, such as Solar inside Energy. Back now returns you to the view you came from rather than jumping to the home page.</item>
+        <item>Scrollable rows say so. The pull-down menu, the navigation bar and the settings tabs all show an arrow at the edge when there is more to reach.</item>
+        <item>Dialogs look and behave the same throughout. Six of them were plain Android dialogs with no close button in the corner, and buttons across the app now agree on what Close, Save and Done mean.</item>
+        <item>Creating a dashboard asks first and then offers the same choices as first-time setup — so a new dashboard can start from a backup or from one your family has shared, as well as being generated or left empty. Your current dashboard is never overwritten, and shared dashboards are now marked as shared in the list.</item>
+        <item>The battery widget opens a list in place instead of taking you to a separate page, grouped by how urgent each one is and showing the battery type where Home Assistant knows it. There is a search box, and a button to open the full Battery view if you want it.</item>
+        <item>Tapping the people counter in a room shows who is there, with each person\'s picture. The Rooms header now has a household counter too, showing where everyone is without opening every room.</item>
+        <item>A button can be left out of a room\'s Lights and Devices counters, for the ones that are in the room but not really part of it.</item>
+        <item>Widgets that need an integration you do not have — Formula 1, Parcels, Waste Collection — are greyed out and say what is missing, instead of being added and then sitting empty.</item>
+        <item>Parcel tracking covers fifteen more carriers, including PostNord, InPost, Swiss Post, An Post, Budbee, Sameday and Nova Post, each with its own logo.</item>
+        <item>A Valetudo robot vacuum picks up its live map automatically when your rooms are imported, rather than needing the camera chosen by hand.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_0_1">
         <item>Swiping between tabs now follows your finger. The pages move as you drag, you can change your mind mid-swipe and pull them back, and they settle where you let go. Previously the change was decided the moment you had dragged far enough and could not be taken back, while the animation that played afterwards was on its own timer and unrelated to the gesture — so the app committed to a page before your finger had finished asking for one.</item>
         <item>The bottom bar now keeps the selected tab in view. On a phone too narrow for every tab it scrolls the active one to the centre, so the tab you are on is always visible along with its neighbours — which is also the hint that there are more pages to swipe to. Reaching the last tab used to leave the indicator somewhere off the end of the bar.</item>

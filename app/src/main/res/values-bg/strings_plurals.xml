@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="core_last_seen_days">
+        <item quantity="one">Последно ползване преди %1$d ден</item>
+        <item quantity="other">Последно ползване преди %1$d дни</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="one">Последно видян преди %1$d час</item>
+        <item quantity="other">Последно ползване преди %1$d часа</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="one">Последно видян преди %1$d минута</item>
+        <item quantity="other">Последно видян преди %1$d минути</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="one">Последно видян преди %1$d седмица</item>
+        <item quantity="other">Последно видян преди %1$d седмици</item>
+    </plurals>
+    <plurals name="core_media_players_playing">
+        <item quantity="one">Възпроизвежда се мултимедиен плейър %1$d</item>
+        <item quantity="other">Възпроизвеждат се %1$d медийни плейъри</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="one">Автоматично + %d ръчно</item>
+        <item quantity="other">Автоматично + %d ръчно</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="one">%d конфигурирана светлина</item>
+        <item quantity="other">%d конфигурирани светлини</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="one">%1$d устройство · %2$d включено</item>
+        <item quantity="other">%1$d устройства · %2$d включени</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="one">%d външен сензор е зададен</item>
+        <item quantity="other">Зададени са %d външни сензора</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="one">%d премахнати</item>
+        <item quantity="other">%d премахнати</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="one">%d избрани</item>
+        <item quantity="other">%d избрани</item>
+    </plurals>
+    <plurals name="cr_sensor_count">
+        <item quantity="one">%d сензор</item>
+        <item quantity="other">%d сензора</item>
+    </plurals>
+    <plurals name="cr_widget_option_count">
+        <item quantity="one">%d опция</item>
+        <item quantity="other">%d опции</item>
+    </plurals>
+    <plurals name="dlg_action_data_value_summary">
+        <item quantity="one">%1$s · %2$d стойност на данните</item>
+        <item quantity="other">%1$s · %2$d стойности на данните</item>
+    </plurals>
+    <plurals name="dlg_arming_in_seconds">
+        <item quantity="one">Активиране след %d секунда</item>
+        <item quantity="other">Активиране след %d секунди</item>
+    </plurals>
+    <plurals name="dlg_seconds_short">
+        <item quantity="one">%d сек</item>
+        <item quantity="other">%d сек</item>
+    </plurals>
+    <plurals name="dlg_selected_entities_summary">
+        <item quantity="one">%1$d избрано · %2$s</item>
+        <item quantity="other">%1$d избрано · %2$s</item>
+    </plurals>
+    <plurals name="global_search_browse_entities">
+        <item quantity="one">Прегледайте %1$d обект на това устройство</item>
+        <item quantity="other">Прегледайте %1$d обекти на това устройство</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="one">%1$d обект</item>
+        <item quantity="other">%1$d обекти</item>
+    </plurals>
+    <plurals name="parcel_letter_count">
+        <item quantity="one">%1$d писмо</item>
+        <item quantity="other">%1$d букви</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="one">%1$d стая</item>
+        <item quantity="other">%1$d стаи</item>
+    </plurals>
+    <plurals name="security_entity_count">
+        <item quantity="one">%1$d обект</item>
+        <item quantity="other">%1$d обекти</item>
+    </plurals>
+    <plurals name="settings_extra_days_ago">
+        <item quantity="one">преди %1$d ден</item>
+        <item quantity="other">преди %1$d дни</item>
+    </plurals>
+    <plurals name="settings_extra_hours_ago">
+        <item quantity="one">преди %1$d час</item>
+        <item quantity="other">преди %1$d часа</item>
+    </plurals>
+    <plurals name="settings_extra_minutes_ago">
+        <item quantity="one">преди %1$d минути</item>
+        <item quantity="other">преди %1$d минути</item>
+    </plurals>
+    <plurals name="settings_extra_shared_dashboards_pushed">
+        <item quantity="one">Изпратени промени в %1$d споделено табло за управление.</item>
+        <item quantity="other">Изпратени промени в %1$d споделени табла за управление.</item>
+    </plurals>
+    <plurals name="uif_active_device_count">
+        <item quantity="one">%1$d активно устройство</item>
+        <item quantity="other">%1$d активни устройства</item>
+    </plurals>
+    <plurals name="uif_adaptive_group_paused_count">
+        <item quantity="one">%1$d груповата светлина е поставена на пауза за ръчно управление.</item>
+        <item quantity="other">%1$d груповите светлини са поставени на пауза за ръчно управление.</item>
+    </plurals>
+    <plurals name="uif_adaptive_profile_light_count">
+        <item quantity="one">Контролира %1$d светлина в този профил.</item>
+        <item quantity="other">Управлява %1$d светлини в този профил.</item>
+    </plurals>
+    <plurals name="uif_days_to_season">
+        <item quantity="one">%1$d ден до %2$s</item>
+        <item quantity="other">%1$d дни до %2$s</item>
+    </plurals>
+    <plurals name="uif_device_on_count">
+        <item quantity="one">%1$d устройството е включено</item>
+        <item quantity="other">%1$d устройства включени</item>
+    </plurals>
+    <plurals name="uif_fire_detector_count">
+        <item quantity="one">%1$d активен пожароизвестител</item>
+        <item quantity="other">%1$d активни пожароизвестители</item>
+    </plurals>
+    <plurals name="uif_flow_advanced_block_count">
+        <item quantity="one">%1$d разширен стенографски блок (запазен непроменен)</item>
+        <item quantity="other">%1$d разширени стенографски блокове (запазени непроменени)</item>
+    </plurals>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d състояние вътре</item>
+        <item quantity="other">%1$d условия вътре</item>
+    </plurals>
+    <plurals name="uif_gas_detector_count">
+        <item quantity="one">%1$d активен детектор за газ</item>
+        <item quantity="other">%1$d активни детектори за газ</item>
+    </plurals>
+    <plurals name="uif_light_on_count">
+        <item quantity="one">%1$d свети</item>
+        <item quantity="other">%1$d свети</item>
+    </plurals>
+    <plurals name="uif_media_item_count">
+        <item quantity="one">%1$d елемент</item>
+        <item quantity="other">%1$d елемента</item>
+    </plurals>
+    <plurals name="uif_motion_sensor_count">
+        <item quantity="one">%1$d активен сензор за движение</item>
+        <item quantity="other">%1$d активни сензори за движение</item>
+    </plurals>
+    <plurals name="uif_open_door_count">
+        <item quantity="one">%1$d отворена врата</item>
+        <item quantity="other">%1$d отворени врати</item>
+    </plurals>
+    <plurals name="uif_open_window_count">
+        <item quantity="one">%1$d отворен прозорец</item>
+        <item quantity="other">%1$d отворени прозорци</item>
+    </plurals>
+    <plurals name="uif_presence_sensor_count">
+        <item quantity="one">%1$d активен сензор за присъствие</item>
+        <item quantity="other">%1$d активни сензори за присъствие</item>
+    </plurals>
+    <plurals name="uif_smoke_detector_count">
+        <item quantity="one">%1$d активен детектор за дим</item>
+        <item quantity="other">%1$d активни детектори за дим</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="one">%1$d батерия изисква внимание</item>
+        <item quantity="other">%1$d батериите се нуждаят от внимание</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="one">%1$d критична батерия</item>
+        <item quantity="other">%1$d критични батерии</item>
+    </plurals>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="one">%1$d ниска батерия</item>
+        <item quantity="other">%1$d изтощени батерии</item>
+    </plurals>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="one">Графика %1$d · %2$d сензор</item>
+        <item quantity="other">Графика %1$d · %2$d сензори</item>
+    </plurals>
+</resources>

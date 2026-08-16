@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="core_last_seen_days">
+        <item quantity="one">Zadnji put viđen prije %1$d dan</item>
+        <item quantity="few">Zadnji put viđen prije %1$d dana</item>
+        <item quantity="other">Zadnji put viđen prije %1$d dana</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="one">Zadnji put viđen prije %1$d sat</item>
+        <item quantity="few">Zadnji put viđen prije %1$d sati</item>
+        <item quantity="other">Zadnji put viđen prije %1$d sati</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="one">Zadnji put viđen prije %1$d minute</item>
+        <item quantity="few">Zadnji put viđen prije %1$d minuta</item>
+        <item quantity="other">Zadnji put viđen prije %1$d minuta</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="one">Zadnji put viđen prije %1$d tjedan dana</item>
+        <item quantity="few">Zadnji put viđen prije %1$d tjedana</item>
+        <item quantity="other">Zadnji put viđen prije %1$d tjedana</item>
+    </plurals>
+    <plurals name="core_media_players_playing">
+        <item quantity="one">Reproducira se %1$d media player</item>
+        <item quantity="few">%1$d reproducira medije</item>
+        <item quantity="other">%1$d reproducira medije</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="one">Automatski + %d ručno</item>
+        <item quantity="few">Automatski + %d ručno</item>
+        <item quantity="other">Automatski + %d ručno</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="one">%d konfigurirano svjetlo</item>
+        <item quantity="few">%d konfigurirana svjetla</item>
+        <item quantity="other">%d konfigurirana svjetla</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="one">%1$d uređaj · %2$d uključen</item>
+        <item quantity="few">%1$d uređaja · %2$d uključeno</item>
+        <item quantity="other">%1$d uređaja · %2$d uključeno</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="one">%d postavljen vanjski senzor</item>
+        <item quantity="few">Postavljeno %d vanjskih senzora</item>
+        <item quantity="other">Postavljeno %d vanjskih senzora</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="one">%d uklonjeno</item>
+        <item quantity="few">%d uklonjeno</item>
+        <item quantity="other">%d uklonjeno</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="one">%d odabrano</item>
+        <item quantity="few">%d odabrano</item>
+        <item quantity="other">%d odabrano</item>
+    </plurals>
+    <plurals name="cr_sensor_count">
+        <item quantity="one">%d senzor</item>
+        <item quantity="few">%d senzora</item>
+        <item quantity="other">%d senzora</item>
+    </plurals>
+    <plurals name="cr_widget_option_count">
+        <item quantity="one">%d opcija</item>
+        <item quantity="few">%d opcija</item>
+        <item quantity="other">%d opcija</item>
+    </plurals>
+    <plurals name="dlg_action_data_value_summary">
+        <item quantity="one">%1$s · %2$d vrijednost podataka</item>
+        <item quantity="few">%1$s · %2$d vrijednosti podataka</item>
+        <item quantity="other">%1$s · %2$d vrijednosti podataka</item>
+    </plurals>
+    <plurals name="dlg_arming_in_seconds">
+        <item quantity="one">Uključuje se za %d sekundu</item>
+        <item quantity="few">Aktiviranje za %d sekundi</item>
+        <item quantity="other">Aktiviranje za %d sekundi</item>
+    </plurals>
+    <plurals name="dlg_seconds_short">
+        <item quantity="one">%d s</item>
+        <item quantity="few">%d s</item>
+        <item quantity="other">%d s</item>
+    </plurals>
+    <plurals name="dlg_selected_entities_summary">
+        <item quantity="one">%1$d odabrano · %2$s</item>
+        <item quantity="few">%1$d odabrano · %2$s</item>
+        <item quantity="other">%1$d odabrano · %2$s</item>
+    </plurals>
+    <plurals name="global_search_browse_entities">
+        <item quantity="one">Pregledajte %1$d entitet na ovom uređaju</item>
+        <item quantity="few">Pregledajte %1$d entiteta na ovom uređaju</item>
+        <item quantity="other">Pregledajte %1$d entiteta na ovom uređaju</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="one">%1$d entitet</item>
+        <item quantity="few">%1$d entiteta</item>
+        <item quantity="other">%1$d entiteta</item>
+    </plurals>
+    <plurals name="parcel_letter_count">
+        <item quantity="one">%1$d pismo</item>
+        <item quantity="few">%1$d slova</item>
+        <item quantity="other">%1$d slova</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="one">%1$d soba</item>
+        <item quantity="few">%1$d soba</item>
+        <item quantity="other">%1$d soba</item>
+    </plurals>
+    <plurals name="security_entity_count">
+        <item quantity="one">%1$d entitet</item>
+        <item quantity="few">%1$d entiteta</item>
+        <item quantity="other">%1$d entiteta</item>
+    </plurals>
+    <plurals name="settings_extra_days_ago">
+        <item quantity="one">prije %1$d dan</item>
+        <item quantity="few">prije %1$d dana</item>
+        <item quantity="other">prije %1$d dana</item>
+    </plurals>
+    <plurals name="settings_extra_hours_ago">
+        <item quantity="one">prije %1$d sat</item>
+        <item quantity="few">prije %1$d sati</item>
+        <item quantity="other">prije %1$d sati</item>
+    </plurals>
+    <plurals name="settings_extra_minutes_ago">
+        <item quantity="one">prije %1$d minute</item>
+        <item quantity="few">prije %1$d minuta</item>
+        <item quantity="other">prije %1$d minuta</item>
+    </plurals>
+    <plurals name="settings_extra_shared_dashboards_pushed">
+        <item quantity="one">Unesene promjene na %1$d dijeljenu nadzornu ploču.</item>
+        <item quantity="few">Unesene promjene na %1$d dijeljenih nadzornih ploča.</item>
+        <item quantity="other">Unesene promjene na %1$d dijeljenih nadzornih ploča.</item>
+    </plurals>
+    <plurals name="uif_active_device_count">
+        <item quantity="one">%1$d aktivni uređaj</item>
+        <item quantity="few">%1$d aktivnih uređaja</item>
+        <item quantity="other">%1$d aktivnih uređaja</item>
+    </plurals>
+    <plurals name="uif_adaptive_group_paused_count">
+        <item quantity="one">%1$d grupno svjetlo je pauzirano za ručnu kontrolu.</item>
+        <item quantity="few">Grupna svjetla %1$d su pauzirana za ručnu kontrolu.</item>
+        <item quantity="other">Grupna svjetla %1$d su pauzirana za ručnu kontrolu.</item>
+    </plurals>
+    <plurals name="uif_adaptive_profile_light_count">
+        <item quantity="one">Kontrolira svjetlo %1$d u ovom profilu.</item>
+        <item quantity="few">Kontrolira %1$d svjetla u ovom profilu.</item>
+        <item quantity="other">Kontrolira %1$d svjetla u ovom profilu.</item>
+    </plurals>
+    <plurals name="uif_days_to_season">
+        <item quantity="one">%1$d dana do %2$s</item>
+        <item quantity="few">%1$d dana do %2$s</item>
+        <item quantity="other">%1$d dana do %2$s</item>
+    </plurals>
+    <plurals name="uif_device_on_count">
+        <item quantity="one">%1$d uređaj uključen</item>
+        <item quantity="few">%1$d uređaja uključeno</item>
+        <item quantity="other">%1$d uređaja uključeno</item>
+    </plurals>
+    <plurals name="uif_fire_detector_count">
+        <item quantity="one">%1$d detektor požara aktivan</item>
+        <item quantity="few">%1$d aktivni detektori požara</item>
+        <item quantity="other">%1$d aktivni detektori požara</item>
+    </plurals>
+    <plurals name="uif_flow_advanced_block_count">
+        <item quantity="one">%1$d napredni stenografski blok (zadržano nepromijenjeno)</item>
+        <item quantity="few">%1$d napredni stenografski blokovi (zadržano nepromijenjeno)</item>
+        <item quantity="other">%1$d napredni stenografski blokovi (zadržano nepromijenjeno)</item>
+    </plurals>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d stanje unutra</item>
+        <item quantity="few">%1$d uvjeti unutra</item>
+        <item quantity="other">%1$d uvjeti unutra</item>
+    </plurals>
+    <plurals name="uif_gas_detector_count">
+        <item quantity="one">%1$d detektor plina aktivan</item>
+        <item quantity="few">%1$d aktivni detektori plina</item>
+        <item quantity="other">%1$d aktivni detektori plina</item>
+    </plurals>
+    <plurals name="uif_light_on_count">
+        <item quantity="one">%1$d svijetli</item>
+        <item quantity="few">%1$d svijetli</item>
+        <item quantity="other">%1$d svijetli</item>
+    </plurals>
+    <plurals name="uif_media_item_count">
+        <item quantity="one">%1$d stavka</item>
+        <item quantity="few">%1$d stavke</item>
+        <item quantity="other">%1$d stavke</item>
+    </plurals>
+    <plurals name="uif_motion_sensor_count">
+        <item quantity="one">%1$d senzor pokreta aktivan</item>
+        <item quantity="few">%1$d senzori pokreta aktivni</item>
+        <item quantity="other">%1$d senzori pokreta aktivni</item>
+    </plurals>
+    <plurals name="uif_open_door_count">
+        <item quantity="one">%1$d otvorena vrata</item>
+        <item quantity="few">%1$d otvorena vrata</item>
+        <item quantity="other">%1$d otvorena vrata</item>
+    </plurals>
+    <plurals name="uif_open_window_count">
+        <item quantity="one">%1$d otvoreni prozor</item>
+        <item quantity="few">%1$d otvoreni prozori</item>
+        <item quantity="other">%1$d otvoreni prozori</item>
+    </plurals>
+    <plurals name="uif_presence_sensor_count">
+        <item quantity="one">%1$d senzor prisutnosti aktivan</item>
+        <item quantity="few">%1$d aktivni senzori prisutnosti</item>
+        <item quantity="other">%1$d aktivni senzori prisutnosti</item>
+    </plurals>
+    <plurals name="uif_smoke_detector_count">
+        <item quantity="one">%1$d detektor dima aktivan</item>
+        <item quantity="few">%1$d aktivni detektori dima</item>
+        <item quantity="other">%1$d aktivni detektori dima</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="one">%1$d baterija zahtijeva pozornost</item>
+        <item quantity="few">%1$d baterije zahtijevaju pozornost</item>
+        <item quantity="other">%1$d baterije zahtijevaju pozornost</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="one">%1$d kritična baterija</item>
+        <item quantity="few">%1$d kritične baterije</item>
+        <item quantity="other">%1$d kritične baterije</item>
+    </plurals>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="one">%1$d slaba baterija</item>
+        <item quantity="few">%1$d niske baterije</item>
+        <item quantity="other">%1$d niske baterije</item>
+    </plurals>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="one">Grafikon %1$d · %2$d senzor</item>
+        <item quantity="few">Grafikon %1$d · %2$d senzora</item>
+        <item quantity="other">Grafikon %1$d · %2$d senzora</item>
+    </plurals>
+</resources>

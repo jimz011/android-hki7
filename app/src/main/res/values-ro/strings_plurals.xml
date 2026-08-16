@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="core_last_seen_days">
+        <item quantity="one">Văzut ultima dată acum %1$d zi</item>
+        <item quantity="few">Văzut ultima dată acum %1$d zile</item>
+        <item quantity="other">Văzut ultima dată acum %1$d zile</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="one">Văzut ultima dată acum %1$d oră</item>
+        <item quantity="few">Văzut ultima dată acum %1$d ore</item>
+        <item quantity="other">Văzut ultima dată acum %1$d ore</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="one">Văzut ultima dată acum %1$d minut</item>
+        <item quantity="few">Văzut ultima dată acum %1$d minute</item>
+        <item quantity="other">Văzut ultima dată acum %1$d minute</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="one">Văzut ultima dată acum %1$d săptămână</item>
+        <item quantity="few">Văzut ultima dată acum %1$d săptămâni</item>
+        <item quantity="other">Văzut ultima dată acum %1$d săptămâni</item>
+    </plurals>
+    <plurals name="core_media_players_playing">
+        <item quantity="one">%1$d playerul media se redă</item>
+        <item quantity="few">%1$d playere media se joacă</item>
+        <item quantity="other">%1$d playere media se joacă</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="one">Automat + %d manual</item>
+        <item quantity="few">Automat + %d manual</item>
+        <item quantity="other">Automat + %d manual</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="one">%d lumină configurată</item>
+        <item quantity="few">%d lumini configurate</item>
+        <item quantity="other">%d lumini configurate</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="one">%1$d dispozitiv · %2$d pornit</item>
+        <item quantity="few">%1$d dispozitive · %2$d activat</item>
+        <item quantity="other">%1$d dispozitive · %2$d activat</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="one">%d senzor exterior setat</item>
+        <item quantity="few">%d senzori externi setati</item>
+        <item quantity="other">%d senzori externi setati</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="one">%d eliminat</item>
+        <item quantity="few">%d eliminat</item>
+        <item quantity="other">%d eliminat</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="one">%d selectat</item>
+        <item quantity="few">%d selectat</item>
+        <item quantity="other">%d selectat</item>
+    </plurals>
+    <plurals name="cr_sensor_count">
+        <item quantity="one">%d senzor</item>
+        <item quantity="few">%d senzori</item>
+        <item quantity="other">%d senzori</item>
+    </plurals>
+    <plurals name="cr_widget_option_count">
+        <item quantity="one">%d opțiune</item>
+        <item quantity="few">%d opțiuni</item>
+        <item quantity="other">%d opțiuni</item>
+    </plurals>
+    <plurals name="dlg_action_data_value_summary">
+        <item quantity="one">%1$s · %2$d valoarea datelor</item>
+        <item quantity="few">%1$s · %2$d valorile datelor</item>
+        <item quantity="other">%1$s · %2$d valorile datelor</item>
+    </plurals>
+    <plurals name="dlg_arming_in_seconds">
+        <item quantity="one">Armare în %d secundă</item>
+        <item quantity="few">Armare în %d secunde</item>
+        <item quantity="other">Armare în %d secunde</item>
+    </plurals>
+    <plurals name="dlg_seconds_short">
+        <item quantity="one">%d sec</item>
+        <item quantity="few">%d sec</item>
+        <item quantity="other">%d sec</item>
+    </plurals>
+    <plurals name="dlg_selected_entities_summary">
+        <item quantity="one">%1$d selectat · %2$s</item>
+        <item quantity="few">%1$d selectat · %2$s</item>
+        <item quantity="other">%1$d selectat · %2$s</item>
+    </plurals>
+    <plurals name="global_search_browse_entities">
+        <item quantity="one">Răsfoiți entitatea %1$d pe acest dispozitiv</item>
+        <item quantity="few">Răsfoiți entitățile %1$d pe acest dispozitiv</item>
+        <item quantity="other">Răsfoiți entitățile %1$d pe acest dispozitiv</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="one">%1$d entitate</item>
+        <item quantity="few">%1$d entități</item>
+        <item quantity="other">%1$d entități</item>
+    </plurals>
+    <plurals name="parcel_letter_count">
+        <item quantity="one">%1$d scrisoare</item>
+        <item quantity="few">%1$d litere</item>
+        <item quantity="other">%1$d litere</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="one">%1$d cameră</item>
+        <item quantity="few">%1$d camere</item>
+        <item quantity="other">%1$d camere</item>
+    </plurals>
+    <plurals name="security_entity_count">
+        <item quantity="one">%1$d entitate</item>
+        <item quantity="few">%1$d entități</item>
+        <item quantity="other">%1$d entități</item>
+    </plurals>
+    <plurals name="settings_extra_days_ago">
+        <item quantity="one">%1$d zi în urmă</item>
+        <item quantity="few">%1$d zile în urmă</item>
+        <item quantity="other">%1$d zile în urmă</item>
+    </plurals>
+    <plurals name="settings_extra_hours_ago">
+        <item quantity="one">acum %1$d oră</item>
+        <item quantity="few">%1$d ore în urmă</item>
+        <item quantity="other">%1$d ore în urmă</item>
+    </plurals>
+    <plurals name="settings_extra_minutes_ago">
+        <item quantity="one">%1$d minut în urmă</item>
+        <item quantity="few">%1$d minute în urmă</item>
+        <item quantity="other">%1$d minute în urmă</item>
+    </plurals>
+    <plurals name="settings_extra_shared_dashboards_pushed">
+        <item quantity="one">S-au introdus modificări la %1$d tabloul de bord comun.</item>
+        <item quantity="few">S-au introdus modificări la %1$d tablouri de bord partajate.</item>
+        <item quantity="other">S-au introdus modificări la %1$d tablouri de bord partajate.</item>
+    </plurals>
+    <plurals name="uif_active_device_count">
+        <item quantity="one">%1$d dispozitiv activ</item>
+        <item quantity="few">%1$d dispozitive active</item>
+        <item quantity="other">%1$d dispozitive active</item>
+    </plurals>
+    <plurals name="uif_adaptive_group_paused_count">
+        <item quantity="one">Lumina grupului %1$d este întreruptă pentru control manual.</item>
+        <item quantity="few">%1$d luminile de grup sunt întrerupte pentru control manual.</item>
+        <item quantity="other">%1$d luminile de grup sunt întrerupte pentru control manual.</item>
+    </plurals>
+    <plurals name="uif_adaptive_profile_light_count">
+        <item quantity="one">Controlează lumina %1$d în acest profil.</item>
+        <item quantity="few">Controlează %1$d lumini din acest profil.</item>
+        <item quantity="other">Controlează %1$d lumini din acest profil.</item>
+    </plurals>
+    <plurals name="uif_days_to_season">
+        <item quantity="one">%1$d zi până la %2$s</item>
+        <item quantity="few">%1$d zile până la %2$s</item>
+        <item quantity="other">%1$d zile până la %2$s</item>
+    </plurals>
+    <plurals name="uif_device_on_count">
+        <item quantity="one">%1$d dispozitiv pornit</item>
+        <item quantity="few">%1$d dispozitive pornite</item>
+        <item quantity="other">%1$d dispozitive pornite</item>
+    </plurals>
+    <plurals name="uif_fire_detector_count">
+        <item quantity="one">%1$d detector de incendiu activ</item>
+        <item quantity="few">%1$d detectoare de incendiu active</item>
+        <item quantity="other">%1$d detectoare de incendiu active</item>
+    </plurals>
+    <plurals name="uif_flow_advanced_block_count">
+        <item quantity="one">%1$d bloc avansat de scurtătură (păstrat neschimbat)</item>
+        <item quantity="few">%1$d blocuri scurte avansate (păstrate neschimbate)</item>
+        <item quantity="other">%1$d blocuri scurte avansate (păstrate neschimbate)</item>
+    </plurals>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d stare în interior</item>
+        <item quantity="few">%1$d condiții în interior</item>
+        <item quantity="other">%1$d condiții în interior</item>
+    </plurals>
+    <plurals name="uif_gas_detector_count">
+        <item quantity="one">%1$d detector de gaz activ</item>
+        <item quantity="few">%1$d detectoare de gaze active</item>
+        <item quantity="other">%1$d detectoare de gaze active</item>
+    </plurals>
+    <plurals name="uif_light_on_count">
+        <item quantity="one">%1$d lumina aprinsă</item>
+        <item quantity="few">%1$d luminează</item>
+        <item quantity="other">%1$d luminează</item>
+    </plurals>
+    <plurals name="uif_media_item_count">
+        <item quantity="one">%1$d articol</item>
+        <item quantity="few">%1$d articole</item>
+        <item quantity="other">%1$d articole</item>
+    </plurals>
+    <plurals name="uif_motion_sensor_count">
+        <item quantity="one">%1$d senzor de mișcare activ</item>
+        <item quantity="few">%1$d senzori de mișcare activi</item>
+        <item quantity="other">%1$d senzori de mișcare activi</item>
+    </plurals>
+    <plurals name="uif_open_door_count">
+        <item quantity="one">%1$d deschide ușa</item>
+        <item quantity="few">%1$d deschide ușile</item>
+        <item quantity="other">%1$d deschide ușile</item>
+    </plurals>
+    <plurals name="uif_open_window_count">
+        <item quantity="one">%1$d deschide fereastra</item>
+        <item quantity="few">%1$d deschide ferestre</item>
+        <item quantity="other">%1$d deschide ferestre</item>
+    </plurals>
+    <plurals name="uif_presence_sensor_count">
+        <item quantity="one">%1$d senzor de prezență activ</item>
+        <item quantity="few">%1$d senzori de prezență activi</item>
+        <item quantity="other">%1$d senzori de prezență activi</item>
+    </plurals>
+    <plurals name="uif_smoke_detector_count">
+        <item quantity="one">%1$d detector de fum activ</item>
+        <item quantity="few">%1$d detectoare de fum active</item>
+        <item quantity="other">%1$d detectoare de fum active</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="one">%1$d bateria necesită atenție</item>
+        <item quantity="few">%1$d bateriile necesită atenție</item>
+        <item quantity="other">%1$d bateriile necesită atenție</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="one">%1$d baterie critică</item>
+        <item quantity="few">%1$d baterii critice</item>
+        <item quantity="other">%1$d baterii critice</item>
+    </plurals>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="one">%1$d baterie descărcată</item>
+        <item quantity="few">%1$d baterii slabe</item>
+        <item quantity="other">%1$d baterii slabe</item>
+    </plurals>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="one">Grafic %1$d · %2$d senzor</item>
+        <item quantity="few">Grafic %1$d · %2$d senzori</item>
+        <item quantity="other">Grafic %1$d · %2$d senzori</item>
+    </plurals>
+</resources>

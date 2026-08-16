@@ -306,6 +306,14 @@
     <string name="stack_show_icon_description">Het pictogram naast de kop.</string>
     <string name="stack_center_title">Centreer de kop</string>
     <string name="stack_center_title_description">Plaatst het pictogram en de naam in het midden in plaats van tegen de linkerrand.</string>
+    <string name="cr_widget_requires_f1">Vereist de F1-sensorintegratie, die niet werd gevonden op uw Home Assistant</string>
+    <string name="cr_widget_requires_parcels">Er is een pakketintegratie nodig en er is geen pakket gevonden op uw Home Assistant</string>
+    <string name="cr_widget_requires_waste">Er is een afvalinzamelingsintegratie nodig en er is geen gevonden op uw Home Assistant</string>
+    <string name="cr_people_here_title">Wie is hier</string>
+    <string name="cr_people_here_empty">Er wordt momenteel niemand gevolgd in deze kamer.</string>
+    <string name="cr_people_here_unknown_room">Kamer onbekend</string>
+    <string name="cr_button_exclude_counters">Laat de tellers buiten beschouwing</string>
+    <string name="cr_button_exclude_counters_hint">Houd de knop ingedrukt, maar zorg ervoor dat deze niet meer meetelt voor de totalen voor lampen en apparaten in deze kamer</string>
     <string name="core_greeting_morning">Goedemorgen</string>
     <string name="core_greeting_afternoon">Goedemiddag</string>
     <string name="core_greeting_evening">Goedenavond</string>
@@ -335,6 +343,13 @@
     <string name="energy_extra_sensor_city_heating_cost">Kosten stadsverwarming</string>
     <string name="energy_extra_estimated_gas_equivalent">Geschat gasequivalent</string>
     <string name="energy_extra_estimated_gas_note">Gebaseerd op 35,17 MJ per m³ aardgas</string>
+    <string name="energy_extra_currency">Munteenheid</string>
+    <string name="energy_extra_currency_subtitle">In welke valuta de kostenstatistieken worden weergegeven</string>
+    <string name="energy_extra_currency_search">Valuta\'s zoeken</string>
+    <string name="energy_extra_currency_automatic">Automatisch</string>
+    <string name="energy_extra_currency_automatic_subtitle">Volg uw kostensensoren en vervolgens uw apparaatregio</string>
+    <string name="energy_extra_currency_automatic_value">Automatisch (%1$s)</string>
+    <string name="energy_extra_currency_manual_value">%1$s (%2$s)</string>
     <string name="events_tab">Evenementen</string>
     <string name="events_empty">Nog geen evenementen</string>
     <string name="events_empty_hint">Recente activiteit voor de entiteiten die uw gezinsbeheerder aan de tijdlijn heeft toegevoegd, wordt hier weergegeven.</string>
@@ -1630,7 +1645,6 @@
     <string name="ui_text_98d3f75">✓ %1$s</string>
     <string name="ui_text_9e5a283">%1$s×</string>
     <string name="ui_text_a105b80">%1$s/%2$s</string>
-    <string name="ui_text_b92cdc7">€ %1$s</string>
     <string name="ui_text_be10035">· %1$s</string>
     <string name="ui_text_c1aacd9">%1$s · %2$s</string>
     <string name="ui_text_c3328c3">Tekst</string>
@@ -1846,6 +1860,13 @@
     <string name="app_update_required_opened_store">Google Play kon het hier niet overnemen, dus werd in plaats daarvan de winkelpagina geopend.</string>
     <string name="app_update_required_unavailable">Google Play heeft nog geen update klaar voor dit apparaat. Dat betekent meestal dat de release je niet heeft bereikt, of dat dit exemplaar van HKI niet uit de Play Store komt.</string>
     <string name="app_update_required_continue">Ga door zonder bij te werken</string>
+    <string name="settings_extra_new_dashboard_confirm_body">Hiermee wordt een dashboard toegevoegd naast het dashboard dat u gebruikt. Uw huidige dashboard blijft precies zoals het is en wordt nooit overschreven; u kunt op elk gewenst moment tussen deze dashboards schakelen.</string>
+    <string name="settings_extra_new_dashboard_confirm_action">Doorgaan</string>
+    <string name="settings_extra_new_dashboard_created">Gemaakt “%1$s”</string>
+    <string name="uif_onboarding_shared_already_added">Al toegevoegd</string>
+    <string name="settings_extra_dashboard_shared_badge">Gedeeld</string>
+    <string name="settings_extra_dashboard_shared_subtitle">Met u gedeeld door uw familie. Tik om te laden</string>
+    <string name="settings_extra_dashboard_shared_loaded">Met u gedeeld door uw familie. Momenteel geladen</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s geïnstalleerd</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud geïnstalleerd (update om de versie te zien)</string>
     <string name="settings_extra_hki_cloud_update_to_unlock">Update om te ontgrendelen:</string>
@@ -1858,6 +1879,8 @@
     <string name="settings_extra_hki_cloud_feature_required_version">Vereisen dat de familie updatet naar een bepaalde HKI-versie</string>
     <string name="settings_extra_hki_cloud_feature_events">De tijdlijn van de gebeurtenis en het verbergen van delen ervan voor individuele mensen</string>
     <string name="settings_extra_hki_cloud_tab_requires">Vereist HKI 7 Cloud v%1$s of nieuwer. Update de component in HACS. Tot die tijd heeft wat u hier instelt geen effect.</string>
+    <string name="language_search_placeholder">Zoek talen</string>
+    <string name="language_search_no_matches">Geen taal komt overeen met “%1$s”</string>
     <string name="settings_extra_policy_needs_component_update_events">Machtigingen opgeslagen, maar deze HKI 7 Cloud is te oud om gebeurtenissen voor deze persoon te verbergen: hij zou de hele tijdlijn zien. Update het om de beperking toe te passen.</string>
     <string name="settings_extra_tab_events">Evenementen</string>
     <string name="settings_extra_events_title">Tijdlijn van evenementen</string>
@@ -2037,4 +2060,7 @@
     <string name="widgets_waste_calendar_days">%1$d dagen</string>
     <string name="widgets_waste_calendar_range_help">Hoe ver vooruit de kalender van het dialoogvenster kijkt. Het wordt weergegeven als een weekraster, afgerond op hele weken.</string>
     <string name="widgets_waste_no_collection_on">Geen incasso op %1$s</string>
+    <string name="widgets_battery_search">Zoek apparaten</string>
+    <string name="widgets_battery_none">Er zijn geen batterijen die overeenkomen met die zoekopdracht.</string>
+    <string name="widgets_battery_open_page">Batterijpagina openen</string>
 </resources>

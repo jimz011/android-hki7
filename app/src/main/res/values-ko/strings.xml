@@ -446,6 +446,14 @@
     <string name="cr_name_z_a">이름 내림차순</string>
     <string name="cr_climate_device">냉난방 기기</string>
     <string name="cr_climate_device_subtitle">이름, 아이콘, 카드 스타일, 너비</string>
+    <string name="cr_widget_requires_f1">Home Assistant에서 찾을 수 없는 F1 센서 통합이 필요합니다.</string>
+    <string name="cr_widget_requires_parcels">소포 통합이 필요하지만 Home Assistant에서 아무 것도 발견되지 않았습니다.</string>
+    <string name="cr_widget_requires_waste">폐기물 수거 통합이 필요하지만 Home Assistant에서 아무 것도 발견되지 않았습니다.</string>
+    <string name="cr_people_here_title">여기 누구야?</string>
+    <string name="cr_people_here_empty">지금 이 방에서는 아무도 추적되지 않습니다.</string>
+    <string name="cr_people_here_unknown_room">알 수 없는 방</string>
+    <string name="cr_button_exclude_counters">카운터에서 나가기</string>
+    <string name="cr_button_exclude_counters_hint">버튼은 유지하되 이 방의 조명 및 장치 총계에 포함되지 않도록 하세요.</string>
     <string name="cr_count_with_average">%1$s · 평균 %2$s%3$s</string>
     <string name="cr_outside_temperature">실외 온도</string>
     <string name="cr_outside_humidity">실외 습도</string>
@@ -1185,6 +1193,13 @@
     <string name="energy_extra_picker_device_energy_counters">장치 에너지 카운터</string>
     <string name="energy_extra_auto_power_sensors_help">device_class 전력을 가진 모든 센서가 자동으로 포함됩니다. 나만의 목록을 만들려면 기기를 삭제하세요.</string>
     <string name="energy_extra_auto_energy_sensors_help">device_class 에너지가 있는 모든 센서가 자동으로 포함됩니다. 카운터 변경 사항은 선택한 기간 동안 사용됩니다.</string>
+    <string name="energy_extra_currency">통화</string>
+    <string name="energy_extra_currency_subtitle">비용 통계가 표시되는 통화</string>
+    <string name="energy_extra_currency_search">통화 검색</string>
+    <string name="energy_extra_currency_automatic">오토매틱</string>
+    <string name="energy_extra_currency_automatic_subtitle">비용 센서를 따르고 장치 지역을 따릅니다.</string>
+    <string name="energy_extra_currency_automatic_value">자동(%1$s)</string>
+    <string name="energy_extra_currency_manual_value">%1$s (%2$s)</string>
     <string name="energy_extra_energy_card">에너지 카드</string>
     <string name="energy_extra_energy_card_subtitle">데이터 소스 및 카드 모양</string>
     <string name="energy_extra_card_and_data">카드 및 데이터</string>
@@ -2486,7 +2501,6 @@
     <string name="ui_text_98d3f75">✓ %1$s</string>
     <string name="ui_text_9e5a283">%1$s×</string>
     <string name="ui_text_a105b80">%1$s/%2$s</string>
-    <string name="ui_text_b92cdc7">€ %1$s</string>
     <string name="ui_text_be10035"> · %1$s</string>
     <string name="ui_text_c1aacd9">%1$s · %2$s</string>
     <string name="ui_text_c3328c3">텍스트</string>
@@ -2728,6 +2742,13 @@
     <string name="settings_extra_dashboard_backup_saved">대시보드 백업이 저장되었습니다.</string>
     <string name="settings_extra_dashboard_copy_name">%1$s 사본</string>
     <string name="settings_extra_dashboard_default_name">대시보드 %1$d</string>
+    <string name="settings_extra_new_dashboard_confirm_body">그러면 사용 중인 대시보드 옆에 대시보드가 추가됩니다. 현재 대시보드는 그대로 유지되며 덮어쓰여지지 않습니다. 언제든지 대시보드 간에 전환할 수 있습니다.</string>
+    <string name="settings_extra_new_dashboard_confirm_action">계속</string>
+    <string name="settings_extra_new_dashboard_created">\'%1$s\'을(를) 생성했습니다.</string>
+    <string name="uif_onboarding_shared_already_added">이미 추가됨</string>
+    <string name="settings_extra_dashboard_shared_badge">공유됨</string>
+    <string name="settings_extra_dashboard_shared_subtitle">가족이 나와 공유했습니다. 탭하여 로드</string>
+    <string name="settings_extra_dashboard_shared_loaded">가족이 나와 공유했습니다. 현재 로드됨</string>
     <string name="settings_extra_dashboard_generating">새 대시보드가 자동으로 생성됩니다.</string>
     <string name="settings_extra_dashboard_mode_auto">오토매틱</string>
     <string name="settings_extra_dashboard_mode_manual">수동</string>
@@ -2791,6 +2812,8 @@
     <string name="settings_extra_location_allowed_always">항상 허용됨</string>
     <string name="settings_extra_location_allowed_foreground">앱을 사용하는 동안에만 허용됩니다.</string>
     <string name="settings_extra_location_not_allowed">허용되지 않음</string>
+    <string name="language_search_placeholder">언어 검색</string>
+    <string name="language_search_no_matches">“%1$s”과 일치하는 언어가 없습니다.</string>
     <string name="settings_extra_language_dutch">Nederlands</string>
     <string name="settings_extra_language_english">English</string>
     <string name="settings_extra_language_french">Français</string>
@@ -3435,4 +3458,7 @@
     <string name="widgets_energy_phase_number">단계 %1$d</string>
     <string name="widgets_energy_forecast_number">예측 %1$d</string>
     <string name="widgets_energy_ha_forecast">홈어시스턴트 예측</string>
+    <string name="widgets_battery_search">기기 검색</string>
+    <string name="widgets_battery_none">검색어와 일치하는 배터리가 없습니다.</string>
+    <string name="widgets_battery_open_page">배터리 페이지 열기</string>
 </resources>

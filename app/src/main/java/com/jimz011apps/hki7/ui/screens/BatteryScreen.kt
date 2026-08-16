@@ -33,6 +33,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.BatteryFull
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -118,7 +119,9 @@ private data class BatteryInputSet(
 
 private data class BatteryWidgetSummary(
     val lowCount: Int = 0,
-    val criticalCount: Int = 0
+    val criticalCount: Int = 0,
+    /** Kept so tapping the widget can list them without recomputing or leaving the page. */
+    val batteries: List<BatteryInfo> = emptyList()
 )
 
 private val batteryCategories = listOf(
@@ -489,7 +492,10 @@ fun BatteryScreen(
         } else {
         val windowWidth = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() }
         val batteryColumns = responsiveDashboardTileCount((windowWidth - 32.dp).coerceAtLeast(0.dp))
+        val batteryListState = androidx.compose.foundation.lazy.rememberLazyListState()
+        com.jimz011apps.hki7.ui.components.ScrollToTopOnTabReselect("battery") { batteryListState.animateScrollToItem(0) }
         LazyColumn(
+            state = batteryListState,
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(top = 16.dp, bottom = 96.dp + com.jimz011apps.hki7.ui.components.LocalMediaPlayerBarInset.current),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -546,6 +552,163 @@ fun BatteryScreen(
     }
 }
 
+/**
+ * Every battery the widget is watching, grouped the way the Battery screen groups them.
+ *
+ * A flat list of percentages answered "which one is low?" only by reading all of them. The same
+ * Critical / Low / Watch / Good / Unknown bands the full screen uses answer it at a glance, and
+ * each card carries the battery type where Battery Notes provides one — which is what you need
+ * before going to find a replacement.
+ */
+@Composable
+private fun BatteryOverviewDialog(
+    batteries: List<BatteryInfo>,
+    onOpenBatteryPage: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val appColors = LocalHKIAppColors.current
+    var query by rememberSaveable { mutableStateOf("") }
+    val shown = remember(batteries, query) {
+        if (query.isBlank()) batteries
+        else batteries.filter { info ->
+            val haystack = listOfNotNull(
+                info.deviceName,
+                info.entity.friendlyName,
+                info.entity.entity_id,
+                info.batteryType
+            ).joinToString(" ")
+            haystack.contains(query, ignoreCase = true)
+        }
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = { Icon(Icons.Default.BatteryFull, contentDescription = null) },
+        title = { Text(stringResource(R.string.widgets_battery_levels_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    placeholder = { Text(stringResource(R.string.widgets_battery_search)) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                if (shown.isEmpty()) {
+                    Text(
+                        stringResource(R.string.widgets_battery_none),
+                        color = appColors.onMuted,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                } else {
+                    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+                    LazyColumn(
+                        modifier = Modifier.heightIn(max = 430.dp).fadingEdges(listState),
+                        state = listState,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        batteryCategories.forEach { category ->
+                            val inCategory = shown.filter(category.predicate)
+                            if (inCategory.isEmpty()) return@forEach
+                            item(key = "battery-band-" + category.titleRes) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(Modifier.size(8.dp).background(category.color, CircleShape))
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(
+                                        stringResource(category.titleRes),
+                                        color = appColors.onSurface,
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(
+                                        inCategory.size.toString(),
+                                        color = appColors.onMuted,
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                }
+                            }
+                            items(inCategory.size, key = { inCategory[it].entity.entity_id }) { index ->
+                                BatteryOverviewCard(inCategory[index], category.color)
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onDismiss(); onOpenBatteryPage() }) {
+                Text(stringResource(R.string.widgets_battery_open_page))
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_close_bbfa773)) } }
+    )
+}
+
+/** One battery: name, type where known, and a level bar coloured by its band. */
+@Composable
+private fun BatteryOverviewCard(info: BatteryInfo, accent: Color) {
+    val appColors = LocalHKIAppColors.current
+    val level = info.level
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = itemCornerShape(),
+        color = appColors.subtleSurface
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    info.deviceName ?: info.entity.friendlyName ?: info.entity.entity_id,
+                    color = appColors.onSurface,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                val subtitle = listOfNotNull(info.batteryType, info.quantity).joinToString(" - ")
+                if (subtitle.isNotBlank()) {
+                    Text(
+                        subtitle,
+                        color = appColors.onMuted,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                if (level != null) {
+                    Spacer(Modifier.height(6.dp))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(4.dp)
+                            .background(appColors.onMuted.copy(alpha = 0.18f), CircleShape)
+                    ) {
+                        Box(
+                            Modifier
+                                .fillMaxWidth(level.coerceIn(0, 100) / 100f)
+                                .height(4.dp)
+                                .background(accent, CircleShape)
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.width(12.dp))
+            Text(
+                if (level != null) level.toString() + "%" else stringResource(R.string.cr_unknown),
+                color = if (level != null) accent else appColors.onMuted,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
 @Composable
 fun BatteryCardWidgetItem(
     widget: HKIBatteryCardWidget,
@@ -553,7 +716,6 @@ fun BatteryCardWidgetItem(
     registry: List<HAEntityRegistryEntry>,
     devices: List<HADeviceRegistryEntry>,
     isEditMode: Boolean,
-    onOpen: () -> Unit,
     onDelete: () -> Unit,
     onSettings: () -> Unit
 ) {
@@ -596,9 +758,21 @@ fun BatteryCardWidgetItem(
                 .filterNot { it.entity.entity_id in batteryConfig.hiddenEntityIds }
             BatteryWidgetSummary(
                 lowCount = batteries.count { (it.level ?: 101) <= widget.lowThreshold },
-                criticalCount = batteries.count { (it.level ?: 101) <= 10 }
+                criticalCount = batteries.count { (it.level ?: 101) <= 10 },
+                batteries = batteries.sortedBy { it.level ?: 101 }
             )
         }
+    }
+    var showBatteryList by remember { mutableStateOf(false) }
+    if (showBatteryList) {
+        // Reads the opener itself rather than taking it as a parameter: six call sites across two
+        // screens had no business knowing how the Battery view is reached.
+        val openTopLevelRoute = com.jimz011apps.hki7.ui.components.LocalOpenTopLevelRoute.current
+        BatteryOverviewDialog(
+            batteries = summary.batteries,
+            onOpenBatteryPage = { openTopLevelRoute?.invoke(com.jimz011apps.hki7.ui.Screen.Battery.route) },
+            onDismiss = { showBatteryList = false }
+        )
     }
     val lowCount = summary.lowCount
     val criticalCount = summary.criticalCount
@@ -617,7 +791,7 @@ fun BatteryCardWidgetItem(
                 .aspectRatio(if (widget.isSquare) 1f else 16f / 9f)
                 .clip(RoundedCornerShape(widget.cornerRadius.dp))
                 .background(surfaceGradient(appColors.elevated))
-                .clickable(enabled = !isEditMode, onClick = onOpen),
+                .clickable(enabled = !isEditMode) { showBatteryList = true },
             shape = RoundedCornerShape(widget.cornerRadius.dp),
             color = Color.Transparent
         ) {
@@ -1277,7 +1451,8 @@ private fun BatteryDetailDialog(info: BatteryInfo, onDismiss: () -> Unit) {
                 )
             }
         },
-        confirmButton = { Button(onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) } }
+        // Close, not Done: this panel is read-only, so there is nothing to be done with.
+        confirmButton = { Button(onClick = onDismiss) { Text(stringResource(R.string.ui_close_bbfa773)) } }
     )
 }
 

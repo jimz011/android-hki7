@@ -12,10 +12,12 @@ import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
 import com.jimz011apps.hki7.R
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.RemoteInput
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
@@ -41,6 +43,19 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 const val EXTRA_HA_INSTANCE_ID = "com.jimz011apps.hki7.extra.HA_INSTANCE_ID"
+
+/**
+ * Whether the app may post notifications. POST_NOTIFICATIONS only exists from API 33; below that
+ * the platform grants notifications by default and the only "no" is the user switching them off in
+ * system settings, which is what [NotificationManagerCompat.areNotificationsEnabled] reports.
+ */
+fun notificationsAllowed(context: Context): Boolean =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+            PackageManager.PERMISSION_GRANTED
+    } else {
+        NotificationManagerCompat.from(context).areNotificationsEnabled()
+    }
 
 /** Process-wide visibility shared by the UI websocket and optional push foreground service. */
 object AppVisibilityTracker {
@@ -109,9 +124,7 @@ class PushNotificationHandler(
         clickAction: String?,
         historyId: String
     ) {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
-            != PackageManager.PERMISSION_GRANTED
-        ) return
+        if (!notificationsAllowed(context)) return
 
         val requestedChannel = data?.get("channel")?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
         val channelName = requestedChannel ?: context.getString(R.string.background_notification_channel_general)

@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="core_last_seen_days">
+        <item quantity="one">Naposledy online pred %1$d dňom</item>
+        <item quantity="few">Naposledy online pred %1$d dňami</item>
+        <item quantity="many">Naposledy online pred %1$d dňami</item>
+        <item quantity="other">Naposledy online pred %1$d dňami</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="one">Naposledy online pred %1$d hodinou</item>
+        <item quantity="few">Naposledy online pred %1$d hodinami</item>
+        <item quantity="many">Naposledy online pred %1$d hodinami</item>
+        <item quantity="other">Naposledy online pred %1$d hodinami</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="one">Naposledy online pred %1$d minútou</item>
+        <item quantity="few">Naposledy online pred %1$d minútami</item>
+        <item quantity="many">Naposledy online pred %1$d minútami</item>
+        <item quantity="other">Naposledy online pred %1$d minútami</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="one">Naposledy online pred %1$d týždňom</item>
+        <item quantity="few">Naposledy online pred %1$d týždňami</item>
+        <item quantity="many">Naposledy online pred %1$d týždňami</item>
+        <item quantity="other">Naposledy online pred %1$d týždňami</item>
+    </plurals>
+    <plurals name="core_media_players_playing">
+        <item quantity="one">Prehráva sa prehrávač médií %1$d</item>
+        <item quantity="few">Prehrávajú sa prehrávače médií %1$d</item>
+        <item quantity="many">Prehrávajú sa prehrávače médií %1$d</item>
+        <item quantity="other">Prehrávajú sa prehrávače médií %1$d</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="one">Automaticky + %d manuálne</item>
+        <item quantity="few">Automaticky + %d manuálne</item>
+        <item quantity="many">Automaticky + %d manuálne</item>
+        <item quantity="other">Automaticky + %d manuálne</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="one">%d nakonfigurované svetlo</item>
+        <item quantity="few">%d nakonfigurovaných svetiel</item>
+        <item quantity="many">%d nakonfigurovaných svetiel</item>
+        <item quantity="other">%d nakonfigurovaných svetiel</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="one">%1$d zariadenie · %2$d zapnuté</item>
+        <item quantity="few">%1$d zariadenia · %2$d zapnuté</item>
+        <item quantity="many">%1$d zariadenia · %2$d zapnuté</item>
+        <item quantity="other">%1$d zariadenia · %2$d zapnuté</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="one">Nastavené vonkajšie senzory: %d</item>
+        <item quantity="few">Nastavené vonkajšie senzory: %d</item>
+        <item quantity="many">Nastavené vonkajšie senzory: %d</item>
+        <item quantity="other">Nastavené vonkajšie senzory: %d</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="one">%d odstránené</item>
+        <item quantity="few">%d odstránené</item>
+        <item quantity="many">%d odstránené</item>
+        <item quantity="other">%d odstránené</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="one">%d vybraté</item>
+        <item quantity="few">%d vybraté</item>
+        <item quantity="many">%d vybraté</item>
+        <item quantity="other">%d vybraté</item>
+    </plurals>
+    <plurals name="cr_sensor_count">
+        <item quantity="one">%d senzor</item>
+        <item quantity="few">%d senzorov</item>
+        <item quantity="many">%d senzorov</item>
+        <item quantity="other">%d senzorov</item>
+    </plurals>
+    <plurals name="cr_widget_option_count">
+        <item quantity="one">%d možnosť</item>
+        <item quantity="few">%d možností</item>
+        <item quantity="many">%d možností</item>
+        <item quantity="other">%d možností</item>
+    </plurals>
+    <plurals name="dlg_action_data_value_summary">
+        <item quantity="one">%1$s · Hodnota údajov %2$d</item>
+        <item quantity="few">%1$s · Hodnoty údajov %2$d</item>
+        <item quantity="many">%1$s · Hodnoty údajov %2$d</item>
+        <item quantity="other">%1$s · Hodnoty údajov %2$d</item>
+    </plurals>
+    <plurals name="dlg_arming_in_seconds">
+        <item quantity="one">Aktivuje sa o %d sekundu</item>
+        <item quantity="few">Aktivuje sa o %d sekúnd</item>
+        <item quantity="many">Aktivuje sa o %d sekúnd</item>
+        <item quantity="other">Aktivuje sa o %d sekúnd</item>
+    </plurals>
+    <plurals name="dlg_seconds_short">
+        <item quantity="one">%d s</item>
+        <item quantity="few">%d s</item>
+        <item quantity="many">%d s</item>
+        <item quantity="other">%d s</item>
+    </plurals>
+    <plurals name="dlg_selected_entities_summary">
+        <item quantity="one">%1$d vybraté · %2$s</item>
+        <item quantity="few">%1$d vybraté · %2$s</item>
+        <item quantity="many">%1$d vybraté · %2$s</item>
+        <item quantity="other">%1$d vybraté · %2$s</item>
+    </plurals>
+    <plurals name="global_search_browse_entities">
+        <item quantity="one">Prehliadať entitu %1$d na tomto zariadení</item>
+        <item quantity="few">Prehliadajte %1$d entity na tomto zariadení</item>
+        <item quantity="many">Prehliadajte %1$d entity na tomto zariadení</item>
+        <item quantity="other">Prehliadajte %1$d entity na tomto zariadení</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="one">%1$d entity</item>
+        <item quantity="few">%1$d entity</item>
+        <item quantity="many">%1$d entity</item>
+        <item quantity="other">%1$d entity</item>
+    </plurals>
+    <plurals name="parcel_letter_count">
+        <item quantity="one">%1$d písmeno</item>
+        <item quantity="few">%1$d písmen</item>
+        <item quantity="many">%1$d písmen</item>
+        <item quantity="other">%1$d písmen</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="one">%1$d miestnosť</item>
+        <item quantity="few">%1$d miestností</item>
+        <item quantity="many">%1$d miestností</item>
+        <item quantity="other">%1$d miestností</item>
+    </plurals>
+    <plurals name="security_entity_count">
+        <item quantity="one">%1$d entity</item>
+        <item quantity="few">%1$d entity</item>
+        <item quantity="many">%1$d entity</item>
+        <item quantity="other">%1$d entity</item>
+    </plurals>
+    <plurals name="settings_extra_days_ago">
+        <item quantity="one">Pred %1$d dňom</item>
+        <item quantity="few">Pred %1$d dňami</item>
+        <item quantity="many">Pred %1$d dňami</item>
+        <item quantity="other">Pred %1$d dňami</item>
+    </plurals>
+    <plurals name="settings_extra_hours_ago">
+        <item quantity="one">pred %1$d hodinou</item>
+        <item quantity="few">pred %1$d hodinami</item>
+        <item quantity="many">pred %1$d hodinami</item>
+        <item quantity="other">pred %1$d hodinami</item>
+    </plurals>
+    <plurals name="settings_extra_minutes_ago">
+        <item quantity="one">pred %1$d minútou</item>
+        <item quantity="few">pred %1$d minútami</item>
+        <item quantity="many">pred %1$d minútami</item>
+        <item quantity="other">pred %1$d minútami</item>
+    </plurals>
+    <plurals name="settings_extra_shared_dashboards_pushed">
+        <item quantity="one">Zmeny boli odoslané do zdieľaného informačného panela %1$d.</item>
+        <item quantity="few">Vložené zmeny do %1$d zdieľaných informačných panelov.</item>
+        <item quantity="many">Vložené zmeny do %1$d zdieľaných informačných panelov.</item>
+        <item quantity="other">Vložené zmeny do %1$d zdieľaných informačných panelov.</item>
+    </plurals>
+    <plurals name="uif_active_device_count">
+        <item quantity="one">%1$d aktívne zariadenie</item>
+        <item quantity="few">%1$d aktívnych zariadení</item>
+        <item quantity="many">%1$d aktívnych zariadení</item>
+        <item quantity="other">%1$d aktívnych zariadení</item>
+    </plurals>
+    <plurals name="uif_adaptive_group_paused_count">
+        <item quantity="one">%1$d skupinové svetlo je pozastavené na manuálne ovládanie.</item>
+        <item quantity="few">%1$d skupinové svetlá sú pozastavené na manuálne ovládanie.</item>
+        <item quantity="many">%1$d skupinové svetlá sú pozastavené na manuálne ovládanie.</item>
+        <item quantity="other">%1$d skupinové svetlá sú pozastavené na manuálne ovládanie.</item>
+    </plurals>
+    <plurals name="uif_adaptive_profile_light_count">
+        <item quantity="one">Ovláda svetlo %1$d v tomto profile.</item>
+        <item quantity="few">Ovláda svetlá %1$d v tomto profile.</item>
+        <item quantity="many">Ovláda svetlá %1$d v tomto profile.</item>
+        <item quantity="other">Ovláda svetlá %1$d v tomto profile.</item>
+    </plurals>
+    <plurals name="uif_days_to_season">
+        <item quantity="one">%1$d deň až %2$s</item>
+        <item quantity="few">%1$d dní až %2$s</item>
+        <item quantity="many">%1$d dní až %2$s</item>
+        <item quantity="other">%1$d dní až %2$s</item>
+    </plurals>
+    <plurals name="uif_device_on_count">
+        <item quantity="one">%1$d zariadenie zapnuté</item>
+        <item quantity="few">%1$d zariadenia zapnuté</item>
+        <item quantity="many">%1$d zariadenia zapnuté</item>
+        <item quantity="other">%1$d zariadenia zapnuté</item>
+    </plurals>
+    <plurals name="uif_fire_detector_count">
+        <item quantity="one">%1$d hlásič požiaru aktívny</item>
+        <item quantity="few">%1$d sú aktívne požiarne hlásiče</item>
+        <item quantity="many">%1$d sú aktívne požiarne hlásiče</item>
+        <item quantity="other">%1$d sú aktívne požiarne hlásiče</item>
+    </plurals>
+    <plurals name="uif_flow_advanced_block_count">
+        <item quantity="one">%1$d rozšírený stenografický blok (nezmenený)</item>
+        <item quantity="few">%1$d pokročilé stenografické bloky (zachované nezmenené)</item>
+        <item quantity="many">%1$d pokročilé stenografické bloky (zachované nezmenené)</item>
+        <item quantity="other">%1$d pokročilé stenografické bloky (zachované nezmenené)</item>
+    </plurals>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d stav vnútri</item>
+        <item quantity="few">%1$d podmienky vo vnútri</item>
+        <item quantity="many">%1$d podmienky vo vnútri</item>
+        <item quantity="other">%1$d podmienky vo vnútri</item>
+    </plurals>
+    <plurals name="uif_gas_detector_count">
+        <item quantity="one">%1$d detektor plynu je aktívny</item>
+        <item quantity="few">%1$d detektory plynu sú aktívne</item>
+        <item quantity="many">%1$d detektory plynu sú aktívne</item>
+        <item quantity="other">%1$d detektory plynu sú aktívne</item>
+    </plurals>
+    <plurals name="uif_light_on_count">
+        <item quantity="one">Svetlo %1$d svieti</item>
+        <item quantity="few">%1$d svieti</item>
+        <item quantity="many">%1$d svieti</item>
+        <item quantity="other">%1$d svieti</item>
+    </plurals>
+    <plurals name="uif_media_item_count">
+        <item quantity="one">%1$d položka</item>
+        <item quantity="few">%1$d položiek</item>
+        <item quantity="many">%1$d položiek</item>
+        <item quantity="other">%1$d položiek</item>
+    </plurals>
+    <plurals name="uif_motion_sensor_count">
+        <item quantity="one">%1$d pohybový senzor je aktívny</item>
+        <item quantity="few">%1$d pohybové senzory sú aktívne</item>
+        <item quantity="many">%1$d pohybové senzory sú aktívne</item>
+        <item quantity="other">%1$d pohybové senzory sú aktívne</item>
+    </plurals>
+    <plurals name="uif_open_door_count">
+        <item quantity="one">%1$d otvorené dvere</item>
+        <item quantity="few">%1$d otvorené dvere</item>
+        <item quantity="many">%1$d otvorené dvere</item>
+        <item quantity="other">%1$d otvorené dvere</item>
+    </plurals>
+    <plurals name="uif_open_window_count">
+        <item quantity="one">%1$d otvorené okno</item>
+        <item quantity="few">%1$d otvorené okná</item>
+        <item quantity="many">%1$d otvorené okná</item>
+        <item quantity="other">%1$d otvorené okná</item>
+    </plurals>
+    <plurals name="uif_presence_sensor_count">
+        <item quantity="one">%1$d senzor prítomnosti aktívny</item>
+        <item quantity="few">%1$d senzory prítomnosti sú aktívne</item>
+        <item quantity="many">%1$d senzory prítomnosti sú aktívne</item>
+        <item quantity="other">%1$d senzory prítomnosti sú aktívne</item>
+    </plurals>
+    <plurals name="uif_smoke_detector_count">
+        <item quantity="one">%1$d detektor dymu je aktívny</item>
+        <item quantity="few">%1$d detektory dymu sú aktívne</item>
+        <item quantity="many">%1$d detektory dymu sú aktívne</item>
+        <item quantity="other">%1$d detektory dymu sú aktívne</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="one">Batéria %1$d vyžaduje pozornosť</item>
+        <item quantity="few">Batérie %1$d vyžadujú pozornosť</item>
+        <item quantity="many">Batérie %1$d vyžadujú pozornosť</item>
+        <item quantity="other">Batérie %1$d vyžadujú pozornosť</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="one">%1$d kritická batéria</item>
+        <item quantity="few">%1$d kritických batérií</item>
+        <item quantity="many">%1$d kritických batérií</item>
+        <item quantity="other">%1$d kritických batérií</item>
+    </plurals>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="one">%1$d slabá batéria</item>
+        <item quantity="few">%1$d vybité batérie</item>
+        <item quantity="many">%1$d vybité batérie</item>
+        <item quantity="other">%1$d vybité batérie</item>
+    </plurals>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="one">Graf %1$d · %2$d senzor</item>
+        <item quantity="few">Graf %1$d · %2$d senzory</item>
+        <item quantity="many">Graf %1$d · %2$d senzory</item>
+        <item quantity="other">Graf %1$d · %2$d senzory</item>
+    </plurals>
+</resources>

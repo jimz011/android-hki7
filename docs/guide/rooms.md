@@ -24,6 +24,15 @@ Each card shows the room's wallpaper or colour, its name and icon, and a **statu
 is currently on or open in there. It also shows motion, presence and people counters when the room
 has entities that report them.
 
+Tapping a counter lists exactly what it is counting. The people counter shows who is in the room,
+with each person's Home Assistant picture, and the Rooms header carries a household counter that
+shows where everyone is — a way to see the whole home at once without opening each room.
+
+The Lights and Devices counters tally every light and switch shown in the room. A button that sits
+in a room without really belonging to it — a TV backlight, a switch driving something next door —
+can be left out under **Leave out of counters** in its settings, which keeps the control and only
+stops it being counted.
+
 ## Room detail
 
 A room screen is a dashboard in its own right: it takes the same buttons, stacks, badges and

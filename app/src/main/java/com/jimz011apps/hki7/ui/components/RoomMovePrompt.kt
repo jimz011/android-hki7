@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.NotificationsOff
-import androidx.compose.material3.AlertDialog
+import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.MaterialTheme
@@ -43,8 +43,6 @@ fun RoomMovePrompt(
     val appColors = LocalHKIAppColors.current
     AlertDialog(
         onDismissRequest = onStay,
-        shape = itemCornerShape(),
-        containerColor = appColors.elevated,
         icon = {
             Icon(
                 Icons.Default.Groups,

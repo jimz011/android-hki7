@@ -332,6 +332,24 @@
     <string name="cr_quick_make_it_yours">Kendine göre düzenle</string>
     <string name="cr_quick_make_it_yours_instruction">Düzenleme modunda odaları, katları ve widget’ları ekleyip sırala. Yapılandırmak için bir öğeye dokun.</string>
 
+<string-array name="cr_whats_new_1_1_0">
+    <item>HKI 7 ile 36\'ya çıkan on sekiz dil daha. Lehçe, Rusça, Çekçe, Slovakça, Macarca, Romence, Bulgarca, Hırvatça, Yunanca, Litvanca, Letonca, Estonca, Danca, Tayca ve İbranice\'nin yanı sıra Avusturya Almancası, İsviçre Almancası ve Meksika İspanyolcası da listeye katılıyor. İbranice, Arapça\'nın yaptığı gibi arayüzü sağdan sola doğru yerleştirir.</item>
+    <item>HKI 7 artık Android 12 ve sonraki sürümlerde çalışıyor. Daha önce Android 14\'e ihtiyaç duyuluyordu ve bu da pek çok mükemmel yetenekli telefonu ve tableti devre dışı bırakıyordu.</item>
+    <item>Enerji maliyetleri her zaman Euro yerine kendi para biriminizde gösterilir. HKI 7 maliyet sensörlerinizin raporlarını takip eder ve kendiniz seçmeyi tercih ederseniz Enerji ayarlarında bir Para Birimi ayarı bulunur.</item>
+    <item>Dil seçicinin bir arama kutusu vardır ve 36 girişe ihtiyaç duyacak şekilde sıralanmıştır. Okuyamayacağınız bir dile gelirseniz, dönüş yolu hâlâ ekrandaki ilk şeydir.</item>
+    <item>Görünümler nereye kaydırdığınızı hatırlar ve halihazırda bulunduğunuz sekmeye dokunmanız sizi en üste götürür.</item>
+    <item>Artık Solar Inside Energy gibi açtığınız bir sayfadan yana kaydırmak sizi dışarı taşımıyor. Geri dön artık sizi ana sayfaya atlamak yerine geldiğiniz görünüme döndürür.</item>
+    <item>Kaydırılabilir satırlar bunu söylüyor. Ulaşılacak daha fazla şey olduğunda açılır menü, gezinme çubuğu ve ayarlar sekmelerinin tümü kenarda bir ok gösterir.</item>
+    <item>Diyaloglar baştan sona aynı görünür ve davranır. Bunlardan altısı, köşelerinde kapatma düğmesi olmayan düz Android iletişim kutularıydı ve uygulamadaki düğmeler artık Kapat, Kaydet ve Bitti\'nin ne anlama geldiği konusunda aynı fikirde.</item>
+    <item>Bir kontrol paneli oluşturmak ilk önce sorar ve ardından ilk kurulumla aynı seçenekleri sunar; böylece yeni bir kontrol paneli bir yedekten veya ailenizin paylaştığı bir kontrol panelinden başlayabilir, oluşturulabilir veya boş bırakılabilir. Mevcut kontrol panelinizin üzerine hiçbir zaman yazılmaz ve paylaşılan kontrol panelleri artık listede paylaşılan olarak işaretlenir.</item>
+    <item>Pil widget\'ı, sizi her birinin aciliyetine göre gruplandırılan ve Home Assistant\'nin bildiği pil türünü gösteren ayrı bir sayfaya götürmek yerine yerinde bir liste açar. İsterseniz bir arama kutusu ve tam Pil görünümünü açmak için bir düğme vardır.</item>
+    <item>Bir odadaki kişi sayacına dokunulduğunda, her kişinin resmiyle birlikte orada kimin olduğu gösterilir. Odalar başlığında artık her odayı açmadan herkesin nerede olduğunu gösteren bir ev sayacı da var.</item>
+    <item>Odanın içinde bulunan ancak odanın bir parçası olmayanlar için odanın Işıklar ve Cihazlar sayaçlarının dışında bir düğme bırakılabilir.</item>
+    <item>Sahip olmadığınız bir entegrasyona ihtiyaç duyan widget\'lar (Formula 1, Paketler, Atık Toplama) eklenip boş durmak yerine gri renkte gösterilir ve neyin eksik olduğunu söyler.</item>
+    <item>Paket takibi, her biri kendi logosuna sahip olan PostNord, InPost, Swiss Post, An Post, Budbee, Sameday ve Nova Post dahil olmak üzere on beş taşıyıcıyı daha kapsar.</item>
+    <item>Bir Valetudo robot süpürgesi, kameranın elle seçilmesine gerek kalmadan, odalarınız içe aktarıldığında canlı haritasını otomatik olarak alır.</item>
+</string-array>
+
 <string-array name="cr_whats_new_1_0_1">
     <item>Sekmeler arasında kaydırma artık parmağınızı takip ediyor. Sayfalar siz sürükledikçe hareket eder, kaydırmanın ortasında fikrinizi değiştirebilir ve onları geri çekebilirsiniz ve bıraktığınız yere yerleşirler. Önceden, yeterince sürüklediğiniz ve geri alınamadığınız anda değişikliğe karar veriliyordu; daha sonra oynatılan animasyon kendi zamanlayıcısındaydı ve hareketle ilgisi yoktu; dolayısıyla uygulama, parmağınız bir sayfa istemeyi bitirmeden önce bir sayfaya bağlanıyordu.</item>
     <item>Alt çubuk artık seçilen sekmeyi görünümde tutuyor. Her sekme için fazla dar olan bir telefonda, etkin olanı merkeze doğru kaydırır, böylece bulunduğunuz sekme her zaman komşularıyla birlikte görünür; bu aynı zamanda kaydırılacak daha fazla sayfa olduğunun ipucudur. Göstergeyi çubuğun ucunda bir yerde bırakmak için kullanılan son sekmeye ulaşmak.</item>

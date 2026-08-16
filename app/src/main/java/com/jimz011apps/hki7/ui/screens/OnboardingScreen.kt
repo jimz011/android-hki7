@@ -10,6 +10,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import android.webkit.CookieManager
@@ -72,6 +73,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.jimz011apps.hki7.data.notificationsAllowed
 import com.jimz011apps.hki7.data.HaDashboardSharing
 import com.jimz011apps.hki7.data.HaBackupStorage
 import com.jimz011apps.hki7.data.CloudBackupFile
@@ -182,7 +184,7 @@ fun OnboardingScreen(
             )
             OnboardStep.PERMISSIONS -> PermissionsStep(onFinish = { step = OnboardStep.CONNECTION })
             OnboardStep.CONNECTION -> ConnectionInfoStep(serverUrl, onContinue = { step = OnboardStep.DASHBOARD })
-            OnboardStep.DASHBOARD -> DashboardSetupStep(prefs, familyAccessLost, onComplete)
+            OnboardStep.DASHBOARD -> DashboardSetupStep(prefs, familyAccessLost, onComplete = onComplete)
         }
     }
 }
@@ -400,9 +402,16 @@ private fun OnboardingDialogFrame(
 }
 
 @Composable
-private fun DashboardSetupStep(
+internal fun DashboardSetupStep(
     prefs: PreferencesManager,
     familyAccessLost: Boolean = false,
+    /**
+     * Non-null when this is adding a dashboard from Settings rather than setting up the first one.
+     * The choices are identical, but each creates a dashboard beside the current one instead of
+     * configuring it, nothing claims the default, and the quick-start guide is not queued again.
+     */
+    additionalDashboardName: String? = null,
+    onBack: (() -> Unit)? = null,
     onComplete: () -> Unit,
 ) {
     val colors = LocalHKIAppColors.current
@@ -414,6 +423,9 @@ private fun DashboardSetupStep(
     var sharedList by remember { mutableStateOf<List<Hki7SharedDashboardMeta>>(emptyList()) }
     var usingSharedId by remember { mutableStateOf<String?>(null) }
     var familyError by remember { mutableStateOf<String?>(null) }
+    // Which shared dashboards this device already holds, so the list can say so rather than
+    // silently re-importing over the copy already there.
+    val localDashboards by prefs.dashboards.collectAsState(initial = emptyList())
     var showRestoreSource by remember { mutableStateOf(false) }
     var showCloudRestore by remember { mutableStateOf(false) }
     var showHaRestore by remember { mutableStateOf(false) }
@@ -433,9 +445,19 @@ private fun DashboardSetupStep(
         restoreError = null
         scope.launch {
             runCatching {
-                prefs.restoreUiBackup(raw)
-                prefs.useRestoredBackupAsInitial()
-                prefs.clearFamilyDashboardSubscription()
+                if (additionalDashboardName != null) {
+                    // Land the backup in a dashboard of its own; the one in use is written back to
+                    // the store first and left alone.
+                    checkNotNull(prefs.createDashboard(additionalDashboardName, autoGenerate = false)) {
+                        "Dashboard creation is disabled by family permissions"
+                    }
+                    prefs.restoreUiBackup(raw)
+                    prefs.commitRestoredBackupIntoActiveDashboard(additionalDashboardName)
+                } else {
+                    prefs.restoreUiBackup(raw)
+                    prefs.useRestoredBackupAsInitial()
+                    prefs.clearFamilyDashboardSubscription()
+                }
             }.onSuccess {
                 onComplete()
             }.onFailure { error ->
@@ -555,7 +577,15 @@ private fun DashboardSetupStep(
         if (savingMode != null || !allowDashboardCreate) return
         savingMode = auto
         scope.launch {
-            if (familyAccessLost) {
+            if (additionalDashboardName != null) {
+                // createDashboard writes the open dashboard back to the store before switching, so
+                // the one being used is preserved rather than replaced.
+                if (prefs.createDashboard(additionalDashboardName, auto) == null) {
+                    savingMode = null
+                    return@launch
+                }
+                onComplete()
+            } else if (familyAccessLost) {
                 val name = if (auto) "Default (auto generated)" else "Default"
                 val created = prefs.createDashboard(name, auto)
                 if (created == null) {
@@ -578,8 +608,15 @@ private fun DashboardSetupStep(
         scope.launch {
             val localId = runCatching { HaDashboardSharing.import(context, prefs, meta) }.getOrNull()
             if (localId != null) {
-                val discardOtherDashboards = !prefs.enforcedAllowDashboardSwitch.first()
-                prefs.useSharedDashboardAsInitial(localId, discardOtherDashboards)
+                if (additionalDashboardName != null) {
+                    // Adding, not adopting: import already stored it beside the others, so this
+                    // only opens it. Claiming the default or discarding the rest is first-run
+                    // behaviour and would contradict "nothing is overwritten".
+                    prefs.switchDashboard(localId)
+                } else {
+                    val discardOtherDashboards = !prefs.enforcedAllowDashboardSwitch.first()
+                    prefs.useSharedDashboardAsInitial(localId, discardOtherDashboards)
+                }
                 onComplete()
             } else {
                 familyError = importFailedTemplate.format(meta.name)
@@ -588,9 +625,11 @@ private fun DashboardSetupStep(
         }
     }
     OnboardingDialogFrame(
-        title = stringResource(R.string.ui_choose_your_dashboard_1ec85e9),
+        title = if (additionalDashboardName != null) stringResource(R.string.ui_new_dashboard_4d3c071)
+            else stringResource(R.string.ui_choose_your_dashboard_1ec85e9),
         subtitle = stringResource(R.string.ui_pick_a_starting_point_everything_remains_editable_340924e),
-        icon = Icons.Default.DashboardCustomize
+        icon = Icons.Default.DashboardCustomize,
+        onBack = onBack
     ) {
         Column(
             modifier = Modifier
@@ -669,7 +708,8 @@ private fun DashboardSetupStep(
                 )
             }
             // Import from family: shown whenever the option is relevant, with guidance when the
-            // cloud component isn't set up yet.
+            // cloud component isn't set up yet. Available when adding a dashboard as well, since a
+            // family can publish more than one — the adoption path above stays non-destructive.
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(22.dp),
@@ -728,14 +768,23 @@ private fun DashboardSetupStep(
                                                 style = MaterialTheme.typography.bodySmall
                                             )
                                         }
+                                        val alreadyAdded = localDashboards.any { it.id == "shared-${meta.id}" }
                                         Button(
-                                            enabled = savingMode == null && usingSharedId == null,
+                                            enabled = savingMode == null && usingSharedId == null && !alreadyAdded,
                                             onClick = { useShared(meta) },
                                             shape = RoundedCornerShape(14.dp)
                                         ) {
-                                            Icon(Icons.Default.Download, null, modifier = Modifier.size(18.dp))
-                                            Spacer(Modifier.width(6.dp))
-                                            Text(if (usingSharedId == meta.id) stringResource(R.string.ui_importing_820599d) else stringResource(R.string.ui_use_1d4d43c))
+                                            if (!alreadyAdded) {
+                                                Icon(Icons.Default.Download, null, modifier = Modifier.size(18.dp))
+                                                Spacer(Modifier.width(6.dp))
+                                            }
+                                            Text(
+                                                when {
+                                                    alreadyAdded -> stringResource(R.string.uif_onboarding_shared_already_added)
+                                                    usingSharedId == meta.id -> stringResource(R.string.ui_importing_820599d)
+                                                    else -> stringResource(R.string.ui_use_1d4d43c)
+                                                }
+                                            )
                                         }
                                     }
                                 }
@@ -900,7 +949,7 @@ private fun OnboardingRestoreDialogs(
             },
             confirmButton = {
                 TextButton(enabled = !busy, onClick = onDismissSource) {
-                    Text(stringResource(R.string.ui_cancel_77dfd21))
+                    Text(stringResource(R.string.ui_close_bbfa773))
                 }
             },
         )
@@ -934,7 +983,7 @@ private fun OnboardingRestoreDialogs(
             },
             confirmButton = {
                 TextButton(enabled = !busy, onClick = onDismissCloud) {
-                    Text(stringResource(R.string.ui_cancel_77dfd21))
+                    Text(stringResource(R.string.ui_close_bbfa773))
                 }
             },
         )
@@ -970,7 +1019,7 @@ private fun OnboardingRestoreDialogs(
             },
             confirmButton = {
                 TextButton(enabled = !busy, onClick = onDismissHomeAssistant) {
-                    Text(stringResource(R.string.ui_cancel_77dfd21))
+                    Text(stringResource(R.string.ui_close_bbfa773))
                 }
             },
         )
@@ -1557,7 +1606,7 @@ private fun PermissionsStep(onFinish: () -> Unit) {
     }
 
     val powerManager = remember { context.getSystemService(PowerManager::class.java) }
-    val notifGranted = remember(refresh) { hasPerm(Manifest.permission.POST_NOTIFICATIONS) }
+    val notifGranted = remember(refresh) { notificationsAllowed(context) }
     val fineGranted = remember(refresh) { hasPerm(Manifest.permission.ACCESS_FINE_LOCATION) || hasPerm(Manifest.permission.ACCESS_COARSE_LOCATION) }
     val backgroundGranted = remember(refresh) { hasPerm(Manifest.permission.ACCESS_BACKGROUND_LOCATION) }
     val batteryUnrestricted = remember(refresh) { powerManager?.isIgnoringBatteryOptimizations(context.packageName) ?: false }
@@ -1591,6 +1640,17 @@ private fun PermissionsStep(onFinish: () -> Unit) {
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, "package:${context.packageName}".toUri())
             )
         }
+    }
+
+    /** Below API 33 there is no notification permission to request — switching them back on is
+     *  something only the user can do from system settings. */
+    fun openNotificationSettings() {
+        runCatching {
+            context.startActivity(
+                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                    .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+            )
+        }.onFailure { openAppSettings() }
     }
 
     fun requestBatteryUnrestricted() {
@@ -1703,7 +1763,13 @@ private fun PermissionsStep(onFinish: () -> Unit) {
                         description = stringResource(R.string.ui_receive_home_assistant_alerts_and_actionable_notifications_386435f),
                         granted = notifGranted,
                         actionLabel = stringResource(R.string.uif_enable),
-                        onAction = { notifLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) }
+                        onAction = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                notifLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            } else {
+                                openNotificationSettings()
+                            }
+                        }
                     )
 
                     PermissionCard(

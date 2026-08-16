@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cr_state_on">Ein</string>
+    <string name="cr_state_off">Aus</string>
+    <string name="cr_open">Öffnen</string>
+    <string name="cr_close">Schliessen</string>
+    <string name="cr_stop">Stoppen</string>
+    <string name="cr_closed">Geschlossen</string>
+    <string name="cr_opening">Wird geöffnet</string>
+    <string name="cr_closing">Wird geschlossen</string>
+    <string name="cr_locked">Verriegelt</string>
+    <string name="cr_unlocked">Entriegelt</string>
+    <string name="cr_unavailable">Nicht verfügbar</string>
+    <string name="cr_unknown">Unbekannt</string>
+    <string name="cr_idle">Inaktiv</string>
+    <string name="cr_home">Zu Hause</string>
+    <string name="cr_away">Abwesend</string>
+    <string name="cr_cleaning">Reinigung läuft</string>
+    <string name="cr_returning">Kehrt zurück</string>
+    <string name="cr_paused">Pausiert</string>
+    <string name="cr_error">Fehler</string>
+    <string name="cr_playing">Wiedergabe läuft</string>
+    <string name="cr_buffering">Wird gepuffert</string>
+    <string name="cr_standby">Standby</string>
+    <string name="cr_humidifying">Befeuchtet</string>
+    <string name="cr_drying">Entfeuchtet</string>
+    <string name="cr_detected">Erkannt</string>
+    <string name="cr_clear">Frei</string>
+    <string name="cr_problem">Problem</string>
+    <string name="cr_ok">OK</string>
+    <string name="cr_low">Niedrig</string>
+    <string name="cr_normal">Normal</string>
+    <string name="cr_connected">Verbunden</string>
+    <string name="cr_disconnected">Getrennt</string>
+    <string name="cr_plugged_in">Eingesteckt</string>
+    <string name="cr_unplugged">Ausgesteckt</string>
+    <string name="cr_wet">Nass</string>
+    <string name="cr_dry">Trocken</string>
+    <string name="cr_none">Keine</string>
+    <string name="cr_any">Beliebig</string>
+    <string name="cr_remove">Entfernen</string>
+    <string name="cr_restore">Wiederherstellen</string>
+    <string name="cr_general">Allgemein</string>
+    <string name="cr_identity">Identität</string>
+    <string name="cr_appearance">Darstellung</string>
+    <string name="cr_layout">Layout</string>
+    <string name="cr_behavior">Verhalten</string>
+    <string name="cr_profiles">Profile</string>
+    <string name="cr_playback">Wiedergabe</string>
+    <string name="cr_content">Inhalt</string>
+    <string name="cr_actions">Aktionen</string>
+    <string name="cr_protection">Schutz</string>
+    <string name="cr_power">Ein/Aus</string>
+    <string name="cr_brightness">Helligkeit</string>
+    <string name="cr_temperature">Temperatur</string>
+    <string name="cr_color">Farbe</string>
+    <string name="cr_min">Min.</string>
+    <string name="cr_avg">Durchschn.</string>
+    <string name="cr_max">Max.</string>
+    <string name="cr_now">Jetzt</string>
+    <string name="cr_lowest">Niedrigster Wert</string>
+    <string name="cr_average">Durchschnitt</string>
+    <string name="cr_highest">Höchster Wert</string>
+    <string name="cr_live">Live</string>
+    <string name="cr_once">Einmalig</string>
+    <string name="cr_daily">Täglich</string>
+    <string name="cr_weekly">Wöchentlich</string>
+    <string name="cr_monthly">Monatlich</string>
+    <string name="cr_yearly">Jährlich</string>
+    <string name="cr_action_tap">Tippen</string>
+    <string name="cr_action_double_tap">Doppeltippen</string>
+    <string name="cr_action_hold">Gedrückt halten</string>
+
+    <string name="cr_mode">Modus</string>
+    <string name="cr_mode_auto">Automatisch</string>
+    <string name="cr_mode_heat">Heizen</string>
+    <string name="cr_mode_cool">Kühlen</string>
+    <string name="cr_mode_heat_cool">Heizen/Kühlen</string>
+    <string name="cr_mode_dry">Entfeuchten</string>
+    <string name="cr_mode_fan_only">Nur Lüfter</string>
+    <string name="cr_mode_low">Niedrig</string>
+    <string name="cr_mode_medium">Mittel</string>
+    <string name="cr_mode_high">Hoch</string>
+    <string name="cr_mode_quiet">Leise</string>
+    <string name="cr_mode_boost">Boost</string>
+    <string name="cr_mode_eco">Eco</string>
+    <string name="cr_mode_sleep">Schlafmodus</string>
+    <string name="cr_mode_manual">Manuell</string>
+    <string name="cr_mode_vertical">Vertikal</string>
+    <string name="cr_mode_horizontal">Horizontal</string>
+    <string name="cr_mode_both">Beide</string>
+    <string name="cr_mode_up">Oben</string>
+    <string name="cr_mode_down">Unten</string>
+    <string name="cr_mode_center">Mitte</string>
+    <string name="cr_mode_left">Links</string>
+    <string name="cr_mode_right">Rechts</string>
+    <string name="cr_climate_fan">Lüfter</string>
+    <string name="cr_climate_vertical_airflow">Vertikaler Luftstrom</string>
+    <string name="cr_climate_horizontal_airflow">Horizontaler Luftstrom</string>
+    <string name="cr_climate_preset">Voreinstellung</string>
+    <string name="cr_fan_speed">Lüftergeschwindigkeit</string>
+    <string name="cr_speed">Geschwindigkeit</string>
+    <string name="cr_lower_target">Sollwert senken</string>
+    <string name="cr_raise_target">Sollwert erhöhen</string>
+
+    <string name="cr_climate_temperature">Temperatur</string>
+    <string name="cr_climate_all_temperature_sensors">Alle Temperatursensoren</string>
+    <string name="cr_climate_outside">Aussen</string>
+    <string name="cr_climate_outside_summary">Aussentemperatur, Luftfeuchtigkeit und Luftdruck</string>
+    <string name="cr_climate_humidity">Luftfeuchtigkeit</string>
+    <string name="cr_climate_all_humidity_sensors">Alle Feuchtigkeitssensoren</string>
+    <string name="cr_climate_air_pressure">Luftdruck</string>
+    <string name="cr_climate_all_pressure_sensors">Alle Luftdrucksensoren</string>
+    <string name="cr_climate_co2">CO₂</string>
+    <string name="cr_climate_carbon_dioxide_sensors">Kohlendioxidsensoren</string>
+    <string name="cr_climate_air_quality">Luftqualität</string>
+    <string name="cr_climate_air_quality_summary">Feinstaub, AQI, VOC und Gase</string>
+    <string name="cr_climate_entities">Klima-Entitäten</string>
+    <string name="cr_climate_settings">Klimaeinstellungen</string>
+    <string name="cr_empty_climate_view">Noch keine Klimadaten verfügbar.</string>
+    <string name="cr_climate_fans">Lüfter</string>
+    <string name="cr_climate_air_purifiers">Luftreiniger</string>
+    <string name="cr_climate_humidifiers">Luftbefeuchter</string>
+    <string name="cr_temperature_sensors">Temperatursensoren</string>
+    <string name="cr_devices_active">Aktive Geräte</string>
+    <string name="cr_active_of_total">%1$d von %2$d aktiv</string>
+    <string name="cr_no_search_active">Keine aktive Suche · %1$s</string>
+    <string name="cr_collapse_search">Suche einklappen</string>
+    <string name="cr_expand_search">Suche ausklappen</string>
+    <string name="cr_custom_order">Eigene Reihenfolge</string>
+    <string name="cr_name_a_z">Name A–Z</string>
+    <string name="cr_name_z_a">Name Z–A</string>
+    <string name="cr_climate_device">Klimagerät</string>
+    <string name="cr_climate_device_subtitle">Name, Symbol, Kartenstil und Breite</string>
+    <string name="cr_count_with_average">%1$s · Ø %2$s%3$s</string>
+    <string name="cr_outside_temperature">Aussentemperatur</string>
+    <string name="cr_outside_humidity">Luftfeuchtigkeit aussen</string>
+    <string name="cr_outside_pressure">Luftdruck aussen</string>
+    <string name="cr_outside_air_pressure">Aussenluftdruck</string>
+    <string name="cr_no_sensors_found_for">Keine Sensoren für %1$s gefunden.</string>
+    <string name="cr_climate_control">Klimasteuerung</string>
+    <string name="cr_thermostat_dial">Thermostatregler</string>
+    <string name="cr_width_third">Drittel</string>
+    <string name="cr_width_half">Hälfte</string>
+    <string name="cr_width_full">Volle Breite</string>
+    <string name="cr_select_item">%1$s auswählen</string>
+    <string name="cr_set_outdoor_sensors">Aussentemperatur, Luftfeuchtigkeit und Luftdruck festlegen</string>
+    <string name="cr_auto_discovered_device_class">Automatisch über die Geräteklasse erkannt</string>
+    <string name="cr_auto_discovered_climate_devices">Klimageräte automatisch erkannt</string>
+    <string name="cr_pick_fan_entities_as_purifiers">Lüfter-Entitäten als Luftreiniger auswählen</string>
+    <string name="cr_auto_discovered_humidifier_devices">Luftbefeuchter automatisch erkannt</string>
+    <string name="cr_removed_entities">Entfernte Entitäten</string>
+    <string name="cr_entities_removed_edit_mode">Im Bearbeitungsmodus entfernte Entitäten</string>
+    <string name="cr_card_indoor_climate_overview">Innenklima im Überblick</string>
+    <string name="cr_card_sensor_device_tiles">Sensor- und Gerätekacheln</string>
+    <string name="cr_card_thermostats_ac">Thermostate und Klimaanlagen</string>
+    <string name="cr_card_temperature_summary">Temperaturübersicht</string>
+    <string name="cr_card_humidity_summary">Feuchtigkeitsübersicht</string>
+    <string name="cr_card_air_pressure_summary">Luftdruckübersicht</string>
+    <string name="cr_card_co2_summary">CO₂-Übersicht</string>
+    <string name="cr_card_air_quality_summary">Luftqualitätsübersicht</string>
+    <string name="cr_category_overview">Übersicht</string>
+    <string name="cr_category_devices">Geräte</string>
+    <string name="cr_category_sensors">Sensoren</string>
+    <string name="cr_no_climate_sensors_devices">Keine Klimasensoren oder -geräte gefunden.</string>
+    <string name="cr_no_climate_devices">Keine Klimageräte gefunden. Thermostate und Klimaanlagen aus Home Assistant erscheinen hier automatisch.</string>
+    <string name="cr_no_fans">Keine Lüfter gefunden. Lüfter-Entitäten aus Home Assistant erscheinen hier automatisch.</string>
+    <string name="cr_no_air_purifiers">Keine Luftreiniger eingerichtet. Wähle Lüfter-Entitäten unter Klimaeinstellungen → Klima-Entitäten → Luftreiniger.</string>
+    <string name="cr_no_humidifiers">Keine Luftbefeuchter gefunden. Luftbefeuchter aus Home Assistant erscheinen hier automatisch.</string>
+    <string name="cr_unknown_climate_card">Unbekannte Klimakarte: %1$s</string>
+    <string name="cr_select_climate_cards">Klimakarten auswählen</string>
+    <string name="cr_entities_for">Entitäten für %1$s</string>
+    <string name="cr_climate_card">Klimakarte</string>
+    <string name="cr_climate_card_dialog_subtitle">Datenquellen und Kartendarstellung</string>
+    <string name="cr_card_and_data">Karte und Daten</string>
+    <string name="cr_climate_stack">Klimastapel</string>
+    <string name="cr_climate_stack_dialog_subtitle">Karten, Datenquellen und Layout</string>
+    <string name="cr_cards_and_data">Karten und Daten</string>
+
+    <plurals name="cr_sensor_count">
+        <item quantity="one">%d Sensor</item>
+        <item quantity="other">%d Sensoren</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="one">%1$d Gerät · %2$d ein</item>
+        <item quantity="other">%1$d Geräte · %2$d ein</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="one">%d Aussensensor festgelegt</item>
+        <item quantity="other">%d Aussensensoren festgelegt</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="one">Automatisch + %d manuell</item>
+        <item quantity="other">Automatisch + %d manuell</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="one">%d ausgewählt</item>
+        <item quantity="other">%d ausgewählt</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="one">%d entfernt</item>
+        <item quantity="other">%d entfernt</item>
+    </plurals>
+
+    <string name="cr_room">Raum</string>
+    <string name="cr_room_details">Raumdetails</string>
+    <string name="cr_empty_room">Dieser Raum ist leer. Ziehe die Kopfzeile nach unten, aktiviere den Bearbeitungsmodus und füge Widgets, Schaltflächen oder Kacheln hinzu.</string>
+    <string name="cr_default_markdown_content"># Markdown\nÖffne dieses Widget im **Bearbeitungsmodus**, um eigene Inhalte zu schreiben.</string>
+    <string name="cr_select_camera">Kamera auswählen</string>
+    <string name="cr_select_entity">Entität auswählen</string>
+    <string name="cr_custom_camera">Benutzerdefinierte Kamera</string>
+    <string name="cr_configure_widget">Widget einrichten</string>
+    <string name="cr_configure_widget_subtitle">Lege vor dem Hinzufügen die wichtigsten Optionen fest</string>
+    <string name="cr_widget_options">Widget-Optionen</string>
+    <string name="cr_widget_options_subtitle">Wähle aus, was dieses Widget anzeigen soll</string>
+    <string name="cr_add_widget">Widget hinzufügen</string>
+    <string name="cr_add_widget_subtitle">Nach Zweck durchsuchen oder alle Widgets durchsuchen</string>
+    <string name="cr_category_with_options">%1$s · %2$s</string>
+    <string name="cr_widget_category_controls">Steuerungen</string>
+    <string name="cr_widget_category_controls_description">Schaltflächen, Saugroboter und gruppierte Steuerungen</string>
+    <string name="cr_widget_category_cameras">Kameras</string>
+    <string name="cr_widget_category_cameras_description">Live-Kamerakacheln und Ansichten mit mehreren Kameras</string>
+    <string name="cr_widget_category_climate">Klima und Wetter</string>
+    <string name="cr_widget_category_climate_description">Temperatur, Komfort, Vorhersagen und Bedingungen</string>
+    <string name="cr_widget_category_energy">Energie und Batterien</string>
+    <string name="cr_widget_category_energy_description">Verbrauch, Erzeugung und Gerätezustand</string>
+    <string name="cr_widget_category_information">Informationen und Medien</string>
+    <string name="cr_widget_category_information_description">Kalender, Lieferungen, Diagramme, Notizen und Wiedergabe</string>
+    <string name="cr_widget_category_layout">Layout und Struktur</string>
+    <string name="cr_widget_category_layout_description">Überschriften und flexible Widget-Container</string>
+    <string name="cr_widget_adaptive_lighting">Adaptive Lighting</string>
+    <string name="cr_widget_adaptive_lighting_description">Installierte Adaptive-Lighting-Profile steuern</string>
+    <string name="cr_widget_button">Schaltfläche</string>
+    <string name="cr_widget_button_description">Eine konfigurierbare Steuerung für eine Entität</string>
+    <string name="cr_widget_buttons">Schaltflächen</string>
+    <string name="cr_widget_calendar">Kalender</string>
+    <string name="cr_widget_calendar_description">Agenda-, Wochen- und Monatsansicht aus Home-Assistant-Kalendern</string>
+    <string name="cr_widget_waste_collection">Abfallabholung</string>
+    <string name="cr_widget_waste_collection_description">Bevorstehende Abholungen aus Abfallsensoren</string>
+    <string name="cr_widget_parcels">Pakete</string>
+    <string name="cr_widget_parcels_description">Eingehende und ausgehende Pakete unterstützter Versanddienste</string>
+    <string name="cr_widget_camera">Kamera</string>
+    <string name="cr_widget_camera_description">Eine Live-Kamerakachel oder Stream-URL</string>
+    <string name="cr_widget_cameras">Kameras</string>
+    <string name="cr_widget_climate_card">Klimakarte</string>
+    <string name="cr_widget_climate_card_description">Eine beliebige Karte aus der Klimaansicht</string>
+    <string name="cr_widget_energy_card">Energiekarte</string>
+    <string name="cr_widget_energy_card_description">Eine beliebige Karte aus der Energieansicht</string>
+    <string name="cr_widget_battery_levels">Batteriestände</string>
+    <string name="cr_widget_battery_levels_description">Niedrige Batteriestände oder nur Battery+ mit Typdetails</string>
+    <string name="cr_widget_header_text">Überschrift</string>
+    <string name="cr_widget_header_text_description">Eine Abschnittsüberschrift hinzufügen</string>
+    <string name="cr_widget_markdown">Markdown</string>
+    <string name="cr_widget_markdown_description">Eine frei gestaltbare Markdown-Karte</string>
+    <string name="cr_widget_iframe">iFrame</string>
+    <string name="cr_widget_iframe_description">Eine Webseite in das Dashboard einbetten</string>
+    <string name="cr_widget_media_player">Mediaplayer</string>
+    <string name="cr_widget_media_player_description">Kachel für die aktuelle Wiedergabe mit Cover als Hintergrund</string>
+    <string name="cr_widget_sensor_graph">Sensordiagramm</string>
+    <string name="cr_widget_sensor_graph_description">Verlaufsdiagramm für einen oder mehrere Sensoren als Linien oder Balken</string>
+    <string name="cr_widget_vacuum">Saugroboter</string>
+    <string name="cr_widget_vacuum_description">Steuerung für einen Saugroboter</string>
+    <string name="cr_widget_weather">Wetter</string>
+    <string name="cr_widget_weather_description">Eine einzelne Wetterkarte</string>
+    <string name="cr_widget_empty_stack">Leerer Stapel</string>
+    <string name="cr_widget_empty_stack_description">Widgets in einem konfigurierbaren Stapel platzieren</string>
+    <string name="cr_widget_button_stack">Schaltflächenstapel</string>
+    <string name="cr_widget_button_stack_description">Entitäten zu konfigurierbaren Steuerungen gruppieren</string>
+    <string name="cr_widget_camera_stack">Kamerastapel</string>
+    <string name="cr_widget_camera_stack_description">Live-Kamerakacheln oder eine eigene Stream-URL anzeigen</string>
+    <string name="cr_widget_climate_stack">Klimastapel</string>
+    <string name="cr_widget_climate_stack_description">Klimakarten wie Übersicht, Thermostate und Sensoren gruppieren</string>
+    <string name="cr_widget_energy_stack">Energiestapel</string>
+    <string name="cr_widget_energy_stack_description">Energiekarten wie Verbrauch, Solar, Gas und Wasser gruppieren</string>
+    <string name="cr_widget_sensor_graph_stack">Sensordiagrammstapel</string>
+    <string name="cr_widget_sensor_graph_stack_description">Mehrere Sensorverlaufsdiagramme gruppieren</string>
+    <string name="cr_widget_swiping_stack">Wischstapel</string>
+    <string name="cr_widget_swiping_stack_description">Horizontal durch verschachtelte Widgets wischen</string>
+    <string name="cr_widget_vacuum_stack">Saugroboterstapel</string>
+    <string name="cr_widget_vacuum_stack_description">Saugroboter mit Karte und Batteriestatus steuern</string>
+    <string name="cr_widget_weather_stack">Wetterstapel</string>
+    <string name="cr_widget_weather_stack_description">Bedingungen, Vorhersage, Wind oder Regenkarte gruppieren</string>
+    <string name="cr_camera_settings">Kameraeinstellungen</string>
+    <string name="cr_vacuum_settings">Saugrobotereinstellungen</string>
+    <string name="cr_button_settings">Schaltflächeneinstellungen</string>
+    <string name="cr_robot_image">Roboterbild</string>
+    <string name="cr_map_camera">Kartenkamera</string>
+    <string name="cr_valetudo_map">Valetudo-Karte</string>
+    <string name="cr_valetudo_map_hint">Zeichnet die Karte eines Valetudo-Roboters; tippe auf einen Raum, um ihn reinigen zu lassen. Wähle unten die Kartenkamera des Roboters.</string>
+    <string name="cr_valetudo_camera_mode_note">Kartenkamera zeigt bei einer Valetudo-Kartenentität eine leere Kachel. Valetudo rendert die Karte nicht auf dem Roboter — das PNG ist nur ein Behälter für die Kartendaten. Wähle stattdessen Valetudo-Karte, damit HKI sie zeichnet.</string>
+    <string name="cr_external_url">Externe URL</string>
+    <string name="cr_animation_glow">Leuchten</string>
+    <string name="cr_animation_spin">Drehen</string>
+    <string name="cr_animation_pulse">Pulsieren</string>
+    <string name="cr_adaptive_lighting_widget">Adaptive-Lighting-Widget</string>
+    <string name="cr_adaptive_lighting_widget_subtitle">Profile, Grösse und Darstellung</string>
+    <string name="cr_button_stack_dialog_subtitle">Layout, Darstellung und Entitätsreihenfolge</string>
+    <string name="cr_expand_stack">Stapel ausklappen</string>
+    <string name="cr_collapse_stack">Stapel einklappen</string>
+    <string name="cr_hide_stack">Stapel ausblenden</string>
+    <string name="cr_unhide_stack">Stapel einblenden</string>
+    <string name="cr_swiping_stack_dialog_subtitle">Seiten, Höhe und Kartendarstellung</string>
+    <string name="cr_empty_stack_dialog_subtitle">Container-Layout und Darstellung</string>
+    <string name="cr_header_text_dialog_subtitle">Inhalt und Darstellung der Überschrift</string>
+    <string name="cr_animation_swipe">Wischen</string>
+    <string name="cr_animation_fade">Überblenden</string>
+    <string name="cr_animation_zoom">Zoomen</string>
+    <string name="cr_animation_slide_fade">Schieben + überblenden</string>
+    <string name="cr_animation_cube">Würfel</string>
+    <string name="cr_animation_instant">Sofort</string>
+    <string name="cr_paged_status">%1$d/%2$d · %3$s</string>
+    <string name="cr_cover_status">%1$d%% · %2$s</string>
+    <string name="cr_paged_cover_status">%1$d/%2$d · %3$d%% · %4$s</string>
+
+    <plurals name="cr_widget_option_count">
+        <item quantity="one">%d Option</item>
+        <item quantity="other">%d Optionen</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="one">%d konfigurierte Leuchte</item>
+        <item quantity="other">%d konfigurierte Leuchten</item>
+    </plurals>
+
+    <string name="cr_quick_notifications">Benachrichtigungen</string>
+    <string name="cr_quick_notifications_instruction">Vom oberen linken Rand nach rechts wischen.</string>
+    <string name="cr_quick_switch_homes">Zuhause wechseln</string>
+    <string name="cr_quick_switch_homes_instruction">Vom oberen rechten Rand der Kopfzeile nach links wischen.</string>
+    <string name="cr_quick_actions">Schnellaktionen</string>
+    <string name="cr_quick_actions_instruction">Eine Kopfzeile nach unten ziehen, um Suche, Flows, Bearbeiten und Einstellungen zu öffnen.</string>
+    <string name="cr_quick_media_player">Mediaplayer</string>
+    <string name="cr_quick_media_player_instruction">Wenn der Griff erscheint, die untere Leiste nach oben wischen, um den Player wiederherzustellen.</string>
+    <string name="cr_quick_make_it_yours">Mach es zu deinem</string>
+    <string name="cr_quick_make_it_yours_instruction">Im Bearbeitungsmodus Räume, Etagen und Widgets hinzufügen oder neu anordnen. Tippe auf ein Element, um es einzurichten.</string>
+
+<string-array name="cr_whats_new_1_1_0">
+    <item>Achtzehn weitere Sprachen, womit sich HKI 7 auf 36 erhöht. Polnisch, Russisch, Tschechisch, Slowakisch, Ungarisch, Rumänisch, Bulgarisch, Kroatisch, Griechisch, Litauisch, Lettisch, Estnisch, Dänisch, Thailändisch und Hebräisch kommen zusammen mit österreichischem Deutsch, Schweizerdeutsch und mexikanischem Spanisch hinzu. Hebräisch legt die Benutzeroberfläche wie Arabisch von rechts nach links an.</item>
+    <item>HKI 7 läuft jetzt auf Android 12 und höher. Bisher war Android 14 erforderlich, was viele voll funktionsfähige Telefone und Tablets ausschloss.</item>
+    <item>Energiekosten werden in Ihrer eigenen Währung angezeigt, statt immer in Euro. HKI 7 folgt dem, was Ihre Kostensensoren melden, und es gibt eine Währungseinstellung in den Energieeinstellungen, wenn Sie lieber selbst eine auswählen möchten.</item>
+    <item>Der Sprachwähler verfügt über ein Suchfeld und ist nach Bedarf nach 36 Einträgen sortiert. Wenn Sie jemals in einer Sprache landen, die Sie nicht lesen können, ist der Rückweg immer noch das Erste, was auf dem Bildschirm angezeigt wird.</item>
+    <item>Ansichten merken sich, wohin Sie gescrollt haben, und durch Tippen auf die Registerkarte, auf der Sie sich bereits befinden, gelangen Sie zurück nach oben.</item>
+    <item>Durch seitliches Wischen verlassen Sie nicht mehr eine Seite, die Sie geöffnet haben, z. B. „Solar Inside Energy“. Mit „Zurück jetzt“ kehren Sie zu der Ansicht zurück, von der Sie kamen, anstatt zur Startseite zu springen.</item>
+    <item>Scrollbare Zeilen sagen es. Das Pulldown-Menü, die Navigationsleiste und die Einstellungsregisterkarten zeigen alle einen Pfeil am Rand an, wenn es mehr zu erreichen gibt.</item>
+    <item>Dialoge sehen überall gleich aus und verhalten sich gleich. Sechs davon waren einfache Android-Dialoge ohne Schliessen-Schaltfläche in der Ecke, und die Schaltflächen in der gesamten App stimmen jetzt darin überein, was „Schliessen“, „Speichern“ und „Fertig“ bedeuten.</item>
+    <item>Beim Erstellen eines Dashboards werden zuerst Fragen gestellt und dann werden dieselben Optionen wie bei der erstmaligen Einrichtung angeboten. Ein neues Dashboard kann also mit einem Backup oder einem von Ihrer Familie geteilten Backup beginnen, aber auch erstellt oder leer gelassen werden. Ihr aktuelles Dashboard wird nie überschrieben und freigegebene Dashboards werden jetzt in der Liste als freigegeben markiert.</item>
+    <item>Das Batterie-Widget öffnet eine Liste an Ort und Stelle, anstatt Sie zu einer separaten Seite zu führen, gruppiert nach der Dringlichkeit jeder einzelnen Seite und zeigt den Batterietyp an, wo Home Assistant ihn kennt. Es gibt ein Suchfeld und eine Schaltfläche zum Öffnen der vollständigen Batterieansicht, wenn Sie dies wünschen.</item>
+    <item>Durch Antippen des Personenzählers in einem Raum wird mit dem Bild jeder Person angezeigt, wer sich dort befindet. Die Kopfzeile „Räume“ verfügt jetzt auch über einen Haushaltszähler, der anzeigt, wo sich alle befinden, ohne jeden Raum öffnen zu müssen.</item>
+    <item>Für diejenigen, die sich zwar im Raum befinden, aber nicht wirklich Teil davon sind, kann in den Licht- und Gerätezählern eines Raums eine Taste weggelassen werden.</item>
+    <item>Widgets, die eine Integration benötigen, die Sie nicht haben – Formel 1, Pakete, Müllabfuhr – sind ausgegraut und zeigen an, was fehlt, anstatt hinzugefügt zu werden und dann leer zu bleiben.</item>
+    <item>Die Paketverfolgung umfasst fünfzehn weitere Anbieter, darunter PostNord, InPost, Swiss Post, An Post, Budbee, Sameday und Nova Post, jeweils mit eigenem Logo.</item>
+    <item>Ein Valetudo Roboterstaubsauger ruft seine Live-Karte automatisch auf, wenn Ihre Räume importiert werden, sodass die Kamera nicht manuell ausgewählt werden muss.</item>
+</string-array>
+
+<string-array name="cr_whats_new_1_0_1">
+    <item>Das Wischen zwischen Tabs folgt jetzt Ihrem Finger. Die Seiten bewegen sich beim Ziehen, Sie können Ihre Meinung während des Wischens ändern und sie zurückziehen, und sie bleiben dort, wo Sie loslassen. Zuvor wurde die Änderung in dem Moment entschieden, in dem Sie weit genug gezogen hatten, und konnte nicht mehr zurückgenommen werden, während die Animation, die danach abgespielt wurde, über einen eigenen Timer verfügte und nichts mit der Geste zu tun hatte – sodass die App zu einer Seite wechselte, bevor Ihr Finger mit der Anforderung einer solchen Bewegung fertig war.</item>
+    <item>Die untere Leiste behält nun die ausgewählte Registerkarte im Blick. Auf einem Telefon, das für jeden Tab zu schmal ist, scrollt es den aktiven Tab in die Mitte, sodass der Tab, auf dem Sie sich befinden, immer zusammen mit seinen Nachbarn sichtbar ist – was auch ein Hinweis darauf ist, dass es weitere Seiten gibt, zu denen Sie wischen können. Beim Erreichen der letzten Registerkarte blieb der Indikator irgendwo ausserhalb des Balkenendes.</item>
+    <item>Wenn Sie zwischen Räumen wischen, wird als Punkt über der Navigationsleiste angezeigt, wie viele Räume vorhanden sind und in welchem Sie sich befinden – oder als Anzahl, sobald es mehr als acht sind. Das Wischen im Raum stoppt auch beim letzten Raum, anstatt zum ersten zu wechseln, was dem Verhalten der Tabs entspricht. Räume, die ein Administrator ausgeblendet hat, werden jetzt beim Wischen übersprungen und nicht nur beim Öffnen blockiert.</item>
+    <item>Das Pulldown-Kopfzeilenmenü bewegt sich dorthin, wo Sie es loslassen, und springt nicht in einem einzelnen Bild auf oder zu. Es hängt davon ab, in welcher Hälfte Sie es losgelassen haben. Durch schnelles Streichen wird es geöffnet, ohne dass es über die gesamte Länge gezogen werden muss, und es kann mitten in der Animation eingefangen und erneut gezogen werden. Es stoppt auch nicht mehr auf halbem Weg, wenn es weit, aber nicht weit genug gezogen wird.</item>
+    <item>Die Einstellungen merken sich, wo Sie waren. Wenn Sie aus einem Untermenü zurückkehren, kehren Sie an die Stelle in der Liste zurück, die Sie verlassen haben, und nicht an den Anfang, was auf dem langen Weg nach unten zu „Info“ und „Lizenzen“ am deutlichsten auffiel. Im Dialogfeld „Seiteneinstellungen“ gab es das gegenteilige Problem – eine Bildlaufposition wurde über nicht verwandte Untermenüs übertragen – und das wurde ebenfalls behoben.</item>
+    <item>Das Benachrichtigungsfeld verfügt jetzt über eine Schaltfläche im Pulldown-Kopfzeilenmenü, sodass das Wischen von der linken Kante nicht mehr die einzige Möglichkeit ist, darauf zuzugreifen. Dadurch schrumpfte der für das Wischen reservierte Streifen des Bildschirmrands von 200 dp auf 88 dp: Der reservierte Streifen ist dort, wo Androids eigene Zurück-Geste nicht mehr funktioniert, und er deckte genau die Ecke ab, in der sich der Zurück-Pfeil befindet.</item>
+    <item>Problem behoben, bei dem die App anstelle des Benachrichtigungsfelds geschlossen wurde, wenn während der Öffnungsanimation des Bedienfelds die Zurück-Taste gedrückt wurde. „Zurück“ ist jetzt auch für die Tabs definiert – es kehrt zum ersten Tab zurück, bevor die App verlassen wird, anstatt die App von der Stelle zu verlassen, zu der Sie zufällig gewischt haben.</item>
+    <item>Das Home-Switcher-Panel folgt der vorausschauenden Zurück-Geste von Android, gleitet mit dem Finger heraus und springt zurück, wenn Sie Ihre Meinung ändern.</item>
+    <item>Vier weitere Sprachen: Norwegisch, Schwedisch, Finnisch und Arabisch. Auf Arabisch ist die gesamte App von rechts nach links angeordnet – die Navigationsleiste, die Bedienfelder, die vom Bildschirmrand aus eingeschoben werden, und die Wischbewegung, die sich zwischen den Registerkarten bewegt, sind alle spiegelbildlich und nicht nur der Text, der die Richtung ändert. Produktnamen wie Home Assistant bleiben überall dort, wo sie erscheinen, in lateinischer Schrift.</item>
+    <item>Das Wischen zwischen Räumen ist viel flüssiger. Ein Raumbildschirm ist bei weitem die schwerste Seite in der App, und die nächste wurde während der ersten Frames des Wischens erstellt – genau dann, wenn keine Zeit dafür war. Es wird jetzt vorbereitet, während sich nichts bewegt, und Live-Sensoraktualisierungen warten darauf, dass der Wischvorgang abgeschlossen ist, anstatt jede geöffnete Seite mitten in der Geste neu zu zeichnen.</item>
+    <item>Das Benachrichtigungsfeld und der Home-Switcher werden per Drag-and-Drop nicht geöffnet, sondern folgen Ihrem Finger und legen fest, wo Sie ihn loslassen. Sie schliessen auf die gleiche Weise: Schieben Sie sie zurück in Richtung der Kante, von der sie gekommen sind. Durch Antippen des Bedienfelds selbst wird es nicht mehr geschlossen, was früher überall dort der Fall war, wo Sie berührten und keine Schaltfläche waren.</item>
+    <item>Eine horizontale Reihe innerhalb einer Seite – eine Modusauswahl, eine Wischreihe, ein Wischstapel – übergibt den Rest der Geste nicht mehr an die Seite, sobald sie ihr Ende erreicht hat. Durch Auswählen des ersten oder letzten Elements in einer solchen Zeile wurde stattdessen die gesamte Seite umgeblättert.</item>
+    <item>In Dialogen mit Registerkarten wird angezeigt, wie viele davon vorhanden sind und in welcher Registerkarte Sie sich befinden. Durch seitliches Wischen an einer beliebigen Stelle im Dialog wird die Registerkarte geändert. Früher wurde das Wischen immer dann als Scrollen abgeschrieben, wenn es mit dem leichten Abwärtsbogen begann, den ein Daumen natürlich macht, was den Eindruck erweckte, dass es nur manchmal funktionierte.</item>
+    <item>Der Demomodus kommuniziert nicht mehr mit dem Netzwerk. Sechsundzwanzig Anfragen – die gesamte HKI 7 Cloud-Oberfläche plus die Ereigniszeitleiste, Kamera-Schnappschüsse und Vakuumkarten – wurden immer noch an einen Server gerichtet, der nicht existiert, und eine davon wurde während der gesamten Sitzung alle drei Sekunden erneut versucht, wodurch das Verbindungsprotokoll mit Fehlern gefüllt wurde. Der Neustart von Home Assistant in der Demo wird jetzt in wenigen Sekunden simuliert, anstatt zwei Minuten lang „Neustart“ anzuzeigen und aufzugeben.</item>
+</string-array>
+
+<string-array name="cr_whats_new_1_0_0">
+    <item>Registerkarte „Neue Ereignisse“ in der Benachrichtigungsleiste: eine Zeitleiste darüber, was Ihr Zuhause tatsächlich getan hat. Die Haustür öffnet sich, ein Licht geht aus, jemand kommt nach Hause – jeder mit der Uhrzeit und, wo Home Assistant weiss, wer es getan hat. Ein Administrator wählt aus, welche Entitäten unter Einstellungen › Familienfreigabe › Ereignisse angezeigt werden, und zwar einmal für die ganze Familie und nicht auf jedem Telefon. Es liest das eigene Logbuch von Home Assistant, anstatt etwas auf dem Gerät aufzuzeichnen. Es zeigt also immer noch an, was über Nacht passiert ist, während die App geschlossen war, und es werden die letzten drei Stunden geöffnet – eine Zeitleiste gibt Auskunft darüber, was gerade passiert ist – 6 bis 72 Stunden sind nur einen Fingertipp entfernt. Ereignisse berühren nie den ungelesenen Zählerstand der Benachrichtigungsglocke: Eine Zeitleiste der Türöffnungen würde dazu führen, dass dieser Ausweis dauerhaft leuchtet und keine Bedeutung hat. Erfordert HKI 7 Cloud 0.9.0.*</item>
+    <item>Ein Administrator kann Teile der Zeitleiste von einzelnen Familienmitgliedern – einer ganzen Domäne oder benannten Entitäten – über dieselbe Registerkarte „Ereignisse“ wegnehmen. Jeder sieht die vollständige Zeitleiste, es sei denn, es wird etwas für ihn herausgenommen. Das Hinzufügen einer Person zur Familie bedeutet also nicht, dass die Zeitleiste von Grund auf neu erstellt werden muss. Die Filterung erfolgt in der HKI 7 Cloud-Komponente und nicht in der App, sodass einem eingeschränkten Gerät nie mitgeteilt wird, von welchen Entitäten es ferngehalten wird. Wie bei ausgeblendeten Ansichten und Räumen wird hierdurch die Zeitleiste und nicht die Entitäten ausgeblendet: Home Assistant hat keine Leseberechtigung pro Entität für Nicht-Administratorkonten, sodass jeder, der angemeldet ist, diese Entitäten weiterhin über Home Assistant selbst lesen kann.*</item>
+    <item>Die Veranstaltungsliste umfasst sowohl ganze Domänen als auch benannte Entitäten, sodass „jede Sperre“ eine Auswahl statt elf ist. Domänen werden jedes Mal, wenn die Zeitleiste geöffnet wird, neu aufgelöst, sodass eine im nächsten Monat hinzugefügte Sperre von selbst beitritt und nicht dem Dienstplan, d. h. dem, was auch immer am Tag ihrer Festlegung existierte. Der Editor zeigt, was jede Domäne derzeit abdeckt, da eine Domäne Hunderte von Entitäten umfassen kann. Erfordert HKI 7 Cloud 0.10.0.*</item>
+    <item>Ereignisse werden nach dem Ereignis, dem sie zugestossen sind, beschriftet und können gefiltert werden – Türen, Fenster, Bewegung, Lichter, Schlösser. Die Filterzeile basiert auf dem, was Ihre Zeitleiste tatsächlich enthält, sodass Ihnen niemals ein Filter angeboten wird, der nur leer zurückkommen kann. Die Tage bleiben als Listenüberschriften erhalten: Eine Zeitleiste, die sich selbst nach Kategorien neu ordnet, ist keine Zeitleiste mehr.</item>
+    <item>Wettergrafiken werden jetzt in der Tagesvorhersage, im Stundenstreifen und in der Kopfzeile animiert, nicht nur auf der Heldenkarte. Die Animation wurde zuvor unterhalb einer festen Grösse ausgeschaltet, was alle drei erfasste.</item>
+    <item>Wo Wettergrafiken animiert werden, gibt es jetzt vier separate Schalter – Kopfzeile, Wetterdialog, Vorhersagestreifen, Wetter-Widget – anstatt sich auf die Animationseinstellung des Entitätssymbols zu verlassen. Die Prognosestreifen animieren ein Dutzend Symbole nebeneinander und sind die einzigen, die jemals spürbare Kosten verursachen. Das Ausschalten dieser Streifen bedeutet also nicht unbedingt, dass das einzelne kleine Symbol in der Kopfzeile verloren geht. Alle vier sind standardmässig aktiviert und werden sowohl in den Einstellungen › Darstellung › Symbole als auch in den eigenen Einstellungen der Kopfzeile angezeigt.</item>
+    <item>Der 6-Stunden-/12-Stunden-/24-Stunden-/48-Stunden-/72-Stunden-Bereichswähler ist überall dort, wo er angezeigt wird, zentriert und nicht linksbündig ausgerichtet und verfügt über eine 3-Stunden-Option.</item>
+    <item>Neues Verbindungsprotokoll unten in den Einstellungen › Verbindung: Was die Verbindung der App tatsächlich getan hat – Verbindungsversuche, erneute Verbindungen, Synchronisierung und Abonnements – mit Schaltflächen zum Kopieren oder Löschen. All dies wurde bereits aufgezeichnet; nichts hat es angezeigt. Es enthält die letzten 300 Zeilen und startet bei jedem Start leer.</item>
+    <item>Die Layoutoptionen eines Schaltflächenstapels werden jetzt genauso benannt wie die einer einzelnen Schaltfläche. Die gleiche Form wurde „Kachel auf Knopfdruck“ und „Kompakt auf Stapel“ genannt, wodurch sie wie unterschiedliche Merkmale aussahen.</item>
+    <item>Neues zentriertes Schaltflächenlayout neben „Standard“, „Quadrat“ und „Kachel“: eine quadratische Karte, deren Symbol in der Mitte des Raums über dem Text sitzt und der Name und das Bundesland darunter zentriert sind. Das Symbol wird mit zunehmendem Text nach oben verschoben und nicht überfüllt. Ein Raster davon fungiert als Tastenfeld, was eine Fernbedienung ermöglicht.</item>
+    <item>Das Symbol, der Name und der Status einer Schaltfläche werden jeweils einzeln in einem neuen Abschnitt „Elemente“ in den Einstellungen angezeigt oder ausgeblendet. Der alte Schalter „Nur Symbole“ ist weg – er hat sowohl den Namen als auch den Status ausgeblendet, und Sie können damit auch einen davon behalten. Vorhandene Nur-Symbol-Schaltflächen funktionieren weiterhin.</item>
+    <item>Ein Tastenstapel verfügt über dieselben drei Schalter für alle seine untergeordneten Elemente, sodass ein Stapel mit zwanzig Tasten nicht zwanzig Mal eingestellt werden muss. Wenn Sie einen auf dem Stapel ausschalten, wird er auf jeder Schaltfläche ausgeblendet. Wenn Sie es eingeschaltet lassen, kann jeder Knopf entscheiden.</item>
+    <item>Problem behoben, bei dem das Dialogfeld „Einstellungen für den Tastenstapel“ nach etwa zwei Dritteln der Leertaste stehen blieb und sich darunter ein leerer Bereich befand, so dass der Rest auf einem grossen Telefon oder Tablet nicht erreichbar war.</item>
+    <item>Navigationsleiste, Mediaplayer und Popups wurden von „Einstellungen“ &gt; „Darstellung“ nach „Einstellungen“ &gt; „Dashboard“ verschoben, unterhalb der Dashboards selbst. Sie sind eher Teil dessen, woraus das Armaturenbrett besteht, als dessen Stil.</item>
+    <item>Einstellungen › Die Verbindung endet mit dem Verbindungsprotokoll, und der Restart Home Assistant befindet sich jetzt darunter und nicht darüber – es ist das störendste Element auf dem Bildschirm und wird am seltensten benötigt.</item>
+    <item>Über die Registerkarte „Ereignisse“ erhält der Administrator eine Schaltfläche, die direkt zu „Einstellungen“ &gt; „Familienfreigabe“ &gt; „Ereignisse“ führt, wenn noch nichts erfasst wird, anstatt nur anzugeben, wohin er gehen soll.</item>
+    <item>Die Entitäts- und Domänenauswahl listet zuerst auf, was bereits ausgewählt wurde. Das Rückgängigmachen einer Auswahl bedeutet also nicht, alphabetisch danach zu suchen. Die Reihenfolge ist beim Öffnen des Pickers festgelegt, so dass das Ankreuzen nicht dazu führt, dass es Ihnen vom Finger wegspringt.</item>
+    <item>Die Überschrift eines Schaltflächenstapels verfügt jetzt über explizite Schalter „Name anzeigen“ und „Symbol anzeigen“ sowie eine Option zum Zentrieren dieser Schalter. Früher war das Löschen des Textfelds die einzige Möglichkeit, einen Stapel ohne Überschrift zu erhalten, was verschwieg, dass dies möglich war, und bedeutete, dass der Name verloren gehen musste, um ihn zu verbergen.</item>
+</string-array>
+
+<string-array name="cr_whats_new_beta_18">
+        <item>Ein Administrator kann jetzt ändern, mit wem ein veröffentlichtes Familien-Dashboard geteilt wird, anstatt nur zum Zeitpunkt der Veröffentlichung auswählen zu können. Einstellungen › Familienfreigabe › Dashboards listet auf, wen jedes veröffentlichte Dashboard erreicht, mit einer Schaltfläche „Zugriff verwalten“, um Personen hinzuzufügen oder zu entfernen. Bisher bestand die einzige Möglichkeit, einer Person ein Dashboard zu entziehen, darin, es für alle zu löschen.*</item>
+        <item>Wenn Sie den Zugriff auf ein Familien-Dashboard verlieren, wird jetzt gelöscht, was darüber geschichtet war. Das Dashboard selbst wurde bereits entfernt, aber die Räume, Widgets, Seiten, die Navigationsleiste, die Kopfzeile und das Thema, die es auf dem Gerät zurückliess, blieben bestehen – sodass das nächste Dashboard, das ein Administrator freigegeben hatte, über den Resten des vorherigen ankam und aussah, als wäre es nicht vollständig importiert worden. Alles, was zum widerrufenen Dashboard gehörte, wird nun damit entfernt. Home Assistant-Verbindungen, Profile und Benachrichtigungseinstellungen bleiben unberührt: Der Verlust eines Dashboards bedeutet nicht, dass Sie abgemeldet werden.*</item>
+        <item>Registerkarte „Neue Geräte“ unter „Einstellungen“ &gt; „Familienfreigabe“, auf der angezeigt wird, welche HKI-Version jedes Familiengerät ausführt, und die älteren Geräte als Ihres gekennzeichnet werden, mit dem Home Assistant-Konto, dem Gerätenamen, der Android-Version und dem Zeitpunkt der letzten Meldung. Bei jeder Installation wird dies über die HKI 7 Cloud-Komponente über die Verbindung aufgezeichnet, die die App bereits verwendet, sodass jedes angemeldete Gerät abgedeckt ist – einschliesslich eines Geräts, bei dem Standort und Benachrichtigungen beide ausgeschaltet sind – und der Entitätsliste von Home Assistant nichts hinzugefügt wird. Ein Gerät kann immer nur sich selbst melden. Ein Administrator kann ein ausgetauschtes Telefon vergessen; Eine noch verwendete Datei wird beim nächsten Öffnen der App wieder angezeigt. Erfordert HKI 7 Cloud 0.7.0.*</item>
+        <item>Ein Administrator kann nun verlangen, dass die Familie aktualisiert wird. „Diese Version muss für alle erforderlich sein“ auf der Registerkarte „Geräte“ legt einen Mindestwert für den Haushalt fest; Jeder, der sich darunter befindet, erhält beim nächsten Start eine Eingabeaufforderung im Vollbildmodus anstelle des Dashboards, wobei das In-App-Update von Google Play die Installation durchführt. Es gibt auch eine gerätespezifische „Nach Aktualisierung fragen“, wenn ein Telefon im Rückstand ist und nicht alle, die sich selbst löscht, sobald das Gerät aktualisiert wird. Keine App kann eine neuere Version von sich selbst installieren, daher übernimmt Play die eigentliche Arbeit – was auch bedeutet, dass die Eingabeaufforderung nur dann bestehen kann, wenn Play das Update tatsächlich bereit hat. Wenn dies nicht der Fall ist, erklärt die Eingabeaufforderung den Grund dafür und ermöglicht Ihnen die Teilnahme an dieser Sitzung, anstatt jemanden wegen eines Updates, das er nicht erhalten kann, aus seinen eigenen Sperren und Alarmen auszuschliessen. Sie können nur eine Version anfordern, die auf einem Familiengerät bereits ausgeführt wird. Erfordert HKI 7 Cloud 0.8.0.*</item>
+        <item>Auf jeder Registerkarte „Familienfreigabe“ wird jetzt selbst angezeigt, wann eine neuere HKI 7 Cloud als die installierte benötigt wird, anstatt dass dies nur in der Zusammenfassung oben auf dem Bildschirm angezeigt wird. Kindersicherung, Berechtigungen, Anwesenheit und Geräte tragen jeweils die Version, die sie benötigen, sodass vor der Konfiguration einer Registerkarte klar ist, welche Einstellungen die installierte Komponente noch nicht speichern kann.</item>
+    </string-array>
+
+    <string-array name="cr_whats_new_beta_17">
+        <item>Es wurde ein Absturz behoben, der dazu führen konnte, dass die gesamte App beim allerersten Verbindungsversuch nach dem Öffnen heruntergefahren wurde, was mit „Die App lässt sich nicht einmal öffnen“ angezeigt wurde. Das Setup, das bei jedem Start ausgeführt wird, hatte keine eigene Fehlerbehandlung, sodass ein Fehler dort – normalerweise eine abgelaufene Sitzung, die in einem instabilen Netzwerk aktualisiert wurde – als nicht behandelter Fehler maskiert wurde, anstatt als Verbindungsfehler aufzutauchen, den Sie erneut versuchen konnten. Als Backstop kann ein unerwarteter Fehler bei einer Hintergrundaufgabe die App überhaupt nicht mehr beenden.</item>
+        <item>Das Dashboard erstellt sich nicht mehr jedes Mal neu, wenn Home Assistant eine Statusänderung meldet. Der Startbildschirm verfolgte die gesamte Entitätsliste, sodass das Auslösen eines einzelnen Bewegungssensors oder das Ticken eines Leistungsmessers – mehrmals pro Sekunde bei einer geschäftigen Installation – den gesamten Bildschirm und jedes darauf befindliche Widget ungültig machte, selbst wenn sich nichts Sichtbares geändert hatte. Es beobachtet jetzt nur noch das, was es tatsächlich zeichnet.</item>
+        <item>Animationen von Entitätssymbolen wiederholen die Layoutarbeit nicht mehr für jeden Frame, den sie animieren. Durch die Dreh-, Puls- und Leuchteffekte wurde die Zusammensetzung des umgebenden Widgets in jedem Animationsbild erneut ausgeführt, anstatt nur das Symbol neu zu zeichnen. Daher zahlte jedes Armaturenbrett mit aktivem Licht, offener Tür oder Aufnahmekamera diese Kosten kontinuierlich. Die Animationen sehen genau gleich aus.</item>
+        <item>Problem behoben, bei dem die App nicht mehr reagierte – und schliesslich von Android abgebrochen wurde –, wenn der Verlauf einer ausgelasteten Entität geöffnet wurde, beispielsweise eines Bewegungssensors, der täglich Tausende von Zustandsänderungen protokolliert. Durch die Zuordnung jedes Verlaufseintrags zu seinem Akteur wurden die Zeitstempel des gesamten Logbuchs für jeden einzelnen Eintrag von Grund auf neu gescannt und analysiert. Diese Arbeit skalierte mit der Verlaufsgrösse im Quadrat. Ein ruhiges Wesen bemerkte es nie, aber ein beschäftigtes Wesen konnte die CPU zehn Sekunden lang blockieren. Das Logbuch wird jetzt einmal statt einmal pro Eintrag geparst, und der gesamte Abruf läuft vom Hauptthread ab.</item>
+        <item>Es wurde verschärft, wie die App Attribute liest, die Home Assistant für eine Entität sendet: ein Wert, der vorhanden, aber unerwartet geformt ist (ein Objekt oder Array, bei dem eine einfache Zahl oder ein Textstück erwartet wurde), der dazu verwendet wird, den Bildschirm auszulösen und zum Absturz zu bringen, egal auf welchem Bildschirm er gelesen wurde, anstatt einfach als fehlend behandelt zu werden.</item>
+        <item>Problem behoben, bei dem „Push to Family Dashboard“ ein Dashboard als bereits aktuell meldete, unabhängig davon, was sich geändert hatte. Ein nach einer Neuinstallation erneut importiertes Dashboard wird lokal unter einer anderen ID gespeichert als der, unter der die Cloud-Kopie veröffentlicht wird, und die Push-Prüfung suchte immer noch nach dem lokalen Export anhand der Cloud-ID, fand nichts und übersprang dieses Dashboard bei jedem Push stillschweigend.</item>
+    </string-array>
+
+    <string-array name="cr_whats_new_beta_15">
+        <item>Das Formel-1-Widget erhält zwei neue Tabs und erweitert zwei bestehende. Der Kalender listet die Rennen der Saison in der Reihenfolge auf, mit jeder Rennstrecke und der Flagge des Gastgeberlandes. Das Raster zeigt die Startaufstellung mit der Position jedes Fahrers nach oben oder unten, ausgehend von der Position, an der er sich qualifiziert hat. In der Rangliste kann jetzt neben der Punktetabelle eine Meisterschaftsvorhersage angezeigt werden – aktuelle und vorhergesagte Endpunkte für Fahrer oder Konstrukteure – wenn die optionale F1TV-Auth-Funktion von F1 Sensor eingerichtet ist. Live erhält eine korrekte Zeitliste: Abstand zum Führenden, Abstand zum vorausfahrenden Auto, Reifenmischung und Stintlänge sowie Boxen-/Ausfallstatus für jeden Fahrer sowie die Runde, in der sich der Führende befindet.</item>
+        <item>Behoben: Gemeinsame Familien-Dashboards konnten überhaupt nicht aktualisiert werden, wenn der Besitzer einen Widget-Typ hinzufügte, der in einer neueren App-Version eingeführt wurde, z. B. die To-Do-Liste oder Formel-1-Widgets. Ein einzelnes, nicht erkanntes Widget führte früher dazu, dass das gesamte Dashboard ausfiel, sodass ein Familienmitglied in einem älteren Build keine Änderungen dieses Dashboards mehr erhielt, anstatt nur das neue Widget zu verpassen. Nicht erkannte Widgets werden jetzt einzeln übersprungen, sodass der Rest eines freigegebenen Dashboards weiterhin über App-Versionen hinweg funktioniert.</item>
+        <item>Die quadratische Karte des To-Do-Widgets kann jetzt eine ganze Liste anstelle von Elementen enthalten, die einzeln mit hoher Priorität gekennzeichnet sind. Eine neue Heldenlistenauswahl auf der Registerkarte „Allgemein“ des Widgets – die angezeigt wird, sobald mindestens eine Registerkarte vorhanden ist – wählt aus, welche offenen Elemente der Liste auf der Karte angezeigt werden und ist mit dem Namen dieser Liste beschriftet. Sie sehen also auf einen Blick eine bestimmte Liste wie „Aufgaben“ und nicht eine verstreute Mischung, die aus jeder Registerkarte gezogen wird. Durch das Löschen eines Tabs, der derzeit die Heldenliste ist, wird die Einstellung automatisch gelöscht.</item>
+        <item>Das Problem, dass die App immer dann abstürzte, wenn eine erneute Verbindung zum Home Assistant erforderlich war oder die Verbindung fehlschlug, wurde behoben. Der In-App-Push-Benachrichtigungskanal führte sein Abonnement so aus, dass der Fehler einer unterbrochenen Verbindung die umgebende Fehlerbehandlung vollständig überging und die App vollständig zum Absturz brachte. Eine separate Nichtübereinstimmung führte auch dazu, dass bei jeder einzelnen erneuten Verbindung sofort der gesamte Synchronisierungsstapel zerstört und ein zweites Mal neu aufgebaut wurde, wobei die eigene, frisch hergestellte Verbindung durcheinander kam. Beides ist behoben.</item>
+    </string-array>
+
+    <string-array name="cr_whats_new_beta_14">
+        <item>Einstellungen › Familienfreigabe zeigt jetzt an, welche HKI 7 Cloud-Version installiert ist und, falls sie dahintersteckt, genau, welche Familienfunktionen nicht verfügbar sind, jeweils gekennzeichnet mit der Version, die sie freischaltet. Bisher konnte man nur herausfinden, ob eine Komponente veraltet ist, indem man einen Speichervorgang ausführte, der stillschweigend einen Teil der von Ihnen konfigurierten Komponenten löschte.*</item>
+        <item>Neues To-Do-Listen-Widget: eine gemeinsame Checkliste oder Einkaufsliste, die die ganze Familie ergänzen kann. Elemente unterstützen eine optionale Menge, Kategorie, Priorität (niedrig, normal oder hoch, angezeigt als Markierung) und ein Fälligkeitsdatum mit der Zuordnung „Hinzugefügt von“ und „Geprüft von“, wenn mehr als eine Person die Liste bearbeitet. Wählen Sie „Manuell“, „A–Z“, „Priorität“ oder „Neueste zuerst“-Reihenfolge und filtern Sie im Dialogfeld zwischen „Zu erledigen“, „Alle“ und „Fertig“. Die Bearbeitung kann auf alle Personen, auf bestimmte Familienmitglieder, die aus der echten Home Assistant-Benutzerliste ausgewählt werden, oder nur auf Administratoren beschränkt werden. Die Bearbeitung erfolgt auf die gleiche Weise wie die übrigen Familienberechtigungen der App. Es folgt dem gleichen Design wie jedes andere Widget, mit den üblichen Registerkarten „Allgemein“, „Berechtigungen“, „Darstellung“ und „Sichtbarkeit“.</item>
+        <item>Die Raumverfolgung kann jetzt so eingestellt werden, dass jemand beim Start der App nur im richtigen Raum platziert wird, ohne ihn für den Rest der Sitzung zu verfolgen. Der bestehende Schalter „Vor Zimmerwechsel fragen“ wählte nur zwischen Fragen und stillem Wechseln; Es gab keine Möglichkeit, die einmalige Platzierung zu erreichen, ohne dass die App danach weiterhin jede Bewegung verfolgte. Durch einen neuen Schalter „Folge beibehalten, während die App geöffnet ist“ unter den Raumverfolgungseinstellungen jeder Person wird die fortlaufende Verfolgung von selbst deaktiviert, sodass „Öffnen Sie ihren Raum, wenn die App beginnt“ die eine Platzierung vornimmt, die sie immer durchgeführt hat.*</item>
+        <item>Neues Formel-1-Widget für die Integration F1 Sensor. Die Karte zeigt das nächste Rennen mit Countdown und Streckenumriss; geöffnet gibt es vier Tabs — Nächstes Rennen mit vollem Sessionplan und Wetter an der Strecke, Wertung für Fahrer und Konstrukteure, Ergebnisse des letzten Grand Prix samt gewonnenen oder verlorenen Plätzen, und ein Live-Tab, das nur während einer Session erscheint und Flagge sowie Race-Control-Meldungen zeigt. Die Sensoren findet es selbst: F1 Sensor erlaubt umbenannte Entitäten und eine eigene Sprache, deshalb sucht das Widget über die stabilen internen Schlüssel der Integration statt über Entitäts-IDs.</item>
+        <item>Neues Widget „Meine Geräte finden“: eine Karte mit Telefonen, Uhren, Tags und Trackern. Füge jede device_tracker- oder person-Entität hinzu; die mit GPS erscheinen als Pin auf der Karte, die übrigen stehen mit ihrem Status in der Liste. Hake beliebig viele an, um sie gemeinsam zu zeigen, oder hake nichts an, um alles zu sehen. Drei Filter grenzen die Liste ein: Alle, Geräte und Personen. Die Karte folgt dem Design der übrigen Widgets, also funktionieren Hintergrundbild, Symbol, Breite, Form und Eckenradius wie gewohnt.</item>
+        <item>Die Karten in der App sehen nicht länger nach gedrucktem Atlas aus. HKI nutzt jetzt dieselbe zurückhaltende CARTO-Basiskarte wie die Kartenkarte von Home Assistant, statt des Standard-OpenStreetMap-Renderings, das als Referenz für Kartografen gedacht ist und nicht als Hintergrund einer App. Es gibt zudem eine echte dunkle Variante, sodass die Karte endlich dem Theme folgt, statt in einem dunklen Dialog weiss zu leuchten.</item>
+        <item>Behoben, dass das Folgen zwischen Räumen gar nichts mehr tat, sobald „Vor dem Raumwechsel fragen“ aus war. Dieser Schalter wurde wie ein Hauptschalter für die ganze Funktion behandelt, also wurde ohne Nachfrage weder gefragt noch gewechselt. Jetzt tut er, was er sagt: mit Nachfrage kommt die Nachfrage, ohne sie öffnet sich der Raum einfach. „Nicht mehr fragen bis zum Neustart“ stoppt weiterhin beides, denn ein überraschender Sprung statt einer Frage wäre schlimmer.</item>
+        <item>Behoben, dass der Einstellungsdialog des Müll-Widgets nach etwa zwei Dritteln abgeschnitten war, während darunter leerer Platz blieb. Der Dialog reserviert eine hohe Karte, sein Inhalt war aber auf eine feste Höhe begrenzt, sodass der Scrollbereich den vorhandenen Platz nicht nutzte. Einstellungsdialog und Müll-Dialog nutzen jetzt die volle Höhe.</item>
+        <item>Der Kalender im Müll-Dialog kann jetzt 7, 14 oder 28 Tage vorausschauen und wird als Wochenraster wie im Kalender-Widget gezeichnet statt als flache Liste: Spalten je Wochentag, eine Zeile je Woche und ein farbiger Punkt je Abholung in der Farbe ihrer Fraktion. Tippe einen Tag an, um zu sehen, was dann abgeholt wird; er öffnet auf dem nächsten Tag mit einer Abholung.</item>
+        <item>Paket-Dialoge sagen jetzt Heute oder Morgen statt den Wochentag zu nennen. Ein Lieferdatum beantwortet die Frage „wie bald“, und „Mittwoch“ an einem Mittwoch liess dich das selbst ausrechnen.</item>
+        <item>Die „+2“-Blase im Header, die erscheint, wenn mehr Personen da sind als passen, reagiert jetzt. Ein Tippen listet alle mit Namen und Status auf; eine Person auszuwählen öffnet wie gewohnt ihren Detaildialog. Zuvor waren diese Personen bei schmalem Header schlicht nicht erreichbar.</item>
+        <item>Behoben, dass die Karte im Personendialog auf Tablets und aufgeklappten Foldables über den Dialog hinauslief. Die Karte wurde als Quadrat in Dialogbreite gezeichnet, wurde also auf einer 620dp breiten Karte 620dp hoch und schob die Adresse hinaus. Sie nutzt jetzt die verbleibende Höhe.</item>
+        <item>Behoben, dass Benachrichtigungen nicht ankamen, während Home Assistant das Gerät als nicht mit lokalen Push-Benachrichtigungen verbunden meldete — selbst bei geöffneter App. Die App trat für ihre Hintergrundverbindung zurück, sobald die Einstellungen sagten, dass diese laufen soll — wenn Android sie aber nicht starten liess, etwa nach einem Neustart, hörte niemand zu. Die App prüft jetzt, ob diese Verbindung tatsächlich läuft, statt ob sie laufen soll, übernimmt andernfalls selbst und gibt den Kanal zurück, sobald die Verbindung da ist.</item>
+        <item>Behoben, dass Einstellungen für das Raumfolgen auf dem Gerät, an dem sie geändert wurden, wirkungslos blieben. Das Folgen abzuschalten oder die Verweildauer zu ändern wurde in die Companion-Komponente geschrieben, aber nicht in die eigene zwischengespeicherte Kopie des Geräts — es folgte also weiter und benutzte weiter die alte Dauer, bis die App neu gestartet wurde. Änderungen gelten jetzt sofort. Der Regler bietet zudem keine null Sekunden mehr an, wodurch schon die allererste Sensormeldung als Wechsel zählte.</item>
+        <item>Die Formel-1-Karte sagt jetzt eine Sache: den nächsten Grand Prix und wann er ist — „Heute 15:00“ am Tag selbst, sonst Datum und Uhrzeit, in deiner eigenen Zeitzone. Der Streckenstatus ist verschwunden, denn ausserhalb einer Session stand dort „Läuft nicht“, und dafür schaut niemand auf die Karte. Der Status sitzt in derselben dunklen Pille wie bei Kamera-, Sauger- und Müllkarten, passt also wieder zum Rest des Dashboards. Der Streckenumriss bleibt als blasses Wasserzeichen, die Flagge des Gastlands in der Ecke. Das Widget fragt auch nicht mehr, welche F1-Instanz es nehmen soll — es liest alles, was die Integration veröffentlicht, damit der Dialog immer das ganze Bild hat.</item>
+        <item>Die Schaltflächen „Rückgängig/Wiederherstellen“ und „Schliessen“ des Dialogfelds „Aufgabenliste“ wurden von der Titelzeile in die untere Aktionsleiste verschoben und entsprechen nun allen anderen Dialogfeldern in der App.</item>
+        <item>* HKI 7 Cloud Component-Integration erforderlich.</item>
+
+    </string-array>
+
+    <string-array name="cr_whats_new_beta_13">
+        <item>HKI kann dir jetzt von Raum zu Raum folgen. Richte es auf einen Raumsensor wie ESPresense: Beim Start öffnet die App den Raum, in dem du bist, und bietet beim Wechseln an, die Ansicht mitzunehmen. Räume erhalten ausserdem einen lila Zähler für die Anzahl der anwesenden Personen, neben den Zählern für Bewegung und Anwesenheit. Ein Administrator richtet das für die ganze Familie unter Einstellungen › Familienfreigabe › Anwesenheit ein: Sensor pro Person und Wartezeit, bis ein neuer Raum als Wechsel zählt. Sensorräume, die wie deine Home-Assistant-Bereiche heissen, werden automatisch zugeordnet.*</item>
+        <item>Benachrichtigungen von Home Assistant können jetzt Aktionsschaltflächen enthalten. Werden einer notify.mobile_app_…-Nachricht actions hinzugefügt, erscheint jede davon auf der Benachrichtigung; ein Tippen sendet die Aktion an Home Assistant zurück, wo eine Automatisierung darauf reagieren kann. Die Schaltflächen erscheinen auch im Banner in der App und in der Benachrichtigungsliste, da HKI Systembenachrichtigungen ausblendet, solange die App geöffnet ist. Eine URI-Aktion öffnet ihren Link, eine REPLY-Aktion nimmt eine getippte Antwort entgegen, und eine offline getippte Aktion wird zugestellt, sobald die Verbindung zurück ist. Jede Benachrichtigung kann einmal ausgeführt werden.</item>
+        <item>Neu: Aktionsschaltfläche — eine Schaltfläche ganz ohne Entität. Gib ihr Name, Symbol und eine beliebige Aktion für Tippen, Halten oder Doppeltippen: zu einer Ansicht oder einem Raum navigieren, eine Home-Assistant-Aktion aufrufen, eine URL oder ein eigenes Pop-up öffnen. Hinzufügen über die Widget-Auswahl, aus einem Schaltflächenstapel oder als Aktions-Badge im Badge-Bereich neben der Kopfzeile.</item>
+        <item>Nur-Symbol-Schaltflächen lassen sich jetzt in der Grösse einstellen. Automatisch verkleinert das Symbol, wenn der Stapel mehr Spalten hat — das macht Nur-Symbol in vier-, fünf- und sechsspaltigen Pop-ups nutzbar, wo ein fest grosses Symbol vorher überlief. Eine Schaltfläche kann auch eine eigene Grösse bekommen.</item>
+        <item>Schaltflächenstapel können ihr Aussehen an alle enthaltenen Schaltflächen weitergeben: ein Schalter „Nur Symbol für alle Schaltflächen“ statt desselben Schalters auf zwanzig Schaltflächen, plus eine Symbolgrösse, die alle erben. Eine einzelne Schaltfläche kann die Grösse weiterhin überschreiben.</item>
+        <item>Die Kurzanleitung lässt sich jetzt selbst durchblättern. Wische über die Gestenvorschau, tippe auf einen Punkt oder auf einen Tipp, um dorthin zu springen. Sie läuft weiterhin von selbst, bis du übernimmst.</item>
+        <item>Behoben, dass das Abfall-Widget ausserhalb des Niederländischen für jede Abfallart das falsche Symbol und die falsche Farbe zeigte: die Art wurde mit der übersetzten Bezeichnung abgeglichen, sodass PMD als „Verpackung“ in einer allgemeinen graublauen Tonne landete. PMD ist wieder orange mit Recycling-Symbol.</item>
+        <item>Behoben, dass die Raumwechsel-Abfrage auch nach dem Ausschalten von „Vor dem Raumwechsel fragen“ erschien und auch für den bereits geöffneten Raum. Sie bietet jetzt ausserdem „Bis zum nächsten Start der App nicht mehr fragen“, und die Wartezeit lässt sich unabhängig davon einstellen.</item>
+        <item>Abläufe beherrschen jetzt „Eines davon“ und verschachtelte Logik statt nur einer flachen UND-Liste. Eine Gruppe öffnet sich in einer eigenen Liste mit Pfadanzeige, und Gruppen können Gruppen enthalten — „Bewegung erkannt UND (nach Sonnenuntergang ODER Gästemodus an)“ ist damit baubar. Es ist dieselbe Struktur, die der Automatisierungseditor von Home Assistant schreibt: ein in HA erstellter Ablauf mit ODER ist kein unantastbarer Erweiterungsblock mehr.</item>
+        <item>Thermostat-Regler in der Klimaansicht quetschen sich nicht mehr zu sechst über ein aufgeklapptes Foldable im Querformat. Regler bleiben bei vier pro Reihe, bis das Fenster wirklich sehr breit ist, damit jeder lesbar bleibt.</item>
+        <item>Die Meldung „Warte auf Benachrichtigungen“ hat jetzt die Schaltfläche „Diese Benachrichtigung ausblenden“, die direkt zu den Android-Kanaleinstellungen führt. Dort ausgeschaltet, verschwindet sie dauerhaft, während die Verbindung weiterläuft. Android lässt keine Hintergrundverbindung ohne sichtbare Benachrichtigung zu, mehr Stummschaltung ist nicht möglich. Sie schaltet sich ausserdem selbst ein, wenn du mehr als einen Home-Assistant-Server hast.</item>
+        <item>Das Staubsauger-Widget kann eine Valetudo-Karte jetzt selbst zeichnen. Wähle Valetudo-Karte als Tastenbild und verweise auf die Kartenkamera deines Roboters: HKI liest die Kartendaten, die Valetudo im PNG dieser Kamera versteckt, und zeichnet Boden, Wände, Räume, den Roboter, seine Station und den gefahrenen Weg. Dafür braucht es kein Add-on, keine Custom Component und keine zusätzliche Home-Assistant-Integration, und die Karte aktualisiert sich während der Reinigung von selbst.</item>
+        <item>Tippe auf der Valetudo-Karte auf einen Raum, um ihn reinigen zu lassen. Die Räume tragen die Namen, die du ihnen in Valetudo gegeben hast. Einen einzelnen Raum zu reinigen läuft über die clean_area-Aktion von Home Assistant — ordne die Segmente des Roboters also zuerst deinen Bereichen zu; bis dahin sagt die Karte das, statt den Tipp ins Leere laufen zu lassen.</item>
+        <item>Die Staubsauger-Einstellungen weisen jetzt darauf hin, dass Kartenkamera bei einer Valetudo-Kartenentität eine leere Kachel zeigt. Valetudo rendert die Karte absichtlich nicht auf dem Roboter, das PNG ist nur ein Behälter für die Daten — Valetudo-Karte ist der Modus, der tatsächlich etwas anzeigt.</item>
+        <item>Der Staubsauger-Dialog zeigt jetzt eine Valetudo-Karte, sobald die gewählte Kartenkamera tatsächlich eine enthält — unabhängig vom Tastenbild, das nur das Aussehen der Kachel auf dem Dashboard bestimmt. Kameras, die keine Valetudo-Karte liefern, zeigen weiterhin ihr Bild, und HKI prüft das danach nicht erneut.</item>
+        <item>Das Roboterbild dreht sich jetzt, während der Sauger reinigt oder zur Station zurückfährt — mit denselben Symbolanimations-Einstellungen wie der Rest der App. Die eigene Animationseinstellung einer Taste hat weiterhin Vorrang, und Aus hält es still.</item>
+        <item>* HKI-7-Cloud-Component-Integration erforderlich.</item>
+    </string-array>
+
+    <string-array name="cr_whats_new_beta_12">
+        <item>Schaltflächen-Widgets und -Stapel können jetzt eine leere, vollständig transparente Schaltfläche enthalten. Sie belegt eine Rasterzelle, ohne etwas zu zeichnen, sodass die umliegenden Schaltflächen genau dort sitzen, wo sie sollen.</item>
+        <item>Schaltflächen können nur ihr Symbol zeigen. Der neue Schalter „Nur Symbol“ in den Darstellungseinstellungen einer Schaltfläche blendet Name und Status aus und zentriert ein grösseres Symbol.</item>
+        <item>Neue Aktion „Eigenes Pop-up“ für Schaltflächen, Badges und Dialogschaltflächen. Verknüpfe Tippen, Halten oder Doppeltippen mit einem selbst gebauten Pop-up: Es öffnet sich mit Titel, Status, Verlauf und Schliessen wie gewohnt und lässt sich mit jedem Widget der App füllen. Pop-ups stehen unter Einstellungen › Darstellung › Pop-ups, wo „Inhalt bearbeiten“ eines direkt zum Anordnen öffnet. Pop-ups werden geteilt, mehrere Schaltflächen können also dasselbe öffnen, und Stapel in einem Pop-up dürfen statt drei bis zu sechs Spalten nutzen. Beim Anordnen eines Pop-ups steht neben „Widget hinzufügen“ eine Schaltfläche „Fertig“, um den Bearbeitungsmodus zu verlassen, ohne es zu schliessen.</item>
+        <item>Behoben, dass die Energie-Detailansichten (Solar, Strom, Gas, Wasser, Fernwärme, Batterie) ihre Karten ohne Überschriften direkt aneinander zeichneten. „Produktion“, „Prognose“, „Wechselrichter“ und die übrigen lagen hinter der Karte darunter; die Karten behalten jetzt ihre Überschriften und den gewohnten Abstand.</item>
+        <item>Behoben, dass die Kindersicherung nicht mehr speicherte. Eine veraltete HKI-7-Cloud-Component lehnt die Listen „Sichtbar“ und „Unsichtbar“ ab, was zuvor die gesamte Richtlinie scheitern liess; die Berechtigungen werden jetzt trotzdem gespeichert und die Meldung weist auf das nötige Component-Update hin. Diese Listen filtern nur Entitätslisten wie die globale Suche — eine Schaltfläche auf einem Familien-Dashboard bleibt sichtbar, solange sie für diese Person nicht ausdrücklich ausgeblendet wurde.*</item>
+        <item>* HKI-7-Cloud-Component-Integration erforderlich.</item>
+</string-array>
+
+    <string-array name="cr_whats_new_beta_11">
+        <item>Die Dashboards für Räume, Klima, Sicherheit, Energie und Batterie nutzen Tablets und Foldables jetzt besser aus. Grosse Karten folgen dem Ein-, Zwei- oder Drei-Spalten-Layout von Startseite und Raumdetails, während kompakte Kacheln automatisch passen, ohne zu eng zu werden. Klima-, Sicherheits- und Energiekarten verwenden auf breiten Displays ein höhenabhängiges Masonry-Layout, sodass unter kürzeren Karten keine grossen Lücken mehr entstehen.</item>
+        <item>Statusfarbene Symbole auf Entitätsschaltflächen und Kopf-/Statusfeldern behalten ihren erkennbaren Farbton, werden aber automatisch heller oder dunkler, wenn sie sonst mit dem aktuellen Design verschmelzen würden.</item>
+        <item>Wird während der Einrichtung ein Familien-Dashboard gewählt, abonniert diese Installation es jetzt. Änderungen des Eigentümers werden bei Speichern oder Fertig veröffentlicht, aktive Clients sofort aktualisiert und Offline-Clients beim nächsten Öffnen abgeglichen. Nicht-Administratoren können bis zu einem vollständigen App-Reset keine Dashboards erstellen oder duplizieren.*</item>
+        <item>Bei der Dashboard-Einrichtung kann jetzt ein lokales, Google-Drive- oder Home-Assistant-Backup wiederhergestellt werden. Neue Backups in Google Drive und Home Assistant erhalten einheitliche, aussagekräftige Namen mit App-Version und Erstellungsdatum.*</item>
+        <item>Kalender-Widgets lassen sich vertikal scrollen, wenn ihre Höhe nicht für alle Termine reicht, und ausgeblendete Startseiten-Widgets werden aus dem Layout entfernt, statt leeren Platz zu belegen.</item>
+        <item>Karten von Paketdiensten zeigen jetzt das früheste erwartete Zustelldatum mit Uhrzeit für aktive ein- oder ausgehende Sendungen, auch bei Integrationen mit separatem Sensor für die nächste Zustellung.</item>
+        <item>Familienberechtigungen können Dashboard-Wechsel und -Erstellung jetzt unabhängig erlauben. Vollständig eingeschränkte Abonnenten sehen einen gesperrten Dashboard-Bereich; die Einrichtung entfernt das Platzhalter-Dashboard, wenn Wechsel nicht erlaubt sind, und ein gelöschtes Familien-Dashboard öffnet eine berechtigungsgesteuerte Wiederherstellung statt still einen Ersatz zu erstellen.*</item>
+        <item>Familienberechtigungen steuern jetzt auch den manuellen Neuimport. Nicht-Administratoren können die Familienfreigabe nicht öffnen, deaktivierte Einrichtungsoptionen erklären ihre Sperre und rein visuelle Bearbeiter sehen ausschliesslich Darstellungsoptionen. Ihre lokalen Namen, Symbole, Farben, Hintergründe, Stile, Grössen und Layouts haben Vorrang, wenn Aktualisierungen des Eigentümers eintreffen.*</item>
+        <item>Klima-Sensor- und Gerätetabs, Sicherheitsgruppen und alle Energie-Detailtabs folgen jetzt denselben responsiven Masonry-Regeln mit einer, zwei oder drei Spalten, auch beim Bearbeiten und Sortieren.</item>
+        <item>Familienbearbeiter mit ausschliesslich visuellen Rechten können weder die Konfiguration der Kopfzeilenfelder noch die Personen des Dashboards ändern; diese funktionalen Einstellungen bleiben beim Eigentümer.*</item>
+        <item>Die Kindersicherung ersetzt die manuelle Eingabe von Entitäts-IDs durch Listen für Sichtbar und Unsichtbar. Administratoren können ganze Home-Assistant-Domänen oder einzelne Entitäten wählen; die globale Suche blendet eingeschränkte Entitäten und Geräte aus. Unsichtbar hat immer Vorrang.*</item>
+        <item>Die Energie-Einrichtung importiert jetzt SmartGateways- und DSMR-Reader-P1-Zähler, auch wenn das Energie-Dashboard von Home Assistant nicht eingerichtet ist und die Sensoren keinem Gerät zugeordnet sind. Tarif 1 und Tarif 2 werden separat erkannt; Verbrauchsdiagramme und Zeitraumsummen addieren beide Tarife, wenn kein einzelner Netzbezugs- oder Einspeisesensor festgelegt ist.</item>
+        <item>* HKI-7-Cloud-Component-Integration erforderlich.</item>
+    </string-array>
+
+    <string-array name="cr_whats_new_beta_10">
+        <item>Sichtbarkeitsregeln gelten für alle Widgets und Elemente, mit Zeit-, Entitäts-, Personen- und frei gemischten UND/ODER-Bedingungen. Admins eines geteilten Familiendashboards können ein Element für einen ausgewählten Benutzer sichtbar oder ausgeblendet schalten. Personenbedingungen verwenden HKI 7 Cloud; fehlt die Integration, wird der Hinweis angezeigt. Neue Regeln starten leer: Zeit, Entität oder Person.</item>
+        <item>Raumstatus-Zähler behalten eine einheitliche Breite für zwei Ziffern. Kopfzeilen passen sich wie Startseiten- und Personen-Badges auf eine, zwei oder drei Spalten an, ohne den Titel nach unten zu drücken.</item>
+        <item>Die Energieeinrichtung erkennt jetzt MQTT-Sensornamen von SmartGateways und DSMR Reader. Die Auswahl eines Quellgeräts füllt die einzelnen Sensorrollen wieder aus. Fernwärme erhält eigene Einstellungen, eine Quellenkachel, eine Detailseite und ein geschätztes Erdgasäquivalent für J/GJ-Werte.</item>
+        <item>Kalender-Widget-Dialoge nutzen die verfügbare Höhe jetzt korrekt; Inhalte belegen nicht mehr nur die Hälfte und werden nicht mehr abgeschnitten.</item>
+        <item>Die Einstellungen zum erneuten Importieren verwenden in Räume, Klima, Sicherheit, Energie und Batterie jetzt dieselbe korrekt geschriebene und lokalisierte Bezeichnung. Auch die Begriffe für bedingte Sichtbarkeit wurden in allen unterstützten Sprachen korrigiert.</item>
+        <item>Die Bildschirmdrehung folgt jetzt der automatischen Drehung des Geräts, statt im Hochformat gesperrt zu bleiben.</item>
+        <item>Die Klima-Kachel „Aussen“ erscheint mit einem verknüpften Wettergerät auch ohne eigene Sensoren, zählt dessen Temperatur-, Feuchtigkeits- und Druckattribute in der Übersicht und zeichnet sie in den passenden Sensorfarben auf.</item>
+        <item>Paketstatuscodes erscheinen jetzt als normale Sätze. Datum und Uhrzeit folgen Sprache und 12/24-Stunden-Einstellung, nahe Lieferungen verwenden Wochentage, das aktuelle Jahr entfällt und dasselbe Datum wird nicht wiederholt.</item>
+        <item>PostNL und der Parser der aktuellen Paketintegration wurden repariert. Eingehende Sendungen zeigen wieder vollständige Trackingdaten und den richtigen Zustellstatus. Auch die Unterstützung der Versanddienste wurde aktualisiert.</item>
+        <item>Die Sprachauswahl in der App deckt jetzt alle 13 unterstützten Sprachen vollständig ab. Jede Sprache zeigt ihren eigenen Namen mit einem englischen Hinweis darunter.</item>
+        <item>Der Verbindungsstatus zeigt beim erneuten Verbinden jetzt den tatsächlichen Fehler. Wechsel zwischen WLAN, mobilen Daten und VPN lassen sich dadurch leichter diagnostizieren.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_9">
+        <item>Kameras, Thermostate und Energiekarten lassen sich per Ziehen neu anordnen. Sicherheit, Klima und Energie haben dafür im Bearbeitungsmodus eine eigene Schaltfläche.</item>
+        <item>Neue Aussen-Kachel in Klima. Verknüpfe eine Wetter-Entität oder Aussensensoren und öffne die Kachel für einzelne Verlaufsdiagramme.</item>
+        <item>Sichtbarkeit wird jetzt direkt pro Schaltfläche und Kopfzeilen-Badge eingestellt, einmalig oder täglich, wöchentlich, monatlich beziehungsweise jährlich wiederkehrend.</item>
+        <item>Kopfzeilen-Badges können unter Darstellung umbenannt werden.</item>
+        <item>Wischkarten wechseln standardmässig alle drei Sekunden automatisch.</item>
+        <item>Der Wetterdialog erhält automatische Jahreszeiten-Wiedergabe, eine Windrosenkarte und eine optionale Regenkarte.</item>
+        <item>Das Paket-Widget wurde rund um Versanddienste neu aufgebaut, mit Logos, Summen, Sendungsbereichen, Zustellprognosen, Verlauf und Trackingnummern.</item>
+        <item>Luftbefeuchter und Entfeuchter haben nun native Steuerungen für Strom, Feuchtigkeit, Modus, Geschwindigkeit und Hilfsfunktionen.</item>
+        <item>Raumstatus-Zähler sind interaktiv und öffnen die zugehörigen Entitäten.</item>
+        <item>Schaltflächen und Badges können einen Live-Countdown aus einer Abschlusszeit-Entität anzeigen.</item>
+        <item>Geteilte Dashboards veröffentlichen Änderungen des Besitzers automatisch und werden beim nächsten Synchronisieren aktualisiert.</item>
+        <item>Kopfzeilen-Einstellungen gehören jetzt zum jeweiligen Dashboard und werden in Sicherungen und Familienfreigaben übernommen.</item>
+        <item>Kamera-Widgets füllen die gesamte Kachel und verwenden den eingestellten Eckenradius.</item>
+        <item>Abholungen am selben Tag bleiben durch überlappende Symbole sichtbar; der grosse Dialog schliesst beim Tippen ausserhalb.</item>
+        <item>Die Darstellung von Batterie, Abfall, Kamera, Wetter und Info ist konsistenter.</item>
+        <item>Binärsensoren verwenden Home-Assistant-Bezeichnungen wie Offen/Geschlossen, Nass/Trocken und Verbunden/Getrennt.</item>
+        <item>Rein optische Bearbeiter dürfen vorhandene Badges gestalten, aber nicht hinzufügen, entfernen oder neu konfigurieren.</item>
+        <item>Netzwerkwechsel wurden repariert: Alte Android-Netzwerkverbindungen werden verworfen und die gespeicherte Home-Assistant-Sitzung verbindet sich ohne unnötige Anmeldung neu. Der echte Fehler wird angezeigt.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_8">
+        <item>Kindersicherungen werden nicht mehr automatisch als Raumsteuerung importiert.</item>
+        <item>Alle Schaltflächen und Badges übernehmen nun Home-Assistant-Symbolüberschreibungen.</item>
+        <item>Saugroboter erscheinen jetzt in der Badge-Leiste eines Raums und öffnen beim Tippen ihre Steuerung.</item>
+        <item>Einzelne Schaltflächen in Mehrfach-Widgets können ausgeblendet oder wiederkehrend geplant werden.</item>
+        <item>Mehrere Kamera-Badges öffnen einen wischbaren Dialog mit Vollbildnavigation.</item>
+        <item>Familienfreigabe listet veröffentlichte Cloud-Dashboards auch nach einer Neuinstallation auf.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_7">
+        <item>Der automatische Raumimport überspringt integrierte Hilfssteuerungen und behält echte Zusatzfunktionen.</item>
+        <item>Klimageräte verschiedener Integrationen werden nicht mehr zusammengeführt.</item>
+        <item>Symbole für Klimaanlagen, Be- und Entfeuchter sowie Luftreiniger passen nun zum Gerät.</item>
+        <item>Luftreiniger- und Befeuchtersymbole pulsieren sanft statt sich zu drehen.</item>
+        <item>Türschlösser verwenden Symbole einer geschlossenen oder offenen Tür.</item>
+        <item>Badges für mehrere Geräte können neu angeordnet werden, um die führende Entität festzulegen.</item>
+        <item>Animierte Symboleffekte sind bei Neuinstallationen standardmässig aktiviert.</item>
+        <item>Schaltflächen und Badges können ein Attribut mit optionaler Einheit statt des Zustands anzeigen.</item>
+        <item>Dashboards können mit allen Räumen, Widgets und Seiteneinstellungen kopiert werden.</item>
+        <item>Familienfreigabe vereint Jugendschutz, Dashboard-Freigabe und Benutzerrechte.</item>
+        <item>Geteilte Dashboards aktualisieren sich automatisch und behalten erlaubte lokale Darstellungsänderungen.</item>
+        <item>Nichtadministratoren können mit der HKI-7-Cloud-Komponente automatische Adaptive-Lighting-Steuerungen verwenden.</item>
+        <item>Schlecht lesbare Kopfzeilen und Menüs im hellen Modus wurden repariert.</item>
+        <item>Info enthält jetzt Schaltflächen für Neuigkeiten und das vollständige Änderungsprotokoll.</item>
+        <item>Der Bildschirm „Verbindung nicht möglich“ erscheint zuverlässig, wenn Home Assistant unerreichbar ist.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_6">
+        <item>Aktionsleisten im Bearbeitungsmodus überdecken die Android-Drei-Tasten-Navigation nicht mehr.</item>
+        <item>Sichern und Wiederherstellen zeigt nun die letzte Ausführung jeder automatischen Cloud-Sicherung.</item>
+        <item>Jede Cloud-Sicherung hat jetzt eine Schaltfläche „Jetzt sichern“.</item>
+        <item>Das zu grosse App-Symbol nach dem Themed-Icon-Update wurde repariert.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_4_to_5">
+        <item>Sichern und Wiederherstellen zeigt nun die letzte Ausführung jeder automatischen Cloud-Sicherung.</item>
+        <item>Jede Cloud-Sicherung hat jetzt eine Schaltfläche „Jetzt sichern“.</item>
+        <item>Das zu grosse App-Symbol nach dem Themed-Icon-Update wurde repariert.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_3">
+        <item>Simple Icons, Tabler und Phosphor wurden neben Material Design Icons hinzugefügt.</item>
+        <item>Entitätssymbole können im aktiven Zustand leuchten, rotieren oder pulsieren.</item>
+        <item>Administratoren können Dashboards mit Familienmitgliedern teilen.*</item>
+        <item>Jugendschutz kann ausgewählte Ansichten und Räume für bestimmte Personen ausblenden.*</item>
+        <item>Automatische tägliche Sicherung in das eigene Home Assistant wurde hinzugefügt.*</item>
+        <item>Medienquellensymbole sind farbig und können die zugehörige App öffnen.</item>
+        <item>Neues iFrame-Widget zum Einbetten von Webseiten.</item>
+        <item>Energieansichten zeigen beim Einspeisen negative Werte.</item>
+        <item>Onboarding wird beim vorzeitigen Wechsel aus der App nicht mehr abgeschlossen.</item>
+        <item>Die Modusschaltfläche des Thermostatreglers überlappt keine Nachbarelemente mehr.</item>
+        <item>Viele kleinere Fehlerbehebungen.</item>
+        <item>* HKI-7-Cloud-Component-Integration erforderlich.</item>
+    </string-array>
+    <string-array name="cr_whats_new_beta_2">
+        <item>Layouts auf kurzen und schmalen Displays wurden verbessert und wechseln bei Bedarf überall auf eine Spalte.</item>
+        <item>Dialogüberschriften verwenden auf schmalen Displays zwei Zeilen.</item>
+        <item>Überlappende Adaptive-Lighting-Regler wurden repariert.</item>
+        <item>Navigationsleisten zeigen an, wenn weitere Einträge ausserhalb des Bildschirms liegen.</item>
+        <item>Kameras beachten die Sperre der Bildschirmausrichtung wieder.</item>
+        <item>Zoomen in Kameradialogen und Vollbildkameras funktioniert wieder.</item>
+    </string-array>
+</resources>

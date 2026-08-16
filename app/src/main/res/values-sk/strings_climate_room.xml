@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="cr_whats_new_1_1_0">
+        <item>Ďalších osemnásť jazykov, z HKI 7 na 36. Poľština, ruština, čeština, slovenčina, maďarčina, rumunčina, bulharčina, chorvátčina, gréčtina, litovčina, lotyščina, estónčina, dánčina, thajčina a hebrejčina spolu s rakúskou nemčinou, švajčiarskou nemčinou a mexickou španielčinou. Hebrejčina rozprestiera rozhranie sprava doľava, ako to robí arabčina.</item>
+        <item>HKI 7 teraz beží na Androide 12 a novšom. Predtým potreboval Android 14, čo vylučovalo množstvo dokonale schopných telefónov a tabletov.</item>
+        <item>Náklady na energiu sú uvedené vo vašej vlastnej mene, nie vždy v eurách. HKI 7 sa riadi tým, čo hlásia vaše snímače nákladov, a v nastaveniach energie je k dispozícii nastavenie meny, ak by ste si ju radšej vybrali sami.</item>
+        <item>Výber jazyka má vyhľadávacie pole a je triedený, čo potreboval pri 36 záznamoch. Ak sa niekedy dostanete do jazyka, ktorý neviete čítať, cesta späť je stále prvá vec na obrazovke.</item>
+        <item>Zobrazenia si pamätajú, kam ste sa posunuli, a ťuknutím na kartu, na ktorej sa už nachádzate, sa dostanete späť na začiatok.</item>
+        <item>Potiahnutím do strany sa už nedostanete zo stránky, ktorú ste otvorili, ako je napríklad Solar inside Energy. Späť vás teraz vráti do zobrazenia, z ktorého ste prišli, namiesto toho, aby ste prešli na domovskú stránku.</item>
+        <item>Posúvateľné riadky to hovoria. Rozbaľovacia ponuka, navigačná lišta a karty nastavení zobrazujú šípku na okraji, keď je viac na dosah.</item>
+        <item>Dialógy vyzerajú a správajú sa rovnako. Šesť z nich boli obyčajné dialógové okná Androidu bez tlačidla na zatvorenie v rohu a tlačidlá v aplikácii teraz súhlasia s tým, čo znamená Zavrieť, Uložiť a Hotovo.</item>
+        <item>Vytvorenie dashboardu sa najskôr pýta a potom ponúka rovnaké možnosti ako pri prvom nastavení – takže nový dashboard môže začať zo zálohy alebo zo zálohy, ktorú zdieľa vaša rodina, ako aj vygenerovaný alebo ponechaný prázdny. Váš aktuálny informačný panel sa nikdy neprepíše a zdieľané informačné panely sú teraz v zozname označené ako zdieľané.</item>
+        <item>Miniaplikácia batérie otvorí zoznam na mieste, namiesto toho, aby vás preniesla na samostatnú stránku, zoskupenú podľa toho, ako naliehavá je každá z nich, a zobrazí typ batérie, ak ho Home Assistant pozná. K dispozícii je vyhľadávacie pole a tlačidlo na otvorenie úplného zobrazenia batérie, ak chcete.</item>
+        <item>Ťuknutím na počítadlo ľudí v miestnosti sa zobrazí, kto tam je, s obrázkom každej osoby. Hlavička izieb má teraz aj domáci pult, ktorý ukazuje, kde sa všetci nachádzajú, bez toho, aby ste otvorili každú izbu.</item>
+        <item>Na pultoch svetiel a zariadení v miestnosti môžete vynechať tlačidlo pre tie, ktoré sú v miestnosti, ale nie sú jej súčasťou.</item>
+        <item>Widgety, ktoré potrebujú integráciu, ktorú nemáte – Formula 1, Balíky, Zber odpadu – sú sivé a hovoria, čo chýba, namiesto toho, aby boli pridané a potom zostali prázdne.</item>
+        <item>Sledovanie zásielok pokrýva ďalších pätnásť prepravcov vrátane PostNord, InPost, Swiss Post, An Post, Budbee, Sameday a Nova Post, pričom každý má svoje vlastné logo.</item>
+        <item>Robotický vysávač Valetudo automaticky vyberie svoju živú mapu, keď sa importujú vaše izby, namiesto toho, aby potreboval kameru vyberanú ručne.</item>
+    </string-array>
+</resources>

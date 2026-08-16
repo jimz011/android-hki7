@@ -332,6 +332,24 @@
     <string name="cr_quick_make_it_yours">Hazlo tuyo</string>
     <string name="cr_quick_make_it_yours_instruction">En el modo de edición, añade y reordena habitaciones, plantas y widgets. Toca un elemento para configurarlo.</string>
 
+<string-array name="cr_whats_new_1_1_0">
+    <item>Dieciocho idiomas más, llevando HKI 7 a 36. A la lista se suman polaco, ruso, checo, eslovaco, húngaro, rumano, búlgaro, croata, griego, lituano, letón, estonio, danés, tailandés y hebreo, junto con el alemán austriaco, el alemán suizo y el español mexicano. El hebreo presenta la interfaz de derecha a izquierda, como lo hace el árabe.</item>
+    <item>HKI 7 ahora se ejecuta en Android 12 y versiones posteriores. Anteriormente necesitaba Android 14, lo que descartaba muchos teléfonos y tabletas perfectamente capaces.</item>
+    <item>Los costes de energía se muestran en su propia moneda en lugar de siempre en euros. HKI 7 sigue lo que informan sus sensores de costos y hay una configuración de Moneda en la configuración de Energía si prefiere elegir una usted mismo.</item>
+    <item>El selector de idioma tiene un cuadro de búsqueda y está ordenado, lo que necesitaba en 36 entradas. Si alguna vez llegas a un idioma que no puedes leer, el camino de regreso sigue siendo lo primero que aparece en la pantalla.</item>
+    <item>Las vistas recuerdan hacia dónde se desplazó y, al tocar la pestaña en la que ya se encuentra, volverá a la parte superior.</item>
+    <item>Deslizar el dedo hacia un lado ya no te sacará de una página que hayas abierto, como Solar inside Energy. Atrás ahora le devuelve a la vista desde la que vino en lugar de saltar a la página de inicio.</item>
+    <item>Las filas desplazables lo dicen. El menú desplegable, la barra de navegación y las pestañas de configuración muestran una flecha en el borde cuando hay más para alcanzar.</item>
+    <item>Los diálogos se ven y se comportan igual en todas partes. Seis de ellos eran cuadros de diálogo simples de Android sin un botón de cierre en la esquina, y los botones de la aplicación ahora coinciden en lo que significa Cerrar, Guardar y Listo.</item>
+    <item>La creación de un panel solicita primero y luego ofrece las mismas opciones que la configuración inicial, por lo que un nuevo panel puede comenzar a partir de una copia de seguridad o de una que su familia haya compartido, además de generarse o dejarse vacío. Su panel actual nunca se sobrescribe y los paneles compartidos ahora están marcados como compartidos en la lista.</item>
+    <item>El widget de batería abre una lista en lugar de llevarlo a una página separada, agrupada según la urgencia de cada una y mostrando el tipo de batería donde Home Assistant lo sabe. Hay un cuadro de búsqueda y un botón para abrir la vista completa de la batería si lo desea.</item>
+    <item>Al tocar el contador de personas en una habitación se muestra quién está allí, con la foto de cada persona. El encabezado Habitaciones ahora también tiene un contador de hogares, que muestra dónde están todos sin abrir cada habitación.</item>
+    <item>Se puede dejar un botón fuera de los contadores de Luces y Dispositivos de una habitación, para aquellos que están en la habitación pero que en realidad no forman parte de ella.</item>
+    <item>Los widgets que necesitan una integración que usted no tiene (Fórmula 1, Paquetes, Recolección de residuos) están atenuados y dicen lo que falta, en lugar de agregarse y luego quedar vacíos.</item>
+    <item>El seguimiento de paquetes cubre quince transportistas más, incluidos PostNord, InPost, Swiss Post, An Post, Budbee, Sameday y Nova Post, cada uno con su propio logotipo.</item>
+    <item>Un robot aspirador Valetudo recoge su mapa en vivo automáticamente cuando se importan sus habitaciones, en lugar de necesitar que la cámara se elija manualmente.</item>
+</string-array>
+
 <string-array name="cr_whats_new_1_0_1">
     <item>Deslizar entre pestañas ahora sigue a tu dedo. Las páginas se mueven a medida que las arrastras, puedes cambiar de opinión mientras las deslizas y tirarlas hacia atrás, y se asientan donde las sueltas. Anteriormente, el cambio se decidía en el momento en que arrastrabas lo suficiente y no podías retirarlo, mientras que la animación que se reproducía después tenía su propio temporizador y no estaba relacionada con el gesto, por lo que la aplicación se comprometía con una página antes de que tu dedo terminara de pedirla.</item>
     <item>La barra inferior ahora mantiene a la vista la pestaña seleccionada. En un teléfono demasiado estrecho para cada pestaña, la pestaña activa se desplaza hacia el centro, por lo que la pestaña en la que se encuentra siempre está visible junto con sus vecinas, lo que también es un indicio de que hay más páginas para deslizar. Al llegar a la última pestaña se solía dejar el indicador en algún lugar al final de la barra.</item>

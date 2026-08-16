@@ -31,10 +31,10 @@ Lookup material rather than reading material.
 | | |
 |---|---|
 | **App id** | `com.jimz011apps.hki7` |
-| **Current version** | 1.0.0 |
-| **Minimum Android** | 14 (API 34) |
+| **Current version** | 1.1.0 |
+| **Minimum Android** | 12 (API 31) |
 | **Target Android** | API 37 |
 | **Repository** | [jimz011/android-hki7](https://github.com/jimz011/android-hki7) |
 | **Companion component** | [jimz011/HKI7-Cloud-Component](https://github.com/jimz011/HKI7-Cloud-Component) |
 | **Licence** | MPL-2.0 community core; separately marked premium assets proprietary |
-| **Languages** | English plus 13 translations |
+| **Languages** | English plus 35 translations |

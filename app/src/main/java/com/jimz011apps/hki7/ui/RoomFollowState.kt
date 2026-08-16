@@ -71,6 +71,29 @@ internal fun peopleCountByArea(
 }
 
 /**
+ * Who is in each room, rather than only how many. Keyed by area id, values are the roster sensor
+ * entity ids resolved to that room, in roster order.
+ *
+ * The counters were a dead end: a room saying "2" with no way to find out who, and a home with no
+ * way to see where everyone is short of opening every room in turn. This is what the counter
+ * dialogs read.
+ */
+internal fun peopleByArea(
+    rosterEntityIds: Collection<String>,
+    entitiesById: Map<String, HAEntity>,
+    areas: List<HAArea>,
+    follow: Hki7RoomFollow
+): Map<String, List<String>> {
+    if (rosterEntityIds.isEmpty()) return emptyMap()
+    val byArea = linkedMapOf<String, MutableList<String>>()
+    rosterEntityIds.distinct().forEach { entityId ->
+        val areaId = resolveFollowedArea(entitiesById[entityId]?.state, areas, follow) ?: return@forEach
+        byArea.getOrPut(areaId) { mutableListOf() } += entityId
+    }
+    return byArea
+}
+
+/**
  * Every distinct state the tracked sensors have reported, for the admin's mapping table. Away and
  * unknown states are left out — they intentionally resolve to no room and are not mappable.
  */

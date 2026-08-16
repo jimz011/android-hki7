@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -331,6 +332,13 @@ fun SecurityScreen(viewModel: MainViewModel) {
     var entitySearch by rememberSaveable { mutableStateOf("") }
     var entitySort by rememberSaveable { mutableStateOf("custom") }
     BackHandler(page != "security") { page = "security" }
+    // Tell the host a sub-page is open so a sideways swipe does not carry the user out of it into
+    // an unrelated tab. Reported per route because the pager keeps neighbours composed.
+    val subPageReporter = com.jimz011apps.hki7.ui.components.LocalSubPageReporter.current
+    androidx.compose.runtime.DisposableEffect(subPageReporter, page) {
+        subPageReporter?.invoke("security", page != "security")
+        onDispose { subPageReporter?.invoke("security", false) }
+    }
     LaunchedEffect(page) { entitySearch = "" }
     var cameraSettingsEntity by remember { mutableStateOf<HAEntity?>(null) }
     cameraSettingsEntity?.let { entity ->
@@ -384,6 +392,9 @@ fun SecurityScreen(viewModel: MainViewModel) {
     }
 
     val activeGroup = securityGroups.find { it.key == page }
+    val pageScrollStates = rememberSaveableStateHolder()
+    val securityListState = androidx.compose.foundation.lazy.rememberLazyListState()
+    com.jimz011apps.hki7.ui.components.ScrollToTopOnTabReselect("security") { securityListState.animateScrollToItem(0) }
     fun filteredEntities(source: List<HAEntity>): List<HAEntity> {
         val needle = entitySearch.trim().lowercase()
         val filtered = if (needle.isBlank()) source else source.filter { entity ->
@@ -448,13 +459,18 @@ fun SecurityScreen(viewModel: MainViewModel) {
         }) else null,
         onBack = if (activeGroup != null) ({ page = "security" }) else null
     ) { padding -> key(uiRevision) {
+        // Overview and group pages are separate composables, so leaving one disposed its scroll
+        // position — the overview reopened at the top every time. Held per page, as Energy and
+        // Settings do.
+        pageScrollStates.SaveableStateProvider(page) {
         if (activeGroup != null) {
             SecurityGroupPage(activeGroup, filteredEntities(grouped[activeGroup.key].orEmpty()), viewModel, currentUrl, config.customIcons, config.cameraConfigs,
                 isEditMode, ::remove,
                 { if (it.entity_id.startsWith("camera.")) cameraSettingsEntity = it else renameEntity = it },
                 { from, to -> reorder(filteredEntities(grouped[activeGroup.key].orEmpty()), from, to) }, padding)
         } else {
-            SecurityOverview(grouped, viewModel, currentUrl, config.cameraConfigs, isEditMode, ::remove, { cameraSettingsEntity = it }, { page = it }, { showReorderCameras = true }, padding)
+            SecurityOverview(grouped, viewModel, currentUrl, config.cameraConfigs, isEditMode, ::remove, { cameraSettingsEntity = it }, { page = it }, { showReorderCameras = true }, padding, securityListState)
+        }
         }
     } }
 }
@@ -515,7 +531,8 @@ private fun SecurityEntitySearchBar(
 private fun SecurityOverview(
     grouped: Map<String, List<HAEntity>>, viewModel: MainViewModel, currentUrl: String,
     cameraConfigs: Map<String, HKIButtonConfig>, isEditMode: Boolean, onRemove: (String) -> Unit,
-    onCameraSettings: (HAEntity) -> Unit, onOpen: (String) -> Unit, onReorderCameras: () -> Unit, padding: PaddingValues
+    onCameraSettings: (HAEntity) -> Unit, onOpen: (String) -> Unit, onReorderCameras: () -> Unit, padding: PaddingValues,
+    listState: androidx.compose.foundation.lazy.LazyListState
 ) {
     val all = grouped.filterKeys { it != "cameras" }.values.flatten().distinctBy { it.entity_id }
     val cameras = grouped["cameras"].orEmpty()
@@ -526,7 +543,7 @@ private fun SecurityOverview(
     val sceneState = remember(grouped) { grouped.toSecuritySceneState() }
     BoxWithConstraints(Modifier.fillMaxSize().padding(padding)) {
         val dashboardColumns = responsiveDashboardColumnCount(maxWidth)
-        LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 96.dp + LocalMediaPlayerBarInset.current)) {
+        LazyColumn(state = listState, modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 96.dp + LocalMediaPlayerBarInset.current)) {
         item { SecurityHero(sceneState) }
         item {
             // Cameras get their own full-width section below instead of a tile.

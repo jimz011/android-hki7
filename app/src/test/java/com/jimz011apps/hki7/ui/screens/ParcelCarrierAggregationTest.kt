@@ -289,6 +289,41 @@ class ParcelCarrierAggregationTest {
         assertFalse("vinted_go" in TRACK_PARCEL_DOMAINS)
     }
 
+    @Test
+    fun `every carrier the integration organisation publishes is recognised`() {
+        // Domains follow the repository names in github.com/ha-parcel-integrations, minus the
+        // `ha-` prefix and with dashes as underscores.
+        val published = listOf(
+            "ampere", "an_post", "budbee", "cainiao", "correos", "delhivery", "dhl_nl", "dpd",
+            "dragonfly", "dynalogic", "gls", "helthjem", "hermes", "inpost", "nova_post",
+            "oesterreichische_post", "packeta", "planzer", "postnl", "postnord", "quickpac",
+            "sameday", "sunyou", "swiss_post", "trunkrs", "vinted_go", "parcel_aggregator",
+        )
+        val missing = published.filterNot { it in PARCEL_CARRIERS }
+        assertEquals(emptyList<String>(), missing)
+    }
+
+    @Test
+    fun `carrier names resolve to the right domain`() {
+        // A carrier must never be mistaken for a shorter name inside it: several of these contain
+        // "post", and Nova Post / An Post / PostNord / Swiss Post all have to stay distinct.
+        val expected = mapOf(
+            "PostNL" to "postnl",
+            "PostNord" to "postnord",
+            "An Post" to "an_post",
+            "Nova Poshta" to "nova_post",
+            "Swiss Post" to "swiss_post",
+            "Österreichische Post" to "oesterreichische_post",
+            "InPost Paczkomat" to "inpost",
+            "Sameday easybox" to "sameday",
+            "SunYou" to "sunyou",
+            "Budbee" to "budbee",
+        )
+        expected.forEach { (text, domain) ->
+            assertEquals(text, domain, carrierKey(text))
+        }
+    }
+
     private fun carrier(
         key: String,
         deviceId: String,

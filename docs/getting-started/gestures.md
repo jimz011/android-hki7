@@ -61,8 +61,7 @@ Add and reorder rooms, floors and widgets by dragging them; tap any item to open
 **Swipe horizontally to change page**
 
 : Left and right anywhere on a page moves between your pages — Home, Rooms, and any custom pages,
-  in the navigation bar's order. The same gesture pages between tabs inside dialogs and settings
-  screens.
+  in the navigation bar's order.
 
     The gesture is deliberately forgiving: it locks to an axis once your finger commits, so a
     vertically scrolling list cannot swallow a horizontal swipe, and it navigates as soon as you
@@ -70,6 +69,22 @@ Add and reorder rooms, floors and widgets by dragging them; tap any item to open
 
     Controls that legitimately need horizontal movement — sliders, nested pagers, horizontal rows
     — keep the gesture for themselves, so dragging a brightness slider never pages the dashboard.
+
+    Opening a view's own page — Solar inside Energy, a group inside Security — suspends paging
+    until you leave it, so a sideways swipe cannot carry you out of what you just opened.
+
+    Tabs inside dialogs are changed by tapping them. They do not swipe: a tab strip that scrolls
+    and a page that swipes were competing for the same drag.
+
+**Back**
+
+: Back steps through the pages you actually visited rather than jumping to the first one, and
+  leaves the app once there is nothing behind the page you are on.
+
+**Tap the tab you are already on**
+
+: Returns that view to the top. Views otherwise keep their scroll position indefinitely — there is
+  no timer after which they forget where you were.
 
 **Swiping stacks**
 

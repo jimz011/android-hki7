@@ -64,6 +64,13 @@
     <string name="settings_extra_dashboard_backup_saved">Dashboard backup saved.</string>
     <string name="settings_extra_dashboard_copy_name">%1$s copy</string>
     <string name="settings_extra_dashboard_default_name">Dashboard %1$d</string>
+    <string name="settings_extra_new_dashboard_confirm_body">This adds a dashboard alongside the one you are using. Your current dashboard is kept exactly as it is and is never overwritten — you can switch between them at any time.</string>
+    <string name="settings_extra_new_dashboard_confirm_action">Continue</string>
+    <string name="settings_extra_new_dashboard_created">Created “%1$s”</string>
+    <string name="uif_onboarding_shared_already_added">Already added</string>
+    <string name="settings_extra_dashboard_shared_badge">Shared</string>
+    <string name="settings_extra_dashboard_shared_subtitle">Shared with you by your family. Tap to load</string>
+    <string name="settings_extra_dashboard_shared_loaded">Shared with you by your family. Currently loaded</string>
     <string name="settings_extra_dashboard_generating">Your new dashboard is being generated automatically.</string>
     <string name="settings_extra_dashboard_mode_auto">Automatic</string>
     <string name="settings_extra_dashboard_mode_manual">Manual</string>
@@ -127,6 +134,8 @@
     <string name="settings_extra_location_allowed_always">Allowed all the time</string>
     <string name="settings_extra_location_allowed_foreground">Allowed only while using the app</string>
     <string name="settings_extra_location_not_allowed">Not allowed</string>
+    <string name="language_search_placeholder">Search languages</string>
+    <string name="language_search_no_matches">No language matches “%1$s”</string>
     <string name="settings_extra_language_dutch">Nederlands</string>
     <string name="settings_extra_language_english">English</string>
     <string name="settings_extra_language_french">Français</string>
@@ -148,6 +157,24 @@
     <string name="settings_extra_language_swedish" translatable="false">Svenska</string>
     <string name="settings_extra_language_finnish" translatable="false">Suomi</string>
     <string name="settings_extra_language_arabic" translatable="false">العربية</string>
+    <string name="settings_extra_language_polish" translatable="false">Polski</string>
+    <string name="settings_extra_language_hebrew" translatable="false">עברית</string>
+    <string name="settings_extra_language_russian" translatable="false">Русский</string>
+    <string name="settings_extra_language_thai" translatable="false">ไทย</string>
+    <string name="settings_extra_language_romanian" translatable="false">Română</string>
+    <string name="settings_extra_language_hungarian" translatable="false">Magyar</string>
+    <string name="settings_extra_language_bulgarian" translatable="false">Български</string>
+    <string name="settings_extra_language_greek" translatable="false">Ελληνικά</string>
+    <string name="settings_extra_language_czech" translatable="false">Čeština</string>
+    <string name="settings_extra_language_slovak" translatable="false">Slovenčina</string>
+    <string name="settings_extra_language_lithuanian" translatable="false">Lietuvių</string>
+    <string name="settings_extra_language_danish" translatable="false">Dansk</string>
+    <string name="settings_extra_language_estonian" translatable="false">Eesti</string>
+    <string name="settings_extra_language_latvian" translatable="false">Latviešu</string>
+    <string name="settings_extra_language_croatian" translatable="false">Hrvatski</string>
+    <string name="settings_extra_language_german_switzerland" translatable="false">Deutsch (Schweiz)</string>
+    <string name="settings_extra_language_german_austria" translatable="false">Deutsch (Österreich)</string>
+    <string name="settings_extra_language_spanish_mexico" translatable="false">Español (México)</string>
 
     <!-- Always shown in English, regardless of app language, so someone who picked the wrong
          language can still recognize their way back. -->
@@ -164,6 +191,24 @@
     <string name="settings_extra_language_korean_hint" translatable="false">Korean</string>
     <string name="settings_extra_language_chinese_simplified_hint" translatable="false">Chinese, Simplified</string>
     <string name="settings_extra_language_chinese_traditional_hint" translatable="false">Chinese, Traditional</string>
+    <string name="settings_extra_language_polish_hint" translatable="false">Polish</string>
+    <string name="settings_extra_language_hebrew_hint" translatable="false">Hebrew</string>
+    <string name="settings_extra_language_russian_hint" translatable="false">Russian</string>
+    <string name="settings_extra_language_thai_hint" translatable="false">Thai</string>
+    <string name="settings_extra_language_romanian_hint" translatable="false">Romanian</string>
+    <string name="settings_extra_language_hungarian_hint" translatable="false">Hungarian</string>
+    <string name="settings_extra_language_bulgarian_hint" translatable="false">Bulgarian</string>
+    <string name="settings_extra_language_greek_hint" translatable="false">Greek</string>
+    <string name="settings_extra_language_czech_hint" translatable="false">Czech</string>
+    <string name="settings_extra_language_slovak_hint" translatable="false">Slovak</string>
+    <string name="settings_extra_language_lithuanian_hint" translatable="false">Lithuanian</string>
+    <string name="settings_extra_language_danish_hint" translatable="false">Danish</string>
+    <string name="settings_extra_language_estonian_hint" translatable="false">Estonian</string>
+    <string name="settings_extra_language_latvian_hint" translatable="false">Latvian</string>
+    <string name="settings_extra_language_croatian_hint" translatable="false">Croatian</string>
+    <string name="settings_extra_language_german_switzerland_hint" translatable="false">German, Switzerland</string>
+    <string name="settings_extra_language_german_austria_hint" translatable="false">German, Austria</string>
+    <string name="settings_extra_language_spanish_mexico_hint" translatable="false">Spanish, Mexico</string>
     <string name="settings_extra_language_norwegian_hint" translatable="false">Norwegian</string>
     <string name="settings_extra_language_swedish_hint" translatable="false">Swedish</string>
     <string name="settings_extra_language_finnish_hint" translatable="false">Finnish</string>

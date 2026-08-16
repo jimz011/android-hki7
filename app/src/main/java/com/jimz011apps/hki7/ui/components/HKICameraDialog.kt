@@ -285,14 +285,7 @@ fun HKICameraDialog(
                                 Text(title, style = MaterialTheme.typography.headlineSmall, color = appColors.onSurface, fontWeight = FontWeight.Bold)
                                 Text(statusText ?: if (imageUrl.isNullOrBlank()) stringResource(R.string.dlg_no_stream_available) else stringResource(R.string.dlg_live), style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)
                             }
-                            IconButton(
-                                onClick = onDismiss,
-                                modifier = Modifier
-                                    .background(appColors.subtleSurface, CircleShape)
-                                    .size(48.dp)
-                            ) {
-                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.dlg_close), tint = appColors.onSurface)
-                            }
+                            DialogCloseButton(onClick = onDismiss)
                         }
 
                         Spacer(Modifier.height(8.dp))

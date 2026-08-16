@@ -193,6 +193,12 @@ fun HKIPage(
             pullAnimatable.animateTo(0f, spring(dampingRatio = 0.9f, stiffness = 420f))
         }
     }
+    // Swiping to another page collapses the pull-down: it belongs to the page that was showing
+    // when it was opened, and leaving it open outlives that.
+    val pageSwiping = LocalPageSwipeInProgress.current
+    LaunchedEffect(pageSwiping) {
+        if (pageSwiping && pullAnimatable.value > 0f) closePull()
+    }
     val pullOffsetDp = (pullOffset / 3f).dp
     val menuVisible = pullOffset > 120f
     val headerColorSource = previewHeaderColor ?: headerColor ?: pageConfig.headerColor
@@ -357,6 +363,13 @@ fun HKIPage(
             Color.White.copy(alpha = 0.72f)
         }
         val menuButtonContentColor = if (menuUsesLightContent) Color.White else Color(0xFF1C1B1F)
+        // The menu is revealed over header artwork as often as over a flat surface, so the edge
+        // chevrons fade to a scrim rather than a solid colour — a solid one would smear over an image.
+        val menuEdgeFadeColor = if (menuUsesLightContent) {
+            Color.Black.copy(alpha = 0.55f)
+        } else {
+            Color.White.copy(alpha = 0.70f)
+        }
         // Admin-set per-user permissions (Settings › Family Sharing). Defaults allow everything, so
         // these only restrict when an admin has locked something down for this user.
         val allowEdit by prefs.enforcedAllowEdit.collectAsState(initial = true)
@@ -421,24 +434,48 @@ fun HKIPage(
                 }
         ) {
             val fitsWithoutScrolling = maxWidth >= 64.dp * headerMenuActions.size
-            Row(
-                modifier = if (fitsWithoutScrolling) {
-                    Modifier.fillMaxWidth()
-                } else {
-                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp)
-                },
-                horizontalArrangement = if (fitsWithoutScrolling) Arrangement.SpaceEvenly else Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                headerMenuActions.forEach { action ->
-                    MenuButton(
-                        icon = action.icon,
-                        label = action.label,
-                        enabled = menuVisible,
-                        surfaceColor = menuButtonSurfaceColor,
-                        contentColor = menuButtonContentColor,
-                        onClick = action.onClick
-                    )
+            val menuScrollState = rememberScrollState()
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = if (fitsWithoutScrolling) {
+                        Modifier.fillMaxWidth()
+                    } else {
+                        Modifier.fillMaxWidth().horizontalScroll(menuScrollState).padding(horizontal = 12.dp)
+                    },
+                    horizontalArrangement = if (fitsWithoutScrolling) Arrangement.SpaceEvenly else Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    headerMenuActions.forEach { action ->
+                        MenuButton(
+                            icon = action.icon,
+                            label = action.label,
+                            enabled = menuVisible,
+                            surfaceColor = menuButtonSurfaceColor,
+                            contentColor = menuButtonContentColor,
+                            onClick = action.onClick
+                        )
+                    }
+                }
+                if (!fitsWithoutScrolling) {
+                    // Same affordance the bottom bar uses when it overflows. matchParentSize takes
+                    // the row's measured height without influencing it, so the chevrons track the
+                    // buttons rather than the 144dp pull-down area they sit in.
+                    Box(modifier = Modifier.matchParentSize()) {
+                        ScrollEdgeChevron(
+                            visible = menuScrollState.canScrollBackward,
+                            fadeColor = menuEdgeFadeColor,
+                            contentColor = menuButtonContentColor,
+                            fromStart = true,
+                            modifier = Modifier.align(Alignment.CenterStart)
+                        )
+                        ScrollEdgeChevron(
+                            visible = menuScrollState.canScrollForward,
+                            fadeColor = menuEdgeFadeColor,
+                            contentColor = menuButtonContentColor,
+                            fromStart = false,
+                            modifier = Modifier.align(Alignment.CenterEnd)
+                        )
+                    }
                 }
             }
         }

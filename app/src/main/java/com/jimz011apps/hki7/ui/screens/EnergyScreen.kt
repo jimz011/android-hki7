@@ -19,6 +19,8 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -354,6 +356,9 @@ fun EnergyScreen(
         id?.takeIf { it.isNotBlank() }
             ?.let { entityById[it]?.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull }
             ?: fallback
+    /** Cost text for [id]'s value, in the configured currency (see [formatEnergyCost]). */
+    fun costText(id: String?, value: Float): String =
+        formatEnergyCost(value, energyConfig.currencyCode, entityUnit(id, ""), locale)
     fun entityDisplay(id: String?): String? {
         if (id.isNullOrBlank()) return null
         val e = entityById[id] ?: return null
@@ -419,6 +424,13 @@ fun EnergyScreen(
         !energyConfig.solarDeviceId.isNullOrBlank()
     var page by rememberSaveable { mutableStateOf("energy") }
     androidx.activity.compose.BackHandler(enabled = page != "energy") { page = "energy" }
+    // Tell the host a sub-page is open so a sideways swipe does not carry the user out of it into
+    // an unrelated tab. Reported per route because the pager keeps neighbours composed.
+    val subPageReporter = com.jimz011apps.hki7.ui.components.LocalSubPageReporter.current
+    androidx.compose.runtime.DisposableEffect(subPageReporter, page) {
+        subPageReporter?.invoke("energy", page != "energy")
+        onDispose { subPageReporter?.invoke("energy", false) }
+    }
     var rangeName by rememberSaveable { mutableStateOf(EnergyRange.DAY.name) }
     // 0 = current period, -1 = previous, ... (HA-style look-back navigation).
     var rangeOffset by rememberSaveable { mutableIntStateOf(0) }
@@ -857,8 +869,23 @@ fun EnergyScreen(
         // children at the same offset and takes the height of the tallest, so a bare
         // `item { SectionHeader(); Surface() }` hides the heading behind the card and leaves the
         // cards flush against each other. Wrap multi-part items in a Column.
+        // One scroll position per page. The same grid renders the Energy overview and each detail
+        // page, so a single shared state meant scrolling a detail page and pressing back left the
+        // overview sitting at that offset — and re-opening a detail page you had scrolled forgot
+        // where you were. Keyed by page, both behave the way you'd expect.
+        // The overview's position is the one worth surviving the pager disposing this page, so it
+        // gets a saveable state of its own; the detail pages keep a plain per-page map, which is
+        // enough to hold their place while moving between them.
+        val overviewGridState = rememberLazyStaggeredGridState()
+        val subPageGridStates = remember { mutableMapOf<String, LazyStaggeredGridState>() }
+        com.jimz011apps.hki7.ui.components.ScrollToTopOnTabReselect("energy") { overviewGridState.animateScrollToItem(0) }
+        val gridState = remember(page) {
+            if (page == "energy") overviewGridState
+            else subPageGridStates.getOrPut(page) { LazyStaggeredGridState() }
+        }
         LazyVerticalStaggeredGrid(
             columns = StaggeredGridCells.Fixed(if (page == "energy") 1 else dashboardColumns),
+            state = gridState,
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(bottom = 96.dp + com.jimz011apps.hki7.ui.components.LocalMediaPlayerBarInset.current),
             horizontalArrangement = Arrangement.spacedBy(0.dp),
@@ -962,7 +989,7 @@ fun EnergyScreen(
                     add("electricity_total" to {
                     SectionHeader(
                         stringResource(R.string.energy_extra_electricity_total),
-                        if (!energyConfig.energyCostEntityId.isNullOrBlank()) "€ ${"%.2f".format(costVal)}" else null
+                        if (!energyConfig.energyCostEntityId.isNullOrBlank()) costText(energyConfig.energyCostEntityId, costVal) else null
                     )
                     Surface(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
@@ -1037,7 +1064,7 @@ fun EnergyScreen(
                     })
 
                     if (gasId != null) add("gas" to {
-                        SectionHeader(stringResource(R.string.energy_extra_gas), gasCost?.let { "€ ${"%.2f".format(it)}" })
+                        SectionHeader(stringResource(R.string.energy_extra_gas), gasCost?.let { costText(energyConfig.gasCostEntityId, it) })
                         UtilityCard(
                             icon = Icons.Default.LocalFireDepartment, color = GasPink,
                             value = "%.1f".format(gasPeriod), unit = gasUnit,
@@ -1048,7 +1075,7 @@ fun EnergyScreen(
                     })
 
                     if (cityHeatingId != null) add("city_heating" to {
-                        SectionHeader(stringResource(R.string.energy_extra_city_heating), cityHeatingCost?.let { "€ ${"%.2f".format(it)}" })
+                        SectionHeader(stringResource(R.string.energy_extra_city_heating), cityHeatingCost?.let { costText(energyConfig.cityHeatingCostEntityId, it) })
                         UtilityCard(
                             icon = Icons.Default.HeatPump, color = HeatOrange,
                             value = "%.3f".format(cityHeatingPeriodGJ), unit = "GJ",
@@ -1060,7 +1087,7 @@ fun EnergyScreen(
 
                     if (waterId != null) add("water" to {
                         val waterUsed = waterPeriod * waterFactor
-                        SectionHeader(stringResource(R.string.energy_extra_water), waterCost?.let { "€ ${"%.2f".format(it)}" })
+                        SectionHeader(stringResource(R.string.energy_extra_water), waterCost?.let { costText(energyConfig.waterCostEntityId, it) })
                         UtilityCard(
                             icon = Icons.Default.WaterDrop, color = WaterBlue,
                             value = if (waterUsed >= 100f) "%.0f".format(waterUsed) else "%.1f".format(waterUsed), unit = waterDisplayUnit,
@@ -1437,7 +1464,7 @@ fun EnergyScreen(
                     Column {
                         SectionHeader(
                             stringResource(R.string.energy_extra_energy),
-                            if (!energyConfig.energyCostEntityId.isNullOrBlank()) "€ ${"%.2f".format(costVal)}" else null
+                            if (!energyConfig.energyCostEntityId.isNullOrBlank()) costText(energyConfig.energyCostEntityId, costVal) else null
                         )
                         Surface(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
@@ -1479,7 +1506,7 @@ fun EnergyScreen(
                 // ═══ GAS PAGE ═════════════════════════════════════════════════
                 item {
                     Column {
-                        SectionHeader(stringResource(R.string.energy_extra_usage), gasCost?.let { "€ ${"%.2f".format(it)}" })
+                        SectionHeader(stringResource(R.string.energy_extra_usage), gasCost?.let { costText(energyConfig.gasCostEntityId, it) })
                         Surface(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
                             shape = itemCornerShape(), color = Color.Transparent
@@ -1504,7 +1531,7 @@ fun EnergyScreen(
             } else if (page == "city_heating") {
                 item {
                     Column {
-                        SectionHeader(stringResource(R.string.energy_extra_usage), cityHeatingCost?.let { "€ ${"%.2f".format(it)}" })
+                        SectionHeader(stringResource(R.string.energy_extra_usage), cityHeatingCost?.let { costText(energyConfig.cityHeatingCostEntityId, it) })
                         Surface(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
                             shape = itemCornerShape(), color = Color.Transparent
@@ -1536,7 +1563,7 @@ fun EnergyScreen(
                 // ═══ WATER PAGE ═══════════════════════════════════════════════
                 item {
                     Column {
-                        SectionHeader(stringResource(R.string.energy_extra_usage), waterCost?.let { "€ ${"%.2f".format(it)}" })
+                        SectionHeader(stringResource(R.string.energy_extra_usage), waterCost?.let { costText(energyConfig.waterCostEntityId, it) })
                         Surface(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).background(surfaceGradient(appColors.elevated), itemCornerShape()),
                             shape = itemCornerShape(), color = Color.Transparent
@@ -2892,6 +2919,7 @@ private fun EnergySensorSection(
     var category by remember { mutableStateOf<String?>(null) }
     var pickingField by remember { mutableStateOf<String?>(null) }
     var pickingDeviceFor by remember { mutableStateOf<String?>(null) }
+    var pickingCurrency by remember { mutableStateOf(false) }
     LaunchedEffect(category) { setBack(if (category != null) { { category = null } } else null) }
 
     fun fieldValue(field: String?): String? = when (field) {
@@ -3084,6 +3112,63 @@ private fun EnergySensorSection(
         Spacer(Modifier.height(6.dp))
     }
 
+    /** Row that opens the currency picker, previewing what cost stats will be labelled with. */
+    @Composable
+    fun currencyRow() {
+        val locale = LocalConfiguration.current.locales[0] ?: Locale.getDefault()
+        // Automatic follows Home Assistant: the cost sensors carry the instance currency.
+        val sensorUnit = listOfNotNull(
+            cfg.energyCostEntityId, cfg.gasCostEntityId, cfg.cityHeatingCostEntityId, cfg.waterCostEntityId
+        ).firstNotNullOfOrNull { id ->
+            allEntities.find { it.entity_id == id }
+                ?.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull
+                ?.takeIf { it.isNotBlank() }
+        }
+        val manual = cfg.currencyCode?.trim().orEmpty()
+        if (pickingCurrency) {
+            EnergyCurrencyPickerDialog(
+                current = manual,
+                autoSensorUnit = sensorUnit,
+                onDismiss = { pickingCurrency = false },
+                onSelected = { code ->
+                    cfg = cfg.copy(currencyCode = code)
+                    onSave(cfg)
+                    pickingCurrency = false
+                }
+            )
+        }
+        Surface(
+            modifier = Modifier.fillMaxWidth().clickable { pickingCurrency = true },
+            shape = itemCornerShape(),
+            color = appColors.subtleSurface
+        ) {
+            Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    Modifier.size(34.dp).background(SolarAmber.copy(alpha = 0.15f), RoundedCornerShape(10.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.Payments, null, tint = SolarAmber, modifier = Modifier.size(18.dp))
+                }
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(stringResource(R.string.energy_extra_currency), color = appColors.onSurface,
+                        style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        if (manual.isEmpty()) stringResource(
+                            R.string.energy_extra_currency_automatic_value,
+                            currencySymbolFor(resolveCurrencyToken(null, sensorUnit), locale)
+                        ) else stringResource(
+                            R.string.energy_extra_currency_manual_value,
+                            manual, currencySymbolFor(manual, locale)
+                        ),
+                        color = appColors.onMuted, style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Icon(Icons.Default.ChevronRight, null, tint = appColors.onMuted)
+            }
+        }
+    }
+
     @Composable
     fun categoryButton(key: String, title: String, subtitle: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color) {
         Surface(
@@ -3165,6 +3250,8 @@ private fun EnergySensorSection(
             Icons.Default.Power,
             ExportGreen
         )
+        Spacer(Modifier.height(10.dp))
+        currencyRow()
         return
     }
 
@@ -3533,6 +3620,12 @@ private fun Map<String, HAEntity>.displayOf(id: String?): String? {
     return listOf(num, unit).filter { it.isNotBlank() }.joinToString(" ")
 }
 
+/** [id]'s value as cost text, in the currency from Energy settings (see [formatEnergyCost]). */
+private fun Map<String, HAEntity>.costTextOf(id: String?, manualCurrency: String?, locale: Locale): String? {
+    val v = numOf(id) ?: return null
+    return formatEnergyCost(v, manualCurrency, unitOf(id), locale)
+}
+
 /** Renders one energy card for a "today" window, self-contained (fetches its own stats).
  *  [configOverride] replaces the Energy view's entity bindings for this card only. */
 @Composable
@@ -3549,8 +3642,11 @@ fun EnergyCardWidgetView(
     val appColors = LocalHKIAppColors.current
     val locale = LocalConfiguration.current.locales[0] ?: Locale.getDefault()
     val pageConfigsMap by viewModel.pageConfigsMapping.collectAsState()
-    val cfg = configOverride
-        ?: (pageConfigsMap[ENERGY_PAGE_KEY] ?: HKIPageConfig()).energyConfig ?: HKIEnergyConfig()
+    val pageEnergyConfig = (pageConfigsMap[ENERGY_PAGE_KEY] ?: HKIPageConfig()).energyConfig ?: HKIEnergyConfig()
+    val cfg = configOverride ?: pageEnergyConfig
+    // Currency is a display preference for the whole Energy view, so a card's own entity overrides
+    // never change it.
+    val currency = pageEnergyConfig.currencyCode
     val energyEntityFlow = remember(viewModel) {
         viewModel.entitiesMatching("domain:sensor") { it.entity_id.startsWith("sensor.") }
     }
@@ -3840,8 +3936,8 @@ fun EnergyCardWidgetView(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(stringResource(R.string.ui_meter_readings_a3c12c4), style = MaterialTheme.typography.labelLarge,
                         color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
-                    byId.numOf(cfg.energyCostEntityId)?.let {
-                        Text(stringResource(R.string.ui_text_b92cdc7, "%.2f".format(it)), style = MaterialTheme.typography.labelLarge,
+                    byId.costTextOf(cfg.energyCostEntityId, currency, locale)?.let {
+                        Text(it, style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                     }
                 }
@@ -3906,8 +4002,8 @@ fun EnergyCardWidgetView(
                     byId.displayOf(cfg.gasCurrentEntityId)?.let { TotalStat(Icons.Default.Speed, GasPink, it, stringResource(R.string.energy_extra_now)) }
                     TotalStat(Icons.Default.LocalFireDepartment, GasPink,
                         "%.1f %s".format(total(gasId), gasUnit), stringResource(R.string.energy_extra_used_period, periodLabel))
-                    byId.numOf(cfg.gasCostEntityId)?.let {
-                        TotalStat(Icons.Default.LocalFireDepartment, GasPink, "€ ${"%.2f".format(it)}", stringResource(R.string.energy_extra_cost))
+                    byId.costTextOf(cfg.gasCostEntityId, currency, locale)?.let {
+                        TotalStat(Icons.Default.LocalFireDepartment, GasPink, it, stringResource(R.string.energy_extra_cost))
                     }
                 }
                 Spacer(Modifier.height(14.dp))
@@ -3923,8 +4019,8 @@ fun EnergyCardWidgetView(
                     byId.displayOf(cfg.waterCurrentEntityId)?.let { TotalStat(Icons.Default.Speed, WaterBlue, it, stringResource(R.string.energy_extra_now)) }
                     TotalStat(Icons.Default.WaterDrop, WaterBlue,
                         (if (used >= 100f) "%.0f %s" else "%.1f %s").format(used, unit), stringResource(R.string.energy_extra_used_period, periodLabel))
-                    byId.numOf(cfg.waterCostEntityId)?.let {
-                        TotalStat(Icons.Default.WaterDrop, WaterBlue, "€ ${"%.2f".format(it)}", stringResource(R.string.energy_extra_cost))
+                    byId.costTextOf(cfg.waterCostEntityId, currency, locale)?.let {
+                        TotalStat(Icons.Default.WaterDrop, WaterBlue, it, stringResource(R.string.energy_extra_cost))
                     }
                 }
                 Spacer(Modifier.height(14.dp))
@@ -4168,7 +4264,8 @@ fun EnergyCardPickerDialog(
                 )
             }
         },
-        confirmButton = { TextButton(onClick = { onSelected(selected) }) { Text(stringResource(R.string.ui_done_e9b450d)) } }
+        // Save, not Done: `selected` is local until this fires, so dismissing loses the choice.
+        confirmButton = { TextButton(onClick = { onSelected(selected) }) { Text(stringResource(R.string.ui_save_efc007a)) } }
     )
 }
 

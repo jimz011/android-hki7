@@ -1,0 +1,12 @@
+<resources>
+    <string name="parental_search_access_title">Zugriff auf Entitätssuche</string>
+    <string name="parental_search_access_hint">Wähle, welche Home-Assistant-Domänen oder einzelnen Entitäten diese Person in der globalen Suche finden kann. Unsichtbare Einträge haben immer Vorrang.</string>
+    <string name="parental_search_visible_title">Sichtbar</string>
+    <string name="parental_search_invisible_title">Unsichtbar</string>
+    <string name="parental_search_visible_empty">Alle Entitäten sind sichtbar, sofern sie nicht in der Liste „Unsichtbar“ stehen.</string>
+    <string name="parental_search_invisible_empty">Keine Entitäten sind ausdrücklich ausgeblendet.</string>
+    <string name="parental_search_picker_subtitle">Ganze Domänen oder einzelne Entitäten auswählen</string>
+    <string name="parental_search_domains">Domänen</string>
+    <string name="parental_search_entire_domain">Gesamte Domäne</string>
+    <string name="parental_search_domain_chip">Domäne: %1$s</string>
+</resources>

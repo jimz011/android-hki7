@@ -446,6 +446,14 @@
     <string name="cr_name_z_a">名前 Z–A</string>
     <string name="cr_climate_device">空調デバイス</string>
     <string name="cr_climate_device_subtitle">名前、アイコン、カードスタイル、幅</string>
+    <string name="cr_widget_requires_f1">F1 センサーの統合が必要ですが、Home Assistant には見つかりませんでした</string>
+    <string name="cr_widget_requires_parcels">小包の統合が必要ですが、Home Assistant には何も見つかりませんでした</string>
+    <string name="cr_widget_requires_waste">廃棄物収集の統合が必要ですが、Home Assistant には何も見つかりませんでした</string>
+    <string name="cr_people_here_title">ここには誰がいますか</string>
+    <string name="cr_people_here_empty">現在、この部屋では誰も追跡されていません。</string>
+    <string name="cr_people_here_unknown_room">部屋不明</string>
+    <string name="cr_button_exclude_counters">カウンターから離れる</string>
+    <string name="cr_button_exclude_counters_hint">ボタンを押したままにしますが、この部屋の照明とデバイスの合計へのカウントを停止します。</string>
     <string name="cr_count_with_average">%1$s・平均%2$s%3$s</string>
     <string name="cr_outside_temperature">屋外気温</string>
     <string name="cr_outside_humidity">屋外湿度</string>
@@ -1185,6 +1193,13 @@
     <string name="energy_extra_picker_device_energy_counters">デバイスエネルギーカウンター</string>
     <string name="energy_extra_auto_power_sensors_help">device_classがpowerのセンサーはすべて自動的に含まれます。デバイスを削除すると独自のリストを作成できます。</string>
     <string name="energy_extra_auto_energy_sensors_help">device_classがenergyのセンサーはすべて自動的に含まれます。選択した期間ではカウンターの変化量が使用されます。</string>
+    <string name="energy_extra_currency">通貨</string>
+    <string name="energy_extra_currency_subtitle">コスト統計がどの通貨で表示されるか</string>
+    <string name="energy_extra_currency_search">通貨を検索する</string>
+    <string name="energy_extra_currency_automatic">自動</string>
+    <string name="energy_extra_currency_automatic_subtitle">コストセンサーに従って、次にデバイスの地域に従ってください</string>
+    <string name="energy_extra_currency_automatic_value">自動 (%1$s)</string>
+    <string name="energy_extra_currency_manual_value">%1$s (%2$s)</string>
     <string name="energy_extra_energy_card">エネルギーカード</string>
     <string name="energy_extra_energy_card_subtitle">データソースとカードの外観</string>
     <string name="energy_extra_card_and_data">カードとデータ</string>
@@ -2486,7 +2501,6 @@
     <string name="ui_text_98d3f75">✓ %1$s</string>
     <string name="ui_text_9e5a283">%1$s×</string>
     <string name="ui_text_a105b80">%1$s/%2$s</string>
-    <string name="ui_text_b92cdc7">€ %1$s</string>
     <string name="ui_text_be10035"> ・%1$s</string>
     <string name="ui_text_c1aacd9">%1$s・%2$s</string>
     <string name="ui_text_c3328c3">テキスト</string>
@@ -2728,6 +2742,13 @@
     <string name="settings_extra_dashboard_backup_saved">ダッシュボードのバックアップを保存しました。</string>
     <string name="settings_extra_dashboard_copy_name">%1$sのコピー</string>
     <string name="settings_extra_dashboard_default_name">ダッシュボード%1$d</string>
+    <string name="settings_extra_new_dashboard_confirm_body">これにより、使用しているダッシュボードの横にダッシュボードが追加されます。現在のダッシュボードはそのまま保持され、上書きされることはありません。いつでも切り替えることができます。</string>
+    <string name="settings_extra_new_dashboard_confirm_action">続行</string>
+    <string name="settings_extra_new_dashboard_created">「%1$s」を作成しました</string>
+    <string name="uif_onboarding_shared_already_added">すでに追加されています</string>
+    <string name="settings_extra_dashboard_shared_badge">共有</string>
+    <string name="settings_extra_dashboard_shared_subtitle">ご家族でシェアさせていただきました。タップしてロード</string>
+    <string name="settings_extra_dashboard_shared_loaded">ご家族でシェアさせていただきました。現在ロードされています</string>
     <string name="settings_extra_dashboard_generating">新しいダッシュボードを自動生成しています。</string>
     <string name="settings_extra_dashboard_mode_auto">自動</string>
     <string name="settings_extra_dashboard_mode_manual">手動</string>
@@ -2791,6 +2812,8 @@
     <string name="settings_extra_location_allowed_always">常に許可</string>
     <string name="settings_extra_location_allowed_foreground">アプリ使用中のみ許可</string>
     <string name="settings_extra_location_not_allowed">許可しない</string>
+    <string name="language_search_placeholder">検索言語</string>
+    <string name="language_search_no_matches">「%1$s」に一致する言語はありません</string>
     <string name="settings_extra_language_dutch">Nederlands</string>
     <string name="settings_extra_language_english">English</string>
     <string name="settings_extra_language_french">Français</string>
@@ -3435,4 +3458,7 @@
     <string name="widgets_energy_phase_number">フェーズ %1$d</string>
     <string name="widgets_energy_forecast_number">予報 %1$d</string>
     <string name="widgets_energy_ha_forecast">ホームアシスタントの予測</string>
+    <string name="widgets_battery_search">デバイスを検索</string>
+    <string name="widgets_battery_none">検索に一致するバッテリーはありません。</string>
+    <string name="widgets_battery_open_page">バッテリーページを開く</string>
 </resources>

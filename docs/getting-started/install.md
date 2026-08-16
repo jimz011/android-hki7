@@ -2,8 +2,9 @@
 
 ## Requirements
 
-- **Android 14 or newer.** HKI 7 targets a modern Android baseline (`minSdk 34`) so it can rely on
-  current Compose, notification and location APIs without carrying compatibility shims.
+- **Android 12 or newer** (`minSdk 31`). On Android 12 the language picker in HKI 7's own settings
+  is the only way to change language, because Android had no system-level per-app language screen
+  before Android 13. Everything else behaves the same.
 - **A Home Assistant instance you can reach** from the phone — on the local network, at a remote
   URL, or through Home Assistant Cloud (Nabu Casa).
 - **Google Play Services** if you want geofence-based presence, Google Drive backups, or in-app

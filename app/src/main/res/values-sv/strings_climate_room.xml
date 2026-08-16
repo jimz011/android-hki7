@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="cr_whats_new_1_0_1">
+<string-array name="cr_whats_new_1_1_0">
+    <item>Arton språk till, vilket tar HKI 7 till 36. Polska, ryska, tjeckiska, slovakiska, ungerska, rumänska, bulgariska, kroatiska, grekiska, litauiska, lettiska, estniska, danska, thailändska och hebreiska ansluter sig till listan, tillsammans med österrikisk tyska, schweizertyska och mexikansk spanska. Hebreiska lägger ut gränssnittet från höger till vänster, som arabiska gör.</item>
+    <item>HKI 7 körs nu på Android 12 och senare. Den behövde tidigare Android 14, vilket uteslöt många perfekt kapabla telefoner och surfplattor.</item>
+    <item>Energikostnaderna visas i din egen valuta istället för alltid i euro. HKI 7 följer vad dina kostnadssensorer rapporterar, och det finns en Valuta-inställning i Energiinställningar om du hellre vill välja en själv.</item>
+    <item>Språkväljaren har en sökruta och är sorterad, vilket den behövde vid 36 poster. Om du någonsin landar på ett språk du inte kan läsa, är vägen tillbaka fortfarande det första på skärmen.</item>
+    <item>Vyerna kommer ihåg var du hade scrollat till, och genom att trycka på fliken du redan är på tar du dig tillbaka till toppen.</item>
+    <item>Att svepa i sidled tar dig inte längre ut från en sida du har öppnat, till exempel Solar inuti Energy. Tillbaka nu återgår du till vyn du kom ifrån istället för att hoppa till startsidan.</item>
+    <item>Rullbara rader säger det. Rullgardinsmenyn, navigeringsfältet och inställningsflikarna visar alla en pil i kanten när det finns mer att nå.</item>
+    <item>Dialoger ser ut och beter sig likadant hela tiden. Sex av dem var vanliga Android-dialoger utan stängningsknapp i hörnet, och knappar över appen är nu överens om vad Stäng, Spara och Klar betyder.</item>
+    <item>Att skapa en instrumentpanel frågar först och erbjuder sedan samma val som vid förstagångsinstallation – så en ny instrumentpanel kan starta från en säkerhetskopia eller från en som din familj har delat, samt skapas eller lämnas tom. Din nuvarande instrumentpanel skrivs aldrig över, och delade instrumentpaneler är nu markerade som delade i listan.</item>
+    <item>Batteriwidgeten öppnar en lista på plats istället för att ta dig till en separat sida, grupperad efter hur brådskande var och en är och visar batteritypen där Home Assistant känner till den. Det finns en sökruta och en knapp för att öppna hela batterivyn om du vill ha det.</item>
+    <item>Att trycka på personersdisken i ett rum visar vem som är där, med varje persons bild. Rumshuvudet har nu också en hushållsdisk som visar var alla är utan att öppna varje rum.</item>
+    <item>En knapp kan lämnas utanför rummets ljus- och enhetsdiskar, för de som finns i rummet men som inte riktigt är en del av det.</item>
+    <item>Widgets som behöver en integration du inte har — Formel 1, Paket, Avfallsinsamling — är nedtonade och säger vad som saknas, istället för att läggas till och sedan stå tomma.</item>
+    <item>Paketspårningen omfattar ytterligare femton transportörer, inklusive PostNord, InPost, Swiss Post, An Post, Budbee, Sameday och Nova Post, var och en med sin egen logotyp.</item>
+    <item>En Valetudo robotdammsugare plockar upp sin livekarta automatiskt när dina rum importeras, istället för att behöva kameran vald för hand.</item>
+</string-array>
+
+<string-array name="cr_whats_new_1_0_1">
         <item>Att svepa mellan flikarna följer nu ditt finger. Sidorna flyttas medan du drar, du kan ändra dig mitt i svepningen och dra tillbaka dem, och de sätter sig där du släpper taget. Tidigare bestämdes ändringen i samma ögonblick som du hade dragit tillräckligt långt och inte kunde tas tillbaka, medan animationen som spelades upp efteråt var på sin egen timer och inte relaterad till gesten - så appen satte sig på en sida innan ditt finger hade begärt färdigt en.</item>
         <item>Den nedre raden håller nu den valda fliken i vy. På en telefon som är för smal för varje flik rullar den den aktiva till mitten, så fliken du är på är alltid synlig tillsammans med sina grannar - vilket också är tipset om att det finns fler sidor att svepa till. Att nå den sista fliken som användes för att lämna indikatorn någonstans utanför radens ände.</item>
         <item>Att svepa mellan rummen visar hur många rum det finns och vilket du befinner dig på, som punkter ovanför navigeringsfältet – eller som en räkning när det är fler än åtta. Svepning av rum stannar också vid det sista rummet istället för att svepa runt till det första, vilket matchar hur flikarna beter sig. Rum som en administratör har gömt hoppas nu över av svep istället för att bara blockeras när de öppnas.</item>

@@ -332,6 +332,24 @@
     <string name="cr_quick_make_it_yours">Rendila tua</string>
     <string name="cr_quick_make_it_yours_instruction">In modalità modifica, aggiungi e riordina stanze, piani e widget. Tocca un elemento per configurarlo.</string>
 
+<string-array name="cr_whats_new_1_1_0">
+    <item>Altre diciotto lingue, portando HKI 7 a 36. Polacco, russo, ceco, slovacco, ungherese, rumeno, bulgaro, croato, greco, lituano, lettone, estone, danese, tailandese ed ebraico si aggiungono alla lista, insieme al tedesco austriaco, tedesco svizzero e spagnolo messicano. L\'ebraico dispone l\'interfaccia da destra a sinistra, come fa l\'arabo.</item>
+    <item>HKI 7 ora funziona su Android 12 e versioni successive. In precedenza aveva bisogno di Android 14, il che escludeva molti telefoni e tablet perfettamente funzionanti.</item>
+    <item>I costi energetici sono indicati nella tua valuta invece che sempre in euro. HKI 7 segue ciò che riportano i tuoi sensori di costo e c\'è un\'impostazione di valuta nelle impostazioni di energia se preferisci sceglierne una tu stesso.</item>
+    <item>Il selettore della lingua ha una casella di ricerca ed è ordinato, come necessario, in 36 voci. Se mai ti trovi in una lingua che non puoi leggere, la via del ritorno è ancora la prima cosa sullo schermo.</item>
+    <item>Le visualizzazioni ricordano il punto in cui hai effettuato lo scorrimento e toccando la scheda in cui ti trovi già torni all\'inizio.</item>
+    <item>Lo scorrimento laterale non ti porta più fuori da una pagina che hai aperto, come Solar inside Energy. Indietro ora ti riporta alla visualizzazione da cui provieni invece di passare alla home page.</item>
+    <item>Lo dicono le righe scorrevoli. Il menu a discesa, la barra di navigazione e le schede delle impostazioni mostrano tutti una freccia sul bordo quando c\'è altro da raggiungere.</item>
+    <item>Le finestre di dialogo appaiono e si comportano allo stesso modo ovunque. Sei di essi erano semplici finestre di dialogo Android senza pulsante di chiusura nell\'angolo e i pulsanti nell\'app ora concordano sul significato di Chiudi, Salva e Fine.</item>
+    <item>La creazione di una dashboard richiede innanzitutto e poi offre le stesse scelte della configurazione iniziale, quindi una nuova dashboard può iniziare da un backup o da una condivisa dalla tua famiglia, oltre a essere generata o lasciata vuota. La tua dashboard attuale non verrà mai sovrascritta e le dashboard condivise ora sono contrassegnate come condivise nell\'elenco.</item>
+    <item>Il widget della batteria apre un elenco invece di portarti in una pagina separata, raggruppata in base all\'urgenza di ciascuna e mostrando il tipo di batteria dove Home Assistant lo sa. C\'è una casella di ricerca e un pulsante per aprire la visualizzazione completa della batteria, se lo desideri.</item>
+    <item>Toccando il contatore delle persone in una stanza viene mostrato chi è presente, con la foto di ogni persona. L\'intestazione Stanze ora ha anche un contatore delle famiglie, che mostra dove si trovano tutti senza aprire ogni stanza.</item>
+    <item>Un pulsante può essere lasciato fuori dai contatori Luci e Dispositivi di una stanza, per quelli che sono nella stanza ma non ne fanno realmente parte.</item>
+    <item>I widget che necessitano di un\'integrazione che non hai - Formula 1, Pacchi, Raccolta rifiuti - sono disattivati e dicono cosa manca, invece di essere aggiunti e poi rimanere vuoti.</item>
+    <item>Il tracciamento dei pacchi copre altri quindici corrieri, tra cui PostNord, InPost, Swiss Post, An Post, Budbee, Sameday e Nova Post, ciascuno con il proprio logo.</item>
+    <item>Un robot aspirapolvere Valetudo rileva automaticamente la mappa live quando le stanze vengono importate, invece di dover scegliere manualmente la telecamera.</item>
+</string-array>
+
 <string-array name="cr_whats_new_1_0_1">
     <item>Lo scorrimento tra le schede ora segue il dito. Le pagine si muovono mentre le trascini, puoi cambiare idea mentre scorri e tirarle indietro, e si stabilizzeranno dove le lasci andare. In precedenza, la modifica veniva decisa nel momento in cui trascinavi abbastanza lontano e non potevi tornare indietro, mentre l\'animazione riprodotta in seguito era basata sul proprio timer e non era correlata al gesto, quindi l\'app si impegnava su una pagina prima che il tuo dito finisse di richiederne una.</item>
     <item>La barra inferiore ora mantiene in vista la scheda selezionata. Su un telefono troppo stretto per ogni scheda, fa scorrere quella attiva al centro, quindi la scheda su cui ti trovi è sempre visibile insieme a quelle vicine, il che è anche un suggerimento che ci sono più pagine su cui scorrere. Raggiungere l\'ultima scheda lasciava l\'indicatore da qualche parte fuori dall\'estremità della barra.</item>

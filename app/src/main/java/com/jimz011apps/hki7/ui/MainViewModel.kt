@@ -1063,6 +1063,13 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             peopleCountByArea(roster, entities.associateBy { it.entity_id }, areas, follow)
         }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
 
+    /** Which tracked people are in each area right now, so a counter can name them instead of
+     *  only totalling them. Keyed by area id; values are roster sensor entity ids. */
+    val peopleEntityIdsByAreaId: StateFlow<Map<String, List<String>>> =
+        combine(roomFollowRoster, _entities, _areas, roomFollow) { roster, entities, areas, follow ->
+            peopleByArea(roster, entities.associateBy { it.entity_id }, areas, follow)
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
+
     /** The area this device's owner is in right now, or null when following is off, the sensor
      *  says they are away, or the state matches no area. Unlike [confirmedRoomMove] this tracks
      *  the raw sensor with no dwell window — it is what the launch navigation reads. */
@@ -3741,6 +3748,20 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         return emptyList()
     }
 
+    /**
+     * Which parcel-integration domains actually expose `<domain>.track_parcel`, asked of Home
+     * Assistant rather than hardcoded — the carrier list grows faster than the app ships, and a
+     * stale guess either hides manual tracking that works or offers an Add button that fails.
+     * Reuses the cached service registry the automation editor already fetches. Empty when the
+     * registry is unavailable, so callers can fall back to what they were built with.
+     */
+    suspend fun trackParcelDomains(): Set<String> = runCatching {
+        getAutomationActions()
+            .mapNotNull { action -> action.key.takeIf { it.endsWith(".track_parcel") } }
+            .map { it.substringBefore('.') }
+            .toSet()
+    }.getOrDefault(emptySet())
+
     suspend fun getAutomationActions(): List<HAActionDefinition> {
         return automationActionsMutex.withLock {
             if (cachedAutomationActions.isNotEmpty()) return@withLock cachedAutomationActions
@@ -4960,6 +4981,30 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             val cameraIds = entityIdsByDomain["camera"].orEmpty()
             val blindIds = entityIdsByDomain["cover"].orEmpty()
 
+            /**
+             * Map cameras for Valetudo robots, so an imported vacuum badge opens straight into its
+             * live map instead of requiring the camera to be bound by hand.
+             *
+             * Valetudo publishes the map as an MQTT-autodiscovered `camera` on the same device as
+             * the vacuum, which is the reliable signal — matching on names alone would pick up any
+             * camera that happens to live in the room. A robot that publishes no such camera simply
+             * gets no binding, exactly as before.
+             */
+            fun valetudoMapsFor(vacuumIds: List<String>): Map<String, String> {
+                val deviceOf = registry.associate { it.entity_id to it.device_id }
+                val camerasByDevice = registry.asSequence()
+                    .filter { it.entity_id.startsWith("camera.") && it.disabled_by == null }
+                    .groupBy { it.device_id }
+                return vacuumIds.mapNotNull { vacuumId ->
+                    val deviceId = deviceOf[vacuumId] ?: return@mapNotNull null
+                    val camera = camerasByDevice[deviceId]?.firstOrNull { entry ->
+                        val text = "${entry.entity_id} ${entitiesById[entry.entity_id]?.friendlyName.orEmpty()}"
+                        text.contains("map", ignoreCase = true)
+                    } ?: return@mapNotNull null
+                    vacuumId to camera.entity_id
+                }.toMap()
+            }
+
             fun autoBadge(domain: String, side: String, shape: String): HKIBadge? {
                 val ids = entityIdsByDomain[domain].orEmpty()
                 if (ids.isEmpty()) return null
@@ -5015,7 +5060,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             val importedBadges = buildList {
                 // Left lane: cameras, then vacuums beside them (a vacuum alone still sits on the left).
                 autoBadge("camera", side = "left", shape = "circle")?.let(::add)
-                autoBadge("vacuum", side = "left", shape = "circle")?.let(::add)
+                autoBadge("vacuum", side = "left", shape = "circle")
+                    ?.let { badge -> badge.copy(vacuumMapEntityIds = valetudoMapsFor(badge.entityIds)) }
+                    ?.let(::add)
 
                 // Right lane is ordered from left to right. Climate is deliberately appended last,
                 // with lock (or cover when there is no lock) immediately before it when available.

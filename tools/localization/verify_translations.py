@@ -15,10 +15,12 @@ LOCALES = (
     "nl", "de", "fr", "es", "it", "tr",
     "pt", "pt-rBR", "b+es+419", "ja", "ko", "zh-rCN", "zh-rTW",
     "nb", "sv", "fi", "ar",
+    "pl", "iw", "ru", "th", "ro", "hu", "bg", "el", "cs", "sk", "lt", "da", "et", "lv", "hr",
+    "de-rCH", "de-rAT", "es-rMX",
 )
 # CLDR defines only the "other" plural category for these languages, so a plurals resource with
 # just that one item is complete, not missing "one"/"few"/etc.
-NO_GRAMMATICAL_PLURAL_LOCALES = {"ja", "ko", "zh-rCN", "zh-rTW"}
+NO_GRAMMATICAL_PLURAL_LOCALES = {"ja", "ko", "zh-rCN", "zh-rTW", "th"}
 PLACEHOLDER = re.compile(r"%\d+\$[a-zA-Z]")
 ZERO_WIDTH = re.compile("[\u200b-\u200d\ufeff]")
 LOCALIZED_COMPARISON = re.compile(

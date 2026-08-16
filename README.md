@@ -14,7 +14,7 @@
 
 A modern [Home Assistant](https://www.home-assistant.io/) client for Android, built with Jetpack Compose and Material 3.
 
-> **Status:** `1.0.1`. Issues and feedback are welcome.
+> **Status:** `1.1.0`. Issues and feedback are welcome.
 
 **📖 [Documentation](https://jimz011.github.io/android-hki7/)** — setup guide, feature reference,
 [FAQ](https://jimz011.github.io/android-hki7/faq/) and
@@ -91,14 +91,16 @@ everything on your own Home Assistant, so none of this leaves your home.
 ### Elsewhere
 
 - **Backups** — to your own Google Drive, or to your own Home Assistant
-- **13 languages** — English, Dutch, German, French, Spanish (and Latin American Spanish),
-  Italian, Portuguese (and Brazilian Portuguese), Turkish, Japanese, Korean, and Chinese
-  (Simplified and Traditional)
+- **36 languages** — English, Dutch, German (also Austrian and Swiss), French, Spanish (also Latin
+  American and Mexican), Italian, Portuguese (and Brazilian), Turkish, Japanese, Korean, Chinese
+  (Simplified and Traditional), Norwegian, Swedish, Danish, Finnish, Estonian, Latvian, Lithuanian,
+  Polish, Czech, Slovak, Hungarian, Romanian, Bulgarian, Croatian, Greek, Russian, Thai, Arabic and
+  Hebrew — with the whole interface mirrored right to left for Arabic and Hebrew
 - **Guided onboarding** — Home Assistant discovery and a quick-start setup flow
 
 ## Requirements
 
-- Android 14+ (minSdk 34)
+- Android 12+ (minSdk 31)
 - A reachable Home Assistant instance (local URL, remote URL, or Nabu Casa)
 - Family sharing additionally needs [HKI 7 Cloud](https://github.com/jimz011/HKI7-Cloud-Component)
   `0.10.0` or newer, installed on your Home Assistant via HACS
@@ -118,7 +120,7 @@ The debug APK lands in `app/build/outputs/apk/debug/`.
 
 Release notes live in [CHANGELOG.md](CHANGELOG.md) and, for the in-app "What's new" dialog, in the
 `cr_whats_new_*` string arrays. New user-facing strings ship in `values/` (English) only —
-`tools/localization/` holds the scripts that translate and backfill the other twelve locales, and
+`tools/localization/` holds the scripts that translate and backfill the other thirty-five locales, and
 `verify_translations.py` is what decides whether a locale is complete.
 
 The full development setup, project layout and localization workflow are in the

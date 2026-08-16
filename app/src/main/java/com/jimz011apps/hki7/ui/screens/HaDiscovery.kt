@@ -4,8 +4,10 @@ import android.content.Context
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
 import android.net.wifi.WifiManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.ext.SdkExtensions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateListOf
@@ -20,6 +22,19 @@ data class DiscoveredHa(val name: String, val baseUrl: String)
 
 /** HA advertises this Bonjour service type on the LAN (the official app discovers the same way). */
 private const val HA_SERVICE_TYPE = "_home-assistant._tcp"
+
+/**
+ * The resolved service's address. [NsdServiceInfo.getHostAddresses] needs version 7 of the
+ * Tiramisu extensions SDK, which Android 12 does not carry, so the deprecated single-address
+ * getter it replaced is used there — it returns the same address for a single-homed server.
+ */
+@Suppress("DEPRECATION")
+private fun NsdServiceInfo.resolvedHostAddress(): String? =
+    if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 7) {
+        hostAddresses.firstOrNull()?.hostAddress
+    } else {
+        host?.hostAddress
+    }
 
 /**
  * Discovers Home Assistant instances on the local network using Android's NSD (mDNS) while [active]
@@ -52,7 +67,7 @@ fun rememberHaDiscovery(active: Boolean): SnapshotStateList<DiscoveredHa> {
             fun attr(key: String) = attrs[key]?.let { runCatching { String(it) }.getOrNull() }?.takeIf { it.isNotBlank() }
             val base = attr("base_url")
                 ?: attr("internal_url")
-                ?: runCatching { info.hostAddresses.firstOrNull()?.hostAddress }.getOrNull()?.let { "http://$it:${info.port}" }
+                ?: runCatching { info.resolvedHostAddress() }.getOrNull()?.let { "http://$it:${info.port}" }
                 ?: return
             val name = info.serviceName?.takeIf { it.isNotBlank() } ?: "Home Assistant"
             mainHandler.post {

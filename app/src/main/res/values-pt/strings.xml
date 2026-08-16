@@ -1507,7 +1507,6 @@
     <string name="ui_text_98d3f75">✓ %1$s</string>
     <string name="ui_text_9e5a283">%1$s×</string>
     <string name="ui_text_a105b80">%1$s/%2$s</string>
-    <string name="ui_text_b92cdc7">€ %1$s</string>
     <string name="ui_text_be10035"> · %1$s</string>
     <string name="ui_text_c1aacd9">%1$s · %2$s</string>
     <string name="ui_text_c3328c3">Texto</string>
@@ -3255,6 +3254,24 @@
         <item quantity="one">%1$d bateria precisa de atenção</item>
         <item quantity="other">%1$d baterias precisam de atenção</item>
     </plurals>
+<string-array name="cr_whats_new_1_1_0">
+    <item>Mais dezoito línguas, que vão de HKI 7 a 36. Polaco, russo, checo, eslovaco, húngaro, romeno, búlgaro, croata, grego, lituano, letão, estónio, dinamarquês, tailandês e hebraico juntam-se à lista, juntamente com o alemão austríaco, o alemão suíço e o espanhol mexicano. O hebraico apresenta a interface da direita para a esquerda, tal como o árabe.</item>
+    <item>HKI 7 funciona agora no Android 12 e posteriores. Anteriormente, precisava do Android 14, o que excluía muitos telefones e tablets perfeitamente capazes.</item>
+    <item>Os custos de energia são apresentados na sua própria moeda e não sempre em euros. HKI 7 segue o que os seus sensores de custo reportam e existe uma definição de Moeda nas definições de Energia, se preferir escolher uma.</item>
+    <item>O seletor de idioma tem uma caixa de pesquisa e é classificado, o que requer 36 entradas. Se chegar a um idioma que não consegue ler, o caminho de regresso ainda será a primeira coisa no ecrã.</item>
+    <item>As visualizações lembram-se para onde rolou e, ao tocar no separador em que já está, volta ao topo.</item>
+    <item>Deslizar para o lado já não o leva para fora de uma página aberta, como a Solar inside Energy. Voltar agora regressa à visualização de onde veio, em vez de ir para a página inicial.</item>
+    <item>As linhas roláveis dizem isso. O menu suspenso, a barra de navegação e os separadores de definições mostram uma seta na margem quando há mais para alcançar.</item>
+    <item>Os diálogos parecem e comportam-se da mesma forma. Seis deles eram simples caixas de diálogo do Android, sem botão Fechar no canto, e os botões da aplicação concordam agora com o que significa Fechar, Guardar e Concluído.</item>
+    <item>A criação de um painel solicita primeiro e depois oferece as mesmas opções da configuração inicial – assim, um novo painel pode começar a partir de um backup ou de um que a sua família tenha partilhado, além de ser gerado ou deixado vazio. O seu painel atual nunca é substituído e os painéis partilhados são agora marcados como partilhados na lista.</item>
+    <item>O widget de bateria abre uma lista em vez de o levar para uma página separada, agrupada por quão urgente é cada uma e mostrando o tipo de bateria onde Home Assistant a conhece. Há uma caixa de pesquisa e um botão para abrir a vista completa da bateria, se desejar.</item>
+    <item>Tocar no balcão de pessoas de uma sala mostra quem está ali, com a fotografia de cada pessoa. O cabeçalho Salas tem agora também um contador doméstico, mostrando onde todos estão sem abrir todas as divisões.</item>
+    <item>Um botão pode ser deixado de fora dos contadores de Luzes e Dispositivos de uma sala, para aqueles que estão na sala, mas não fazem parte dela.</item>
+    <item>Os widgets que precisam de uma integração que não tem – Fórmula 1, Encomendas, Recolha de Resíduos – ficam cinzentos e dizem o que está em falta, em vez de serem adicionados e depois ficarem vazios.</item>
+    <item>O seguimento de encomendas abrange mais quinze transportadoras, incluindo PostNord, InPost, Swiss Post, An Post, Budbee, Sameday e Nova Post, cada uma com o seu próprio logótipo.</item>
+    <item>Um aspirador robot Valetudo recolhe o seu mapa ao vivo automaticamente quando as suas salas são importadas, em vez de precisar da câmara escolhida manualmente.</item>
+</string-array>
+
 <string-array name="cr_whats_new_1_0_1">
     <item>Deslizar entre os separadores segue agora o seu dedo. As páginas movem-se à medida que arrasta, pode mudar de ideias a meio do movimento e puxá-las para trás, e elas assentam onde as largou. Anteriormente, a mudança era decidida no momento em que se arrastava o suficiente e não se podia voltar atrás, enquanto a animação reproduzida depois estava no seu próprio temporizador e não estava relacionada com o gesto – por isso, a aplicação comprometeu-se com uma página antes de o seu dedo terminar de pedir uma.</item>
     <item>A barra inferior mantém agora a guia selecionada à vista. Num telefone demasiado estreito para cada separador, ele faz rolar o separador ativo para o centro, de modo a que o separador em que se encontra esteja sempre visível juntamente com as suas vizinhas – o que também é uma dica de que há mais páginas para as quais deslizar. Atingir a última guia costumava deixar o indicador algures fora do final da barra.</item>
@@ -3847,4 +3864,31 @@
     <string name="button_style_centered">Centralizado</string>
     <string name="stack_elements_title">Elementos em cada botão desta pilha</string>
     <string name="stack_elements_description">Aplicam-se a toda a pilha, não a um botão. Desativar algo aqui oculta todos os botões da pilha; deixá-lo ativado permite que cada botão decida por si próprio nas suas próprias definições.</string>
+    <string name="energy_extra_currency">Moeda</string>
+    <string name="energy_extra_currency_automatic">Automático</string>
+    <string name="energy_extra_currency_automatic_subtitle">Siga os seus sensores de custo e, em seguida, a região do seu dispositivo</string>
+    <string name="energy_extra_currency_automatic_value">Automático (%1$s)</string>
+    <string name="energy_extra_currency_manual_value">%1$s (%2$s)</string>
+    <string name="energy_extra_currency_search">Pesquisar moedas</string>
+    <string name="energy_extra_currency_subtitle">Em que moeda as estatísticas de custos são mostradas</string>
+    <string name="language_search_no_matches">Nenhum idioma corresponde a “%1$s”</string>
+    <string name="language_search_placeholder">Idiomas de pesquisa</string>
+    <string name="settings_extra_new_dashboard_confirm_action">Continuar</string>
+    <string name="settings_extra_new_dashboard_confirm_body">Isto adiciona um painel ao lado daquele que está a utilizar. O seu painel atual é mantido exatamente como está e nunca é substituído – pode alternar entre eles a qualquer momento.</string>
+    <string name="settings_extra_new_dashboard_created">Criado “%1$s”</string>
+    <string name="cr_button_exclude_counters">Deixe de fora dos contadores</string>
+    <string name="cr_button_exclude_counters_hint">Mantenha o botão pressionado, mas pare a contagem para o total de Luzes e Dispositivos desta sala</string>
+    <string name="cr_people_here_empty">Ninguém está a ser rastreado nesta sala agora.</string>
+    <string name="cr_people_here_title">Quem está aqui</string>
+    <string name="cr_people_here_unknown_room">Quarto desconhecido</string>
+    <string name="cr_widget_requires_f1">Necessita da integração do Sensor F1, que não foi encontrada no seu Home Assistant</string>
+    <string name="cr_widget_requires_parcels">Necessita de integração de pacotes e nada foi encontrado no seu Home Assistant</string>
+    <string name="cr_widget_requires_waste">Necessita de uma integração de recolha de lixo e nada foi encontrado no seu Home Assistant</string>
+    <string name="settings_extra_dashboard_shared_badge">Compartilhado</string>
+    <string name="settings_extra_dashboard_shared_loaded">Partilhado consigo pela sua família. Atualmente carregado</string>
+    <string name="settings_extra_dashboard_shared_subtitle">Partilhado consigo pela sua família. Toque para carregar</string>
+    <string name="uif_onboarding_shared_already_added">Já adicionado</string>
+    <string name="widgets_battery_none">Nenhuma bateria corresponde a esta pesquisa.</string>
+    <string name="widgets_battery_open_page">Abrir página da bateria</string>
+    <string name="widgets_battery_search">Pesquisar dispositivos</string>
 </resources>

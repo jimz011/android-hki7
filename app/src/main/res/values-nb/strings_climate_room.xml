@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="cr_whats_new_1_0_1">
+<string-array name="cr_whats_new_1_1_0">
+    <item>Atten språk til, noe som tar HKI 7 til 36. Polsk, russisk, tsjekkisk, slovakisk, ungarsk, rumensk, bulgarsk, kroatisk, gresk, litauisk, latvisk, estisk, dansk, thai og hebraisk blir med på listen, sammen med østerriksk tysk, sveitsertysk og meksikansk spansk. Hebraisk legger grensesnittet fra høyre mot venstre, slik arabisk gjør.</item>
+    <item>HKI 7 kjører nå på Android 12 og nyere. Den trengte tidligere Android 14, som utelukket mange perfekt kapable telefoner og nettbrett.</item>
+    <item>Energikostnadene vises i din egen valuta i stedet for alltid i euro. HKI 7 følger hva kostnadssensorene dine rapporterer, og det er en Valuta-innstilling i Energiinnstillinger hvis du heller vil velge en selv.</item>
+    <item>Språkvelgeren har en søkeboks og er sortert, som den trengte ved 36 oppføringer. Hvis du noen gang lander på et språk du ikke kan lese, er veien tilbake fortsatt det første på skjermen.</item>
+    <item>Visninger husker hvor du har rullet til, og å trykke på fanen du allerede er på tar deg tilbake til toppen.</item>
+    <item>Sveiping sidelengs fører deg ikke lenger ut av en side du har åpnet, for eksempel Solar inside Energy. Tilbake nå returnerer du til visningen du kom fra i stedet for å hoppe til hjemmesiden.</item>
+    <item>Rullbare rader sier det. Nedtrekksmenyen, navigasjonslinjen og innstillingsfanene viser alle en pil i kanten når det er mer å nå.</item>
+    <item>Dialoger ser ut og oppfører seg likt hele veien. Seks av dem var vanlige Android-dialoger uten lukkeknapp i hjørnet, og knapper på tvers av appen er nå enige om hva Lukk, Lagre og Ferdig betyr.</item>
+    <item>Oppretting av et dashbord spør først og gir deretter de samme valgene som førstegangsoppsett – slik at et nytt dashbord kan starte fra en sikkerhetskopi eller fra en familien din har delt, i tillegg til å bli generert eller stå tom. Det nåværende dashbordet ditt blir aldri overskrevet, og delte dashbord er nå merket som delt i listen.</item>
+    <item>Batteriwidgeten åpner en liste på plass i stedet for å ta deg til en egen side, gruppert etter hvor presserende hver enkelt er og viser batteritypen der Home Assistant kjenner den. Det er en søkeboks og en knapp for å åpne hele batterivisningen hvis du vil ha det.</item>
+    <item>Å trykke på persondisken i et rom viser hvem som er der, med hver persons bilde. Rom-overskriften har nå også en husstandsteller, som viser hvor alle er uten å åpne hvert rom.</item>
+    <item>En knapp kan utelates fra et roms lys- og enhetsdisker, for de som er i rommet, men som egentlig ikke er en del av det.</item>
+    <item>Widgets som trenger en integrasjon du ikke har — Formel 1, Pakker, Avfallssamling — er nedtonet og sier hva som mangler, i stedet for å legges til og så stå tomme.</item>
+    <item>Pakkesporing dekker femten flere transportører, inkludert PostNord, InPost, Swiss Post, An Post, Budbee, Sameday og Nova Post, hver med sin egen logo.</item>
+    <item>En Valetudo robotstøvsuger fanger opp kartet sitt automatisk når rommene dine importeres, i stedet for at kameraet er valgt for hånd.</item>
+</string-array>
+
+<string-array name="cr_whats_new_1_0_1">
         <item>Sveiping mellom fanene følger nå fingeren. Sidene beveger seg mens du drar, du kan ombestemme deg midtveis og trekke dem tilbake, og de legger seg der du slipper. Tidligere ble endringen bestemt i det øyeblikket du hadde dratt langt nok og ikke kunne tas tilbake, mens animasjonen som ble spilt etterpå var på sin egen timer og ikke relatert til gesten - så appen forpliktet seg til en side før fingeren din var ferdig med å be om en.</item>
         <item>Den nederste linjen holder nå den valgte fanen synlig. På en telefon som er for smal for hver fane, ruller den den aktive til midten, slik at fanen du er på alltid er synlig sammen med naboene - som også er hintet om at det er flere sider å sveipe til. Å nå den siste fanen som ble brukt til å forlate indikatoren et sted utenfor enden av stangen.</item>
         <item>Sveiping mellom rom viser hvor mange rom det er og hvilket du er på, som prikker over navigasjonslinjen – eller som en telling når det er flere enn åtte. Romsveiping stopper også ved det siste rommet i stedet for å gå rundt til det første, og samsvarer med hvordan fanene oppfører seg. Rom en administrator har gjemt hoppes nå over av sveipet i stedet for bare blokkert når de åpnes.</item>

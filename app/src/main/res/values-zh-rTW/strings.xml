@@ -1507,7 +1507,6 @@
     <string name="ui_text_98d3f75">✓ %1$s</string>
     <string name="ui_text_9e5a283">%1$s×</string>
     <string name="ui_text_a105b80">%1$s／%2$s</string>
-    <string name="ui_text_b92cdc7">€ %1$s</string>
     <string name="ui_text_be10035"> ・%1$s</string>
     <string name="ui_text_c1aacd9">%1$s・%2$s</string>
     <string name="ui_text_c3328c3">文字</string>
@@ -1866,6 +1865,24 @@
         <item quantity="one">圖表 %1$d · %2$d 個感測器</item>
         <item quantity="other">圖表 %1$d · %2$d 個感測器</item>
     </plurals>
+<string-array name="cr_whats_new_1_1_0">
+    <item>另外還有 18 種語言，從 HKI 7 增加到 36 種。波蘭語、俄語、捷克語、斯洛伐克語、匈牙利語、羅馬尼亞語、保加利亞語、克羅埃西亞語、希臘語、立陶宛語、拉脫維亞語、愛沙尼亞語、丹麥語、泰語和希伯來語以及奧地利德語、瑞士德語和墨西哥西班牙語也加入了這份名單。希伯來語將介面從右向左排列，就像阿拉伯語一樣。</item>
+    <item>HKI 7 現在在 Android 12 及更高版本上運行。它之前需要 Android 14，這排除了許多完美功能的手機和平板電腦。</item>
+    <item>能源成本以您自己的貨幣顯示，而不是始終以歐元顯示。 HKI 7 遵循您的成本感測器報告的內容，如果您想自己選擇一個，則能源設定中有一個貨幣設定。</item>
+    <item>語言選擇器有一個搜尋框並已排序，需要 36 個條目。如果您遇到無法閱讀的語言，返回的路徑仍然是螢幕上的第一個內容。</item>
+    <item>視圖會記住您滾動到的位置，點擊您所在的選項卡即可返回頂部。</item>
+    <item>向側面滑動不再使您離開已開啟的頁面，例如「能源」中的「太陽能」。現在返回可讓您返回原來的視圖，而不是跳到主頁。</item>
+    <item>可滾動的行就是這麼說的。當有更多內容需要存取時，下拉式選單、導覽列和設定標籤都會在邊緣顯示一個箭頭。</item>
+    <item>對話框的外觀和行為始終相同。其中六個是普通的 Android 對話框，角落裡沒有關閉按鈕，應用程式中的按鈕現在就「關閉」、「儲存」和「完成」的含義達成一致。</item>
+    <item>建立儀表板首先會詢問，然後提供與首次設定相同的選擇 - 因此新的儀表板可以從備份或您家人共享的儀表板開始，也可以產生或留空。您目前的儀表板永遠不會被覆蓋，並且共用儀表板現在在清單中標記為共用。</item>
+    <item>電池小部件會打開一個列表，而不是將您帶到單獨的頁面，根據每個頁面的緊急程度進行分組，並顯示 Home Assistant 知道的電池類型。有一个搜索框和一个按钮，可以根据需要打开完整的电池视图。</item>
+    <item>點擊房間內的人數計數器即可顯示誰在場，並附上每個人的照片。房間標題現在也有一個家庭計數器，無需打開每個房間即可顯示每個人的位置。</item>
+    <item>對於房間內但不屬於房間的一部分的按鈕，可以在房間的「燈光和設備」計數器之外留下一個按鈕。</item>
+    <item>需要整合但您沒有的小部件（一級方程式、包裹、廢物收集）會顯示為灰色，並顯示缺少什麼，而不是添加後然後空著。</item>
+    <item>包裹追蹤涵蓋另外 15 家承運商，包括 PostNord、InPost、Swiss Post、An Post、Budbee、Sameday 和 Nova Post，每個承運商都有自己的標誌。</item>
+    <item>當您匯入房間時，Valetudo 機器人吸塵器會自動拾取即時地圖，而不需要手動選擇相機。</item>
+</string-array>
+
 <string-array name="cr_whats_new_1_0_1">
     <item>現在，在選項卡之間滑動可以跟隨您的手指。頁面會隨著您的拖曳而移動，您可以在滑動過程中改變主意並將其拉回，然後它們會固定在您鬆開的位置。以前，更改是在您拖動得足夠遠且無法撤回的那一刻決定的，而隨後播放的動畫是根據其自己的計時器播放的，與手勢無關 - 因此應用程序在您的手指完成請求之前就已提交到頁面。</item>
     <item>底部欄現在將所選選項卡保留在視圖中。在對於每個選項卡都太窄的手機上，它會將活動選項卡滾動到中心，因此您所在的選項卡及其相鄰選項卡始終可見 - 這也暗示有更多頁面可供滑動。到達最後一個標籤時，指示器會離開欄位末端的某個位置。</item>
@@ -3844,4 +3861,31 @@
     <string name="button_style_centered">居中</string>
     <string name="stack_elements_title">該堆疊中每個按鈕上的元素</string>
     <string name="stack_elements_description">這些適用於整個堆疊，而不是單一按鈕。在這裡關閉某些功能會將其隱藏在堆疊中的每個按鈕上；保持開啟狀態可讓每個按鈕在自己的設定中自行決定。</string>
+    <string name="energy_extra_currency">貨幣</string>
+    <string name="energy_extra_currency_automatic">自動的</string>
+    <string name="energy_extra_currency_automatic_subtitle">遵循您的成本感測器，然後是您的設備區域</string>
+    <string name="energy_extra_currency_automatic_value">自動 (%1$s)</string>
+    <string name="energy_extra_currency_manual_value">%1$s (%2$s)</string>
+    <string name="energy_extra_currency_search">搜尋貨幣</string>
+    <string name="energy_extra_currency_subtitle">費用統計以哪種貨幣顯示</string>
+    <string name="language_search_no_matches">沒有語言匹配“%1$s”</string>
+    <string name="language_search_placeholder">搜尋語言</string>
+    <string name="settings_extra_new_dashboard_confirm_action">繼續</string>
+    <string name="settings_extra_new_dashboard_confirm_body">這會在您正在使用的儀表板旁邊新增一個儀表板。您目前的儀表板完全保持原樣，並且永遠不會被覆蓋 - 您可以隨時在它們之間切換。</string>
+    <string name="settings_extra_new_dashboard_created">建立“%1$s”</string>
+    <string name="cr_button_exclude_counters">離開櫃檯</string>
+    <string name="cr_button_exclude_counters_hint">保留按鈕，但停止計入該房間的燈光和設備總數</string>
+    <string name="cr_people_here_empty">現在這個房間裡沒有人被追蹤。</string>
+    <string name="cr_people_here_title">誰在這裡</string>
+    <string name="cr_people_here_unknown_room">房間未知</string>
+    <string name="cr_widget_requires_f1">需要 F1 感測器集成，但在您的 Home Assistant 上找不到</string>
+    <string name="cr_widget_requires_parcels">需要包裹集成，但在您的 Home Assistant 上找不到任何包裹</string>
+    <string name="cr_widget_requires_waste">需要廢棄物收集集成，但在您的 Home Assistant 上沒有找到任何廢棄物收集集成</string>
+    <string name="settings_extra_dashboard_shared_badge">共享</string>
+    <string name="settings_extra_dashboard_shared_loaded">您的家人與您分享。目前已加載</string>
+    <string name="settings_extra_dashboard_shared_subtitle">您的家人與您分享。點擊加載</string>
+    <string name="uif_onboarding_shared_already_added">已新增</string>
+    <string name="widgets_battery_none">沒有與該搜尋相符的電池。</string>
+    <string name="widgets_battery_open_page">開啟電池頁面</string>
+    <string name="widgets_battery_search">搜尋設備</string>
 </resources>

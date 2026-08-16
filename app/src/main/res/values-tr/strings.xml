@@ -73,6 +73,14 @@
     <string name="stack_show_icon_description">Başlığın yanındaki simge.</string>
     <string name="stack_center_title">Başlığı ortala</string>
     <string name="stack_center_title_description">Simgeyi ve adı sol kenar yerine ortaya koyar.</string>
+    <string name="cr_widget_requires_f1">Home Assistant cihazınızda bulunmayan F1 Sensör entegrasyonu gerekiyor</string>
+    <string name="cr_widget_requires_parcels">Paket entegrasyonu gerekiyor ve Home Assistant cihazınızda hiçbiri bulunamadı</string>
+    <string name="cr_widget_requires_waste">Atık toplama entegrasyonu gerekiyor ve Home Assistant cihazınızda hiçbiri bulunamadı</string>
+    <string name="cr_people_here_title">Kim burada</string>
+    <string name="cr_people_here_empty">Şu anda bu odada kimse takip edilmiyor.</string>
+    <string name="cr_people_here_unknown_room">Oda bilinmiyor</string>
+    <string name="cr_button_exclude_counters">Sayaçların dışında bırakın</string>
+    <string name="cr_button_exclude_counters_hint">Düğmeyi koruyun ancak bu odanın Işıklar ve Cihazlar toplamlarına dahil edilmesini bırakın</string>
     <string name="core_greeting_morning">Günaydın</string>
     <string name="core_greeting_afternoon">Tünaydın</string>
     <string name="core_greeting_evening">İyi akşamlar</string>
@@ -102,6 +110,13 @@
     <string name="energy_extra_sensor_city_heating_cost">Şehir ısıtma maliyeti</string>
     <string name="energy_extra_estimated_gas_equivalent">Tahmini gaz eşdeğeri</string>
     <string name="energy_extra_estimated_gas_note">Doğal gazın m³ başına 35,17 MJ\'e dayanmaktadır</string>
+    <string name="energy_extra_currency">Para birimi</string>
+    <string name="energy_extra_currency_subtitle">Maliyet istatistikleri hangi para biriminde gösterilir?</string>
+    <string name="energy_extra_currency_search">Para birimlerini arayın</string>
+    <string name="energy_extra_currency_automatic">Otomatik</string>
+    <string name="energy_extra_currency_automatic_subtitle">Maliyet sensörlerinizi ve ardından cihaz bölgenizi takip edin</string>
+    <string name="energy_extra_currency_automatic_value">Otomatik (%1$s)</string>
+    <string name="energy_extra_currency_manual_value">%1$s (%2$s)</string>
     <string name="events_tab">Olaylar</string>
     <string name="events_empty">Henüz etkinlik yok</string>
     <string name="events_empty_hint">Aile yöneticinizin zaman çizelgesine eklediği varlıklara ilişkin son etkinlikler burada görünür.</string>
@@ -1397,7 +1412,6 @@
     <string name="ui_text_98d3f75">✓ %1$s</string>
     <string name="ui_text_9e5a283">%1$s×</string>
     <string name="ui_text_a105b80">%1$s/%2$s</string>
-    <string name="ui_text_b92cdc7">€ %1$s</string>
     <string name="ui_text_be10035">· %1$s</string>
     <string name="ui_text_c1aacd9">%1$s · %2$s</string>
     <string name="ui_text_c3328c3">Metin</string>
@@ -1613,6 +1627,13 @@
     <string name="app_update_required_opened_store">Google Play burayı devralamadığı için onun yerine mağaza sayfası açıldı.</string>
     <string name="app_update_required_unavailable">Google Play\'in henüz bu cihaz için hazır bir güncellemesi yok. Bu genellikle sürümün size ulaşmadığı veya HKI\'nin bu kopyasının Play Store\'dan gelmediği anlamına gelir.</string>
     <string name="app_update_required_continue">Güncellemeden devam et</string>
+    <string name="settings_extra_new_dashboard_confirm_body">Bu, kullandığınız kontrol panelinin yanına bir kontrol paneli ekler. Mevcut kontrol paneliniz tam olarak olduğu gibi tutulur ve üzerine hiçbir zaman yazılmaz; bunlar arasında istediğiniz zaman geçiş yapabilirsiniz.</string>
+    <string name="settings_extra_new_dashboard_confirm_action">Devam etmek</string>
+    <string name="settings_extra_new_dashboard_created">“%1$s” oluşturuldu</string>
+    <string name="uif_onboarding_shared_already_added">Zaten eklendi</string>
+    <string name="settings_extra_dashboard_shared_badge">Paylaşıldı</string>
+    <string name="settings_extra_dashboard_shared_subtitle">Aileniz tarafından sizinle paylaşıldı. Yüklemek için dokunun</string>
+    <string name="settings_extra_dashboard_shared_loaded">Aileniz tarafından sizinle paylaşıldı. Şu anda yüklü</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s yüklü</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud yüklü (sürümünü görmek için güncelleyin)</string>
     <string name="settings_extra_hki_cloud_update_to_unlock">Kilidi açmak için güncelleme:</string>
@@ -1625,6 +1646,8 @@
     <string name="settings_extra_hki_cloud_feature_required_version">Ailenin belirli bir HKI sürümüne güncelleme yapmasını zorunlu kılma</string>
     <string name="settings_extra_hki_cloud_feature_events">Etkinlik zaman çizelgesi ve bazı bölümlerinin bireysel kişilerden gizlenmesi</string>
     <string name="settings_extra_hki_cloud_tab_requires">HKI 7 Cloud v%1$s veya daha yenisine ihtiyaç var. Bileşeni HACS\'ta güncelleyin; o zamana kadar burada ayarladığınız ayarlar geçerli olmayacaktır.</string>
+    <string name="language_search_placeholder">Dilleri ara</string>
+    <string name="language_search_no_matches">“%1$s” ile eşleşen dil yok</string>
     <string name="settings_extra_policy_needs_component_update_events">İzinler kaydedildi, ancak bu HKI 7 Bulutu, etkinlikleri bu kişiden gizlemek için çok eski; bu kişi tüm zaman çizelgesini görebilir. Kısıtlamayı uygulamak için güncelleyin.</string>
     <string name="settings_extra_tab_events">Olaylar</string>
     <string name="settings_extra_events_title">Etkinlik zaman çizelgesi</string>
@@ -1804,4 +1827,7 @@
     <string name="widgets_waste_calendar_days">%1$d gün</string>
     <string name="widgets_waste_calendar_range_help">Diyaloğun takviminin ne kadar ileride göründüğü. Tam haftalara yuvarlanmış bir hafta tablosu olarak gösterilir.</string>
     <string name="widgets_waste_no_collection_on">%1$s üzerinde tahsilat yok</string>
+    <string name="widgets_battery_search">Cihazları arayın</string>
+    <string name="widgets_battery_none">Bu aramayla eşleşen pil yok.</string>
+    <string name="widgets_battery_open_page">Pil sayfasını aç</string>
 </resources>

@@ -18,4 +18,22 @@
     <locale android:name="sv"/>
     <locale android:name="fi"/>
     <locale android:name="ar"/>
+    <locale android:name="pl"/>
+    <locale android:name="he"/>
+    <locale android:name="ru"/>
+    <locale android:name="th"/>
+    <locale android:name="ro"/>
+    <locale android:name="hu"/>
+    <locale android:name="bg"/>
+    <locale android:name="el"/>
+    <locale android:name="cs"/>
+    <locale android:name="sk"/>
+    <locale android:name="lt"/>
+    <locale android:name="da"/>
+    <locale android:name="et"/>
+    <locale android:name="lv"/>
+    <locale android:name="hr"/>
+    <locale android:name="de-CH"/>
+    <locale android:name="de-AT"/>
+    <locale android:name="es-MX"/>
 </locale-config>

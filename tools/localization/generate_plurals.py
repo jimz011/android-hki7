@@ -13,10 +13,13 @@ from __future__ import annotations
 import json
 import re
 import time
-import urllib.parse
-import urllib.request
 import xml.etree.ElementTree as ET
 from pathlib import Path
+
+# One implementation of the protection scheme, shared with the other scripts: it is what keeps
+# format arguments positional and product names untranslated, and a second copy here drifted
+# from it — this one had neither the loosened token fences nor any product-name protection.
+from generate_translations import android_escape, translate_one
 
 ROOT = Path(__file__).resolve().parents[2]
 RES = ROOT / "app/src/main/res"
@@ -32,10 +35,32 @@ PLURAL_CATEGORIES = {
     # the remaining categories reuse the plural wording: imperfect Arabic grammar for two/few/many,
     # but always Arabic, which beats falling through to English mid-sentence.
     "ar": ("zero", "one", "two", "few", "many", "other"),
+    # CLDR cardinal categories per language. Getting these wrong is silent: a category Android wants
+    # but cannot find falls through to the English resource, so the sentence switches language at
+    # particular counts. Where a language's set has shrunk between CLDR releases the wider set is
+    # written, since a category Android no longer asks for is merely unused.
+    "bg": ("one", "other"),
+    "da": ("one", "other"),
+    "el": ("one", "other"),
+    "et": ("one", "other"),
+    "hu": ("one", "other"),
+    # Thai has no grammatical plural at all, like Japanese and Korean.
+    "th": ("other",),
+    # Latvian uses a distinct form for zero.
+    "lv": ("zero", "one", "other"),
+    # One / a paucal 2-4 / everything else — the South-Slavic and Romanian shape.
+    "hr": ("one", "few", "other"),
+    "ro": ("one", "few", "other"),
+    # The West/East-Slavic shape: one, a paucal 2-4, a "many" for 5+, and other for fractions.
+    "cs": ("one", "few", "many", "other"),
+    "lt": ("one", "few", "many", "other"),
+    "pl": ("one", "few", "many", "other"),
+    "ru": ("one", "few", "many", "other"),
+    "sk": ("one", "few", "many", "other"),
+    # Hebrew had a "many" for multiples of ten until CLDR dropped it; both are written.
+    "iw": ("one", "two", "many", "other"),
 }
 LOCALES = tuple(PLURAL_CATEGORIES)
-# Android resource qualifier -> translation endpoint code, for the few that differ.
-TRANSLATE_TARGETS = {"nb": "no"}
 FORMAT_ARGUMENT = re.compile(r"%\d+\$[a-zA-Z]")
 ZERO_WIDTH = re.compile("[" + chr(0x200B) + "-" + chr(0x200D) + chr(0xFEFF) + "]")
 
@@ -61,60 +86,7 @@ def load_source_plurals() -> dict[str, dict[str, str]]:
     return plurals
 
 
-def protected_text(value: str) -> tuple[str, list[str]]:
-    arguments = FORMAT_ARGUMENT.findall(value)
-    protected = value
-    for index, argument in enumerate(arguments):
-        protected = protected.replace(argument, f"__HKI_ARG_{index}__", 1)
-    return protected, arguments
 
-
-def restore_arguments(value: str, arguments: list[str]) -> str:
-    for index, argument in enumerate(arguments):
-        token_pattern = re.compile(rf"__\s*HKI\s*_\s*ARG\s*_\s*{index}\s*__", re.IGNORECASE)
-        value, count = token_pattern.subn(argument, value, count=1)
-        if count != 1:
-            raise RuntimeError(f"Translation lost format argument {argument}: {value!r}")
-    return value
-
-
-def translate_one(locale: str, value: str) -> str:
-    if not re.search(r"[^\W\d_]", value, re.UNICODE):
-        return value
-    protected, arguments = protected_text(value)
-    query = urllib.parse.urlencode(
-        {
-            "client": "gtx",
-            "sl": "en",
-            "tl": TRANSLATE_TARGETS.get(locale, locale),
-            "dt": "t",
-            "q": protected,
-        }
-    )
-    request = urllib.request.Request(
-        "https://translate.googleapis.com/translate_a/single?" + query,
-        headers={"User-Agent": "Mozilla/5.0 HKI7-localization"},
-    )
-    last_error: Exception | None = None
-    for attempt in range(5):
-        try:
-            with urllib.request.urlopen(request, timeout=25) as response:
-                payload = json.loads(response.read().decode("utf-8"))
-            translated = "".join(part[0] for part in payload[0] if part[0])
-            return restore_arguments(translated, arguments)
-        except Exception as error:
-            last_error = error
-            time.sleep(0.5 * (attempt + 1))
-    raise RuntimeError(f"Could not translate {value!r} to {locale}") from last_error
-
-
-def android_escape(value: str) -> str:
-    value = ZERO_WIDTH.sub("", value)
-    value = value.replace("\\", "\\\\")
-    value = value.replace("\n", "\\n").replace("\r", "")
-    value = value.replace("'", "\\'")
-    value = value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-    return value
 
 
 def main() -> None:

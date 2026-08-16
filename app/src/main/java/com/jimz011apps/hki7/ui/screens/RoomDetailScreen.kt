@@ -808,7 +808,6 @@ fun RoomDetailScreen(
                 registry = entityRegistry,
                 devices = deviceRegistry,
                 isEditMode = isEditMode,
-                onOpen = { navController.navigate(Screen.Battery.WIDGET_ROUTE) },
                 onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
                 onSettings = { editingBatteryWidget = parent.id to child }
             )
@@ -929,9 +928,11 @@ fun RoomDetailScreen(
     val mediaSummary = remember(mediaPlayers) { resolveRoomMediaStatus(mediaPlayers) }
     val mediaStatus = mediaSummary.localizedText()
     val peopleByArea by viewModel.peopleByAreaId.collectAsState()
+    val peopleIdsByArea by viewModel.peopleEntityIdsByAreaId.collectAsState()
     val peopleHere = peopleByArea[areaId] ?: 0
-    val roomSummary = remember(areaConfig, allEntities, areaWidgets, peopleHere) {
-        resolveRoomStatus(areaConfig, allEntities, displayedRoomControlEntityIds(areaWidgets), peopleHere)
+    val peopleHereIds = peopleIdsByArea[areaId].orEmpty()
+    val roomSummary = remember(areaConfig, allEntities, areaWidgets, peopleHere, peopleHereIds) {
+        resolveRoomStatus(areaConfig, allEntities, displayedRoomControlEntityIds(areaWidgets), peopleHere, peopleHereIds)
     }
     HKIPage(
         viewModel = viewModel,
@@ -1118,7 +1119,6 @@ fun RoomDetailScreen(
                                     registry = entityRegistry,
                                     devices = deviceRegistry,
                                     isEditMode = false,
-                                    onOpen = { navController.navigate(Screen.Battery.WIDGET_ROUTE) },
                                     onDelete = {},
                                     onSettings = {}
                                 )
@@ -1351,7 +1351,6 @@ fun RoomDetailScreen(
                             registry = entityRegistry,
                             devices = deviceRegistry,
                             isEditMode = isEditMode,
-                            onOpen = { navController.navigate(Screen.Battery.WIDGET_ROUTE) },
                             onDelete = { viewModel.deleteWidget(areaId, widget.id) },
                             onSettings = { editingBatteryWidget = null to widget }
                         )
@@ -2915,6 +2914,10 @@ private data class PickerWidget(
     val keywords: String,
     val category: WidgetPickerCategory,
     val isStack: Boolean = false,
+    /** Set when the widget cannot do anything on this Home Assistant — the integration behind it
+     *  is not installed. The row stays listed and says why, rather than being added and then
+     *  sitting empty with no explanation. */
+    @param:StringRes val unavailableReason: Int? = null,
     val onSelect: () -> Unit
 ) {
     fun matches(query: String, title: String, subtitle: String): Boolean =
@@ -3040,6 +3043,39 @@ fun AddRoomWidgetDialog(
     // Single source of truth for the picker: the default view groups these, the search field
     // flattens them. Keywords add synonyms that aren't in the visible title/description.
     // Both groups are shown alphabetically by title.
+    // Widgets that only work against a specific Home Assistant integration are listed but disabled
+    // when it is absent, with the reason shown — adding one otherwise produces an empty card and no
+    // explanation. Detection is deliberately generous: leaving a usable widget greyed out is a worse
+    // failure than offering one that turns out to have nothing to show.
+    val sensorLikeEntities = remember(allEntities) {
+        allEntities.filter { it.entity_id.startsWith("sensor.") || it.entity_id.startsWith("calendar.") }
+    }
+    val f1UnavailableReason = remember(sensorLikeEntities) {
+        val present = sensorLikeEntities.any { entity ->
+            entity.entity_id.startsWith("sensor.f1_") ||
+                entity.friendlyName?.contains("formula 1", ignoreCase = true) == true
+        }
+        if (present) null else R.string.cr_widget_requires_f1
+    }
+    val parcelsUnavailableReason = remember(sensorLikeEntities) {
+        // Reuses the carrier matcher the widget itself uses, so the picker and the widget agree
+        // about what counts as a carrier.
+        val present = sensorLikeEntities.any { entity ->
+            carrierKey(entity.friendlyName ?: entity.entity_id) != "parcel"
+        }
+        if (present) null else R.string.cr_widget_requires_parcels
+    }
+    val wasteUnavailableReason = remember(sensorLikeEntities) {
+        // No single waste integration: afvalbeheer, afvalwijzer and the regional ones all publish
+        // ordinary sensors, and the widget lets you pick them by hand, so match on what they are
+        // called rather than on a platform.
+        val keywords = listOf("afval", "waste", "trash", "garbage", "vuilnis", "gft", "restafval", "container")
+        val present = sensorLikeEntities.any { entity ->
+            val text = "${entity.entity_id} ${entity.friendlyName.orEmpty()}"
+            keywords.any { text.contains(it, ignoreCase = true) }
+        }
+        if (present) null else R.string.cr_widget_requires_waste
+    }
     val topWidgets = buildList {
         if (onAddAdaptiveLightingWidget != null) add(
             PickerWidget(
@@ -3052,11 +3088,11 @@ fun AddRoomWidgetDialog(
         )
         add(PickerWidget(Icons.Default.Lightbulb, R.string.cr_widget_button, R.string.cr_widget_button_description, "toggle switch control single entity light", WidgetPickerCategory.CONTROLS) { onAddButtonWidget?.invoke() ?: run { stackTitle = ""; stackIcon = "None"; configureWidget = "button" } })
         if (onAddCalendarWidget != null) add(PickerWidget(Icons.Default.CalendarMonth, R.string.cr_widget_calendar, R.string.cr_widget_calendar_description, "events schedule date agenda month week appointments", WidgetPickerCategory.INFORMATION) { onAddCalendarWidget.invoke(); onDismiss() })
-        if (onAddWasteWidget != null) add(PickerWidget(Icons.Default.DeleteSweep, R.string.cr_widget_waste_collection, R.string.cr_widget_waste_collection_description, "waste afval trash garbage gft pmd papier rest collection pickup afvalbeheer", WidgetPickerCategory.INFORMATION) { onAddWasteWidget.invoke(); onDismiss() })
+        if (onAddWasteWidget != null) add(PickerWidget(Icons.Default.DeleteSweep, R.string.cr_widget_waste_collection, R.string.cr_widget_waste_collection_description, "waste afval trash garbage gft pmd papier rest collection pickup afvalbeheer", WidgetPickerCategory.INFORMATION, unavailableReason = wasteUnavailableReason) { onAddWasteWidget.invoke(); onDismiss() })
         if (onAddFindDevicesWidget != null) add(PickerWidget(Icons.Default.MyLocation, R.string.cr_widget_find_devices, R.string.cr_widget_find_devices_description, "find my devices tracker location map gps phone watch tag lost zoeken locatie", WidgetPickerCategory.INFORMATION) { onAddFindDevicesWidget.invoke(); onDismiss() })
-        if (onAddF1Widget != null) add(PickerWidget(Icons.Default.SportsScore, R.string.cr_widget_f1, R.string.cr_widget_f1_description, "f1 formula 1 one racing grand prix race standings drivers constructors circuit kwalificatie autosport", WidgetPickerCategory.INFORMATION) { onAddF1Widget.invoke(); onDismiss() })
+        if (onAddF1Widget != null) add(PickerWidget(Icons.Default.SportsScore, R.string.cr_widget_f1, R.string.cr_widget_f1_description, "f1 formula 1 one racing grand prix race standings drivers constructors circuit kwalificatie autosport", WidgetPickerCategory.INFORMATION, unavailableReason = f1UnavailableReason) { onAddF1Widget.invoke(); onDismiss() })
         if (onAddTodoWidget != null) add(PickerWidget(Icons.AutoMirrored.Filled.FormatListBulleted, R.string.cr_widget_todo, R.string.cr_widget_todo_description, "todo to-do checklist shopping list groceries tasks chores family shared reminders", WidgetPickerCategory.INFORMATION) { onAddTodoWidget.invoke(); onDismiss() })
-        if (onAddParcelsWidget != null) add(PickerWidget(Icons.Default.LocalShipping, R.string.cr_widget_parcels, R.string.cr_widget_parcels_description, "packages delivery mail carrier tracking shipment", WidgetPickerCategory.INFORMATION) { onAddParcelsWidget.invoke(); onDismiss() })
+        if (onAddParcelsWidget != null) add(PickerWidget(Icons.Default.LocalShipping, R.string.cr_widget_parcels, R.string.cr_widget_parcels_description, "packages delivery mail carrier tracking shipment", WidgetPickerCategory.INFORMATION, unavailableReason = parcelsUnavailableReason) { onAddParcelsWidget.invoke(); onDismiss() })
         add(PickerWidget(Icons.Default.CameraAlt, R.string.cr_widget_camera, R.string.cr_widget_camera_description, "video stream live cctv feed", WidgetPickerCategory.CAMERAS) { onAddCameraWidget?.invoke() ?: run { cameraTitle = ""; cameraIcon = "None"; configureWidget = "camera" } })
         if (onAddClimateCard != null) add(PickerWidget(Icons.Default.Thermostat, R.string.cr_widget_climate_card, R.string.cr_widget_climate_card_description, "climate temperature humidity thermostat heating cooling sensors air", WidgetPickerCategory.CLIMATE) { climatePickerSelection = emptyList(); widgetGroup = "climate_card" })
         if (onAddEnergyCard != null) add(PickerWidget(Icons.Default.ElectricBolt, R.string.cr_widget_energy_card, R.string.cr_widget_energy_card_description, "power usage solar gas water consumption electricity", WidgetPickerCategory.ENERGY) { energyPickerSelection = emptyList(); widgetGroup = "energy_card" })
@@ -3247,8 +3283,9 @@ fun AddRoomWidgetDialog(
                                 WidgetChoice(
                                     w.icon,
                                     stringResource(w.titleRes),
-                                    stringResource(w.subtitleRes),
-                                    w.onSelect
+                                    stringResource(w.unavailableReason ?: w.subtitleRes),
+                                    enabled = w.unavailableReason == null,
+                                    onClick = w.onSelect
                                 )
                             }
                         }
@@ -3271,8 +3308,9 @@ fun AddRoomWidgetDialog(
                                     WidgetChoice(
                                         widget.icon,
                                         stringResource(widget.titleRes),
-                                        stringResource(widget.subtitleRes),
-                                        widget.onSelect
+                                        stringResource(widget.unavailableReason ?: widget.subtitleRes),
+                                        enabled = widget.unavailableReason == null,
+                                        onClick = widget.onSelect
                                     )
                                 }
                             }
@@ -3282,8 +3320,9 @@ fun AddRoomWidgetDialog(
                                     WidgetChoice(
                                         widget.icon,
                                         stringResource(widget.titleRes),
-                                        stringResource(widget.subtitleRes),
-                                        widget.onSelect
+                                        stringResource(widget.unavailableReason ?: widget.subtitleRes),
+                                        enabled = widget.unavailableReason == null,
+                                        onClick = widget.onSelect
                                     )
                                 }
                             }
@@ -3496,8 +3535,8 @@ fun AddRoomWidgetDialog(
 }
 
 @Composable
-fun WidgetChoice(icon: ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
-    ModernSettingsMenuItem(icon = icon, title = title, subtitle = subtitle, onClick = onClick)
+fun WidgetChoice(icon: ImageVector, title: String, subtitle: String, enabled: Boolean = true, onClick: () -> Unit) {
+    ModernSettingsMenuItem(icon = icon, title = title, subtitle = subtitle, enabled = enabled, onClick = onClick)
 }
 
 @Composable
@@ -3555,6 +3594,7 @@ fun ButtonConfigDialog(
     var refreshInterval by remember(config) { mutableIntStateOf(config.cameraRefreshInterval) }
     var iconName by remember(config) { mutableStateOf(config.icon ?: "None") }
     var iconAnimation by remember(config) { mutableStateOf(config.iconAnimation) }
+    var excludeFromCounters by remember(config) { mutableStateOf(config.excludeFromCounters) }
     var visSpec by remember(config) { mutableStateOf(config.toVisibilitySpec()) }
     val isLightEntity = entity?.entity_id?.startsWith("light.") == true
     var iconSize by remember(config) { mutableIntStateOf(config.iconSize) }
@@ -3960,6 +4000,17 @@ fun ButtonConfigDialog(
                             Switch(checked = showBrightnessSlider, onCheckedChange = { showBrightnessSlider = it })
                         }
                     }
+                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Column(Modifier.weight(1f)) {
+                            Text(stringResource(R.string.cr_button_exclude_counters), style = MaterialTheme.typography.labelLarge)
+                            Text(
+                                stringResource(R.string.cr_button_exclude_counters_hint),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Switch(checked = excludeFromCounters, onCheckedChange = { excludeFromCounters = it })
+                    }
                 }
                 if (settingsPage == "visibility") {
                     SettingsSubcategory(stringResource(R.string.ui_visibility_7d9ff4f), stringResource(R.string.ui_hide_this_button_or_schedule_when_it_appears_a28bf66))
@@ -4091,6 +4142,7 @@ fun ButtonConfigDialog(
                             timerStateEntityId = if (isCameraItem || isVacuumItem) config.timerStateEntityId else timerStateEntityId,
                             icon = if (isCameraItem || isVacuumItem) config.icon else iconName.takeUnless { it == "None" },
                             iconAnimation = iconAnimation,
+                            excludeFromCounters = excludeFromCounters,
                             // The legacy flag is cleared on save: this button now says what it is
                             // through its style, and leaving both set would make a later change
                             // away from Compact silently fail to take effect.

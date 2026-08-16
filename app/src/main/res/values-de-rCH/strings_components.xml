@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="global_search_browse_entities">
+        <item quantity="one">%1$d Entität auf diesem Gerät anzeigen</item>
+        <item quantity="other">%1$d Entitäten auf diesem Gerät anzeigen</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="one">%1$d Entität</item>
+        <item quantity="other">%1$d Entitäten</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="one">%1$d Raum</item>
+        <item quantity="other">%1$d Räume</item>
+    </plurals>
+</resources>

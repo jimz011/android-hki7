@@ -332,6 +332,24 @@
     <string name="cr_quick_make_it_yours">Maak het van jou</string>
     <string name="cr_quick_make_it_yours_instruction">Voeg in de bewerkmodus kamers, verdiepingen en widgets toe of wijzig hun volgorde. Tik op een onderdeel om het in te stellen.</string>
 
+<string-array name="cr_whats_new_1_1_0">
+    <item>Nog achttien talen, wat HKI 7 naar 36 brengt. Pools, Russisch, Tsjechisch, Slowaaks, Hongaars, Roemeens, Bulgaars, Kroatisch, Grieks, Litouws, Lets, Ests, Deens, Thais en Hebreeuws voegen zich bij de lijst, samen met Oostenrijks Duits, Zwitserduits en Mexicaans Spaans. Het Hebreeuws legt de interface van rechts naar links uit, zoals het Arabisch dat doet.</item>
+    <item>HKI 7 draait nu op Android 12 en hoger. Voorheen was Android 14 nodig, waardoor veel perfect capabele telefoons en tablets werden uitgesloten.</item>
+    <item>Energiekosten worden weergegeven in uw eigen valuta in plaats van altijd in euro\'s. HKI 7 volgt wat uw kostensensoren rapporteren, en er is een Valuta-instelling in de Energie-instellingen als u er liever zelf een kiest.</item>
+    <item>De taalkiezer heeft een zoekvak en is gesorteerd, wat nodig was op 36 vermeldingen. Als je ooit in een taal terechtkomt die je niet kunt lezen, is de terugweg nog steeds het eerste wat op het scherm verschijnt.</item>
+    <item>Weergaven onthouden waar u naartoe bent gescrolld en als u op het tabblad tikt waar u zich al bevindt, gaat u terug naar het begin.</item>
+    <item>Als u zijwaarts veegt, verlaat u niet langer een pagina die u hebt geopend, zoals Solar inside Energy. Terug nu keert u terug naar de weergave waar u vandaan kwam in plaats van naar de startpagina te springen.</item>
+    <item>Scrollbare rijen zeggen dat. Het vervolgkeuzemenu, de navigatiebalk en de instellingentabbladen tonen allemaal een pijl aan de rand als er meer te bereiken is.</item>
+    <item>Dialogen zien er overal hetzelfde uit en gedragen zich hetzelfde. Zes ervan waren eenvoudige Android-dialogen zonder sluitknop in de hoek, en knoppen in de app zijn het nu eens over wat Sluiten, Opslaan en Klaar betekenen.</item>
+    <item>Bij het maken van een dashboard wordt eerst gevraagd en vervolgens worden dezelfde keuzes geboden als bij de eerste installatie. Een nieuw dashboard kan dus beginnen vanaf een back-up of vanaf een dashboard dat uw gezin heeft gedeeld, maar ook worden gegenereerd of leeg worden gelaten. Uw huidige dashboard wordt nooit overschreven en gedeelde dashboards worden nu in de lijst gemarkeerd als gedeeld.</item>
+    <item>De batterijwidget opent een lijst in plaats van u naar een aparte pagina te brengen, gegroepeerd op hoe urgent elke pagina is en toont het batterijtype waar Home Assistant dit weet. Er is een zoekvak en een knop om de volledige batterijweergave te openen als je dat wilt.</item>
+    <item>Door op de personenteller in een kamer te tikken, wordt weergegeven wie daar aanwezig is, met de foto van elke persoon. De kop Kamers heeft nu ook een huishoudteller, die laat zien waar iedereen is zonder elke kamer te openen.</item>
+    <item>Er kan een knop worden weggelaten uit de lampen- en apparatentellers van een kamer, voor degenen die zich in de kamer bevinden maar er niet echt deel van uitmaken.</item>
+    <item>Widgets die een integratie nodig hebben die jij niet hebt – Formule 1, Pakketten, Afvalinzameling – zijn grijs en geven aan wat er ontbreekt, in plaats van dat ze worden toegevoegd en vervolgens leeg blijven.</item>
+    <item>Pakkettracking omvat nog eens vijftien vervoerders, waaronder PostNord, InPost, Swiss Post, An Post, Budbee, Sameday en Nova Post, elk met een eigen logo.</item>
+    <item>Een Valetudo robotstofzuiger pikt zijn live-kaart automatisch op wanneer uw kamers worden geïmporteerd, in plaats van dat hij de handmatig gekozen camera nodig heeft.</item>
+</string-array>
+
 <string-array name="cr_whats_new_1_0_1">
     <item>Vegen tussen tabbladen volgt nu uw vinger. De pagina\'s bewegen terwijl u sleept, u kunt tijdens het vegen van gedachten veranderen en ze terugtrekken, en ze blijven hangen waar u ze loslaat. Voorheen werd de wijziging besloten op het moment dat je ver genoeg had gesleept en niet kon worden teruggenomen, terwijl de animatie die daarna werd afgespeeld een eigen timer had en geen verband hield met het gebaar - dus de app legde zich vast aan een pagina voordat je vinger erom had gevraagd.</item>
     <item>De onderste balk houdt nu het geselecteerde tabblad in beeld. Op een telefoon die te smal is voor elk tabblad, schuift hij het actieve tabblad naar het midden, zodat het tabblad waarop je je bevindt altijd zichtbaar is, samen met de buren - wat ook de hint is dat er meer pagina\'s zijn om naartoe te vegen. Als u het laatste tabblad bereikt, blijft de indicator ergens aan het einde van de balk achter.</item>

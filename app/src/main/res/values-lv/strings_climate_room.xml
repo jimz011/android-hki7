@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="cr_whats_new_1_1_0">
+        <item>Vēl astoņpadsmit valodas, sākot no HKI 7 līdz 36. Poļu, krievu, čehu, slovāku, ungāru, rumāņu, bulgāru, horvātu, grieķu, lietuviešu, latviešu, igauņu, dāņu, taju un ebreju valoda pievienojas sarakstam, kā arī Austrijas vācu, Šveices vācu un meksikāņu spāņu valoda. Ebreju valoda interfeisu veido no labās puses uz kreiso, tāpat kā arābu valodā.</item>
+        <item>HKI 7 tagad darbojas operētājsistēmā Android 12 un jaunākās versijās. Tam iepriekš bija nepieciešama operētājsistēma Android 14, kas izslēdza daudzus lieliski spējīgus tālruņus un planšetdatorus.</item>
+        <item>Enerģijas izmaksas tiek rādītas jūsu valūtā, nevis vienmēr eiro. HKI 7 seko jūsu izmaksu sensoru ziņojumiem, un Enerģijas iestatījumos ir iestatījums Valūta, ja vēlaties to izvēlēties pats.</item>
+        <item>Valodas atlasītājam ir meklēšanas lodziņš, un tas ir sakārtots atbilstoši 36 ierakstiem. Ja kādreiz nonākat valodā, kuru neprotat lasīt, ceļš atpakaļ joprojām ir pirmais ekrānā.</item>
+        <item>Skati atceras, kur bijāt ritinājis, un, pieskaroties jau atvērtajai cilnei, tiekat atpakaļ uz sākumu.</item>
+        <item>Velkot uz sāniem, jūs vairs netiekat prom no atvērtās lapas, piemēram, Saules enerģija iekšienē. Atgriezties tagad atgriežas skatā, no kura nācāt, nevis pāriet uz sākumlapu.</item>
+        <item>Ritināmās rindas to saka. Nolaižamajā izvēlnē, navigācijas joslā un iestatījumu cilnēs malās ir redzama bultiņa, kad ir vēl vairāk.</item>
+        <item>Dialogi izskatās un darbojas vienādi. Seši no tiem bija vienkārši Android dialoglodziņi bez aizvēršanas pogas stūrī, un pogas visā lietotnē tagad vienojas par to, ko nozīmē Aizvērt, Saglabāt un Gatavs.</item>
+        <item>Veidojot informācijas paneli, vispirms tiek uzdots jautājums un pēc tam tiek piedāvātas tādas pašas izvēles iespējas, kā iestatot pirmo reizi — lai jauns informācijas panelis varētu sākties no dublējuma vai no jūsu ģimenes koplietotā informācijas paneļa, kā arī tiek ģenerēts vai atstāts tukšs. Jūsu pašreizējais informācijas panelis nekad netiek pārrakstīts, un koplietotie informācijas paneļi tagad sarakstā ir atzīmēti kā koplietoti.</item>
+        <item>Akumulatora logrīks atver sarakstu vietā, nevis novirza jūs uz atsevišķu lapu, kas ir sagrupēta pēc tā, cik steidzami katrs ir, un parāda akumulatora veidu, kur Home Assistant to zina. Ja vēlaties, ir meklēšanas lodziņš un poga, lai atvērtu pilnu akumulatora skatu.</item>
+        <item>Pieskaroties cilvēku skaitītājam telpā, tiek parādīts, kurš tur atrodas, ar katras personas attēlu. Istabu galvenē tagad ir arī mājsaimniecības skaitītājs, kas parāda, kur visi atrodas, neatverot katru istabu.</item>
+        <item>Pogu var atstāt ārpus telpas apgaismojuma un ierīču skaitītājiem, kas atrodas telpā, bet patiesībā nav tās daļa.</item>
+        <item>Logrīki, kuriem nepieciešama integrācija, kuras jums nav — Formula 1, Pakas, Atkritumu savākšana — ir pelēkoti un norāda, kas trūkst, nevis tiek pievienots un pēc tam paliek tukšs.</item>
+        <item>Sūtījumu izsekošana aptver vēl piecpadsmit pārvadātājus, tostarp PostNord, InPost, Swiss Post, An Post, Budbee, Sameday un Nova Post, katram ir savs logotips.</item>
+        <item>Valetudo robotu putekļsūcējs automātiski paņem savu reāllaika karti, kad tiek importētas jūsu telpas, nevis ar roku izvēlēta kamera.</item>
+    </string-array>
+</resources>

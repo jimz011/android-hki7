@@ -25,7 +25,7 @@
 
 ??? question "Which Android versions are supported?"
 
-    Android 14 and newer (`minSdk 34`).
+    Android 12 and newer (`minSdk 31`).
 
 ??? question "Is it free? What is Premium?"
 
@@ -196,9 +196,13 @@
 
 ??? question "What languages does it speak?"
 
-    English plus 13 translations: Dutch, German, French, Spanish, Latin American Spanish, Italian,
-    Portuguese, Brazilian Portuguese, Turkish, Japanese, Korean, Simplified Chinese and
-    Traditional Chinese.
+    English plus 35 translations: Dutch, German (also Austrian and Swiss), French, Spanish (also
+    Latin American and Mexican), Italian, Portuguese, Brazilian Portuguese, Turkish, Japanese,
+    Korean, Simplified Chinese, Traditional Chinese, Norwegian, Swedish, Finnish, Danish, Arabic,
+    Hebrew, Polish, Russian, Czech, Slovak, Hungarian, Romanian, Bulgarian, Greek, Croatian,
+    Lithuanian, Latvian, Estonian and Thai.
+
+    Arabic and Hebrew mirror the whole interface right to left, rather than only reversing text.
 
 ??? question "How do I report a bug?"
 

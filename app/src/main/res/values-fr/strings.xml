@@ -73,6 +73,14 @@
     <string name="stack_show_icon_description">L\'icône à côté du titre.</string>
     <string name="stack_center_title">Centrer le titre</string>
     <string name="stack_center_title_description">Place l\'icône et le nom au milieu plutôt que contre le bord gauche.</string>
+    <string name="cr_widget_requires_f1">Nécessite l\'intégration du capteur F1, introuvable sur votre Home Assistant</string>
+    <string name="cr_widget_requires_parcels">Nécessite une intégration de colis, et aucune n\'a été trouvée sur votre Home Assistant</string>
+    <string name="cr_widget_requires_waste">Nécessite une intégration de collecte des déchets, et aucune n\'a été trouvée sur votre Home Assistant</string>
+    <string name="cr_people_here_title">Qui est ici</string>
+    <string name="cr_people_here_empty">Personne n\'est suivi dans cette pièce pour le moment.</string>
+    <string name="cr_people_here_unknown_room">Chambre inconnue</string>
+    <string name="cr_button_exclude_counters">Laisser hors des comptoirs</string>
+    <string name="cr_button_exclude_counters_hint">Gardez le bouton, mais arrêtez-le de compter dans le total des lumières et des appareils de cette pièce.</string>
     <string name="core_greeting_morning">Bonjour</string>
     <string name="core_greeting_afternoon">Bon après-midi</string>
     <string name="core_greeting_evening">Bonsoir</string>
@@ -102,6 +110,13 @@
     <string name="energy_extra_sensor_city_heating_cost">Coût du chauffage urbain</string>
     <string name="energy_extra_estimated_gas_equivalent">Equivalent gaz estimé</string>
     <string name="energy_extra_estimated_gas_note">Basé sur 35,17 MJ par m³ de gaz naturel</string>
+    <string name="energy_extra_currency">Devise</string>
+    <string name="energy_extra_currency_subtitle">Dans quelle devise les statistiques de coût sont affichées</string>
+    <string name="energy_extra_currency_search">Rechercher des devises</string>
+    <string name="energy_extra_currency_automatic">Automatique</string>
+    <string name="energy_extra_currency_automatic_subtitle">Suivez vos capteurs de coûts, puis la région de votre appareil</string>
+    <string name="energy_extra_currency_automatic_value">Automatique (%1$s)</string>
+    <string name="energy_extra_currency_manual_value">%1$s (%2$s)</string>
     <string name="events_tab">Événements</string>
     <string name="events_empty">Aucun événement pour l\'instant</string>
     <string name="events_empty_hint">L\'activité récente des entités que votre administrateur familial a ajoutées à la chronologie apparaît ici.</string>
@@ -1397,7 +1412,6 @@
     <string name="ui_text_98d3f75">✓ %1$s</string>
     <string name="ui_text_9e5a283">%1$s×</string>
     <string name="ui_text_a105b80">%1$s/%2$s</string>
-    <string name="ui_text_b92cdc7">€ %1$s</string>
     <string name="ui_text_be10035">· %1$s</string>
     <string name="ui_text_c1aacd9">%1$s · %2$s</string>
     <string name="ui_text_c3328c3">Texte</string>
@@ -1613,6 +1627,13 @@
     <string name="app_update_required_opened_store">Google Play n\'a pas pu prendre le relais ici, c\'est pourquoi sa page commerciale a été ouverte à la place.</string>
     <string name="app_update_required_unavailable">Google Play n\'a pas encore de mise à jour prête pour cet appareil. Cela signifie généralement que la version ne vous est pas parvenue ou que cette copie de HKI ne provient pas du Play Store.</string>
     <string name="app_update_required_continue">Continuer sans mettre à jour</string>
+    <string name="settings_extra_new_dashboard_confirm_body">Cela ajoute un tableau de bord à côté de celui que vous utilisez. Votre tableau de bord actuel est conservé exactement tel quel et n\'est jamais écrasé : vous pouvez basculer entre eux à tout moment.</string>
+    <string name="settings_extra_new_dashboard_confirm_action">Continuer</string>
+    <string name="settings_extra_new_dashboard_created">Créé "%1$s"</string>
+    <string name="uif_onboarding_shared_already_added">Déjà ajouté</string>
+    <string name="settings_extra_dashboard_shared_badge">Commun</string>
+    <string name="settings_extra_dashboard_shared_subtitle">Partagé avec vous par votre famille. Appuyez pour charger</string>
+    <string name="settings_extra_dashboard_shared_loaded">Partagé avec vous par votre famille. Actuellement chargé</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s installé</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud installé (mise à jour pour voir sa version)</string>
     <string name="settings_extra_hki_cloud_update_to_unlock">Mise à jour pour débloquer :</string>
@@ -1625,6 +1646,8 @@
     <string name="settings_extra_hki_cloud_feature_required_version">Exiger de la famille qu\'elle mette à jour vers une version HKI donnée</string>
     <string name="settings_extra_hki_cloud_feature_events">La chronologie de l\'événement et en masquer certaines parties à des personnes individuelles</string>
     <string name="settings_extra_hki_cloud_tab_requires">Nécessite HKI 7 Cloud v%1$s ou plus récent. Mettez à jour le composant dans HACS — d\'ici là, ce que vous définissez ici ne prendra pas effet.</string>
+    <string name="language_search_placeholder">Langues de recherche</string>
+    <string name="language_search_no_matches">Aucune langue ne correspond à « %1$s »</string>
     <string name="settings_extra_policy_needs_component_update_events">Autorisations enregistrées, mais ce HKI 7 Cloud est trop ancien pour cacher les événements à cette personne – elle verrait toute la chronologie. Mettez-le à jour pour appliquer la restriction.</string>
     <string name="settings_extra_tab_events">Événements</string>
     <string name="settings_extra_events_title">Chronologie de l\'événement</string>
@@ -1804,4 +1827,7 @@
     <string name="widgets_waste_calendar_days">%1$d jours</string>
     <string name="widgets_waste_calendar_range_help">À quelle distance apparaît le calendrier de la boîte de dialogue. Il est présenté sous forme de grille hebdomadaire, arrondie à des semaines entières.</string>
     <string name="widgets_waste_no_collection_on">Aucune collecte le %1$s</string>
+    <string name="widgets_battery_search">Rechercher des appareils</string>
+    <string name="widgets_battery_none">Aucune batterie ne correspond à cette recherche.</string>
+    <string name="widgets_battery_open_page">Ouvrir la page de la batterie</string>
 </resources>

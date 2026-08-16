@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="core_last_seen_days">
+        <item quantity="zero">Pēdējoreiz redzēts pirms %1$d dienām</item>
+        <item quantity="one">Pēdējoreiz redzēts pirms %1$d dienas</item>
+        <item quantity="other">Pēdējoreiz redzēts pirms %1$d dienām</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="zero">Pēdējoreiz redzēts pirms %1$d stundām</item>
+        <item quantity="one">Pēdējoreiz redzēts pirms %1$d stundas</item>
+        <item quantity="other">Pēdējoreiz redzēts pirms %1$d stundām</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="zero">Pēdējoreiz redzēts pirms %1$d minūtēm</item>
+        <item quantity="one">Pēdējoreiz redzēts pirms %1$d minūtes</item>
+        <item quantity="other">Pēdējoreiz redzēts pirms %1$d minūtēm</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="zero">Pēdējoreiz redzēts pirms %1$d nedēļām</item>
+        <item quantity="one">Pēdējoreiz redzēts pirms %1$d nedēļas</item>
+        <item quantity="other">Pēdējoreiz redzēts pirms %1$d nedēļām</item>
+    </plurals>
+    <plurals name="core_media_players_playing">
+        <item quantity="zero">Tiek atskaņoti %1$d multivides atskaņotāji</item>
+        <item quantity="one">Tiek atskaņots %1$d multivides atskaņotājs</item>
+        <item quantity="other">Tiek atskaņoti %1$d multivides atskaņotāji</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="zero">Automātiski + %d manuāli</item>
+        <item quantity="one">Automātiski + %d manuāli</item>
+        <item quantity="other">Automātiski + %d manuāli</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="zero">%d konfigurētas gaismas</item>
+        <item quantity="one">%d konfigurēta gaisma</item>
+        <item quantity="other">%d konfigurētas gaismas</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="zero">%1$d ierīces · %2$d ieslēgts</item>
+        <item quantity="one">%1$d ierīce · %2$d ieslēgta</item>
+        <item quantity="other">%1$d ierīces · %2$d ieslēgts</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="zero">%d ārējie sensori ir iestatīti</item>
+        <item quantity="one">%d ārējais sensors ir iestatīts</item>
+        <item quantity="other">%d ārējie sensori ir iestatīti</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="zero">%d noņemts</item>
+        <item quantity="one">%d noņemts</item>
+        <item quantity="other">%d noņemts</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="zero">Atlasīti %d</item>
+        <item quantity="one">Atlasīti %d</item>
+        <item quantity="other">Atlasīti %d</item>
+    </plurals>
+    <plurals name="cr_sensor_count">
+        <item quantity="zero">%d sensori</item>
+        <item quantity="one">%d sensors</item>
+        <item quantity="other">%d sensori</item>
+    </plurals>
+    <plurals name="cr_widget_option_count">
+        <item quantity="zero">%d opcijas</item>
+        <item quantity="one">%d opcija</item>
+        <item quantity="other">%d opcijas</item>
+    </plurals>
+    <plurals name="dlg_action_data_value_summary">
+        <item quantity="zero">%1$s · %2$d datu vērtības</item>
+        <item quantity="one">%1$s · %2$d datu vērtība</item>
+        <item quantity="other">%1$s · %2$d datu vērtības</item>
+    </plurals>
+    <plurals name="dlg_arming_in_seconds">
+        <item quantity="zero">Ieslēgšanās notiek pēc %d sekundēm</item>
+        <item quantity="one">Ieslēgšanās pēc %d sekundes</item>
+        <item quantity="other">Ieslēgšanās notiek pēc %d sekundēm</item>
+    </plurals>
+    <plurals name="dlg_seconds_short">
+        <item quantity="zero">%d sek</item>
+        <item quantity="one">%d sek</item>
+        <item quantity="other">%d sek</item>
+    </plurals>
+    <plurals name="dlg_selected_entities_summary">
+        <item quantity="zero">%1$d atlasīts · %2$s</item>
+        <item quantity="one">%1$d atlasīts · %2$s</item>
+        <item quantity="other">%1$d atlasīts · %2$s</item>
+    </plurals>
+    <plurals name="global_search_browse_entities">
+        <item quantity="zero">Pārlūkojiet %1$d entītijas šajā ierīcē</item>
+        <item quantity="one">Pārlūkojiet %1$d entītiju šajā ierīcē</item>
+        <item quantity="other">Pārlūkojiet %1$d entītijas šajā ierīcē</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="zero">%1$d entītijām</item>
+        <item quantity="one">%1$d entītija</item>
+        <item quantity="other">%1$d entītijām</item>
+    </plurals>
+    <plurals name="parcel_letter_count">
+        <item quantity="zero">%1$d burti</item>
+        <item quantity="one">%1$d burtu</item>
+        <item quantity="other">%1$d burti</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="zero">%1$d istabas</item>
+        <item quantity="one">%1$d telpa</item>
+        <item quantity="other">%1$d istabas</item>
+    </plurals>
+    <plurals name="security_entity_count">
+        <item quantity="zero">%1$d entītijām</item>
+        <item quantity="one">%1$d entītija</item>
+        <item quantity="other">%1$d entītijām</item>
+    </plurals>
+    <plurals name="settings_extra_days_ago">
+        <item quantity="zero">pirms %1$d dienām</item>
+        <item quantity="one">pirms %1$d dienas</item>
+        <item quantity="other">pirms %1$d dienām</item>
+    </plurals>
+    <plurals name="settings_extra_hours_ago">
+        <item quantity="zero">pirms %1$d stundām</item>
+        <item quantity="one">pirms %1$d stundas</item>
+        <item quantity="other">pirms %1$d stundām</item>
+    </plurals>
+    <plurals name="settings_extra_minutes_ago">
+        <item quantity="zero">pirms %1$d minūtēm</item>
+        <item quantity="one">Pirms %1$d minūtes</item>
+        <item quantity="other">pirms %1$d minūtēm</item>
+    </plurals>
+    <plurals name="settings_extra_shared_dashboards_pushed">
+        <item quantity="zero">Pārsūtītas izmaiņas %1$d kopīgotajos informācijas paneļos.</item>
+        <item quantity="one">Pārsūtītas izmaiņas %1$d koplietotajā informācijas panelī.</item>
+        <item quantity="other">Pārsūtītas izmaiņas %1$d kopīgotajos informācijas paneļos.</item>
+    </plurals>
+    <plurals name="uif_active_device_count">
+        <item quantity="zero">%1$d aktīvās ierīces</item>
+        <item quantity="one">%1$d aktīva ierīce</item>
+        <item quantity="other">%1$d aktīvās ierīces</item>
+    </plurals>
+    <plurals name="uif_adaptive_group_paused_count">
+        <item quantity="zero">%1$d grupas indikatori ir apturēti manuālai vadībai.</item>
+        <item quantity="one">%1$d grupas indikators ir apturēts manuālai vadībai.</item>
+        <item quantity="other">%1$d grupas indikatori ir apturēti manuālai vadībai.</item>
+    </plurals>
+    <plurals name="uif_adaptive_profile_light_count">
+        <item quantity="zero">Kontrolē %1$d gaismas šajā profilā.</item>
+        <item quantity="one">Kontrolē %1$d gaismu šajā profilā.</item>
+        <item quantity="other">Kontrolē %1$d gaismas šajā profilā.</item>
+    </plurals>
+    <plurals name="uif_days_to_season">
+        <item quantity="zero">%1$d dienas līdz %2$s</item>
+        <item quantity="one">%1$d diena līdz %2$s</item>
+        <item quantity="other">%1$d dienas līdz %2$s</item>
+    </plurals>
+    <plurals name="uif_device_on_count">
+        <item quantity="zero">%1$d ierīces ir ieslēgtas</item>
+        <item quantity="one">%1$d ierīce ir ieslēgta</item>
+        <item quantity="other">%1$d ierīces ir ieslēgtas</item>
+    </plurals>
+    <plurals name="uif_fire_detector_count">
+        <item quantity="zero">%1$d ugunsgrēka detektori ir aktīvi</item>
+        <item quantity="one">%1$d ugunsgrēka detektors ir aktīvs</item>
+        <item quantity="other">%1$d ugunsgrēka detektori ir aktīvi</item>
+    </plurals>
+    <plurals name="uif_flow_advanced_block_count">
+        <item quantity="zero">%1$d uzlaboti stenogrāfijas bloki (nemainīti)</item>
+        <item quantity="one">%1$d uzlabots stenogrāfijas bloks (saglabāts nemainīgs)</item>
+        <item quantity="other">%1$d uzlaboti stenogrāfijas bloki (nemainīti)</item>
+    </plurals>
+    <plurals name="uif_flow_group_count">
+        <item quantity="zero">%1$d nosacījumiem</item>
+        <item quantity="one">%1$d nosacījums iekšā</item>
+        <item quantity="other">%1$d nosacījumiem</item>
+    </plurals>
+    <plurals name="uif_gas_detector_count">
+        <item quantity="zero">%1$d gāzes detektori ir aktīvi</item>
+        <item quantity="one">%1$d gāzes detektors ir aktīvs</item>
+        <item quantity="other">%1$d gāzes detektori ir aktīvi</item>
+    </plurals>
+    <plurals name="uif_light_on_count">
+        <item quantity="zero">%1$d ir ieslēgts</item>
+        <item quantity="one">%1$d deg gaisma</item>
+        <item quantity="other">%1$d ir ieslēgts</item>
+    </plurals>
+    <plurals name="uif_media_item_count">
+        <item quantity="zero">%1$d vienumi</item>
+        <item quantity="one">%1$d vienums</item>
+        <item quantity="other">%1$d vienumi</item>
+    </plurals>
+    <plurals name="uif_motion_sensor_count">
+        <item quantity="zero">%1$d kustības sensori ir aktīvi</item>
+        <item quantity="one">%1$d kustības sensors ir aktīvs</item>
+        <item quantity="other">%1$d kustības sensori ir aktīvi</item>
+    </plurals>
+    <plurals name="uif_open_door_count">
+        <item quantity="zero">%1$d atvērtas durvis</item>
+        <item quantity="one">%1$d atvērtas durvis</item>
+        <item quantity="other">%1$d atvērtas durvis</item>
+    </plurals>
+    <plurals name="uif_open_window_count">
+        <item quantity="zero">%1$d atvērti logi</item>
+        <item quantity="one">%1$d atvērts logs</item>
+        <item quantity="other">%1$d atvērti logi</item>
+    </plurals>
+    <plurals name="uif_presence_sensor_count">
+        <item quantity="zero">%1$d klātbūtnes sensori ir aktīvi</item>
+        <item quantity="one">%1$d klātbūtnes sensors ir aktīvs</item>
+        <item quantity="other">%1$d klātbūtnes sensori ir aktīvi</item>
+    </plurals>
+    <plurals name="uif_smoke_detector_count">
+        <item quantity="zero">%1$d dūmu detektori ir aktīvi</item>
+        <item quantity="one">%1$d dūmu detektors ir aktīvs</item>
+        <item quantity="other">%1$d dūmu detektori ir aktīvi</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="zero">%1$d akumulatoriem jāpievērš uzmanība</item>
+        <item quantity="one">%1$d akumulatoram ir jāpievērš uzmanība</item>
+        <item quantity="other">%1$d akumulatoriem jāpievērš uzmanība</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="zero">%1$d kritiskās baterijas</item>
+        <item quantity="one">%1$d kritisks akumulators</item>
+        <item quantity="other">%1$d kritiskās baterijas</item>
+    </plurals>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="zero">%1$d zems bateriju līmenis</item>
+        <item quantity="one">%1$d zems akumulatora uzlādes līmenis</item>
+        <item quantity="other">%1$d zems bateriju līmenis</item>
+    </plurals>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="zero">Diagramma %1$d · %2$d sensori</item>
+        <item quantity="one">Diagramma %1$d · %2$d sensors</item>
+        <item quantity="other">Diagramma %1$d · %2$d sensori</item>
+    </plurals>
+</resources>

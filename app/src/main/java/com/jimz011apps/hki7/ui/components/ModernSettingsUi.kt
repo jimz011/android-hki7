@@ -4,6 +4,8 @@ import com.jimz011apps.hki7.R
 
 import androidx.compose.ui.res.stringResource
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.spring
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -52,7 +54,9 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
@@ -64,7 +68,9 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
@@ -74,15 +80,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
-
-private data class DialogTabSwipeRegistration(
-    val tabs: List<String>,
-    val selected: String,
-    val onSelect: (String) -> Unit
-)
-
-private val LocalDialogTabSwipeRegistrar =
-    compositionLocalOf<(DialogTabSwipeRegistration?) -> Unit> { { } }
+import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 /** True while a family policy only permits local visual customization. */
 val LocalAestheticsOnlyEditing = compositionLocalOf { false }
@@ -152,16 +151,30 @@ fun ModernSettingsHeader(
             )
         }
 
-        onClose?.let { close ->
-            IconButton(
-                onClick = close,
-                modifier = Modifier
-                    .size(46.dp)
-                    .background(colors.subtleSurface, CircleShape)
-            ) {
-                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.ui_close_bbfa773), tint = colors.onSurface)
-            }
-        }
+        onClose?.let { close -> DialogCloseButton(onClick = close) }
+    }
+}
+
+/**
+ * The dismiss affordance every dialog frame puts at the end of its header row — which is the start
+ * in a right-to-left layout, since it is laid out rather than positioned. Shared so the four frames
+ * cannot drift apart again: they had grown three different diameters and two different content
+ * descriptions for the same button. Sized to match the 46dp icon chip it sits opposite.
+ */
+@Composable
+fun DialogCloseButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = LocalHKIAppColors.current
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+            .size(46.dp)
+            .background(colors.subtleSurface, CircleShape)
+    ) {
+        Icon(
+            Icons.Default.Close,
+            contentDescription = stringResource(R.string.ui_close_bbfa773),
+            tint = colors.onSurface
+        )
     }
 }
 
@@ -297,31 +310,21 @@ fun SettingsTabRow(
         tabs
     }
     val tabKeys = visibleTabs.map { it.first }
-    val registerForDialogSwipe = LocalDialogTabSwipeRegistrar.current
-    val latestOnSelect by rememberUpdatedState(onSelect)
     LaunchedEffect(aestheticsOnly, tabKeys, selected) {
         if (aestheticsOnly && selected !in tabKeys) {
             tabKeys.firstOrNull()?.let(onSelect)
         }
     }
-    DisposableEffect(registerForDialogSwipe, tabKeys, selected) {
-        registerForDialogSwipe(
-            DialogTabSwipeRegistration(tabKeys, selected) { latestOnSelect(it) }
-        )
-        onDispose { registerForDialogSwipe(null) }
-    }
+    // The strip scrolls and nothing else. It used to change tab on the same horizontal drag that
+    // scrolled it — two meanings for one gesture, so reaching an off-screen tab kept dragging the
+    // page out from under you. Swiping the content still changes tab, which is where the platform
+    // puts that gesture; the strip just gets you to the tab you can't see.
+    val tabScrollState = rememberScrollState()
+    Box(modifier = modifier.fillMaxWidth()) {
     Row(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
-            // This strip owns its horizontal gesture, so observe before its scroll node consumes
-            // movement. The row may still scroll while the selected page advances.
-            .swipeToAdjacentTab(
-                tabs = tabKeys,
-                selected = selected,
-                respectChildGestures = false,
-                onSelect = onSelect
-            ),
+            .horizontalScroll(tabScrollState),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         visibleTabs.forEach { (key, label) ->
@@ -331,6 +334,21 @@ fun SettingsTabRow(
                 label = { Text(label) }
             )
         }
+    }
+    // Same edge affordance the navigation bar and pull-down menu use, so an overflowing row of
+    // tabs says so wherever one appears. Family Sharing is the one people meet first.
+    ScrollEdgeChevron(
+        visible = tabScrollState.canScrollBackward,
+        fadeColor = LocalHKIAppColors.current.elevated,
+        fromStart = true,
+        modifier = Modifier.align(Alignment.CenterStart)
+    )
+    ScrollEdgeChevron(
+        visible = tabScrollState.canScrollForward,
+        fadeColor = LocalHKIAppColors.current.elevated,
+        fromStart = false,
+        modifier = Modifier.align(Alignment.CenterEnd)
+    )
     }
 }
 
@@ -368,6 +386,14 @@ fun Modifier.swipeToAdjacentTab(
         }
     }
 }
+
+// Dialog tabs are changed by tapping their chips, and by nothing else.
+//
+// Two attempts at swiping between them were worse than none. Deciding at a threshold moved nothing
+// while the finger was down, which read as unresponsive; making the surface follow the drag moved
+// the entire dialog — header, footer and all — because the registration is only available on the
+// frame's own nodes, not around the one slot that should slide. A tab strip with a handful of
+// visible chips does not need a gesture, and one that misbehaves costs more than it adds.
 
 /** Shared borderless selection chip used by settings tabs, categories, and compact choices. */
 @Composable
@@ -413,10 +439,6 @@ fun ModernSettingsDialogFrame(
     content: @Composable () -> Unit
 ) {
     val colors = LocalHKIAppColors.current
-    var tabSwipeRegistration by remember { mutableStateOf<DialogTabSwipeRegistration?>(null) }
-    val registerTabSwipe = remember {
-        { registration: DialogTabSwipeRegistration? -> tabSwipeRegistration = registration }
-    }
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = false)
@@ -428,21 +450,12 @@ fun ModernSettingsDialogFrame(
                     .fillMaxWidth(0.95f)
                     .widthIn(max = 620.dp)
                     .fillMaxHeight(0.92f)
-                    .then(
-                        tabSwipeRegistration?.let { registration ->
-                            Modifier.swipeToAdjacentTab(
-                                tabs = registration.tabs,
-                                selected = registration.selected,
-                                onSelect = registration.onSelect
-                            )
-                        } ?: Modifier
-                    ),
+                    ,
                 shape = RoundedCornerShape(32.dp),
                 color = colors.elevated,
                 contentColor = colors.onSurface,
                 shadowElevation = 18.dp
             ) {
-                CompositionLocalProvider(LocalDialogTabSwipeRegistrar provides registerTabSwipe) {
                     Column(
                     modifier = Modifier
                         .background(
@@ -466,17 +479,10 @@ fun ModernSettingsDialogFrame(
                         onClose = onDismiss
                     )
                     Box(modifier = Modifier.weight(1f).fillMaxWidth()) { content() }
-                    // Sits with the footer rather than under the tab strip: the chips already say
-                    // which tab is open, so up there the dots only repeated them. Down here they
-                    // read as what they are — how many pages there are, and how far along you are.
-                    tabSwipeRegistration?.let { registration ->
-                        PagerIndicator(
-                            pageCount = registration.tabs.size,
-                            currentPage = registration.tabs.indexOf(registration.selected).coerceAtLeast(0),
-                            elevated = false,
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        )
-                    }
+                    // No dots: the tab chips above are the position indicator, and the platform
+                    // does not pair the two. They were added when the strip and the content
+                    // fought over the same gesture and the swipe needed advertising; the strip no
+                    // longer takes that gesture, so the swipe is discoverable from the tabs alone.
                     HorizontalDivider(color = colors.onMuted.copy(alpha = 0.22f))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -484,7 +490,6 @@ fun ModernSettingsDialogFrame(
                         verticalAlignment = Alignment.CenterVertically,
                         content = footer
                     )
-                }
                 }
             }
         }
@@ -509,10 +514,6 @@ fun ModernAlertDialog(
     dismissOnTapOutside: Boolean = false
 ) {
     val colors = LocalHKIAppColors.current
-    var tabSwipeRegistration by remember { mutableStateOf<DialogTabSwipeRegistration?>(null) }
-    val registerTabSwipe = remember {
-        { registration: DialogTabSwipeRegistration? -> tabSwipeRegistration = registration }
-    }
     Dialog(onDismissRequest = onDismissRequest, properties = properties) {
         DialogContrastTheme(colors) {
             Box(
@@ -545,20 +546,8 @@ fun ModernAlertDialog(
                     contentColor = colors.onSurface,
                     shadowElevation = 18.dp
                 ) {
-                    CompositionLocalProvider(LocalDialogTabSwipeRegistrar provides registerTabSwipe) {
                     Column(
                         modifier = (if (stableHeight) Modifier.fillMaxSize() else Modifier.heightIn(max = 720.dp))
-                            // On the content node rather than the Surface, so the modifier and the
-                            // registration that drives it live in the same subtree.
-                            .then(
-                                tabSwipeRegistration?.let { registration ->
-                                    Modifier.swipeToAdjacentTab(
-                                        tabs = registration.tabs,
-                                        selected = registration.selected,
-                                        onSelect = registration.onSelect
-                                    )
-                                } ?: Modifier
-                            )
                             .background(
                                 Brush.verticalGradient(
                                     listOf(
@@ -600,12 +589,7 @@ fun ModernAlertDialog(
                                     ) { titleContent() }
                                 }
                             }
-                            IconButton(
-                                onClick = onDismissRequest,
-                                modifier = Modifier.size(44.dp).background(colors.subtleSurface, CircleShape)
-                            ) {
-                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.ui_close_bbfa773), tint = colors.onSurface)
-                            }
+                            DialogCloseButton(onClick = onDismissRequest)
                         }
                     }
 
@@ -618,17 +602,6 @@ fun ModernAlertDialog(
                         }
                     }
 
-                    // Widget settings live in this frame rather than ModernSettingsDialogFrame, so
-                    // it needs the same indicator — without it the tabbed dialogs people actually
-                    // open every day were the ones showing nothing.
-                    tabSwipeRegistration?.let { registration ->
-                        PagerIndicator(
-                            pageCount = registration.tabs.size,
-                            currentPage = registration.tabs.indexOf(registration.selected).coerceAtLeast(0),
-                            elevated = false,
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        )
-                    }
                     HorizontalDivider(color = colors.onMuted.copy(alpha = 0.22f))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -644,7 +617,6 @@ fun ModernAlertDialog(
                 }
             }
         }
-    }
 }
 
 @Composable

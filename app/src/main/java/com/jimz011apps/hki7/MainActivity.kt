@@ -6,6 +6,7 @@ import com.jimz011apps.hki7.R
 
 import androidx.compose.ui.res.stringResource
 
+import android.os.Build
 import android.os.Bundle
 import android.Manifest
 import android.annotation.SuppressLint
@@ -91,6 +92,7 @@ import com.jimz011apps.hki7.data.PushForegroundService
 import com.jimz011apps.hki7.data.EXTRA_HA_INSTANCE_ID
 import com.jimz011apps.hki7.data.isDemoServerUrl
 import com.jimz011apps.hki7.data.withDisplayName
+import com.jimz011apps.hki7.data.withStoredAppLocale
 import com.jimz011apps.hki7.ui.ConnectionStatus
 import com.jimz011apps.hki7.ui.connectionIssueGraceMillis
 import com.jimz011apps.hki7.ui.HomeAssistantRestartPhase
@@ -150,6 +152,12 @@ import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : ComponentActivity() {
     private var forceHighRefresh = false
+
+    // Applies the stored per-app language below API 33, where the platform has no LocaleManager to
+    // do it for us. A no-op on API 33+ — see AppLocale.withStoredAppLocale.
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(newBase.withStoredAppLocale())
+    }
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -714,6 +722,30 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     val pagerState = rememberPagerState(pageCount = { screens.size })
     val pagerScope = rememberCoroutineScope()
     val onTabsDestination = currentRoute == TABS_ROUTE
+    // Which top-level views currently have a sub-page open (Energy > Solar and friends).
+    val openSubPages = remember { mutableStateMapOf<String, Boolean>() }
+    val subPageReporter: (String, Boolean) -> Unit = remember(openSubPages) {
+        { route, open -> if (open) openSubPages[route] = true else openSubPages.remove(route) }
+    }
+    // Tabs the user has actually visited, oldest first. Back walks this rather than jumping
+    // straight home, so it undoes where you have been instead of discarding it.
+    // Re-tapping the tab you are already on returns that view to the top.
+    val scrollToTopSignals = remember { mutableStateMapOf<String, Int>() }
+    val visitedPages = remember { mutableStateListOf<Int>() }
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.settledPage }.distinctUntilChanged().collect { page ->
+            // Revisiting a tab moves it to the top rather than stacking another copy, so back can
+            // never walk the same pair of tabs over and over.
+            visitedPages.remove(page)
+            visitedPages.add(page)
+        }
+    }
+    var pageSwipeInProgress by remember { mutableStateOf(false) }
+    LaunchedEffect(pagerState, roomPagerState) {
+        snapshotFlow { pagerState.isScrollInProgress || roomPagerState.isScrollInProgress }
+            .distinctUntilChanged()
+            .collect { pageSwipeInProgress = it }
+    }
     val currentTopLevelIndex = if (onTabsDestination) pagerState.currentPage else -1
     // A pager holds several pages composed at once, so a state update landing mid-swipe recomposes
     // every one of them. Room pages are heavy enough that this costs frames — which is why room
@@ -731,7 +763,10 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     }
     val navigateToTopLevel: (Screen) -> Unit = { screen ->
         val index = screens.indexOfFirst { it.route == screen.route }
-        if (index >= 0) {
+        if (index >= 0 && onTabsDestination && pagerState.currentPage == index) {
+            // Already here: the tap means "take me back to the top", not "go to this tab".
+            scrollToTopSignals[screen.route] = (scrollToTopSignals[screen.route] ?: 0) + 1
+        } else if (index >= 0) {
             pagerScope.launch {
                 // A tab tap from a detail screen (room, battery widget) has to come back to the
                 // pager first, otherwise the page change would happen behind that screen.
@@ -780,7 +815,10 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
         }
         if (hasLocation) viewModel.startLocationReporting(context) else showLocationDisclosure = true
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+        // Only API 33+ has a notification permission to ask for; below that they're already on.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
         // No battery-optimization exemption prompt: presence is event-driven (geofences) and the
@@ -801,8 +839,15 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     // Back from any tab returns to the first one before leaving the app. Tab changes are pager
     // scrolls, not back-stack entries, so without this back would exit straight from a deep tab —
     // and retracing every tab the user had swiped through would be worse, not better.
-    androidx.activity.compose.BackHandler(enabled = onTabsDestination && pagerState.currentPage > 0) {
-        pagerScope.launch { pagerState.animateScrollToPage(0) }
+    androidx.activity.compose.BackHandler(enabled = onTabsDestination && visitedPages.size > 1) {
+        pagerScope.launch {
+            // Drop where we are, go back to where we were. Falls through to leaving the app once
+            // there is nothing behind the current tab.
+            visitedPages.removeLastOrNull()
+            visitedPages.lastOrNull()?.let { previous ->
+                if (previous in screens.indices) pagerState.animateScrollToPage(previous)
+            }
+        }
     }
     // isOpen reads the settle *target*, so back works from the instant a drag commits rather than
     // only once the sheet has finished arriving. Keyed on the target and not the settled value, this
@@ -848,7 +893,21 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             drawerScope.launch { notificationPanel.close() }
             settingsRoute = route
         },
-        LocalCameraFullscreenLauncher provides launchFullscreenCamera
+        LocalCameraFullscreenLauncher provides launchFullscreenCamera,
+        // Covers the room pager too: rooms are their own navigation destination, so a provider
+        // scoped to the tab pager never reached them and their header stayed open on swipe.
+        com.jimz011apps.hki7.ui.components.LocalPageSwipeInProgress provides pageSwipeInProgress,
+        com.jimz011apps.hki7.ui.components.LocalOpenTopLevelRoute provides { route: String ->
+            val target = screens.firstOrNull { it.route == route }
+            if (target != null) {
+                navigateToTopLevel(target)
+            } else if (route == Screen.Battery.route) {
+                // Hidden from the bar: there is no tab to land on, so the pushed view is all that
+                // is left — with its own back arrow, which is the behaviour being avoided above.
+                navController.navigate(Screen.Battery.WIDGET_ROUTE)
+            }
+            true
+        }
     ) {
     Box(
         modifier = Modifier
@@ -918,6 +977,10 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                 // moves the pages under the finger and can be reversed mid-gesture — the previous
                 // detector committed at a fixed distance and then ignored the rest of the drag.
                 composable(TABS_ROUTE) {
+                    CompositionLocalProvider(
+                        com.jimz011apps.hki7.ui.components.LocalSubPageReporter provides subPageReporter,
+                        com.jimz011apps.hki7.ui.components.LocalScrollToTopSignals provides scrollToTopSignals
+                    ) {
                     HorizontalPager(
                         state = pagerState,
                         // Same as the room pager: composing the neighbour while idle rather than in
@@ -925,7 +988,10 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                         // only because Energy used to start fetching as soon as it was composed —
                         // its root effects now wait for `isActive` below, so the cost is gone.
                         beyondViewportPageCount = 1,
-                        userScrollEnabled = !isEditMode,
+                        // Only the page on screen decides: a neighbour parked in a sub-page must
+                        // not lock the one being looked at.
+                        userScrollEnabled = !isEditMode &&
+                            openSubPages[screens.getOrNull(pagerState.currentPage)?.route] != true,
                         modifier = Modifier.fillMaxSize()
                     ) { page ->
                         // settledPage, not currentPage: currentPage flips at the halfway point of a
@@ -961,6 +1027,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                                 .takeIf { it >= 0 }
                                 ?.let { pagerState.animateScrollToPage(it) }
                         }
+                    }
                     }
                 }
                 composable(Screen.Battery.WIDGET_ROUTE) { BatteryScreen(viewModel, navController, showBackButton = true) }

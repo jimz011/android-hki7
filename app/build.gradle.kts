@@ -10,12 +10,12 @@ android {
 
     defaultConfig {
         applicationId = "com.jimz011apps.hki7"
-        minSdk = 34
+        minSdk = 31
         targetSdk = 37
         // 8 was consumed by an upload that was never released (Play reserves version codes
         // permanently, even for bundles left inactive).
-        versionCode = 28
-        versionName = "1.0.1"
+        versionCode = 29
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

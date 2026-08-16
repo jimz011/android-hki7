@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty (transparent) buttons and the custom-popup action. -->
+<resources>
+    <string name="spacer_empty_button">Botón vacío</string>
+    <string name="spacer_empty_button_description">Marcador de posición transparente que solo reserva espacio</string>
+    <string name="spacer_add_empty_button">Agregar botón vacío</string>
+    <string name="popup_custom_popup">Ventana personalizada</string>
+    <string name="popup_choose">Elige una ventana</string>
+    <string name="popup_none_yet">Aún no hay ventanas</string>
+    <string name="popup_new">Nueva ventana</string>
+    <string name="popup_default_name">Nueva ventana</string>
+    <string name="popup_name">Nombre de la ventana</string>
+    <string name="popup_edit_contents">Editar contenido</string>
+    <string name="popup_delete">Eliminar ventana</string>
+    <string name="popup_status_entity">Entidad de estado</string>
+    <string name="popup_status_entity_hint">Opcional. Su estado llena la línea de estado del diálogo y agrega la vista de historial.</string>
+    <string name="popup_settings_subtitle">Nombre, ícono y entidad de estado</string>
+    <string name="popup_shared_hint">Las ventanas se comparten: otros botones pueden abrir esta misma ventana.</string>
+    <string name="popup_empty">Esta ventana está vacía. Toca Editar para agregar widgets.</string>
+    <string name="popup_settings_title">Ventanas</string>
+    <string name="popup_settings_subtitle_section">Crea y edita tus ventanas personalizadas</string>
+    <string name="popup_settings_hint">Las ventanas se abren desde un botón, una insignia o un botón de diálogo con la acción Ventana personalizada. «Editar contenido» abre la propia ventana para organizar sus widgets.</string>
+    <string name="button_icon_only">Solo ícono</string>
+    <string name="button_icon_size">Tamaño del ícono</string>
+    <string name="button_icon_size_description">Automático reduce el ícono a medida que la pila gana columnas, para que quepa en un botón angosto.</string>
+    <string name="button_icon_size_auto">Automático</string>
+    <string name="button_icon_size_value">%1$d dp</string>
+    <string name="stack_child_icon_only">Solo ícono en todos los botones</string>
+    <string name="stack_child_icon_only_description">Se aplica a todos los botones de esta pila, así no tienes que ajustarlo uno por uno.</string>
+    <string name="stack_child_icon_size">Tamaño del ícono en todos los botones</string>
+    <string name="button_icon_only_description">Oculta el nombre y el estado y centra el ícono en el botón</string>
+    <string name="action_button">Botón de acción</string>
+    <string name="action_button_description">Un botón sin entidad: dale un nombre, un ícono y cualquier acción</string>
+    <string name="action_button_add">Agregar botón de acción</string>
+    <string name="action_badge_add">Agregar insignia de acción</string>
+</resources>

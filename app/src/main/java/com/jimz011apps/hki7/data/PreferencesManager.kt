@@ -1279,6 +1279,30 @@ class PreferencesManager(
         }
     }
 
+    /**
+     * Settings: commits a backup that was just restored into a dashboard created to hold it. The
+     * dashboard that was open when the new one was created has already been written back to the
+     * store by [createDashboard], so it survives untouched — which is the whole point of restoring
+     * into a new dashboard rather than over the current one.
+     *
+     * [useRestoredBackupAsInitial] is the first-run equivalent; it additionally claims the default
+     * dashboard and queues the quick-start guide, neither of which should happen to someone who
+     * already has a dashboard and is only adding another.
+     */
+    suspend fun commitRestoredBackupIntoActiveDashboard(defaultName: String = "Restored dashboard") {
+        context.dataStore.edit { p ->
+            val activeId = p[activeDashboardIdKey] ?: return@edit
+            val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
+            val existingName = dashboards.firstOrNull { it.id == activeId }?.name
+            val restored = dashboardFromPreferences(p, activeId, existingName ?: defaultName)
+            val index = dashboards.indexOfFirst { it.id == activeId }
+            if (index >= 0) dashboards[index] = restored else dashboards += restored
+            p[dashboardsKey] = appJson.encodeToString(dashboards)
+            p.remove(pendingAutoTakeoverKey)
+            snapshotActiveInstance(p)
+        }
+    }
+
     /** Serialises one stored dashboard to JSON for family sharing. Snapshots the live-loaded state
      * first so the currently-open dashboard is captured up to date. Null if the id is unknown. */
     suspend fun exportDashboard(id: String): String? {
@@ -1485,7 +1509,12 @@ class PreferencesManager(
             val dashboards = decodeBackup<List<HKIDashboard>>(p[dashboardsKey], emptyList()).toMutableList()
             val activeId = p[activeDashboardIdKey] ?: return@edit
             val index = dashboards.indexOfFirst { it.id == activeId }
-            if (index >= 0) dashboards[index] = dashboardFromPreferences(p, activeId, name).copy(mode = "manual")
+            // Keep the name the dashboard was created with. This runs long after creation — once the
+            // registries have arrived and the import has run — so falling back to the default here
+            // silently renamed a dashboard the user had just named themselves.
+            val existingName = dashboards.getOrNull(index)?.name?.takeIf { it.isNotBlank() }
+            if (index >= 0) dashboards[index] =
+                dashboardFromPreferences(p, activeId, existingName ?: name).copy(mode = "manual")
             p[dashboardsKey] = appJson.encodeToString(dashboards)
         }
     }

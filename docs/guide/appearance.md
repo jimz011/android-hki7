@@ -32,12 +32,17 @@ lives under **Settings › Dashboard** instead.
 
 ## Language
 
-HKI 7 ships in English plus 13 translations: Dutch, German, French, Spanish, Latin American
-Spanish, Italian, Portuguese, Brazilian Portuguese, Turkish, Japanese, Korean, Simplified Chinese
-and Traditional Chinese.
+HKI 7 ships in English plus 35 translations: Dutch, German (also Austrian and Swiss), French, Spanish (also Latin American and
+Mexican), Italian, Portuguese, Brazilian Portuguese, Turkish, Japanese, Korean, Simplified
+Chinese, Traditional Chinese, Norwegian, Swedish, Danish, Finnish, Estonian, Latvian,
+Lithuanian, Polish, Czech, Slovak, Hungarian, Romanian, Bulgarian, Croatian, Greek, Russian,
+Thai, Arabic and Hebrew.
+
+Arabic and Hebrew mirror the whole interface right to left, rather than only reversing the text.
 
 By default the app follows the system language. Pick a specific one under **Settings › Appearance
-› Language** to override that.
+› Language** to override that — the list has a search box, and keeps "Follow the device" and your
+current language pinned at the top so there is always a way back if you pick one by accident.
 
 !!! note "Entity names come from Home Assistant"
 

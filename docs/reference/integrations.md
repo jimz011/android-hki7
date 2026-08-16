@@ -72,25 +72,18 @@ renaming or localising the entities does not break it.
 
 `ha-parcel-integrations`
 
-The Parcels widget. Supported carriers:
+The Parcels widget. Every carrier the organisation publishes is recognised — 26 of them plus the
+aggregator: Ampère, An Post, Budbee, Cainiao, Correos, Delhivery, DHL, DPD, Dragonfly, Dynalogic,
+GLS, Helthjem, Hermes, InPost, Nova Post, Österreichische Post, Packeta, Planzer, PostNL, PostNord,
+Quickpac, Sameday, SunYou, Swiss Post, Trunkrs and Vinted Go.
 
-| Carrier | Manual `track_parcel` |
-|---|---|
-| PostNL | — |
-| DHL | — |
-| DPD | — |
-| GLS | Yes (accepts postal code) |
-| Dragonfly | Yes |
-| Cainiao | Yes |
-| Correos | Yes |
-| Packeta | Yes |
-| Hermes | Yes |
-| Trunkrs | Yes (accepts postal code) |
-| Vinted Go | — |
-| Parcels (aggregator) | — |
+The integration domain is the repository name without its `ha-` prefix and with dashes as
+underscores, which is how HKI 7 matches them.
 
-Account-based carriers only track what is already in the account, which is why they have no
-manual add-by-tracking-number.
+**Manual add-by-tracking-number** is detected at runtime rather than hardcoded: HKI 7 asks Home
+Assistant which integrations expose `<domain>.track_parcel` and offers the Add button only for
+those. GLS and Trunkrs additionally accept a postal code to pick the right hub. Account-based
+carriers only track what is already in the account, which is why they have no manual add.
 
 ### Afvalbeheer
 

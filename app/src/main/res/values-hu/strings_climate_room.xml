@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="cr_whats_new_1_1_0">
+        <item>További tizennyolc nyelv, HKI 7 és 36 között. Lengyel, orosz, cseh, szlovák, magyar, román, bolgár, horvát, görög, litván, lett, észt, dán, thai és héber csatlakozik a listához, valamint az osztrák német, a svájci német és a mexikói spanyol. A héber nyelv jobbról balra helyezi el a felületet, ahogy az arab is teszi.</item>
+        <item>A HKI 7 mostantól Android 12 és újabb rendszeren fut. Korábban Android 14-re volt szüksége, ami sok tökéletesen alkalmas telefont és táblagépet kizárt.</item>
+        <item>Az energiaköltségek a saját pénznemben jelennek meg, nem pedig mindig euróban. HKI 7 követi a költségérzékelők jelentését, és van egy Pénznem beállítás az Energiabeállításokban, ha inkább saját maga választana egyet.</item>
+        <item>A nyelvválasztónak van egy keresőmezője és rendezve van, amire 36 bejegyzésnél volt szüksége. Ha valaha olyan nyelven landol, amelyet nem tud olvasni, továbbra is a visszaút az első a képernyőn.</item>
+        <item>A nézetek emlékeznek arra, hogy hova görgettél, és a már megnyitott lap megérintésével visszakerülhet a tetejére.</item>
+        <item>Az oldalra csúsztatással többé nem kerülhet ki a megnyitott oldalról, például a Solar inside Energy oldalról. A Vissza most visszaállítja azt a nézetet, ahonnan jött, ahelyett, hogy a kezdőlapra ugorna.</item>
+        <item>A görgethető sorok ezt mondják. A legördülő menü, a navigációs sáv és a beállítási lapok mindegyike egy nyilat mutat a szélén, ha még több elérhető.</item>
+        <item>A párbeszédpanelek mindvégig ugyanúgy néznek ki és viselkednek. Közülük hat sima Android párbeszédpanel volt, a sarokban nem volt bezárás gomb, és az alkalmazás gombjai már megegyeznek abban, hogy mit jelent a Bezárás, Mentés és Kész.</item>
+        <item>Az irányítópult létrehozása először megkérdezi, majd ugyanazokat a lehetőségeket kínálja, mint az első beállításnál – így egy új irányítópult indulhat biztonsági másolatból vagy a családja által megosztott egyikből, valamint létrejöhet vagy üresen maradhat. Az aktuális irányítópult soha nem kerül felülírásra, a megosztott irányítópultok pedig megosztottként vannak megjelölve a listán.</item>
+        <item>Az akkumulátor widget egy listát nyit meg ahelyett, ahelyett, hogy egy külön oldalra vinné, csoportosítva, hogy mennyire sürgősek, és megmutatja az akkumulátor típusát, ahol Home Assistant tudja. Van egy keresőmező és egy gomb a teljes Akkumulátor nézet megnyitásához, ha szeretné.</item>
+        <item>Ha megérinti az emberszámlálót egy szobában, minden egyes ember képével látható, ki van ott. A Szobák fejlécben már van egy háztartási pult is, amely megmutatja, hol tartózkodik mindenki anélkül, hogy minden szobát kinyitna.</item>
+        <item>Egy gomb kimaradhat a helyiség Fények és Eszközök számlálóiból, azok számára, amelyek a szobában vannak, de nem igazán részei annak.</item>
+        <item>Azok a widgetek, amelyeknek olyan integrációra van szükségük, amilyen nincs – Forma 1, Csomagok, Hulladékgyűjtés – kiszürkítve jelennek meg, és azt mondják, hogy mi hiányzik, ahelyett, hogy hozzáadnák őket, majd üresen maradnának.</item>
+        <item>A csomagkövetés további tizenöt fuvarozóra terjed ki, köztük a PostNord, az InPost, a Swiss Post, az An Post, a Budbee, a Sameday és a Nova Post, mindegyik saját logóval.</item>
+        <item>A Valetudo robotporszívó automatikusan felveszi élő térképét a szobák importálásakor, ahelyett, hogy a kézzel kiválasztott kamerára lenne szüksége.</item>
+    </string-array>
+</resources>

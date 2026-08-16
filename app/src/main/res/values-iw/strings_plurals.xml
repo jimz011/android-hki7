@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="core_last_seen_days">
+        <item quantity="one">נראה לאחרונה %1$d לפני יום</item>
+        <item quantity="two">נראה לאחרונה לפני %1$d ימים</item>
+        <item quantity="many">נראה לאחרונה לפני %1$d ימים</item>
+        <item quantity="other">נראה לאחרונה לפני %1$d ימים</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="one">נראה לאחרונה לפני %1$d שעה</item>
+        <item quantity="two">נראה לאחרונה לפני %1$d שעות</item>
+        <item quantity="many">נראה לאחרונה לפני %1$d שעות</item>
+        <item quantity="other">נראה לאחרונה לפני %1$d שעות</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="one">נראה לאחרונה לפני דקה %1$d</item>
+        <item quantity="two">נראה לאחרונה לפני %1$d דקות</item>
+        <item quantity="many">נראה לאחרונה לפני %1$d דקות</item>
+        <item quantity="other">נראה לאחרונה לפני %1$d דקות</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="one">נראה לאחרונה %1$d לפני שבוע</item>
+        <item quantity="two">נראה לאחרונה %1$d לפני שבועות</item>
+        <item quantity="many">נראה לאחרונה %1$d לפני שבועות</item>
+        <item quantity="other">נראה לאחרונה %1$d לפני שבועות</item>
+    </plurals>
+    <plurals name="core_media_players_playing">
+        <item quantity="one">נגן המדיה %1$d פועל</item>
+        <item quantity="two">%1$d נגני מדיה פועלים</item>
+        <item quantity="many">%1$d נגני מדיה פועלים</item>
+        <item quantity="other">%1$d נגני מדיה פועלים</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="one">אוטומטי + %d ידני</item>
+        <item quantity="two">אוטומטי + %d ידני</item>
+        <item quantity="many">אוטומטי + %d ידני</item>
+        <item quantity="other">אוטומטי + %d ידני</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="one">%d אור מוגדר</item>
+        <item quantity="two">%d אורות מוגדרים</item>
+        <item quantity="many">%d אורות מוגדרים</item>
+        <item quantity="other">%d אורות מוגדרים</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="one">מכשיר %1$d · %2$d מופעל</item>
+        <item quantity="two">%1$d מכשירים · %2$d פועלים</item>
+        <item quantity="many">%1$d מכשירים · %2$d פועלים</item>
+        <item quantity="other">%1$d מכשירים · %2$d פועלים</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="one">הוגדר חיישן חיצוני %d</item>
+        <item quantity="two">הוגדרו %d חיישנים חיצוניים</item>
+        <item quantity="many">הוגדרו %d חיישנים חיצוניים</item>
+        <item quantity="other">הוגדרו %d חיישנים חיצוניים</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="one">%d הוסר</item>
+        <item quantity="two">%d הוסר</item>
+        <item quantity="many">%d הוסר</item>
+        <item quantity="other">%d הוסר</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="one">%d נבחר</item>
+        <item quantity="two">%d נבחר</item>
+        <item quantity="many">%d נבחר</item>
+        <item quantity="other">%d נבחר</item>
+    </plurals>
+    <plurals name="cr_sensor_count">
+        <item quantity="one">חיישן %d</item>
+        <item quantity="two">%d חיישנים</item>
+        <item quantity="many">%d חיישנים</item>
+        <item quantity="other">%d חיישנים</item>
+    </plurals>
+    <plurals name="cr_widget_option_count">
+        <item quantity="one">אפשרות %d</item>
+        <item quantity="two">%d אפשרויות</item>
+        <item quantity="many">%d אפשרויות</item>
+        <item quantity="other">%d אפשרויות</item>
+    </plurals>
+    <plurals name="dlg_action_data_value_summary">
+        <item quantity="one">%1$s · ערך נתונים %2$d</item>
+        <item quantity="two">%1$s · %2$d ערכי נתונים</item>
+        <item quantity="many">%1$s · %2$d ערכי נתונים</item>
+        <item quantity="other">%1$s · %2$d ערכי נתונים</item>
+    </plurals>
+    <plurals name="dlg_arming_in_seconds">
+        <item quantity="one">הפעלה בעוד %d שניה</item>
+        <item quantity="two">הפעלה בעוד %d שניות</item>
+        <item quantity="many">הפעלה בעוד %d שניות</item>
+        <item quantity="other">הפעלה בעוד %d שניות</item>
+    </plurals>
+    <plurals name="dlg_seconds_short">
+        <item quantity="one">%d שניות</item>
+        <item quantity="two">%d שניות</item>
+        <item quantity="many">%d שניות</item>
+        <item quantity="other">%d שניות</item>
+    </plurals>
+    <plurals name="dlg_selected_entities_summary">
+        <item quantity="one">%1$d נבחר · %2$s</item>
+        <item quantity="two">%1$d נבחר · %2$s</item>
+        <item quantity="many">%1$d נבחר · %2$s</item>
+        <item quantity="other">%1$d נבחר · %2$s</item>
+    </plurals>
+    <plurals name="global_search_browse_entities">
+        <item quantity="one">עיין בישות %1$d במכשיר זה</item>
+        <item quantity="two">עיין בישויות %1$d במכשיר זה</item>
+        <item quantity="many">עיין בישויות %1$d במכשיר זה</item>
+        <item quantity="other">עיין בישויות %1$d במכשיר זה</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="one">ישות %1$d</item>
+        <item quantity="two">%1$d ישויות</item>
+        <item quantity="many">%1$d ישויות</item>
+        <item quantity="other">%1$d ישויות</item>
+    </plurals>
+    <plurals name="parcel_letter_count">
+        <item quantity="one">%1$d מכתב</item>
+        <item quantity="two">%1$d אותיות</item>
+        <item quantity="many">%1$d אותיות</item>
+        <item quantity="other">%1$d אותיות</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="one">חדר %1$d</item>
+        <item quantity="two">%1$d חדרים</item>
+        <item quantity="many">%1$d חדרים</item>
+        <item quantity="other">%1$d חדרים</item>
+    </plurals>
+    <plurals name="security_entity_count">
+        <item quantity="one">ישות %1$d</item>
+        <item quantity="two">%1$d ישויות</item>
+        <item quantity="many">%1$d ישויות</item>
+        <item quantity="other">%1$d ישויות</item>
+    </plurals>
+    <plurals name="settings_extra_days_ago">
+        <item quantity="one">לפני %1$d יום</item>
+        <item quantity="two">לפני %1$d ימים</item>
+        <item quantity="many">לפני %1$d ימים</item>
+        <item quantity="other">לפני %1$d ימים</item>
+    </plurals>
+    <plurals name="settings_extra_hours_ago">
+        <item quantity="one">לפני %1$d שעה</item>
+        <item quantity="two">לפני %1$d שעות</item>
+        <item quantity="many">לפני %1$d שעות</item>
+        <item quantity="other">לפני %1$d שעות</item>
+    </plurals>
+    <plurals name="settings_extra_minutes_ago">
+        <item quantity="one">לפני דקה %1$d</item>
+        <item quantity="two">לפני %1$d דקות</item>
+        <item quantity="many">לפני %1$d דקות</item>
+        <item quantity="other">לפני %1$d דקות</item>
+    </plurals>
+    <plurals name="settings_extra_shared_dashboards_pushed">
+        <item quantity="one">דחפו שינויים ללוח המחוונים המשותף %1$d.</item>
+        <item quantity="two">דחפו שינויים במרכזי המחוונים המשותפים %1$d.</item>
+        <item quantity="many">דחפו שינויים במרכזי המחוונים המשותפים %1$d.</item>
+        <item quantity="other">דחפו שינויים במרכזי המחוונים המשותפים %1$d.</item>
+    </plurals>
+    <plurals name="uif_active_device_count">
+        <item quantity="one">%1$d מכשיר פעיל</item>
+        <item quantity="two">%1$d מכשירים פעילים</item>
+        <item quantity="many">%1$d מכשירים פעילים</item>
+        <item quantity="other">%1$d מכשירים פעילים</item>
+    </plurals>
+    <plurals name="uif_adaptive_group_paused_count">
+        <item quantity="one">נורית הקבוצה %1$d מושהית לשליטה ידנית.</item>
+        <item quantity="two">%1$d נורות הקבוצה מושהות לשליטה ידנית.</item>
+        <item quantity="many">%1$d נורות הקבוצה מושהות לשליטה ידנית.</item>
+        <item quantity="other">%1$d נורות הקבוצה מושהות לשליטה ידנית.</item>
+    </plurals>
+    <plurals name="uif_adaptive_profile_light_count">
+        <item quantity="one">שולט באור %1$d בפרופיל זה.</item>
+        <item quantity="two">שולט בנורות %1$d בפרופיל זה.</item>
+        <item quantity="many">שולט בנורות %1$d בפרופיל זה.</item>
+        <item quantity="other">שולט בנורות %1$d בפרופיל זה.</item>
+    </plurals>
+    <plurals name="uif_days_to_season">
+        <item quantity="one">%1$d יום עד %2$s</item>
+        <item quantity="two">%1$d ימים עד %2$s</item>
+        <item quantity="many">%1$d ימים עד %2$s</item>
+        <item quantity="other">%1$d ימים עד %2$s</item>
+    </plurals>
+    <plurals name="uif_device_on_count">
+        <item quantity="one">מכשיר %1$d מופעל</item>
+        <item quantity="two">%1$d מכשירים מופעלים</item>
+        <item quantity="many">%1$d מכשירים מופעלים</item>
+        <item quantity="other">%1$d מכשירים מופעלים</item>
+    </plurals>
+    <plurals name="uif_fire_detector_count">
+        <item quantity="one">%1$d גלאי אש פעיל</item>
+        <item quantity="two">%1$d גלאי אש פעילים</item>
+        <item quantity="many">%1$d גלאי אש פעילים</item>
+        <item quantity="other">%1$d גלאי אש פעילים</item>
+    </plurals>
+    <plurals name="uif_flow_advanced_block_count">
+        <item quantity="one">%1$d בלוק קיצור מתקדם (נשמר ללא שינוי)</item>
+        <item quantity="two">%1$d בלוקים קצרים מתקדמים (נשמר ללא שינוי)</item>
+        <item quantity="many">%1$d בלוקים קצרים מתקדמים (נשמר ללא שינוי)</item>
+        <item quantity="other">%1$d בלוקים קצרים מתקדמים (נשמר ללא שינוי)</item>
+    </plurals>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d מצב בפנים</item>
+        <item quantity="two">%1$d תנאים בפנים</item>
+        <item quantity="many">%1$d תנאים בפנים</item>
+        <item quantity="other">%1$d תנאים בפנים</item>
+    </plurals>
+    <plurals name="uif_gas_detector_count">
+        <item quantity="one">%1$d גלאי גז פעיל</item>
+        <item quantity="two">%1$d גלאי גז פעילים</item>
+        <item quantity="many">%1$d גלאי גז פעילים</item>
+        <item quantity="other">%1$d גלאי גז פעילים</item>
+    </plurals>
+    <plurals name="uif_light_on_count">
+        <item quantity="one">נורית %1$d נדלקת</item>
+        <item quantity="two">%1$d נדלק</item>
+        <item quantity="many">%1$d נדלק</item>
+        <item quantity="other">%1$d נדלק</item>
+    </plurals>
+    <plurals name="uif_media_item_count">
+        <item quantity="one">%1$d פריט</item>
+        <item quantity="two">%1$d פריטים</item>
+        <item quantity="many">%1$d פריטים</item>
+        <item quantity="other">%1$d פריטים</item>
+    </plurals>
+    <plurals name="uif_motion_sensor_count">
+        <item quantity="one">%1$d חיישן תנועה פעיל</item>
+        <item quantity="two">%1$d חיישני תנועה פעילים</item>
+        <item quantity="many">%1$d חיישני תנועה פעילים</item>
+        <item quantity="other">%1$d חיישני תנועה פעילים</item>
+    </plurals>
+    <plurals name="uif_open_door_count">
+        <item quantity="one">%1$d דלת פתוחה</item>
+        <item quantity="two">%1$d דלתות פתוחות</item>
+        <item quantity="many">%1$d דלתות פתוחות</item>
+        <item quantity="other">%1$d דלתות פתוחות</item>
+    </plurals>
+    <plurals name="uif_open_window_count">
+        <item quantity="one">%1$d חלון פתוח</item>
+        <item quantity="two">%1$d חלונות פתוחים</item>
+        <item quantity="many">%1$d חלונות פתוחים</item>
+        <item quantity="other">%1$d חלונות פתוחים</item>
+    </plurals>
+    <plurals name="uif_presence_sensor_count">
+        <item quantity="one">%1$d חיישן נוכחות פעיל</item>
+        <item quantity="two">%1$d חיישני נוכחות פעילים</item>
+        <item quantity="many">%1$d חיישני נוכחות פעילים</item>
+        <item quantity="other">%1$d חיישני נוכחות פעילים</item>
+    </plurals>
+    <plurals name="uif_smoke_detector_count">
+        <item quantity="one">%1$d גלאי עשן פעיל</item>
+        <item quantity="two">%1$d גלאי עשן פעילים</item>
+        <item quantity="many">%1$d גלאי עשן פעילים</item>
+        <item quantity="other">%1$d גלאי עשן פעילים</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="one">סוללה %1$d זקוקה לטיפול</item>
+        <item quantity="two">סוללות %1$d זקוקות לטיפול</item>
+        <item quantity="many">סוללות %1$d זקוקות לטיפול</item>
+        <item quantity="other">סוללות %1$d זקוקות לטיפול</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="one">%1$d סוללה קריטית</item>
+        <item quantity="two">%1$d סוללות קריטיות</item>
+        <item quantity="many">%1$d סוללות קריטיות</item>
+        <item quantity="other">%1$d סוללות קריטיות</item>
+    </plurals>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="one">%1$d סוללה חלשה</item>
+        <item quantity="two">%1$d סוללות חלשות</item>
+        <item quantity="many">%1$d סוללות חלשות</item>
+        <item quantity="other">%1$d סוללות חלשות</item>
+    </plurals>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="one">גרף %1$d · חיישן %2$d</item>
+        <item quantity="two">גרף %1$d · חיישני %2$d</item>
+        <item quantity="many">גרף %1$d · חיישני %2$d</item>
+        <item quantity="other">גרף %1$d · חיישני %2$d</item>
+    </plurals>
+</resources>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="core_last_seen_days">
+        <item quantity="other">เห็นล่าสุด %1$d วันที่ผ่านมา</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="other">เห็นล่าสุดเมื่อ %1$d ชั่วโมงที่แล้ว</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="other">เห็นล่าสุดเมื่อ %1$d นาทีที่แล้ว</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="other">เห็นล่าสุดเมื่อ %1$d สัปดาห์ที่ผ่านมา</item>
+    </plurals>
+    <plurals name="core_media_players_playing">
+        <item quantity="other">%1$d กำลังเล่นเครื่องเล่นสื่อ</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="other">อัตโนมัติ + %d คู่มือ</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="other">%d กำหนดค่าไฟแล้ว</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="other">อุปกรณ์ %1$d · เปิด %2$d</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="other">ตั้งค่าเซ็นเซอร์ภายนอกแล้ว %d ตัว</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="other">ลบ %d แล้ว</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="other">เลือกแล้ว %d</item>
+    </plurals>
+    <plurals name="cr_sensor_count">
+        <item quantity="other">เซ็นเซอร์ %d ตัว</item>
+    </plurals>
+    <plurals name="cr_widget_option_count">
+        <item quantity="other">%d ตัวเลือก</item>
+    </plurals>
+    <plurals name="dlg_action_data_value_summary">
+        <item quantity="other">%1$s · %2$d ค่าข้อมูล</item>
+    </plurals>
+    <plurals name="dlg_arming_in_seconds">
+        <item quantity="other">เตรียมพร้อมใน %d วินาที</item>
+    </plurals>
+    <plurals name="dlg_seconds_short">
+        <item quantity="other">%d วินาที</item>
+    </plurals>
+    <plurals name="dlg_selected_entities_summary">
+        <item quantity="other">%1$d เลือกแล้ว · %2$s</item>
+    </plurals>
+    <plurals name="global_search_browse_entities">
+        <item quantity="other">เรียกดูเอนทิตี %1$d บนอุปกรณ์นี้</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="other">%1$d เอนทิตี</item>
+    </plurals>
+    <plurals name="parcel_letter_count">
+        <item quantity="other">%1$d ตัวอักษร</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="other">%1$d ห้อง</item>
+    </plurals>
+    <plurals name="security_entity_count">
+        <item quantity="other">%1$d เอนทิตี</item>
+    </plurals>
+    <plurals name="settings_extra_days_ago">
+        <item quantity="other">%1$d วันที่ผ่านมา</item>
+    </plurals>
+    <plurals name="settings_extra_hours_ago">
+        <item quantity="other">%1$d ชั่วโมงที่แล้ว</item>
+    </plurals>
+    <plurals name="settings_extra_minutes_ago">
+        <item quantity="other">%1$d นาทีที่แล้ว</item>
+    </plurals>
+    <plurals name="settings_extra_shared_dashboards_pushed">
+        <item quantity="other">ผลักดันการเปลี่ยนแปลงไปยังแดชบอร์ดที่ใช้ร่วมกัน %1$d</item>
+    </plurals>
+    <plurals name="uif_active_device_count">
+        <item quantity="other">%1$d อุปกรณ์ที่ใช้งานอยู่</item>
+    </plurals>
+    <plurals name="uif_adaptive_group_paused_count">
+        <item quantity="other">%1$d ไฟกลุ่มหยุดชั่วคราวเพื่อการควบคุมด้วยตนเอง</item>
+    </plurals>
+    <plurals name="uif_adaptive_profile_light_count">
+        <item quantity="other">ควบคุมไฟ %1$d ในโปรไฟล์นี้</item>
+    </plurals>
+    <plurals name="uif_days_to_season">
+        <item quantity="other">%1$d วันถึง %2$s</item>
+    </plurals>
+    <plurals name="uif_device_on_count">
+        <item quantity="other">เปิดอุปกรณ์ %1$d แล้ว</item>
+    </plurals>
+    <plurals name="uif_fire_detector_count">
+        <item quantity="other">%1$d เครื่องตรวจจับอัคคีภัยทำงานอยู่</item>
+    </plurals>
+    <plurals name="uif_flow_advanced_block_count">
+        <item quantity="other">%1$d บล็อกชวเลขขั้นสูง (ไม่เปลี่ยนแปลง)</item>
+    </plurals>
+    <plurals name="uif_flow_group_count">
+        <item quantity="other">%1$d เงื่อนไขภายใน</item>
+    </plurals>
+    <plurals name="uif_gas_detector_count">
+        <item quantity="other">%1$d เครื่องตรวจจับก๊าซทำงานอยู่</item>
+    </plurals>
+    <plurals name="uif_light_on_count">
+        <item quantity="other">%1$d เปิดไฟ</item>
+    </plurals>
+    <plurals name="uif_media_item_count">
+        <item quantity="other">%1$d รายการ</item>
+    </plurals>
+    <plurals name="uif_motion_sensor_count">
+        <item quantity="other">%1$d เซ็นเซอร์ตรวจจับความเคลื่อนไหวทำงานอยู่</item>
+    </plurals>
+    <plurals name="uif_open_door_count">
+        <item quantity="other">%1$d เปิดประตู</item>
+    </plurals>
+    <plurals name="uif_open_window_count">
+        <item quantity="other">%1$d เปิดหน้าต่าง</item>
+    </plurals>
+    <plurals name="uif_presence_sensor_count">
+        <item quantity="other">%1$d เซ็นเซอร์แสดงตนทำงานอยู่</item>
+    </plurals>
+    <plurals name="uif_smoke_detector_count">
+        <item quantity="other">%1$d เครื่องตรวจจับควันทำงานอยู่</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="other">%1$d แบตเตอรี่จำเป็นต้องได้รับการดูแล</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="other">%1$d แบตเตอรี่วิกฤติ</item>
+    </plurals>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="other">%1$d แบตเตอรี่เหลือน้อย</item>
+    </plurals>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="other">กราฟ %1$d · เซ็นเซอร์ %2$d</item>
+    </plurals>
+</resources>

@@ -18,7 +18,7 @@ The debug APK lands in `app/build/outputs/apk/debug/`.
 |---|---|
 | **Language** | Kotlin |
 | **UI** | Jetpack Compose, Material 3 |
-| **minSdk / targetSdk / compileSdk** | 34 / 37 / 37 |
+| **minSdk / targetSdk / compileSdk** | 31 / 37 / 37 |
 | **Application id** | `com.jimz011apps.hki7` |
 
 ## Project layout
@@ -56,7 +56,8 @@ The scripts live in `tools/localization/`:
 | `audit_literals.py` | Lists likely user-facing literals that are not resources yet |
 | `generate_translations.py` | Generates complete locale resources from the English source |
 | `insert_missing_translations.py` | Fills the locales the main generator skips: `pt`, `pt-rBR`, `b+es+419`, `zh-rCN`, `zh-rTW` |
-| `generate_plurals.py` | Fills `<plurals>` for `ja` and `ko`, which need only the CLDR `other` category |
+| `generate_plurals.py` | Fills `<plurals>` with each locale's own CLDR quantity categories |
+| `derive_regional_variants.py` | Builds `de-rCH`, `de-rAT` and `es-rMX` from their parent locale |
 | `insert_whats_new_array.py` | Translates one `cr_whats_new_*` release-notes array into every locale |
 | `verify_translations.py` | **The one that decides whether a locale is complete** |
 
@@ -65,8 +66,13 @@ Typical flow after adding English strings:
 ```bash
 python tools/localization/generate_translations.py
 python tools/localization/insert_missing_translations.py
+python tools/localization/generate_plurals.py
+python tools/localization/derive_regional_variants.py
 python tools/localization/verify_translations.py
 ```
+
+`derive_regional_variants.py` runs last: it copies whole files out of the parent locale, so the
+parent has to be finished first.
 
 !!! warning "verify_translations.py does not check string-arrays"
 

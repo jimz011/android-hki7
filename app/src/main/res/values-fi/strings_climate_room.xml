@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="cr_whats_new_1_0_1">
+<string-array name="cr_whats_new_1_1_0">
+    <item>Kahdeksantoista muuta kieltä, HKI 7 - 36. Puola, venäjä, tšekki, slovakki, unkari, romania, bulgaria, kroatia, kreikka, liettua, latvia, viro, tanska, thai ja heprea liittyvät luetteloon sekä Itävallan saksa, Sveitsin saksa ja Meksikon espanja. Heprea näyttää käyttöliittymän oikealta vasemmalle, kuten arabia tekee.</item>
+    <item>HKI 7 toimii nyt Android 12:ssa ja uudemmissa. Se tarvitsi aiemmin Android 14:n, mikä sulki pois monia täysin toimivia puhelimia ja tabletteja.</item>
+    <item>Energiakustannukset näkyvät omassa valuutassasi aina eurojen sijaan. HKI 7 seuraa, mitä kustannusanturit raportoivat, ja Energia-asetuksissa on Valuutta-asetus, jos haluat mieluummin valita sellaisen itse.</item>
+    <item>Kielenvalitsimessa on hakukenttä ja se on lajiteltu niin, että se tarvitsi 36 merkintää. Jos koskaan päädyt kieleen, jota et osaa lukea, paluumatka on edelleen ensimmäinen asia ruudulla.</item>
+    <item>Näkymät muistavat, minne olit vierittänyt, ja jo käytössä olevan välilehden napauttaminen vie sinut takaisin alkuun.</item>
+    <item>Sivusuunnassa pyyhkäiseminen ei enää vie sinua pois avatulta sivulta, kuten Solar inside Energy -sivulta. Takaisin nyt palauttaa sinut näkymään, josta tulit etusivulle siirtymisen sijaan.</item>
+    <item>Vieritetyt rivit sanovat niin. Avattavassa valikossa, navigointipalkissa ja asetusvälilehdissä näkyy nuoli reunassa, kun on enemmän tavoitettavaa.</item>
+    <item>Dialogit näyttävät ja toimivat samalla tavalla kauttaaltaan. Kuusi niistä oli tavallisia Android-valintaikkunoita, joiden nurkassa ei ollut sulkemispainiketta, ja sovelluksen painikkeet sopivat nyt siitä, mitä Sulje, Tallenna ja Valmis tarkoittavat.</item>
+    <item>Kojelaudan luominen kysyy ensin ja tarjoaa sitten samat vaihtoehdot kuin ensimmäisellä asennuksella – joten uusi kojelauta voi alkaa varmuuskopiosta tai perheesi jakamasta näytöstä sekä luodaan tai jätetään tyhjäksi. Nykyistä hallintapaneeliasi ei koskaan kirjoiteta päälle, ja jaetut hallintapaneelit on nyt merkitty jaetuiksi luettelossa.</item>
+    <item>Akku-widget avaa luettelon paikalleen sen sijaan, että se vie sinut erilliselle sivulle, joka on ryhmitelty sen mukaan, kuinka kiireellinen kukin on, ja näyttää akkutyypin, jos Home Assistant tietää sen. Siellä on hakukenttä ja painike, jolla voit avata koko akkunäkymän, jos haluat sen.</item>
+    <item>Kun napautat henkilölaskuria huoneessa, näet, kuka siellä on, jokaisen henkilön kuvalla. Huoneet-otsikossa on nyt myös kotitaloustiski, joka näyttää missä kaikki ovat avaamatta jokaista huonetta.</item>
+    <item>Painike voidaan jättää pois huoneen valot ja laitteet -laskurista, niille, jotka ovat huoneessa, mutta eivät varsinaisesti kuulu siihen.</item>
+    <item>Widgetit, jotka tarvitsevat integroinnin, jota sinulla ei ole – Formula 1, Paketit, Jätteiden keräys – näkyvät harmaina ja kertovat, mitä puuttuu, sen sijaan, että ne lisättäisiin ja jäävät tyhjäksi.</item>
+    <item>Paketinseuranta kattaa viisitoista muuta kuljetusyritystä, mukaan lukien PostNord, InPost, Swiss Post, An Post, Budbee, Sameday ja Nova Post, joilla jokaisella on oma logonsa.</item>
+    <item>Valetudo robottiimuri poimii reaaliaikaisen karttansa automaattisesti, kun huoneesi tuodaan, sen sijaan, että se tarvitsee käsin valitun kameran.</item>
+</string-array>
+
+<string-array name="cr_whats_new_1_0_1">
         <item>Pyyhkäiseminen välilehtien välillä seuraa nyt sormeasi. Sivut liikkuvat vetäessäsi, voit muuttaa mieltäsi keskellä pyyhkäisyä ja vetää ne taaksepäin, ja ne asettuvat sinne, missä päästät irti. Aikaisemmin muutos päätettiin sillä hetkellä, kun olit vetänyt tarpeeksi pitkälle, eikä sitä voitu ottaa takaisin, kun taas jälkeenpäin toistettu animaatio oli omalla ajastimellaan eikä liittynyt eleeseen – joten sovellus sitoutui sivulle ennen kuin sormesi oli pyytänyt sitä.</item>
         <item>Alapalkki pitää nyt valitun välilehden näkyvissä. Puhelimessa, joka on liian kapea jokaiselle välilehdelle, se vierittää aktiivisen keskelle, joten välilehti, jolla olet, on aina näkyvissä naapuriensa kanssa – mikä on myös vihje siitä, että sivuja on enemmän pyyhkäisyä varten. Viimeisen välilehden saavuttaminen jätti osoittimen jonnekin palkin päähän.</item>
         <item>Pyyhkäiseminen huoneiden välillä näyttää, kuinka monta huonetta on ja missä olet, pisteinä navigointipalkin yläpuolella – tai laskuna, kun niitä on enemmän kuin kahdeksan. Huoneen pyyhkäisy pysähtyy myös viimeiseen huoneeseen sen sijaan, että kiertyisi ensimmäiseen huoneeseen, mikä vastaa välilehtien toimintaa. Järjestelmänvalvojan piilottamat huoneet ohitetaan nyt pyyhkäisyllä sen sijaan, että ne estetään vain avattaessa.</item>

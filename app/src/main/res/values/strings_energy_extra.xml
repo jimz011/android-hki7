@@ -149,6 +149,14 @@
     <string name="energy_extra_auto_power_sensors_help">All sensors with device_class power are included automatically. Remove a device to create your own list.</string>
     <string name="energy_extra_auto_energy_sensors_help">All sensors with device_class energy are included automatically. Their counter changes are used for the selected period.</string>
 
+    <string name="energy_extra_currency">Currency</string>
+    <string name="energy_extra_currency_subtitle">Which currency the cost stats are shown in</string>
+    <string name="energy_extra_currency_search">Search currencies</string>
+    <string name="energy_extra_currency_automatic">Automatic</string>
+    <string name="energy_extra_currency_automatic_subtitle">Follow your cost sensors, then your device region</string>
+    <string name="energy_extra_currency_automatic_value">Automatic (%1$s)</string>
+    <string name="energy_extra_currency_manual_value">%1$s (%2$s)</string>
+
     <string name="energy_extra_energy_card">Energy card</string>
     <string name="energy_extra_energy_card_subtitle">Data sources and card appearance</string>
     <string name="energy_extra_card_and_data">Card and data</string>

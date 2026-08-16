@@ -313,4 +313,7 @@
     <string name="widgets_energy_phase_number">Phase %1$d</string>
     <string name="widgets_energy_forecast_number">Forecast %1$d</string>
     <string name="widgets_energy_ha_forecast">Home Assistant forecast</string>
+    <string name="widgets_battery_search">Search devices</string>
+    <string name="widgets_battery_none">No batteries match that search.</string>
+    <string name="widgets_battery_open_page">Open battery page</string>
 </resources>

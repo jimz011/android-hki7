@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="cr_whats_new_1_1_0">
+        <item>Osmnáct dalších jazyků, z HKI 7 na 36. Polština, ruština, čeština, slovenština, maďarština, rumunština, bulharština, chorvatština, řečtina, litevština, lotyština, estonština, dánština, thajština a hebrejština, spolu s rakouskou němčinou, švýcarskou němčinou a mexickou španělštinou. Hebrejština rozkládá rozhraní zprava doleva, stejně jako arabština.</item>
+        <item>HKI 7 nyní běží na Androidu 12 a novějším. Dříve potřeboval Android 14, který vylučoval spoustu dokonale schopných telefonů a tabletů.</item>
+        <item>Náklady na energii jsou uvedeny ve vaší vlastní měně, nikoli vždy v eurech. HKI 7 se řídí tím, co hlásí vaše nákladové senzory, a v nastavení energie je k dispozici nastavení měny, pokud byste si ji raději vybrali sami.</item>
+        <item>Výběr jazyka má vyhledávací pole a je tříděn, což potřeboval na 36 záznamů. Pokud se někdy dostanete do jazyka, který neumíte přečíst, cesta zpět je stále první věcí na obrazovce.</item>
+        <item>Zobrazení si pamatují, kam jste se posunuli, a klepnutím na kartu, na které se již nacházíte, se vrátíte na začátek.</item>
+        <item>Přejetím do strany se již nedostanete ze stránky, kterou jste otevřeli, jako je například Solar inside Energy. Zpět vás nyní vrátí do zobrazení, ze kterého jste přišli, místo toho, abyste skočili na domovskou stránku.</item>
+        <item>Posouvatelné řádky to říkají. Rozbalovací nabídka, navigační lišta a karty nastavení všechny zobrazují šipku na okraji, pokud je více na dosah.</item>
+        <item>Dialogy vypadají a chovají se všude stejně. Šest z nich byly obyčejné dialogy Androidu bez tlačítka pro zavření v rohu a tlačítka napříč aplikací nyní souhlasí s tím, co znamenají Zavřít, Uložit a Hotovo.</item>
+        <item>Vytvoření řídicího panelu se nejprve zeptá a poté nabídne stejné možnosti jako při prvním nastavení – takže nový řídicí panel může začít ze zálohy nebo ze zálohy, kterou sdílí vaše rodina, a také může být vygenerován nebo ponechán prázdný. Váš aktuální řídicí panel se nikdy nepřepíše a sdílené řídicí panely jsou nyní v seznamu označeny jako sdílené.</item>
+        <item>Widget baterie otevře seznam na místě, místo aby vás převedl na samostatnou stránku, seskupenou podle toho, jak naléhavá je každá z nich, a zobrazí typ baterie tam, kde jej Home Assistant zná. K dispozici je vyhledávací pole a tlačítko pro otevření úplného zobrazení baterie, pokud jej chcete.</item>
+        <item>Klepnutím na počítadlo lidí v místnosti ukážete, kdo tam je, s obrázkem každé osoby. Záhlaví Pokoje má nyní také domácí počítadlo, které ukazuje, kde se kdo nachází, aniž by bylo nutné otevírat každou místnost.</item>
+        <item>Tlačítko lze vynechat z počítadel světel a zařízení v místnosti pro ta, která jsou v místnosti, ale nejsou její součástí.</item>
+        <item>Widgety, které potřebují integraci, kterou nemáte – Formule 1, Parcels, Waste Collection – jsou zašedlé a říkají, co chybí, místo aby byly přidány a pak zůstaly prázdné.</item>
+        <item>Sledování zásilek pokrývá dalších patnáct dopravců, včetně PostNord, InPost, Swiss Post, An Post, Budbee, Sameday a Nova Post, z nichž každý má své vlastní logo.</item>
+        <item>Robotický vysavač Valetudo automaticky snímá svou živou mapu při importu vašich místností, aniž by potřeboval ručně vybranou kameru.</item>
+    </string-array>
+</resources>

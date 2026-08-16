@@ -446,6 +446,14 @@
     <string name="cr_name_z_a">Nimi Z-A</string>
     <string name="cr_climate_device">Ilmastolaite</string>
     <string name="cr_climate_device_subtitle">Nimi, kuvake, kortin tyyli ja leveys</string>
+    <string name="cr_widget_requires_f1">Tarvitsee F1-anturin integroinnin, jota ei löytynyt laitteestasi Home Assistant</string>
+    <string name="cr_widget_requires_parcels">Tarvitsee paketin integroinnin, eikä Home Assistant-laitteestasi löytynyt yhtään</string>
+    <string name="cr_widget_requires_waste">Tarvitsee jätteenkeräyksen integroinnin, eikä mitään löytynyt laitteestasi Home Assistant</string>
+    <string name="cr_people_here_title">Kuka on täällä</string>
+    <string name="cr_people_here_empty">Ketään ei jäljitetä tässä huoneessa juuri nyt.</string>
+    <string name="cr_people_here_unknown_room">Huone tuntematon</string>
+    <string name="cr_button_exclude_counters">Jätä laskuista</string>
+    <string name="cr_button_exclude_counters_hint">Pidä painike, mutta älä laske sitä tämän huoneen valojen ja laitteiden kokonaismäärään</string>
     <string name="cr_count_with_average">%1$s · keskim. %2$s%3$s</string>
     <string name="cr_outside_temperature">Ulkolämpötila</string>
     <string name="cr_outside_humidity">Ulkoinen kosteus</string>
@@ -1185,6 +1193,13 @@
     <string name="energy_extra_picker_device_energy_counters">Laitteen energialaskurit</string>
     <string name="energy_extra_auto_power_sensors_help">Kaikki laiteluokan teholla toimivat sensorit sisältyvät automaattisesti. Luo oma luettelo poistamalla laite.</string>
     <string name="energy_extra_auto_energy_sensors_help">Kaikki laiteluokan energian anturit sisältyvät automaattisesti. Niiden laskurimuutoksia käytetään valitulle ajanjaksolle.</string>
+    <string name="energy_extra_currency">Valuutta</string>
+    <string name="energy_extra_currency_subtitle">Millä valuutalla kustannustilastot näytetään</string>
+    <string name="energy_extra_currency_search">Hae valuuttoja</string>
+    <string name="energy_extra_currency_automatic">Automaattinen</string>
+    <string name="energy_extra_currency_automatic_subtitle">Seuraa hintaantureitasi ja sitten laitealuettasi</string>
+    <string name="energy_extra_currency_automatic_value">Automaattinen (%1$s)</string>
+    <string name="energy_extra_currency_manual_value">%1$s (%2$s)</string>
     <string name="energy_extra_energy_card">Energiakortti</string>
     <string name="energy_extra_energy_card_subtitle">Tietolähteet ja kortin ulkonäkö</string>
     <string name="energy_extra_card_and_data">Kortti ja tiedot</string>
@@ -2486,7 +2501,6 @@
     <string name="ui_text_98d3f75">✓ %1$s</string>
     <string name="ui_text_9e5a283">%1$s×</string>
     <string name="ui_text_a105b80">%1$s/%2$s</string>
-    <string name="ui_text_b92cdc7">€ %1$s</string>
     <string name="ui_text_be10035">· %1$s</string>
     <string name="ui_text_c1aacd9">%1$s · %2$s</string>
     <string name="ui_text_c3328c3">Teksti</string>
@@ -2760,6 +2774,13 @@
     <string name="settings_extra_dashboard_backup_saved">Kojelaudan varmuuskopio tallennettu.</string>
     <string name="settings_extra_dashboard_copy_name">%1$s kopio</string>
     <string name="settings_extra_dashboard_default_name">Kojelauta %1$d</string>
+    <string name="settings_extra_new_dashboard_confirm_body">Tämä lisää hallintapaneelin käyttämäsi paneelin viereen. Nykyinen kojelautasi säilytetään täsmälleen sellaisena kuin se on, eikä sitä koskaan kirjoiteta päälle – voit vaihtaa niiden välillä milloin tahansa.</string>
+    <string name="settings_extra_new_dashboard_confirm_action">Jatkaa</string>
+    <string name="settings_extra_new_dashboard_created">Luotu "%1$s"</string>
+    <string name="uif_onboarding_shared_already_added">Jo lisätty</string>
+    <string name="settings_extra_dashboard_shared_badge">Jaettu</string>
+    <string name="settings_extra_dashboard_shared_subtitle">Perheesi jakaa kanssasi. Napauta ladataksesi</string>
+    <string name="settings_extra_dashboard_shared_loaded">Perheesi jakaa kanssasi. Tällä hetkellä ladattu</string>
     <string name="settings_extra_dashboard_generating">Uusi kojelautasi luodaan automaattisesti.</string>
     <string name="settings_extra_dashboard_mode_auto">Automaattinen</string>
     <string name="settings_extra_dashboard_mode_manual">Manuaalinen</string>
@@ -2823,6 +2844,8 @@
     <string name="settings_extra_location_allowed_always">Sallittu koko ajan</string>
     <string name="settings_extra_location_allowed_foreground">Sallittu vain sovellusta käytettäessä</string>
     <string name="settings_extra_location_not_allowed">Ei sallittu</string>
+    <string name="language_search_placeholder">Hae kieliä</string>
+    <string name="language_search_no_matches">Mikään kieli ei vastaa "%1$s"</string>
     <string name="settings_extra_language_dutch">Nederlands</string>
     <string name="settings_extra_language_english">englanti</string>
     <string name="settings_extra_language_french">Français</string>
@@ -3477,4 +3500,7 @@
     <string name="widgets_energy_phase_number">Vaihe %1$d</string>
     <string name="widgets_energy_forecast_number">Ennuste %1$d</string>
     <string name="widgets_energy_ha_forecast">Home Assistant ennuste</string>
+    <string name="widgets_battery_search">Etsi laitteita</string>
+    <string name="widgets_battery_none">Yksikään paristo ei vastaa hakua.</string>
+    <string name="widgets_battery_open_page">Avaa akkusivu</string>
 </resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="cr_whats_new_1_1_0">
+        <item>Osiemnaście kolejnych języków, co oznacza, że HKI 7 wynosi 36. Do listy dołączają polski, rosyjski, czeski, słowacki, węgierski, rumuński, bułgarski, chorwacki, grecki, litewski, łotewski, estoński, duński, tajski i hebrajski, a także austriacki niemiecki, szwajcarski niemiecki i meksykański hiszpański. W języku hebrajskim interfejs jest rozłożony od prawej do lewej, podobnie jak w języku arabskim.</item>
+        <item>HKI 7 działa teraz na Androidzie 12 i nowszych wersjach. Wcześniej potrzebował Androida 14, co wykluczało wiele doskonale działających telefonów i tabletów.</item>
+        <item>Koszty energii są wyświetlane w Twojej własnej walucie, a nie zawsze w euro. HKI 7 podąża za raportami czujników kosztów, a w ustawieniach energii znajduje się ustawienie Waluta, jeśli wolisz wybrać je samodzielnie.</item>
+        <item>Selektor języka ma pole wyszukiwania i jest posortowany, co było potrzebne przy 36 wpisach. Jeśli kiedykolwiek trafisz na język, którego nie znasz, droga powrotna nadal będzie pierwszą rzeczą na ekranie.</item>
+        <item>Widoki zapamiętują miejsce, do którego przewinąłeś, a dotknięcie karty, na której już jesteś, powoduje powrót na górę.</item>
+        <item>Przesunięcie w bok nie powoduje już opuszczenia otwartej strony, takiej jak Solar inside Energy. Powrót powoduje teraz powrót do widoku, z którego przyszedłeś, zamiast przechodzenia do strony głównej.</item>
+        <item>Tak mówią przewijane wiersze. Menu rozwijane, pasek nawigacyjny i karty ustawień wyświetlają strzałkę na krawędzi, gdy jest więcej do osiągnięcia.</item>
+        <item>Okna dialogowe wyglądają i zachowują się tak samo przez cały czas. Sześć z nich to zwykłe okna dialogowe Androida bez przycisku zamykania w rogu, a przyciski w całej aplikacji zgadzają się teraz ze znaczeniem Zamknij, Zapisz i Gotowe.</item>
+        <item>Utworzenie pulpitu nawigacyjnego najpierw powoduje wyświetlenie monitu, a następnie oferuje te same opcje, co przy pierwszej konfiguracji — zatem nowy pulpit nawigacyjny może zaczynać się od kopii zapasowej lub udostępnionej przez rodzinę, a także być generowany lub pozostawiany pusty. Twój bieżący pulpit nawigacyjny nigdy nie zostanie nadpisany, a udostępnione pulpity nawigacyjne są teraz oznaczone na liście jako udostępnione.</item>
+        <item>Widget baterii otwiera listę zamiast przenosić Cię na osobną stronę, pogrupowaną według pilności każdego zadania i pokazującą typ baterii, jeśli Home Assistant go zna. Dostępne jest pole wyszukiwania i przycisk umożliwiający otwarcie pełnego widoku baterii, jeśli chcesz.</item>
+        <item>Dotknięcie licznika osób w pokoju pokazuje, kto tam jest, wraz ze zdjęciem każdej osoby. Nagłówek Pokoje ma teraz także licznik domowy, pokazujący, gdzie wszyscy się znajdują, bez otwierania każdego pokoju.</item>
+        <item>Przycisk można pominąć na licznikach świateł i urządzeń w pomieszczeniu, w przypadku tych, które znajdują się w pomieszczeniu, ale tak naprawdę nie są jego częścią.</item>
+        <item>Widżety wymagające integracji, której nie masz – Formuła 1, Paczki, Zbiórka odpadów – są wyszarzone i informują, czego brakuje, zamiast być dodawane i potem siedzieć puste.</item>
+        <item>Śledzenie przesyłek obejmuje piętnastu kolejnych przewoźników, w tym PostNord, InPost, Swiss Post, An Post, Budbee, Sameday i Nova Post, każdy z własnym logo.</item>
+        <item>Robot odkurzający Valetudo pobiera mapę na żywo automatycznie po zaimportowaniu pomieszczeń, bez konieczności ręcznego wybierania kamery.</item>
+    </string-array>
+</resources>

@@ -76,20 +76,29 @@ which is often the answer you wanted. Each device has its own visibility rule.
 The map is drawn from tiles directly rather than through a map SDK, which keeps it dependency-free
 and consistent with the rest of the app's maps.
 
+!!! note "Widgets that need an integration"
+
+    Formula 1, Parcels and Waste Collection appear greyed out in the widget picker when nothing
+    backing them is found on your Home Assistant, with the missing integration named. They are
+    still listed rather than hidden, so it is clear what is needed to use them.
+
 ## Parcels
 
 Reads the [ha-parcel-integrations](https://github.com/search?q=ha-parcel-integrations) carrier
 integrations and shows incoming and outgoing parcels with brand logos, delivery windows and
 status. Carrier logos are bundled in the app, so they work offline.
 
-Supported carriers: **PostNL**, **DHL**, **DPD**, **GLS**, **Dragonfly**, **Cainiao**,
-**Correos**, **Packeta**, **Hermes**, **Trunkrs**, **Vinted Go**, and the generic **Parcels**
-aggregator.
+Every carrier the organisation publishes is supported: **Ampère**, **An Post**, **Budbee**,
+**Cainiao**, **Correos**, **Delhivery**, **DHL**, **DPD**, **Dragonfly**, **Dynalogic**, **GLS**,
+**Helthjem**, **Hermes**, **InPost**, **Nova Post**, **Österreichische Post**, **Packeta**,
+**Planzer**, **PostNL**, **PostNord**, **Quickpac**, **Sameday**, **SunYou**, **Swiss Post**,
+**Trunkrs**, **Vinted Go**, and the generic **Parcels** aggregator.
 
-Some of those expose a manual `track_parcel` service, so you can add a parcel by tracking number
-from inside the widget: GLS, Dragonfly, Cainiao, Correos, Packeta, Hermes and Trunkrs. GLS and
-Trunkrs also accept a postal code to pick the right hub. Account-based carriers (PostNL, DPD, DHL)
-only ever track what is already in the account, so they have no manual add.
+Some carriers expose a manual `track_parcel` service, so you can add a parcel by tracking number
+from inside the widget. HKI 7 asks Home Assistant which ones do rather than carrying a fixed list,
+so a carrier that gains the service — or one published after your app version — works without an
+update. Account-based carriers only ever track what is already in the account, so they have no
+manual add.
 
 You can override a carrier's display name and artwork, and merge several accounts of the same
 carrier into one tab.
@@ -124,6 +133,8 @@ A vacuum card that can render as a static image, a live camera feed, or an exter
 with battery, water tank and bin state. For [Valetudo](https://valetudo.cloud/) robots it draws
 the **live cleaning map**, including segment cleaning.
 
+When your rooms are imported, a Valetudo robot has its map camera bound automatically — the map lives on the same Home Assistant device as the vacuum, so nothing has to be chosen by hand.
+
 ## Camera
 
 A live camera stream, from a `camera.*` entity or a custom URL, at a chosen aspect ratio.
@@ -132,7 +143,10 @@ A live camera stream, from a `camera.*` entity or a custom URL, at a chosen aspe
 
 Every battery-powered entity in one card, with a configurable **low threshold** (30% by default)
 and optional [Battery Notes](https://github.com/andrew-codechimp/HA-Battery-Notes) support for
-battery types and replacement dates.
+battery types and replacement dates. Tapping the card opens a list of every battery it watches,
+grouped into the same Critical / Low / Watch / Good / Unknown bands the Battery view uses, with a
+search field and the battery type where Battery Notes supplies it. **Open battery page** switches to
+the Battery view itself.
 
 ## Energy and climate cards
 

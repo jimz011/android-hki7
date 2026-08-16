@@ -21,7 +21,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -460,7 +459,7 @@ fun VisibilityEditor(spec: VisibilitySpec, onChange: (VisibilitySpec) -> Unit) {
     }
     pickingPersonFor?.let { index ->
         val current = spec.conditions.getOrNull(index)
-        AlertDialog(
+        ModernAlertDialog(
             onDismissRequest = { pickingPersonFor = null },
             title = { Text(stringResource(R.string.dlg_choose_person)) },
             text = {

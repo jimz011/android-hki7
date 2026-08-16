@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="core_last_seen_days">
+        <item quantity="one">Utoljára %1$d napja látták</item>
+        <item quantity="other">Utoljára %1$d napja látták</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="one">Utoljára %1$d órája látták</item>
+        <item quantity="other">Utoljára %1$d órája látták</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="one">Utoljára %1$d perce láttam</item>
+        <item quantity="other">Utoljára %1$d perce látták</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="one">Utoljára %1$d hete látták</item>
+        <item quantity="other">Utoljára %1$d hete látták</item>
+    </plurals>
+    <plurals name="core_media_players_playing">
+        <item quantity="one">%1$d médialejátszót játszik le</item>
+        <item quantity="other">%1$d médialejátszók játszanak</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="one">Automatikus + %d kézi</item>
+        <item quantity="other">Automatikus + %d kézi</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="one">%d konfigurált lámpa</item>
+        <item quantity="other">%d konfigurált lámpa</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="one">%1$d eszköz · %2$d bekapcsolva</item>
+        <item quantity="other">%1$d eszközök · %2$d bekapcsolva</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="one">%d külső érzékelő készlet</item>
+        <item quantity="other">%d külső érzékelő beállítva</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="one">%d eltávolítva</item>
+        <item quantity="other">%d eltávolítva</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="one">%d kiválasztva</item>
+        <item quantity="other">%d kiválasztva</item>
+    </plurals>
+    <plurals name="cr_sensor_count">
+        <item quantity="one">%d érzékelő</item>
+        <item quantity="other">%d érzékelő</item>
+    </plurals>
+    <plurals name="cr_widget_option_count">
+        <item quantity="one">%d lehetőség</item>
+        <item quantity="other">%d lehetőség</item>
+    </plurals>
+    <plurals name="dlg_action_data_value_summary">
+        <item quantity="one">%1$s · %2$d adatérték</item>
+        <item quantity="other">%1$s · %2$d adatértékek</item>
+    </plurals>
+    <plurals name="dlg_arming_in_seconds">
+        <item quantity="one">Élesítés %d másodperc múlva</item>
+        <item quantity="other">Élesítés %d másodperc múlva</item>
+    </plurals>
+    <plurals name="dlg_seconds_short">
+        <item quantity="one">%d mp</item>
+        <item quantity="other">%d mp</item>
+    </plurals>
+    <plurals name="dlg_selected_entities_summary">
+        <item quantity="one">%1$d kiválasztva · %2$s</item>
+        <item quantity="other">%1$d kiválasztva · %2$s</item>
+    </plurals>
+    <plurals name="global_search_browse_entities">
+        <item quantity="one">Böngésszen %1$d entitást ezen az eszközön</item>
+        <item quantity="other">Böngésszen %1$d entitást ezen az eszközön</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="one">%1$d entitás</item>
+        <item quantity="other">%1$d entitások</item>
+    </plurals>
+    <plurals name="parcel_letter_count">
+        <item quantity="one">%1$d levél</item>
+        <item quantity="other">%1$d betűk</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="one">%1$d szoba</item>
+        <item quantity="other">%1$d szoba</item>
+    </plurals>
+    <plurals name="security_entity_count">
+        <item quantity="one">%1$d entitás</item>
+        <item quantity="other">%1$d entitások</item>
+    </plurals>
+    <plurals name="settings_extra_days_ago">
+        <item quantity="one">%1$d napja</item>
+        <item quantity="other">%1$d napja</item>
+    </plurals>
+    <plurals name="settings_extra_hours_ago">
+        <item quantity="one">%1$d órája</item>
+        <item quantity="other">%1$d órája</item>
+    </plurals>
+    <plurals name="settings_extra_minutes_ago">
+        <item quantity="one">%1$d perce</item>
+        <item quantity="other">%1$d perce</item>
+    </plurals>
+    <plurals name="settings_extra_shared_dashboards_pushed">
+        <item quantity="one">Módosítottak a %1$d megosztott irányítópulton.</item>
+        <item quantity="other">A %1$d megosztott irányítópultok módosításai megküldve.</item>
+    </plurals>
+    <plurals name="uif_active_device_count">
+        <item quantity="one">%1$d aktív eszköz</item>
+        <item quantity="other">%1$d aktív eszköz</item>
+    </plurals>
+    <plurals name="uif_adaptive_group_paused_count">
+        <item quantity="one">A %1$d csoport jelzőfénye szünetel a kézi vezérléshez.</item>
+        <item quantity="other">A %1$d csoportfények szünetelnek a kézi vezérléshez.</item>
+    </plurals>
+    <plurals name="uif_adaptive_profile_light_count">
+        <item quantity="one">A %1$d fényt vezérli ebben a profilban.</item>
+        <item quantity="other">%1$d fényt vezérel ebben a profilban.</item>
+    </plurals>
+    <plurals name="uif_days_to_season">
+        <item quantity="one">%1$d naptól %2$sig</item>
+        <item quantity="other">%1$d nap és %2$s</item>
+    </plurals>
+    <plurals name="uif_device_on_count">
+        <item quantity="one">%1$d eszköz bekapcsolva</item>
+        <item quantity="other">%1$d eszközök bekapcsolva</item>
+    </plurals>
+    <plurals name="uif_fire_detector_count">
+        <item quantity="one">%1$d tűzérzékelő aktív</item>
+        <item quantity="other">%1$d tűzérzékelők aktívak</item>
+    </plurals>
+    <plurals name="uif_flow_advanced_block_count">
+        <item quantity="one">%1$d speciális gyorsírási blokk (változatlanul tartva)</item>
+        <item quantity="other">%1$d speciális gyorsírási blokkok (változatlanul tartva)</item>
+    </plurals>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d feltétel belül</item>
+        <item quantity="other">%1$d feltételeket</item>
+    </plurals>
+    <plurals name="uif_gas_detector_count">
+        <item quantity="one">%1$d gázérzékelő aktív</item>
+        <item quantity="other">%1$d gázérzékelők aktívak</item>
+    </plurals>
+    <plurals name="uif_light_on_count">
+        <item quantity="one">%1$d világít</item>
+        <item quantity="other">%1$d világít</item>
+    </plurals>
+    <plurals name="uif_media_item_count">
+        <item quantity="one">%1$d elem</item>
+        <item quantity="other">%1$d elem</item>
+    </plurals>
+    <plurals name="uif_motion_sensor_count">
+        <item quantity="one">%1$d mozgásérzékelő aktív</item>
+        <item quantity="other">%1$d mozgásérzékelők aktívak</item>
+    </plurals>
+    <plurals name="uif_open_door_count">
+        <item quantity="one">%1$d nyitott ajtó</item>
+        <item quantity="other">%1$d nyitott ajtók</item>
+    </plurals>
+    <plurals name="uif_open_window_count">
+        <item quantity="one">%1$d nyitott ablak</item>
+        <item quantity="other">%1$d nyitott ablakok</item>
+    </plurals>
+    <plurals name="uif_presence_sensor_count">
+        <item quantity="one">%1$d jelenlétérzékelő aktív</item>
+        <item quantity="other">%1$d jelenlétérzékelők aktívak</item>
+    </plurals>
+    <plurals name="uif_smoke_detector_count">
+        <item quantity="one">%1$d füstérzékelő aktív</item>
+        <item quantity="other">%1$d füstérzékelők aktívak</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="one">%1$d akkumulátor figyelmet igényel</item>
+        <item quantity="other">%1$d akkumulátorok figyelmet igényelnek</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="one">%1$d kritikus akkumulátor</item>
+        <item quantity="other">%1$d kritikus akkumulátorok</item>
+    </plurals>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="one">%1$d alacsony akkumulátor töltöttség</item>
+        <item quantity="other">%1$d alacsony akkumulátorszint</item>
+    </plurals>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="one">Grafikon %1$d · %2$d érzékelő</item>
+        <item quantity="other">Grafikon %1$d · %2$d érzékelők</item>
+    </plurals>
+</resources>

@@ -176,6 +176,7 @@ fun HAHomeScreen(
         }
     }
     val widgetGridState = rememberLazyGridState()
+    com.jimz011apps.hki7.ui.components.ScrollToTopOnTabReselect("home") { widgetGridState.animateScrollToItem(0) }
     var showAddWidget by remember { mutableStateOf(false) }
     var addingToStackId by remember { mutableStateOf<String?>(null) }
     var cameraAddMode by remember { mutableStateOf<String?>(null) }
@@ -456,7 +457,6 @@ fun HAHomeScreen(
                 registry = entityRegistry,
                 devices = deviceRegistry,
                 isEditMode = isEditMode,
-                onOpen = { navController.navigate(Screen.Battery.WIDGET_ROUTE) },
                 onDelete = { deleteChildFromSwipingStack(parent.id, child.id) },
                 onSettings = { editingBatteryWidget = parent.id to child }
             )
@@ -755,7 +755,6 @@ fun HAHomeScreen(
                                     registry = entityRegistry,
                                     devices = deviceRegistry,
                                     isEditMode = false,
-                                    onOpen = { navController.navigate(Screen.Battery.WIDGET_ROUTE) },
                                     onDelete = {},
                                     onSettings = {}
                                 )
@@ -956,7 +955,6 @@ fun HAHomeScreen(
                                 registry = entityRegistry,
                                 devices = deviceRegistry,
                                 isEditMode = isEditMode,
-                                onOpen = { navController.navigate(Screen.Battery.WIDGET_ROUTE) },
                                 onDelete = { viewModel.deleteWidget(HOME_WIDGET_AREA, widget.id) },
                                 onSettings = { editingBatteryWidget = null to widget }
                             )

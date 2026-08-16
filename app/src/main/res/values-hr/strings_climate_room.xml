@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="cr_whats_new_1_1_0">
+        <item>Još osamnaest jezika, uzdižući HKI 7 do 36. Poljski, ruski, češki, slovački, mađarski, rumunjski, bugarski, hrvatski, grčki, litvanski, latvijski, estonski, danski, tajlandski i hebrejski pridružuju se popisu, zajedno s austrijskim njemačkim, švicarskim njemačkim i meksičkim španjolskim. Hebrejski postavlja sučelje zdesna nalijevo, kao što to čini arapski.</item>
+        <item>HKI 7 sada radi na Androidu 12 i novijim verzijama. Prethodno je trebao Android 14, što je isključivalo mnoge savršeno sposobne telefone i tablete.</item>
+        <item>Troškovi energije prikazani su u vlastitoj valuti umjesto uvijek u eurima. HKI 7 prati ono što izvješćuju vaši senzori troškova, a postoji i postavka valute u postavkama energije ako biste je radije sami odabrali.</item>
+        <item>Birač jezika ima okvir za pretraživanje i sortiran je, što mu je bilo potrebno za 36 unosa. Ako ikad sletite na jezik koji ne znate čitati, put natrag je još uvijek prva stvar na ekranu.</item>
+        <item>Prikazi pamte gdje ste se pomaknuli, a dodirom kartice na kojoj se već nalazite vraćate se na vrh.</item>
+        <item>Klizanje u stranu više vas ne nosi sa stranice koju ste otvorili, kao što je Solar inside Energy. Back now vraća vas na prikaz iz kojeg ste došli umjesto da skačete na početnu stranicu.</item>
+        <item>Redovi koji se mogu pomicati to govore. Padajući izbornik, navigacijska traka i kartice s postavkama pokazuju strelicu na rubu kada postoji više za dosegnuti.</item>
+        <item>Dijalozi izgledaju i ponašaju se jednako cijelo vrijeme. Šest od njih bili su obični Android dijalozi bez gumba za zatvaranje u kutu, a gumbi diljem aplikacije sada se slažu oko toga što znače Zatvori, Spremi i Gotovo.</item>
+        <item>Stvaranje nadzorne ploče prvo postavlja pitanje, a zatim nudi iste izbore kao i prvo postavljanje — tako da nova nadzorna ploča može započeti od sigurnosne kopije ili od one koju je vaša obitelj podijelila, kao i biti generirana ili ostavljena prazna. Vaša trenutna nadzorna ploča nikada se ne briše, a dijeljene nadzorne ploče sada su označene kao dijeljene na popisu.</item>
+        <item>Widget baterije otvara popis na mjestu umjesto da vas odvede na zasebnu stranicu, grupiranu prema tome koliko je svaka hitna i prikazuje vrstu baterije tamo gdje Home Assistant to zna. Postoji okvir za pretraživanje i gumb za otvaranje punog prikaza baterije ako ga želite.</item>
+        <item>Dodirom brojača osoba u sobi prikazuje se tko je tamo, sa slikom svake osobe. Zaglavlje Sobe sada ima i brojač kućanstva, koji pokazuje gdje se tko nalazi bez otvaranja svake sobe.</item>
+        <item>Gumb se može izostaviti iz brojača svjetla i uređaja u sobi, za one koji su u sobi, ali zapravo nisu njezin dio.</item>
+        <item>Widgeti kojima je potrebna integracija koju vi nemate — Formula 1, Parcele, Odvoz otpada — zasivljeni su i govore što nedostaje, umjesto da se dodaju i ostanu prazni.</item>
+        <item>Praćenje paketa pokriva još petnaest prijevoznika, uključujući PostNord, InPost, Swiss Post, An Post, Budbee, Sameday i Novu poštu, svaki sa svojim logotipom.</item>
+        <item>Valetudo robotski usisivač automatski preuzima svoju mapu uživo kada se uvezu vaše sobe, umjesto da je potrebna kamera koju ručno odaberete.</item>
+    </string-array>
+</resources>

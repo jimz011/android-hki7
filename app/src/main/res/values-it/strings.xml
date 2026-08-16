@@ -73,6 +73,14 @@
     <string name="stack_show_icon_description">L\'icona accanto all\'intestazione.</string>
     <string name="stack_center_title">Centrare l\'intestazione</string>
     <string name="stack_center_title_description">Posiziona l\'icona e il nome al centro invece che contro il bordo sinistro.</string>
+    <string name="cr_widget_requires_f1">Richiede l\'integrazione del sensore F1, che non è stata trovata sul tuo Home Assistant</string>
+    <string name="cr_widget_requires_parcels">È necessaria l\'integrazione dei pacchi e non ne è stato trovato nessuno sul tuo Home Assistant</string>
+    <string name="cr_widget_requires_waste">Richiede un\'integrazione per la raccolta dei rifiuti e non ne è stata trovata nessuna sul tuo Home Assistant</string>
+    <string name="cr_people_here_title">Chi è qui</string>
+    <string name="cr_people_here_empty">Nessuno viene rintracciato in questa stanza in questo momento.</string>
+    <string name="cr_people_here_unknown_room">Stanza sconosciuta</string>
+    <string name="cr_button_exclude_counters">Lasciare fuori dai banconi</string>
+    <string name="cr_button_exclude_counters_hint">Tieni il pulsante, ma smetti di contarlo per il totale di luci e dispositivi di questa stanza</string>
     <string name="core_greeting_morning">Buongiorno</string>
     <string name="core_greeting_afternoon">Buon pomeriggio</string>
     <string name="core_greeting_evening">Buonasera</string>
@@ -102,6 +110,13 @@
     <string name="energy_extra_sensor_city_heating_cost">Costo del riscaldamento cittadino</string>
     <string name="energy_extra_estimated_gas_equivalent">Equivalente di gas stimato</string>
     <string name="energy_extra_estimated_gas_note">Basato su 35,17 MJ per m³ di gas naturale</string>
+    <string name="energy_extra_currency">Valuta</string>
+    <string name="energy_extra_currency_subtitle">In quale valuta vengono visualizzate le statistiche sui costi</string>
+    <string name="energy_extra_currency_search">Cerca valute</string>
+    <string name="energy_extra_currency_automatic">Automatico</string>
+    <string name="energy_extra_currency_automatic_subtitle">Segui i sensori di costo, quindi la regione del tuo dispositivo</string>
+    <string name="energy_extra_currency_automatic_value">Automatico (%1$s)</string>
+    <string name="energy_extra_currency_manual_value">%1$s (%2$s)</string>
     <string name="events_tab">Eventi</string>
     <string name="events_empty">Nessun evento ancora</string>
     <string name="events_empty_hint">L\'attività recente per le entità aggiunte dall\'amministratore della famiglia alla sequenza temporale viene visualizzata qui.</string>
@@ -1397,7 +1412,6 @@
     <string name="ui_text_98d3f75">✓ %1$s</string>
     <string name="ui_text_9e5a283">%1$s×</string>
     <string name="ui_text_a105b80">%1$s/%2$s</string>
-    <string name="ui_text_b92cdc7">€ %1$s</string>
     <string name="ui_text_be10035">· %1$s</string>
     <string name="ui_text_c1aacd9">%1$s · %2$s</string>
     <string name="ui_text_c3328c3">Testo</string>
@@ -1613,6 +1627,13 @@
     <string name="app_update_required_opened_store">Google Play non ha potuto prendere il sopravvento qui, quindi è stata aperta la sua pagina dello store.</string>
     <string name="app_update_required_unavailable">Google Play non ha ancora aggiornamenti pronti per questo dispositivo. Ciò di solito significa che la versione non ti è arrivata o che questa copia di HKI non proviene dal Play Store.</string>
     <string name="app_update_required_continue">Continua senza aggiornare</string>
+    <string name="settings_extra_new_dashboard_confirm_body">Ciò aggiunge una dashboard accanto a quella che stai utilizzando. La tua dashboard attuale viene mantenuta esattamente com\'è e non viene mai sovrascritta: puoi passare da una all\'altra in qualsiasi momento.</string>
+    <string name="settings_extra_new_dashboard_confirm_action">Continuare</string>
+    <string name="settings_extra_new_dashboard_created">Creato “%1$s”</string>
+    <string name="uif_onboarding_shared_already_added">Già aggiunto</string>
+    <string name="settings_extra_dashboard_shared_badge">Condiviso</string>
+    <string name="settings_extra_dashboard_shared_subtitle">Condiviso con te dalla tua famiglia. Tocca per caricare</string>
+    <string name="settings_extra_dashboard_shared_loaded">Condiviso con te dalla tua famiglia. Attualmente caricato</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s installato</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud installato (aggiornare per vedere la sua versione)</string>
     <string name="settings_extra_hki_cloud_update_to_unlock">Aggiorna per sbloccare:</string>
@@ -1625,6 +1646,8 @@
     <string name="settings_extra_hki_cloud_feature_required_version">Richiedere alla famiglia di aggiornare a una determinata versione HKI</string>
     <string name="settings_extra_hki_cloud_feature_events">La sequenza temporale dell\'evento e il nasconderne parti a singole persone</string>
     <string name="settings_extra_hki_cloud_tab_requires">Richiede HKI 7 Cloud v%1$s o versione successiva. Aggiorna il componente in HACS: fino ad allora, ciò che imposti qui non avrà effetto.</string>
+    <string name="language_search_placeholder">Cerca lingue</string>
+    <string name="language_search_no_matches">Nessuna lingua corrisponde a "%1$s"</string>
     <string name="settings_extra_policy_needs_component_update_events">Autorizzazioni salvate, ma questo HKI 7 Cloud è troppo vecchio per nascondere gli eventi a questa persona: vedrebbe l\'intera sequenza temporale. Aggiornalo per applicare la restrizione.</string>
     <string name="settings_extra_tab_events">Eventi</string>
     <string name="settings_extra_events_title">Cronologia dell\'evento</string>
@@ -1804,4 +1827,7 @@
     <string name="widgets_waste_calendar_days">%1$d giorni</string>
     <string name="widgets_waste_calendar_range_help">Quanto avanti appare il calendario della finestra di dialogo. Viene visualizzato come una griglia settimanale, arrotondata alle settimane intere.</string>
     <string name="widgets_waste_no_collection_on">Nessuna raccolta su %1$s</string>
+    <string name="widgets_battery_search">Cerca dispositivi</string>
+    <string name="widgets_battery_none">Nessuna batteria corrisponde a quella ricerca.</string>
+    <string name="widgets_battery_open_page">Apri la pagina della batteria</string>
 </resources>

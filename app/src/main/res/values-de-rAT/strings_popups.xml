@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Empty (transparent) buttons and the custom-popup action. -->
+<resources>
+    <string name="spacer_empty_button">Leere Schaltfläche</string>
+    <string name="spacer_empty_button_description">Transparenter Platzhalter, der nur Platz reserviert</string>
+    <string name="spacer_add_empty_button">Leere Schaltfläche hinzufügen</string>
+    <string name="popup_custom_popup">Eigenes Pop-up</string>
+    <string name="popup_choose">Pop-up auswählen</string>
+    <string name="popup_none_yet">Noch keine Pop-ups</string>
+    <string name="popup_new">Neues Pop-up</string>
+    <string name="popup_default_name">Neues Pop-up</string>
+    <string name="popup_name">Name des Pop-ups</string>
+    <string name="popup_edit_contents">Inhalt bearbeiten</string>
+    <string name="popup_delete">Pop-up löschen</string>
+    <string name="popup_status_entity">Statusentität</string>
+    <string name="popup_status_entity_hint">Optional. Ihr Zustand füllt die Statuszeile des Dialogs und ergänzt die Verlaufsansicht.</string>
+    <string name="popup_settings_subtitle">Name, Symbol und Statusentität</string>
+    <string name="popup_shared_hint">Pop-ups werden geteilt: Andere Schaltflächen können dasselbe Pop-up öffnen.</string>
+    <string name="popup_empty">Dieses Pop-up ist leer. Tippe auf „Bearbeiten“, um Widgets hinzuzufügen.</string>
+    <string name="popup_settings_title">Pop-ups</string>
+    <string name="popup_settings_subtitle_section">Eigene Pop-ups erstellen und bearbeiten</string>
+    <string name="popup_settings_hint">Pop-ups werden über eine Schaltfläche, ein Badge oder eine Dialogschaltfläche mit der Aktion „Eigenes Pop-up“ geöffnet. „Inhalt bearbeiten“ öffnet das Pop-up selbst, um seine Widgets anzuordnen.</string>
+    <string name="button_icon_only">Nur Symbol</string>
+    <string name="button_icon_size">Symbolgröße</string>
+    <string name="button_icon_size_description">Automatisch verkleinert das Symbol, wenn der Stapel mehr Spalten hat, damit es auf eine schmale Schaltfläche passt.</string>
+    <string name="button_icon_size_auto">Automatisch</string>
+    <string name="button_icon_size_value">%1$d dp</string>
+    <string name="stack_child_icon_only">Nur Symbol für alle Schaltflächen</string>
+    <string name="stack_child_icon_only_description">Gilt für alle Schaltflächen in diesem Stapel, damit du es nicht einzeln einstellen musst.</string>
+    <string name="stack_child_icon_size">Symbolgröße für alle Schaltflächen</string>
+    <string name="button_icon_only_description">Name und Status ausblenden und das Symbol auf der Schaltfläche zentrieren</string>
+    <string name="action_button">Aktionsschaltfläche</string>
+    <string name="action_button_description">Eine Schaltfläche ohne Entität: Name, Symbol und beliebige Aktion</string>
+    <string name="action_button_add">Aktionsschaltfläche hinzufügen</string>
+    <string name="action_badge_add">Aktions-Badge hinzufügen</string>
+</resources>

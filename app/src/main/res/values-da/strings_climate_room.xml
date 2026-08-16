@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="cr_whats_new_1_1_0">
+        <item>Atten sprog mere, hvilket tager HKI 7 til 36. Polsk, russisk, tjekkisk, slovakisk, ungarsk, rumænsk, bulgarsk, kroatisk, græsk, litauisk, lettisk, estisk, dansk, thailandsk og hebraisk kommer med på listen, sammen med østrigsk tysk, schweizertysk og mexicansk spansk. Hebraisk lægger grænsefladen ud fra højre mod venstre, som arabisk gør.</item>
+        <item>HKI 7 kører nu på Android 12 og nyere. Den havde tidligere brug for Android 14, hvilket udelukkede en masse perfekt egnede telefoner og tablets.</item>
+        <item>Energiomkostninger vises i din egen valuta i stedet for altid i euro. HKI 7 følger, hvad dine omkostningssensorer rapporterer, og der er en Valuta-indstilling i Energiindstillinger, hvis du hellere vil vælge en selv.</item>
+        <item>Sprogvælgeren har en søgeboks og er sorteret, som den havde brug for ved 36 poster. Hvis du nogensinde lander på et sprog, du ikke kan læse, er vejen tilbage stadig det første på skærmen.</item>
+        <item>Visninger husker, hvor du var rullet til, og ved at trykke på den fane, du allerede er på, kommer du tilbage til toppen.</item>
+        <item>At stryge sidelæns fører dig ikke længere ud af en side, du har åbnet, såsom Solar inde i Energi. Tilbage nu vender dig tilbage til den visning, du kom fra, i stedet for at hoppe til startsiden.</item>
+        <item>Rulbare rækker siger det. Rullemenuen, navigationslinjen og indstillingsfanerne viser alle en pil i kanten, når der er mere at nå.</item>
+        <item>Dialoger ser ud og opfører sig ens hele vejen igennem. Seks af dem var almindelige Android-dialoger uden lukkeknap i hjørnet, og knapper på tværs af appen er nu enige om, hvad Luk, Gem og Udført betyder.</item>
+        <item>Oprettelse af et dashboard spørger først og giver derefter de samme valgmuligheder som førstegangsopsætning - så et nyt dashboard kan starte fra en sikkerhedskopi eller fra en, din familie har delt, såvel som at blive genereret eller efterladt tom. Dit nuværende dashboard overskrives aldrig, og delte dashboards er nu markeret som delt på listen.</item>
+        <item>Batteri-widgetten åbner en liste på plads i stedet for at føre dig til en separat side, grupperet efter, hvor hastende hver enkelt er, og som viser batteritypen, hvor Home Assistant kender den. Der er et søgefelt og en knap til at åbne den fulde batterivisning, hvis du ønsker det.</item>
+        <item>Ved at trykke på persontælleren i et rum vises, hvem der er der, med hver persons billede. Rooms-headeren har nu også en husstandstæller, der viser, hvor alle er uden at åbne hvert rum.</item>
+        <item>En knap kan udelades fra et rums lys- og enhedstællere, for dem, der er i rummet, men som ikke rigtig er en del af det.</item>
+        <item>Widgets, der har brug for en integration, du ikke har — Formel 1, Pakker, Affaldsindsamling — er nedtonet og siger, hvad der mangler, i stedet for at blive tilføjet og så stå tomme.</item>
+        <item>Pakkesporing dækker femten flere transportører, herunder PostNord, InPost, Swiss Post, An Post, Budbee, Sameday og Nova Post, hver med sit eget logo.</item>
+        <item>En Valetudo robotstøvsuger opfanger sit live-kort automatisk, når dine lokaler importeres, i stedet for at have brug for kameraet valgt i hånden.</item>
+    </string-array>
+</resources>

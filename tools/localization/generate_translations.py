@@ -20,11 +20,20 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 RES = ROOT / "app/src/main/res"
 CACHE_FILE = Path(__file__).with_name("translation_cache.json")
-LOCALES = ("nl", "de", "fr", "es", "it", "tr", "ja", "ko", "nb", "sv", "fi", "ar")
+LOCALES = (
+    "nl", "de", "fr", "es", "it", "tr", "ja", "ko", "nb", "sv", "fi", "ar",
+    "pl", "iw", "ru", "th", "ro", "hu", "bg", "el", "cs", "sk", "lt", "da", "et", "lv", "hr",
+)
 # Android resource qualifier -> the code the translation endpoint expects, for the few that differ.
 # Norwegian is the odd one: Android names the Bokmal resource folder `nb`, the endpoint calls the
 # language `no`. Everything absent from this map is passed through unchanged.
-TRANSLATE_TARGETS = {"nb": "no"}
+# Hebrew is the other historical mismatch: Android names the folder `values-iw` (the pre-1989
+# ISO code), and the endpoint answers to the same "iw".
+TRANSLATE_TARGETS = {"nb": "no", "iw": "iw"}
+# de-rCH, de-rAT and es-rMX are excluded for a different reason: the endpoint has no target for a
+# regional variant of German or Spanish, so translating them would just re-fetch the parent
+# language. derive_regional_variants.py copies the parent locale and applies what actually
+# differs instead.
 # pt-rBR, b+es+419, and zh-rCN/zh-rTW are deliberately excluded: their Android resource-folder
 # qualifiers aren't valid Google Translate target codes (need pt-BR/es-419/zh-CN/zh-TW), and unlike
 # ja/ko their <plurals> live inside strings.xml itself, which this script fully overwrites — running
@@ -81,7 +90,7 @@ def load_locale_strings(locale: str) -> dict[str, str]:
     return strings
 
 
-def protected_text(value: str) -> tuple[str, list[str]]:
+def protected_text(value: str) -> tuple[str, list[str], int]:
     arguments = FORMAT_ARGUMENT.findall(value)
     protected = value
     for index, argument in enumerate(arguments):
@@ -90,19 +99,38 @@ def protected_text(value: str) -> tuple[str, list[str]]:
     # tends to leave them alone by chance, which is why this went unnoticed; Arabic does not, and
     # rendered "Home Assistant" as "المساعد المنزلي" and the app's own name as "Hong Kong 7".
     # Longest first, so "HKI 7 Cloud" is taken before the "HKI 7" inside it.
+    # One token per distinct product name, covering every occurrence, rather than one token per
+    # occurrence. A name that appears twice is a name a translator may legitimately keep once,
+    # reordered, or reworded around — Romanian dropped the first of two "Home Assistant" mentions
+    # while keeping the second, which under one-token-per-occurrence read as a lost argument and
+    # failed the run.
+    format_count = len(arguments)
     for term in BRAND_TERMS:
-        while term in protected:
-            protected = protected.replace(term, f"__HKI_ARG_{len(arguments)}__", 1)
+        if term in protected:
+            protected = protected.replace(term, f"__HKI_ARG_{len(arguments)}__")
             arguments.append(term)
-    return protected, arguments
+    return protected, arguments, format_count
 
 
-def restore_arguments(value: str, arguments: list[str]) -> str:
+def restore_arguments(value: str, arguments: list[str], format_count: int) -> str:
     for index, argument in enumerate(arguments):
-        token_pattern = re.compile(rf"__\s*HKI\s*_\s*ARG\s*_\s*{index}\s*__", re.IGNORECASE)
-        value, count = token_pattern.subn(argument, value, count=1)
-        if count != 1:
-            raise RuntimeError(f"Translation lost format argument {argument}: {value!r}")
+        # The underscore fences are matched loosely on purpose. Two format arguments with nothing
+        # between them — "%2$s%3$s" in cr_count_with_average — protect to
+        # "__HKI_ARG_1____HKI_ARG_2__", and a translator that collapses the run of four underscores
+        # in the middle leaves the second token with no opening fence. The token body is unique, so
+        # anchoring on that and treating the fences as optional restores both. (?!\d) stops index 1
+        # from matching inside index 11.
+        token_pattern = re.compile(rf"_*\s*HKI\s*_\s*ARG\s*_\s*{index}(?!\d)\s*_*", re.IGNORECASE)
+        if index < format_count:
+            # A format argument is positional: exactly one, or the string is wrong.
+            value, count = token_pattern.subn(argument, value, count=1)
+            if count != 1:
+                raise RuntimeError(f"Translation lost format argument {argument}: {value!r}")
+        else:
+            # A product name only has to survive; how many times is the translation's business.
+            value, count = token_pattern.subn(argument, value)
+            if count == 0:
+                raise RuntimeError(f"Translation lost product name {argument}: {value!r}")
     return value
 
 
@@ -114,7 +142,7 @@ def brands_intact(english: str, translated: str) -> bool:
 def translate_one(locale: str, value: str) -> str:
     if not re.search(r"[^\W\d_]", value, re.UNICODE):
         return value
-    protected, arguments = protected_text(value)
+    protected, arguments, format_count = protected_text(value)
     query = urllib.parse.urlencode(
         {
             "client": "gtx",
@@ -134,7 +162,7 @@ def translate_one(locale: str, value: str) -> str:
             with urllib.request.urlopen(request, timeout=25) as response:
                 payload = json.loads(response.read().decode("utf-8"))
             translated = "".join(part[0] for part in payload[0] if part[0])
-            return restore_arguments(translated, arguments)
+            return restore_arguments(translated, arguments, format_count)
         except Exception as error:
             last_error = error
             time.sleep(0.5 * (attempt + 1))

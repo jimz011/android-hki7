@@ -106,7 +106,7 @@ internal data class ParcelCarrier(
         outgoing
     }
     /** True when this carrier's integration exposes `<domain>.track_parcel` (manual add by number). */
-    val supportsManualAdd: Boolean get() = domain in TRACK_PARCEL_DOMAINS
+
 
     val supportsLetters: Boolean get() = entities.any { entity ->
         val label = "${entity.entity_id} ${entity.friendlyName.orEmpty()}"
@@ -474,12 +474,22 @@ internal fun collectCarrierParcels(
         .map { parcel -> parcel.withCarrierCompatibility(domain) }
 }
 
-/** Every supported ha-parcel-integrations carrier: HA integration domain -> display name. */
-private val PARCEL_CARRIERS = linkedMapOf(
+/** Every supported ha-parcel-integrations carrier: HA integration domain -> display name.
+ *  The domain is the repository name with the `ha-` prefix dropped and dashes as underscores,
+ *  which is how the original entries here were derived and how the rest follow. */
+internal val PARCEL_CARRIERS = linkedMapOf(
     "postnl" to "PostNL", "dhl_nl" to "DHL", "dpd" to "DPD", "gls" to "GLS",
     "dragonfly" to "Dragonfly", "cainiao" to "Cainiao", "correos" to "Correos",
     "packeta" to "Packeta", "hermes" to "Hermes", "trunkrs" to "Trunkrs",
-    "vinted_go" to "Vinted Go", "parcel_aggregator" to "Parcels"
+    "vinted_go" to "Vinted Go",
+    "ampere" to "Ampère", "an_post" to "An Post", "budbee" to "Budbee",
+    "delhivery" to "Delhivery", "dynalogic" to "Dynalogic", "helthjem" to "Helthjem",
+    "inpost" to "InPost", "nova_post" to "Nova Post",
+    "oesterreichische_post" to "Österreichische Post", "planzer" to "Planzer",
+    "postnord" to "PostNord", "quickpac" to "Quickpac", "sameday" to "Sameday",
+    "sunyou" to "SunYou", "swiss_post" to "Swiss Post",
+    // The aggregator stays last: it unifies the others rather than being a carrier itself.
+    "parcel_aggregator" to "Parcels"
 )
 
 /** Carriers whose integration exposes `<domain>.track_parcel` — a manual add-by-tracking-number
@@ -488,10 +498,26 @@ internal val TRACK_PARCEL_DOMAINS = setOf(
     "gls", "dragonfly", "cainiao", "correos", "packeta", "hermes", "trunkrs"
 )
 
+/**
+ * Which of [carriers] can be added by tracking number. Asks Home Assistant which integrations
+ * expose `track_parcel` and falls back to [TRACK_PARCEL_DOMAINS] only when the service registry is
+ * unreachable, so a carrier that gains the service — or a carrier added after this build — works
+ * without an app update.
+ */
+@Composable
+internal fun rememberManualAddDomains(viewModel: MainViewModel): Set<String> {
+    var domains by remember { mutableStateOf(TRACK_PARCEL_DOMAINS) }
+    LaunchedEffect(viewModel) {
+        val live = viewModel.trackParcelDomains()
+        if (live.isNotEmpty()) domains = live
+    }
+    return domains
+}
+
 /** Carriers whose `track_parcel` also accepts an optional postal_code to pick the right hub. */
 internal val TRACK_PARCEL_POSTCODE_DOMAINS = setOf("gls", "trunkrs")
 
-private fun carrierKey(text: String): String = when {
+internal fun carrierKey(text: String): String = when {
     text.contains("postnl", true) -> "postnl"
     text.contains("dhl", true) -> "dhl_nl"
     text.contains("dpd", true) -> "dpd"
@@ -503,6 +529,24 @@ private fun carrierKey(text: String): String = when {
     text.contains("hermes", true) -> "hermes"
     text.contains("trunkrs", true) -> "trunkrs"
     text.contains("vinted", true) -> "vinted_go"
+    // Multi-word and native spellings first, so a carrier is never mistaken for a shorter name
+    // inside it. Nothing here matches a bare "post", which several of these contain.
+    text.contains("oesterreichische", true) || text.contains("österreichische", true) -> "oesterreichische_post"
+    text.contains("nova post", true) || text.contains("nova poshta", true) ||
+        text.contains("novapost", true) -> "nova_post"
+    text.contains("swiss post", true) || text.contains("swisspost", true) -> "swiss_post"
+    text.contains("postnord", true) -> "postnord"
+    text.contains("an post", true) || text.contains("anpost", true) -> "an_post"
+    text.contains("ampere", true) || text.contains("ampère", true) -> "ampere"
+    text.contains("budbee", true) -> "budbee"
+    text.contains("delhivery", true) -> "delhivery"
+    text.contains("dynalogic", true) -> "dynalogic"
+    text.contains("helthjem", true) -> "helthjem"
+    text.contains("inpost", true) || text.contains("paczkomat", true) -> "inpost"
+    text.contains("planzer", true) -> "planzer"
+    text.contains("quickpac", true) -> "quickpac"
+    text.contains("sameday", true) || text.contains("easybox", true) -> "sameday"
+    text.contains("sunyou", true) || text.contains("sypost", true) -> "sunyou"
     text.contains("parcel aggregator", true) -> "parcel_aggregator"
     else -> "parcel"
 }
@@ -510,7 +554,10 @@ private fun carrierKey(text: String): String = when {
 private fun carrierName(domain: String) = PARCEL_CARRIERS[domain] ?: "Carrier"
 
 /** Each carrier's brand logo, bundled in-app (vendored from every integration's
- *  custom_components/<domain>/brand/icon.png), so logos work offline for all carriers. */
+ *  custom_components/<domain>/brand/icon.png), so logos work offline for all carriers. Every
+ *  carrier the organisation publishes has one; the null branch is for a device HA reports that
+ *  this build has never heard of. Kept as an explicit map rather than a name lookup so resource
+ *  shrinking can still see each drawable is used. */
 private fun carrierLogoRes(domain: String): Int? = when (domain) {
     "postnl" -> R.drawable.parcel_postnl
     "dhl_nl" -> R.drawable.parcel_dhl_nl
@@ -522,6 +569,23 @@ private fun carrierLogoRes(domain: String): Int? = when (domain) {
     "packeta" -> R.drawable.parcel_packeta
     "hermes" -> R.drawable.parcel_hermes
     "trunkrs" -> R.drawable.parcel_trunkrs
+    "vinted_go" -> R.drawable.parcel_vinted_go
+    "ampere" -> R.drawable.parcel_ampere
+    "an_post" -> R.drawable.parcel_an_post
+    "budbee" -> R.drawable.parcel_budbee
+    "delhivery" -> R.drawable.parcel_delhivery
+    "dynalogic" -> R.drawable.parcel_dynalogic
+    "helthjem" -> R.drawable.parcel_helthjem
+    "inpost" -> R.drawable.parcel_inpost
+    "nova_post" -> R.drawable.parcel_nova_post
+    "oesterreichische_post" -> R.drawable.parcel_oesterreichische_post
+    "planzer" -> R.drawable.parcel_planzer
+    "postnord" -> R.drawable.parcel_postnord
+    "quickpac" -> R.drawable.parcel_quickpac
+    "sameday" -> R.drawable.parcel_sameday
+    "sunyou" -> R.drawable.parcel_sunyou
+    "swiss_post" -> R.drawable.parcel_swiss_post
+    "parcel_aggregator" -> R.drawable.parcel_parcel_aggregator
     else -> null
 }
 
@@ -793,7 +857,8 @@ private fun ParcelAsyncImage(
 private fun ParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel, onDismiss: () -> Unit) {
     val appColors = LocalHKIAppColors.current
     var showAddParcel by remember { mutableStateOf(false) }
-    val canAddParcel = remember(carriers) { carriers.any { it.supportsManualAdd } }
+    val manualAddDomains = rememberManualAddDomains(viewModel)
+    val canAddParcel = remember(carriers, manualAddDomains) { carriers.any { it.domain in manualAddDomains } }
     var selectedCarrierId by remember(carriers) { mutableStateOf(if (carriers.size == 1) carriers.firstOrNull()?.deviceId else null) }
     val carrier = carriers.firstOrNull { it.deviceId == selectedCarrierId }
     var tab by remember(selectedCarrierId) { mutableStateOf(ParcelTab.Incoming) }
@@ -1007,7 +1072,10 @@ private fun AddParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewMo
     val scope = rememberCoroutineScope()
     // Only carriers whose integration supports track_parcel; dedupe by domain since the service is
     // domain-level (it resolves the config entry itself, so aggregated/multiple accounts collapse).
-    val addable = remember(carriers) { carriers.filter { it.supportsManualAdd }.distinctBy { it.domain } }
+    val manualAddDomains = rememberManualAddDomains(viewModel)
+    val addable = remember(carriers, manualAddDomains) {
+        carriers.filter { it.domain in manualAddDomains }.distinctBy { it.domain }
+    }
     var selectedDomain by remember { mutableStateOf(if (addable.size == 1) addable.first().domain else null) }
     val selected = addable.firstOrNull { it.domain == selectedDomain }
     var tracking by remember(selectedDomain) { mutableStateOf("") }
@@ -1389,7 +1457,7 @@ fun ParcelDevicePickerDialog(
                     CircularProgressIndicator()
                 }
             },
-            confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
+            confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_close_bbfa773)) } }
         )
     } else {
         DevicePickerDialog(devices, currentId, onDismiss, onSelected)

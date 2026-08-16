@@ -1507,7 +1507,6 @@
     <string name="ui_text_98d3f75">✓ %1$s</string>
     <string name="ui_text_9e5a283">%1$s×</string>
     <string name="ui_text_a105b80">%1$s/%2$s</string>
-    <string name="ui_text_b92cdc7">€ %1$s</string>
     <string name="ui_text_be10035"> · %1$s</string>
     <string name="ui_text_c1aacd9">%1$s · %2$s</string>
     <string name="ui_text_c3328c3">文本</string>
@@ -1958,6 +1957,24 @@
     <string name="cr_vacuum_settings">扫地机器人设置</string>
     <string name="cr_weekly">每周</string>
     <string name="cr_wet">潮湿</string>
+<string-array name="cr_whats_new_1_1_0">
+    <item>另外还有 18 种语言，从 HKI 7 增至 36 种。波兰语、俄语、捷克语、斯洛伐克语、匈牙利语、罗马尼亚语、保加利亚语、克罗地亚语、希腊语、立陶宛语、拉脱维亚语、爱沙尼亚语、丹麦语、泰语和希伯来语以及奥地利德语、瑞士德语和墨西哥西班牙语也加入了该列表。希伯来语将界面从右向左排列，就像阿拉伯语一样。</item>
+    <item>HKI 7 现在在 Android 12 及更高版本上运行。它之前需要 Android 14，这排除了许多功能完美的手机和平板电脑。</item>
+    <item>能源成本以您自己的货币显示，而不是始终以欧元显示。 HKI 7 遵循您的成本传感器报告的内容，如果您想自己选择一个，则能源设置中有一个货币设置。</item>
+    <item>语言选择器有一个搜索框并已排序，需要 36 个条目。如果您遇到无法阅读的语言，返回的路径仍然是屏幕上的第一个内容。</item>
+    <item>视图会记住您滚动到的位置，点击您所在的选项卡即可返回顶部。</item>
+    <item>向侧面滑动不再使您离开已打开的页面，例如“能源”中的“太阳能”。现在返回可让您返回到原来的视图，而不是跳转到主页。</item>
+    <item>可滚动的行就是这么说的。当有更多内容需要访问时，下拉菜单、导航栏和设置选项卡都会在边缘显示一个箭头。</item>
+    <item>对话框的外观和行为始终相同。其中六个是普通的 Android 对话框，角落里没有关闭按钮，应用程序中的按钮现在就“关闭”、“保存”和“完成”的含义达成一致。</item>
+    <item>创建仪表板首先会询问，然后提供与首次设置相同的选择 - 因此新的仪表板可以从备份或您家人共享的仪表板开始，也可以生成或留空。您当前的仪表板永远不会被覆盖，并且共享仪表板现在在列表中标记为共享。</item>
+    <item>电池小部件会打开一个列表，而不是将您带到单独的页面，根据每个页面的紧急程度进行分组，并显示 Home Assistant 知道的电池类型。有一个搜索框和一个按钮，可以根据需要打开完整的电池视图。</item>
+    <item>点击房间内的人数计数器即可显示谁在场，并附有每个人的照片。房间标题现在也有一个家庭计数器，无需打开每个房间即可显示每个人的位置。</item>
+    <item>对于房间内但不属于房间的一部分的按钮，可以在房间的“灯光和设备”计数器之外留下一个按钮。</item>
+    <item>需要集成但您没有的小部件（一级方程式、包裹、废物收集）会显示为灰色，并显示缺少什么，而不是添加后然后空着。</item>
+    <item>包裹追踪涵盖另外 15 家承运商，包括 PostNord、InPost、Swiss Post、An Post、Budbee、Sameday 和 Nova Post，每个承运商都有自己的徽标。</item>
+    <item>当您导入房间时，Valetudo 机器人真空吸尘器会自动拾取实时地图，而不需要手动选择相机。</item>
+</string-array>
+
 <string-array name="cr_whats_new_1_0_1">
     <item>现在，在选项卡之间滑动可以跟随您的手指。页面会随着您的拖动而移动，您可以在滑动过程中改变主意并将其拉回，然后它们会固定在您松开的位置。以前，更改是在您拖动得足够远且无法撤回的那一刻决定的，而随后播放的动画是根据其自己的计时器播放的，与手势无关 - 因此应用程序在您的手指完成请求之前就已提交到页面。</item>
     <item>底部栏现在将所选选项卡保留在视图中。在对于每个选项卡都太窄的手机上，它会将活动选项卡滚动到中心，因此您所在的选项卡及其相邻选项卡始终可见 - 这也暗示有更多页面可供滑动。到达最后一个选项卡时，指示器会离开栏末端的某个位置。</item>
@@ -3799,4 +3816,31 @@
     <string name="button_style_centered">居中</string>
     <string name="stack_elements_title">该堆栈中每个按钮上的元素</string>
     <string name="stack_elements_description">这些适用于整个堆栈，而不是单个按钮。在这里关闭某些功能会将其隐藏在堆栈中的每个按钮上；保持打开状态可以让每个按钮在自己的设置中自行决定。</string>
+    <string name="energy_extra_currency">货币</string>
+    <string name="energy_extra_currency_automatic">自动的</string>
+    <string name="energy_extra_currency_automatic_subtitle">遵循您的成本传感器，然后是您的设备区域</string>
+    <string name="energy_extra_currency_automatic_value">自动 (%1$s)</string>
+    <string name="energy_extra_currency_manual_value">%1$s (%2$s)</string>
+    <string name="energy_extra_currency_search">搜索货币</string>
+    <string name="energy_extra_currency_subtitle">费用统计数据以哪种货币显示</string>
+    <string name="language_search_no_matches">没有语言匹配“%1$s”</string>
+    <string name="language_search_placeholder">搜索语言</string>
+    <string name="settings_extra_new_dashboard_confirm_action">继续</string>
+    <string name="settings_extra_new_dashboard_confirm_body">这会在您正在使用的仪表板旁边添加一个仪表板。您当前的仪表板完全保持原样，并且永远不会被覆盖 - 您可以随时在它们之间切换。</string>
+    <string name="settings_extra_new_dashboard_created">创建“%1$s”</string>
+    <string name="cr_button_exclude_counters">离开柜台</string>
+    <string name="cr_button_exclude_counters_hint">保留按钮，但停止计入该房间的灯光和设备总数</string>
+    <string name="cr_people_here_empty">现在这个房间里没有人被追踪。</string>
+    <string name="cr_people_here_title">谁在这里</string>
+    <string name="cr_people_here_unknown_room">房间未知</string>
+    <string name="cr_widget_requires_f1">需要 F1 传感器集成，但在您的 Home Assistant 上找不到</string>
+    <string name="cr_widget_requires_parcels">需要包裹集成，但在您的 Home Assistant 上未找到任何包裹</string>
+    <string name="cr_widget_requires_waste">需要废物收集集成，但在您的 Home Assistant 上没有找到任何废物收集集成</string>
+    <string name="settings_extra_dashboard_shared_badge">共享</string>
+    <string name="settings_extra_dashboard_shared_loaded">您的家人与您分享。目前已加载</string>
+    <string name="settings_extra_dashboard_shared_subtitle">您的家人与您分享。点击加载</string>
+    <string name="uif_onboarding_shared_already_added">已添加</string>
+    <string name="widgets_battery_none">没有与该搜索匹配的电池。</string>
+    <string name="widgets_battery_open_page">打开电池页面</string>
+    <string name="widgets_battery_search">搜索设备</string>
 </resources>

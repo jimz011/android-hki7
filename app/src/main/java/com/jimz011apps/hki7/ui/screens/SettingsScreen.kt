@@ -47,6 +47,8 @@ import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -110,6 +112,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -430,6 +433,7 @@ fun SettingsDialog(
     val sectionScrollOffsets = remember { mutableStateMapOf<SettingsSection, Int>() }
     var previousSection by remember { mutableStateOf<SettingsSection?>(null) }
     var showNewConfigConfirm by remember { mutableStateOf(false) }
+    var showNewDashboardSetup by remember { mutableStateOf(false) }
     var newDashboardName by remember { mutableStateOf("") }
     var dashboardEditMode by remember { mutableStateOf(false) }
     var renameDashboard by remember { mutableStateOf<com.jimz011apps.hki7.data.HKIDashboard?>(null) }
@@ -466,6 +470,11 @@ fun SettingsDialog(
     var accessSelected by remember { mutableStateOf(setOf<String>()) }
     var accessEveryone by remember { mutableStateOf(false) }
     var sharingAvailable by remember { mutableStateOf(false) }
+    // Bumped by anything that changes family-sharing state on the server. The Dashboard and Family
+    // Sharing sections reload their rosters from this, so a save shows up without backing out and
+    // coming back in — publishing a dashboard used to require exactly that, being the one mutation
+    // that never refreshed.
+    var familyRefresh by remember { mutableIntStateOf(0) }
     var isHaAdmin by remember { mutableStateOf(false) }
     var currentHaUserId by remember { mutableStateOf<String?>(null) }
     // Null against a component too old to report it (0.6.1 or earlier), not the same as the
@@ -1532,13 +1541,71 @@ fun SettingsDialog(
                                 Triple("nb", stringResource(R.string.settings_extra_language_norwegian), stringResource(R.string.settings_extra_language_norwegian_hint)),
                                 Triple("sv", stringResource(R.string.settings_extra_language_swedish), stringResource(R.string.settings_extra_language_swedish_hint)),
                                 Triple("fi", stringResource(R.string.settings_extra_language_finnish), stringResource(R.string.settings_extra_language_finnish_hint)),
-                                Triple("ar", stringResource(R.string.settings_extra_language_arabic), stringResource(R.string.settings_extra_language_arabic_hint))
+                                Triple("ar", stringResource(R.string.settings_extra_language_arabic), stringResource(R.string.settings_extra_language_arabic_hint)),
+                                Triple("pl", stringResource(R.string.settings_extra_language_polish), stringResource(R.string.settings_extra_language_polish_hint)),
+                                Triple("he", stringResource(R.string.settings_extra_language_hebrew), stringResource(R.string.settings_extra_language_hebrew_hint)),
+                                Triple("ru", stringResource(R.string.settings_extra_language_russian), stringResource(R.string.settings_extra_language_russian_hint)),
+                                Triple("th", stringResource(R.string.settings_extra_language_thai), stringResource(R.string.settings_extra_language_thai_hint)),
+                                Triple("ro", stringResource(R.string.settings_extra_language_romanian), stringResource(R.string.settings_extra_language_romanian_hint)),
+                                Triple("hu", stringResource(R.string.settings_extra_language_hungarian), stringResource(R.string.settings_extra_language_hungarian_hint)),
+                                Triple("bg", stringResource(R.string.settings_extra_language_bulgarian), stringResource(R.string.settings_extra_language_bulgarian_hint)),
+                                Triple("el", stringResource(R.string.settings_extra_language_greek), stringResource(R.string.settings_extra_language_greek_hint)),
+                                Triple("cs", stringResource(R.string.settings_extra_language_czech), stringResource(R.string.settings_extra_language_czech_hint)),
+                                Triple("sk", stringResource(R.string.settings_extra_language_slovak), stringResource(R.string.settings_extra_language_slovak_hint)),
+                                Triple("lt", stringResource(R.string.settings_extra_language_lithuanian), stringResource(R.string.settings_extra_language_lithuanian_hint)),
+                                Triple("da", stringResource(R.string.settings_extra_language_danish), stringResource(R.string.settings_extra_language_danish_hint)),
+                                Triple("et", stringResource(R.string.settings_extra_language_estonian), stringResource(R.string.settings_extra_language_estonian_hint)),
+                                Triple("lv", stringResource(R.string.settings_extra_language_latvian), stringResource(R.string.settings_extra_language_latvian_hint)),
+                                Triple("hr", stringResource(R.string.settings_extra_language_croatian), stringResource(R.string.settings_extra_language_croatian_hint)),
+                                Triple("de-CH", stringResource(R.string.settings_extra_language_german_switzerland), stringResource(R.string.settings_extra_language_german_switzerland_hint)),
+                                Triple("de-AT", stringResource(R.string.settings_extra_language_german_austria), stringResource(R.string.settings_extra_language_german_austria_hint)),
+                                Triple("es-MX", stringResource(R.string.settings_extra_language_spanish_mexico), stringResource(R.string.settings_extra_language_spanish_mexico_hint))
                             )
                             SettingsSubcategory(
                                 stringResource(R.string.language_display_title),
                                 stringResource(R.string.language_display_subtitle)
                             )
-                            languages.forEach { (tag, label, hint) ->
+                            var languageQuery by rememberSaveable { mutableStateOf("") }
+                            OutlinedTextField(
+                                value = languageQuery,
+                                onValueChange = { languageQuery = it },
+                                placeholder = { Text(stringResource(R.string.language_search_placeholder)) },
+                                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                                trailingIcon = if (languageQuery.isNotEmpty()) {
+                                    {
+                                        IconButton(onClick = { languageQuery = "" }) {
+                                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.dlg_clear))
+                                        }
+                                    }
+                                } else null,
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = settingsTextFieldColors()
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            // "Follow the device" and the current choice stay pinned at the top; the rest sort
+                            // by the name they are shown under. Sorting the whole list would bury the one entry
+                            // someone who picked the wrong language needs to find, and the endonyms span several
+                            // scripts, so a plain alphabetical run is not something you can scan for anyway.
+                            val (pinned, rest) = languages.partition {
+                                it.first == SYSTEM_LANGUAGE_TAG || it.first == selectedLanguage
+                            }
+                            val collator = remember { java.text.Collator.getInstance() }
+                            val ordered = pinned + rest.sortedWith(compareBy(collator) { it.third.ifBlank { it.second } })
+                            val shown = ordered.filter { (_, label, hint) ->
+                                languageQuery.isBlank() ||
+                                    label.contains(languageQuery, ignoreCase = true) ||
+                                    hint.contains(languageQuery, ignoreCase = true)
+                            }
+                            if (shown.isEmpty()) {
+                                Text(
+                                    stringResource(R.string.language_search_no_matches, languageQuery),
+                                    color = appColors.onMuted,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.padding(vertical = 12.dp)
+                                )
+                            }
+                            shown.forEach { (tag, label, hint) ->
                                 val subtitle = buildString {
                                     append(hint)
                                     if (tag == selectedLanguage) {
@@ -1752,7 +1819,7 @@ fun SettingsDialog(
                             }
                         }
                         SettingsSection.DASHBOARD -> {
-                            LaunchedEffect(Unit) {
+                            LaunchedEffect(familyRefresh) {
                                 val id = runCatching { HaDashboardSharing.whoami(context) }.getOrNull()
                                 sharingAvailable = id != null
                                 isHaAdmin = id?.isAdmin == true
@@ -1780,8 +1847,49 @@ fun SettingsDialog(
                                     ) {
                                         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                                             Column(Modifier.weight(1f)) {
-                                                Text(dashboard.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
-                                                Text(if (dashboard.id == activeDashboardId) stringResource(R.string.ui_currently_loaded_69ef6fb) else stringResource(R.string.ui_tap_to_load_0c49cab), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Text(dashboard.name, color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
+                                                    // A shared dashboard is stored locally as "shared-<id>". Without saying so
+                                                    // here, the only way to find out you were on somebody else's dashboard was
+                                                    // to try renaming it.
+                                                    if (dashboard.id.startsWith("shared-")) {
+                                                        Spacer(Modifier.width(8.dp))
+                                                        Surface(
+                                                            shape = RoundedCornerShape(50),
+                                                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
+                                                        ) {
+                                                            Row(
+                                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                                                verticalAlignment = Alignment.CenterVertically
+                                                            ) {
+                                                                Icon(
+                                                                    Icons.Default.Groups,
+                                                                    contentDescription = null,
+                                                                    tint = MaterialTheme.colorScheme.primary,
+                                                                    modifier = Modifier.size(13.dp)
+                                                                )
+                                                                Spacer(Modifier.width(4.dp))
+                                                                Text(
+                                                                    stringResource(R.string.settings_extra_dashboard_shared_badge),
+                                                                    color = MaterialTheme.colorScheme.primary,
+                                                                    style = MaterialTheme.typography.labelSmall
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                val isShared = dashboard.id.startsWith("shared-")
+                                                Text(
+                                                    when {
+                                                        isShared && dashboard.id == activeDashboardId ->
+                                                            stringResource(R.string.settings_extra_dashboard_shared_loaded)
+                                                        isShared -> stringResource(R.string.settings_extra_dashboard_shared_subtitle)
+                                                        dashboard.id == activeDashboardId -> stringResource(R.string.ui_currently_loaded_69ef6fb)
+                                                        else -> stringResource(R.string.ui_tap_to_load_0c49cab)
+                                                    },
+                                                    color = appColors.onMuted,
+                                                    style = MaterialTheme.typography.bodySmall
+                                                )
                                             }
                                             IconButton(
                                                 onClick = { viewModel.setDefaultDashboard(dashboard.id) },
@@ -1917,7 +2025,7 @@ fun SettingsDialog(
                             var eventsRosterBusy by remember { mutableStateOf(false) }
                             var showEventsRosterPicker by remember { mutableStateOf(false) }
                             var eventsHiddenPicker by remember { mutableStateOf<String?>(null) }
-                            LaunchedEffect(Unit) {
+                            LaunchedEffect(familyRefresh) {
                                 val id = runCatching { HaDashboardSharing.whoami(context) }.getOrNull()
                                 sharingAvailable = id != null
                                 isHaAdmin = id?.isAdmin == true
@@ -3073,7 +3181,7 @@ fun SettingsDialog(
                     ) { Text(stringResource(R.string.ui_home_assistant_c8fd3bb)) }
                 }
             },
-            confirmButton = { TextButton(onClick = { showRestoreSource = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
+            confirmButton = { TextButton(onClick = { showRestoreSource = false }) { Text(stringResource(R.string.ui_close_bbfa773)) } }
         )
     }
 
@@ -3108,7 +3216,7 @@ fun SettingsDialog(
                     }
                 }
             },
-            confirmButton = { TextButton(onClick = { showHaRestore = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
+            confirmButton = { TextButton(onClick = { showHaRestore = false }) { Text(stringResource(R.string.ui_close_bbfa773)) } }
         )
     }
 
@@ -3178,6 +3286,7 @@ fun SettingsDialog(
                                     existingSharedId = dash.id,
                                 )
                             }.getOrNull()
+                            familyRefresh++
                             setupChangedMessage = if (meta != null) {
                                 context.getString(R.string.settings_extra_dashboard_shared, dash.name)
                             } else {
@@ -3262,7 +3371,7 @@ fun SettingsDialog(
                         scope.launch {
                             val ok = runCatching { HaDashboardSharing.setSharedWith(context, meta, recipients) }
                                 .getOrDefault(false)
-                            sharedWithMe = runCatching { HaDashboardSharing.listSharedForMe(context) }.getOrDefault(sharedWithMe)
+                            familyRefresh++
                             setupChangedMessage = if (ok) {
                                 context.getString(R.string.settings_extra_shared_dashboard_access_updated, meta.name)
                             } else {
@@ -3311,36 +3420,54 @@ fun SettingsDialog(
                     }
                 }
             },
-            confirmButton = { TextButton(onClick = { showCloudRestore = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
+            confirmButton = { TextButton(onClick = { showCloudRestore = false }) { Text(stringResource(R.string.ui_close_bbfa773)) } }
         )
     }
 
+    // Creating a dashboard is two steps: confirm that this adds one rather than replacing what is
+    // there, then the same chooser onboarding uses — which is what lets a new dashboard be built
+    // from a backup as well as auto-generated or empty.
     if (showNewConfigConfirm) {
         AlertDialog(
             onDismissRequest = { showNewConfigConfirm = false },
             title = { Text(stringResource(R.string.ui_start_new_dashboard_8c71127)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(stringResource(R.string.ui_create_a_separate_dashboard_auto_generate_imports_once_and_a5f0ef1))
-                    OutlinedTextField(newDashboardName, { newDashboardName = it }, label = { Text(stringResource(R.string.ui_dashboard_name_466f3af)) }, singleLine = true)
+                    Text(stringResource(R.string.settings_extra_new_dashboard_confirm_body))
+                    OutlinedTextField(
+                        newDashboardName,
+                        { newDashboardName = it },
+                        label = { Text(stringResource(R.string.ui_dashboard_name_466f3af)) },
+                        singleLine = true
+                    )
                 }
             },
             confirmButton = {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = {
-                        viewModel.createDashboard(newDashboardName, auto = true)
-                        showNewConfigConfirm = false
-                        setupChangedMessage = context.getString(R.string.settings_extra_dashboard_generating)
-                    }) { Text(stringResource(R.string.ui_auto_generate_0f86c24)) }
-                    Button(onClick = {
-                        viewModel.createDashboard(newDashboardName, auto = false)
-                        showNewConfigConfirm = false
-                        setupChangedMessage = context.getString(R.string.settings_extra_empty_dashboard_created)
-                    }) { Text(stringResource(R.string.ui_start_empty_888db50)) }
-                }
+                Button(onClick = {
+                    showNewConfigConfirm = false
+                    showNewDashboardSetup = true
+                }) { Text(stringResource(R.string.settings_extra_new_dashboard_confirm_action)) }
             },
             dismissButton = { TextButton(onClick = { showNewConfigConfirm = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
         )
+    }
+
+    if (showNewDashboardSetup) {
+        val createdName = newDashboardName.trim().ifBlank { stringResource(R.string.ui_new_dashboard_4d3c071) }
+        Dialog(
+            onDismissRequest = { showNewDashboardSetup = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            DashboardSetupStep(
+                prefs = prefs,
+                additionalDashboardName = createdName,
+                onBack = { showNewDashboardSetup = false },
+                onComplete = {
+                    showNewDashboardSetup = false
+                    setupChangedMessage = context.getString(R.string.settings_extra_new_dashboard_created, createdName)
+                }
+            )
+        }
     }
 
     renameDashboard?.let { dashboard ->
@@ -3404,7 +3531,7 @@ fun SettingsDialog(
                         shareBusy = true
                         scope.launch {
                             val ok = runCatching { HaDashboardSharing.delete(context, target.id) }.getOrDefault(false)
-                            sharedWithMe = runCatching { HaDashboardSharing.listSharedForMe(context) }.getOrDefault(sharedWithMe)
+                            familyRefresh++
                             setupChangedMessage = if (ok) {
                                 context.getString(R.string.settings_extra_shared_dashboard_deleted, target.name)
                             } else {

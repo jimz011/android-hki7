@@ -28,7 +28,9 @@ from generate_translations import (
     translate_one,
 )
 
-# Android resource qualifier -> the target code the translation endpoint accepts.
+# Android resource qualifier -> the target code the translation endpoint accepts. The derived
+# regional variants (de-rCH, de-rAT, es-rMX) are absent on purpose: derive_regional_variants.py
+# copies them wholesale from their parent locale, arrays included.
 LOCALE_TARGETS = {
     "nl": "nl",
     "de": "de",
@@ -47,6 +49,21 @@ LOCALE_TARGETS = {
     "sv": "sv",
     "fi": "fi",
     "ar": "ar",
+    "pl": "pl",
+    "iw": "iw",
+    "ru": "ru",
+    "th": "th",
+    "ro": "ro",
+    "hu": "hu",
+    "bg": "bg",
+    "el": "el",
+    "cs": "cs",
+    "sk": "sk",
+    "lt": "lt",
+    "da": "da",
+    "et": "et",
+    "lv": "lv",
+    "hr": "hr",
 }
 
 # Where the release-note arrays live in the English resources, and so where a locale that has no

@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="core_last_seen_days">
+        <item quantity="one">Ostatni raz widziany %1$d dzień temu</item>
+        <item quantity="few">Ostatni raz widziany %1$d dni temu</item>
+        <item quantity="many">Ostatni raz widziany %1$d dni temu</item>
+        <item quantity="other">Ostatni raz widziany %1$d dni temu</item>
+    </plurals>
+    <plurals name="core_last_seen_hours">
+        <item quantity="one">Ostatni raz widziany %1$d godzinę temu</item>
+        <item quantity="few">Ostatni raz widziany %1$d godzin temu</item>
+        <item quantity="many">Ostatni raz widziany %1$d godzin temu</item>
+        <item quantity="other">Ostatni raz widziany %1$d godzin temu</item>
+    </plurals>
+    <plurals name="core_last_seen_minutes">
+        <item quantity="one">Ostatni raz widziany %1$d minutę temu</item>
+        <item quantity="few">Ostatni raz widziany %1$d minut temu</item>
+        <item quantity="many">Ostatni raz widziany %1$d minut temu</item>
+        <item quantity="other">Ostatni raz widziany %1$d minut temu</item>
+    </plurals>
+    <plurals name="core_last_seen_weeks">
+        <item quantity="one">Ostatni raz widziany %1$d tydzień temu</item>
+        <item quantity="few">Ostatni raz widziany %1$d tygodni temu</item>
+        <item quantity="many">Ostatni raz widziany %1$d tygodni temu</item>
+        <item quantity="other">Ostatni raz widziany %1$d tygodni temu</item>
+    </plurals>
+    <plurals name="core_media_players_playing">
+        <item quantity="one">Odtwarza odtwarzacz multimedialny %1$d</item>
+        <item quantity="few">Odtwarzają odtwarzacze multimedialne %1$d</item>
+        <item quantity="many">Odtwarzają odtwarzacze multimedialne %1$d</item>
+        <item quantity="other">Odtwarzają odtwarzacze multimedialne %1$d</item>
+    </plurals>
+    <plurals name="cr_auto_plus_manual">
+        <item quantity="one">Automatyczny + %d ręczny</item>
+        <item quantity="few">Automatyczny + %d ręczny</item>
+        <item quantity="many">Automatyczny + %d ręczny</item>
+        <item quantity="other">Automatyczny + %d ręczny</item>
+    </plurals>
+    <plurals name="cr_configured_lights">
+        <item quantity="one">%d skonfigurowane światło</item>
+        <item quantity="few">%d skonfigurowanych świateł</item>
+        <item quantity="many">%d skonfigurowanych świateł</item>
+        <item quantity="other">%d skonfigurowanych świateł</item>
+    </plurals>
+    <plurals name="cr_device_count_on">
+        <item quantity="one">%1$d urządzenie · %2$d włączone</item>
+        <item quantity="few">%1$d urządzenia · %2$d włączone</item>
+        <item quantity="many">%1$d urządzenia · %2$d włączone</item>
+        <item quantity="other">%1$d urządzenia · %2$d włączone</item>
+    </plurals>
+    <plurals name="cr_outside_sensors_set">
+        <item quantity="one">%d zestaw czujnika zewnętrznego</item>
+        <item quantity="few">Ustawiono %d czujników zewnętrznych</item>
+        <item quantity="many">Ustawiono %d czujników zewnętrznych</item>
+        <item quantity="other">Ustawiono %d czujników zewnętrznych</item>
+    </plurals>
+    <plurals name="cr_removed_count">
+        <item quantity="one">%d usunięty</item>
+        <item quantity="few">%d usunięty</item>
+        <item quantity="many">%d usunięty</item>
+        <item quantity="other">%d usunięty</item>
+    </plurals>
+    <plurals name="cr_selected_count">
+        <item quantity="one">Wybrano %d</item>
+        <item quantity="few">Wybrano %d</item>
+        <item quantity="many">Wybrano %d</item>
+        <item quantity="other">Wybrano %d</item>
+    </plurals>
+    <plurals name="cr_sensor_count">
+        <item quantity="one">%d czujnik</item>
+        <item quantity="few">%d czujników</item>
+        <item quantity="many">%d czujników</item>
+        <item quantity="other">%d czujników</item>
+    </plurals>
+    <plurals name="cr_widget_option_count">
+        <item quantity="one">Opcja %d</item>
+        <item quantity="few">%d opcji</item>
+        <item quantity="many">%d opcji</item>
+        <item quantity="other">%d opcji</item>
+    </plurals>
+    <plurals name="dlg_action_data_value_summary">
+        <item quantity="one">%1$s · %2$d wartość danych</item>
+        <item quantity="few">%1$s · %2$d wartości danych</item>
+        <item quantity="many">%1$s · %2$d wartości danych</item>
+        <item quantity="other">%1$s · %2$d wartości danych</item>
+    </plurals>
+    <plurals name="dlg_arming_in_seconds">
+        <item quantity="one">Uzbrojenie za %d sekundę</item>
+        <item quantity="few">Uzbrojenie za %d sekund</item>
+        <item quantity="many">Uzbrojenie za %d sekund</item>
+        <item quantity="other">Uzbrojenie za %d sekund</item>
+    </plurals>
+    <plurals name="dlg_seconds_short">
+        <item quantity="one">%d sek</item>
+        <item quantity="few">%d sek</item>
+        <item quantity="many">%d sek</item>
+        <item quantity="other">%d sek</item>
+    </plurals>
+    <plurals name="dlg_selected_entities_summary">
+        <item quantity="one">%1$d wybrane · %2$s</item>
+        <item quantity="few">%1$d wybrane · %2$s</item>
+        <item quantity="many">%1$d wybrane · %2$s</item>
+        <item quantity="other">%1$d wybrane · %2$s</item>
+    </plurals>
+    <plurals name="global_search_browse_entities">
+        <item quantity="one">Przeglądaj jednostkę %1$d na tym urządzeniu</item>
+        <item quantity="few">Przeglądaj elementy %1$d na tym urządzeniu</item>
+        <item quantity="many">Przeglądaj elementy %1$d na tym urządzeniu</item>
+        <item quantity="other">Przeglądaj elementy %1$d na tym urządzeniu</item>
+    </plurals>
+    <plurals name="global_search_entity_count">
+        <item quantity="one">Podmiot %1$d</item>
+        <item quantity="few">%1$d podmioty</item>
+        <item quantity="many">%1$d podmioty</item>
+        <item quantity="other">%1$d podmioty</item>
+    </plurals>
+    <plurals name="parcel_letter_count">
+        <item quantity="one">%1$d list</item>
+        <item quantity="few">%1$d litery</item>
+        <item quantity="many">%1$d litery</item>
+        <item quantity="other">%1$d litery</item>
+    </plurals>
+    <plurals name="rooms_count">
+        <item quantity="one">%1$d pokój</item>
+        <item quantity="few">%1$d pokoi</item>
+        <item quantity="many">%1$d pokoi</item>
+        <item quantity="other">%1$d pokoi</item>
+    </plurals>
+    <plurals name="security_entity_count">
+        <item quantity="one">Podmiot %1$d</item>
+        <item quantity="few">%1$d podmioty</item>
+        <item quantity="many">%1$d podmioty</item>
+        <item quantity="other">%1$d podmioty</item>
+    </plurals>
+    <plurals name="settings_extra_days_ago">
+        <item quantity="one">%1$d dzień temu</item>
+        <item quantity="few">%1$d dni temu</item>
+        <item quantity="many">%1$d dni temu</item>
+        <item quantity="other">%1$d dni temu</item>
+    </plurals>
+    <plurals name="settings_extra_hours_ago">
+        <item quantity="one">%1$d godzinę temu</item>
+        <item quantity="few">%1$d godzin temu</item>
+        <item quantity="many">%1$d godzin temu</item>
+        <item quantity="other">%1$d godzin temu</item>
+    </plurals>
+    <plurals name="settings_extra_minutes_ago">
+        <item quantity="one">%1$d minutę temu</item>
+        <item quantity="few">%1$d minut temu</item>
+        <item quantity="many">%1$d minut temu</item>
+        <item quantity="other">%1$d minut temu</item>
+    </plurals>
+    <plurals name="settings_extra_shared_dashboards_pushed">
+        <item quantity="one">Przesłano zmiany do udostępnionego pulpitu nawigacyjnego %1$d.</item>
+        <item quantity="few">Przesłano zmiany do udostępnionych pulpitów nawigacyjnych %1$d.</item>
+        <item quantity="many">Przesłano zmiany do udostępnionych pulpitów nawigacyjnych %1$d.</item>
+        <item quantity="other">Przesłano zmiany do udostępnionych pulpitów nawigacyjnych %1$d.</item>
+    </plurals>
+    <plurals name="uif_active_device_count">
+        <item quantity="one">%1$d aktywne urządzenie</item>
+        <item quantity="few">%1$d aktywne urządzenia</item>
+        <item quantity="many">%1$d aktywne urządzenia</item>
+        <item quantity="other">%1$d aktywne urządzenia</item>
+    </plurals>
+    <plurals name="uif_adaptive_group_paused_count">
+        <item quantity="one">%1$d oświetlenie grupowe jest wstrzymane w celu sterowania ręcznego.</item>
+        <item quantity="few">%1$d światła grupowe są wstrzymane w celu ręcznego sterowania.</item>
+        <item quantity="many">%1$d światła grupowe są wstrzymane w celu ręcznego sterowania.</item>
+        <item quantity="other">%1$d światła grupowe są wstrzymane w celu ręcznego sterowania.</item>
+    </plurals>
+    <plurals name="uif_adaptive_profile_light_count">
+        <item quantity="one">Steruje światłem %1$d w tym profilu.</item>
+        <item quantity="few">Steruje światłami %1$d w tym profilu.</item>
+        <item quantity="many">Steruje światłami %1$d w tym profilu.</item>
+        <item quantity="other">Steruje światłami %1$d w tym profilu.</item>
+    </plurals>
+    <plurals name="uif_days_to_season">
+        <item quantity="one">%1$d dzień do %2$s</item>
+        <item quantity="few">%1$d dni do %2$s</item>
+        <item quantity="many">%1$d dni do %2$s</item>
+        <item quantity="other">%1$d dni do %2$s</item>
+    </plurals>
+    <plurals name="uif_device_on_count">
+        <item quantity="one">%1$d urządzenie włączone</item>
+        <item quantity="few">%1$d urządzenia włączone</item>
+        <item quantity="many">%1$d urządzenia włączone</item>
+        <item quantity="other">%1$d urządzenia włączone</item>
+    </plurals>
+    <plurals name="uif_fire_detector_count">
+        <item quantity="one">%1$d czujka pożarowa aktywna</item>
+        <item quantity="few">%1$d czujki pożarowe aktywne</item>
+        <item quantity="many">%1$d czujki pożarowe aktywne</item>
+        <item quantity="other">%1$d czujki pożarowe aktywne</item>
+    </plurals>
+    <plurals name="uif_flow_advanced_block_count">
+        <item quantity="one">%1$d zaawansowany blok skrócony (pozostawiony bez zmian)</item>
+        <item quantity="few">%1$d zaawansowane bloki skrócone (pozostawione bez zmian)</item>
+        <item quantity="many">%1$d zaawansowane bloki skrócone (pozostawione bez zmian)</item>
+        <item quantity="other">%1$d zaawansowane bloki skrócone (pozostawione bez zmian)</item>
+    </plurals>
+    <plurals name="uif_flow_group_count">
+        <item quantity="one">%1$d stan wewnątrz</item>
+        <item quantity="few">%1$d warunki wewnątrz</item>
+        <item quantity="many">%1$d warunki wewnątrz</item>
+        <item quantity="other">%1$d warunki wewnątrz</item>
+    </plurals>
+    <plurals name="uif_gas_detector_count">
+        <item quantity="one">%1$d detektor gazu aktywny</item>
+        <item quantity="few">%1$d detektory gazu aktywne</item>
+        <item quantity="many">%1$d detektory gazu aktywne</item>
+        <item quantity="other">%1$d detektory gazu aktywne</item>
+    </plurals>
+    <plurals name="uif_light_on_count">
+        <item quantity="one">%1$d świeci się kontrolka</item>
+        <item quantity="few">Świeci się %1$d</item>
+        <item quantity="many">Świeci się %1$d</item>
+        <item quantity="other">Świeci się %1$d</item>
+    </plurals>
+    <plurals name="uif_media_item_count">
+        <item quantity="one">%1$d element</item>
+        <item quantity="few">%1$d elementy</item>
+        <item quantity="many">%1$d elementy</item>
+        <item quantity="other">%1$d elementy</item>
+    </plurals>
+    <plurals name="uif_motion_sensor_count">
+        <item quantity="one">%1$d czujnik ruchu aktywny</item>
+        <item quantity="few">%1$d aktywne czujniki ruchu</item>
+        <item quantity="many">%1$d aktywne czujniki ruchu</item>
+        <item quantity="other">%1$d aktywne czujniki ruchu</item>
+    </plurals>
+    <plurals name="uif_open_door_count">
+        <item quantity="one">%1$d otwarte drzwi</item>
+        <item quantity="few">%1$d otwarte drzwi</item>
+        <item quantity="many">%1$d otwarte drzwi</item>
+        <item quantity="other">%1$d otwarte drzwi</item>
+    </plurals>
+    <plurals name="uif_open_window_count">
+        <item quantity="one">%1$d otwórz okno</item>
+        <item quantity="few">%1$d otwórz okna</item>
+        <item quantity="many">%1$d otwórz okna</item>
+        <item quantity="other">%1$d otwórz okna</item>
+    </plurals>
+    <plurals name="uif_presence_sensor_count">
+        <item quantity="one">%1$d czujnik obecności aktywny</item>
+        <item quantity="few">%1$d czujniki obecności aktywne</item>
+        <item quantity="many">%1$d czujniki obecności aktywne</item>
+        <item quantity="other">%1$d czujniki obecności aktywne</item>
+    </plurals>
+    <plurals name="uif_smoke_detector_count">
+        <item quantity="one">%1$d czujka dymu aktywna</item>
+        <item quantity="few">%1$d czujki dymu aktywne</item>
+        <item quantity="many">%1$d czujki dymu aktywne</item>
+        <item quantity="other">%1$d czujki dymu aktywne</item>
+    </plurals>
+    <plurals name="widgets_battery_attention_count">
+        <item quantity="one">%1$d bateria wymaga uwagi</item>
+        <item quantity="few">Baterie %1$d wymagają uwagi</item>
+        <item quantity="many">Baterie %1$d wymagają uwagi</item>
+        <item quantity="other">Baterie %1$d wymagają uwagi</item>
+    </plurals>
+    <plurals name="widgets_battery_critical_count">
+        <item quantity="one">%1$d bateria krytyczna</item>
+        <item quantity="few">%1$d akumulatory krytyczne</item>
+        <item quantity="many">%1$d akumulatory krytyczne</item>
+        <item quantity="other">%1$d akumulatory krytyczne</item>
+    </plurals>
+    <plurals name="widgets_battery_low_count">
+        <item quantity="one">%1$d słaba bateria</item>
+        <item quantity="few">%1$d słabe baterie</item>
+        <item quantity="many">%1$d słabe baterie</item>
+        <item quantity="other">%1$d słabe baterie</item>
+    </plurals>
+    <plurals name="widgets_graph_sensor_count">
+        <item quantity="one">Wykres %1$d · %2$d czujnika</item>
+        <item quantity="few">Wykres %1$d · %2$d czujników</item>
+        <item quantity="many">Wykres %1$d · %2$d czujników</item>
+        <item quantity="other">Wykres %1$d · %2$d czujników</item>
+    </plurals>
+</resources>

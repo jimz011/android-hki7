@@ -15,7 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
+import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -73,8 +73,6 @@ fun RoomFollowSensorDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        shape = itemCornerShape(),
-        containerColor = appColors.elevated,
         title = {
             Text(
                 stringResource(R.string.settings_extra_room_follow_sensor),
@@ -151,8 +149,6 @@ fun RoomFollowRoomDialog(
     val appColors = LocalHKIAppColors.current
     AlertDialog(
         onDismissRequest = onDismiss,
-        shape = itemCornerShape(),
-        containerColor = appColors.elevated,
         title = { Text(state, style = MaterialTheme.typography.titleMedium, color = appColors.onSurface) },
         text = {
             LazyColumn(

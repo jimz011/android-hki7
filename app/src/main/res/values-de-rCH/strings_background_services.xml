@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="background_notification_channel_general">Allgemein</string>
+    <string name="background_location_channel_name">Standortfreigabe</string>
+    <string name="background_location_channel_description">Hält den Standort deines Geräts in Home Assistant aktuell</string>
+    <string name="background_location_notification_title">Standortfreigabe für Home Assistant</string>
+    <string name="background_location_notification_text">Dein Standort wird mit Home Assistant geteilt</string>
+    <string name="background_push_channel_name">Benachrichtigungsverbindung</string>
+    <string name="background_push_channel_description">Hält für sofortige Benachrichtigungen im Hintergrund eine Verbindung zu Home Assistant</string>
+    <string name="background_push_notification_title">Mit Home Assistant verbunden</string>
+    <string name="background_push_notification_text">Warten auf Benachrichtigungen</string>
+    <string name="background_push_hide_action">Diese Benachrichtigung ausblenden</string>
+</resources>

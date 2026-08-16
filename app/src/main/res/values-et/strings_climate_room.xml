@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="cr_whats_new_1_1_0">
+        <item>Veel 18 keelt, HKI 7 kuni 36. Poola, vene, tšehhi, slovaki, ungari, rumeenia, bulgaaria, horvaadi, kreeka, leedu, läti, eesti, taani, tai ja heebrea keelega liituvad koos Austria saksa, Šveitsi saksa ja Mehhiko hispaania keelega. Heebrea keeles on liides paremalt vasakule, nagu araabia keeles.</item>
+        <item>HKI 7 töötab nüüd operatsioonisüsteemis Android 12 ja uuemates versioonides. Varem vajas see Android 14, mis välistas palju suurepäraselt võimekaid telefone ja tahvelarvuteid.</item>
+        <item>Energiakulud on näidatud teie valuutas, mitte alati eurodes. HKI 7 järgib teie kuluandurite aruandeid ja energiaseadetes on säte Valuuta, kui soovite selle ise valida.</item>
+        <item>Keelevalijal on otsingukast ja see on sorteeritud, mida vajas 36 kirjet. Kui satute kunagi keelele, mida te ei oska lugeda, on ekraanil ikkagi esimene asi tagasitee.</item>
+        <item>Vaated mäletavad, kuhu kerisite, ja juba avatud vahekaardi puudutamine viib teid tagasi ülaossa.</item>
+        <item>Külgsuunas pühkimine ei vii teid enam avatud lehelt (nt Solar inside Energy) välja. Tagasi nüüd naaseb avalehele hüppamise asemel vaatesse, kust tulite.</item>
+        <item>Keritavad read ütlevad seda. Rippmenüü, navigeerimisriba ja seadete vahekaardid näitavad servas noolt, kui on rohkem jõuda.</item>
+        <item>Dialoogid näevad välja ja käituvad läbivalt ühtemoodi. Neist kuus olid tavalised Androidi dialoogiaknad, mille nurgas polnud sulgemisnuppu, ja rakenduse nupud on nüüd nõus, mida Sule, Salvesta ja Valmis tähendavad.</item>
+        <item>Armatuurlaua loomisel küsitakse esmalt ja seejärel pakutakse samu valikuid, mis esmakordsel seadistamisel – nii et uus armatuurlaud võib alata nii varukoopiast või mõnest, mida teie pere on jaganud, kui ka luuakse või tühjaks jätta. Teie praegust armatuurlauda ei kirjutata kunagi üle ja jagatud armatuurlauad on nüüd loendis märgitud jagatuks.</item>
+        <item>Akuvidin avab paigas loendi, selle asemel et suunata teid eraldi lehele, mis on rühmitatud selle järgi, kui kiireloomulised on, ja näitab aku tüüpi, kui Home Assistant seda teab. Soovi korral on olemas otsingukast ja nupp aku täisvaate avamiseks.</item>
+        <item>Toas inimeste loenduri koputamine näitab, kes seal on, koos iga inimese pildiga. Ruumide päises on nüüd ka majapidamisloendur, mis näitab, kus kõik on, ilma iga tuba avamata.</item>
+        <item>Nupu võib ruumi valgustite ja seadmete loenduritest välja jätta nende jaoks, mis on ruumis, kuid tegelikult ei kuulu sellesse.</item>
+        <item>Vidinad, mis vajavad integreerimist, mida teil pole – vormel 1, pakid, jäätmekogumine – on hallid ja ütlevad, mis puudu on, selle asemel, et lisada ja siis tühjaks jääda.</item>
+        <item>Pakkide jälgimine hõlmab veel 15 vedajat, sealhulgas PostNord, InPost, Swiss Post, An Post, Budbee, Sameday ja Nova Post, millest igaühel on oma logo.</item>
+        <item>Valetudo robottolmuimeja võtab teie ruumide importimisel oma reaalajas kaardi automaatselt üles, mitte ei vaja käsitsi valitud kaamerat.</item>
+    </string-array>
+</resources>

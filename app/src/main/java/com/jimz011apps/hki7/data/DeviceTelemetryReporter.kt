@@ -20,8 +20,10 @@ import com.jimz011apps.hki7.BuildConfig
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
@@ -406,13 +408,15 @@ class DeviceTelemetryReporter(
         }
     }
 
-    /** Resolves a street address from coordinates using the async Geocoder (works on API 33+). */
+    /** Resolves a street address from coordinates, async where the platform offers it (API 33+). */
     private suspend fun geocode(location: Location): String? {
         if (!Geocoder.isPresent()) return null
+        val geocoder = Geocoder(context, Locale.getDefault())
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return blockingGeocode(geocoder, location)
         return withTimeoutOrNull(5.seconds) {
             suspendCancellableCoroutine { cont ->
                 runCatching {
-                    Geocoder(context, Locale.getDefault()).getFromLocation(
+                    geocoder.getFromLocation(
                         location.latitude,
                         location.longitude,
                         1,
@@ -429,6 +433,17 @@ class DeviceTelemetryReporter(
             }
         }
     }
+
+    /** The listener overload above is API 33+; below it only the blocking call exists, so it runs
+     *  on the IO dispatcher under the same timeout. */
+    @Suppress("DEPRECATION")
+    private suspend fun blockingGeocode(geocoder: Geocoder, location: Location): String? =
+        withTimeoutOrNull(5.seconds) {
+            withContext(Dispatchers.IO) {
+                runCatching { geocoder.getFromLocation(location.latitude, location.longitude, 1) }
+                    .getOrNull()?.firstOrNull()?.getAddressLine(0)
+            }
+        }
 
     /**
      * Gets a location for a report. Periodic/sensor reports ([fresh] = false) NEVER wake the radio:
