@@ -841,21 +841,26 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             // returns to it, and coming back to the tab later still reopens it, which is what
             // "remember the state I left the page in" means.
             pagerScope.launch {
-                // A tab tap from a detail screen (room, battery widget) has to come back to the
-                // pager first, otherwise the page change would happen behind that screen. The
-                // place being left is already in the history, recorded when it was opened.
-                if (!onTabsDestination) navController.popBackStack(TABS_ROUTE, inclusive = false)
                 if (reopenRoom != null) {
                     // Put the room pager on the right page and push the room *before* the tab
-                    // pager animates. Animating first showed the room list for the length of that
+                    // pager moves. Animating first showed the room list for the length of that
                     // animation, which read as the app forgetting and then remembering.
                     visibleRooms.indexOfFirst { it.area_id == reopenRoom }
                         .takeIf { it >= 0 }
                         ?.let { roomPagerState.scrollToPage(it) }
+                    if (!onTabsDestination) navController.popBackStack(TABS_ROUTE, inclusive = false)
                     navController.navigate(Screen.RoomDetail.createRoute(reopenRoom))
                     // Moved underneath the room, so backing out lands on the list rather than on
                     // the tab this tap came from.
                     pagerState.scrollToPage(index)
+                } else if (!onTabsDestination) {
+                    // Leaving a room or the battery screen. The pager is moved *before* the pop,
+                    // while that screen still covers it: popping first leaves the pager settled on
+                    // whatever tab was underneath, and that tab gets recorded as somewhere the
+                    // user visited — putting a phantom step into the back history between the
+                    // room and the tab actually asked for.
+                    pagerState.scrollToPage(index)
+                    navController.popBackStack(TABS_ROUTE, inclusive = false)
                 } else {
                     pagerState.animateScrollToPage(index)
                 }
@@ -943,14 +948,26 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             if (previous == null) {
                 // Nothing recorded behind this. Home is the floor, not the exit: the next back
                 // from there is the one that closes the app.
-                if (!onTabsDestination) navController.popBackStack(TABS_ROUTE, inclusive = false)
-                if (homeIndex >= 0) pagerState.animateScrollToPage(homeIndex)
+                if (homeIndex < 0) return@launch
+                if (onTabsDestination) {
+                    pagerState.animateScrollToPage(homeIndex)
+                } else {
+                    pagerState.scrollToPage(homeIndex)
+                    navController.popBackStack(TABS_ROUTE, inclusive = false)
+                }
                 return@launch
             }
             when (previous) {
                 is VisitedPlace.Tab -> {
-                    if (!onTabsDestination) navController.popBackStack(TABS_ROUTE, inclusive = false)
-                    if (previous.index in screens.indices) pagerState.animateScrollToPage(previous.index)
+                    if (previous.index !in screens.indices) return@launch
+                    if (onTabsDestination) {
+                        pagerState.animateScrollToPage(previous.index)
+                    } else {
+                        // Same ordering as a tab tap: position the pager while the room still
+                        // covers it, so the tab underneath is never briefly the current place.
+                        pagerState.scrollToPage(previous.index)
+                        navController.popBackStack(TABS_ROUTE, inclusive = false)
+                    }
                 }
                 is VisitedPlace.Room -> {
                     val page = visibleRooms.indexOfFirst { it.area_id == previous.areaId }
