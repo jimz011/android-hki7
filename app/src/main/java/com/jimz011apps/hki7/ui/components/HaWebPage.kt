@@ -1,8 +1,12 @@
 package com.jimz011apps.hki7.ui.components
 
 import android.annotation.SuppressLint
+import android.util.Log
+import android.webkit.ConsoleMessage
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
@@ -12,9 +16,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Refresh
@@ -34,47 +38,51 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.jimz011apps.hki7.R
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import org.json.JSONObject
 
 /** The client id this app authenticates with; the frontend keys its stored session on the same value. */
 private const val HA_CLIENT_ID = "https://home-assistant.io/android"
+private const val TAG = "HaWebPage"
 
 /**
- * Pages of Home Assistant's own frontend — Developer Tools, Settings, HACS — hosted full screen
- * inside HKI 7.
+ * A page of Home Assistant's own frontend — Settings, Developer Tools, HACS — full screen inside
+ * HKI 7.
  *
- * Full screen, and a [Dialog] rather than a settings section, for a reason beyond looks: the
- * settings body is a vertically scrolling column, and a WebView inside one is measured with
- * unbounded height, which is what left the page blank after signing in. It also matches the
- * onboarding login, which is the other place the app shows Home Assistant's own web UI.
+ * Deliberately a plain composable rather than a [androidx.compose.ui.window.Dialog]. The settings
+ * screen is itself a Dialog, and a WebView nested in a second one lives in its own window; the
+ * frontend authenticated there and then rendered nothing but background. The onboarding login is
+ * the one WebView in this app that has always worked, and it is an ordinary composable in the main
+ * tree — so this is hosted the same way, with the same WebView settings. In particular it does not
+ * set `useWideViewPort`/`loadWithOverviewMode`, which are for showing desktop pages zoomed out and
+ * do a single-page app no favours.
  *
  * The frontend keeps its session in `localStorage.hassTokens` rather than in a cookie, so a
- * WebView pointed at the server lands on the login form even though this app is already
- * authenticated. Writing the tokens this app holds into that key hands it the session it expects —
- * the same mechanism the official companion app uses. localStorage is per-origin, so the first
- * load has to be allowed to start before the write can happen; the page is then reloaded once,
- * guarded by [seeded] so it cannot loop.
+ * WebView pointed at the server would otherwise land on the login form even though this app is
+ * already authenticated. localStorage is per-origin, so the first load has to be allowed to start
+ * before the tokens can be written; the page is then reloaded once, guarded so it cannot loop.
  */
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun HaWebPageDialog(
+fun HaWebPage(
     title: String,
     baseUrl: String,
     path: String,
     accessToken: String?,
     refreshToken: String?,
     accessTokenExpiry: Long?,
-    onDismiss: () -> Unit,
+    onClose: () -> Unit,
 ) {
     val appColors = LocalHKIAppColors.current
     val root = baseUrl.trim().removeSuffix("/")
     val target = remember(root, path) { "$root/${path.removePrefix("/")}" }
     var progress by remember { mutableStateOf(0) }
     var webView by remember { mutableStateOf<WebView?>(null) }
+    // Surfaced in the page rather than only logged. A frontend that loads its shell and then dies
+    // on a script error looks identical to a blank screen, and "it went grey" is not something
+    // anyone can act on.
+    var failure by remember { mutableStateOf<String?>(null) }
 
     val seedScript = remember(root, accessToken, refreshToken, accessTokenExpiry) {
         if (accessToken.isNullOrBlank() || refreshToken.isNullOrBlank()) return@remember null
@@ -92,104 +100,119 @@ fun HaWebPageDialog(
         "window.localStorage.setItem('hassTokens', ${JSONObject.quote(tokens.toString())});"
     }
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false)
+    BackHandler(enabled = true) {
+        val view = webView
+        if (view != null && view.canGoBack()) view.goBack() else onClose()
+    }
+
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(appColors.background)
+            .statusBarsPadding()
+            .navigationBarsPadding()
     ) {
-        // Back walks the frontend's own history first — Settings and Developer Tools are deep
-        // trees, and leaving from three levels in would be its own bug report.
-        BackHandler(enabled = true) {
-            val view = webView
-            if (view != null && view.canGoBack()) view.goBack() else onDismiss()
-        }
-        Column(
-            Modifier
-                .fillMaxSize()
-                .background(appColors.background)
-                .statusBarsPadding()
-                .navigationBarsPadding()
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.ui_close_bbfa773))
-                }
+            IconButton(onClick = onClose) {
+                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.ui_close_bbfa773))
+            }
+            Text(
+                title,
+                color = appColors.onSurface,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+            IconButton(onClick = { failure = null; webView?.reload() }) {
+                Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.ha_page_reload))
+            }
+        }
+        if (progress in 1..99) {
+            LinearProgressIndicator(progress = { progress / 100f }, modifier = Modifier.fillMaxWidth())
+        }
+        failure?.let { message ->
+            Text(
+                message,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)
+            )
+        }
+        Box(Modifier.fillMaxSize()) {
+            if (root.isBlank()) {
                 Text(
-                    title,
-                    color = appColors.onSurface,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
+                    stringResource(R.string.ha_page_no_server),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = appColors.onMuted,
+                    modifier = Modifier.align(Alignment.Center).padding(24.dp)
                 )
-                IconButton(onClick = { webView?.reload() }) {
-                    Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.ha_page_reload))
-                }
-            }
-            if (progress in 1..99) {
-                LinearProgressIndicator(
-                    progress = { progress / 100f },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-            Box(Modifier.fillMaxSize()) {
-                if (root.isBlank()) {
-                    Text(
-                        stringResource(R.string.ha_page_no_server),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = appColors.onMuted,
-                        modifier = Modifier.align(Alignment.Center).padding(24.dp)
-                    )
-                } else {
-                    AndroidView(
-                        modifier = Modifier.fillMaxSize(),
-                        factory = { ctx ->
-                            WebView(ctx).apply {
-                                var seeded = false
-                                settings.javaScriptEnabled = true
-                                settings.domStorageEnabled = true
-                                settings.databaseEnabled = true
-                                settings.loadWithOverviewMode = true
-                                settings.useWideViewPort = true
-                                settings.builtInZoomControls = false
-                                settings.mediaPlaybackRequiresUserGesture = false
-                                // The frontend serves a different bundle to browsers it does not
-                                // recognise; the onboarding login sends the same string.
-                                settings.userAgentString =
-                                    "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 " +
-                                        "(KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
-                                CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
-                                webChromeClient = object : WebChromeClient() {
-                                    override fun onProgressChanged(view: WebView?, newProgress: Int) {
-                                        progress = newProgress
-                                    }
+            } else {
+                AndroidView(
+                    modifier = Modifier.fillMaxSize(),
+                    factory = { ctx ->
+                        WebView(ctx).apply {
+                            var seeded = false
+                            setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                            settings.javaScriptEnabled = true
+                            settings.domStorageEnabled = true
+                            settings.databaseEnabled = true
+                            settings.userAgentString =
+                                "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 " +
+                                    "(KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+                            CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
+                            webChromeClient = object : WebChromeClient() {
+                                override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                                    progress = newProgress
                                 }
-                                webViewClient = object : WebViewClient() {
-                                    override fun onPageStarted(
-                                        view: WebView?,
-                                        url: String?,
-                                        favicon: android.graphics.Bitmap?
-                                    ) {
-                                        if (seedScript != null && !seeded) {
-                                            seeded = true
-                                            view?.evaluateJavascript(seedScript) {
-                                                view.post { view.reload() }
-                                            }
+
+                                override fun onConsoleMessage(message: ConsoleMessage?): Boolean {
+                                    message ?: return false
+                                    if (message.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
+                                        Log.w(TAG, "console: ${message.message()} (${message.sourceId()}:${message.lineNumber()})")
+                                        if (failure == null) failure = message.message()
+                                    }
+                                    return false
+                                }
+                            }
+                            webViewClient = object : WebViewClient() {
+                                override fun onPageStarted(
+                                    view: WebView?,
+                                    url: String?,
+                                    favicon: android.graphics.Bitmap?
+                                ) {
+                                    if (seedScript != null && !seeded) {
+                                        seeded = true
+                                        view?.evaluateJavascript(seedScript) {
+                                            view.post { view.reload() }
                                         }
                                     }
                                 }
-                                webView = this
-                                loadUrl(target)
+
+                                override fun onReceivedError(
+                                    view: WebView?,
+                                    request: WebResourceRequest?,
+                                    error: WebResourceError?
+                                ) {
+                                    // Only the main document: a page pulling in an optional asset
+                                    // that 404s is not a failure worth shouting about.
+                                    if (request?.isForMainFrame != true) return
+                                    Log.w(TAG, "load error ${error?.errorCode}: ${error?.description}")
+                                    failure = error?.description?.toString()
+                                }
                             }
-                        },
-                        update = { view ->
-                            webView = view
-                            if (view.url == null) view.loadUrl(target)
+                            webView = this
+                            loadUrl(target)
                         }
-                    )
-                }
+                    },
+                    update = { view ->
+                        webView = view
+                        if (view.url == null) view.loadUrl(target)
+                    }
+                )
             }
         }
     }

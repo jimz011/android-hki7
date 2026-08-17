@@ -417,7 +417,8 @@ private const val TABS_ROUTE = "tabs"
  */
 private sealed interface VisitedPlace {
     data class Tab(val index: Int) : VisitedPlace
-    data class Detail(val route: String) : VisitedPlace
+    /** A room. Held by area rather than by pager page, so it survives the room list changing. */
+    data class Room(val areaId: String) : VisitedPlace
 }
 
 /** Tab routes kept in the graph purely as redirects into the pager, so route-based navigation from
@@ -758,31 +759,34 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     // straight home, so it undoes where you have been instead of discarding it.
     // Re-tapping the tab you are already on returns that view to the top.
     val scrollToTopSignals = remember { mutableStateMapOf<String, Int>() }
-    val visitedPages = remember { mutableStateListOf<VisitedPlace>() }
-    // Rooms visited, oldest first. Backing out of a room walks this, so it retraces the rooms the
-    // user actually opened rather than dropping them back into whichever tab they came from.
+    // One history for everywhere the user has been, oldest first: tabs, rooms and pushed screens
+    // together. Tabs are pages of a pager rather than back-stack entries, so the platform back
+    // stack only ever knew about part of it, and keeping two lists — one for tabs, one for rooms —
+    // meant back behaved differently depending on which of them happened to be non-empty.
     //
-    // Keyed on the room actually showing rather than on the pager's page. Leaving a room and
-    // opening the same one again does not move the pager, so a page-based signal never fires the
-    // second time — back had already consumed the entry, and the history stayed empty however many
-    // rooms had been opened since.
-    val visitedRooms = remember { mutableStateListOf<String>() }
+    // Revisiting somewhere moves it to the end rather than stacking a second copy, so back can
+    // never walk the same pair of places over and over.
+    val visitedPages = remember { mutableStateListOf<VisitedPlace>() }
     // The room to return to when the Rooms tab is tapped from somewhere else. Survives tab
     // switches, and is cleared only when the user deliberately backs out to the list.
     var lastOpenRoom by remember { mutableStateOf<String?>(null) }
-    LaunchedEffect(currentAreaId) {
-        val areaId = currentAreaId ?: return@LaunchedEffect
-        visitedRooms.remove(areaId)
-        visitedRooms.add(areaId)
-        lastOpenRoom = areaId
+    // Where the user is now, in the same terms as the history. Keyed on the room actually showing
+    // rather than on the room pager's page: leaving a room and opening the same one again does not
+    // move that pager, so a page-based signal never fired the second time.
+    // Only tabs and rooms. Other pushed screens — the battery widget's — are ordinary back-stack
+    // entries that the nav graph pops correctly on its own; recording them here would leave an
+    // entry behind after that pop, and back from the tab underneath would walk straight into the
+    // screen the user had just left.
+    val currentPlace: VisitedPlace? = when {
+        onRoomDetail -> currentAreaId?.let(VisitedPlace::Room)
+        onTabsDestination -> VisitedPlace.Tab(pagerState.settledPage)
+        else -> null
     }
-    LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.settledPage }.distinctUntilChanged().collect { page ->
-            // Revisiting a tab moves it to the top rather than stacking another copy, so back can
-            // never walk the same pair of tabs over and over.
-            visitedPages.removeAll { it is VisitedPlace.Tab && it.index == page }
-            visitedPages.add(VisitedPlace.Tab(page))
-        }
+    LaunchedEffect(currentPlace) {
+        val place = currentPlace ?: return@LaunchedEffect
+        visitedPages.remove(place)
+        visitedPages.add(place)
+        if (place is VisitedPlace.Room) lastOpenRoom = place.areaId
     }
     var pageSwipeInProgress by remember { mutableStateOf(false) }
     LaunchedEffect(pagerState, roomPagerState) {
@@ -826,33 +830,31 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             // the tab would reopen the room the user had just asked to leave.
             val leavingRoomsForList = screen.route == Screen.Rooms.route && onRoomDetail
             if (leavingRoomsForList) {
+                // Going *up* to the list is a deliberate "I am done with rooms". Dropping them
+                // from the history is what makes that stick — otherwise the very next back would
+                // walk straight into the room just left.
                 lastOpenRoom = null
-                visitedRooms.clear()
-            }
-            val leaving: String? = when {
-                onTabsDestination -> null
-                leavingRoomsForList -> null
-                onRoomDetail -> visibleRooms.getOrNull(roomPagerState.currentPage)
-                    ?.area_id?.let(Screen.RoomDetail::createRoute)
-                // Anything else parameterless (the battery screen) can be navigated back to as-is.
-                // Routes still carrying a `{placeholder}` are redirects into the pager, not places.
-                currentRoute != null && !currentRoute.contains('{') -> currentRoute
-                else -> null
+                visitedPages.removeAll { it is VisitedPlace.Room }
             }
             pagerScope.launch {
                 // A tab tap from a detail screen (room, battery widget) has to come back to the
-                // pager first, otherwise the page change would happen behind that screen.
-                if (!onTabsDestination) {
-                    leaving?.let { route ->
-                        visitedPages.removeAll { it is VisitedPlace.Detail && it.route == route }
-                        visitedPages.add(VisitedPlace.Detail(route))
-                    }
-                    navController.popBackStack(TABS_ROUTE, inclusive = false)
+                // pager first, otherwise the page change would happen behind that screen. The
+                // place being left is already in the history, recorded when it was opened.
+                if (!onTabsDestination) navController.popBackStack(TABS_ROUTE, inclusive = false)
+                if (reopenRoom != null) {
+                    // Put the room pager on the right page and push the room *before* the tab
+                    // pager animates. Animating first showed the room list for the length of that
+                    // animation, which read as the app forgetting and then remembering.
+                    visibleRooms.indexOfFirst { it.area_id == reopenRoom }
+                        .takeIf { it >= 0 }
+                        ?.let { roomPagerState.scrollToPage(it) }
+                    navController.navigate(Screen.RoomDetail.createRoute(reopenRoom))
+                    // Moved underneath the room, so backing out lands on the list rather than on
+                    // the tab this tap came from.
+                    pagerState.scrollToPage(index)
+                } else {
+                    pagerState.animateScrollToPage(index)
                 }
-                pagerState.animateScrollToPage(index)
-                // The pager moves to Rooms underneath either way, so backing out of the reopened
-                // room lands on the list rather than on the tab this tap came from.
-                reopenRoom?.let { navController.navigate(Screen.RoomDetail.createRoute(it)) }
             }
         }
     }
@@ -917,53 +919,49 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     val notificationPanel = remember { EdgePanelState() }
     val instancePanel = remember { EdgePanelState() }
     val drawerScope = rememberCoroutineScope()
-    // Back from any tab returns to the first one before leaving the app. Tab changes are pager
-    // scrolls, not back-stack entries, so without this back would exit straight from a deep tab —
-    // and retracing every tab the user had swiped through would be worse, not better.
-    androidx.activity.compose.BackHandler(enabled = onTabsDestination && visitedPages.size > 1) {
+    // One rule for back, everywhere inside the app: go to the previous place, and keep going until
+    // Home. Only from Home does back leave the app.
+    //
+    // This used to be two handlers with two histories, which is why it behaved differently
+    // depending on where you were: a tab with nothing recorded behind it fell through to the
+    // system and closed the app from the middle of the app, and a room walked a separate list that
+    // knew nothing about the tabs.
+    val homeIndex = screens.indexOfFirst { it.route == Screen.Home.route }
+    val onHome = onTabsDestination && homeIndex >= 0 && pagerState.currentPage == homeIndex
+    // The place behind this one. Null on a fresh start, or once back has unwound everything.
+    val previousPlace = visitedPages.getOrNull(visitedPages.lastIndex - 1)
+    androidx.activity.compose.BackHandler(
+        enabled = (onTabsDestination || onRoomDetail) && !isEditMode && (previousPlace != null || !onHome)
+    ) {
         pagerScope.launch {
-            // Drop where we are, go back to where we were. Falls through to leaving the app once
-            // there is nothing behind the current tab.
             visitedPages.removeLastOrNull()
-            when (val previous = visitedPages.lastOrNull()) {
-                is VisitedPlace.Tab ->
-                    if (previous.index in screens.indices) pagerState.animateScrollToPage(previous.index)
-                // A detail screen the user tabbed away from. Taken off the list as we go to it:
-                // it becomes the current destination, and its own back handling takes over. Left
-                // on the list it would be offered again after leaving the room, which is how
-                // backing out of a room used to bounce straight back to the tab.
-                is VisitedPlace.Detail -> {
-                    visitedPages.remove(previous)
-                    navController.navigate(previous.route)
-                }
-                null -> Unit
-            }
-        }
-    }
-    // Back out of a room goes to the room before it, or to the room list — never to the tab the
-    // room happened to be opened from. Without this the NavHost's own pop lands on whatever page
-    // the pager is parked on, so opening a room from Energy and pressing back twice ping-ponged
-    // between the room and Energy instead of ending up somewhere sensible.
-    androidx.activity.compose.BackHandler(enabled = onRoomDetail && !isEditMode) {
-        pagerScope.launch {
-            visitedRooms.removeLastOrNull()
-            val previousRoom = visitedRooms.lastOrNull()
-                ?.let { areaId -> visibleRooms.indexOfFirst { it.area_id == areaId } }
-                ?.takeIf { it >= 0 }
-            if (previousRoom != null) {
-                roomPagerState.animateScrollToPage(previousRoom)
-            } else {
-                // Nothing behind this room: leave for the room list, and make sure the pager is
-                // actually showing it rather than whatever tab was last open underneath. Backing
-                // out this far is a deliberate "show me the list", so the remembered room goes
-                // too — otherwise tapping Rooms next would drop straight back into it.
+            val previous = visitedPages.lastOrNull()
+            if (previous == null) {
+                // Nothing recorded behind this. Home is the floor, not the exit: the next back
+                // from there is the one that closes the app.
                 lastOpenRoom = null
-                visitedRooms.clear()
-                visitedPages.removeAll { it is VisitedPlace.Detail }
-                navController.popBackStack(TABS_ROUTE, inclusive = false)
-                screens.indexOfFirst { it.route == Screen.Rooms.route }
-                    .takeIf { it >= 0 }
-                    ?.let { pagerState.scrollToPage(it) }
+                if (!onTabsDestination) navController.popBackStack(TABS_ROUTE, inclusive = false)
+                if (homeIndex >= 0) pagerState.animateScrollToPage(homeIndex)
+                return@launch
+            }
+            when (previous) {
+                is VisitedPlace.Tab -> {
+                    if (!onTabsDestination) navController.popBackStack(TABS_ROUTE, inclusive = false)
+                    if (previous.index in screens.indices) pagerState.animateScrollToPage(previous.index)
+                }
+                is VisitedPlace.Room -> {
+                    val page = visibleRooms.indexOfFirst { it.area_id == previous.areaId }
+                    if (page < 0) return@launch
+                    if (onRoomDetail) {
+                        // Already in the room pager: this is a page change, not a navigation.
+                        roomPagerState.animateScrollToPage(page)
+                    } else {
+                        // Position the pager before pushing, so the room arrives showing itself
+                        // rather than sliding across from whichever room was last open.
+                        roomPagerState.scrollToPage(page)
+                        navController.navigate(Screen.RoomDetail.createRoute(previous.areaId))
+                    }
+                }
             }
         }
     }
@@ -997,12 +995,27 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     // Hosted here rather than on the page, because the drawer sheet is a sibling of the page and
     // cannot see anything the page provides — and the drawer is where the deep link comes from.
     var settingsRoute by remember { mutableStateOf<String?>(null) }
+    // One of Home Assistant's own pages (path, title), hosted here rather than inside the settings
+    // dialog. A WebView inside a Dialog nested in another Dialog gets its own window, and the
+    // frontend rendered nothing there; in the main composition it is an ordinary view, like the
+    // onboarding login.
+    var haPage by remember { mutableStateOf<Pair<String, String>?>(null) }
+    // Where settings was when the page was opened, so closing it puts the user back there rather
+    // than on the dashboard.
+    var haReturnRoute by remember { mutableStateOf<String?>(null) }
     settingsRoute?.let { route ->
         SettingsDialog(
             prefs = prefs,
             viewModel = viewModel,
             onDismiss = { settingsRoute = null },
             initialRoute = route,
+            onOpenHaPage = { path, title ->
+                // Settings is a Dialog, which is its own window and would sit over the page.
+                // Close it, and put it back when the page closes.
+                haReturnRoute = route
+                settingsRoute = null
+                haPage = path to title
+            },
         )
     }
     CompositionLocalProvider(
@@ -1201,6 +1214,29 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                 }
                 }
             }
+        }
+
+        // Home Assistant's own pages, over everything. Last in the Box so it paints above the app,
+        // and it takes the whole screen the way the onboarding login does.
+        haPage?.let { (path, pageTitle) ->
+            val haAccessToken by prefs.accessToken.collectAsState(initial = null)
+            val haRefreshToken by prefs.refreshToken.collectAsState(initial = null)
+            val haTokenExpiry by prefs.accessTokenExpiry.collectAsState(initial = null)
+            val haServerUrl by prefs.serverUrl.collectAsState(initial = null)
+            com.jimz011apps.hki7.ui.components.HaWebPage(
+                title = pageTitle,
+                baseUrl = haServerUrl.orEmpty(),
+                path = path,
+                accessToken = haAccessToken,
+                refreshToken = haRefreshToken,
+                accessTokenExpiry = haTokenExpiry,
+                onClose = {
+                    haPage = null
+                    // Back to where they came from, rather than to the dashboard. Any unrecognised
+                    // route opens settings at its menu, which is where these links live.
+                    settingsRoute = haReturnRoute ?: ""
+                }
+            )
         }
 
         NotificationBannerHost(viewModel, Modifier.align(Alignment.TopCenter))

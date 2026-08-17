@@ -393,6 +393,14 @@ fun SettingsDialog(
      *  enum, which stays private to this file. Back still walks up through [parentSection], so
      *  arriving here deep does not strand anyone. */
     initialRoute: String? = null,
+    /**
+     * Opens one of Home Assistant's own pages (path, title). Handled by the caller rather than
+     * here so the page renders in the app's own composition: this screen is a [Dialog], and a
+     * WebView in a Dialog nested inside another Dialog is its own window, which is what left the
+     * frontend blank after it had authenticated. The onboarding login — the one place that
+     * demonstrably works — is a plain composable in the main tree, and so is this now.
+     */
+    onOpenHaPage: (String, String) -> Unit = { _, _ -> },
 ) {
     val initialSection = when (initialRoute) {
         SETTINGS_ROUTE_FAMILY_EVENTS -> SettingsSection.FAMILY_SHARING
@@ -435,9 +443,6 @@ fun SettingsDialog(
     val isBackgroundRestricted = activityManager?.isBackgroundRestricted ?: false
 
     var section by remember { mutableStateOf(initialSection) }
-    // Home Assistant's own pages open over the whole screen rather than as a settings subsection:
-    // path to open, and the title to put on it. Null while none is open.
-    var haPage by remember { mutableStateOf<Pair<String, String>?>(null) }
     val haSettingsTitle = stringResource(R.string.ha_page_settings)
     val haDevToolsTitle = stringResource(R.string.ha_page_dev_tools)
     val haHacsTitle = stringResource(R.string.ha_page_hacs)
@@ -711,9 +716,9 @@ fun SettingsDialog(
                                     stringResource(R.string.ha_page_category),
                                     stringResource(R.string.ha_page_category_subtitle)
                                 )
-                                SettingsChoice(Icons.Default.Tune, stringResource(R.string.ha_page_settings), stringResource(R.string.ha_page_settings_subtitle)) { haPage = HA_PATH_SETTINGS to haSettingsTitle }
-                                SettingsChoice(Icons.Default.Build, stringResource(R.string.ha_page_dev_tools), stringResource(R.string.ha_page_dev_tools_subtitle)) { haPage = HA_PATH_DEV_TOOLS to haDevToolsTitle }
-                                SettingsChoice(Icons.Default.Dashboard, stringResource(R.string.ha_page_hacs), stringResource(R.string.ha_page_hacs_subtitle)) { haPage = HA_PATH_HACS to haHacsTitle }
+                                SettingsChoice(Icons.Default.Tune, stringResource(R.string.ha_page_settings), stringResource(R.string.ha_page_settings_subtitle)) { onOpenHaPage(HA_PATH_SETTINGS, haSettingsTitle) }
+                                SettingsChoice(Icons.Default.Build, stringResource(R.string.ha_page_dev_tools), stringResource(R.string.ha_page_dev_tools_subtitle)) { onOpenHaPage(HA_PATH_DEV_TOOLS, haDevToolsTitle) }
+                                SettingsChoice(Icons.Default.Dashboard, stringResource(R.string.ha_page_hacs), stringResource(R.string.ha_page_hacs_subtitle)) { onOpenHaPage(HA_PATH_HACS, haHacsTitle) }
                             }
                             SettingsSubcategory(stringResource(R.string.ui_hki_7_68a9e17), stringResource(R.string.ui_project_information_licensing_and_community_support_9fc47d6))
                             SettingsChoice(Icons.Default.Info, stringResource(R.string.ui_about_6b21fb7), stringResource(R.string.ui_what_hki_7_is_and_how_it_is_built_247bace)) { section = SettingsSection.ABOUT }
@@ -3205,21 +3210,6 @@ fun SettingsDialog(
                 )
             }
         }
-    }
-
-    haPage?.let { (path, pageTitle) ->
-        val haAccessToken by prefs.accessToken.collectAsState(initial = null)
-        val haRefreshToken by prefs.refreshToken.collectAsState(initial = null)
-        val haTokenExpiry by prefs.accessTokenExpiry.collectAsState(initial = null)
-        com.jimz011apps.hki7.ui.components.HaWebPageDialog(
-            title = pageTitle,
-            baseUrl = serverUrl.orEmpty(),
-            path = path,
-            accessToken = haAccessToken,
-            refreshToken = haRefreshToken,
-            accessTokenExpiry = haTokenExpiry,
-            onDismiss = { haPage = null }
-        )
     }
 
     if (showRestoreSource) {
