@@ -29,6 +29,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -114,6 +115,7 @@ import com.jimz011apps.hki7.ui.components.WeatherAnimationSettings
 import com.jimz011apps.hki7.ui.NavBarConfig
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
 import com.jimz011apps.hki7.ui.Screen
 import com.jimz011apps.hki7.ui.localizedTitle
 import com.jimz011apps.hki7.ui.localizedName
@@ -797,6 +799,20 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         history.visit(place)
         historyRevision++
     }
+    // Waits for composition to actually show the destination.
+    //
+    // `navController.navigate` does not update the current back-stack entry synchronously, so a
+    // navigation coroutine finishes while composition still reports the place it started from.
+    // Releasing [navigating] there let that stale place be recorded on top of the destination —
+    // which is the whole of why back kept walking into a page and back out of it forever. The
+    // timeout is a failsafe: if a destination is never reached (a room that has since been hidden,
+    // say), recording must not stay switched off for the rest of the session.
+    val currentPlaceNow by rememberUpdatedState(currentPlace)
+    suspend fun awaitArrival(destination: VisitedPlace) {
+        withTimeoutOrNull(2_000) {
+            snapshotFlow { currentPlaceNow }.first { it == destination }
+        }
+    }
     // Recomputed whenever the history changes, so the back handler's enabled state follows it.
     val previousPlace = remember(historyRevision) { history.previous() }
     val roomsIndex = screens.indexOfFirst { it.route == Screen.Rooms.route }
@@ -871,6 +887,11 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                 } else {
                     pagerState.animateScrollToPage(index)
                 }
+                // Held until composition reports the destination, not merely until the calls
+                // above return — see awaitArrival.
+                awaitArrival(
+                    if (reopenRoom != null) VisitedPlace.Room(reopenRoom) else VisitedPlace.Tab(index)
+                )
                 } finally {
                     navigating = false
                 }
@@ -965,6 +986,11 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                     pagerState.scrollToPage(homeIndex)
                     navController.popBackStack(TABS_ROUTE, inclusive = false)
                 }
+                // back() emptied the history, so Home has to go back on it: without this the
+                // handler would still be enabled with nothing behind it.
+                history.visit(VisitedPlace.Tab(homeIndex))
+                historyRevision++
+                awaitArrival(VisitedPlace.Tab(homeIndex))
                 return@launch
             }
             when (previous) {
@@ -993,6 +1019,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                     }
                 }
             }
+            awaitArrival(previous)
             } finally {
                 navigating = false
             }

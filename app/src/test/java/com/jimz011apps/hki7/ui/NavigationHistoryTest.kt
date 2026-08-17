@@ -64,6 +64,51 @@ class NavigationHistoryTest {
         assertNull(history.back())
     }
 
+    /**
+     * The contract the screen has to keep: after back, the only thing it may record is the place
+     * back sent it to.
+     *
+     * Arriving there is a no-op, so the history stays put and the next back moves on. Recording
+     * anything else — the page still showing while the navigation propagates, which is what the
+     * screen used to do — pushes a step back onto the stack that back has just taken off, and the
+     * two then trade places forever.
+     */
+    @Test
+    fun `arriving where back sent us leaves the history alone`() {
+        val history = NavigationHistory()
+        history.visit(tab(HOME))
+        history.visit(tab(ROOMS))
+        history.visit(room("office"))
+
+        val target = history.back()
+        assertEquals(tab(ROOMS), target)
+        history.visit(target!!)
+
+        assertEquals(listOf(tab(HOME), tab(ROOMS)), history.entries)
+        assertEquals(tab(HOME), history.back())
+    }
+
+    /** The same, walked all the way down: every back moves on, none of them repeat. */
+    @Test
+    fun `walking back with an arrival recorded at each step never repeats`() {
+        val history = NavigationHistory()
+        listOf(tab(HOME), tab(ROOMS), room("office"), room("bedroom"), tab(ENERGY), tab(CLIMATE))
+            .forEach(history::visit)
+
+        val walked = buildList {
+            while (true) {
+                val target = history.back() ?: break
+                history.visit(target)
+                add(target)
+            }
+        }
+
+        assertEquals(
+            listOf(tab(ENERGY), room("bedroom"), room("office"), tab(ROOMS), tab(HOME)),
+            walked
+        )
+    }
+
     @Test
     fun `back returns null once the history is spent`() {
         val history = NavigationHistory()
