@@ -3167,6 +3167,7 @@ ha_page_hacs,,HACS,HACS,
 ha_page_hacs_subtitle,,Community integrations and frontend add-ons,コミュニティの統合とフロントエンドのアドオン,
 ha_page_no_server,,Connect to a Home Assistant server first.,まず Home Assistant サーバーに接続します。,don't translate Home Assistant
 ha_page_reload,,Reload,リロード,
+ha_page_open_browser,,Open in browser,ブラウザで開く,
 update_channel_name,,App updates,アプリのアップデート,
 update_channel_description,,Tells you when a newer version of HKI 7 has been released,HKI 7 の新しいバージョンがリリースされたときに通知します,don't translate HKI 7
 update_available_title,,HKI 7 %1$s is available,HKI 7 %1$s が利用可能です,app fills in %1$s — keep them; don't translate HKI 7

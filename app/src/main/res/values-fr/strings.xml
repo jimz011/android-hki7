@@ -1686,6 +1686,7 @@
     <string name="ha_page_hacs_subtitle">Intégrations communautaires et modules complémentaires frontend</string>
     <string name="ha_page_no_server">Connectez-vous d\'abord à un serveur Home Assistant.</string>
     <string name="ha_page_reload">Recharger</string>
+    <string name="ha_page_open_browser">Ouvrir dans le navigateur</string>
     <string name="update_channel_name">Mises à jour de l\'application</string>
     <string name="update_channel_description">Vous indique quand une version plus récente de HKI 7 a été publiée</string>
     <string name="update_available_title">HKI 7 %1$s est disponible</string>

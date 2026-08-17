@@ -2977,6 +2977,7 @@
     <string name="ha_page_hacs_subtitle">Komunitní integrace a frontendové doplňky</string>
     <string name="ha_page_no_server">Nejprve se připojte k serveru Home Assistant.</string>
     <string name="ha_page_reload">Znovu načíst</string>
+    <string name="ha_page_open_browser">Otevřít v prohlížeči</string>
     <string name="update_channel_name">Aktualizace aplikací</string>
     <string name="update_channel_description">Řekne vám, kdy byla vydána novější verze HKI 7</string>
     <string name="update_available_title">HKI 7 %1$s je k dispozici</string>

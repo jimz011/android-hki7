@@ -2977,6 +2977,7 @@
     <string name="ha_page_hacs_subtitle">Kogukonna integratsioonid ja kasutajaliidese lisandmoodulid</string>
     <string name="ha_page_no_server">Esmalt looge ühendus Home Assistant serveriga.</string>
     <string name="ha_page_reload">Laadi uuesti</string>
+    <string name="ha_page_open_browser">Ava brauseris</string>
     <string name="update_channel_name">Rakenduse värskendused</string>
     <string name="update_channel_description">Teatab, kui HKI 7 uuem versioon on välja antud</string>
     <string name="update_available_title">HKI 7 %1$s on saadaval</string>

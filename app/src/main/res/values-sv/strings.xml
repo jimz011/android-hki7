@@ -2977,6 +2977,7 @@
     <string name="ha_page_hacs_subtitle">Community-integrationer och frontend-tillägg</string>
     <string name="ha_page_no_server">Anslut först till en Home Assistant-server.</string>
     <string name="ha_page_reload">Ladda om</string>
+    <string name="ha_page_open_browser">Öppna i webbläsaren</string>
     <string name="update_channel_name">Appuppdateringar</string>
     <string name="update_channel_description">Meddelar dig när en nyare version av HKI 7 har släppts</string>
     <string name="update_available_title">HKI 7 %1$s är tillgänglig</string>

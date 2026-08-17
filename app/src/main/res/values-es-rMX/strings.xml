@@ -3962,4 +3962,5 @@
         <item>Lecturas fijas de temperatura y energía en checo, eslovaco, griego, noruego, sueco y danés. La traducción automática había dañado el formato numérico detrás de ellos, lo que mostraba un número incorrecto de decimales en los idiomas nórdicos y podía bloquear la pantalla en los otros tres.</item>
         <item>Cada idioma ahora tiene un único archivo que cualquiera puede corregir. La carpeta de traducciones en el repositorio contiene un archivo compatible con hojas de cálculo por idioma, inglés al lado de la traducción, por lo que un hablante nativo puede corregir lo que se lee mal sin tocar ningún código.</item>
     </string-array>
+    <string name="ha_page_open_browser">Abrir en el navegador</string>
 </resources>

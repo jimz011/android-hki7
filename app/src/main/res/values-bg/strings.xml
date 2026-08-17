@@ -2977,6 +2977,7 @@
     <string name="ha_page_hacs_subtitle">Интеграции на общността и добавки за интерфейс</string>
     <string name="ha_page_no_server">Първо се свържете със сървър Home Assistant.</string>
     <string name="ha_page_reload">Презареди</string>
+    <string name="ha_page_open_browser">Отворете в браузъра</string>
     <string name="update_channel_name">Актуализации на приложения</string>
     <string name="update_channel_description">Казва ви кога е пусната по-нова версия на HKI 7</string>
     <string name="update_available_title">HKI 7 %1$s е наличен</string>

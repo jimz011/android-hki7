@@ -2977,6 +2977,7 @@
     <string name="ha_page_hacs_subtitle">Integracje społecznościowe i dodatki frontendowe</string>
     <string name="ha_page_no_server">Najpierw połącz się z serwerem Home Assistant.</string>
     <string name="ha_page_reload">Przeładować</string>
+    <string name="ha_page_open_browser">Otwórz w przeglądarce</string>
     <string name="update_channel_name">Aktualizacje aplikacji</string>
     <string name="update_channel_description">Informuje o wydaniu nowszej wersji HKI 7</string>
     <string name="update_available_title">HKI 7 %1$s jest dostępny</string>

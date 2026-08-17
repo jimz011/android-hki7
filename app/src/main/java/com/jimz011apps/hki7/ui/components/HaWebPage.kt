@@ -1,6 +1,7 @@
 package com.jimz011apps.hki7.ui.components
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.util.Log
 import android.webkit.ConsoleMessage
 import android.webkit.CookieManager
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
@@ -34,7 +36,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.core.net.toUri
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -130,6 +134,20 @@ fun HaWebPage(
             IconButton(onClick = { failure = null; webView?.reload() }) {
                 Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.ha_page_reload))
             }
+            // An escape hatch that always works. Embedding someone else's single-page app is not
+            // something this app can guarantee across every server version and WebView build, and
+            // a dead end with no way out would be worse than not offering the page at all.
+            val context = LocalContext.current
+            IconButton(onClick = {
+                val url = webView?.url ?: target
+                runCatching {
+                    context.startActivity(
+                        Intent(Intent.ACTION_VIEW, url.toUri()).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    )
+                }
+            }) {
+                Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = stringResource(R.string.ha_page_open_browser))
+            }
         }
         if (progress in 1..99) {
             LinearProgressIndicator(progress = { progress / 100f }, modifier = Modifier.fillMaxWidth())
@@ -160,9 +178,12 @@ fun HaWebPage(
                             settings.javaScriptEnabled = true
                             settings.domStorageEnabled = true
                             settings.databaseEnabled = true
-                            settings.userAgentString =
-                                "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 " +
-                                    "(KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+                            // The user agent is deliberately left alone. Overriding it with a
+                            // desktop-ish Chrome string — copied from the onboarding login, where
+                            // it does no harm because that page is plain HTML — makes Home
+                            // Assistant serve its modern frontend bundle whatever this device's
+                            // WebView can actually run. The default string describes the real
+                            // engine, so the server picks a build that works on it.
                             CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
                             webChromeClient = object : WebChromeClient() {
                                 override fun onProgressChanged(view: WebView?, newProgress: Int) {

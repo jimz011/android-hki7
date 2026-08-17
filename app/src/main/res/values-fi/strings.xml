@@ -2977,6 +2977,7 @@
     <string name="ha_page_hacs_subtitle">Yhteisöintegraatiot ja käyttöliittymän lisäosat</string>
     <string name="ha_page_no_server">Yhdistä ensin Home Assistant-palvelimeen.</string>
     <string name="ha_page_reload">Lataa uudelleen</string>
+    <string name="ha_page_open_browser">Avaa selaimessa</string>
     <string name="update_channel_name">Sovelluspäivitykset</string>
     <string name="update_channel_description">Kertoo, kun uudempi versio HKI 7:sta on julkaistu</string>
     <string name="update_available_title">HKI 7 %1$s on saatavilla</string>

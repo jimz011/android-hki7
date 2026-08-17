@@ -3193,6 +3193,7 @@ ha_page_hacs,,HACS,HACS,
 ha_page_hacs_subtitle,,Community integrations and frontend add-ons,Integracije zajednice i sučelja dodaci,
 ha_page_no_server,,Connect to a Home Assistant server first.,Prvo se povežite s poslužiteljem Home Assistant.,don't translate Home Assistant
 ha_page_reload,,Reload,Ponovno učitaj,
+ha_page_open_browser,,Open in browser,Otvori u pregledniku,
 update_channel_name,,App updates,Ažuriranja aplikacije,
 update_channel_description,,Tells you when a newer version of HKI 7 has been released,Obavještava vas kada je objavljena novija verzija HKI 7,don't translate HKI 7
 update_available_title,,HKI 7 %1$s is available,HKI 7 %1$s je dostupan,app fills in %1$s — keep them; don't translate HKI 7

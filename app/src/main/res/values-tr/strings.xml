@@ -1686,6 +1686,7 @@
     <string name="ha_page_hacs_subtitle">Topluluk entegrasyonları ve ön uç eklentileri</string>
     <string name="ha_page_no_server">Önce bir Home Assistant sunucusuna bağlanın.</string>
     <string name="ha_page_reload">Yeniden yükle</string>
+    <string name="ha_page_open_browser">Tarayıcıda aç</string>
     <string name="update_channel_name">Uygulama güncellemeleri</string>
     <string name="update_channel_description">HKI 7\'nin daha yeni bir sürümünün ne zaman yayınlandığını size bildirir</string>
     <string name="update_available_title">HKI 7 %1$s mevcut</string>

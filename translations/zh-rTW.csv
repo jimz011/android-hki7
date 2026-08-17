@@ -3167,6 +3167,7 @@ ha_page_hacs,,HACS,熱氣流控制系統,
 ha_page_hacs_subtitle,,Community integrations and frontend add-ons,社區整合和前端附加元件,
 ha_page_no_server,,Connect to a Home Assistant server first.,首先連接到 Home Assistant 伺服器。,don't translate Home Assistant
 ha_page_reload,,Reload,重新載入,
+ha_page_open_browser,,Open in browser,在瀏覽器中開啟,
 update_channel_name,,App updates,應用程式更新,
 update_channel_description,,Tells you when a newer version of HKI 7 has been released,告訴您 HKI 7 的新版本何時發布,don't translate HKI 7
 update_available_title,,HKI 7 %1$s is available,HKI 7 %1$s 可用,app fills in %1$s — keep them; don't translate HKI 7

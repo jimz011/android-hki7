@@ -3965,4 +3965,5 @@
         <item>Leituras fixas de temperatura e energia em checo, eslovaco, grego, norueguês, sueco e dinamarquês. A tradução automática danificou a formatação dos números por trás deles, que mostrava o número errado de decimais nas línguas nórdicas e podia bloquear o ecrã nas outras três.</item>
         <item>Cada idioma tem agora um único ficheiro que qualquer pessoa pode corrigir. A pasta de traduções no repositório contém um ficheiro compatível com folhas de cálculo por idioma, o inglês ao lado da tradução, para que um falante nativo possa corrigir o que está errado sem mexer em qualquer código.</item>
     </string-array>
+    <string name="ha_page_open_browser">Abrir no browser</string>
 </resources>

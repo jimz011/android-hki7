@@ -2977,6 +2977,7 @@
     <string name="ha_page_hacs_subtitle">Közösségi integrációk és frontend-bővítmények</string>
     <string name="ha_page_no_server">Először csatlakozzon egy Home Assistant szerverhez.</string>
     <string name="ha_page_reload">Újratöltés</string>
+    <string name="ha_page_open_browser">Nyissa meg a böngészőben</string>
     <string name="update_channel_name">Alkalmazásfrissítések</string>
     <string name="update_channel_description">Közli, ha megjelent a HKI 7 újabb verziója</string>
     <string name="update_available_title">HKI 7 %1$s elérhető</string>

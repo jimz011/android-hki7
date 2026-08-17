@@ -2977,6 +2977,7 @@
     <string name="ha_page_hacs_subtitle">تكاملات المجتمع والوظائف الإضافية للواجهة الأمامية</string>
     <string name="ha_page_no_server">اتصل بخادم Home Assistant أولاً.</string>
     <string name="ha_page_reload">إعادة تحميل</string>
+    <string name="ha_page_open_browser">فتح في المتصفح</string>
     <string name="update_channel_name">تحديثات التطبيق</string>
     <string name="update_channel_description">يخبرك عندما يتم إصدار إصدار أحدث من HKI 7</string>
     <string name="update_available_title">HKI 7 %1$s متاح</string>

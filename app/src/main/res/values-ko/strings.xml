@@ -2935,6 +2935,7 @@
     <string name="ha_page_hacs_subtitle">커뮤니티 통합 및 프런트엔드 추가 기능</string>
     <string name="ha_page_no_server">먼저 Home Assistant 서버에 연결하세요.</string>
     <string name="ha_page_reload">새로고침</string>
+    <string name="ha_page_open_browser">브라우저에서 열기</string>
     <string name="update_channel_name">앱 업데이트</string>
     <string name="update_channel_description">HKI 7의 최신 버전이 출시되면 알려줍니다.</string>
     <string name="update_available_title">HKI 7 %1$s 사용 가능</string>

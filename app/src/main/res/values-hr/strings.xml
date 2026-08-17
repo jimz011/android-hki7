@@ -2977,6 +2977,7 @@
     <string name="ha_page_hacs_subtitle">Integracije zajednice i sučelja dodaci</string>
     <string name="ha_page_no_server">Prvo se povežite s poslužiteljem Home Assistant.</string>
     <string name="ha_page_reload">Ponovno učitaj</string>
+    <string name="ha_page_open_browser">Otvori u pregledniku</string>
     <string name="update_channel_name">Ažuriranja aplikacije</string>
     <string name="update_channel_description">Obavještava vas kada je objavljena novija verzija HKI 7</string>
     <string name="update_available_title">HKI 7 %1$s je dostupan</string>

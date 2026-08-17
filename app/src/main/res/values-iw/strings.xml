@@ -2977,6 +2977,7 @@
     <string name="ha_page_hacs_subtitle">שילובי קהילה ותוספות חזיתיות</string>
     <string name="ha_page_no_server">התחבר תחילה לשרת Home Assistant.</string>
     <string name="ha_page_reload">לִטעוֹן מִחָדָשׁ</string>
+    <string name="ha_page_open_browser">פתח בדפדפן</string>
     <string name="update_channel_name">עדכוני אפליקציה</string>
     <string name="update_channel_description">אומר לך מתי יצאה גרסה חדשה יותר של HKI 7</string>
     <string name="update_available_title">HKI 7 %1$s זמין</string>

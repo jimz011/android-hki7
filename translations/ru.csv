@@ -3219,6 +3219,7 @@ ha_page_hacs,,HACS,ХАКС,
 ha_page_hacs_subtitle,,Community integrations and frontend add-ons,Интеграция сообщества и надстройки внешнего интерфейса,
 ha_page_no_server,,Connect to a Home Assistant server first.,Сначала подключитесь к серверу Home Assistant.,don't translate Home Assistant
 ha_page_reload,,Reload,Перезагрузить,
+ha_page_open_browser,,Open in browser,Открыть в браузере,
 update_channel_name,,App updates,Обновления приложений,
 update_channel_description,,Tells you when a newer version of HKI 7 has been released,"Сообщает вам, когда была выпущена новая версия HKI 7.",don't translate HKI 7
 update_available_title,,HKI 7 %1$s is available,HKI 7 %1$s доступен,app fills in %1$s — keep them; don't translate HKI 7

@@ -2977,6 +2977,7 @@
     <string name="ha_page_hacs_subtitle">Bendruomenės integracijos ir sąsajos priedai</string>
     <string name="ha_page_no_server">Pirmiausia prisijunkite prie Home Assistant serverio.</string>
     <string name="ha_page_reload">Įkelti iš naujo</string>
+    <string name="ha_page_open_browser">Atidaryti naršyklėje</string>
     <string name="update_channel_name">Programų atnaujinimai</string>
     <string name="update_channel_description">Praneša, kai buvo išleista naujesnė HKI 7 versija</string>
     <string name="update_available_title">HKI 7 %1$s yra</string>

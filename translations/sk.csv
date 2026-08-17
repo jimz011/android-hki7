@@ -3219,6 +3219,7 @@ ha_page_hacs,,HACS,HACS,
 ha_page_hacs_subtitle,,Community integrations and frontend add-ons,Komunitné integrácie a frontendové doplnky,
 ha_page_no_server,,Connect to a Home Assistant server first.,Najprv sa pripojte k serveru Home Assistant.,don't translate Home Assistant
 ha_page_reload,,Reload,Znovu načítať,
+ha_page_open_browser,,Open in browser,Otvoriť v prehliadači,
 update_channel_name,,App updates,Aktualizácie aplikácií,
 update_channel_description,,Tells you when a newer version of HKI 7 has been released,"Povie vám, kedy bola vydaná novšia verzia HKI 7",don't translate HKI 7
 update_available_title,,HKI 7 %1$s is available,HKI 7 %1$s je k dispozícii,app fills in %1$s — keep them; don't translate HKI 7
