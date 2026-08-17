@@ -2976,6 +2976,7 @@
     <string name="ha_page_hacs">HACS</string>
     <string name="ha_page_hacs_subtitle">שילובי קהילה ותוספות חזיתיות</string>
     <string name="ha_page_no_server">התחבר תחילה לשרת Home Assistant.</string>
+    <string name="ha_page_reload">לִטעוֹן מִחָדָשׁ</string>
     <string name="update_channel_name">עדכוני אפליקציה</string>
     <string name="update_channel_description">אומר לך מתי יצאה גרסה חדשה יותר של HKI 7</string>
     <string name="update_available_title">HKI 7 %1$s זמין</string>
@@ -3560,4 +3561,9 @@
     <string name="clock_alarm_set_by">נקבע על ידי %1$s</string>
     <string name="clock_alarms_platform_note">אנדרואיד מספר לאפליקציות אחרות רק על האזעקה הבאה, כך שלא ניתן לרשום אזעקות או להפעיל ולכבות מכאן.</string>
     <string name="clock_open_clock_app">פתח את אפליקציית השעון</string>
+    <string name="clock_open_failed">לא ניתן היה לפתוח אפליקציית שעון. בחר אחד בהגדרות של ווידג\'ט זה.</string>
+    <string name="clock_app_section">אפליקציית שעון</string>
+    <string name="clock_app_section_subtitle">באיזו אפליקציה תיפתח תיבת האזעקה</string>
+    <string name="clock_app_automatic">אוֹטוֹמָטִי</string>
+    <string name="clock_app_none_found">לא נמצאה אפליקציית שעון במכשיר זה.</string>
 </resources>

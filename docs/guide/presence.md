@@ -46,6 +46,7 @@ restarts:
 | `<device> Battery Level` | `sensor`, device class `battery`, diagnostic |
 | `<device> Charging` | `binary_sensor`, device class `battery_charging`, diagnostic |
 | `<device> Geocoded Location` | `sensor` — the current address |
+| `<device> Next Alarm` | `sensor`, device class `timestamp`, diagnostic — when the phone's next alarm goes off, with the app that set it as an attribute. `unavailable` when none is set. Android exposes only the next alarm, so this is a single time rather than a schedule. |
 
 All of it goes to **your own server** and nowhere else.
 

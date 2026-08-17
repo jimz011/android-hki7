@@ -2976,6 +2976,7 @@
     <string name="ha_page_hacs">HACS</string>
     <string name="ha_page_hacs_subtitle">Integrari în comunitate și suplimente pentru front-end</string>
     <string name="ha_page_no_server">Conectați-vă mai întâi la un server Home Assistant.</string>
+    <string name="ha_page_reload">Reîncărcați</string>
     <string name="update_channel_name">Actualizări ale aplicației</string>
     <string name="update_channel_description">Vă anunță când a fost lansată o versiune mai nouă a HKI 7</string>
     <string name="update_available_title">HKI 7 %1$s este disponibil</string>
@@ -3560,4 +3561,9 @@
     <string name="clock_alarm_set_by">Setat de %1$s</string>
     <string name="clock_alarms_platform_note">Android spune doar altor aplicații despre următoarea alarmă, astfel încât alarmele nu pot fi listate sau pornite și dezactivate de aici.</string>
     <string name="clock_open_clock_app">Deschideți aplicația Ceas</string>
+    <string name="clock_open_failed">Nicio aplicație de ceas nu a putut fi deschisă. Alegeți unul din setările acestui widget.</string>
+    <string name="clock_app_section">Aplicația ceas</string>
+    <string name="clock_app_section_subtitle">Ce aplicație se deschide dialogul de alarmă</string>
+    <string name="clock_app_automatic">Automat</string>
+    <string name="clock_app_none_found">Nu a fost găsită nicio aplicație de ceas pe acest dispozitiv.</string>
 </resources>

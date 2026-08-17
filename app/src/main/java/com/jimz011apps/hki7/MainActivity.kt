@@ -635,6 +635,15 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         if (prefs.updateChecksEnabled.first()) {
             runCatching { com.jimz011apps.hki7.data.UpdateCheckWorker.schedule(appCtx) }
         }
+        // A release that adds a sensor bumps SENSOR_SET_REVISION, and the marker stored against
+        // the webhook then no longer matches. Kicking one telemetry run here means the new entity
+        // appears in Home Assistant on the next launch rather than up to fifteen minutes later,
+        // and without anyone having to re-register the device by hand.
+        runCatching {
+            if (com.jimz011apps.hki7.data.sensorRegistrationStale(prefs)) {
+                com.jimz011apps.hki7.data.LocationWork.syncNow(appCtx)
+            }
+        }
     }
     val isEditMode by viewModel.isEditMode.collectAsState()
     val canUndo by viewModel.canUndo.collectAsState()
@@ -750,6 +759,16 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     // Re-tapping the tab you are already on returns that view to the top.
     val scrollToTopSignals = remember { mutableStateMapOf<String, Int>() }
     val visitedPages = remember { mutableStateListOf<VisitedPlace>() }
+    // Rooms visited, oldest first. Backing out of a room walks this, so it retraces the rooms the
+    // user actually opened rather than dropping them back into whichever tab they came from.
+    val visitedRooms = remember { mutableStateListOf<String>() }
+    LaunchedEffect(roomPagerState, visibleRooms) {
+        snapshotFlow { roomPagerState.settledPage }.distinctUntilChanged().collect { page ->
+            val areaId = visibleRooms.getOrNull(page)?.area_id ?: return@collect
+            visitedRooms.remove(areaId)
+            visitedRooms.add(areaId)
+        }
+    }
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.settledPage }.distinctUntilChanged().collect { page ->
             // Revisiting a tab moves it to the top rather than stacking another copy, so back can
@@ -883,11 +902,38 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             when (val previous = visitedPages.lastOrNull()) {
                 is VisitedPlace.Tab ->
                     if (previous.index in screens.indices) pagerState.animateScrollToPage(previous.index)
-                // A detail screen the user tabbed away from. Pushing it makes it the current
-                // destination again, which hands back to the nav graph — this handler switches
-                // itself off the moment we are no longer on the pager.
-                is VisitedPlace.Detail -> navController.navigate(previous.route)
+                // A detail screen the user tabbed away from. Taken off the list as we go to it:
+                // it becomes the current destination, and its own back handling takes over. Left
+                // on the list it would be offered again after leaving the room, which is how
+                // backing out of a room used to bounce straight back to the tab.
+                is VisitedPlace.Detail -> {
+                    visitedPages.remove(previous)
+                    navController.navigate(previous.route)
+                }
                 null -> Unit
+            }
+        }
+    }
+    // Back out of a room goes to the room before it, or to the room list — never to the tab the
+    // room happened to be opened from. Without this the NavHost's own pop lands on whatever page
+    // the pager is parked on, so opening a room from Energy and pressing back twice ping-ponged
+    // between the room and Energy instead of ending up somewhere sensible.
+    androidx.activity.compose.BackHandler(enabled = onRoomDetail && !isEditMode) {
+        pagerScope.launch {
+            visitedRooms.removeLastOrNull()
+            val previousRoom = visitedRooms.lastOrNull()
+                ?.let { areaId -> visibleRooms.indexOfFirst { it.area_id == areaId } }
+                ?.takeIf { it >= 0 }
+            if (previousRoom != null) {
+                roomPagerState.animateScrollToPage(previousRoom)
+            } else {
+                // Nothing behind this room: leave for the room list, and make sure the pager is
+                // actually showing it rather than whatever tab was last open underneath.
+                visitedPages.removeAll { it is VisitedPlace.Detail }
+                navController.popBackStack(TABS_ROUTE, inclusive = false)
+                screens.indexOfFirst { it.route == Screen.Rooms.route }
+                    .takeIf { it >= 0 }
+                    ?.let { pagerState.scrollToPage(it) }
             }
         }
     }

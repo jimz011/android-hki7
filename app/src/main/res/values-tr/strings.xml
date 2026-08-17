@@ -1685,6 +1685,7 @@
     <string name="ha_page_hacs">HACS</string>
     <string name="ha_page_hacs_subtitle">Topluluk entegrasyonları ve ön uç eklentileri</string>
     <string name="ha_page_no_server">Önce bir Home Assistant sunucusuna bağlanın.</string>
+    <string name="ha_page_reload">Yeniden yükle</string>
     <string name="update_channel_name">Uygulama güncellemeleri</string>
     <string name="update_channel_description">HKI 7\'nin daha yeni bir sürümünün ne zaman yayınlandığını size bildirir</string>
     <string name="update_available_title">HKI 7 %1$s mevcut</string>
@@ -1887,4 +1888,9 @@
     <string name="clock_alarm_set_by">%1$s tarafından belirlendi</string>
     <string name="clock_alarms_platform_note">Android yalnızca diğer uygulamalara bir sonraki alarm hakkında bilgi verir, dolayısıyla alarmlar buradan listelenemez veya açılıp kapatılamaz.</string>
     <string name="clock_open_clock_app">Saat uygulamasını aç</string>
+    <string name="clock_open_failed">Hiçbir saat uygulaması açılamadı. Bu widget\'ın ayarlarından birini seçin.</string>
+    <string name="clock_app_section">Saat uygulaması</string>
+    <string name="clock_app_section_subtitle">Alarm iletişim kutusu hangi uygulamayı açar?</string>
+    <string name="clock_app_automatic">Otomatik</string>
+    <string name="clock_app_none_found">Bu cihazda saat uygulaması bulunamadı.</string>
 </resources>

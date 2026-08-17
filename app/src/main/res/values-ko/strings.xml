@@ -2934,6 +2934,7 @@
     <string name="ha_page_hacs">HACS</string>
     <string name="ha_page_hacs_subtitle">커뮤니티 통합 및 프런트엔드 추가 기능</string>
     <string name="ha_page_no_server">먼저 Home Assistant 서버에 연결하세요.</string>
+    <string name="ha_page_reload">새로고침</string>
     <string name="update_channel_name">앱 업데이트</string>
     <string name="update_channel_description">HKI 7의 최신 버전이 출시되면 알려줍니다.</string>
     <string name="update_available_title">HKI 7 %1$s 사용 가능</string>
@@ -3518,4 +3519,9 @@
     <string name="clock_alarm_set_by">%1$s에 의해 설정됨</string>
     <string name="clock_alarms_platform_note">Android는 다른 앱에게 다음 알람에 대해서만 알리므로 여기에서 알람을 나열하거나 켜거나 끌 수 없습니다.</string>
     <string name="clock_open_clock_app">시계 앱 열기</string>
+    <string name="clock_open_failed">시계 앱을 열 수 없습니다. 이 위젯의 설정에서 하나를 선택하세요.</string>
+    <string name="clock_app_section">시계 앱</string>
+    <string name="clock_app_section_subtitle">알람 대화상자가 열리는 앱</string>
+    <string name="clock_app_automatic">오토매틱</string>
+    <string name="clock_app_none_found">이 기기에서는 시계 앱을 찾을 수 없습니다.</string>
 </resources>

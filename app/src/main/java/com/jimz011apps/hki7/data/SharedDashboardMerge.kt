@@ -214,6 +214,8 @@ internal fun mergeWidgetAesthetics(incoming: HKIRoomWidget, local: HKIRoomWidget
                 analogStyle = local.analogStyle, digitalStyle = local.digitalStyle,
                 use24Hour = local.use24Hour, showSeconds = local.showSeconds,
                 showDate = local.showDate, showDayName = local.showDayName, showYear = local.showYear,
+                // The pinned clock app is a property of this phone, not of the shared dashboard.
+                clockAppPackage = local.clockAppPackage,
                 isSquare = local.isSquare, cornerRadius = local.cornerRadius, backgroundUrl = local.backgroundUrl
             )
         }

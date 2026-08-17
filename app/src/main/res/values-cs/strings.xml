@@ -2976,6 +2976,7 @@
     <string name="ha_page_hacs">HACS</string>
     <string name="ha_page_hacs_subtitle">Komunitní integrace a frontendové doplňky</string>
     <string name="ha_page_no_server">Nejprve se připojte k serveru Home Assistant.</string>
+    <string name="ha_page_reload">Znovu načíst</string>
     <string name="update_channel_name">Aktualizace aplikací</string>
     <string name="update_channel_description">Řekne vám, kdy byla vydána novější verze HKI 7</string>
     <string name="update_available_title">HKI 7 %1$s je k dispozici</string>
@@ -3560,4 +3561,9 @@
     <string name="clock_alarm_set_by">Nastaveno uživatelem %1$s</string>
     <string name="clock_alarms_platform_note">Android pouze informuje ostatní aplikace o příštím budíku, takže budíky odtud nelze vypsat ani zapnout a vypnout.</string>
     <string name="clock_open_clock_app">Otevřete aplikaci Hodiny</string>
+    <string name="clock_open_failed">Nelze otevřít žádnou aplikaci hodin. Vyberte jeden v nastavení tohoto widgetu.</string>
+    <string name="clock_app_section">Aplikace Hodiny</string>
+    <string name="clock_app_section_subtitle">U které aplikace se otevře dialogové okno budíku</string>
+    <string name="clock_app_automatic">Automatický</string>
+    <string name="clock_app_none_found">Na tomto zařízení nebyla nalezena žádná aplikace pro hodiny.</string>
 </resources>

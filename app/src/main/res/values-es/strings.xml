@@ -1685,6 +1685,7 @@
     <string name="ha_page_hacs">HACS</string>
     <string name="ha_page_hacs_subtitle">Integraciones comunitarias y complementos de interfaz</string>
     <string name="ha_page_no_server">Conéctese primero a un servidor Home Assistant.</string>
+    <string name="ha_page_reload">Recargar</string>
     <string name="update_channel_name">Actualizaciones de aplicaciones</string>
     <string name="update_channel_description">Le avisa cuando se ha lanzado una versión más nueva de HKI 7</string>
     <string name="update_available_title">HKI 7 %1$s está disponible</string>
@@ -1887,4 +1888,9 @@
     <string name="clock_alarm_set_by">Establecido por %1$s</string>
     <string name="clock_alarms_platform_note">Android solo informa a otras aplicaciones sobre la próxima alarma, por lo que las alarmas no se pueden enumerar ni activar y desactivar desde aquí.</string>
     <string name="clock_open_clock_app">Abrir la aplicación Reloj</string>
+    <string name="clock_open_failed">No se pudo abrir ninguna aplicación de reloj. Elija uno en la configuración de este widget.</string>
+    <string name="clock_app_section">Aplicación de reloj</string>
+    <string name="clock_app_section_subtitle">¿Qué aplicación abre el cuadro de diálogo de alarma?</string>
+    <string name="clock_app_automatic">Automático</string>
+    <string name="clock_app_none_found">No se encontró ninguna aplicación de reloj en este dispositivo.</string>
 </resources>

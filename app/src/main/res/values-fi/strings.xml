@@ -2976,6 +2976,7 @@
     <string name="ha_page_hacs">HACS</string>
     <string name="ha_page_hacs_subtitle">Yhteisöintegraatiot ja käyttöliittymän lisäosat</string>
     <string name="ha_page_no_server">Yhdistä ensin Home Assistant-palvelimeen.</string>
+    <string name="ha_page_reload">Lataa uudelleen</string>
     <string name="update_channel_name">Sovelluspäivitykset</string>
     <string name="update_channel_description">Kertoo, kun uudempi versio HKI 7:sta on julkaistu</string>
     <string name="update_available_title">HKI 7 %1$s on saatavilla</string>
@@ -3560,4 +3561,9 @@
     <string name="clock_alarm_set_by">Asettanut %1$s</string>
     <string name="clock_alarms_platform_note">Android kertoo muille sovelluksille vain seuraavasta hälytyksestä, joten hälytyksiä ei voi luetteloida tai kytkeä päälle ja pois täältä.</string>
     <string name="clock_open_clock_app">Avaa Kello-sovellus</string>
+    <string name="clock_open_failed">Kellosovellusta ei voitu avata. Valitse yksi tämän widgetin asetuksista.</string>
+    <string name="clock_app_section">Kello-sovellus</string>
+    <string name="clock_app_section_subtitle">Mikä sovellus hälytyksen valintaikkuna avautuu</string>
+    <string name="clock_app_automatic">Automaattinen</string>
+    <string name="clock_app_none_found">Kellosovellusta ei löytynyt tältä laitteelta.</string>
 </resources>

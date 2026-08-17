@@ -45,6 +45,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
@@ -103,16 +104,72 @@ fun nextDeviceAlarm(context: Context): DeviceAlarm? {
     )
 }
 
-/** Opens whichever app owns the next alarm, falling back to the system's show-alarms intent. */
-fun openAlarmApp(context: Context, alarm: DeviceAlarm?) {
+/**
+ * Opens a clock app, in descending order of confidence: the one the user pinned in widget
+ * settings, then whichever app actually set the next alarm, then the system's show-alarms intent,
+ * then anything that declares it can handle show-alarms.
+ *
+ * The last two matter because ACTION_SHOW_ALARMS is not guaranteed to have a handler — on plenty
+ * of phones nothing claims it, and `startActivity` then throws and the button appears to do
+ * nothing at all, which is exactly what happened on Samsung. Returns false when every route
+ * failed, so the caller can say so instead of leaving the user tapping a dead button.
+ */
+fun openAlarmApp(context: Context, alarm: DeviceAlarm?, preferredPackage: String? = null): Boolean {
+    val pm = context.packageManager
+    fun launch(intent: Intent?): Boolean {
+        intent ?: return false
+        return runCatching {
+            context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        }.isSuccess
+    }
+
+    val pinned = preferredPackage?.takeIf { it.isNotBlank() }
+        ?.let { runCatching { pm.getLaunchIntentForPackage(it) }.getOrNull() }
+    if (launch(pinned)) return true
+
     val owner = alarm?.packageName
-        ?.let { runCatching { context.packageManager.getLaunchIntentForPackage(it) }.getOrNull() }
-    val intent = owner ?: Intent(AlarmClock.ACTION_SHOW_ALARMS)
-    runCatching { context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+        ?.let { runCatching { pm.getLaunchIntentForPackage(it) }.getOrNull() }
+    if (launch(owner)) return true
+
+    val showAlarms = Intent(android.provider.AlarmClock.ACTION_SHOW_ALARMS)
+    if (showAlarms.resolveActivity(pm) != null && launch(showAlarms)) return true
+
+    val handler = runCatching {
+        pm.queryIntentActivities(showAlarms, 0).firstOrNull()?.activityInfo?.packageName
+    }.getOrNull()?.let { runCatching { pm.getLaunchIntentForPackage(it) }.getOrNull() }
+    return launch(handler)
 }
 
-private object AlarmClock {
-    const val ACTION_SHOW_ALARMS = android.provider.AlarmClock.ACTION_SHOW_ALARMS
+/** An installed app the alarm dialog could open, for the settings picker. */
+data class ClockAppOption(val packageName: String, val label: String)
+
+/**
+ * Apps worth offering as "the clock app": everything that declares it handles ACTION_SHOW_ALARMS,
+ * plus anything whose package or label looks like a clock, since some vendor clocks (Samsung's
+ * among them) do not declare the intent but are what the user actually means.
+ */
+fun installedClockApps(context: Context): List<ClockAppOption> {
+    val pm = context.packageManager
+    val found = linkedMapOf<String, String>()
+    runCatching {
+        pm.queryIntentActivities(Intent(android.provider.AlarmClock.ACTION_SHOW_ALARMS), 0)
+    }.getOrNull()?.forEach { info ->
+        val pkg = info.activityInfo?.packageName ?: return@forEach
+        found[pkg] = runCatching { info.loadLabel(pm).toString() }.getOrDefault(pkg)
+    }
+    runCatching {
+        pm.queryIntentActivities(
+            Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0
+        )
+    }.getOrNull()?.forEach { info ->
+        val pkg = info.activityInfo?.packageName ?: return@forEach
+        if (pkg in found) return@forEach
+        val label = runCatching { info.loadLabel(pm).toString() }.getOrDefault(pkg)
+        val looksLikeClock = listOf("clock", "alarm", "deskclock", "wecker", "klok", "horloge", "reloj")
+            .any { pkg.contains(it, true) || label.contains(it, true) }
+        if (looksLikeClock) found[pkg] = label
+    }
+    return found.map { (pkg, label) -> ClockAppOption(pkg, label) }.sortedBy { it.label.lowercase() }
 }
 
 @Composable
@@ -214,7 +271,11 @@ fun ClockWidgetItem(
     }
 
     if (showAlarms) {
-        NextAlarmDialog(context = context, onDismiss = { showAlarms = false })
+        NextAlarmDialog(
+            context = context,
+            preferredPackage = widget.clockAppPackage,
+            onDismiss = { showAlarms = false }
+        )
     }
 }
 
@@ -289,14 +350,16 @@ private fun DigitalClockFace(widget: HKIClockWidget, now: LocalDateTime, ink: Co
                 }
             }
         }
+        // Hollow digits. The colour has to come from the style, not the `color` parameter — that
+        // parameter wins over the style, and setting it to Transparent (as this first did) makes
+        // the stroke invisible too, which is why the style rendered as nothing at all.
         "outline" -> Text(
             buildString { append("$hh:$mm"); if (widget.showSeconds) append(":$ss") },
-            color = Color.Transparent,
-            fontSize = 40.sp,
-            fontWeight = FontWeight.Black,
             style = MaterialTheme.typography.displayMedium.copy(
-                drawStyle = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f),
-                color = ink
+                color = ink,
+                fontSize = 40.sp,
+                fontWeight = FontWeight.Black,
+                drawStyle = Stroke(width = 2.5f, join = StrokeJoin.Round)
             )
         )
         // Colon replaced by a stacked pair of dots that blink on the second.
@@ -470,8 +533,9 @@ private fun DrawScope.drawAnalogClock(
  * the way rather than pretending to be an alarm manager.
  */
 @Composable
-private fun NextAlarmDialog(context: Context, onDismiss: () -> Unit) {
+private fun NextAlarmDialog(context: Context, preferredPackage: String?, onDismiss: () -> Unit) {
     val appColors = LocalHKIAppColors.current
+    var openFailed by remember { mutableStateOf(false) }
     val locale = context.resources.configuration.locales[0]
     val alarm = remember { nextDeviceAlarm(context) }
     val label = alarm?.let {
@@ -514,10 +578,21 @@ private fun NextAlarmDialog(context: Context, onDismiss: () -> Unit) {
                     color = appColors.onMuted,
                     style = MaterialTheme.typography.bodySmall
                 )
+                if (openFailed) {
+                    Text(
+                        stringResource(R.string.clock_open_failed),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
         },
         confirmButton = {
-            androidx.compose.material3.TextButton(onClick = { openAlarmApp(context, alarm); onDismiss() }) {
+            TextButton(onClick = {
+                // Stay open and say so when nothing could be launched, rather than dismissing and
+                // leaving the impression the button itself is broken.
+                if (openAlarmApp(context, alarm, preferredPackage)) onDismiss() else openFailed = true
+            }) {
                 Text(stringResource(R.string.clock_open_clock_app))
             }
         },
@@ -544,6 +619,7 @@ fun ClockWidgetSettingsDialog(
     var showDate by remember(widget) { mutableStateOf(widget.showDate) }
     var showDay by remember(widget) { mutableStateOf(widget.showDayName) }
     var showYear by remember(widget) { mutableStateOf(widget.showYear) }
+    var clockApp by remember(widget) { mutableStateOf(widget.clockAppPackage) }
     var width by remember(widget) { mutableStateOf(widget.width) }
     var square by remember(widget) { mutableStateOf(widget.isSquare) }
     val radius = widget.cornerRadius
@@ -628,6 +704,38 @@ fun ClockWidgetSettingsDialog(
                     ClockToggleRow(stringResource(R.string.clock_day_name), showDay) { showDay = it }
                     ClockToggleRow(stringResource(R.string.clock_date), showDate) { showDate = it }
                     ClockToggleRow(stringResource(R.string.clock_year), showYear) { showYear = it }
+
+                    com.jimz011apps.hki7.ui.components.SettingsSubcategory(
+                        stringResource(R.string.clock_app_section),
+                        stringResource(R.string.clock_app_section_subtitle)
+                    )
+                    val context = LocalContext.current
+                    val clockApps = remember { installedClockApps(context) }
+                    if (clockApps.isEmpty()) {
+                        Text(
+                            stringResource(R.string.clock_app_none_found),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = LocalHKIAppColors.current.onMuted
+                        )
+                    } else {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            FilterChip(
+                                selected = clockApp == null,
+                                onClick = { clockApp = null },
+                                label = { Text(stringResource(R.string.clock_app_automatic)) }
+                            )
+                            clockApps.forEach { app ->
+                                FilterChip(
+                                    selected = clockApp == app.packageName,
+                                    onClick = { clockApp = app.packageName },
+                                    label = { Text(app.label) }
+                                )
+                            }
+                        }
+                    }
                 }
                 if (settingsPage == "appearance") {
                     com.jimz011apps.hki7.ui.components.SettingsSubcategory(
@@ -664,6 +772,7 @@ fun ClockWidgetSettingsDialog(
                         showDate = showDate,
                         showDayName = showDay,
                         showYear = showYear,
+                        clockAppPackage = clockApp,
                         width = width,
                         isSquare = square,
                         cornerRadius = radius,

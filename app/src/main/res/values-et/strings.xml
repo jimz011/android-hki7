@@ -2976,6 +2976,7 @@
     <string name="ha_page_hacs">HACS</string>
     <string name="ha_page_hacs_subtitle">Kogukonna integratsioonid ja kasutajaliidese lisandmoodulid</string>
     <string name="ha_page_no_server">Esmalt looge ühendus Home Assistant serveriga.</string>
+    <string name="ha_page_reload">Laadi uuesti</string>
     <string name="update_channel_name">Rakenduse värskendused</string>
     <string name="update_channel_description">Teatab, kui HKI 7 uuem versioon on välja antud</string>
     <string name="update_available_title">HKI 7 %1$s on saadaval</string>
@@ -3560,4 +3561,9 @@
     <string name="clock_alarm_set_by">Määras %1$s</string>
     <string name="clock_alarms_platform_note">Android teatab teistele rakendustele ainult järgmisest häirest, seega ei saa häireid siit loetleda ega sisse ja välja lülitada.</string>
     <string name="clock_open_clock_app">Avage rakendus Kell</string>
+    <string name="clock_open_failed">Ühtegi kellarakendust ei saanud avada. Valige üks selle vidina seadetest.</string>
+    <string name="clock_app_section">Kellarakendus</string>
+    <string name="clock_app_section_subtitle">Millise rakenduse häiredialoog avaneb</string>
+    <string name="clock_app_automatic">Automaatne</string>
+    <string name="clock_app_none_found">Sellest seadmest ei leitud kellarakendust.</string>
 </resources>

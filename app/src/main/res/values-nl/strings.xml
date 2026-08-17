@@ -1918,6 +1918,7 @@
     <string name="ha_page_hacs">HACS</string>
     <string name="ha_page_hacs_subtitle">Community-integraties en frontend-add-ons</string>
     <string name="ha_page_no_server">Maak eerst verbinding met een Home Assistant-server.</string>
+    <string name="ha_page_reload">Herladen</string>
     <string name="update_channel_name">App-updates</string>
     <string name="update_channel_description">Laat u weten wanneer er een nieuwere versie van HKI 7 is uitgebracht</string>
     <string name="update_available_title">HKI 7 %1$s is beschikbaar</string>
@@ -2120,4 +2121,9 @@
     <string name="clock_alarm_set_by">Ingesteld door %1$s</string>
     <string name="clock_alarms_platform_note">Android vertelt andere apps alleen over het volgende alarm, dus alarmen kunnen vanaf hier niet worden vermeld of in- en uitgeschakeld.</string>
     <string name="clock_open_clock_app">Open de Klok-app</string>
+    <string name="clock_open_failed">Er kon geen klok-app worden geopend. Kies er een in de instellingen van deze widget.</string>
+    <string name="clock_app_section">Klok-app</string>
+    <string name="clock_app_section_subtitle">In welke app het alarmdialoogvenster wordt geopend</string>
+    <string name="clock_app_automatic">Automatisch</string>
+    <string name="clock_app_none_found">Er is geen klok-app gevonden op dit apparaat.</string>
 </resources>

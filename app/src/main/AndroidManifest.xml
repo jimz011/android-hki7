@@ -34,6 +34,19 @@
         <package android:name="deezer.android.app" />
         <package android:name="com.sonos.acr2" />
         <package android:name="com.amazon.mp3" />
+
+        <!-- Clock apps, for the Clock widget's alarm dialog. Android 11 hides other packages
+             unless they are declared here, which is why querying for a clock app returned
+             nothing and the "Open Clock app" button did nothing at all. The intent covers apps
+             that declare it; the launcher intent lets the settings picker offer vendor clocks
+             (Samsung's among them) that do not. -->
+        <intent>
+            <action android:name="android.intent.action.SHOW_ALARMS" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
     </queries>
 
     <application

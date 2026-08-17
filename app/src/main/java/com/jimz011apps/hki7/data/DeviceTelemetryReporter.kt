@@ -134,6 +134,7 @@ class DeviceTelemetryReporter(
         if (prefs.mobileAppSensorsWebhookId.first() != sensorsMarker) {
             val registered = registerSensors(client, webhookUrl, slug, deviceName, batteryLevel, charging, address, log)
             if (registered) prefs.saveMobileAppSensorsRegistered(sensorsMarker)
+            else log("Sensor registration incomplete; will retry on the next cycle")
         }
 
         // HA's update_sensor_states requires "type" on every entry (matching the registered type),
@@ -339,7 +340,7 @@ class DeviceTelemetryReporter(
             })
         }, "register geocoded", log)
         val alarm = nextAlarm()
-        val nextAlarmOk = post(client, webhookUrl, buildJsonObject {
+        post(client, webhookUrl, buildJsonObject {
             put("type", "register_sensor")
             put("data", buildJsonObject {
                 put("unique_id", "${slug}_next_alarm")
@@ -353,7 +354,10 @@ class DeviceTelemetryReporter(
                 put("icon", "mdi:alarm")
             })
         }, "register next alarm", log)
-        return batteryOk && chargingOk && geocodedOk && nextAlarmOk
+        // Deliberately not part of the return. A server that rejects this one sensor — an older
+        // HA, or one that dislikes a timestamp registered as "unavailable" — must not stop the
+        // marker being saved, or every cycle would re-register all four sensors forever.
+        return batteryOk && chargingOk && geocodedOk
     }
 
     private suspend fun post(
@@ -566,6 +570,23 @@ class DeviceTelemetryReporter(
          *  registered the previous set registers the difference once rather than never. */
         // Bumped to 3 in 1.1.1, which added the Next Alarm sensor: devices already registered on
         // revision 2 have to re-register or the new entity would never be created for them.
-        private const val SENSOR_SET_REVISION = 3
+        internal const val SENSOR_SET_REVISION = 3
+    }
+}
+
+/**
+ * Whether any authenticated instance is still registered against an older sensor set.
+ *
+ * True right after an update that added a sensor, and false again once a telemetry run has
+ * re-registered. Lets the app trigger that run at launch instead of leaving the new entity missing
+ * until the next fifteen-minute cycle — the alternative being to ask people to re-register their
+ * device by hand, which they should never have to do for a sensor the app added itself.
+ */
+suspend fun sensorRegistrationStale(prefs: PreferencesManager): Boolean {
+    prefs.ensureHomeAssistantInstanceStore()
+    return prefs.homeAssistantInstances.first().any { instance ->
+        if (!instance.isAuthenticated) return@any false
+        val webhookId = instance.mobileAppWebhookId ?: return@any false
+        instance.mobileAppSensorsWebhookId != "$webhookId@${DeviceTelemetryReporter.SENSOR_SET_REVISION}"
     }
 }

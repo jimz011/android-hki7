@@ -222,7 +222,7 @@ import java.util.UUID
 import coil3.compose.AsyncImage
 
 private enum class SettingsSection {
-    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, LANGUAGE, CORNERS, ICONS, NAV_BAR, MEDIA_PLAYERS, POPUPS, DASHBOARD, FAMILY_SHARING, BACKUP_RESTORE, ACCOUNT, HA_SETTINGS, HA_DEV_TOOLS, HA_HACS, ABOUT, LICENSE, SUPPORT
+    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, LANGUAGE, CORNERS, ICONS, NAV_BAR, MEDIA_PLAYERS, POPUPS, DASHBOARD, FAMILY_SHARING, BACKUP_RESTORE, ACCOUNT, ABOUT, LICENSE, SUPPORT
 }
 
 /** The Home Assistant frontend paths reachable from the Home Assistant category. */
@@ -318,9 +318,6 @@ private fun sectionTitle(section: SettingsSection): String = stringResource(when
     SettingsSection.FAMILY_SHARING -> R.string.settings_title_family_sharing
     SettingsSection.BACKUP_RESTORE -> R.string.settings_title_backup_restore
     SettingsSection.ACCOUNT -> R.string.settings_title_account
-    SettingsSection.HA_SETTINGS -> R.string.ha_page_settings
-    SettingsSection.HA_DEV_TOOLS -> R.string.ha_page_dev_tools
-    SettingsSection.HA_HACS -> R.string.ha_page_hacs
     SettingsSection.ABOUT -> R.string.settings_title_about
     SettingsSection.LICENSE -> R.string.settings_title_license
     SettingsSection.SUPPORT -> R.string.settings_title_support
@@ -347,9 +344,6 @@ private fun sectionSubtitle(section: SettingsSection): String = stringResource(w
     SettingsSection.NOTIFICATIONS -> R.string.settings_subtitle_notifications
     SettingsSection.BACKUP_RESTORE -> R.string.settings_subtitle_backup_restore
     SettingsSection.FAMILY_SHARING -> R.string.settings_subtitle_family_sharing
-    SettingsSection.HA_SETTINGS -> R.string.ha_page_settings_subtitle
-    SettingsSection.HA_DEV_TOOLS -> R.string.ha_page_dev_tools_subtitle
-    SettingsSection.HA_HACS -> R.string.ha_page_hacs_subtitle
     SettingsSection.ABOUT -> R.string.settings_subtitle_about
     SettingsSection.LICENSE -> R.string.settings_subtitle_license
     SettingsSection.SUPPORT -> R.string.settings_subtitle_support
@@ -373,9 +367,6 @@ private fun sectionIcon(section: SettingsSection): ImageVector = when (section) 
     SettingsSection.NOTIFICATIONS -> Icons.Default.Notifications
     SettingsSection.BACKUP_RESTORE -> Icons.Default.Backup
     SettingsSection.FAMILY_SHARING -> Icons.Default.Shield
-    SettingsSection.HA_SETTINGS -> Icons.Default.Tune
-    SettingsSection.HA_DEV_TOOLS -> Icons.Default.Build
-    SettingsSection.HA_HACS -> Icons.Default.Dashboard
     SettingsSection.ABOUT -> Icons.Default.Info
     SettingsSection.LICENSE -> Icons.Default.Description
     SettingsSection.SUPPORT -> Icons.Default.Favorite
@@ -444,6 +435,12 @@ fun SettingsDialog(
     val isBackgroundRestricted = activityManager?.isBackgroundRestricted ?: false
 
     var section by remember { mutableStateOf(initialSection) }
+    // Home Assistant's own pages open over the whole screen rather than as a settings subsection:
+    // path to open, and the title to put on it. Null while none is open.
+    var haPage by remember { mutableStateOf<Pair<String, String>?>(null) }
+    val haSettingsTitle = stringResource(R.string.ha_page_settings)
+    val haDevToolsTitle = stringResource(R.string.ha_page_dev_tools)
+    val haHacsTitle = stringResource(R.string.ha_page_hacs)
     // Scroll offset per section, so walking back up to a parent lands where you left it instead of
     // at the top. Only entries reached by *going back* are restored — opening a child fresh always
     // starts at 0, which is why the previous section is tracked rather than just the saved offsets.
@@ -714,9 +711,9 @@ fun SettingsDialog(
                                     stringResource(R.string.ha_page_category),
                                     stringResource(R.string.ha_page_category_subtitle)
                                 )
-                                SettingsChoice(Icons.Default.Tune, stringResource(R.string.ha_page_settings), stringResource(R.string.ha_page_settings_subtitle)) { section = SettingsSection.HA_SETTINGS }
-                                SettingsChoice(Icons.Default.Build, stringResource(R.string.ha_page_dev_tools), stringResource(R.string.ha_page_dev_tools_subtitle)) { section = SettingsSection.HA_DEV_TOOLS }
-                                SettingsChoice(Icons.Default.Dashboard, stringResource(R.string.ha_page_hacs), stringResource(R.string.ha_page_hacs_subtitle)) { section = SettingsSection.HA_HACS }
+                                SettingsChoice(Icons.Default.Tune, stringResource(R.string.ha_page_settings), stringResource(R.string.ha_page_settings_subtitle)) { haPage = HA_PATH_SETTINGS to haSettingsTitle }
+                                SettingsChoice(Icons.Default.Build, stringResource(R.string.ha_page_dev_tools), stringResource(R.string.ha_page_dev_tools_subtitle)) { haPage = HA_PATH_DEV_TOOLS to haDevToolsTitle }
+                                SettingsChoice(Icons.Default.Dashboard, stringResource(R.string.ha_page_hacs), stringResource(R.string.ha_page_hacs_subtitle)) { haPage = HA_PATH_HACS to haHacsTitle }
                             }
                             SettingsSubcategory(stringResource(R.string.ui_hki_7_68a9e17), stringResource(R.string.ui_project_information_licensing_and_community_support_9fc47d6))
                             SettingsChoice(Icons.Default.Info, stringResource(R.string.ui_about_6b21fb7), stringResource(R.string.ui_what_hki_7_is_and_how_it_is_built_247bace)) { section = SettingsSection.ABOUT }
@@ -2907,23 +2904,6 @@ fun SettingsDialog(
                                 }
                             }
                         }
-                        SettingsSection.HA_SETTINGS, SettingsSection.HA_DEV_TOOLS, SettingsSection.HA_HACS -> {
-                            val accessToken by prefs.accessToken.collectAsState(initial = null)
-                            val refreshToken by prefs.refreshToken.collectAsState(initial = null)
-                            val tokenExpiry by prefs.accessTokenExpiry.collectAsState(initial = null)
-                            com.jimz011apps.hki7.ui.components.HaWebPage(
-                                baseUrl = serverUrl.orEmpty(),
-                                path = when (section) {
-                                    SettingsSection.HA_DEV_TOOLS -> HA_PATH_DEV_TOOLS
-                                    SettingsSection.HA_HACS -> HA_PATH_HACS
-                                    else -> HA_PATH_SETTINGS
-                                },
-                                accessToken = accessToken,
-                                refreshToken = refreshToken,
-                                accessTokenExpiry = tokenExpiry,
-                                onBack = { section = SettingsSection.MENU }
-                            )
-                        }
                         SettingsSection.ABOUT -> {
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
@@ -3225,6 +3205,21 @@ fun SettingsDialog(
                 )
             }
         }
+    }
+
+    haPage?.let { (path, pageTitle) ->
+        val haAccessToken by prefs.accessToken.collectAsState(initial = null)
+        val haRefreshToken by prefs.refreshToken.collectAsState(initial = null)
+        val haTokenExpiry by prefs.accessTokenExpiry.collectAsState(initial = null)
+        com.jimz011apps.hki7.ui.components.HaWebPageDialog(
+            title = pageTitle,
+            baseUrl = serverUrl.orEmpty(),
+            path = path,
+            accessToken = haAccessToken,
+            refreshToken = haRefreshToken,
+            accessTokenExpiry = haTokenExpiry,
+            onDismiss = { haPage = null }
+        )
     }
 
     if (showRestoreSource) {

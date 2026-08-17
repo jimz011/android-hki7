@@ -3900,14 +3900,20 @@
     <string name="update_title">应用程序更新</string>
     <string name="update_watch_releases">告诉我有关新版本的信息</string>
     <string name="update_watch_releases_subtitle">每天检查 GitHub 一次，并在发布新版本时通知您</string>
+<string name="clock_app_automatic">自动的</string>
+    <string name="clock_app_none_found">在此设备上找不到时钟应用程序。</string>
+    <string name="clock_app_section">时钟应用程序</string>
+    <string name="clock_app_section_subtitle">警报对话框打开哪个应用程序</string>
+    <string name="clock_open_failed">无法打开时钟应用程序。在此小部件的设置中选择一个。</string>
+    <string name="ha_page_reload">重新加载</string>
     <string-array name="cr_whats_new_1_1_1">
-        <item>新的时钟小部件。模拟或数字，各有七种表面设计——模拟的经典、简约、罗马、铁路、包豪斯、霓虹灯和骷髅；数字格式为普通、分段、等宽、翻转、轮廓、堆叠和点 - 加上 12 或 24 小时时间、可选秒数以及您在下方选择的日、日期和年份。点击它会显示您的下一个闹钟。</item>
-        <item>Home Assistant 自己的页面在 HKI 7 内打开。设置中的新 Home Assistant 部分可让您直接进入已登录的服务器设置、开发人员工具和 HACS，而无需离开应用程序。</item>
+        <item>新的时钟小部件。模拟或数字，各有七种表面设计——模拟的经典、简约、罗马、铁路、包豪斯、霓虹灯和骷髅；数字格式为普通、分段、等宽、翻转、轮廓、堆叠和点 - 加上 12 或 24 小时时间、可选秒数以及您在下方选择的日、日期和年份。点击它会显示您的下一个闹钟，您可以选择打开哪个时钟应用程序。</item>
+        <item>Home Assistant 自己的页面在 HKI 7 内全屏打开。设置中的新 Home Assistant 部分可让您直接进入已登录的服务器设置、开发人员工具和 HACS，而无需离开应用程序。</item>
         <item>HKI 7 现在会告诉您新版本何时发布。它每天查看一次 GitHub 版本并通知您，如果您自己安装 APK 而不是从 Play 安装 APK，这一点最为重要 — 更新现在会将您发送到 Play 或发布页面，具体取决于此副本的来源。可以在“设置”&gt;“关于”中将其关闭。</item>
         <item>下一个警报传感器加入了应用程序已向 Home Assistant 报告的传感器，与官方配套应用程序相匹配。 Android 仅公开下一个警报，而不是整个列表，因此这就是传感器携带的内容以及设置它的应用程序。</item>
         <item>风卡现在是一个合适的指南针。刻度盘上有一个标记环、一个八点玫瑰和一个双音针，取代了以前的普通圆圈和线条。</item>
         <item>媒体播放器会显示正在播放的内容，而不仅仅是打开了哪个应用程序。流媒体播放剧集的 Android TV 现在会显示节目、季节和剧集以及剧集标题，并在下方显示应用程序名称；电视直播该频道。</item>
-        <item>修复了后退手势让您停留在房间概览的问题。打开一个房间，切换到另一个选项卡并按返回，现在会返回到您实际所在的房间，而不是房间列表。</item>
+        <item>现在，退出房间会将您带到之前所在的房间，或房间列表，而不会转到您碰巧从哪个选项卡打开房间。</item>
         <item>捷克语、斯洛伐克语、希腊语、挪威语、瑞典语和丹麦语的固定温度和能量读数。机器翻译损坏了它们背后的数字格式，这导致北欧语言中的小数位数显示错误，并且可能导致其他三种语言的屏幕崩溃。</item>
         <item>现在每种语言都有一个任何人都可以更正的文件。存储库中的翻译文件夹为每种语言保存一个电子表格友好的文件，翻译旁边有英文，因此母语人士可以在不接触任何代码的情况下修复错误的内容。</item>
     </string-array>

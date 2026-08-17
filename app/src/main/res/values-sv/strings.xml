@@ -2976,6 +2976,7 @@
     <string name="ha_page_hacs">HACS</string>
     <string name="ha_page_hacs_subtitle">Community-integrationer och frontend-tillägg</string>
     <string name="ha_page_no_server">Anslut först till en Home Assistant-server.</string>
+    <string name="ha_page_reload">Ladda om</string>
     <string name="update_channel_name">Appuppdateringar</string>
     <string name="update_channel_description">Meddelar dig när en nyare version av HKI 7 har släppts</string>
     <string name="update_available_title">HKI 7 %1$s är tillgänglig</string>
@@ -3560,4 +3561,9 @@
     <string name="clock_alarm_set_by">Set av %1$s</string>
     <string name="clock_alarms_platform_note">Android berättar bara för andra appar om nästa larm, så larm kan inte listas eller slås på och av härifrån.</string>
     <string name="clock_open_clock_app">Öppna appen Klocka</string>
+    <string name="clock_open_failed">Ingen klockapp kunde öppnas. Välj en i denna widgets inställningar.</string>
+    <string name="clock_app_section">Klocka app</string>
+    <string name="clock_app_section_subtitle">Vilken app som larmdialogrutan öppnas</string>
+    <string name="clock_app_automatic">Automatisk</string>
+    <string name="clock_app_none_found">Ingen klockapp hittades på den här enheten.</string>
 </resources>

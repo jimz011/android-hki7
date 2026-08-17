@@ -2976,6 +2976,7 @@
     <string name="ha_page_hacs">HACS</string>
     <string name="ha_page_hacs_subtitle">Integracije zajednice i sučelja dodaci</string>
     <string name="ha_page_no_server">Prvo se povežite s poslužiteljem Home Assistant.</string>
+    <string name="ha_page_reload">Ponovno učitaj</string>
     <string name="update_channel_name">Ažuriranja aplikacije</string>
     <string name="update_channel_description">Obavještava vas kada je objavljena novija verzija HKI 7</string>
     <string name="update_available_title">HKI 7 %1$s je dostupan</string>
@@ -3560,4 +3561,9 @@
     <string name="clock_alarm_set_by">Postavio %1$s</string>
     <string name="clock_alarms_platform_note">Android samo govori drugim aplikacijama o sljedećem alarmu, tako da se alarmi ne mogu navesti ili uključiti i isključiti odavde.</string>
     <string name="clock_open_clock_app">Otvorite aplikaciju Sat</string>
+    <string name="clock_open_failed">Nije moguće otvoriti nijednu aplikaciju sata. Odaberite jedan u postavkama ovog widgeta.</string>
+    <string name="clock_app_section">Aplikacija za sat</string>
+    <string name="clock_app_section_subtitle">Koju aplikaciju otvara dijaloški okvir alarma</string>
+    <string name="clock_app_automatic">Automatski</string>
+    <string name="clock_app_none_found">Na ovom uređaju nije pronađena aplikacija za sat.</string>
 </resources>

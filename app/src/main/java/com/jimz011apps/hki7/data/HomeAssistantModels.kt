@@ -1717,6 +1717,12 @@ data class HKIClockWidget(
     val showYear: Boolean = false,
     /** Blank means the device's own zone. An IANA id ("Europe/Amsterdam") otherwise. */
     val timeZoneId: String? = null,
+    /**
+     * Package of the app the alarm dialog opens. Null asks the system for whichever app handles
+     * ACTION_SHOW_ALARMS — which on some phones is nothing at all, so it can be pinned to a real
+     * installed app instead.
+     */
+    val clockAppPackage: String? = null,
     val isSquare: Boolean = true,
     val cornerRadius: Int = 28,
     val backgroundUrl: String? = null,

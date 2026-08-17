@@ -2976,6 +2976,7 @@
     <string name="ha_page_hacs">HACS</string>
     <string name="ha_page_hacs_subtitle">تكاملات المجتمع والوظائف الإضافية للواجهة الأمامية</string>
     <string name="ha_page_no_server">اتصل بخادم Home Assistant أولاً.</string>
+    <string name="ha_page_reload">إعادة تحميل</string>
     <string name="update_channel_name">تحديثات التطبيق</string>
     <string name="update_channel_description">يخبرك عندما يتم إصدار إصدار أحدث من HKI 7</string>
     <string name="update_available_title">HKI 7 %1$s متاح</string>
@@ -3560,4 +3561,9 @@
     <string name="clock_alarm_set_by">تم ضبطه بواسطة %1$s</string>
     <string name="clock_alarms_platform_note">يخبر Android التطبيقات الأخرى فقط عن المنبه التالي، لذلك لا يمكن إدراج المنبهات أو تشغيلها وإيقافها من هنا.</string>
     <string name="clock_open_clock_app">افتح تطبيق الساعة</string>
+    <string name="clock_open_failed">لا يمكن فتح تطبيق الساعة. اختر واحدة في إعدادات هذه القطعة.</string>
+    <string name="clock_app_section">تطبيق الساعة</string>
+    <string name="clock_app_section_subtitle">التطبيق الذي يفتحه مربع حوار التنبيه</string>
+    <string name="clock_app_automatic">تلقائي</string>
+    <string name="clock_app_none_found">لم يتم العثور على تطبيق الساعة على هذا الجهاز.</string>
 </resources>

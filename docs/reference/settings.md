@@ -121,9 +121,25 @@ Tabs: **Dashboards**, **Parental controls**, **Permissions**, **Presence**, **De
 
 *Project information, licensing and community support.*
 
+## Home Assistant
+
+*Your server's own pages, opened full screen inside HKI 7.* Hidden on the demo home, which has no
+server behind it. Each opens already signed in, using the session this app is already
+authenticated with, and back walks the page's own history before leaving.
+
+| Entry | Opens |
+| --- | --- |
+| **Home Assistant settings** | Integrations, devices, areas and automations |
+| **Developer tools** | States, services, templates and events |
+| **HACS** | Community integrations and frontend add-ons |
+
 ### About
 
-What HKI 7 is and how it is built.
+What HKI 7 is and how it is built. Also where **app updates** live: HKI 7 can watch the GitHub
+releases once a day and tell you when a newer version is out, which matters if you installed the
+APK yourself rather than from Google Play. **Update now** goes to Play or to the release page
+depending on where this copy came from — an app distributed through Play may not update itself by
+any other route.
 
 ### License
 

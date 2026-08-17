@@ -3945,14 +3945,20 @@
     <string name="update_title">Atualizações de aplicativos</string>
     <string name="update_watch_releases">Conte-me sobre novos lançamentos</string>
     <string name="update_watch_releases_subtitle">Verifica o GitHub uma vez por dia e notifica quando uma versão mais recente é publicada</string>
+<string name="clock_app_automatic">Automático</string>
+    <string name="clock_app_none_found">Nenhum aplicativo de relógio foi encontrado neste dispositivo.</string>
+    <string name="clock_app_section">Aplicativo de relógio</string>
+    <string name="clock_app_section_subtitle">Qual aplicativo a caixa de diálogo do alarme abre</string>
+    <string name="clock_open_failed">Nenhum aplicativo de relógio pôde ser aberto. Escolha um nas configurações deste widget.</string>
+    <string name="ha_page_reload">Recarregar</string>
     <string-array name="cr_whats_new_1_1_1">
-        <item>Novo widget de relógio. Analógico ou digital, com sete designs de face cada – Clássico, Minimal, Romano, Ferroviário, Bauhaus, Neon e Esqueleto para analógico; Simples, Segmentado, Monoespaçado, Inverter, Contorno, Empilhado e Pontos para digital — além de horário de 12 ou 24 horas, segundos opcionais e sua escolha de dia, data e ano abaixo. Tocar nele mostra seu próximo alarme.</item>
-        <item>As próprias páginas de Home Assistant abrem dentro de HKI 7. Uma nova seção Home Assistant em Configurações leva você diretamente para as configurações do servidor, ferramentas de desenvolvedor e HACS, já conectado, sem sair do aplicativo.</item>
+        <item>Novo widget de relógio. Analógico ou digital, com sete designs de face cada – Clássico, Minimal, Romano, Ferroviário, Bauhaus, Neon e Esqueleto para analógico; Simples, Segmentado, Monoespaçado, Inverter, Contorno, Empilhado e Pontos para digital — além de horário de 12 ou 24 horas, segundos opcionais e sua escolha de dia, data e ano abaixo. Tocar nele mostra seu próximo alarme e você pode escolher qual aplicativo de relógio abrir.</item>
+        <item>As próprias páginas de Home Assistant abrem dentro de HKI 7, tela inteira. Uma nova seção Home Assistant em Configurações leva você diretamente para as configurações do servidor, ferramentas de desenvolvedor e HACS, já conectado, sem sair do aplicativo.</item>
         <item>HKI 7 agora informa quando uma nova versão é lançada. Ele observa os lançamentos do GitHub uma vez por dia e notifica você, o que é mais importante se você instalou o APK sozinho e não no Play – a atualização agora envia você para o Play ou para a página de lançamento, dependendo de onde esta cópia veio. Ele pode ser desativado em Configurações › Sobre.</item>
         <item>Um sensor de próximo alarme se junta àqueles que o aplicativo já reporta para Home Assistant, correspondendo ao aplicativo complementar oficial. O Android expõe apenas o próximo alarme em vez de toda a lista, então é isso que o sensor carrega, junto com o aplicativo que o define.</item>
         <item>A carta do vento agora é uma bússola adequada. Mostrador graduado com anel marcado, rosa de oito pontas e agulha bicolor, no lugar do círculo e linha lisos que tinha antes.</item>
         <item>Os media players dizem o que está sendo reproduzido, não apenas qual aplicativo está aberto. Uma Android TV transmitindo uma série agora mostra o programa, a temporada e o episódio, e o título do episódio, com o nome do aplicativo abaixo; TV ao vivo mostra o canal.</item>
-        <item>Corrigido o gesto de voltar, deixando você na visão geral das Salas. Abrir uma sala, mudar para outra guia e pressionar Voltar agora retorna à sala em que você estava, e não à lista de salas.</item>
+        <item>Sair de uma sala agora leva você para a sala em que estava antes ou para a lista de salas – nunca para a guia a partir da qual você abriu a sala.</item>
         <item>Leituras fixas de temperatura e energia em checo, eslovaco, grego, norueguês, sueco e dinamarquês. A tradução automática danificou a formatação dos números por trás deles, que mostrava o número errado de decimais nos idiomas nórdicos e poderia travar a tela nos outros três.</item>
         <item>Cada idioma agora possui um único arquivo que qualquer pessoa pode corrigir. A pasta de traduções no repositório contém um arquivo compatível com planilhas por idioma, o inglês ao lado da tradução, para que um falante nativo possa corrigir o que está errado sem mexer em nenhum código.</item>
     </string-array>

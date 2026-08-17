@@ -32,10 +32,39 @@ One or more `calendar.*` entities, in an **agenda**, **week** or **month** view.
 the widget has its own visibility rule, so a shared work calendar can be scheduled to disappear at
 the weekend.
 
+## Clock
+
+An analog or digital clock, in one of seven designs each:
+
+| Analog | Digital |
+| --- | --- |
+| Classic, Minimal, Roman, Railway, Bauhaus, Neon, Skeleton | Plain, Segment, Monospace, Flip, Outline, Stacked, Dots |
+
+Digital faces can show 12 or 24-hour time. Either can show seconds, and the day of the week, the
+date and the year underneath, each switched on separately.
+
+Tapping the clock shows **the next alarm** set on the phone, and offers to open a clock app.
+
+!!! info "Why there is no list of alarms"
+
+    Android exposes exactly one alarm to other apps — the next one due, across every app — and
+    provides no way to read the full list or to switch alarms on and off. No third-party app can
+    show more than this; the official Home Assistant app's sensor has the same shape for the same
+    reason.
+
+    Which app the button opens can be pinned under **Clock app** in the widget's settings.
+    **Automatic** asks the system, which works on most phones but not all — some vendors ship a
+    clock that never claims the standard "show alarms" action.
+
 ## Media player
 
 A `media_player.*` entity with full transport controls and artwork. Which players may appear, and
 what they are called, is managed under **Settings › Dashboard › Media players**.
+
+For a player that reports what it is playing, the card shows the content rather than just the
+state: a series with its season and episode, a track with its artist, or the channel for live TV,
+with the app it is coming from underneath. An Android TV that reports only which app is open shows
+that app's name.
 
 ## Sensor graph
 

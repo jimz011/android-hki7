@@ -354,4 +354,9 @@
     <string name="clock_alarm_set_by">Set by %1$s</string>
     <string name="clock_alarms_platform_note">Android only tells other apps about the next alarm, so alarms cannot be listed or switched on and off from here.</string>
     <string name="clock_open_clock_app">Open Clock app</string>
+    <string name="clock_open_failed">No clock app could be opened. Pick one in this widget\'s settings.</string>
+    <string name="clock_app_section">Clock app</string>
+    <string name="clock_app_section_subtitle">Which app the alarm dialog opens</string>
+    <string name="clock_app_automatic">Automatic</string>
+    <string name="clock_app_none_found">No clock app was found on this device.</string>
 </resources>

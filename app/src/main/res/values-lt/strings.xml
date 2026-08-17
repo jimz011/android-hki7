@@ -2976,6 +2976,7 @@
     <string name="ha_page_hacs">HACS</string>
     <string name="ha_page_hacs_subtitle">Bendruomenės integracijos ir sąsajos priedai</string>
     <string name="ha_page_no_server">Pirmiausia prisijunkite prie Home Assistant serverio.</string>
+    <string name="ha_page_reload">Įkelti iš naujo</string>
     <string name="update_channel_name">Programų atnaujinimai</string>
     <string name="update_channel_description">Praneša, kai buvo išleista naujesnė HKI 7 versija</string>
     <string name="update_available_title">HKI 7 %1$s yra</string>
@@ -3560,4 +3561,9 @@
     <string name="clock_alarm_set_by">Nustatė %1$s</string>
     <string name="clock_alarms_platform_note">„Android“ tik praneša kitoms programoms apie kitą žadintuvą, todėl čia negalima įjungti ir išjungti signalų.</string>
     <string name="clock_open_clock_app">Atidarykite Laikrodžio programą</string>
+    <string name="clock_open_failed">Nepavyko atidaryti jokios laikrodžio programos. Pasirinkite vieną šio valdiklio nustatymuose.</string>
+    <string name="clock_app_section">Laikrodžio programa</string>
+    <string name="clock_app_section_subtitle">Kuri programa atidaromas signalo dialogo langas</string>
+    <string name="clock_app_automatic">Automatinis</string>
+    <string name="clock_app_none_found">Šiame įrenginyje nerasta laikrodžio programos.</string>
 </resources>

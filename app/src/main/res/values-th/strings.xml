@@ -2976,6 +2976,7 @@
     <string name="ha_page_hacs">แฮคส์</string>
     <string name="ha_page_hacs_subtitle">การบูรณาการชุมชนและส่วนเสริมส่วนหน้า</string>
     <string name="ha_page_no_server">เชื่อมต่อกับเซิร์ฟเวอร์ Home Assistant ก่อน</string>
+    <string name="ha_page_reload">โหลดซ้ำ</string>
     <string name="update_channel_name">การอัปเดตแอป</string>
     <string name="update_channel_description">แจ้งให้คุณทราบเมื่อ HKI 7 เวอร์ชันใหม่ออกวางจำหน่าย</string>
     <string name="update_available_title">HKI 7 %1$s พร้อมใช้งาน</string>
@@ -3560,4 +3561,9 @@
     <string name="clock_alarm_set_by">กำหนดโดย %1$s</string>
     <string name="clock_alarms_platform_note">Android จะบอกแอปอื่นๆ เกี่ยวกับการปลุกครั้งถัดไปเท่านั้น ดังนั้นจึงไม่สามารถแสดงรายการหรือเปิดหรือปิดการปลุกได้จากที่นี่</string>
     <string name="clock_open_clock_app">เปิดแอปนาฬิกา</string>
+    <string name="clock_open_failed">ไม่สามารถเปิดแอปนาฬิกาได้ เลือกหนึ่งในการตั้งค่าวิดเจ็ตนี้</string>
+    <string name="clock_app_section">แอพนาฬิกา</string>
+    <string name="clock_app_section_subtitle">แอปใดที่กล่องโต้ตอบการเตือนเปิดขึ้น</string>
+    <string name="clock_app_automatic">อัตโนมัติ</string>
+    <string name="clock_app_none_found">ไม่พบแอปนาฬิกาในอุปกรณ์นี้</string>
 </resources>

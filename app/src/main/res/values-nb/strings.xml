@@ -2976,6 +2976,7 @@
     <string name="ha_page_hacs">HACS</string>
     <string name="ha_page_hacs_subtitle">Fellesskapsintegrasjoner og frontend-tillegg</string>
     <string name="ha_page_no_server">Koble til en Home Assistant-server først.</string>
+    <string name="ha_page_reload">Last inn på nytt</string>
     <string name="update_channel_name">Appoppdateringer</string>
     <string name="update_channel_description">Forteller deg når en nyere versjon av HKI 7 har blitt utgitt</string>
     <string name="update_available_title">HKI 7 %1$s er tilgjengelig</string>
@@ -3560,4 +3561,9 @@
     <string name="clock_alarm_set_by">Sett av %1$s</string>
     <string name="clock_alarms_platform_note">Android forteller bare andre apper om neste alarm, så alarmer kan ikke vises eller slås av og på herfra.</string>
     <string name="clock_open_clock_app">Åpne Klokke-appen</string>
+    <string name="clock_open_failed">Ingen klokkeapp kunne åpnes. Velg en i denne widgetens innstillinger.</string>
+    <string name="clock_app_section">Klokke-app</string>
+    <string name="clock_app_section_subtitle">Hvilken app alarmdialogen åpner</string>
+    <string name="clock_app_automatic">Automatisk</string>
+    <string name="clock_app_none_found">Ingen klokkeapp ble funnet på denne enheten.</string>
 </resources>

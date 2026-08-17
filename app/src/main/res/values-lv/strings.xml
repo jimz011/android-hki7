@@ -2976,6 +2976,7 @@
     <string name="ha_page_hacs">HACS</string>
     <string name="ha_page_hacs_subtitle">Kopienas integrācijas un priekšgala papildinājumi</string>
     <string name="ha_page_no_server">Vispirms izveidojiet savienojumu ar Home Assistant serveri.</string>
+    <string name="ha_page_reload">Pārlādēt</string>
     <string name="update_channel_name">Lietotņu atjauninājumi</string>
     <string name="update_channel_description">Informē, kad ir izlaista jaunāka HKI 7 versija</string>
     <string name="update_available_title">HKI 7 %1$s ir pieejams</string>
@@ -3560,4 +3561,9 @@
     <string name="clock_alarm_set_by">Iestatīja %1$s</string>
     <string name="clock_alarms_platform_note">Android tikai informē citām lietotnēm par nākamo modinātāju, tāpēc modinātājus nevar uzskaitīt vai ieslēgt un izslēgt no šejienes.</string>
     <string name="clock_open_clock_app">Atveriet lietotni Pulkstenis</string>
+    <string name="clock_open_failed">Nevarēja atvērt nevienu pulksteņa lietotni. Izvēlieties vienu šī logrīka iestatījumos.</string>
+    <string name="clock_app_section">Pulksteņa lietotne</string>
+    <string name="clock_app_section_subtitle">Kura lietotne tiek atvērta modinātāja dialoglodziņā</string>
+    <string name="clock_app_automatic">Automātiski</string>
+    <string name="clock_app_none_found">Šajā ierīcē netika atrasta neviena pulksteņa lietotne.</string>
 </resources>

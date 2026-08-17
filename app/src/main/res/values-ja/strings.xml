@@ -2934,6 +2934,7 @@
     <string name="ha_page_hacs">HACS</string>
     <string name="ha_page_hacs_subtitle">コミュニティの統合とフロントエンドのアドオン</string>
     <string name="ha_page_no_server">まず Home Assistant サーバーに接続します。</string>
+    <string name="ha_page_reload">リロード</string>
     <string name="update_channel_name">アプリのアップデート</string>
     <string name="update_channel_description">HKI 7 の新しいバージョンがリリースされたときに通知します</string>
     <string name="update_available_title">HKI 7 %1$s が利用可能です</string>
@@ -3518,4 +3519,9 @@
     <string name="clock_alarm_set_by">%1$s によって設定されます</string>
     <string name="clock_alarms_platform_note">Android は他のアプリに次のアラームについてのみ通知するため、ここからアラームを一覧表示したり、オン/オフを切り替えたりすることはできません。</string>
     <string name="clock_open_clock_app">時計アプリを開く</string>
+    <string name="clock_open_failed">時計アプリを開くことができませんでした。このウィジェットの設定で 1 つを選択します。</string>
+    <string name="clock_app_section">時計アプリ</string>
+    <string name="clock_app_section_subtitle">アラームダイアログが開くアプリ</string>
+    <string name="clock_app_automatic">自動</string>
+    <string name="clock_app_none_found">このデバイスには時計アプリが見つかりませんでした。</string>
 </resources>
