@@ -761,13 +761,20 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     val visitedPages = remember { mutableStateListOf<VisitedPlace>() }
     // Rooms visited, oldest first. Backing out of a room walks this, so it retraces the rooms the
     // user actually opened rather than dropping them back into whichever tab they came from.
+    //
+    // Keyed on the room actually showing rather than on the pager's page. Leaving a room and
+    // opening the same one again does not move the pager, so a page-based signal never fires the
+    // second time — back had already consumed the entry, and the history stayed empty however many
+    // rooms had been opened since.
     val visitedRooms = remember { mutableStateListOf<String>() }
-    LaunchedEffect(roomPagerState, visibleRooms) {
-        snapshotFlow { roomPagerState.settledPage }.distinctUntilChanged().collect { page ->
-            val areaId = visibleRooms.getOrNull(page)?.area_id ?: return@collect
-            visitedRooms.remove(areaId)
-            visitedRooms.add(areaId)
-        }
+    // The room to return to when the Rooms tab is tapped from somewhere else. Survives tab
+    // switches, and is cleared only when the user deliberately backs out to the list.
+    var lastOpenRoom by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(currentAreaId) {
+        val areaId = currentAreaId ?: return@LaunchedEffect
+        visitedRooms.remove(areaId)
+        visitedRooms.add(areaId)
+        lastOpenRoom = areaId
     }
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.settledPage }.distinctUntilChanged().collect { page ->
@@ -804,11 +811,27 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             // Already here: the tap means "take me back to the top", not "go to this tab".
             scrollToTopSignals[screen.route] = (scrollToTopSignals[screen.route] ?: 0) + 1
         } else if (index >= 0) {
+            // Rooms remembers the room that was open. Coming back to the tab from another view
+            // reopens it, the same way back from that view does — landing on the list instead
+            // would throw away the room the user was working in. Only when leaving a room, or
+            // after backing out of one, does the tab mean the list itself.
+            val reopenRoom = lastOpenRoom
+                ?.takeIf { screen.route == Screen.Rooms.route && !onRoomDetail }
+                ?.takeIf { areaId -> visibleRooms.any { it.area_id == areaId } }
             // Read before the pop, because after it there is no detail screen left to ask. The
             // room pager owns which room is showing, so the areaId the route was opened with may
             // be several swipes stale — take the room actually on screen.
+            // Tapping Rooms while in a room is going *up* to the list, not away to another view.
+            // Forgetting the room here is what keeps that meaning: without it the next visit to
+            // the tab would reopen the room the user had just asked to leave.
+            val leavingRoomsForList = screen.route == Screen.Rooms.route && onRoomDetail
+            if (leavingRoomsForList) {
+                lastOpenRoom = null
+                visitedRooms.clear()
+            }
             val leaving: String? = when {
                 onTabsDestination -> null
+                leavingRoomsForList -> null
                 onRoomDetail -> visibleRooms.getOrNull(roomPagerState.currentPage)
                     ?.area_id?.let(Screen.RoomDetail::createRoute)
                 // Anything else parameterless (the battery screen) can be navigated back to as-is.
@@ -827,6 +850,9 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                     navController.popBackStack(TABS_ROUTE, inclusive = false)
                 }
                 pagerState.animateScrollToPage(index)
+                // The pager moves to Rooms underneath either way, so backing out of the reopened
+                // room lands on the list rather than on the tab this tap came from.
+                reopenRoom?.let { navController.navigate(Screen.RoomDetail.createRoute(it)) }
             }
         }
     }
@@ -928,7 +954,11 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                 roomPagerState.animateScrollToPage(previousRoom)
             } else {
                 // Nothing behind this room: leave for the room list, and make sure the pager is
-                // actually showing it rather than whatever tab was last open underneath.
+                // actually showing it rather than whatever tab was last open underneath. Backing
+                // out this far is a deliberate "show me the list", so the remembered room goes
+                // too — otherwise tapping Rooms next would drop straight back into it.
+                lastOpenRoom = null
+                visitedRooms.clear()
                 visitedPages.removeAll { it is VisitedPlace.Detail }
                 navController.popBackStack(TABS_ROUTE, inclusive = false)
                 screens.indexOfFirst { it.route == Screen.Rooms.route }

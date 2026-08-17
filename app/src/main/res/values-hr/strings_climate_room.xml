@@ -24,7 +24,7 @@
         <item>Senzor sljedećeg alarma pridružuje se onima koje aplikacija već prijavljuje Home Assistant, podudarajući se sa službenom popratnom aplikacijom. Android izlaže samo sljedeći alarm, a ne cijeli popis, tako da je to ono što senzor nosi, zajedno s aplikacijom koja ga je postavila.</item>
         <item>Karta vjetra sada je pravi kompas. Brojčanik s označenim prstenom, ružom s osam šiljaka i dvobojnom iglom, umjesto običnog kruga i linije koje je prije imao.</item>
         <item>Media playeri govore što se reproducira, a ne samo koja je aplikacija otvorena. Android TV koji struji seriju sada prikazuje program, sezonu i epizodu te naslov epizode, s aplikacijom koja se nalazi ispod; TV uživo prikazuje kanal.</item>
-        <item>Izlazak iz sobe sada vas vodi u sobu u kojoj ste bili prije toga ili na popis soba - nikada na karticu s koje ste otvorili sobu.</item>
+        <item>Sobe pamte gdje ste bili. Povratak u sobu vodi vas u sobu prije nje, a na popis soba samo kada nema prethodne sobe. Dodirom Sobe iz drugog prikaza ponovno otvarate sobu koju ste također otvorili - prelazak na popis unutar sobe ili izlazak iz zadnje je ono što je briše.</item>
         <item>Fiksna očitanja temperature i energije na češkom, slovačkom, grčkom, norveškom, švedskom i danskom. Strojno prevođenje oštetilo je formatiranje brojeva iza njih, koje je prikazivalo pogrešan broj decimala u nordijskim jezicima i moglo srušiti zaslon u ostala tri.</item>
         <item>Svaki jezik sada ima jednu datoteku koju svatko može ispraviti. Mapa prijevoda u repozitoriju sadrži jednu datoteku pogodnu za proračunsku tablicu po jeziku, engleski pored prijevoda, tako da izvorni govornik može popraviti ono što se pogrešno čita bez diranja koda.</item>
     </string-array>

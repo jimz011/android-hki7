@@ -24,7 +24,7 @@
         <item>Järgmise häire andur ühineb anduritega, millest rakendus juba Home Assistant teatab, ühtides ametliku kaasrakendusega. Android kuvab ainult järgmise häire, mitte kogu loendi, nii et andur kannab seda koos sellega, milline rakendus selle seadistas.</item>
         <item>Tuulekaart on nüüd korralik kompass. Märgitud rõnga, kaheksapunktilise roosi ja kahetoonilise nõelaga gradueeritud sihverplaat, millel varem oli tavaline ring ja joon.</item>
         <item>Meediumipleierid ütlevad, mida esitatakse, mitte ainult seda, milline rakendus on avatud. Sarja voogesitav Android TV näitab nüüd programmi, hooaega ja jagu ning jao pealkirja, mille all on rakenduse nimi; otse-TV näitab kanalit.</item>
-        <item>Ruumist lahkumine viib teid nüüd ruumi, kus olite enne seda, või ruumide loendisse – mitte kunagi ükskõik millisele vahelehele, millelt juhtusite ruumi avama.</item>
+        <item>Toad mäletavad, kus sa olid. Tagasi ruumi sees viib teid selle ees olevasse ruumi ja alles siis, kui varasemat tuba enam pole. Ruumide puudutamine teisest vaatest avab uuesti ka teie avatud ruumi – ruumi seest loendisse minemine või viimasest lahkumine kustutab selle.</item>
         <item>Fikseeritud temperatuuri- ja energianäidud tšehhi, slovaki, kreeka, norra, rootsi ja taani keeles. Masintõlge oli kahjustanud nende taga olevat numbrivormingut, mis näitas põhjamaade keeltes valet kümnendkohtade arvu ja võis ülejäänud kolme puhul ekraani kokkujooksda.</item>
         <item>Igas keeles on nüüd üks fail, mida igaüks saab parandada. Hoidlas olevas tõlgete kaustas on iga keele kohta üks arvutustabelisõbralik fail, tõlke kõrval inglise keel, nii et emakeelena kõneleja saab valesti loetu parandada ilma ühtegi koodi puudutamata.</item>
     </string-array>
