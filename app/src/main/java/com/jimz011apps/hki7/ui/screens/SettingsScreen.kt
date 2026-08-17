@@ -393,14 +393,6 @@ fun SettingsDialog(
      *  enum, which stays private to this file. Back still walks up through [parentSection], so
      *  arriving here deep does not strand anyone. */
     initialRoute: String? = null,
-    /**
-     * Opens one of Home Assistant's own pages (path, title). Handled by the caller rather than
-     * here so the page renders in the app's own composition: this screen is a [Dialog], and a
-     * WebView in a Dialog nested inside another Dialog is its own window, which is what left the
-     * frontend blank after it had authenticated. The onboarding login — the one place that
-     * demonstrably works — is a plain composable in the main tree, and so is this now.
-     */
-    onOpenHaPage: (String, String) -> Unit = { _, _ -> },
 ) {
     val initialSection = when (initialRoute) {
         SETTINGS_ROUTE_FAMILY_EVENTS -> SettingsSection.FAMILY_SHARING
@@ -443,6 +435,10 @@ fun SettingsDialog(
     val isBackgroundRestricted = activityManager?.isBackgroundRestricted ?: false
 
     var section by remember { mutableStateOf(initialSection) }
+    // Home Assistant's own pages are rendered by MainApp, not here: this screen is a Dialog, and a
+    // WebView in a Dialog nested inside another Dialog gets its own window, where the frontend
+    // authenticated and then painted nothing.
+    val openHaPage = com.jimz011apps.hki7.ui.components.LocalOpenHaPage.current
     val haSettingsTitle = stringResource(R.string.ha_page_settings)
     val haDevToolsTitle = stringResource(R.string.ha_page_dev_tools)
     val haHacsTitle = stringResource(R.string.ha_page_hacs)
@@ -711,14 +707,14 @@ fun SettingsDialog(
                             // Home Assistant's own pages, above the HKI 7 block: they are about the
                             // server rather than about this app. Hidden on the demo home, which has
                             // no server behind it to open.
-                            if (!com.jimz011apps.hki7.data.isDemoServerUrl(serverUrl)) {
+                            if (!com.jimz011apps.hki7.data.isDemoServerUrl(serverUrl) && openHaPage != null) {
                                 SettingsSubcategory(
                                     stringResource(R.string.ha_page_category),
                                     stringResource(R.string.ha_page_category_subtitle)
                                 )
-                                SettingsChoice(Icons.Default.Tune, stringResource(R.string.ha_page_settings), stringResource(R.string.ha_page_settings_subtitle)) { onOpenHaPage(HA_PATH_SETTINGS, haSettingsTitle) }
-                                SettingsChoice(Icons.Default.Build, stringResource(R.string.ha_page_dev_tools), stringResource(R.string.ha_page_dev_tools_subtitle)) { onOpenHaPage(HA_PATH_DEV_TOOLS, haDevToolsTitle) }
-                                SettingsChoice(Icons.Default.Dashboard, stringResource(R.string.ha_page_hacs), stringResource(R.string.ha_page_hacs_subtitle)) { onOpenHaPage(HA_PATH_HACS, haHacsTitle) }
+                                SettingsChoice(Icons.Default.Tune, stringResource(R.string.ha_page_settings), stringResource(R.string.ha_page_settings_subtitle)) { openHaPage(HA_PATH_SETTINGS, haSettingsTitle); onDismiss() }
+                                SettingsChoice(Icons.Default.Build, stringResource(R.string.ha_page_dev_tools), stringResource(R.string.ha_page_dev_tools_subtitle)) { openHaPage(HA_PATH_DEV_TOOLS, haDevToolsTitle); onDismiss() }
+                                SettingsChoice(Icons.Default.Dashboard, stringResource(R.string.ha_page_hacs), stringResource(R.string.ha_page_hacs_subtitle)) { openHaPage(HA_PATH_HACS, haHacsTitle); onDismiss() }
                             }
                             SettingsSubcategory(stringResource(R.string.ui_hki_7_68a9e17), stringResource(R.string.ui_project_information_licensing_and_community_support_9fc47d6))
                             SettingsChoice(Icons.Default.Info, stringResource(R.string.ui_about_6b21fb7), stringResource(R.string.ui_what_hki_7_is_and_how_it_is_built_247bace)) { section = SettingsSection.ABOUT }
