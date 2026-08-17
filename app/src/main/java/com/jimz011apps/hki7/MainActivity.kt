@@ -936,8 +936,11 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     val notificationPanel = remember { EdgePanelState() }
     val instancePanel = remember { EdgePanelState() }
     val drawerScope = rememberCoroutineScope()
-    // One rule for back, everywhere inside the app: go to the previous place, and keep going until
-    // Home. Only from Home does back leave the app.
+    // One action for back, everywhere inside the app: go to the previous place, and keep going
+    // until Home. Only from Home does back leave the app. It is registered here for the tab pager
+    // and again inside the room NavHost destination below. Navigation Compose installs its own
+    // back callback after this root one, so without the inner registration it wins in a room and
+    // pops to the Rooms list before this history ever sees the gesture.
     //
     // This used to be two handlers with two histories, which is why it behaved differently
     // depending on where you were: a tab with nothing recorded behind it fell through to the
@@ -945,9 +948,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     // knew nothing about the tabs.
     val homeIndex = screens.indexOfFirst { it.route == Screen.Home.route }
     val onHome = onTabsDestination && homeIndex >= 0 && pagerState.currentPage == homeIndex
-    androidx.activity.compose.BackHandler(
-        enabled = (onTabsDestination || onRoomDetail) && !isEditMode && (previousPlace != null || !onHome)
-    ) {
+    val navigateBackThroughHistory: () -> Unit = {
         pagerScope.launch {
             val previous = history.back()
             historyRevision++
@@ -997,6 +998,10 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             }
         }
     }
+    androidx.activity.compose.BackHandler(
+        enabled = (onTabsDestination || onRoomDetail) && !isEditMode && (previousPlace != null || !onHome),
+        onBack = navigateBackThroughHistory
+    )
     // isOpen reads the settle *target*, so back works from the instant a drag commits rather than
     // only once the sheet has finished arriving. Keyed on the target and not the settled value, this
     // also closes the window where back used to fall through to the NavHost mid-animation and — from
@@ -1032,13 +1037,19 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     // frontend rendered nothing there; in the main composition it is an ordinary view, like the
     // onboarding login.
     var haPage by remember { mutableStateOf<Pair<String, String>?>(null) }
+    // The settings Dialog must be dismissed before its WebView replacement opens, otherwise the
+    // separate dialog window remains above the page. Remember that origin so closing HA recreates
+    // the settings menu instead of dropping the user on the dashboard underneath.
+    var reopenSettingsAfterHaPage by remember { mutableStateOf(false) }
+    val openHaPageFromSettings: (String, String) -> Unit = { path, title ->
+        reopenSettingsAfterHaPage = true
+        haPage = path to title
+    }
     settingsRoute?.let { route ->
         // Provided again here: this dialog is a sibling of the page, so it sits outside the
         // provider below and would otherwise see no opener and hide the Home Assistant links.
         CompositionLocalProvider(
-            com.jimz011apps.hki7.ui.components.LocalOpenHaPage provides { path: String, title: String ->
-                haPage = path to title
-            }
+            com.jimz011apps.hki7.ui.components.LocalOpenHaPage provides openHaPageFromSettings
         ) {
             SettingsDialog(
                 prefs = prefs,
@@ -1058,9 +1069,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         // Reaches every settings entry point, not just the one MainApp opens itself: the page
         // header has its own, and a callback threaded through only the first left the other doing
         // nothing when its Home Assistant links were tapped.
-        com.jimz011apps.hki7.ui.components.LocalOpenHaPage provides { path: String, title: String ->
-            haPage = path to title
-        },
+        com.jimz011apps.hki7.ui.components.LocalOpenHaPage provides openHaPageFromSettings,
         // Covers the room pager too: rooms are their own navigation destination, so a provider
         // scoped to the tab pager never reached them and their header stayed open on swipe.
         com.jimz011apps.hki7.ui.components.LocalPageSwipeInProgress provides pageSwipeInProgress,
@@ -1095,8 +1104,8 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                 val trailing = if (isRtl) 0f else screenWidthPx - edgeStripWidthPx
                 Rect(trailing, edgeStripTopPx, trailing + edgeStripWidthPx, edgeStripTopPx + instanceStripHeightPx)
             }
-            .pointerInput(isEditMode) {
-                if (isEditMode) return@pointerInput
+            .pointerInput(isEditMode, haPage) {
+                if (isEditMode || haPage != null) return@pointerInput
                 // Paging belongs to the HorizontalPager below; this only watches the two edge
                 // strips, and drags the matching panel open under the finger rather than firing it
                 // open once a threshold is passed. It consumes movement once the drag is committed,
@@ -1215,6 +1224,23 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                     arguments = listOf(navArgument("areaId") { type = NavType.StringType })
                 ) { backStackEntry ->
                     val areaId = backStackEntry.arguments?.getString("areaId") ?: ""
+                    // This must live inside the destination, after NavHost has installed its own
+                    // callback. BackHandler dispatches to the last enabled callback, so this one
+                    // gets the room gesture and walks the shared room/tab history instead of the
+                    // nav controller first popping the whole room pager to the Rooms list. Dialog
+                    // and sub-page handlers are composed later inside RoomDetailScreen and still
+                    // correctly take precedence over it. The edge panels are composed outside the
+                    // NavHost, so handle them here as well or this later callback would outrank
+                    // their own close handlers while a room is showing.
+                    androidx.activity.compose.BackHandler(
+                        enabled = visibleRooms.isNotEmpty() && !isEditMode,
+                    ) {
+                        when {
+                            instancePanel.isOpen -> drawerScope.launch { instancePanel.close() }
+                            notificationPanel.isOpen -> drawerScope.launch { notificationPanel.close() }
+                            else -> navigateBackThroughHistory()
+                        }
+                    }
                     // The route argument only picks the starting room; from there the pager owns
                     // which one is showing. Every entry point (room list, room following, dashboard
                     // actions) therefore lands on the right page without knowing about the pager.
@@ -1250,24 +1276,6 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                 }
                 }
             }
-        }
-
-        // Home Assistant's own pages, over everything. Last in the Box so it paints above the app,
-        // and it takes the whole screen the way the onboarding login does.
-        haPage?.let { (path, pageTitle) ->
-            val haAccessToken by prefs.accessToken.collectAsState(initial = null)
-            val haRefreshToken by prefs.refreshToken.collectAsState(initial = null)
-            val haTokenExpiry by prefs.accessTokenExpiry.collectAsState(initial = null)
-            val haServerUrl by prefs.serverUrl.collectAsState(initial = null)
-            com.jimz011apps.hki7.ui.components.HaWebPage(
-                title = pageTitle,
-                baseUrl = haServerUrl.orEmpty(),
-                path = path,
-                accessToken = haAccessToken,
-                refreshToken = haRefreshToken,
-                accessTokenExpiry = haTokenExpiry,
-                onClose = { haPage = null }
-            )
         }
 
         NotificationBannerHost(viewModel, Modifier.align(Alignment.TopCenter))
@@ -1543,6 +1551,33 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             request = fullscreenCamera,
             onDismiss = { fullscreenCamera = null }
         )
+
+        // Deliberately the final child in this Box. Compose paints later siblings on top; hosting
+        // this before the floating bottom stack left HKI's navigation bar visible over the native
+        // WebView even though none of those buttons could be used. Being last also gives this
+        // page's BackHandler priority over the NavHost while it is open.
+        haPage?.let { (path, pageTitle) ->
+            val haAccessToken by prefs.accessToken.collectAsState(initial = null)
+            val haTokenExpiry by prefs.accessTokenExpiry.collectAsState(initial = null)
+            val haServerUrl by prefs.serverUrl.collectAsState(initial = null)
+            com.jimz011apps.hki7.ui.components.HaWebPage(
+                title = pageTitle,
+                // Follow the same internal/external route the live HA connection selected. The
+                // saved primary URL can be unreachable on the current network, and the auth
+                // bridge deliberately accepts requests only from the exact origin loaded here.
+                baseUrl = currentUrl.ifBlank { haServerUrl.orEmpty() },
+                path = path,
+                accessToken = haAccessToken,
+                accessTokenExpiry = haTokenExpiry,
+                onClose = {
+                    haPage = null
+                    if (reopenSettingsAfterHaPage) {
+                        reopenSettingsAfterHaPage = false
+                        settingsRoute = "menu"
+                    }
+                }
+            )
+        }
     }
     }
 }

@@ -23,6 +23,12 @@ object HaDashboardSharing {
     suspend fun whoami(context: Context): Hki7Identity? =
         Hki7Endpoint.withClient(context) { it.hki7WhoAmI() }
 
+    /** Whether Home Assistant itself marks the signed-in user as an administrator. This uses the
+     * built-in auth/current_user command, so callers must not depend on the optional HKI 7 Cloud
+     * component merely to protect native Home Assistant administration links. */
+    suspend fun currentUserIsAdmin(context: Context): Boolean =
+        Hki7Endpoint.withClient(context) { it.getCurrentUser()?.is_admin == true } ?: false
+
     /** HA users the admin can share with. Empty if the caller isn't an admin or the component is absent. */
     suspend fun listUsers(context: Context): List<Hki7User> =
         Hki7Endpoint.withClient(context) { it.hki7ListUsers() } ?: emptyList()

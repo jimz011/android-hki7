@@ -228,7 +228,9 @@ private enum class SettingsSection {
 /** The Home Assistant frontend paths reachable from the Home Assistant category. */
 private const val HA_PATH_SETTINGS = "config/dashboard"
 private const val HA_PATH_DEV_TOOLS = "developer-tools/state"
-private const val HA_PATH_HACS = "hacs"
+// HACS registers its actual frontend panel at /hacs/dashboard. /hacs is not a
+// built-in HA redirect and can therefore leave the embedded panel resolver empty.
+private const val HA_PATH_HACS = "hacs/dashboard"
 
 /** Human-friendly "5 minutes ago" / "yesterday" label for the last-backup subtitle. */
 @Composable
@@ -510,8 +512,11 @@ fun SettingsDialog(
     // Probe the hki7 component once so the menu can show admin-only entries (Parental Controls).
     LaunchedEffect(Unit) {
         val id = runCatching { HaDashboardSharing.whoami(context) }.getOrNull()
+        val coreAdmin = runCatching {
+            HaDashboardSharing.currentUserIsAdmin(context)
+        }.getOrDefault(false)
         sharingAvailable = id != null
-        isHaAdmin = id?.isAdmin == true
+        isHaAdmin = coreAdmin || id?.isAdmin == true || id?.isOwner == true
         currentHaUserId = id?.userId
         hki7ComponentVersion = id?.componentVersion
     }
@@ -707,7 +712,10 @@ fun SettingsDialog(
                             // Home Assistant's own pages, above the HKI 7 block: they are about the
                             // server rather than about this app. Hidden on the demo home, which has
                             // no server behind it to open.
-                            if (!com.jimz011apps.hki7.data.isDemoServerUrl(serverUrl) && openHaPage != null) {
+                            if (isHaAdmin &&
+                                !com.jimz011apps.hki7.data.isDemoServerUrl(serverUrl) &&
+                                openHaPage != null
+                            ) {
                                 SettingsSubcategory(
                                     stringResource(R.string.ha_page_category),
                                     stringResource(R.string.ha_page_category_subtitle)

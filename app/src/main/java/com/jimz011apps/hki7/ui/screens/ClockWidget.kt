@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -106,8 +105,10 @@ fun nextDeviceAlarm(context: Context): DeviceAlarm? {
 
 /**
  * Opens a clock app, in descending order of confidence: the one the user pinned in widget
- * settings, then whichever app actually set the next alarm, then the system's show-alarms intent,
- * then anything that declares it can handle show-alarms.
+ * settings, then whichever clock app actually set the next alarm, then the system's show-alarms
+ * intent, then anything that declares it can handle show-alarms. AlarmManager can also report a
+ * calendar or an automation app as the owner; those are useful in the dialog but are not a Clock
+ * app and must not hijack its Open button.
  *
  * The last two matter because ACTION_SHOW_ALARMS is not guaranteed to have a handler — on plenty
  * of phones nothing claims it, and `startActivity` then throws and the button appears to do
@@ -127,7 +128,9 @@ fun openAlarmApp(context: Context, alarm: DeviceAlarm?, preferredPackage: String
         ?.let { runCatching { pm.getLaunchIntentForPackage(it) }.getOrNull() }
     if (launch(pinned)) return true
 
+    val knownClockPackages = installedClockApps(context).mapTo(hashSetOf()) { it.packageName }
     val owner = alarm?.packageName
+        ?.takeIf { it in knownClockPackages }
         ?.let { runCatching { pm.getLaunchIntentForPackage(it) }.getOrNull() }
     if (launch(owner)) return true
 
@@ -639,7 +642,7 @@ fun ClockWidgetSettingsDialog(
         text = {
             val scroll = rememberScrollState()
             Column(
-                Modifier.heightIn(max = 480.dp).fadingEdges(scroll).verticalScroll(scroll),
+                Modifier.fillMaxSize().fadingEdges(scroll).verticalScroll(scroll),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 com.jimz011apps.hki7.ui.components.SettingsTabRow(

@@ -349,6 +349,7 @@
     <string name="ha_page_no_server">Connect to a Home Assistant server first.</string>
     <string name="ha_page_reload">Reload</string>
     <string name="ha_page_open_browser">Open in browser</string>
+    <string name="ha_page_session_failed">Could not start the embedded Home Assistant session. Reload the page or open it in your browser.</string>
 
     <!-- GitHub release update checker. -->
     <string name="update_channel_name">App updates</string>
