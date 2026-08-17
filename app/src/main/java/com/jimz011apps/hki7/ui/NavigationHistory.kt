@@ -17,20 +17,49 @@ sealed interface VisitedPlace {
 class NavigationHistory(private val maxEntries: Int = 60) {
     private val places = mutableListOf<VisitedPlace>()
 
+    /**
+     * The place [back] has just left, still to be reported by the screen.
+     *
+     * Navigation is not instant: the screen goes on describing the page it is leaving for a frame
+     * or more after back has moved on. That late report used to be recorded as a fresh visit,
+     * putting the page straight back on the stack that back had just taken it off, so back walked
+     * into it, out of it, and into it again forever.
+     *
+     * Naming the page back left, and ignoring exactly one report of it, settles that without any
+     * reference to timing — no waiting, no suppressing, nothing to get a frame wrong.
+     */
+    private var justLeft: VisitedPlace? = null
+
     val entries: List<VisitedPlace> get() = places.toList()
 
     /**
      * Records arrival somewhere.
      *
-     * A repeat of where we already are is ignored: that is a recomposition, not a navigation, and
-     * it is also what makes [back] safe to call without the caller having to suppress the visit it
-     * causes. Anything else is pushed, including somewhere visited before — this is a stack, not a
+     * A repeat of where we already are is ignored: that is a recomposition, not a navigation.
+     * Anything else is pushed, including somewhere visited before — this is a stack, not a
      * most-recently-used list, so Rooms → a room → Rooms → a room really is four steps back.
      */
     fun visit(place: VisitedPlace) {
         if (places.lastOrNull() == place) return
+        if (place == justLeft) {
+            // The straggling report of the page back left. Cleared as it is swallowed, so a
+            // genuine return to that page a moment later still counts.
+            justLeft = null
+            return
+        }
+        justLeft = null
         places += place
         if (places.size > maxEntries) places.removeAt(0)
+    }
+
+    /**
+     * Drops any pending late report, so the next visit counts whatever it is.
+     *
+     * Called when the user asks for somewhere outright — tapping the tab they just backed out of
+     * is a navigation, not the echo of one.
+     */
+    fun forgetLastLeft() {
+        justLeft = null
     }
 
     /** What back would go to, without going there. Null when this is the last place recorded. */
@@ -41,7 +70,7 @@ class NavigationHistory(private val maxEntries: Int = 60) {
      * the caller's cue to fall back to Home.
      */
     fun back(): VisitedPlace? {
-        if (places.isNotEmpty()) places.removeAt(places.lastIndex)
+        justLeft = places.removeLastOrNull()
         return places.lastOrNull()
     }
 

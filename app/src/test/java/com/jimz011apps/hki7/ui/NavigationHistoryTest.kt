@@ -109,6 +109,65 @@ class NavigationHistoryTest {
         )
     }
 
+    /**
+     * The real sequence of events on a device, including the part that broke it four times: the
+     * screen keeps reporting the page it is leaving for a frame or more after back has moved on.
+     *
+     * Each step here reports the page being left *and then* the page arrived at, in that order,
+     * which is what actually happens. Back still has to walk the path exactly.
+     */
+    @Test
+    fun `back walks the path even when the screen reports the old page late`() {
+        val history = NavigationHistory()
+        val path = listOf(tab(HOME), tab(ROOMS), room("office"), room("bedroom"), tab(ENERGY), tab(CLIMATE))
+        path.forEach(history::visit)
+
+        val walked = buildList {
+            var leaving = path.last()
+            while (true) {
+                val target = history.back() ?: break
+                history.visit(leaving)   // the straggling report of the page just left
+                history.visit(target)    // and then the page actually arrived at
+                add(target)
+                leaving = target
+            }
+        }
+
+        assertEquals(
+            listOf(tab(ENERGY), room("bedroom"), room("office"), tab(ROOMS), tab(HOME)),
+            walked
+        )
+    }
+
+    /** A late report is swallowed once. Genuinely returning there afterwards still counts. */
+    @Test
+    fun `only one late report is ignored`() {
+        val history = NavigationHistory()
+        history.visit(tab(HOME))
+        history.visit(tab(ENERGY))
+
+        assertEquals(tab(HOME), history.back())
+        history.visit(tab(ENERGY))                 // late report, ignored
+        assertEquals(listOf(tab(HOME)), history.entries)
+
+        history.visit(tab(ENERGY))                 // the user really went back to Energy
+        assertEquals(listOf(tab(HOME), tab(ENERGY)), history.entries)
+    }
+
+    /** Tapping the tab you just backed out of is a real navigation, not an echo. */
+    @Test
+    fun `a deliberate visit is never mistaken for a late report`() {
+        val history = NavigationHistory()
+        history.visit(tab(HOME))
+        history.visit(tab(ENERGY))
+
+        assertEquals(tab(HOME), history.back())
+        history.forgetLastLeft()
+        history.visit(tab(ENERGY))
+
+        assertEquals(listOf(tab(HOME), tab(ENERGY)), history.entries)
+    }
+
     @Test
     fun `back returns null once the history is spent`() {
         val history = NavigationHistory()

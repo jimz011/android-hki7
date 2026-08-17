@@ -115,7 +115,6 @@ import com.jimz011apps.hki7.ui.components.WeatherAnimationSettings
 import com.jimz011apps.hki7.ui.NavBarConfig
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withTimeoutOrNull
 import com.jimz011apps.hki7.ui.Screen
 import com.jimz011apps.hki7.ui.localizedTitle
 import com.jimz011apps.hki7.ui.localizedName
@@ -785,33 +784,15 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         onTabsDestination -> VisitedPlace.Tab(pagerState.settledPage)
         else -> null
     }
-    // Held while the app is moving itself, so the places it passes through on the way are not
-    // recorded as places the user went. Going from a room to a tab pops the room and then moves
-    // the pager: in between, the tab sitting underneath the room is briefly the current place, and
-    // recording it put a step into the history that the user never visited — which is what made
-    // back appear to bounce between two pages forever. Rather than trying to order every
-    // transition so no intermediate state is ever observable, the observer simply stops watching
-    // until the destination is reached.
-    var navigating by remember { mutableStateOf(false) }
-    LaunchedEffect(currentPlace, navigating) {
-        if (navigating) return@LaunchedEffect
+    // Simply reports wherever the screen says it is. NavigationHistory decides what that means —
+    // in particular it ignores the straggling report of the page back has just left, which is the
+    // one thing that made this loop. Earlier attempts tried to suppress that report by timing
+    // instead: a flag held across the navigation, then a wait for composition to catch up. Both
+    // depended on guessing when the screen would agree with the nav graph, and both were wrong.
+    LaunchedEffect(currentPlace) {
         val place = currentPlace ?: return@LaunchedEffect
         history.visit(place)
         historyRevision++
-    }
-    // Waits for composition to actually show the destination.
-    //
-    // `navController.navigate` does not update the current back-stack entry synchronously, so a
-    // navigation coroutine finishes while composition still reports the place it started from.
-    // Releasing [navigating] there let that stale place be recorded on top of the destination —
-    // which is the whole of why back kept walking into a page and back out of it forever. The
-    // timeout is a failsafe: if a destination is never reached (a room that has since been hidden,
-    // say), recording must not stay switched off for the rest of the session.
-    val currentPlaceNow by rememberUpdatedState(currentPlace)
-    suspend fun awaitArrival(destination: VisitedPlace) {
-        withTimeoutOrNull(2_000) {
-            snapshotFlow { currentPlaceNow }.first { it == destination }
-        }
     }
     // Recomputed whenever the history changes, so the back handler's enabled state follows it.
     val previousPlace = remember(historyRevision) { history.previous() }
@@ -861,9 +842,10 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             // the history like anywhere else. The room is deliberately left in it: back still
             // returns to it, and coming back to the tab later still reopens it, which is what
             // "remember the state I left the page in" means.
+            // A tap is a navigation in its own right, so the page it lands on must count even if
+            // that is the page just backed out of.
+            history.forgetLastLeft()
             pagerScope.launch {
-                navigating = true
-                try {
                 if (reopenRoom != null) {
                     // Put the room pager on the right page and push the room *before* the tab
                     // pager moves. Animating first showed the room list for the length of that
@@ -886,14 +868,6 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                     navController.popBackStack(TABS_ROUTE, inclusive = false)
                 } else {
                     pagerState.animateScrollToPage(index)
-                }
-                // Held until composition reports the destination, not merely until the calls
-                // above return — see awaitArrival.
-                awaitArrival(
-                    if (reopenRoom != null) VisitedPlace.Room(reopenRoom) else VisitedPlace.Tab(index)
-                )
-                } finally {
-                    navigating = false
                 }
             }
         }
@@ -972,8 +946,6 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         enabled = (onTabsDestination || onRoomDetail) && !isEditMode && (previousPlace != null || !onHome)
     ) {
         pagerScope.launch {
-            navigating = true
-            try {
             val previous = history.back()
             historyRevision++
             if (previous == null) {
@@ -988,9 +960,9 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                 }
                 // back() emptied the history, so Home has to go back on it: without this the
                 // handler would still be enabled with nothing behind it.
+                history.forgetLastLeft()
                 history.visit(VisitedPlace.Tab(homeIndex))
                 historyRevision++
-                awaitArrival(VisitedPlace.Tab(homeIndex))
                 return@launch
             }
             when (previous) {
@@ -1018,10 +990,6 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                         navController.navigate(Screen.RoomDetail.createRoute(previous.areaId))
                     }
                 }
-            }
-            awaitArrival(previous)
-            } finally {
-                navigating = false
             }
         }
     }
