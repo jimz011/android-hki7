@@ -793,6 +793,9 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         val place = currentPlace ?: return@LaunchedEffect
         history.visit(place)
         historyRevision++
+        // Every report and what the history made of it. `adb logcat -s BackNav` shows the path
+        // being built and walked, which is the one thing reading this code cannot tell you.
+        android.util.Log.d("BackNav", "report ${place.describe()} -> ${history.describe()}")
     }
     // Recomputed whenever the history changes, so the back handler's enabled state follows it.
     val previousPlace = remember(historyRevision) { history.previous() }
@@ -948,6 +951,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         pagerScope.launch {
             val previous = history.back()
             historyRevision++
+            android.util.Log.d("BackNav", "back -> ${previous?.describe() ?: "home"} :: ${history.describe()}")
             if (previous == null) {
                 // Nothing recorded behind this. Home is the floor, not the exit: the next back
                 // from there is the one that closes the app.

@@ -5,6 +5,12 @@ sealed interface VisitedPlace {
     data class Tab(val index: Int) : VisitedPlace
     /** Held by area rather than by pager page, so it survives the room list changing. */
     data class Room(val areaId: String) : VisitedPlace
+
+    /** Short form for logs. */
+    fun describe(): String = when (this) {
+        is Tab -> "tab$index"
+        is Room -> areaId
+    }
 }
 
 /**
@@ -30,7 +36,25 @@ class NavigationHistory(private val maxEntries: Int = 60) {
      */
     private var justLeft: VisitedPlace? = null
 
+    /**
+     * Where [back] is heading, until the screen reports being there.
+     *
+     * Stronger than [justLeft] on its own, and for the same underlying reason: while a navigation
+     * settles, the screen can report more than one place, and not only the page being left — a tab
+     * sitting behind a room, a pager mid-animation. Naming the destination and ignoring everything
+     * until it appears needs no assumption about which strays arrive, how many, or in what order.
+     * Still a value comparison, so still nothing to get a frame wrong.
+     */
+    private var awaiting: VisitedPlace? = null
+
     val entries: List<VisitedPlace> get() = places.toList()
+
+    /** For logging: the stack, oldest first, plus whatever back is currently waiting for. */
+    fun describe(): String {
+        val stack = places.joinToString(" > ") { it.describe() }
+        val pending = awaiting?.let { " [awaiting ${it.describe()}]" }.orEmpty()
+        return "$stack$pending"
+    }
 
     /**
      * Records arrival somewhere.
@@ -40,10 +64,20 @@ class NavigationHistory(private val maxEntries: Int = 60) {
      * most-recently-used list, so Rooms → a room → Rooms → a room really is four steps back.
      */
     fun visit(place: VisitedPlace) {
+        val target = awaiting
+        if (target != null) {
+            // A back is still settling. Nothing counts until the destination itself is reported;
+            // the destination is already on top, so arriving needs no push.
+            // Arriving stops the blanket ignore, but [justLeft] stays armed: the page being left
+            // can still report once more after the destination has, and that one must not count
+            // either.
+            if (place == target) awaiting = null
+            return
+        }
         if (places.lastOrNull() == place) return
         if (place == justLeft) {
-            // The straggling report of the page back left. Cleared as it is swallowed, so a
-            // genuine return to that page a moment later still counts.
+            // The straggling report of the page back left, arriving after the destination did.
+            // Cleared as it is swallowed, so a genuine return there a moment later still counts.
             justLeft = null
             return
         }
@@ -60,6 +94,7 @@ class NavigationHistory(private val maxEntries: Int = 60) {
      */
     fun forgetLastLeft() {
         justLeft = null
+        awaiting = null
     }
 
     /** What back would go to, without going there. Null when this is the last place recorded. */
@@ -71,7 +106,8 @@ class NavigationHistory(private val maxEntries: Int = 60) {
      */
     fun back(): VisitedPlace? {
         justLeft = places.removeLastOrNull()
-        return places.lastOrNull()
+        awaiting = places.lastOrNull()
+        return awaiting
     }
 
     /**

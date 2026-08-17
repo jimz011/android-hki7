@@ -146,8 +146,10 @@ class NavigationHistoryTest {
         history.visit(tab(HOME))
         history.visit(tab(ENERGY))
 
-        assertEquals(tab(HOME), history.back())
-        history.visit(tab(ENERGY))                 // late report, ignored
+        val target = history.back()
+        assertEquals(tab(HOME), target)
+        history.visit(target!!)                    // arrival
+        history.visit(tab(ENERGY))                 // late report of the page left, ignored
         assertEquals(listOf(tab(HOME)), history.entries)
 
         history.visit(tab(ENERGY))                 // the user really went back to Energy
@@ -166,6 +168,76 @@ class NavigationHistoryTest {
         history.visit(tab(ENERGY))
 
         assertEquals(listOf(tab(HOME), tab(ENERGY)), history.entries)
+    }
+
+    /**
+     * The reported failure: home, rooms, office, bedroom, energy, backing out oscillated between
+     * energy and bedroom before eventually continuing.
+     *
+     * Modelled with the screen reporting *several* places while each back settles — the page being
+     * left, and the tab sitting behind the room — rather than a single tidy straggler.
+     */
+    @Test
+    fun `back walks the path through a burst of stray reports`() {
+        val history = NavigationHistory()
+        listOf(tab(HOME), tab(ROOMS), room("office"), room("bedroom"), tab(ENERGY))
+            .forEach(history::visit)
+
+        val walked = buildList {
+            var leaving: VisitedPlace = tab(ENERGY)
+            while (true) {
+                val target = history.back() ?: break
+                // Everything the screen might say on the way, ending at the destination.
+                history.visit(leaving)
+                history.visit(tab(ENERGY))
+                history.visit(tab(ROOMS))
+                history.visit(target)
+                add(target)
+                leaving = target
+            }
+        }
+
+        assertEquals(
+            listOf(room("bedroom"), room("office"), tab(ROOMS), tab(HOME)),
+            walked
+        )
+    }
+
+    /** Swiping through rooms and backing out again: rooms, office, bedroom, toilet. */
+    @Test
+    fun `swiping between rooms and backing out retraces the rooms`() {
+        val history = NavigationHistory()
+        listOf(tab(ROOMS), room("office"), room("bedroom"), room("toilet"))
+            .forEach(history::visit)
+
+        val walked = buildList {
+            var leaving: VisitedPlace = room("toilet")
+            while (true) {
+                val target = history.back() ?: break
+                history.visit(leaving)
+                history.visit(tab(ROOMS))   // the tab behind the room pager
+                history.visit(target)
+                add(target)
+                leaving = target
+            }
+        }
+
+        assertEquals(listOf(room("bedroom"), room("office"), tab(ROOMS)), walked)
+    }
+
+    /** The destination can be reported before the page being left finishes reporting. */
+    @Test
+    fun `a stray arriving after the destination is still ignored`() {
+        val history = NavigationHistory()
+        history.visit(tab(HOME))
+        history.visit(tab(ENERGY))
+
+        val target = history.back()
+        assertEquals(tab(HOME), target)
+        history.visit(target!!)      // destination reported first
+        history.visit(tab(ENERGY))   // the page just left, reported afterwards
+
+        assertEquals(listOf(tab(HOME)), history.entries)
     }
 
     @Test
