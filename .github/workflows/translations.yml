@@ -46,6 +46,9 @@ jobs:
       - name: Every locale is complete
         run: python tools/localization/verify_translations.py
 
+      - name: No unescaped apostrophes
+        run: python tools/localization/check_escaping.py
+
       - name: Exports are up to date
         run: python tools/localization/export_translations.py --check
 

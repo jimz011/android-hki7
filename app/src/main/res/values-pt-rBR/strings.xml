@@ -3951,17 +3951,16 @@
     <string name="clock_app_section_subtitle">Qual aplicativo a caixa de diálogo do alarme abre</string>
     <string name="clock_open_failed">Nenhum aplicativo de relógio pôde ser aberto. Escolha um nas configurações deste widget.</string>
     <string name="ha_page_reload">Recarregar</string>
-    <string-array name="cr_whats_new_1_1_1">
-        <item>Novo widget de relógio. Analógico ou digital, com sete designs de face cada – Clássico, Minimal, Romano, Ferroviário, Bauhaus, Neon e Esqueleto para analógico; Simples, Segmentado, Monoespaçado, Inverter, Contorno, Empilhado e Pontos para digital — além de horário de 12 ou 24 horas, segundos opcionais e sua escolha de dia, data e ano abaixo. Tocar nele mostra seu próximo alarme e você pode escolher qual aplicativo de relógio abrir.</item>
-        <item>As próprias páginas de Home Assistant abrem dentro de HKI 7, tela inteira. Uma nova seção Home Assistant em Configurações leva você diretamente para as configurações do servidor, ferramentas de desenvolvedor e HACS, já conectados, e fechar uma delas retorna para onde você estava em Configurações.</item>
-        <item>HKI 7 agora informa quando uma nova versão é lançada. Ele observa os lançamentos do GitHub uma vez por dia e notifica você, o que é mais importante se você instalou o APK sozinho e não no Play – a atualização agora envia você para o Play ou para a página de lançamento, dependendo de onde esta cópia veio. Ele pode ser desativado em Configurações › Sobre.</item>
-        <item>Um sensor de próximo alarme se junta àqueles que o aplicativo já reporta para Home Assistant, correspondendo ao aplicativo complementar oficial. O Android expõe apenas o próximo alarme em vez de toda a lista, então é isso que o sensor carrega, junto com o aplicativo que o define.</item>
-        <item>A carta do vento agora é uma bússola adequada. Mostrador graduado com anel marcado, rosa de oito pontas e agulha bicolor, no lugar do círculo e linha lisos que tinha antes.</item>
-        <item>Os media players dizem o que está sendo reproduzido, não apenas qual aplicativo está aberto. Uma Android TV transmitindo uma série agora mostra o programa, a temporada e o episódio, e o título do episódio, com o nome do aplicativo abaixo; TV ao vivo mostra o canal.</item>
-        <item>Voltar tem uma regra agora: leva você para a página anterior e continua até chegar à página inicial. Somente na página inicial ele fecha o aplicativo – ele não sai mais do meio do aplicativo. As salas também fazem parte desse histórico, e tocar em Salas reabre a sala que você abriu em vez da lista.</item>
-        <item>Leituras fixas de temperatura e energia em checo, eslovaco, grego, norueguês, sueco e dinamarquês. A tradução automática danificou a formatação dos números por trás deles, que mostrava o número errado de decimais nos idiomas nórdicos e poderia travar a tela nos outros três.</item>
-        <item>Cada idioma agora possui um único arquivo que qualquer pessoa pode corrigir. A pasta de traduções no repositório contém um arquivo compatível com planilhas por idioma, o inglês ao lado da tradução, para que um falante nativo possa corrigir o que está errado sem mexer em nenhum código.</item>
-    </string-array>
-    <string name="ha_page_open_browser">Abrir no navegador</string>
+<string name="ha_page_open_browser">Abrir no navegador</string>
     <string name="ha_page_session_failed">Não foi possível iniciar a sessão Home Assistant incorporada. Atualize a página ou abra-a no seu navegador.</string>
+    <string-array name="cr_whats_new_1_1_1">
+        <item>Novo widget de relógio. Analógico ou digital, sete designs cada, horário de 12 ou 24 horas, e dia, data e ano, se desejar. Toque nele para ver seu próximo alarme.</item>
+        <item>Alcance o próprio Home Assistant em Configurações. Os administradores obtêm suas configurações, ferramentas de desenvolvedor e HACS em tela cheia dentro de HKI 7, já conectados.</item>
+        <item>HKI 7 informa quando uma nova versão é lançada – útil se você a instalou no GitHub em vez da Play Store. Desligue-o em Configurações › Sobre.</item>
+        <item>Home Assistant agora pode ver o próximo alarme do seu telefone, o mesmo sensor fornecido pelo aplicativo oficial.</item>
+        <item>Os reprodutores de mídia mostram o que está sendo reproduzido, não apenas qual aplicativo está aberto. Uma Android TV transmitindo uma série mostra o programa, a temporada e o episódio.</item>
+        <item>Voltar vai para a página em que você estava antes, todas as vezes, até chegar à página inicial. Ele não pula mais páginas nem sai do aplicativo mais cedo.</item>
+        <item>Leituras fixas de temperatura e energia em tcheco, eslovaco, grego, norueguês, sueco e dinamarquês, onde os números eram exibidos incorretamente ou podiam travar a tela.</item>
+        <item>Algo mal formulado em seu idioma? Cada linguagem agora é um único arquivo que você pode corrigir no GitHub, sem necessidade de código.</item>
+    </string-array>
 </resources>

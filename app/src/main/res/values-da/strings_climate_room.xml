@@ -18,14 +18,13 @@
         <item>En Valetudo robotstøvsuger opfanger sit live-kort automatisk, når dine lokaler importeres, i stedet for at have brug for kameraet valgt i hånden.</item>
     </string-array>
     <string-array name="cr_whats_new_1_1_1">
-        <item>Ny Ur-widget. Analog eller digital, med syv ansigtsdesign hver — Classic, Minimal, Roman, Railway, Bauhaus, Neon og Skeleton for analog; Plain, Segment, Monospace, Flip, Outline, Stacked og Dots til digital - plus 12 eller 24-timers tid, valgfri sekunder og dit valg af dag, dato og år nedenunder. Hvis du trykker på den, vises din næste alarm, og du kan vælge, hvilken ur-app, der åbner.</item>
-        <item>Home Assistants egne sider åbner inde i HKI 7, fuld skærm. En ny Home Assistant sektion i Indstillinger fører dig direkte til din servers Indstillinger, Udviklerværktøjer og HACS, der allerede er logget ind, og lukker du en, vender du tilbage til, hvor du var i Indstillinger.</item>
-        <item>HKI 7 fortæller dig nu, hvornår en ny version er udgivet. Den ser GitHub-udgivelserne en gang om dagen og giver dig besked, hvilket betyder mest, hvis du har installeret APK\'en selv i stedet for fra Play — Update sender dig nu til Play eller til udgivelsessiden afhængigt af, hvor denne kopi kom fra. Den kan slås fra i Indstillinger › Om.</item>
-        <item>En Next Alarm-sensor forbinder dem, som appen allerede rapporterer til Home Assistant, og matcher den officielle ledsager-app. Android blotlægger kun den næste alarm i stedet for hele listen, så det er, hvad sensoren bærer, sammen med hvilken app, der har indstillet den.</item>
-        <item>Vindkortet er nu et ordentligt kompas. En gradueret urskive med en markeret ring, en ottepunktsrose og en tofarvet nål i stedet for den almindelige cirkel og linje, den havde før.</item>
-        <item>Medieafspillere siger, hvad der afspilles, ikke kun hvilken app der er åben. Et Android TV, der streamer en serie, viser nu programmet, sæsonen og afsnittet og afsnitstitlen, med appen navngivet nedenunder; live tv viser kanalen.</item>
-        <item>Tilbage har en regel nu: den fører dig til den forrige side og fortsætter, indtil du når Hjem. Kun hjemmefra lukker den appen - den afsluttes ikke længere fra midten af appen. Rum er også en del af den historie, og ved at trykke på Rum genåbnes det lokale, du havde åbent i stedet for listen.</item>
-        <item>Faste temperatur- og energiaflæsninger på tjekkisk, slovakisk, græsk, norsk, svensk og dansk. Maskinoversættelse havde beskadiget talformateringen bag dem, som viste det forkerte antal decimaler på de nordiske sprog og kunne crashe skærmen i de tre andre.</item>
-        <item>Hvert sprog har nu en enkelt fil, som alle kan rette. Oversættelsesmappen i arkivet indeholder en regnearksvenlig fil pr. sprog, engelsk ved siden af oversættelsen, så en indfødt taler kan rette det, der læser forkert, uden at røre ved nogen kode.</item>
+        <item>Ny Ur-widget. Analog eller digital, syv designs hver, 12 eller 24-timers tid, og dag, dato og år, hvis du vil have dem. Tryk på den for at se din næste alarm.</item>
+        <item>Nå selv Home Assistant fra Indstillinger. Administratorer får dens indstillinger, udviklerværktøjer og HACS fuldskærm inde i HKI 7, allerede logget ind.</item>
+        <item>HKI 7 fortæller dig, når en ny version er ude - nyttigt, hvis du har installeret den fra GitHub i stedet for Play Butik. Slå det fra i Indstillinger › Om.</item>
+        <item>Home Assistant kan nu se din telefons næste alarm, den samme sensor som den officielle app giver.</item>
+        <item>Medieafspillere viser, hvad der afspilles, ikke kun hvilken app der er åben. Et Android TV, der streamer en serie, viser programmet, sæsonen og afsnittet.</item>
+        <item>Tilbage går til den side, du var på før, hver gang, indtil du når Hjem. Den springer ikke længere sider over eller forlader appen tidligt.</item>
+        <item>Faste temperatur- og energiaflæsninger på tjekkisk, slovakisk, græsk, norsk, svensk og dansk, hvor tallene viste forkert eller kunne crashe skærmen.</item>
+        <item>Noget dårligt formuleret på dit sprog? Hvert sprog er nu en enkelt fil, du kan rette på GitHub, ingen kode nødvendig.</item>
     </string-array>
 </resources>

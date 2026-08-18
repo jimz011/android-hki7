@@ -18,14 +18,13 @@
         <item>Valetudo robotski usisivač automatski preuzima svoju mapu uživo kada se uvezu vaše sobe, umjesto da je potrebna kamera koju ručno odaberete.</item>
     </string-array>
     <string-array name="cr_whats_new_1_1_1">
-        <item>Novi widget za sat. Analogni ili digitalni, sa sedam dizajna lica svaki — Classic, Minimal, Roman, Railway, Bauhaus, Neon i Skeleton za analogni; Plain, Segment, Monospace, Flip, Outline, Stacked i Dots za digitalno — plus 12 ili 24-satno vrijeme, dodatne sekunde i vaš izbor dana, datuma i godine ispod. Dodirom na njega prikazuje se vaš sljedeći alarm, a možete odabrati koja će se aplikacija za sat otvoriti.</item>
-        <item>Home Assistant vlastite stranice otvaraju se unutar HKI 7, preko cijelog zaslona. Novi odjeljak Home Assistant u postavkama vodi vas ravno do postavki vašeg poslužitelja, alata za razvojne programere i HACS-a, već ste prijavljeni, a zatvaranje jednog vraća vas na mjesto gdje ste bili u postavkama.</item>
-        <item>HKI 7 sada vam govori kada je nova verzija objavljena. Jednom dnevno prati izdanja GitHuba i obavještava vas, što je najvažnije ako ste APK instalirali sami, a ne s Playa — ažuriranje vas sada šalje na Play ili na stranicu s izdanjem, ovisno o tome odakle je ova kopija došla. Može se isključiti u Postavkama › O aplikaciji.</item>
-        <item>Senzor sljedećeg alarma pridružuje se onima koje aplikacija već prijavljuje Home Assistant, podudarajući se sa službenom popratnom aplikacijom. Android izlaže samo sljedeći alarm, a ne cijeli popis, tako da je to ono što senzor nosi, zajedno s aplikacijom koja ga je postavila.</item>
-        <item>Karta vjetra sada je pravi kompas. Brojčanik s označenim prstenom, ružom s osam šiljaka i dvobojnom iglom, umjesto običnog kruga i linije koje je prije imao.</item>
-        <item>Media playeri govore što se reproducira, a ne samo koja je aplikacija otvorena. Android TV koji struji seriju sada prikazuje program, sezonu i epizodu te naslov epizode, s aplikacijom koja se nalazi ispod; TV uživo prikazuje kanal.</item>
-        <item>Natrag sada ima jedno pravilo: vodi vas na prethodnu stranicu i nastavlja dok ne dođete do početne stranice. Samo s početne stranice zatvara aplikaciju — više ne izlazi iz sredine aplikacije. Sobe su također dio te povijesti, a dodirom Sobe ponovno se otvara soba koju ste otvorili umjesto popisa.</item>
-        <item>Fiksna očitanja temperature i energije na češkom, slovačkom, grčkom, norveškom, švedskom i danskom. Strojno prevođenje oštetilo je formatiranje brojeva iza njih, koje je prikazivalo pogrešan broj decimala u nordijskim jezicima i moglo srušiti zaslon u ostala tri.</item>
-        <item>Svaki jezik sada ima jednu datoteku koju svatko može ispraviti. Mapa prijevoda u repozitoriju sadrži jednu datoteku pogodnu za proračunsku tablicu po jeziku, engleski pored prijevoda, tako da izvorni govornik može popraviti ono što se pogrešno čita bez diranja koda.</item>
+        <item>Novi widget za sat. Analogni ili digitalni, svaki sa sedam dizajna, 12 ili 24-satno vrijeme, i dan, datum i godina ako ih želite. Dodirnite ga da vidite svoj sljedeći alarm.</item>
+        <item>Dođite do samog Home Assistant iz postavki. Administratori dobivaju njegove postavke, alate za razvojne programere i HACS preko cijelog zaslona unutar HKI 7, već prijavljeni.</item>
+        <item>HKI 7 vam govori kada nova verzija izađe — korisno ako ste je instalirali s GitHuba, a ne iz Trgovine Play. Isključite ga u Postavkama › O uređaju.</item>
+        <item>Home Assistant sada može vidjeti sljedeći alarm vašeg telefona, isti senzor koji pruža službena aplikacija.</item>
+        <item>Media playeri pokazuju što se reproducira, a ne samo koja je aplikacija otvorena. Android TV koji struji seriju prikazuje program, sezonu i epizodu.</item>
+        <item>Natrag vraća na stranicu na kojoj ste bili prije, svaki put, dok ne dođete do početne stranice. Više ne preskače stranice niti rano napušta aplikaciju.</item>
+        <item>Fiksna očitanja temperature i energije na češkom, slovačkom, grčkom, norveškom, švedskom i danskom, gdje su se brojke pokazivale pogrešno ili su mogle srušiti zaslon.</item>
+        <item>Nešto loše napisano na vašem jeziku? Svaki je jezik sada jedna datoteka koju možete ispraviti na GitHubu, bez potrebe za kodom.</item>
     </string-array>
 </resources>

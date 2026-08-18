@@ -18,14 +18,13 @@
         <item>Robotický vysávač Valetudo automaticky vyberie svoju živú mapu, keď sa importujú vaše izby, namiesto toho, aby potreboval kameru vyberanú ručne.</item>
     </string-array>
     <string-array name="cr_whats_new_1_1_1">
-        <item>Nový widget Hodiny. Analógové alebo digitálne, každý so siedmimi vzormi tváre – klasický, minimálny, rímsky, železničný, Bauhaus, neón a skelet pre analógový; Obyčajný, segmentový, jednopriestorový, prevrátený, obrysový, skladaný a bodky pre digitálne – plus 12 alebo 24-hodinový čas, voliteľné sekundy a pod ním váš výber dňa, dátumu a roku. Klepnutím naň zobrazíte ďalší budík a môžete si vybrať, ktorá aplikácia hodín sa otvorí.</item>
-        <item>Vlastné stránky Home Assistant sa otvárajú v HKI 7, celá obrazovka. Nová sekcia Home Assistant v Nastaveniach vás zavedie priamo do Nastavenia, Vývojárske nástroje a HACS vášho servera, kde ste sa už prihlásili, a zatvorením jednej sa vrátite tam, kde ste boli v Nastaveniach.</item>
-        <item>HKI 7 vám teraz povie, kedy bude vydaná nová verzia. Sleduje vydania GitHub raz denne a upozorní vás, čo je najdôležitejšie, ak ste si nainštalovali súbor APK sami a nie zo služby Play – aktualizácia vás teraz pošle do služby Play alebo na stránku vydania v závislosti od toho, odkiaľ táto kópia pochádza. Dá sa vypnúť v Nastavenia › Informácie.</item>
-        <item>Senzor Next Alarm sa pripojí k tým, ktoré aplikácia už hlási Home Assistant, pričom sa zhoduje s oficiálnou sprievodnou aplikáciou. Android zobrazuje iba nasledujúci budík a nie celý zoznam, takže to je to, čo snímač nesie spolu s aplikáciou, ktorá ho nastavila.</item>
-        <item>Veterná karta je teraz poriadny kompas. Odstupňovaný ciferník s vyznačeným krúžkom, osemcípou ružičkou a dvojfarebnou ihlou namiesto obyčajného kruhu a čiary, ktorú mal predtým.</item>
-        <item>Prehrávače médií povedia, čo sa prehráva, nielen to, ktorá aplikácia je otvorená. Android TV, ktorá streamuje sériu, teraz zobrazuje program, sériu a epizódu a názov epizódy, pričom aplikácia je uvedená nižšie. živé televízne vysielanie kanála.</item>
-        <item>Späť má teraz jedno pravidlo: prejde vás na predchádzajúcu stránku a pokračuje, kým sa nedostanete na Domov. Aplikáciu zatvorí iba z Domovskej stránky – už sa neukončí uprostred aplikácie. Miestnosti sú tiež súčasťou tejto histórie a ťuknutím na položku Izby sa namiesto zoznamu znova otvorí miestnosť, ktorú ste mali otvorenú.</item>
-        <item>Pevné údaje o teplote a energii v češtine, slovenčine, gréčtine, nórčine, švédčine a dánčine. Strojový preklad poškodil formátovanie čísel za nimi, ktoré ukazovalo nesprávny počet desatinných miest v severských jazykoch a mohlo spôsobiť zlyhanie obrazovky v ostatných troch.</item>
-        <item>Každý jazyk má teraz jeden súbor, ktorý môže ktokoľvek opraviť. Priečinok prekladov v úložisku obsahuje jeden tabuľkový súbor pre každý jazyk, angličtinu okrem prekladu, takže rodený hovorca môže opraviť, čo sa číta, bez toho, aby sa dotkol akéhokoľvek kódu.</item>
+        <item>Nový widget Hodiny. Analógové alebo digitálne, každý po sedem dizajnov, 12- alebo 24-hodinový čas a deň, dátum a rok, ak chcete. Klepnutím naň zobrazíte ďalší budík.</item>
+        <item>Na samotnú Home Assistant sa dostanete z Nastavenia. Správcovia získajú nastavenia, nástroje pre vývojárov a celú obrazovku HACS v HKI 7, pričom sú už prihlásení.</item>
+        <item>HKI 7 vám povie, keď je vydaná nová verzia – užitočné, ak ste si ju nainštalovali z GitHubu a nie z Obchodu Play. Vypnite ho v časti Nastavenia › Informácie.</item>
+        <item>Home Assistant teraz vidí ďalší budík vášho telefónu, rovnaký senzor, aký poskytuje oficiálna aplikácia.</item>
+        <item>Prehrávače médií zobrazujú, čo sa prehráva, nielen to, ktorá aplikácia je otvorená. Android TV vysielajúci seriál zobrazuje program, sériu a epizódu.</item>
+        <item>Späť sa vždy vráti na stránku, na ktorej ste boli predtým, kým sa nedostanete na Domov. Už nepreskakuje stránky ani neopúšťa aplikáciu predčasne.</item>
+        <item>Opravené údaje o teplote a energii v češtine, slovenčine, gréčtine, nórčine, švédčine a dánčine, kde sa čísla zobrazovali nesprávne alebo mohli zrútiť obrazovku.</item>
+        <item>Niečo napísané zle vo vašom jazyku? Každý jazyk je teraz jeden súbor, ktorý môžete opraviť na GitHub, nie je potrebný žiadny kód.</item>
     </string-array>
 </resources>

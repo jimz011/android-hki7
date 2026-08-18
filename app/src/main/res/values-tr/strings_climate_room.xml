@@ -569,14 +569,13 @@
         <item>Kamera pencerelerinde ve tam ekran kameralarda yakınlaştırma düzeltildi.</item>
     </string-array>
     <string-array name="cr_whats_new_1_1_1">
-        <item>Yeni Saat widget\'ı. Her biri yedi yüz tasarımına sahip analog veya dijital - Analog için Klasik, Minimal, Roman, Demiryolu, Bauhaus, Neon ve Skeleton; Dijital için Düz, Segment, Monospace, Çevirme, Anahat, Yığılmış ve Noktalar — artı 12 veya 24 saatlik zaman, isteğe bağlı saniye ve altında seçtiğiniz gün, tarih ve yıl. Buna dokunduğunuzda bir sonraki alarmınız gösterilir ve hangi saat uygulamasının açılacağını seçebilirsiniz.</item>
-        <item>Home Assistant\'nin kendi sayfaları HKI 7 içinde tam ekran olarak açılır. Ayarlar\'daki yeni bir Home Assistant bölümü sizi doğrudan sunucunuzun Ayarlar\'ına, Geliştirici araçlarına ve zaten oturum açmış olan HACS\'a götürür ve birini kapattığınızda Ayarlar\'da bulunduğunuz yere geri dönersiniz.</item>
-        <item>HKI 7 artık yeni bir sürümün ne zaman yayınlanacağını size bildiriyor. GitHub sürümlerini günde bir kez izler ve sizi bilgilendirir; bu, APK\'yı Play\'den ziyade kendiniz yüklediyseniz en önemli şeydir - Güncelleme artık bu kopyanın nereden geldiğine bağlı olarak sizi Play\'e veya sürüm sayfasına gönderiyor. Ayarlar › Hakkında bölümünden kapatılabilir.</item>
-        <item>Bir Sonraki Alarm sensörü, uygulamanın halihazırda Home Assistant\'ye rapor ettiği sensörlere katılarak resmi yardımcı uygulamayla eşleşir. Android, tüm liste yerine yalnızca bir sonraki alarmı gösterir; dolayısıyla sensörün taşıdığı ve uygulamanın ayarladığı alarm budur.</item>
-        <item>Rüzgar kartı artık tam bir pusula. Daha önce sahip olduğu düz daire ve çizginin yerine, işaretli bir halka, sekiz noktalı bir gül ve iki tonlu bir iğne ile derecelendirilmiş bir kadran.</item>
-        <item>Medya oynatıcılar yalnızca hangi uygulamanın açık olduğunu değil, neyin oynatıldığını da söyler. Bir diziyi yayınlayan bir Android TV artık programı, sezonu, bölümü ve bölüm başlığını altında adı verilen uygulamayla birlikte gösteriyor; canlı TV kanalı gösterir.</item>
-        <item>Artık Geri\'nin tek bir kuralı var: Sizi bir önceki sayfaya götürür ve Ana Sayfa\'ya ulaşana kadar devam eder. Uygulamayı yalnızca Ana Sayfa\'dan kapatıyor; artık uygulamanın ortasından çıkmıyor. Odalar da bu geçmişin bir parçasıdır ve Odalar\'a dokunduğunuzda liste yerine açtığınız oda yeniden açılır.</item>
-        <item>Çekçe, Slovakça, Yunanca, Norveççe, İsveççe ve Danca dillerinde sabit sıcaklık ve enerji okumaları. Makine çevirisi, arkalarındaki sayı biçimlendirmesine zarar vermişti; bu da Kuzey dillerinde yanlış sayıda ondalık sayı gösteriyordu ve diğer üçünde ekranın çökmesine neden olabilirdi.</item>
-        <item>Artık her dilde herkesin düzeltebileceği tek bir dosya var. Depodaki çeviriler klasöründe her dil için e-tablo dostu bir dosya bulunur; çevirinin yanında İngilizce de bulunur; böylece anadili İngilizce olan biri herhangi bir koda dokunmadan yanlış okunanları düzeltebilir.</item>
+        <item>Yeni Saat widget\'ı. Analog veya dijital, her biri yedi tasarım, 12 veya 24 saatlik zaman ve isterseniz gün, tarih ve yıl. Bir sonraki alarmınızı görmek için ona dokunun.</item>
+        <item>Ayarlar\'dan Home Assistant\'nin kendisine ulaşın. Yöneticiler, Ayarlar\'ı, Geliştirici araçlarını ve HACS\'ı tam ekran olarak HKI 7 içinde oturum açmış halde alırlar.</item>
+        <item>HKI 7 size yeni bir sürümün ne zaman çıkacağını bildirir; bu sürümü Play Store yerine GitHub\'dan yüklediyseniz kullanışlıdır. Ayarlar › Hakkında bölümünden kapatın.</item>
+        <item>Home Assistant artık telefonunuzun bir sonraki alarmını, resmi uygulamanın sağladığı sensörün aynısını görebilir.</item>
+        <item>Medya oynatıcılar yalnızca hangi uygulamanın açık olduğunu değil, neyin oynatıldığını da gösterir. Bir diziyi yayınlayan bir Android TV, programı, sezonu ve bölümü gösterir.</item>
+        <item>Geri, Ana Sayfa\'ya ulaşana kadar her seferinde daha önce bulunduğunuz sayfaya gider. Artık sayfaları atlamıyor veya uygulamadan erken çıkmıyor.</item>
+        <item>Çekçe, Slovakça, Yunanca, Norveççe, İsveççe ve Danca dillerinde sayıların yanlış gösterildiği veya ekranın çökmesine neden olabileceği sabit sıcaklık ve enerji okumaları.</item>
+        <item>Dilinizde kötü ifade edilen bir şey mi var? Artık her dil GitHub\'da düzeltebileceğiniz tek bir dosyadır; kod gerekmez.</item>
     </string-array>
 </resources>

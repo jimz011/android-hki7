@@ -18,14 +18,13 @@
         <item>Robotický vysavač Valetudo automaticky snímá svou živou mapu při importu vašich místností, aniž by potřeboval ručně vybranou kameru.</item>
     </string-array>
     <string-array name="cr_whats_new_1_1_1">
-        <item>Nový widget Hodiny. Analogové nebo digitální, každý se sedmi designy obličeje — Classic, Minimal, Roman, Railway, Bauhaus, Neon a Skeleton pro analog; Obyčejný, Segment, Monospace, Flip, Outline, Stacked a Dots pro digitální — plus 12 nebo 24hodinový čas, volitelné sekundy a pod ním váš výběr dne, data a roku. Klepnutím na něj zobrazíte další budík a můžete si vybrat, která aplikace hodin se otevře.</item>
-        <item>Vlastní stránky Home Assistant se otevírají v HKI 7, celá obrazovka. Nová sekce Home Assistant v Nastavení vás zavede přímo do Nastavení, vývojářských nástrojů a HACS vašeho serveru, kde jste již přihlášeni, a zavřením jedné se vrátíte tam, kde jste byli v Nastavení.</item>
-        <item>HKI 7 vám nyní řekne, kdy bude vydána nová verze. Sleduje vydání GitHubu jednou denně a upozorní vás, což je nejdůležitější, pokud jste si soubor APK nainstalovali sami, nikoli ze služby Play – aktualizace vás nyní pošle do služby Play nebo na stránku vydání v závislosti na tom, odkud tato kopie pochází. Lze ji vypnout v Nastavení › O aplikaci.</item>
-        <item>Senzor Next Alarm se připojí k těm, které aplikace již hlásí Home Assistant, a odpovídá oficiální doprovodné aplikaci. Android odhaluje pouze další budík, nikoli celý seznam, takže to nese senzor spolu s aplikací, která jej nastavila.</item>
-        <item>Větrná karta je nyní pořádný kompas. Odstupňovaný ciferník s vyznačeným prstencem, osmicípou růžicí a dvoubarevnou jehlou na místě hladkého kruhu a rysky, kterou měl předtím.</item>
-        <item>Přehrávače médií říkají, co se hraje, ne jen která aplikace je otevřená. Android TV streamující seriál nyní zobrazuje program, sezónu a epizodu a název epizody s aplikací pojmenovanou níže; živé televizní vysílání kanálu.</item>
-        <item>Zpět má nyní jedno pravidlo: přenese vás na předchozí stránku a pokračuje, dokud nedosáhnete Domů. Pouze z plochy zavře aplikaci – již se neopouští uprostřed aplikace. Místnosti jsou také součástí této historie a klepnutím na Místnosti se místo seznamu znovu otevře místnost, kterou jste měli otevřenou.</item>
-        <item>Opravené údaje o teplotě a energii v češtině, slovenštině, řečtině, norštině, švédštině a dánštině. Strojový překlad poškodil formátování čísel za nimi, což ukazovalo nesprávný počet desetinných míst v severských jazycích a mohlo způsobit zhroucení obrazovky ve zbývajících třech.</item>
-        <item>Každý jazyk má nyní jeden soubor, který může kdokoli opravit. Složka překladů v úložišti obsahuje jeden soubor vhodný pro tabulkový procesor pro každý jazyk, angličtinu vedle překladu, takže rodilý mluvčí může opravit to, co se čte špatně, aniž by se dotkl jakéhokoli kódu.</item>
+        <item>Nový widget Hodiny. Analogové nebo digitální, každý sedm vzorů, 12 nebo 24hodinový čas a den, datum a rok, chcete-li. Klepnutím na něj zobrazíte další budík.</item>
+        <item>Dosáhněte samotného Home Assistant z Nastavení. Správci získají jeho nastavení, vývojářské nástroje a HACS celou obrazovku uvnitř HKI 7, již jsou přihlášeni.</item>
+        <item>HKI 7 vám řekne, když je k dispozici nová verze – užitečné, pokud jste ji nainstalovali z GitHubu, nikoli z Obchodu Play. Vypněte jej v Nastavení › O aplikaci.</item>
+        <item>Home Assistant nyní vidí další budík vašeho telefonu, stejný senzor jako oficiální aplikace.</item>
+        <item>Přehrávače médií ukazují, co se hraje, nejen, která aplikace je otevřená. Android TV streamující seriál ukazuje program, sezónu a epizodu.</item>
+        <item>Zpět se pokaždé vrátí na stránku, na které jste byli předtím, dokud se nedostanete na Domů. Již nepřeskakuje stránky ani neopouští aplikaci předčasně.</item>
+        <item>Opraveny údaje o teplotě a energii v češtině, slovenštině, řečtině, norštině, švédštině a dánštině, kde se čísla zobrazovala špatně nebo mohla shazovat obrazovku.</item>
+        <item>Něco špatně formulovaného ve vašem jazyce? Každý jazyk je nyní jeden soubor, který můžete opravit na GitHubu, není potřeba žádný kód.</item>
     </string-array>
 </resources>
