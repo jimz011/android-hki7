@@ -17,6 +17,12 @@ launcher icon in `app/src/main/res` does not change what the store shows.
   "HKI 7" wordmark + tagline. Keep important content away from the edges — Play
   can crop it and may overlay a play button when a promo video is set.
 
+- `play_release_notes.txt` — the "What's new" text for the current Play release.
+  Play caps this at **500 characters per language**, counting line breaks, so it
+  is deliberately shorter than `CHANGELOG.md` and the in-app What's new dialog:
+  headline changes only, in the reader's terms. Rewrite it for each release
+  rather than appending; Play shows only the latest.
+
 ## Updating the store icon
 
 Play Console → the app → **Grow → Store presence → Main store listing** →
