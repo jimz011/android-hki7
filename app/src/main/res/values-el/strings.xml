@@ -2978,6 +2978,7 @@
     <string name="ha_page_no_server">Συνδεθείτε πρώτα σε έναν διακομιστή Home Assistant.</string>
     <string name="ha_page_reload">Γεμίζω πάλι</string>
     <string name="ha_page_open_browser">Άνοιγμα στο πρόγραμμα περιήγησης</string>
+    <string name="ha_page_session_failed">Δεν ήταν δυνατή η έναρξη της ενσωματωμένης περιόδου λειτουργίας Home Assistant. Φορτώστε ξανά τη σελίδα ή ανοίξτε την στο πρόγραμμα περιήγησής σας.</string>
     <string name="update_channel_name">Ενημερώσεις εφαρμογών</string>
     <string name="update_channel_description">Σας ενημερώνει πότε έχει κυκλοφορήσει μια νεότερη έκδοση του HKI 7</string>
     <string name="update_available_title">HKI 7 %1$s είναι διαθέσιμο</string>

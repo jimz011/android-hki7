@@ -2978,6 +2978,7 @@
     <string name="ha_page_no_server">Najprv sa pripojte k serveru Home Assistant.</string>
     <string name="ha_page_reload">Znovu načítať</string>
     <string name="ha_page_open_browser">Otvoriť v prehliadači</string>
+    <string name="ha_page_session_failed">Nepodarilo sa spustiť vloženú reláciu Home Assistant. Znovu načítajte stránku alebo ju otvorte v prehliadači.</string>
     <string name="update_channel_name">Aktualizácie aplikácií</string>
     <string name="update_channel_description">Povie vám, kedy bola vydaná novšia verzia HKI 7</string>
     <string name="update_available_title">HKI 7 %1$s je k dispozícii</string>

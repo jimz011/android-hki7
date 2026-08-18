@@ -31,7 +31,7 @@ Lookup material rather than reading material.
 | | |
 |---|---|
 | **App id** | `com.jimz011apps.hki7` |
-| **Current version** | 1.1.0 |
+| **Current version** | 1.1.1 |
 | **Minimum Android** | 12 (API 31) |
 | **Target Android** | API 37 |
 | **Repository** | [jimz011/android-hki7](https://github.com/jimz011/android-hki7) |

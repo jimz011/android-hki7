@@ -2978,6 +2978,7 @@
     <string name="ha_page_no_server">Opret forbindelse til en Home Assistant-server først.</string>
     <string name="ha_page_reload">Genindlæs</string>
     <string name="ha_page_open_browser">Åbn i browser</string>
+    <string name="ha_page_session_failed">Kunne ikke starte den indlejrede Home Assistant-session. Genindlæs siden, eller åbn den i din browser.</string>
     <string name="update_channel_name">App-opdateringer</string>
     <string name="update_channel_description">Fortæller dig, når en nyere version af HKI 7 er blevet frigivet</string>
     <string name="update_available_title">HKI 7 %1$s er tilgængelig</string>

@@ -3918,4 +3918,5 @@
         <item>现在每种语言都有一个任何人都可以更正的文件。存储库中的翻译文件夹为每种语言保存一个电子表格友好的文件，翻译旁边有英文，因此母语人士可以在不接触任何代码的情况下修复错误的内容。</item>
     </string-array>
     <string name="ha_page_open_browser">在浏览器中打开</string>
+    <string name="ha_page_session_failed">无法启动嵌入式 Home Assistant 会话。重新加载页面或在浏览器中打开它。</string>
 </resources>

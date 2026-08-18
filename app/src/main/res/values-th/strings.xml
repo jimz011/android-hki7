@@ -2978,6 +2978,7 @@
     <string name="ha_page_no_server">เชื่อมต่อกับเซิร์ฟเวอร์ Home Assistant ก่อน</string>
     <string name="ha_page_reload">โหลดซ้ำ</string>
     <string name="ha_page_open_browser">เปิดในเบราว์เซอร์</string>
+    <string name="ha_page_session_failed">ไม่สามารถเริ่มเซสชัน Home Assistant แบบฝังได้ โหลดหน้านี้ซ้ำหรือเปิดในเบราว์เซอร์ของคุณ</string>
     <string name="update_channel_name">การอัปเดตแอป</string>
     <string name="update_channel_description">แจ้งให้คุณทราบเมื่อ HKI 7 เวอร์ชันใหม่ออกวางจำหน่าย</string>
     <string name="update_available_title">HKI 7 %1$s พร้อมใช้งาน</string>

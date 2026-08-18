@@ -2936,6 +2936,7 @@
     <string name="ha_page_no_server">まず Home Assistant サーバーに接続します。</string>
     <string name="ha_page_reload">リロード</string>
     <string name="ha_page_open_browser">ブラウザで開く</string>
+    <string name="ha_page_session_failed">埋め込み Home Assistant セッションを開始できませんでした。ページをリロードするか、ブラウザで開きます。</string>
     <string name="update_channel_name">アプリのアップデート</string>
     <string name="update_channel_description">HKI 7 の新しいバージョンがリリースされたときに通知します</string>
     <string name="update_available_title">HKI 7 %1$s が利用可能です</string>

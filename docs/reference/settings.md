@@ -117,21 +117,30 @@ Tabs: **Dashboards**, **Parental controls**, **Permissions**, **Presence**, **De
 
 [:octicons-arrow-right-24: Family sharing](../guide/family-sharing.md)
 
-## HKI 7
-
-*Project information, licensing and community support.*
-
 ## Home Assistant
 
-*Your server's own pages, opened full screen inside HKI 7.* Hidden on the demo home, which has no
-server behind it. Each opens already signed in, using the session this app is already
-authenticated with, and back walks the page's own history before leaving.
+*Your server's own pages, opened full screen inside HKI 7.* **Administrators only** — the pages
+behind these links administer Home Assistant itself, so the category is hidden for everyone else.
+Admin status comes from Home Assistant's own `auth/current_user`, so it does not depend on the
+HKI 7 Cloud component. Also hidden on the demo home, which has no server behind it.
 
 | Entry | Opens |
 | --- | --- |
 | **Home Assistant settings** | Integrations, devices, areas and automations |
 | **Developer tools** | States, services, templates and events |
 | **HACS** | Community integrations and frontend add-ons |
+
+Each opens already signed in. The frontend asks the app for a short-lived token as it boots, over
+the same `external_auth` bridge the official companion app uses — nothing is copied into the page's
+storage, and a token is never handed to a document that is not on your server's own origin.
+
+Home Assistant's sidebar is hidden, since HKI 7's own header already provides Back and Close. Back
+walks the page's own history first, so a settings page several levels deep steps back through them
+before the page closes.
+
+## HKI 7
+
+*Project information, licensing and community support.*
 
 ### About
 

@@ -5,12 +5,6 @@ sealed interface VisitedPlace {
     data class Tab(val index: Int) : VisitedPlace
     /** Held by area rather than by pager page, so it survives the room list changing. */
     data class Room(val areaId: String) : VisitedPlace
-
-    /** Short form for logs. */
-    fun describe(): String = when (this) {
-        is Tab -> "tab$index"
-        is Room -> areaId
-    }
 }
 
 /**
@@ -49,13 +43,6 @@ class NavigationHistory(private val maxEntries: Int = 60) {
 
     val entries: List<VisitedPlace> get() = places.toList()
 
-    /** For logging: the stack, oldest first, plus whatever back is currently waiting for. */
-    fun describe(): String {
-        val stack = places.joinToString(" > ") { it.describe() }
-        val pending = awaiting?.let { " [awaiting ${it.describe()}]" }.orEmpty()
-        return "$stack$pending"
-    }
-
     /**
      * Records arrival somewhere.
      *
@@ -67,10 +54,9 @@ class NavigationHistory(private val maxEntries: Int = 60) {
         val target = awaiting
         if (target != null) {
             // A back is still settling. Nothing counts until the destination itself is reported;
-            // the destination is already on top, so arriving needs no push.
-            // Arriving stops the blanket ignore, but [justLeft] stays armed: the page being left
-            // can still report once more after the destination has, and that one must not count
-            // either.
+            // the destination is already on top, so arriving needs no push. Arriving clears the
+            // blanket ignore but leaves [justLeft] armed, because the page being left can still
+            // report once more afterwards and that one must not count either.
             if (place == target) awaiting = null
             return
         }

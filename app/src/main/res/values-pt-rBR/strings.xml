@@ -3963,4 +3963,5 @@
         <item>Cada idioma agora possui um único arquivo que qualquer pessoa pode corrigir. A pasta de traduções no repositório contém um arquivo compatível com planilhas por idioma, o inglês ao lado da tradução, para que um falante nativo possa corrigir o que está errado sem mexer em nenhum código.</item>
     </string-array>
     <string name="ha_page_open_browser">Abrir no navegador</string>
+    <string name="ha_page_session_failed">Não foi possível iniciar a sessão Home Assistant incorporada. Atualize a página ou abra-a no seu navegador.</string>
 </resources>

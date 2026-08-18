@@ -3963,4 +3963,5 @@
         <item>現在每種語言都有一個任何人都可以更正的檔案。儲存庫中的翻譯資料夾為每種語言保存一個電子表格友善的文件，翻譯旁邊有英文，因此母語人士可以在不接觸任何程式碼的情況下修復錯誤的內容。</item>
     </string-array>
     <string name="ha_page_open_browser">在瀏覽器中開啟</string>
+    <string name="ha_page_session_failed">無法啟動嵌入式 Home Assistant 會話。重新載入頁面或在瀏覽器中開啟它。</string>
 </resources>

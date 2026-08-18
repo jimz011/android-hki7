@@ -2978,6 +2978,7 @@
     <string name="ha_page_no_server">Сначала подключитесь к серверу Home Assistant.</string>
     <string name="ha_page_reload">Перезагрузить</string>
     <string name="ha_page_open_browser">Открыть в браузере</string>
+    <string name="ha_page_session_failed">Не удалось запустить встроенный сеанс Home Assistant. Перезагрузите страницу или откройте ее в браузере.</string>
     <string name="update_channel_name">Обновления приложений</string>
     <string name="update_channel_description">Сообщает вам, когда была выпущена новая версия HKI 7.</string>
     <string name="update_available_title">HKI 7 %1$s доступен</string>

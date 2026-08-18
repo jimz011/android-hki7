@@ -1920,6 +1920,7 @@
     <string name="ha_page_no_server">Maak eerst verbinding met een Home Assistant-server.</string>
     <string name="ha_page_reload">Herladen</string>
     <string name="ha_page_open_browser">Openen in browser</string>
+    <string name="ha_page_session_failed">Kan de ingebedde Home Assistant sessie niet starten. Laad de pagina opnieuw of open deze in uw browser.</string>
     <string name="update_channel_name">App-updates</string>
     <string name="update_channel_description">Laat u weten wanneer er een nieuwere versie van HKI 7 is uitgebracht</string>
     <string name="update_available_title">HKI 7 %1$s is beschikbaar</string>

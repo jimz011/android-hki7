@@ -14,7 +14,7 @@
 
 A modern [Home Assistant](https://www.home-assistant.io/) client for Android, built with Jetpack Compose and Material 3.
 
-> **Status:** `1.1.0`. Issues and feedback are welcome.
+> **Status:** `1.1.1`. Issues and feedback are welcome.
 
 **📖 [Documentation](https://jimz011.github.io/android-hki7/)** — setup guide, feature reference,
 [FAQ](https://jimz011.github.io/android-hki7/faq/) and
@@ -54,8 +54,8 @@ account. Running more than one Home Assistant? Connect to all of them.
 
 ### Widgets
 
-Weather, calendar, media player, sensor graphs, markdown, parcels, waste collection, iFrame,
-shared to-do lists, Find my devices, and Formula 1 (via
+Weather, clock, calendar, media player, sensor graphs, markdown, parcels, waste collection,
+iFrame, shared to-do lists, Find my devices, and Formula 1 (via
 [F1 Sensor](https://github.com/Nicxe/f1_sensor)).
 
 ### Notifications and events

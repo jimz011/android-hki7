@@ -2978,6 +2978,7 @@
     <string name="ha_page_no_server">Először csatlakozzon egy Home Assistant szerverhez.</string>
     <string name="ha_page_reload">Újratöltés</string>
     <string name="ha_page_open_browser">Nyissa meg a böngészőben</string>
+    <string name="ha_page_session_failed">Nem sikerült elindítani a beágyazott Home Assistant munkamenetet. Töltse be újra az oldalt, vagy nyissa meg a böngészőjében.</string>
     <string name="update_channel_name">Alkalmazásfrissítések</string>
     <string name="update_channel_description">Közli, ha megjelent a HKI 7 újabb verziója</string>
     <string name="update_available_title">HKI 7 %1$s elérhető</string>

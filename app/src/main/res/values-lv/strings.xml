@@ -2978,6 +2978,7 @@
     <string name="ha_page_no_server">Vispirms izveidojiet savienojumu ar Home Assistant serveri.</string>
     <string name="ha_page_reload">Pārlādēt</string>
     <string name="ha_page_open_browser">Atvērt pārlūkprogrammā</string>
+    <string name="ha_page_session_failed">Nevarēja sākt iegulto Home Assistant sesiju. Pārlādējiet lapu vai atveriet to savā pārlūkprogrammā.</string>
     <string name="update_channel_name">Lietotņu atjauninājumi</string>
     <string name="update_channel_description">Informē, kad ir izlaista jaunāka HKI 7 versija</string>
     <string name="update_available_title">HKI 7 %1$s ir pieejams</string>

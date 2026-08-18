@@ -1687,6 +1687,7 @@
     <string name="ha_page_no_server">Connettiti prima a un server Home Assistant.</string>
     <string name="ha_page_reload">Ricaricare</string>
     <string name="ha_page_open_browser">Apri nel browser</string>
+    <string name="ha_page_session_failed">Impossibile avviare la sessione Home Assistant incorporata. Ricarica la pagina o aprila nel tuo browser.</string>
     <string name="update_channel_name">Aggiornamenti dell\'app</string>
     <string name="update_channel_description">Ti informa quando è stata rilasciata una versione più recente di HKI 7</string>
     <string name="update_available_title">HKI 7 %1$s è disponibile</string>

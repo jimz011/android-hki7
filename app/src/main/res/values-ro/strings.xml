@@ -2978,6 +2978,7 @@
     <string name="ha_page_no_server">Conectați-vă mai întâi la un server Home Assistant.</string>
     <string name="ha_page_reload">Reîncărcați</string>
     <string name="ha_page_open_browser">Deschideți în browser</string>
+    <string name="ha_page_session_failed">Nu s-a putut porni sesiunea Home Assistant încorporată. Reîncărcați pagina sau deschideți-o în browser.</string>
     <string name="update_channel_name">Actualizări ale aplicației</string>
     <string name="update_channel_description">Vă anunță când a fost lansată o versiune mai nouă a HKI 7</string>
     <string name="update_available_title">HKI 7 %1$s este disponibil</string>
