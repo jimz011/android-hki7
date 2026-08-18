@@ -29,6 +29,8 @@ import re
 import shutil
 from pathlib import Path
 
+from console import use_utf8_output
+
 ROOT = Path(__file__).resolve().parents[2]
 RES = ROOT / "app/src/main/res"
 
@@ -53,6 +55,7 @@ TRANSFORMS = {"de-rCH": swiss_orthography}
 
 
 def main() -> None:
+    use_utf8_output()
     for variant, parent in VARIANTS.items():
         source_dir = RES / f"values-{parent}"
         if not source_dir.is_dir():

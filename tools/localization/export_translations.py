@@ -21,6 +21,7 @@ import io
 import sys
 from pathlib import Path
 
+from console import use_utf8_output
 from translation_csv import (
     BRAND_TERMS,
     COLUMNS,
@@ -121,6 +122,7 @@ def write(path: Path, content: str, check: bool) -> bool:
 
 
 def main() -> int:
+    use_utf8_output()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("locales", nargs="*", help="Android qualifiers; default is every locale")
     parser.add_argument(

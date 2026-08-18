@@ -27,6 +27,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
+from console import use_utf8_output
 from translation_csv import (
     COLUMNS,
     LOCALES,
@@ -322,6 +323,7 @@ def apply(locale: str, changes: list[Change], source: dict[str, Resource]) -> tu
 
 
 def main() -> int:
+    use_utf8_output()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("csv_file", type=Path, help="e.g. translations/nl.csv")
     parser.add_argument(
