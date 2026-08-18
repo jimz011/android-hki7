@@ -1,3 +1,6 @@
+![Play Store Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fplay.cuzi.workers.dev%2Fplay%3Fi%3Dcom.jimz011apps.hki7%26gl%3DUS%26hl%3Den%26l%3DPlay%2520Store%2520Downloads%26m%3D%2524installs%26color%3Dbrightgreen&logo=google-play&logoColor=white&color=brightgreen)
+![GitHub Downloads](https://img.shields.io/github/downloads/jimz011/android-hki7/total?logo=github&label=GitHub%20Downloads&color=brightgreen)
+
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Support-yellow.svg)](https://www.buymeacoffee.com/w8Jnf6Hit)
 [![PayPal](https://img.shields.io/badge/PayPal-Donate-blue.svg)](https://paypal.me/JimmySchings)
 
