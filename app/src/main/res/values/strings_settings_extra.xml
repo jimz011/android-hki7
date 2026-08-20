@@ -362,6 +362,7 @@
     <string name="update_subtitle_available">Version %1$s is available</string>
     <string name="update_check_now">Check for updates</string>
     <string name="update_now">Update now</string>
+    <string name="update_see_changes">See what changed</string>
     <string name="update_watch_releases">Tell me about new releases</string>
     <string name="update_watch_releases_subtitle">Checks GitHub once a day and notifies you when a newer version is published</string>
 </resources>

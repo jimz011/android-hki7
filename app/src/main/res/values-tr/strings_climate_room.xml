@@ -581,6 +581,7 @@
     <string-array name="cr_whats_new_1_1_2">
         <item>Home Assistant Ayarlar\'dan, Geliştirici araçlarından veya HACS\'tan geri dönüş artık üstte yeniden açmak yerine HKI 7 Ayarlar\'da aynı konumu geri yüklüyor.</item>
         <item>Android 17 artık Home Assistant bulmadan veya doğrudan bağlanmadan önce Yerel ağ erişimi istiyor, böylece yerel sunucular API 37 ile çalışmaya devam ediyor. Ayarlar › Bağlantı, buna izin verilip verilmediğini gösterir ve kurulumdan uzun süre sonra Android 17 yükseltmesi geldiğinde tekrar sorabilir.</item>
+        <item>Güncelleme bildirimleri artık HKI 7\'nin kendi bildirim panelinde de, sürüm notlarına giden "Nelerin değiştiğini görün" bağlantısıyla birlikte görünüyor. Sistem bildirimi, kaydırdığınızda kaybolur; bu kalır ve Ayarlar › Hakkında bölümündeki güncellemelerin kontrol edilmesi onu geri getirir.</item>
         <item>Ayarlar\'daki izin kutucukları artık izin verdikten sonra geri döndüğünüzde güncelleniyor. Konum, pil optimizasyonu ve arka plan kullanımı, Ayarlar kapatılıp yeniden açılana kadar eski durumu göstermeye devam etti.</item>
     </string-array>
 </resources>

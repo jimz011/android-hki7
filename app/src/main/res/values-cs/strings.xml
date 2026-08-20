@@ -2991,6 +2991,7 @@
     <string name="update_subtitle_available">Verze %1$s je k dispozici</string>
     <string name="update_check_now">Zkontrolujte aktualizace</string>
     <string name="update_now">Aktualizujte nyní</string>
+    <string name="update_see_changes">Podívejte se, co se změnilo</string>
     <string name="update_watch_releases">Řekněte mi o nových vydáních</string>
     <string name="update_watch_releases_subtitle">Kontroluje GitHub jednou denně a upozorní vás, když bude publikována novější verze</string>
     <string name="uif_a_state">stát</string>

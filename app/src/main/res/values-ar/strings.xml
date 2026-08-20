@@ -2991,6 +2991,7 @@
     <string name="update_subtitle_available">الإصدار %1$s متاح</string>
     <string name="update_check_now">التحقق من وجود تحديثات</string>
     <string name="update_now">قم بالتحديث الآن</string>
+    <string name="update_see_changes">انظر ماذا تغير</string>
     <string name="update_watch_releases">أخبرني عن الإصدارات الجديدة</string>
     <string name="update_watch_releases_subtitle">يتحقق من GitHub مرة واحدة يوميًا ويعلمك عند نشر إصدار أحدث</string>
     <string name="uif_a_state">دولة</string>

@@ -47,6 +47,7 @@
     <string-array name="cr_whats_new_1_1_2">
         <item>Gå tilbake fra Home Assistant-innstillinger, utviklerverktøy eller HACS gjenoppretter nå samme posisjon i HKI 7-innstillinger i stedet for å åpne på nytt øverst.</item>
         <item>Android 17 ber nå om lokal nettverkstilgang før den finner eller kobler direkte til Home Assistant, så lokale servere fortsetter å jobbe med API 37. Innstillinger › Tilkobling viser om det er tillatt og kan spørre på nytt, for når Android 17-oppgraderingen kommer lenge etter oppsett.</item>
+        <item>Oppdateringsvarsler vises nå også i HKI 7s eget varslingspanel, med en "Se hva som er endret"-lenke til versjonsnotatene. Systemvarslingen er borte når du sveiper den bort; denne blir værende, og å se etter oppdateringer under Innstillinger › Om bringer den tilbake.</item>
         <item>Tillatelsesfelt i Innstillinger oppdateres nå så snart du kommer tilbake fra å gi en. Plassering, batterioptimalisering og bakgrunnsbruk fortsatte å vise den gamle tilstanden til Innstillinger ble lukket og gjenåpnet.</item>
     </string-array>
 </resources>

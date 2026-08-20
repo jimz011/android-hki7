@@ -2991,6 +2991,7 @@
     <string name="update_subtitle_available">A %1$s verzió elérhető</string>
     <string name="update_check_now">Ellenőrizze a frissítéseket</string>
     <string name="update_now">Frissítse most</string>
+    <string name="update_see_changes">Nézze meg, mi változott</string>
     <string name="update_watch_releases">Mesélj az új kiadásokról</string>
     <string name="update_watch_releases_subtitle">Naponta egyszer ellenőrzi a GitHubot, és értesít, ha újabb verzió jelenik meg</string>
     <string name="uif_a_state">egy állam</string>

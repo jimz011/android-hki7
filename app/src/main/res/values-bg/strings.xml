@@ -2991,6 +2991,7 @@
     <string name="update_subtitle_available">Версия %1$s е налична</string>
     <string name="update_check_now">Проверете за актуализации</string>
     <string name="update_now">Актуализирайте сега</string>
+    <string name="update_see_changes">Вижте какво се промени</string>
     <string name="update_watch_releases">Разкажете ми за новите издания</string>
     <string name="update_watch_releases_subtitle">Проверява GitHub веднъж на ден и ви уведомява при публикуване на по-нова версия</string>
     <string name="uif_a_state">състояние</string>

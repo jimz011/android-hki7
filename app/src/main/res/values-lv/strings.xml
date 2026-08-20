@@ -2991,6 +2991,7 @@
     <string name="update_subtitle_available">Ir pieejama versija %1$s</string>
     <string name="update_check_now">Pārbaudiet, vai nav atjauninājumu</string>
     <string name="update_now">Atjauniniet tūlīt</string>
+    <string name="update_see_changes">Skatiet, kas mainījās</string>
     <string name="update_watch_releases">Pastāstiet man par jaunumiem</string>
     <string name="update_watch_releases_subtitle">Reizi dienā pārbauda GitHub un paziņo, kad tiek publicēta jaunāka versija</string>
     <string name="uif_a_state">valsts</string>

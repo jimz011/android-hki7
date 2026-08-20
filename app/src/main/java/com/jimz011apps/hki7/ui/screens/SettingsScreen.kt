@@ -3080,6 +3080,11 @@ fun SettingsDialog(
                                             scope.launch {
                                                 checking = true
                                                 latest = GithubReleaseChecker.check()
+                                                // Put it back in the notification panel, unread
+                                                // and at the top. Checking by hand is how someone
+                                                // asks for the announcement again after dismissing
+                                                // the system one.
+                                                latest?.let { GithubReleaseChecker.record(context, it) }
                                                 checkedOnce = true
                                                 checking = false
                                             }

@@ -630,7 +630,8 @@ cr_quick_make_it_yours,,Make it yours,打造專屬設定,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.",在編輯模式中，新增並重新排序房間、樓層與小工具。點按項目即可設定。,
 cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.",從 Home Assistant 設定返回，開發者工具或 HACS 現在會恢復 HKI 7 設定中的相同位置，而不是在頂部重新開啟。,"don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_2,2,"Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37. Settings › Connection shows whether it is allowed and can ask again, for when the Android 17 upgrade arrives long after setup.",Android 17 現在會在查找或直接連接到 Home Assistant 之前請求本地網路訪問，因此本機伺服器會繼續使用 API 37。設定 › 連線會顯示是否允許，並且可以再次詢問，以便在安裝後很長一段時間內 Android 17 升級到達。,don't translate Home Assistant
-cr_whats_new_1_1_2,3,"Permission tiles in Settings now update as soon as you come back from granting one. Location, battery optimization and background usage kept showing the old state until Settings was closed and reopened.",現在，一旦您授予權限回來，「設定」中的權限圖塊就會更新。位置、電池最佳化和背景使用情況一直顯示舊狀態，直到關閉並重新開啟「設定」。,
+cr_whats_new_1_1_2,3,"Update notifications now also appear in HKI 7's own notification panel, with a “See what changed” link to the release notes. The system notification is gone once you swipe it away; this one stays, and checking for updates under Settings › About brings it back.",更新通知現在也出現在 HKI 7 自己的通知面板中，並帶有指向發行說明的「查看更改內容」連結。滑開後系統通知就消失了；該選項會保留，並在「設定」>「關於」下檢查更新，將其恢復。,don't translate HKI 7
+cr_whats_new_1_1_2,4,"Permission tiles in Settings now update as soon as you come back from granting one. Location, battery optimization and background usage kept showing the old state until Settings was closed and reopened.",現在，一旦您授予權限回來，「設定」中的權限圖塊就會更新。位置、電池最佳化和背景使用情況一直顯示舊狀態，直到關閉並重新開啟「設定」。,
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.",新的時鐘小工具。類比或數字，各七種設計，12 或 24 小時時間，以及日、日期和年份（如果您需要）。點擊它即可查看下一個鬧鐘。,
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.",從「設定」存取 Home Assistant 本身。管理員可以在 HKI 7 內全螢幕查看其設定、開發人員工具和 HACS，並且已登入。,"don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,HKI 7 會告訴您新版本何時發布 - 如果您是從 GitHub 而不是 Play 商店安裝的，則很有用。在“設定”>“關於”中將其關閉。,don't translate HKI 7
@@ -3183,6 +3184,7 @@ update_subtitle_current,,You are on the latest version,您使用的是最新版�
 update_subtitle_available,,Version %1$s is available,版本 %1$s 可用,app fills in %1$s — keep them
 update_check_now,,Check for updates,檢查更新,
 update_now,,Update now,立即更新,
+update_see_changes,,See what changed,看看發生了什麼變化,
 update_watch_releases,,Tell me about new releases,告訴我有關新版本的信息,
 update_watch_releases_subtitle,,Checks GitHub once a day and notifies you when a newer version is published,每天檢查 GitHub 一次，並在發布新版本時通知您,
 uif_a_state,,a state,狀態,

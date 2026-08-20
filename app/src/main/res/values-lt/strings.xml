@@ -2991,6 +2991,7 @@
     <string name="update_subtitle_available">Yra versija %1$s</string>
     <string name="update_check_now">Patikrinkite, ar nėra atnaujinimų</string>
     <string name="update_now">Atnaujinkite dabar</string>
+    <string name="update_see_changes">Pažiūrėkite, kas pasikeitė</string>
     <string name="update_watch_releases">Papasakokite apie naujus leidimus</string>
     <string name="update_watch_releases_subtitle">Tikrina „GitHub“ kartą per dieną ir praneša, kai bus paskelbta naujesnė versija</string>
     <string name="uif_a_state">valstybė</string>

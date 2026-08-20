@@ -30,6 +30,7 @@
     <string-array name="cr_whats_new_1_1_2">
         <item>Návrat z Home Assistant Nastavení, Vývojářské nástroje nebo HACS nyní obnoví stejnou pozici v HKI 7 Nastavení namísto opětovného otevření nahoře.</item>
         <item>Android 17 nyní požaduje přístup k místní síti před vyhledáním nebo přímým připojením k Home Assistant, takže místní servery nadále pracují s rozhraním API 37. Nastavení › Připojení ukazuje, zda je povoleno, a může se ptát znovu, když aktualizace na Android 17 dorazí dlouho po nastavení.</item>
+        <item>Oznámení o aktualizaci se nyní zobrazují také na vlastním panelu oznámení HKI 7 s odkazem „Podívejte se, co se změnilo“ na poznámky k vydání. Jakmile ji odtáhnete, systémová notifikace zmizí; tato zůstane a kontrola aktualizací v části Nastavení › O aplikaci ji vrátí.</item>
         <item>Dlaždice oprávnění v Nastavení se nyní aktualizují, jakmile se vrátíte z udělení oprávnění. Poloha, optimalizace baterie a využití na pozadí stále ukazovaly starý stav, dokud nebyla Nastavení uzavřena a znovu otevřena.</item>
     </string-array>
 </resources>

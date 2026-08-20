@@ -2991,6 +2991,7 @@
     <string name="update_subtitle_available">גרסה %1$s זמינה</string>
     <string name="update_check_now">בדוק אם יש עדכונים</string>
     <string name="update_now">עדכן עכשיו</string>
+    <string name="update_see_changes">תראה מה השתנה</string>
     <string name="update_watch_releases">ספר לי על מהדורות חדשות</string>
     <string name="update_watch_releases_subtitle">בודק את GitHub פעם ביום ומודיע לך כאשר מתפרסמת גרסה חדשה יותר</string>
     <string name="uif_a_state">מדינה</string>

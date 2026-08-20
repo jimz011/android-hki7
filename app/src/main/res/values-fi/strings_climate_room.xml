@@ -47,6 +47,7 @@
     <string-array name="cr_whats_new_1_1_2">
         <item>Palaamalla Home Assistant Asetuksista, Kehittäjätyökalut tai HACS palauttaa nyt saman sijainnin HKI 7-asetuksiin sen sijaan, että avattaisiin uudelleen yläreunasta.</item>
         <item>Android 17 pyytää nyt pääsyä paikalliseen verkkoon ennen kuin se löytää tai muodostaa yhteyden suoraan Home Assistant, joten paikalliset palvelimet toimivat edelleen API 37:n kanssa. Asetukset › Yhteys näyttää, onko se sallittu, ja voi kysyä uudelleen, kun Android 17 -päivitys saapuu kauan asennuksen jälkeen.</item>
+        <item>Päivitysilmoitukset näkyvät nyt myös HKI 7:n omassa ilmoituspaneelissa, jossa on "Katso, mikä muuttui" -linkki julkaisutietoihin. Järjestelmän ilmoitus katoaa, kun pyyhkäiset sen pois. tämä pysyy, ja päivitysten tarkistaminen kohdassa Asetukset › Tietoja tuo sen takaisin.</item>
         <item>Asetusten käyttöoikeusruudut päivittyvät nyt heti, kun palaat myöntämättä lupaa. Sijainti, akun optimointi ja taustakäyttö näyttivät edelleen vanhaa tilaa, kunnes Asetukset suljettiin ja avattiin uudelleen.</item>
     </string-array>
 </resources>

@@ -1933,6 +1933,7 @@
     <string name="update_subtitle_available">Versie %1$s is beschikbaar</string>
     <string name="update_check_now">Controleer op updates</string>
     <string name="update_now">Nu bijwerken</string>
+    <string name="update_see_changes">Kijk wat er is veranderd</string>
     <string name="update_watch_releases">Vertel me over nieuwe releases</string>
     <string name="update_watch_releases_subtitle">Controleert GitHub één keer per dag en waarschuwt u wanneer er een nieuwere versie wordt gepubliceerd</string>
     <string name="uif_local_network_access">Lokale netwerktoegang</string>

@@ -3924,9 +3924,11 @@
     <string name="uif_permissions_can_be_changed_later">您可以稍后在 Android 设置中更改这些权限。</string>
     <string name="settings_local_network_allowed">允许</string>
     <string name="settings_local_network_not_allowed">不允许 — 无法通过您的 Wi-Fi 直接访问 Home Assistant</string>
+    <string name="update_see_changes">看看发生了什么变化</string>
     <string-array name="cr_whats_new_1_1_2">
         <item>从 Home Assistant 设置返回，开发者工具或 HACS 现在会恢复 HKI 7 设置中的相同位置，而不是在顶部重新打开。</item>
         <item>Android 17 现在会在查找或直接连接到 Home Assistant 之前请求本地网络访问，因此本地服务器会继续使用 API 37。设置 › 连接会显示是否允许，并且可以再次询问，以便在安装后很长时间内 Android 17 升级到达。</item>
+        <item>更新通知现在也出现在 HKI 7 自己的通知面板中，并带有指向发行说明的“查看更改内容”链接。滑开后系统通知就消失了；该选项会保留，并在“设置”&gt;“关于”下检查更新，将其恢复。</item>
         <item>现在，一旦您授予权限回来，“设置”中的权限图块就会更新。位置、电池优化和后台使用情况一直显示旧状态，直到关闭并重新打开“设置”。</item>
     </string-array>
 </resources>

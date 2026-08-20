@@ -2991,6 +2991,7 @@
     <string name="update_subtitle_available">Versiunea %1$s este disponibilă</string>
     <string name="update_check_now">Verificați actualizările</string>
     <string name="update_now">Actualizați acum</string>
+    <string name="update_see_changes">Vezi ce s-a schimbat</string>
     <string name="update_watch_releases">Povestește-mi despre noile lansări</string>
     <string name="update_watch_releases_subtitle">Verifică GitHub o dată pe zi și vă anunță când este publicată o versiune mai nouă</string>
     <string name="uif_a_state">un stat</string>

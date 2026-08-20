@@ -2991,6 +2991,7 @@
     <string name="update_subtitle_available">Versjon %1$s er tilgjengelig</string>
     <string name="update_check_now">Se etter oppdateringer</string>
     <string name="update_now">Oppdater nå</string>
+    <string name="update_see_changes">Se hva som endret seg</string>
     <string name="update_watch_releases">Fortell meg om nye utgivelser</string>
     <string name="update_watch_releases_subtitle">Sjekker GitHub en gang om dagen og gir deg beskjed når en nyere versjon publiseres</string>
     <string name="uif_a_state">en stat</string>

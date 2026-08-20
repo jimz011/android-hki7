@@ -30,6 +30,7 @@
     <string-array name="cr_whats_new_1_1_2">
         <item>Povratak iz Home Assistant postavki, alata za razvojne programere ili HACS sada vraća istu poziciju u HKI 7 postavkama umjesto ponovnog otvaranja na vrhu.</item>
         <item>Android 17 sada traži pristup lokalnoj mreži prije nego što pronađe ili se izravno poveže s Home Assistant, tako da lokalni poslužitelji nastavljaju raditi s API-jem 37. Postavke › Veza pokazuje je li dopuštena i može ponovo pitati kada nadogradnja za Android 17 stigne dugo nakon postavljanja.</item>
+        <item>Obavijesti o ažuriranju sada se pojavljuju i na vlastitoj ploči s obavijestima HKI 7, s vezom “Pogledajte što se promijenilo” na napomene o izdanju. Obavijest sustava nestaje nakon što je prijeđete; ovaj ostaje, a provjera ažuriranja pod Postavke › O vraća ga.</item>
         <item>Pločice dopuštenja u Postavkama sada se ažuriraju čim se vratite nakon davanja dopuštenja. Lokacija, optimizacija baterije i upotreba u pozadini prikazivali su staro stanje sve dok Postavke nisu zatvorene i ponovno otvorene.</item>
     </string-array>
 </resources>

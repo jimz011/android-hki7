@@ -2991,6 +2991,7 @@
     <string name="update_subtitle_available">Версия %1$s доступна.</string>
     <string name="update_check_now">Проверьте наличие обновлений</string>
     <string name="update_now">Обновить сейчас</string>
+    <string name="update_see_changes">Посмотрите, что изменилось</string>
     <string name="update_watch_releases">Расскажите мне о новых выпусках</string>
     <string name="update_watch_releases_subtitle">Проверяет GitHub один раз в день и уведомляет вас о публикации новой версии.</string>
     <string name="uif_a_state">государство</string>

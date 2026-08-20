@@ -30,6 +30,7 @@
     <string-array name="cr_whats_new_1_1_2">
         <item>Naastes jaotisest Home Assistant Seaded, Arendaja tööriistad või HACS taastab nüüd sama positsiooni HKI 7 sätetes, selle asemel, et uuesti avada ülaosas.</item>
         <item>Android 17 küsib nüüd enne Home Assistant leidmist või sellega otse ühenduse loomist juurdepääsu kohalikule võrgule, nii et kohalikud serverid jätkavad API 37-ga töötamist. Seaded › Ühendus näitab, kas see on lubatud, ja saab uuesti küsida, kui Android 17 värskendus saabub kaua pärast seadistamist.</item>
+        <item>Värskendusteatised ilmuvad nüüd ka HKI 7 enda teavituspaneelil koos väljalaskemärkmete lingiga „Vaadake, mis muutus”. Süsteemi märguanne kaob, kui selle ära pühite; see jääb alles ja värskenduste otsimine jaotises Seaded › Teave toob selle tagasi.</item>
         <item>Seadete lubade paanid värskendatakse nüüd kohe, kui olete loa andnud. Asukoht, aku optimeerimine ja taustakasutus näitasid vana olekut, kuni seaded suleti ja uuesti avati.</item>
     </string-array>
 </resources>

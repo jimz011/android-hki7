@@ -582,6 +582,7 @@
     <string-array name="cr_whats_new_1_1_2">
         <item>Terugkerend vanuit Home Assistant Instellingen, Ontwikkelaarstools of HACS herstelt nu dezelfde positie in HKI 7 Instellingen in plaats van opnieuw bovenaan te openen.</item>
         <item>Android 17 vraagt nu om lokale netwerktoegang voordat Home Assistant wordt gevonden of er rechtstreeks verbinding mee wordt gemaakt, zodat lokale servers blijven werken met API 37. Instellingen › Verbinding laat zien of dit is toegestaan en kan opnieuw vragen, voor wanneer de Android 17-upgrade lang na de installatie arriveert.</item>
+        <item>Updatemeldingen verschijnen nu ook in het eigen meldingenpaneel van HKI 7, met een link \'Zie wat er is veranderd\' naar de release-opmerkingen. De systeemmelding is verdwenen zodra u deze wegveegt; deze blijft staan, en als je controleert op updates onder Instellingen ›Over, komt deze terug.</item>
         <item>Toestemmingstegels in Instellingen worden nu bijgewerkt zodra u terugkomt van het verlenen ervan. Locatie, batterijoptimalisatie en achtergrondgebruik bleven de oude status tonen totdat Instellingen werd gesloten en opnieuw geopend.</item>
     </string-array>
 </resources>

@@ -3969,9 +3969,11 @@
     <string name="uif_permissions_can_be_changed_later">Puede cambiar estos permisos más adelante en la Configuración de Android.</string>
     <string name="settings_local_network_allowed">Permitido</string>
     <string name="settings_local_network_not_allowed">No permitido: no se puede acceder a Home Assistant directamente desde tu Wi-Fi</string>
+    <string name="update_see_changes">Mira lo que cambió</string>
     <string-array name="cr_whats_new_1_1_2">
         <item>Al regresar desde Home Assistant Configuración, Herramientas de desarrollador o HACS ahora se restaura la misma posición en HKI 7 Configuración en lugar de volver a abrirse en la parte superior.</item>
         <item>Android 17 ahora solicita acceso a la red local antes de encontrar o conectarse directamente a Home Assistant, por lo que los servidores locales siguen funcionando con API 37. Configuración › Conexión muestra si está permitido y puede volver a preguntar, para cuando llegue la actualización de Android 17 mucho después de la configuración.</item>
+        <item>Las notificaciones de actualización ahora también aparecen en el panel de notificaciones de HKI 7, con un enlace "Ver qué cambió" a las notas de la versión. La notificación del sistema desaparece una vez que la deslizas; éste permanece y la búsqueda de actualizaciones en Configuración › Acerca de lo recupera.</item>
         <item>Los mosaicos de permisos en Configuración ahora se actualizan tan pronto como vuelves de otorgar uno. La ubicación, la optimización de la batería y el uso en segundo plano siguieron mostrando el estado anterior hasta que se cerró y se volvió a abrir la Configuración.</item>
     </string-array>
 </resources>

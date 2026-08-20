@@ -2991,6 +2991,7 @@
     <string name="update_subtitle_available">Dostupna je verzija %1$s</string>
     <string name="update_check_now">Provjerite ima li ažuriranja</string>
     <string name="update_now">Ažurirajte sada</string>
+    <string name="update_see_changes">Pogledajte što se promijenilo</string>
     <string name="update_watch_releases">Pričaj mi o novim izdanjima</string>
     <string name="update_watch_releases_subtitle">Provjerava GitHub jednom dnevno i obavještava vas kada se objavi novija verzija</string>
     <string name="uif_a_state">država</string>

@@ -30,6 +30,7 @@
     <string-array name="cr_whats_new_1_1_2">
         <item>Atgriežoties no Home Assistant Iestatījumi, Izstrādātāju rīki vai HACS tagad atjauno to pašu pozīciju HKI 7 iestatījumos, nevis atkārtoti atver augšdaļā.</item>
         <item>Android 17 tagad pieprasa piekļuvi vietējam tīklam, pirms tiek atrasts vai izveidots tiešs savienojums ar Home Assistant, tāpēc vietējie serveri turpina strādāt ar API 37. Iestatījumi › Savienojums parāda, vai tas ir atļauts, un var vēlreiz jautāt, kad Android 17 jauninājums būs pieejams ilgi pēc iestatīšanas.</item>
+        <item>Paziņojumi par atjauninājumiem tagad tiek rādīti arī paša HKI 7 paziņojumu panelī ar saiti “Skatīt, kas mainījies” uz piezīmēm par laidienu. Sistēmas paziņojums ir pazudis, kad to pavelk prom; šis paliek, un, pārbaudot atjauninājumus sadaļā Iestatījumi › Par, tas tiek atjaunots.</item>
         <item>Atļauju elementi sadaļā Iestatījumi tagad tiek atjaunināti, tiklīdz atgriežaties pēc atļaujas piešķiršanas. Atrašanās vieta, akumulatora optimizācija un fona lietojums turpināja rādīt iepriekšējo stāvokli, līdz iestatījumi tika aizvērti un atkārtoti atvērti.</item>
     </string-array>
 </resources>

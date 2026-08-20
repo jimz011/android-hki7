@@ -2949,6 +2949,7 @@
     <string name="update_subtitle_available">버전 %1$s을(를) 사용할 수 있습니다.</string>
     <string name="update_check_now">업데이트 확인</string>
     <string name="update_now">지금 업데이트</string>
+    <string name="update_see_changes">무엇이 바뀌었는지 확인하세요</string>
     <string name="update_watch_releases">새로운 릴리스에 대해 알려주세요.</string>
     <string name="update_watch_releases_subtitle">하루에 한 번 GitHub를 확인하고 최신 버전이 게시되면 알려줍니다.</string>
     <string name="uif_a_state">주</string>

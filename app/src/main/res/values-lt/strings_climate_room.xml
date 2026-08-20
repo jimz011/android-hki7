@@ -30,6 +30,7 @@
     <string-array name="cr_whats_new_1_1_2">
         <item>Grįžus iš Home Assistant Nustatymai, Kūrėjų įrankiai arba HACS dabar atkuria tą pačią padėtį HKI 7 nustatymuose, o ne iš naujo atidaro viršuje.</item>
         <item>„Android 17“ dabar prašo prieigos prie vietinio tinklo, prieš surasdama arba tiesiogiai prisijungdama prie Home Assistant, todėl vietiniai serveriai ir toliau dirba su API 37. Nustatymai › Ryšys rodo, ar jis leidžiamas, ir gali dar kartą paklausti, kai „Android 17“ naujinimas bus pristatytas praėjus ilgai po sąrankos.</item>
+        <item>Naujinimo pranešimai dabar taip pat rodomi paties HKI 7 pranešimų skydelyje su nuoroda „Žiūrėkite, kas pasikeitė“ į laidos pastabas. Sistemos pranešimas dingsta, kai jį perbraukiate; šis išlieka, o patikrinus, ar nėra naujinimų skiltyje „Nustatymai“ › „Apie“, jis grąžinamas.</item>
         <item>Leidimų plytelės nustatymuose dabar atnaujinamos, kai tik grįšite jį suteikę. Vieta, akumuliatoriaus optimizavimas ir naudojimas fone buvo rodomi sena būsena, kol nebuvo uždaryta ir vėl atidaryta „Nustatymai“.</item>
     </string-array>
 </resources>

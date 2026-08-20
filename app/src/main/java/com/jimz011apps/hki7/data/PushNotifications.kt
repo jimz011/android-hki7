@@ -258,7 +258,7 @@ class PushNotificationHandler(
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     companion object {
-        private const val HISTORY_CAP = 200
+        internal const val HISTORY_CAP = 200
         /** Non-archived notifications are dropped after 48 hours. */
         const val RETENTION_MS = 48L * 60 * 60 * 1000
     }
@@ -284,6 +284,27 @@ internal fun parseNotificationActions(data: JsonObject?): List<HKINotificationAc
         )
     }.take(NotificationActions.MAX_ACTIONS)
 }
+
+/**
+ * Adds a notification HKI 7 raised itself to the in-app panel's history.
+ *
+ * The panel is normally fed by the push channel alone, so a locally generated notification — an
+ * available app update, today — existed only as a system notification and was gone for good once
+ * that was swiped away. Writing it here gives it the same second home every pushed notification
+ * already has.
+ *
+ * Any earlier entry with the same [HKINotification.id] is replaced rather than added alongside, so
+ * re-checking refreshes the one entry (and floats it back to the top, unread) instead of stacking
+ * a duplicate per check.
+ */
+suspend fun recordLocalNotification(context: Context, entry: HKINotification) =
+    notificationHistoryMutex.withLock {
+        val prefs = PreferencesManager(context.applicationContext)
+        val cutoff = System.currentTimeMillis() - PushNotificationHandler.RETENTION_MS
+        val current = prefs.notificationHistory.first()
+            .filter { it.id != entry.id && (it.archived || it.timestamp >= cutoff) }
+        prefs.saveNotificationHistory((listOf(entry) + current).take(PushNotificationHandler.HISTORY_CAP))
+    }
 
 /** Records that an action was used so the in-app panel stops offering it. */
 internal suspend fun markNotificationActionFired(

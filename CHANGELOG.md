@@ -23,6 +23,13 @@ Home Assistant settings return exactly where you left them.
   it — until now that left no way to grant the permission from inside the app. Granting it
   clears any remote-URL fallback caused by the earlier block and reconnects immediately.
   Android 16 and earlier keep their existing permission-free LAN behavior.
+- Update notifications now also land in HKI 7's own notification panel. The system notification
+  is posted once and is gone the moment it is swiped away, so the only record that a new
+  version existed went with it. The panel entry carries a **See what changed** link straight to
+  the release notes — repeatable, so it keeps working days later — and is refreshed on every
+  daily check rather than written once, which keeps it alive past the panel's 48-hour
+  retention while the update is still waiting. Checking for updates by hand under
+  Settings › About also brings it back, unread and at the top, for anyone who dismissed it.
 - Fixed the permission tiles in Settings not updating after the permission itself was changed.
   Location, battery optimization and background usage are all granted outside the dialog — in
   a system sheet, or Android's own settings app — and returning from either changes nothing

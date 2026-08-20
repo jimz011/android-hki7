@@ -630,7 +630,8 @@ cr_quick_make_it_yours,,Make it yours,自分好みにカスタマイズ,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.",編集モードで部屋、階、ウィジェットを追加・並べ替えできます。項目をタップして設定してください。,
 cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.",Home Assistant 設定、開発者ツール、または HACS から戻ると、上部で再度開くのではなく、HKI 7 設定の同じ位置が復元されるようになりました。,"don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_2,2,"Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37. Settings › Connection shows whether it is allowed and can ask again, for when the Android 17 upgrade arrives long after setup.",Android 17 では、Home Assistant を検索または直接接続する前に、ローカル ネットワーク アクセスを要求するようになりました。そのため、ローカル サーバーは API 37 で動作し続けます。 [設定] › [接続] には、Android 17 のアップグレードがセットアップからかなり後に到着した場合に備えて、許可されているかどうか、および再度要求できるかどうかが表示されます。,don't translate Home Assistant
-cr_whats_new_1_1_2,3,"Permission tiles in Settings now update as soon as you come back from granting one. Location, battery optimization and background usage kept showing the old state until Settings was closed and reopened.",設定の権限タイルは、権限の付与から戻るとすぐに更新されるようになりました。設定を閉じて再度開くまで、位置情報、バッテリーの最適化、バックグラウンドの使用状況が古い状態を示し続けました。,
+cr_whats_new_1_1_2,3,"Update notifications now also appear in HKI 7's own notification panel, with a “See what changed” link to the release notes. The system notification is gone once you swipe it away; this one stays, and checking for updates under Settings › About brings it back.",アップデート通知は、HKI 7 独自の通知パネルにも表示され、リリース ノートへの「変更内容を確認」リンクが表示されます。システム通知はスワイプすると消えます。これは残り、「設定」>「バージョン情報」でアップデートを確認すると元に戻ります。,don't translate HKI 7
+cr_whats_new_1_1_2,4,"Permission tiles in Settings now update as soon as you come back from granting one. Location, battery optimization and background usage kept showing the old state until Settings was closed and reopened.",設定の権限タイルは、権限の付与から戻るとすぐに更新されるようになりました。設定を閉じて再度開くまで、位置情報、バッテリーの最適化、バックグラウンドの使用状況が古い状態を示し続けました。,
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.",新しい時計ウィジェット。アナログまたはデジタル、それぞれ 7 つのデザイン、12 時間または 24 時間表示、ご希望に応じて曜日、日付、年を表示します。それをタップすると、次のアラームが表示されます。,
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.",[設定] から Home Assistant 自体にアクセスします。管理者は、すでにサインインした状態で、HKI 7 内で設定、開発者ツール、HACS を全画面表示で利用できます。,"don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,HKI 7 は、新しいバージョンがリリースされると通知します。これは、Play ストアではなく GitHub からインストールした場合に便利です。 [設定] > [バージョン情報] でオフにします。,don't translate HKI 7
@@ -3183,6 +3184,7 @@ update_subtitle_current,,You are on the latest version,最新バージョンを�
 update_subtitle_available,,Version %1$s is available,バージョン %1$s が利用可能です,app fills in %1$s — keep them
 update_check_now,,Check for updates,アップデートをチェックする,
 update_now,,Update now,今すぐアップデートしてください,
+update_see_changes,,See what changed,何が変わったかを見る,
 update_watch_releases,,Tell me about new releases,新しいリリースについて教えてください,
 update_watch_releases_subtitle,,Checks GitHub once a day and notifies you when a newer version is published,GitHub を 1 日に 1 回チェックし、新しいバージョンが公開されると通知します,
 uif_a_state,,a state,状態,

@@ -582,6 +582,7 @@
     <string-array name="cr_whats_new_1_1_2">
         <item>Beim Zurückkehren aus den Home Assistant-Einstellungen, Entwicklertools oder HACS wird nun die gleiche Position in den HKI 7-Einstellungen wiederhergestellt, anstatt sie oben erneut zu öffnen.</item>
         <item>Android 17 fragt jetzt nach Zugriff auf das lokale Netzwerk, bevor es Home Assistant findet oder eine direkte Verbindung zu ihm herstellt, sodass lokale Server weiterhin mit API 37 arbeiten. Einstellungen › Verbindung zeigt an, ob dies zulässig ist, und kann erneut nachfragen, wenn das Android 17-Upgrade lange nach der Einrichtung eintrifft.</item>
+        <item>Update-Benachrichtigungen werden jetzt auch im eigenen Benachrichtigungsfeld von HKI 7 angezeigt, mit einem Link „Sehen Sie, was sich geändert hat“ zu den Versionshinweisen. Die Systembenachrichtigung verschwindet, sobald Sie sie wegwischen. Dieses bleibt bestehen und die Suche nach Updates unter „Einstellungen“ &gt; „Info“ bringt es zurück.</item>
         <item>Berechtigungskacheln in den Einstellungen werden jetzt aktualisiert, sobald Sie von der Gewährung einer Berechtigung zurückkommen. Standort, Akkuoptimierung und Hintergrundnutzung zeigten weiterhin den alten Status an, bis die Einstellungen geschlossen und erneut geöffnet wurden.</item>
     </string-array>
 </resources>

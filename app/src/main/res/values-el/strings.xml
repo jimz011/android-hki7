@@ -2991,6 +2991,7 @@
     <string name="update_subtitle_available">Η έκδοση %1$s είναι διαθέσιμη</string>
     <string name="update_check_now">Ελέγξτε για ενημερώσεις</string>
     <string name="update_now">Ενημέρωση τώρα</string>
+    <string name="update_see_changes">Δείτε τι άλλαξε</string>
     <string name="update_watch_releases">Πες μου για νέες κυκλοφορίες</string>
     <string name="update_watch_releases_subtitle">Ελέγχει το GitHub μία φορά την ημέρα και σας ειδοποιεί όταν δημοσιεύεται μια νεότερη έκδοση</string>
     <string name="uif_a_state">ένα κράτος</string>

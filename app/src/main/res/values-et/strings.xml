@@ -2991,6 +2991,7 @@
     <string name="update_subtitle_available">Versioon %1$s on saadaval</string>
     <string name="update_check_now">Kontrollige värskendusi</string>
     <string name="update_now">Värskendage kohe</string>
+    <string name="update_see_changes">Vaata, mis muutus</string>
     <string name="update_watch_releases">Räägi mulle uutest väljaannetest</string>
     <string name="update_watch_releases_subtitle">Kontrollib GitHubi kord päevas ja teavitab teid uuema versiooni avaldamisest</string>
     <string name="uif_a_state">riik</string>

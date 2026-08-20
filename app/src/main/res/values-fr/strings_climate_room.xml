@@ -589,6 +589,7 @@
     <string-array name="cr_whats_new_1_1_2">
         <item>Le retour depuis les paramètres Home Assistant, les outils de développement ou HACS restaure désormais la même position dans les paramètres HKI 7 au lieu de rouvrir en haut.</item>
         <item>Android 17 demande désormais l\'accès au réseau local avant de trouver ou de se connecter directement à Home Assistant, afin que les serveurs locaux continuent de fonctionner avec l\'API 37. Paramètres &gt; La connexion indique si elle est autorisée et peut demander à nouveau, lorsque la mise à niveau d\'Android 17 arrive longtemps après l\'installation.</item>
+        <item>Les notifications de mise à jour apparaissent désormais également dans le panneau de notification de HKI 7, avec un lien « Voir ce qui a changé » vers les notes de version. La notification système disparaît une fois que vous la faites glisser ; celui-ci reste et la vérification des mises à jour sous Paramètres &gt; À propos le ramène.</item>
         <item>Les vignettes d’autorisation dans les paramètres sont désormais mises à jour dès que vous revenez après en avoir accordé une. L\'emplacement, l\'optimisation de la batterie et l\'utilisation en arrière-plan ont continué à afficher l\'ancien état jusqu\'à ce que les paramètres soient fermés et rouverts.</item>
     </string-array>
 </resources>

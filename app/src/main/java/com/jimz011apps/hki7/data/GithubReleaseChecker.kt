@@ -39,6 +39,8 @@ object GithubReleaseChecker {
     const val RELEASES_PAGE = "https://github.com/jimz011/android-hki7/releases/latest"
     private const val CHANNEL_ID = "hki7_app_updates"
     private const val NOTIFICATION_ID = 0x7C10
+    /** Groups the panel entry with the app itself rather than any Home Assistant instance. */
+    private const val UPDATE_TAG = "hki7_update"
 
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -146,6 +148,37 @@ object GithubReleaseChecker {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
         runCatching { NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification) }
+    }
+
+    /**
+     * Mirrors an available update into HKI 7's own notification panel.
+     *
+     * The system notification is posted once per version and is gone once dismissed; this is the
+     * copy that survives, and it carries a URI action so "see what changed" still works from the
+     * panel days later. URI actions are repeatable by design, so the button keeps working however
+     * often it is used.
+     *
+     * Safe to call repeatedly: the entry id is derived from the version, and
+     * [recordLocalNotification] replaces a matching entry instead of adding another.
+     */
+    suspend fun record(context: Context, available: Available) {
+        recordLocalNotification(
+            context,
+            HKINotification(
+                id = "hki7_update_${available.versionName}",
+                title = context.getString(R.string.update_available_title, available.versionName),
+                message = context.getString(R.string.update_available_body),
+                timestamp = System.currentTimeMillis(),
+                tag = UPDATE_TAG,
+                actions = listOf(
+                    HKINotificationAction(
+                        action = "URI",
+                        title = context.getString(R.string.update_see_changes),
+                        uri = available.url
+                    )
+                )
+            )
+        )
     }
 
     /**

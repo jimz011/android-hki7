@@ -30,6 +30,7 @@
     <string-array name="cr_whats_new_1_1_2">
         <item>Revenind de la Setări Home Assistant, Instrumentele pentru dezvoltatori sau HACS restabilește acum aceeași poziție în Setări HKI 7 în loc să se redeschidă în partea de sus.</item>
         <item>Android 17 solicită acum acces la rețeaua locală înainte de a găsi sau de a se conecta direct la Home Assistant, astfel încât serverele locale continuă să lucreze cu API 37. Setări › Conexiune arată dacă este permisă și poate cere din nou, pentru când upgrade-ul Android 17 sosește mult după configurare.</item>
+        <item>Notificările de actualizare apar acum și în panoul de notificări al lui HKI 7, cu un link „Vezi ce s-a schimbat” către notele de lansare. Notificarea de sistem dispare odată ce o glisați; acesta rămâne, iar verificarea actualizărilor în Setări › Despre îl aduce înapoi.</item>
         <item>Dale de permisiuni din Setări se actualizează acum imediat ce revii de la acordarea uneia. Locația, optimizarea bateriei și utilizarea în fundal au continuat să arate starea veche până când Setările au fost închise și redeschise.</item>
     </string-array>
 </resources>

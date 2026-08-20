@@ -1700,6 +1700,7 @@
     <string name="update_subtitle_available">La versión %1$s está disponible</string>
     <string name="update_check_now">Buscar actualizaciones</string>
     <string name="update_now">Actualizar ahora</string>
+    <string name="update_see_changes">Mira lo que cambió</string>
     <string name="update_watch_releases">Cuéntame sobre nuevos lanzamientos.</string>
     <string name="update_watch_releases_subtitle">Comprueba GitHub una vez al día y te notifica cuando se publica una versión más nueva.</string>
     <string name="uif_local_network_access">Acceso a la red local</string>

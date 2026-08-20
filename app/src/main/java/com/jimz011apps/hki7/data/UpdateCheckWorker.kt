@@ -26,8 +26,12 @@ class UpdateCheckWorker(appContext: Context, params: WorkerParameters) :
         if (!prefs.updateChecksEnabled.first()) return Result.success()
 
         val available = GithubReleaseChecker.check() ?: return Result.success()
-        // Notify once per version. Without this the same release would be announced every day
-        // until the user got round to installing it.
+        // Refresh the in-app panel entry on every check, not just the first. Non-archived history
+        // is purged after 48 hours, so a once-only write would quietly disappear while the update
+        // was still waiting to be installed — which is the whole reason the panel copy exists.
+        GithubReleaseChecker.record(applicationContext, available)
+        // The system notification, by contrast, is posted once per version. Without this the same
+        // release would be announced every day until the user got round to installing it.
         if (prefs.lastNotifiedUpdateVersion.first() == available.versionName) return Result.success()
 
         GithubReleaseChecker.notify(applicationContext, available)
