@@ -626,6 +626,7 @@ cr_quick_media_player,,Media player,,needs translation
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.",,needs translation
 cr_quick_make_it_yours,,Make it yours,,needs translation
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.",,needs translation
+cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.",,"needs translation; don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.",,needs translation
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.",,"needs translation; don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,,needs translation; don't translate HKI 7

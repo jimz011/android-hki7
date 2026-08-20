@@ -3953,6 +3953,10 @@
     <string name="ha_page_reload">重新載入</string>
 <string name="ha_page_open_browser">在瀏覽器中開啟</string>
     <string name="ha_page_session_failed">無法啟動嵌入式 Home Assistant 會話。重新載入頁面或在瀏覽器中開啟它。</string>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>從 Home Assistant 設定返回，開發者工具或 HACS 現在會恢復 HKI 7 設定中的相同位置，而不是在頂部重新開啟。</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_1">
         <item>新的時鐘小工具。類比或數字，各七種設計，12 或 24 小時時間，以及日、日期和年份（如果您需要）。點擊它即可查看下一個鬧鐘。</item>
         <item>從「設定」存取 Home Assistant 本身。管理員可以在 HKI 7 內全螢幕查看其設定、開發人員工具和 HACS，並且已登入。</item>

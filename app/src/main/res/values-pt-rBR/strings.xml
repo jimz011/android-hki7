@@ -3953,6 +3953,10 @@
     <string name="ha_page_reload">Recarregar</string>
 <string name="ha_page_open_browser">Abrir no navegador</string>
     <string name="ha_page_session_failed">Não foi possível iniciar a sessão Home Assistant incorporada. Atualize a página ou abra-a no seu navegador.</string>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Retornar das configurações de Home Assistant, ferramentas do desenvolvedor ou HACS agora restaura a mesma posição nas configurações de HKI 7 em vez de reabrir na parte superior.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_1">
         <item>Novo widget de relógio. Analógico ou digital, sete designs cada, horário de 12 ou 24 horas, e dia, data e ano, se desejar. Toque nele para ver seu próximo alarme.</item>
         <item>Alcance o próprio Home Assistant em Configurações. Os administradores obtêm suas configurações, ferramentas de desenvolvedor e HACS em tela cheia dentro de HKI 7, já conectados.</item>

@@ -569,6 +569,10 @@
         <item>Corrette le telecamere che ignoravano il blocco dell’orientamento dello schermo.</item>
         <item>Corretto lo zoom nelle finestre delle telecamere e nelle telecamere a schermo intero.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Il ritorno da Home Assistant Impostazioni, Strumenti per sviluppatori o HACS ora ripristina la stessa posizione in HKI 7 Impostazioni invece di riaprire in alto.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_1">
         <item>Nuovo widget Orologio. Analogico o digitale, sette design ciascuno, formato 12 o 24 ore e, se lo desideri, giorno, data e anno. Toccalo per vedere la sveglia successiva.</item>
         <item>Raggiungi Home Assistant stesso dalle Impostazioni. Gli amministratori ottengono le impostazioni, gli strumenti per sviluppatori e lo schermo intero HACS all\'interno di HKI 7, già effettuato l\'accesso.</item>

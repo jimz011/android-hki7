@@ -17,7 +17,7 @@
 
 A modern [Home Assistant](https://www.home-assistant.io/) client for Android, built with Jetpack Compose and Material 3.
 
-> **Status:** `1.1.1`. Issues and feedback are welcome.
+> **Status:** `1.1.2`. Issues and feedback are welcome.
 
 **📖 [Documentation](https://jimz011.github.io/android-hki7/)** — setup guide, feature reference,
 [FAQ](https://jimz011.github.io/android-hki7/faq/) and

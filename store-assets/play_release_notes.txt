@@ -1,10 +1,2 @@
-NEW
-• Clock widget — analog or digital, seven designs, with your next alarm on tap
-• Open Home Assistant's Settings, Developer tools and HACS in-app (admins)
-• Update notifications if you installed outside the Play Store
-• Your next alarm now reports to Home Assistant
-
 FIXED
-• Back returns to the page you came from, every time
-• Media players show what is playing, not just the app
-• Temperature and energy readings in Czech, Slovak, Greek, Norwegian, Swedish and Danish
+• Returning from Home Assistant Settings, Developer tools or HACS now restores where you were in HKI 7 Settings

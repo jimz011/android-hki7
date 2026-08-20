@@ -576,6 +576,10 @@
         <item>Correction des caméras qui ignoraient le verrouillage de l’orientation de l’écran.</item>
         <item>Correction du zoom dans les boîtes de dialogue de caméra et les caméras en plein écran.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Le retour depuis les paramètres Home Assistant, les outils de développement ou HACS restaure désormais la même position dans les paramètres HKI 7 au lieu de rouvrir en haut.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_1">
         <item>Nouveau widget Horloge. Analogique ou numérique, sept modèles chacun, heure 12 ou 24 heures, et le jour, la date et l\'année si vous les souhaitez. Appuyez dessus pour voir votre prochaine alarme.</item>
         <item>Accédez à Home Assistant lui-même à partir des paramètres. Les administrateurs obtiennent ses paramètres, ses outils de développement et son HACS en plein écran dans HKI 7, déjà connectés.</item>

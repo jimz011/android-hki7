@@ -395,6 +395,8 @@ fun SettingsDialog(
      *  enum, which stays private to this file. Back still walks up through [parentSection], so
      *  arriving here deep does not strand anyone. */
     initialRoute: String? = null,
+    /** Menu position captured before Settings was temporarily replaced by an embedded HA page. */
+    initialMenuScrollOffset: Int = 0,
 ) {
     val initialSection = when (initialRoute) {
         SETTINGS_ROUTE_FAMILY_EVENTS -> SettingsSection.FAMILY_SHARING
@@ -653,7 +655,12 @@ fun SettingsDialog(
                     // into a child always starts at the top.
                     val from = previousSection
                     val wentBack = from != null && parentSection(from) == section
-                    val target = if (wentBack) sectionScrollOffsets[section] ?: 0 else 0
+                    val target = when {
+                        wentBack -> sectionScrollOffsets[section] ?: 0
+                        from == null && section == SettingsSection.MENU ->
+                            initialMenuScrollOffset.coerceAtLeast(0)
+                        else -> 0
+                    }
                     previousSection = section
                     if (target > 0) {
                         // The new section's content is measured a frame or two after this effect
@@ -720,9 +727,9 @@ fun SettingsDialog(
                                     stringResource(R.string.ha_page_category),
                                     stringResource(R.string.ha_page_category_subtitle)
                                 )
-                                SettingsChoice(Icons.Default.Tune, stringResource(R.string.ha_page_settings), stringResource(R.string.ha_page_settings_subtitle)) { openHaPage(HA_PATH_SETTINGS, haSettingsTitle); onDismiss() }
-                                SettingsChoice(Icons.Default.Build, stringResource(R.string.ha_page_dev_tools), stringResource(R.string.ha_page_dev_tools_subtitle)) { openHaPage(HA_PATH_DEV_TOOLS, haDevToolsTitle); onDismiss() }
-                                SettingsChoice(Icons.Default.Dashboard, stringResource(R.string.ha_page_hacs), stringResource(R.string.ha_page_hacs_subtitle)) { openHaPage(HA_PATH_HACS, haHacsTitle); onDismiss() }
+                                SettingsChoice(Icons.Default.Tune, stringResource(R.string.ha_page_settings), stringResource(R.string.ha_page_settings_subtitle)) { openHaPage(HA_PATH_SETTINGS, haSettingsTitle, contentScroll.value); onDismiss() }
+                                SettingsChoice(Icons.Default.Build, stringResource(R.string.ha_page_dev_tools), stringResource(R.string.ha_page_dev_tools_subtitle)) { openHaPage(HA_PATH_DEV_TOOLS, haDevToolsTitle, contentScroll.value); onDismiss() }
+                                SettingsChoice(Icons.Default.Dashboard, stringResource(R.string.ha_page_hacs), stringResource(R.string.ha_page_hacs_subtitle)) { openHaPage(HA_PATH_HACS, haHacsTitle, contentScroll.value); onDismiss() }
                             }
                             SettingsSubcategory(stringResource(R.string.ui_hki_7_68a9e17), stringResource(R.string.ui_project_information_licensing_and_community_support_9fc47d6))
                             SettingsChoice(Icons.Default.Info, stringResource(R.string.ui_about_6b21fb7), stringResource(R.string.ui_what_hki_7_is_and_how_it_is_built_247bace)) { section = SettingsSection.ABOUT }

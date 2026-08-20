@@ -626,6 +626,7 @@ cr_quick_media_player,,Media player,媒體播放器,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.",當把手出現時，於底部列向上滑動即可還原播放器。,
 cr_quick_make_it_yours,,Make it yours,打造專屬設定,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.",在編輯模式中，新增並重新排序房間、樓層與小工具。點按項目即可設定。,
+cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.",從 Home Assistant 設定返回，開發者工具或 HACS 現在會恢復 HKI 7 設定中的相同位置，而不是在頂部重新開啟。,"don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.",新的時鐘小工具。類比或數字，各七種設計，12 或 24 小時時間，以及日、日期和年份（如果您需要）。點擊它即可查看下一個鬧鐘。,
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.",從「設定」存取 Home Assistant 本身。管理員可以在 HKI 7 內全螢幕查看其設定、開發人員工具和 HACS，並且已登入。,"don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,HKI 7 會告訴您新版本何時發布 - 如果您是從 GitHub 而不是 Play 商店安裝的，則很有用。在“設定”>“關於”中將其關閉。,don't translate HKI 7

@@ -5,6 +5,16 @@ file in sync with `app/src/main/java/com/jimz011apps/hki7/ui/components/WhatsNew
 
 Items marked with \* require the HKI 7 Cloud Component integration.
 
+## 1.1.2
+
+Home Assistant settings return exactly where you left them.
+
+- Returning from Home Assistant Settings, Developer tools or HACS now restores the same scroll
+  position in HKI 7 Settings instead of recreating the dialog at the top. The embedded page has to
+  temporarily dismiss Settings because its WebView cannot render reliably inside the dialog
+  window; the menu offset now lives in the parent that survives that handoff. Opening Settings
+  normally still starts at the top.
+
 ## 1.1.1
 
 A Clock widget, Home Assistant's own pages inside the app, update notifications for people who

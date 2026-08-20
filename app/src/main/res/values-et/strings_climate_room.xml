@@ -17,6 +17,10 @@
         <item>Pakkide jälgimine hõlmab veel 15 vedajat, sealhulgas PostNord, InPost, Swiss Post, An Post, Budbee, Sameday ja Nova Post, millest igaühel on oma logo.</item>
         <item>Valetudo robottolmuimeja võtab teie ruumide importimisel oma reaalajas kaardi automaatselt üles, mitte ei vaja käsitsi valitud kaamerat.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Naastes jaotisest Home Assistant Seaded, Arendaja tööriistad või HACS taastab nüüd sama positsiooni HKI 7 sätetes, selle asemel, et uuesti avada ülaosas.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_1">
         <item>Uus Kella vidin. Analoog- või digitaalne, igaüks seitse kujundust, 12- või 24-tunnine aeg ning päev, kuupäev ja aasta, kui soovite. Järgmise äratuse kuvamiseks puudutage seda.</item>
         <item>Jõudke seadete kaudu seadmesse Home Assistant ise. Administraatorid saavad selle seaded, arendaja tööriistad ja HACS-i täisekraanil HKI 7, juba sisse logitud.</item>

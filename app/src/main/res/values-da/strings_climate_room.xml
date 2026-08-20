@@ -17,6 +17,10 @@
         <item>Pakkesporing dækker femten flere transportører, herunder PostNord, InPost, Swiss Post, An Post, Budbee, Sameday og Nova Post, hver med sit eget logo.</item>
         <item>En Valetudo robotstøvsuger opfanger sit live-kort automatisk, når dine lokaler importeres, i stedet for at have brug for kameraet valgt i hånden.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Tilbage fra Home Assistant Indstillinger, udviklerværktøjer eller HACS gendanner nu den samme position i HKI 7 Indstillinger i stedet for at genåbne øverst.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_1">
         <item>Ny Ur-widget. Analog eller digital, syv designs hver, 12 eller 24-timers tid, og dag, dato og år, hvis du vil have dem. Tryk på den for at se din næste alarm.</item>
         <item>Nå selv Home Assistant fra Indstillinger. Administratorer får dens indstillinger, udviklerværktøjer og HACS fuldskærm inde i HKI 7, allerede logget ind.</item>

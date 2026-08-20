@@ -569,6 +569,10 @@
         <item>Camera’s respecteren de vergrendelde schermstand weer.</item>
         <item>Zoomen in cameravensters en camera’s op volledig scherm werkt weer.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Terugkerend vanuit Home Assistant Instellingen, Ontwikkelaarstools of HACS herstelt nu dezelfde positie in HKI 7 Instellingen in plaats van opnieuw bovenaan te openen.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_1">
         <item>Nieuwe klokwidget. Analoog of digitaal, elk zeven ontwerpen, 12- of 24-uurs tijd, en de dag, datum en jaar als u dat wilt. Tik erop om je volgende alarm te zien.</item>
         <item>Bereik Home Assistant zelf via Instellingen. Beheerders krijgen de instellingen, ontwikkelaarstools en HACS op volledig scherm binnen HKI 7, al ingelogd.</item>

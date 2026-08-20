@@ -78,14 +78,15 @@ val LocalOpenNotifications = staticCompositionLocalOf<(() -> Unit)?> { null }
 val LocalOpenSettingsRoute = staticCompositionLocalOf<((String) -> Unit)?> { null }
 
 /**
- * Opens one of Home Assistant's own pages (frontend path, title) full screen.
+ * Opens one of Home Assistant's own pages (frontend path, title, Settings menu scroll offset)
+ * full screen.
  *
  * A composition local rather than a parameter on the settings screen, because that screen is
  * opened from more than one place — the drawer and the page header — and threading a callback
  * through reached only the call site that was remembered, leaving the other one silently doing
  * nothing when its links were tapped.
  */
-val LocalOpenHaPage = staticCompositionLocalOf<((String, String) -> Unit)?> { null }
+val LocalOpenHaPage = staticCompositionLocalOf<((String, String, Int) -> Unit)?> { null }
 
 /** Route for Settings › Family Sharing › Events. */
 const val SETTINGS_ROUTE_FAMILY_EVENTS = "family_events"

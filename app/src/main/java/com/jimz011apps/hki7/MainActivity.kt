@@ -1037,8 +1037,13 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     // separate dialog window remains above the page. Remember that origin so closing HA recreates
     // the settings menu instead of dropping the user on the dashboard underneath.
     var reopenSettingsAfterHaPage by remember { mutableStateOf(false) }
-    val openHaPageFromSettings: (String, String) -> Unit = { path, title ->
+    // Settings itself is destroyed while the WebView is showing, so its internal ScrollState is
+    // destroyed with it. Keep the menu offset beside the HA return flag, in the parent that stays
+    // composed, and feed it into the replacement dialog when HA closes.
+    var settingsMenuScrollOffset by remember { mutableIntStateOf(0) }
+    val openHaPageFromSettings: (String, String, Int) -> Unit = { path, title, menuScrollOffset ->
         reopenSettingsAfterHaPage = true
+        settingsMenuScrollOffset = menuScrollOffset
         haPage = path to title
     }
     settingsRoute?.let { route ->
@@ -1052,6 +1057,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                 viewModel = viewModel,
                 onDismiss = { settingsRoute = null },
                 initialRoute = route,
+                initialMenuScrollOffset = if (route == "menu") settingsMenuScrollOffset else 0,
             )
         }
     }
@@ -1059,6 +1065,9 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         LocalOpenNotifications provides { drawerScope.launch { notificationPanel.open() } },
         LocalOpenSettingsRoute provides { route: String ->
             drawerScope.launch { notificationPanel.close() }
+            // A normal Settings opening is a fresh visit. Only the special return from an embedded
+            // HA page bypasses this opener and therefore retains its captured menu position.
+            settingsMenuScrollOffset = 0
             settingsRoute = route
         },
         LocalCameraFullscreenLauncher provides launchFullscreenCamera,

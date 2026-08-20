@@ -17,6 +17,10 @@
         <item>Siuntų sekimas apima dar penkiolika vežėjų, įskaitant „PostNord“, „InPost“, „Swiss Post“, „An Post“, „Budbee“, „Sameday“ ir „Nova Post“, kurių kiekvienas turi savo logotipą.</item>
         <item>Valetudo robotas siurblys automatiškai paima tiesioginį žemėlapį, kai importuojami jūsų kambariai, o ne reikia pasirinkti kamerą rankomis.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Grįžus iš Home Assistant Nustatymai, Kūrėjų įrankiai arba HACS dabar atkuria tą pačią padėtį HKI 7 nustatymuose, o ne iš naujo atidaro viršuje.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_1">
         <item>Naujas Laikrodžio valdiklis. Analoginis arba skaitmeninis, septyni dizainai, 12 arba 24 valandų laikas ir diena, data ir metai, jei norite. Bakstelėkite jį, kad pamatytumėte kitą signalą.</item>
         <item>Pasiekite Home Assistant iš Nustatymų. Administratoriai jau prisijungę gauna nustatymus, kūrėjo įrankius ir HACS visą ekraną HKI 7.</item>

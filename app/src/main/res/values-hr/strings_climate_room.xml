@@ -17,6 +17,10 @@
         <item>Praćenje paketa pokriva još petnaest prijevoznika, uključujući PostNord, InPost, Swiss Post, An Post, Budbee, Sameday i Novu poštu, svaki sa svojim logotipom.</item>
         <item>Valetudo robotski usisivač automatski preuzima svoju mapu uživo kada se uvezu vaše sobe, umjesto da je potrebna kamera koju ručno odaberete.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Povratak iz Home Assistant postavki, alata za razvojne programere ili HACS sada vraća istu poziciju u HKI 7 postavkama umjesto ponovnog otvaranja na vrhu.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_1">
         <item>Novi widget za sat. Analogni ili digitalni, svaki sa sedam dizajna, 12 ili 24-satno vrijeme, i dan, datum i godina ako ih želite. Dodirnite ga da vidite svoj sljedeći alarm.</item>
         <item>Dođite do samog Home Assistant iz postavki. Administratori dobivaju njegove postavke, alate za razvojne programere i HACS preko cijelog zaslona unutar HKI 7, već prijavljeni.</item>

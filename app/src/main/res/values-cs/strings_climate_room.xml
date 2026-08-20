@@ -17,6 +17,10 @@
         <item>Sledování zásilek pokrývá dalších patnáct dopravců, včetně PostNord, InPost, Swiss Post, An Post, Budbee, Sameday a Nova Post, z nichž každý má své vlastní logo.</item>
         <item>Robotický vysavač Valetudo automaticky snímá svou živou mapu při importu vašich místností, aniž by potřeboval ručně vybranou kameru.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Návrat z Home Assistant Nastavení, Vývojářské nástroje nebo HACS nyní obnoví stejnou pozici v HKI 7 Nastavení namísto opětovného otevření nahoře.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_1">
         <item>Nový widget Hodiny. Analogové nebo digitální, každý sedm vzorů, 12 nebo 24hodinový čas a den, datum a rok, chcete-li. Klepnutím na něj zobrazíte další budík.</item>
         <item>Dosáhněte samotného Home Assistant z Nastavení. Správci získají jeho nastavení, vývojářské nástroje a HACS celou obrazovku uvnitř HKI 7, již jsou přihlášeni.</item>

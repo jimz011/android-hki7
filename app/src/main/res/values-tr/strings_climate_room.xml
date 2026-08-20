@@ -568,6 +568,10 @@
         <item>Kameraların ekran yönü kilidini yok sayması düzeltildi.</item>
         <item>Kamera pencerelerinde ve tam ekran kameralarda yakınlaştırma düzeltildi.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Home Assistant Ayarlar\'dan, Geliştirici araçlarından veya HACS\'tan geri dönüş artık üstte yeniden açmak yerine HKI 7 Ayarlar\'da aynı konumu geri yüklüyor.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_1">
         <item>Yeni Saat widget\'ı. Analog veya dijital, her biri yedi tasarım, 12 veya 24 saatlik zaman ve isterseniz gün, tarih ve yıl. Bir sonraki alarmınızı görmek için ona dokunun.</item>
         <item>Ayarlar\'dan Home Assistant\'nin kendisine ulaşın. Yöneticiler, Ayarlar\'ı, Geliştirici araçlarını ve HACS\'ı tam ekran olarak HKI 7 içinde oturum açmış halde alırlar.</item>

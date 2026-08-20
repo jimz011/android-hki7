@@ -17,6 +17,10 @@
         <item>Urmărirea coletelor acoperă încă cincisprezece operatori de transport, inclusiv PostNord, InPost, Swiss Post, An Post, Budbee, Sameday și Nova Post, fiecare având propriul logo.</item>
         <item>Un aspirator robot Valetudo își preia automat harta live atunci când camerele dvs. sunt importate, în loc să aibă nevoie de camera aleasă manual.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Revenind de la Setări Home Assistant, Instrumentele pentru dezvoltatori sau HACS restabilește acum aceeași poziție în Setări HKI 7 în loc să se redeschidă în partea de sus.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_1">
         <item>Nou widget Ceas. Analogic sau digital, șapte modele fiecare, 12 sau 24 de ore și ziua, data și anul dacă le doriți. Atingeți-l pentru a vedea următoarea alarmă.</item>
         <item>Ajungeți la Home Assistant din Setări. Administratorii primesc Setările, instrumentele pentru dezvoltatori și ecranul complet HACS în HKI 7, deja conectați.</item>

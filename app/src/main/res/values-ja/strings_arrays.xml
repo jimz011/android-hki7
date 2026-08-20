@@ -243,6 +243,10 @@
         <item>S</item><item>SSW</item><item>SW</item><item>WSW</item>
         <item>W</item><item>WNW</item><item>NW</item><item>NNW</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Home Assistant 設定、開発者ツール、または HACS から戻ると、上部で再度開くのではなく、HKI 7 設定の同じ位置が復元されるようになりました。</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_1">
         <item>新しい時計ウィジェット。アナログまたはデジタル、それぞれ 7 つのデザイン、12 時間または 24 時間表示、ご希望に応じて曜日、日付、年を表示します。それをタップすると、次のアラームが表示されます。</item>
         <item>[設定] から Home Assistant 自体にアクセスします。管理者は、すでにサインインした状態で、HKI 7 内で設定、開発者ツール、HACS を全画面表示で利用できます。</item>

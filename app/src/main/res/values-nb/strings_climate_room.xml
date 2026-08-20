@@ -34,6 +34,10 @@
         <item>Dialoger med faner viser hvor mange det er og hvilken du er på, og en sideveis sveip hvor som helst på dialogboksen endrer fanen. Sveipet pleide å bli avskrevet som en rulle hver gang det satte av med den svake nedadgående buen en tommelen naturlig lager, noe som gjorde at det føltes som om det bare virket noen ganger.</item>
         <item>Demomodus snakker ikke lenger med nettverket. Tjueseks forespørsler – hele HKI 7 Cloud-overflaten pluss hendelsestidslinjen, kameraets øyeblikksbilder og vakuumkart – ble fortsatt forsøkt mot en server som ikke eksisterer, og en av dem forsøkte på nytt hvert tredje sekund under hele økten, og fylte tilkoblingsloggen med feil. Å starte Home Assistant på nytt i demoen simuleres nå på noen få sekunder i stedet for å vise "omstart" i to minutter og gi opp.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Gå tilbake fra Home Assistant-innstillinger, utviklerverktøy eller HACS gjenoppretter nå samme posisjon i HKI 7-innstillinger i stedet for å åpne på nytt øverst.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_1">
         <item>Ny klokke-widget. Analog eller digital, syv design hver, 12 eller 24-timers tid, og dag, dato og år hvis du vil ha dem. Trykk på den for å se din neste alarm.</item>
         <item>Nå Home Assistant selv fra Innstillinger. Administratorer får sine innstillinger, utviklerverktøy og HACS fullskjerm inne i HKI 7, allerede pålogget.</item>

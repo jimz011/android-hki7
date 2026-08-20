@@ -346,6 +346,10 @@
     <string name="cr_quick_make_it_yours_instruction">In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.</string>
 
     <!-- Current release -->
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_1">
         <item>New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.</item>
         <item>Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.</item>
