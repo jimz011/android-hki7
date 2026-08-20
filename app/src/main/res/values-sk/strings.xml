@@ -208,6 +208,8 @@
     <string name="settings_connection_unknown">Neznámy</string>
     <string name="settings_connection_connecting">Pripája sa…</string>
     <string name="settings_this_home">tento dom</string>
+    <string name="settings_local_network_allowed">Povolené</string>
+    <string name="settings_local_network_not_allowed">Nepovolené – Home Assistant nie je možné dosiahnuť priamo vo vašej sieti Wi-Fi</string>
     <string name="settings_current_wifi">Aktuálne Wi-Fi</string>
     <string name="settings_wifi_unavailable">Nie je pripojené alebo chýba povolenie na umiestnenie</string>
     <string name="settings_just_now">práve teraz</string>

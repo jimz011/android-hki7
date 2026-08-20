@@ -208,6 +208,8 @@
     <string name="settings_connection_unknown">알 수 없음</string>
     <string name="settings_connection_connecting">연결 중…</string>
     <string name="settings_this_home">이 홈</string>
+    <string name="settings_local_network_allowed">허용된</string>
+    <string name="settings_local_network_not_allowed">허용되지 않음 - Wi-Fi에서 Home Assistant에 직접 연결할 수 없습니다.</string>
     <string name="settings_current_wifi">현재 Wi-Fi</string>
     <string name="settings_wifi_unavailable">연결되어 있지 않거나 위치 권한이 없습니다</string>
     <string name="settings_just_now">방금 전</string>

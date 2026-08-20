@@ -208,6 +208,8 @@
     <string name="settings_connection_unknown">مجهول</string>
     <string name="settings_connection_connecting">جارٍ الاتصال…</string>
     <string name="settings_this_home">هذا المنزل</string>
+    <string name="settings_local_network_allowed">مسموح</string>
+    <string name="settings_local_network_not_allowed">غير مسموح به — لا يمكن الوصول إلى Home Assistant مباشرةً عبر شبكة Wi-Fi لديك</string>
     <string name="settings_current_wifi">واي فاي الحالي</string>
     <string name="settings_wifi_unavailable">غير متصل أو إذن الموقع مفقود</string>
     <string name="settings_just_now">الآن</string>

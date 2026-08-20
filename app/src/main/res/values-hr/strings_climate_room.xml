@@ -17,11 +17,6 @@
         <item>Praćenje paketa pokriva još petnaest prijevoznika, uključujući PostNord, InPost, Swiss Post, An Post, Budbee, Sameday i Novu poštu, svaki sa svojim logotipom.</item>
         <item>Valetudo robotski usisivač automatski preuzima svoju mapu uživo kada se uvezu vaše sobe, umjesto da je potrebna kamera koju ručno odaberete.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_1_2">
-        <item>Povratak iz Home Assistant postavki, alata za razvojne programere ili HACS sada vraća istu poziciju u HKI 7 postavkama umjesto ponovnog otvaranja na vrhu.</item>
-        <item>Android 17 sada traži pristup lokalnoj mreži prije nego što pronađe ili se izravno poveže s Home Assistant, tako da lokalni poslužitelji nastavljaju raditi s API-jem 37.</item>
-    </string-array>
-
     <string-array name="cr_whats_new_1_1_1">
         <item>Novi widget za sat. Analogni ili digitalni, svaki sa sedam dizajna, 12 ili 24-satno vrijeme, i dan, datum i godina ako ih želite. Dodirnite ga da vidite svoj sljedeći alarm.</item>
         <item>Dođite do samog Home Assistant iz postavki. Administratori dobivaju njegove postavke, alate za razvojne programere i HACS preko cijelog zaslona unutar HKI 7, već prijavljeni.</item>
@@ -31,5 +26,10 @@
         <item>Natrag vraća na stranicu na kojoj ste bili prije, svaki put, dok ne dođete do početne stranice. Više ne preskače stranice niti rano napušta aplikaciju.</item>
         <item>Fiksna očitanja temperature i energije na češkom, slovačkom, grčkom, norveškom, švedskom i danskom, gdje su se brojke pokazivale pogrešno ili su mogle srušiti zaslon.</item>
         <item>Nešto loše napisano na vašem jeziku? Svaki je jezik sada jedna datoteka koju možete ispraviti na GitHubu, bez potrebe za kodom.</item>
+    </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Povratak iz Home Assistant postavki, alata za razvojne programere ili HACS sada vraća istu poziciju u HKI 7 postavkama umjesto ponovnog otvaranja na vrhu.</item>
+        <item>Android 17 sada traži pristup lokalnoj mreži prije nego što pronađe ili se izravno poveže s Home Assistant, tako da lokalni poslužitelji nastavljaju raditi s API-jem 37. Postavke › Veza pokazuje je li dopuštena i može ponovo pitati kada nadogradnja za Android 17 stigne dugo nakon postavljanja.</item>
+        <item>Pločice dopuštenja u Postavkama sada se ažuriraju čim se vratite nakon davanja dopuštenja. Lokacija, optimizacija baterije i upotreba u pozadini prikazivali su staro stanje sve dok Postavke nisu zatvorene i ponovno otvorene.</item>
     </string-array>
 </resources>

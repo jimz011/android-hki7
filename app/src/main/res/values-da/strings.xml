@@ -208,6 +208,8 @@
     <string name="settings_connection_unknown">Ukendt</string>
     <string name="settings_connection_connecting">Opretter forbindelse...</string>
     <string name="settings_this_home">dette hjem</string>
+    <string name="settings_local_network_allowed">Tilladt</string>
+    <string name="settings_local_network_not_allowed">Ikke tilladt — Home Assistant kan ikke nås direkte på dit Wi-Fi</string>
     <string name="settings_current_wifi">Nuværende Wi-Fi</string>
     <string name="settings_wifi_unavailable">Ikke forbundet, eller placeringstilladelse mangler</string>
     <string name="settings_just_now">lige nu</string>

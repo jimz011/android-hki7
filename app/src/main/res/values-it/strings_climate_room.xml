@@ -569,11 +569,6 @@
         <item>Corrette le telecamere che ignoravano il blocco dell’orientamento dello schermo.</item>
         <item>Corretto lo zoom nelle finestre delle telecamere e nelle telecamere a schermo intero.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_1_2">
-        <item>Il ritorno da Home Assistant Impostazioni, Strumenti per sviluppatori o HACS ora ripristina la stessa posizione in HKI 7 Impostazioni invece di riaprire in alto.</item>
-        <item>Android 17 ora richiede l\'accesso alla rete locale prima di trovare o connettersi direttamente a Home Assistant, quindi i server locali continuano a funzionare con l\'API 37.</item>
-    </string-array>
-
     <string-array name="cr_whats_new_1_1_1">
         <item>Nuovo widget Orologio. Analogico o digitale, sette design ciascuno, formato 12 o 24 ore e, se lo desideri, giorno, data e anno. Toccalo per vedere la sveglia successiva.</item>
         <item>Raggiungi Home Assistant stesso dalle Impostazioni. Gli amministratori ottengono le impostazioni, gli strumenti per sviluppatori e lo schermo intero HACS all\'interno di HKI 7, già effettuato l\'accesso.</item>
@@ -583,5 +578,10 @@
         <item>Indietro torna alla pagina in cui ti trovavi prima, ogni volta, fino a raggiungere Home. Non salta più le pagine né abbandona l\'app in anticipo.</item>
         <item>Risolti i problemi relativi alle letture di temperatura ed energia in ceco, slovacco, greco, norvegese, svedese e danese, in cui i numeri venivano visualizzati in modo errato o potevano mandare in crash lo schermo.</item>
         <item>Qualcosa espresso male nella tua lingua? Ogni lingua ora è un singolo file che puoi correggere su GitHub, senza bisogno di codice.</item>
+    </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Il ritorno da Home Assistant Impostazioni, Strumenti per sviluppatori o HACS ora ripristina la stessa posizione in HKI 7 Impostazioni invece di riaprire in alto.</item>
+        <item>Android 17 ora richiede l\'accesso alla rete locale prima di trovare o connettersi direttamente a Home Assistant, quindi i server locali continuano a funzionare con l\'API 37. Impostazioni › La connessione mostra se è consentita e può chiedere di nuovo, per quando l\'aggiornamento di Android 17 arriva molto tempo dopo la configurazione.</item>
+        <item>I riquadri di autorizzazione nelle Impostazioni ora si aggiornano non appena torni dopo averne concesso uno. La posizione, l\'ottimizzazione della batteria e l\'utilizzo in background hanno continuato a mostrare lo stato precedente fino alla chiusura e riapertura delle Impostazioni.</item>
     </string-array>
 </resources>

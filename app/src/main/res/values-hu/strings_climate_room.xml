@@ -17,11 +17,6 @@
         <item>A csomagkövetés további tizenöt fuvarozóra terjed ki, köztük a PostNord, az InPost, a Swiss Post, az An Post, a Budbee, a Sameday és a Nova Post, mindegyik saját logóval.</item>
         <item>A Valetudo robotporszívó automatikusan felveszi élő térképét a szobák importálásakor, ahelyett, hogy a kézzel kiválasztott kamerára lenne szüksége.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_1_2">
-        <item>A Home Assistant beállításokból visszatérve a Fejlesztői eszközök vagy a HACS most visszaállítja ugyanazt a pozíciót a HKI 7 Beállításokban, ahelyett, hogy felülről nyitná meg újra.</item>
-        <item>Az Android 17 mostantól helyi hálózati hozzáférést kér, mielőtt megtalálná a Home Assistant vagy közvetlenül csatlakozna hozzá, így a helyi szerverek továbbra is az API 37-tel dolgoznak.</item>
-    </string-array>
-
     <string-array name="cr_whats_new_1_1_1">
         <item>Új Óra widget. Analóg vagy digitális, egyenként hét dizájn, 12 vagy 24 órás idő, valamint a nap, a dátum és az év, ha szeretné. Koppintson rá a következő ébresztés megtekintéséhez.</item>
         <item>Érje el magát a Home Assistant-t a Beállításokban. Az adminisztrátorok a beállításokat, a fejlesztői eszközöket és a HACS teljes képernyős szolgáltatását a HKI 7-ban érik el, már bejelentkezve.</item>
@@ -31,5 +26,10 @@
         <item>Minden alkalommal visszatér arra az oldalra, amelyen korábban volt, egészen addig, amíg el nem éri a Kezdőoldalt. Már nem ugrál át oldalakat, és nem hagyja el korán az alkalmazást.</item>
         <item>Rögzített hőmérséklet- és energiaértékek cseh, szlovák, görög, norvég, svéd és dán nyelven, ahol a számok rosszul mutattak, vagy összeomolhatják a képernyőt.</item>
         <item>Valami rosszul van megfogalmazva a nyelveden? Mostantól minden nyelv egyetlen fájl, amelyet kijavíthat a GitHubon, nincs szükség kódra.</item>
+    </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>A Home Assistant beállításokból visszatérve a Fejlesztői eszközök vagy a HACS most visszaállítja ugyanazt a pozíciót a HKI 7 Beállításokban, ahelyett, hogy felülről nyitná meg újra.</item>
+        <item>Az Android 17 mostantól helyi hálózati hozzáférést kér, mielőtt megtalálná vagy közvetlenül csatlakozna a Home Assistant-hoz, így a helyi szerverek továbbra is az API 37-tel dolgoznak. Beállítások › A kapcsolat megmutatja, hogy engedélyezett-e, és újra kérdezhet, ha jóval a telepítés után megérkezik az Android 17 frissítés.</item>
+        <item>A Beállításokban található engedélycsempék mostantól frissülnek, amint visszatér az engedély megadása után. A hely, az akkumulátor optimalizálás és a háttérhasználat a régi állapotot mutatta, amíg a Beállításokat be nem zárták és újra meg nem nyitották.</item>
     </string-array>
 </resources>

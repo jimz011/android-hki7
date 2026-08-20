@@ -208,6 +208,8 @@
     <string name="settings_connection_unknown">Neznámý</string>
     <string name="settings_connection_connecting">Spojovací…</string>
     <string name="settings_this_home">tento domov</string>
+    <string name="settings_local_network_allowed">Povoleno</string>
+    <string name="settings_local_network_not_allowed">Nepovoleno – Home Assistant není dostupné přímo na vaší Wi-Fi</string>
     <string name="settings_current_wifi">Aktuální Wi-Fi</string>
     <string name="settings_wifi_unavailable">Není připojeno nebo chybí oprávnění k poloze</string>
     <string name="settings_just_now">právě teď</string>

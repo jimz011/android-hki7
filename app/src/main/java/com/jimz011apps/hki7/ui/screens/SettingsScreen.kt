@@ -167,6 +167,13 @@ import com.jimz011apps.hki7.data.HKICustomPage
 import com.jimz011apps.hki7.data.HKICustomPopup
 import com.jimz011apps.hki7.data.Hki7PolicySaveResult
 import com.jimz011apps.hki7.data.PreferencesManager
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.jimz011apps.hki7.data.ANDROID_17_API_LEVEL
+import com.jimz011apps.hki7.data.LOCAL_NETWORK_PERMISSION
+import com.jimz011apps.hki7.data.canAccessLocalNetwork
 import com.jimz011apps.hki7.data.PushForegroundService
 import com.jimz011apps.hki7.data.LocationWork
 import com.jimz011apps.hki7.data.SYSTEM_LANGUAGE_TAG
@@ -430,13 +437,35 @@ fun SettingsDialog(
     val haBackupEnabled by prefs.haBackupEnabled.collectAsState(initial = false)
     val cloudBackupLastAt by prefs.cloudBackupLastAt.collectAsState(initial = null)
     val haBackupLastAt by prefs.haBackupLastAt.collectAsState(initial = null)
-    val hasForegroundLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-    val hasBackgroundLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+    // Every permission and OS-level toggle below is granted somewhere outside this dialog —
+    // a system permission sheet, or Android's own settings app. Coming back from either does
+    // not change any state this composable reads, so without an explicit nudge the tiles keep
+    // showing what was true when the screen was first composed and only correct themselves
+    // when it is reopened. Re-read them all on ON_RESUME.
+    var permissionRefresh by remember { mutableIntStateOf(0) }
+    val permissionLifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(permissionLifecycleOwner) {
+        val obs = LifecycleEventObserver { _, e ->
+            if (e == Lifecycle.Event.ON_RESUME) permissionRefresh++
+        }
+        permissionLifecycleOwner.lifecycle.addObserver(obs)
+        onDispose { permissionLifecycleOwner.lifecycle.removeObserver(obs) }
+    }
+    val hasForegroundLocation = remember(permissionRefresh) {
+        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+    }
+    val hasBackgroundLocation = remember(permissionRefresh) {
+        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+    }
     val powerManager = context.getSystemService(android.os.PowerManager::class.java)
-    val isIgnoringBatteryOptimizations = powerManager?.isIgnoringBatteryOptimizations(context.packageName) ?: false
+    val isIgnoringBatteryOptimizations = remember(permissionRefresh) {
+        powerManager?.isIgnoringBatteryOptimizations(context.packageName) ?: false
+    }
     val activityManager = context.getSystemService(android.app.ActivityManager::class.java)
-    val isBackgroundRestricted = activityManager?.isBackgroundRestricted ?: false
+    val isBackgroundRestricted = remember(permissionRefresh) {
+        activityManager?.isBackgroundRestricted ?: false
+    }
 
     var section by remember { mutableStateOf(initialSection) }
     // Home Assistant's own pages are rendered by MainApp, not here: this screen is a Dialog, and a
@@ -739,6 +768,15 @@ fun SettingsDialog(
                         SettingsSection.CONNECTION -> {
                             val homeSsids by prefs.homeSsids.collectAsState(initial = emptyList())
                             val currentSsid by viewModel.currentSsid.collectAsState()
+                            // Onboarding asks for this once. Someone who declined there, or who
+                            // took the Android 17 upgrade after onboarding, otherwise has no way
+                            // back: discovery just returns nothing and the app quietly falls back
+                            // to the remote URL. Only shown where the permission exists.
+                            val showsLocalNetworkPermission = android.os.Build.VERSION.SDK_INT >= ANDROID_17_API_LEVEL
+                            val localNetworkGranted = remember(permissionRefresh) { canAccessLocalNetwork(context) }
+                            val localNetworkLauncher = rememberLauncherForActivityResult(
+                                ActivityResultContracts.RequestPermission()
+                            ) { permissionRefresh++ }
                             var externalUrlInput by remember(serverUrl) { mutableStateOf(serverUrl.orEmpty()) }
                             var internalUrlInput by remember(internalUrl) { mutableStateOf(internalUrl.orEmpty()) }
                             var ssidsInput by remember(homeSsids) { mutableStateOf(homeSsids.joinToString(", ")) }
@@ -922,6 +960,49 @@ fun SettingsDialog(
                                     style = MaterialTheme.typography.titleSmall,
                                     color = appColors.onSurface
                                 )
+                                if (showsLocalNetworkPermission) {
+                                    SettingsTile(
+                                        icon = Icons.Default.Wifi,
+                                        title = stringResource(R.string.uif_local_network_access),
+                                        subtitle = if (localNetworkGranted) {
+                                            stringResource(R.string.settings_local_network_allowed)
+                                        } else {
+                                            stringResource(R.string.settings_local_network_not_allowed)
+                                        },
+                                        iconTint = if (localNetworkGranted) Color(0xFF6AC36A) else Color.Gray
+                                    )
+                                    if (!localNetworkGranted) {
+                                        OutlinedButton(
+                                            onClick = { localNetworkLauncher.launch(LOCAL_NETWORK_PERMISSION) },
+                                            modifier = Modifier.fillMaxWidth().height(52.dp),
+                                            shape = itemCornerShape()
+                                        ) {
+                                            Icon(Icons.Default.Wifi, null)
+                                            Spacer(Modifier.width(8.dp))
+                                            Text(stringResource(R.string.uif_enable))
+                                        }
+                                        // Android stops showing the system dialog once the
+                                        // permission has been denied for good, so keep a route
+                                        // into the app's own settings page beside it.
+                                        TextButton(
+                                            onClick = {
+                                                runCatching {
+                                                    context.startActivity(
+                                                        Intent(AndroidSettings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                                            data = "package:${context.packageName}".toUri()
+                                                        }
+                                                    )
+                                                }
+                                            },
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) { Text(stringResource(R.string.uif_open_settings)) }
+                                        Text(
+                                            stringResource(R.string.uif_local_network_access_description),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = appColors.onMuted
+                                        )
+                                    }
+                                }
                                 SettingsTile(
                                     Icons.Default.Wifi,
                                     stringResource(R.string.settings_current_wifi),

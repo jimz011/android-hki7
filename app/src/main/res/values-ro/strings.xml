@@ -208,6 +208,8 @@
     <string name="settings_connection_unknown">Necunoscut</string>
     <string name="settings_connection_connecting">Se conectează…</string>
     <string name="settings_this_home">această casă</string>
+    <string name="settings_local_network_allowed">Permis</string>
+    <string name="settings_local_network_not_allowed">Nu este permis — Home Assistant nu poate fi accesat direct prin Wi-Fi</string>
     <string name="settings_current_wifi">Wi-Fi actual</string>
     <string name="settings_wifi_unavailable">Nu este conectat sau permisiunea de locație lipsește</string>
     <string name="settings_just_now">tocmai acum</string>

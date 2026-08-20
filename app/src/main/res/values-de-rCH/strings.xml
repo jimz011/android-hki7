@@ -59,6 +59,8 @@
     <string name="push_connection_channel_name">Benachrichtigungsverbindung</string>
     <string name="push_connection_notification_title">Mit Home Assistant verbunden</string>
     <string name="push_connection_notification_text">Benachrichtigungen werden empfangen</string>
+    <string name="settings_local_network_allowed">Erlaubt</string>
+    <string name="settings_local_network_not_allowed">Nicht zulässig – Home Assistant kann nicht direkt über Ihr WLAN erreicht werden</string>
     <string name="button_style_centered">Zentriert</string>
     <string name="button_elements">Elemente</string>
     <string name="button_elements_description">Was auf dieser Schaltfläche angezeigt wird. Blenden Sie den Namen und den Status eines einzelnen Symbols aus.</string>

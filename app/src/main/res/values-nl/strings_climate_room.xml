@@ -569,11 +569,6 @@
         <item>Camera’s respecteren de vergrendelde schermstand weer.</item>
         <item>Zoomen in cameravensters en camera’s op volledig scherm werkt weer.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_1_2">
-        <item>Terugkerend vanuit Home Assistant Instellingen, Ontwikkelaarstools of HACS herstelt nu dezelfde positie in HKI 7 Instellingen in plaats van opnieuw bovenaan te openen.</item>
-        <item>Android 17 vraagt nu om lokale netwerktoegang voordat Home Assistant wordt gevonden of er rechtstreeks verbinding mee wordt gemaakt, zodat lokale servers blijven werken met API 37.</item>
-    </string-array>
-
     <string-array name="cr_whats_new_1_1_1">
         <item>Nieuwe klokwidget. Analoog of digitaal, elk zeven ontwerpen, 12- of 24-uurs tijd, en de dag, datum en jaar als u dat wilt. Tik erop om je volgende alarm te zien.</item>
         <item>Bereik Home Assistant zelf via Instellingen. Beheerders krijgen de instellingen, ontwikkelaarstools en HACS op volledig scherm binnen HKI 7, al ingelogd.</item>
@@ -583,5 +578,10 @@
         <item>Terug gaat elke keer naar de pagina waar u zich bevond, totdat u Thuis bereikt. Het slaat geen pagina\'s meer over of verlaat de app niet langer voortijdig.</item>
         <item>Vaste temperatuur- en energiemetingen in het Tsjechisch, Slowaaks, Grieks, Noors, Zweeds en Deens, waarbij de cijfers verkeerd werden weergegeven of het scherm konden crashen.</item>
         <item>Iets slecht verwoord in uw taal? Elke taal is nu één enkel bestand dat je op GitHub kunt corrigeren, zonder dat er code nodig is.</item>
+    </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Terugkerend vanuit Home Assistant Instellingen, Ontwikkelaarstools of HACS herstelt nu dezelfde positie in HKI 7 Instellingen in plaats van opnieuw bovenaan te openen.</item>
+        <item>Android 17 vraagt nu om lokale netwerktoegang voordat Home Assistant wordt gevonden of er rechtstreeks verbinding mee wordt gemaakt, zodat lokale servers blijven werken met API 37. Instellingen › Verbinding laat zien of dit is toegestaan en kan opnieuw vragen, voor wanneer de Android 17-upgrade lang na de installatie arriveert.</item>
+        <item>Toestemmingstegels in Instellingen worden nu bijgewerkt zodra u terugkomt van het verlenen ervan. Locatie, batterijoptimalisatie en achtergrondgebruik bleven de oude status tonen totdat Instellingen werd gesloten en opnieuw geopend.</item>
     </string-array>
 </resources>

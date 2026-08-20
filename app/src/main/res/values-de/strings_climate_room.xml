@@ -569,11 +569,6 @@
         <item>Kameras beachten die Sperre der Bildschirmausrichtung wieder.</item>
         <item>Zoomen in Kameradialogen und Vollbildkameras funktioniert wieder.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_1_2">
-        <item>Beim Zurückkehren aus den Home Assistant-Einstellungen, Entwicklertools oder HACS wird nun die gleiche Position in den HKI 7-Einstellungen wiederhergestellt, anstatt sie oben erneut zu öffnen.</item>
-        <item>Android 17 fragt jetzt nach lokalem Netzwerkzugriff, bevor Home Assistant gefunden oder direkt eine Verbindung hergestellt wird, sodass lokale Server weiterhin mit API 37 arbeiten.</item>
-    </string-array>
-
     <string-array name="cr_whats_new_1_1_1">
         <item>Neues Uhr-Widget. Analog oder digital, jeweils sieben Designs, 12- oder 24-Stunden-Zeitanzeige und auf Wunsch auch Tag, Datum und Jahr. Tippen Sie darauf, um Ihren nächsten Alarm anzuzeigen.</item>
         <item>Erreichen Sie Home Assistant selbst über die Einstellungen. Administratoren erhalten ihre Einstellungen, Entwicklertools und den HACS-Vollbildmodus in HKI 7, sofern sie bereits angemeldet sind.</item>
@@ -583,5 +578,10 @@
         <item>Mit „Zurück“ kehren Sie jedes Mal zu der Seite zurück, auf der Sie sich zuvor befanden, bis Sie die Startseite erreichen. Es werden keine Seiten mehr übersprungen oder die App vorzeitig verlassen.</item>
         <item>Temperatur- und Energiemesswerte auf Tschechisch, Slowakisch, Griechisch, Norwegisch, Schwedisch und Dänisch wurden behoben, bei denen Zahlen falsch angezeigt wurden oder der Bildschirm abstürzen konnte.</item>
         <item>Etwas in Ihrer Sprache schlecht formuliert? Jede Sprache ist jetzt eine einzelne Datei, die Sie auf GitHub korrigieren können, ohne dass Code erforderlich ist.</item>
+    </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Beim Zurückkehren aus den Home Assistant-Einstellungen, Entwicklertools oder HACS wird nun die gleiche Position in den HKI 7-Einstellungen wiederhergestellt, anstatt sie oben erneut zu öffnen.</item>
+        <item>Android 17 fragt jetzt nach Zugriff auf das lokale Netzwerk, bevor es Home Assistant findet oder eine direkte Verbindung zu ihm herstellt, sodass lokale Server weiterhin mit API 37 arbeiten. Einstellungen › Verbindung zeigt an, ob dies zulässig ist, und kann erneut nachfragen, wenn das Android 17-Upgrade lange nach der Einrichtung eintrifft.</item>
+        <item>Berechtigungskacheln in den Einstellungen werden jetzt aktualisiert, sobald Sie von der Gewährung einer Berechtigung zurückkommen. Standort, Akkuoptimierung und Hintergrundnutzung zeigten weiterhin den alten Status an, bis die Einstellungen geschlossen und erneut geöffnet wurden.</item>
     </string-array>
 </resources>

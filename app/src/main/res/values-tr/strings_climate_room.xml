@@ -568,11 +568,6 @@
         <item>Kameraların ekran yönü kilidini yok sayması düzeltildi.</item>
         <item>Kamera pencerelerinde ve tam ekran kameralarda yakınlaştırma düzeltildi.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_1_2">
-        <item>Home Assistant Ayarlar\'dan, Geliştirici araçlarından veya HACS\'tan geri dönüş artık üstte yeniden açmak yerine HKI 7 Ayarlar\'da aynı konumu geri yüklüyor.</item>
-        <item>Android 17 artık Home Assistant bulmadan veya doğrudan bağlanmadan önce Yerel ağ erişimi istiyor, böylece yerel sunucular API 37 ile çalışmaya devam ediyor.</item>
-    </string-array>
-
     <string-array name="cr_whats_new_1_1_1">
         <item>Yeni Saat widget\'ı. Analog veya dijital, her biri yedi tasarım, 12 veya 24 saatlik zaman ve isterseniz gün, tarih ve yıl. Bir sonraki alarmınızı görmek için ona dokunun.</item>
         <item>Ayarlar\'dan Home Assistant\'nin kendisine ulaşın. Yöneticiler, Ayarlar\'ı, Geliştirici araçlarını ve HACS\'ı tam ekran olarak HKI 7 içinde oturum açmış halde alırlar.</item>
@@ -582,5 +577,10 @@
         <item>Geri, Ana Sayfa\'ya ulaşana kadar her seferinde daha önce bulunduğunuz sayfaya gider. Artık sayfaları atlamıyor veya uygulamadan erken çıkmıyor.</item>
         <item>Çekçe, Slovakça, Yunanca, Norveççe, İsveççe ve Danca dillerinde sayıların yanlış gösterildiği veya ekranın çökmesine neden olabileceği sabit sıcaklık ve enerji okumaları.</item>
         <item>Dilinizde kötü ifade edilen bir şey mi var? Artık her dil GitHub\'da düzeltebileceğiniz tek bir dosyadır; kod gerekmez.</item>
+    </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Home Assistant Ayarlar\'dan, Geliştirici araçlarından veya HACS\'tan geri dönüş artık üstte yeniden açmak yerine HKI 7 Ayarlar\'da aynı konumu geri yüklüyor.</item>
+        <item>Android 17 artık Home Assistant bulmadan veya doğrudan bağlanmadan önce Yerel ağ erişimi istiyor, böylece yerel sunucular API 37 ile çalışmaya devam ediyor. Ayarlar › Bağlantı, buna izin verilip verilmediğini gösterir ve kurulumdan uzun süre sonra Android 17 yükseltmesi geldiğinde tekrar sorabilir.</item>
+        <item>Ayarlar\'daki izin kutucukları artık izin verdikten sonra geri döndüğünüzde güncelleniyor. Konum, pil optimizasyonu ve arka plan kullanımı, Ayarlar kapatılıp yeniden açılana kadar eski durumu göstermeye devam etti.</item>
     </string-array>
 </resources>

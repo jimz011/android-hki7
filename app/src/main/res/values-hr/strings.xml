@@ -208,6 +208,8 @@
     <string name="settings_connection_unknown">Nepoznato</string>
     <string name="settings_connection_connecting">Povezivanje…</string>
     <string name="settings_this_home">ovaj dom</string>
+    <string name="settings_local_network_allowed">Dopušteno</string>
+    <string name="settings_local_network_not_allowed">Nije dopušteno — Home Assistant nije moguće izravno pristupiti putem vaše Wi-Fi mreže</string>
     <string name="settings_current_wifi">Trenutačni Wi-Fi</string>
     <string name="settings_wifi_unavailable">Nije povezano ili nedostaje dopuštenje za lokaciju</string>
     <string name="settings_just_now">upravo sada</string>

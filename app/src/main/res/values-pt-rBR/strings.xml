@@ -3953,11 +3953,6 @@
     <string name="ha_page_reload">Recarregar</string>
 <string name="ha_page_open_browser">Abrir no navegador</string>
     <string name="ha_page_session_failed">Não foi possível iniciar a sessão Home Assistant incorporada. Atualize a página ou abra-a no seu navegador.</string>
-    <string-array name="cr_whats_new_1_1_2">
-        <item>Retornar das configurações de Home Assistant, ferramentas do desenvolvedor ou HACS agora restaura a mesma posição nas configurações de HKI 7 em vez de reabrir na parte superior.</item>
-        <item>O Android 17 agora solicita acesso à rede local antes de encontrar ou conectar-se diretamente a Home Assistant, para que os servidores locais continuem trabalhando com a API 37.</item>
-    </string-array>
-
     <string-array name="cr_whats_new_1_1_1">
         <item>Novo widget de relógio. Analógico ou digital, sete designs cada, horário de 12 ou 24 horas, e dia, data e ano, se desejar. Toque nele para ver seu próximo alarme.</item>
         <item>Alcance o próprio Home Assistant em Configurações. Os administradores obtêm suas configurações, ferramentas de desenvolvedor e HACS em tela cheia dentro de HKI 7, já conectados.</item>
@@ -3972,4 +3967,11 @@
     <string name="uif_local_network_access_description">Permite que HKI 7 encontre e se conecte diretamente a Home Assistant em sua rede Wi-Fi.</string>
     <string name="uif_of_enabled">%1$d de %2$d ativado</string>
     <string name="uif_permissions_can_be_changed_later">Você pode alterar essas permissões posteriormente nas configurações do Android.</string>
+    <string name="settings_local_network_allowed">Permitido</string>
+    <string name="settings_local_network_not_allowed">Não permitido — Home Assistant não pode ser acessado diretamente no seu Wi-Fi</string>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Retornar das configurações de Home Assistant, ferramentas do desenvolvedor ou HACS agora restaura a mesma posição nas configurações de HKI 7 em vez de reabrir na parte superior.</item>
+        <item>O Android 17 agora solicita acesso à rede local antes de encontrar ou conectar-se diretamente a Home Assistant, para que os servidores locais continuem trabalhando com API 37. Configurações › A conexão mostra se é permitida e pode perguntar novamente, para quando a atualização do Android 17 chegar muito depois da configuração.</item>
+        <item>Os blocos de permissão nas configurações agora são atualizados assim que você volta da concessão de uma. Localização, otimização da bateria e uso em segundo plano continuaram mostrando o estado antigo até que as configurações fossem fechadas e reabertas.</item>
+    </string-array>
 </resources>

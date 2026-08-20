@@ -17,11 +17,6 @@
         <item>Sledovanie zásielok pokrýva ďalších pätnásť prepravcov vrátane PostNord, InPost, Swiss Post, An Post, Budbee, Sameday a Nova Post, pričom každý má svoje vlastné logo.</item>
         <item>Robotický vysávač Valetudo automaticky vyberie svoju živú mapu, keď sa importujú vaše izby, namiesto toho, aby potreboval kameru vyberanú ručne.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_1_2">
-        <item>Návrat z Home Assistant nastavení, nástrojov pre vývojárov alebo HACS teraz obnoví rovnakú pozíciu v nastaveniach HKI 7 namiesto opätovného otvorenia v hornej časti.</item>
-        <item>Android 17 teraz požaduje prístup k miestnej sieti pred nájdením alebo priamym pripojením k Home Assistant, takže miestne servery naďalej pracujú s API 37.</item>
-    </string-array>
-
     <string-array name="cr_whats_new_1_1_1">
         <item>Nový widget Hodiny. Analógové alebo digitálne, každý po sedem dizajnov, 12- alebo 24-hodinový čas a deň, dátum a rok, ak chcete. Klepnutím naň zobrazíte ďalší budík.</item>
         <item>Na samotnú Home Assistant sa dostanete z Nastavenia. Správcovia získajú nastavenia, nástroje pre vývojárov a celú obrazovku HACS v HKI 7, pričom sú už prihlásení.</item>
@@ -31,5 +26,10 @@
         <item>Späť sa vždy vráti na stránku, na ktorej ste boli predtým, kým sa nedostanete na Domov. Už nepreskakuje stránky ani neopúšťa aplikáciu predčasne.</item>
         <item>Opravené údaje o teplote a energii v češtine, slovenčine, gréčtine, nórčine, švédčine a dánčine, kde sa čísla zobrazovali nesprávne alebo mohli zrútiť obrazovku.</item>
         <item>Niečo napísané zle vo vašom jazyku? Každý jazyk je teraz jeden súbor, ktorý môžete opraviť na GitHub, nie je potrebný žiadny kód.</item>
+    </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Návrat z Home Assistant nastavení, nástrojov pre vývojárov alebo HACS teraz obnoví rovnakú pozíciu v nastaveniach HKI 7 namiesto opätovného otvorenia v hornej časti.</item>
+        <item>Android 17 teraz žiada o prístup k miestnej sieti pred nájdením alebo priamym pripojením k Home Assistant, takže miestne servery naďalej pracujú s API 37. Nastavenia › Pripojenie zobrazuje, či je povolené, a môže sa znova pýtať, keď aktualizácia na Android 17 príde dlho po nastavení.</item>
+        <item>Dlaždice povolení v Nastaveniach sa teraz aktualizujú hneď, ako sa vrátite po udelení jedného. Poloha, optimalizácia batérie a využitie na pozadí stále zobrazovali starý stav, kým sa nastavenia nezatvorili a znova neotvorili.</item>
     </string-array>
 </resources>

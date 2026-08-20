@@ -208,6 +208,8 @@
     <string name="settings_connection_unknown">不明</string>
     <string name="settings_connection_connecting">接続中…</string>
     <string name="settings_this_home">この家</string>
+    <string name="settings_local_network_allowed">許可された</string>
+    <string name="settings_local_network_not_allowed">許可されません — Home Assistant には Wi-Fi で直接アクセスできません</string>
     <string name="settings_current_wifi">現在のWi-Fi</string>
     <string name="settings_wifi_unavailable">接続されていないか、位置情報の権限がありません</string>
     <string name="settings_just_now">たった今</string>

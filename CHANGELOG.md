@@ -17,9 +17,17 @@ Home Assistant settings return exactly where you left them.
 - Added Android 17 local-network permission support. Apps targeting API 37 are blocked from mDNS,
   LAN HTTP and WebSocket traffic by default; HKI 7 now declares and requests
   `ACCESS_LOCAL_NETWORK` before server discovery, offers it again in onboarding Permissions, and
-  asks existing installations once on upgrade. Granting it clears any remote-URL fallback caused
-  by the earlier block and reconnects immediately. Android 16 and earlier keep their existing
-  permission-free LAN behavior.
+  asks existing installations once on upgrade. Settings › Connection now shows the permission's
+  state under Local network alongside the current Wi-Fi, with Enable and Open settings beside it,
+  because onboarding runs once and the common case is an Android 17 upgrade arriving long after
+  it — until now that left no way to grant the permission from inside the app. Granting it
+  clears any remote-URL fallback caused by the earlier block and reconnects immediately.
+  Android 16 and earlier keep their existing permission-free LAN behavior.
+- Fixed the permission tiles in Settings not updating after the permission itself was changed.
+  Location, battery optimization and background usage are all granted outside the dialog — in
+  a system sheet, or Android's own settings app — and returning from either changes nothing
+  the screen reads, so a tile kept reporting the old state until Settings was closed and
+  reopened. They now re-read when the app resumes.
 
 ## 1.1.1
 

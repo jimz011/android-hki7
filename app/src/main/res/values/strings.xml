@@ -209,6 +209,8 @@
     <string name="settings_connection_unknown">Unknown</string>
     <string name="settings_connection_connecting">Connecting…</string>
     <string name="settings_this_home">this home</string>
+    <string name="settings_local_network_allowed">Allowed</string>
+    <string name="settings_local_network_not_allowed">Not allowed — Home Assistant cannot be reached directly on your Wi-Fi</string>
     <string name="settings_current_wifi">Current Wi-Fi</string>
     <string name="settings_wifi_unavailable">Not connected or location permission is missing</string>
     <string name="settings_just_now">just now</string>

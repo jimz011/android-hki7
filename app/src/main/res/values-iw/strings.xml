@@ -208,6 +208,8 @@
     <string name="settings_connection_unknown">לֹא יְדוּעַ</string>
     <string name="settings_connection_connecting">מְקַשֵׁר…</string>
     <string name="settings_this_home">הבית הזה</string>
+    <string name="settings_local_network_allowed">מוּתָר</string>
+    <string name="settings_local_network_not_allowed">אסור - לא ניתן להגיע ל-Home Assistant ישירות ב-Wi-Fi שלך</string>
     <string name="settings_current_wifi">Wi-Fi נוכחי</string>
     <string name="settings_wifi_unavailable">לא מחובר או חסרה הרשאת מיקום</string>
     <string name="settings_just_now">זֶה עַתָה</string>

@@ -208,6 +208,8 @@
     <string name="settings_connection_unknown">Onbekend</string>
     <string name="settings_connection_connecting">Verbinden…</string>
     <string name="settings_this_home">deze woning</string>
+    <string name="settings_local_network_allowed">Toegestaan</string>
+    <string name="settings_local_network_not_allowed">Niet toegestaan: Home Assistant is niet rechtstreeks bereikbaar via je wifi-netwerk</string>
     <string name="settings_current_wifi">Huidig wifi-netwerk</string>
     <string name="settings_wifi_unavailable">Niet verbonden of locatietoestemming ontbreekt</string>
     <string name="settings_just_now">zojuist</string>

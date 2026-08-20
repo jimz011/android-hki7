@@ -17,11 +17,6 @@
         <item>Pakkide jälgimine hõlmab veel 15 vedajat, sealhulgas PostNord, InPost, Swiss Post, An Post, Budbee, Sameday ja Nova Post, millest igaühel on oma logo.</item>
         <item>Valetudo robottolmuimeja võtab teie ruumide importimisel oma reaalajas kaardi automaatselt üles, mitte ei vaja käsitsi valitud kaamerat.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_1_2">
-        <item>Naastes jaotisest Home Assistant Seaded, Arendaja tööriistad või HACS taastab nüüd sama positsiooni HKI 7 sätetes, selle asemel, et uuesti avada ülaosas.</item>
-        <item>Android 17 küsib nüüd enne Home Assistant leidmist või sellega otse ühenduse loomist juurdepääsu kohalikule võrgule, nii et kohalikud serverid jätkavad API 37-ga töötamist.</item>
-    </string-array>
-
     <string-array name="cr_whats_new_1_1_1">
         <item>Uus Kella vidin. Analoog- või digitaalne, igaüks seitse kujundust, 12- või 24-tunnine aeg ning päev, kuupäev ja aasta, kui soovite. Järgmise äratuse kuvamiseks puudutage seda.</item>
         <item>Jõudke seadete kaudu seadmesse Home Assistant ise. Administraatorid saavad selle seaded, arendaja tööriistad ja HACS-i täisekraanil HKI 7, juba sisse logitud.</item>
@@ -31,5 +26,10 @@
         <item>Tagasi läheb lehele, kus te varem olite, iga kord, kuni jõuate avalehele. See ei jäta enam lehti vahele ega lahku rakendusest varakult.</item>
         <item>Fikseeritud temperatuuri- ja energianäidud tšehhi, slovaki, kreeka, norra, rootsi ja taani keeles, kus numbrid näitasid valesti või võivad ekraan kokku kukkuda.</item>
         <item>Kas teie keeles on midagi halvasti sõnastatud? Iga keel on nüüd üks fail, mida saate GitHubis parandada, koodi pole vaja.</item>
+    </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Naastes jaotisest Home Assistant Seaded, Arendaja tööriistad või HACS taastab nüüd sama positsiooni HKI 7 sätetes, selle asemel, et uuesti avada ülaosas.</item>
+        <item>Android 17 küsib nüüd enne Home Assistant leidmist või sellega otse ühenduse loomist juurdepääsu kohalikule võrgule, nii et kohalikud serverid jätkavad API 37-ga töötamist. Seaded › Ühendus näitab, kas see on lubatud, ja saab uuesti küsida, kui Android 17 värskendus saabub kaua pärast seadistamist.</item>
+        <item>Seadete lubade paanid värskendatakse nüüd kohe, kui olete loa andnud. Asukoht, aku optimeerimine ja taustakasutus näitasid vana olekut, kuni seaded suleti ja uuesti avati.</item>
     </string-array>
 </resources>

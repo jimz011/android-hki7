@@ -243,11 +243,6 @@
         <item>S</item><item>SSW</item><item>SW</item><item>WSW</item>
         <item>W</item><item>WNW</item><item>NW</item><item>NNW</item>
     </string-array>
-    <string-array name="cr_whats_new_1_1_2">
-        <item>이제 Home Assistant 설정, 개발자 도구 또는 HACS에서 돌아가면 상단에서 다시 열리는 대신 HKI 7 설정에서 동일한 위치가 복원됩니다.</item>
-        <item>이제 Android 17에서는 Home Assistant을 찾거나 직접 연결하기 전에 로컬 네트워크 액세스를 요청하므로 로컬 서버는 API 37과 계속 작동합니다.</item>
-    </string-array>
-
     <string-array name="cr_whats_new_1_1_1">
         <item>새로운 시계 위젯. 아날로그 또는 디지털, 각각 7가지 디자인, 12시간 또는 24시간제, 원하는 경우 요일, 날짜 및 연도 표시. 다음 알람을 보려면 탭하세요.</item>
         <item>설정에서 Home Assistant 자체에 접근하세요. 관리자는 이미 로그인되어 있는 HKI 7 내에서 설정, 개발자 도구 및 HACS 전체 화면을 볼 수 있습니다.</item>
@@ -257,5 +252,10 @@
         <item>뒤로는 홈에 도달할 때까지 매번 이전에 있었던 페이지로 이동합니다. 더 이상 페이지를 건너뛰거나 앱을 일찍 종료하지 않습니다.</item>
         <item>체코어, 슬로바키아어, 그리스어, 노르웨이어, 스웨덴어, 덴마크어에서 숫자가 잘못 표시되거나 화면이 충돌할 수 있는 온도 및 에너지 판독값을 수정했습니다.</item>
         <item>귀하의 언어로 뭔가 나쁜 표현이 있습니까? 이제 각 언어는 GitHub에서 수정할 수 있는 단일 파일이므로 코드가 필요하지 않습니다.</item>
+    </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>이제 Home Assistant 설정, 개발자 도구 또는 HACS에서 돌아가면 상단에서 다시 열리는 대신 HKI 7 설정에서 동일한 위치가 복원됩니다.</item>
+        <item>Android 17은 이제 Home Assistant을 찾거나 직접 연결하기 전에 로컬 네트워크 액세스를 요청하므로 로컬 서버는 API 37을 사용하여 계속 작동합니다. 설정 › 연결은 설정 후 한참 후에 Android 17 업그레이드가 도착할 때 허용 여부를 표시하고 다시 요청할 수 있습니다.</item>
+        <item>이제 설정의 권한 타일은 권한 부여에서 돌아오자마자 업데이트됩니다. 위치, 배터리 최적화 및 백그라운드 사용은 설정을 닫았다가 다시 열 때까지 이전 상태를 계속 표시했습니다.</item>
     </string-array>
 </resources>

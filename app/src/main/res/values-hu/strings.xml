@@ -208,6 +208,8 @@
     <string name="settings_connection_unknown">Ismeretlen</string>
     <string name="settings_connection_connecting">Csatlakozás…</string>
     <string name="settings_this_home">ezt az otthont</string>
+    <string name="settings_local_network_allowed">Engedélyezett</string>
+    <string name="settings_local_network_not_allowed">Nem engedélyezett – a Home Assistant nem érhető el közvetlenül a Wi-Fi-n keresztül</string>
     <string name="settings_current_wifi">Jelenlegi Wi-Fi</string>
     <string name="settings_wifi_unavailable">Nincs csatlakoztatva, vagy hiányzik a helymeghatározási engedély</string>
     <string name="settings_just_now">éppen most</string>

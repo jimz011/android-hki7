@@ -208,6 +208,8 @@
     <string name="settings_connection_unknown">Αγνωστος</string>
     <string name="settings_connection_connecting">Συνδετικός…</string>
     <string name="settings_this_home">αυτό το σπίτι</string>
+    <string name="settings_local_network_allowed">Επιτρέπεται</string>
+    <string name="settings_local_network_not_allowed">Δεν επιτρέπεται — το Home Assistant δεν είναι προσβάσιμο απευθείας στο Wi-Fi σας</string>
     <string name="settings_current_wifi">Τρέχον Wi-Fi</string>
     <string name="settings_wifi_unavailable">Δεν είναι συνδεδεμένο ή λείπει η άδεια τοποθεσίας</string>
     <string name="settings_just_now">μόλις τώρα</string>

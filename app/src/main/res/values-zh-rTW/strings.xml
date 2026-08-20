@@ -3953,11 +3953,6 @@
     <string name="ha_page_reload">重新載入</string>
 <string name="ha_page_open_browser">在瀏覽器中開啟</string>
     <string name="ha_page_session_failed">無法啟動嵌入式 Home Assistant 會話。重新載入頁面或在瀏覽器中開啟它。</string>
-    <string-array name="cr_whats_new_1_1_2">
-        <item>從 Home Assistant 設定返回，開發者工具或 HACS 現在會恢復 HKI 7 設定中的相同位置，而不是在頂部重新開啟。</item>
-        <item>Android 17 現在在查找或直接連接到 Home Assistant 之前要求本地網路訪問，因此本地伺服器繼續使用 API 37。</item>
-    </string-array>
-
     <string-array name="cr_whats_new_1_1_1">
         <item>新的時鐘小工具。類比或數字，各七種設計，12 或 24 小時時間，以及日、日期和年份（如果您需要）。點擊它即可查看下一個鬧鐘。</item>
         <item>從「設定」存取 Home Assistant 本身。管理員可以在 HKI 7 內全螢幕查看其設定、開發人員工具和 HACS，並且已登入。</item>
@@ -3972,4 +3967,11 @@
     <string name="uif_local_network_access_description">允許 HKI 7 尋找並直接連接到 Wi-Fi 網路上的 Home Assistant。</string>
     <string name="uif_of_enabled">已啟用 %2$d 的 %1$d</string>
     <string name="uif_permissions_can_be_changed_later">您可以稍後在 Android 設定中變更這些權限。</string>
+    <string name="settings_local_network_allowed">允許</string>
+    <string name="settings_local_network_not_allowed">不允許 — 無法透過您的 Wi-Fi 直接存取 Home Assistant</string>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>從 Home Assistant 設定返回，開發者工具或 HACS 現在會恢復 HKI 7 設定中的相同位置，而不是在頂部重新開啟。</item>
+        <item>Android 17 現在會在查找或直接連接到 Home Assistant 之前請求本地網路訪問，因此本機伺服器會繼續使用 API 37。設定 › 連線會顯示是否允許，並且可以再次詢問，以便在安裝後很長一段時間內 Android 17 升級到達。</item>
+        <item>現在，一旦您授予權限回來，「設定」中的權限圖塊就會更新。位置、電池最佳化和背景使用情況一直顯示舊狀態，直到關閉並重新開啟「設定」。</item>
+    </string-array>
 </resources>

@@ -17,11 +17,6 @@
         <item>Urmărirea coletelor acoperă încă cincisprezece operatori de transport, inclusiv PostNord, InPost, Swiss Post, An Post, Budbee, Sameday și Nova Post, fiecare având propriul logo.</item>
         <item>Un aspirator robot Valetudo își preia automat harta live atunci când camerele dvs. sunt importate, în loc să aibă nevoie de camera aleasă manual.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_1_2">
-        <item>Revenind de la Setări Home Assistant, Instrumentele pentru dezvoltatori sau HACS restabilește acum aceeași poziție în Setări HKI 7 în loc să se redeschidă în partea de sus.</item>
-        <item>Android 17 solicită acum acces la rețeaua locală înainte de a găsi sau de a se conecta direct la Home Assistant, astfel încât serverele locale continuă să funcționeze cu API 37.</item>
-    </string-array>
-
     <string-array name="cr_whats_new_1_1_1">
         <item>Nou widget Ceas. Analogic sau digital, șapte modele fiecare, 12 sau 24 de ore și ziua, data și anul dacă le doriți. Atingeți-l pentru a vedea următoarea alarmă.</item>
         <item>Ajungeți la Home Assistant din Setări. Administratorii primesc Setările, instrumentele pentru dezvoltatori și ecranul complet HACS în HKI 7, deja conectați.</item>
@@ -31,5 +26,10 @@
         <item>Înapoi merge la pagina pe care ați fost înainte, de fiecare dată, până când ajungeți la Acasă. Nu mai omite pagini și nu părăsește mai devreme aplicația.</item>
         <item>S-au remediat citirile de temperatură și energie în cehă, slovacă, greacă, norvegiană, suedeză și daneză, unde numerele erau afișate greșit sau puteau bloca ecranul.</item>
         <item>Ceva scris prost în limba ta? Fiecare limbă este acum un singur fișier pe care îl puteți corecta pe GitHub, fără a fi nevoie de cod.</item>
+    </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Revenind de la Setări Home Assistant, Instrumentele pentru dezvoltatori sau HACS restabilește acum aceeași poziție în Setări HKI 7 în loc să se redeschidă în partea de sus.</item>
+        <item>Android 17 solicită acum acces la rețeaua locală înainte de a găsi sau de a se conecta direct la Home Assistant, astfel încât serverele locale continuă să lucreze cu API 37. Setări › Conexiune arată dacă este permisă și poate cere din nou, pentru când upgrade-ul Android 17 sosește mult după configurare.</item>
+        <item>Dale de permisiuni din Setări se actualizează acum imediat ce revii de la acordarea uneia. Locația, optimizarea bateriei și utilizarea în fundal au continuat să arate starea veche până când Setările au fost închise și redeschise.</item>
     </string-array>
 </resources>

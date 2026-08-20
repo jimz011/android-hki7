@@ -59,6 +59,8 @@
     <string name="push_connection_channel_name">Connexion des notifications</string>
     <string name="push_connection_notification_title">Connecté à Home Assistant</string>
     <string name="push_connection_notification_text">En attente de notifications</string>
+    <string name="settings_local_network_allowed">Autorisé</string>
+    <string name="settings_local_network_not_allowed">Non autorisé — Home Assistant n\'est pas joignable directement sur votre réseau Wi-Fi</string>
     <string name="button_style_centered">Centré</string>
     <string name="button_elements">Éléments</string>
     <string name="button_elements_description">Ce qui apparaît sur ce bouton. Masquez le nom et l’état d’une icône seule.</string>

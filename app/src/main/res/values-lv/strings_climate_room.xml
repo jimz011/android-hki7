@@ -17,11 +17,6 @@
         <item>Sūtījumu izsekošana aptver vēl piecpadsmit pārvadātājus, tostarp PostNord, InPost, Swiss Post, An Post, Budbee, Sameday un Nova Post, katram ir savs logotips.</item>
         <item>Valetudo robotu putekļsūcējs automātiski paņem savu reāllaika karti, kad tiek importētas jūsu telpas, nevis ar roku izvēlēta kamera.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_1_2">
-        <item>Atgriežoties no Home Assistant Iestatījumi, Izstrādātāju rīki vai HACS tagad atjauno to pašu pozīciju HKI 7 iestatījumos, nevis atkārtoti atver augšdaļā.</item>
-        <item>Android 17 tagad pieprasa piekļuvi vietējam tīklam, pirms tiek atrasts vai izveidots tiešs savienojums ar Home Assistant, tāpēc vietējie serveri turpina strādāt ar API 37.</item>
-    </string-array>
-
     <string-array name="cr_whats_new_1_1_1">
         <item>Jauns pulksteņa logrīks. Analogā vai digitālā, septiņi dizaini katrs, 12 vai 24 stundu laiks un diena, datums un gads, ja vēlaties. Pieskarieties tam, lai redzētu nākamo modinātāju.</item>
         <item>Sasniedziet Home Assistant, izmantojot iestatījumus. Administratori saņem iestatījumus, izstrādātāju rīkus un HACS pilnekrāna režīmā HKI 7, jau pierakstoties.</item>
@@ -31,5 +26,10 @@
         <item>Katru reizi tiek atvērta lapa, kurā bijāt iepriekš, līdz sasniedzat sākumlapu. Tas vairs neizlaiž lapas vai priekšlaicīgi pamet lietotni.</item>
         <item>Fiksēti temperatūras un enerģijas rādījumi čehu, slovāku, grieķu, norvēģu, zviedru un dāņu valodās, kur skaitļi tika rādīti nepareizi vai var izraisīt ekrāna avāriju.</item>
         <item>Vai jūsu valodā ir kaut kas slikti formulēts? Katra valoda tagad ir viens fails, kuru varat labot GitHub — kods nav nepieciešams.</item>
+    </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Atgriežoties no Home Assistant Iestatījumi, Izstrādātāju rīki vai HACS tagad atjauno to pašu pozīciju HKI 7 iestatījumos, nevis atkārtoti atver augšdaļā.</item>
+        <item>Android 17 tagad pieprasa piekļuvi vietējam tīklam, pirms tiek atrasts vai izveidots tiešs savienojums ar Home Assistant, tāpēc vietējie serveri turpina strādāt ar API 37. Iestatījumi › Savienojums parāda, vai tas ir atļauts, un var vēlreiz jautāt, kad Android 17 jauninājums būs pieejams ilgi pēc iestatīšanas.</item>
+        <item>Atļauju elementi sadaļā Iestatījumi tagad tiek atjaunināti, tiklīdz atgriežaties pēc atļaujas piešķiršanas. Atrašanās vieta, akumulatora optimizācija un fona lietojums turpināja rādīt iepriekšējo stāvokli, līdz iestatījumi tika aizvērti un atkārtoti atvērti.</item>
     </string-array>
 </resources>

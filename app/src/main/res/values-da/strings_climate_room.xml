@@ -17,11 +17,6 @@
         <item>Pakkesporing dækker femten flere transportører, herunder PostNord, InPost, Swiss Post, An Post, Budbee, Sameday og Nova Post, hver med sit eget logo.</item>
         <item>En Valetudo robotstøvsuger opfanger sit live-kort automatisk, når dine lokaler importeres, i stedet for at have brug for kameraet valgt i hånden.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_1_2">
-        <item>Tilbage fra Home Assistant Indstillinger, udviklerværktøjer eller HACS gendanner nu den samme position i HKI 7 Indstillinger i stedet for at genåbne øverst.</item>
-        <item>Android 17 beder nu om lokal netværksadgang, før den finder eller opretter forbindelse direkte til Home Assistant, så lokale servere bliver ved med at arbejde med API 37.</item>
-    </string-array>
-
     <string-array name="cr_whats_new_1_1_1">
         <item>Ny Ur-widget. Analog eller digital, syv designs hver, 12 eller 24-timers tid, og dag, dato og år, hvis du vil have dem. Tryk på den for at se din næste alarm.</item>
         <item>Nå selv Home Assistant fra Indstillinger. Administratorer får dens indstillinger, udviklerværktøjer og HACS fuldskærm inde i HKI 7, allerede logget ind.</item>
@@ -31,5 +26,10 @@
         <item>Tilbage går til den side, du var på før, hver gang, indtil du når Hjem. Den springer ikke længere sider over eller forlader appen tidligt.</item>
         <item>Faste temperatur- og energiaflæsninger på tjekkisk, slovakisk, græsk, norsk, svensk og dansk, hvor tallene viste forkert eller kunne crashe skærmen.</item>
         <item>Noget dårligt formuleret på dit sprog? Hvert sprog er nu en enkelt fil, du kan rette på GitHub, ingen kode nødvendig.</item>
+    </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Tilbage fra Home Assistant Indstillinger, udviklerværktøjer eller HACS gendanner nu den samme position i HKI 7 Indstillinger i stedet for at genåbne øverst.</item>
+        <item>Android 17 beder nu om lokal netværksadgang, før den finder eller forbinder direkte til Home Assistant, så lokale servere bliver ved med at arbejde med API 37. Indstillinger › Forbindelse viser, om det er tilladt og kan spørge igen, når Android 17-opgraderingen ankommer længe efter opsætning.</item>
+        <item>Tilladelsesfelter i Indstillinger opdateres nu, så snart du kommer tilbage fra at give en. Placering, batterioptimering og baggrundsbrug blev ved med at vise den gamle tilstand, indtil Indstillinger blev lukket og genåbnet.</item>
     </string-array>
 </resources>

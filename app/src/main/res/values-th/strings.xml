@@ -208,6 +208,8 @@
     <string name="settings_connection_unknown">ไม่ทราบ</string>
     <string name="settings_connection_connecting">กำลังเชื่อมต่อ...</string>
     <string name="settings_this_home">บ้านนี้</string>
+    <string name="settings_local_network_allowed">อนุญาต</string>
+    <string name="settings_local_network_not_allowed">ไม่อนุญาต — Home Assistant ไม่สามารถเข้าถึงได้โดยตรงบน Wi-Fi ของคุณ</string>
     <string name="settings_current_wifi">Wi-Fi ปัจจุบัน</string>
     <string name="settings_wifi_unavailable">ไม่ได้เชื่อมต่อหรือการอนุญาตตำแหน่งหายไป</string>
     <string name="settings_just_now">แค่ตอนนี้</string>

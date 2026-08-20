@@ -208,6 +208,8 @@
     <string name="settings_connection_unknown">Tundmatu</string>
     <string name="settings_connection_connecting">Ühendamine…</string>
     <string name="settings_this_home">see kodu</string>
+    <string name="settings_local_network_allowed">Lubatud</string>
+    <string name="settings_local_network_not_allowed">Pole lubatud — Home Assistant ei ole teie WiFi kaudu otse ühenduses</string>
     <string name="settings_current_wifi">Praegune WiFi</string>
     <string name="settings_wifi_unavailable">Pole ühendatud või puudub asukohaluba</string>
     <string name="settings_just_now">just praegu</string>

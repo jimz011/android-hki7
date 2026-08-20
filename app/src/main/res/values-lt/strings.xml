@@ -208,6 +208,8 @@
     <string name="settings_connection_unknown">Nežinoma</string>
     <string name="settings_connection_connecting">Jungiamasi…</string>
     <string name="settings_this_home">šiuos namus</string>
+    <string name="settings_local_network_allowed">Leidžiama</string>
+    <string name="settings_local_network_not_allowed">Neleidžiama – Home Assistant negalima pasiekti tiesiogiai per „Wi-Fi“.</string>
     <string name="settings_current_wifi">Dabartinis „Wi-Fi“.</string>
     <string name="settings_wifi_unavailable">Neprisijungta arba trūksta vietos leidimo</string>
     <string name="settings_just_now">tik dabar</string>

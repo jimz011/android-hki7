@@ -34,11 +34,6 @@
         <item>Välilehtiä sisältävät valintaikkunat näyttävät, kuinka monta niitä on ja missä olet, ja pyyhkäisemällä sivuttain missä tahansa valintaikkunan muutosvälilehdessä. Pyyhkäisy kirjattiin vieritykseksi aina, kun se lähti liikkeelle peukalon luonnollisesti tekemällä pienellä kaarella alaspäin, mikä sai tuntumaan, että se toimi vain toisinaan.</item>
         <item>Demotila ei enää keskustele verkon kanssa. Kaksikymmentäkuusi pyyntöä – koko HKI 7 Cloud pinta sekä tapahtuman aikajana, kameran tilannekuvat ja tyhjiökartat – yritettiin edelleen palvelinta vastaan, jota ei ole olemassa, ja yksi niistä yritettiin uudelleen kolmen sekunnin välein koko istunnon ajan, jolloin yhteysloki täyttyi epäonnistumisilla. Demon Home Assistant uudelleenkäynnistys simuloidaan nyt muutamassa sekunnissa sen sijaan, että "käynnistetään uudelleen" kahden minuutin ajan ja luovutetaan.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_1_2">
-        <item>Palaamalla Home Assistant Asetuksista, Kehittäjätyökalut tai HACS palauttaa nyt saman sijainnin HKI 7-asetuksiin sen sijaan, että avattaisiin uudelleen yläreunasta.</item>
-        <item>Android 17 pyytää nyt pääsyä paikalliseen verkkoon ennen kuin löytää tai muodostaa suoran yhteyden Home Assistant, joten paikalliset palvelimet jatkavat työskentelyä API 37:n kanssa.</item>
-    </string-array>
-
     <string-array name="cr_whats_new_1_1_1">
         <item>Uusi Kello-widget. Analoginen tai digitaalinen, seitsemän mallia kussakin, 12 tai 24 tunnin aika ja päivä, päivämäärä ja vuosi, jos haluat. Näet seuraavan herätyksen napauttamalla sitä.</item>
         <item>Ota yhteys Home Assistant itse asetuksista. Järjestelmänvalvojat saavat sen Asetukset, Kehittäjätyökalut ja HACS:n koko näytön sisään HKI 7, jo kirjautuneena sisään.</item>
@@ -48,5 +43,10 @@
         <item>Takaisin siirtyy sivulle, jolla olit aiemmin, joka kerta, kunnes tulet etusivulle. Se ei enää ohita sivuja tai poistu sovelluksesta aikaisin.</item>
         <item>Kiinteät lämpötila- ja energialukemat tšekin, slovakin, kreikan, norjan, ruotsin ja tanskan kielellä, joissa numerot näyttivät väärin tai voivat kaataa näytön.</item>
         <item>Onko kielelläsi jotain huonosti sanottu? Jokainen kieli on nyt yksi tiedosto, jonka voit korjata GitHubissa ilman koodia.</item>
+    </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Palaamalla Home Assistant Asetuksista, Kehittäjätyökalut tai HACS palauttaa nyt saman sijainnin HKI 7-asetuksiin sen sijaan, että avattaisiin uudelleen yläreunasta.</item>
+        <item>Android 17 pyytää nyt pääsyä paikalliseen verkkoon ennen kuin se löytää tai muodostaa yhteyden suoraan Home Assistant, joten paikalliset palvelimet toimivat edelleen API 37:n kanssa. Asetukset › Yhteys näyttää, onko se sallittu, ja voi kysyä uudelleen, kun Android 17 -päivitys saapuu kauan asennuksen jälkeen.</item>
+        <item>Asetusten käyttöoikeusruudut päivittyvät nyt heti, kun palaat myöntämättä lupaa. Sijainti, akun optimointi ja taustakäyttö näyttivät edelleen vanhaa tilaa, kunnes Asetukset suljettiin ja avattiin uudelleen.</item>
     </string-array>
 </resources>

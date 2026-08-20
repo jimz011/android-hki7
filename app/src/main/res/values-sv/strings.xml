@@ -208,6 +208,8 @@
     <string name="settings_connection_unknown">Okänd</string>
     <string name="settings_connection_connecting">Ansluter...</string>
     <string name="settings_this_home">detta hem</string>
+    <string name="settings_local_network_allowed">Tillåten</string>
+    <string name="settings_local_network_not_allowed">Inte tillåtet — Home Assistant kan inte nås direkt på ditt Wi-Fi</string>
     <string name="settings_current_wifi">Nuvarande Wi-Fi</string>
     <string name="settings_wifi_unavailable">Inte ansluten eller platsbehörighet saknas</string>
     <string name="settings_just_now">just nu</string>

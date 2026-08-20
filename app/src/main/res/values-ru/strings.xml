@@ -208,6 +208,8 @@
     <string name="settings_connection_unknown">Неизвестный</string>
     <string name="settings_connection_connecting">Подключение…</string>
     <string name="settings_this_home">этот дом</string>
+    <string name="settings_local_network_allowed">Допустимый</string>
+    <string name="settings_local_network_not_allowed">Не разрешено — Home Assistant недоступен напрямую через Wi-Fi.</string>
     <string name="settings_current_wifi">Текущий Wi-Fi</string>
     <string name="settings_wifi_unavailable">Не подключено или отсутствует разрешение на определение местоположения.</string>
     <string name="settings_just_now">прямо сейчас</string>

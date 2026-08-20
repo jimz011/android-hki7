@@ -17,11 +17,6 @@
         <item>Śledzenie przesyłek obejmuje piętnastu kolejnych przewoźników, w tym PostNord, InPost, Swiss Post, An Post, Budbee, Sameday i Nova Post, każdy z własnym logo.</item>
         <item>Robot odkurzający Valetudo pobiera mapę na żywo automatycznie po zaimportowaniu pomieszczeń, bez konieczności ręcznego wybierania kamery.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_1_2">
-        <item>Powrót z Home Assistant Ustawień, Narzędzi dla programistów lub HACS przywraca teraz tę samą pozycję w HKI 7 Ustawieniach, zamiast otwierać się ponownie na górze.</item>
-        <item>Android 17 prosi teraz o dostęp do sieci lokalnej przed znalezieniem lub bezpośrednim połączeniem się z Home Assistant, więc lokalne serwery nadal współpracują z API 37.</item>
-    </string-array>
-
     <string-array name="cr_whats_new_1_1_1">
         <item>Nowy widżet Zegara. Analogowy lub cyfrowy, po siedem wzorów każdy, czas 12- lub 24-godzinny oraz dzień, data i rok, jeśli chcesz. Kliknij, aby zobaczyć następny alarm.</item>
         <item>Wejdź do Home Assistant z Ustawień. Administratorzy uzyskują dostęp do ustawień, narzędzi programistycznych i pełnego ekranu HACS w HKI 7, już zalogowani.</item>
@@ -31,5 +26,10 @@
         <item>Za każdym razem następuje powrót do strony, na której byłeś wcześniej, aż dojdziesz do strony głównej. Nie pomija już stron ani nie opuszcza aplikacji wcześniej.</item>
         <item>Naprawiono odczyty temperatury i energii w języku czeskim, słowackim, greckim, norweskim, szwedzkim i duńskim, gdzie liczby były wyświetlane błędnie lub mogły powodować awarię ekranu.</item>
         <item>Coś źle sformułowanego w Twoim języku? Każdy język to teraz pojedynczy plik, który możesz poprawić w GitHubie, bez potrzeby stosowania kodu.</item>
+    </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Powrót z Home Assistant Ustawień, Narzędzi dla programistów lub HACS przywraca teraz tę samą pozycję w HKI 7 Ustawieniach, zamiast otwierać się ponownie na górze.</item>
+        <item>Android 17 prosi teraz o dostęp do sieci lokalnej przed znalezieniem lub połączeniem się bezpośrednio z Home Assistant, więc lokalne serwery nadal współpracują z API 37. Ustawienia &gt; Połączenie pokazuje, czy jest dozwolone, i może zapytać ponownie, kiedy aktualizacja do Androida 17 pojawi się długo po konfiguracji.</item>
+        <item>Kafelki uprawnień w Ustawieniach są teraz aktualizowane zaraz po powrocie z ich przyznania. Lokalizacja, optymalizacja baterii i użycie tła pokazywały stary stan, dopóki Ustawienia nie zostały zamknięte i ponownie otwarte.</item>
     </string-array>
 </resources>

@@ -17,11 +17,6 @@
         <item>Siuntų sekimas apima dar penkiolika vežėjų, įskaitant „PostNord“, „InPost“, „Swiss Post“, „An Post“, „Budbee“, „Sameday“ ir „Nova Post“, kurių kiekvienas turi savo logotipą.</item>
         <item>Valetudo robotas siurblys automatiškai paima tiesioginį žemėlapį, kai importuojami jūsų kambariai, o ne reikia pasirinkti kamerą rankomis.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_1_2">
-        <item>Grįžus iš Home Assistant Nustatymai, Kūrėjų įrankiai arba HACS dabar atkuria tą pačią padėtį HKI 7 nustatymuose, o ne iš naujo atidaro viršuje.</item>
-        <item>„Android 17“ dabar prašo prieigos prie vietinio tinklo, prieš surasdama arba tiesiogiai prisijungdama prie Home Assistant, todėl vietiniai serveriai ir toliau dirba su API 37.</item>
-    </string-array>
-
     <string-array name="cr_whats_new_1_1_1">
         <item>Naujas Laikrodžio valdiklis. Analoginis arba skaitmeninis, septyni dizainai, 12 arba 24 valandų laikas ir diena, data ir metai, jei norite. Bakstelėkite jį, kad pamatytumėte kitą signalą.</item>
         <item>Pasiekite Home Assistant iš Nustatymų. Administratoriai jau prisijungę gauna nustatymus, kūrėjo įrankius ir HACS visą ekraną HKI 7.</item>
@@ -31,5 +26,10 @@
         <item>Kiekvieną kartą grįžtama į puslapį, kuriame buvote anksčiau, kol pasieksite pagrindinį puslapį. Ji nebepraleidžia puslapių ir anksti nepalieka programos.</item>
         <item>Fiksuoti temperatūros ir energijos rodmenys čekų, slovakų, graikų, norvegų, švedų ir danų kalbomis, kur skaičiai rodomi neteisingai arba gali sugadinti ekraną.</item>
         <item>Kažkas blogai parašyta jūsų kalba? Dabar kiekviena kalba yra vienas failas, kurį galite taisyti naudodami „GitHub“, kodo nereikia.</item>
+    </string-array>
+    <string-array name="cr_whats_new_1_1_2">
+        <item>Grįžus iš Home Assistant Nustatymai, Kūrėjų įrankiai arba HACS dabar atkuria tą pačią padėtį HKI 7 nustatymuose, o ne iš naujo atidaro viršuje.</item>
+        <item>„Android 17“ dabar prašo prieigos prie vietinio tinklo, prieš surasdama arba tiesiogiai prisijungdama prie Home Assistant, todėl vietiniai serveriai ir toliau dirba su API 37. Nustatymai › Ryšys rodo, ar jis leidžiamas, ir gali dar kartą paklausti, kai „Android 17“ naujinimas bus pristatytas praėjus ilgai po sąrankos.</item>
+        <item>Leidimų plytelės nustatymuose dabar atnaujinamos, kai tik grįšite jį suteikę. Vieta, akumuliatoriaus optimizavimas ir naudojimas fone buvo rodomi sena būsena, kol nebuvo uždaryta ir vėl atidaryta „Nustatymai“.</item>
     </string-array>
 </resources>
