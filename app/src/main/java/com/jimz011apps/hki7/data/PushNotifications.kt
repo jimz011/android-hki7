@@ -250,7 +250,7 @@ class PushNotificationHandler(
     private suspend fun appendHistory(entry: HKINotification) = notificationHistoryMutex.withLock {
         val cutoff = System.currentTimeMillis() - RETENTION_MS
         val current = prefs.notificationHistory.first()
-            .filter { it.archived || it.timestamp >= cutoff }
+            .filter { it.survivesHistoryPurge(cutoff) }
         prefs.saveNotificationHistory((listOf(entry) + current).take(HISTORY_CAP))
     }
 
@@ -285,26 +285,63 @@ internal fun parseNotificationActions(data: JsonObject?): List<HKINotificationAc
     }.take(NotificationActions.MAX_ACTIONS)
 }
 
+/** Marks the panel entry announcing an available app update. At most one is ever stored. */
+const val UPDATE_NOTIFICATION_TAG = "hki7_update"
+
 /**
- * Adds a notification HKI 7 raised itself to the in-app panel's history.
+ * Whether an entry survives the history purge.
  *
- * The panel is normally fed by the push channel alone, so a locally generated notification — an
- * available app update, today — existed only as a system notification and was gone for good once
- * that was swiped away. Writing it here gives it the same second home every pushed notification
- * already has.
- *
- * Any earlier entry with the same [HKINotification.id] is replaced rather than added alongside, so
- * re-checking refreshes the one entry (and floats it back to the top, unread) instead of stacking
- * a duplicate per check.
+ * Ordinary notices report something that already happened, so they age out after 48 hours. An
+ * update notice reports something still outstanding, and stays until the update is no longer
+ * available — otherwise the one durable record of a pending update would quietly expire.
  */
-suspend fun recordLocalNotification(context: Context, entry: HKINotification) =
-    notificationHistoryMutex.withLock {
-        val prefs = PreferencesManager(context.applicationContext)
-        val cutoff = System.currentTimeMillis() - PushNotificationHandler.RETENTION_MS
-        val current = prefs.notificationHistory.first()
-            .filter { it.id != entry.id && (it.archived || it.timestamp >= cutoff) }
-        prefs.saveNotificationHistory((listOf(entry) + current).take(PushNotificationHandler.HISTORY_CAP))
+internal fun HKINotification.survivesHistoryPurge(cutoff: Long): Boolean =
+    archived || timestamp >= cutoff || tag == UPDATE_NOTIFICATION_TAG
+
+/**
+ * Stores the panel entry for an available update, keeping at most one.
+ *
+ * The panel is normally fed by the push channel alone, so this notice — raised locally — existed
+ * only as a system notification and was gone for good once that was swiped away. This is the copy
+ * that survives.
+ *
+ * If the same version is already listed it is **left exactly as the reader left it**: same
+ * position, same read and archived state. The check runs daily and the update may sit there for
+ * weeks, so re-adding it unread at the top each time would turn one piece of news into a daily
+ * nag, and make "archive" impossible to make stick. [resurface] overrides that for a check the
+ * reader asked for by hand, which is a request to see it again.
+ *
+ * Notices for any other version are dropped: only the newest release is worth showing.
+ */
+suspend fun recordUpdateNotification(
+    context: Context,
+    entry: HKINotification,
+    resurface: Boolean = false
+) = notificationHistoryMutex.withLock {
+    val prefs = PreferencesManager(context.applicationContext)
+    val cutoff = System.currentTimeMillis() - PushNotificationHandler.RETENTION_MS
+    val current = prefs.notificationHistory.first().filter { it.survivesHistoryPurge(cutoff) }
+    val alreadyListed = current.any { it.id == entry.id }
+    val others = current.filter { it.tag != UPDATE_NOTIFICATION_TAG }
+    val updated = when {
+        alreadyListed && !resurface ->
+            current.filter { it.tag != UPDATE_NOTIFICATION_TAG || it.id == entry.id }
+        else -> listOf(entry) + others
     }
+    prefs.saveNotificationHistory(updated.take(PushNotificationHandler.HISTORY_CAP))
+}
+
+/**
+ * Removes the update notice once there is nothing left to update to — the reader installed it, or
+ * the release was pulled. Without this the notice would outlive the update it announces, since it
+ * is deliberately exempt from the ordinary purge.
+ */
+suspend fun clearUpdateNotifications(context: Context) = notificationHistoryMutex.withLock {
+    val prefs = PreferencesManager(context.applicationContext)
+    val current = prefs.notificationHistory.first()
+    if (current.none { it.tag == UPDATE_NOTIFICATION_TAG }) return@withLock
+    prefs.saveNotificationHistory(current.filter { it.tag != UPDATE_NOTIFICATION_TAG })
+}
 
 /** Records that an action was used so the in-app panel stops offering it. */
 internal suspend fun markNotificationActionFired(

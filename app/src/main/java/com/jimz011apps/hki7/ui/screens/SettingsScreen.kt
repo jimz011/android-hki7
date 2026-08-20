@@ -3083,8 +3083,12 @@ fun SettingsDialog(
                                                 // Put it back in the notification panel, unread
                                                 // and at the top. Checking by hand is how someone
                                                 // asks for the announcement again after dismissing
-                                                // the system one.
-                                                latest?.let { GithubReleaseChecker.record(context, it) }
+                                                // it, so this is the one caller that resurfaces a
+                                                // notice the reader has already read or archived.
+                                                latest?.let {
+                                                    GithubReleaseChecker.record(context, it, resurface = true)
+                                                    prefs.saveLastPanelUpdateVersion(it.versionName)
+                                                }
                                                 checkedOnce = true
                                                 checking = false
                                             }

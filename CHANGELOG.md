@@ -26,10 +26,12 @@ Home Assistant settings return exactly where you left them.
 - Update notifications now also land in HKI 7's own notification panel. The system notification
   is posted once and is gone the moment it is swiped away, so the only record that a new
   version existed went with it. The panel entry carries a **See what changed** link straight to
-  the release notes — repeatable, so it keeps working days later — and is refreshed on every
-  daily check rather than written once, which keeps it alive past the panel's 48-hour
-  retention while the update is still waiting. Checking for updates by hand under
-  Settings › About also brings it back, unread and at the top, for anyone who dismissed it.
+  the release notes — repeatable, so it keeps working days later. It is added once per release,
+  never re-added by the daily check, and exempt from the panel's 48-hour purge, so it simply
+  stays until the update is installed and whatever you do with it sticks: read it, archive it or
+  delete it and it will not come back on its own. Checking for updates by hand under
+  Settings › About does bring it back, unread and at the top, since asking is the one case where
+  you want it again. Once the app is current the notice retires itself.
 - Fixed a version being marked as announced even when its notification never posted. Posting
   fails silently when notifications are switched off, and the daily check skips any version it
   believes it has already announced — so one failed attempt suppressed that release for good,

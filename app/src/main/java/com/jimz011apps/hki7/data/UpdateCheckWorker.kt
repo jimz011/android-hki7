@@ -29,11 +29,22 @@ class UpdateCheckWorker(appContext: Context, params: WorkerParameters) :
         // a notification that never posted. Runs once per install and is a no-op on a fresh one.
         prefs.clearStaleNotifiedUpdateVersionOnce()
 
-        val available = GithubReleaseChecker.check() ?: return Result.success()
-        // Refresh the in-app panel entry on every check, not just the first. Non-archived history
-        // is purged after 48 hours, so a once-only write would quietly disappear while the update
-        // was still waiting to be installed — which is the whole reason the panel copy exists.
-        GithubReleaseChecker.record(applicationContext, available)
+        val available = GithubReleaseChecker.check()
+        if (available == null) {
+            // Current again: retire the panel notice, which is exempt from the ordinary purge and
+            // would otherwise outlive the update it announces, and forget the version so a
+            // re-published release would be announced afresh.
+            GithubReleaseChecker.clearRecorded(applicationContext)
+            prefs.saveLastPanelUpdateVersion(null)
+            return Result.success()
+        }
+        // The panel notice goes in once per version, like the system one. The update may sit there
+        // for weeks, and whatever the reader does with it — read it, archive it, delete it — has to
+        // stick, which it cannot if the next check puts it straight back.
+        if (prefs.lastPanelUpdateVersion.first() != available.versionName) {
+            GithubReleaseChecker.record(applicationContext, available)
+            prefs.saveLastPanelUpdateVersion(available.versionName)
+        }
         // The system notification, by contrast, is posted once per version. Without this the same
         // release would be announced every day until the user got round to installing it.
         if (prefs.lastNotifiedUpdateVersion.first() == available.versionName) return Result.success()

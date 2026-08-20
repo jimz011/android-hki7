@@ -259,6 +259,8 @@ class PreferencesManager(
     private val cloudBackupEnabledKey = booleanPreferencesKey("cloud_backup_enabled")
     private val updateChecksEnabledKey = booleanPreferencesKey("update_checks_enabled")
     private val lastNotifiedUpdateVersionKey = stringPreferencesKey("last_notified_update_version")
+    /** The version whose notice has been put in the panel, so it is added once, not daily. */
+    private val lastPanelUpdateVersionKey = stringPreferencesKey("last_panel_update_version")
     // Set once the stale-marker cleanup below has run, so it happens exactly once per install.
     private val lastNotifiedUpdateResetKey = booleanPreferencesKey("last_notified_update_reset_done")
     private val haBackupEnabledKey = booleanPreferencesKey("ha_backup_enabled")
@@ -345,6 +347,14 @@ class PreferencesManager(
     val updateChecksEnabled: Flow<Boolean> = context.dataStore.data.map { it[updateChecksEnabledKey] ?: true }
     /** The version already announced, so one release is not notified about every day until installed. */
     val lastNotifiedUpdateVersion: Flow<String?> = context.dataStore.data.map { it[lastNotifiedUpdateVersionKey] }
+    /**
+     * The version already placed in the notification panel.
+     *
+     * Tracked separately from [lastNotifiedUpdateVersion], which only advances when the system
+     * notification actually posted: someone with notifications switched off would otherwise
+     * have the panel notice re-added on every check.
+     */
+    val lastPanelUpdateVersion: Flow<String?> = context.dataStore.data.map { it[lastPanelUpdateVersionKey] }
     /** Daily backup to the user's own Home Assistant instance via the hki7 companion component. */
     val haBackupEnabled: Flow<Boolean> = context.dataStore.data.map { it[haBackupEnabledKey] ?: false }
     /** Epoch millis of the last successful Google Drive backup, or null if none yet. */
@@ -447,6 +457,13 @@ class PreferencesManager(
 
     suspend fun saveLastNotifiedUpdateVersion(version: String) {
         context.dataStore.edit { it[lastNotifiedUpdateVersionKey] = version }
+    }
+
+    suspend fun saveLastPanelUpdateVersion(version: String?) {
+        context.dataStore.edit {
+            if (version == null) it.remove(lastPanelUpdateVersionKey)
+            else it[lastPanelUpdateVersionKey] = version
+        }
     }
 
     /**

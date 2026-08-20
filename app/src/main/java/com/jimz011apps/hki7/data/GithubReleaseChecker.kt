@@ -39,8 +39,6 @@ object GithubReleaseChecker {
     const val RELEASES_PAGE = "https://github.com/jimz011/android-hki7/releases/latest"
     private const val CHANNEL_ID = "hki7_app_updates"
     private const val NOTIFICATION_ID = 0x7C10
-    /** Groups the panel entry with the app itself rather than any Home Assistant instance. */
-    private const val UPDATE_TAG = "hki7_update"
 
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -168,18 +166,19 @@ object GithubReleaseChecker {
      * panel days later. URI actions are repeatable by design, so the button keeps working however
      * often it is used.
      *
-     * Safe to call repeatedly: the entry id is derived from the version, and
-     * [recordLocalNotification] replaces a matching entry instead of adding another.
+     * Safe to call on every check: the entry id is derived from the version, and
+     * [recordUpdateNotification] leaves an already-listed version untouched rather than
+     * resurrecting it. Pass [resurface] only for a check the reader asked for by hand.
      */
-    suspend fun record(context: Context, available: Available) {
-        recordLocalNotification(
+    suspend fun record(context: Context, available: Available, resurface: Boolean = false) {
+        recordUpdateNotification(
             context,
             HKINotification(
                 id = "hki7_update_${available.versionName}",
                 title = context.getString(R.string.update_available_title, available.versionName),
                 message = context.getString(R.string.update_available_body),
                 timestamp = System.currentTimeMillis(),
-                tag = UPDATE_TAG,
+                tag = UPDATE_NOTIFICATION_TAG,
                 actions = listOf(
                     HKINotificationAction(
                         action = "URI",
@@ -187,9 +186,13 @@ object GithubReleaseChecker {
                         uri = available.url
                     )
                 )
-            )
+            ),
+            resurface = resurface
         )
     }
+
+    /** Drops the panel notice once this build is current again. See [clearUpdateNotifications]. */
+    suspend fun clearRecorded(context: Context) = clearUpdateNotifications(context)
 
     /**
      * Sends the user wherever this install is allowed to update from: the Play listing for a Play
