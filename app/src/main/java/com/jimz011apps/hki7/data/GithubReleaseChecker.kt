@@ -123,9 +123,17 @@ object GithubReleaseChecker {
         }
     }
 
-    /** Posts the "update available" notification. No-op without the notification permission. */
-    fun notify(context: Context, available: Available) {
-        val manager = context.getSystemService(NotificationManager::class.java) ?: return
+    /**
+     * Posts the "update available" notification. No-op without the notification permission.
+     *
+     * Returns whether it actually reached the shade, because the caller records the version as
+     * announced and must not do that for an attempt that silently failed — a run that could not
+     * post has to be free to try again tomorrow rather than burning the one chance this version
+     * gets.
+     */
+    fun notify(context: Context, available: Available): Boolean {
+        if (!notificationsAllowed(context)) return false
+        val manager = context.getSystemService(NotificationManager::class.java) ?: return false
         manager.createNotificationChannel(
             NotificationChannel(
                 CHANNEL_ID,
@@ -147,7 +155,9 @@ object GithubReleaseChecker {
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
-        runCatching { NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification) }
+        return runCatching {
+            NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
+        }.isSuccess
     }
 
     /**

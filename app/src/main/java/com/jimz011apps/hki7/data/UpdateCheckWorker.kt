@@ -34,8 +34,13 @@ class UpdateCheckWorker(appContext: Context, params: WorkerParameters) :
         // release would be announced every day until the user got round to installing it.
         if (prefs.lastNotifiedUpdateVersion.first() == available.versionName) return Result.success()
 
-        GithubReleaseChecker.notify(applicationContext, available)
-        prefs.saveLastNotifiedUpdateVersion(available.versionName)
+        // Only mark it announced if it was: notifications may be switched off, and recording an
+        // attempt that never reached the shade would suppress this version for good — the check
+        // above would short-circuit every following day, so granting the permission later would
+        // never bring it back.
+        if (GithubReleaseChecker.notify(applicationContext, available)) {
+            prefs.saveLastNotifiedUpdateVersion(available.versionName)
+        }
         return Result.success()
     }
 
