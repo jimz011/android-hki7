@@ -9,6 +9,10 @@ your question is.
 
     Edit mode, buttons, stacks, badges, popups, pages, actions and visibility rules.
 
+-   :material-file-plus-outline: **[Custom pages](custom-pages.md)**
+
+    Pages of your own in the navigation bar — creating them, filling them, and ordering the bar.
+
 -   :material-widgets-outline: **[Widgets](widgets.md)**
 
     Every widget the app ships with, what it needs, and what it does.

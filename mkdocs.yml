@@ -113,6 +113,7 @@ nav:
   - User guide:
       - guide/index.md
       - Dashboards: guide/dashboards.md
+      - Custom pages: guide/custom-pages.md
       - Widgets: guide/widgets.md
       - Rooms: guide/rooms.md
       - Controls and screens: guide/controls.md

@@ -153,10 +153,12 @@ Popups are managed under **Settings › Dashboard › Popups**, and opened with 
 ## Pages and navigation
 
 **Home** and **Rooms** always exist. Beyond those you can add **custom pages** — as many as you
-like, each with its own contents.
+like, each with its own name, icon and contents.
 
-The navigation bar order is set under **Settings › Dashboard**. Home and Rooms are always shown;
-the rest can be reordered and hidden.
+The navigation bar order is set under **Settings › Dashboard › Navigation Bar**. Home and Rooms are
+always shown; the rest can be reordered and hidden.
+
+[:octicons-arrow-right-24: Custom pages](custom-pages.md)
 
 ### Global search
 

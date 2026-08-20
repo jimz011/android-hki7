@@ -54,12 +54,13 @@ Your profile as this app knows it.
 The subtitle shows whether the dashboard is in **Automatic** or **Manual** mode.
 
 - **Dashboards** — create, switch, duplicate, delete
-- **Navigation bar** — order and visibility. Home and Rooms are always shown
-- **Custom pages** — create a page of your own
+- **Navigation bar** — order and visibility, and **Create custom page**. Home and Rooms are always
+  shown
 - **Media players** — rename players and choose which may appear in the media bar
 - **Popups** — create and edit shared custom popups
 
 [:octicons-arrow-right-24: Dashboards](../guide/dashboards.md)
+[:octicons-arrow-right-24: Custom pages](../guide/custom-pages.md)
 
 ### Appearance
 
