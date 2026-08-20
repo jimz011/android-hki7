@@ -259,6 +259,8 @@ class PreferencesManager(
     private val cloudBackupEnabledKey = booleanPreferencesKey("cloud_backup_enabled")
     private val updateChecksEnabledKey = booleanPreferencesKey("update_checks_enabled")
     private val lastNotifiedUpdateVersionKey = stringPreferencesKey("last_notified_update_version")
+    // Set once the stale-marker cleanup below has run, so it happens exactly once per install.
+    private val lastNotifiedUpdateResetKey = booleanPreferencesKey("last_notified_update_reset_done")
     private val haBackupEnabledKey = booleanPreferencesKey("ha_backup_enabled")
     // Wall-clock time (epoch millis) of the most recent successful backup to each destination,
     // recorded by CloudBackupWorker so the settings screen can show "Last backup …" without a
@@ -445,6 +447,30 @@ class PreferencesManager(
 
     suspend fun saveLastNotifiedUpdateVersion(version: String) {
         context.dataStore.edit { it[lastNotifiedUpdateVersionKey] = version }
+    }
+
+    /**
+     * Clears a stale "already announced" marker, exactly once per install.
+     *
+     * Until the fix that goes out with this release, a version was written down as announced even
+     * when its notification never posted — so anyone whose notifications were off at the wrong
+     * moment has a marker for a release they were never actually told about, and the daily check
+     * skips it forever. Dropping the marker once lets that release be announced properly. The
+     * cost is at most one repeat notification for someone who did already see it.
+     *
+     * Both writes happen in one edit, so a torn run cannot clear the marker without also
+     * recording that it did.
+     */
+    suspend fun clearStaleNotifiedUpdateVersionOnce() {
+        // Cheap read first: edit() reserialises the whole preferences file even when it changes
+        // nothing, and the caller runs daily for the life of the install.
+        val alreadyRun = context.dataStore.data.map { it[lastNotifiedUpdateResetKey] == true }.first()
+        if (alreadyRun) return
+        context.dataStore.edit { preferences ->
+            if (preferences[lastNotifiedUpdateResetKey] == true) return@edit
+            preferences[lastNotifiedUpdateResetKey] = true
+            preferences.remove(lastNotifiedUpdateVersionKey)
+        }
     }
 
     suspend fun saveHaBackup(enabled: Boolean) {

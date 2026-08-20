@@ -34,7 +34,10 @@ Home Assistant settings return exactly where you left them.
   fails silently when notifications are switched off, and the daily check skips any version it
   believes it has already announced — so one failed attempt suppressed that release for good,
   and granting the permission afterwards never brought it back. The version is now recorded
-  only when the notification actually reached the shade.
+  only when the notification actually reached the shade. Installs already carrying a stale
+  marker are not left behind: it is dropped once on upgrade, so a release that was silently
+  written off gets announced properly. At worst that repeats one notification for someone who
+  had already seen it.
 - Fixed the permission tiles in Settings not updating after the permission itself was changed.
   Location, battery optimization and background usage are all granted outside the dialog — in
   a system sheet, or Android's own settings app — and returning from either changes nothing

@@ -25,6 +25,10 @@ class UpdateCheckWorker(appContext: Context, params: WorkerParameters) :
         val prefs = PreferencesManager(applicationContext)
         if (!prefs.updateChecksEnabled.first()) return Result.success()
 
+        // Before trusting the marker, drop one left over from the era when it was written even for
+        // a notification that never posted. Runs once per install and is a no-op on a fresh one.
+        prefs.clearStaleNotifiedUpdateVersionOnce()
+
         val available = GithubReleaseChecker.check() ?: return Result.success()
         // Refresh the in-app panel entry on every check, not just the first. Non-archived history
         // is purged after 48 hours, so a once-only write would quietly disappear while the update
