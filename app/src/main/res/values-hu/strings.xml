@@ -3088,6 +3088,8 @@
     <string name="uif_humidity">Nedvesség</string>
     <string name="uif_ionizer">Ionizáló</string>
     <string name="uif_lights_on">Fények bekapcsolva</string>
+    <string name="uif_local_network_access">Helyi hálózati hozzáférés</string>
+    <string name="uif_local_network_access_description">Lehetővé teszi a HKI 7 számára, hogy megtalálja a Home Assistant eszközt, és közvetlenül csatlakozzon hozzá a Wi-Fi hálózaton.</string>
     <string name="uif_mode_auto">Auto</string>
     <string name="uif_mode_away">El</string>
     <string name="uif_mode_baby">Baba</string>
@@ -3144,9 +3146,11 @@
     <string name="uif_open_doors">Nyitott ajtók</string>
     <string name="uif_open_settings">Nyissa meg a beállításokat</string>
     <string name="uif_open_windows">Nyissa ki az ablakokat</string>
+    <string name="uif_of_enabled">%1$d/%2$d engedélyezve</string>
     <string name="uif_pause">Szünet</string>
     <string name="uif_percentage">Százalék</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">Ezeket az engedélyeket később módosíthatja az Android beállításaiban.</string>
     <string name="uif_pick_to_auto_fill">Válassza az automatikus kitöltéshez</string>
     <string name="uif_pill">Tabletta</string>
     <string name="uif_play">Játék</string>

@@ -1700,6 +1700,10 @@
     <string name="update_now">Şimdi güncelle</string>
     <string name="update_watch_releases">Bana yeni çıkanlardan bahset</string>
     <string name="update_watch_releases_subtitle">GitHub\'ı günde bir kez kontrol eder ve daha yeni bir sürüm yayınlandığında sizi bilgilendirir</string>
+    <string name="uif_local_network_access">Yerel ağ erişimi</string>
+    <string name="uif_local_network_access_description">HKI 7 öğesinin Wi-Fi ağınızda Home Assistant öğesini bulup doğrudan bağlanmasına olanak tanır.</string>
+    <string name="uif_of_enabled">%2$d / %1$d etkin</string>
+    <string name="uif_permissions_can_be_changed_later">Bu izinleri daha sonra Android Ayarları\'ndan değiştirebilirsiniz.</string>
     <string name="weather_animate_title">Animasyonlu hava durumu</string>
     <string name="weather_animate_description">Tam renkli hava durumu sanat eserlerinin oynatıldığı yer. Bunun yerine hareketsiz resmini göstermek için bir yüzeyi kapatın; bir düzine simgeyi yan yana canlandırdıkları için tahmin şeritleri en pahalı olanlardır.</string>
     <string name="weather_animate_applies_everywhere">Bunlar sadece bu hap için değil, hava durumunun gösterildiği her yerde bu cihaz için geçerlidir. Aynı anahtarlar Ayarlar › Görünüm › Simgeler\'de de bulunur.</string>

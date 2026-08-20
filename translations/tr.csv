@@ -627,6 +627,7 @@ cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bot
 cr_quick_make_it_yours,,Make it yours,Kendine göre düzenle,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","Düzenleme modunda odaları, katları ve widget’ları ekleyip sırala. Yapılandırmak için bir öğeye dokun.",
 cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.","Home Assistant Ayarlar'dan, Geliştirici araçlarından veya HACS'tan geri dönüş artık üstte yeniden açmak yerine HKI 7 Ayarlar'da aynı konumu geri yüklüyor.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_2,2,"Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37.","Android 17 artık Home Assistant bulmadan veya doğrudan bağlanmadan önce Yerel ağ erişimi istiyor, böylece yerel sunucular API 37 ile çalışmaya devam ediyor.",don't translate Home Assistant
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.","Yeni Saat widget'ı. Analog veya dijital, her biri yedi tasarım, 12 veya 24 saatlik zaman ve isterseniz gün, tarih ve yıl. Bir sonraki alarmınızı görmek için ona dokunun.",
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.","Ayarlar'dan Home Assistant'nin kendisine ulaşın. Yöneticiler, Ayarlar'ı, Geliştirici araçlarını ve HACS'ı tam ekran olarak HKI 7 içinde oturum açmış halde alırlar.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,HKI 7 size yeni bir sürümün ne zaman çıkacağını bildirir; bu sürümü Play Store yerine GitHub'dan yüklediyseniz kullanışlıdır. Ayarlar › Hakkında bölümünden kapatın.,don't translate HKI 7
@@ -3280,6 +3281,8 @@ uif_hold,,Hold,Basılı tut,
 uif_humidity,,Humidity,Nem,
 uif_ionizer,,Ionizer,İyonlaştırıcı,
 uif_lights_on,,Lights on,Açık ışıklar,
+uif_local_network_access,,Local network access,Yerel ağ erişimi,
+uif_local_network_access_description,,Allows HKI 7 to find and connect directly to Home Assistant on your Wi-Fi network.,HKI 7 öğesinin Wi-Fi ağınızda Home Assistant öğesini bulup doğrudan bağlanmasına olanak tanır.,"don't translate Home Assistant, HKI 7"
 uif_mode_auto,,Auto,Otomatik,
 uif_mode_away,,Away,Dışarıda,
 uif_mode_baby,,Baby,Bebek,
@@ -3336,8 +3339,10 @@ uif_open,,Open,Aç,
 uif_open_doors,,Open doors,Açık kapılar,
 uif_open_settings,,Open settings,Ayarları aç,
 uif_open_windows,,Open windows,Açık pencereler,
+uif_of_enabled,,%1$d of %2$d enabled,%2$d / %1$d etkin,app fills in %1$d %2$d — keep them
 uif_pause,,Pause,Duraklat,
 uif_percentage,,Percentage,Yüzde,
+uif_permissions_can_be_changed_later,,You can change these permissions later in Android Settings.,Bu izinleri daha sonra Android Ayarları'ndan değiştirebilirsiniz.,
 uif_pick_to_auto_fill,,Pick to auto-fill,Otomatik doldurmak için seç,
 uif_pill,,Pill,Kapsül,
 uif_play,,Play,Oynat,

@@ -8,6 +8,13 @@ import org.junit.Test
 
 class NetworkMonitorTest {
     @Test
+    fun `local network permission is enforced only on Android 17 and later`() {
+        assertFalse(localNetworkPermissionRequired(sdkInt = 36, permissionGranted = false))
+        assertTrue(localNetworkPermissionRequired(sdkInt = 37, permissionGranted = false))
+        assertFalse(localNetworkPermissionRequired(sdkInt = 37, permissionGranted = true))
+    }
+
+    @Test
     fun `recognizes local Home Assistant addresses`() {
         assertTrue(isLikelyLocalHomeAssistantUrl("http://homeassistant.local:8123"))
         assertTrue(isLikelyLocalHomeAssistantUrl("http://homeassistant:8123"))

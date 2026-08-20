@@ -571,6 +571,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_1_2">
         <item>Beim Zurückkehren aus den Home Assistant-Einstellungen, Entwicklertools oder HACS wird nun die gleiche Position in den HKI 7-Einstellungen wiederhergestellt, anstatt sie oben erneut zu öffnen.</item>
+        <item>Android 17 fragt jetzt nach lokalem Netzwerkzugriff, bevor Home Assistant gefunden oder direkt eine Verbindung hergestellt wird, sodass lokale Server weiterhin mit API 37 arbeiten.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_1">

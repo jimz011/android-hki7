@@ -3088,6 +3088,8 @@
     <string name="uif_humidity">رطوبة</string>
     <string name="uif_ionizer">المؤين</string>
     <string name="uif_lights_on">أضواء على</string>
+    <string name="uif_local_network_access">الوصول إلى الشبكة المحلية</string>
+    <string name="uif_local_network_access_description">يسمح لـ HKI 7 بالعثور على Home Assistant والاتصال به مباشرةً على شبكة Wi-Fi لديك.</string>
     <string name="uif_mode_auto">آلي</string>
     <string name="uif_mode_away">بعيد</string>
     <string name="uif_mode_baby">طفل</string>
@@ -3144,9 +3146,11 @@
     <string name="uif_open_doors">افتح الأبواب</string>
     <string name="uif_open_settings">افتح الإعدادات</string>
     <string name="uif_open_windows">افتح النوافذ</string>
+    <string name="uif_of_enabled">تم تمكين %1$d لـ %2$d</string>
     <string name="uif_pause">يوقف</string>
     <string name="uif_percentage">نسبة مئوية</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">يمكنك تغيير هذه الأذونات لاحقًا في إعدادات Android.</string>
     <string name="uif_pick_to_auto_fill">اختر الملء التلقائي</string>
     <string name="uif_pill">حبة</string>
     <string name="uif_play">يلعب</string>

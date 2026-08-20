@@ -1700,6 +1700,10 @@
     <string name="update_now">Aggiorna ora</string>
     <string name="update_watch_releases">Parlami delle nuove uscite</string>
     <string name="update_watch_releases_subtitle">Controlla GitHub una volta al giorno e ti avvisa quando viene pubblicata una versione più recente</string>
+    <string name="uif_local_network_access">Accesso alla rete locale</string>
+    <string name="uif_local_network_access_description">Consente a HKI 7 di trovare e connettersi direttamente a Home Assistant sulla tua rete Wi-Fi.</string>
+    <string name="uif_of_enabled">%1$d di %2$d abilitato</string>
+    <string name="uif_permissions_can_be_changed_later">Puoi modificare queste autorizzazioni in un secondo momento nelle Impostazioni Android.</string>
     <string name="weather_animate_title">Meteo animato</string>
     <string name="weather_animate_description">Dove suona l\'opera d\'arte meteorologica a colori. Spegni una superficie per mostrare invece la sua grafica fissa: le strisce di previsione sono quelle che costano di più, poiché animano una dozzina di icone affiancate.</string>
     <string name="weather_animate_applies_everywhere">Questi si applicano a questo dispositivo ovunque venga mostrato il meteo, non solo a questa pillola. Gli stessi interruttori si trovano in Impostazioni &gt; Aspetto &gt; Icone.</string>

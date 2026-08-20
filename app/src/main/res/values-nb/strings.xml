@@ -3088,6 +3088,8 @@
     <string name="uif_humidity">Fuktighet</string>
     <string name="uif_ionizer">Ionisator</string>
     <string name="uif_lights_on">Lys på</string>
+    <string name="uif_local_network_access">Lokal nettverkstilgang</string>
+    <string name="uif_local_network_access_description">Lar HKI 7 finne og koble direkte til Home Assistant på Wi-Fi-nettverket ditt.</string>
     <string name="uif_mode_auto">Auto</string>
     <string name="uif_mode_away">Borte</string>
     <string name="uif_mode_baby">Baby</string>
@@ -3144,9 +3146,11 @@
     <string name="uif_open_doors">Åpne dører</string>
     <string name="uif_open_settings">Åpne innstillinger</string>
     <string name="uif_open_windows">Åpne vinduer</string>
+    <string name="uif_of_enabled">%1$d av %2$d aktivert</string>
     <string name="uif_pause">Pause</string>
     <string name="uif_percentage">Prosentdel</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">Du kan endre disse tillatelsene senere i Android-innstillingene.</string>
     <string name="uif_pick_to_auto_fill">Velg for å fylle ut automatisk</string>
     <string name="uif_pill">Pille</string>
     <string name="uif_play">Spille</string>

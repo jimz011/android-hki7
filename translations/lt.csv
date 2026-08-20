@@ -643,6 +643,7 @@ cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bot
 cr_quick_make_it_yours,,Make it yours,Padarykite tai savo,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","Redagavimo režimu pridėkite ir pertvarkykite patalpas, aukštus ir valdiklius. Bakstelėkite elementą, kad jį sukonfigūruotumėte.",
 cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.","Grįžus iš Home Assistant Nustatymai, Kūrėjų įrankiai arba HACS dabar atkuria tą pačią padėtį HKI 7 nustatymuose, o ne iš naujo atidaro viršuje.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_2,2,"Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37.","„Android 17“ dabar prašo prieigos prie vietinio tinklo, prieš surasdama arba tiesiogiai prisijungdama prie Home Assistant, todėl vietiniai serveriai ir toliau dirba su API 37.",don't translate Home Assistant
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.","Naujas Laikrodžio valdiklis. Analoginis arba skaitmeninis, septyni dizainai, 12 arba 24 valandų laikas ir diena, data ir metai, jei norite. Bakstelėkite jį, kad pamatytumėte kitą signalą.",
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.","Pasiekite Home Assistant iš Nustatymų. Administratoriai jau prisijungę gauna nustatymus, kūrėjo įrankius ir HACS visą ekraną HKI 7.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,"HKI 7 praneša, kai išleidžiama nauja versija – naudinga, jei ją įdiegėte iš „GitHub“, o ne „Play“ parduotuvės. Išjunkite jį nustatymuose › Apie.",don't translate HKI 7
@@ -3334,6 +3335,8 @@ uif_hold,,Hold,Laikykis,
 uif_humidity,,Humidity,Drėgmė,
 uif_ionizer,,Ionizer,Jonizatorius,
 uif_lights_on,,Lights on,Šviesos įjungtos,
+uif_local_network_access,,Local network access,Prieiga prie vietinio tinklo,
+uif_local_network_access_description,,Allows HKI 7 to find and connect directly to Home Assistant on your Wi-Fi network.,Leidžia HKI 7 rasti ir tiesiogiai prisijungti prie Home Assistant jūsų „Wi-Fi“ tinkle.,"don't translate Home Assistant, HKI 7"
 uif_mode_auto,,Auto,Auto,
 uif_mode_away,,Away,Toli,
 uif_mode_baby,,Baby,Kūdikis,
@@ -3390,8 +3393,10 @@ uif_open,,Open,Atidaryti,
 uif_open_doors,,Open doors,Atidarykite duris,
 uif_open_settings,,Open settings,Atidarykite nustatymus,
 uif_open_windows,,Open windows,Atidarykite langus,
+uif_of_enabled,,%1$d of %2$d enabled,%1$d iš %2$d įgalinta,app fills in %1$d %2$d — keep them
 uif_pause,,Pause,Pauzė,
 uif_percentage,,Percentage,Procentas,
+uif_permissions_can_be_changed_later,,You can change these permissions later in Android Settings.,Šiuos leidimus vėliau galėsite pakeisti „Android“ nustatymuose.,
 uif_pick_to_auto_fill,,Pick to auto-fill,"Pasirinkite, kad pildytumėte automatiškai",
 uif_pill,,Pill,Tabletė,
 uif_play,,Play,Žaisti,

@@ -627,6 +627,7 @@ cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bot
 cr_quick_make_it_yours,,Make it yours,Rendila tua,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","In modalità modifica, aggiungi e riordina stanze, piani e widget. Tocca un elemento per configurarlo.",
 cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.","Il ritorno da Home Assistant Impostazioni, Strumenti per sviluppatori o HACS ora ripristina la stessa posizione in HKI 7 Impostazioni invece di riaprire in alto.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_2,2,"Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37.","Android 17 ora richiede l'accesso alla rete locale prima di trovare o connettersi direttamente a Home Assistant, quindi i server locali continuano a funzionare con l'API 37.",don't translate Home Assistant
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.","Nuovo widget Orologio. Analogico o digitale, sette design ciascuno, formato 12 o 24 ore e, se lo desideri, giorno, data e anno. Toccalo per vedere la sveglia successiva.",
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.","Raggiungi Home Assistant stesso dalle Impostazioni. Gli amministratori ottengono le impostazioni, gli strumenti per sviluppatori e lo schermo intero HACS all'interno di HKI 7, già effettuato l'accesso.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,HKI 7 ti dice quando è disponibile una nuova versione: utile se l'hai installata da GitHub anziché dal Play Store. Disattivalo in Impostazioni › Informazioni.,don't translate HKI 7
@@ -3280,6 +3281,8 @@ uif_hold,,Hold,Tieni premuto,
 uif_humidity,,Humidity,Umidità,
 uif_ionizer,,Ionizer,Ionizzatore,
 uif_lights_on,,Lights on,Luci accese,
+uif_local_network_access,,Local network access,Accesso alla rete locale,
+uif_local_network_access_description,,Allows HKI 7 to find and connect directly to Home Assistant on your Wi-Fi network.,Consente a HKI 7 di trovare e connettersi direttamente a Home Assistant sulla tua rete Wi-Fi.,"don't translate Home Assistant, HKI 7"
 uif_mode_auto,,Auto,Automatico,
 uif_mode_away,,Away,Fuori casa,
 uif_mode_baby,,Baby,Bambino,
@@ -3336,8 +3339,10 @@ uif_open,,Open,Apri,
 uif_open_doors,,Open doors,Porte aperte,
 uif_open_settings,,Open settings,Apri impostazioni,
 uif_open_windows,,Open windows,Finestre aperte,
+uif_of_enabled,,%1$d of %2$d enabled,%1$d di %2$d abilitato,app fills in %1$d %2$d — keep them
 uif_pause,,Pause,Pausa,
 uif_percentage,,Percentage,Percentuale,
+uif_permissions_can_be_changed_later,,You can change these permissions later in Android Settings.,Puoi modificare queste autorizzazioni in un secondo momento nelle Impostazioni Android.,
 uif_pick_to_auto_fill,,Pick to auto-fill,Scegli per compilare automaticamente,
 uif_pill,,Pill,Pillola,
 uif_play,,Play,Riproduci,

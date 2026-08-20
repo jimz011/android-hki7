@@ -36,6 +36,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_1_2">
         <item>يؤدي الرجوع من Home Assistant إلى الإعدادات أو أدوات المطورين أو HACS الآن إلى استعادة نفس الموضع في HKI 7 الإعدادات بدلاً من إعادة فتحه في الأعلى.</item>
+        <item>يطلب Android 17 الآن الوصول إلى الشبكة المحلية قبل العثور على Home Assistant أو الاتصال به مباشرة، لذلك تستمر الخوادم المحلية في العمل مع API 37.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_1">

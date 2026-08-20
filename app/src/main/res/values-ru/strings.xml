@@ -3088,6 +3088,8 @@
     <string name="uif_humidity">Влажность</string>
     <string name="uif_ionizer">ионизатор</string>
     <string name="uif_lights_on">Свет включен</string>
+    <string name="uif_local_network_access">Доступ к локальной сети</string>
+    <string name="uif_local_network_access_description">Позволяет HKI 7 находить и напрямую подключаться к Home Assistant в вашей сети Wi-Fi.</string>
     <string name="uif_mode_auto">Авто</string>
     <string name="uif_mode_away">Прочь</string>
     <string name="uif_mode_baby">Малыш</string>
@@ -3144,9 +3146,11 @@
     <string name="uif_open_doors">Открытые двери</string>
     <string name="uif_open_settings">Открыть настройки</string>
     <string name="uif_open_windows">Открытые окна</string>
+    <string name="uif_of_enabled">%1$d из %2$d включен</string>
     <string name="uif_pause">Пауза</string>
     <string name="uif_percentage">Процент</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">Вы можете изменить эти разрешения позже в настройках Android.</string>
     <string name="uif_pick_to_auto_fill">Выберите для автозаполнения</string>
     <string name="uif_pill">Таблетка</string>
     <string name="uif_play">Играть</string>

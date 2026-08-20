@@ -19,6 +19,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_1_2">
         <item>Naastes jaotisest Home Assistant Seaded, Arendaja tööriistad või HACS taastab nüüd sama positsiooni HKI 7 sätetes, selle asemel, et uuesti avada ülaosas.</item>
+        <item>Android 17 küsib nüüd enne Home Assistant leidmist või sellega otse ühenduse loomist juurdepääsu kohalikule võrgule, nii et kohalikud serverid jätkavad API 37-ga töötamist.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_1">

@@ -3910,6 +3910,7 @@
     <string name="ha_page_session_failed">无法启动嵌入式 Home Assistant 会话。重新加载页面或在浏览器中打开它。</string>
     <string-array name="cr_whats_new_1_1_2">
         <item>从 Home Assistant 设置返回，开发者工具或 HACS 现在会恢复 HKI 7 设置中的相同位置，而不是在顶部重新打开。</item>
+        <item>Android 17 现在在查找或直接连接到 Home Assistant 之前要求本地网络访问，因此本地服务器继续使用 API 37。</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_1">
@@ -3922,4 +3923,8 @@
         <item>修复了捷克、斯洛伐克、希腊、挪威、瑞典和丹麦的温度和能量读数，其中数字显示错误或可能导致屏幕崩溃。</item>
         <item>你的语言中有什么措辞不好的地方吗？现在，每种语言都是一个文件，您可以在 GitHub 上进行更正，无需任何代码。</item>
     </string-array>
+    <string name="uif_local_network_access">本地网络访问</string>
+    <string name="uif_local_network_access_description">允许 HKI 7 查找并直接连接到 Wi-Fi 网络上的 Home Assistant。</string>
+    <string name="uif_of_enabled">已启用 %2$d 的 %1$d</string>
+    <string name="uif_permissions_can_be_changed_later">您可以稍后在 Android 设置中更改这些权限。</string>
 </resources>

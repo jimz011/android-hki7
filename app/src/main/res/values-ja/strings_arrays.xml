@@ -245,6 +245,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_1_2">
         <item>Home Assistant 設定、開発者ツール、または HACS から戻ると、上部で再度開くのではなく、HKI 7 設定の同じ位置が復元されるようになりました。</item>
+        <item>Android 17 では、Home Assistant を検索または直接接続する前に、ローカル ネットワーク アクセスを要求するようになりました。そのため、ローカル サーバーは API 37 で動作し続けます。</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_1">

@@ -3088,6 +3088,8 @@
     <string name="uif_humidity">Niiskus</string>
     <string name="uif_ionizer">Ionisaator</string>
     <string name="uif_lights_on">Tuled põlema</string>
+    <string name="uif_local_network_access">Juurdepääs kohalikule võrgule</string>
+    <string name="uif_local_network_access_description">Võimaldab HKI 7 teie WiFi-võrgus Home Assistant leida ja sellega otse ühenduse luua.</string>
     <string name="uif_mode_auto">Automaatne</string>
     <string name="uif_mode_away">Eemal</string>
     <string name="uif_mode_baby">Beebi</string>
@@ -3144,9 +3146,11 @@
     <string name="uif_open_doors">Avage uksed</string>
     <string name="uif_open_settings">Ava seaded</string>
     <string name="uif_open_windows">Avage aknad</string>
+    <string name="uif_of_enabled">%1$d %2$d-st on lubatud</string>
     <string name="uif_pause">Paus</string>
     <string name="uif_percentage">Protsent</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">Saate neid õigusi hiljem Androidi seadetes muuta.</string>
     <string name="uif_pick_to_auto_fill">Valige automaatseks täitmiseks</string>
     <string name="uif_pill">Pill</string>
     <string name="uif_play">Mängi</string>

@@ -95,6 +95,11 @@ def insert_array(path: Path, array_name: str, previous_array: str, items: list[s
     # Match the anchor's own indentation rather than assuming four spaces.
     line_start = text.rindex("\n", 0, anchor) + 1
     indent = text[line_start:anchor]
+    # Older --replace runs could consume the next array's leading indentation. Repair that shape
+    # while inserting so release-note blocks remain ordinary four-space resource children.
+    if not indent:
+        indent = "    "
+        text = text[:line_start] + indent + text[line_start:]
     body = "".join(f"{indent}    <item>{android_escape(item)}</item>\n" for item in items)
     block = f'{indent}<string-array name="{array_name}">\n{body}{indent}</string-array>\n\n'
     path.write_text(text[:line_start] + block + text[line_start:], "utf-8")
@@ -112,9 +117,12 @@ def remove_array(path: Path, array_name: str) -> None:
     """Drop an existing array so it can be written fresh. Non-greedy to the first closing tag, so
     it can never swallow the release below it."""
     text = path.read_text("utf-8")
+    # Remove this block and at most its following blank line. Using \s* here used to consume the
+    # indentation of the next array as well, slowly pulling release blocks out to column zero each
+    # time --replace was run.
     pattern = re.compile(
-        rf'[ \t]*<string-array name="{re.escape(array_name)}">.*?</string-array>\r?\n\s*',
-        re.S,
+        rf'^[ \t]*<string-array name="{re.escape(array_name)}">.*?^[ \t]*</string-array>\r?\n(?:\r?\n)?',
+        re.S | re.M,
     )
     path.write_text(pattern.sub("", text, count=1), "utf-8")
 

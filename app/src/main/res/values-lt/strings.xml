@@ -3088,6 +3088,8 @@
     <string name="uif_humidity">Drėgmė</string>
     <string name="uif_ionizer">Jonizatorius</string>
     <string name="uif_lights_on">Šviesos įjungtos</string>
+    <string name="uif_local_network_access">Prieiga prie vietinio tinklo</string>
+    <string name="uif_local_network_access_description">Leidžia HKI 7 rasti ir tiesiogiai prisijungti prie Home Assistant jūsų „Wi-Fi“ tinkle.</string>
     <string name="uif_mode_auto">Auto</string>
     <string name="uif_mode_away">Toli</string>
     <string name="uif_mode_baby">Kūdikis</string>
@@ -3144,9 +3146,11 @@
     <string name="uif_open_doors">Atidarykite duris</string>
     <string name="uif_open_settings">Atidarykite nustatymus</string>
     <string name="uif_open_windows">Atidarykite langus</string>
+    <string name="uif_of_enabled">%1$d iš %2$d įgalinta</string>
     <string name="uif_pause">Pauzė</string>
     <string name="uif_percentage">Procentas</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">Šiuos leidimus vėliau galėsite pakeisti „Android“ nustatymuose.</string>
     <string name="uif_pick_to_auto_fill">Pasirinkite, kad pildytumėte automatiškai</string>
     <string name="uif_pill">Tabletė</string>
     <string name="uif_play">Žaisti</string>

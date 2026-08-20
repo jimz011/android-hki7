@@ -627,6 +627,7 @@ cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bot
 cr_quick_make_it_yours,,Make it yours,Κάντε το δικό σας,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","Στη λειτουργία επεξεργασίας, προσθέστε και αναδιατάξτε δωμάτια, ορόφους και γραφικά στοιχεία. Πατήστε ένα στοιχείο για να το διαμορφώσετε.",
 cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.","Επιστρέφοντας από τις ρυθμίσεις Home Assistant, τα Εργαλεία προγραμματιστή ή το HACS επαναφέρουν τώρα την ίδια θέση στις ρυθμίσεις HKI 7 αντί να ανοίξουν ξανά στην κορυφή.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_2,2,"Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37.","Το Android 17 ζητά τώρα πρόσβαση στο τοπικό δίκτυο πριν βρει ή συνδεθεί απευθείας στο Home Assistant, επομένως οι τοπικοί διακομιστές συνεχίζουν να λειτουργούν με το API 37.",don't translate Home Assistant
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.","Νέο γραφικό στοιχείο ρολογιού. Αναλογικά ή ψηφιακά, επτά σχέδια το καθένα, 12 ή 24 ώρες και ημέρα, ημερομηνία και έτος αν τα θέλετε. Πατήστε το για να δείτε το επόμενο ξυπνητήρι σας.",
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.","Προσεγγίστε τον εαυτό του Home Assistant από τις Ρυθμίσεις. Οι διαχειριστές λαμβάνουν τις Ρυθμίσεις, τα εργαλεία προγραμματιστή και το HACS σε πλήρη οθόνη εντός HKI 7, που είναι ήδη συνδεδεμένοι.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,Το HKI 7 σάς ενημερώνει πότε κυκλοφορεί μια νέα έκδοση — χρήσιμο εάν την εγκαταστήσατε από το GitHub και όχι από το Play Store. Απενεργοποιήστε το στις Ρυθμίσεις › Πληροφορίες.,don't translate HKI 7
@@ -3280,6 +3281,8 @@ uif_hold,,Hold,Αμπάρι,
 uif_humidity,,Humidity,Υγρασία,
 uif_ionizer,,Ionizer,Ιονιστής,
 uif_lights_on,,Lights on,Φώτα αναμμένα,
+uif_local_network_access,,Local network access,Πρόσβαση σε τοπικό δίκτυο,
+uif_local_network_access_description,,Allows HKI 7 to find and connect directly to Home Assistant on your Wi-Fi network.,Επιτρέπει στον HKI 7 να βρει και να συνδεθεί απευθείας στο Home Assistant στο δίκτυό σας Wi-Fi.,"don't translate Home Assistant, HKI 7"
 uif_mode_auto,,Auto,Αυτο,
 uif_mode_away,,Away,Μακριά,
 uif_mode_baby,,Baby,Μωρό,
@@ -3336,8 +3339,10 @@ uif_open,,Open,Ανοιχτό,
 uif_open_doors,,Open doors,Ανοιχτές πόρτες,
 uif_open_settings,,Open settings,Ανοίξτε τις ρυθμίσεις,
 uif_open_windows,,Open windows,Ανοίξτε τα παράθυρα,
+uif_of_enabled,,%1$d of %2$d enabled,%1$d από %2$d ενεργοποιημένο,app fills in %1$d %2$d — keep them
 uif_pause,,Pause,Παύση,
 uif_percentage,,Percentage,Ποσοστό,
+uif_permissions_can_be_changed_later,,You can change these permissions later in Android Settings.,Μπορείτε να αλλάξετε αυτές τις άδειες αργότερα στις Ρυθμίσεις Android.,
 uif_pick_to_auto_fill,,Pick to auto-fill,Επιλέξτε για αυτόματη συμπλήρωση,
 uif_pill,,Pill,Χάπι,
 uif_play,,Play,Παιχνίδι,

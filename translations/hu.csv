@@ -627,6 +627,7 @@ cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bot
 cr_quick_make_it_yours,,Make it yours,Legyen a tiéd,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","Szerkesztés módban szobákat, emeleteket és modulokat adhat hozzá és rendezhet át. Érintsen meg egy elemet a konfigurálásához.",
 cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.","A Home Assistant beállításokból visszatérve a Fejlesztői eszközök vagy a HACS most visszaállítja ugyanazt a pozíciót a HKI 7 Beállításokban, ahelyett, hogy felülről nyitná meg újra.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_2,2,"Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37.","Az Android 17 mostantól helyi hálózati hozzáférést kér, mielőtt megtalálná a Home Assistant vagy közvetlenül csatlakozna hozzá, így a helyi szerverek továbbra is az API 37-tel dolgoznak.",don't translate Home Assistant
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.","Új Óra widget. Analóg vagy digitális, egyenként hét dizájn, 12 vagy 24 órás idő, valamint a nap, a dátum és az év, ha szeretné. Koppintson rá a következő ébresztés megtekintéséhez.",
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.","Érje el magát a Home Assistant-t a Beállításokban. Az adminisztrátorok a beállításokat, a fejlesztői eszközöket és a HACS teljes képernyős szolgáltatását a HKI 7-ban érik el, már bejelentkezve.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,"HKI 7 jelzi, ha megjelent egy új verzió – akkor hasznos, ha a GitHubról telepítette, nem pedig a Play Áruházból. Kapcsolja ki a Beállítások › Névjegy menüpontban.",don't translate HKI 7
@@ -3280,6 +3281,8 @@ uif_hold,,Hold,Tart,
 uif_humidity,,Humidity,Nedvesség,
 uif_ionizer,,Ionizer,Ionizáló,
 uif_lights_on,,Lights on,Fények bekapcsolva,
+uif_local_network_access,,Local network access,Helyi hálózati hozzáférés,
+uif_local_network_access_description,,Allows HKI 7 to find and connect directly to Home Assistant on your Wi-Fi network.,"Lehetővé teszi a HKI 7 számára, hogy megtalálja a Home Assistant eszközt, és közvetlenül csatlakozzon hozzá a Wi-Fi hálózaton.","don't translate Home Assistant, HKI 7"
 uif_mode_auto,,Auto,Auto,
 uif_mode_away,,Away,El,
 uif_mode_baby,,Baby,Baba,
@@ -3336,8 +3339,10 @@ uif_open,,Open,Nyitott,
 uif_open_doors,,Open doors,Nyitott ajtók,
 uif_open_settings,,Open settings,Nyissa meg a beállításokat,
 uif_open_windows,,Open windows,Nyissa ki az ablakokat,
+uif_of_enabled,,%1$d of %2$d enabled,%1$d/%2$d engedélyezve,app fills in %1$d %2$d — keep them
 uif_pause,,Pause,Szünet,
 uif_percentage,,Percentage,Százalék,
+uif_permissions_can_be_changed_later,,You can change these permissions later in Android Settings.,Ezeket az engedélyeket később módosíthatja az Android beállításaiban.,
 uif_pick_to_auto_fill,,Pick to auto-fill,Válassza az automatikus kitöltéshez,
 uif_pill,,Pill,Tabletta,
 uif_play,,Play,Játék,

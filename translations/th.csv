@@ -627,6 +627,7 @@ cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bot
 cr_quick_make_it_yours,,Make it yours,ทำให้มันเป็นของคุณ,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.",ในโหมดแก้ไข เพิ่มและจัดลำดับห้อง ชั้น และวิดเจ็ตใหม่ แตะรายการเพื่อกำหนดค่า,
 cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.",การกลับมาจากการตั้งค่า Home Assistant เครื่องมือสำหรับนักพัฒนาซอฟต์แวร์ หรือ HACS จะคืนค่าตำแหน่งเดิมในการตั้งค่า HKI 7 แทนที่จะเปิดอีกครั้งที่ด้านบน,"don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_2,2,"Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37.",ตอนนี้ Android 17 ขอการเข้าถึงเครือข่ายท้องถิ่นก่อนที่จะค้นหาหรือเชื่อมต่อโดยตรงกับ Home Assistant ดังนั้นเซิร์ฟเวอร์ภายในจึงทำงานกับ API 37 ต่อไป,don't translate Home Assistant
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.",วิดเจ็ตนาฬิกาใหม่ อะนาล็อกหรือดิจิตอล แต่ละดีไซน์มี 7 แบบ แสดงเวลา 12 หรือ 24 ชั่วโมง และวัน วันที่ และปี หากคุณต้องการ แตะเพื่อดูการปลุกครั้งถัดไป,
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.",เข้าถึง Home Assistant จากการตั้งค่า ผู้ดูแลระบบจะได้รับการตั้งค่า เครื่องมือสำหรับนักพัฒนา และ HACS แบบเต็มหน้าจอภายใน HKI 7 ซึ่งลงชื่อเข้าใช้แล้ว,"don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,HKI 7 แจ้งให้คุณทราบเมื่อมีเวอร์ชันใหม่ออกมา ซึ่งมีประโยชน์หากคุณติดตั้งจาก GitHub แทนที่จะเป็น Play Store ปิดได้ในการตั้งค่า > เกี่ยวกับ,don't translate HKI 7
@@ -3280,6 +3281,8 @@ uif_hold,,Hold,ถือ,
 uif_humidity,,Humidity,ความชื้น,
 uif_ionizer,,Ionizer,ไอออไนเซอร์,
 uif_lights_on,,Lights on,เปิดไฟ,
+uif_local_network_access,,Local network access,การเข้าถึงเครือข่ายท้องถิ่น,
+uif_local_network_access_description,,Allows HKI 7 to find and connect directly to Home Assistant on your Wi-Fi network.,อนุญาตให้ HKI 7 ค้นหาและเชื่อมต่อโดยตรงกับ Home Assistant บนเครือข่าย Wi-Fi ของคุณ,"don't translate Home Assistant, HKI 7"
 uif_mode_auto,,Auto,อัตโนมัติ,
 uif_mode_away,,Away,ห่างออกไป,
 uif_mode_baby,,Baby,ที่รัก,
@@ -3336,8 +3339,10 @@ uif_open,,Open,เปิด,
 uif_open_doors,,Open doors,เปิดประตู,
 uif_open_settings,,Open settings,เปิดการตั้งค่า,
 uif_open_windows,,Open windows,เปิดหน้าต่าง,
+uif_of_enabled,,%1$d of %2$d enabled,เปิดใช้งาน %1$d จาก %2$d แล้ว,app fills in %1$d %2$d — keep them
 uif_pause,,Pause,หยุดชั่วคราว,
 uif_percentage,,Percentage,เปอร์เซ็นต์,
+uif_permissions_can_be_changed_later,,You can change these permissions later in Android Settings.,คุณสามารถเปลี่ยนการอนุญาตเหล่านี้ได้ในภายหลังในการตั้งค่า Android,
 uif_pick_to_auto_fill,,Pick to auto-fill,เลือกเพื่อเติมอัตโนมัติ,
 uif_pill,,Pill,ยา,
 uif_play,,Play,เล่น,

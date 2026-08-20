@@ -3958,6 +3958,7 @@
     <string name="ha_page_session_failed">Não foi possível iniciar a sessão Home Assistant incorporada. Atualize a página ou abra-a no seu browser.</string>
     <string-array name="cr_whats_new_1_1_2">
         <item>O regresso das definições de Home Assistant, ferramentas de programador ou HACS restaura agora a mesma posição nas definições de HKI 7 em vez de reabrir na parte superior.</item>
+        <item>O Android 17 solicita agora o acesso à rede local antes de encontrar ou ligar diretamente a Home Assistant, para que os servidores locais continuem a trabalhar com a API 37.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_1">
@@ -3970,4 +3971,8 @@
         <item>Leituras fixas de temperatura e energia em checo, eslovaco, grego, norueguês, sueco e dinamarquês, em que os números eram apresentados incorretamente ou podiam bloquear o ecrã.</item>
         <item>Algo mal formulado na sua língua? Cada linguagem é agora um único ficheiro que pode corrigir no GitHub, sem necessidade de código.</item>
     </string-array>
+    <string name="uif_local_network_access">Acesso à rede local</string>
+    <string name="uif_local_network_access_description">Permite que HKI 7 encontre e se ligue diretamente a Home Assistant na sua rede Wi-Fi.</string>
+    <string name="uif_of_enabled">%1$d de %2$d ativado</string>
+    <string name="uif_permissions_can_be_changed_later">Pode alterar estas permissões posteriormente nas definições do Android.</string>
 </resources>

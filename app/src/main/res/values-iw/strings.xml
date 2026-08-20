@@ -3088,6 +3088,8 @@
     <string name="uif_humidity">לַחוּת</string>
     <string name="uif_ionizer">מיינן</string>
     <string name="uif_lights_on">אורות דולקים</string>
+    <string name="uif_local_network_access">גישה לרשת מקומית</string>
+    <string name="uif_local_network_access_description">מאפשר ל-HKI 7 למצוא ולהתחבר ישירות אל Home Assistant ברשת ה-Wi-Fi שלך.</string>
     <string name="uif_mode_auto">אוטומטי</string>
     <string name="uif_mode_away">רָחוֹק</string>
     <string name="uif_mode_baby">תִינוֹק</string>
@@ -3144,9 +3146,11 @@
     <string name="uif_open_doors">פתחו דלתות</string>
     <string name="uif_open_settings">פתח את ההגדרות</string>
     <string name="uif_open_windows">פתח חלונות</string>
+    <string name="uif_of_enabled">%1$d מתוך %2$d מופעלים</string>
     <string name="uif_pause">הַפסָקָה</string>
     <string name="uif_percentage">אֲחוּזִים</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">תוכל לשנות את ההרשאות האלה מאוחר יותר בהגדרות אנדרואיד.</string>
     <string name="uif_pick_to_auto_fill">בחר למילוי אוטומטי</string>
     <string name="uif_pill">כַּדוּר</string>
     <string name="uif_play">לְשַׂחֵק</string>

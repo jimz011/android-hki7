@@ -19,6 +19,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_1_2">
         <item>Atgriežoties no Home Assistant Iestatījumi, Izstrādātāju rīki vai HACS tagad atjauno to pašu pozīciju HKI 7 iestatījumos, nevis atkārtoti atver augšdaļā.</item>
+        <item>Android 17 tagad pieprasa piekļuvi vietējam tīklam, pirms tiek atrasts vai izveidots tiešs savienojums ar Home Assistant, tāpēc vietējie serveri turpina strādāt ar API 37.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_1">

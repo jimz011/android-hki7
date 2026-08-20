@@ -627,6 +627,7 @@ cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bot
 cr_quick_make_it_yours,,Make it yours,Tee siitä omasi,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","Muokkaustilassa voit lisätä ja järjestää uudelleen huoneita, kerroksia ja widgetejä. Napauta kohdetta määrittääksesi sen.",
 cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.","Palaamalla Home Assistant Asetuksista, Kehittäjätyökalut tai HACS palauttaa nyt saman sijainnin HKI 7-asetuksiin sen sijaan, että avattaisiin uudelleen yläreunasta.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_2,2,"Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37.","Android 17 pyytää nyt pääsyä paikalliseen verkkoon ennen kuin löytää tai muodostaa suoran yhteyden Home Assistant, joten paikalliset palvelimet jatkavat työskentelyä API 37:n kanssa.",don't translate Home Assistant
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.","Uusi Kello-widget. Analoginen tai digitaalinen, seitsemän mallia kussakin, 12 tai 24 tunnin aika ja päivä, päivämäärä ja vuosi, jos haluat. Näet seuraavan herätyksen napauttamalla sitä.",
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.","Ota yhteys Home Assistant itse asetuksista. Järjestelmänvalvojat saavat sen Asetukset, Kehittäjätyökalut ja HACS:n koko näytön sisään HKI 7, jo kirjautuneena sisään.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,"HKI 7 kertoo, kun uusi versio on julkaistu – hyödyllistä, jos asensit sen GitHubista Play Kaupasta sijaan. Poista se käytöstä kohdassa Asetukset › Tietoja.",don't translate HKI 7
@@ -3280,6 +3281,8 @@ uif_hold,,Hold,Pidä,
 uif_humidity,,Humidity,Kosteus,
 uif_ionizer,,Ionizer,Ionisaattori,
 uif_lights_on,,Lights on,Valot päällä,
+uif_local_network_access,,Local network access,Paikallinen verkkoyhteys,
+uif_local_network_access_description,,Allows HKI 7 to find and connect directly to Home Assistant on your Wi-Fi network.,Antaa HKI 7 löytää ja muodostaa yhteyden suoraan Home Assistant Wi-Fi-verkossasi.,"don't translate Home Assistant, HKI 7"
 uif_mode_auto,,Auto,Auto,
 uif_mode_away,,Away,Pois,
 uif_mode_baby,,Baby,Vauva,
@@ -3336,8 +3339,10 @@ uif_open,,Open,Avata,
 uif_open_doors,,Open doors,Avaa ovet,
 uif_open_settings,,Open settings,Avaa asetukset,
 uif_open_windows,,Open windows,Avaa ikkunat,
+uif_of_enabled,,%1$d of %2$d enabled,%1$d / %2$d käytössä,app fills in %1$d %2$d — keep them
 uif_pause,,Pause,Tauko,
 uif_percentage,,Percentage,Prosenttiosuus,
+uif_permissions_can_be_changed_later,,You can change these permissions later in Android Settings.,Voit muuttaa näitä käyttöoikeuksia myöhemmin Android-asetuksissa.,
 uif_pick_to_auto_fill,,Pick to auto-fill,Valitse automaattinen täyttö,
 uif_pill,,Pill,Pilleri,
 uif_play,,Play,Pelata,

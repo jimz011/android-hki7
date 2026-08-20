@@ -3999,6 +3999,14 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         return settled == ConnectionStatus.CONNECTED
     }
 
+    /** A denied Android 17 local-network permission can make the normal LAN failure handling latch
+     *  onto the remote URL. Granting it is a new connection condition, so discard that fallback
+     *  and reconnect immediately instead of waiting for Wi-Fi to change. */
+    fun onLocalNetworkPermissionGranted() {
+        clearInternalUrlFallback()
+        refreshEntities()
+    }
+
     /** Clears credentials (config preserved) and routes the user to the login screen. */
     fun forceRelogin(reason: String) {
         viewModelScope.launch { prefs.clearAuth() }

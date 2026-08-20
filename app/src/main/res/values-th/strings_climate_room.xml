@@ -19,6 +19,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_1_2">
         <item>การกลับมาจากการตั้งค่า Home Assistant เครื่องมือสำหรับนักพัฒนาซอฟต์แวร์ หรือ HACS จะคืนค่าตำแหน่งเดิมในการตั้งค่า HKI 7 แทนที่จะเปิดอีกครั้งที่ด้านบน</item>
+        <item>ตอนนี้ Android 17 ขอการเข้าถึงเครือข่ายท้องถิ่นก่อนที่จะค้นหาหรือเชื่อมต่อโดยตรงกับ Home Assistant ดังนั้นเซิร์ฟเวอร์ภายในจึงทำงานกับ API 37 ต่อไป</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_1">

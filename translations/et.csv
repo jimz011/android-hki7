@@ -627,6 +627,7 @@ cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bot
 cr_quick_make_it_yours,,Make it yours,Tee see enda omaks,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","Redigeerimisrežiimis saate ruume, korruseid ja vidinaid lisada ja ümber järjestada. Puudutage üksust selle konfigureerimiseks.",
 cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.","Naastes jaotisest Home Assistant Seaded, Arendaja tööriistad või HACS taastab nüüd sama positsiooni HKI 7 sätetes, selle asemel, et uuesti avada ülaosas.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_2,2,"Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37.","Android 17 küsib nüüd enne Home Assistant leidmist või sellega otse ühenduse loomist juurdepääsu kohalikule võrgule, nii et kohalikud serverid jätkavad API 37-ga töötamist.",don't translate Home Assistant
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.","Uus Kella vidin. Analoog- või digitaalne, igaüks seitse kujundust, 12- või 24-tunnine aeg ning päev, kuupäev ja aasta, kui soovite. Järgmise äratuse kuvamiseks puudutage seda.",
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.","Jõudke seadete kaudu seadmesse Home Assistant ise. Administraatorid saavad selle seaded, arendaja tööriistad ja HACS-i täisekraanil HKI 7, juba sisse logitud.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,"HKI 7 annab teile teada, kui uus versioon on välja antud – kasulik, kui installisite selle GitHubist, mitte Play poest. Lülitage see välja jaotises Seaded › Teave.",don't translate HKI 7
@@ -3280,6 +3281,8 @@ uif_hold,,Hold,Hoia,
 uif_humidity,,Humidity,Niiskus,
 uif_ionizer,,Ionizer,Ionisaator,
 uif_lights_on,,Lights on,Tuled põlema,
+uif_local_network_access,,Local network access,Juurdepääs kohalikule võrgule,
+uif_local_network_access_description,,Allows HKI 7 to find and connect directly to Home Assistant on your Wi-Fi network.,Võimaldab HKI 7 teie WiFi-võrgus Home Assistant leida ja sellega otse ühenduse luua.,"don't translate Home Assistant, HKI 7"
 uif_mode_auto,,Auto,Automaatne,
 uif_mode_away,,Away,Eemal,
 uif_mode_baby,,Baby,Beebi,
@@ -3336,8 +3339,10 @@ uif_open,,Open,Avatud,
 uif_open_doors,,Open doors,Avage uksed,
 uif_open_settings,,Open settings,Ava seaded,
 uif_open_windows,,Open windows,Avage aknad,
+uif_of_enabled,,%1$d of %2$d enabled,%1$d %2$d-st on lubatud,app fills in %1$d %2$d — keep them
 uif_pause,,Pause,Paus,
 uif_percentage,,Percentage,Protsent,
+uif_permissions_can_be_changed_later,,You can change these permissions later in Android Settings.,Saate neid õigusi hiljem Androidi seadetes muuta.,
 uif_pick_to_auto_fill,,Pick to auto-fill,Valige automaatseks täitmiseks,
 uif_pill,,Pill,Pill,
 uif_play,,Play,Mängi,

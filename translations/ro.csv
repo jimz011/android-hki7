@@ -635,6 +635,7 @@ cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bot
 cr_quick_make_it_yours,,Make it yours,Fă-l al tău,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","În modul de editare, adăugați și reordonați camere, etaje și widget-uri. Atingeți un element pentru a-l configura.",
 cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.","Revenind de la Setări Home Assistant, Instrumentele pentru dezvoltatori sau HACS restabilește acum aceeași poziție în Setări HKI 7 în loc să se redeschidă în partea de sus.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_2,2,"Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37.","Android 17 solicită acum acces la rețeaua locală înainte de a găsi sau de a se conecta direct la Home Assistant, astfel încât serverele locale continuă să funcționeze cu API 37.",don't translate Home Assistant
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.","Nou widget Ceas. Analogic sau digital, șapte modele fiecare, 12 sau 24 de ore și ziua, data și anul dacă le doriți. Atingeți-l pentru a vedea următoarea alarmă.",
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.","Ajungeți la Home Assistant din Setări. Administratorii primesc Setările, instrumentele pentru dezvoltatori și ecranul complet HACS în HKI 7, deja conectați.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,HKI 7 vă anunță când apare o nouă versiune - util dacă ați instalat-o din GitHub și nu din Magazin Play. Dezactivați-l în Setări › Despre.,don't translate HKI 7
@@ -3307,6 +3308,8 @@ uif_hold,,Hold,Ține,
 uif_humidity,,Humidity,Umiditate,
 uif_ionizer,,Ionizer,Ionizator,
 uif_lights_on,,Lights on,Luminile aprinse,
+uif_local_network_access,,Local network access,Acces la rețeaua locală,
+uif_local_network_access_description,,Allows HKI 7 to find and connect directly to Home Assistant on your Wi-Fi network.,Permite HKI 7 să găsească și să se conecteze direct la Home Assistant în rețeaua dvs. Wi-Fi.,"don't translate Home Assistant, HKI 7"
 uif_mode_auto,,Auto,Auto,
 uif_mode_away,,Away,Departe,
 uif_mode_baby,,Baby,Copil,
@@ -3363,8 +3366,10 @@ uif_open,,Open,Deschide,
 uif_open_doors,,Open doors,Deschide ușile,
 uif_open_settings,,Open settings,Deschideți setările,
 uif_open_windows,,Open windows,Deschide ferestre,
+uif_of_enabled,,%1$d of %2$d enabled,%1$d din %2$d activat,app fills in %1$d %2$d — keep them
 uif_pause,,Pause,Pauză,
 uif_percentage,,Percentage,Procent,
+uif_permissions_can_be_changed_later,,You can change these permissions later in Android Settings.,Puteți modifica aceste permisiuni mai târziu în Setări Android.,
 uif_pick_to_auto_fill,,Pick to auto-fill,Alegeți pentru a completa automat,
 uif_pill,,Pill,pilula,
 uif_play,,Play,Juca,

@@ -3088,6 +3088,8 @@
     <string name="uif_humidity">ความชื้น</string>
     <string name="uif_ionizer">ไอออไนเซอร์</string>
     <string name="uif_lights_on">เปิดไฟ</string>
+    <string name="uif_local_network_access">การเข้าถึงเครือข่ายท้องถิ่น</string>
+    <string name="uif_local_network_access_description">อนุญาตให้ HKI 7 ค้นหาและเชื่อมต่อโดยตรงกับ Home Assistant บนเครือข่าย Wi-Fi ของคุณ</string>
     <string name="uif_mode_auto">อัตโนมัติ</string>
     <string name="uif_mode_away">ห่างออกไป</string>
     <string name="uif_mode_baby">ที่รัก</string>
@@ -3144,9 +3146,11 @@
     <string name="uif_open_doors">เปิดประตู</string>
     <string name="uif_open_settings">เปิดการตั้งค่า</string>
     <string name="uif_open_windows">เปิดหน้าต่าง</string>
+    <string name="uif_of_enabled">เปิดใช้งาน %1$d จาก %2$d แล้ว</string>
     <string name="uif_pause">หยุดชั่วคราว</string>
     <string name="uif_percentage">เปอร์เซ็นต์</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">คุณสามารถเปลี่ยนการอนุญาตเหล่านี้ได้ในภายหลังในการตั้งค่า Android</string>
     <string name="uif_pick_to_auto_fill">เลือกเพื่อเติมอัตโนมัติ</string>
     <string name="uif_pill">ยา</string>
     <string name="uif_play">เล่น</string>

@@ -22,6 +22,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.tween
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -92,6 +93,8 @@ import com.jimz011apps.hki7.data.PreferencesManager
 import com.jimz011apps.hki7.data.PushForegroundService
 import com.jimz011apps.hki7.data.EXTRA_HA_INSTANCE_ID
 import com.jimz011apps.hki7.data.isDemoServerUrl
+import com.jimz011apps.hki7.data.canAccessLocalNetwork
+import com.jimz011apps.hki7.data.LOCAL_NETWORK_PERMISSION
 import com.jimz011apps.hki7.data.withDisplayName
 import com.jimz011apps.hki7.data.withStoredAppLocale
 import com.jimz011apps.hki7.ui.ConnectionStatus
@@ -328,6 +331,26 @@ class MainActivity : ComponentActivity() {
                         // mistaken for re-login and jump back to the login WebView.
                         onboardingStartsAtLogin = forceLogin || hasConnectionUrl
                         onboardingActive = true
+                    }
+                }
+                // Existing installations did not pass through Android 17's new permission step.
+                // Ask once when a real, already-configured session opens. First-time onboarding
+                // requests it on the server-discovery page, before any LAN traffic starts.
+                var localNetworkPermissionRequested by rememberSaveable { mutableStateOf(false) }
+                val localNetworkPermissionLauncher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+                ) { granted ->
+                    if (granted) viewModel.onLocalNetworkPermissionGranted()
+                }
+                LaunchedEffect(isLoading, loggedIn, onboardingActive, serverUrl, internalUrl) {
+                    val configuredUrl = internalUrl?.takeIf { it.isNotBlank() }
+                        ?: serverUrl?.takeIf { it.isNotBlank() }
+                    if (!isLoading && loggedIn && !onboardingActive &&
+                        !configuredUrl.isNullOrBlank() && !isDemoServerUrl(configuredUrl) &&
+                        !canAccessLocalNetwork(this@MainActivity) && !localNetworkPermissionRequested
+                    ) {
+                        localNetworkPermissionRequested = true
+                        localNetworkPermissionLauncher.launch(LOCAL_NETWORK_PERMISSION)
                     }
                 }
                 when {

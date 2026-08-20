@@ -19,6 +19,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_1_2">
         <item>חזרה מהגדרות Home Assistant, כלי מפתחים או HACS משחזרת כעת את אותו מיקום בהגדרות HKI 7 במקום להיפתח מחדש בחלק העליון.</item>
+        <item>אנדרואיד 17 מבקש כעת גישה לרשת מקומית לפני חיפוש או התחברות ישירות אל Home Assistant, כך שהשרתים המקומיים ממשיכים לעבוד עם API 37.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_1">

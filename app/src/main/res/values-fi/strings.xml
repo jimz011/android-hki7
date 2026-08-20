@@ -3088,6 +3088,8 @@
     <string name="uif_humidity">Kosteus</string>
     <string name="uif_ionizer">Ionisaattori</string>
     <string name="uif_lights_on">Valot päällä</string>
+    <string name="uif_local_network_access">Paikallinen verkkoyhteys</string>
+    <string name="uif_local_network_access_description">Antaa HKI 7 löytää ja muodostaa yhteyden suoraan Home Assistant Wi-Fi-verkossasi.</string>
     <string name="uif_mode_auto">Auto</string>
     <string name="uif_mode_away">Pois</string>
     <string name="uif_mode_baby">Vauva</string>
@@ -3144,9 +3146,11 @@
     <string name="uif_open_doors">Avaa ovet</string>
     <string name="uif_open_settings">Avaa asetukset</string>
     <string name="uif_open_windows">Avaa ikkunat</string>
+    <string name="uif_of_enabled">%1$d / %2$d käytössä</string>
     <string name="uif_pause">Tauko</string>
     <string name="uif_percentage">Prosenttiosuus</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">Voit muuttaa näitä käyttöoikeuksia myöhemmin Android-asetuksissa.</string>
     <string name="uif_pick_to_auto_fill">Valitse automaattinen täyttö</string>
     <string name="uif_pill">Pilleri</string>
     <string name="uif_play">Pelata</string>

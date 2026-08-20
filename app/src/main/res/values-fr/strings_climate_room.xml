@@ -578,6 +578,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_1_2">
         <item>Le retour depuis les paramètres Home Assistant, les outils de développement ou HACS restaure désormais la même position dans les paramètres HKI 7 au lieu de rouvrir en haut.</item>
+        <item>Android 17 demande désormais l\'accès au réseau local avant de trouver ou de se connecter directement à Home Assistant, afin que les serveurs locaux continuent de fonctionner avec l\'API 37.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_1">

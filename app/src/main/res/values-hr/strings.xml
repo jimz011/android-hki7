@@ -3088,6 +3088,8 @@
     <string name="uif_humidity">Vlažnost</string>
     <string name="uif_ionizer">Ionizator</string>
     <string name="uif_lights_on">Svjetla uključena</string>
+    <string name="uif_local_network_access">Pristup lokalnoj mreži</string>
+    <string name="uif_local_network_access_description">Omogućuje HKI 7 pronalaženje i izravno povezivanje s Home Assistant na vašoj Wi-Fi mreži.</string>
     <string name="uif_mode_auto">Auto</string>
     <string name="uif_mode_away">Daleko</string>
     <string name="uif_mode_baby">Dijete</string>
@@ -3144,9 +3146,11 @@
     <string name="uif_open_doors">Otvorena vrata</string>
     <string name="uif_open_settings">Otvori postavke</string>
     <string name="uif_open_windows">Otvoreni prozori</string>
+    <string name="uif_of_enabled">%1$d od %2$d omogućeno</string>
     <string name="uif_pause">Pauza</string>
     <string name="uif_percentage">Postotak</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">Ta dopuštenja možete promijeniti kasnije u postavkama Androida.</string>
     <string name="uif_pick_to_auto_fill">Odaberite za automatsko popunjavanje</string>
     <string name="uif_pill">Pilula</string>
     <string name="uif_play">Igrati</string>

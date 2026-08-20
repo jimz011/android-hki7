@@ -1,2 +1,3 @@
 FIXED
 • Returning from Home Assistant Settings, Developer tools or HACS now restores where you were in HKI 7 Settings
+• Local Home Assistant discovery and connections now work on Android 17

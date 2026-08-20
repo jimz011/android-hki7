@@ -19,6 +19,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_1_2">
         <item>Revenind de la Setări Home Assistant, Instrumentele pentru dezvoltatori sau HACS restabilește acum aceeași poziție în Setări HKI 7 în loc să se redeschidă în partea de sus.</item>
+        <item>Android 17 solicită acum acces la rețeaua locală înainte de a găsi sau de a se conecta direct la Home Assistant, astfel încât serverele locale continuă să funcționeze cu API 37.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_1">

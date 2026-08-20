@@ -1700,6 +1700,10 @@
     <string name="update_now">Actualizar ahora</string>
     <string name="update_watch_releases">Cuéntame sobre nuevos lanzamientos.</string>
     <string name="update_watch_releases_subtitle">Comprueba GitHub una vez al día y te notifica cuando se publica una versión más nueva.</string>
+    <string name="uif_local_network_access">Acceso a la red local</string>
+    <string name="uif_local_network_access_description">Permite que HKI 7 encuentre y se conecte directamente a Home Assistant en su red Wi-Fi.</string>
+    <string name="uif_of_enabled">%1$d de %2$d habilitado</string>
+    <string name="uif_permissions_can_be_changed_later">Puede cambiar estos permisos más adelante en la Configuración de Android.</string>
     <string name="weather_animate_title">Clima animado</string>
     <string name="weather_animate_description">Donde juega el arte meteorológico a todo color. En su lugar, apague una superficie para mostrar su obra de arte fija: las franjas de pronóstico son las que cuestan más, ya que animan una docena de íconos uno al lado del otro.</string>
     <string name="weather_animate_applies_everywhere">Estos se aplican a este dispositivo en todos los lugares donde se muestra el clima, no solo a esta píldora. Los mismos interruptores están en Configuración&gt;Apariencia&gt;Iconos.</string>

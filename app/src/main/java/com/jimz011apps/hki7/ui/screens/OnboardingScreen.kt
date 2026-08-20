@@ -86,6 +86,9 @@ import com.jimz011apps.hki7.data.LocationWork
 import com.jimz011apps.hki7.data.PreferencesManager
 import com.jimz011apps.hki7.data.PushForegroundService
 import com.jimz011apps.hki7.data.classifyHomeAssistantConnectionRoute
+import com.jimz011apps.hki7.data.canAccessLocalNetwork
+import com.jimz011apps.hki7.data.ANDROID_17_API_LEVEL
+import com.jimz011apps.hki7.data.LOCAL_NETWORK_PERMISSION
 import com.jimz011apps.hki7.data.splitHomeAssistantConnectionUrl
 import com.jimz011apps.hki7.data.driveAuthorizationRequest
 import com.jimz011apps.hki7.ui.components.LocationDisclosureDialog
@@ -1192,8 +1195,27 @@ private fun WelcomeStep(onNext: () -> Unit, onDemo: () -> Unit) {
 @Composable
 private fun ServerStep(onBack: () -> Unit, onServerChosen: (String) -> Unit) {
     val appColors = LocalHKIAppColors.current
-    val discovered = rememberHaDiscovery(active = true)
+    val context = LocalContext.current
+    var permissionRefresh by remember { mutableIntStateOf(0) }
+    val localNetworkGranted = remember(permissionRefresh) { canAccessLocalNetwork(context) }
+    val localNetworkLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { permissionRefresh++ }
+    LaunchedEffect(Unit) {
+        if (!localNetworkGranted) {
+            localNetworkLauncher.launch(LOCAL_NETWORK_PERMISSION)
+        }
+    }
+    val discovered = rememberHaDiscovery(active = localNetworkGranted)
     var manualUrl by remember { mutableStateOf("") }
+
+    fun openAppSettings() {
+        runCatching {
+            context.startActivity(
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, "package:${context.packageName}".toUri())
+            )
+        }
+    }
 
     OnboardingDialogFrame(
         title = stringResource(R.string.ui_find_home_assistant_locally_c992bdf),
@@ -1220,14 +1242,25 @@ private fun ServerStep(onBack: () -> Unit, onServerChosen: (String) -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.ui_discovered_acbb9e0), style = MaterialTheme.typography.titleSmall, color = appColors.onSurface)
                 Spacer(Modifier.width(8.dp))
-                if (discovered.isEmpty()) {
+                if (localNetworkGranted && discovered.isEmpty()) {
                     CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                     Spacer(Modifier.width(8.dp))
                     Text(stringResource(R.string.ui_scanning_36c4a06), style = MaterialTheme.typography.labelSmall, color = appColors.onMuted)
                 }
             }
 
-            if (discovered.isEmpty()) {
+            if (!localNetworkGranted) {
+                PermissionCard(
+                    icon = Icons.Default.Wifi,
+                    title = stringResource(R.string.uif_local_network_access),
+                    description = stringResource(R.string.uif_local_network_access_description),
+                    granted = false,
+                    actionLabel = stringResource(R.string.uif_enable),
+                    onAction = { localNetworkLauncher.launch(LOCAL_NETWORK_PERMISSION) },
+                    secondaryLabel = stringResource(R.string.uif_open_settings),
+                    onSecondary = ::openAppSettings,
+                )
+            } else if (discovered.isEmpty()) {
                 Surface(shape = RoundedCornerShape(16.dp), color = appColors.subtleSurface, modifier = Modifier.fillMaxWidth()) {
                     Text(
                         stringResource(R.string.ui_no_servers_found_yet_make_sure_you_re_on_7e6832d),
@@ -1607,11 +1640,13 @@ private fun PermissionsStep(onFinish: () -> Unit) {
 
     val powerManager = remember { context.getSystemService(PowerManager::class.java) }
     val notifGranted = remember(refresh) { notificationsAllowed(context) }
+    val localNetworkGranted = remember(refresh) { canAccessLocalNetwork(context) }
     val fineGranted = remember(refresh) { hasPerm(Manifest.permission.ACCESS_FINE_LOCATION) || hasPerm(Manifest.permission.ACCESS_COARSE_LOCATION) }
     val backgroundGranted = remember(refresh) { hasPerm(Manifest.permission.ACCESS_BACKGROUND_LOCATION) }
     val batteryUnrestricted = remember(refresh) { powerManager?.isIgnoringBatteryOptimizations(context.packageName) ?: false }
 
     val notifLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { refresh++ }
+    val localNetworkLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { refresh++ }
     val backgroundLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { refresh++ }
     val foregroundLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
         refresh++
@@ -1664,7 +1699,15 @@ private fun PermissionsStep(onFinish: () -> Unit) {
     }
 
     val locationGranted = fineGranted && backgroundGranted
-    val enabledCount = listOf(notifGranted, locationGranted, batteryUnrestricted).count { it }
+    val showsLocalNetworkPermission = Build.VERSION.SDK_INT >= ANDROID_17_API_LEVEL
+    val permissionStates = buildList {
+        if (showsLocalNetworkPermission) add(localNetworkGranted)
+        add(notifGranted)
+        add(locationGranted)
+        add(batteryUnrestricted)
+    }
+    val enabledCount = permissionStates.count { it }
+    val permissionCount = permissionStates.size
     val permissionScroll = rememberScrollState()
 
     Box(
@@ -1730,7 +1773,7 @@ private fun PermissionsStep(onFinish: () -> Unit) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(stringResource(R.string.ui_setup_progress_1a8adef), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                            Text(stringResource(R.string.ui_of_3_enabled_5cdedd4, enabledCount), style = MaterialTheme.typography.labelMedium, color = appColors.onMuted)
+                            Text(stringResource(R.string.uif_of_enabled, enabledCount, permissionCount), style = MaterialTheme.typography.labelMedium, color = appColors.onMuted)
                         }
                         Box(
                             modifier = Modifier
@@ -1741,7 +1784,7 @@ private fun PermissionsStep(onFinish: () -> Unit) {
                             if (enabledCount > 0) {
                                 Box(
                                     modifier = Modifier
-                                        .fillMaxWidth(enabledCount / 3f)
+                                        .fillMaxWidth(enabledCount.toFloat() / permissionCount)
                                         .fillMaxHeight()
                                         .background(MaterialTheme.colorScheme.primary, CircleShape)
                                 )
@@ -1757,6 +1800,19 @@ private fun PermissionsStep(onFinish: () -> Unit) {
                         .verticalScroll(permissionScroll),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    if (showsLocalNetworkPermission) {
+                        PermissionCard(
+                            icon = Icons.Default.Wifi,
+                            title = stringResource(R.string.uif_local_network_access),
+                            description = stringResource(R.string.uif_local_network_access_description),
+                            granted = localNetworkGranted,
+                            actionLabel = stringResource(R.string.uif_enable),
+                            onAction = { localNetworkLauncher.launch(LOCAL_NETWORK_PERMISSION) },
+                            secondaryLabel = stringResource(R.string.uif_open_settings),
+                            onSecondary = { openAppSettings() },
+                        )
+                    }
+
                     PermissionCard(
                         icon = Icons.Default.Notifications,
                         title = stringResource(R.string.ui_notifications_753a22b),
@@ -1811,7 +1867,7 @@ private fun PermissionsStep(onFinish: () -> Unit) {
                     )
 
                     Text(
-                        stringResource(R.string.ui_these_permissions_are_optional_and_can_be_changed_later_aa7a106),
+                        stringResource(R.string.uif_permissions_can_be_changed_later),
                         style = MaterialTheme.typography.bodySmall,
                         color = appColors.onMuted,
                         modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
@@ -1824,7 +1880,7 @@ private fun PermissionsStep(onFinish: () -> Unit) {
                     modifier = Modifier.fillMaxWidth().height(54.dp),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text(if (notifGranted && locationGranted) stringResource(R.string.ui_done_e9b450d) else stringResource(R.string.ui_continue_2e02623))
+                    Text(if (localNetworkGranted && notifGranted && locationGranted) stringResource(R.string.ui_done_e9b450d) else stringResource(R.string.ui_continue_2e02623))
                     Spacer(Modifier.width(8.dp))
                     Icon(Icons.Default.ChevronRight, contentDescription = null)
                 }

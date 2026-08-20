@@ -1933,6 +1933,10 @@
     <string name="update_now">Nu bijwerken</string>
     <string name="update_watch_releases">Vertel me over nieuwe releases</string>
     <string name="update_watch_releases_subtitle">Controleert GitHub één keer per dag en waarschuwt u wanneer er een nieuwere versie wordt gepubliceerd</string>
+    <string name="uif_local_network_access">Lokale netwerktoegang</string>
+    <string name="uif_local_network_access_description">Hiermee kan HKI 7 Home Assistant op uw Wi-Fi-netwerk vinden en er rechtstreeks verbinding mee maken.</string>
+    <string name="uif_of_enabled">%1$d van %2$d ingeschakeld</string>
+    <string name="uif_permissions_can_be_changed_later">U kunt deze machtigingen later wijzigen in de Android-instellingen.</string>
     <string name="weather_animate_title">Geanimeerd weer</string>
     <string name="weather_animate_description">Waar het full-colour weerkunstwerk speelt. Schakel in plaats daarvan een oppervlak uit om de stilstaande illustraties weer te geven. De voorspellingsstroken kosten het meeste, omdat ze een tiental pictogrammen naast elkaar animeren.</string>
     <string name="weather_animate_applies_everywhere">Deze zijn overal op dit apparaat van toepassing, niet alleen op deze pil. Dezelfde schakelaars bevinden zich in Instellingen › Uiterlijk › Pictogrammen.</string>

@@ -627,6 +627,7 @@ cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bot
 cr_quick_make_it_yours,,Make it yours,,needs translation
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.",,needs translation
 cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.",,"needs translation; don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_2,2,"Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37.",,needs translation; don't translate Home Assistant
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.",,needs translation
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.",,"needs translation; don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,,needs translation; don't translate HKI 7
@@ -3280,6 +3281,8 @@ uif_hold,,Hold,,needs translation
 uif_humidity,,Humidity,,needs translation
 uif_ionizer,,Ionizer,,needs translation
 uif_lights_on,,Lights on,,needs translation
+uif_local_network_access,,Local network access,,needs translation
+uif_local_network_access_description,,Allows HKI 7 to find and connect directly to Home Assistant on your Wi-Fi network.,,"needs translation; don't translate Home Assistant, HKI 7"
 uif_mode_auto,,Auto,,needs translation
 uif_mode_away,,Away,,needs translation
 uif_mode_baby,,Baby,,needs translation
@@ -3336,8 +3339,10 @@ uif_open,,Open,,needs translation
 uif_open_doors,,Open doors,,needs translation
 uif_open_settings,,Open settings,,needs translation
 uif_open_windows,,Open windows,,needs translation
+uif_of_enabled,,%1$d of %2$d enabled,,needs translation; app fills in %1$d %2$d — keep them
 uif_pause,,Pause,,needs translation
 uif_percentage,,Percentage,,needs translation
+uif_permissions_can_be_changed_later,,You can change these permissions later in Android Settings.,,needs translation
 uif_pick_to_auto_fill,,Pick to auto-fill,,needs translation
 uif_pill,,Pill,,needs translation
 uif_play,,Play,,needs translation

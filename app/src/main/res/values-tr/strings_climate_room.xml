@@ -570,6 +570,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_1_2">
         <item>Home Assistant Ayarlar\'dan, Geliştirici araçlarından veya HACS\'tan geri dönüş artık üstte yeniden açmak yerine HKI 7 Ayarlar\'da aynı konumu geri yüklüyor.</item>
+        <item>Android 17 artık Home Assistant bulmadan veya doğrudan bağlanmadan önce Yerel ağ erişimi istiyor, böylece yerel sunucular API 37 ile çalışmaya devam ediyor.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_1">

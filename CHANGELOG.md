@@ -14,6 +14,12 @@ Home Assistant settings return exactly where you left them.
   temporarily dismiss Settings because its WebView cannot render reliably inside the dialog
   window; the menu offset now lives in the parent that survives that handoff. Opening Settings
   normally still starts at the top.
+- Added Android 17 local-network permission support. Apps targeting API 37 are blocked from mDNS,
+  LAN HTTP and WebSocket traffic by default; HKI 7 now declares and requests
+  `ACCESS_LOCAL_NETWORK` before server discovery, offers it again in onboarding Permissions, and
+  asks existing installations once on upgrade. Granting it clears any remote-URL fallback caused
+  by the earlier block and reconnects immediately. Android 16 and earlier keep their existing
+  permission-free LAN behavior.
 
 ## 1.1.1
 

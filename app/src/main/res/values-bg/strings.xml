@@ -3088,6 +3088,8 @@
     <string name="uif_humidity">Влажност</string>
     <string name="uif_ionizer">Йонизатор</string>
     <string name="uif_lights_on">Светлините светят</string>
+    <string name="uif_local_network_access">Достъп до локална мрежа</string>
+    <string name="uif_local_network_access_description">Позволява на HKI 7 да намери и да се свърже директно с Home Assistant във вашата Wi-Fi мрежа.</string>
     <string name="uif_mode_auto">Авто</string>
     <string name="uif_mode_away">Далеч</string>
     <string name="uif_mode_baby">Бебе</string>
@@ -3144,9 +3146,11 @@
     <string name="uif_open_doors">Отворени врати</string>
     <string name="uif_open_settings">Отворете настройките</string>
     <string name="uif_open_windows">Отворени прозорци</string>
+    <string name="uif_of_enabled">%1$d от %2$d активиран</string>
     <string name="uif_pause">Пауза</string>
     <string name="uif_percentage">Процент</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">Можете да промените тези разрешения по-късно в настройките на Android.</string>
     <string name="uif_pick_to_auto_fill">Изберете за автоматично попълване</string>
     <string name="uif_pill">Хапче</string>
     <string name="uif_play">Играйте</string>

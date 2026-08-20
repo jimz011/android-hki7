@@ -627,6 +627,7 @@ cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bot
 cr_quick_make_it_yours,,Make it yours,打造專屬設定,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.",在編輯模式中，新增並重新排序房間、樓層與小工具。點按項目即可設定。,
 cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.",從 Home Assistant 設定返回，開發者工具或 HACS 現在會恢復 HKI 7 設定中的相同位置，而不是在頂部重新開啟。,"don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_2,2,"Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37.",Android 17 現在在查找或直接連接到 Home Assistant 之前要求本地網路訪問，因此本地伺服器繼續使用 API 37。,don't translate Home Assistant
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.",新的時鐘小工具。類比或數字，各七種設計，12 或 24 小時時間，以及日、日期和年份（如果您需要）。點擊它即可查看下一個鬧鐘。,
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.",從「設定」存取 Home Assistant 本身。管理員可以在 HKI 7 內全螢幕查看其設定、開發人員工具和 HACS，並且已登入。,"don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,HKI 7 會告訴您新版本何時發布 - 如果您是從 GitHub 而不是 Play 商店安裝的，則很有用。在“設定”>“關於”中將其關閉。,don't translate HKI 7
@@ -3280,6 +3281,8 @@ uif_hold,,Hold,按住,
 uif_humidity,,Humidity,濕度,
 uif_ionizer,,Ionizer,離子產生器,
 uif_lights_on,,Lights on,燈具開啟,
+uif_local_network_access,,Local network access,本地網路存取,
+uif_local_network_access_description,,Allows HKI 7 to find and connect directly to Home Assistant on your Wi-Fi network.,允許 HKI 7 尋找並直接連接到 Wi-Fi 網路上的 Home Assistant。,"don't translate Home Assistant, HKI 7"
 uif_mode_auto,,Auto,自動,
 uif_mode_away,,Away,離家,
 uif_mode_baby,,Baby,嬰兒,
@@ -3336,8 +3339,10 @@ uif_open,,Open,開啟,
 uif_open_doors,,Open doors,開啟的門,
 uif_open_settings,,Open settings,開啟設定,
 uif_open_windows,,Open windows,開啟的窗,
+uif_of_enabled,,%1$d of %2$d enabled,已啟用 %2$d 的 %1$d,app fills in %1$d %2$d — keep them
 uif_pause,,Pause,暫停,
 uif_percentage,,Percentage,百分比,
+uif_permissions_can_be_changed_later,,You can change these permissions later in Android Settings.,您可以稍後在 Android 設定中變更這些權限。,
 uif_pick_to_auto_fill,,Pick to auto-fill,選擇以自動填入,
 uif_pill,,Pill,圓標,
 uif_play,,Play,播放,

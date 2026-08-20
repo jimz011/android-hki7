@@ -643,6 +643,7 @@ cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bot
 cr_quick_make_it_yours,,Make it yours,Udělejte to po svém,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","V režimu úprav můžete přidávat a měnit pořadí místností, podlaží a widgetů. Klepnutím na položku ji nakonfigurujte.",
 cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.","Návrat z Home Assistant Nastavení, Vývojářské nástroje nebo HACS nyní obnoví stejnou pozici v HKI 7 Nastavení namísto opětovného otevření nahoře.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_2,2,"Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37.","Android 17 nyní požaduje přístup k místní síti před vyhledáním nebo přímým připojením k Home Assistant, takže místní servery nadále pracují s API 37.",don't translate Home Assistant
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.","Nový widget Hodiny. Analogové nebo digitální, každý sedm vzorů, 12 nebo 24hodinový čas a den, datum a rok, chcete-li. Klepnutím na něj zobrazíte další budík.",
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.","Dosáhněte samotného Home Assistant z Nastavení. Správci získají jeho nastavení, vývojářské nástroje a HACS celou obrazovku uvnitř HKI 7, již jsou přihlášeni.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,"HKI 7 vám řekne, když je k dispozici nová verze – užitečné, pokud jste ji nainstalovali z GitHubu, nikoli z Obchodu Play. Vypněte jej v Nastavení › O aplikaci.",don't translate HKI 7
@@ -3334,6 +3335,8 @@ uif_hold,,Hold,Držet,
 uif_humidity,,Humidity,Vlhkost,
 uif_ionizer,,Ionizer,Ionizátor,
 uif_lights_on,,Lights on,Rozsvícená světla,
+uif_local_network_access,,Local network access,Přístup k místní síti,
+uif_local_network_access_description,,Allows HKI 7 to find and connect directly to Home Assistant on your Wi-Fi network.,Umožňuje aplikaci HKI 7 vyhledat a připojit se přímo k Home Assistant ve vaší síti Wi-Fi.,"don't translate Home Assistant, HKI 7"
 uif_mode_auto,,Auto,Auto,
 uif_mode_away,,Away,Pryč,
 uif_mode_baby,,Baby,Dítě,
@@ -3390,8 +3393,10 @@ uif_open,,Open,OTEVŘENO,
 uif_open_doors,,Open doors,Otevřete dveře,
 uif_open_settings,,Open settings,Otevřete nastavení,
 uif_open_windows,,Open windows,Otevřete okna,
+uif_of_enabled,,%1$d of %2$d enabled,%1$d z %2$d povoleno,app fills in %1$d %2$d — keep them
 uif_pause,,Pause,Pauza,
 uif_percentage,,Percentage,Procento,
+uif_permissions_can_be_changed_later,,You can change these permissions later in Android Settings.,Tato oprávnění můžete později změnit v Nastavení Androidu.,
 uif_pick_to_auto_fill,,Pick to auto-fill,Vyberte pro automatické vyplňování,
 uif_pill,,Pill,Pilulka,
 uif_play,,Play,Hrát,

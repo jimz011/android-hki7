@@ -3088,6 +3088,8 @@
     <string name="uif_humidity">Vlhkosť</string>
     <string name="uif_ionizer">Ionizátor</string>
     <string name="uif_lights_on">Svetlá zapnuté</string>
+    <string name="uif_local_network_access">Prístup k miestnej sieti</string>
+    <string name="uif_local_network_access_description">Umožňuje aplikácii HKI 7 nájsť a pripojiť sa priamo k Home Assistant vo vašej sieti Wi-Fi.</string>
     <string name="uif_mode_auto">Auto</string>
     <string name="uif_mode_away">Preč</string>
     <string name="uif_mode_baby">Baby</string>
@@ -3144,9 +3146,11 @@
     <string name="uif_open_doors">Otvorte dvere</string>
     <string name="uif_open_settings">Otvorte nastavenia</string>
     <string name="uif_open_windows">Otvorte okná</string>
+    <string name="uif_of_enabled">%1$d z %2$d povolených</string>
     <string name="uif_pause">Pauza</string>
     <string name="uif_percentage">Percento</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">Tieto povolenia môžete neskôr zmeniť v nastaveniach systému Android.</string>
     <string name="uif_pick_to_auto_fill">Vyberte na automatické vyplnenie</string>
     <string name="uif_pill">Pilulka</string>
     <string name="uif_play">Hrať</string>

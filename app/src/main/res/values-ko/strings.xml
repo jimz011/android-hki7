@@ -3046,6 +3046,8 @@
     <string name="uif_humidity">습도</string>
     <string name="uif_ionizer">이온화기</string>
     <string name="uif_lights_on">불 켜짐</string>
+    <string name="uif_local_network_access">로컬 네트워크 액세스</string>
+    <string name="uif_local_network_access_description">HKI 7이 Wi-Fi 네트워크에서 Home Assistant을(를) 찾아서 직접 연결할 수 있도록 허용합니다.</string>
     <string name="uif_mode_auto">자동</string>
     <string name="uif_mode_away">외출</string>
     <string name="uif_mode_baby">아기</string>
@@ -3102,9 +3104,11 @@
     <string name="uif_open_doors">열린 문</string>
     <string name="uif_open_settings">설정 열기</string>
     <string name="uif_open_windows">창문 열기</string>
+    <string name="uif_of_enabled">%1$d 중 %2$d 활성화됨</string>
     <string name="uif_pause">일시 중지</string>
     <string name="uif_percentage">백분율</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">나중에 Android 설정에서 이러한 권한을 변경할 수 있습니다.</string>
     <string name="uif_pick_to_auto_fill">자동 완성을 선택하세요.</string>
     <string name="uif_pill">알약</string>
     <string name="uif_play">놀다</string>

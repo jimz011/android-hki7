@@ -1700,6 +1700,10 @@
     <string name="update_now">Mettre à jour maintenant</string>
     <string name="update_watch_releases">Parlez-moi des nouveautés</string>
     <string name="update_watch_releases_subtitle">Vérifie GitHub une fois par jour et vous avertit lorsqu\'une version plus récente est publiée</string>
+    <string name="uif_local_network_access">Accès au réseau local</string>
+    <string name="uif_local_network_access_description">Permet à HKI 7 de trouver et de se connecter directement à Home Assistant sur votre réseau Wi-Fi.</string>
+    <string name="uif_of_enabled">%1$d sur %2$d activé</string>
+    <string name="uif_permissions_can_be_changed_later">Vous pourrez modifier ces autorisations ultérieurement dans les paramètres Android.</string>
     <string name="weather_animate_title">Météo animée</string>
     <string name="weather_animate_description">Où jouent les illustrations météorologiques en couleur. Désactivez une surface pour afficher son illustration fixe à la place : les bandes de prévisions sont celles qui coûtent le plus cher, car elles animent une douzaine d\'icônes côte à côte.</string>
     <string name="weather_animate_applies_everywhere">Celles-ci s\'appliquent à cet appareil partout où la météo est affichée, pas seulement à cette pilule. Les mêmes commutateurs se trouvent dans Paramètres &gt; Apparence &gt; Icônes.</string>

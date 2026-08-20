@@ -19,6 +19,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_1_2">
         <item>Grįžus iš Home Assistant Nustatymai, Kūrėjų įrankiai arba HACS dabar atkuria tą pačią padėtį HKI 7 nustatymuose, o ne iš naujo atidaro viršuje.</item>
+        <item>„Android 17“ dabar prašo prieigos prie vietinio tinklo, prieš surasdama arba tiesiogiai prisijungdama prie Home Assistant, todėl vietiniai serveriai ir toliau dirba su API 37.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_1">

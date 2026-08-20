@@ -571,6 +571,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_1_2">
         <item>Terugkerend vanuit Home Assistant Instellingen, Ontwikkelaarstools of HACS herstelt nu dezelfde positie in HKI 7 Instellingen in plaats van opnieuw bovenaan te openen.</item>
+        <item>Android 17 vraagt nu om lokale netwerktoegang voordat Home Assistant wordt gevonden of er rechtstreeks verbinding mee wordt gemaakt, zodat lokale servers blijven werken met API 37.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_1">

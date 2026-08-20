@@ -627,6 +627,7 @@ cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bot
 cr_quick_make_it_yours,,Make it yours,Gjør den til din,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","I redigeringsmodus legger du til og omorganiserer rom, etasjer og widgets. Trykk på et element for å konfigurere det.",
 cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.","Gå tilbake fra Home Assistant-innstillinger, utviklerverktøy eller HACS gjenoppretter nå samme posisjon i HKI 7-innstillinger i stedet for å åpne på nytt øverst.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_2,2,"Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37.","Android 17 ber nå om lokal nettverkstilgang før den finner eller kobler direkte til Home Assistant, så lokale servere fortsetter å jobbe med API 37.",don't translate Home Assistant
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.","Ny klokke-widget. Analog eller digital, syv design hver, 12 eller 24-timers tid, og dag, dato og år hvis du vil ha dem. Trykk på den for å se din neste alarm.",
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.","Nå Home Assistant selv fra Innstillinger. Administratorer får sine innstillinger, utviklerverktøy og HACS fullskjerm inne i HKI 7, allerede pålogget.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,HKI 7 forteller deg når en ny versjon er ute - nyttig hvis du installerte den fra GitHub i stedet for Play Store. Slå den av i Innstillinger › Om.,don't translate HKI 7
@@ -3280,6 +3281,8 @@ uif_hold,,Hold,Holde,
 uif_humidity,,Humidity,Fuktighet,
 uif_ionizer,,Ionizer,Ionisator,
 uif_lights_on,,Lights on,Lys på,
+uif_local_network_access,,Local network access,Lokal nettverkstilgang,
+uif_local_network_access_description,,Allows HKI 7 to find and connect directly to Home Assistant on your Wi-Fi network.,Lar HKI 7 finne og koble direkte til Home Assistant på Wi-Fi-nettverket ditt.,"don't translate Home Assistant, HKI 7"
 uif_mode_auto,,Auto,Auto,
 uif_mode_away,,Away,Borte,
 uif_mode_baby,,Baby,Baby,
@@ -3336,8 +3339,10 @@ uif_open,,Open,Åpne,
 uif_open_doors,,Open doors,Åpne dører,
 uif_open_settings,,Open settings,Åpne innstillinger,
 uif_open_windows,,Open windows,Åpne vinduer,
+uif_of_enabled,,%1$d of %2$d enabled,%1$d av %2$d aktivert,app fills in %1$d %2$d — keep them
 uif_pause,,Pause,Pause,
 uif_percentage,,Percentage,Prosentdel,
+uif_permissions_can_be_changed_later,,You can change these permissions later in Android Settings.,Du kan endre disse tillatelsene senere i Android-innstillingene.,
 uif_pick_to_auto_fill,,Pick to auto-fill,Velg for å fylle ut automatisk,
 uif_pill,,Pill,Pille,
 uif_play,,Play,Spille,

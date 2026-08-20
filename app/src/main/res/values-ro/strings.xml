@@ -3088,6 +3088,8 @@
     <string name="uif_humidity">Umiditate</string>
     <string name="uif_ionizer">Ionizator</string>
     <string name="uif_lights_on">Luminile aprinse</string>
+    <string name="uif_local_network_access">Acces la rețeaua locală</string>
+    <string name="uif_local_network_access_description">Permite HKI 7 să găsească și să se conecteze direct la Home Assistant în rețeaua dvs. Wi-Fi.</string>
     <string name="uif_mode_auto">Auto</string>
     <string name="uif_mode_away">Departe</string>
     <string name="uif_mode_baby">Copil</string>
@@ -3144,9 +3146,11 @@
     <string name="uif_open_doors">Deschide ușile</string>
     <string name="uif_open_settings">Deschideți setările</string>
     <string name="uif_open_windows">Deschide ferestre</string>
+    <string name="uif_of_enabled">%1$d din %2$d activat</string>
     <string name="uif_pause">Pauză</string>
     <string name="uif_percentage">Procent</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">Puteți modifica aceste permisiuni mai târziu în Setări Android.</string>
     <string name="uif_pick_to_auto_fill">Alegeți pentru a completa automat</string>
     <string name="uif_pill">pilula</string>
     <string name="uif_play">Juca</string>

@@ -3088,6 +3088,8 @@
     <string name="uif_humidity">Wilgotność</string>
     <string name="uif_ionizer">Jonizator</string>
     <string name="uif_lights_on">Światła włączone</string>
+    <string name="uif_local_network_access">Dostęp do sieci lokalnej</string>
+    <string name="uif_local_network_access_description">Umożliwia HKI 7 znajdowanie i łączenie się bezpośrednio z Home Assistant w Twojej sieci Wi-Fi.</string>
     <string name="uif_mode_auto">Automatyczny</string>
     <string name="uif_mode_away">Z dala</string>
     <string name="uif_mode_baby">Dziecko</string>
@@ -3144,9 +3146,11 @@
     <string name="uif_open_doors">Otwórz drzwi</string>
     <string name="uif_open_settings">Otwórz ustawienia</string>
     <string name="uif_open_windows">Otwórz okna</string>
+    <string name="uif_of_enabled">%1$d z %2$d włączone</string>
     <string name="uif_pause">Pauza</string>
     <string name="uif_percentage">Procent</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">Możesz zmienić te uprawnienia później w Ustawieniach Androida.</string>
     <string name="uif_pick_to_auto_fill">Wybierz, aby wypełnić automatycznie</string>
     <string name="uif_pill">Pigułka</string>
     <string name="uif_play">Grać</string>

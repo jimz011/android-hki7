@@ -3088,6 +3088,8 @@
     <string name="uif_humidity">Mitrums</string>
     <string name="uif_ionizer">Jonizators</string>
     <string name="uif_lights_on">Gaismas ieslēgtas</string>
+    <string name="uif_local_network_access">Piekļuve vietējam tīklam</string>
+    <string name="uif_local_network_access_description">Ļauj HKI 7 atrast un tieši izveidot savienojumu ar Home Assistant jūsu Wi-Fi tīklā.</string>
     <string name="uif_mode_auto">Auto</string>
     <string name="uif_mode_away">Prom</string>
     <string name="uif_mode_baby">Mazulis</string>
@@ -3144,9 +3146,11 @@
     <string name="uif_open_doors">Atvērt durvis</string>
     <string name="uif_open_settings">Atveriet iestatījumus</string>
     <string name="uif_open_windows">Atveriet logus</string>
+    <string name="uif_of_enabled">%1$d no %2$d ir iespējots</string>
     <string name="uif_pause">Pauze</string>
     <string name="uif_percentage">Procenti</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">Šīs atļaujas vēlāk varēsiet mainīt Android iestatījumos.</string>
     <string name="uif_pick_to_auto_fill">Izvēlieties automātiskai aizpildīšanai</string>
     <string name="uif_pill">Tabletes</string>
     <string name="uif_play">Spēlēt</string>

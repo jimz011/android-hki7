@@ -3088,6 +3088,8 @@
     <string name="uif_humidity">Fugtighed</string>
     <string name="uif_ionizer">Ionisator</string>
     <string name="uif_lights_on">Lys tændt</string>
+    <string name="uif_local_network_access">Lokal netværksadgang</string>
+    <string name="uif_local_network_access_description">Tillader HKI 7 at finde og oprette forbindelse direkte til Home Assistant på dit Wi-Fi-netværk.</string>
     <string name="uif_mode_auto">Auto</string>
     <string name="uif_mode_away">Væk</string>
     <string name="uif_mode_baby">Baby</string>
@@ -3144,9 +3146,11 @@
     <string name="uif_open_doors">Åbne døre</string>
     <string name="uif_open_settings">Åbn indstillinger</string>
     <string name="uif_open_windows">Åbn vinduer</string>
+    <string name="uif_of_enabled">%1$d af %2$d aktiveret</string>
     <string name="uif_pause">Pause</string>
     <string name="uif_percentage">Procent</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">Du kan ændre disse tilladelser senere i Android-indstillinger.</string>
     <string name="uif_pick_to_auto_fill">Vælg at udfylde automatisk</string>
     <string name="uif_pill">Pille</string>
     <string name="uif_play">Spil</string>

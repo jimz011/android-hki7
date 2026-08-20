@@ -635,6 +635,7 @@ cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bot
 cr_quick_make_it_yours,,Make it yours,Padariet to par savu,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","Rediģēšanas režīmā pievienojiet un pārkārtojiet telpas, stāvus un logrīkus. Pieskarieties vienumam, lai to konfigurētu.",
 cr_whats_new_1_1_2,1,"Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.","Atgriežoties no Home Assistant Iestatījumi, Izstrādātāju rīki vai HACS tagad atjauno to pašu pozīciju HKI 7 iestatījumos, nevis atkārtoti atver augšdaļā.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_1_2,2,"Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37.","Android 17 tagad pieprasa piekļuvi vietējam tīklam, pirms tiek atrasts vai izveidots tiešs savienojums ar Home Assistant, tāpēc vietējie serveri turpina strādāt ar API 37.",don't translate Home Assistant
 cr_whats_new_1_1_1,1,"New Clock widget. Analog or digital, seven designs each, 12 or 24-hour time, and the day, date and year if you want them. Tap it to see your next alarm.","Jauns pulksteņa logrīks. Analogā vai digitālā, septiņi dizaini katrs, 12 vai 24 stundu laiks un diena, datums un gads, ja vēlaties. Pieskarieties tam, lai redzētu nākamo modinātāju.",
 cr_whats_new_1_1_1,2,"Reach Home Assistant itself from Settings. Admins get its Settings, Developer tools and HACS full screen inside HKI 7, already signed in.","Sasniedziet Home Assistant, izmantojot iestatījumus. Administratori saņem iestatījumus, izstrādātāju rīkus un HACS pilnekrāna režīmā HKI 7, jau pierakstoties.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_1,3,HKI 7 tells you when a new version is out — useful if you installed it from GitHub rather than the Play Store. Turn it off in Settings › About.,"HKI 7 informē, kad tiek izlaista jauna versija — tas ir noderīgi, ja instalējāt to no GitHub, nevis no Play veikala. Izslēdziet to sadaļā Iestatījumi › Par.",don't translate HKI 7
@@ -3307,6 +3308,8 @@ uif_hold,,Hold,Turiet,
 uif_humidity,,Humidity,Mitrums,
 uif_ionizer,,Ionizer,Jonizators,
 uif_lights_on,,Lights on,Gaismas ieslēgtas,
+uif_local_network_access,,Local network access,Piekļuve vietējam tīklam,
+uif_local_network_access_description,,Allows HKI 7 to find and connect directly to Home Assistant on your Wi-Fi network.,Ļauj HKI 7 atrast un tieši izveidot savienojumu ar Home Assistant jūsu Wi-Fi tīklā.,"don't translate Home Assistant, HKI 7"
 uif_mode_auto,,Auto,Auto,
 uif_mode_away,,Away,Prom,
 uif_mode_baby,,Baby,Mazulis,
@@ -3363,8 +3366,10 @@ uif_open,,Open,Atvērt,
 uif_open_doors,,Open doors,Atvērt durvis,
 uif_open_settings,,Open settings,Atveriet iestatījumus,
 uif_open_windows,,Open windows,Atveriet logus,
+uif_of_enabled,,%1$d of %2$d enabled,%1$d no %2$d ir iespējots,app fills in %1$d %2$d — keep them
 uif_pause,,Pause,Pauze,
 uif_percentage,,Percentage,Procenti,
+uif_permissions_can_be_changed_later,,You can change these permissions later in Android Settings.,Šīs atļaujas vēlāk varēsiet mainīt Android iestatījumos.,
 uif_pick_to_auto_fill,,Pick to auto-fill,Izvēlieties automātiskai aizpildīšanai,
 uif_pill,,Pill,Tabletes,
 uif_play,,Play,Spēlēt,

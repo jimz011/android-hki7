@@ -348,6 +348,7 @@
     <!-- Current release -->
     <string-array name="cr_whats_new_1_1_2">
         <item>Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.</item>
+        <item>Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_1">

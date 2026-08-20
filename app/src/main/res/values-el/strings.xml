@@ -3088,6 +3088,8 @@
     <string name="uif_humidity">Υγρασία</string>
     <string name="uif_ionizer">Ιονιστής</string>
     <string name="uif_lights_on">Φώτα αναμμένα</string>
+    <string name="uif_local_network_access">Πρόσβαση σε τοπικό δίκτυο</string>
+    <string name="uif_local_network_access_description">Επιτρέπει στον HKI 7 να βρει και να συνδεθεί απευθείας στο Home Assistant στο δίκτυό σας Wi-Fi.</string>
     <string name="uif_mode_auto">Αυτο</string>
     <string name="uif_mode_away">Μακριά</string>
     <string name="uif_mode_baby">Μωρό</string>
@@ -3144,9 +3146,11 @@
     <string name="uif_open_doors">Ανοιχτές πόρτες</string>
     <string name="uif_open_settings">Ανοίξτε τις ρυθμίσεις</string>
     <string name="uif_open_windows">Ανοίξτε τα παράθυρα</string>
+    <string name="uif_of_enabled">%1$d από %2$d ενεργοποιημένο</string>
     <string name="uif_pause">Παύση</string>
     <string name="uif_percentage">Ποσοστό</string>
     <string name="uif_percentage_value">%1$d%%</string>
+    <string name="uif_permissions_can_be_changed_later">Μπορείτε να αλλάξετε αυτές τις άδειες αργότερα στις Ρυθμίσεις Android.</string>
     <string name="uif_pick_to_auto_fill">Επιλέξτε για αυτόματη συμπλήρωση</string>
     <string name="uif_pill">Χάπι</string>
     <string name="uif_play">Παιχνίδι</string>

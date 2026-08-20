@@ -36,6 +36,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_1_2">
         <item>Palaamalla Home Assistant Asetuksista, Kehittäjätyökalut tai HACS palauttaa nyt saman sijainnin HKI 7-asetuksiin sen sijaan, että avattaisiin uudelleen yläreunasta.</item>
+        <item>Android 17 pyytää nyt pääsyä paikalliseen verkkoon ennen kuin löytää tai muodostaa suoran yhteyden Home Assistant, joten paikalliset palvelimet jatkavat työskentelyä API 37:n kanssa.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_1">

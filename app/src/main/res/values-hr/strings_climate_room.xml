@@ -19,6 +19,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_1_2">
         <item>Povratak iz Home Assistant postavki, alata za razvojne programere ili HACS sada vraća istu poziciju u HKI 7 postavkama umjesto ponovnog otvaranja na vrhu.</item>
+        <item>Android 17 sada traži pristup lokalnoj mreži prije nego što pronađe ili se izravno poveže s Home Assistant, tako da lokalni poslužitelji nastavljaju raditi s API-jem 37.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_1">
