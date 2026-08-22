@@ -24,14 +24,26 @@ fun CameraEventPopupHost(viewModel: MainViewModel) {
         delay(current.timeoutMs)
         viewModel.dismissCameraPopup(current.nonce)
     }
+    val title = current.title.ifBlank { stringResource(R.string.ui_camera_4da9c9a) }
+    val onDismiss = { viewModel.dismissCameraPopup(current.nonce) }
+    if (current.fullscreen) {
+        CameraAlertStreamOverlay(
+            title = title,
+            imageUrl = liveUrl,
+            liveWebUrl = liveUrl,
+            authToken = accessToken,
+            onDismiss = onDismiss,
+        )
+        return
+    }
     HKICameraDialog(
-        title = current.title.ifBlank { stringResource(R.string.ui_camera_4da9c9a) },
+        title = title,
         imageUrl = liveUrl,
         liveWebUrl = liveUrl,
         authToken = accessToken,
         statusText = stringResource(R.string.cr_live),
         entity = camera,
         viewModel = viewModel,
-        onDismiss = { viewModel.dismissCameraPopup(current.nonce) },
+        onDismiss = onDismiss,
     )
 }
