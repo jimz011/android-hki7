@@ -230,6 +230,7 @@ import com.jimz011apps.hki7.ui.resolveFollowedArea
 import com.jimz011apps.hki7.ui.components.fadingEdges
 import com.jimz011apps.hki7.ui.components.itemCornerShape
 import com.jimz011apps.hki7.ui.components.CustomPopupSettingsDialog
+import com.jimz011apps.hki7.ui.components.CameraPopupSettingsSection
 import androidx.compose.ui.text.font.FontWeight
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import com.jimz011apps.hki7.ui.theme.AppFontFamilyOptions
@@ -1325,6 +1326,13 @@ fun SettingsDialog(
                                     Text(stringResource(R.string.settings_extra_events_open_family_sharing))
                                 }
                             }
+                            val cameraPopupSettings by viewModel.cameraPopupSettings.collectAsState()
+                            val cameraPopupEntities by viewModel.entities.collectAsState()
+                            CameraPopupSettingsSection(
+                                settings = cameraPopupSettings,
+                                entities = cameraPopupEntities,
+                                onChange = { viewModel.saveCameraPopupSettings(it) },
+                            )
                         }
                         SettingsSection.APPEARANCE -> {
                             SettingsSubcategory(stringResource(R.string.ui_visual_style_bc567f3), stringResource(R.string.ui_color_typography_and_component_shape_b82e582))
