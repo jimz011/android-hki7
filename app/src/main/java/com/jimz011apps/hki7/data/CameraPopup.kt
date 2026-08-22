@@ -18,6 +18,8 @@ data class CameraPopupRule(
     /** Optional local-time window, `HH:mm`. Same wrapping rules as Home Assistant's time condition. */
     val timeAfter: String? = null,
     val timeBefore: String? = null,
+    /** When true, the popup is only the live stream, fitted to screen and orientation. */
+    val fullscreen: Boolean = true,
 )
 
 @Serializable
@@ -38,6 +40,7 @@ data class CameraPopupRequest(
     val title: String,
     val cameraEntityId: String,
     val timeoutMs: Long,
+    val fullscreen: Boolean = true,
 )
 
 const val DEFAULT_CAMERA_POPUP_TIMEOUT_SECONDS = 30

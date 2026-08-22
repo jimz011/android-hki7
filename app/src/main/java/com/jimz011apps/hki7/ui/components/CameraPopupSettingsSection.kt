@@ -226,6 +226,24 @@ private fun CameraPopupRuleEditor(
         value = entityLabel(entities, rule.cameraEntityId, stringResource(R.string.settings_camera_popup_choose)),
         onClick = onPickCamera,
     )
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                stringResource(R.string.settings_camera_popup_fullscreen),
+                style = MaterialTheme.typography.titleMedium,
+                color = appColors.onSurface,
+            )
+            Text(
+                stringResource(R.string.settings_camera_popup_fullscreen_subtitle),
+                style = MaterialTheme.typography.labelSmall,
+                color = appColors.onMuted,
+            )
+        }
+        Switch(
+            checked = rule.fullscreen,
+            onCheckedChange = { onChange(rule.copy(fullscreen = it)) },
+        )
+    }
     Text(
         stringResource(R.string.settings_camera_popup_timeout, timeout.roundToInt()),
         color = appColors.onSurface,
