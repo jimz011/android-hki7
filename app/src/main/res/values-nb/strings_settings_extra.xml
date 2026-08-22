@@ -22,6 +22,8 @@
     <string name="settings_camera_popup_time_example_after">06:00</string>
     <string name="settings_camera_popup_time_example_before">00:00</string>
     <string name="settings_camera_popup_time_hint">Valgfritt. Bruk 24-timers klokke. Fra 06:00 til 00:00 gjelder fra morgenen til midnatt, samme regel som i Home Assistant.</string>
+    <string name="settings_camera_popup_fullscreen">Fullskjerm-video</string>
+    <string name="settings_camera_popup_fullscreen_subtitle">Vis bare strømmen, tilpasset skjerm og retning. Trykk hvor som helst for å lukke.</string>
     <string name="settings_screensaver_title">Skjermsparer</string>
     <string name="settings_screensaver_subtitle">Klokke, vær og kalender for veggpanel</string>
     <string name="settings_screensaver_hint">Etter tidsavbrudd uten berøring viser HKI 7 en fullskjerm-klokke. En kamera-popup lukker den alltid først, slik at videoen vises.</string>

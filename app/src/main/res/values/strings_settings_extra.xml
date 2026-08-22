@@ -266,6 +266,8 @@
     <string name="settings_camera_popup_time_example_after">06:00</string>
     <string name="settings_camera_popup_time_example_before">00:00</string>
     <string name="settings_camera_popup_time_hint">Optional. Use 24-hour times. From 06:00 until 00:00 matches morning through midnight, same as Home Assistant.</string>
+    <string name="settings_camera_popup_fullscreen">Fullscreen video</string>
+    <string name="settings_camera_popup_fullscreen_subtitle">Show only the stream, fitted to the screen and orientation. Tap anywhere to close.</string>
     <string name="settings_screensaver_title">Screensaver</string>
     <string name="settings_screensaver_subtitle">Idle clock, weather, and calendar for wall tablets</string>
     <string name="settings_screensaver_hint">After the timeout with no touches, HKI 7 shows a full-screen clock. A camera popup always closes it first so the live video is visible.</string>
