@@ -593,10 +593,12 @@ data class HAStatPoint(
 )
 
 /** A single entity change streamed from the websocket `state_changed` subscription.
- *  [newState] is null when the entity was removed. */
+ *  [newState] is null when the entity was removed. [oldState] is the previous HA state when the
+ *  event included it, otherwise null. */
 data class HAStateChange(
     val entityId: String,
-    val newState: HAEntity?
+    val newState: HAEntity?,
+    val oldState: HAEntity? = null,
 )
 
 /**
