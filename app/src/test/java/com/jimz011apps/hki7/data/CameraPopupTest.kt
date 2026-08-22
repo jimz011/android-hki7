@@ -98,4 +98,9 @@ class CameraPopupTest {
         )
         assertTrue(blocked.isEmpty())
     }
+
+    @Test
+    fun fullscreenIsTheDefaultForANewRule() {
+        assertTrue(CameraPopupRule().fullscreen)
+    }
 }

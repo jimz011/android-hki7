@@ -14,12 +14,15 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -186,8 +189,12 @@ private fun ScreensaverScreen(
                 .background(Color.Black.copy(alpha = 0.28f))
         )
         val panel = settings.isClockPanel()
-        val barHeight = if (!panel) 0.dp else if (maxWidth > maxHeight) maxHeight * 0.34f else maxHeight * 0.42f
-        Column(Modifier.fillMaxSize()) {
+        val barHeight = if (!panel) 0.dp else if (maxWidth > maxHeight) maxHeight * 0.44f else maxHeight * 0.52f
+        Column(
+            Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+        ) {
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -285,7 +292,7 @@ private fun ScreensaverInfoBar(
                         .background(Color.White.copy(alpha = 0.18f))
                 )
             }
-            Box(Modifier.weight(1f).fillMaxHeight()) {
+            Box(Modifier.weight(if (column == "calendar") 1.85f else 1f).fillMaxHeight()) {
                 when (column) {
                     "weather" -> ScreensaverWeather(weather, forecast, locale)
                     "indoor" -> ScreensaverIndoor(settings, entities)

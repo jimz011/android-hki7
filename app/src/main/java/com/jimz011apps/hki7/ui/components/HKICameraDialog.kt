@@ -30,8 +30,10 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -311,6 +313,58 @@ fun HKICameraDialog(
                     }
                 }
             }
+        }
+    }
+}
+
+/** Motion-alert popup: only the live stream, fitted to the current screen and orientation. */
+@Composable
+@SuppressLint("SourceLockedOrientationActivity")
+internal fun CameraAlertStreamOverlay(
+    title: String,
+    imageUrl: String?,
+    liveWebUrl: String?,
+    authToken: String?,
+    onDismiss: () -> Unit,
+) {
+    val activity = LocalContext.current.findActivity()
+    var streamWebView by remember { mutableStateOf<WebView?>(null) }
+    WebViewLifecyclePause { streamWebView }
+    val orientation = LocalConfiguration.current.orientation
+    BackHandler(onBack = onDismiss)
+    DisposableEffect(activity) {
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_USER
+        val window = activity?.window
+        val controller = window?.let { WindowCompat.getInsetsController(it, it.decorView) }
+        controller?.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        controller?.hide(WindowInsetsCompat.Type.systemBars())
+        onDispose {
+            controller?.show(WindowInsetsCompat.Type.systemBars())
+            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_USER
+        }
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onDismiss,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        key(orientation, imageUrl, liveWebUrl) {
+            CameraViewer(
+                imageUrl = imageUrl,
+                liveWebUrl = liveWebUrl,
+                authToken = authToken,
+                title = title,
+                onWebViewChanged = { streamWebView = it },
+                fitToViewport = true,
+                onTap = onDismiss,
+            )
         }
     }
 }
