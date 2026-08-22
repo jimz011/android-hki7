@@ -235,6 +235,7 @@ class PreferencesManager(
     private val homeSsidsKey = stringPreferencesKey("home_ssids")
     private val highAccuracyLocationKey = booleanPreferencesKey("high_accuracy_location")
     private val notificationHistoryKey = stringPreferencesKey("notification_history")
+    private val cameraPopupSettingsKey = stringPreferencesKey("camera_popup_settings_v1")
     private val roomFollowKey = stringPreferencesKey("room_follow")
     private val roomFollowRosterKey = stringPreferencesKey("room_follow_roster")
     private val backgroundPushKey = booleanPreferencesKey("background_push_enabled")
@@ -628,6 +629,15 @@ class PreferencesManager(
     // When true, a foreground service keeps the push websocket alive while the app is closed
     // (the official app's "persistent connection"; uses more battery).
     val backgroundPushEnabled: Flow<Boolean> = context.dataStore.data.map { it[backgroundPushKey] ?: false }
+
+    /** Camera popup rules for the active (or scoped) Home Assistant instance. */
+    val cameraPopupSettings: Flow<CameraPopupSettings> = context.dataStore.data.map { preferences ->
+        val store = decodeBackup(preferences[cameraPopupSettingsKey], CameraPopupStore())
+        val instanceId = instanceScopeId
+            ?: preferences[activeHomeAssistantInstanceIdKey]
+            ?: store.byInstanceId.keys.firstOrNull()
+        store.byInstanceId[instanceId] ?: CameraPopupSettings()
+    }
 
     // Bottom navigation bar layout. Order lists the reorderable (non-fixed) tab routes; hidden lists
     // the routes the user turned off. Empty means "use defaults" (see NavBarConfig).
@@ -1805,6 +1815,17 @@ class PreferencesManager(
         }
     }
     suspend fun saveBackgroundPushEnabled(enabled: Boolean) { context.dataStore.edit { it[backgroundPushKey] = enabled } }
+
+    suspend fun saveCameraPopupSettings(settings: CameraPopupSettings) {
+        context.dataStore.edit { preferences ->
+            val instanceId = instanceScopeId
+                ?: preferences[activeHomeAssistantInstanceIdKey]
+                ?: return@edit
+            val store = decodeBackup(preferences[cameraPopupSettingsKey], CameraPopupStore())
+            val next = store.copy(byInstanceId = store.byInstanceId + (instanceId to settings))
+            preferences[cameraPopupSettingsKey] = appJson.encodeToString(next)
+        }
+    }
     suspend fun saveNotificationHistory(history: List<HKINotification>) {
         context.dataStore.edit { it[notificationHistoryKey] = appJson.encodeToString(history) }
     }
