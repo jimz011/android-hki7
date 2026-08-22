@@ -1203,7 +1203,10 @@ open class HomeAssistantClient(
                 val newState = data["new_state"]
                     ?.takeUnless { it is JsonNull }
                     ?.let { runCatching { json.decodeFromJsonElement(HAEntity.serializer(), it) }.getOrNull() }
-                emit(HAStateChange(entityId, newState))
+                val oldState = data["old_state"]
+                    ?.takeUnless { it is JsonNull }
+                    ?.let { runCatching { json.decodeFromJsonElement(HAEntity.serializer(), it) }.getOrNull() }
+                emit(HAStateChange(entityId, newState, oldState))
             }
         } finally {
             conn.channels.remove(id)

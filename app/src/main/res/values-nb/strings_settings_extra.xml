@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_camera_popup_title">Kamera-popup</string>
+    <string name="settings_camera_popup_hint">Når en bevegelses-, person- eller ringeklokke-entitet fyrer, viser HKI 7 kameraet live og lukker vinduet etter tidsavbruddet. Dette styres i appen — du trenger ingen browser_mod-automasjon.</string>
+    <string name="settings_camera_popup_master">Slå på kamera-popup</string>
+    <string name="settings_camera_popup_master_subtitle">Hovedbryter for denne Home Assistant på denne enheten</string>
+    <string name="settings_camera_popup_add">Legg til kamera-popup</string>
+    <string name="settings_camera_popup_delete">Slett kamera-popup</string>
+    <string name="settings_camera_popup_name">Navn</string>
+    <string name="settings_camera_popup_trigger">Trigger</string>
+    <string name="settings_camera_popup_camera">Kamera</string>
+    <string name="settings_camera_popup_choose">Velg…</string>
+    <string name="settings_camera_popup_pick_trigger">Velg bevegelses- eller persontrigger</string>
+    <string name="settings_camera_popup_pick_camera">Velg et kamera</string>
+    <string name="settings_camera_popup_pick_helper">Velg en hjelper som må være på</string>
+    <string name="settings_camera_popup_timeout">Lukkes etter %1$d sekunder</string>
+    <string name="settings_camera_popup_helper">Bare når denne hjelperen er på</string>
+    <string name="settings_camera_popup_helper_none">Alltid tillatt</string>
+    <string name="settings_camera_popup_helper_clear">Fjern hjelper</string>
+    <string name="settings_camera_popup_after">Fra</string>
+    <string name="settings_camera_popup_before">Til</string>
+    <string name="settings_camera_popup_time_example_after">06:00</string>
+    <string name="settings_camera_popup_time_example_before">00:00</string>
+    <string name="settings_camera_popup_time_hint">Valgfritt. Bruk 24-timers klokke. Fra 06:00 til 00:00 gjelder fra morgenen til midnatt, samme regel som i Home Assistant.</string>
+</resources>
