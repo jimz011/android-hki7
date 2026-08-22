@@ -18,11 +18,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -170,6 +170,7 @@ fun ScreensaverSettingsSection(
             onCheckedChange = { onChange(settings.copy(showActions = it)) },
         )
         settings.actions.forEachIndexed { index, action ->
+            key(action.id) {
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
@@ -177,7 +178,8 @@ fun ScreensaverSettingsSection(
                     ) {
                         MdiIcon(action.icon, size = 28.dp, tint = appColors.onSurface)
                     }
-                    OutlinedTextField(
+                    SettingsDraftTextField(
+                        identity = "${action.id}-label",
                         value = action.label,
                         onValueChange = { label ->
                             onChange(settings.copy(actions = settings.actions.mapIndexed { i, item -> if (i == index) item.copy(label = label) else item }))
@@ -206,6 +208,7 @@ fun ScreensaverSettingsSection(
                         )
                     }
                 }
+            }
             }
         }
         if (settings.actions.size < 4) {

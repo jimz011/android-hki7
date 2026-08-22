@@ -3,6 +3,8 @@ package com.jimz011apps.hki7.ui.components
 import android.app.Activity
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -39,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import coil3.compose.AsyncImage
 import com.jimz011apps.hki7.R
 import com.jimz011apps.hki7.data.HACalendarEvent
@@ -88,7 +91,8 @@ fun ScreensaverHost(viewModel: MainViewModel) {
         window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         onDispose { window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) }
     }
-    ScreensaverScreen(
+    Box(Modifier.fillMaxSize().zIndex(10f)) {
+        ScreensaverScreen(
         viewModel = viewModel,
         settings = settings,
         onDismiss = { viewModel.hideScreensaver() },
@@ -110,7 +114,8 @@ fun ScreensaverHost(viewModel: MainViewModel) {
                 else -> viewModel.toggleEntity(entityId)
             }
         },
-    )
+        )
+    }
 }
 
 @Composable
@@ -362,7 +367,7 @@ private fun ScreensaverCalendar(events: List<HACalendarEvent>, locale: Locale, u
         events.mapNotNull { event ->
             val start = parseEventStart(event, zone) ?: return@mapNotNull null
             event to start
-        }.sortedBy { it.second }.take(4)
+        }.sortedBy { it.second }
     }
     if (upcoming.isEmpty()) {
         Text(stringResource(R.string.settings_screensaver_no_events), color = ScreensaverMuted, fontSize = 14.sp)
@@ -370,7 +375,17 @@ private fun ScreensaverCalendar(events: List<HACalendarEvent>, locale: Locale, u
     }
     val timeFmt = DateTimeFormatter.ofPattern(if (use24h) "HH:mm" else "h:mm a", locale)
     val dayFmt = DateTimeFormatter.ofPattern("EEE d MMM", locale)
-    Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = {},
+            )
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
         upcoming.forEach { (event, start) ->
             val end = parseEventEnd(event, zone)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -403,7 +418,16 @@ private fun ScreensaverCalendar(events: List<HACalendarEvent>, locale: Locale, u
 
 @Composable
 private fun ScreensaverActions(actions: List<ScreensaverAction>, onAction: (ScreensaverAction) -> Unit) {
-    Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceEvenly) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = {},
+            ),
+        verticalArrangement = Arrangement.SpaceEvenly,
+    ) {
         actions.chunked(2).forEach { row ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 row.forEach { action ->

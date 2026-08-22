@@ -46,6 +46,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -657,4 +658,29 @@ private fun readableDialogAccent(accent: Color, surface: Color): Color = when {
     surface.luminance() < 0.5f && accent.luminance() < 0.30f -> lerp(accent, Color.White, 0.38f)
     surface.luminance() >= 0.5f && accent.luminance() > 0.68f -> lerp(accent, Color.Black, 0.30f)
     else -> accent
+}
+
+/** Local text so IME typing is not reset by a delayed DataStore round-trip. */
+@Composable
+fun SettingsDraftTextField(
+    identity: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    label: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    singleLine: Boolean = true,
+) {
+    var text by remember(identity) { mutableStateOf(value) }
+    OutlinedTextField(
+        value = text,
+        onValueChange = { next ->
+            text = next
+            onValueChange(next)
+        },
+        modifier = modifier,
+        label = label,
+        placeholder = placeholder,
+        singleLine = singleLine,
+    )
 }
