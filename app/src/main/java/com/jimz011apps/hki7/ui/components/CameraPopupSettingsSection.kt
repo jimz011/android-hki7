@@ -15,12 +15,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -82,6 +82,7 @@ fun CameraPopupSettingsSection(
             )
         }
         settings.rules.forEach { rule ->
+            key(rule.id) {
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Column(
@@ -123,6 +124,7 @@ fun CameraPopupSettingsSection(
                         onPickHelper = { helperPickerFor = rule.id },
                     )
                 }
+            }
             }
         }
         OutlinedButton(
@@ -206,7 +208,8 @@ private fun CameraPopupRuleEditor(
     var timeout by remember(rule.id, rule.timeoutSeconds) {
         mutableFloatStateOf(rule.timeoutSeconds.toFloat())
     }
-    OutlinedTextField(
+    SettingsDraftTextField(
+        identity = "${rule.id}-name",
         value = rule.name,
         onValueChange = { onChange(rule.copy(name = it)) },
         modifier = Modifier.fillMaxWidth(),
@@ -250,7 +253,8 @@ private fun CameraPopupRuleEditor(
         }
     }
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedTextField(
+        SettingsDraftTextField(
+            identity = "${rule.id}-after",
             value = rule.timeAfter.orEmpty(),
             onValueChange = { onChange(rule.copy(timeAfter = it.ifBlank { null })) },
             modifier = Modifier.weight(1f),
@@ -258,7 +262,8 @@ private fun CameraPopupRuleEditor(
             placeholder = { Text(stringResource(R.string.settings_camera_popup_time_example_after)) },
             singleLine = true,
         )
-        OutlinedTextField(
+        SettingsDraftTextField(
+            identity = "${rule.id}-before",
             value = rule.timeBefore.orEmpty(),
             onValueChange = { onChange(rule.copy(timeBefore = it.ifBlank { null })) },
             modifier = Modifier.weight(1f),

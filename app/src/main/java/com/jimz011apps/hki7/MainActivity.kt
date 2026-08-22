@@ -1322,8 +1322,6 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         // Popup actions can fire from any surface (buttons, badges, dialog nav bars), so their
         // dialog is hosted here once instead of being threaded through every screen.
         CustomPopupHost(viewModel, navController)
-        ScreensaverHost(viewModel)
-        CameraEventPopupHost(viewModel)
 
         // Opaque strip behind three-button navigation, painted over the page but under the floating
         // bar, so scrolling content no longer shows through the system buttons. Collapses to nothing
@@ -1593,10 +1591,6 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             onDismiss = { fullscreenCamera = null }
         )
 
-        // Deliberately the final child in this Box. Compose paints later siblings on top; hosting
-        // this before the floating bottom stack left HKI's navigation bar visible over the native
-        // WebView even though none of those buttons could be used. Being last also gives this
-        // page's BackHandler priority over the NavHost while it is open.
         haPage?.let { (path, pageTitle) ->
             val haAccessToken by prefs.accessToken.collectAsState(initial = null)
             val haTokenExpiry by prefs.accessTokenExpiry.collectAsState(initial = null)
@@ -1619,6 +1613,11 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                 }
             )
         }
+
+        // Last in this Box so the clock covers the nav bar, media bar and HA pages. Camera popup
+        // stays above it so a motion alert still wins.
+        ScreensaverHost(viewModel)
+        CameraEventPopupHost(viewModel)
     }
     }
 }
