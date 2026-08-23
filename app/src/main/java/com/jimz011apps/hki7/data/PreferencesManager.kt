@@ -239,6 +239,7 @@ class PreferencesManager(
     private val notificationHistoryKey = stringPreferencesKey("notification_history")
     private val cameraPopupSettingsKey = stringPreferencesKey("camera_popup_settings_v1")
     private val screensaverSettingsKey = stringPreferencesKey("screensaver_settings_v1")
+    private val devicePanelSettingsKey = stringPreferencesKey("device_panel_settings_v1")
     private val roomFollowKey = stringPreferencesKey("room_follow")
     private val roomFollowRosterKey = stringPreferencesKey("room_follow_roster")
     private val backgroundPushKey = booleanPreferencesKey("background_push_enabled")
@@ -680,6 +681,22 @@ class PreferencesManager(
             ?: preferences[activeHomeAssistantInstanceIdKey]
             ?: store.byInstanceId.keys.firstOrNull()
         store.byInstanceId[instanceId] ?: ScreensaverSettings()
+    }
+
+    val devicePanelSettings: Flow<DevicePanelSettings> = context.dataStore.data.map { preferences ->
+        val store = decodeBackup(preferences[devicePanelSettingsKey], DevicePanelStore())
+        val instanceId = instanceScopeId
+            ?: preferences[activeHomeAssistantInstanceIdKey]
+            ?: store.byInstanceId.keys.firstOrNull()
+        store.byInstanceId[instanceId] ?: DevicePanelSettings()
+    }
+
+    suspend fun devicePanelSettingsFor(instanceId: String): DevicePanelSettings {
+        val store = decodeBackup(
+            context.dataStore.data.first()[devicePanelSettingsKey],
+            DevicePanelStore(),
+        )
+        return store.byInstanceId[instanceId] ?: DevicePanelSettings()
     }
 
     // Bottom navigation bar layout. Order lists the reorderable (non-fixed) tab routes; hidden lists
@@ -1931,6 +1948,17 @@ class PreferencesManager(
             val store = decodeBackup(preferences[screensaverSettingsKey], ScreensaverStore())
             val next = store.copy(byInstanceId = store.byInstanceId + (instanceId to settings))
             preferences[screensaverSettingsKey] = appJson.encodeToString(next)
+        }
+    }
+
+    suspend fun saveDevicePanelSettings(settings: DevicePanelSettings) {
+        context.dataStore.edit { preferences ->
+            val instanceId = instanceScopeId
+                ?: preferences[activeHomeAssistantInstanceIdKey]
+                ?: return@edit
+            val store = decodeBackup(preferences[devicePanelSettingsKey], DevicePanelStore())
+            val next = store.copy(byInstanceId = store.byInstanceId + (instanceId to settings))
+            preferences[devicePanelSettingsKey] = appJson.encodeToString(next)
         }
     }
     suspend fun saveNotificationHistory(history: List<HKINotification>) {
