@@ -134,9 +134,18 @@ class DeviceTelemetryReporter(
         // Register sensors once per webhook (they persist in HA); plain state updates suffice after.
         // The marker carries SENSOR_SET_REVISION so a release that adds a sensor registers it on
         // devices that already registered the previous set, instead of never creating it at all.
-        val sensorsMarker = "$webhookId@$SENSOR_SET_REVISION"
+        val panel = prefs.devicePanelSettings.first()
+        val readings = readDevicePanel(context, panel)
+        val sensorsMarker = sensorsRegistrationMarker(
+            webhookId,
+            panel.extraSensorsEnabled,
+            panel.cameraStreamEnabled,
+            SENSOR_SET_REVISION,
+        )
         if (prefs.mobileAppSensorsWebhookId.first() != sensorsMarker) {
-            val registered = registerSensors(client, webhookUrl, slug, deviceName, batteryLevel, charging, address, log)
+            val registered = registerSensors(
+                client, webhookUrl, slug, deviceName, batteryLevel, charging, address, panel, readings, log,
+            )
             if (registered) prefs.saveMobileAppSensorsRegistered(sensorsMarker)
             else log("Sensor registration incomplete; will retry on the next cycle")
         }
@@ -177,6 +186,40 @@ class DeviceTelemetryReporter(
                     put("icon", "mdi:map-marker")
                 })
             }
+            if (panel.extraSensorsEnabled) {
+                add(buildJsonObject {
+                    put("unique_id", "${slug}_interactive")
+                    put("type", "binary_sensor")
+                    put("state", readings.interactive)
+                    put("icon", "mdi:monitor")
+                })
+                add(buildJsonObject {
+                    put("unique_id", "${slug}_screen_brightness")
+                    put("type", "sensor")
+                    put("state", readings.brightness)
+                    put("icon", "mdi:brightness-6")
+                })
+                add(buildJsonObject {
+                    put("unique_id", "${slug}_wifi_connection")
+                    put("type", "sensor")
+                    put("state", readings.wifiSsid)
+                    put("icon", "mdi:wifi")
+                })
+                add(buildJsonObject {
+                    put("unique_id", "${slug}_local_ip")
+                    put("type", "sensor")
+                    put("state", readings.localIp)
+                    put("icon", "mdi:ip-network")
+                })
+            }
+            if (panel.cameraStreamEnabled) {
+                add(buildJsonObject {
+                    put("unique_id", "${slug}_camera_stream_url")
+                    put("type", "sensor")
+                    put("state", readings.cameraUrl)
+                    put("icon", "mdi:cctv")
+                })
+            }
         }
         val updatePayload = buildJsonObject {
             put("type", "update_sensor_states")
@@ -193,7 +236,9 @@ class DeviceTelemetryReporter(
             // Without re-registering here the entity stays frozen at its initial registered value.
             sensorsNeedReRegistration(updateBody) -> {
                 log("HA doesn't recognize the sensors — re-registering and retrying")
-                registerSensors(client, webhookUrl, slug, deviceName, batteryLevel, charging, address, log)
+                registerSensors(
+                    client, webhookUrl, slug, deviceName, batteryLevel, charging, address, panel, readings, log,
+                )
                 prefs.saveMobileAppSensorsRegistered(sensorsMarker)
                 runCatching { client.postWebhook(webhookUrl, updatePayload) }
             }
@@ -315,6 +360,8 @@ class DeviceTelemetryReporter(
         batteryLevel: Int,
         charging: Boolean,
         address: String?,
+        panel: DevicePanelSettings,
+        readings: DevicePanelReadings,
         log: (String) -> Unit
     ): Boolean {
         val batteryOk = post(client, webhookUrl, buildJsonObject {
@@ -366,10 +413,82 @@ class DeviceTelemetryReporter(
                 put("icon", "mdi:alarm")
             })
         }, "register next alarm", log)
-        // Deliberately not part of the return. A server that rejects this one sensor — an older
-        // HA, or one that dislikes a timestamp registered as "unavailable" — must not stop the
-        // marker being saved, or every cycle would re-register all four sensors forever.
-        return batteryOk && chargingOk && geocodedOk
+        var extrasOk = true
+        if (panel.extraSensorsEnabled) {
+            extrasOk = registerPanelSensors(client, webhookUrl, slug, deviceName, readings, log)
+        }
+        var cameraOk = true
+        if (panel.cameraStreamEnabled) {
+            cameraOk = post(client, webhookUrl, buildJsonObject {
+                put("type", "register_sensor")
+                put("data", buildJsonObject {
+                    put("unique_id", "${slug}_camera_stream_url")
+                    put("name", "$deviceName Camera Stream URL")
+                    put("state", readings.cameraUrl)
+                    put("type", "sensor")
+                    put("entity_category", "diagnostic")
+                    put("icon", "mdi:cctv")
+                })
+            }, "register camera stream url", log)
+        }
+        // Next alarm is deliberately not part of the return. Extra sensors and the camera URL are:
+        // they are new in this revision, and a failed register must retry instead of saving the marker.
+        return batteryOk && chargingOk && geocodedOk && extrasOk && cameraOk
+    }
+
+    private suspend fun registerPanelSensors(
+        client: HomeAssistantClient,
+        webhookUrl: String,
+        slug: String,
+        deviceName: String,
+        readings: DevicePanelReadings,
+        log: (String) -> Unit,
+    ): Boolean {
+        val interactiveOk = post(client, webhookUrl, buildJsonObject {
+            put("type", "register_sensor")
+            put("data", buildJsonObject {
+                put("unique_id", "${slug}_interactive")
+                put("name", "$deviceName Interactive")
+                put("state", readings.interactive)
+                put("type", "binary_sensor")
+                put("entity_category", "diagnostic")
+                put("icon", "mdi:monitor")
+            })
+        }, "register interactive", log)
+        val brightnessOk = post(client, webhookUrl, buildJsonObject {
+            put("type", "register_sensor")
+            put("data", buildJsonObject {
+                put("unique_id", "${slug}_screen_brightness")
+                put("name", "$deviceName Screen Brightness")
+                put("state", readings.brightness)
+                put("type", "sensor")
+                put("entity_category", "diagnostic")
+                put("icon", "mdi:brightness-6")
+            })
+        }, "register screen brightness", log)
+        val wifiOk = post(client, webhookUrl, buildJsonObject {
+            put("type", "register_sensor")
+            put("data", buildJsonObject {
+                put("unique_id", "${slug}_wifi_connection")
+                put("name", "$deviceName Wi-Fi Connection")
+                put("state", readings.wifiSsid)
+                put("type", "sensor")
+                put("entity_category", "diagnostic")
+                put("icon", "mdi:wifi")
+            })
+        }, "register wifi connection", log)
+        val ipOk = post(client, webhookUrl, buildJsonObject {
+            put("type", "register_sensor")
+            put("data", buildJsonObject {
+                put("unique_id", "${slug}_local_ip")
+                put("name", "$deviceName Local IP")
+                put("state", readings.localIp)
+                put("type", "sensor")
+                put("entity_category", "diagnostic")
+                put("icon", "mdi:ip-network")
+            })
+        }, "register local ip", log)
+        return interactiveOk && brightnessOk && wifiOk && ipOk
     }
 
     private suspend fun post(
@@ -599,9 +718,8 @@ class DeviceTelemetryReporter(
         private val forbiddenTelemetryUntil = ConcurrentHashMap<String, Long>()
         /** Bumped whenever the set of sensors registered below changes, so a device that already
          *  registered the previous set registers the difference once rather than never. */
-        // Bumped to 3 in 1.1.1, which added the Next Alarm sensor: devices already registered on
-        // revision 2 have to re-register or the new entity would never be created for them.
-        internal const val SENSOR_SET_REVISION = 3
+        // Bumped to 4 for wall-tablet extras (screen, brightness, Wi-Fi, IP) and the camera URL.
+        internal const val SENSOR_SET_REVISION = 4
     }
 }
 
@@ -618,6 +736,12 @@ suspend fun sensorRegistrationStale(prefs: PreferencesManager): Boolean {
     return prefs.homeAssistantInstances.first().any { instance ->
         if (!instance.isAuthenticated) return@any false
         val webhookId = instance.mobileAppWebhookId ?: return@any false
-        instance.mobileAppSensorsWebhookId != "$webhookId@${DeviceTelemetryReporter.SENSOR_SET_REVISION}"
+        val panel = prefs.devicePanelSettingsFor(instance.id)
+        instance.mobileAppSensorsWebhookId != sensorsRegistrationMarker(
+            webhookId,
+            panel.extraSensorsEnabled,
+            panel.cameraStreamEnabled,
+            DeviceTelemetryReporter.SENSOR_SET_REVISION,
+        )
     }
 }
