@@ -670,6 +670,10 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             }
         }
     }
+    val devicePanelSettings by viewModel.devicePanelSettings.collectAsState()
+    LaunchedEffect(devicePanelSettings.cameraStreamEnabled, devicePanelSettings.streamPort, devicePanelSettings.cameraFacing) {
+        com.jimz011apps.hki7.data.CameraStreamService.sync(appCtx, devicePanelSettings)
+    }
     val isEditMode by viewModel.isEditMode.collectAsState()
     val canUndo by viewModel.canUndo.collectAsState()
     val canRedo by viewModel.canRedo.collectAsState()

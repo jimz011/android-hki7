@@ -1607,6 +1607,26 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         }
     }
 
+    private val _devicePanelSettings = MutableStateFlow(DevicePanelSettings())
+    val devicePanelSettings: StateFlow<DevicePanelSettings> = _devicePanelSettings
+
+    private var devicePanelSettingsPersistJob: Job? = null
+
+    fun saveDevicePanelSettings(settings: DevicePanelSettings) {
+        val previous = _devicePanelSettings.value
+        _devicePanelSettings.value = settings
+        devicePanelSettingsPersistJob?.cancel()
+        devicePanelSettingsPersistJob = viewModelScope.launch {
+            delay(300)
+            prefs.saveDevicePanelSettings(_devicePanelSettings.value)
+            if (previous.extraSensorsEnabled != settings.extraSensorsEnabled ||
+                previous.cameraStreamEnabled != settings.cameraStreamEnabled
+            ) {
+                appContext?.let { LocationWork.syncNow(it) }
+            }
+        }
+    }
+
     fun noteUserActivity() {
         lastUserActivityAt = SystemClock.elapsedRealtime()
     }
@@ -1957,6 +1977,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         }
         viewModelScope.launch {
             prefs.screensaverSettings.collect { _screensaverSettings.value = it }
+        }
+        viewModelScope.launch {
+            prefs.devicePanelSettings.collect { _devicePanelSettings.value = it }
         }
         viewModelScope.launch {
             prefs.enforcedAestheticsOnly.collect { _aestheticsOnlyEditing.value = it }
