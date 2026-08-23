@@ -34,6 +34,7 @@ class BootReceiver : BroadcastReceiver() {
                         if (prefs.shouldUsePushService.first()) {
                             PushForegroundService.startFromBoot(context)
                         }
+                        runCatching { CameraStreamService.syncFromPrefs(context) }
                     } finally {
                         result.finish()
                     }

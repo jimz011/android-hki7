@@ -68,4 +68,24 @@
     <string name="settings_screensaver_service_open">Åpne</string>
     <string name="settings_screensaver_service_close">Lukk</string>
 
+    <string name="settings_device_title">Enhet</string>
+    <string name="settings_device_subtitle">Sensorer og nettbrettkamera for Home Assistant</string>
+    <string name="settings_device_hint">Ekstra sensorer vises på dette nettbrettets mobile_app-enhet i Home Assistant. Live-video er en MJPEG-strøm på LAN — legg til et Generic/MJPEG-kamera i HA som peker på URL-en under.</string>
+    <string name="settings_device_extra_sensors">Ekstra enhetssensorer</string>
+    <string name="settings_device_extra_sensors_subtitle">Skjerm på, lysstyrke, Wi-Fi-navn og lokal IP</string>
+    <string name="settings_device_camera">Live kamerastrøm</string>
+    <string name="settings_device_camera_subtitle">Del dette nettbrettets kamera på det lokale nettverket (uten MQTT)</string>
+    <string name="settings_device_camera_facing">Kamera</string>
+    <string name="settings_device_camera_front">Foran</string>
+    <string name="settings_device_camera_back">Bak</string>
+    <string name="settings_device_camera_port">Strømport</string>
+    <string name="settings_device_camera_url">Strøm-URL: %1$s</string>
+    <string name="settings_device_camera_url_waiting">Venter på lokal IP…</string>
+    <string name="settings_device_camera_ha_hint">I Home Assistant: Innstillinger → Enheter → Legg til integrasjon → Generic Camera. Bruk denne URL-en både som stillbilde og MJPEG-URL.</string>
+    <string name="settings_device_camera_copy_url">Kopier URL</string>
+    <string name="settings_device_camera_copied">URL kopiert</string>
+    <string name="camera_stream_channel_name">Nettbrettkamera</string>
+    <string name="camera_stream_channel_description">Vises mens HKI 7 deler dette nettbrettets kamera på det lokale nettverket</string>
+    <string name="camera_stream_notification_title">Kamerastrøm</string>
+    <string name="camera_stream_notification_text">Dette nettbrettets kamera er tilgjengelig for Home Assistant på det lokale nettverket</string>
 </resources>
