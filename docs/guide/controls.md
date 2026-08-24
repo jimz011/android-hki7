@@ -121,7 +121,8 @@ A power-flow visualisation and a full set of tabs over your energy data.
   also switches off class-wide auto-discovery, so your explicit configuration is what the screen
   uses.
 - **Electricity** — grid import and export, per-phase power, current and voltage for a P1-style
-  meter, and tariff-split counters.
+  meter, and tariff-split counters. See [Three-phase supplies](#three-phase-supplies) below if your
+  solar sits on a single phase.
 - **Solar** — production, last 7 days, lifetime total, and multi-entity forecasts, including Home
   Assistant's own solar forecast config entries.
 - **Battery** — home battery charge and flow.
@@ -132,6 +133,32 @@ A power-flow visualisation and a full set of tabs over your energy data.
 
 Cards can be reordered and renamed, and any card can be lifted out onto a normal dashboard page as
 an [energy card widget](widgets.md#energy-and-climate-cards).
+
+### Three-phase supplies
+
+On most connections the house either draws from the grid or feeds back into it, never both at once,
+so a single figure with a direction describes it completely.
+
+A three-phase supply metered per phase behaves differently. Where regulations allow solar on only
+one phase — common in the Netherlands and Belgium — that phase can feed back while the other two
+keep drawing, and the meter genuinely bills import and export in the same moment. Reporting only
+the balance would hide that you are buying at import rates and selling at feed-in rates
+simultaneously.
+
+Switch on **Per-phase import/export** under **Settings → Energy → Electricity** and map import and
+export power for L1, L2 and L3. The electricity tile then shows both figures instead of the net,
+and the **Now** card breaks the flow out per phase so it is clear which phase is feeding back.
+
+HKI 7 points the setting out when it sees your meter reporting export for an individual phase, and
+picking an electricity **source device** fills the six slots for you — a Home Assistant DSMR or P1
+integration exposes them as delivered/returned or import/export per phase, with no template sensors
+needed. The setting is off by default and a single-phase connection is unaffected.
+
+!!! note "Totals and costs were always correct"
+
+    Only the live tiles were affected. Daily and period totals, costs and self-sufficiency come from
+    your separate import and export meter readings, which count independently whether or not the two
+    happen at the same time.
 
 ## Security
 

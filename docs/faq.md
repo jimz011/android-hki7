@@ -126,6 +126,17 @@
 
     Lock it behind a double-tap or a PIN, with a configurable re-lock delay.
 
+??? question "My house imports and exports at the same time. Why does the tile show only one?"
+
+    Because your connection is metered per phase and the tile was reading a single net figure. This
+    happens on a three-phase supply with solar on one phase: that phase feeds back while the other
+    two still draw.
+
+    Switch on **Per-phase import/export** under **Settings → Energy → Electricity**. HKI 7 usually
+    spots this and says so above the setting.
+
+    [:octicons-arrow-right-24: Three-phase supplies](guide/controls.md#three-phase-supplies)
+
 ## Notifications
 
 ??? question "How do I send a notification?"
