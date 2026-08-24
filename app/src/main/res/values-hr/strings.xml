@@ -1180,6 +1180,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">Izvozna tarifa 2 energije (kWh)</string>
     <string name="energy_extra_per_phase_flow">Pofazni uvoz/izvoz</string>
     <string name="energy_extra_per_phase_flow_subtitle">Za trofazni priključak koji se mjeri po fazi, gdje se solarna energija na jednoj fazi može povratno hraniti dok druge crpe.</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant ovdje izvješćuje o izvozu po fazi, što obično znači solarna energija na jednoj fazi trofaznog napajanja. Uključite ovo da biste vidjeli uvoz i izvoz u isto vrijeme.</string>
     <string name="energy_extra_sensor_import_power_phase_one">Uvoz snage faze 1 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">Uvoz snage faze 2 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">Uvoz snage faze 3 (W)</string>

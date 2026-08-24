@@ -132,6 +132,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">Energy export tariff 2 (kWh)</string>
     <string name="energy_extra_per_phase_flow">Per-phase import/export</string>
     <string name="energy_extra_per_phase_flow_subtitle">For a three-phase connection metered per phase, where solar on one phase can feed back while the others draw.</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant reports export per phase here, which usually means solar on one phase of a three-phase supply. Switch this on to see import and export at the same time.</string>
     <string name="energy_extra_sensor_import_power_phase_one">Import power phase 1 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">Import power phase 2 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">Import power phase 3 (W)</string>

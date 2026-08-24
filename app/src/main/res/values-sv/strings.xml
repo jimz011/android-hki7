@@ -1180,6 +1180,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">Energiexporttaxa 2 (kWh)</string>
     <string name="energy_extra_per_phase_flow">Per-fas import/export</string>
     <string name="energy_extra_per_phase_flow_subtitle">För en trefasanslutning mätt per fas, där solel på en fas kan återkopplas medan de andra drar.</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant rapporterar export per fas här, vilket vanligtvis betyder solel på en fas av en trefasförsörjning. Slå på detta för att se import och export samtidigt.</string>
     <string name="energy_extra_sensor_import_power_phase_one">Importera effektfas 1 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">Importera effektfas 2 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">Importera effektfas 3 (W)</string>

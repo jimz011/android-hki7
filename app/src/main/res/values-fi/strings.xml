@@ -1180,6 +1180,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">Energian vientitariffi 2 (kWh)</string>
     <string name="energy_extra_per_phase_flow">Vaiheittainen tuonti/vienti</string>
     <string name="energy_extra_per_phase_flow_subtitle">Vaihekohtaisesti mitattavaan kolmivaiheiseen liitäntään, jossa yhden vaiheen aurinko voi syöttää takaisin, kun taas muut vetää.</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant raportoi tässä viennin vaihekohtaisesti, mikä tarkoittaa yleensä aurinkoenergiaa kolmivaiheisen virransyötön yhdessä vaiheessa. Ota tämä käyttöön nähdäksesi tuonnin ja viennin samanaikaisesti.</string>
     <string name="energy_extra_sensor_import_power_phase_one">Tuo tehon vaihe 1 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">Tuo tehon vaihe 2 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">Tuo tehon vaihe 3 (W)</string>

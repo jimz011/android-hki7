@@ -113,6 +113,7 @@
     <string name="energy_extra_card_city_heating_usage">Uso de calefacción urbana</string>
     <string name="energy_extra_per_phase_flow">Importación/exportación por fase</string>
     <string name="energy_extra_per_phase_flow_subtitle">Para una conexión trifásica medida por fase, donde la energía solar en una fase puede retroalimentarse mientras las otras consumen.</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant informa aquí la exportación por fase, lo que generalmente significa energía solar en una fase de un suministro trifásico. Active esto para ver la importación y exportación al mismo tiempo.</string>
     <string name="energy_extra_sensor_import_power_phase_one">Importación potencia fase 1 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">Importación potencia fase 2 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">Importación potencia fase 3 (W)</string>

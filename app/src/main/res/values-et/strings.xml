@@ -1180,6 +1180,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">Energia eksporditariif 2 (kWh)</string>
     <string name="energy_extra_per_phase_flow">Etapi import/eksport</string>
     <string name="energy_extra_per_phase_flow_subtitle">Kolmefaasilise ühenduse jaoks, mida mõõdetakse faasi kohta, kus ühe faasi päikeseenergia saab tagasi toidet, samal ajal kui teised tõmbavad.</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant kajastab siin eksporti faasi kohta, mis tavaliselt tähendab päikeseenergiat kolmefaasilise toite ühel faasil. Lülitage see sisse, et näha samaaegselt importi ja eksporti.</string>
     <string name="energy_extra_sensor_import_power_phase_one">Impordi võimsus, faas 1 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">Impordi võimsus, faas 2 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">Impordi võimsus, faas 3 (W)</string>

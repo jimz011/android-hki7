@@ -18,7 +18,9 @@ screens correctly.
   slots for L1, L2 and L3; the electricity tile then reports both figures, and the Now card breaks
   them out per phase so it is clear which phase is feeding back. Off by default, and a single-phase
   connection is unaffected. Historical totals, costs and self-sufficiency already handled this
-  correctly, because they are derived from separate import and export meter readings.
+  correctly, because they are derived from separate import and export meter readings. HKI 7 points
+  the setting out when it sees a meter reporting export per phase, so it does not have to be
+  stumbled upon, and fills the six slots automatically from the electricity source device.
 
 - HKI 7 now validates a saved Home Assistant session before starting the usual REST, WebSocket and
   push connections. Previously, a rejected or expired credential could reach several startup jobs

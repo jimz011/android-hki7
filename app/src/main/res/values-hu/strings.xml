@@ -1180,6 +1180,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">Energiaexport tarifa 2 (kWh)</string>
     <string name="energy_extra_per_phase_flow">Fázisonkénti import/export</string>
     <string name="energy_extra_per_phase_flow_subtitle">Fázisonként mért háromfázisú csatlakozáshoz, ahol az egyik fázison a napelem visszatáplál, míg a többi húz.</string>
+    <string name="energy_extra_per_phase_flow_detected">A Home Assistant fázisonkénti exportot jelent itt, ami általában egy háromfázisú táplálás egyik fázisán napenergiát jelent. Kapcsolja be, ha egyszerre szeretné látni az importálást és az exportálást.</string>
     <string name="energy_extra_sensor_import_power_phase_one">Import teljesítmény 1. fázis (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">Import teljesítmény 2. fázis (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">Import teljesítmény 3. fázis (W)</string>

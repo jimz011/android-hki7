@@ -1180,6 +1180,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">อัตราภาษีส่งออกพลังงาน 2 (kWh)</string>
     <string name="energy_extra_per_phase_flow">การนำเข้า/ส่งออกในแต่ละเฟส</string>
     <string name="energy_extra_per_phase_flow_subtitle">สำหรับการเชื่อมต่อแบบสามเฟสแบบมิเตอร์ต่อเฟส โดยที่พลังงานแสงอาทิตย์ในเฟสหนึ่งสามารถป้อนกลับได้ในขณะที่อีกเฟสหนึ่งดึงกลับ</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant รายงานการส่งออกต่อเฟสที่นี่ ซึ่งโดยทั่วไปหมายถึงพลังงานแสงอาทิตย์ในเฟสเดียวของการจ่ายไฟสามเฟส เปิดสวิตช์นี้เพื่อดูการนำเข้าและส่งออกพร้อมกัน</string>
     <string name="energy_extra_sensor_import_power_phase_one">กำลังนำเข้าระยะที่ 1 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">กำลังนำเข้า ระยะที่ 2 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">กำลังนำเข้า ระยะที่ 3 (W)</string>

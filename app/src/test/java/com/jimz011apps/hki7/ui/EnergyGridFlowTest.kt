@@ -1,8 +1,12 @@
 package com.jimz011apps.hki7.ui
 
+import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HKIEnergyConfig
 import com.jimz011apps.hki7.ui.screens.gridFlowEntityIds
 import com.jimz011apps.hki7.ui.screens.gridFlowOf
+import com.jimz011apps.hki7.ui.screens.suggestsPerPhaseGridFlow
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -139,5 +143,70 @@ class EnergyGridFlowTest {
             setOf("sensor.grid", "sensor.l1", "sensor.imp_l1", "sensor.exp_l3"),
             cfg.gridFlowEntityIds()
         )
+    }
+
+    /** A sensor as Home Assistant reports it: friendly name and unit carry the classification. */
+    private fun sensor(id: String, name: String, unit: String = "W") = HAEntity(
+        entity_id = id,
+        state = "0",
+        attributes = JsonObject(
+            mapOf(
+                "friendly_name" to JsonPrimitive(name),
+                "unit_of_measurement" to JsonPrimitive(unit)
+            )
+        )
+    )
+
+    @Test
+    fun `a filled per-phase export slot suggests turning the mode on`() {
+        val cfg = HKIEnergyConfig(gridExportPhase1EntityId = "sensor.exp_l1")
+        assertTrue(suggestsPerPhaseGridFlow(cfg, emptyList()))
+    }
+
+    @Test
+    fun `nothing is suggested once the mode is already on`() {
+        val cfg = HKIEnergyConfig(perPhaseGridFlow = true, gridExportPhase1EntityId = "sensor.exp_l1")
+        assertFalse(suggestsPerPhaseGridFlow(cfg, emptyList()))
+    }
+
+    @Test
+    fun `dsmr per-phase returned sensors are detected without a source device`() {
+        val entities = listOf(
+            sensor("sensor.dsmr_reading_power_delivered_l1", "Power delivered l1"),
+            sensor("sensor.dsmr_reading_power_returned_l1", "Power returned l1"),
+            sensor("sensor.dsmr_reading_power_returned_l2", "Power returned l2")
+        )
+        assertTrue(suggestsPerPhaseGridFlow(HKIEnergyConfig(), entities))
+    }
+
+    @Test
+    fun `homewizard per-phase export sensors are detected without a source device`() {
+        val entities = listOf(
+            sensor("sensor.p1_meter_active_power_import_l1", "Active power import phase 1"),
+            sensor("sensor.p1_meter_active_power_export_l3", "Active power export phase 3")
+        )
+        assertTrue(suggestsPerPhaseGridFlow(HKIEnergyConfig(), entities))
+    }
+
+    @Test
+    fun `a single-phase meter is left alone`() {
+        val entities = listOf(
+            sensor("sensor.p1_active_power", "Active power"),
+            sensor("sensor.p1_active_power_import", "Active power import"),
+            sensor("sensor.p1_active_power_export", "Active power export"),
+            // Per-phase, but import only: no phase can be feeding back.
+            sensor("sensor.p1_active_power_import_l1", "Active power import phase 1"),
+            sensor("sensor.p1_active_power_import_l2", "Active power import phase 2")
+        )
+        assertFalse(suggestsPerPhaseGridFlow(HKIEnergyConfig(), entities))
+    }
+
+    @Test
+    fun `a whole-house export energy counter is not mistaken for per-phase metering`() {
+        val entities = listOf(
+            sensor("sensor.grid_export_today", "Grid export today", unit = "kWh"),
+            sensor("sensor.solar_production", "Solar production", unit = "W")
+        )
+        assertFalse(suggestsPerPhaseGridFlow(HKIEnergyConfig(), entities))
     }
 }

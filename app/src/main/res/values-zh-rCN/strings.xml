@@ -3929,7 +3929,7 @@
         <item>HKI 7 现在在启动 REST、WebSocket 和推送连接之前检查已保存的 Home Assistant 会话。被拒绝的凭据将以协调的方式刷新一次或让您返回登录状态，而不是产生足够多的同时身份验证失败来触发 Home Assistant 的 IP 禁令。</item>
         <item>403 Forbidden 响应现在会暂停连接和遥测重试，而不会删除已保存的登录信息，并指向 Home Assistant 的 IP 禁止或反向代理设置，而不是显示 JSON 错误。</item>
         <item>长问候语和页面标题现在会缩小到人员和状态指示器旁边的空间，同时保持在一行上。这修复了窄屏幕上最后的字母换行到第二行的问题。</item>
-        <item>能源视图现在可以同时显示输入和输出的三相连接，这种情况发生在仅允许一相使用太阳能的情况下：该相反馈，而其他两相继续绘制。在设置 › 能源 › 电力下打开“每相导入/导出”，以映射 L1、L2 和 L3 的导入和导出功率。然后，电力图块会显示两个数字而不是余额，并且“Now”卡会按相将它们分开。默认关闭；单相连接不受影响。</item>
+        <item>能源视图现在可以同时显示输入和输出的三相连接，这种情况发生在仅允许一相使用太阳能的情况下：该相反馈，而其他两相继续绘制。在设置 › 能源 › 电力下打开“每相导入/导出”，以映射 L1、L2 和 L3 的导入和导出功率。然后，电力图块会显示两个数字而不是余额，并且“Now”卡会按相将它们分开。 HKI 7 在看到报告每相输出的电表时指出设置，并填充电源设备的插槽。默认关闭；单相连接不受影响。</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_2">
@@ -3950,4 +3950,5 @@
     <string name="energy_extra_sensor_import_power_phase_one">输入功率1相（W）</string>
     <string name="energy_extra_sensor_import_power_phase_three">输入功率3相（W）</string>
     <string name="energy_extra_sensor_import_power_phase_two">输入功率2相（W）</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant 在此报告每相的输出，这通常意味着三相电源中某一相的太阳能。打开此选项可同时查看导入和导出。</string>
 </resources>

@@ -1180,6 +1180,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">Тарифа за износ на енергия 2 (kWh)</string>
     <string name="energy_extra_per_phase_flow">Пофазов импорт/експорт</string>
     <string name="energy_extra_per_phase_flow_subtitle">За трифазна връзка, измервана на фаза, където слънчевата енергия на една фаза може да захранва обратно, докато другите черпят.</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant отчита износ на фаза тук, което обикновено означава слънчева енергия на една фаза от трифазно захранване. Включете това, за да видите импортиране и експортиране едновременно.</string>
     <string name="energy_extra_sensor_import_power_phase_one">Импортиране на мощност фаза 1 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">Импортиране на мощност фаза 2 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">Импортиране на мощност фаза 3 (W)</string>

@@ -1180,6 +1180,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">Vývozná tarifa energie 2 (kWh)</string>
     <string name="energy_extra_per_phase_flow">Fázový import/export</string>
     <string name="energy_extra_per_phase_flow_subtitle">Pre trojfázové pripojenie merané na jednu fázu, kde solárna energia na jednej fáze môže byť spätná, zatiaľ čo ostatné čerpajú.</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant tu uvádza export na fázu, čo zvyčajne znamená slnečnú energiu na jednej fáze trojfázového napájania. Zapnite túto možnosť, aby ste videli import a export súčasne.</string>
     <string name="energy_extra_sensor_import_power_phase_one">Importovať výkonovú fázu 1 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">Importovať výkonovú fázu 2 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">Importovať výkonovú fázu 3 (W)</string>

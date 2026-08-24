@@ -1180,6 +1180,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">에너지 수출관세 2(kWh)</string>
     <string name="energy_extra_per_phase_flow">단계별 가져오기/내보내기</string>
     <string name="energy_extra_per_phase_flow_subtitle">위상별로 측정되는 3상 연결의 경우, 한 위상의 태양광이 피드백을 받고 다른 위상은 전력을 공급받을 수 있습니다.</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant은 여기에서 단계별 수출을 보고합니다. 이는 일반적으로 3단계 공급 중 한 단계의 태양광을 의미합니다. 가져오기와 내보내기를 동시에 보려면 이 옵션을 켜세요.</string>
     <string name="energy_extra_sensor_import_power_phase_one">수입전력 1단계(W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">수입전력 2단계(W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">수입전력 3상(W)</string>

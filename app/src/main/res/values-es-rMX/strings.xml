@@ -3974,7 +3974,7 @@
         <item>HKI 7 ahora verifica una sesión guardada Home Assistant antes de iniciar sus conexiones REST, WebSocket y push. Las credenciales rechazadas se actualizan una vez de manera coordinada o lo regresan para iniciar sesión, en lugar de producir suficientes fallas de autenticación simultáneas para activar la prohibición de IP de Home Assistant.</item>
         <item>Una respuesta 403 Prohibido ahora detiene los reintentos de conexión y telemetría sin eliminar su inicio de sesión guardado y lo dirige a la configuración de prohibición de IP o proxy inverso de Home Assistant en lugar de mostrar un error JSON.</item>
         <item>Los saludos largos y los títulos de páginas ahora se reducen al espacio junto a las personas y los indicadores de estado mientras permanecen en una línea. Esto fija las letras finales que se envuelven en una segunda fila en pantallas estrechas.</item>
-        <item>La vista Energía ahora puede mostrar una conexión trifásica importando y exportando a la vez, lo que sucede cuando se permite la energía solar en una sola fase: esa fase se retroalimenta mientras las otras dos siguen consumiendo. Active "Importación/exportación por fase" en Configuración › Energía › Electricidad para mapear la importación y exportación de energía para L1, L2 y L3. Luego, la ficha de electricidad muestra ambas cifras en lugar del saldo, y la tarjeta Ahora las divide por fase. Desactivado de forma predeterminada; Las conexiones monofásicas no se ven afectadas.</item>
+        <item>La vista Energía ahora puede mostrar una conexión trifásica importando y exportando a la vez, lo que sucede cuando se permite la energía solar en una sola fase: esa fase se retroalimenta mientras las otras dos siguen consumiendo. Active "Importación/exportación por fase" en Configuración › Energía › Electricidad para mapear la importación y exportación de energía para L1, L2 y L3. Luego, la ficha de electricidad muestra ambas cifras en lugar del saldo, y la tarjeta Ahora las divide por fase. HKI 7 señala el escenario cuando ve un medidor que informa exportación por fase y llena los espacios desde su dispositivo de fuente de electricidad. Desactivado de forma predeterminada; Las conexiones monofásicas no se ven afectadas.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_2">
@@ -3995,4 +3995,5 @@
     <string name="energy_extra_sensor_import_power_phase_one">Importación potencia fase 1 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">Importación potencia fase 3 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">Importación potencia fase 2 (W)</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant informa aquí la exportación por fase, lo que generalmente significa energía solar en una fase de un suministro trifásico. Active esto para ver la importación y exportación al mismo tiempo.</string>
 </resources>

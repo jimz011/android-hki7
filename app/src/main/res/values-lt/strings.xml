@@ -1180,6 +1180,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">Energijos eksporto tarifas 2 (kWh)</string>
     <string name="energy_extra_per_phase_flow">Importas / eksportas per etapą</string>
     <string name="energy_extra_per_phase_flow_subtitle">Trifaziui jungtims, skaičiuojamai kiekvienai fazei, kai vienoje fazėje saulės energija gali maitinti atgal, o kitos traukti.</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant čia pateikia eksporto ataskaitas kiekvienai fazei, o tai paprastai reiškia saulės energiją vienoje trifazio maitinimo fazėje. Įjunkite, kad tuo pačiu metu matytumėte importavimą ir eksportą.</string>
     <string name="energy_extra_sensor_import_power_phase_one">Importuoti 1 fazę (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">Importuoti 2 fazę (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">Importuoti 3 fazę (W)</string>

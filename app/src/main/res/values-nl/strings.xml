@@ -346,6 +346,7 @@
     <string name="energy_extra_card_city_heating_usage">Gebruik van stadsverwarming</string>
     <string name="energy_extra_per_phase_flow">Import/export per fase</string>
     <string name="energy_extra_per_phase_flow_subtitle">Voor een driefasige aansluiting, gemeten per fase, waarbij zonne-energie op één fase kan terugkoppelen terwijl de anderen afnemen.</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant rapporteert hier export per fase, wat meestal zonne-energie op één fase van een driefasige voeding betekent. Schakel deze in om import en export tegelijkertijd te zien.</string>
     <string name="energy_extra_sensor_import_power_phase_one">Importvermogen fase 1 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">Importvermogen fase 2 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">Importvermogen fase 3 (W)</string>

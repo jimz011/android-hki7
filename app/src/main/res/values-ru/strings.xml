@@ -1180,6 +1180,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">Тариф на экспорт энергии 2 (кВтч)</string>
     <string name="energy_extra_per_phase_flow">Поэтапный импорт/экспорт</string>
     <string name="energy_extra_per_phase_flow_subtitle">Для трехфазного подключения с измерением по каждой фазе, когда солнечная энергия на одной фазе может давать обратную связь, в то время как другие потребляют энергию.</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant сообщает здесь об экспорте по фазе, что обычно означает солнечную энергию на одной фазе трехфазного источника питания. Включите эту опцию, чтобы одновременно видеть импорт и экспорт.</string>
     <string name="energy_extra_sensor_import_power_phase_one">Импортная мощность, фаза 1 (Вт)</string>
     <string name="energy_extra_sensor_import_power_phase_two">Импортная мощность, фаза 2 (Вт)</string>
     <string name="energy_extra_sensor_import_power_phase_three">Импортная мощность, фаза 3 (Вт)</string>

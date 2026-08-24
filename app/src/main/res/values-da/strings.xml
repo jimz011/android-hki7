@@ -1180,6 +1180,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">Energieksporttarif 2 (kWh)</string>
     <string name="energy_extra_per_phase_flow">Per-fase import/eksport</string>
     <string name="energy_extra_per_phase_flow_subtitle">Til en 3-faset tilslutning målt per fase, hvor solenergi på den ene fase kan feed back, mens de andre trækker.</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant rapporterer eksport pr. fase her, hvilket normalt betyder solenergi på én fase af en trefaset forsyning. Slå dette til for at se import og eksport på samme tid.</string>
     <string name="energy_extra_sensor_import_power_phase_one">Importer effekt fase 1 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">Importer effektfase 2 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">Importer effektfase 3 (W)</string>

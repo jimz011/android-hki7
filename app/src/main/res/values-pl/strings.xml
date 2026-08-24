@@ -1180,6 +1180,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">Taryfa eksportowa energii 2 (kWh)</string>
     <string name="energy_extra_per_phase_flow">Import/eksport na fazę</string>
     <string name="energy_extra_per_phase_flow_subtitle">W przypadku połączenia trójfazowego z pomiarem na fazę, gdzie energia słoneczna na jednej fazie może zasilać, podczas gdy inne pobierają.</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant zgłasza tutaj eksport na fazę, co zwykle oznacza energię słoneczną na jednej fazie zasilania trójfazowego. Włącz tę opcję, aby jednocześnie widzieć import i eksport.</string>
     <string name="energy_extra_sensor_import_power_phase_one">Import mocy fazy 1 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">Import mocy fazy 2 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">Import mocy fazy 3 (W)</string>

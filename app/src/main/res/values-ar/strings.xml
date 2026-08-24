@@ -1180,6 +1180,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">تعريفة تصدير الطاقة 2 (كيلوواط ساعة)</string>
     <string name="energy_extra_per_phase_flow">الاستيراد/التصدير لكل مرحلة</string>
     <string name="energy_extra_per_phase_flow_subtitle">للاتصال ثلاثي الطور يتم قياسه لكل مرحلة، حيث يمكن للطاقة الشمسية في إحدى الطور أن تتغذى بينما تسحب المراحل الأخرى.</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant يُبلغ عن التصدير لكل مرحلة هنا، وهو ما يعني عادةً الطاقة الشمسية على مرحلة واحدة من الإمداد ثلاثي المراحل. قم بتشغيل هذا لرؤية الاستيراد والتصدير في نفس الوقت.</string>
     <string name="energy_extra_sensor_import_power_phase_one">مرحلة استيراد الطاقة 1 (وات)</string>
     <string name="energy_extra_sensor_import_power_phase_two">مرحلة استيراد الطاقة 2 (وات)</string>
     <string name="energy_extra_sensor_import_power_phase_three">مرحلة استيراد الطاقة 3 (وات)</string>

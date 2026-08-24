@@ -113,6 +113,7 @@
     <string name="energy_extra_card_city_heating_usage">Şehir ısıtma kullanımı</string>
     <string name="energy_extra_per_phase_flow">Aşama başına içe/dışa aktarma</string>
     <string name="energy_extra_per_phase_flow_subtitle">Faz başına ölçülen, bir fazdaki güneş enerjisinin diğerleri çekerken geri beslenebildiği üç fazlı bir bağlantı için.</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant burada faz başına ihracatı rapor eder; bu genellikle üç fazlı bir tedarikin bir fazında güneş enerjisi anlamına gelir. İçe aktarma ve dışa aktarmayı aynı anda görmek için bunu açın.</string>
     <string name="energy_extra_sensor_import_power_phase_one">İthalat gücü faz 1 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">İthalat gücü faz 2 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">İthalat gücü faz 3 (W)</string>

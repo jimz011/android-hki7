@@ -1180,6 +1180,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">Τιμολόγιο εξαγωγής ενέργειας 2 (kWh)</string>
     <string name="energy_extra_per_phase_flow">Εισαγωγή/εξαγωγή ανά φάση</string>
     <string name="energy_extra_per_phase_flow_subtitle">Για μια τριφασική σύνδεση μετρημένη ανά φάση, όπου η ηλιακή ενέργεια σε μια φάση μπορεί να ανατροφοδοτεί ενώ οι άλλες αντλούν.</string>
+    <string name="energy_extra_per_phase_flow_detected">Το Home Assistant αναφέρει εδώ την εξαγωγή ανά φάση, που συνήθως σημαίνει ηλιακή ενέργεια σε μία φάση μιας τριφασικής παροχής. Ενεργοποιήστε το για να δείτε την εισαγωγή και την εξαγωγή ταυτόχρονα.</string>
     <string name="energy_extra_sensor_import_power_phase_one">Εισαγωγή φάσης ισχύος 1 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">Εισαγωγή φάσης ισχύος 2 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">Εισαγωγή φάσης ισχύος 3 (W)</string>

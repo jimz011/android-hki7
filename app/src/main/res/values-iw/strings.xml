@@ -1180,6 +1180,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">תעריף ייצוא אנרגיה 2 (קוט"ש)</string>
     <string name="energy_extra_per_phase_flow">יבוא/יצוא לכל שלב</string>
     <string name="energy_extra_per_phase_flow_subtitle">עבור חיבור תלת פאזי נמדד לכל שלב, כאשר סולארי על שלב אחד יכול להזין בחזרה בזמן שהאחרים מציירים.</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant מדווח כאן על ייצוא לכל שלב, כלומר בדרך כלל סולארי על שלב אחד של אספקה תלת פאזית. הפעל את זה כדי לראות ייבוא וייצוא בו-זמנית.</string>
     <string name="energy_extra_sensor_import_power_phase_one">ייבוא כוח שלב 1 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">ייבוא כוח שלב 2 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">ייבוא כוח שלב 3 (W)</string>

@@ -1180,6 +1180,7 @@
     <string name="energy_extra_sensor_energy_export_tariff_two">エネルギー輸出料金2 (kWh)</string>
     <string name="energy_extra_per_phase_flow">フェーズごとのインポート/エクスポート</string>
     <string name="energy_extra_per_phase_flow_subtitle">相ごとに計測される三相接続の場合、1 つの相の太陽光発電がフィードバックされ、他の相が電力を供給することができます。</string>
+    <string name="energy_extra_per_phase_flow_detected">Home Assistant はここで相ごとの輸出をレポートします。これは通常、三相電源のうちの 1 相の太陽光発電を意味します。これをオンにすると、インポートとエクスポートが同時に表示されます。</string>
     <string name="energy_extra_sensor_import_power_phase_one">輸入電力フェーズ 1 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">輸入電力フェーズ 2 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_three">輸入電力フェーズ 3 (W)</string>

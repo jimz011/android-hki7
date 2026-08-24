@@ -2834,24 +2834,24 @@ private fun autoMapDeviceEntities(
         .toSet()
     val dev = entities.filter { it.entity_id in ids }
 
-    fun unit(e: HAEntity) = e.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull ?: ""
-    fun name(e: HAEntity) = (e.friendlyName ?: e.entity_id).lowercase()
+    // Local shorthands for the shared classifiers in EnergyGridFlow.kt, which the per-phase
+    // detection also uses — the two must agree on what counts as an export sensor for a phase.
+    fun unit(e: HAEntity) = energyEntityUnit(e)
+    fun name(e: HAEntity) = energyEntityName(e)
     fun pick(pred: (HAEntity) -> Boolean): String? = dev.firstOrNull(pred)?.entity_id
     fun pickUnique(predicate: (HAEntity) -> Boolean): String? = dev.singleOrNull(predicate)?.entity_id
     fun keep(role: String, current: String?, guessed: String?): String? =
         if (role in cfg.customizedEntityRoles && !current.isNullOrBlank()) current else guessed ?: current
-    val isPower  = { e: HAEntity -> e.deviceClass == "power" || unit(e) == "W" || unit(e) == "kW" }
+    val isPower  = { e: HAEntity -> isPowerEntity(e) }
     val isEnergy = { e: HAEntity -> e.deviceClass == "energy" || unit(e).contains("Wh", ignoreCase = true) }
     val isCurrent = { e: HAEntity -> e.deviceClass == "current" || unit(e) == "A" }
     val isVoltage = { e: HAEntity -> e.deviceClass == "voltage" || unit(e) == "V" }
     val isCost = { e: HAEntity -> e.deviceClass == "monetary" || name(e).contains("cost") || name(e).contains("kosten") }
-    fun phaseMatch(e: HAEntity, n: Int) = name(e).contains("phase $n") || name(e).contains(" l$n")
+    fun phaseMatch(e: HAEntity, n: Int) = phaseMatches(e, n)
     fun hasAny(e: HAEntity, vararg terms: String) = terms.any(name(e)::contains)
     fun isDsmr(e: HAEntity) = e.entity_id.startsWith("sensor.dsmr_reading_")
-    fun isImport(e: HAEntity) = hasAny(e, "import", "consumption", "consumed", "used", "afname") ||
-        (isDsmr(e) && hasAny(e, "delivered"))
-    fun isExport(e: HAEntity) = hasAny(e, "export", "production", "produced", "returned", "teruglever") ||
-        (!isDsmr(e) && hasAny(e, "delivered"))
+    fun isImport(e: HAEntity) = isGridImportEntity(e)
+    fun isExport(e: HAEntity) = isGridExportEntity(e)
     fun isTariff(e: HAEntity, n: Int) =
         hasAny(e, "tariff $n", "tariff_$n", "tarif $n", "tarif_$n", "t$n") ||
             (isDsmr(e) && e.entity_id.endsWith("_$n"))
@@ -3345,7 +3345,28 @@ private fun EnergySensorSection(
             sensorRow("cost", stringResource(R.string.energy_extra_sensor_energy_cost_today))
 
             // Off for the single-phase majority; switching it on reveals the six extra slots rather
-            // than making everyone scroll past them.
+            // than making everyone scroll past them. When the meter clearly does report per phase,
+            // say so here instead of leaving the toggle to be stumbled upon.
+            if (suggestsPerPhaseGridFlow(cfg, sensors)) {
+                Spacer(Modifier.height(6.dp))
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = itemCornerShape(),
+                    color = ElecBlue.copy(alpha = 0.12f)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.Top,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Icon(Icons.Default.SwapVert, null, tint = ElecBlue, modifier = Modifier.size(18.dp))
+                        Text(
+                            stringResource(R.string.energy_extra_per_phase_flow_detected),
+                            style = MaterialTheme.typography.bodySmall, color = appColors.onSurface
+                        )
+                    }
+                }
+            }
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically
