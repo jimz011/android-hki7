@@ -13,6 +13,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -45,6 +46,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -93,6 +95,39 @@ private fun greetingText(period: GreetingPeriod): String = when (period) {
     GreetingPeriod.AFTERNOON -> stringResource(R.string.core_greeting_afternoon)
     GreetingPeriod.EVENING -> stringResource(R.string.core_greeting_evening)
     GreetingPeriod.NIGHT -> stringResource(R.string.core_greeting_night)
+}
+
+/**
+ * The title shares a row with people avatars or page-specific trailing content. Size against the
+ * width that remains after those siblings are measured, and never let the last word/character wrap
+ * into the subtitle row. Ellipsis remains only as a last resort below the deliberately generous
+ * 18sp floor (for example an unusually long custom page title at extreme accessibility scaling).
+ */
+@Composable
+internal fun AdaptiveHeaderTitle(
+    text: String,
+    color: Color,
+    modifier: Modifier = Modifier,
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null
+) {
+    Text(
+        text = text,
+        modifier = modifier,
+        style = MaterialTheme.typography.headlineLarge,
+        color = color,
+        fontWeight = FontWeight.Bold,
+        fontSize = 40.sp,
+        lineHeight = 44.sp,
+        maxLines = 1,
+        softWrap = false,
+        overflow = TextOverflow.Ellipsis,
+        autoSize = TextAutoSize.StepBased(
+            minFontSize = 18.sp,
+            maxFontSize = 40.sp,
+            stepSize = 0.5.sp
+        ),
+        onTextLayout = onTextLayout
+    )
 }
 
 @Composable
@@ -684,13 +719,9 @@ fun HKIPage(
                                                 .weight(1f)
                                                 .padding(end = if (headerTrailingContent != null) 12.dp else 0.dp)
                                         ) {
-                                            Text(
+                                            AdaptiveHeaderTitle(
                                                 text = title ?: greeting,
-                                                style = MaterialTheme.typography.headlineLarge,
-                                                color = headerTextColor,
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 40.sp,
-                                                lineHeight = 44.sp
+                                                color = headerTextColor
                                             )
                                             HeaderSubtitle(
                                                 text = subtitle ?: if (title == null) {
@@ -755,13 +786,9 @@ fun HKIPage(
                                             .weight(1f)
                                             .padding(end = if (showPeopleRow) 12.dp else 0.dp)
                                     ) {
-                                        Text(
+                                        AdaptiveHeaderTitle(
                                             text = title ?: greeting,
-                                            style = MaterialTheme.typography.headlineLarge,
-                                            color = headerTextColor,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 40.sp,
-                                            lineHeight = 44.sp
+                                            color = headerTextColor
                                         )
                                         HeaderSubtitle(
                                             text = subtitle ?: if (title == null) {
