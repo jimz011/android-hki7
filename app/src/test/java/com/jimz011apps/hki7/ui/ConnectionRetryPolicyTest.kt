@@ -2,6 +2,7 @@ package com.jimz011apps.hki7.ui
 
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import com.jimz011apps.hki7.data.HomeAssistantForbiddenException
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -104,6 +105,10 @@ class ConnectionRetryPolicyTest {
         assertEquals(
             "Connection timed out",
             homeAssistantConnectionErrorLabel(SocketTimeoutException("socket timed out"))
+        )
+        assertEquals(
+            HOME_ASSISTANT_FORBIDDEN_LABEL,
+            homeAssistantConnectionErrorLabel(HomeAssistantForbiddenException())
         )
     }
 }

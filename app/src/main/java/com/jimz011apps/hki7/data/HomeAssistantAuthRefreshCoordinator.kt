@@ -31,6 +31,7 @@ internal sealed interface CoordinatedTokenRefreshResult {
     ) : CoordinatedTokenRefreshResult
 
     data class LoginRequired(val cause: Throwable? = null) : CoordinatedTokenRefreshResult
+    data class AccessForbidden(val cause: Throwable? = null) : CoordinatedTokenRefreshResult
     data class RetryableFailure(val cause: Throwable) : CoordinatedTokenRefreshResult
 }
 
@@ -76,7 +77,11 @@ internal object HomeAssistantAuthRefreshCoordinator {
                 performedRefresh = true
             )
         } catch (error: TokenRefreshException) {
-            if (error.isClientRejection) {
+            if (error.statusCode == 403) {
+                CoordinatedTokenRefreshResult.AccessForbidden(
+                    HomeAssistantForbiddenException(error)
+                )
+            } else if (error.isClientRejection) {
                 prefs.clearAuth()
                 CoordinatedTokenRefreshResult.LoginRequired(error)
             } else {

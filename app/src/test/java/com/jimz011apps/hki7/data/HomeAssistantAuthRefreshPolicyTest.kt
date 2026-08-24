@@ -32,10 +32,22 @@ class HomeAssistantAuthRefreshPolicyTest {
     }
 
     @Test
-    fun `client token rejection is terminal but server failure remains retryable`() {
-        assertTrue(TokenRefreshException(false, statusCode = 400).isClientRejection)
-        assertTrue(TokenRefreshException(false, statusCode = 403).isClientRejection)
+    fun `only explicit invalid grant discards the saved session`() {
+        assertTrue(TokenRefreshException(true, statusCode = 400).isClientRejection)
+        assertFalse(TokenRefreshException(false, statusCode = 400).isClientRejection)
+        assertFalse(TokenRefreshException(false, statusCode = 403).isClientRejection)
         assertFalse(TokenRefreshException(false, statusCode = 500).isClientRejection)
         assertFalse(TokenRefreshException(false).isClientRejection)
+    }
+
+    @Test
+    fun `forbidden response remains identifiable through wrapper exceptions`() {
+        assertTrue(isHomeAssistantForbidden(HomeAssistantForbiddenException()))
+        assertTrue(
+            isHomeAssistantForbidden(
+                IllegalStateException("request failed", HomeAssistantForbiddenException())
+            )
+        )
+        assertFalse(isHomeAssistantForbidden(IllegalStateException("403 in unrelated text")))
     }
 }

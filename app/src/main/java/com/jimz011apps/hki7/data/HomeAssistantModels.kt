@@ -638,18 +638,31 @@ data class MobileAppRegistration(
     val secret: String? = null
 )
 
+/** Home Assistant (or a proxy in front of it) rejected the source before servicing the request.
+ * Keep the saved session: HTTP 403 commonly means HA's IP ban, not an invalid access token. */
+class HomeAssistantForbiddenException(
+    cause: Throwable? = null
+) : Exception("HOME_ASSISTANT_FORBIDDEN", cause)
+
+internal fun isHomeAssistantForbidden(error: Throwable): Boolean =
+    generateSequence(error) { it.cause }.take(8).any { cause ->
+        cause is HomeAssistantForbiddenException ||
+            (cause is io.ktor.client.plugins.ResponseException &&
+                cause.response.status == io.ktor.http.HttpStatusCode.Forbidden)
+    }
+
 /** Thrown when a token refresh receives a non-successful HTTP response. [invalidGrant] identifies
- * the OAuth invalid_grant response; [statusCode] lets callers treat every 4xx as terminal instead
- * of repeatedly submitting a request Home Assistant counts toward its IP-ban threshold. */
+ * the one OAuth response that proves the refresh token itself is dead. Other failures preserve the
+ * session; in particular, HTTP 403 is normally an IP ban or reverse-proxy rule. */
 class TokenRefreshException(
     val invalidGrant: Boolean,
     val statusCode: Int? = null,
     message: String? = null,
     cause: Throwable? = null
 ) : Exception(message, cause) {
-    /** A 4xx response means this session cannot be refreshed without user intervention. */
+    /** Only OAuth's explicit invalid_grant proves this saved session requires a new login. */
     val isClientRejection: Boolean
-        get() = statusCode in 400..499
+        get() = invalidGrant
 }
 
 @Serializable

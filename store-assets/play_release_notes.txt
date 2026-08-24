@@ -1,3 +1,4 @@
 FIXED
 • Safer Home Assistant session recovery prevents simultaneous authentication failures from triggering an IP ban
+• 403 Forbidden responses now pause retries and explain that Home Assistant's IP ban or proxy should be checked
 • Long greetings and page titles now resize correctly and stay on one line on narrow screens

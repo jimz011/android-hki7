@@ -109,16 +109,17 @@ open class HomeAssistantClient(
         install(ContentNegotiation) {
             json(json)
         }
-        // Ktor 3 defaults to expectSuccess=false, so a 401 never throws ResponseException on its
-        // own — it would surface as a JSON parse error of the "401: Unauthorized" body and the
-        // token-refresh path would never trigger. Map it explicitly, but only for authorized
-        // calls (webhook POSTs are unauthenticated and inspect their status manually).
+        // Ktor 3 defaults to expectSuccess=false, so plain-text 401/403 responses would otherwise
+        // surface later as misleading JSON parse errors. Map authorized calls explicitly; webhook
+        // POSTs are unauthenticated and inspect their status in DeviceTelemetryReporter.
         HttpResponseValidator {
             validateResponse { response ->
-                if (response.status == HttpStatusCode.Unauthorized &&
-                    response.call.request.headers.contains(HttpHeaders.Authorization)
-                ) {
-                    throw Exception("AUTH_EXPIRED")
+                if (response.call.request.headers.contains(HttpHeaders.Authorization)) {
+                    when (response.status) {
+                        HttpStatusCode.Unauthorized -> throw Exception("AUTH_EXPIRED")
+                        HttpStatusCode.Forbidden -> throw HomeAssistantForbiddenException()
+                        else -> Unit
+                    }
                 }
             }
         }
@@ -1468,6 +1469,9 @@ open class HomeAssistantClient(
         } catch (e: Exception) {
             if (e is ResponseException && e.response.status == HttpStatusCode.Unauthorized) {
                 throw Exception("AUTH_EXPIRED")
+            }
+            if (e is ResponseException && e.response.status == HttpStatusCode.Forbidden) {
+                throw HomeAssistantForbiddenException(e)
             }
             throw e
         }

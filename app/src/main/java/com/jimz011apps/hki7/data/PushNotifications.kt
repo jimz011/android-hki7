@@ -456,6 +456,7 @@ class PushForegroundService : Service() {
                         refreshRetryDelay = 30.seconds
                     }
                     is CoordinatedTokenRefreshResult.LoginRequired -> return
+                    is CoordinatedTokenRefreshResult.AccessForbidden -> return
                     is CoordinatedTokenRefreshResult.RetryableFailure -> {
                         // Do not reconnect with the access token Home Assistant just rejected.
                         delay(refreshRetryDelay)
@@ -472,7 +473,9 @@ class PushForegroundService : Service() {
                     runCatching { handler.handle(event) }
                 }
             } catch (e: Exception) {
-                if (e.message == "AUTH_EXPIRED") {
+                if (isHomeAssistantForbidden(e)) {
+                    return
+                } else if (e.message == "AUTH_EXPIRED") {
                     // The next iteration refreshes first and never reuses this rejected token.
                     authenticationMustRefresh = true
                 }

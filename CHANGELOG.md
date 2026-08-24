@@ -15,6 +15,10 @@ Safer Home Assistant session recovery and a greeting that fits narrow screens co
   Token refresh is now coordinated between foreground and push work, known-expired sessions are
   refreshed before use, server rejections stop further retries and return to login, and transient
   failures back off without repeatedly submitting the rejected credential.
+- HTTP 403 is handled as an access block rather than a broken JSON response or a dead login. HKI 7
+  preserves the saved session, pauses foreground connection loops and background telemetry, and
+  points to Home Assistant's IP-ban or reverse-proxy settings. Removing the block and resuming the
+  app probes the connection again instead of requiring a reinstall.
 - Long greetings and page titles now adapt to the actual width left beside people avatars and other
   header indicators. They shrink smoothly while remaining on one line, fixing the final word or
   letters wrapping into the subtitle row on narrow screens; an ellipsis is retained only as a last

@@ -348,6 +348,7 @@
     <!-- Current release -->
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 now checks a saved Home Assistant session before starting its REST, WebSocket and push connections. Rejected credentials are refreshed once in a coordinated way or return you to login, instead of producing enough simultaneous authentication failures to trigger Home Assistant\'s IP ban.</item>
+        <item>A 403 Forbidden response now pauses connection and telemetry retries without deleting your saved login, and points you to Home Assistant\'s IP-ban or reverse-proxy settings instead of showing a JSON error.</item>
         <item>Long greetings and page titles now shrink to the space beside people and status indicators while staying on one line. This fixes the final letters wrapping onto a second row on narrow screens.</item>
     </string-array>
 

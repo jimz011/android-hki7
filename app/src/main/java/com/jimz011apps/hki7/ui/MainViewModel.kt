@@ -56,6 +56,9 @@ enum class ConnectionStatus {
     IDLE, CONNECTING, CONNECTED, ERROR
 }
 
+internal const val HOME_ASSISTANT_FORBIDDEN_LABEL =
+    "Access forbidden · Check Home Assistant IP ban or proxy"
+
 /** Detailed progress for a restart requested by HKI7. This deliberately remains separate from
  * [ConnectionStatus]: a temporarily unavailable Core is expected during a restart, not an error. */
 enum class HomeAssistantRestartPhase {
@@ -92,6 +95,8 @@ internal fun homeAssistantConnectionErrorLabel(error: Throwable): String {
         .firstOrNull()
         .orEmpty()
     return when {
+        isHomeAssistantForbidden(error) ->
+            HOME_ASSISTANT_FORBIDDEN_LABEL
         causes.any { it is UnknownHostException } ->
             "Server address could not be found"
         causes.any { it is SocketTimeoutException } ||
@@ -2204,7 +2209,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            if (e.message == "AUTH_EXPIRED") {
+            if (isHomeAssistantForbidden(e)) {
+                pauseSyncAfterForbidden("Connection check")
+            } else if (e.message == "AUTH_EXPIRED") {
                 stopSync()
                 currentClient.dispose()
                 client = null
@@ -2251,6 +2258,26 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         refreshJob?.cancel()
         refreshJob = null
         client?.closeSession()
+    }
+
+    /** HTTP 403 usually happens before HA reaches either bearer-token or webhook handling (for
+     * example its built-in IP ban or a reverse proxy rule). Keep the saved login, stop every
+     * foreground reconnect loop, and let a manual refresh/app resume probe again after unblocking. */
+    private fun pauseSyncAfterForbidden(source: String) {
+        val alreadyPaused = _connectionError.value == HOME_ASSISTANT_FORBIDDEN_LABEL
+        _connectionError.value = HOME_ASSISTANT_FORBIDDEN_LABEL
+        _status.value = ConnectionStatus.ERROR
+        stopPolling()
+        stopRealtimeSync()
+        stopSharedDashboardEvents()
+        stopPushChannel()
+        client?.closeSession()
+        if (!alreadyPaused) {
+            addLog(
+                "$source -> HTTP 403 Forbidden. Connection retries paused; " +
+                    "check Home Assistant's IP ban or reverse proxy."
+            )
+        }
     }
 
     /** Subscribes to the mobile_app websocket push channel while the app is visible, so calls to
@@ -2309,6 +2336,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
+                    if (isHomeAssistantForbidden(e)) {
+                        pauseSyncAfterForbidden("Push channel")
+                        return@launch
+                    }
                     if (e.message != "AUTH_EXPIRED") addLog("Push channel interrupted: ${e.message}")
                 }
                 delay(5.seconds) // backoff before resubscribing
@@ -2387,7 +2418,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     throw e
                 } catch (e: Exception) {
                     _connectionError.value = homeAssistantConnectionErrorLabel(e)
-                    if (e.message == "AUTH_EXPIRED") tryTokenRefresh()
+                    if (isHomeAssistantForbidden(e)) {
+                        pauseSyncAfterForbidden("Realtime sync")
+                        return@launch
+                    } else if (e.message == "AUTH_EXPIRED") tryTokenRefresh()
                     else {
                         if (appVisible && _status.value != ConnectionStatus.ERROR) {
                             _status.value = ConnectionStatus.CONNECTING
@@ -2424,7 +2458,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    if (e.message != "AUTH_EXPIRED") {
+                    if (isHomeAssistantForbidden(e)) {
+                        pauseSyncAfterForbidden("Family dashboard channel")
+                        return@launch
+                    } else if (e.message != "AUTH_EXPIRED") {
                         addLog("Family dashboard channel interrupted: ${e.message}")
                     }
                 }
@@ -2763,6 +2800,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 throw e
             } catch (e: Exception) {
                 _connectionError.value = homeAssistantConnectionErrorLabel(e)
+                if (isHomeAssistantForbidden(e)) {
+                    pauseSyncAfterForbidden("Home Assistant request")
+                    return@launch
+                }
                 if (!baseConnectionEstablished && e.message != "AUTH_EXPIRED" && activateExternalFallback(attemptedUrl)) {
                     _status.value = ConnectionStatus.CONNECTING
                     return@launch
@@ -2903,6 +2944,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                             }
                             addLog("Server rejected token refresh ($detail); re-login required.")
                             _forcedLogoutReason.value = "Session expired. Please log in again."
+                            return@withLock false
+                        }
+                        is CoordinatedTokenRefreshResult.AccessForbidden -> {
+                            pauseSyncAfterForbidden("Session refresh")
                             return@withLock false
                         }
                         is CoordinatedTokenRefreshResult.RetryableFailure -> throw result.cause

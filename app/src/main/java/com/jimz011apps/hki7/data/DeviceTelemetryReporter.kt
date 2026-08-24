@@ -85,6 +85,10 @@ class DeviceTelemetryReporter(
         lookupLocationIfMissing: Boolean = true,
         log: (String) -> Unit = {}
     ) {
+        val now = System.currentTimeMillis()
+        val forbiddenUntil = forbiddenTelemetryUntil[reportingScopeKey] ?: 0L
+        if (forbiddenUntil > now) return
+        if (forbiddenUntil != 0L) forbiddenTelemetryUntil.remove(reportingScopeKey, forbiddenUntil)
         if (webhookBaseUrl.isBlank()) {
             log("Telemetry skipped: no base URL")
             return
@@ -180,6 +184,9 @@ class DeviceTelemetryReporter(
         }
         val (updateStatus, updateBody) = runCatching { client.postWebhook(webhookUrl, updatePayload) }
             .getOrElse { log("update_sensor_states failed: ${it.message}"); -1 to "" }
+        if (updateStatus == 403) {
+            pauseAfterForbidden("update_sensor_states", updateBody, log)
+        }
         when {
             updateStatus !in 200..299 -> log("update_sensor_states -> HTTP $updateStatus")
             // HA returns 200 with a per-sensor body; an unrecognized sensor reports success=false.
@@ -269,8 +276,13 @@ class DeviceTelemetryReporter(
             // Advertise the websocket push channel so HA creates notify.mobile_app_<device>.
             put("app_data", buildJsonObject { put("push_websocket_channel", true) })
         }
-        val registration = runCatching { client.registerMobileApp(body) }.getOrElse {
-            log("mobile_app registration failed: ${it.message}")
+        val registration = try {
+            client.registerMobileApp(body)
+        } catch (error: Exception) {
+            if (isHomeAssistantForbidden(error)) {
+                pauseAfterForbidden("mobile_app registration", "403: Forbidden", log)
+            }
+            log("mobile_app registration failed: ${error.message}")
             return@withLock null
         }
         prefs.saveMobileAppRegistration(
@@ -367,12 +379,29 @@ class DeviceTelemetryReporter(
         label: String,
         log: (String) -> Unit
     ): Boolean {
-        return runCatching { client.postWebhook(webhookUrl, payload) }
-            .map { (status, body) ->
-                if (status !in 200..299) log("$label -> HTTP $status: ${body.take(200)}")
-                status in 200..299
-            }
-            .getOrElse { log("$label failed: ${it.message}"); false }
+        val (status, body) = try {
+            client.postWebhook(webhookUrl, payload)
+        } catch (error: Exception) {
+            log("$label failed: ${error.message}")
+            return false
+        }
+        if (status == 403) pauseAfterForbidden(label, body, log)
+        if (status !in 200..299) log("$label -> HTTP $status: ${body.take(200)}")
+        return status in 200..299
+    }
+
+    private fun pauseAfterForbidden(
+        label: String,
+        body: String,
+        log: (String) -> Unit
+    ): Nothing {
+        forbiddenTelemetryUntil[reportingScopeKey] =
+            System.currentTimeMillis() + TELEMETRY_FORBIDDEN_PAUSE_MS
+        log(
+            "$label -> HTTP 403: ${body.take(200)}. Telemetry paused; " +
+                "check Home Assistant's IP ban or reverse proxy."
+        )
+        throw HomeAssistantForbiddenException()
     }
 
     private fun resolveDeviceName(configuredDeviceName: String?): String =
@@ -566,6 +595,8 @@ class DeviceTelemetryReporter(
         private val registrationMutex = Mutex()
         private val json = Json { ignoreUnknownKeys = true }
         private val pushChannelEnsured = ConcurrentHashMap.newKeySet<String>()
+        private const val TELEMETRY_FORBIDDEN_PAUSE_MS = 5 * 60_000L
+        private val forbiddenTelemetryUntil = ConcurrentHashMap<String, Long>()
         /** Bumped whenever the set of sensors registered below changes, so a device that already
          *  registered the previous set registers the difference once rather than never. */
         // Bumped to 3 in 1.1.1, which added the Next Alarm sensor: devices already registered on
