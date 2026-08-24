@@ -1716,6 +1716,7 @@
     <string name="update_see_changes">Neyin değiştiğini görün</string>
     <string name="update_watch_releases">Bana yeni çıkanlardan bahset</string>
     <string name="update_watch_releases_subtitle">GitHub\'ı günde bir kez kontrol eder ve daha yeni bir sürüm yayınlandığında sizi bilgilendirir</string>
+    <string name="update_watch_releases_subtitle_play">Google Play\'in bu cihaz için daha yeni bir sürümü hazır olduğunda sizi bilgilendirir</string>
     <string name="uif_local_network_access">Yerel ağ erişimi</string>
     <string name="uif_local_network_access_description">HKI 7 öğesinin Wi-Fi ağınızda Home Assistant öğesini bulup doğrudan bağlanmasına olanak tanır.</string>
     <string name="uif_of_enabled">%2$d / %1$d etkin</string>

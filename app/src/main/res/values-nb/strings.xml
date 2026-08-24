@@ -3007,6 +3007,7 @@
     <string name="update_see_changes">Se hva som endret seg</string>
     <string name="update_watch_releases">Fortell meg om nye utgivelser</string>
     <string name="update_watch_releases_subtitle">Sjekker GitHub en gang om dagen og gir deg beskjed når en nyere versjon publiseres</string>
+    <string name="update_watch_releases_subtitle_play">Varsler deg når Google Play har en nyere versjon klar for denne enheten</string>
     <string name="uif_a_state">en stat</string>
     <string name="uif_a_time">en gang</string>
     <string name="uif_actions">Handlinger</string>

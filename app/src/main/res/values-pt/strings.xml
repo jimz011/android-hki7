@@ -3978,6 +3978,7 @@
         <item>Uma resposta 403 Forbidden agora pausa a ligação e novas tentativas de telemetria sem eliminar o seu login guardado e aponta para as definições de proibição de IP ou proxy reverso de Home Assistant em vez de mostrar um erro JSON.</item>
         <item>Saudações longas e títulos de páginas encolhem agora para o espaço ao lado das pessoas e dos indicadores de estado, permanecendo numa linha. Isto corrige a quebra final das letras numa segunda linha em ecrãs estreitos.</item>
         <item>A vista Energia pode agora mostrar uma ligação trifásica a importar e exportar ao mesmo tempo, o que acontece quando a energia solar é permitida apenas numa fase: esta fase retroalimenta enquanto as outras duas continuam a consumir. Ative "Importação/exportação por fase" em Definições › Energia › Eletricidade para mapear a importação e exportação de energia para L1, L2 e L3. A ficha de eletricidade mostra então ambas as figuras em vez do saldo, e a carta Agora divide-as por fase. HKI 7 aponta a configuração quando vê uma exportação de relatório do contador por fase e preenche os slots do seu dispositivo de fonte de eletricidade. Desativado por defeito; as ligações monofásicas não são afetadas.</item>
+        <item>Se tiver instalado o HKI 7 do Google Play, deixará de ser informado sobre uma versão que o Play ainda não pode instalar. Os lançamentos são publicados primeiro no GitHub e chegam ao Play gradualmente, pelo que o aviso pode apontar para uma versão que não existia para o seu dispositivo. As cópias instaladas fora do Play ainda ouvem falar de um lançamento assim que este é publicado.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_2">
@@ -3999,4 +4000,5 @@
     <string name="energy_extra_sensor_import_power_phase_three">Fase de potência de importação 3 (W)</string>
     <string name="energy_extra_sensor_import_power_phase_two">Fase de alimentação de importação 2 (W)</string>
     <string name="energy_extra_per_phase_flow_detected">Home Assistant reporta aqui a exportação por fase, o que geralmente significa energia solar numa fase de um fornecimento trifásico. Ative esta opção para ver a importação e a exportação ao mesmo tempo.</string>
+    <string name="update_watch_releases_subtitle_play">Notificá-lo-á quando o Google Play tiver uma versão mais recente pronta para este dispositivo</string>
 </resources>

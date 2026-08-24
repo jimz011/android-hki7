@@ -3007,6 +3007,7 @@
     <string name="update_see_changes">Podívejte se, co se změnilo</string>
     <string name="update_watch_releases">Řekněte mi o nových vydáních</string>
     <string name="update_watch_releases_subtitle">Kontroluje GitHub jednou denně a upozorní vás, když bude publikována novější verze</string>
+    <string name="update_watch_releases_subtitle_play">Upozorní vás, až bude na Google Play pro toto zařízení připravena novější verze</string>
     <string name="uif_a_state">stát</string>
     <string name="uif_a_time">čas</string>
     <string name="uif_actions">Akce</string>

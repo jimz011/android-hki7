@@ -3007,6 +3007,7 @@
     <string name="update_see_changes">Katso, mikä muuttui</string>
     <string name="update_watch_releases">Kerro uusista julkaisuista</string>
     <string name="update_watch_releases_subtitle">Tarkistaa GitHubin kerran päivässä ja ilmoittaa sinulle, kun uudempi versio julkaistaan</string>
+    <string name="update_watch_releases_subtitle_play">Ilmoittaa, kun Google Playlla on uudempi versio valmiina tälle laitteelle</string>
     <string name="uif_a_state">valtio</string>
     <string name="uif_a_time">aika</string>
     <string name="uif_actions">Toiminnot</string>

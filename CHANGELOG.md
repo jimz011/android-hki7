@@ -21,6 +21,12 @@ screens correctly.
   correctly, because they are derived from separate import and export meter readings. HKI 7 points
   the setting out when it sees a meter reporting export per phase, so it does not have to be
   stumbled upon, and fills the six slots automatically from the electricity source device.
+- A copy installed from Google Play is no longer told about a release Play cannot yet install.
+  Releases are published on GitHub first and reach Play gradually, so there is a window where the
+  update notice pointed at a version that did not exist for that device — tapping through reached a
+  Play listing still offering the version already installed. Play installs are now told once Play
+  itself has the update ready, and the setting says which of the two it is watching. Copies
+  installed outside Play are unaffected and still hear about a release as soon as it is published.
 
 - HKI 7 now validates a saved Home Assistant session before starting the usual REST, WebSocket and
   push connections. Previously, a rejected or expired credential could reach several startup jobs

@@ -61,6 +61,35 @@ object GithubReleaseChecker {
     }
 
     /**
+     * Whether a GitHub release is worth announcing to this install.
+     *
+     * A sideloaded build can install any release the moment it appears. A Play build cannot: Play
+     * forbids it updating by any other route, and a release reaches Play gradually, so for the
+     * hours or days between a GitHub publish and Play offering it there is nothing a Play user can
+     * do with the news. Announcing it anyway sends them to a listing still showing the version they
+     * already have, which reads as a broken update rather than a rollout in progress.
+     */
+    internal fun shouldAnnounceGithubRelease(source: InstallSource, playHasUpdate: Boolean): Boolean =
+        source == InstallSource.SIDELOAD || playHasUpdate
+
+    /**
+     * The update this install can actually act on, which is not always the newest one published.
+     *
+     * Play is asked first, so a Play install with nothing to install never calls GitHub at all.
+     * Once Play does have the update ready, the GitHub release supplies the version name and notes
+     * that Play's own API does not expose.
+     *
+     * A Play install whose Play Store is missing or disabled gets nothing, which is deliberate:
+     * that build is not permitted to update from anywhere else regardless.
+     */
+    suspend fun checkForInstall(context: Context): Available? {
+        val source = installSource(context)
+        val playHasUpdate = source == InstallSource.PLAY && AppUpdateGate.hasUpdateAvailable(context)
+        if (!shouldAnnounceGithubRelease(source, playHasUpdate)) return null
+        return check()
+    }
+
+    /**
      * Asks GitHub for the latest release. Returns null when the network is unavailable, the
      * response cannot be parsed, or this build is already current — a failed check is never worth
      * surfacing, since the app works perfectly well without it.

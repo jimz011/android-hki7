@@ -12,7 +12,8 @@ import kotlinx.coroutines.flow.first
 import java.util.concurrent.TimeUnit
 
 /**
- * Checks GitHub for a newer release once a day and notifies when there is one.
+ * Checks once a day for a newer release this install can actually take, and notifies when there is
+ * one. A Play build is asked about via Play; see [GithubReleaseChecker.checkForInstall].
  *
  * Daily rather than on every launch: a release lands every few weeks at most, and the app's whole
  * battery story is that nothing runs on a schedule it does not need. WorkManager batches this with
@@ -29,7 +30,7 @@ class UpdateCheckWorker(appContext: Context, params: WorkerParameters) :
         // a notification that never posted. Runs once per install and is a no-op on a fresh one.
         prefs.clearStaleNotifiedUpdateVersionOnce()
 
-        val available = GithubReleaseChecker.check()
+        val available = GithubReleaseChecker.checkForInstall(applicationContext)
         if (available == null) {
             // Current again: retire the panel notice, which is exempt from the ordinary purge and
             // would otherwise outlive the update it announces, and forget the version so a

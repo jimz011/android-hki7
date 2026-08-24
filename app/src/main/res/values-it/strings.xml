@@ -1716,6 +1716,7 @@
     <string name="update_see_changes">Guarda cosa è cambiato</string>
     <string name="update_watch_releases">Parlami delle nuove uscite</string>
     <string name="update_watch_releases_subtitle">Controlla GitHub una volta al giorno e ti avvisa quando viene pubblicata una versione più recente</string>
+    <string name="update_watch_releases_subtitle_play">Ti avvisa quando Google Play ha una versione più recente pronta per questo dispositivo</string>
     <string name="uif_local_network_access">Accesso alla rete locale</string>
     <string name="uif_local_network_access_description">Consente a HKI 7 di trovare e connettersi direttamente a Home Assistant sulla tua rete Wi-Fi.</string>
     <string name="uif_of_enabled">%1$d di %2$d abilitato</string>

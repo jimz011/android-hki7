@@ -49,6 +49,21 @@ object AppUpdateGate {
         return if (ready) UpdateOffer.Ready(info) else UpdateOffer.Unavailable
     }
 
+    /**
+     * Whether Play has a newer version for this install at all, whatever update flow it permits.
+     *
+     * [check] deliberately insists on IMMEDIATE, because the forced gate is useless without a flow
+     * it can actually start. Merely telling someone an update exists needs no flow, so this asks
+     * the broader question — and answers false whenever Play cannot be reached, which is the
+     * restrictive direction: a build Play installed must not be pointed anywhere else.
+     */
+    suspend fun hasUpdateAvailable(context: Context): Boolean {
+        val info = runCatching {
+            AppUpdateManagerFactory.create(context.applicationContext).requestAppUpdateInfo()
+        }.getOrNull() ?: return false
+        return info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+    }
+
     /** Launches Play's full-screen immediate update. Returns false if Play declined to start it,
      *  which the caller treats as "fall back to the store listing" rather than a dead button. */
     fun start(

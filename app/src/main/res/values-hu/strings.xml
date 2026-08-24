@@ -3007,6 +3007,7 @@
     <string name="update_see_changes">Nézze meg, mi változott</string>
     <string name="update_watch_releases">Mesélj az új kiadásokról</string>
     <string name="update_watch_releases_subtitle">Naponta egyszer ellenőrzi a GitHubot, és értesít, ha újabb verzió jelenik meg</string>
+    <string name="update_watch_releases_subtitle_play">Értesítést küld, ha a Google Play újabb verzióval rendelkezik ehhez az eszközhöz</string>
     <string name="uif_a_state">egy állam</string>
     <string name="uif_a_time">egy idő</string>
     <string name="uif_actions">Akciók</string>

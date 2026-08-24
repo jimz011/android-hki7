@@ -3007,6 +3007,7 @@
     <string name="update_see_changes">Δείτε τι άλλαξε</string>
     <string name="update_watch_releases">Πες μου για νέες κυκλοφορίες</string>
     <string name="update_watch_releases_subtitle">Ελέγχει το GitHub μία φορά την ημέρα και σας ειδοποιεί όταν δημοσιεύεται μια νεότερη έκδοση</string>
+    <string name="update_watch_releases_subtitle_play">Σας ειδοποιεί μόλις το Google Play έχει έτοιμη μια νεότερη έκδοση για αυτήν τη συσκευή</string>
     <string name="uif_a_state">ένα κράτος</string>
     <string name="uif_a_time">μια φορά</string>
     <string name="uif_actions">Δράσεις</string>

@@ -49,6 +49,7 @@
         <item>Ett 403 Forbidden-svar pausar nu anslutnings- och telemetriförsök utan att ta bort din sparade inloggning och pekar dig till Home Assistants IP-förbud eller omvänd proxyinställningar istället för att visa ett JSON-fel.</item>
         <item>Långa hälsningar och sidrubriker krymper nu till utrymmet bredvid personer och statusindikatorer samtidigt som de stannar på en rad. Detta fixar de sista bokstäverna på en andra rad på smala skärmar.</item>
         <item>Energivyn kan nu visa en trefasanslutning som importerar och exporterar på en gång, vilket händer där solenergi endast tillåts på en fas: den fasen återkopplas medan de andra två fortsätter att rita. Slå på "Perfas import/export" under Inställningar › Energi › El för att kartlägga import- och exporteffekt för L1, L2 och L3. Elbrickan visar då båda siffrorna istället för saldot, och Nu-kortet bryter ut dem per fas. HKI 7 pekar på inställningen när den ser en mätare som rapporterar export per fas och fyller luckorna från din elkälla. Av som standard; enfasanslutningar påverkas inte.</item>
+        <item>Om du installerade HKI 7 från Google Play får du inte längre veta om en version som Play inte kan installera ännu. Utgåvor publiceras på GitHub först och når Play gradvis, så meddelandet kan peka på en version som inte fanns för din enhet. Kopior som installerats utanför Play hör fortfarande om en release så snart den publiceras.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_2">

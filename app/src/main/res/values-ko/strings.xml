@@ -2965,6 +2965,7 @@
     <string name="update_see_changes">무엇이 바뀌었는지 확인하세요</string>
     <string name="update_watch_releases">새로운 릴리스에 대해 알려주세요.</string>
     <string name="update_watch_releases_subtitle">하루에 한 번 GitHub를 확인하고 최신 버전이 게시되면 알려줍니다.</string>
+    <string name="update_watch_releases_subtitle_play">Google Play에서 이 기기에 대한 최신 버전이 준비되면 알려드립니다.</string>
     <string name="uif_a_state">주</string>
     <string name="uif_a_time">시간</string>
     <string name="uif_actions">작업</string>

@@ -351,6 +351,7 @@
         <item>A 403 Forbidden response now pauses connection and telemetry retries without deleting your saved login, and points you to Home Assistant\'s IP-ban or reverse-proxy settings instead of showing a JSON error.</item>
         <item>Long greetings and page titles now shrink to the space beside people and status indicators while staying on one line. This fixes the final letters wrapping onto a second row on narrow screens.</item>
         <item>The Energy view can now show a three-phase connection importing and exporting at once, which happens where solar is allowed on only one phase: that phase feeds back while the other two keep drawing. Switch on "Per-phase import/export" under Settings › Energy › Electricity to map import and export power for L1, L2 and L3. The electricity tile then shows both figures instead of the balance, and the Now card breaks them out per phase. HKI 7 points the setting out when it sees a meter reporting export per phase, and fills the slots from your electricity source device. Off by default; single-phase connections are unaffected.</item>
+        <item>If you installed HKI 7 from Google Play, you are no longer told about a release Play cannot install yet. Releases are published on GitHub first and reach Play gradually, so the notice could point at a version that did not exist for your device. Copies installed outside Play still hear about a release as soon as it is published.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_2">

@@ -145,11 +145,17 @@ before the page closes.
 
 ### About
 
-What HKI 7 is and how it is built. Also where **app updates** live: HKI 7 can watch the GitHub
-releases once a day and tell you when a newer version is out, which matters if you installed the
-APK yourself rather than from Google Play. **Update now** goes to Play or to the release page
-depending on where this copy came from — an app distributed through Play may not update itself by
-any other route.
+What HKI 7 is and how it is built. Also where **app updates** live: HKI 7 checks once a day and
+tells you when a newer version is out.
+
+What it checks depends on where this copy came from. A copy you installed yourself watches the
+GitHub releases and hears about a release as soon as it is published. A copy from Google Play is
+told only once **Play** has the update ready for your device — releases reach Play gradually, so
+for a while a version exists on GitHub that Play cannot yet install, and announcing it would send
+you to a listing still showing the version you already have.
+
+**Update now** goes to Play or to the release page accordingly. An app distributed through Play may
+not update itself by any other route.
 
 ### License
 

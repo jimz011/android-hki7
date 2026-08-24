@@ -32,6 +32,7 @@
         <item>Odgovor 403 Forbidden sada pauzira povezivanje i ponovne pokušaje telemetrije bez brisanja vaše spremljene prijave i upućuje vas na Home Assistant zabranu IP-a ili postavke obrnutog proxyja umjesto prikazivanja JSON pogreške.</item>
         <item>Dugi pozdravi i naslovi stranica sada se smanjuju na prostor pored osoba i indikatora statusa dok ostaju u jednom retku. Ovo popravlja završna slova koja se prelamaju u drugi red na uskim zaslonima.</item>
         <item>Prikaz energije sada može prikazati trofaznu vezu koja se istovremeno uvozi i izvozi, što se događa kada je solarna energija dopuštena samo na jednoj fazi: ta faza se vraća dok druge dvije nastavljaju crtati. Uključite "Pofazni uvoz/izvoz" pod Postavke › Energija › Električna energija za mapiranje uvoza i izvoza energije za L1, L2 i L3. Pločica električne energije zatim prikazuje obje brojke umjesto stanja, a kartica Now ih rastavlja po fazama. HKI 7 pokazuje postavku kada vidi mjerač koji izvješćuje o izvozu po fazi i ispunjava utore vašeg uređaja izvora električne energije. Isključeno prema zadanim postavkama; jednofazni priključci nisu pogođeni.</item>
+        <item>Ako ste instalirali HKI 7 s Google Playa, više vam se ne govori o izdanju koje Play još ne može instalirati. Izdanja se prvo objavljuju na GitHubu i postupno stižu do Playa, tako da obavijest može upućivati na verziju koja nije postojala za vaš uređaj. Kopije instalirane izvan Playa i dalje se čuju za izdanje čim se objavi.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_2">

@@ -3007,6 +3007,7 @@
     <string name="update_see_changes">Skatiet, kas mainījās</string>
     <string name="update_watch_releases">Pastāstiet man par jaunumiem</string>
     <string name="update_watch_releases_subtitle">Reizi dienā pārbauda GitHub un paziņo, kad tiek publicēta jaunāka versija</string>
+    <string name="update_watch_releases_subtitle_play">Paziņo jums, tiklīdz pakalpojumam Google Play ir pieejama jaunāka versija šai ierīcei</string>
     <string name="uif_a_state">valsts</string>
     <string name="uif_a_time">laiks</string>
     <string name="uif_actions">Darbības</string>

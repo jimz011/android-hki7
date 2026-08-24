@@ -365,4 +365,5 @@
     <string name="update_see_changes">See what changed</string>
     <string name="update_watch_releases">Tell me about new releases</string>
     <string name="update_watch_releases_subtitle">Checks GitHub once a day and notifies you when a newer version is published</string>
+    <string name="update_watch_releases_subtitle_play">Notifies you once Google Play has a newer version ready for this device</string>
 </resources>

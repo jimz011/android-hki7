@@ -3975,6 +3975,7 @@
         <item>403 Forbidden 回應現在會暫停連接和遙測重試，而不會刪除已儲存的登入訊息，並指向 Home Assistant 的 IP 禁止或反向代理設置，而不是顯示 JSON 錯誤。</item>
         <item>長問候語和頁面標題現在會縮小到人員和狀態指示器旁邊的空間，同時保持在一行上。這修復了窄螢幕上最後的字母換行到第二行的問題。</item>
         <item>能源視圖現在可以同時顯示輸入和輸出的三相連接，這種情況發生在僅允許一相使用太陽能的情況下：該相反饋，而其他兩相繼續繪製。在設定 › 能源 › 電力下開啟“每相導入/導出”，以映射 L1、L2 和 L3 的導入和導出功率。然後，電力圖塊會顯示兩個數字而不是餘額，並且「Now」卡會按相將它們分開。 HKI 7 在看到報告每相輸出的電錶時指出設置，並填充電源設備的插槽。預設為關閉；單相連線不受影響。</item>
+        <item>如果您從 Google Play 安裝了 HKI 7，您將不再被告知 Play 尚無法安裝某個版本。版本首先在 GitHub 上發布，然後逐漸到達 Play，因此通知可能指向您的裝置不存在的版本。在 Play 之外安裝的副本在發布後仍然會聽到該版本的消息。</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_1_2">
@@ -3996,4 +3997,5 @@
     <string name="energy_extra_sensor_import_power_phase_three">輸入功率3相（W）</string>
     <string name="energy_extra_sensor_import_power_phase_two">輸入功率2相（W）</string>
     <string name="energy_extra_per_phase_flow_detected">Home Assistant 在此報告每相的輸出，這通常意味著三相電源中某一相的太陽能。開啟此選項可同時查看匯入和匯出。</string>
+    <string name="update_watch_releases_subtitle_play">一旦 Google Play 有適用於該裝置的更新版本，就會通知您</string>
 </resources>

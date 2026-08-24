@@ -3045,6 +3045,10 @@ fun SettingsDialog(
                                 var checking by remember { mutableStateOf(false) }
                                 var latest by remember { mutableStateOf<GithubReleaseChecker.Available?>(null) }
                                 var checkedOnce by remember { mutableStateOf(false) }
+                                val installedFromPlay = remember(context) {
+                                    GithubReleaseChecker.installSource(context) ==
+                                        GithubReleaseChecker.InstallSource.PLAY
+                                }
                                 SettingsSubcategory(
                                     stringResource(R.string.update_title),
                                     when {
@@ -3059,7 +3063,13 @@ fun SettingsDialog(
                                         Column(Modifier.weight(1f)) {
                                             Text(stringResource(R.string.update_watch_releases), color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
                                             Text(
-                                                stringResource(R.string.update_watch_releases_subtitle),
+                                                // A Play build is told about a release only once
+                                                // Play has it, so promising to watch GitHub would
+                                                // describe something it deliberately does not do.
+                                                stringResource(
+                                                    if (installedFromPlay) R.string.update_watch_releases_subtitle_play
+                                                    else R.string.update_watch_releases_subtitle
+                                                ),
                                                 color = appColors.onMuted,
                                                 style = MaterialTheme.typography.bodySmall
                                             )
@@ -3079,7 +3089,7 @@ fun SettingsDialog(
                                         onClick = {
                                             scope.launch {
                                                 checking = true
-                                                latest = GithubReleaseChecker.check()
+                                                latest = GithubReleaseChecker.checkForInstall(context)
                                                 // Put it back in the notification panel, unread
                                                 // and at the top. Checking by hand is how someone
                                                 // asks for the announcement again after dismissing

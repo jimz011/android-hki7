@@ -3007,6 +3007,7 @@
     <string name="update_see_changes">Pogledajte što se promijenilo</string>
     <string name="update_watch_releases">Pričaj mi o novim izdanjima</string>
     <string name="update_watch_releases_subtitle">Provjerava GitHub jednom dnevno i obavještava vas kada se objavi novija verzija</string>
+    <string name="update_watch_releases_subtitle_play">Obavještava vas kada Google Play ima noviju verziju spremnu za ovaj uređaj</string>
     <string name="uif_a_state">država</string>
     <string name="uif_a_time">vrijeme</string>
     <string name="uif_actions">Radnje</string>

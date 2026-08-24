@@ -3007,6 +3007,7 @@
     <string name="update_see_changes">Pažiūrėkite, kas pasikeitė</string>
     <string name="update_watch_releases">Papasakokite apie naujus leidimus</string>
     <string name="update_watch_releases_subtitle">Tikrina „GitHub“ kartą per dieną ir praneša, kai bus paskelbta naujesnė versija</string>
+    <string name="update_watch_releases_subtitle_play">Praneša, kai „Google Play“ paruoš naujesnę šio įrenginio versiją</string>
     <string name="uif_a_state">valstybė</string>
     <string name="uif_a_time">laikas</string>
     <string name="uif_actions">Veiksmai</string>
