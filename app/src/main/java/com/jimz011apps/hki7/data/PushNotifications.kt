@@ -41,6 +41,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import java.util.Locale
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.minutes
 
 const val EXTRA_HA_INSTANCE_ID = "com.jimz011apps.hki7.extra.HA_INSTANCE_ID"
 
@@ -414,6 +415,8 @@ class PushForegroundService : Service() {
 
     private suspend fun runInstancePushLoop(instanceId: String) {
         val scopedPrefs = prefs.forInstance(instanceId)
+        var authenticationMustRefresh = false
+        var refreshRetryDelay = 30.seconds
         while (currentCoroutineContext().isActive) {
             val profile = prefs.homeAssistantInstances.first().firstOrNull { it.id == instanceId }
                 ?: return
@@ -423,11 +426,45 @@ class PushForegroundService : Service() {
                 scopedPrefs.serverUrl.first(), scopedPrefs.internalUrl.first(),
                 scopedPrefs.homeSsids.first(), currentWifiSsid(applicationContext)
             )
-            val token = scopedPrefs.accessToken.first()
+            var token = scopedPrefs.accessToken.first()
+            val refreshToken = scopedPrefs.refreshToken.first()
+            val tokenExpiry = scopedPrefs.accessTokenExpiry.first()
             if (webhookId.isNullOrBlank() || url.isNullOrBlank() || token.isNullOrBlank()) {
                 delay(30.seconds)
                 continue
             }
+
+            if (isKnownExpiredWithoutRefreshToken(
+                    token, refreshToken, tokenExpiry, System.currentTimeMillis()
+                )
+            ) {
+                scopedPrefs.clearAuth()
+                return
+            }
+
+            if (authenticationMustRefresh || shouldRefreshBeforeAuthenticatedWork(
+                    refreshToken, tokenExpiry, System.currentTimeMillis()
+                )
+            ) {
+                val refreshUrl = scopedPrefs.serverUrl.first()?.takeIf { it.isNotBlank() } ?: url
+                when (val result = HomeAssistantAuthRefreshCoordinator.refresh(
+                    refreshUrl, scopedPrefs, token
+                )) {
+                    is CoordinatedTokenRefreshResult.Success -> {
+                        token = result.accessToken
+                        authenticationMustRefresh = false
+                        refreshRetryDelay = 30.seconds
+                    }
+                    is CoordinatedTokenRefreshResult.LoginRequired -> return
+                    is CoordinatedTokenRefreshResult.RetryableFailure -> {
+                        // Do not reconnect with the access token Home Assistant just rejected.
+                        delay(refreshRetryDelay)
+                        refreshRetryDelay = (refreshRetryDelay * 2).coerceAtMost(5.minutes)
+                        continue
+                    }
+                }
+            }
+
             val client = HomeAssistantClient(url, token)
             val handler = PushNotificationHandler(applicationContext, prefs, profile.id, profile.name)
             try {
@@ -436,19 +473,13 @@ class PushForegroundService : Service() {
                 }
             } catch (e: Exception) {
                 if (e.message == "AUTH_EXPIRED") {
-                    val refresh = scopedPrefs.refreshToken.first()
-                    if (!refresh.isNullOrBlank()) {
-                        runCatching {
-                            val refreshUrl = scopedPrefs.serverUrl.first()?.takeIf { it.isNotBlank() } ?: url
-                            val fresh = HomeAssistantClient.refreshAccessToken(refreshUrl, refresh)
-                            scopedPrefs.saveAuthTokens(fresh.access_token, expiresInSeconds = fresh.expires_in)
-                        }
-                    }
+                    // The next iteration refreshes first and never reuses this rejected token.
+                    authenticationMustRefresh = true
                 }
             } finally {
                 client.closeSession()
             }
-            delay(10.seconds) // backoff before reconnecting
+            if (!authenticationMustRefresh) delay(10.seconds) // backoff before reconnecting
         }
     }
 

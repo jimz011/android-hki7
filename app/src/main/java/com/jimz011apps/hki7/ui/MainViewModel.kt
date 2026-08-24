@@ -1997,8 +1997,11 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             val connectionSettings = combine(
                 activeBaseUrl,
                 prefs.accessToken,
-                prefs.refreshToken
-            ) { url, token, refresh -> Triple(url, token, refresh) }
+                prefs.refreshToken,
+                prefs.accessTokenExpiry
+            ) { url, token, refresh, expiry ->
+                HKIConnectionSettings(url, token, refresh, expiry)
+            }
             val identitySettings = combine(
                 prefs.displayName,
                 networkMonitor?.networkGeneration ?: MutableStateFlow(0L),
@@ -2006,9 +2009,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             ) { name, networkGeneration, instanceId -> Triple(name, networkGeneration, instanceId) }
             combine(connectionSettings, identitySettings) { connection, identity ->
                 HKIAuthSettings(
-                    url = connection.first,
-                    token = connection.second,
-                    refresh = connection.third,
+                    url = connection.url,
+                    token = connection.token,
+                    refresh = connection.refresh,
+                    tokenExpiry = connection.tokenExpiry,
                     name = identity.first,
                     networkGeneration = identity.second,
                     instanceId = identity.third
@@ -2076,6 +2080,34 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                         _areas.value = emptyList()
                     }
                     !settings.token.isNullOrBlank() -> {
+                        val now = System.currentTimeMillis()
+                        if (isKnownExpiredWithoutRefreshToken(
+                                settings.token, settings.refresh, settings.tokenExpiry, now
+                            )
+                        ) {
+                            stopSync()
+                            client?.dispose()
+                            client = null
+                            activeConnectionKey = null
+                            _forcedLogoutReason.value = "Session expired. Please log in again."
+                            prefs.clearAuth()
+                            return@collectLatest
+                        }
+                        if (shouldRefreshBeforeAuthenticatedWork(
+                                settings.refresh, settings.tokenExpiry, now
+                            )
+                        ) {
+                            // Never let polling or WebSockets submit a token we already know is
+                            // expired. Home Assistant counts each rejection toward its IP ban.
+                            stopSync()
+                            client?.dispose()
+                            client = null
+                            activeConnectionKey = null
+                            _status.value = ConnectionStatus.CONNECTING
+                            addLog("Refreshing Home Assistant session before connecting...")
+                            if (tryTokenRefresh() && appVisible) startSync()
+                            return@collectLatest
+                        }
                         if (activeConnectionKey != connectionKey) {
                             // A different URL/token or a reconnected Wi-Fi transport invalidates
                             // requests and WebSockets held by the old client. Close it first so a
@@ -2086,7 +2118,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                             addLog("Connecting to ${settings.url}")
                             _status.value = ConnectionStatus.CONNECTING
                             client = createHomeAssistantClient(settings.url, settings.token)
-                            if (appVisible) startSync()
+                            if (appVisible) startSyncAfterAuthProbe()
                             scheduleProactiveRefreshFromStoredExpiry()
                         }
                     }
@@ -2133,9 +2165,17 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val url: String?,
         val token: String?,
         val refresh: String?,
+        val tokenExpiry: Long?,
         val name: String?,
         val networkGeneration: Long,
         val instanceId: String?
+    )
+
+    private data class HKIConnectionSettings(
+        val url: String?,
+        val token: String?,
+        val refresh: String?,
+        val tokenExpiry: Long?
     )
 
     private fun startSync() {
@@ -2145,6 +2185,62 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         startPushChannel()
         // Covers cold start and components too old to broadcast dashboard invalidations.
         syncSharedDashboards()
+    }
+
+    /**
+     * Validate one stored-token request before the REST/WebSocket startup fan-out. A token can be
+     * revoked even while its persisted expiry still looks healthy; without this gate, several
+     * parallel 401s can reach Home Assistant before the first caller starts a refresh.
+     */
+    private suspend fun startSyncAfterAuthProbe() {
+        val currentClient = client ?: return
+        if (isDemoServerUrl(_currentUrl.value)) {
+            startSync()
+            return
+        }
+        try {
+            withTimeout(10.seconds) { currentClient.checkConnection() }
+            startSync()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            if (e.message == "AUTH_EXPIRED") {
+                stopSync()
+                currentClient.dispose()
+                client = null
+                activeConnectionKey = null
+                addLog("Stored session was rejected. Refreshing before synchronization...")
+                if (tryTokenRefresh() && appVisible) startSync()
+            } else {
+                // Routing/fallback and user-facing network handling live in the normal sync path.
+                // The probe exists only to serialize authentication failures.
+                startSync()
+            }
+        }
+    }
+
+    /** Foreground return can happen long after Android froze the process and the token expired. */
+    private suspend fun resumeSyncAfterTokenGate() {
+        if (client == null || realtimeJob?.isActive == true) return
+        val token = prefs.accessToken.first()
+        val refresh = prefs.refreshToken.first()
+        val expiry = prefs.accessTokenExpiry.first()
+        val now = System.currentTimeMillis()
+        if (isKnownExpiredWithoutRefreshToken(token, refresh, expiry, now)) {
+            stopSync()
+            client?.dispose()
+            client = null
+            activeConnectionKey = null
+            _forcedLogoutReason.value = "Session expired. Please log in again."
+            prefs.clearAuth()
+            return
+        }
+        if (shouldRefreshBeforeAuthenticatedWork(refresh, expiry, now)) {
+            stopSync()
+            if (tryTokenRefresh() && appVisible) startSync()
+            return
+        }
+        startSyncAfterAuthProbe()
     }
 
     private fun stopSync() {
@@ -2400,7 +2496,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         if (appVisible == visible) return
         appVisible = visible
         if (visible) {
-            if (client != null && realtimeJob?.isActive != true) startSync()
+            viewModelScope.launch { resumeSyncAfterTokenGate() }
             internalUrlFallback.value?.let { scheduleInternalUrlRetry(it, retryImmediately = true) }
             viewModelScope.launch {
                 if (prefs.pendingAutoTakeover.first()) completeInitialDashboardSetup()
@@ -2780,40 +2876,50 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         // DataStore read hiccup escaping this call used to propagate all the way to the process's
         // default (uncaught) exception handler and crash the app, deterministically on the exact
         // "reconnect after a dropped/expired session" path users hit most.
-        val refresh = runCatching { prefs.refreshToken.first() }.getOrNull()
-        if (url.isNotEmpty() && refresh != null) {
+        if (url.isNotEmpty()) {
             val delays = listOf(0L, 1000L, 4000L, 10000L)
             for ((attempt, delayMs) in delays.withIndex()) {
                 try {
                     if (attempt > 0) delay(delayMs.milliseconds)
-                    val response = HomeAssistantClient.refreshAccessToken(url, refresh)
-                    // Save only the tokens: `url` is the currently *resolved* base URL (internal
-                    // when on home Wi-Fi) and must not overwrite the stored external server URL.
-                    prefs.saveAuthTokens(response.access_token, response.refresh_token, response.expires_in)
-                    client?.dispose()
-                    client = HomeAssistantClient(url, response.access_token)
-                    activeConnectionKey = connectionKeyFor(url, response.access_token)
-                    lastTokenRefreshAt = SystemClock.elapsedRealtime()
-                    scheduleProactiveRefresh(response.expires_in)
-                    addLog("Token refreshed successfully")
-                    return@withLock true
+                    when (val result = HomeAssistantAuthRefreshCoordinator.refresh(
+                        serverUrl = url,
+                        prefs = prefs,
+                        expectedAccessToken = _accessToken.value
+                    )) {
+                        is CoordinatedTokenRefreshResult.Success -> {
+                            client?.dispose()
+                            client = HomeAssistantClient(url, result.accessToken)
+                            activeConnectionKey = connectionKeyFor(url, result.accessToken)
+                            lastTokenRefreshAt = SystemClock.elapsedRealtime()
+                            result.expiresInSeconds?.let(::scheduleProactiveRefresh)
+                            addLog(if (result.performedRefresh) "Token refreshed successfully" else "Using freshly updated token")
+                            return@withLock true
+                        }
+                        is CoordinatedTokenRefreshResult.LoginRequired -> {
+                            val detail = if ((result.cause as? TokenRefreshException)?.invalidGrant == true) {
+                                "invalid_grant"
+                            } else {
+                                "refresh rejected"
+                            }
+                            addLog("Server rejected token refresh ($detail); re-login required.")
+                            _forcedLogoutReason.value = "Session expired. Please log in again."
+                            return@withLock false
+                        }
+                        is CoordinatedTokenRefreshResult.RetryableFailure -> throw result.cause
+                    }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
                     _connectionError.value = homeAssistantConnectionErrorLabel(e)
                     addLog("Token refresh attempt ${attempt + 1} failed: ${e.message}")
-                    // Only force re-login when the server explicitly rejected the refresh token.
-                    if (e is TokenRefreshException && e.invalidGrant) {
-                        addLog("Server rejected refresh token (invalid_grant); re-login required.")
-                        _forcedLogoutReason.value = "Session expired. Please log in again."
-                        runCatching { prefs.clearAuth() }
-                        return@withLock false
-                    }
+                    // Home Assistant counts every non-successful /auth/token response as a failed
+                    // login. Never submit a burst of retries after the server did answer.
+                    if (e is TokenRefreshException) break
                 }
             }
-            // All attempts failed without an explicit rejection — keep auth and retry in a minute.
+            // The refresh failed without a terminal client rejection — keep auth and retry later.
             // Without this reschedule nothing re-triggers a refresh until a request happens to 401.
-            addLog("Token refresh failed after ${delays.size} attempts (transient). Will retry later.")
+            addLog("Token refresh failed (transient). Will retry later.")
             _status.value = ConnectionStatus.ERROR
             tokenRefreshJob = viewModelScope.launch {
                 delay(60.seconds)

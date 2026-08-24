@@ -638,14 +638,19 @@ data class MobileAppRegistration(
     val secret: String? = null
 )
 
-/** Thrown when a token refresh fails. [invalidGrant] is true only when the server explicitly
- *  rejected the refresh token (HTTP 400 invalid_grant), meaning re-login is required; transient
- *  network failures leave it false so callers can retry without logging the user out. */
+/** Thrown when a token refresh receives a non-successful HTTP response. [invalidGrant] identifies
+ * the OAuth invalid_grant response; [statusCode] lets callers treat every 4xx as terminal instead
+ * of repeatedly submitting a request Home Assistant counts toward its IP-ban threshold. */
 class TokenRefreshException(
     val invalidGrant: Boolean,
+    val statusCode: Int? = null,
     message: String? = null,
     cause: Throwable? = null
-) : Exception(message, cause)
+) : Exception(message, cause) {
+    /** A 4xx response means this session cannot be refreshed without user intervention. */
+    val isClientRejection: Boolean
+        get() = statusCode in 400..499
+}
 
 @Serializable
 data class HAUser(

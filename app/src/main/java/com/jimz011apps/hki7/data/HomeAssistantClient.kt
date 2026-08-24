@@ -1578,7 +1578,11 @@ open class HomeAssistantClient(
             // everything else (5xx, timeouts surfaced as other statuses) as transient and retryable.
             val invalidGrant = response.status == HttpStatusCode.BadRequest &&
                 bodyText.contains("invalid_grant", ignoreCase = true)
-            throw TokenRefreshException(invalidGrant, "Token refresh failed: ${response.status.value} ${bodyText.take(200)}")
+            throw TokenRefreshException(
+                invalidGrant = invalidGrant,
+                statusCode = response.status.value,
+                message = "Token refresh failed: ${response.status.value} ${bodyText.take(200)}"
+            )
         }
 
         private suspend fun decodeTokenResponse(response: HttpResponse): HATokenResponse {
