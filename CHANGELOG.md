@@ -5,6 +5,21 @@ file in sync with `app/src/main/java/com/jimz011apps/hki7/ui/components/WhatsNew
 
 Items marked with \* require the HKI 7 Cloud Component integration.
 
+## 1.1.3
+
+Safer Home Assistant session recovery and a greeting that fits narrow screens correctly.
+
+- HKI 7 now validates a saved Home Assistant session before starting the usual REST, WebSocket and
+  push connections. Previously, a rejected or expired credential could reach several startup jobs
+  at once, producing enough authentication failures to trigger Home Assistant's built-in IP ban.
+  Token refresh is now coordinated between foreground and push work, known-expired sessions are
+  refreshed before use, server rejections stop further retries and return to login, and transient
+  failures back off without repeatedly submitting the rejected credential.
+- Long greetings and page titles now adapt to the actual width left beside people avatars and other
+  header indicators. They shrink smoothly while remaining on one line, fixing the final word or
+  letters wrapping into the subtitle row on narrow screens; an ellipsis is retained only as a last
+  resort at unusually large accessibility scaling.
+
 ## 1.1.2
 
 Home Assistant settings return exactly where you left them.

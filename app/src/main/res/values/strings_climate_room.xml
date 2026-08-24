@@ -346,6 +346,11 @@
     <string name="cr_quick_make_it_yours_instruction">In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.</string>
 
     <!-- Current release -->
+    <string-array name="cr_whats_new_1_1_3">
+        <item>HKI 7 now checks a saved Home Assistant session before starting its REST, WebSocket and push connections. Rejected credentials are refreshed once in a coordinated way or return you to login, instead of producing enough simultaneous authentication failures to trigger Home Assistant\'s IP ban.</item>
+        <item>Long greetings and page titles now shrink to the space beside people and status indicators while staying on one line. This fixes the final letters wrapping onto a second row on narrow screens.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_2">
         <item>Returning from Home Assistant Settings, Developer tools or HACS now restores the same position in HKI 7 Settings instead of reopening at the top.</item>
         <item>Android 17 now asks for Local network access before finding or connecting directly to Home Assistant, so local servers keep working with API 37. Settings › Connection shows whether it is allowed and can ask again, for when the Android 17 upgrade arrives long after setup.</item>

@@ -1,5 +1,3 @@
 FIXED
-• Returning from Home Assistant Settings, Developer tools or HACS now restores where you were in HKI 7 Settings
-• Local discovery and connections now work on Android 17. Settings › Connection can grant local network access at any time
-• Update notifications now also appear in HKI 7's own notification panel, with a link to the release notes
-• Permission tiles in Settings now update as soon as you come back from granting one
+• Safer Home Assistant session recovery prevents simultaneous authentication failures from triggering an IP ban
+• Long greetings and page titles now resize correctly and stay on one line on narrow screens
