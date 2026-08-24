@@ -1083,6 +1083,10 @@
     <string name="energy_extra_grid_idle">Tinklelis tuščiąja eiga</string>
     <string name="energy_extra_importing_power">Importuojama galia</string>
     <string name="energy_extra_exporting_power">Galios eksportas</string>
+    <string name="energy_extra_import_export">Importas + eksportas</string>
+    <string name="energy_extra_import_export_power">Importas ir eksportas</string>
+    <string name="energy_extra_import">Importuoti</string>
+    <string name="energy_extra_export">Eksportuoti</string>
     <string name="energy_extra_battery_supporting">Akumuliatorius tiekia maitinimą</string>
     <string name="energy_extra_battery_charging">Akumuliatoriaus įkrovimas</string>
     <string name="energy_extra_solar_producing">Saulės energijos gamyba</string>
@@ -1174,6 +1178,14 @@
     <string name="energy_extra_sensor_energy_export">Energijos eksportas (kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_one">Energijos eksporto tarifas 1 (kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_two">Energijos eksporto tarifas 2 (kWh)</string>
+    <string name="energy_extra_per_phase_flow">Importas / eksportas per etapą</string>
+    <string name="energy_extra_per_phase_flow_subtitle">Trifaziui jungtims, skaičiuojamai kiekvienai fazei, kai vienoje fazėje saulės energija gali maitinti atgal, o kitos traukti.</string>
+    <string name="energy_extra_sensor_import_power_phase_one">Importuoti 1 fazę (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_two">Importuoti 2 fazę (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_three">Importuoti 3 fazę (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_one">Eksporto galios 1 fazė (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_two">Eksporto galios 2 fazė (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_three">Eksporto galios 3 fazė (W)</string>
     <string name="energy_extra_sensor_energy_cost_today">Energijos kaina šiandien</string>
     <string name="energy_extra_sensor_current_power_production">Dabartinė energijos gamyba (W)</string>
     <string name="energy_extra_sensor_energy_production_today">Energijos gamyba šiandien (kWh)</string>

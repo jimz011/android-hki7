@@ -1083,6 +1083,10 @@
     <string name="energy_extra_grid_idle">系統待機中</string>
     <string name="energy_extra_importing_power">電力輸入中</string>
     <string name="energy_extra_exporting_power">電力輸出中</string>
+    <string name="energy_extra_import_export">インポート + エクスポート</string>
+    <string name="energy_extra_import_export_power">インポートとエクスポート</string>
+    <string name="energy_extra_import">インポート</string>
+    <string name="energy_extra_export">輸出</string>
     <string name="energy_extra_battery_supporting">バッテリーから電力供給中</string>
     <string name="energy_extra_battery_charging">バッテリー充電中</string>
     <string name="energy_extra_solar_producing">太陽光発電中</string>
@@ -1174,6 +1178,14 @@
     <string name="energy_extra_sensor_energy_export">エネルギー輸出 (kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_one">エネルギー輸出料金1 (kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_two">エネルギー輸出料金2 (kWh)</string>
+    <string name="energy_extra_per_phase_flow">フェーズごとのインポート/エクスポート</string>
+    <string name="energy_extra_per_phase_flow_subtitle">相ごとに計測される三相接続の場合、1 つの相の太陽光発電がフィードバックされ、他の相が電力を供給することができます。</string>
+    <string name="energy_extra_sensor_import_power_phase_one">輸入電力フェーズ 1 (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_two">輸入電力フェーズ 2 (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_three">輸入電力フェーズ 3 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_one">輸出電力フェーズ 1 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_two">輸出電力フェーズ 2 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_three">輸出電力フェーズ 3 (W)</string>
     <string name="energy_extra_sensor_energy_cost_today">本日のエネルギーコスト</string>
     <string name="energy_extra_sensor_current_power_production">現在の発電量 (W)</string>
     <string name="energy_extra_sensor_energy_production_today">本日の発電量 (kWh)</string>

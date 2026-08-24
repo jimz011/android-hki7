@@ -1083,6 +1083,10 @@
     <string name="energy_extra_grid_idle">Mřížka nečinná</string>
     <string name="energy_extra_importing_power">Dovoz energie</string>
     <string name="energy_extra_exporting_power">Export energie</string>
+    <string name="energy_extra_import_export">Import + export</string>
+    <string name="energy_extra_import_export_power">Import a export</string>
+    <string name="energy_extra_import">Importovat</string>
+    <string name="energy_extra_export">Vývozní</string>
     <string name="energy_extra_battery_supporting">Baterie dodávající energii</string>
     <string name="energy_extra_battery_charging">Nabíjení baterie</string>
     <string name="energy_extra_solar_producing">Solární výroba</string>
@@ -1174,6 +1178,14 @@
     <string name="energy_extra_sensor_energy_export">Export energie (kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_one">Vývozní tarif energie 1 (kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_two">Vývozní tarif energie 2 (kWh)</string>
+    <string name="energy_extra_per_phase_flow">Fázový import/export</string>
+    <string name="energy_extra_per_phase_flow_subtitle">Pro třífázové připojení měřené na fázi, kde solární energie na jedné fázi může napájet zpět, zatímco ostatní čerpají.</string>
+    <string name="energy_extra_sensor_import_power_phase_one">Import fáze výkonu 1 (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_two">Import fáze výkonu 2 (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_three">Importovat fázi výkonu 3 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_one">Export fáze výkonu 1 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_two">Export fáze výkonu 2 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_three">Export fáze výkonu 3 (W)</string>
     <string name="energy_extra_sensor_energy_cost_today">Dnešní cena energie</string>
     <string name="energy_extra_sensor_current_power_production">Současná výroba energie (W)</string>
     <string name="energy_extra_sensor_energy_production_today">Dnešní výroba energie (kWh)</string>

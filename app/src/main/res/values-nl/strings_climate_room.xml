@@ -579,6 +579,13 @@
         <item>Vaste temperatuur- en energiemetingen in het Tsjechisch, Slowaaks, Grieks, Noors, Zweeds en Deens, waarbij de cijfers verkeerd werden weergegeven of het scherm konden crashen.</item>
         <item>Iets slecht verwoord in uw taal? Elke taal is nu één enkel bestand dat je op GitHub kunt corrigeren, zonder dat er code nodig is.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_3">
+        <item>HKI 7 controleert nu een opgeslagen Home Assistant sessie voordat de REST-, WebSocket- en push-verbindingen worden gestart. Geweigerde inloggegevens worden één keer op een gecoördineerde manier vernieuwd of u kunt opnieuw inloggen, in plaats van voldoende gelijktijdige authenticatiefouten te veroorzaken om de IP-ban van Home Assistant te activeren.</item>
+        <item>Een 403 Forbidden-reactie onderbreekt nu de verbindings- en telemetriepogingen zonder uw opgeslagen login te verwijderen, en verwijst u naar de IP-ban- of reverse-proxy-instellingen van Home Assistant in plaats van dat er een JSON-fout wordt weergegeven.</item>
+        <item>Lange begroetingen en paginatitels krimpen nu tot de ruimte naast mensen en statusindicatoren terwijl ze op één regel blijven. Hierdoor worden de laatste letters die op smalle schermen op een tweede rij worden gewikkeld, gefixeerd.</item>
+        <item>De Energieweergave kan nu een driefasige verbinding tonen die in één keer importeert en exporteert, wat gebeurt wanneer zonne-energie slechts op één fase is toegestaan: die fase koppelt terug terwijl de andere twee blijven tekenen. Schakel \'Im/export per fase\' in onder Instellingen › Energie › Elektriciteit om het import- en exportvermogen voor L1, L2 en L3 in kaart te brengen. Op de elektriciteitstegel worden dan beide cijfers weergegeven in plaats van het saldo, en op de Nu-kaart worden ze per fase uitgedeeld. Standaard uitgeschakeld; enkelfasige aansluitingen blijven onaangetast.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_2">
         <item>Terugkerend vanuit Home Assistant Instellingen, Ontwikkelaarstools of HACS herstelt nu dezelfde positie in HKI 7 Instellingen in plaats van opnieuw bovenaan te openen.</item>
         <item>Android 17 vraagt nu om lokale netwerktoegang voordat Home Assistant wordt gevonden of er rechtstreeks verbinding mee wordt gemaakt, zodat lokale servers blijven werken met API 37. Instellingen › Verbinding laat zien of dit is toegestaan en kan opnieuw vragen, voor wanneer de Android 17-upgrade lang na de installatie arriveert.</item>

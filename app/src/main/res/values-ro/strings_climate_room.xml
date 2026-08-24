@@ -27,6 +27,13 @@
         <item>S-au remediat citirile de temperatură și energie în cehă, slovacă, greacă, norvegiană, suedeză și daneză, unde numerele erau afișate greșit sau puteau bloca ecranul.</item>
         <item>Ceva scris prost în limba ta? Fiecare limbă este acum un singur fișier pe care îl puteți corecta pe GitHub, fără a fi nevoie de cod.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_3">
+        <item>HKI 7 verifică acum o sesiune salvată Home Assistant înainte de a începe conexiunile REST, WebSocket și push. Acreditările respinse sunt reîmprospătate o dată într-un mod coordonat sau vă revin la autentificare, în loc să producă suficiente eșecuri de autentificare simultane pentru a declanșa interdicția IP a Home Assistant.</item>
+        <item>Un răspuns 403 Forbidden întrerupe acum conexiunea și încercările de telemetrie fără a șterge datele de conectare salvate și vă indică setările de interdicție IP sau proxy inversă ale Home Assistant în loc să afișați o eroare JSON.</item>
+        <item>Salutările lungi și titlurile paginilor se micșorează acum în spațiul de lângă oameni și indicatorii de stare, rămânând pe o singură linie. Acest lucru fixează ultimele litere care se împachetează pe un al doilea rând pe ecranele înguste.</item>
+        <item>Vizualizarea Energie poate afișa acum o conexiune trifazată care se importă și se exportă simultan, ceea ce se întâmplă acolo unde solarul este permis doar într-o singură fază: acea fază se reface în timp ce celelalte două continuă să deseneze. Activați „Import/export pe fază” din Setări › Energie › Electricitate pentru a mapa puterea de import și export pentru L1, L2 și L3. Piața de energie electrică arată apoi ambele cifre în loc de sold, iar cardul Acum le desprinde pe fază. Oprit implicit; conexiunile monofazate nu sunt afectate.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_2">
         <item>Revenind de la Setări Home Assistant, Instrumentele pentru dezvoltatori sau HACS restabilește acum aceeași poziție în Setări HKI 7 în loc să se redeschidă în partea de sus.</item>
         <item>Android 17 solicită acum acces la rețeaua locală înainte de a găsi sau de a se conecta direct la Home Assistant, astfel încât serverele locale continuă să lucreze cu API 37. Setări › Conexiune arată dacă este permisă și poate cere din nou, pentru când upgrade-ul Android 17 sosește mult după configurare.</item>

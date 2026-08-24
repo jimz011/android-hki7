@@ -578,6 +578,13 @@
         <item>Çekçe, Slovakça, Yunanca, Norveççe, İsveççe ve Danca dillerinde sayıların yanlış gösterildiği veya ekranın çökmesine neden olabileceği sabit sıcaklık ve enerji okumaları.</item>
         <item>Dilinizde kötü ifade edilen bir şey mi var? Artık her dil GitHub\'da düzeltebileceğiniz tek bir dosyadır; kod gerekmez.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_3">
+        <item>HKI 7 artık REST, WebSocket ve push bağlantılarını başlatmadan önce kayıtlı bir Home Assistant oturumunu kontrol ediyor. Reddedilen kimlik bilgileri, Home Assistant\'nin IP yasağını tetiklemeye yetecek kadar eşzamanlı kimlik doğrulama hatası üretmek yerine, koordineli bir şekilde bir kez yenilenir veya oturum açmanıza geri döner.</item>
+        <item>403 Yasak yanıtı artık kayıtlı oturum açma bilgilerinizi silmeden bağlantı ve telemetri yeniden denemelerini duraklatıyor ve JSON hatası göstermek yerine sizi Home Assistant\'nin IP yasağı veya ters proxy ayarlarına yönlendiriyor.</item>
+        <item>Uzun selamlaşmalar ve sayfa başlıkları artık tek satırda kalarak kişilerin ve durum göstergelerinin yanındaki alana sığıyor. Bu, son harflerin dar ekranlarda ikinci bir satıra sarılmasını düzeltir.</item>
+        <item>Enerji görünümü artık üç fazlı bir bağlantının aynı anda içe ve dışa aktarımını gösterebiliyor; bu, güneş enerjisinin yalnızca bir fazda kullanılmasına izin verildiğinde gerçekleşir: diğer ikisi çekmeye devam ederken bu faz geri beslenir. L1, L2 ve L3 için içe ve dışa aktarma gücünü haritalandırmak için Ayarlar › Enerji › Elektrik altında "Faz başına içe/dışa aktar" seçeneğini açın. Elektrik karosu daha sonra denge yerine her iki rakamı da gösterir ve Şimdi kartı bunları faz başına dağıtır. Varsayılan olarak kapalı; tek fazlı bağlantılar etkilenmez.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_2">
         <item>Home Assistant Ayarlar\'dan, Geliştirici araçlarından veya HACS\'tan geri dönüş artık üstte yeniden açmak yerine HKI 7 Ayarlar\'da aynı konumu geri yüklüyor.</item>
         <item>Android 17 artık Home Assistant bulmadan veya doğrudan bağlanmadan önce Yerel ağ erişimi istiyor, böylece yerel sunucular API 37 ile çalışmaya devam ediyor. Ayarlar › Bağlantı, buna izin verilip verilmediğini gösterir ve kurulumdan uzun süre sonra Android 17 yükseltmesi geldiğinde tekrar sorabilir.</item>

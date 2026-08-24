@@ -586,6 +586,13 @@
         <item>Correction des relevés de température et d\'énergie en tchèque, slovaque, grec, norvégien, suédois et danois, où les chiffres s\'affichaient mal ou pouvaient faire planter l\'écran.</item>
         <item>Quelque chose de mal formulé dans votre langue ? Chaque langue est désormais un fichier unique que vous pouvez corriger sur GitHub, aucun code n\'est nécessaire.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_3">
+        <item>HKI 7 vérifie désormais une session Home Assistant enregistrée avant de démarrer ses connexions REST, WebSocket et push. Les informations d\'identification rejetées sont actualisées une fois de manière coordonnée ou vous ramènent à la connexion, au lieu de produire suffisamment d\'échecs d\'authentification simultanés pour déclencher l\'interdiction IP de Home Assistant.</item>
+        <item>Une réponse 403 Forbidden suspend désormais les tentatives de connexion et de télémétrie sans supprimer votre connexion enregistrée, et vous dirige vers les paramètres d\'interdiction IP ou de proxy inverse de Home Assistant au lieu d\'afficher une erreur JSON.</item>
+        <item>Les longs messages d\'accueil et les titres de page se réduisent désormais à l\'espace à côté des personnes et des indicateurs d\'état tout en restant sur une seule ligne. Cela corrige les lettres finales enroulées sur une deuxième rangée sur des écrans étroits.</item>
+        <item>La vue Énergie peut désormais afficher une connexion triphasée important et exportant simultanément, ce qui se produit lorsque l\'énergie solaire n\'est autorisée que sur une seule phase : cette phase renvoie tandis que les deux autres continuent de dessiner. Activez « Importation/exportation par phase » sous Paramètres &gt; Énergie &gt; Électricité pour cartographier la puissance d\'importation et d\'exportation pour L1, L2 et L3. La tuile électricité montre alors les deux chiffres au lieu du solde, et la carte Maintenant les répartit par phase. Désactivé par défaut ; les connexions monophasées ne sont pas affectées.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_2">
         <item>Le retour depuis les paramètres Home Assistant, les outils de développement ou HACS restaure désormais la même position dans les paramètres HKI 7 au lieu de rouvrir en haut.</item>
         <item>Android 17 demande désormais l\'accès au réseau local avant de trouver ou de se connecter directement à Home Assistant, afin que les serveurs locaux continuent de fonctionner avec l\'API 37. Paramètres &gt; La connexion indique si elle est autorisée et peut demander à nouveau, lorsque la mise à niveau d\'Android 17 arrive longtemps après l\'installation.</item>

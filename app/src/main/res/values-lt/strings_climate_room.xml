@@ -27,6 +27,13 @@
         <item>Fiksuoti temperatūros ir energijos rodmenys čekų, slovakų, graikų, norvegų, švedų ir danų kalbomis, kur skaičiai rodomi neteisingai arba gali sugadinti ekraną.</item>
         <item>Kažkas blogai parašyta jūsų kalba? Dabar kiekviena kalba yra vienas failas, kurį galite taisyti naudodami „GitHub“, kodo nereikia.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_3">
+        <item>HKI 7 dabar patikrina išsaugotą Home Assistant seansą prieš pradėdamas REST, WebSocket ir tiesioginius ryšius. Atmesti kredencialai atnaujinami vieną kartą suderintu būdu arba grąžinami prisijungti, o ne vienu metu sukuriama pakankamai autentifikavimo klaidų, kad suaktyvintų Home Assistant IP draudimą.</item>
+        <item>403 uždraustas atsakymas dabar pristabdo ryšio ir telemetrijos bandymus, neištrindamas išsaugoto prisijungimo, ir nukreipia į Home Assistant IP uždraudimo arba atvirkštinio tarpinio serverio nustatymus, o ne rodo JSON klaidą.</item>
+        <item>Ilgi sveikinimai ir puslapių pavadinimai dabar susitraukia į vietą šalia žmonių ir būsenos indikatorių, o lieka vienoje eilutėje. Taip pataisomos paskutinės raidės antroje siaurų ekranų eilėje.</item>
+        <item>Dabar energijos rodinyje gali būti rodomas trifazis ryšys, importuojamas ir eksportuojamas vienu metu, o tai atsitinka, kai saulės energija leidžiama tik vienoje fazėje: ta fazė grįžta atgal, o kitos dvi toliau piešia. Skiltyje „Nustatymai“ › Energija › Elektra įjunkite „Per fazinį importą / eksportavimą“, kad būtų galima susieti importo ir eksporto galią L1, L2 ir L3. Tada elektros plytelės rodo abi figūras, o ne likutį, o kortelė Dabar jas išskaido pagal fazę. Išjungta pagal numatytuosius nustatymus; vienos fazės jungtys nepaveikiamos.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_2">
         <item>Grįžus iš Home Assistant Nustatymai, Kūrėjų įrankiai arba HACS dabar atkuria tą pačią padėtį HKI 7 nustatymuose, o ne iš naujo atidaro viršuje.</item>
         <item>„Android 17“ dabar prašo prieigos prie vietinio tinklo, prieš surasdama arba tiesiogiai prisijungdama prie Home Assistant, todėl vietiniai serveriai ir toliau dirba su API 37. Nustatymai › Ryšys rodo, ar jis leidžiamas, ir gali dar kartą paklausti, kai „Android 17“ naujinimas bus pristatytas praėjus ilgai po sąrankos.</item>

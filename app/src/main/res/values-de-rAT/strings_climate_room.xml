@@ -579,6 +579,13 @@
         <item>Temperatur- und Energiemesswerte auf Tschechisch, Slowakisch, Griechisch, Norwegisch, Schwedisch und Dänisch wurden behoben, bei denen Zahlen falsch angezeigt wurden oder der Bildschirm abstürzen konnte.</item>
         <item>Etwas in Ihrer Sprache schlecht formuliert? Jede Sprache ist jetzt eine einzelne Datei, die Sie auf GitHub korrigieren können, ohne dass Code erforderlich ist.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_3">
+        <item>HKI 7 überprüft jetzt eine gespeicherte Home Assistant-Sitzung, bevor seine REST-, WebSocket- und Push-Verbindungen gestartet werden. Abgelehnte Anmeldeinformationen werden einmal auf koordinierte Weise aktualisiert oder Sie kehren zur Anmeldung zurück, anstatt dass gleichzeitig genügend Authentifizierungsfehler auftreten, um die IP-Sperre von Home Assistant auszulösen.</item>
+        <item>Eine 403-Antwort „Verboten“ unterbricht jetzt Verbindungs- und Telemetrieversuche, ohne dass Ihr gespeicherter Login gelöscht wird, und verweist Sie auf die IP-Sperr- oder Reverse-Proxy-Einstellungen von Home Assistant, anstatt einen JSON-Fehler anzuzeigen.</item>
+        <item>Lange Begrüßungen und Seitentitel schrumpfen jetzt auf den Platz neben Personen und Statusanzeigen, bleiben aber in einer Zeile. Dadurch wird verhindert, dass die letzten Buchstaben auf schmalen Bildschirmen in eine zweite Reihe verschoben werden.</item>
+        <item>In der Energieansicht kann nun der gleichzeitige Import und Export einer dreiphasigen Verbindung angezeigt werden, was dann der Fall ist, wenn Solarenergie nur auf einer Phase zulässig ist: Diese Phase speist zurück, während die anderen beiden weiterhin Strom beziehen. Aktivieren Sie „Pro-Phasen-Import/Export“ unter Einstellungen › Energie › Strom, um Import- und Exportleistung für L1, L2 und L3 abzubilden. Auf dem Stromplättchen werden dann statt des Saldos beide Zahlen angezeigt und auf der Jetzt-Karte nach Phasen aufgeschlüsselt. Standardmäßig deaktiviert; Einphasige Anschlüsse bleiben davon unberührt.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_2">
         <item>Beim Zurückkehren aus den Home Assistant-Einstellungen, Entwicklertools oder HACS wird nun die gleiche Position in den HKI 7-Einstellungen wiederhergestellt, anstatt sie oben erneut zu öffnen.</item>
         <item>Android 17 fragt jetzt nach Zugriff auf das lokale Netzwerk, bevor es Home Assistant findet oder eine direkte Verbindung zu ihm herstellt, sodass lokale Server weiterhin mit API 37 arbeiten. Einstellungen › Verbindung zeigt an, ob dies zulässig ist, und kann erneut nachfragen, wenn das Android 17-Upgrade lange nach der Einrichtung eintrifft.</item>

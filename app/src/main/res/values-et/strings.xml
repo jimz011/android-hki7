@@ -1083,6 +1083,10 @@
     <string name="energy_extra_grid_idle">Võre tühikäik</string>
     <string name="energy_extra_importing_power">Võimsuse import</string>
     <string name="energy_extra_exporting_power">Võimsuse eksport</string>
+    <string name="energy_extra_import_export">Import + eksport</string>
+    <string name="energy_extra_import_export_power">Import ja eksport</string>
+    <string name="energy_extra_import">Import</string>
+    <string name="energy_extra_export">Ekspordi</string>
     <string name="energy_extra_battery_supporting">Aku varustab toidet</string>
     <string name="energy_extra_battery_charging">Aku laadimine</string>
     <string name="energy_extra_solar_producing">Päikeseenergia tootmine</string>
@@ -1174,6 +1178,14 @@
     <string name="energy_extra_sensor_energy_export">Energia eksport (kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_one">Energia eksporditariif 1 (kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_two">Energia eksporditariif 2 (kWh)</string>
+    <string name="energy_extra_per_phase_flow">Etapi import/eksport</string>
+    <string name="energy_extra_per_phase_flow_subtitle">Kolmefaasilise ühenduse jaoks, mida mõõdetakse faasi kohta, kus ühe faasi päikeseenergia saab tagasi toidet, samal ajal kui teised tõmbavad.</string>
+    <string name="energy_extra_sensor_import_power_phase_one">Impordi võimsus, faas 1 (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_two">Impordi võimsus, faas 2 (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_three">Impordi võimsus, faas 3 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_one">Ekspordivõimsus 1. faas (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_two">Ekspordivõimsus, faas 2 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_three">Ekspordivõimsus, faas 3 (W)</string>
     <string name="energy_extra_sensor_energy_cost_today">Energiakulu täna</string>
     <string name="energy_extra_sensor_current_power_production">Praegune võimsus (W)</string>
     <string name="energy_extra_sensor_energy_production_today">Energia tootmine täna (kWh)</string>

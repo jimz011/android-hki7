@@ -1,3 +1,6 @@
+NEW
+• Energy can now show a three-phase connection importing and exporting at the same time, for solar installed on a single phase
+
 FIXED
 • Safer Home Assistant session recovery prevents simultaneous authentication failures from triggering an IP ban
 • 403 Forbidden responses now pause retries and explain that Home Assistant's IP ban or proxy should be checked

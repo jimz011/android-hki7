@@ -3970,10 +3970,29 @@
     <string name="settings_local_network_allowed">Permitido</string>
     <string name="settings_local_network_not_allowed">Não permitido — Home Assistant não pode ser acessado diretamente no seu Wi-Fi</string>
     <string name="update_see_changes">Veja o que mudou</string>
+    <string-array name="cr_whats_new_1_1_3">
+        <item>HKI 7 agora verifica uma sessão Home Assistant salva antes de iniciar suas conexões REST, WebSocket e push. As credenciais rejeitadas são atualizadas uma vez de forma coordenada ou retornam você ao login, em vez de produzir falhas de autenticação simultâneas suficientes para acionar o banimento de IP de Home Assistant.</item>
+        <item>Uma resposta 403 Forbidden agora pausa a conexão e novas tentativas de telemetria sem excluir seu login salvo e aponta para as configurações de proibição de IP ou proxy reverso de Home Assistant em vez de mostrar um erro JSON.</item>
+        <item>Saudações longas e títulos de páginas agora encolhem para o espaço ao lado das pessoas e dos indicadores de status, permanecendo em uma linha. Isso corrige a quebra final das letras em uma segunda linha em telas estreitas.</item>
+        <item>A visualização Energia agora pode mostrar uma conexão trifásica importando e exportando ao mesmo tempo, o que acontece quando a energia solar é permitida em apenas uma fase: essa fase retroalimenta enquanto as outras duas continuam consumindo. Ative "Importação/exportação por fase" em Configurações › Energia › Eletricidade para mapear a importação e exportação de energia para L1, L2 e L3. A ficha de eletricidade mostra então ambas as figuras em vez do saldo, e a carta Agora as divide por fase. Desativado por padrão; conexões monofásicas não são afetadas.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_2">
         <item>Retornar das configurações de Home Assistant, ferramentas do desenvolvedor ou HACS agora restaura a mesma posição nas configurações de HKI 7 em vez de reabrir na parte superior.</item>
         <item>O Android 17 agora solicita acesso à rede local antes de encontrar ou conectar-se diretamente a Home Assistant, para que os servidores locais continuem trabalhando com API 37. Configurações › A conexão mostra se é permitida e pode perguntar novamente, para quando a atualização do Android 17 chegar muito depois da configuração.</item>
         <item>Notificações de atualização agora também aparecem no próprio painel de notificação de HKI 7, com um link “Veja o que mudou” para as notas de lançamento. A notificação do sistema desaparece quando você a desliza; este permanece e a verificação de atualizações em Configurações › Sobre o traz de volta.</item>
         <item>Os blocos de permissão nas configurações agora são atualizados assim que você volta da concessão de uma. Localização, otimização da bateria e uso em segundo plano continuaram mostrando o estado antigo até que as configurações fossem fechadas e reabertas.</item>
     </string-array>
+    <string name="energy_extra_export">Exportar</string>
+    <string name="energy_extra_import">Importar</string>
+    <string name="energy_extra_import_export">Importar + exportar</string>
+    <string name="energy_extra_import_export_power">Importação e exportação</string>
+    <string name="energy_extra_per_phase_flow">Importação/exportação por fase</string>
+    <string name="energy_extra_per_phase_flow_subtitle">Para uma conexão trifásica medida por fase, onde a energia solar em uma fase pode realimentar enquanto as outras consomem.</string>
+    <string name="energy_extra_sensor_export_power_phase_one">Fase de potência de exportação 1 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_three">Fase de potência de exportação 3 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_two">Fase de potência de exportação 2 (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_one">Fase de potência de importação 1 (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_three">Fase de potência de importação 3 (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_two">Fase de alimentação de importação 2 (W)</string>
 </resources>

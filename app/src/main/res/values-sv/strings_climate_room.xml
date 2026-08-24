@@ -44,6 +44,13 @@
         <item>Fixade temperatur- och energiavläsningar på tjeckiska, slovakiska, grekiska, norska, svenska och danska, där siffror visade fel eller kunde krascha skärmen.</item>
         <item>Något dåligt formulerat på ditt språk? Varje språk är nu en enda fil som du kan korrigera på GitHub, ingen kod behövs.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_3">
+        <item>HKI 7 kontrollerar nu en sparad Home Assistant-session innan dess REST-, WebSocket- och push-anslutningar startas. Avvisade autentiseringsuppgifter uppdateras en gång på ett samordnat sätt eller återför dig till inloggning, istället för att skapa tillräckligt många samtidiga autentiseringsfel för att utlösa Home Assistants IP-förbud.</item>
+        <item>Ett 403 Forbidden-svar pausar nu anslutnings- och telemetriförsök utan att ta bort din sparade inloggning och pekar dig till Home Assistants IP-förbud eller omvänd proxyinställningar istället för att visa ett JSON-fel.</item>
+        <item>Långa hälsningar och sidrubriker krymper nu till utrymmet bredvid personer och statusindikatorer samtidigt som de stannar på en rad. Detta fixar de sista bokstäverna på en andra rad på smala skärmar.</item>
+        <item>Energivyn kan nu visa en trefasanslutning som importerar och exporterar på en gång, vilket händer där solenergi endast tillåts på en fas: den fasen återkopplas medan de andra två fortsätter att rita. Slå på "Perfas import/export" under Inställningar › Energi › El för att kartlägga import- och exporteffekt för L1, L2 och L3. Elbrickan visar då båda siffrorna istället för saldot, och Nu-kortet bryter ut dem per fas. Av som standard; enfasanslutningar påverkas inte.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_2">
         <item>När du återgår från Home Assistant-inställningar, utvecklarverktyg eller HACS återställs nu samma position i HKI 7-inställningarna istället för att öppnas igen högst upp.</item>
         <item>Android 17 ber nu om lokal nätverksåtkomst innan den hittar eller ansluter direkt till Home Assistant, så lokala servrar fortsätter att arbeta med API 37. Inställningar › Anslutning visar om det är tillåtet och kan fråga igen, för när Android 17-uppgraderingen kommer långt efter installationen.</item>

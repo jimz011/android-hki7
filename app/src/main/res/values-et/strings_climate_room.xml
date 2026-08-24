@@ -27,6 +27,13 @@
         <item>Fikseeritud temperatuuri- ja energianäidud tšehhi, slovaki, kreeka, norra, rootsi ja taani keeles, kus numbrid näitasid valesti või võivad ekraan kokku kukkuda.</item>
         <item>Kas teie keeles on midagi halvasti sõnastatud? Iga keel on nüüd üks fail, mida saate GitHubis parandada, koodi pole vaja.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_3">
+        <item>HKI 7 kontrollib nüüd salvestatud Home Assistant seanssi enne REST-, WebSocketi- ja tõukeühenduste käivitamist. Tagasilükatud mandaate värskendatakse üks kord kooskõlastatult või suunatakse teid uuesti sisse logima, selle asemel, et tekitada piisavalt samaaegseid autentimistõrkeid, et käivitada Home Assistant IP-keeld.</item>
+        <item>403 Keelatud vastus peatab nüüd ühenduse ja telemeetria uuesti katsed ilma teie salvestatud sisselogimist kustutamata ning suunab teid JSON-i tõrke kuvamise asemel Home Assistant IP-keelu või pöördpuhverserveri sätetele.</item>
+        <item>Pikad tervitused ja lehtede pealkirjad kahanevad nüüd inimeste ja olekuindikaatorite kõrvale ruumi, jäädes samal ajal ühele reale. See fikseerib kitsastel ekraanidel viimased tähed teisele reale.</item>
+        <item>Energiavaade võib nüüd näidata kolmefaasilist ühendust, mis impordib ja ekspordib korraga, mis juhtub siis, kui päikeseenergia on lubatud ainult ühes faasis: see faas annab tagasisidet, ülejäänud kaks jätkavad joonistamist. Lülitage jaotises Seaded › Energia › Elekter sisse "Faasipõhine import/eksport", et kaardistada L1, L2 ja L3 impordi- ja ekspordivõimsus. Elektriplaadil kuvatakse seejärel saldo asemel mõlemad arvud ja kaart Nüüd jagab need faaside kaupa. Vaikimisi väljas; ühefaasilisi ühendusi ei mõjuta.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_2">
         <item>Naastes jaotisest Home Assistant Seaded, Arendaja tööriistad või HACS taastab nüüd sama positsiooni HKI 7 sätetes, selle asemel, et uuesti avada ülaosas.</item>
         <item>Android 17 küsib nüüd enne Home Assistant leidmist või sellega otse ühenduse loomist juurdepääsu kohalikule võrgule, nii et kohalikud serverid jätkavad API 37-ga töötamist. Seaded › Ühendus näitab, kas see on lubatud, ja saab uuesti küsida, kui Android 17 värskendus saabub kaua pärast seadistamist.</item>

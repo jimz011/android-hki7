@@ -27,6 +27,13 @@
         <item>Faste temperatur- og energiaflæsninger på tjekkisk, slovakisk, græsk, norsk, svensk og dansk, hvor tallene viste forkert eller kunne crashe skærmen.</item>
         <item>Noget dårligt formuleret på dit sprog? Hvert sprog er nu en enkelt fil, du kan rette på GitHub, ingen kode nødvendig.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_3">
+        <item>HKI 7 kontrollerer nu en gemt Home Assistant-session, før den starter dens REST, WebSocket og push-forbindelser. Afviste legitimationsoplysninger opdateres én gang på en koordineret måde eller returnerer dig til login, i stedet for at producere nok samtidige autentificeringsfejl til at udløse Home Assistants IP-forbud.</item>
+        <item>Et 403 Forbidden-svar sætter nu forbindelses- og telemetriforsøg på pause uden at slette dit gemte login og henviser dig til Home Assistant\'s IP-forbud eller omvendt proxy-indstillinger i stedet for at vise en JSON-fejl.</item>
+        <item>Lange hilsner og sidetitler krymper nu til pladsen ved siden af personer og statusindikatorer, mens de forbliver på én linje. Dette fikserer de sidste bogstaver på en anden række på smalle skærme.</item>
+        <item>Energivisningen kan nu vise en trefaset forbindelse, der importerer og eksporterer på én gang, hvilket sker, hvor solenergi kun er tilladt på én fase: den fase feeds tilbage, mens de to andre fortsætter med at tegne. Slå "Per-fase import/eksport" til under Indstillinger › Energi › El for at kortlægge import og eksport af strøm til L1, L2 og L3. Elektricitetsbrikken viser så begge tal i stedet for saldoen, og Nu-kortet opdeler dem pr. fase. Fra som standard; enfasede forbindelser er upåvirkede.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_2">
         <item>Tilbage fra Home Assistant Indstillinger, udviklerværktøjer eller HACS gendanner nu den samme position i HKI 7 Indstillinger i stedet for at genåbne øverst.</item>
         <item>Android 17 beder nu om lokal netværksadgang, før den finder eller forbinder direkte til Home Assistant, så lokale servere bliver ved med at arbejde med API 37. Indstillinger › Forbindelse viser, om det er tilladt og kan spørge igen, når Android 17-opgraderingen ankommer længe efter opsætning.</item>

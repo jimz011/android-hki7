@@ -44,6 +44,13 @@
         <item>Faste temperatur- og energiavlesninger på tsjekkisk, slovakisk, gresk, norsk, svensk og dansk, der tallene viste feil eller kunne krasje skjermen.</item>
         <item>Noe dårlig formulert på språket ditt? Hvert språk er nå en enkelt fil du kan korrigere på GitHub, ingen kode nødvendig.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_3">
+        <item>HKI 7 sjekker nå en lagret Home Assistant-økt før den starter REST-, WebSocket- og push-tilkoblingene. Avvist legitimasjon oppdateres én gang på en koordinert måte eller returnerer deg til pålogging, i stedet for å produsere nok samtidige autentiseringsfeil til å utløse Home Assistants IP-forbud.</item>
+        <item>Et 403 Forbidden-svar setter nå tilkoblings- og telemetriforsøk på pause uten å slette den lagrede påloggingen din, og peker deg til Home Assistants IP-forbud eller omvendt proxy-innstillinger i stedet for å vise en JSON-feil.</item>
+        <item>Lange hilsener og sidetitler krymper nå til plassen ved siden av personer og statusindikatorer mens de holder seg på én linje. Dette fikser de siste bokstavene på en andre rad på smale skjermer.</item>
+        <item>Energivisningen kan nå vise en trefasetilkobling som importerer og eksporterer samtidig, noe som skjer der solenergi er tillatt på bare én fase: den fasen feeds tilbake mens de to andre fortsetter å tegne. Slå på "Per-fase import/eksport" under Innstillinger › Energi › Strøm for å kartlegge import og eksport av kraft for L1, L2 og L3. Elektrisitetsbrikken viser da begge figurene i stedet for saldoen, og Nå-kortet deler dem ut per fase. Av som standard; enfaseforbindelser er upåvirket.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_2">
         <item>Gå tilbake fra Home Assistant-innstillinger, utviklerverktøy eller HACS gjenoppretter nå samme posisjon i HKI 7-innstillinger i stedet for å åpne på nytt øverst.</item>
         <item>Android 17 ber nå om lokal nettverkstilgang før den finner eller kobler direkte til Home Assistant, så lokale servere fortsetter å jobbe med API 37. Innstillinger › Tilkobling viser om det er tillatt og kan spørre på nytt, for når Android 17-oppgraderingen kommer lenge etter oppsett.</item>

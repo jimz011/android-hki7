@@ -27,6 +27,13 @@
         <item>Naprawiono odczyty temperatury i energii w języku czeskim, słowackim, greckim, norweskim, szwedzkim i duńskim, gdzie liczby były wyświetlane błędnie lub mogły powodować awarię ekranu.</item>
         <item>Coś źle sformułowanego w Twoim języku? Każdy język to teraz pojedynczy plik, który możesz poprawić w GitHubie, bez potrzeby stosowania kodu.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_3">
+        <item>HKI 7 sprawdza teraz zapisaną sesję Home Assistant przed uruchomieniem połączeń REST, WebSocket i push. Odrzucone dane uwierzytelniające są odświeżane jednorazowo w skoordynowany sposób lub powodują powrót do logowania, zamiast powodować wystarczającą liczbę jednoczesnych błędów uwierzytelniania, aby wywołać blokadę adresu IP Home Assistant.</item>
+        <item>Odpowiedź 403 Forbidden wstrzymuje teraz ponowne próby połączenia i telemetrii bez usuwania zapisanego loginu i wskazuje ustawienia blokady IP lub odwrotnego proxy Home Assistant zamiast pokazywać błąd JSON.</item>
+        <item>Długie powitania i tytuły stron są teraz zmniejszane do miejsca obok osób i wskaźników stanu, pozostając w jednej linii. Naprawia to zawijanie końcowych liter w drugim rzędzie na wąskich ekranach.</item>
+        <item>Widok Energia może teraz pokazywać jednoczesne importowanie i eksportowanie połączenia trójfazowego, co ma miejsce, gdy energia słoneczna jest dozwolona tylko w jednej fazie: ta faza zasila, podczas gdy pozostałe dwie pobierają dalej. Włącz opcję „Import/eksport na fazę” w obszarze Ustawienia &gt; Energia &gt; Energia elektryczna, aby zmapować moc importu i eksportu dla L1, L2 i L3. Następnie kafelek energii elektrycznej pokazuje obie cyfry zamiast salda, a karta Teraz dzieli je na fazy. Domyślnie wyłączone; połączenia jednofazowe pozostają nienaruszone.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_2">
         <item>Powrót z Home Assistant Ustawień, Narzędzi dla programistów lub HACS przywraca teraz tę samą pozycję w HKI 7 Ustawieniach, zamiast otwierać się ponownie na górze.</item>
         <item>Android 17 prosi teraz o dostęp do sieci lokalnej przed znalezieniem lub połączeniem się bezpośrednio z Home Assistant, więc lokalne serwery nadal współpracują z API 37. Ustawienia &gt; Połączenie pokazuje, czy jest dozwolone, i może zapytać ponownie, kiedy aktualizacja do Androida 17 pojawi się długo po konfiguracji.</item>

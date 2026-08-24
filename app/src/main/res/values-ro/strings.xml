@@ -1083,6 +1083,10 @@
     <string name="energy_extra_grid_idle">Grila inactiv</string>
     <string name="energy_extra_importing_power">Import de putere</string>
     <string name="energy_extra_exporting_power">Export de putere</string>
+    <string name="energy_extra_import_export">Import + export</string>
+    <string name="energy_extra_import_export_power">Import și export</string>
+    <string name="energy_extra_import">Import</string>
+    <string name="energy_extra_export">Export</string>
     <string name="energy_extra_battery_supporting">Bateria care furnizează energie</string>
     <string name="energy_extra_battery_charging">Încărcarea bateriei</string>
     <string name="energy_extra_solar_producing">Producerea solară</string>
@@ -1174,6 +1178,14 @@
     <string name="energy_extra_sensor_energy_export">Export de energie (kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_one">Tarif de export de energie 1 (kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_two">Tarif de export energie 2 (kWh)</string>
+    <string name="energy_extra_per_phase_flow">Import/export pe fază</string>
+    <string name="energy_extra_per_phase_flow_subtitle">Pentru o conexiune trifazată măsurată pe fază, unde solarul pe o fază poate alimenta înapoi în timp ce celelalte atrag.</string>
+    <string name="energy_extra_sensor_import_power_phase_one">Faza de import 1 (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_two">Faza de import 2 (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_three">Faza de importare a puterii 3 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_one">Export putere faza 1 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_two">Export putere faza 2 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_three">Export putere faza 3 (W)</string>
     <string name="energy_extra_sensor_energy_cost_today">Costul energiei astăzi</string>
     <string name="energy_extra_sensor_current_power_production">Producția curentă de energie (W)</string>
     <string name="energy_extra_sensor_energy_production_today">Producția de energie astăzi (kWh)</string>

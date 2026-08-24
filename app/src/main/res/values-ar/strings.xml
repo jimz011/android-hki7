@@ -1083,6 +1083,10 @@
     <string name="energy_extra_grid_idle">الشبكة خاملة</string>
     <string name="energy_extra_importing_power">استيراد الطاقة</string>
     <string name="energy_extra_exporting_power">تصدير الطاقة</string>
+    <string name="energy_extra_import_export">استيراد + تصدير</string>
+    <string name="energy_extra_import_export_power">الاستيراد والتصدير</string>
+    <string name="energy_extra_import">يستورد</string>
+    <string name="energy_extra_export">يصدّر</string>
     <string name="energy_extra_battery_supporting">طاقة إمداد البطارية</string>
     <string name="energy_extra_battery_charging">شحن البطارية</string>
     <string name="energy_extra_solar_producing">إنتاج الطاقة الشمسية</string>
@@ -1174,6 +1178,14 @@
     <string name="energy_extra_sensor_energy_export">تصدير الطاقة (كيلوواط ساعة)</string>
     <string name="energy_extra_sensor_energy_export_tariff_one">تعريفة تصدير الطاقة 1 (كيلوواط ساعة)</string>
     <string name="energy_extra_sensor_energy_export_tariff_two">تعريفة تصدير الطاقة 2 (كيلوواط ساعة)</string>
+    <string name="energy_extra_per_phase_flow">الاستيراد/التصدير لكل مرحلة</string>
+    <string name="energy_extra_per_phase_flow_subtitle">للاتصال ثلاثي الطور يتم قياسه لكل مرحلة، حيث يمكن للطاقة الشمسية في إحدى الطور أن تتغذى بينما تسحب المراحل الأخرى.</string>
+    <string name="energy_extra_sensor_import_power_phase_one">مرحلة استيراد الطاقة 1 (وات)</string>
+    <string name="energy_extra_sensor_import_power_phase_two">مرحلة استيراد الطاقة 2 (وات)</string>
+    <string name="energy_extra_sensor_import_power_phase_three">مرحلة استيراد الطاقة 3 (وات)</string>
+    <string name="energy_extra_sensor_export_power_phase_one">مرحلة تصدير الطاقة 1 (وات)</string>
+    <string name="energy_extra_sensor_export_power_phase_two">تصدير الطاقة المرحلة 2 (وات)</string>
+    <string name="energy_extra_sensor_export_power_phase_three">تصدير الطاقة المرحلة 3 (وات)</string>
     <string name="energy_extra_sensor_energy_cost_today">تكلفة الطاقة اليوم</string>
     <string name="energy_extra_sensor_current_power_production">إنتاج الطاقة الحالي (W)</string>
     <string name="energy_extra_sensor_energy_production_today">إنتاج الطاقة اليوم (كيلوواط ساعة)</string>

@@ -27,6 +27,13 @@
         <item>Opravené údaje o teplote a energii v češtine, slovenčine, gréčtine, nórčine, švédčine a dánčine, kde sa čísla zobrazovali nesprávne alebo mohli zrútiť obrazovku.</item>
         <item>Niečo napísané zle vo vašom jazyku? Každý jazyk je teraz jeden súbor, ktorý môžete opraviť na GitHub, nie je potrebný žiadny kód.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_1_3">
+        <item>HKI 7 teraz kontroluje uloženú reláciu Home Assistant pred spustením pripojenia REST, WebSocket a push. Odmietnuté prihlasovacie údaje sa obnovia raz koordinovaným spôsobom alebo vás vrátia na prihlásenie namiesto toho, aby došlo k dostatočnému počtu súčasných zlyhaní overenia na spustenie zákazu IP adresy Home Assistant.</item>
+        <item>Odpoveď 403 Forbidden teraz pozastaví pripojenie a pokusy o telemetriu bez toho, aby sa odstránili vaše uložené prihlasovacie údaje, a namiesto zobrazenia chyby JSON vás nasmeruje na nastavenia zákazu IP alebo reverzného proxy servera Home Assistant.</item>
+        <item>Dlhé pozdravy a názvy stránok sa teraz zmenšujú na miesto vedľa ľudí a indikátorov stavu, pričom zostávajú na jednom riadku. Tým sa opravia posledné písmená zalomené do druhého radu na úzkych obrazovkách.</item>
+        <item>Pohľad Energia teraz môže zobrazovať trojfázové pripojenie importujúce a exportujúce naraz, čo sa deje tam, kde je solárna energia povolená iba na jednej fáze: táto fáza sa spätne vracia, zatiaľ čo ostatné dve pokračujú v čerpaní. V časti Nastavenia › Energia › Elektrina zapnite „Import/export na fázu“ a zmapujte import a export energie pre L1, L2 a L3. Doska elektriny potom zobrazuje obe čísla namiesto zostatku a karta Teraz ich rozdeľuje podľa fázy. Predvolene vypnuté; jednofázové pripojenia nie sú ovplyvnené.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_2">
         <item>Návrat z Home Assistant nastavení, nástrojov pre vývojárov alebo HACS teraz obnoví rovnakú pozíciu v nastaveniach HKI 7 namiesto opätovného otvorenia v hornej časti.</item>
         <item>Android 17 teraz žiada o prístup k miestnej sieti pred nájdením alebo priamym pripojením k Home Assistant, takže miestne servery naďalej pracujú s API 37. Nastavenia › Pripojenie zobrazuje, či je povolené, a môže sa znova pýtať, keď aktualizácia na Android 17 príde dlho po nastavení.</item>

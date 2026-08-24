@@ -1083,6 +1083,10 @@
     <string name="energy_extra_grid_idle">Rács üresjáratban</string>
     <string name="energy_extra_importing_power">Energia importálása</string>
     <string name="energy_extra_exporting_power">A hatalom exportálása</string>
+    <string name="energy_extra_import_export">Import + export</string>
+    <string name="energy_extra_import_export_power">Importálás és exportálás</string>
+    <string name="energy_extra_import">Importálás</string>
+    <string name="energy_extra_export">Export</string>
     <string name="energy_extra_battery_supporting">Akkumulátor táplálja az áramot</string>
     <string name="energy_extra_battery_charging">Akkumulátor töltés</string>
     <string name="energy_extra_solar_producing">Napenergia termelés</string>
@@ -1174,6 +1178,14 @@
     <string name="energy_extra_sensor_energy_export">Energiaexport (kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_one">Energiaexport tarifa 1 (kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_two">Energiaexport tarifa 2 (kWh)</string>
+    <string name="energy_extra_per_phase_flow">Fázisonkénti import/export</string>
+    <string name="energy_extra_per_phase_flow_subtitle">Fázisonként mért háromfázisú csatlakozáshoz, ahol az egyik fázison a napelem visszatáplál, míg a többi húz.</string>
+    <string name="energy_extra_sensor_import_power_phase_one">Import teljesítmény 1. fázis (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_two">Import teljesítmény 2. fázis (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_three">Import teljesítmény 3. fázis (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_one">Export teljesítmény 1. fázis (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_two">Export teljesítmény 2. fázis (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_three">Export teljesítmény 3. fázis (W)</string>
     <string name="energy_extra_sensor_energy_cost_today">Energiaköltség ma</string>
     <string name="energy_extra_sensor_current_power_production">Jelenlegi energiatermelés (W)</string>
     <string name="energy_extra_sensor_energy_production_today">Energiatermelés ma (kWh)</string>

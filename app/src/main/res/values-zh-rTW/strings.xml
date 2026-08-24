@@ -3970,10 +3970,29 @@
     <string name="settings_local_network_allowed">允許</string>
     <string name="settings_local_network_not_allowed">不允許 — 無法透過您的 Wi-Fi 直接存取 Home Assistant</string>
     <string name="update_see_changes">看看發生了什麼變化</string>
+    <string-array name="cr_whats_new_1_1_3">
+        <item>HKI 7 現在在啟動 REST、WebSocket 和推送連線之前檢查已儲存的 Home Assistant 會話。被拒絕的憑證將以協調的方式刷新一次或讓您返回登入狀態，而不是產生足夠多的同時驗證失敗來觸發 Home Assistant 的 IP 禁令。</item>
+        <item>403 Forbidden 回應現在會暫停連接和遙測重試，而不會刪除已儲存的登入訊息，並指向 Home Assistant 的 IP 禁止或反向代理設置，而不是顯示 JSON 錯誤。</item>
+        <item>長問候語和頁面標題現在會縮小到人員和狀態指示器旁邊的空間，同時保持在一行上。這修復了窄螢幕上最後的字母換行到第二行的問題。</item>
+        <item>能源視圖現在可以同時顯示輸入和輸出的三相連接，這種情況發生在僅允許一相使用太陽能的情況下：該相反饋，而其他兩相繼續繪製。在設定 › 能源 › 電力下開啟“每相導入/導出”，以映射 L1、L2 和 L3 的導入和導出功率。然後，電力圖塊會顯示兩個數字而不是餘額，並且「Now」卡會按相將它們分開。預設為關閉；單相連線不受影響。</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_2">
         <item>從 Home Assistant 設定返回，開發者工具或 HACS 現在會恢復 HKI 7 設定中的相同位置，而不是在頂部重新開啟。</item>
         <item>Android 17 現在會在查找或直接連接到 Home Assistant 之前請求本地網路訪問，因此本機伺服器會繼續使用 API 37。設定 › 連線會顯示是否允許，並且可以再次詢問，以便在安裝後很長一段時間內 Android 17 升級到達。</item>
         <item>更新通知現在也出現在 HKI 7 自己的通知面板中，並帶有指向發行說明的「查看更改內容」連結。滑開後系統通知就消失了；該選項會保留，並在「設定」&gt;「關於」下檢查更新，將其恢復。</item>
         <item>現在，一旦您授予權限回來，「設定」中的權限圖塊就會更新。位置、電池最佳化和背景使用情況一直顯示舊狀態，直到關閉並重新開啟「設定」。</item>
     </string-array>
+    <string name="energy_extra_export">出口</string>
+    <string name="energy_extra_import">進口</string>
+    <string name="energy_extra_import_export">導入+匯出</string>
+    <string name="energy_extra_import_export_power">導入和匯出</string>
+    <string name="energy_extra_per_phase_flow">每階段導入/匯出</string>
+    <string name="energy_extra_per_phase_flow_subtitle">對於每相計量的三相連接，其中一相的太陽能可以反饋，而其他相則汲取能量。</string>
+    <string name="energy_extra_sensor_export_power_phase_one">第一相輸出功率（W）</string>
+    <string name="energy_extra_sensor_export_power_phase_three">第三相輸出功率（W）</string>
+    <string name="energy_extra_sensor_export_power_phase_two">第2相輸出功率（W）</string>
+    <string name="energy_extra_sensor_import_power_phase_one">輸入功率1相（W）</string>
+    <string name="energy_extra_sensor_import_power_phase_three">輸入功率3相（W）</string>
+    <string name="energy_extra_sensor_import_power_phase_two">輸入功率2相（W）</string>
 </resources>

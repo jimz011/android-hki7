@@ -7,7 +7,18 @@ Items marked with \* require the HKI 7 Cloud Component integration.
 
 ## 1.1.3
 
-Safer Home Assistant session recovery and a greeting that fits narrow screens correctly.
+Safer Home Assistant session recovery, per-phase grid metering, and a greeting that fits narrow
+screens correctly.
+
+- The Energy view can now show a three-phase connection importing and exporting at the same moment.
+  Where regulations allow solar on only one phase, that phase feeds back while the other two keep
+  drawing, so the house genuinely does both at once — something the single net figure the tiles were
+  built on could not express, leaving them to show the balance and name one direction. Switching on
+  "Per-phase import/export" under Settings › Energy › Electricity reveals import and export power
+  slots for L1, L2 and L3; the electricity tile then reports both figures, and the Now card breaks
+  them out per phase so it is clear which phase is feeding back. Off by default, and a single-phase
+  connection is unaffected. Historical totals, costs and self-sufficiency already handled this
+  correctly, because they are derived from separate import and export meter readings.
 
 - HKI 7 now validates a saved Home Assistant session before starting the usual REST, WebSocket and
   push connections. Previously, a rejected or expired credential could reach several startup jobs

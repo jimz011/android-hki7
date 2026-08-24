@@ -1024,6 +1024,20 @@ data class HKIEnergyConfig(
     val gridImportTariff2EntityId: String? = null,
     val gridExportTariff1EntityId: String? = null,
     val gridExportTariff2EntityId: String? = null,
+    /**
+     * Meters each phase on its own instead of netting the connection as a whole. A three-phase
+     * house with solar on a single phase feeds back on that phase while still drawing on the other
+     * two, so import and export are live at the same moment — something a single net figure cannot
+     * express. Off by default; the per-phase slots below only apply while this is on.
+     */
+    val perPhaseGridFlow: Boolean = false,
+    // Per-phase live import/export power (both positive, as P1/DSMR meters report them).
+    val gridImportPhase1EntityId: String? = null,
+    val gridImportPhase2EntityId: String? = null,
+    val gridImportPhase3EntityId: String? = null,
+    val gridExportPhase1EntityId: String? = null,
+    val gridExportPhase2EntityId: String? = null,
+    val gridExportPhase3EntityId: String? = null,
     // Extended solar sensors + multi-entity forecast (like HA's energy dashboard).
     val solarLast7DaysEntityId: String? = null,
     val solarLifetimeEntityId: String? = null,

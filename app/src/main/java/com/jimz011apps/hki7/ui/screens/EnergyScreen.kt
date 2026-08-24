@@ -377,7 +377,11 @@ fun EnergyScreen(
     }
 
     val solarW   = entityWatts(energyConfig.solarPowerEntityId) ?: 0f
-    val gridW    = entityWatts(energyConfig.gridPowerEntityId) ?: 0f
+    // Split by direction: a per-phase connection can import and export in the same moment, which a
+    // single signed figure cannot express (see gridFlowOf). gridW stays the net for everything that
+    // only cares about the balance.
+    val gridFlow = gridFlowOf(energyConfig) { entityWatts(it) }
+    val gridW    = gridFlow.netW
     // Not clamped to ≥ 0: a net home-power sensor reports negative while the house is net-exporting,
     // and the tiles/stats surface that (see formatW, which is sign-aware).
     val homeW    = entityWatts(energyConfig.homePowerEntityId) ?: (solarW + gridW)
@@ -677,10 +681,8 @@ fun EnergyScreen(
 
     val mainPowerIds = remember(energyConfig) {
         setOfNotNull(
-            energyConfig.solarPowerEntityId, energyConfig.gridPowerEntityId,
-            energyConfig.homePowerEntityId, energyConfig.batteryPowerEntityId,
-            energyConfig.powerPhase1EntityId, energyConfig.powerPhase2EntityId, energyConfig.powerPhase3EntityId
-        )
+            energyConfig.solarPowerEntityId, energyConfig.homePowerEntityId, energyConfig.batteryPowerEntityId
+        ) + energyConfig.gridFlowEntityIds()
     }
     val topConsumers = remember(entities, mainPowerIds, energyConfig.deviceEntityIds, energyConfig.hiddenPowerDeviceEntityIds, energyConfig.usesHomeAssistantEnergyPreferences) {
         fun wattsOf(e: HAEntity): Float? {
@@ -894,7 +896,7 @@ fun EnergyScreen(
                 // ── the animated house ────────────────────────────────────────
                 item {
                     EnergyHero(
-                        solarW = solarW, gridW = gridW, homeW = homeW,
+                        solarW = solarW, gridFlow = gridFlow, homeW = homeW,
                         batteryW = batteryW, batteryPct = batteryPct, hasBattery = hasBattery,
                         hasSolar = hasSolar, hasGas = gasId != null, hasWater = waterId != null,
                         gasFlowing = gasUsedRecently,
@@ -911,11 +913,7 @@ fun EnergyScreen(
                         val color: Color, val title: String, val status: String,
                         val onClick: (() -> Unit)?
                     )
-                    val gridStatus = when {
-                        gridW > 10f  -> stringResource(R.string.energy_extra_importing)
-                        gridW < -10f -> stringResource(R.string.energy_extra_exporting)
-                        else         -> stringResource(R.string.energy_extra_idle)
-                    }
+                    val gridTile = gridTileText(gridFlow)
                     val batteryHasFlow = abs(batteryW) > 10f
                     val battStatus = when {
                         batteryW > 10f  -> stringResource(R.string.energy_extra_charging)
@@ -927,8 +925,8 @@ fun EnergyScreen(
                         if (batteryHasFlow) formatW(abs(batteryW)) else null
                     ).joinToString(" · ").ifEmpty { "—" } + stringResource(R.string.ui_text_be10035, battStatus)
                     val tiles = buildList {
-                        add(TileSpec(Icons.Default.ElectricBolt, ElecBlue, stringResource(R.string.energy_extra_electricity),
-                            "${formatW(abs(gridW))} · $gridStatus") { page = "electricity" })
+                        add(TileSpec(gridFlowIcon(gridFlow), ElecBlue, stringResource(R.string.energy_extra_electricity),
+                            gridTile) { page = "electricity" })
                         add(TileSpec(Icons.Default.WbSunny, SolarAmber, stringResource(R.string.energy_extra_solar),
                             "${formatW(solarW.coerceAtLeast(0f))} · ${if (solarW > 10f) stringResource(R.string.energy_extra_producing) else stringResource(R.string.energy_extra_idle)}",
                             if (hasSolar) ({ page = "solar" }) else null))
@@ -1390,24 +1388,36 @@ fun EnergyScreen(
                             shape = itemCornerShape(), color = Color.Transparent
                         ) {
                             Column(Modifier.padding(16.dp)) {
-                                val gridStatus = when {
-                                    gridW > 10f  -> stringResource(R.string.energy_extra_importing)
-                                    gridW < -10f -> stringResource(R.string.energy_extra_exporting)
-                                    else         -> stringResource(R.string.energy_extra_grid_idle)
-                                }
+                                val gridStatus = gridStatusLabel(gridFlow, R.string.energy_extra_grid_idle)
                                 FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                    TotalStat(
-                                        if (gridW < -10f) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
-                                        if (gridW < -10f) ExportGreen else ElecBlue,
-                                        formatW(abs(gridW)), gridStatus
-                                    )
+                                    // Both directions are live at once on a per-phase connection, and they
+                                    // bill differently, so each gets its own figure instead of the net.
+                                    if (gridFlow.bothWays) {
+                                        TotalStat(
+                                            Icons.Default.ArrowDownward, ElecBlue,
+                                            formatW(gridFlow.importW), stringResource(R.string.energy_extra_import)
+                                        )
+                                        TotalStat(
+                                            Icons.Default.ArrowUpward, ExportGreen,
+                                            formatW(gridFlow.exportW), stringResource(R.string.energy_extra_export)
+                                        )
+                                    } else {
+                                        TotalStat(
+                                            if (gridW < -10f) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                                            if (gridW < -10f) ExportGreen else ElecBlue,
+                                            formatW(abs(gridW)), gridStatus
+                                        )
+                                    }
                                     TotalStat(Icons.Default.Home, MaterialTheme.colorScheme.primary, formatW(homeW), stringResource(R.string.energy_extra_home))
                                     carbonFootprintDisplay?.let {
                                         TotalStat(Icons.Default.Cloud, ExportGreen, it, stringResource(R.string.energy_extra_carbon_footprint))
                                     }
                                 }
                                 val phaseRows = (0..2).mapNotNull { i ->
-                                    val p = entityDisplay(phaseIds[i])
+                                    // In per-phase mode the signed net is the point of the row: it shows
+                                    // which phase is feeding back while the others draw.
+                                    val phaseNet = if (gridFlow.perPhase) gridFlow.phases[i] else null
+                                    val p = phaseNet?.let { formatW(it) } ?: entityDisplay(phaseIds[i])
                                     val a = entityDisplay(currentIds[i])
                                     val v = entityDisplay(voltageIds[i])
                                     if (p == null && a == null && v == null) null
@@ -1673,7 +1683,7 @@ private fun TariffLine(label: String, importText: String?, exportText: String?) 
 @Composable
 private fun EnergyHero(
     solarW: Float,
-    gridW: Float,
+    gridFlow: GridFlow,
     homeW: Float,
     batteryW: Float,
     batteryPct: Int?,
@@ -1686,20 +1696,22 @@ private fun EnergyHero(
 ) {
     val appColors = LocalHKIAppColors.current
     val primary = MaterialTheme.colorScheme.primary
+    // The house animation is inherently one-directional, so it follows the net balance.
+    val gridW = gridFlow.netW
     val solarActive = hasSolar && solarW > 10f
-    val importing = gridW > 10f
-    val exporting = gridW < -10f
+    val importing = gridFlow.importing
+    val exporting = gridFlow.exporting
     val batteryCharging = hasBattery && batteryW > 10f
     val batteryDischarging = hasBattery && batteryW < -10f
     val accent = when {
-        exporting -> ExportGreen
-        importing -> ElecBlue
+        importing || exporting -> gridAccentColor(gridFlow, appColors.onMuted)
         batteryDischarging || batteryCharging -> BattPurple
         solarActive -> SolarAmber
         homeW > 10f -> primary
         else -> appColors.onMuted
     }
     val status = when {
+        gridFlow.bothWays -> stringResource(R.string.energy_extra_import_export_power)
         exporting -> stringResource(R.string.energy_extra_exporting_power)
         importing -> stringResource(R.string.energy_extra_importing_power)
         batteryDischarging -> stringResource(R.string.energy_extra_battery_supporting)
@@ -1708,11 +1720,7 @@ private fun EnergyHero(
         homeW > 10f -> stringResource(R.string.energy_extra_home_consuming)
         else -> stringResource(R.string.energy_extra_energy_idle)
     }
-    val gridIcon = when {
-        exporting -> Icons.Default.ArrowUpward
-        importing -> Icons.Default.ArrowDownward
-        else -> Icons.Default.ElectricBolt
-    }
+    val gridIcon = gridFlowIcon(gridFlow)
     val batteryColor = when {
         !hasBattery || batteryPct == null -> appColors.onMuted
         batteryPct > 50 -> ExportGreen
@@ -1781,8 +1789,9 @@ private fun EnergyHero(
             )
             EnergyHeroStat(
                 gridIcon,
-                when { exporting -> ExportGreen; importing -> ElecBlue; else -> appColors.onMuted },
-                formatW(abs(gridW)),
+                gridAccentColor(gridFlow, appColors.onMuted),
+                if (gridFlow.bothWays) "${formatW(gridFlow.importW)} / ${formatW(gridFlow.exportW)}"
+                else formatW(abs(gridW)),
                 stringResource(R.string.energy_extra_grid_flow)
             )
             EnergyHeroStat(
@@ -2719,6 +2728,44 @@ private fun UtilityCard(
     }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Grid status presentation. Kept in one place because the energy page, the
+// electricity page, the hero and the dashboard widget all render the same
+// verdict and used to drift apart.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** "Importing" / "Exporting" / "Import + export" / idle. [idleRes] varies by surface. */
+@Composable
+private fun gridStatusLabel(flow: GridFlow, idleRes: Int = R.string.energy_extra_idle): String = when {
+    flow.bothWays  -> stringResource(R.string.energy_extra_import_export)
+    flow.importing -> stringResource(R.string.energy_extra_importing)
+    flow.exporting -> stringResource(R.string.energy_extra_exporting)
+    else           -> stringResource(idleRes)
+}
+
+/**
+ * Tile subtitle: the usual "1.2 kW · Importing", or both figures at once when the house draws and
+ * feeds back simultaneously, where a single number would hide half of what the meter is billing.
+ */
+@Composable
+private fun gridTileText(flow: GridFlow): String =
+    if (flow.bothWays) "↓ ${formatW(flow.importW)} · ↑ ${formatW(flow.exportW)}"
+    else "${formatW(abs(flow.netW))} · ${gridStatusLabel(flow)}"
+
+/** Colour by the net direction; a two-way flow still nets one way, so it keeps that cue. */
+private fun gridAccentColor(flow: GridFlow, idle: Color): Color = when {
+    !flow.importing && !flow.exporting -> idle
+    flow.netW < 0f -> ExportGreen
+    else -> ElecBlue
+}
+
+private fun gridFlowIcon(flow: GridFlow): androidx.compose.ui.graphics.vector.ImageVector = when {
+    flow.bothWays  -> Icons.Default.SwapVert
+    flow.exporting -> Icons.Default.ArrowUpward
+    flow.importing -> Icons.Default.ArrowDownward
+    else           -> Icons.Default.ElectricBolt
+}
+
 private fun formatW(w: Float): String {
     val a = abs(w)
     val sign = if (w <= -1f) "-" else ""
@@ -2833,6 +2880,14 @@ private fun autoMapDeviceEntities(
             powerPhase1EntityId = keep("phase1", cfg.powerPhase1EntityId, pick { isPower(it) && phaseMatch(it, 1) }),
             powerPhase2EntityId = keep("phase2", cfg.powerPhase2EntityId, pick { isPower(it) && phaseMatch(it, 2) }),
             powerPhase3EntityId = keep("phase3", cfg.powerPhase3EntityId, pick { isPower(it) && phaseMatch(it, 3) }),
+            // Filled whether or not per-phase mode is on, so switching it on Just Works. P1/DSMR
+            // meters expose these as delivered/returned per phase.
+            gridImportPhase1EntityId = keep("import_phase1", cfg.gridImportPhase1EntityId, pick { isPower(it) && isImport(it) && phaseMatch(it, 1) }),
+            gridImportPhase2EntityId = keep("import_phase2", cfg.gridImportPhase2EntityId, pick { isPower(it) && isImport(it) && phaseMatch(it, 2) }),
+            gridImportPhase3EntityId = keep("import_phase3", cfg.gridImportPhase3EntityId, pick { isPower(it) && isImport(it) && phaseMatch(it, 3) }),
+            gridExportPhase1EntityId = keep("export_phase1", cfg.gridExportPhase1EntityId, pick { isPower(it) && isExport(it) && phaseMatch(it, 1) }),
+            gridExportPhase2EntityId = keep("export_phase2", cfg.gridExportPhase2EntityId, pick { isPower(it) && isExport(it) && phaseMatch(it, 2) }),
+            gridExportPhase3EntityId = keep("export_phase3", cfg.gridExportPhase3EntityId, pick { isPower(it) && isExport(it) && phaseMatch(it, 3) }),
             currentPhase1EntityId = keep("current1", cfg.currentPhase1EntityId, pick { isCurrent(it) && phaseMatch(it, 1) } ?: pick { isCurrent(it) }),
             currentPhase2EntityId = keep("current2", cfg.currentPhase2EntityId, pick { isCurrent(it) && phaseMatch(it, 2) }),
             currentPhase3EntityId = keep("current3", cfg.currentPhase3EntityId, pick { isCurrent(it) && phaseMatch(it, 3) }),
@@ -2928,6 +2983,12 @@ private fun EnergySensorSection(
         "phase1"         -> cfg.powerPhase1EntityId
         "phase2"         -> cfg.powerPhase2EntityId
         "phase3"         -> cfg.powerPhase3EntityId
+        "import_phase1"  -> cfg.gridImportPhase1EntityId
+        "import_phase2"  -> cfg.gridImportPhase2EntityId
+        "import_phase3"  -> cfg.gridImportPhase3EntityId
+        "export_phase1"  -> cfg.gridExportPhase1EntityId
+        "export_phase2"  -> cfg.gridExportPhase2EntityId
+        "export_phase3"  -> cfg.gridExportPhase3EntityId
         "current1"       -> cfg.currentPhase1EntityId
         "current2"       -> cfg.currentPhase2EntityId
         "current3"       -> cfg.currentPhase3EntityId
@@ -2967,6 +3028,12 @@ private fun EnergySensorSection(
             "phase1"         -> cfg.copy(powerPhase1EntityId = id)
             "phase2"         -> cfg.copy(powerPhase2EntityId = id)
             "phase3"         -> cfg.copy(powerPhase3EntityId = id)
+            "import_phase1"  -> cfg.copy(gridImportPhase1EntityId = id)
+            "import_phase2"  -> cfg.copy(gridImportPhase2EntityId = id)
+            "import_phase3"  -> cfg.copy(gridImportPhase3EntityId = id)
+            "export_phase1"  -> cfg.copy(gridExportPhase1EntityId = id)
+            "export_phase2"  -> cfg.copy(gridExportPhase2EntityId = id)
+            "export_phase3"  -> cfg.copy(gridExportPhase3EntityId = id)
             "current1"       -> cfg.copy(currentPhase1EntityId = id)
             "current2"       -> cfg.copy(currentPhase2EntityId = id)
             "current3"       -> cfg.copy(currentPhase3EntityId = id)
@@ -3276,6 +3343,40 @@ private fun EnergySensorSection(
             sensorRow("export_t1", stringResource(R.string.energy_extra_sensor_energy_export_tariff_one))
             sensorRow("export_t2", stringResource(R.string.energy_extra_sensor_energy_export_tariff_two))
             sensorRow("cost", stringResource(R.string.energy_extra_sensor_energy_cost_today))
+
+            // Off for the single-phase majority; switching it on reveals the six extra slots rather
+            // than making everyone scroll past them.
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(Modifier.weight(1f).padding(end = 12.dp)) {
+                    Text(
+                        stringResource(R.string.energy_extra_per_phase_flow),
+                        style = MaterialTheme.typography.labelMedium, color = appColors.onSurface
+                    )
+                    Text(
+                        stringResource(R.string.energy_extra_per_phase_flow_subtitle),
+                        style = MaterialTheme.typography.bodySmall, color = appColors.onMuted
+                    )
+                }
+                Switch(
+                    checked = cfg.perPhaseGridFlow,
+                    onCheckedChange = {
+                        cfg = cfg.copy(perPhaseGridFlow = it)
+                        onSave(cfg)
+                    }
+                )
+            }
+            HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.08f))
+            if (cfg.perPhaseGridFlow) {
+                sensorRow("import_phase1", stringResource(R.string.energy_extra_sensor_import_power_phase_one))
+                sensorRow("import_phase2", stringResource(R.string.energy_extra_sensor_import_power_phase_two))
+                sensorRow("import_phase3", stringResource(R.string.energy_extra_sensor_import_power_phase_three))
+                sensorRow("export_phase1", stringResource(R.string.energy_extra_sensor_export_power_phase_one))
+                sensorRow("export_phase2", stringResource(R.string.energy_extra_sensor_export_power_phase_two))
+                sensorRow("export_phase3", stringResource(R.string.energy_extra_sensor_export_power_phase_three))
+            }
         }
         "solar" -> {
             deviceRow("solar", cfg.solarDeviceId)
@@ -3659,7 +3760,8 @@ fun EnergyCardWidgetView(
     val periodLabel = window.periodLabel()
 
     val solarW = byId.wattsOf(cfg.solarPowerEntityId) ?: 0f
-    val gridW = byId.wattsOf(cfg.gridPowerEntityId) ?: 0f
+    val gridFlow = gridFlowOf(cfg) { byId.wattsOf(it) }
+    val gridW = gridFlow.netW
     val homeW = byId.wattsOf(cfg.homePowerEntityId) ?: (solarW + gridW)
     val batteryW = byId.wattsOf(cfg.batteryPowerEntityId) ?: 0f
     val batteryPct = cfg.batteryEntityId?.let { byId[it] }?.state?.toIntOrNull()
@@ -3688,9 +3790,8 @@ fun EnergyCardWidgetView(
 
     val mainPowerIds = remember(cfg) {
         setOfNotNull(
-            cfg.solarPowerEntityId, cfg.gridPowerEntityId, cfg.homePowerEntityId, cfg.batteryPowerEntityId,
-            cfg.powerPhase1EntityId, cfg.powerPhase2EntityId, cfg.powerPhase3EntityId
-        )
+            cfg.solarPowerEntityId, cfg.homePowerEntityId, cfg.batteryPowerEntityId
+        ) + cfg.gridFlowEntityIds()
     }
     val topConsumers = remember(entities, mainPowerIds, cfg.deviceEntityIds, cfg.hiddenPowerDeviceEntityIds, cfg.usesHomeAssistantEnergyPreferences) {
         fun wattsOfE(e: HAEntity): Float? {
@@ -3840,14 +3941,10 @@ fun EnergyCardWidgetView(
                 modifier = Modifier.fillMaxWidth().height(260.dp).padding(vertical = 8.dp)
             )
             "tiles" -> Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                val gridStatus = when {
-                    gridW > 10f -> stringResource(R.string.energy_extra_importing)
-                    gridW < -10f -> stringResource(R.string.energy_extra_exporting)
-                    else -> stringResource(R.string.energy_extra_idle)
-                }
+                val gridTile = gridTileText(gridFlow)
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                    EnergyLiveTile(Icons.Default.ElectricBolt, ElecBlue, stringResource(R.string.energy_extra_electricity),
-                        "${formatW(abs(gridW))} · $gridStatus", Modifier.weight(1f),
+                    EnergyLiveTile(gridFlowIcon(gridFlow), ElecBlue, stringResource(R.string.energy_extra_electricity),
+                        gridTile, Modifier.weight(1f),
                         onClick = onNavigate?.let { navigate -> { navigate("electricity") } })
                     EnergyLiveTile(
                         Icons.Default.Home,

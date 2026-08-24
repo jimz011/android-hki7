@@ -1083,6 +1083,10 @@
     <string name="energy_extra_grid_idle">Gitter i tomgang</string>
     <string name="energy_extra_importing_power">Import af kraft</string>
     <string name="energy_extra_exporting_power">Eksport af kraft</string>
+    <string name="energy_extra_import_export">Import + eksport</string>
+    <string name="energy_extra_import_export_power">Import og eksport</string>
+    <string name="energy_extra_import">Importere</string>
+    <string name="energy_extra_export">Eksportere</string>
     <string name="energy_extra_battery_supporting">Batteri leverer strøm</string>
     <string name="energy_extra_battery_charging">Batteriopladning</string>
     <string name="energy_extra_solar_producing">Solar producerende</string>
@@ -1174,6 +1178,14 @@
     <string name="energy_extra_sensor_energy_export">Energieksport (kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_one">Energieksporttarif 1 (kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_two">Energieksporttarif 2 (kWh)</string>
+    <string name="energy_extra_per_phase_flow">Per-fase import/eksport</string>
+    <string name="energy_extra_per_phase_flow_subtitle">Til en 3-faset tilslutning målt per fase, hvor solenergi på den ene fase kan feed back, mens de andre trækker.</string>
+    <string name="energy_extra_sensor_import_power_phase_one">Importer effekt fase 1 (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_two">Importer effektfase 2 (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_three">Importer effektfase 3 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_one">Eksporter effekt fase 1 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_two">Eksporter effekt fase 2 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_three">Eksporter effekt fase 3 (W)</string>
     <string name="energy_extra_sensor_energy_cost_today">Energiomkostninger i dag</string>
     <string name="energy_extra_sensor_current_power_production">Nuværende strømproduktion (W)</string>
     <string name="energy_extra_sensor_energy_production_today">Energiproduktion i dag (kWh)</string>

@@ -1083,6 +1083,10 @@
     <string name="energy_extra_grid_idle">Grid tomgång</string>
     <string name="energy_extra_importing_power">Importerande kraft</string>
     <string name="energy_extra_exporting_power">Exporterande kraft</string>
+    <string name="energy_extra_import_export">Importera + exportera</string>
+    <string name="energy_extra_import_export_power">Import och export</string>
+    <string name="energy_extra_import">Importera</string>
+    <string name="energy_extra_export">Exportera</string>
     <string name="energy_extra_battery_supporting">Batteri som ger ström</string>
     <string name="energy_extra_battery_charging">Batteriladdning</string>
     <string name="energy_extra_solar_producing">Solelproducerande</string>
@@ -1174,6 +1178,14 @@
     <string name="energy_extra_sensor_energy_export">Energiexport (kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_one">Energiexporttaxa 1 (kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_two">Energiexporttaxa 2 (kWh)</string>
+    <string name="energy_extra_per_phase_flow">Per-fas import/export</string>
+    <string name="energy_extra_per_phase_flow_subtitle">För en trefasanslutning mätt per fas, där solel på en fas kan återkopplas medan de andra drar.</string>
+    <string name="energy_extra_sensor_import_power_phase_one">Importera effektfas 1 (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_two">Importera effektfas 2 (W)</string>
+    <string name="energy_extra_sensor_import_power_phase_three">Importera effektfas 3 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_one">Exportera effektfas 1 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_two">Exportera effektfas 2 (W)</string>
+    <string name="energy_extra_sensor_export_power_phase_three">Exportera effektfas 3 (W)</string>
     <string name="energy_extra_sensor_energy_cost_today">Energikostnad idag</string>
     <string name="energy_extra_sensor_current_power_production">Aktuell energiproduktion (W)</string>
     <string name="energy_extra_sensor_energy_production_today">Energiproduktion idag (kWh)</string>

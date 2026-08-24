@@ -1083,6 +1083,10 @@
     <string name="energy_extra_grid_idle">그리드 유휴</string>
     <string name="energy_extra_importing_power">수입력</string>
     <string name="energy_extra_exporting_power">전력 수출</string>
+    <string name="energy_extra_import_export">가져오기 + 내보내기</string>
+    <string name="energy_extra_import_export_power">가져오기 및 내보내기</string>
+    <string name="energy_extra_import">가져오기</string>
+    <string name="energy_extra_export">내보내다</string>
     <string name="energy_extra_battery_supporting">배터리 공급 전원</string>
     <string name="energy_extra_battery_charging">배터리 충전</string>
     <string name="energy_extra_solar_producing">태양광 생산</string>
@@ -1174,6 +1178,14 @@
     <string name="energy_extra_sensor_energy_export">에너지 수출(kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_one">에너지 수출관세 1(kWh)</string>
     <string name="energy_extra_sensor_energy_export_tariff_two">에너지 수출관세 2(kWh)</string>
+    <string name="energy_extra_per_phase_flow">단계별 가져오기/내보내기</string>
+    <string name="energy_extra_per_phase_flow_subtitle">위상별로 측정되는 3상 연결의 경우, 한 위상의 태양광이 피드백을 받고 다른 위상은 전력을 공급받을 수 있습니다.</string>
+    <string name="energy_extra_sensor_import_power_phase_one">수입전력 1단계(W)</string>
+    <string name="energy_extra_sensor_import_power_phase_two">수입전력 2단계(W)</string>
+    <string name="energy_extra_sensor_import_power_phase_three">수입전력 3상(W)</string>
+    <string name="energy_extra_sensor_export_power_phase_one">수출전력 1상(W)</string>
+    <string name="energy_extra_sensor_export_power_phase_two">수출전력 2단계(W)</string>
+    <string name="energy_extra_sensor_export_power_phase_three">수출전력 3단계(W)</string>
     <string name="energy_extra_sensor_energy_cost_today">오늘의 에너지 비용</string>
     <string name="energy_extra_sensor_current_power_production">현재 전력 생산량(W)</string>
     <string name="energy_extra_sensor_energy_production_today">오늘의 에너지 생산량(kWh)</string>
