@@ -1578,6 +1578,40 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         val current = _activeCameraPopup.value ?: return
         if (nonce != null && current.nonce != nonce) return
         _activeCameraPopup.value = null
+        lastUserActivityAt = SystemClock.elapsedRealtime()
+    }
+
+    private val _screensaverSettings = MutableStateFlow(ScreensaverSettings())
+    val screensaverSettings: StateFlow<ScreensaverSettings> = _screensaverSettings
+
+    private val _screensaverVisible = MutableStateFlow(false)
+    val screensaverVisible: StateFlow<Boolean> = _screensaverVisible
+
+    @Volatile private var lastUserActivityAt = SystemClock.elapsedRealtime()
+
+    fun saveScreensaverSettings(settings: ScreensaverSettings) {
+        viewModelScope.launch { prefs.saveScreensaverSettings(settings) }
+    }
+
+    fun noteUserActivity() {
+        lastUserActivityAt = SystemClock.elapsedRealtime()
+    }
+
+    fun tickScreensaver() {
+        val settings = _screensaverSettings.value
+        if (!settings.enabled || !appVisible || _activeCameraPopup.value != null) {
+            if (_screensaverVisible.value) _screensaverVisible.value = false
+            return
+        }
+        val idleMs = SystemClock.elapsedRealtime() - lastUserActivityAt
+        if (idleMs >= settings.clampedTimeoutSeconds() * 1000L) {
+            _screensaverVisible.value = true
+        }
+    }
+
+    fun hideScreensaver() {
+        lastUserActivityAt = SystemClock.elapsedRealtime()
+        _screensaverVisible.value = false
     }
 
     /** Evaluated on every websocket state change, before the 120ms UI debounce, so short motion
@@ -1602,6 +1636,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             nowMinutes = now.hour * 60 + now.minute,
         )
         val rule = matches.lastOrNull() ?: return
+        _screensaverVisible.value = false
         _activeCameraPopup.value = CameraPopupRequest(
             nonce = UUID.randomUUID().toString(),
             ruleId = rule.id,
@@ -1904,6 +1939,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         }
         viewModelScope.launch {
             prefs.cameraPopupSettings.collect { _cameraPopupSettings.value = it }
+        }
+        viewModelScope.launch {
+            prefs.screensaverSettings.collect { _screensaverSettings.value = it }
         }
         viewModelScope.launch {
             prefs.enforcedAestheticsOnly.collect { _aestheticsOnlyEditing.value = it }
@@ -2603,6 +2641,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             internalUrlRetryJob = null
             setBatteryMonitoring(false)
             stopSync()
+            _screensaverVisible.value = false
             // Battery parity with the official app: never refresh tokens on a background timer
             // (with a dead network it would retry every minute for nothing). The stored token is
             // refreshed lazily on return to foreground instead — see the re-arm above.
@@ -4290,6 +4329,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         _entityRegistry.value = emptyList()
         _deviceRegistry.value = emptyList()
         _activeCameraPopup.value = null
+        _screensaverVisible.value = false
     }
 
     /** Arms presence/telemetry the way the official app does: an immediate report now, zone geofences

@@ -65,6 +65,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import kotlin.coroutines.cancellation.CancellationException
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -143,6 +144,7 @@ import com.jimz011apps.hki7.ui.utils.IconPreferences
 import com.jimz011apps.hki7.ui.utils.MdiIcon
 import com.jimz011apps.hki7.ui.components.CustomPopupHost
 import com.jimz011apps.hki7.ui.components.CameraEventPopupHost
+import com.jimz011apps.hki7.ui.components.ScreensaverHost
 import com.jimz011apps.hki7.ui.components.NotificationPanel
 import com.jimz011apps.hki7.ui.components.NotificationBannerHost
 import com.jimz011apps.hki7.ui.components.QuickStartGuideDialog
@@ -1149,6 +1151,14 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                     rtl = isRtl
                 )
             }
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                        if (event.changes.any { it.pressed }) viewModel.noteUserActivity()
+                    }
+                }
+            }
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
@@ -1312,6 +1322,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         // Popup actions can fire from any surface (buttons, badges, dialog nav bars), so their
         // dialog is hosted here once instead of being threaded through every screen.
         CustomPopupHost(viewModel, navController)
+        ScreensaverHost(viewModel)
         CameraEventPopupHost(viewModel)
 
         // Opaque strip behind three-button navigation, painted over the page but under the floating
