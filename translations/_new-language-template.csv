@@ -3096,6 +3096,71 @@ settings_extra_events_manage,,Manage,,needs translation
 settings_extra_events_hidden_title,,Hide from this person,,needs translation
 settings_extra_events_notifications_hint,,"The Events tab in the notification drawer shows recent activity for the entities your family admin chose. It is set for the whole family in Family Sharing, not per device.",,needs translation
 settings_extra_events_open_family_sharing,,Open Family Sharing,,needs translation
+settings_camera_popup_title,,Camera popup,,needs translation
+settings_camera_popup_hint,,"When a motion, person, or doorbell entity fires, HKI 7 shows that camera live and closes the window after the timeout. This lives in the app — no browser_mod automation is needed.",,needs translation; don't translate HKI 7
+settings_camera_popup_master,,Enable camera popups,,needs translation
+settings_camera_popup_master_subtitle,,Master switch for this Home Assistant on this device,,needs translation; don't translate Home Assistant
+settings_camera_popup_add,,Add camera popup,,needs translation
+settings_camera_popup_delete,,Delete camera popup,,needs translation
+settings_camera_popup_name,,Name,,needs translation
+settings_camera_popup_trigger,,Trigger,,needs translation
+settings_camera_popup_camera,,Camera,,needs translation
+settings_camera_popup_choose,,Choose…,,needs translation
+settings_camera_popup_pick_trigger,,Choose a motion or person trigger,,needs translation
+settings_camera_popup_pick_camera,,Choose a camera,,needs translation
+settings_camera_popup_pick_helper,,Choose an enable helper,,needs translation
+settings_camera_popup_timeout,,Closes after %1$d seconds,,needs translation; app fills in %1$d — keep them
+settings_camera_popup_helper,,Only when this helper is on,,needs translation
+settings_camera_popup_helper_none,,Always allowed,,needs translation
+settings_camera_popup_helper_clear,,Clear helper,,needs translation
+settings_camera_popup_after,,From,,needs translation
+settings_camera_popup_before,,Until,,needs translation
+settings_camera_popup_time_hint,,"Optional. Use 24-hour times. From 06:00 until 00:00 matches morning through midnight, same as Home Assistant.",,needs translation; don't translate Home Assistant
+settings_camera_popup_fullscreen,,Fullscreen video,,needs translation
+settings_camera_popup_fullscreen_subtitle,,"Show only the stream, fitted to the screen and orientation. Tap anywhere to close.",,needs translation
+settings_screensaver_title,,Screensaver,,needs translation
+settings_screensaver_subtitle,,"Idle clock, weather, and calendar for wall tablets",,needs translation
+settings_screensaver_hint,,"After the timeout with no touches, HKI 7 shows a full-screen clock. A camera popup always closes it first so the live video is visible.",,needs translation; don't translate HKI 7
+settings_screensaver_enable,,Enable screensaver,,needs translation
+settings_screensaver_enable_subtitle,,Show the wall clock after this device is idle,,needs translation
+settings_screensaver_timeout,,Idle timeout: %1$d seconds,,needs translation; app fills in %1$d — keep them
+settings_screensaver_layout,,Layout,,needs translation
+settings_screensaver_layout_panel,,Clock and info bar,,needs translation
+settings_screensaver_layout_clock,,Clock only,,needs translation
+settings_screensaver_background,,Background,,needs translation
+settings_screensaver_background_photo,,Photo,,needs translation
+settings_screensaver_background_dark,,Dark,,needs translation
+settings_screensaver_weather,,Weather,,needs translation
+settings_screensaver_show_weather,,Show weather,,needs translation
+settings_screensaver_show_weather_subtitle,,Current conditions and the coming days,,needs translation
+settings_screensaver_weather_entity,,Weather entity / location,,needs translation
+settings_screensaver_use_header_weather,,Use the dashboard weather,,needs translation
+settings_screensaver_clear,,Clear,,needs translation
+settings_screensaver_show_indoor,,Show indoor climate,,needs translation
+settings_screensaver_show_indoor_subtitle,,Temperature and humidity sensors,,needs translation
+settings_screensaver_temperature,,Temperature,,needs translation
+settings_screensaver_humidity,,Humidity,,needs translation
+settings_screensaver_choose,,Choose…,,needs translation
+settings_screensaver_calendar,,Calendar,,needs translation
+settings_screensaver_show_calendar,,Show calendar,,needs translation
+settings_screensaver_show_calendar_subtitle,,Upcoming events from Home Assistant calendars,,needs translation; don't translate Home Assistant
+settings_screensaver_pick_calendars,,Choose calendars,,needs translation
+settings_screensaver_calendars_count,,%1$d calendars selected,,needs translation; app fills in %1$d — keep them
+settings_screensaver_pick_weather,,Choose weather,,needs translation
+settings_screensaver_pick_temperature,,Choose temperature sensor,,needs translation
+settings_screensaver_pick_humidity,,Choose humidity sensor,,needs translation
+settings_screensaver_no_events,,No upcoming events,,needs translation
+settings_screensaver_actions,,Shortcuts,,needs translation
+settings_screensaver_actions_hint,,"Up to four buttons on the right of the info bar, like a wall-panel action grid.",,needs translation
+settings_screensaver_show_actions,,Show shortcuts,,needs translation
+settings_screensaver_show_actions_subtitle,,The 2×2 grid on the screensaver,,needs translation
+settings_screensaver_add_action,,Add shortcut,,needs translation
+settings_screensaver_delete_action,,Delete shortcut,,needs translation
+settings_screensaver_action_label,,Label,,needs translation
+settings_screensaver_action_entity,,Entity,,needs translation
+settings_screensaver_service_toggle,,Toggle,,needs translation
+settings_screensaver_service_open,,Open,,needs translation
+settings_screensaver_service_close,,Close,,needs translation
 settings_extra_room_follow_title,,Room following,,needs translation
 settings_extra_room_follow_description,,"Pick the room-presence sensor that tracks each person's phone, such as an ESPresense sensor. The app opens the room they are in and offers to follow them as they move.",,needs translation
 settings_extra_room_follow_sensor,,Presence sensor,,needs translation
@@ -3206,6 +3271,26 @@ update_see_changes,,See what changed,,needs translation
 update_watch_releases,,Tell me about new releases,,needs translation
 update_watch_releases_subtitle,,Checks GitHub once a day and notifies you when a newer version is published,,needs translation
 update_watch_releases_subtitle_play,,Notifies you once Google Play has a newer version ready for this device,,needs translation
+settings_device_title,,Device,,needs translation
+settings_device_subtitle,,Sensors and tablet camera for Home Assistant,,needs translation; don't translate Home Assistant
+settings_device_hint,,Extra sensors show up on this tablet's mobile_app device in Home Assistant. Live video is an MJPEG stream on your LAN — add a Generic/MJPEG camera in HA that points at the URL below.,,needs translation; don't translate Home Assistant
+settings_device_extra_sensors,,Extra device sensors,,needs translation
+settings_device_extra_sensors_subtitle,,"Screen on, brightness, Wi-Fi name, and local IP",,needs translation
+settings_device_camera,,Live camera stream,,needs translation
+settings_device_camera_subtitle,,Share this tablet's camera on the local network (no MQTT),,needs translation
+settings_device_camera_facing,,Camera,,needs translation
+settings_device_camera_front,,Front,,needs translation
+settings_device_camera_back,,Back,,needs translation
+settings_device_camera_port,,Stream port,,needs translation
+settings_device_camera_url,,Stream URL: %1$s,,needs translation; app fills in %1$s — keep them
+settings_device_camera_url_waiting,,Waiting for a local IP…,,needs translation
+settings_device_camera_ha_hint,,In Home Assistant: Settings → Devices → Add integration → Generic Camera. Use this URL as both the still image and MJPEG URL.,,needs translation; don't translate Home Assistant
+settings_device_camera_copy_url,,Copy URL,,needs translation
+settings_device_camera_copied,,URL copied,,needs translation
+camera_stream_channel_name,,Tablet camera,,needs translation
+camera_stream_channel_description,,Shown while HKI 7 is sharing this tablet's camera on the local network,,needs translation; don't translate HKI 7
+camera_stream_notification_title,,Camera stream,,needs translation
+camera_stream_notification_text,,This tablet's camera is available to Home Assistant on the local network,,needs translation; don't translate Home Assistant
 uif_a_state,,a state,,needs translation
 uif_a_time,,a time,,needs translation
 uif_actions,,Actions,,needs translation
