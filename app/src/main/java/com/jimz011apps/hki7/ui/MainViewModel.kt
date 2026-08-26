@@ -1564,6 +1564,124 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     fun unarchiveNotification(id: String) =
         updateNotifications { list -> list.map { if (it.id == id) it.copy(archived = false) else it } }
 
+    private val _cameraPopupSettings = MutableStateFlow(CameraPopupSettings())
+    val cameraPopupSettings: StateFlow<CameraPopupSettings> = _cameraPopupSettings
+
+    private val _activeCameraPopup = MutableStateFlow<CameraPopupRequest?>(null)
+    val activeCameraPopup: StateFlow<CameraPopupRequest?> = _activeCameraPopup
+
+    private var cameraPopupSettingsPersistJob: Job? = null
+
+    fun saveCameraPopupSettings(settings: CameraPopupSettings) {
+        _cameraPopupSettings.value = settings
+        cameraPopupSettingsPersistJob?.cancel()
+        cameraPopupSettingsPersistJob = viewModelScope.launch {
+            delay(300)
+            prefs.saveCameraPopupSettings(_cameraPopupSettings.value)
+        }
+    }
+
+    fun dismissCameraPopup(nonce: String? = null) {
+        val current = _activeCameraPopup.value ?: return
+        if (nonce != null && current.nonce != nonce) return
+        _activeCameraPopup.value = null
+        lastUserActivityAt = SystemClock.elapsedRealtime()
+    }
+
+    private val _screensaverSettings = MutableStateFlow(ScreensaverSettings())
+    val screensaverSettings: StateFlow<ScreensaverSettings> = _screensaverSettings
+
+    private val _screensaverVisible = MutableStateFlow(false)
+    val screensaverVisible: StateFlow<Boolean> = _screensaverVisible
+
+    @Volatile private var lastUserActivityAt = SystemClock.elapsedRealtime()
+
+    private var screensaverSettingsPersistJob: Job? = null
+
+    fun saveScreensaverSettings(settings: ScreensaverSettings) {
+        _screensaverSettings.value = settings
+        screensaverSettingsPersistJob?.cancel()
+        screensaverSettingsPersistJob = viewModelScope.launch {
+            delay(300)
+            prefs.saveScreensaverSettings(_screensaverSettings.value)
+        }
+    }
+
+    private val _devicePanelSettings = MutableStateFlow(DevicePanelSettings())
+    val devicePanelSettings: StateFlow<DevicePanelSettings> = _devicePanelSettings
+
+    private var devicePanelSettingsPersistJob: Job? = null
+
+    fun saveDevicePanelSettings(settings: DevicePanelSettings) {
+        val previous = _devicePanelSettings.value
+        _devicePanelSettings.value = settings
+        devicePanelSettingsPersistJob?.cancel()
+        devicePanelSettingsPersistJob = viewModelScope.launch {
+            delay(300)
+            prefs.saveDevicePanelSettings(_devicePanelSettings.value)
+            if (previous.extraSensorsEnabled != settings.extraSensorsEnabled ||
+                previous.cameraStreamEnabled != settings.cameraStreamEnabled
+            ) {
+                appContext?.let { LocationWork.syncNow(it) }
+            }
+        }
+    }
+
+    fun noteUserActivity() {
+        lastUserActivityAt = SystemClock.elapsedRealtime()
+    }
+
+    fun tickScreensaver() {
+        val settings = _screensaverSettings.value
+        if (!settings.enabled || !appVisible || _activeCameraPopup.value != null) {
+            if (_screensaverVisible.value) _screensaverVisible.value = false
+            return
+        }
+        val idleMs = SystemClock.elapsedRealtime() - lastUserActivityAt
+        if (idleMs >= settings.clampedTimeoutSeconds() * 1000L) {
+            _screensaverVisible.value = true
+        }
+    }
+
+    fun hideScreensaver() {
+        lastUserActivityAt = SystemClock.elapsedRealtime()
+        _screensaverVisible.value = false
+    }
+
+    /** Evaluated on every websocket state change, before the 120ms UI debounce, so short motion
+     *  pulses still open the popup. */
+    private fun evaluateCameraPopupTriggers(change: HAStateChange) {
+        val settings = _cameraPopupSettings.value
+        if (!settings.enabled) return
+        if (settings.rules.none { it.enabled && it.triggerEntityId == change.entityId }) return
+        val previous = change.oldState
+            ?: _entities.value.firstOrNull { it.entity_id == change.entityId }
+        val next = change.newState
+        val entityStates = _entities.value.associateBy { it.entity_id }
+        val now = LocalTime.now()
+        val matches = matchingCameraPopupRules(
+            settings = settings,
+            changedEntityId = change.entityId,
+            previousState = previous?.state,
+            nextState = next?.state,
+            enableStateFor = { id ->
+                if (id == change.entityId) next?.state else entityStates[id]?.state
+            },
+            nowMinutes = now.hour * 60 + now.minute,
+        )
+        val rule = matches.lastOrNull() ?: return
+        _screensaverVisible.value = false
+        _activeCameraPopup.value = CameraPopupRequest(
+            nonce = UUID.randomUUID().toString(),
+            ruleId = rule.id,
+            title = rule.displayName(),
+            cameraEntityId = rule.cameraEntityId,
+            timeoutMs = rule.clampedTimeoutSeconds() * 1000L,
+            fullscreen = rule.fullscreen,
+        )
+    }
+
+
     /**
      * Fires a notification action tapped in the in-app panel or banner. Goes through the same
      * [NotificationActions] dispatcher as the system-shade buttons, so HA receives an identical
@@ -1853,6 +1971,15 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     _adaptiveLightingOptionsForms.value = cached
                 }
             }
+        }
+        viewModelScope.launch {
+            prefs.cameraPopupSettings.collect { _cameraPopupSettings.value = it }
+        }
+        viewModelScope.launch {
+            prefs.screensaverSettings.collect { _screensaverSettings.value = it }
+        }
+        viewModelScope.launch {
+            prefs.devicePanelSettings.collect { _devicePanelSettings.value = it }
         }
         viewModelScope.launch {
             prefs.enforcedAestheticsOnly.collect { _aestheticsOnlyEditing.value = it }
@@ -2403,6 +2530,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                     }
                     try {
                         currentClient.subscribeStateChanges().collect { change ->
+                            evaluateCameraPopupTriggers(change)
                             realtimeBuffer[change.entityId] = change
                             flushSignal.trySend(Unit)
                         }
@@ -2551,6 +2679,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             internalUrlRetryJob = null
             setBatteryMonitoring(false)
             stopSync()
+            _screensaverVisible.value = false
             // Battery parity with the official app: never refresh tokens on a background timer
             // (with a dead network it would retry every minute for nothing). The stored token is
             // refreshed lazily on return to foreground instead — see the re-arm above.
@@ -4237,6 +4366,8 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         _floors.value = emptyList()
         _entityRegistry.value = emptyList()
         _deviceRegistry.value = emptyList()
+        _activeCameraPopup.value = null
+        _screensaverVisible.value = false
     }
 
     /** Arms presence/telemetry the way the official app does: an immediate report now, zone geofences

@@ -65,6 +65,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import kotlin.coroutines.cancellation.CancellationException
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -142,6 +143,8 @@ import com.jimz011apps.hki7.ui.utils.IconPack
 import com.jimz011apps.hki7.ui.utils.IconPreferences
 import com.jimz011apps.hki7.ui.utils.MdiIcon
 import com.jimz011apps.hki7.ui.components.CustomPopupHost
+import com.jimz011apps.hki7.ui.components.CameraEventPopupHost
+import com.jimz011apps.hki7.ui.components.ScreensaverHost
 import com.jimz011apps.hki7.ui.components.NotificationPanel
 import com.jimz011apps.hki7.ui.components.NotificationBannerHost
 import com.jimz011apps.hki7.ui.components.QuickStartGuideDialog
@@ -667,6 +670,13 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             }
         }
     }
+    val devicePanelSettings by viewModel.devicePanelSettings.collectAsState()
+    LaunchedEffect(devicePanelSettings.cameraStreamEnabled, devicePanelSettings.streamPort, devicePanelSettings.cameraFacing) {
+        com.jimz011apps.hki7.data.CameraStreamService.sync(appCtx, devicePanelSettings)
+    }
+    LaunchedEffect(devicePanelSettings.extraSensorsEnabled) {
+        com.jimz011apps.hki7.data.DevicePanelScreenReceiver.sync(appCtx, devicePanelSettings.extraSensorsEnabled)
+    }
     val isEditMode by viewModel.isEditMode.collectAsState()
     val canUndo by viewModel.canUndo.collectAsState()
     val canRedo by viewModel.canRedo.collectAsState()
@@ -1148,6 +1158,14 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                     rtl = isRtl
                 )
             }
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                        if (event.changes.any { it.pressed }) viewModel.noteUserActivity()
+                    }
+                }
+            }
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
@@ -1580,10 +1598,6 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             onDismiss = { fullscreenCamera = null }
         )
 
-        // Deliberately the final child in this Box. Compose paints later siblings on top; hosting
-        // this before the floating bottom stack left HKI's navigation bar visible over the native
-        // WebView even though none of those buttons could be used. Being last also gives this
-        // page's BackHandler priority over the NavHost while it is open.
         haPage?.let { (path, pageTitle) ->
             val haAccessToken by prefs.accessToken.collectAsState(initial = null)
             val haTokenExpiry by prefs.accessTokenExpiry.collectAsState(initial = null)
@@ -1606,6 +1620,11 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
                 }
             )
         }
+
+        // Last in this Box so the clock covers the nav bar, media bar and HA pages. Camera popup
+        // stays above it so a motion alert still wins.
+        ScreensaverHost(viewModel)
+        CameraEventPopupHost(viewModel)
     }
     }
 }

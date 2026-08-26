@@ -34,6 +34,8 @@ class BootReceiver : BroadcastReceiver() {
                         if (prefs.shouldUsePushService.first()) {
                             PushForegroundService.startFromBoot(context)
                         }
+                        // Camera is a while-in-use FGS type: Android 12+ rejects starting it from
+                        // BOOT_COMPLETED. CameraStreamService.sync runs when the app is opened.
                     } finally {
                         result.finish()
                     }
