@@ -1,24 +1,23 @@
 package com.jimz011apps.hki7.data
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
-import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.YuvImage
 import androidx.camera.core.ImageProxy
 import java.io.ByteArrayOutputStream
 
+/**
+ * Encodes the analysis frame as JPEG. Rotation is handled by setting
+ * [androidx.camera.core.ImageAnalysis.Builder.setTargetRotation] so this path does not
+ * decode/re-compress every frame.
+ */
 internal fun ImageProxy.toJpegBytes(quality: Int = 70): ByteArray? {
     if (format != ImageFormat.YUV_420_888) return null
     val nv21 = toNv21() ?: return null
     val yuv = YuvImage(nv21, ImageFormat.NV21, width, height, null)
     val out = ByteArrayOutputStream()
     if (!yuv.compressToJpeg(Rect(0, 0, width, height), quality, out)) return null
-    val jpeg = out.toByteArray()
-    val rotation = imageInfo.rotationDegrees
-    if (rotation == 0) return jpeg
-    return rotateJpeg(jpeg, rotation)
+    return out.toByteArray()
 }
 
 private fun ImageProxy.toNv21(): ByteArray? {
@@ -32,10 +31,15 @@ private fun ImageProxy.toNv21(): ByteArray? {
     var pos = 0
     val yRowStride = yPlane.rowStride
     val yPixelStride = yPlane.pixelStride
-    for (row in 0 until height) {
-        val yOffset = row * yRowStride
-        for (col in 0 until width) {
-            nv21[pos++] = yBuffer.get(yOffset + col * yPixelStride)
+    if (yPixelStride == 1 && yRowStride == width) {
+        yBuffer.get(nv21, 0, width * height)
+        pos = width * height
+    } else {
+        for (row in 0 until height) {
+            val yOffset = row * yRowStride
+            for (col in 0 until width) {
+                nv21[pos++] = yBuffer.get(yOffset + col * yPixelStride)
+            }
         }
     }
     val chromaHeight = height / 2
@@ -53,15 +57,4 @@ private fun ImageProxy.toNv21(): ByteArray? {
         }
     }
     return nv21
-}
-
-private fun rotateJpeg(jpeg: ByteArray, degrees: Int): ByteArray {
-    val bitmap = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.size) ?: return jpeg
-    val matrix = Matrix().apply { postRotate(degrees.toFloat()) }
-    val rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-    if (rotated !== bitmap) bitmap.recycle()
-    val out = ByteArrayOutputStream()
-    rotated.compress(Bitmap.CompressFormat.JPEG, 70, out)
-    rotated.recycle()
-    return out.toByteArray()
 }

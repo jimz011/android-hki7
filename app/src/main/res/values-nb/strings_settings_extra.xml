@@ -84,6 +84,9 @@
     <string name="settings_device_camera_ha_hint">I Home Assistant: Innstillinger → Enheter → Legg til integrasjon → Generic Camera. Bruk denne URL-en både som stillbilde og MJPEG-URL.</string>
     <string name="settings_device_camera_copy_url">Kopier URL</string>
     <string name="settings_device_camera_copied">URL kopiert</string>
+    <string name="settings_device_camera_bind_failed">Kunne ikke starte kamerastrømmen på port %1$d. Prøv en annen port.</string>
+    <string name="settings_device_camera_lan_only">Strømmen er bare bundet til dette nettbrettets LAN-adresse, ikke via VPN.</string>
+    <string name="settings_device_wifi_ssid_hint">Wi-Fi-navnet krever posisjonstillatelse mens appen er åpen. Uten det rapporterer sensoren unavailable.</string>
     <string name="camera_stream_channel_name">Nettbrettkamera</string>
     <string name="camera_stream_channel_description">Vises mens HKI 7 deler dette nettbrettets kamera på det lokale nettverket</string>
     <string name="camera_stream_notification_title">Kamerastrøm</string>

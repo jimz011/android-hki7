@@ -18,4 +18,10 @@ class ScreensaverTest {
         assertTrue(ScreensaverSettings().isClockPanel())
         assertFalse(ScreensaverSettings(layout = SCREENSAVER_LAYOUT_CLOCK_ONLY).isClockPanel())
     }
+
+    @Test
+    fun darkBackgroundIsTheDefault() {
+        assertEquals("none", DEFAULT_SCREENSAVER_BACKGROUND)
+        assertEquals("none", ScreensaverSettings().background)
+    }
 }

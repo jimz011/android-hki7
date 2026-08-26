@@ -8,7 +8,7 @@ const val SCREENSAVER_LAYOUT_CLOCK_ONLY = "clock_only"
 const val DEFAULT_SCREENSAVER_TIMEOUT_SECONDS = 120
 const val MIN_SCREENSAVER_TIMEOUT_SECONDS = 15
 const val MAX_SCREENSAVER_TIMEOUT_SECONDS = 900
-const val DEFAULT_SCREENSAVER_BACKGROUND = "picsum"
+const val DEFAULT_SCREENSAVER_BACKGROUND = "none"
 
 @Serializable
 data class ScreensaverAction(
