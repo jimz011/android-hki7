@@ -12,6 +12,7 @@ Wall-tablet extras: native camera popups, a screensaver, and optional device sen
 - Camera popups live in the app. When a motion, person or doorbell entity fires, HKI 7 shows that camera live and closes the window after a timeout. Rules are per Home Assistant instance under Settings › Dashboard › Popups — optional time window, helper that must be on, and a fullscreen fitted stream that closes on tap. No browser_mod automation is needed.
 - After an idle timeout, a full-screen screensaver can show the clock, weather, indoor climate, upcoming calendar events and up to four shortcuts (Settings › Screensaver). A camera popup always dismisses it first so the live video is visible. The clock sits above the system bars; the calendar list and shortcut grid stay usable.
 - Extra sensors on this tablet's existing mobile_app device in Home Assistant: screen on/off, brightness, Wi-Fi name and local IP (Settings › Device). Optional live video is an MJPEG stream on the LAN — Home Assistant Generic/MJPEG Camera points at the URL shown in settings. No MQTT. The stream has no authentication and is meant for the local network only.
+- Wall-tablet hardening: MJPEG binds the LAN address off the main thread and reports a bind failure in settings, the camera stream is not started from boot, the screensaver defaults to a local dark background, and camera/screensaver/device settings no longer drop when the active instance id is missing.
 
 ## 1.1.3
 

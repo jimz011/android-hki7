@@ -1844,10 +1844,8 @@ class PreferencesManager(
 
     suspend fun saveCameraPopupSettings(settings: CameraPopupSettings) {
         context.dataStore.edit { preferences ->
-            val instanceId = instanceScopeId
-                ?: preferences[activeHomeAssistantInstanceIdKey]
-                ?: return@edit
             val store = decodeBackup(preferences[cameraPopupSettingsKey], CameraPopupStore())
+            val instanceId = resolvePersistInstanceId(preferences, store.byInstanceId.keys) ?: return@edit
             val next = store.copy(byInstanceId = store.byInstanceId + (instanceId to settings))
             preferences[cameraPopupSettingsKey] = appJson.encodeToString(next)
         }
@@ -1855,10 +1853,8 @@ class PreferencesManager(
 
     suspend fun saveScreensaverSettings(settings: ScreensaverSettings) {
         context.dataStore.edit { preferences ->
-            val instanceId = instanceScopeId
-                ?: preferences[activeHomeAssistantInstanceIdKey]
-                ?: return@edit
             val store = decodeBackup(preferences[screensaverSettingsKey], ScreensaverStore())
+            val instanceId = resolvePersistInstanceId(preferences, store.byInstanceId.keys) ?: return@edit
             val next = store.copy(byInstanceId = store.byInstanceId + (instanceId to settings))
             preferences[screensaverSettingsKey] = appJson.encodeToString(next)
         }
@@ -1866,14 +1862,22 @@ class PreferencesManager(
 
     suspend fun saveDevicePanelSettings(settings: DevicePanelSettings) {
         context.dataStore.edit { preferences ->
-            val instanceId = instanceScopeId
-                ?: preferences[activeHomeAssistantInstanceIdKey]
-                ?: return@edit
             val store = decodeBackup(preferences[devicePanelSettingsKey], DevicePanelStore())
+            val instanceId = resolvePersistInstanceId(preferences, store.byInstanceId.keys) ?: return@edit
             val next = store.copy(byInstanceId = store.byInstanceId + (instanceId to settings))
             preferences[devicePanelSettingsKey] = appJson.encodeToString(next)
         }
     }
+
+    /** Same fallbacks as the matching Flow reads, so a missing active-id does not drop edits. */
+    private fun resolvePersistInstanceId(
+        preferences: Preferences,
+        existingKeys: Set<String>,
+    ): String? = instanceScopeId
+        ?: preferences[activeHomeAssistantInstanceIdKey]
+        ?: instancesFrom(preferences).firstOrNull()?.id
+        ?: existingKeys.firstOrNull()
+
     suspend fun saveNotificationHistory(history: List<HKINotification>) {
         context.dataStore.edit { it[notificationHistoryKey] = appJson.encodeToString(history) }
     }

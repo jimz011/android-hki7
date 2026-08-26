@@ -18,6 +18,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.jimz011apps.hki7.R
+import com.jimz011apps.hki7.data.CameraStreamService
 import com.jimz011apps.hki7.data.DEVICE_CAMERA_BACK
 import com.jimz011apps.hki7.data.DEVICE_CAMERA_FRONT
 import com.jimz011apps.hki7.data.DevicePanelSettings
@@ -47,6 +49,7 @@ fun DevicePanelSettingsSection(
     val context = LocalContext.current
     val localIp = remember { localIpv4(context) }
     val streamUrl = settings.cameraStreamUrlOrEmpty(localIp)
+    val streamError by CameraStreamService.lastError.collectAsState()
     var portText by remember(settings.streamPort) { mutableStateOf(settings.clampedStreamPort().toString()) }
     var copied by remember { mutableStateOf(false) }
     val cameraPermission = rememberLauncherForActivityResult(
@@ -63,6 +66,11 @@ fun DevicePanelSettingsSection(
             subtitle = stringResource(R.string.settings_device_extra_sensors_subtitle),
             checked = settings.extraSensorsEnabled,
             onCheckedChange = { onChange(settings.copy(extraSensorsEnabled = it)) },
+        )
+        Text(
+            stringResource(R.string.settings_device_wifi_ssid_hint),
+            color = appColors.onMuted,
+            style = MaterialTheme.typography.bodySmall,
         )
     }
 
@@ -117,6 +125,18 @@ fun DevicePanelSettingsSection(
             color = appColors.onSurface,
             style = MaterialTheme.typography.bodyMedium,
         )
+        Text(
+            stringResource(R.string.settings_device_camera_lan_only),
+            color = appColors.onMuted,
+            style = MaterialTheme.typography.bodySmall,
+        )
+        if (settings.cameraStreamEnabled && streamError != null) {
+            Text(
+                stringResource(R.string.settings_device_camera_bind_failed, settings.clampedStreamPort()),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
         Text(
             stringResource(R.string.settings_device_camera_ha_hint),
             color = appColors.onMuted,

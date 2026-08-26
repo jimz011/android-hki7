@@ -98,8 +98,9 @@ fun parseHhMmToMinutes(value: String?): Int? {
 }
 
 /**
- * Home Assistant time-condition wrapping: when [after] is later than or equal to [before], the
- * window crosses midnight (`after: 06:00`, `before: 00:00` → from 06:00 until midnight).
+ * Home Assistant time-condition wrapping: when [after] is later than [before], the window
+ * crosses midnight (`after: 06:00`, `before: 00:00` → from 06:00 until midnight). Equal
+ * after/before is an empty window, matching HA (`after > before` is the wrap test).
  */
 fun isWithinCameraPopupTimeWindow(after: String?, before: String?, nowMinutes: Int): Boolean {
     val afterMin = parseHhMmToMinutes(after)
@@ -109,8 +110,11 @@ fun isWithinCameraPopupTimeWindow(after: String?, before: String?, nowMinutes: I
     if (afterMin == null && beforeMin != null) return nowMinutes < beforeMin
     val start = afterMin!!
     val end = beforeMin!!
-    return if (start < end) nowMinutes in start until end
-    else nowMinutes >= start || nowMinutes < end
+    return when {
+        start < end -> nowMinutes in start until end
+        start > end -> nowMinutes >= start || nowMinutes < end
+        else -> false
+    }
 }
 
 fun matchingCameraPopupRules(
