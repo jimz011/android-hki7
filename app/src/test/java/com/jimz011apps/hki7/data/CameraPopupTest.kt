@@ -63,6 +63,13 @@ class CameraPopupTest {
     }
 
     @Test
+    fun equalAfterAndBeforeIsAnEmptyWindow() {
+        assertFalse(isWithinCameraPopupTimeWindow("08:00", "08:00", 8 * 60))
+        assertFalse(isWithinCameraPopupTimeWindow("08:00", "08:00", 8 * 60 + 1))
+        assertFalse(isWithinCameraPopupTimeWindow("08:00", "08:00", 7 * 60 + 59))
+    }
+
+    @Test
     fun matchingUsesAllGates() {
         val settings = CameraPopupSettings(
             rules = listOf(

@@ -13,6 +13,8 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import android.util.Size
+import android.view.Surface
+import android.view.WindowManager
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -22,20 +24,29 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import com.jimz011apps.hki7.R
+import java.net.InetAddress
 import java.util.concurrent.Executors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Opt-in MJPEG camera stream for wall tablets. Home Assistant cannot create a camera entity through
  * mobile_app, so this service binds the tablet camera and serves JPEG frames on the LAN instead.
+ *
+ * Camera is a while-in-use foreground-service type: Android 12+ rejects starting it from
+ * [android.content.Intent.ACTION_BOOT_COMPLETED]. The stream is started when HKI 7 is in the
+ * foreground (see [sync]).
  */
 class CameraStreamService : Service(), LifecycleOwner {
     private val lifecycleRegistry = LifecycleRegistry(this)
@@ -64,7 +75,9 @@ class CameraStreamService : Service(), LifecycleOwner {
             stopSelf()
             return START_NOT_STICKY
         }
-        startCameraForeground()
+        if (!startCameraForeground()) {
+            return START_NOT_STICKY
+        }
         lifecycleRegistry.currentState = Lifecycle.State.STARTED
         lifecycleRegistry.currentState = Lifecycle.State.RESUMED
         if (observeJob?.isActive != true) {
@@ -95,11 +108,25 @@ class CameraStreamService : Service(), LifecycleOwner {
         super.onDestroy()
     }
 
-    private fun bindCameraAndServer(port: Int, facing: String) {
+    private suspend fun bindCameraAndServer(port: Int, facing: String) {
         if (boundPort == port && boundFacing == facing && server != null) return
         unbindCamera()
         server?.stop()
-        server = MjpegHttpServer(port).also { it.start() }
+        server = null
+        _lastError.value = null
+        val bindAddress = withContext(Dispatchers.IO) { lanBindAddress() }
+        if (bindAddress == null) {
+            _lastError.value = "no_lan"
+            return
+        }
+        val next = MjpegHttpServer(port)
+        val started = withContext(Dispatchers.IO) { next.start(bindAddress) }
+        started.onFailure { error ->
+            _lastError.value = error.message ?: error.javaClass.simpleName
+            next.stop()
+            return
+        }
+        server = next
         boundPort = port
         boundFacing = facing
         val providerFuture = ProcessCameraProvider.getInstance(this)
@@ -113,6 +140,7 @@ class CameraStreamService : Service(), LifecycleOwner {
             }
             val analysis = ImageAnalysis.Builder()
                 .setTargetResolution(Size(640, 480))
+                .setTargetRotation(displayRotation())
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
             analysis.setAnalyzer(cameraExecutor) { image ->
@@ -136,6 +164,21 @@ class CameraStreamService : Service(), LifecycleOwner {
         }, ContextCompat.getMainExecutor(this))
     }
 
+    private fun lanBindAddress(): InetAddress? {
+        val ip = localIpv4(this)
+        if (ip.isBlank()) return null
+        return runCatching { InetAddress.getByName(ip) }.getOrNull()
+    }
+
+    @Suppress("DEPRECATION")
+    private fun displayRotation(): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            display?.rotation ?: Surface.ROTATION_0
+        } else {
+            (getSystemService(WINDOW_SERVICE) as WindowManager).defaultDisplay.rotation
+        }
+    }
+
     private fun unbindCamera() {
         runCatching { cameraProvider?.unbindAll() }
         cameraProvider = null
@@ -146,12 +189,20 @@ class CameraStreamService : Service(), LifecycleOwner {
     private fun hasCameraPermission(): Boolean =
         ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
 
-    private fun startCameraForeground() {
+    /** @return false when Android rejected a background camera FGS start. */
+    private fun startCameraForeground(): Boolean {
         val notification = buildNotification()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA)
-        } else {
-            startForeground(NOTIFICATION_ID, notification)
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA)
+            } else {
+                startForeground(NOTIFICATION_ID, notification)
+            }
+            true
+        } catch (error: Exception) {
+            _lastError.value = error.message ?: error.javaClass.simpleName
+            stopSelf()
+            false
         }
     }
 
@@ -187,6 +238,9 @@ class CameraStreamService : Service(), LifecycleOwner {
         private const val CHANNEL_ID = "hki7_camera_stream"
         private const val NOTIFICATION_ID = 4712
 
+        private val _lastError = MutableStateFlow<String?>(null)
+        val lastError: StateFlow<String?> = _lastError.asStateFlow()
+
         fun start(context: Context) {
             runCatching {
                 ContextCompat.startForegroundService(
@@ -198,6 +252,7 @@ class CameraStreamService : Service(), LifecycleOwner {
 
         fun stop(context: Context) {
             runCatching { context.stopService(Intent(context, CameraStreamService::class.java)) }
+            _lastError.value = null
         }
 
         fun sync(context: Context, settings: DevicePanelSettings) {
