@@ -1,6 +1,7 @@
 package com.jimz011apps.hki7.data
 
 import java.io.BufferedOutputStream
+import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
 import java.util.concurrent.Executors
@@ -38,10 +39,19 @@ internal class MjpegHttpServer(private val port: Int) {
     private val executor = Executors.newCachedThreadPool()
     private val clients = AtomicInteger(0)
 
-    fun start() {
-        if (running) return
+    val isRunning: Boolean get() = running
+
+    /**
+     * Binds [port] on [bindAddress] (the tablet's LAN IPv4) so a VPN or guest interface cannot
+     * reach the unauthenticated stream. Does not set [running] until the bind succeeds.
+     */
+    fun start(bindAddress: InetAddress? = null): Result<Unit> {
+        if (running) return Result.success(Unit)
+        val socket = runCatching {
+            if (bindAddress != null) ServerSocket(port, 4, bindAddress) else ServerSocket(port)
+        }.getOrElse { return Result.failure(it) }
+        serverSocket = socket
         running = true
-        val socket = ServerSocket(port).also { serverSocket = it }
         executor.execute {
             while (running) {
                 val client = try {
@@ -52,6 +62,7 @@ internal class MjpegHttpServer(private val port: Int) {
                 executor.execute { handle(client) }
             }
         }
+        return Result.success(Unit)
     }
 
     fun stop() {

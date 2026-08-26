@@ -3714,4 +3714,7 @@
     <string name="camera_stream_channel_description">Shown while HKI 7 is sharing this tablet\'s camera on the local network</string>
     <string name="camera_stream_notification_title">Camera stream</string>
     <string name="camera_stream_notification_text">This tablet\'s camera is available to Home Assistant on the local network</string>
+    <string name="settings_device_camera_bind_failed">Could not start the camera stream on port %1$d. Try another port.</string>
+    <string name="settings_device_camera_lan_only">The stream is bound to this tablet\'s LAN address only, not a VPN.</string>
+    <string name="settings_device_wifi_ssid_hint">The Wi-Fi name needs location permission while the app is open. Without it the sensor reports unavailable.</string>
 </resources>

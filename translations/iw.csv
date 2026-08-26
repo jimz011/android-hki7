@@ -3388,6 +3388,9 @@ settings_device_camera_url_waiting,,Waiting for a local IP…,Waiting for a loca
 settings_device_camera_ha_hint,,In Home Assistant: Settings → Devices → Add integration → Generic Camera. Use this URL as both the still image and MJPEG URL.,In Home Assistant: Settings → Devices → Add integration → Generic Camera. Use this URL as both the still image and MJPEG URL.,don't translate Home Assistant
 settings_device_camera_copy_url,,Copy URL,Copy URL,
 settings_device_camera_copied,,URL copied,URL copied,
+settings_device_camera_bind_failed,,Could not start the camera stream on port %1$d. Try another port.,Could not start the camera stream on port %1$d. Try another port.,app fills in %1$d — keep them
+settings_device_camera_lan_only,,"The stream is bound to this tablet's LAN address only, not a VPN.","The stream is bound to this tablet's LAN address only, not a VPN.",
+settings_device_wifi_ssid_hint,,The Wi-Fi name needs location permission while the app is open. Without it the sensor reports unavailable.,The Wi-Fi name needs location permission while the app is open. Without it the sensor reports unavailable.,
 camera_stream_channel_name,,Tablet camera,Tablet camera,
 camera_stream_channel_description,,Shown while HKI 7 is sharing this tablet's camera on the local network,Shown while HKI 7 is sharing this tablet's camera on the local network,don't translate HKI 7
 camera_stream_notification_title,,Camera stream,Camera stream,
