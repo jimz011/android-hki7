@@ -44,6 +44,15 @@
         <item>Kiinteät lämpötila- ja energialukemat tšekin, slovakin, kreikan, norjan, ruotsin ja tanskan kielellä, joissa numerot näyttivät väärin tai voivat kaataa näytön.</item>
         <item>Onko kielelläsi jotain huonosti sanottu? Jokainen kieli on nyt yksi tiedosto, jonka voit korjata GitHubissa ilman koodia.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_0">
+        <item>HKI 7 näkyy nyt Android Autossa. Auton näyttö näyttää ruudukon nopeista toimistasi niiden nykyisen tilan kanssa, ja napautus suorittaa ne. Android Auto piirtää Googlen omia malleja ja piilottaa kaiken asettamansa rajan ylittävän auton liikkuessa, joten se näyttää kojelaudan sijaan lyhyen luettelon, jonka valitset.</item>
+        <item>Nyt on olemassa Wear OS -sovellus. Se näyttää nopeat toiminnot live-tilassa ja alla olevat huoneet ja puhuu suoraan Home Assistant, joten se toimii edelleen, kun puhelimesi on toisessa huoneessa.</item>
+        <item>Kellon asettaminen ei vie mitään. Puhelimesi luovuttaa sille palvelimen osoitteen, tunnuksen, nopeat toiminnot ja huoneesi, joten kelloon ei kirjaudu ollenkaan.</item>
+        <item>Uutta: Asetukset › Android Auto &amp; Wear OS. Valitse kourallinen asioita, joita haluat käden ulottuvilla autosta ja ranteestasi. Jokaisella on oma nimi, kuvake ja napautustoiminto, joka näkyy tai piilotetaan pinnan mukaan. Luettelo on sinun eikä kojelaudan, joten kojelaudan vaihtaminen jättää sen rauhaan.</item>
+        <item>Perheen luvat koskevat autoa ja kelloa. Rajoitettu entiteetti ei koskaan näy poimijassa, ei koskaan saavuta kelloa ja lakkaa toimimasta autossa heti, kun pääsy peruutetaan.</item>
+        <item>Asetukset varoittavat sinua, kun nopea toiminto ei tee mitään pois kojelaudalta. Laitteet, joilla ei ole yksiselitteistä yhden kosketuksen merkitystä, kuten lukko tai hälytyspaneeli, pyytävät sinua valitsemaan Toggle tai Home Assistant toiminnon sen sijaan, että arvaat suunnan ajon aikana.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 tarkistaa nyt tallennetun Home Assistant-istunnon ennen REST-, WebSocket- ja push-yhteyksien käynnistämistä. Hylätyt tunnistetiedot päivitetään kerran koordinoidulla tavalla tai palauttavat sinut kirjautumiseen sen sijaan, että syntyisi tarpeeksi samanaikaisia todennusvirheitä Home Assistant:n IP-kiellon laukaisemiseksi.</item>
         <item>403 Kielletty -vastaus keskeyttää nyt yhteyden ja telemetrian uudelleenyritykset poistamatta tallennettua kirjautumistietoasi ja ohjaa sinut Home Assistant IP-kiellon tai käänteisen välityspalvelimen asetuksiin sen sijaan, että näyttäisi JSON-virheen.</item>

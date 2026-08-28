@@ -27,6 +27,15 @@
         <item>Faste temperatur- og energiaflæsninger på tjekkisk, slovakisk, græsk, norsk, svensk og dansk, hvor tallene viste forkert eller kunne crashe skærmen.</item>
         <item>Noget dårligt formuleret på dit sprog? Hvert sprog er nu en enkelt fil, du kan rette på GitHub, ingen kode nødvendig.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_0">
+        <item>HKI 7 vises nu på Android Auto. Bilskærmen viser et gitter af dine hurtige handlinger med deres nuværende tilstand, og et tryk kører dem. Android Auto tegner Googles egne skabeloner og skjuler alt ud over en grænse, den sætter, mens bilen bevæger sig, så den viser en kort liste, du sammensætter, i stedet for dit dashboard.</item>
+        <item>Der er nu en Wear OS-app. Den viser dine hurtige handlinger med live-tilstand og dine rum nedenunder og taler direkte til Home Assistant, så den bliver ved med at fungere, når din telefon er i et andet rum.</item>
+        <item>Det kræver intet at sætte uret op. Din telefon giver den serveradressen, et token, dine hurtige handlinger og dine værelser, så der er slet ikke noget login på uret.</item>
+        <item>Nyt: Indstillinger › Android Auto &amp; Wear OS. Vælg den håndfuld ting, du vil have inden for rækkevidde fra bilen og fra dit håndled, hver med sit eget navn, ikon og trykhandling, vist eller skjult pr. overflade. Listen er din snarere end et dashboards, så skift af dashboards lader den være.</item>
+        <item>Familietilladelser gælder for bilen og uret. En begrænset enhed dukker aldrig op i plukkeren, når aldrig uret og holder op med at arbejde i bilen, så snart adgangen er tilbagekaldt.</item>
+        <item>Indstillinger advarer dig, når en hurtig handling ikke ville gøre noget væk fra dashboardet. Enheder uden entydig et-tryk-betydning, såsom en lås eller et alarmpanel, beder dig om at vælge Toggle eller en Home Assistant-handling i stedet for at gætte en retning, mens du kører.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 kontrollerer nu en gemt Home Assistant-session, før den starter dens REST, WebSocket og push-forbindelser. Afviste legitimationsoplysninger opdateres én gang på en koordineret måde eller returnerer dig til login, i stedet for at producere nok samtidige autentificeringsfejl til at udløse Home Assistants IP-forbud.</item>
         <item>Et 403 Forbidden-svar sætter nu forbindelses- og telemetriforsøg på pause uden at slette dit gemte login og henviser dig til Home Assistant\'s IP-forbud eller omvendt proxy-indstillinger i stedet for at vise en JSON-fejl.</item>

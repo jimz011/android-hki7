@@ -27,6 +27,15 @@
         <item>Fiksuoti temperatūros ir energijos rodmenys čekų, slovakų, graikų, norvegų, švedų ir danų kalbomis, kur skaičiai rodomi neteisingai arba gali sugadinti ekraną.</item>
         <item>Kažkas blogai parašyta jūsų kalba? Dabar kiekviena kalba yra vienas failas, kurį galite taisyti naudodami „GitHub“, kodo nereikia.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_0">
+        <item>HKI 7 dabar rodomas „Android Auto“. Automobilio ekrane rodomas greitų veiksmų tinklelis su dabartine būsena, o bakstelėjimas juos paleidžia. „Android Auto“ piešia „Google“ šablonus ir slepia viską, kas viršija nustatytą ribą, kol automobilis juda, todėl rodomas trumpas sąrašas, kurį kuruojate, o ne jūsų prietaisų skydelis.</item>
+        <item>Dabar yra „Wear OS“ programa. Tai rodo jūsų greitus veiksmus su tiesiogine būsena ir jūsų kambariais apačioje, taip pat tiesiogiai kalbasi su Home Assistant, todėl veikia, kai telefonas yra kitame kambaryje.</item>
+        <item>Laikrodžio nustatymas nieko nereikalauja. Telefonas perduoda serverio adresą, prieigos raktą, greitus veiksmus ir patalpas, todėl laikrodyje iš viso nereikia prisijungti.</item>
+        <item>Naujiena: Nustatymai › Android Auto ir Wear OS. Iš automobilio ir riešo išsirinkite saujelę dalykų, kuriuos norite pasiekti, kiekvienas su savo pavadinimu, piktograma ir palietimo veiksmas, rodomas arba paslėptas kiekviename paviršiuje. Sąrašas priklauso jums, o ne prietaisų skydeliui, todėl perjungiant prietaisų skydelius jis lieka ramybėje.</item>
+        <item>Šeimos leidimai taikomi automobiliui ir laikrodžiui. Apribotas subjektas niekada nerodomas rinkiklyje, nepasiekia laikrodžio ir nustoja veikti automobilyje, kai tik atšaukiama prieiga.</item>
+        <item>Nustatymai įspėja, kai greitas veiksmas nieko nepadarys nutolus nuo prietaisų skydelio. Prietaisai, neturintys vienareikšmio vieno bakstelėjimo reikšmės, pvz., užraktas arba signalizacijos skydelis, prašo pasirinkti Perjungti arba Home Assistant veiksmą, o ne atspėti kryptį važiuojant.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 dabar patikrina išsaugotą Home Assistant seansą prieš pradėdamas REST, WebSocket ir tiesioginius ryšius. Atmesti kredencialai atnaujinami vieną kartą suderintu būdu arba grąžinami prisijungti, o ne vienu metu sukuriama pakankamai autentifikavimo klaidų, kad suaktyvintų Home Assistant IP draudimą.</item>
         <item>403 uždraustas atsakymas dabar pristabdo ryšio ir telemetrijos bandymus, neištrindamas išsaugoto prisijungimo, ir nukreipia į Home Assistant IP uždraudimo arba atvirkštinio tarpinio serverio nustatymus, o ne rodo JSON klaidą.</item>

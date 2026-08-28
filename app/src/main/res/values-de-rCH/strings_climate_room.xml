@@ -579,6 +579,15 @@
         <item>Temperatur- und Energiemesswerte auf Tschechisch, Slowakisch, Griechisch, Norwegisch, Schwedisch und Dänisch wurden behoben, bei denen Zahlen falsch angezeigt wurden oder der Bildschirm abstürzen konnte.</item>
         <item>Etwas in Ihrer Sprache schlecht formuliert? Jede Sprache ist jetzt eine einzelne Datei, die Sie auf GitHub korrigieren können, ohne dass Code erforderlich ist.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_0">
+        <item>HKI 7 erscheint jetzt auf Android Auto. Auf dem Autobildschirm wird ein Raster Ihrer Schnellaktionen mit ihrem aktuellen Status angezeigt, und durch Antippen werden sie ausgeführt. Android Auto zeichnet Googles eigene Vorlagen und verbirgt alles, was über einen von ihm festgelegten Grenzwert hinausgeht, während das Auto fährt, sodass eine kurze Liste angezeigt wird, die Sie kuratieren, und nicht Ihr Dashboard.</item>
+        <item>Es gibt jetzt eine Wear OS-App. Es zeigt Ihre schnellen Aktionen im Live-Status und Ihre Räume darunter an und kommuniziert direkt mit Home Assistant, sodass es weiter funktioniert, wenn sich Ihr Telefon in einem anderen Raum befindet.</item>
+        <item>Das Einrichten der Uhr erfordert nichts. Ihr Telefon übergibt ihm die Serveradresse, einen Token, Ihre Schnellaktionen und Ihre Räume, sodass eine Anmeldung auf der Uhr überhaupt nicht erfolgt.</item>
+        <item>Neu: Einstellungen › Android Auto &amp; Wear OS. Wählen Sie die wenigen Dinge aus, die Sie vom Auto und vom Handgelenk aus erreichen möchten, jedes mit eigenem Namen, Symbol und eigener Tippaktion, die pro Oberfläche angezeigt oder ausgeblendet werden kann. Die Liste gehört Ihnen und nicht einem Dashboard. Wenn Sie also das Dashboard wechseln, bleibt sie in Ruhe.</item>
+        <item>Für das Auto und die Uhr gelten Familiengenehmigungen. Eine eingeschränkte Entität erscheint nie im Picker, erreicht nie die Uhr und hört im Auto auf zu arbeiten, sobald der Zugriff widerrufen wird.</item>
+        <item>Die Einstellungen warnen Sie, wenn eine schnelle Aktion ausserhalb des Dashboards nichts bewirken würde. Geräte ohne eindeutige One-Tap-Bedeutung, wie z. B. ein Schloss oder eine Alarmzentrale, fordern Sie auf, „Umschalten“ oder eine Home Assistant-Aktion zu wählen, anstatt während der Fahrt eine Richtung zu erraten.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 überprüft jetzt eine gespeicherte Home Assistant-Sitzung, bevor seine REST-, WebSocket- und Push-Verbindungen gestartet werden. Abgelehnte Anmeldeinformationen werden einmal auf koordinierte Weise aktualisiert oder Sie kehren zur Anmeldung zurück, anstatt dass gleichzeitig genügend Authentifizierungsfehler auftreten, um die IP-Sperre von Home Assistant auszulösen.</item>
         <item>Eine 403-Antwort „Verboten“ unterbricht jetzt Verbindungs- und Telemetrieversuche, ohne dass Ihr gespeicherter Login gelöscht wird, und verweist Sie auf die IP-Sperr- oder Reverse-Proxy-Einstellungen von Home Assistant, anstatt einen JSON-Fehler anzuzeigen.</item>

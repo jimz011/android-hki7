@@ -27,6 +27,15 @@
         <item>Fiksēti temperatūras un enerģijas rādījumi čehu, slovāku, grieķu, norvēģu, zviedru un dāņu valodās, kur skaitļi tika rādīti nepareizi vai var izraisīt ekrāna avāriju.</item>
         <item>Vai jūsu valodā ir kaut kas slikti formulēts? Katra valoda tagad ir viens fails, kuru varat labot GitHub — kods nav nepieciešams.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_0">
+        <item>HKI 7 tagad tiek rādīts operētājsistēmā Android Auto. Automašīnas ekrānā tiek parādīts jūsu ātro darbību režģis ar to pašreizējo stāvokli, un ar pieskārienu tās tiek palaistas. Android Auto zīmē paša Google veidnes un slēpj visu, kas pārsniedz noteikto ierobežojumu, kamēr automašīna pārvietojas, tāpēc tiek rādīts īss jūsu atlasītais saraksts, nevis informācijas panelis.</item>
+        <item>Tagad ir pieejama Wear OS lietotne. Tas parāda jūsu ātrās darbības ar reāllaika stāvokli un jūsu telpām zem tā, kā arī tieši sarunājas ar Home Assistant, tāpēc tas turpina darboties, kad tālrunis atrodas citā telpā.</item>
+        <item>Pulksteņa iestatīšana neko neaizņem. Tālrunis nodod tam servera adresi, marķieri, jūsu ātrās darbības un telpas, tāpēc pulkstenī vispār nav iespējams pierakstīties.</item>
+        <item>Jaunums: Iestatījumi › Android Auto un Wear OS. Izvēlieties dažas lietas, ko vēlaties sasniegt no automašīnas un no plaukstas locītavas, katrai no tām ir savs nosaukums, ikona un pieskāriena darbība, kas tiek parādīta vai paslēpta katrai virsmai. Saraksts pieder jums, nevis informācijas panelim, tāpēc, pārslēdzot informācijas paneļus, tas paliek viens.</item>
+        <item>Ģimenes atļaujas attiecas uz automašīnu un pulksteni. Ierobežota vienība nekad neparādās atlasītājā, nekad nesasniedz pulksteni un pārstāj darboties automašīnā, tiklīdz piekļuve tiek atsaukta.</item>
+        <item>Iestatījumi brīdina jūs, ja ātra darbība neko nedarīs ārpus informācijas paneļa. Ierīcēs, kurām nav nepārprotamas viena pieskāriena nozīmes, piemēram, slēdzene vai trauksmes panelis, tiek lūgts izvēlēties Pārslēgt vai Home Assistant darbību, nevis uzminēt virzienu braukšanas laikā.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 tagad pārbauda saglabāto Home Assistant sesiju pirms tās REST, WebSocket un push savienojumu palaišanas. Noraidītie akreditācijas dati tiek saskaņoti vienu reizi atsvaidzināti vai arī tiek atgriezta pieteikšanās, tā vietā, lai radītu pietiekami daudz vienlaicīgas autentifikācijas kļūmju, lai aktivizētu Home Assistant IP aizliegumu.</item>
         <item>Atbilde 403 Aizliegta tagad aptur savienojuma un telemetrijas mēģinājumus, neizdzēšot saglabāto pieteikuminformāciju, un norāda uz Home Assistant IP aizliegumu vai apgrieztā starpniekservera iestatījumiem, nevis parāda JSON kļūdu.</item>

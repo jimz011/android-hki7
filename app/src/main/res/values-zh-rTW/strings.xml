@@ -3970,6 +3970,15 @@
     <string name="settings_local_network_allowed">允許</string>
     <string name="settings_local_network_not_allowed">不允許 — 無法透過您的 Wi-Fi 直接存取 Home Assistant</string>
     <string name="update_see_changes">看看發生了什麼變化</string>
+    <string-array name="cr_whats_new_1_2_0">
+        <item>HKI 7 現在出現在 Android Auto 上。汽車螢幕會顯示您的快速操作及其當前狀態的網格，只需點擊即可運行它們。 Android Auto 會繪製 Google 自己的模板，並隱藏汽車行駛時超出其設定限制的所有內容，因此它會顯示您整理的簡短列表，而不是儀表板。</item>
+        <item>現在有一個 Wear OS 應用程式。它會顯示您的即時狀態和下面的房間的快速操作，並直接與 Home Assistant 對話，因此當您的手機位於另一個房間時它仍然可以工作。</item>
+        <item>設定手錶無需任何操作。您的手機會將伺服器位址、令牌、您的快速操作和您的房間傳遞給它，因此手錶上根本不需要登入。</item>
+        <item>新功能：設定 › Android Auto 和 Wear 作業系統。從汽車和手腕上挑選一些您想要的東西，每個東西都有自己的名稱、圖標和點擊操作，在每個表面上顯示或隱藏。該清單是您的而不是儀表板的，因此切換儀表板不會影響它。</item>
+        <item>家庭權限適用於汽車和手錶。受限制的實體永遠不會出現在選擇器中，永遠不會到達手錶，一旦存取權限被撤銷，就會停止在汽車中工作。</item>
+        <item>當快速操作無法在儀表板之外執行任何操作時，設定會向您發出警告。沒有明確的一鍵式意義的裝置（例如鎖或警報面板）會要求您選擇「切換」或 Home Assistant 操作，而不是在駕駛時猜測方向。</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 現在在啟動 REST、WebSocket 和推送連線之前檢查已儲存的 Home Assistant 會話。被拒絕的憑證將以協調的方式刷新一次或讓您返回登入狀態，而不是產生足夠多的同時驗證失敗來觸發 Home Assistant 的 IP 禁令。</item>
         <item>403 Forbidden 回應現在會暫停連接和遙測重試，而不會刪除已儲存的登入訊息，並指向 Home Assistant 的 IP 禁止或反向代理設置，而不是顯示 JSON 錯誤。</item>
@@ -3998,4 +4007,41 @@
     <string name="energy_extra_sensor_import_power_phase_two">輸入功率2相（W）</string>
     <string name="energy_extra_per_phase_flow_detected">Home Assistant 在此報告每相的輸出，這通常意味著三相電源中某一相的太陽能。開啟此選項可同時查看匯入和匯出。</string>
     <string name="update_watch_releases_subtitle_play">一旦 Google Play 有適用於該裝置的更新版本，就會通知您</string>
+    <string name="car_action_failed">無法聯繫 Home Assistant</string>
+    <string name="car_action_sent">傳送</string>
+    <string name="car_action_unavailable">無法使用</string>
+    <string name="car_loading">載入中</string>
+    <string name="car_not_configured">在手機上開啟HKI 7並將其連接到Home Assistant。</string>
+    <string name="car_quick_actions_title">快速行動</string>
+    <string name="car_refresh">重新整理</string>
+    <string name="quick_actions_add">新增快速操作</string>
+    <string name="quick_actions_already_added">已經是快速行動</string>
+    <string name="quick_actions_edit_title">快速行動</string>
+    <string name="quick_actions_icon">圖示</string>
+    <string name="quick_actions_limit_note">駕駛時，Android Auto 僅顯示前幾個內容並隱藏其餘內容 - 將重要的內容保留在頂部。</string>
+    <string name="quick_actions_name">姓名</string>
+    <string name="quick_actions_name_hint">留空以使用實體名稱</string>
+    <string name="quick_actions_none">還沒有快速行動。</string>
+    <string name="quick_actions_pick_entity">選擇一個實體</string>
+    <string name="quick_actions_remove">消除</string>
+    <string name="quick_actions_reorder">重新排序</string>
+    <string name="quick_actions_reorder_subtitle">拖曳以設定它們出現的順序。</string>
+    <string name="quick_actions_show_in_car">在 Android Auto 中顯示</string>
+    <string name="quick_actions_when_tapped">輕按時</string>
+    <string name="car_no_actions">在手機上的「設定」、「Android Auto」和「Wear OS」下的 HKI 7 中新增快速操作。</string>
+    <string name="quick_actions_car_needs_play">Android Auto 僅適用於從 Google Play 安裝的副本。谷歌不允許以任何其他方式安裝的應用程式出現在汽車中，因此在此副本中，快速操作可以到達您的手錶，但不能到達汽車。</string>
+    <string name="quick_actions_hidden_everywhere">隱藏在汽車和手錶之外。</string>
+    <string name="quick_actions_intro">Android Auto 和手錶都無法顯示您的儀表板。從汽車和手腕上挑選一些您想要的東西。</string>
+    <string name="quick_actions_menu_subtitle">選擇汽車和手錶上顯示的內容</string>
+    <string name="quick_actions_show_on_watch">在 Wear OS 上顯示</string>
+    <string name="quick_actions_surfaces">顯示於</string>
+    <string name="quick_actions_unsupported">不會在車上或手錶上跑步。選擇切換或 Home Assistant 操作。</string>
+    <string name="quick_actions_watch_note">您的手錶直接與 Home Assistant 通訊。它是透過這部手機設定的 - 手錶上沒有任何可登入的內容。</string>
+    <string name="settings_subtitle_quick_actions">對汽車和手錶進行快速操作</string>
+    <string name="settings_title_quick_actions">Android Auto &amp; Wear 作業系統</string>
+    <string name="quick_actions_watch_thermostat">手錶恆溫器</string>
+    <string name="quick_actions_watch_thermostat_cycle">點擊手錶圖塊上的名稱即可在它們之間移動</string>
+    <string name="quick_actions_watch_thermostat_none">未選擇恆溫器</string>
+    <string name="quick_actions_watch_thermostat_subtitle">您的手錶調整的恆溫器</string>
+    <string name="quick_actions_watch_thermostat_count">%1$d 恆溫器</string>
 </resources>

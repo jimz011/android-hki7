@@ -628,6 +628,18 @@ cr_quick_media_player,,Media player,Medieafspiller,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.","Når håndtaget vises, skal du stryge op på den nederste bjælke for at gendanne afspilleren.",
 cr_quick_make_it_yours,,Make it yours,Gør det til dit,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","I redigeringstilstand kan du tilføje og omarrangere rum, etager og widgets. Tryk på et element for at konfigurere det.",
+cr_whats_new_1_2_0,1,"HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google's own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.","HKI 7 vises nu på Android Auto. Bilskærmen viser et gitter af dine hurtige handlinger med deres nuværende tilstand, og et tryk kører dem. Android Auto tegner Googles egne skabeloner og skjuler alt ud over en grænse, den sætter, mens bilen bevæger sig, så den viser en kort liste, du sammensætter, i stedet for dit dashboard.",don't translate HKI 7
+cr_whats_new_1_2_0,2,"There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.","Der er nu en Wear OS-app. Den viser dine hurtige handlinger med live-tilstand og dine rum nedenunder og taler direkte til Home Assistant, så den bliver ved med at fungere, når din telefon er i et andet rum.",don't translate Home Assistant
+cr_whats_new_1_2_0,3,"Setting up the watch usually takes nothing: your phone hands it the server address, a session, your quick actions and your rooms, with no typing at all.","Det kræver intet at sætte uret op. Din telefon giver den serveradressen, et token, dine hurtige handlinger og dine værelser, så der er slet ikke noget login på uret.",
+cr_whats_new_1_2_0,4,"The watch can also sign in on its own, for when HKI 7 is not on the phone. Only the Home Assistant address is typed on the watch — the login page opens on your phone’s browser, so your password stays there.","Nyt: Indstillinger › Android Auto & Wear OS. Vælg den håndfuld ting, du vil have inden for rækkevidde fra bilen og fra dit håndled, hver med sit eget navn, ikon og trykhandling, vist eller skjult pr. overflade. Listen er din snarere end et dashboards, så skift af dashboards lader den være.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_2_0,5,"Your quick actions are also a watch tile, one swipe from the watch face with no app to open, and a watch-face complication showing the first one’s state at a glance.","Familietilladelser gælder for bilen og uret. En begrænset enhed dukker aldrig op i plukkeren, når aldrig uret og holder op med at arbejde i bilen, så snart adgangen er tilbagekaldt.",
+cr_whats_new_1_2_0,6,"The watch app follows Home Assistant live while a screen is on, so something switched at the wall moves on your wrist while you are looking at it.","Indstillinger advarer dig, når en hurtig handling ikke ville gøre noget væk fra dashboardet. Enheder uden entydig et-tryk-betydning, såsom en lås eller et alarmpanel, beder dig om at vælge Toggle eller en Home Assistant-handling i stedet for at gætte en retning, mens du kører.",don't translate Home Assistant
+cr_whats_new_1_2_0,7,"A second watch tile adjusts one thermostat from your wrist. Choose which one under Settings, Android Auto and Wear OS.",,needs translation
+cr_whats_new_1_2_0,8,"Your watch can report its own battery to Home Assistant, so it becomes a device there and its battery can drive automations. Off until you turn it on, and battery is all that is sent.",,needs translation; don't translate Home Assistant
+cr_whats_new_1_2_0,9,Switching Home Assistant servers on your phone now moves the watch with it.,,needs translation; don't translate Home Assistant
+cr_whats_new_1_2_0,10,"New: Settings › Android Auto & Wear OS. Pick the handful of things you want within reach from the car and from your wrist, each with its own name, icon and tap action, shown or hidden per surface. The list is yours rather than a dashboard's, so switching dashboards leaves it alone.",,needs translation
+cr_whats_new_1_2_0,11,"Family permissions apply to the car and the watch. A restricted entity never appears in the picker, never reaches the watch, and stops working in the car as soon as access is revoked.",,needs translation
+cr_whats_new_1_2_0,12,"Settings warns you when a quick action would not do anything away from the dashboard. Devices with no unambiguous one-tap meaning, such as a lock or an alarm panel, ask you to choose Toggle or a Home Assistant action rather than guessing a direction while you are driving.",,needs translation; don't translate Home Assistant
 cr_whats_new_1_1_3,1,"HKI 7 now checks a saved Home Assistant session before starting its REST, WebSocket and push connections. Rejected credentials are refreshed once in a coordinated way or return you to login, instead of producing enough simultaneous authentication failures to trigger Home Assistant's IP ban.","HKI 7 kontrollerer nu en gemt Home Assistant-session, før den starter dens REST, WebSocket og push-forbindelser. Afviste legitimationsoplysninger opdateres én gang på en koordineret måde eller returnerer dig til login, i stedet for at producere nok samtidige autentificeringsfejl til at udløse Home Assistants IP-forbud.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_3,2,"A 403 Forbidden response now pauses connection and telemetry retries without deleting your saved login, and points you to Home Assistant's IP-ban or reverse-proxy settings instead of showing a JSON error.",Et 403 Forbidden-svar sætter nu forbindelses- og telemetriforsøg på pause uden at slette dit gemte login og henviser dig til Home Assistant's IP-forbud eller omvendt proxy-indstillinger i stedet for at vise en JSON-fejl.,don't translate Home Assistant
 cr_whats_new_1_1_3,3,Long greetings and page titles now shrink to the space beside people and status indicators while staying on one line. This fixes the final letters wrapping onto a second row on narrow screens.,"Lange hilsner og sidetitler krymper nu til pladsen ved siden af personer og statusindikatorer, mens de forbliver på én linje. Dette fikserer de sidste bogstaver på en anden række på smalle skærme.",
@@ -2913,6 +2925,43 @@ action_button,,Action button,Handlingsknap,
 action_button_description,,"A button without an entity: give it a name, an icon, and any action","En knap uden en enhed: Giv den et navn, et ikon og enhver handling",
 action_button_add,,Add action button,Tilføj handlingsknap,
 action_badge_add,,Add action badge,Tilføj handlingsmærke,
+settings_title_quick_actions,,Android Auto & Wear OS,Android Auto & Wear OS,
+settings_subtitle_quick_actions,,Quick actions for the car and your watch,Hurtige handlinger til bilen og dit ur,
+quick_actions_menu_subtitle,,Choose what appears in the car and on your watch,"Vælg, hvad der skal vises i bilen og på dit ur",
+quick_actions_intro,,Neither Android Auto nor a watch can show your dashboard. Pick the handful of things you want within reach from the car and from your wrist.,"Hverken Android Auto eller et ur kan vise dit dashboard. Vælg den håndfuld ting, du vil have inden for rækkevidde fra bilen og fra dit håndled.",
+quick_actions_limit_note,,"While driving, Android Auto shows only the first few and hides the rest — keep the important ones at the top.","Mens du kører, viser Android Auto kun de første par og skjuler resten - hold de vigtige øverst.",
+quick_actions_none,,No quick actions yet.,Ingen hurtige handlinger endnu.,
+quick_actions_add,,Add quick action,Tilføj hurtig handling,
+quick_actions_reorder,,Reorder,Genbestil,
+quick_actions_reorder_subtitle,,Drag to set the order they appear in.,"Træk for at angive den rækkefølge, de vises i.",
+quick_actions_show_in_car,,Show in Android Auto,Vis i Android Auto,
+quick_actions_show_on_watch,,Show on Wear OS,Vis på Wear OS,
+quick_actions_surfaces,,Show on,Vis på,
+quick_actions_hidden_everywhere,,Hidden from the car and your watch.,Skjult fra bilen og dit ur.,
+quick_actions_unsupported,,Won't run in the car or on your watch. Choose Toggle or a Home Assistant action.,Vil ikke løbe i bilen eller på dit ur. Vælg Toggle eller en Home Assistant handling.,don't translate Home Assistant
+quick_actions_edit_title,,Quick action,Hurtig handling,
+quick_actions_name,,Name,Navn,
+quick_actions_name_hint,,Leave empty to use the entity name,Lad være tomt for at bruge enhedsnavnet,
+quick_actions_icon,,Icon,Ikon,
+quick_actions_remove,,Remove,Fjerne,
+quick_actions_when_tapped,,When tapped,Når der trykkes,
+quick_actions_pick_entity,,Choose an entity,Vælg en enhed,
+quick_actions_already_added,,Already a quick action,Allerede en hurtig handling,
+quick_actions_car_needs_play,,"Android Auto only works on copies installed from Google Play. Google does not let apps installed any other way appear in the car, so on this copy quick actions reach your watch but not the car.","Android Auto virker kun på kopier installeret fra Google Play. Google lader ikke apps installeret på anden måde vises i bilen, så på denne kopi når hurtige handlinger dit ur, men ikke bilen.",
+quick_actions_watch_thermostat,,Watch thermostat,Se termostat,
+quick_actions_watch_thermostat_subtitle,,The thermostats your watch tile adjusts,Termostaterne justerer din urflise,
+quick_actions_watch_thermostat_none,,No thermostat chosen,Ingen termostat valgt,
+quick_actions_watch_thermostat_cycle,,Tap the name on the watch tile to move between them,Tryk på navnet på urflisen for at flytte mellem dem,
+quick_actions_watch_thermostat_count,,%1$d thermostats,%1$d termostater,app fills in %1$d — keep them
+quick_actions_watch_note,,Your watch talks to Home Assistant directly. It is set up from this phone — there is nothing to sign in to on the watch.,Dit ur taler direkte til Home Assistant. Det er sat op fra denne telefon - der er ikke noget at logge ind på på uret.,don't translate Home Assistant
+car_quick_actions_title,,Quick actions,Hurtige handlinger,
+car_not_configured,,Open HKI 7 on your phone and connect it to Home Assistant.,"Åbn HKI 7 på din telefon, og tilslut den til Home Assistant.","don't translate Home Assistant, HKI 7"
+car_no_actions,,"Add quick actions in HKI 7 on your phone, under Settings, Android Auto and Wear OS.","Tilføj hurtige handlinger i HKI 7 på din telefon under Indstillinger, Android Auto og Wear OS.",don't translate HKI 7
+car_loading,,Loading,Indlæser,
+car_action_sent,,Sent,Sendt,
+car_action_failed,,Couldn't reach Home Assistant,Kunne ikke nå Home Assistant,don't translate Home Assistant
+car_action_unavailable,,Not available,Ikke tilgængelig,
+car_refresh,,Refresh,Opfriske,
 security_entity_count,one,%1$d entity,%1$d enhed,app fills in %1$d — keep them
 security_entity_count,other,%1$d entities,%1$d enheder,app fills in %1$d — keep them
 family_permission_switch_dashboards,,Allow switching dashboards,Tillad skift af dashboards,

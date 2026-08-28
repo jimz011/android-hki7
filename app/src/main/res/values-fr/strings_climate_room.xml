@@ -586,6 +586,15 @@
         <item>Correction des relevés de température et d\'énergie en tchèque, slovaque, grec, norvégien, suédois et danois, où les chiffres s\'affichaient mal ou pouvaient faire planter l\'écran.</item>
         <item>Quelque chose de mal formulé dans votre langue ? Chaque langue est désormais un fichier unique que vous pouvez corriger sur GitHub, aucun code n\'est nécessaire.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_0">
+        <item>HKI 7 apparaît désormais sur Android Auto. L\'écran de la voiture affiche une grille de vos actions rapides avec leur état actuel, et un simple clic les exécute. Android Auto dessine les propres modèles de Google et masque tout ce qui dépasse une limite qu\'il fixe pendant que la voiture roule, de sorte qu\'il affiche une courte liste que vous organisez plutôt que votre tableau de bord.</item>
+        <item>Il existe désormais une application Wear OS. Il affiche vos actions rapides avec l\'état en direct et vos pièces en dessous, et parle directement à Home Assistant, de sorte qu\'il continue de fonctionner lorsque votre téléphone se trouve dans une autre pièce.</item>
+        <item>La configuration de la montre ne prend rien. Votre téléphone lui transmet l\'adresse du serveur, un jeton, vos actions rapides et vos salles, il n\'y a donc aucune connexion sur la montre.</item>
+        <item>Nouveau : Paramètres › Android Auto et Wear OS. Choisissez la poignée d\'objets que vous souhaitez avoir à portée de main depuis la voiture et depuis votre poignet, chacun avec son propre nom, son icône et son action de pression, affichés ou masqués par surface. La liste vous appartient plutôt que celle d\'un tableau de bord, donc changer de tableau de bord la laisse tranquille.</item>
+        <item>Les autorisations familiales s\'appliquent à la voiture et à la montre. Une entité restreinte n\'apparaît jamais dans le picker, n\'atteint jamais la montre et cesse de travailler dans la voiture dès que l\'accès est révoqué.</item>
+        <item>Les paramètres vous avertissent lorsqu\'une action rapide ne ferait rien en dehors du tableau de bord. Les appareils sans signification univoque en un seul clic, comme un verrou ou un panneau d\'alarme, vous demandent de choisir Basculer ou une action Home Assistant plutôt que de deviner une direction pendant que vous conduisez.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 vérifie désormais une session Home Assistant enregistrée avant de démarrer ses connexions REST, WebSocket et push. Les informations d\'identification rejetées sont actualisées une fois de manière coordonnée ou vous ramènent à la connexion, au lieu de produire suffisamment d\'échecs d\'authentification simultanés pour déclencher l\'interdiction IP de Home Assistant.</item>
         <item>Une réponse 403 Forbidden suspend désormais les tentatives de connexion et de télémétrie sans supprimer votre connexion enregistrée, et vous dirige vers les paramètres d\'interdiction IP ou de proxy inverse de Home Assistant au lieu d\'afficher une erreur JSON.</item>

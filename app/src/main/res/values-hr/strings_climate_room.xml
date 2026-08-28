@@ -27,6 +27,15 @@
         <item>Fiksna očitanja temperature i energije na češkom, slovačkom, grčkom, norveškom, švedskom i danskom, gdje su se brojke pokazivale pogrešno ili su mogle srušiti zaslon.</item>
         <item>Nešto loše napisano na vašem jeziku? Svaki je jezik sada jedna datoteka koju možete ispraviti na GitHubu, bez potrebe za kodom.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_0">
+        <item>HKI 7 sada se pojavljuje na Android Auto. Zaslon automobila prikazuje mrežu vaših brzih radnji s njihovim trenutnim stanjem, a dodir ih pokreće. Android Auto crta Googleove vlastite predloške i skriva sve što prelazi ograničenje koje je postavio dok se automobil kreće, tako da prikazuje kratki popis koji sami pripremate, a ne vašu nadzornu ploču.</item>
+        <item>Sada postoji aplikacija Wear OS. Prikazuje vaše brze radnje sa stanjem uživo i vašim sobama ispod te razgovara izravno s Home Assistant, tako da nastavlja raditi kada je vaš telefon u drugoj prostoriji.</item>
+        <item>Postavljanje sata ne zahtijeva ništa. Vaš mu telefon predaje adresu poslužitelja, token, vaše brze akcije i vaše sobe, tako da na satu uopće nema prijave.</item>
+        <item>Novo: Postavke › Android Auto &amp; Wear OS. Odaberite pregršt stvari koje želite na dohvat ruke iz automobila i sa svog zapešća, svaka sa svojim imenom, ikonom i radnjom dodira, prikazana ili skrivena po površini. Popis je vaš, a ne nadzorne ploče, tako da ga promjena nadzornih ploča ostavlja na miru.</item>
+        <item>Obiteljska dopuštenja odnose se na automobil i sat. Ograničeni entitet nikada se ne pojavljuje u alatu za odabir, nikada ne dolazi do sata i prestaje raditi u automobilu čim se pristup opozove.</item>
+        <item>Postavke vas upozoravaju kada brza radnja ne bi učinila ništa s nadzorne ploče. Uređaji bez nedvosmislenog značenja jednim dodirom, poput brave ili alarmne ploče, traže od vas da odaberete Preklopnik ili radnju Home Assistant umjesto da pogađate smjer dok vozite.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 sada provjerava spremljenu Home Assistant sesiju prije pokretanja svojih REST, WebSocket i push veza. Rejected credentials are refreshed once in a coordinated way or return you to login, instead of producing enough simultaneous authentication failures to trigger Home Assistant\'s IP ban.</item>
         <item>Odgovor 403 Forbidden sada pauzira povezivanje i ponovne pokušaje telemetrije bez brisanja vaše spremljene prijave i upućuje vas na Home Assistant zabranu IP-a ili postavke obrnutog proxyja umjesto prikazivanja JSON pogreške.</item>

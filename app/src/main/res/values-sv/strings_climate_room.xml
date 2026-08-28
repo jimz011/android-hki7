@@ -44,6 +44,15 @@
         <item>Fixade temperatur- och energiavläsningar på tjeckiska, slovakiska, grekiska, norska, svenska och danska, där siffror visade fel eller kunde krascha skärmen.</item>
         <item>Något dåligt formulerat på ditt språk? Varje språk är nu en enda fil som du kan korrigera på GitHub, ingen kod behövs.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_0">
+        <item>HKI 7 visas nu på Android Auto. Bilskärmen visar ett rutnät med dina snabba åtgärder med deras nuvarande tillstånd, och en tryckning kör dem. Android Auto ritar Googles egna mallar och döljer allt förbi en gräns som den sätter medan bilen är i rörelse, så den visar en kort lista som du sammanställer snarare än din instrumentpanel.</item>
+        <item>Det finns nu en Wear OS-app. Den visar dina snabba åtgärder med live-tillstånd och dina rum under, och pratar med Home Assistant direkt, så att den fortsätter att fungera när din telefon är i ett annat rum.</item>
+        <item>Att ställa in klockan kräver ingenting. Din telefon ger den serveradressen, en token, dina snabba åtgärder och dina rum, så det finns ingen inloggning på klockan alls.</item>
+        <item>Nytt: Inställningar › Android Auto &amp; Wear OS. Välj den handfull saker du vill ha inom räckhåll från bilen och från din handled, var och en med sitt eget namn, ikon och tryckfunktion, visad eller gömd per yta. Listan är din snarare än en instrumentpanels, så att byta instrumentpanel lämnar den ifred.</item>
+        <item>Familjetillstånd gäller för bilen och klockan. En begränsad enhet dyker aldrig upp i plockaren, når aldrig klockan och slutar arbeta i bilen så fort åtkomsten återkallas.</item>
+        <item>Inställningar varnar dig när en snabb åtgärd inte skulle göra något från instrumentpanelen. Enheter utan entydig innebörd med ett tryck, till exempel ett lås eller en larmpanel, ber dig att välja Växla eller en Home Assistant-åtgärd istället för att gissa en riktning medan du kör.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 kontrollerar nu en sparad Home Assistant-session innan dess REST-, WebSocket- och push-anslutningar startas. Avvisade autentiseringsuppgifter uppdateras en gång på ett samordnat sätt eller återför dig till inloggning, istället för att skapa tillräckligt många samtidiga autentiseringsfel för att utlösa Home Assistants IP-förbud.</item>
         <item>Ett 403 Forbidden-svar pausar nu anslutnings- och telemetriförsök utan att ta bort din sparade inloggning och pekar dig till Home Assistants IP-förbud eller omvänd proxyinställningar istället för att visa ett JSON-fel.</item>

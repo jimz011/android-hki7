@@ -27,6 +27,15 @@
         <item>Rögzített hőmérséklet- és energiaértékek cseh, szlovák, görög, norvég, svéd és dán nyelven, ahol a számok rosszul mutattak, vagy összeomolhatják a képernyőt.</item>
         <item>Valami rosszul van megfogalmazva a nyelveden? Mostantól minden nyelv egyetlen fájl, amelyet kijavíthat a GitHubon, nincs szükség kódra.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_0">
+        <item>A HKI 7 mostantól megjelenik az Android Auto rendszeren. Az autó képernyőjén egy rácson látható a gyors műveletek aktuális állapotával, és egy koppintással futtathatók. Az Android Auto megrajzolja a Google saját sablonjait, és elrejti az általa beállított határon túli dolgokat, miközben az autó halad, így az irányítópult helyett az Ön által összeállított rövid listát jeleníti meg.</item>
+        <item>Most már van egy Wear OS alkalmazás. Megjeleníti a gyors műveleteket élő állapottal és alatta lévő szobákkal, és közvetlenül Home Assistant-val beszél, így tovább működik, amikor a telefon egy másik szobában van.</item>
+        <item>Az óra beállítása nem vesz igénybe semmit. Telefonja átadja neki a szerver címét, egy tokent, a gyors műveleteket és a szobákat, így egyáltalán nem kell bejelentkezni az órára.</item>
+        <item>Új: Beállítások › Android Auto és Wear OS. Válassza ki azt a maroknyi dolgot, amelyet elérhető közelségben szeretne elérni az autóból és a csuklójáról, mindegyiknek saját neve, ikonja és érintési művelete, felületenként megjelenítve vagy elrejtve. A lista az Öné, nem pedig egy irányítópultoé, így az irányítópultok váltása magára hagyja.</item>
+        <item>A családi engedélyek az autóra és az órára vonatkoznak. A korlátozott entitás soha nem jelenik meg a pickerben, soha nem éri el az órát, és a hozzáférés visszavonása után azonnal leáll az autóban.</item>
+        <item>A Beállítások figyelmezteti, ha egy gyors művelet nem tesz semmit az irányítópulton kívül. Azok az eszközök, amelyeknek nincs egyértelmű, egyérintéses jelentése, mint például a zár vagy a riasztópanel, arra kérik, hogy válasszon Váltás vagy egy Home Assistant műveletet az irány kitalálása helyett vezetés közben.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>A HKI 7 most ellenőrzi a mentett Home Assistant munkamenetet, mielőtt elindítaná a REST, WebSocket és push kapcsolatokat. Az elutasított hitelesítési adatok egyszer, összehangolt módon frissülnek, vagy visszatérnek a bejelentkezéshez, ahelyett, hogy elegendő számú hitelesítési hiba lépne fel a Home Assistant IP-tiltásának kiváltásához.</item>
         <item>A 403-as tiltott válasz most szünetelteti a csatlakozást és a telemetriai újrapróbálkozásokat a mentett bejelentkezés törlése nélkül, és a Home Assistant IP-ban vagy fordított proxybeállításaira irányítja a JSON-hiba megjelenítése helyett.</item>

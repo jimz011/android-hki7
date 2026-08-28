@@ -27,6 +27,15 @@
         <item>Naprawiono odczyty temperatury i energii w języku czeskim, słowackim, greckim, norweskim, szwedzkim i duńskim, gdzie liczby były wyświetlane błędnie lub mogły powodować awarię ekranu.</item>
         <item>Coś źle sformułowanego w Twoim języku? Każdy język to teraz pojedynczy plik, który możesz poprawić w GitHubie, bez potrzeby stosowania kodu.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_0">
+        <item>HKI 7 pojawia się teraz w Android Auto. Na ekranie samochodu wyświetlana jest siatka szybkich działań wraz z ich aktualnym stanem, które można uruchomić jednym dotknięciem. Android Auto rysuje własne szablony Google i ukrywa wszystko, co przekracza limit ustawiony podczas jazdy samochodu, więc wyświetla krótką listę, którą wybierasz, a nie pulpit nawigacyjny.</item>
+        <item>Dostępna jest teraz aplikacja Wear OS. Pokazuje Twoje szybkie działania w stanie aktywnym i pokoje pod spodem, a także rozmawia bezpośrednio z Home Assistant, dzięki czemu działa, gdy Twój telefon znajduje się w innym pokoju.</item>
+        <item>Konfiguracja zegarka nic nie wymaga. Twój telefon przekazuje mu adres serwera, token, Twoje szybkie działania i Twoje pokoje, więc nie ma żadnego logowania na zegarku.</item>
+        <item>Nowość: Ustawienia › Android Auto i Wear OS. Wybierz kilka rzeczy, które chcesz mieć w zasięgu ręki, zarówno w samochodzie, jak i na nadgarstku, każda z własną nazwą, ikoną i akcją dotykową, pokazaną lub ukrytą na każdej powierzchni. Lista należy do Ciebie, a nie do pulpitu nawigacyjnego, więc zmiana pulpitów nawigacyjnych pozostawia ją w spokoju.</item>
+        <item>Do samochodu i zegarka mają zastosowanie uprawnienia rodzinne. Podmiot objęty ograniczeniami nigdy nie pojawia się w selektorze, nigdy nie dociera do zegarka i przestaje pracować w samochodzie, gdy tylko dostęp zostanie cofnięty.</item>
+        <item>Ustawienia ostrzegają, gdy szybka akcja nie spowoduje niczego poza pulpitem nawigacyjnym. Urządzenia, które nie mają jednoznacznego znaczenia za jednym dotknięciem, takie jak zamek czy panel alarmowy, proszą o wybranie opcji Przełącz lub akcji Home Assistant zamiast zgadywania kierunku podczas jazdy.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 sprawdza teraz zapisaną sesję Home Assistant przed uruchomieniem połączeń REST, WebSocket i push. Odrzucone dane uwierzytelniające są odświeżane jednorazowo w skoordynowany sposób lub powodują powrót do logowania, zamiast powodować wystarczającą liczbę jednoczesnych błędów uwierzytelniania, aby wywołać blokadę adresu IP Home Assistant.</item>
         <item>Odpowiedź 403 Forbidden wstrzymuje teraz ponowne próby połączenia i telemetrii bez usuwania zapisanego loginu i wskazuje ustawienia blokady IP lub odwrotnego proxy Home Assistant zamiast pokazywać błąd JSON.</item>

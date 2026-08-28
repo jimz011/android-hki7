@@ -579,6 +579,15 @@
         <item>Vaste temperatuur- en energiemetingen in het Tsjechisch, Slowaaks, Grieks, Noors, Zweeds en Deens, waarbij de cijfers verkeerd werden weergegeven of het scherm konden crashen.</item>
         <item>Iets slecht verwoord in uw taal? Elke taal is nu één enkel bestand dat je op GitHub kunt corrigeren, zonder dat er code nodig is.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_0">
+        <item>HKI 7 verschijnt nu op Android Auto. Het autoscherm toont een raster van uw snelle acties met hun huidige status, en een tik voert ze uit. Android Auto tekent de eigen sjablonen van Google en verbergt alles voorbij de limiet die het stelt terwijl de auto rijdt, zodat het een korte lijst toont die u beheert in plaats van uw dashboard.</item>
+        <item>Er is nu een Wear OS-app. Het toont uw snelle acties met de livestatus en uw onderliggende kamers, en praat rechtstreeks met Home Assistant, zodat het blijft werken als uw telefoon zich in een andere kamer bevindt.</item>
+        <item>Het instellen van het horloge kost niets. Uw telefoon geeft het serveradres, een token, uw snelle acties en uw kamers door, zodat u helemaal niet hoeft in te loggen op het horloge.</item>
+        <item>Nieuw: Instellingen › Android Auto &amp; Wear OS. Kies het handjevol spullen dat je binnen handbereik wilt hebben vanuit de auto en vanaf je pols, elk met een eigen naam, icoontje en tikactie, weergegeven of verborgen per oppervlak. De lijst is van u en niet van een dashboard, dus u kunt niet van dashboard wisselen.</item>
+        <item>Familietoestemmingen zijn van toepassing op de auto en het horloge. Een beperkte entiteit verschijnt nooit in de picker, bereikt nooit het horloge en stopt met werken in de auto zodra de toegang wordt ingetrokken.</item>
+        <item>Instellingen waarschuwt u wanneer een snelle actie niets zou doen buiten het dashboard. Apparaten zonder eenduidige \'one-tap\'-betekenis, zoals een slot of een alarmpaneel, vragen je om Toggle of een Home Assistant-actie te kiezen in plaats van een richting te raden terwijl je rijdt.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 controleert nu een opgeslagen Home Assistant sessie voordat de REST-, WebSocket- en push-verbindingen worden gestart. Geweigerde inloggegevens worden één keer op een gecoördineerde manier vernieuwd of u kunt opnieuw inloggen, in plaats van voldoende gelijktijdige authenticatiefouten te veroorzaken om de IP-ban van Home Assistant te activeren.</item>
         <item>Een 403 Forbidden-reactie onderbreekt nu de verbindings- en telemetriepogingen zonder uw opgeslagen login te verwijderen, en verwijst u naar de IP-ban- of reverse-proxy-instellingen van Home Assistant in plaats van dat er een JSON-fout wordt weergegeven.</item>

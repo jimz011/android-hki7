@@ -636,6 +636,18 @@ cr_quick_media_player,,Media player,Multivides atskaņotājs,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.","Kad parādās rokturis, velciet uz augšu apakšējā joslā, lai atjaunotu atskaņotāju.",
 cr_quick_make_it_yours,,Make it yours,Padariet to par savu,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","Rediģēšanas režīmā pievienojiet un pārkārtojiet telpas, stāvus un logrīkus. Pieskarieties vienumam, lai to konfigurētu.",
+cr_whats_new_1_2_0,1,"HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google's own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.","HKI 7 tagad tiek rādīts operētājsistēmā Android Auto. Automašīnas ekrānā tiek parādīts jūsu ātro darbību režģis ar to pašreizējo stāvokli, un ar pieskārienu tās tiek palaistas. Android Auto zīmē paša Google veidnes un slēpj visu, kas pārsniedz noteikto ierobežojumu, kamēr automašīna pārvietojas, tāpēc tiek rādīts īss jūsu atlasītais saraksts, nevis informācijas panelis.",don't translate HKI 7
+cr_whats_new_1_2_0,2,"There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.","Tagad ir pieejama Wear OS lietotne. Tas parāda jūsu ātrās darbības ar reāllaika stāvokli un jūsu telpām zem tā, kā arī tieši sarunājas ar Home Assistant, tāpēc tas turpina darboties, kad tālrunis atrodas citā telpā.",don't translate Home Assistant
+cr_whats_new_1_2_0,3,"Setting up the watch usually takes nothing: your phone hands it the server address, a session, your quick actions and your rooms, with no typing at all.","Pulksteņa iestatīšana neko neaizņem. Tālrunis nodod tam servera adresi, marķieri, jūsu ātrās darbības un telpas, tāpēc pulkstenī vispār nav iespējams pierakstīties.",
+cr_whats_new_1_2_0,4,"The watch can also sign in on its own, for when HKI 7 is not on the phone. Only the Home Assistant address is typed on the watch — the login page opens on your phone’s browser, so your password stays there.","Jaunums: Iestatījumi › Android Auto un Wear OS. Izvēlieties dažas lietas, ko vēlaties sasniegt no automašīnas un no plaukstas locītavas, katrai no tām ir savs nosaukums, ikona un pieskāriena darbība, kas tiek parādīta vai paslēpta katrai virsmai. Saraksts pieder jums, nevis informācijas panelim, tāpēc, pārslēdzot informācijas paneļus, tas paliek viens.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_2_0,5,"Your quick actions are also a watch tile, one swipe from the watch face with no app to open, and a watch-face complication showing the first one’s state at a glance.","Ģimenes atļaujas attiecas uz automašīnu un pulksteni. Ierobežota vienība nekad neparādās atlasītājā, nekad nesasniedz pulksteni un pārstāj darboties automašīnā, tiklīdz piekļuve tiek atsaukta.",
+cr_whats_new_1_2_0,6,"The watch app follows Home Assistant live while a screen is on, so something switched at the wall moves on your wrist while you are looking at it.","Iestatījumi brīdina jūs, ja ātra darbība neko nedarīs ārpus informācijas paneļa. Ierīcēs, kurām nav nepārprotamas viena pieskāriena nozīmes, piemēram, slēdzene vai trauksmes panelis, tiek lūgts izvēlēties Pārslēgt vai Home Assistant darbību, nevis uzminēt virzienu braukšanas laikā.",don't translate Home Assistant
+cr_whats_new_1_2_0,7,"A second watch tile adjusts one thermostat from your wrist. Choose which one under Settings, Android Auto and Wear OS.",,needs translation
+cr_whats_new_1_2_0,8,"Your watch can report its own battery to Home Assistant, so it becomes a device there and its battery can drive automations. Off until you turn it on, and battery is all that is sent.",,needs translation; don't translate Home Assistant
+cr_whats_new_1_2_0,9,Switching Home Assistant servers on your phone now moves the watch with it.,,needs translation; don't translate Home Assistant
+cr_whats_new_1_2_0,10,"New: Settings › Android Auto & Wear OS. Pick the handful of things you want within reach from the car and from your wrist, each with its own name, icon and tap action, shown or hidden per surface. The list is yours rather than a dashboard's, so switching dashboards leaves it alone.",,needs translation
+cr_whats_new_1_2_0,11,"Family permissions apply to the car and the watch. A restricted entity never appears in the picker, never reaches the watch, and stops working in the car as soon as access is revoked.",,needs translation
+cr_whats_new_1_2_0,12,"Settings warns you when a quick action would not do anything away from the dashboard. Devices with no unambiguous one-tap meaning, such as a lock or an alarm panel, ask you to choose Toggle or a Home Assistant action rather than guessing a direction while you are driving.",,needs translation; don't translate Home Assistant
 cr_whats_new_1_1_3,1,"HKI 7 now checks a saved Home Assistant session before starting its REST, WebSocket and push connections. Rejected credentials are refreshed once in a coordinated way or return you to login, instead of producing enough simultaneous authentication failures to trigger Home Assistant's IP ban.","HKI 7 tagad pārbauda saglabāto Home Assistant sesiju pirms tās REST, WebSocket un push savienojumu palaišanas. Noraidītie akreditācijas dati tiek saskaņoti vienu reizi atsvaidzināti vai arī tiek atgriezta pieteikšanās, tā vietā, lai radītu pietiekami daudz vienlaicīgas autentifikācijas kļūmju, lai aktivizētu Home Assistant IP aizliegumu.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_3,2,"A 403 Forbidden response now pauses connection and telemetry retries without deleting your saved login, and points you to Home Assistant's IP-ban or reverse-proxy settings instead of showing a JSON error.","Atbilde 403 Aizliegta tagad aptur savienojuma un telemetrijas mēģinājumus, neizdzēšot saglabāto pieteikuminformāciju, un norāda uz Home Assistant IP aizliegumu vai apgrieztā starpniekservera iestatījumiem, nevis parāda JSON kļūdu.",don't translate Home Assistant
 cr_whats_new_1_1_3,3,Long greetings and page titles now shrink to the space beside people and status indicators while staying on one line. This fixes the final letters wrapping onto a second row on narrow screens.,"Garie sveicieni un lapu nosaukumi tagad samazinās līdz vietai blakus cilvēkiem un statusa indikatoriem, vienlaikus paliekot vienā rindā. Šauros ekrānos tiek fiksēti pēdējie burti, kas tiek ietīti otrajā rindā.",
@@ -2934,6 +2946,43 @@ action_button,,Action button,Darbības poga,
 action_button_description,,"A button without an entity: give it a name, an icon, and any action","Poga bez entītijas: piešķiriet tai nosaukumu, ikonu un jebkuru darbību",
 action_button_add,,Add action button,Pievienot darbības poga,
 action_badge_add,,Add action badge,Pievienojiet darbības emblēmu,
+settings_title_quick_actions,,Android Auto & Wear OS,Android Auto un Wear OS,
+settings_subtitle_quick_actions,,Quick actions for the car and your watch,Ātras darbības automašīnai un pulkstenim,
+quick_actions_menu_subtitle,,Choose what appears in the car and on your watch,"Izvēlieties, kas tiek rādīts automašīnā un pulkstenī",
+quick_actions_intro,,Neither Android Auto nor a watch can show your dashboard. Pick the handful of things you want within reach from the car and from your wrist.,"Ne Android Auto, ne pulkstenis nevar parādīt jūsu informācijas paneli. Izvēlieties dažas lietas, kuras vēlaties sasniegt no automašīnas un no plaukstas locītavas.",
+quick_actions_limit_note,,"While driving, Android Auto shows only the first few and hides the rest — keep the important ones at the top.",Braukšanas laikā Android Auto parāda tikai dažus pirmos un paslēpj pārējos — svarīgākos turiet augšpusē.,
+quick_actions_none,,No quick actions yet.,Ātru darbību vēl nav.,
+quick_actions_add,,Add quick action,Pievienojiet ātru darbību,
+quick_actions_reorder,,Reorder,Pārkārtot,
+quick_actions_reorder_subtitle,,Drag to set the order they appear in.,"Velciet, lai iestatītu secību, kādā tie parādās.",
+quick_actions_show_in_car,,Show in Android Auto,Rādīt lietotnē Android Auto,
+quick_actions_show_on_watch,,Show on Wear OS,Rādīt Wear OS,
+quick_actions_surfaces,,Show on,Rādīt tālāk,
+quick_actions_hidden_everywhere,,Hidden from the car and your watch.,Paslēpts no automašīnas un pulksteņa.,
+quick_actions_unsupported,,Won't run in the car or on your watch. Choose Toggle or a Home Assistant action.,Nedarbosies mašīnā vai pulkstenī. Izvēlieties Pārslēgt vai Home Assistant darbību.,don't translate Home Assistant
+quick_actions_edit_title,,Quick action,Ātra darbība,
+quick_actions_name,,Name,Vārds,
+quick_actions_name_hint,,Leave empty to use the entity name,"Atstājiet tukšu, lai izmantotu entītijas nosaukumu",
+quick_actions_icon,,Icon,Ikona,
+quick_actions_remove,,Remove,Noņemt,
+quick_actions_when_tapped,,When tapped,Pieskaroties,
+quick_actions_pick_entity,,Choose an entity,Izvēlieties entītiju,
+quick_actions_already_added,,Already a quick action,Jau ātra darbība,
+quick_actions_car_needs_play,,"Android Auto only works on copies installed from Google Play. Google does not let apps installed any other way appear in the car, so on this copy quick actions reach your watch but not the car.","Android Auto darbojas tikai kopijās, kas instalētas no pakalpojuma Google Play. Google neļauj automašīnā parādīties citā veidā instalētām lietotnēm, tāpēc šajā kopijā ātrās darbības sasniedz jūsu pulksteni, bet ne automašīnu.",
+quick_actions_watch_thermostat,,Watch thermostat,Pulksteņa termostats,
+quick_actions_watch_thermostat_subtitle,,The thermostats your watch tile adjusts,Termostati tiek pielāgoti jūsu pulksteņa elementam,
+quick_actions_watch_thermostat_none,,No thermostat chosen,Termostats nav izvēlēts,
+quick_actions_watch_thermostat_cycle,,Tap the name on the watch tile to move between them,"Pieskarieties nosaukumam uz pulksteņa elementa, lai pārvietotos starp tiem",
+quick_actions_watch_thermostat_count,,%1$d thermostats,%1$d termostati,app fills in %1$d — keep them
+quick_actions_watch_note,,Your watch talks to Home Assistant directly. It is set up from this phone — there is nothing to sign in to on the watch.,"Jūsu pulkstenis runā tieši ar Home Assistant. Tas ir iestatīts no šī tālruņa — pulkstenī nav nekā, kurā pierakstīties.",don't translate Home Assistant
+car_quick_actions_title,,Quick actions,Ātras darbības,
+car_not_configured,,Open HKI 7 on your phone and connect it to Home Assistant.,Tālrunī atveriet HKI 7 un pievienojiet to Home Assistant.,"don't translate Home Assistant, HKI 7"
+car_no_actions,,"Add quick actions in HKI 7 on your phone, under Settings, Android Auto and Wear OS.","Pievienojiet ātras darbības tālruņa HKI 7 sadaļā Iestatījumi, Android Auto un Wear OS.",don't translate HKI 7
+car_loading,,Loading,Notiek ielāde,
+car_action_sent,,Sent,Nosūtīts,
+car_action_failed,,Couldn't reach Home Assistant,Nevarēja sasniegt Home Assistant,don't translate Home Assistant
+car_action_unavailable,,Not available,Nav pieejams,
+car_refresh,,Refresh,Atsvaidzināt,
 security_entity_count,one,%1$d entity,%1$d entītija,app fills in %1$d — keep them
 security_entity_count,other,%1$d entities,%1$d entītijām,app fills in %1$d — keep them
 security_entity_count,zero,,%1$d entītijām,

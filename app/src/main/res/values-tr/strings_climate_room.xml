@@ -578,6 +578,15 @@
         <item>Çekçe, Slovakça, Yunanca, Norveççe, İsveççe ve Danca dillerinde sayıların yanlış gösterildiği veya ekranın çökmesine neden olabileceği sabit sıcaklık ve enerji okumaları.</item>
         <item>Dilinizde kötü ifade edilen bir şey mi var? Artık her dil GitHub\'da düzeltebileceğiniz tek bir dosyadır; kod gerekmez.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_0">
+        <item>HKI 7 artık Android Auto\'da görünüyor. Araba ekranı, hızlı eylemlerinizin mevcut durumlarıyla birlikte bir tablosunu gösterir ve bir dokunuşla bunları çalıştırır. Android Auto, Google\'ın kendi şablonlarını çizer ve araç hareket halindeyken belirlediği sınırı aşan her şeyi gizler, böylece kontrol paneliniz yerine sizin belirlediğiniz kısa bir listeyi gösterir.</item>
+        <item>Artık bir Wear OS uygulaması var. Hızlı işlemlerinizi canlı olarak ve altındaki odalarınızı gösterir ve doğrudan Home Assistant ile konuşur, böylece telefonunuz başka bir odadayken çalışmaya devam eder.</item>
+        <item>Saatin ayarlanması hiçbir şey gerektirmez. Telefonunuz ona sunucu adresini, bir jetonu, hızlı işlemlerinizi ve odalarınızı verir, böylece saatte hiçbir oturum açma işlemi gerçekleşmez.</item>
+        <item>Yeni: Ayarlar › Android Auto ve Wear İşletim Sistemi. Arabanızdan ve bileğinizden ulaşabileceğiniz bir avuç şeyi seçin; her birinin kendi adı, simgesi ve dokunma eylemi vardır; her yüzeyde gösterilir veya gizlenir. Liste, bir kontrol panelinden ziyade size aittir, bu nedenle kontrol panellerini değiştirmek onu kendi haline bırakır.</item>
+        <item>Aile izinleri araba ve saat için geçerlidir. Kısıtlanmış bir varlık hiçbir zaman toplayıcıda görünmez, asla nöbetçiye ulaşmaz ve erişim iptal edildiği anda arabada çalışmayı bırakır.</item>
+        <item>Ayarlar, hızlı bir işlemin kontrol panelinden başka bir şey yapamayacağı durumlarda sizi uyarır. Kilit veya alarm paneli gibi tek dokunuşun açık bir anlamı olmayan cihazlar, sürüş sırasında yön tahmin etmek yerine Geçiş\'i veya Home Assistant eylemini seçmenizi ister.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 artık REST, WebSocket ve push bağlantılarını başlatmadan önce kayıtlı bir Home Assistant oturumunu kontrol ediyor. Reddedilen kimlik bilgileri, Home Assistant\'nin IP yasağını tetiklemeye yetecek kadar eşzamanlı kimlik doğrulama hatası üretmek yerine, koordineli bir şekilde bir kez yenilenir veya oturum açmanıza geri döner.</item>
         <item>403 Yasak yanıtı artık kayıtlı oturum açma bilgilerinizi silmeden bağlantı ve telemetri yeniden denemelerini duraklatıyor ve JSON hatası göstermek yerine sizi Home Assistant\'nin IP yasağı veya ters proxy ayarlarına yönlendiriyor.</item>

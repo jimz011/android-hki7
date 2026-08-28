@@ -628,6 +628,18 @@ cr_quick_media_player,,Media player,媒体播放器,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.",出现把手时，向上滑动底部栏可恢复播放器。,
 cr_quick_make_it_yours,,Make it yours,打造专属界面,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.",在编辑模式下，添加并重新排列房间、楼层和小组件。点击项目即可配置。,
+cr_whats_new_1_2_0,1,"HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google's own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.",HKI 7 现在出现在 Android Auto 上。汽车屏幕会显示您的快速操作及其当前状态的网格，只需点击即可运行它们。 Android Auto 会绘制 Google 自己的模板，并隐藏汽车行驶时超出其设置限制的所有内容，因此它会显示您整理的简短列表，而不是仪表板。,don't translate HKI 7
+cr_whats_new_1_2_0,2,"There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.",现在有一个 Wear OS 应用程序。它会显示您的实时状态和下面的房间的快速操作，并直接与 Home Assistant 对话，因此当您的手机位于另一个房间时它仍然可以工作。,don't translate Home Assistant
+cr_whats_new_1_2_0,3,"Setting up the watch usually takes nothing: your phone hands it the server address, a session, your quick actions and your rooms, with no typing at all.",设置手表无需任何操作。您的手机会将服务器地址、令牌、您的快速操作和您的房间传递给它，因此手表上根本不需要登录。,
+cr_whats_new_1_2_0,4,"The watch can also sign in on its own, for when HKI 7 is not on the phone. Only the Home Assistant address is typed on the watch — the login page opens on your phone’s browser, so your password stays there.",新功能：设置 › Android Auto 和 Wear 操作系统。从汽车和手腕上挑选一些您想要的东西，每个东西都有自己的名称、图标和点击操作，在每个表面上显示或隐藏。该列表是您的而不是仪表板的，因此切换仪表板不会影响它。,"don't translate Home Assistant, HKI 7"
+cr_whats_new_1_2_0,5,"Your quick actions are also a watch tile, one swipe from the watch face with no app to open, and a watch-face complication showing the first one’s state at a glance.",家庭权限适用于汽车和手表。受限制的实体永远不会出现在选择器中，永远不会到达手表，并且一旦访问权限被撤销，就会停止在汽车中工作。,
+cr_whats_new_1_2_0,6,"The watch app follows Home Assistant live while a screen is on, so something switched at the wall moves on your wrist while you are looking at it.",当快速操作无法在仪表板之外执行任何操作时，设置会向您发出警告。没有明确的一键式含义的设备（例如锁或报警面板）会要求您选择“切换”或 Home Assistant 操作，而不是在驾驶时猜测方向。,don't translate Home Assistant
+cr_whats_new_1_2_0,7,"A second watch tile adjusts one thermostat from your wrist. Choose which one under Settings, Android Auto and Wear OS.",,needs translation
+cr_whats_new_1_2_0,8,"Your watch can report its own battery to Home Assistant, so it becomes a device there and its battery can drive automations. Off until you turn it on, and battery is all that is sent.",,needs translation; don't translate Home Assistant
+cr_whats_new_1_2_0,9,Switching Home Assistant servers on your phone now moves the watch with it.,,needs translation; don't translate Home Assistant
+cr_whats_new_1_2_0,10,"New: Settings › Android Auto & Wear OS. Pick the handful of things you want within reach from the car and from your wrist, each with its own name, icon and tap action, shown or hidden per surface. The list is yours rather than a dashboard's, so switching dashboards leaves it alone.",,needs translation
+cr_whats_new_1_2_0,11,"Family permissions apply to the car and the watch. A restricted entity never appears in the picker, never reaches the watch, and stops working in the car as soon as access is revoked.",,needs translation
+cr_whats_new_1_2_0,12,"Settings warns you when a quick action would not do anything away from the dashboard. Devices with no unambiguous one-tap meaning, such as a lock or an alarm panel, ask you to choose Toggle or a Home Assistant action rather than guessing a direction while you are driving.",,needs translation; don't translate Home Assistant
 cr_whats_new_1_1_3,1,"HKI 7 now checks a saved Home Assistant session before starting its REST, WebSocket and push connections. Rejected credentials are refreshed once in a coordinated way or return you to login, instead of producing enough simultaneous authentication failures to trigger Home Assistant's IP ban.",HKI 7 现在在启动 REST、WebSocket 和推送连接之前检查已保存的 Home Assistant 会话。被拒绝的凭据将以协调的方式刷新一次或让您返回登录状态，而不是产生足够多的同时身份验证失败来触发 Home Assistant 的 IP 禁令。,"don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_3,2,"A 403 Forbidden response now pauses connection and telemetry retries without deleting your saved login, and points you to Home Assistant's IP-ban or reverse-proxy settings instead of showing a JSON error.",403 Forbidden 响应现在会暂停连接和遥测重试，而不会删除已保存的登录信息，并指向 Home Assistant 的 IP 禁止或反向代理设置，而不是显示 JSON 错误。,don't translate Home Assistant
 cr_whats_new_1_1_3,3,Long greetings and page titles now shrink to the space beside people and status indicators while staying on one line. This fixes the final letters wrapping onto a second row on narrow screens.,长问候语和页面标题现在会缩小到人员和状态指示器旁边的空间，同时保持在一行上。这修复了窄屏幕上最后的字母换行到第二行的问题。,
@@ -2913,6 +2925,43 @@ action_button,,Action button,操作按钮,
 action_button_description,,"A button without an entity: give it a name, an icon, and any action",无需实体的按钮：为它设置名称、图标和任意操作,
 action_button_add,,Add action button,添加操作按钮,
 action_badge_add,,Add action badge,添加操作徽章,
+settings_title_quick_actions,,Android Auto & Wear OS,Android Auto & Wear 操作系统,
+settings_subtitle_quick_actions,,Quick actions for the car and your watch,对汽车和手表进行快速操作,
+quick_actions_menu_subtitle,,Choose what appears in the car and on your watch,选择汽车和手表上显示的内容,
+quick_actions_intro,,Neither Android Auto nor a watch can show your dashboard. Pick the handful of things you want within reach from the car and from your wrist.,Android Auto 和手表都无法显示您的仪表板。从汽车和手腕上挑选一些您想要的东西。,
+quick_actions_limit_note,,"While driving, Android Auto shows only the first few and hides the rest — keep the important ones at the top.",驾驶时，Android Auto 仅显示前几个内容并隐藏其余内容 - 将重要的内容保留在顶部。,
+quick_actions_none,,No quick actions yet.,还没有快速行动。,
+quick_actions_add,,Add quick action,添加快速操作,
+quick_actions_reorder,,Reorder,重新排序,
+quick_actions_reorder_subtitle,,Drag to set the order they appear in.,拖动以设置它们出现的顺序。,
+quick_actions_show_in_car,,Show in Android Auto,在 Android Auto 中显示,
+quick_actions_show_on_watch,,Show on Wear OS,在 Wear OS 上显示,
+quick_actions_surfaces,,Show on,显示于,
+quick_actions_hidden_everywhere,,Hidden from the car and your watch.,隐藏在汽车和手表之外。,
+quick_actions_unsupported,,Won't run in the car or on your watch. Choose Toggle or a Home Assistant action.,不会在车里或手表上跑步。选择切换或 Home Assistant 操作。,don't translate Home Assistant
+quick_actions_edit_title,,Quick action,快速行动,
+quick_actions_name,,Name,姓名,
+quick_actions_name_hint,,Leave empty to use the entity name,留空以使用实体名称,
+quick_actions_icon,,Icon,图标,
+quick_actions_remove,,Remove,消除,
+quick_actions_when_tapped,,When tapped,轻按时,
+quick_actions_pick_entity,,Choose an entity,选择一个实体,
+quick_actions_already_added,,Already a quick action,已经是快速行动,
+quick_actions_car_needs_play,,"Android Auto only works on copies installed from Google Play. Google does not let apps installed any other way appear in the car, so on this copy quick actions reach your watch but not the car.",Android Auto 仅适用于从 Google Play 安装的副本。谷歌不允许以任何其他方式安装的应用程序出现在汽车中，因此在此副本中，快速操作可以到达您的手表，但不能到达汽车。,
+quick_actions_watch_thermostat,,Watch thermostat,手表恒温器,
+quick_actions_watch_thermostat_subtitle,,The thermostats your watch tile adjusts,您的手表调整的恒温器,
+quick_actions_watch_thermostat_none,,No thermostat chosen,未选择恒温器,
+quick_actions_watch_thermostat_cycle,,Tap the name on the watch tile to move between them,点击手表图块上的名称即可在它们之间移动,
+quick_actions_watch_thermostat_count,,%1$d thermostats,%1$d 恒温器,app fills in %1$d — keep them
+quick_actions_watch_note,,Your watch talks to Home Assistant directly. It is set up from this phone — there is nothing to sign in to on the watch.,您的手表直接与 Home Assistant 通信。它是通过这部手机设置的 - 手表上没有任何可登录的内容。,don't translate Home Assistant
+car_quick_actions_title,,Quick actions,快速行动,
+car_not_configured,,Open HKI 7 on your phone and connect it to Home Assistant.,在手机上打开HKI 7并将其连接到Home Assistant。,"don't translate Home Assistant, HKI 7"
+car_no_actions,,"Add quick actions in HKI 7 on your phone, under Settings, Android Auto and Wear OS.",在手机上的“设置”、“Android Auto”和“Wear OS”下的 HKI 7 中添加快速操作。,don't translate HKI 7
+car_loading,,Loading,加载中,
+car_action_sent,,Sent,发送,
+car_action_failed,,Couldn't reach Home Assistant,无法联系 Home Assistant,don't translate Home Assistant
+car_action_unavailable,,Not available,无法使用,
+car_refresh,,Refresh,刷新,
 security_entity_count,one,%1$d entity,,needs translation; app fills in %1$d — keep them
 security_entity_count,other,%1$d entities,%1$d 个实体,app fills in %1$d — keep them
 family_permission_switch_dashboards,,Allow switching dashboards,允许切换仪表板,

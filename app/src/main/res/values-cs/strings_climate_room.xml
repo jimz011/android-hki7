@@ -27,6 +27,15 @@
         <item>Opraveny údaje o teplotě a energii v češtině, slovenštině, řečtině, norštině, švédštině a dánštině, kde se čísla zobrazovala špatně nebo mohla shazovat obrazovku.</item>
         <item>Něco špatně formulovaného ve vašem jazyce? Každý jazyk je nyní jeden soubor, který můžete opravit na GitHubu, není potřeba žádný kód.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_0">
+        <item>HKI 7 se nyní zobrazuje v systému Android Auto. Obrazovka auta zobrazuje mřížku vašich rychlých akcí s jejich aktuálním stavem a klepnutím je spustíte. Android Auto kreslí vlastní šablony společnosti Google a skrývá vše, co překračuje stanovený limit, když je vůz v pohybu, takže zobrazuje krátký seznam, který si vytvoříte, spíše než váš přístrojový panel.</item>
+        <item>Nyní existuje aplikace Wear OS. Zobrazuje vaše rychlé akce s živým stavem a vašimi místnostmi pod ním a přímo mluví s Home Assistant, takže funguje, když je váš telefon v jiné místnosti.</item>
+        <item>Nastavení hodinek nic nezabere. Váš telefon mu předá adresu serveru, token, vaše rychlé akce a vaše pokoje, takže na hodinkách není vůbec žádné přihlášení.</item>
+        <item>Novinka: Nastavení › Android Auto &amp; Wear OS. Vyberte si hrst věcí, které chcete mít na dosah z auta a ze svého zápěstí, každou s vlastním jménem, ikonou a akcí klepnutí, zobrazenou nebo skrytou podle povrchu. Seznam je váš, nikoli dashboard, takže přepínání dashboardů je ponecháno na pokoji.</item>
+        <item>Na auto a hodinky se vztahují rodinná oprávnění. Omezená entita se nikdy neobjeví v nástroji pro výběr, nikdy se nedostane k hodinkám a přestane fungovat v autě, jakmile je přístup zrušen.</item>
+        <item>Nastavení vás upozorní, když rychlá akce z palubní desky nic neudělá. Zařízení, která nemají jednoznačný význam jediného klepnutí, jako je zámek nebo panel alarmu, vás požádají, abyste během jízdy zvolili přepínání nebo akci Home Assistant, místo abyste hádali směr.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 nyní kontroluje uloženou relaci Home Assistant před zahájením připojení REST, WebSocket a push. Odmítnuté přihlašovací údaje se jednou koordinovaně obnoví nebo vás vrátí k přihlášení, místo toho, aby došlo k dostatečnému počtu současných selhání autentizace ke spuštění zákazu IP adresy Home Assistant.</item>
         <item>Odpověď 403 Forbidden nyní pozastaví připojení a pokusy o telemetrii, aniž by smazali vaše uložené přihlašovací údaje, a místo zobrazení chyby JSON vás odkáže na nastavení zákazu IP nebo reverzního proxy serveru Home Assistant.</item>

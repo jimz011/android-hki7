@@ -27,6 +27,15 @@
         <item>S-au remediat citirile de temperatură și energie în cehă, slovacă, greacă, norvegiană, suedeză și daneză, unde numerele erau afișate greșit sau puteau bloca ecranul.</item>
         <item>Ceva scris prost în limba ta? Fiecare limbă este acum un singur fișier pe care îl puteți corecta pe GitHub, fără a fi nevoie de cod.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_0">
+        <item>HKI 7 apare acum pe Android Auto. Ecranul mașinii afișează o grilă a acțiunilor tale rapide cu starea lor curentă, iar o atingere le rulează. Android Auto desenează propriile șabloane Google și ascunde orice depășește limita pe care o stabilește în timp ce mașina este în mișcare, așa că arată o listă scurtă pe care o îngrijești mai degrabă decât tabloul de bord.</item>
+        <item>Acum există o aplicație Wear OS. Afișează acțiunile tale rapide cu starea live și camerele de dedesubt și vorbește direct cu Home Assistant, astfel încât să funcționeze în continuare atunci când telefonul tău se află într-o altă cameră.</item>
+        <item>Configurarea ceasului nu necesită nimic. Telefonul îi înmânează adresa serverului, un token, acțiunile tale rapide și camerele tale, astfel încât să nu fie deloc conectat la ceas.</item>
+        <item>Nou: Setări › Android Auto &amp; Wear OS. Alegeți câteva lucruri pe care le doriți la îndemână din mașină și de la încheietura mâinii, fiecare cu propriul nume, pictogramă și acțiune de atingere, afișate sau ascunse pe suprafață. Lista este a ta mai degrabă decât a unui tablou de bord, așa că schimbarea tablourilor de bord o lasă în pace.</item>
+        <item>Permisiunile familiei se aplică pentru mașină și ceas. O entitate restricționată nu apare niciodată în selector, nu ajunge niciodată la ceas și încetează să lucreze în mașină de îndată ce accesul este revocat.</item>
+        <item>Setările vă avertizează când o acțiune rapidă nu ar face nimic în afara tabloului de bord. Dispozitivele fără semnificație clară la o atingere, cum ar fi o încuietoare sau un panou de alarmă, vă solicită să alegeți Comutare sau o acțiune Home Assistant în loc să ghiciți o direcție în timp ce conduceți.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 verifică acum o sesiune salvată Home Assistant înainte de a începe conexiunile REST, WebSocket și push. Acreditările respinse sunt reîmprospătate o dată într-un mod coordonat sau vă revin la autentificare, în loc să producă suficiente eșecuri de autentificare simultane pentru a declanșa interdicția IP a Home Assistant.</item>
         <item>Un răspuns 403 Forbidden întrerupe acum conexiunea și încercările de telemetrie fără a șterge datele de conectare salvate și vă indică setările de interdicție IP sau proxy inversă ale Home Assistant în loc să afișați o eroare JSON.</item>

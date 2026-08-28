@@ -27,6 +27,15 @@
         <item>Fikseeritud temperatuuri- ja energianäidud tšehhi, slovaki, kreeka, norra, rootsi ja taani keeles, kus numbrid näitasid valesti või võivad ekraan kokku kukkuda.</item>
         <item>Kas teie keeles on midagi halvasti sõnastatud? Iga keel on nüüd üks fail, mida saate GitHubis parandada, koodi pole vaja.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_0">
+        <item>HKI 7 kuvatakse nüüd Android Autos. Autoekraanil kuvatakse teie kiirtoimingute ruudustik koos nende hetkeseisuga ja neid käivitab puudutus. Android Auto joonistab Google\'i enda malle ja peidab kõik, mis ületab selle seatud piirangu, kui auto liigub, nii et see kuvab teie armatuurlaua asemel lühikest loendit, mida kureerite.</item>
+        <item>Nüüd on olemas Wear OS-i rakendus. See näitab teie kiireid toiminguid reaalajas olekus ja selle all olevaid ruume ning räägib otse kasutajaga Home Assistant, nii et see töötab ka siis, kui teie telefon on teises toas.</item>
+        <item>Kella seadistamine ei võta midagi. Teie telefon annab talle serveri aadressi, märgi, teie kiirtoimingud ja ruumid, nii et kellas pole üldse sisselogimist.</item>
+        <item>Uus: Seaded › Android Auto ja Wear OS. Valige autost ja randmelt käeulatuses käputäis asju, millest igaühel on oma nimi, ikoon ja puudutustoimingud, mis on igal pinnal kuvatud või peidetud. Loend on pigem teie kui armatuurlaua oma, nii et armatuurlaudade vahetamine jätab selle rahule.</item>
+        <item>Perekonnaload kehtivad autole ja kellale. Piiratud üksus ei ilmu kunagi valijas, ei jõua kunagi kellani ja lõpetab autos töötamise niipea, kui juurdepääs tühistatakse.</item>
+        <item>Seaded hoiatab teid, kui kiire toiming ei tee armatuurlaualt midagi. Seadmed, millel pole ühemõttelist ühe puudutuse tähendust, nagu lukk või häirepaneel, paluvad teil sõidu ajal suunda arvamise asemel valida Lülita või toimingu Home Assistant.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 kontrollib nüüd salvestatud Home Assistant seanssi enne REST-, WebSocketi- ja tõukeühenduste käivitamist. Tagasilükatud mandaate värskendatakse üks kord kooskõlastatult või suunatakse teid uuesti sisse logima, selle asemel, et tekitada piisavalt samaaegseid autentimistõrkeid, et käivitada Home Assistant IP-keeld.</item>
         <item>403 Keelatud vastus peatab nüüd ühenduse ja telemeetria uuesti katsed ilma teie salvestatud sisselogimist kustutamata ning suunab teid JSON-i tõrke kuvamise asemel Home Assistant IP-keelu või pöördpuhverserveri sätetele.</item>

@@ -628,6 +628,18 @@ cr_quick_media_player,,Media player,Mediasoitin,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.","Kun kahva tulee näkyviin, palauta soitin pyyhkäisemällä ylös alapalkista.",
 cr_quick_make_it_yours,,Make it yours,Tee siitä omasi,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","Muokkaustilassa voit lisätä ja järjestää uudelleen huoneita, kerroksia ja widgetejä. Napauta kohdetta määrittääksesi sen.",
+cr_whats_new_1_2_0,1,"HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google's own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.","HKI 7 näkyy nyt Android Autossa. Auton näyttö näyttää ruudukon nopeista toimistasi niiden nykyisen tilan kanssa, ja napautus suorittaa ne. Android Auto piirtää Googlen omia malleja ja piilottaa kaiken asettamansa rajan ylittävän auton liikkuessa, joten se näyttää kojelaudan sijaan lyhyen luettelon, jonka valitset.",don't translate HKI 7
+cr_whats_new_1_2_0,2,"There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.","Nyt on olemassa Wear OS -sovellus. Se näyttää nopeat toiminnot live-tilassa ja alla olevat huoneet ja puhuu suoraan Home Assistant, joten se toimii edelleen, kun puhelimesi on toisessa huoneessa.",don't translate Home Assistant
+cr_whats_new_1_2_0,3,"Setting up the watch usually takes nothing: your phone hands it the server address, a session, your quick actions and your rooms, with no typing at all.","Kellon asettaminen ei vie mitään. Puhelimesi luovuttaa sille palvelimen osoitteen, tunnuksen, nopeat toiminnot ja huoneesi, joten kelloon ei kirjaudu ollenkaan.",
+cr_whats_new_1_2_0,4,"The watch can also sign in on its own, for when HKI 7 is not on the phone. Only the Home Assistant address is typed on the watch — the login page opens on your phone’s browser, so your password stays there.","Uutta: Asetukset › Android Auto & Wear OS. Valitse kourallinen asioita, joita haluat käden ulottuvilla autosta ja ranteestasi. Jokaisella on oma nimi, kuvake ja napautustoiminto, joka näkyy tai piilotetaan pinnan mukaan. Luettelo on sinun eikä kojelaudan, joten kojelaudan vaihtaminen jättää sen rauhaan.","don't translate Home Assistant, HKI 7"
+cr_whats_new_1_2_0,5,"Your quick actions are also a watch tile, one swipe from the watch face with no app to open, and a watch-face complication showing the first one’s state at a glance.","Perheen luvat koskevat autoa ja kelloa. Rajoitettu entiteetti ei koskaan näy poimijassa, ei koskaan saavuta kelloa ja lakkaa toimimasta autossa heti, kun pääsy peruutetaan.",
+cr_whats_new_1_2_0,6,"The watch app follows Home Assistant live while a screen is on, so something switched at the wall moves on your wrist while you are looking at it.","Asetukset varoittavat sinua, kun nopea toiminto ei tee mitään pois kojelaudalta. Laitteet, joilla ei ole yksiselitteistä yhden kosketuksen merkitystä, kuten lukko tai hälytyspaneeli, pyytävät sinua valitsemaan Toggle tai Home Assistant toiminnon sen sijaan, että arvaat suunnan ajon aikana.",don't translate Home Assistant
+cr_whats_new_1_2_0,7,"A second watch tile adjusts one thermostat from your wrist. Choose which one under Settings, Android Auto and Wear OS.",,needs translation
+cr_whats_new_1_2_0,8,"Your watch can report its own battery to Home Assistant, so it becomes a device there and its battery can drive automations. Off until you turn it on, and battery is all that is sent.",,needs translation; don't translate Home Assistant
+cr_whats_new_1_2_0,9,Switching Home Assistant servers on your phone now moves the watch with it.,,needs translation; don't translate Home Assistant
+cr_whats_new_1_2_0,10,"New: Settings › Android Auto & Wear OS. Pick the handful of things you want within reach from the car and from your wrist, each with its own name, icon and tap action, shown or hidden per surface. The list is yours rather than a dashboard's, so switching dashboards leaves it alone.",,needs translation
+cr_whats_new_1_2_0,11,"Family permissions apply to the car and the watch. A restricted entity never appears in the picker, never reaches the watch, and stops working in the car as soon as access is revoked.",,needs translation
+cr_whats_new_1_2_0,12,"Settings warns you when a quick action would not do anything away from the dashboard. Devices with no unambiguous one-tap meaning, such as a lock or an alarm panel, ask you to choose Toggle or a Home Assistant action rather than guessing a direction while you are driving.",,needs translation; don't translate Home Assistant
 cr_whats_new_1_1_3,1,"HKI 7 now checks a saved Home Assistant session before starting its REST, WebSocket and push connections. Rejected credentials are refreshed once in a coordinated way or return you to login, instead of producing enough simultaneous authentication failures to trigger Home Assistant's IP ban.","HKI 7 tarkistaa nyt tallennetun Home Assistant-istunnon ennen REST-, WebSocket- ja push-yhteyksien käynnistämistä. Hylätyt tunnistetiedot päivitetään kerran koordinoidulla tavalla tai palauttavat sinut kirjautumiseen sen sijaan, että syntyisi tarpeeksi samanaikaisia todennusvirheitä Home Assistant:n IP-kiellon laukaisemiseksi.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_1_3,2,"A 403 Forbidden response now pauses connection and telemetry retries without deleting your saved login, and points you to Home Assistant's IP-ban or reverse-proxy settings instead of showing a JSON error.","403 Kielletty -vastaus keskeyttää nyt yhteyden ja telemetrian uudelleenyritykset poistamatta tallennettua kirjautumistietoasi ja ohjaa sinut Home Assistant IP-kiellon tai käänteisen välityspalvelimen asetuksiin sen sijaan, että näyttäisi JSON-virheen.",don't translate Home Assistant
 cr_whats_new_1_1_3,3,Long greetings and page titles now shrink to the space beside people and status indicators while staying on one line. This fixes the final letters wrapping onto a second row on narrow screens.,Pitkät tervehdykset ja sivujen otsikot kutistuvat nyt ihmisten ja tilailmaisimien viereen ja pysyvät samalla rivillä. Tämä korjaa viimeiset kirjaimet toiselle riville kapeilla näytöillä.,
@@ -2913,6 +2925,43 @@ action_button,,Action button,Toimintopainike,
 action_button_description,,"A button without an entity: give it a name, an icon, and any action","Painike ilman entiteettiä: anna sille nimi, kuvake ja mikä tahansa toiminto",
 action_button_add,,Add action button,Lisää toimintopainike,
 action_badge_add,,Add action badge,Lisää toimintamerkki,
+settings_title_quick_actions,,Android Auto & Wear OS,Android Auto & Wear OS,
+settings_subtitle_quick_actions,,Quick actions for the car and your watch,Nopeat toimenpiteet autolle ja kellolle,
+quick_actions_menu_subtitle,,Choose what appears in the car and on your watch,"Valitse, mitä autossa ja kellossasi näkyy",
+quick_actions_intro,,Neither Android Auto nor a watch can show your dashboard. Pick the handful of things you want within reach from the car and from your wrist.,"Android Auto tai kello eivät voi näyttää kojelautaasi. Valitse kourallinen asioita, joita haluat käden ulottuvilla autosta ja ranteesta.",
+quick_actions_limit_note,,"While driving, Android Auto shows only the first few and hides the rest — keep the important ones at the top.",Ajon aikana Android Auto näyttää vain ensimmäiset ja piilottaa loput – pidä tärkeät ylhäällä.,
+quick_actions_none,,No quick actions yet.,Ei vielä nopeita toimia.,
+quick_actions_add,,Add quick action,Lisää nopea toiminta,
+quick_actions_reorder,,Reorder,Järjestä uudelleen,
+quick_actions_reorder_subtitle,,Drag to set the order they appear in.,"Vedä asettaaksesi järjestyksen, jossa ne näkyvät.",
+quick_actions_show_in_car,,Show in Android Auto,Näytä Android Autossa,
+quick_actions_show_on_watch,,Show on Wear OS,Näytä Wear OS:ssä,
+quick_actions_surfaces,,Show on,Näytä päälle,
+quick_actions_hidden_everywhere,,Hidden from the car and your watch.,Piilossa autolta ja kelloltasi.,
+quick_actions_unsupported,,Won't run in the car or on your watch. Choose Toggle or a Home Assistant action.,Ei juokse autossa tai kellossa. Valitse Toggle tai Home Assistant-toiminto.,don't translate Home Assistant
+quick_actions_edit_title,,Quick action,Nopea toiminta,
+quick_actions_name,,Name,Nimi,
+quick_actions_name_hint,,Leave empty to use the entity name,"Jätä tyhjäksi, jos haluat käyttää kokonaisuuden nimeä",
+quick_actions_icon,,Icon,Kuvake,
+quick_actions_remove,,Remove,Poistaa,
+quick_actions_when_tapped,,When tapped,Kun naputetaan,
+quick_actions_pick_entity,,Choose an entity,Valitse entiteetti,
+quick_actions_already_added,,Already a quick action,Jo nopea toimenpide,
+quick_actions_car_needs_play,,"Android Auto only works on copies installed from Google Play. Google does not let apps installed any other way appear in the car, so on this copy quick actions reach your watch but not the car.","Android Auto toimii vain Google Playsta asennetuilla kopioilla. Google ei anna millään muulla tavalla asennettujen sovellusten näkyä autossa, joten tässä kopiossa nopeat toiminnot tavoittavat kellosi, mutta eivät autoa.",
+quick_actions_watch_thermostat,,Watch thermostat,Katso termostaatti,
+quick_actions_watch_thermostat_subtitle,,The thermostats your watch tile adjusts,Kellon termostaatit säätyvät,
+quick_actions_watch_thermostat_none,,No thermostat chosen,Termostaattia ei ole valittu,
+quick_actions_watch_thermostat_cycle,,Tap the name on the watch tile to move between them,Napauta kelloruudun nimeä siirtyäksesi niiden välillä,
+quick_actions_watch_thermostat_count,,%1$d thermostats,%1$d termostaatit,app fills in %1$d — keep them
+quick_actions_watch_note,,Your watch talks to Home Assistant directly. It is set up from this phone — there is nothing to sign in to on the watch.,Kellosi puhuu suoraan Home Assistant:lle. Se on määritetty tästä puhelimesta – kelloon ei voi kirjautua mihinkään.,don't translate Home Assistant
+car_quick_actions_title,,Quick actions,Nopeita toimia,
+car_not_configured,,Open HKI 7 on your phone and connect it to Home Assistant.,Avaa HKI 7 puhelimellasi ja yhdistä se Home Assistant -verkkoon.,"don't translate Home Assistant, HKI 7"
+car_no_actions,,"Add quick actions in HKI 7 on your phone, under Settings, Android Auto and Wear OS.","Lisää pikatoimintoja puhelimesi HKI 7 -kohdassa Asetukset, Android Auto ja Wear OS.",don't translate HKI 7
+car_loading,,Loading,Ladataan,
+car_action_sent,,Sent,Lähetetty,
+car_action_failed,,Couldn't reach Home Assistant,Ei saatu yhteyttä Home Assistant,don't translate Home Assistant
+car_action_unavailable,,Not available,Ei saatavilla,
+car_refresh,,Refresh,Päivitä,
 security_entity_count,one,%1$d entity,%1$d entiteetti,app fills in %1$d — keep them
 security_entity_count,other,%1$d entities,%1$d entiteetit,app fills in %1$d — keep them
 family_permission_switch_dashboards,,Allow switching dashboards,Salli kojelaudan vaihtaminen,

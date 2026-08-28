@@ -3970,6 +3970,15 @@
     <string name="settings_local_network_allowed">Permitido</string>
     <string name="settings_local_network_not_allowed">Não permitido — Home Assistant não pode ser acessado diretamente no seu Wi-Fi</string>
     <string name="update_see_changes">Veja o que mudou</string>
+    <string-array name="cr_whats_new_1_2_0">
+        <item>HKI 7 agora aparece no Android Auto. A tela do carro mostra uma grade de suas ações rápidas com seu estado atual, e um toque as executa. O Android Auto desenha os próprios modelos do Google e oculta qualquer coisa além do limite definido enquanto o carro está em movimento, mostrando uma pequena lista que você seleciona, em vez do painel.</item>
+        <item>Agora existe um aplicativo Wear OS. Ele mostra suas ações rápidas com o estado ao vivo e suas salas abaixo, e fala diretamente com Home Assistant, para que continue funcionando quando seu telefone estiver em outra sala.</item>
+        <item>Configurar o relógio não leva nada. Seu telefone fornece o endereço do servidor, um token, suas ações rápidas e suas salas, para que não haja nenhum login no relógio.</item>
+        <item>Novo: Configurações › Android Auto e Wear OS. Escolha o punhado de coisas que você deseja ao alcance do carro e do pulso, cada uma com seu próprio nome, ícone e ação de toque, mostradas ou ocultadas por superfície. A lista é sua e não de um painel, portanto, a troca de painéis deixa tudo como está.</item>
+        <item>As permissões familiares se aplicam ao carro e ao relógio. Uma entidade restrita nunca aparece no selecionador, nunca chega ao relógio e deixa de trabalhar no carro assim que o acesso é revogado.</item>
+        <item>As configurações avisam quando uma ação rápida não faria nada fora do painel. Dispositivos sem significado inequívoco de um toque, como uma fechadura ou painel de alarme, solicitam que você escolha Alternar ou uma ação Home Assistant em vez de adivinhar uma direção enquanto dirige.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 agora verifica uma sessão Home Assistant salva antes de iniciar suas conexões REST, WebSocket e push. As credenciais rejeitadas são atualizadas uma vez de forma coordenada ou retornam você ao login, em vez de produzir falhas de autenticação simultâneas suficientes para acionar o banimento de IP de Home Assistant.</item>
         <item>Uma resposta 403 Forbidden agora pausa a conexão e novas tentativas de telemetria sem excluir seu login salvo e aponta para as configurações de proibição de IP ou proxy reverso de Home Assistant em vez de mostrar um erro JSON.</item>
@@ -3998,4 +4007,41 @@
     <string name="energy_extra_sensor_import_power_phase_two">Fase de alimentação de importação 2 (W)</string>
     <string name="energy_extra_per_phase_flow_detected">Home Assistant relata a exportação por fase aqui, o que geralmente significa energia solar em uma fase de um fornecimento trifásico. Ative esta opção para ver a importação e a exportação ao mesmo tempo.</string>
     <string name="update_watch_releases_subtitle_play">Notificará você quando o Google Play tiver uma versão mais recente pronta para este dispositivo</string>
+    <string name="car_action_failed">Não foi possível acessar Home Assistant</string>
+    <string name="car_action_sent">Enviado</string>
+    <string name="car_action_unavailable">Não disponível</string>
+    <string name="car_loading">Carregando</string>
+    <string name="car_not_configured">Abra HKI 7 em seu telefone e conecte-o a Home Assistant.</string>
+    <string name="car_quick_actions_title">Ações rápidas</string>
+    <string name="car_refresh">Atualizar</string>
+    <string name="quick_actions_add">Adicionar ação rápida</string>
+    <string name="quick_actions_already_added">Já é uma ação rápida</string>
+    <string name="quick_actions_edit_title">Ação rápida</string>
+    <string name="quick_actions_icon">Ícone</string>
+    <string name="quick_actions_limit_note">Durante a condução, o Android Auto mostra apenas os primeiros e oculta o resto – mantenha os mais importantes no topo.</string>
+    <string name="quick_actions_name">Nome</string>
+    <string name="quick_actions_name_hint">Deixe em branco para usar o nome da entidade</string>
+    <string name="quick_actions_none">Nenhuma ação rápida ainda.</string>
+    <string name="quick_actions_pick_entity">Escolha uma entidade</string>
+    <string name="quick_actions_remove">Remover</string>
+    <string name="quick_actions_reorder">Reordenar</string>
+    <string name="quick_actions_reorder_subtitle">Arraste para definir a ordem em que aparecem.</string>
+    <string name="quick_actions_show_in_car">Mostrar no Android Auto</string>
+    <string name="quick_actions_when_tapped">Quando tocado</string>
+    <string name="car_no_actions">Adicione ações rápidas em HKI 7 no seu telefone, em Configurações, Android Auto e Wear OS.</string>
+    <string name="quick_actions_car_needs_play">O Android Auto só funciona em cópias instaladas do Google Play. O Google não permite que aplicativos instalados de outra forma apareçam no carro, portanto, nesta cópia, ações rápidas chegam ao seu relógio, mas não ao carro.</string>
+    <string name="quick_actions_hidden_everywhere">Escondido do carro e do seu relógio.</string>
+    <string name="quick_actions_intro">Nem o Android Auto nem um relógio podem mostrar seu painel. Escolha o punhado de coisas que você deseja ao alcance do carro e do pulso.</string>
+    <string name="quick_actions_menu_subtitle">Escolha o que aparece no carro e no seu relógio</string>
+    <string name="quick_actions_show_on_watch">Mostrar no Wear OS</string>
+    <string name="quick_actions_surfaces">Mostrar</string>
+    <string name="quick_actions_unsupported">Não vai correr no carro ou no seu relógio. Escolha Alternar ou uma ação Home Assistant.</string>
+    <string name="quick_actions_watch_note">Seu relógio fala diretamente com Home Assistant. Ele é configurado neste telefone – não há nada para fazer login no relógio.</string>
+    <string name="settings_subtitle_quick_actions">Ações rápidas para o carro e seu relógio</string>
+    <string name="settings_title_quick_actions">Android Auto e Wear OS</string>
+    <string name="quick_actions_watch_thermostat">Assistir termostato</string>
+    <string name="quick_actions_watch_thermostat_cycle">Toque no nome no bloco do relógio para alternar entre eles</string>
+    <string name="quick_actions_watch_thermostat_none">Nenhum termostato escolhido</string>
+    <string name="quick_actions_watch_thermostat_subtitle">Os termostatos que seu bloco de relógio ajusta</string>
+    <string name="quick_actions_watch_thermostat_count">%1$d termostatos</string>
 </resources>
