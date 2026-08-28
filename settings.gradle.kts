@@ -23,4 +23,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "HKI 7"
+// :core holds the Home Assistant models. It deliberately has no Android UI dependencies, so
+// a module that is not the phone app can consume them without inheriting the dashboard.
+include(":core")
 include(":app")

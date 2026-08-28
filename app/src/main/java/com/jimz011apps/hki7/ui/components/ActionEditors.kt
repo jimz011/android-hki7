@@ -808,7 +808,7 @@ private fun CustomButtonInlineEditor(
             }
             val iconLabel = when {
                 button.icon == ENTITY_PICTURE_ICON -> stringResource(R.string.dlg_entity_picture)
-                !button.icon.isNullOrBlank() -> button.icon
+                !button.icon.isNullOrBlank() -> button.icon.orEmpty()
                 else -> stringResource(R.string.dlg_auto)
             }
             Text(stringResource(R.string.dlg_icon_value, iconLabel), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = appColors.onMuted)

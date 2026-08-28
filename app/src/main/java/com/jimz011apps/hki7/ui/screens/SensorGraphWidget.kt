@@ -265,7 +265,7 @@ private fun SensorGraphCardView(
                         Spacer(Modifier.width(8.dp))
                     }
                     if (!widget.title.isNullOrBlank()) {
-                        Text(widget.title, color = appColors.onSurface,
+                        Text(widget.title.orEmpty(), color = appColors.onSurface,
                             style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold,
                             maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }

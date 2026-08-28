@@ -3707,7 +3707,7 @@ fun ClimateCardWidgetItem(
                         Spacer(Modifier.width(8.dp))
                     }
                     if (!widget.title.isNullOrBlank()) {
-                        Text(widget.title, color = headerColor, style = MaterialTheme.typography.labelMedium)
+                        Text(widget.title.orEmpty(), color = headerColor, style = MaterialTheme.typography.labelMedium)
                     }
                 }
                 Spacer(Modifier.height(12.dp))

@@ -64,6 +64,9 @@ configurations.all {
 }
 
 dependencies {
+    // The Home Assistant models, so a module that is not the phone app can use them without
+    // inheriting the Compose dashboard.
+    implementation(project(":core"))
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)

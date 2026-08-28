@@ -1030,7 +1030,7 @@ private fun CalendarEventRow(
                         Spacer(Modifier.width(8.dp))
                         Icon(Icons.Default.LocationOn, null, tint = appColors.onMuted, modifier = Modifier.size(13.dp))
                         Spacer(Modifier.width(3.dp))
-                        Text(event.location, color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(event.location.orEmpty(), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
             }
@@ -1327,7 +1327,8 @@ private fun HACalendarEvent.endDateTime(zone: ZoneId): ZonedDateTime? = parseCal
 
 private fun HACalendarEvent.startDate(zone: ZoneId): LocalDate? = startDateTime(zone)?.toLocalDate()
 
-private fun HACalendarEvent.isAllDay(): Boolean = start?.date != null && start.dateTime == null
+private fun HACalendarEvent.isAllDay(): Boolean =
+    start?.let { it.date != null && it.dateTime == null } == true
 
 private fun HACalendarEvent.occursOn(day: LocalDate, zone: ZoneId): Boolean {
     val startDay = startDate(zone) ?: return false

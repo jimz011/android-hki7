@@ -77,10 +77,11 @@ private fun isConditionMet(
         }
     }
     else -> {
-        if (condition.entityId.isNullOrBlank() || resolveEntityState == null) {
+        val conditionEntityId = condition.entityId
+        if (conditionEntityId.isNullOrBlank() || resolveEntityState == null) {
             true
         } else {
-            val current = resolveEntityState(condition.entityId)
+            val current = resolveEntityState(conditionEntityId)
             val matches = current != null && current.equals(condition.state, ignoreCase = true)
             if (condition.negate) !matches else matches
         }

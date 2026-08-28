@@ -4227,7 +4227,7 @@ fun EnergyCardWidgetItem(
                         Spacer(Modifier.width(8.dp))
                     }
                     if (!widget.title.isNullOrBlank()) {
-                        Text(widget.title, color = Color.Gray, style = MaterialTheme.typography.labelMedium)
+                        Text(widget.title.orEmpty(), color = Color.Gray, style = MaterialTheme.typography.labelMedium)
                     }
                 }
                 Spacer(Modifier.height(12.dp))

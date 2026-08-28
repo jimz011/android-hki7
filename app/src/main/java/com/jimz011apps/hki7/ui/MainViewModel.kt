@@ -2504,11 +2504,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         _entities.value.forEach { ordered[it.entity_id] = it }
         var changed = false
         snapshot.values.forEach { change ->
-            if (change.newState == null) {
+            val newState = change.newState
+            if (newState == null) {
                 if (ordered.remove(change.entityId) != null) changed = true
             } else {
-                if (ordered[change.entityId] != change.newState) {
-                    ordered[change.entityId] = change.newState
+                if (ordered[change.entityId] != newState) {
+                    ordered[change.entityId] = newState
                     changed = true
                 }
             }

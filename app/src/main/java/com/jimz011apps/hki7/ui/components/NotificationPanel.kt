@@ -895,7 +895,7 @@ private fun NotificationRow(
                 Column(Modifier.weight(1f)) {
                     if (!notification.title.isNullOrBlank()) {
                         Text(
-                            notification.title,
+                            notification.title.orEmpty(),
                             style = MaterialTheme.typography.labelLarge,
                             color = appColors.onSurface,
                             fontWeight = FontWeight.SemiBold

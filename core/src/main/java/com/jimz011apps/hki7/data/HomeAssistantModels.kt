@@ -644,13 +644,6 @@ class HomeAssistantForbiddenException(
     cause: Throwable? = null
 ) : Exception("HOME_ASSISTANT_FORBIDDEN", cause)
 
-internal fun isHomeAssistantForbidden(error: Throwable): Boolean =
-    generateSequence(error) { it.cause }.take(8).any { cause ->
-        cause is HomeAssistantForbiddenException ||
-            (cause is io.ktor.client.plugins.ResponseException &&
-                cause.response.status == io.ktor.http.HttpStatusCode.Forbidden)
-    }
-
 /** Thrown when a token refresh receives a non-successful HTTP response. [invalidGrant] identifies
  * the one OAuth response that proves the refresh token itself is dead. Other failures preserve the
  * session; in particular, HTTP 403 is normally an IP ban or reverse-proxy rule. */
@@ -763,7 +756,7 @@ data class HKIAction(
     val popupId: String? = null
 )
 
-internal fun buildHKIActionServicePayload(action: HKIAction, ownerEntityId: String): JsonObject =
+fun buildHKIActionServicePayload(action: HKIAction, ownerEntityId: String): JsonObject =
     buildJsonObject {
         val target = when (action.targetMode) {
             "none" -> null

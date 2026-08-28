@@ -93,6 +93,19 @@ private fun parseActionFieldDefinitions(fields: JsonObject): List<HAActionFieldD
         }
     }
 
+/**
+ * Whether [error] means Home Assistant (or a proxy in front of it) refused the source outright.
+ *
+ * Stayed with the phone client rather than moving to `:core` with the rest of the models: it reads
+ * Ktor's exception types, and `:core` is shared with modules that deliberately carry no HTTP stack.
+ */
+fun isHomeAssistantForbidden(error: Throwable): Boolean =
+    generateSequence(error) { it.cause }.take(8).any { cause ->
+        cause is HomeAssistantForbiddenException ||
+            (cause is io.ktor.client.plugins.ResponseException &&
+                cause.response.status == io.ktor.http.HttpStatusCode.Forbidden)
+    }
+
 open class HomeAssistantClient(
     serverUrl: String,
     private val accessToken: String

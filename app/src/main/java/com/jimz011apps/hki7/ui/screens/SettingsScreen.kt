@@ -4676,7 +4676,8 @@ private fun FamilyDevicesPanel(
             else -> devices.forEach { device ->
                 // Behind is decided on the version code, the only monotonic number in play:
                 // comparing "1.0.0-beta.9" to "1.0.0-beta.10" as text puts the older build ahead.
-                val behind = device.appVersionCode != null && device.appVersionCode < BuildConfig.VERSION_CODE
+                // Unknown version reads as not-behind, same as before: MAX_VALUE loses the comparison.
+                val behind = (device.appVersionCode ?: Int.MAX_VALUE) < BuildConfig.VERSION_CODE
                 val nudged = device.nudgeVersionCode != null
                 Surface(Modifier.fillMaxWidth(), shape = itemCornerShape(), color = appColors.subtleSurface) {
                     Column(Modifier.padding(12.dp)) {

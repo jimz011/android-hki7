@@ -121,7 +121,7 @@ fun WeatherRoomWidget(
                         }
                         if (!widget.title.isNullOrBlank()) {
                             Text(
-                                widget.title,
+                                widget.title.orEmpty(),
                                 color = Color.Gray,
                                 style = MaterialTheme.typography.labelMedium
                             )
