@@ -1,4 +1,4 @@
-plugins {
+﻿plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.compiler)
@@ -12,18 +12,18 @@ android {
         // Same applicationId as the phone app: Play then delivers this bundle to watches and the
         // phone bundle to phones, under one listing, using the watch uses-feature below.
         applicationId = "com.jimz011apps.hki7"
-        // Wear OS 3. Lower than the phone app's 31 on purpose — watches sit on older API levels
+        // Wear OS 3. Lower than the phone app's 31 on purpose â€” watches sit on older API levels
         // far longer than phones do.
         minSdk = 30
         targetSdk = 37
         // Must differ from the phone app's. Convention here: phone versionCode + 1000, so the two
         // stay legible next to each other in Play Console.
-        versionCode = 1032
-        versionName = "1.1.3"
+        versionCode = 1033
+        versionName = "1.2.0"
     }
     buildTypes {
         debug {
-            // Must match :app's suffix — the Data Layer only pairs a phone and watch app that
+            // Must match :app's suffix â€” the Data Layer only pairs a phone and watch app that
             // share an application id, so a suffixed phone build needs a suffixed watch build.
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
@@ -50,7 +50,7 @@ android {
 
 configurations.all {
     resolutionStrategy {
-        // Same pin as :app — AGP's embedded Kotlin cannot read 2.4.0 metadata.
+        // Same pin as :app â€” AGP's embedded Kotlin cannot read 2.4.0 metadata.
         force("org.jetbrains.kotlin:kotlin-stdlib:2.3.0")
         force("org.jetbrains.kotlin:compose-group-mapping:${libs.versions.kotlin.get()}")
     }
@@ -81,7 +81,7 @@ dependencies {
     implementation(libs.androidx.wear.phone.interactions)
     implementation(libs.okhttp)
 
-    // A tile is one swipe from the watch face, with no app launch — the surface a watch user
+    // A tile is one swipe from the watch face, with no app launch â€” the surface a watch user
     // actually reaches for. Complications put a single entity on the face itself.
     implementation(libs.androidx.wear.tiles)
     implementation(libs.kotlinx.coroutines.guava)

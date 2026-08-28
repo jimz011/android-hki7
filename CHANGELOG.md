@@ -5,6 +5,57 @@ file in sync with `app/src/main/java/com/jimz011apps/hki7/ui/components/WhatsNew
 
 Items marked with \* require the HKI 7 Cloud Component integration.
 
+## 1.2.0
+
+Android Auto and Wear OS, and the curated quick-action list that drives both.
+
+- HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their
+  current state, and a tap runs them straight away. Android Auto renders Google's own templates
+  rather than an app's interface, and hides anything past a limit it sets while the car is moving,
+  so the car surface shows a short list you curate rather than your dashboard. Entries you have not
+  given an icon use the same domain icon the dashboard would pick, so the grid still looks like your
+  home.
+- There is now a Wear OS app. It shows your quick actions with live state, and your rooms
+  underneath, so anything in the house is two taps away without taking your phone out. The watch
+  talks to Home Assistant directly rather than relaying through the phone, so it keeps working when
+  your phone is in another room.
+- Setting up the watch usually takes nothing: the phone hands it the server address, a session,
+  your quick actions and your rooms, with no typing at all. Change what appears on the watch on
+  your phone and it is there immediately.
+- The watch can also sign in on its own, for when HKI 7 is not on the phone at all — after a watch
+  reset, or on a watch paired to a phone that never had it. Only the Home Assistant address is
+  typed on the watch; the login page opens on your phone's browser, so your password and any
+  two-factor step stay on a screen with a real keyboard and your password manager. Either way the
+  watch ends up with its own Home Assistant session and keeps it alive by itself.
+- Your quick actions are also a watch tile, one swipe from the watch face with no app to open,
+  and a watch-face complication showing the first one's state at a glance. Both refresh on their
+  own schedule rather than holding a connection open, because they update with nobody looking;
+  the app itself follows Home Assistant live while a screen is on, so something switched at the
+  wall moves on your wrist while you are watching it.
+- A second watch tile adjusts one thermostat from your wrist, which is the thing a watch is
+  genuinely better at than a phone: it is cold, you are in bed, and the phone is somewhere else.
+  Choose which thermostat under Settings › Android Auto & Wear OS; it is a separate setting from
+  quick actions because a quick action is one tap with one outcome and a thermostat is a value to
+  nudge, and a house with four of them has no obvious default worth guessing.
+- Your watch can report its own battery to Home Assistant, so it becomes a device there and its
+  battery can drive automations. Off until you turn it on under Settings on the watch, and battery
+  is all that is sent — a watch is full of sensors and none of the others should leave your wrist
+  because an app decided so.
+- Switching Home Assistant servers on your phone now moves the watch with it, instead of leaving it
+  pointed at the house you stopped looking at.
+- New: Settings › Android Auto & Wear OS. Pick the handful of things you want within reach from
+  the car and from your wrist — a scene, a script, the garage door, the lights you always turn off
+  last — each with its own name, icon and tap action, edited with the same action editor as
+  dashboard buttons, and shown or hidden per surface. The list is yours rather than a dashboard's,
+  so switching dashboards leaves it alone, and it travels in your backup.
+- Family permissions apply to the car and the watch throughout. An entity an admin has restricted
+  never appears in the picker, never reaches the watch, and stops working in the car the moment
+  access is revoked — without anyone having to edit their list.
+- Settings warns you when a quick action would not do anything away from the dashboard. A tap on
+  the dashboard can open a dialog, which neither a car screen nor a watch can draw, so entries on
+  devices with no unambiguous one-tap meaning — a lock, a vacuum, an alarm panel — ask you to
+  choose Toggle or a Home Assistant action rather than guessing a direction while you are driving.
+
 ## 1.1.3
 
 Safer Home Assistant session recovery, per-phase grid metering, and a greeting that fits narrow

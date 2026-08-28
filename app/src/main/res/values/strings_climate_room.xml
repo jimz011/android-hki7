@@ -346,6 +346,21 @@
     <string name="cr_quick_make_it_yours_instruction">In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.</string>
 
     <!-- Current release -->
+    <string-array name="cr_whats_new_1_2_0">
+        <item>HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google\'s own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.</item>
+        <item>There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.</item>
+        <item>Setting up the watch usually takes nothing: your phone hands it the server address, a session, your quick actions and your rooms, with no typing at all.</item>
+        <item>The watch can also sign in on its own, for when HKI 7 is not on the phone. Only the Home Assistant address is typed on the watch — the login page opens on your phone’s browser, so your password stays there.</item>
+        <item>Your quick actions are also a watch tile, one swipe from the watch face with no app to open, and a watch-face complication showing the first one’s state at a glance.</item>
+        <item>The watch app follows Home Assistant live while a screen is on, so something switched at the wall moves on your wrist while you are looking at it.</item>
+        <item>A second watch tile adjusts one thermostat from your wrist. Choose which one under Settings, Android Auto and Wear OS.</item>
+        <item>Your watch can report its own battery to Home Assistant, so it becomes a device there and its battery can drive automations. Off until you turn it on, and battery is all that is sent.</item>
+        <item>Switching Home Assistant servers on your phone now moves the watch with it.</item>
+        <item>New: Settings › Android Auto &amp; Wear OS. Pick the handful of things you want within reach from the car and from your wrist, each with its own name, icon and tap action, shown or hidden per surface. The list is yours rather than a dashboard\'s, so switching dashboards leaves it alone.</item>
+        <item>Family permissions apply to the car and the watch. A restricted entity never appears in the picker, never reaches the watch, and stops working in the car as soon as access is revoked.</item>
+        <item>Settings warns you when a quick action would not do anything away from the dashboard. Devices with no unambiguous one-tap meaning, such as a lock or an alarm panel, ask you to choose Toggle or a Home Assistant action rather than guessing a direction while you are driving.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_1_3">
         <item>HKI 7 now checks a saved Home Assistant session before starting its REST, WebSocket and push connections. Rejected credentials are refreshed once in a coordinated way or return you to login, instead of producing enough simultaneous authentication failures to trigger Home Assistant\'s IP ban.</item>
         <item>A 403 Forbidden response now pauses connection and telemetry retries without deleting your saved login, and points you to Home Assistant\'s IP-ban or reverse-proxy settings instead of showing a JSON error.</item>
