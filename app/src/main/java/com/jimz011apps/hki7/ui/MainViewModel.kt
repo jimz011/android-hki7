@@ -1501,10 +1501,37 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 prefetchAdaptiveLightingOptions(_entityRegistry.value)
                 prefetchWeatherRoleEntities(currentClient, _entityRegistry.value)
                 _deviceRegistry.value = currentClient.getDeviceRegistry()
+                publishWearConfig()
             }.onFailure {
                 registriesLoaded = false
                 addLog("Registry fetch failed: ${it.message}")
             }
+        }
+    }
+
+    /**
+     * Recomputes the room list a paired watch sees and hands the watch its whole configuration.
+     *
+     * Driven from here because the areas and both registries only exist once the view model has
+     * loaded them, and the Data Layer push runs from a background service with no view model to
+     * ask. Cheap and idempotent: with no watch paired the push resolves to nothing.
+     */
+    fun publishWearConfig() {
+        viewModelScope.launch {
+            runCatching {
+                val policy = prefs.enforcedSearchPolicyNow()
+                val rooms = buildWearRooms(
+                    areas = _areas.value,
+                    // The dashboard as rendered, not the registry: this is what makes the watch
+                    // show exactly what the phone shows, hidden buttons and thermostats included.
+                    areaWidgets = _areaWidgetsMapping.value,
+                    areaConfigs = _areaConfigsMapping.value,
+                    knownEntityIds = _entitiesById.value.keys,
+                    isAllowed = policy::canSearchEntity,
+                )
+                prefs.saveWearRooms(rooms)
+                appContext?.let { WearSync.push(it) }
+            }.onFailure { addLog("Watch sync failed: ${it.message}") }
         }
     }
 
@@ -4208,6 +4235,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
             if (prefs.activeHomeAssistantInstanceId.first() == instanceId) return@launch
             clearForHomeAssistantInstanceTransition()
             prefs.switchHomeAssistantInstance(instanceId)
+            // The watch follows whichever server the phone is on rather than carrying a switcher
+            // of its own. Without this it would keep talking to the previous one — pointing at a
+            // house the user has stopped looking at, which is worse than showing nothing.
+            appContext?.let { WearSync.push(it) }
         }
     }
 

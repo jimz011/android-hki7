@@ -45,6 +45,11 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.SwapVert
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Close
@@ -85,6 +90,7 @@ import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.SettingsEthernet
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -206,6 +212,15 @@ import com.jimz011apps.hki7.ui.components.SearchAccessSelection
 import com.jimz011apps.hki7.ui.components.SearchAccessSelectionDialog
 import com.jimz011apps.hki7.ui.components.WhatsNewDialog
 import com.jimz011apps.hki7.data.Hki7Policy
+import com.jimz011apps.hki7.data.WearSync
+import com.jimz011apps.hki7.data.canSearchEntity
+import com.jimz011apps.hki7.data.HKIQuickAction
+import com.jimz011apps.hki7.data.QuickActionKind
+import com.jimz011apps.hki7.data.resolvedKind
+import com.jimz011apps.hki7.ui.components.ActionEditor
+import com.jimz011apps.hki7.ui.components.ReorderItem
+import com.jimz011apps.hki7.ui.components.ReorderItemsDialog
+import com.jimz011apps.hki7.ui.components.defaultEntityIconSlug
 import com.jimz011apps.hki7.data.Hki7RoomFollow
 import com.jimz011apps.hki7.data.HAArea
 import com.jimz011apps.hki7.ui.components.RoomFollowRoomDialog
@@ -229,7 +244,7 @@ import java.util.UUID
 import coil3.compose.AsyncImage
 
 private enum class SettingsSection {
-    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, LANGUAGE, CORNERS, ICONS, NAV_BAR, MEDIA_PLAYERS, POPUPS, DASHBOARD, FAMILY_SHARING, BACKUP_RESTORE, ACCOUNT, ABOUT, LICENSE, SUPPORT
+    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, LANGUAGE, CORNERS, ICONS, NAV_BAR, MEDIA_PLAYERS, POPUPS, DASHBOARD, QUICK_ACTIONS, FAMILY_SHARING, BACKUP_RESTORE, ACCOUNT, ABOUT, LICENSE, SUPPORT
 }
 
 /** The Home Assistant frontend paths reachable from the Home Assistant category. */
@@ -324,6 +339,7 @@ private fun sectionTitle(section: SettingsSection): String = stringResource(when
     SettingsSection.MEDIA_PLAYERS -> R.string.settings_title_media_players
     SettingsSection.POPUPS -> R.string.popup_settings_title
     SettingsSection.DASHBOARD -> R.string.settings_title_dashboard
+    SettingsSection.QUICK_ACTIONS -> R.string.settings_title_quick_actions
     SettingsSection.FAMILY_SHARING -> R.string.settings_title_family_sharing
     SettingsSection.BACKUP_RESTORE -> R.string.settings_title_backup_restore
     SettingsSection.ACCOUNT -> R.string.settings_title_account
@@ -340,6 +356,7 @@ private fun sectionSubtitle(section: SettingsSection): String = stringResource(w
     SettingsSection.CONNECTION -> R.string.settings_subtitle_connection
     SettingsSection.LOCATION -> R.string.settings_subtitle_location
     SettingsSection.DASHBOARD -> R.string.settings_subtitle_dashboard
+    SettingsSection.QUICK_ACTIONS -> R.string.settings_subtitle_quick_actions
     SettingsSection.APPEARANCE -> R.string.settings_subtitle_appearance
     SettingsSection.CORNERS -> R.string.settings_subtitle_corners
     SettingsSection.ICONS -> R.string.settings_subtitle_icons
@@ -364,6 +381,7 @@ private fun sectionIcon(section: SettingsSection): ImageVector = when (section) 
     SettingsSection.CONNECTION -> Icons.Default.SettingsEthernet
     SettingsSection.LOCATION -> Icons.Default.MyLocation
     SettingsSection.DASHBOARD -> Icons.Default.Dashboard
+    SettingsSection.QUICK_ACTIONS -> Icons.Default.Bolt
     SettingsSection.APPEARANCE, SettingsSection.THEME -> Icons.Default.Palette
     SettingsSection.CORNERS -> Icons.Default.RoundedCorner
     SettingsSection.ICONS -> Icons.Default.AutoAwesome
@@ -735,6 +753,7 @@ fun SettingsDialog(
                             ) { section = SettingsSection.DASHBOARD }
                             SettingsChoice(Icons.Default.Palette, stringResource(R.string.ui_appearance_41def7a), stringResource(R.string.ui_theme_and_navigation_bar_474ee6b)) { section = SettingsSection.APPEARANCE }
                             SettingsSubcategory(stringResource(R.string.ui_services_data_7864c0a), stringResource(R.string.ui_messages_safety_and_portability_ee58dfe))
+                            SettingsChoice(Icons.Default.Bolt, stringResource(R.string.settings_title_quick_actions), stringResource(R.string.quick_actions_menu_subtitle)) { section = SettingsSection.QUICK_ACTIONS }
                             SettingsChoice(Icons.Default.Notifications, stringResource(R.string.ui_notifications_753a22b), stringResource(R.string.ui_push_delivery_and_history_aa3e29d)) { section = SettingsSection.NOTIFICATIONS }
                             SettingsChoice(Icons.Default.Backup, stringResource(R.string.ui_backup_and_restore_a593246), stringResource(R.string.ui_save_or_restore_dashboard_configuration_be8f39f)) { section = SettingsSection.BACKUP_RESTORE }
                             SettingsChoice(
@@ -2123,6 +2142,264 @@ fun SettingsDialog(
                             SettingsChoice(Icons.Default.Menu, stringResource(R.string.ui_navigation_bar_e90e3de), stringResource(R.string.ui_reorder_and_hide_tabs_39de701)) { section = SettingsSection.NAV_BAR }
                             SettingsChoice(Icons.Default.MusicNote, stringResource(R.string.ui_media_players_ec25525), stringResource(R.string.ui_rename_players_and_mini_player_visibility_8d0e1f7)) { section = SettingsSection.MEDIA_PLAYERS }
                             SettingsChoice(Icons.Default.OpenInNew, stringResource(R.string.popup_settings_title), stringResource(R.string.popup_settings_subtitle_section)) { section = SettingsSection.POPUPS }
+                        }
+                        SettingsSection.QUICK_ACTIONS -> {
+                            val quickActions by prefs.quickActions.collectAsState(initial = emptyList())
+                            val qaEntities by viewModel.entities.collectAsState()
+                            val qaAreas by viewModel.areas.collectAsState()
+                            // Off-dashboard surfaces reach entities that are not on the user's
+                            // dashboard, so they answer to the same household restriction global
+                            // search does. Filtering the picker keeps a restricted user from
+                            // curating a car shortcut to something they may not see.
+                            val qaPolicy by prefs.enforcedSearchPolicy.collectAsState(initial = Hki7Policy())
+                            val qaAllowed = remember(qaEntities, qaPolicy) {
+                                qaEntities.filter { qaPolicy.canSearchEntity(it.entity_id) }
+                            }
+                            val qaEntityById = remember(qaEntities) { qaEntities.associateBy { it.entity_id } }
+                            // Android Auto refuses to surface a Car App Library app unless it
+                            // was installed from Google Play, and its "Unknown sources" developer
+                            // option explicitly does not cover template apps. A sideloaded copy
+                            // therefore cannot reach the car no matter what the user configures,
+                            // so say so rather than offering a toggle that silently does nothing.
+                            val carAvailable = remember(context) {
+                                GithubReleaseChecker.installSource(context) ==
+                                    GithubReleaseChecker.InstallSource.PLAY
+                            }
+                            var addingQuickAction by remember { mutableStateOf(false) }
+                            var editingQuickAction by remember { mutableStateOf<HKIQuickAction?>(null) }
+                            var reorderingQuickActions by remember { mutableStateOf(false) }
+                            var pickingThermostat by remember { mutableStateOf(false) }
+                            val wearThermostats by prefs.wearThermostatEntityIds.collectAsState(initial = emptyList())
+                            val saveQuickActions: (List<HKIQuickAction>) -> Unit = { updated ->
+                                scope.launch {
+                                    prefs.saveQuickActions(updated)
+                                    // Hand the watch its new list now; otherwise it would keep
+                                    // showing the old one until the app next loaded registries.
+                                    WearSync.push(context)
+                                }
+                            }
+
+                            if (addingQuickAction) {
+                                AdvancedEntitySearchDialog(
+                                    allEntities = qaAllowed,
+                                    title = stringResource(R.string.quick_actions_pick_entity),
+                                    singleSelect = true,
+                                    onDismiss = { addingQuickAction = false },
+                                    onEntitiesSelected = { ids ->
+                                        addingQuickAction = false
+                                        val entityId = ids.firstOrNull().orEmpty()
+                                        if (entityId.isNotBlank()) {
+                                            val created = HKIQuickAction(entityId = entityId)
+                                            saveQuickActions(quickActions + created)
+                                            // Straight into the editor: a fresh entry on a domain
+                                            // with no one-tap default would otherwise sit in the
+                                            // list doing nothing until the user opened it anyway.
+                                            editingQuickAction = created
+                                        }
+                                    },
+                                )
+                            }
+                            editingQuickAction?.let { draft ->
+                                QuickActionEditDialog(
+                                    quickAction = draft,
+                                    entity = qaEntityById[draft.entityId],
+                                    carAvailable = carAvailable,
+                                    allEntities = qaAllowed,
+                                    areas = qaAreas,
+                                    viewModel = viewModel,
+                                    onDismiss = { editingQuickAction = null },
+                                    onSave = { updated ->
+                                        saveQuickActions(quickActions.map { if (it.id == updated.id) updated else it })
+                                        editingQuickAction = null
+                                    },
+                                    onDelete = {
+                                        saveQuickActions(quickActions.filterNot { it.id == draft.id })
+                                        editingQuickAction = null
+                                    },
+                                )
+                            }
+                            if (pickingThermostat) {
+                                AdvancedEntitySearchDialog(
+                                    allEntities = remember(qaAllowed) {
+                                        qaAllowed.filter { it.entity_id.startsWith("climate.") }
+                                    },
+                                    title = stringResource(R.string.quick_actions_watch_thermostat),
+                                    // Several: the watch tile cycles through them on a tap rather
+                                    // than needing one tile per thermostat.
+                                    preselectedIds = wearThermostats.toSet(),
+                                    onDismiss = { pickingThermostat = false },
+                                    onEntitiesSelected = { ids ->
+                                        pickingThermostat = false
+                                        scope.launch {
+                                            prefs.saveWearThermostatEntityIds(ids)
+                                            WearSync.push(context)
+                                        }
+                                    },
+                                )
+                            }
+                            if (reorderingQuickActions) {
+                                ReorderItemsDialog(
+                                    title = stringResource(R.string.quick_actions_reorder),
+                                    subtitle = stringResource(R.string.quick_actions_reorder_subtitle),
+                                    items = quickActions.map { qa ->
+                                        ReorderItem(
+                                            key = qa.id,
+                                            label = quickActionLabel(qa, qaEntityById[qa.entityId]),
+                                            iconSlug = quickActionIconSlug(qa, qaEntityById[qa.entityId]),
+                                        )
+                                    },
+                                    onDismiss = { reorderingQuickActions = false },
+                                    onSave = { order ->
+                                        val byId = quickActions.associateBy { it.id }
+                                        saveQuickActions(order.mapNotNull { byId[it] })
+                                        reorderingQuickActions = false
+                                    },
+                                )
+                            }
+
+                            SettingsPanel {
+                                Text(
+                                    stringResource(R.string.quick_actions_intro),
+                                    color = appColors.onMuted,
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                                if (!carAvailable) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Info,
+                                            contentDescription = null,
+                                            tint = appColors.onMuted,
+                                            modifier = Modifier.size(16.dp),
+                                        )
+                                        Text(
+                                            stringResource(R.string.quick_actions_car_needs_play),
+                                            color = appColors.onMuted,
+                                            style = MaterialTheme.typography.bodySmall,
+                                        )
+                                    }
+                                }
+                                if (quickActions.isEmpty()) {
+                                    Text(
+                                        stringResource(R.string.quick_actions_none),
+                                        color = appColors.onMuted,
+                                        style = MaterialTheme.typography.bodySmall,
+                                    )
+                                } else {
+                                    if (carAvailable) {
+                                        Text(
+                                            stringResource(R.string.quick_actions_limit_note),
+                                            color = appColors.onMuted,
+                                            style = MaterialTheme.typography.bodySmall,
+                                        )
+                                    }
+                                    Text(
+                                        stringResource(R.string.quick_actions_watch_note),
+                                        color = appColors.onMuted,
+                                        style = MaterialTheme.typography.bodySmall,
+                                    )
+                                }
+                                quickActions.forEach { qa ->
+                                    QuickActionRow(
+                                        quickAction = qa,
+                                        entity = qaEntityById[qa.entityId],
+                                        carAvailable = carAvailable,
+                                        onToggleCar = { show ->
+                                            saveQuickActions(
+                                                quickActions.map {
+                                                    if (it.id == qa.id) it.copy(showInCar = show) else it
+                                                }
+                                            )
+                                        },
+                                        onToggleWatch = { show ->
+                                            saveQuickActions(
+                                                quickActions.map {
+                                                    if (it.id == qa.id) it.copy(showOnWatch = show) else it
+                                                }
+                                            )
+                                        },
+                                        onEdit = { editingQuickAction = qa },
+                                    )
+                                }
+                                // Separate from quick actions on purpose: a quick action is one
+                                // tap with one outcome, a thermostat is a value to nudge. Inferring
+                                // it from the list would put a guessed room on someone's wrist.
+                                SettingsSubcategory(
+                                    stringResource(R.string.quick_actions_watch_thermostat),
+                                    stringResource(R.string.quick_actions_watch_thermostat_subtitle),
+                                )
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { pickingThermostat = true },
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                ) {
+                                    Icon(
+                                        Icons.Default.Thermostat,
+                                        contentDescription = null,
+                                        tint = if (wearThermostats.isNotEmpty()) appColors.accent else appColors.onMuted,
+                                        modifier = Modifier.size(20.dp),
+                                    )
+                                    Column(Modifier.weight(1f)) {
+                                        Text(
+                                            when {
+                                                wearThermostats.isEmpty() ->
+                                                    stringResource(R.string.quick_actions_watch_thermostat_none)
+                                                // One reads better by name than as "1 selected".
+                                                wearThermostats.size == 1 ->
+                                                    qaEntityById[wearThermostats.first()]?.friendlyName
+                                                        ?: wearThermostats.first()
+                                                else -> stringResource(
+                                                    R.string.quick_actions_watch_thermostat_count,
+                                                    wearThermostats.size,
+                                                )
+                                            },
+                                            color = appColors.onSurface,
+                                            style = MaterialTheme.typography.labelLarge,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
+                                        if (wearThermostats.isNotEmpty()) {
+                                            Text(
+                                                stringResource(R.string.quick_actions_watch_thermostat_cycle),
+                                                color = appColors.onMuted,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis,
+                                            )
+                                        }
+                                    }
+                                    if (wearThermostats.isNotEmpty()) {
+                                        TextButton(onClick = {
+                                            scope.launch {
+                                                prefs.saveWearThermostatEntityIds(emptyList())
+                                                WearSync.push(context)
+                                            }
+                                        }) { Text(stringResource(R.string.dlg_clear)) }
+                                    }
+                                }
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    OutlinedButton(onClick = { addingQuickAction = true }) {
+                                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                                        Spacer(Modifier.width(6.dp))
+                                        Text(stringResource(R.string.quick_actions_add))
+                                    }
+                                    if (quickActions.size > 1) {
+                                        TextButton(onClick = { reorderingQuickActions = true }) {
+                                            Icon(Icons.Default.SwapVert, contentDescription = null, modifier = Modifier.size(18.dp))
+                                            Spacer(Modifier.width(6.dp))
+                                            Text(stringResource(R.string.quick_actions_reorder))
+                                        }
+                                    }
+                                }
+                            }
                         }
                         SettingsSection.FAMILY_SHARING -> {
                             val pcAreas by viewModel.areas.collectAsState()
@@ -4803,6 +5080,266 @@ private fun FamilyDevicesPanel(
         }
         Text(stringResource(R.string.family_require_hint), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
     }
+}
+
+/** What a quick action is called on a compact surface: the override, else the entity's own name. */
+private fun quickActionLabel(quickAction: HKIQuickAction, entity: HAEntity?): String =
+    quickAction.name?.takeIf { it.isNotBlank() }
+        ?: entity?.friendlyName?.takeIf { it.isNotBlank() }
+        ?: quickAction.entityId
+
+/** The icon slug to draw for a quick action, falling back to the same domain icon the dashboard
+ *  would pick so an entry the user never gave an icon still looks like the thing it controls. */
+private fun quickActionIconSlug(quickAction: HKIQuickAction, entity: HAEntity?): String =
+    quickAction.icon?.takeIf { it.isNotBlank() }
+        ?: entity?.let { defaultEntityIconSlug(it) }
+        ?: "lightning-bolt"
+
+/** One row of the quick-action list: what it is, whether the car shows it, and a way in. */
+@Composable
+private fun QuickActionRow(
+    quickAction: HKIQuickAction,
+    entity: HAEntity?,
+    carAvailable: Boolean,
+    onToggleCar: (Boolean) -> Unit,
+    onToggleWatch: (Boolean) -> Unit,
+    onEdit: () -> Unit,
+) {
+    val appColors = LocalHKIAppColors.current
+    // An entry whose action resolves to nothing would silently do nothing in the car, where there
+    // is no way to find out why. Say so here, the only place it can be fixed.
+    val unsupported = quickAction.resolvedKind() == QuickActionKind.UNSUPPORTED
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onEdit),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        MdiIcon(
+            quickActionIconSlug(quickAction, entity),
+            tint = if (unsupported) appColors.onMuted else appColors.onSurface,
+            size = 22.dp,
+        )
+        Column(Modifier.weight(1f)) {
+            Text(
+                quickActionLabel(quickAction, entity),
+                color = appColors.onSurface,
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (unsupported) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Icon(
+                        Icons.Default.Warning,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(14.dp),
+                    )
+                    Text(
+                        stringResource(R.string.quick_actions_unsupported),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            } else {
+                Text(
+                    quickAction.entityId,
+                    color = appColors.onMuted,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+        // Two surfaces, two toggles. Icon buttons rather than a pair of switches: a row this
+        // narrow cannot hold two switches and a label, and the car/watch glyphs say which is which
+        // without one. Dimmed means hidden from that surface.
+        SurfaceToggle(
+            icon = Icons.Default.DirectionsCar,
+            label = stringResource(R.string.quick_actions_show_in_car),
+            enabled = quickAction.showInCar,
+            // Not merely off: unreachable on this install, so it must not read as a setting the
+            // user simply has not switched on yet.
+            available = carAvailable,
+            onToggle = onToggleCar,
+        )
+        SurfaceToggle(
+            icon = Icons.Default.Watch,
+            label = stringResource(R.string.quick_actions_show_on_watch),
+            enabled = quickAction.showOnWatch,
+            onToggle = onToggleWatch,
+        )
+    }
+}
+
+/** One surface's on/off state for a quick action, as a tappable icon. */
+@Composable
+private fun SurfaceToggle(
+    icon: ImageVector,
+    label: String,
+    enabled: Boolean,
+    onToggle: (Boolean) -> Unit,
+    /** False when this surface cannot be reached at all on this install. */
+    available: Boolean = true,
+) {
+    val appColors = LocalHKIAppColors.current
+    IconButton(onClick = { onToggle(!enabled) }, enabled = available) {
+        Icon(
+            icon,
+            contentDescription = label,
+            tint = when {
+                !available -> appColors.onMuted.copy(alpha = 0.3f)
+                enabled -> appColors.accent
+                else -> appColors.onMuted.copy(alpha = 0.5f)
+            },
+            modifier = Modifier.size(20.dp),
+        )
+    }
+}
+
+/**
+ * Editor for one quick action: its label, its icon, and what a tap does.
+ *
+ * Reuses [ActionEditor] rather than growing a parallel editor, so the full Home Assistant action
+ * picker and its per-field editors come along. The type list is narrowed to the three that mean
+ * anything away from the dashboard — the others route to in-app UI that Android Auto cannot draw.
+ */
+@Composable
+private fun QuickActionEditDialog(
+    quickAction: HKIQuickAction,
+    entity: HAEntity?,
+    carAvailable: Boolean,
+    allEntities: List<HAEntity>,
+    areas: List<HAArea>,
+    viewModel: MainViewModel,
+    onDismiss: () -> Unit,
+    onSave: (HKIQuickAction) -> Unit,
+    onDelete: () -> Unit,
+) {
+    val appColors = LocalHKIAppColors.current
+    var draft by remember(quickAction.id) { mutableStateOf(quickAction) }
+    var showIconPicker by remember { mutableStateOf(false) }
+
+    if (showIconPicker) {
+        MdiIconPickerDialog(
+            current = draft.icon.orEmpty(),
+            onDismiss = { showIconPicker = false },
+            onSelect = { slug ->
+                draft = draft.copy(icon = slug.takeIf { it.isNotBlank() })
+                showIconPicker = false
+            },
+        )
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.quick_actions_edit_title)) },
+        text = {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(
+                    draft.entityId,
+                    color = appColors.onMuted,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                OutlinedTextField(
+                    value = draft.name.orEmpty(),
+                    onValueChange = { draft = draft.copy(name = it.takeIf(String::isNotBlank)) },
+                    label = { Text(stringResource(R.string.quick_actions_name)) },
+                    placeholder = { Text(entity?.friendlyName ?: draft.entityId) },
+                    supportingText = { Text(stringResource(R.string.quick_actions_name_hint)) },
+                    singleLine = true,
+                    colors = settingsTextFieldColors(),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedButton(
+                    onClick = { showIconPicker = true },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    MdiIcon(quickActionIconSlug(draft, entity), size = 20.dp)
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.quick_actions_icon), modifier = Modifier.weight(1f))
+                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
+                }
+                ActionEditor(
+                    label = stringResource(R.string.quick_actions_when_tapped),
+                    action = draft.action,
+                    allEntities = allEntities,
+                    areas = areas,
+                    viewModel = viewModel,
+                    allowedTypes = listOf("default", "toggle", "call_service"),
+                    onChange = { draft = draft.copy(action = it) },
+                )
+                if (draft.resolvedKind() == QuickActionKind.UNSUPPORTED) {
+                    Text(
+                        stringResource(R.string.quick_actions_unsupported),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        stringResource(R.string.quick_actions_show_in_car),
+                        color = if (carAvailable) appColors.onSurface else appColors.onMuted,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Switch(
+                        checked = draft.showInCar,
+                        enabled = carAvailable,
+                        onCheckedChange = { draft = draft.copy(showInCar = it) },
+                    )
+                }
+                if (!carAvailable) {
+                    Text(
+                        stringResource(R.string.quick_actions_car_needs_play),
+                        color = appColors.onMuted,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        stringResource(R.string.quick_actions_show_on_watch),
+                        color = appColors.onSurface,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Switch(
+                        checked = draft.showOnWatch,
+                        onCheckedChange = { draft = draft.copy(showOnWatch = it) },
+                    )
+                }
+                if (!draft.showOnWatch && (!draft.showInCar || !carAvailable)) {
+                    Text(
+                        stringResource(R.string.quick_actions_hidden_everywhere),
+                        color = appColors.onMuted,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = { onSave(draft) }) { Text(stringResource(R.string.dlg_save)) } },
+        dismissButton = {
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                TextButton(onClick = onDelete) {
+                    Text(stringResource(R.string.quick_actions_remove), color = MaterialTheme.colorScheme.error)
+                }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.dlg_cancel)) }
+            }
+        },
+    )
 }
 
 @Composable

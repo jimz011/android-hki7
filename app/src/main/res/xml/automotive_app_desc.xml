@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Declares to Android Auto that HKI 7 provides a templated car app (as opposed to a media or
+  messaging app). The actual capabilities come from the CarAppService's intent-filter category
+  in AndroidManifest.xml.
+-->
+<automotiveApp>
+    <uses name="template" />
+</automotiveApp>

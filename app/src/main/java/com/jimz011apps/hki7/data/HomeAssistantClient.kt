@@ -97,7 +97,8 @@ private fun parseActionFieldDefinitions(fields: JsonObject): List<HAActionFieldD
  * Whether [error] means Home Assistant (or a proxy in front of it) refused the source outright.
  *
  * Stayed with the phone client rather than moving to `:core` with the rest of the models: it reads
- * Ktor's exception types, and `:core` is shared with modules that deliberately carry no HTTP stack.
+ * Ktor's exception types, and `:core` is shared with the Wear OS app, which deliberately carries
+ * no HTTP stack beyond `HttpURLConnection`.
  */
 fun isHomeAssistantForbidden(error: Throwable): Boolean =
     generateSequence(error) { it.cause }.take(8).any { cause ->
@@ -169,6 +170,24 @@ open class HomeAssistantClient(
             }.body()
             json.decodeFromString(ListSerializer(HAEntity.serializer()), responseText)
         }
+    }
+
+    /**
+     * One entity's current state, or null when Home Assistant does not know it (404).
+     *
+     * For a surface showing a handful of entities, this beats [getEntities]: a home with a couple
+     * of thousand entities answers `/api/states` with megabytes, which is the wrong trade over a
+     * phone's mobile data for a six-item car grid.
+     */
+    open suspend fun getEntityState(entityId: String): HAEntity? = withAuthHandling {
+        val response = client.get("$baseUrl/api/states/$entityId") {
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+        }
+        if (response.status == HttpStatusCode.NotFound) return@withAuthHandling null
+        if (!response.status.isSuccess()) {
+            throw Exception("State fetch failed: HTTP ${response.status.value}")
+        }
+        json.decodeFromString(HAEntity.serializer(), response.bodyAsText())
     }
 
     /** Lightweight Core lifecycle probe used while an expected restart is in progress. Unlike a

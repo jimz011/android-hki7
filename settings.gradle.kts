@@ -23,7 +23,9 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "HKI 7"
-// :core holds the Home Assistant models. It deliberately has no Android UI dependencies, so
-// a module that is not the phone app can consume them without inheriting the dashboard.
+// :core holds what the phone, the car and the watch must agree on — the Home Assistant
+// models and the quick-action semantics. It deliberately has no Android UI dependencies,
+// so the watch APK does not inherit the phone dashboard.
 include(":core")
 include(":app")
+include(":wear")

@@ -194,6 +194,10 @@ fun ActionEditor(
     allEntities: List<HAEntity>,
     areas: List<HAArea>,
     viewModel: MainViewModel,
+    /** Restricts the offered action types. Null offers all of them, as dashboard editors do.
+     *  Surfaces that cannot route in-app navigation — Android Auto draws templates, not screens —
+     *  pass the subset that means something there. */
+    allowedTypes: List<String>? = null,
     onChange: (HKIAction) -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
@@ -215,7 +219,7 @@ fun ActionEditor(
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(stringResource(R.string.dlg_action_count, label), style = MaterialTheme.typography.labelMedium, color = appColors.onSurface)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            actionTypes().forEach { (value, text) ->
+            actionTypes().filter { allowedTypes == null || it.first in allowedTypes }.forEach { (value, text) ->
                 FilterChip(
                     selected = action.type == value,
                     onClick = { onChange(HKIAction(type = value)) },

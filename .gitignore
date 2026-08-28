@@ -9,6 +9,7 @@
 .DS_Store
 /build
 /app/release/
+/wear/release/
 /captures
 .externalNativeBuild
 .cxx

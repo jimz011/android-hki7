@@ -160,7 +160,9 @@ private data class HKIUiBackup(
     val headerLeftAlarmEntityIds: List<String> = emptyList(),
     val alarmPendingSeconds: Int = 0,
     val mediaPlayerNames: Map<String, String> = emptyMap(),
-    val mediaPlayerBarHidden: List<String> = emptyList()
+    val mediaPlayerBarHidden: List<String> = emptyList(),
+    /** Absent from backups written before quick actions existed; defaults to none. */
+    val quickActions: List<HKIQuickAction> = emptyList(),
 )
 
 class PreferencesManager(
@@ -242,6 +244,15 @@ class PreferencesManager(
     private val navBarHiddenKey = stringPreferencesKey("nav_bar_hidden")
     private val customPagesKey = stringPreferencesKey("custom_pages")
     private val customPopupsKey = stringPreferencesKey("custom_popups")
+    // Deliberately absent from [dashboardCustomizationKeys]: quick actions are the user's shortcuts
+    // for surfaces outside the dashboard, so switching dashboards must not swap them out.
+    private val quickActionsKey = stringPreferencesKey("quick_actions")
+    // The room list last handed to a paired watch. Cached rather than derived on demand
+    // because the areas and entity registry it comes from live in the view model, and the
+    // Data Layer push runs from a background service with no view model to ask.
+    private val wearRoomsKey = stringPreferencesKey("wear_rooms")
+    private val wearThermostatKey = stringPreferencesKey("wear_thermostat_entity_id")
+    private val wearThermostatsKey = stringPreferencesKey("wear_thermostat_entity_ids")
     private val mediaPlayerNamesKey = stringPreferencesKey("media_player_custom_names")
     private val mediaPlayerBarHiddenKey = stringPreferencesKey("media_player_bar_hidden")
     private val adaptiveLightingProfilesKey = stringPreferencesKey("adaptive_lighting_profiles")
@@ -385,6 +396,29 @@ class PreferencesManager(
     val parentalHiddenSearchEntityIds: Flow<List<String>> = context.dataStore.data.map {
         it[parentalHiddenSearchEntityIdsKey]?.split(",")?.filter(String::isNotBlank) ?: emptyList()
     }
+
+    /**
+     * The four search allow/deny lists as one policy, for anything that needs to ask
+     * [Hki7Policy.canSearchEntity] rather than render the lists themselves.
+     *
+     * The same gate covers global search and the off-dashboard surfaces (Android Auto today):
+     * both reach entities that are not on the user's dashboard, so both answer to the same
+     * household restriction.
+     */
+    val enforcedSearchPolicy: Flow<Hki7Policy> = context.dataStore.data.map { p ->
+        fun list(key: Preferences.Key<String>) =
+            p[key]?.split(",")?.filter(String::isNotBlank) ?: emptyList()
+        Hki7Policy(
+            visibleSearchDomains = list(parentalVisibleSearchDomainsKey),
+            visibleSearchEntityIds = list(parentalVisibleSearchEntityIdsKey),
+            hiddenSearchDomains = list(parentalHiddenSearchDomainsKey),
+            hiddenSearchEntityIds = list(parentalHiddenSearchEntityIdsKey),
+        )
+    }
+
+    /** One-shot [enforcedSearchPolicy], for background surfaces with nothing to collect into. */
+    suspend fun enforcedSearchPolicyNow(): Hki7Policy = enforcedSearchPolicy.first()
+
     /** Whether the current user may enter dashboard edit mode (admin policy; default allowed). */
     val enforcedAllowEdit: Flow<Boolean> = context.dataStore.data.map { it[parentalAllowEditKey] ?: true }
     /** Whether the current user is restricted to aesthetic-only edits (admin policy). */
@@ -644,6 +678,56 @@ class PreferencesManager(
     val customPopups: Flow<List<HKICustomPopup>> = context.dataStore.data.map { preferences ->
         val saved = preferences[customPopupsKey] ?: "[]"
         runCatching { appJson.decodeFromString<List<HKICustomPopup>>(saved) }.getOrDefault(emptyList())
+    }
+
+    /** The user's curated shortcuts for surfaces that cannot render a dashboard (Android Auto). */
+    val quickActions: Flow<List<HKIQuickAction>> = context.dataStore.data.map { preferences ->
+        decodeBackup(preferences[quickActionsKey], emptyList())
+    }
+
+    /** Rooms as last published to a paired watch. */
+    val wearRooms: Flow<List<WearRoom>> = context.dataStore.data.map { preferences ->
+        decodeBackup(preferences[wearRoomsKey], emptyList())
+    }
+
+    suspend fun saveWearRooms(rooms: List<WearRoom>) {
+        context.dataStore.edit {
+            if (rooms.isEmpty()) it.remove(wearRoomsKey)
+            else it[wearRoomsKey] = appJson.encodeToString(rooms)
+        }
+    }
+
+    /** The climate entities the watch's thermostat tile cycles through. Empty means no content.
+     *
+     *  A separate setting rather than something inferred from quick actions: a quick action is one
+     *  tap with one outcome, and a thermostat is a value to nudge. Guessing the first climate
+     *  entity in a house with four of them would put the wrong room on someone's wrist. */
+    val wearThermostatEntityIds: Flow<List<String>> = context.dataStore.data.map { preferences ->
+        preferences[wearThermostatsKey]
+            ?.split(",")
+            ?.filter(String::isNotBlank)
+        // Carries over the single-entity setting this shipped as first, so an existing choice is
+        // not silently dropped when the tile learned to hold several.
+            ?: listOfNotNull(preferences[wearThermostatKey]?.takeIf(String::isNotBlank))
+    }
+
+    suspend fun saveWearThermostatEntityIds(entityIds: List<String>) {
+        val cleaned = entityIds.filter(String::isNotBlank).distinct()
+        context.dataStore.edit {
+            it.remove(wearThermostatKey)
+            if (cleaned.isEmpty()) it.remove(wearThermostatsKey)
+            else it[wearThermostatsKey] = cleaned.joinToString(",")
+        }
+    }
+
+    /** One-shot [quickActions], for surfaces with no composition to collect into. */
+    suspend fun quickActionsOnce(): List<HKIQuickAction> = quickActions.first()
+
+    suspend fun saveQuickActions(actions: List<HKIQuickAction>) {
+        context.dataStore.edit {
+            if (actions.isEmpty()) it.remove(quickActionsKey)
+            else it[quickActionsKey] = appJson.encodeToString(actions)
+        }
     }
 
     // Media players: local display names and which players may show the mini player bar.
@@ -1065,7 +1149,8 @@ class PreferencesManager(
             headerLeftAlarmEntityIds = strings(headerLeftAlarmEntityKey),
             alarmPendingSeconds = p[alarmPendingSecondsKey] ?: 0,
             mediaPlayerNames = decodeBackup(p[mediaPlayerNamesKey], emptyMap()),
-            mediaPlayerBarHidden = strings(mediaPlayerBarHiddenKey)
+            mediaPlayerBarHidden = strings(mediaPlayerBarHiddenKey),
+            quickActions = decodeBackup(p[quickActionsKey], emptyList()),
         ))
     }
 
@@ -1118,6 +1203,8 @@ class PreferencesManager(
             p[alarmPendingSecondsKey] = backup.alarmPendingSeconds
             p[mediaPlayerNamesKey] = appJson.encodeToString(backup.mediaPlayerNames)
             p[mediaPlayerBarHiddenKey] = backup.mediaPlayerBarHidden.joinToString(",")
+            if (backup.quickActions.isEmpty()) p.remove(quickActionsKey)
+            else p[quickActionsKey] = appJson.encodeToString(backup.quickActions)
         }
     }
 

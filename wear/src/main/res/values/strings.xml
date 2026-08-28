@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="wear_app_name">HKI 7</string>
+    <string name="wear_quick_actions">Quick actions</string>
+    <string name="wear_rooms">Rooms</string>
+    <string name="wear_settings">Settings</string>
+    <string name="wear_refresh">Refresh</string>
+    <string name="wear_resync">Sync from phone</string>
+    <string name="wear_no_quick_actions">Nothing here yet. Choose what appears on your watch in HKI 7 on your phone.</string>
+    <string name="wear_room_empty">Nothing to control in this room.</string>
+    <string name="wear_unreachable">Can\'t reach Home Assistant.</string>
+
+    <!-- Setup -->
+    <string name="wear_setup_title">Set up HKI 7</string>
+    <string name="wear_setup_body">If HKI 7 is on your phone, your watch can be set up from there. Otherwise sign in below.</string>
+    <string name="wear_setup_retry">Check phone</string>
+    <string name="wear_setup_checking">Checking…</string>
+    <string name="wear_setup_or_sign_in">Or sign in</string>
+    <string name="wear_setup_url_hint">Home Assistant address</string>
+    <string name="wear_setup_sign_in">Sign in</string>
+    <string name="wear_setup_continue_on_phone_title">Continue on phone</string>
+    <string name="wear_setup_continue_on_phone">Finish signing in on your phone. Your password stays there.</string>
+    <string name="wear_setup_bad_url">That does not look like an address.</string>
+    <string name="wear_setup_phone_unavailable">Can\'t reach your phone. Check it is nearby and connected.</string>
+    <string name="wear_setup_unsupported">This watch can\'t sign in this way.</string>
+    <string name="wear_setup_failed">Sign-in failed. Check the address and try again.</string>
+
+    <!-- Tile and complication -->
+    <string name="wear_tile_label">HKI 7 quick actions</string>
+    <string name="wear_tile_empty">Choose what appears on your watch in HKI 7 on your phone.</string>
+    <string name="wear_thermostat_tile_label">HKI 7 thermostat</string>
+    <string name="wear_thermostat_unset">Choose a thermostat for your watch in HKI 7 on your phone.</string>
+    <string name="wear_thermostat_now">Now %1$s</string>
+    <string name="wear_thermostat_position">%1$d/%2$d</string>
+    <string name="wear_complication_label">HKI 7</string>
+    <string name="wear_complication_none">Set up</string>
+    <string name="wear_complication_not_set_up">Sign in</string>
+    <string name="wear_complication_preview_label">Kitchen</string>
+    <string name="wear_complication_preview_value">On</string>
+
+    <string name="wear_sensors_title">Home Assistant</string>
+    <string name="wear_sensors_battery">Report watch battery</string>
+    <string name="wear_sensors_body">Adds your watch to Home Assistant as a device, so its battery can trigger automations. Nothing else about the watch is sent.</string>
+    <string name="wear_settings_body">Your watch talks to Home Assistant directly. What it shows is chosen on your phone.</string>
+</resources>

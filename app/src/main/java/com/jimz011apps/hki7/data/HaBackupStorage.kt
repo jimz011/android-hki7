@@ -34,14 +34,38 @@ internal object Hki7Endpoint {
         return Endpoint(url, token)
     }
 
-    /** Runs [block] with a fresh client, closing it afterwards. Null if no credentials. */
+    /** Runs [block] with a fresh client, releasing it afterwards. Null if no credentials.
+     *
+     *  Disposes rather than only closing the session: the client is built per call and no caller
+     *  can reach it again afterwards, so leaving its HTTP connection pool and dispatcher threads
+     *  alive leaks them once per call. Barely visible for the daily backup job, but the Android
+     *  Auto surface comes through here on every refresh and every tap. */
     suspend fun <T> withClient(context: Context, block: suspend (HomeAssistantClient) -> T): T? {
-        val endpoint = endpoint(context) ?: return null
-        val client = HomeAssistantClient(endpoint.url, endpoint.token)
+        val client = createClient(context) ?: return null
         return try {
             block(client)
         } finally {
-            client.closeSession()
+            client.dispose()
+        }
+    }
+
+    /**
+     * A client the caller owns and must [HomeAssistantClient.dispose] itself.
+     *
+     * For a surface that keeps one connection alive across many calls rather than making a single
+     * request — the Android Auto screen holds a state-change subscription open for as long as the
+     * car session lasts, which is the whole point of it not needing a refresh button.
+     */
+    suspend fun createClient(context: Context): HomeAssistantClient? {
+        val endpoint = endpoint(context) ?: return null
+        // Mirrors MainViewModel's own client construction: on the demo home there is no server
+        // behind the saved URL, so a real client here would send requests at demo-home.hki7.invalid.
+        // The Android Auto surface reaches Home Assistant only through here, and demo mode is how
+        // someone without a Home Assistant server sees the car screen work at all.
+        return if (isDemoServerUrl(endpoint.url)) {
+            DemoHomeAssistantClient()
+        } else {
+            HomeAssistantClient(endpoint.url, endpoint.token)
         }
     }
 }

@@ -279,28 +279,38 @@ private fun SpeedChips(label: String, options: List<String>, current: String?, o
     }
 }
 
+/** String resource for a common Home Assistant state, or null when there is no translation for it.
+ *  Split out of [localizedEntityStateLabel] so surfaces with no composition — the Android Auto
+ *  templates — can reach the same translations through a plain Context. */
+internal fun entityStateLabelRes(state: String): Int? = when (state.lowercase()) {
+    "on" -> R.string.uif_state_on
+    "off" -> R.string.uif_state_off
+    "open" -> R.string.uif_state_open
+    "closed" -> R.string.uif_state_closed
+    "locked" -> R.string.uif_state_locked
+    "unlocked" -> R.string.uif_state_unlocked
+    "home" -> R.string.uif_state_home
+    "away", "not_home" -> R.string.uif_state_away
+    "idle" -> R.string.uif_state_idle
+    "active" -> R.string.uif_state_active
+    "cleaning" -> R.string.uif_state_cleaning
+    "returning" -> R.string.uif_state_returning
+    "paused" -> R.string.uif_state_paused
+    "docked" -> R.string.uif_state_docked
+    "playing" -> R.string.uif_state_playing
+    "buffering" -> R.string.uif_state_buffering
+    "standby" -> R.string.uif_state_standby
+    "unknown" -> R.string.uif_state_unknown
+    "unavailable" -> R.string.uif_state_unavailable
+    "error" -> R.string.uif_state_error
+    else -> null
+}
+
+/** The fallback rendering for a state with no translation of its own. */
+internal fun rawEntityStateLabel(state: String): String =
+    state.replace('_', ' ').replaceFirstChar(Char::uppercase)
+
 /** Common Home Assistant states used as display text; comparisons continue to use raw tokens. */
 @Composable
-internal fun localizedEntityStateLabel(state: String): String = when (state.lowercase()) {
-    "on" -> stringResource(R.string.uif_state_on)
-    "off" -> stringResource(R.string.uif_state_off)
-    "open" -> stringResource(R.string.uif_state_open)
-    "closed" -> stringResource(R.string.uif_state_closed)
-    "locked" -> stringResource(R.string.uif_state_locked)
-    "unlocked" -> stringResource(R.string.uif_state_unlocked)
-    "home" -> stringResource(R.string.uif_state_home)
-    "away", "not_home" -> stringResource(R.string.uif_state_away)
-    "idle" -> stringResource(R.string.uif_state_idle)
-    "active" -> stringResource(R.string.uif_state_active)
-    "cleaning" -> stringResource(R.string.uif_state_cleaning)
-    "returning" -> stringResource(R.string.uif_state_returning)
-    "paused" -> stringResource(R.string.uif_state_paused)
-    "docked" -> stringResource(R.string.uif_state_docked)
-    "playing" -> stringResource(R.string.uif_state_playing)
-    "buffering" -> stringResource(R.string.uif_state_buffering)
-    "standby" -> stringResource(R.string.uif_state_standby)
-    "unknown" -> stringResource(R.string.uif_state_unknown)
-    "unavailable" -> stringResource(R.string.uif_state_unavailable)
-    "error" -> stringResource(R.string.uif_state_error)
-    else -> state.replace('_', ' ').replaceFirstChar(Char::uppercase)
-}
+internal fun localizedEntityStateLabel(state: String): String =
+    entityStateLabelRes(state)?.let { stringResource(it) } ?: rawEntityStateLabel(state)

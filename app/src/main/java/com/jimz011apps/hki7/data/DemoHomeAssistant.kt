@@ -96,6 +96,9 @@ class DemoHomeAssistantClient : HomeAssistantClient(DEMO_SERVER_URL, DEMO_ACCESS
 
     override suspend fun getEntities(): List<HAEntity> = snapshot()
 
+    override suspend fun getEntityState(entityId: String): HAEntity? =
+        snapshot().firstOrNull { it.entity_id == entityId }
+
     override suspend fun getCoreState(): HACoreState = HACoreState.RUNNING
 
     override suspend fun checkConnection() = Unit

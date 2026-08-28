@@ -105,6 +105,21 @@ data class HAEntity(
     val humidity: Double?
         get() = attributes?.get("humidity")?.jsonPrimitiveOrNull?.doubleOrNull
 
+    /** What a climate device currently reads, as opposed to [temperature], which is its target. */
+    val currentTemperature: Double?
+        get() = attributes?.get("current_temperature")?.jsonPrimitiveOrNull?.doubleOrNull
+
+    /** Bounds and step Home Assistant reports for a climate target, with its documented defaults
+     *  when the integration does not say. Used to keep a nudge inside what the device accepts. */
+    val minTemp: Double
+        get() = attributes?.get("min_temp")?.jsonPrimitiveOrNull?.doubleOrNull ?: 7.0
+
+    val maxTemp: Double
+        get() = attributes?.get("max_temp")?.jsonPrimitiveOrNull?.doubleOrNull ?: 35.0
+
+    val targetTempStep: Double
+        get() = attributes?.get("target_temp_step")?.jsonPrimitiveOrNull?.doubleOrNull ?: 0.5
+
     val pressure: Double?
         get() = attributes?.get("pressure")?.jsonPrimitiveOrNull?.doubleOrNull
 

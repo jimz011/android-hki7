@@ -20,6 +20,18 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        debug {
+            // Installs alongside a release build instead of colliding with it. The signatures
+            // differ, so without this a debug build cannot be installed on a device that already
+            // has HKI 7 — including when the release copy lives in a Samsung Secure Folder, where
+            // adb cannot reach it to uninstall.
+            //
+            // Safe for sign-in: the Home Assistant OAuth client_id and redirect_uri are fixed
+            // constants, not derived from the application id. Google Drive sign-in is already
+            // unavailable to debug builds (different signing certificate), so nothing regresses.
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
         release {
             // R8 full-mode shrinking + obfuscation + resource shrinking. Keep rules that the
             // serialization models rely on live in proguard-rules.pro.
@@ -64,8 +76,8 @@ configurations.all {
 }
 
 dependencies {
-    // The Home Assistant models, so a module that is not the phone app can use them without
-    // inheriting the Compose dashboard.
+    // Home Assistant models and quick-action semantics, shared with the Wear OS app so the
+    // same shortcut cannot mean two different things depending on the device.
     implementation(project(":core"))
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
@@ -85,8 +97,17 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.play.services.location)
     implementation(libs.play.services.auth)
+    // Phone-to-watch handover: the watch is set up from here rather than signing in itself.
+    implementation(libs.play.services.wearable)
+    implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.play.app.update.ktx)
     implementation(libs.androidx.work.runtime.ktx)
+    // Android Auto. The templates in androidx.car.app:app are the only UI a projected car head
+    // unit will draw, so none of the Compose dashboard applies there. app-projected carries the
+    // projected-specific host bits, and has to be paired with app explicitly: its POM declares
+    // app at runtime scope, so on its own the templates are missing from the compile classpath.
+    implementation(libs.androidx.car.app)
+    implementation(libs.androidx.car.app.projected)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotiation)

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings › Android Auto & Wear OS. Named after the surfaces rather than the concept:
+         "Quick actions" is what the entries are, but nobody scanning Settings would learn from it
+         that the app works in the car and on a watch. -->
+    <string name="settings_title_quick_actions">Android Auto &amp; Wear OS</string>
+    <string name="settings_subtitle_quick_actions">Quick actions for the car and your watch</string>
+    <string name="quick_actions_menu_subtitle">Choose what appears in the car and on your watch</string>
+    <string name="quick_actions_intro">Neither Android Auto nor a watch can show your dashboard. Pick the handful of things you want within reach from the car and from your wrist.</string>
+    <string name="quick_actions_limit_note">While driving, Android Auto shows only the first few and hides the rest — keep the important ones at the top.</string>
+    <string name="quick_actions_none">No quick actions yet.</string>
+    <string name="quick_actions_add">Add quick action</string>
+    <string name="quick_actions_reorder">Reorder</string>
+    <string name="quick_actions_reorder_subtitle">Drag to set the order they appear in.</string>
+    <string name="quick_actions_show_in_car">Show in Android Auto</string>
+    <string name="quick_actions_show_on_watch">Show on Wear OS</string>
+    <string name="quick_actions_surfaces">Show on</string>
+    <string name="quick_actions_hidden_everywhere">Hidden from the car and your watch.</string>
+    <string name="quick_actions_unsupported">Won\'t run in the car or on your watch. Choose Toggle or a Home Assistant action.</string>
+    <string name="quick_actions_edit_title">Quick action</string>
+    <string name="quick_actions_name">Name</string>
+    <string name="quick_actions_name_hint">Leave empty to use the entity name</string>
+    <string name="quick_actions_icon">Icon</string>
+    <string name="quick_actions_remove">Remove</string>
+    <string name="quick_actions_when_tapped">When tapped</string>
+    <string name="quick_actions_pick_entity">Choose an entity</string>
+    <string name="quick_actions_already_added">Already a quick action</string>
+    <string name="quick_actions_car_needs_play">Android Auto only works on copies installed from Google Play. Google does not let apps installed any other way appear in the car, so on this copy quick actions reach your watch but not the car.</string>
+    <string name="quick_actions_watch_thermostat">Watch thermostat</string>
+    <string name="quick_actions_watch_thermostat_subtitle">The thermostats your watch tile adjusts</string>
+    <string name="quick_actions_watch_thermostat_none">No thermostat chosen</string>
+    <string name="quick_actions_watch_thermostat_cycle">Tap the name on the watch tile to move between them</string>
+    <string name="quick_actions_watch_thermostat_count">%1$d thermostats</string>
+    <string name="quick_actions_watch_note">Your watch talks to Home Assistant directly. It is set up from this phone — there is nothing to sign in to on the watch.</string>
+
+    <!-- The Android Auto surface itself -->
+    <string name="car_quick_actions_title">Quick actions</string>
+    <string name="car_not_configured">Open HKI 7 on your phone and connect it to Home Assistant.</string>
+    <string name="car_no_actions">Add quick actions in HKI 7 on your phone, under Settings, Android Auto and Wear OS.</string>
+    <string name="car_loading">Loading</string>
+    <string name="car_action_sent">Sent</string>
+    <string name="car_action_failed">Couldn\'t reach Home Assistant</string>
+    <string name="car_action_unavailable">Not available</string>
+    <string name="car_refresh">Refresh</string>
+</resources>
