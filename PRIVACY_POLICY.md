@@ -25,6 +25,18 @@ If you enable presence detection, the app collects your device's location — in
 
 If you enable sensor reporting, the app reads device state such as battery level, charging state, network/Wi-Fi state, and similar device sensors, and reports them **only to your own Home Assistant server** (mirroring what the official Home Assistant companion app does). This is optional and configurable in settings.
 
+### Paired Wear OS watch
+
+If you install the Wear OS app, your phone sends it the Home Assistant server address, a session token, and the shortcuts and rooms you chose to show on it. This transfer happens over Google's Wear OS Data Layer, which is encrypted between your paired devices; it does not pass through any server operated by the developer.
+
+The watch then talks to **your own Home Assistant server** directly, using its own session. If you instead sign in on the watch itself, the login page opens in your phone's browser and the watch receives only the resulting token — your password is never entered on, or seen by, the watch.
+
+The watch reports nothing about itself unless you switch on **Report watch battery**, which sends its battery level and charging state to your own Home Assistant server and nothing else. The app does not request location, body sensors, heart rate, or microphone access on the watch.
+
+### Android Auto
+
+The Android Auto screen shows the shortcuts you chose and calls the corresponding services on **your own Home Assistant server**. Nothing about your vehicle, your location, or your driving is collected, and no data is sent anywhere other than the Home Assistant instance you configured.
+
 ### Home Assistant data (entities, cameras, media)
 
 Dashboards, entity states, history, camera streams, and media are fetched **from your own Home Assistant server** for display on your device. Camera streams are viewed live and are not recorded or stored by the app.

@@ -267,6 +267,56 @@ selected in the widget's settings, and that the entity is producing map data in 
 
 ---
 
+## Android Auto and Wear OS
+
+### HKI 7 is missing from the car's app launcher
+
+Almost always because the app was not installed from Google Play — Android Auto refuses apps like
+this one from any other source, and its "Unknown sources" developer option does not apply to them.
+Check Settings › Android Auto & Wear OS; it says so on a copy that cannot work in the car.
+
+If it *was* installed from Play, confirm Android Auto is opted in for this app on the phone, then
+disconnect and reconnect.
+
+### The car grid is empty
+
+No quick actions are set, or all of them are hidden from the car. Add some under
+**Settings › Android Auto & Wear OS** and check each entry's car toggle is on.
+
+An entry marked as not doing anything — a lock or alarm panel left on the default action — is left
+out of the car deliberately, because there is no safe guess for what a single tap should mean.
+
+### The watch says "Set up HKI 7"
+
+The phone has not handed over a session. Tap **Check phone** first. If that does not work, HKI 7
+may not be installed on the phone, or the phone and watch builds may not match — a debug build on
+one and a release build on the other cannot pair, because they are different applications.
+
+Failing that, sign in on the watch directly: type the Home Assistant address and finish on your
+phone's browser.
+
+### The watch says it cannot reach Home Assistant
+
+The address the phone sent has to be reachable from where the watch is. A local-only address works
+on home Wi-Fi and nowhere else — away from home, or on a watch using its own mobile connection, it
+will not resolve. Nabu Casa or a reverse proxy fixes it.
+
+### A watch tile shows old information
+
+Tiles refresh on their own schedule rather than following Home Assistant live, because they update
+with nobody looking at them. A change made on the phone is pushed to them straight away; a change
+made elsewhere in the house appears at the next refresh, or as soon as you open the tile.
+
+### A tile is missing entirely
+
+Tiles have to be added on the watch: long-press the watch face, swipe to **+**, and pick the one
+you want. Installing the app does not add them for you.
+
+### The thermostat tile says to choose a thermostat
+
+Pick one under **Settings › Android Auto & Wear OS › Watch thermostat** on the phone. Choose
+several and tap the name on the tile to move between them.
+
 ## Backups
 
 ### "The backup could not be read"

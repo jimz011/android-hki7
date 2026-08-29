@@ -9,6 +9,9 @@
   URL, or through Home Assistant Cloud (Nabu Casa).
 - **Google Play Services** if you want geofence-based presence, Google Drive backups, or in-app
   updates. The app runs without them; those specific features do not.
+- **Wear OS 3 or newer** for the watch app, and a car or head unit supporting **Android Auto** —
+  both optional, and neither changes anything about the phone app. See
+  [Android Auto and Wear OS](../guide/car-and-watch.md).
 
 Family sharing has one extra requirement — the
 [HKI 7 Cloud](https://github.com/jimz011/HKI7-Cloud-Component) integration on your Home Assistant.
@@ -21,6 +24,11 @@ See [Family sharing](../guide/family-sharing.md).
     HKI 7 is published on Google Play as **HKI 7** (`com.jimz011apps.hki7`). Installing from Play
     is what makes in-app updates work, including the family "please update" prompt described in
     [Family sharing](../guide/family-sharing.md#devices).
+
+    The Wear OS app is delivered from the same listing, so installing on the phone offers it for a
+    paired watch.
+
+    It is also the only way to get **Android Auto** — see the warning below.
 
 === "Build it yourself"
 
@@ -40,6 +48,16 @@ See [Family sharing](../guide/family-sharing.md).
         A copy that did not come from the Play Store cannot use Play's in-app update flow. If your
         family admin requires a minimum version, you will get an explanation and a way past the
         prompt for that session rather than a working update button.
+
+    !!! warning "Sideloaded builds cannot use Android Auto"
+
+        Android Auto only surfaces apps like this one when they were installed from Google Play,
+        and its "Unknown sources" developer option does not cover them. A build from source works
+        normally on the phone and on a watch, but the car screen will never appear. Nothing in the
+        app can change that.
+
+        The watch app has no such restriction — `./gradlew :wear:assembleDebug` and install it as
+        usual.
 
 ## Try it without a server
 

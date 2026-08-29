@@ -53,4 +53,8 @@ your question is.
 
     Running more than one Home Assistant from a single app.
 
+-   :material-watch-variant: **[Android Auto and Wear OS](car-and-watch.md)**
+
+    Quick actions in the car and on your wrist, watch tiles, and the thermostat tile.
+
 </div>

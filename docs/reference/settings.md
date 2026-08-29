@@ -82,6 +82,21 @@ The subtitle shows whether the dashboard is in **Automatic** or **Manual** mode.
 
 *Messages, safety and portability.*
 
+### Android Auto & Wear OS
+
+*Choose what appears in the car and on your watch.*
+
+- **Quick actions** — the curated list both surfaces read; each entry has its own name, icon and
+  tap action, is shown or hidden per surface, and can be reordered
+- A warning on any entry that would do nothing away from the dashboard, such as a lock with no
+  explicit action chosen
+- **Watch thermostat** — the climate entities the watch's thermostat tile adjusts; pick several and
+  the tile cycles between them
+- On a copy not installed from Google Play, a note that Android Auto will not appear and the car
+  toggles dimmed, since Auto refuses apps installed any other way
+
+[:octicons-arrow-right-24: Android Auto and Wear OS](../guide/car-and-watch.md)
+
 ### Notifications
 
 *Push delivery and history.*

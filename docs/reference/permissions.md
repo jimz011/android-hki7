@@ -59,6 +59,20 @@ Decline all of these and HKI 7 works normally — you simply get no device track
 : Only if you turn on Drive backups. It grants access to the app's own private folder in your
   Drive and nothing else.
 
+## The Wear OS app
+
+The watch app is a separate install with its own, much shorter list. It asks for **no runtime
+permissions at all**.
+
+| Permission | Why |
+|---|---|
+| `INTERNET` | Talking to Home Assistant directly, rather than relaying through the phone. |
+| `ACCESS_NETWORK_STATE` | Noticing when the watch's connection changes. |
+
+It reads the watch's battery level, which needs no permission, and only when you switch on
+**Report watch battery**. It asks for no location, no body sensors and no microphone — so none of
+the heart rate, step or workout data on your wrist is reachable by it.
+
 ## What HKI 7 does not ask for
 
 No contacts, no camera, no microphone, no storage-wide access, no phone state, no advertising id,

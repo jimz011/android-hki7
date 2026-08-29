@@ -183,6 +183,45 @@
 
     Yes. Decline every location permission and everything except the device tracker works.
 
+## Android Auto and Wear OS
+
+??? question "HKI 7 does not appear in my car"
+
+    Android Auto only shows apps like this one when they came from **Google Play**. Its "Unknown
+    sources" developer setting does not cover them — that option applies to media and messaging
+    apps, not to apps built on the Android for Cars App Library.
+
+    So a copy installed from GitHub works normally everywhere else, but the car screen will never
+    appear. There is no setting that changes this. Settings says so on such a copy.
+
+??? question "Why can I not see my whole dashboard in the car or on my watch?"
+
+    Neither can draw one. Android Auto renders Google's own templates rather than an app's
+    interface, and hides content past a limit it sets while the car is moving. A watch has room for
+    a few rows.
+
+    Both read the short list you curate under **Settings › Android Auto & Wear OS** instead.
+
+??? question "Does my watch need my phone nearby?"
+
+    No. The watch talks to Home Assistant directly, so it works with the phone in another room or
+    switched off.
+
+    It does need Home Assistant to be reachable from wherever the watch is. If your only address is
+    a local one like `192.168.1.10`, the watch works on your home Wi-Fi and nowhere else.
+
+??? question "Do I have to sign in on the watch?"
+
+    Usually not — if HKI 7 is on your phone, the watch is set up from there with no typing.
+
+    If it is not, the watch can sign in by itself: you type only the Home Assistant address, and
+    the login page opens on your phone's browser. Your password is never typed on a watch.
+
+??? question "Does the watch report my location?"
+
+    No. It can optionally report its own **battery**, so an automation can remind you to charge it,
+    and nothing else. That is off until you turn it on.
+
 ## Family sharing
 
 ??? question "Can I hide entities from my kids?"

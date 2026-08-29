@@ -124,6 +124,7 @@ nav:
       - Family sharing: guide/family-sharing.md
       - Backup and restore: guide/backup.md
       - Multiple homes: guide/multiple-homes.md
+      - Android Auto and Wear OS: guide/car-and-watch.md
   - Reference:
       - reference/index.md
       - Settings map: reference/settings.md
