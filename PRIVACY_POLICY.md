@@ -1,6 +1,6 @@
 # HKI 7 Privacy Policy
 
-**Last updated: July 23, 2026**
+**Last updated: August 29, 2026**
 
 HKI 7 ("the app") is an Android client for [Home Assistant](https://www.home-assistant.io/), a home automation platform that you host yourself. This policy explains what data the app handles and where it goes.
 
