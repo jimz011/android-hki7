@@ -1,7 +1,6 @@
 package com.jimz011apps.hki7.ui.components
 
 import android.app.Activity
-import android.graphics.drawable.ColorDrawable
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.core.view.WindowCompat
@@ -18,12 +17,15 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -47,8 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import com.jimz011apps.hki7.R
 import com.jimz011apps.hki7.data.HACalendarEvent
 import com.jimz011apps.hki7.data.HAEntity
@@ -94,22 +94,17 @@ fun ScreensaverHost(viewModel: MainViewModel) {
     val context = LocalContext.current
     DisposableEffect(Unit) {
         val window = (context as? Activity)?.window
-        val previousBackground = window?.decorView?.background
         window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        // Edge-to-edge leaves the window background transparent. Hiding the three-button bar then
-        // shows the dashboard through any pixel the screensaver has not painted yet.
-        window?.setBackgroundDrawable(ColorDrawable(0xFF101010.toInt()))
         val controller = window?.let { WindowCompat.getInsetsController(it, it.decorView) }
         controller?.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         controller?.hide(WindowInsetsCompat.Type.systemBars())
         onDispose {
             controller?.show(WindowInsetsCompat.Type.systemBars())
-            window?.setBackgroundDrawable(previousBackground)
             window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
     }
-    Box(Modifier.fillMaxSize().background(Color(0xFF101010)).zIndex(10f)) {
+    Box(Modifier.fillMaxSize().zIndex(10f)) {
         ScreensaverScreen(
         viewModel = viewModel,
         settings = settings,
@@ -174,6 +169,10 @@ private fun ScreensaverScreen(
     val allEvents by viewModel.calendarEvents.collectAsState()
     val events = allEvents[calendarKey].orEmpty()
     val weather = entities.firstOrNull { it.entity_id == weatherId } ?: headerWeather
+    val seed = screensaverBackgroundSeed(settings.backgroundRotationMinutes)
+    val backgroundUrl = if (settings.background == "picsum") {
+        "https://picsum.photos/seed/hki7-wall-$seed/1920/1080"
+    } else null
 
     BoxWithConstraints(
         modifier = Modifier
@@ -184,10 +183,28 @@ private fun ScreensaverScreen(
                 onClick = onDismiss,
             )
     ) {
-        ScreensaverBackdrop(settings.background, settings.backgroundRotationMinutes)
+        if (backgroundUrl != null) {
+            AsyncImage(
+                model = backgroundUrl,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+        } else {
+            Box(Modifier.fillMaxSize().background(Color(0xFF101010)))
+        }
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.28f))
+        )
         val panel = settings.isClockPanel()
         val barHeight = if (!panel) 0.dp else if (maxWidth > maxHeight) maxHeight * 0.44f else maxHeight * 0.52f
-        Column(Modifier.fillMaxSize()) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+        ) {
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -212,33 +229,6 @@ private fun ScreensaverScreen(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun ScreensaverBackdrop(background: String, rotationMinutes: Int) {
-    val context = LocalContext.current
-    val url = remember(background, rotationMinutes) {
-        if (background != "picsum") {
-            null
-        } else {
-            val seed = screensaverBackgroundSeed(rotationMinutes)
-            "https://picsum.photos/seed/hki7-wall-$seed/1920/1080"
-        }
-    }
-    Box(Modifier.fillMaxSize().background(Color(0xFF101010))) {
-        if (url != null) {
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(url)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-            )
-        }
-        Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.28f)))
     }
 }
 
