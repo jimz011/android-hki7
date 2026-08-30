@@ -88,10 +88,15 @@ class CameraStreamService : Service(), LifecycleOwner {
                     .map { Triple(it.cameraStreamEnabled, it.clampedStreamPort(), it) }
                     .distinctUntilChanged()
                     .collect { (enabled, port, settings) ->
-                        if (!enabled || !hasCameraPermission()) {
+                        if (!hasCameraPermission()) {
                             stopSelf()
                             return@collect
                         }
+                        // Do not stopSelf when disk still says off. Enabling writes the toggle to
+                        // the ViewModel immediately and starts this service, then persists 300ms
+                        // later — a first collect of the old value used to kill the stream until
+                        // the next process start. Turning the stream off already calls stop().
+                        if (!enabled) return@collect
                         val ensured = settings.withStreamToken()
                         if (ensured.streamToken != settings.streamToken) {
                             prefs.saveDevicePanelSettings(ensured)
