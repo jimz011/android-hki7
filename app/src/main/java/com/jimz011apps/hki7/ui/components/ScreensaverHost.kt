@@ -1,6 +1,7 @@
 package com.jimz011apps.hki7.ui.components
 
 import android.app.Activity
+import android.graphics.drawable.ColorDrawable
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.core.view.WindowCompat
@@ -91,17 +92,22 @@ fun ScreensaverHost(viewModel: MainViewModel) {
     val context = LocalContext.current
     DisposableEffect(Unit) {
         val window = (context as? Activity)?.window
+        val previousBackground = window?.decorView?.background
         window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        // Edge-to-edge leaves the window background transparent. Hiding the three-button bar then
+        // shows the dashboard through any pixel the screensaver has not painted yet.
+        window?.setBackgroundDrawable(ColorDrawable(0xFF101010.toInt()))
         val controller = window?.let { WindowCompat.getInsetsController(it, it.decorView) }
         controller?.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         controller?.hide(WindowInsetsCompat.Type.systemBars())
         onDispose {
             controller?.show(WindowInsetsCompat.Type.systemBars())
+            window?.setBackgroundDrawable(previousBackground)
             window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
     }
-    Box(Modifier.fillMaxSize().zIndex(10f)) {
+    Box(Modifier.fillMaxSize().background(Color(0xFF101010)).zIndex(10f)) {
         ScreensaverScreen(
         viewModel = viewModel,
         settings = settings,
@@ -168,12 +174,13 @@ private fun ScreensaverScreen(
     val weather = entities.firstOrNull { it.entity_id == weatherId } ?: headerWeather
     val seed = screensaverBackgroundSeed(settings.backgroundRotationMinutes)
     val backgroundUrl = if (settings.background == "picsum") {
-        "https://picsum.photos/seed/hki7-wall-$seed/1920/1080"
+        "https://picsum.photos/seed/hki7-wall-$seed/1280/800.jpg"
     } else null
 
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color(0xFF101010))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -187,8 +194,6 @@ private fun ScreensaverScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
             )
-        } else {
-            Box(Modifier.fillMaxSize().background(Color(0xFF101010)))
         }
         Box(
             Modifier
