@@ -47,6 +47,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.jimz011apps.hki7.R
 import com.jimz011apps.hki7.data.HACalendarEvent
 import com.jimz011apps.hki7.data.HAEntity
@@ -172,34 +174,17 @@ private fun ScreensaverScreen(
     val allEvents by viewModel.calendarEvents.collectAsState()
     val events = allEvents[calendarKey].orEmpty()
     val weather = entities.firstOrNull { it.entity_id == weatherId } ?: headerWeather
-    val seed = screensaverBackgroundSeed(settings.backgroundRotationMinutes)
-    val backgroundUrl = if (settings.background == "picsum") {
-        "https://picsum.photos/seed/hki7-wall-$seed/1280/800.jpg"
-    } else null
 
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF101010))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 onClick = onDismiss,
             )
     ) {
-        if (backgroundUrl != null) {
-            AsyncImage(
-                model = backgroundUrl,
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-            )
-        }
-        Box(
-            Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.28f))
-        )
+        ScreensaverBackdrop(settings.background, settings.backgroundRotationMinutes)
         val panel = settings.isClockPanel()
         val barHeight = if (!panel) 0.dp else if (maxWidth > maxHeight) maxHeight * 0.44f else maxHeight * 0.52f
         Column(Modifier.fillMaxSize()) {
@@ -227,6 +212,33 @@ private fun ScreensaverScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ScreensaverBackdrop(background: String, rotationMinutes: Int) {
+    val context = LocalContext.current
+    val url = remember(background, rotationMinutes) {
+        if (background != "picsum") {
+            null
+        } else {
+            val seed = screensaverBackgroundSeed(rotationMinutes)
+            "https://picsum.photos/seed/hki7-wall-$seed/1920/1080"
+        }
+    }
+    Box(Modifier.fillMaxSize().background(Color(0xFF101010))) {
+        if (url != null) {
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(url)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+        }
+        Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.28f)))
     }
 }
 

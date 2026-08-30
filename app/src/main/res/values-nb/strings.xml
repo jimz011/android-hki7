@@ -1437,7 +1437,7 @@
     <string name="ui_backspace_88d130a">Tilbake</string>
     <string name="ui_backup_and_restore_a593246">Sikkerhetskopiering og gjenoppretting</string>
     <string name="ui_backup_dd96994">Sikkerhetskopiering</string>
-    <string name="ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be">Sikkerhetskopier inneholder kun dashbord og utseendekonfigurasjon. Tilkoblingsdetaljer, apptillatelser, posisjonsstatus og varslingshistorikk er ikke inkludert.</string>
+    <string name="ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be">Sikkerhetskopier inneholder dashbord, utseende, skjermsparer, kamera-popup og enhetskamera. Tilkoblingsdetaljer, apptillatelser, posisjonsstatus og varslingshistorikk er ikke inkludert.</string>
     <string name="ui_badge_bar_layout_4b4dfdd">Utforming av merkefelt</string>
     <string name="ui_bars_ad5fb3b">Barer</string>
     <string name="ui_batt_679d0aa">Batt</string>

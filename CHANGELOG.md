@@ -14,6 +14,8 @@ Wall-tablet extras: native camera popups, a screensaver, and optional device sen
 - Extra sensors on this tablet's existing mobile_app device in Home Assistant: screen on/off, brightness, Wi-Fi name and local IP (Settings › Device). Optional live video is an MJPEG stream on the LAN — Home Assistant Generic/MJPEG Camera points at the URL shown in settings. No MQTT. The stream requires a secret token in the URL and is meant for the local network only.
 - Wall-tablet hardening: MJPEG binds the LAN address off the main thread and reports a bind failure in settings, the camera stream is not started from boot, the screensaver defaults to a local dark background, and camera/screensaver/device settings no longer drop when the active instance id is missing.
 - The wall-tablet camera stream no longer crashes on tablets where a Service has no associated display (Samsung Tab A7 / Android 12): rotation is read from DisplayManager, and a CameraX bind failure is reported in settings instead of taking down the app.
+- JSON backups include screensaver, camera-popup and device-camera settings. Older backups without those fields leave the device values unchanged on restore.
+- Screensaver photo is loaded in its own layer so the clock tick cannot cancel the image request; the dark base stays underneath until the photo arrives.
 - Enabling the tablet camera stream no longer dies on the first start: the service used to read the still-unpersisted "off" value from disk and stop itself. Turning it off still goes through the explicit stop path.
 
 ## 1.2.0

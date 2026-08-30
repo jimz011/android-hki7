@@ -163,6 +163,10 @@ private data class HKIUiBackup(
     val mediaPlayerBarHidden: List<String> = emptyList(),
     /** Absent from backups written before quick actions existed; defaults to none. */
     val quickActions: List<HKIQuickAction> = emptyList(),
+    /** Absent from backups written before wall-tablet extras; null means leave the device as-is. */
+    val cameraPopupSettings: CameraPopupStore? = null,
+    val screensaverSettings: ScreensaverStore? = null,
+    val devicePanelSettings: DevicePanelStore? = null,
 )
 
 class PreferencesManager(
@@ -1187,6 +1191,9 @@ class PreferencesManager(
             mediaPlayerNames = decodeBackup(p[mediaPlayerNamesKey], emptyMap()),
             mediaPlayerBarHidden = strings(mediaPlayerBarHiddenKey),
             quickActions = decodeBackup(p[quickActionsKey], emptyList()),
+            cameraPopupSettings = decodeBackup(p[cameraPopupSettingsKey], CameraPopupStore()),
+            screensaverSettings = decodeBackup(p[screensaverSettingsKey], ScreensaverStore()),
+            devicePanelSettings = decodeBackup(p[devicePanelSettingsKey], DevicePanelStore()),
         ))
     }
 
@@ -1241,6 +1248,9 @@ class PreferencesManager(
             p[mediaPlayerBarHiddenKey] = backup.mediaPlayerBarHidden.joinToString(",")
             if (backup.quickActions.isEmpty()) p.remove(quickActionsKey)
             else p[quickActionsKey] = appJson.encodeToString(backup.quickActions)
+            backup.cameraPopupSettings?.let { p[cameraPopupSettingsKey] = appJson.encodeToString(it) }
+            backup.screensaverSettings?.let { p[screensaverSettingsKey] = appJson.encodeToString(it) }
+            backup.devicePanelSettings?.let { p[devicePanelSettingsKey] = appJson.encodeToString(it) }
         }
     }
 
