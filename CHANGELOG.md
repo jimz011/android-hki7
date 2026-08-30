@@ -5,6 +5,18 @@ file in sync with `app/src/main/java/com/jimz011apps/hki7/ui/components/WhatsNew
 
 Items marked with \* require the HKI 7 Cloud Component integration.
 
+## Unreleased
+
+Wall-tablet extras: native camera popups, a screensaver, and optional device sensors plus a local MJPEG camera stream.
+
+- Camera popups live in the app. When a motion, person or doorbell entity fires, HKI 7 shows that camera live and closes the window after a timeout. Rules are per Home Assistant instance under Settings › Dashboard › Popups — optional time window, helper that must be on, and a fullscreen fitted stream that closes on tap. No browser_mod automation is needed.
+- After an idle timeout, a full-screen screensaver can show the clock, weather, indoor climate, upcoming calendar events and up to four shortcuts (Settings › Screensaver). A camera popup always dismisses it first so the live video is visible. System bars are hidden so the clock covers the three-button bar. Photo still comes from Picsum, with a dark fill underneath and an Unsplash fallback if Picsum does not answer.
+- Extra sensors on this tablet's existing mobile_app device in Home Assistant: screen on/off, brightness, Wi-Fi name and local IP (Settings › Device). Optional live video is an MJPEG stream on the LAN — Home Assistant Generic/MJPEG Camera points at the URL shown in settings. No MQTT. The stream requires a secret token in the URL and is meant for the local network only.
+- Wall-tablet hardening: MJPEG binds the LAN address off the main thread and reports a bind failure in settings, the camera stream is not started from boot, the screensaver defaults to a local dark background, and camera/screensaver/device settings no longer drop when the active instance id is missing.
+- The wall-tablet camera stream no longer crashes on tablets where a Service has no associated display (Samsung Tab A7 / Android 12): rotation is read from DisplayManager, and a CameraX bind failure is reported in settings instead of taking down the app.
+- JSON backups include screensaver, camera-popup and device-camera settings. Older backups without those fields leave the device values unchanged on restore.
+- Enabling the tablet camera stream no longer dies on the first start: the service used to read the still-unpersisted "off" value from disk and stop itself. Turning it off still goes through the explicit stop path.
+
 ## 1.2.0
 
 Android Auto and Wear OS, and the curated quick-action list that drives both.

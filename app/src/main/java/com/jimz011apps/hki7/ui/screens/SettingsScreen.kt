@@ -80,6 +80,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Palette
@@ -230,6 +231,9 @@ import com.jimz011apps.hki7.ui.resolveFollowedArea
 import com.jimz011apps.hki7.ui.components.fadingEdges
 import com.jimz011apps.hki7.ui.components.itemCornerShape
 import com.jimz011apps.hki7.ui.components.CustomPopupSettingsDialog
+import com.jimz011apps.hki7.ui.components.CameraPopupSettingsSection
+import com.jimz011apps.hki7.ui.components.ScreensaverSettingsSection
+import com.jimz011apps.hki7.ui.components.DevicePanelSettingsSection
 import androidx.compose.ui.text.font.FontWeight
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import com.jimz011apps.hki7.ui.theme.AppFontFamilyOptions
@@ -244,7 +248,7 @@ import java.util.UUID
 import coil3.compose.AsyncImage
 
 private enum class SettingsSection {
-    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, LANGUAGE, CORNERS, ICONS, NAV_BAR, MEDIA_PLAYERS, POPUPS, DASHBOARD, QUICK_ACTIONS, FAMILY_SHARING, BACKUP_RESTORE, ACCOUNT, ABOUT, LICENSE, SUPPORT
+    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, SCREENSAVER, DEVICE, APPEARANCE, HEADER, THEME, FONTS, LANGUAGE, CORNERS, ICONS, NAV_BAR, MEDIA_PLAYERS, POPUPS, DASHBOARD, QUICK_ACTIONS, FAMILY_SHARING, BACKUP_RESTORE, ACCOUNT, ABOUT, LICENSE, SUPPORT
 }
 
 /** The Home Assistant frontend paths reachable from the Home Assistant category. */
@@ -328,6 +332,8 @@ private fun sectionTitle(section: SettingsSection): String = stringResource(when
     SettingsSection.PROFILE -> R.string.settings_title_profile
     SettingsSection.LOCATION -> R.string.settings_title_location
     SettingsSection.NOTIFICATIONS -> R.string.settings_title_notifications
+    SettingsSection.SCREENSAVER -> R.string.settings_screensaver_title
+    SettingsSection.DEVICE -> R.string.settings_device_title
     SettingsSection.APPEARANCE -> R.string.settings_title_appearance
     SettingsSection.HEADER -> R.string.settings_title_header
     SettingsSection.THEME -> R.string.settings_title_theme
@@ -368,6 +374,8 @@ private fun sectionSubtitle(section: SettingsSection): String = stringResource(w
     SettingsSection.MEDIA_PLAYERS -> R.string.settings_subtitle_media_players
     SettingsSection.POPUPS -> R.string.popup_settings_subtitle_section
     SettingsSection.NOTIFICATIONS -> R.string.settings_subtitle_notifications
+    SettingsSection.SCREENSAVER -> R.string.settings_screensaver_subtitle
+    SettingsSection.DEVICE -> R.string.settings_device_subtitle
     SettingsSection.BACKUP_RESTORE -> R.string.settings_subtitle_backup_restore
     SettingsSection.FAMILY_SHARING -> R.string.settings_subtitle_family_sharing
     SettingsSection.ABOUT -> R.string.settings_subtitle_about
@@ -392,6 +400,8 @@ private fun sectionIcon(section: SettingsSection): ImageVector = when (section) 
     SettingsSection.POPUPS -> Icons.Default.OpenInNew
     SettingsSection.LANGUAGE -> Icons.Default.Language
     SettingsSection.NOTIFICATIONS -> Icons.Default.Notifications
+    SettingsSection.SCREENSAVER -> Icons.Default.AccessTime
+    SettingsSection.DEVICE -> Icons.Default.PhoneAndroid
     SettingsSection.BACKUP_RESTORE -> Icons.Default.Backup
     SettingsSection.FAMILY_SHARING -> Icons.Default.Shield
     SettingsSection.ABOUT -> Icons.Default.Info
@@ -752,6 +762,8 @@ fun SettingsDialog(
                                 enabled = !dashboardSettingsLocked,
                             ) { section = SettingsSection.DASHBOARD }
                             SettingsChoice(Icons.Default.Palette, stringResource(R.string.ui_appearance_41def7a), stringResource(R.string.ui_theme_and_navigation_bar_474ee6b)) { section = SettingsSection.APPEARANCE }
+                            SettingsChoice(Icons.Default.AccessTime, stringResource(R.string.settings_screensaver_title), stringResource(R.string.settings_screensaver_subtitle)) { section = SettingsSection.SCREENSAVER }
+                            SettingsChoice(Icons.Default.PhoneAndroid, stringResource(R.string.settings_device_title), stringResource(R.string.settings_device_subtitle)) { section = SettingsSection.DEVICE }
                             SettingsSubcategory(stringResource(R.string.ui_services_data_7864c0a), stringResource(R.string.ui_messages_safety_and_portability_ee58dfe))
                             SettingsChoice(Icons.Default.Bolt, stringResource(R.string.settings_title_quick_actions), stringResource(R.string.quick_actions_menu_subtitle)) { section = SettingsSection.QUICK_ACTIONS }
                             SettingsChoice(Icons.Default.Notifications, stringResource(R.string.ui_notifications_753a22b), stringResource(R.string.ui_push_delivery_and_history_aa3e29d)) { section = SettingsSection.NOTIFICATIONS }
@@ -1326,6 +1338,22 @@ fun SettingsDialog(
                                 }
                             }
                         }
+                        SettingsSection.SCREENSAVER -> {
+                            val screensaverSettings by viewModel.screensaverSettings.collectAsState()
+                            val screensaverEntities by viewModel.entities.collectAsState()
+                            ScreensaverSettingsSection(
+                                settings = screensaverSettings,
+                                entities = screensaverEntities,
+                                onChange = { viewModel.saveScreensaverSettings(it) },
+                            )
+                        }
+                        SettingsSection.DEVICE -> {
+                            val devicePanelSettings by viewModel.devicePanelSettings.collectAsState()
+                            DevicePanelSettingsSection(
+                                settings = devicePanelSettings,
+                                onChange = { viewModel.saveDevicePanelSettings(it) },
+                            )
+                        }
                         SettingsSection.APPEARANCE -> {
                             SettingsSubcategory(stringResource(R.string.ui_visual_style_bc567f3), stringResource(R.string.ui_color_typography_and_component_shape_b82e582))
                             SettingsChoice(Icons.Default.Palette, stringResource(R.string.ui_theme_a797e30), stringResource(R.string.ui_colors_and_light_dark_mode_37de9d5)) { section = SettingsSection.THEME }
@@ -1508,6 +1536,13 @@ fun SettingsDialog(
                             }
                         }
                         SettingsSection.POPUPS -> {
+                            val cameraPopupSettings by viewModel.cameraPopupSettings.collectAsState()
+                            val cameraPopupEntities by viewModel.entities.collectAsState()
+                            CameraPopupSettingsSection(
+                                settings = cameraPopupSettings,
+                                entities = cameraPopupEntities,
+                                onChange = { viewModel.saveCameraPopupSettings(it) },
+                            )
                             val popups by viewModel.customPopups.collectAsState()
                             val popupEntities by viewModel.entities.collectAsState()
                             var editingPopup by remember { mutableStateOf<HKICustomPopup?>(null) }
