@@ -49,6 +49,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import coil3.compose.AsyncImage
+import coil3.network.NetworkHeaders
+import coil3.network.httpHeaders
+import coil3.request.ImageRequest
+import coil3.size.Size
 import com.jimz011apps.hki7.R
 import com.jimz011apps.hki7.data.HACalendarEvent
 import com.jimz011apps.hki7.data.HAEntity
@@ -179,9 +183,6 @@ private fun ScreensaverScreen(
     val events = allEvents[calendarKey].orEmpty()
     val weather = entities.firstOrNull { it.entity_id == weatherId } ?: headerWeather
     val seed = screensaverBackgroundSeed(settings.backgroundRotationMinutes)
-    val backgroundUrl = if (settings.background == "picsum") {
-        "https://picsum.photos/seed/hki7-wall-$seed/1920/1080"
-    } else null
 
     BoxWithConstraints(
         modifier = Modifier
@@ -193,15 +194,8 @@ private fun ScreensaverScreen(
                 onClick = onDismiss,
             )
     ) {
-        if (backgroundUrl != null) {
-            AsyncImage(
-                model = backgroundUrl,
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-            )
-        } else {
-            Box(Modifier.fillMaxSize().background(Color(0xFF101010)))
+        if (settings.background == "picsum") {
+            ScreensaverPhoto(seed)
         }
         Box(
             Modifier
@@ -240,6 +234,47 @@ private fun ScreensaverScreen(
             }
         }
     }
+}
+
+@Composable
+private fun ScreensaverPhoto(seed: Long) {
+    val picsumUrl = "https://picsum.photos/seed/hki7-wall-$seed/1920/1080"
+    val fallbackUrl = screensaverFallbackUrl(seed)
+    var activeUrl by remember(seed) { mutableStateOf(picsumUrl) }
+    var loaded by remember(seed) { mutableStateOf(false) }
+    val context = LocalContext.current
+    val request = remember(activeUrl) {
+        ImageRequest.Builder(context)
+            .data(activeUrl)
+            .size(Size.ORIGINAL)
+            .httpHeaders(NetworkHeaders.Builder().add("User-Agent", "HKI7 Android").build())
+            .build()
+    }
+    LaunchedEffect(seed) {
+        delay(5_000)
+        if (!loaded && activeUrl == picsumUrl) activeUrl = fallbackUrl
+    }
+    AsyncImage(
+        model = request,
+        contentDescription = null,
+        modifier = Modifier.fillMaxSize(),
+        contentScale = ContentScale.Crop,
+        onSuccess = { loaded = true },
+        onError = {
+            if (activeUrl != fallbackUrl) activeUrl = fallbackUrl
+        },
+    )
+}
+
+private fun screensaverFallbackUrl(seed: Long): String {
+    val photos = listOf(
+        "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1920&q=80",
+        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1920&q=80",
+        "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1920&q=80",
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80",
+    )
+    val index = ((seed % photos.size) + photos.size) % photos.size
+    return photos[index.toInt()]
 }
 
 @Composable
