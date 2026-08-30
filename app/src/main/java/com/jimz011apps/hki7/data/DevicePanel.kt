@@ -1,6 +1,7 @@
 package com.jimz011apps.hki7.data
 
 import kotlinx.serialization.Serializable
+import java.util.UUID
 
 const val DEVICE_CAMERA_FRONT = "front"
 const val DEVICE_CAMERA_BACK = "back"
@@ -14,6 +15,8 @@ data class DevicePanelSettings(
     val cameraStreamEnabled: Boolean = false,
     val cameraFacing: String = DEVICE_CAMERA_FRONT,
     val streamPort: Int = DEFAULT_DEVICE_CAMERA_STREAM_PORT,
+    /** Required on every MJPEG request. Empty until the stream is turned on. */
+    val streamToken: String = "",
 )
 
 @Serializable
@@ -26,6 +29,11 @@ fun DevicePanelSettings.clampedStreamPort(): Int =
 
 fun DevicePanelSettings.isFrontCamera(): Boolean = cameraFacing != DEVICE_CAMERA_BACK
 
+fun newCameraStreamToken(): String = UUID.randomUUID().toString().replace("-", "")
+
+fun DevicePanelSettings.withStreamToken(): DevicePanelSettings =
+    if (streamToken.isNotBlank()) this else copy(streamToken = newCameraStreamToken())
+
 fun sanitizeSsid(raw: String?): String {
     val trimmed = raw?.trim()?.removeSurrounding("\"")?.trim().orEmpty()
     if (trimmed.isEmpty() ||
@@ -37,12 +45,14 @@ fun sanitizeSsid(raw: String?): String {
     return trimmed
 }
 
-fun cameraStreamUrl(ip: String, port: Int): String =
-    "http://$ip:${port.coerceIn(MIN_DEVICE_CAMERA_STREAM_PORT, MAX_DEVICE_CAMERA_STREAM_PORT)}/camera"
+fun cameraStreamUrl(ip: String, port: Int, token: String): String {
+    val clamped = port.coerceIn(MIN_DEVICE_CAMERA_STREAM_PORT, MAX_DEVICE_CAMERA_STREAM_PORT)
+    return "http://$ip:$clamped/camera?token=$token"
+}
 
 fun DevicePanelSettings.cameraStreamUrlOrEmpty(ip: String): String {
-    if (ip.isBlank()) return ""
-    return cameraStreamUrl(ip, clampedStreamPort())
+    if (ip.isBlank() || streamToken.isBlank()) return ""
+    return cameraStreamUrl(ip, clampedStreamPort(), streamToken)
 }
 
 internal fun sensorsRegistrationMarker(

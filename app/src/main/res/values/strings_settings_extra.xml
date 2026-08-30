@@ -449,11 +449,12 @@
     <string name="settings_device_camera_port">Stream port</string>
     <string name="settings_device_camera_url">Stream URL: %1$s</string>
     <string name="settings_device_camera_url_waiting">Waiting for a local IP…</string>
-    <string name="settings_device_camera_ha_hint">In Home Assistant: Settings → Devices → Add integration → Generic Camera. Use this URL as both the still image and MJPEG URL.</string>
+    <string name="settings_device_camera_ha_hint">In Home Assistant: Settings → Devices → Add integration → Generic Camera. Use this URL as both the still image and MJPEG URL. The token in the URL is required.</string>
     <string name="settings_device_camera_copy_url">Copy URL</string>
     <string name="settings_device_camera_copied">URL copied</string>
     <string name="settings_device_camera_bind_failed">Could not start the camera stream on port %1$d. Try another port.</string>
     <string name="settings_device_camera_lan_only">The stream is bound to this tablet\'s LAN address only, not a VPN.</string>
+    <string name="settings_device_camera_token_hint">The URL includes a secret token. Requests without it are rejected. Anyone on the LAN who has this URL can view the camera.</string>
     <string name="settings_device_wifi_ssid_hint">The Wi-Fi name needs location permission while the app is open. Without it the sensor reports unavailable.</string>
     <string name="camera_stream_channel_name">Tablet camera</string>
     <string name="camera_stream_channel_description">Shown while HKI 7 is sharing this tablet\'s camera on the local network</string>

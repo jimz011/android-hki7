@@ -1385,13 +1385,6 @@ fun SettingsDialog(
                                     Text(stringResource(R.string.settings_extra_events_open_family_sharing))
                                 }
                             }
-                            val cameraPopupSettings by viewModel.cameraPopupSettings.collectAsState()
-                            val cameraPopupEntities by viewModel.entities.collectAsState()
-                            CameraPopupSettingsSection(
-                                settings = cameraPopupSettings,
-                                entities = cameraPopupEntities,
-                                onChange = { viewModel.saveCameraPopupSettings(it) },
-                            )
                         }
                         SettingsSection.SCREENSAVER -> {
                             val screensaverSettings by viewModel.screensaverSettings.collectAsState()
@@ -1591,6 +1584,13 @@ fun SettingsDialog(
                             }
                         }
                         SettingsSection.POPUPS -> {
+                            val cameraPopupSettings by viewModel.cameraPopupSettings.collectAsState()
+                            val cameraPopupEntities by viewModel.entities.collectAsState()
+                            CameraPopupSettingsSection(
+                                settings = cameraPopupSettings,
+                                entities = cameraPopupEntities,
+                                onChange = { viewModel.saveCameraPopupSettings(it) },
+                            )
                             val popups by viewModel.customPopups.collectAsState()
                             val popupEntities by viewModel.entities.collectAsState()
                             var editingPopup by remember { mutableStateOf<HKICustomPopup?>(null) }

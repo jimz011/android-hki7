@@ -38,6 +38,7 @@ import com.jimz011apps.hki7.data.DevicePanelSettings
 import com.jimz011apps.hki7.data.cameraStreamUrlOrEmpty
 import com.jimz011apps.hki7.data.clampedStreamPort
 import com.jimz011apps.hki7.data.localIpv4
+import com.jimz011apps.hki7.data.withStreamToken
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 
 @Composable
@@ -55,7 +56,7 @@ fun DevicePanelSettingsSection(
     val cameraPermission = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { granted ->
-        if (granted) onChange(settings.copy(cameraStreamEnabled = true))
+        if (granted) onChange(settings.copy(cameraStreamEnabled = true).withStreamToken())
     }
 
     SettingsGroup {
@@ -87,7 +88,7 @@ fun DevicePanelSettingsSection(
                 }
                 val granted = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
                     PackageManager.PERMISSION_GRANTED
-                if (granted) onChange(settings.copy(cameraStreamEnabled = true))
+                if (granted) onChange(settings.copy(cameraStreamEnabled = true).withStreamToken())
                 else cameraPermission.launch(Manifest.permission.CAMERA)
             },
         )
@@ -127,6 +128,11 @@ fun DevicePanelSettingsSection(
         )
         Text(
             stringResource(R.string.settings_device_camera_lan_only),
+            color = appColors.onMuted,
+            style = MaterialTheme.typography.bodySmall,
+        )
+        Text(
+            stringResource(R.string.settings_device_camera_token_hint),
             color = appColors.onMuted,
             style = MaterialTheme.typography.bodySmall,
         )

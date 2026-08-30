@@ -33,7 +33,10 @@ internal object MjpegFrameHub {
     }
 }
 
-internal class MjpegHttpServer(private val port: Int) {
+internal class MjpegHttpServer(
+    private val port: Int,
+    private val requiredToken: String,
+) {
     @Volatile private var running = false
     private var serverSocket: ServerSocket? = null
     private val executor = Executors.newCachedThreadPool()
@@ -43,9 +46,13 @@ internal class MjpegHttpServer(private val port: Int) {
 
     /**
      * Binds [port] on [bindAddress] (the tablet's LAN IPv4) so a VPN or guest interface cannot
-     * reach the unauthenticated stream. Does not set [running] until the bind succeeds.
+     * reach the stream. Rejects requests without [requiredToken]. Does not set [running] until
+     * the bind succeeds.
      */
     fun start(bindAddress: InetAddress? = null): Result<Unit> {
+        if (requiredToken.isBlank()) {
+            return Result.failure(IllegalStateException("missing_token"))
+        }
         if (running) return Result.success(Unit)
         val socket = runCatching {
             if (bindAddress != null) ServerSocket(port, 4, bindAddress) else ServerSocket(port)
@@ -78,10 +85,16 @@ internal class MjpegHttpServer(private val port: Int) {
         try {
             val input = socket.getInputStream().bufferedReader()
             val request = input.readLine() ?: return
-            val path = request.substringAfter(' ', "").substringBefore(' ').lowercase()
+            val target = request.substringAfter(' ', "").substringBefore(' ')
+            val path = target.substringBefore('?').lowercase()
+            val query = target.substringAfter('?', "")
             val output = BufferedOutputStream(socket.getOutputStream())
             if (!request.startsWith("GET ") || (path != "/" && path != "/camera" && path != "/mjpeg")) {
                 writePlain(output, 404, "Not found")
+                return
+            }
+            if (!tokenMatches(queryToken(query))) {
+                writePlain(output, 401, "Unauthorized")
                 return
             }
             if (clients.incrementAndGet() > 4) {
@@ -98,6 +111,20 @@ internal class MjpegHttpServer(private val port: Int) {
         } finally {
             runCatching { socket.close() }
         }
+    }
+
+    private fun queryToken(query: String): String =
+        query.split('&').firstNotNullOfOrNull { part ->
+            val key = part.substringBefore('=')
+            val value = part.substringAfter('=', "")
+            if (key == "token") value else null
+        }.orEmpty()
+
+    private fun tokenMatches(provided: String): Boolean {
+        val expected = requiredToken.toByteArray(Charsets.UTF_8)
+        val actual = provided.toByteArray(Charsets.UTF_8)
+        if (expected.size != actual.size) return false
+        return java.security.MessageDigest.isEqual(expected, actual)
     }
 
     private fun stream(output: BufferedOutputStream) {
