@@ -59,6 +59,7 @@ class CameraStreamService : Service(), LifecycleOwner {
     private var server: MjpegHttpServer? = null
     private var boundPort: Int? = null
     private var boundFacing: String? = null
+    private var boundToken: String? = null
     private var cameraProvider: ProcessCameraProvider? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -83,14 +84,19 @@ class CameraStreamService : Service(), LifecycleOwner {
         if (observeJob?.isActive != true) {
             observeJob = scope.launch {
                 prefs.devicePanelSettings
-                    .map { Triple(it.cameraStreamEnabled, it.clampedStreamPort(), it.cameraFacing) }
+                    .map { Triple(it.cameraStreamEnabled, it.clampedStreamPort(), it) }
                     .distinctUntilChanged()
-                    .collect { (enabled, port, facing) ->
+                    .collect { (enabled, port, settings) ->
                         if (!enabled || !hasCameraPermission()) {
                             stopSelf()
                             return@collect
                         }
-                        bindCameraAndServer(port, facing)
+                        val ensured = settings.withStreamToken()
+                        if (ensured.streamToken != settings.streamToken) {
+                            prefs.saveDevicePanelSettings(ensured)
+                            return@collect
+                        }
+                        bindCameraAndServer(port, ensured.cameraFacing, ensured.streamToken)
                     }
             }
         }
@@ -108,8 +114,8 @@ class CameraStreamService : Service(), LifecycleOwner {
         super.onDestroy()
     }
 
-    private suspend fun bindCameraAndServer(port: Int, facing: String) {
-        if (boundPort == port && boundFacing == facing && server != null) return
+    private suspend fun bindCameraAndServer(port: Int, facing: String, token: String) {
+        if (boundPort == port && boundFacing == facing && boundToken == token && server != null) return
         unbindCamera()
         server?.stop()
         server = null
@@ -119,7 +125,7 @@ class CameraStreamService : Service(), LifecycleOwner {
             _lastError.value = "no_lan"
             return
         }
-        val next = MjpegHttpServer(port)
+        val next = MjpegHttpServer(port, token)
         val started = withContext(Dispatchers.IO) { next.start(bindAddress) }
         started.onFailure { error ->
             _lastError.value = error.message ?: error.javaClass.simpleName
@@ -129,6 +135,7 @@ class CameraStreamService : Service(), LifecycleOwner {
         server = next
         boundPort = port
         boundFacing = facing
+        boundToken = token
         val providerFuture = ProcessCameraProvider.getInstance(this)
         providerFuture.addListener({
             val provider = runCatching { providerFuture.get() }.getOrNull() ?: return@addListener
@@ -184,6 +191,7 @@ class CameraStreamService : Service(), LifecycleOwner {
         cameraProvider = null
         boundPort = null
         boundFacing = null
+        boundToken = null
     }
 
     private fun hasCameraPermission(): Boolean =
