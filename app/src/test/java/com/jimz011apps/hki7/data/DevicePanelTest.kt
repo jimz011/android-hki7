@@ -44,6 +44,11 @@ class DevicePanelTest {
     }
 
     @Test
+    fun streamRotationFallsBackWhenThereIsNoDisplay() {
+        assertEquals(android.view.Surface.ROTATION_0, streamDisplayRotation(null))
+    }
+
+    @Test
     fun ssidQuotesAreStripped() {
         assertEquals("Home", sanitizeSsid("\"Home\""))
         assertEquals("unknown", sanitizeSsid("<unknown ssid>"))

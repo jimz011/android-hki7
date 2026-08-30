@@ -10,11 +10,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.IBinder
 import android.util.Size
+import android.view.Display
 import android.view.Surface
-import android.view.WindowManager
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -138,35 +139,8 @@ class CameraStreamService : Service(), LifecycleOwner {
         boundToken = token
         val providerFuture = ProcessCameraProvider.getInstance(this)
         providerFuture.addListener({
-            val provider = runCatching { providerFuture.get() }.getOrNull() ?: return@addListener
-            cameraProvider = provider
-            val selector = if (facing == DEVICE_CAMERA_BACK) {
-                CameraSelector.DEFAULT_BACK_CAMERA
-            } else {
-                CameraSelector.DEFAULT_FRONT_CAMERA
-            }
-            val analysis = ImageAnalysis.Builder()
-                .setTargetResolution(Size(640, 480))
-                .setTargetRotation(displayRotation())
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                .build()
-            analysis.setAnalyzer(cameraExecutor) { image ->
-                runCatching { image.toJpegBytes()?.let { MjpegFrameHub.publish(it) } }
-                image.close()
-            }
-            runCatching {
-                provider.unbindAll()
-                provider.bindToLifecycle(this, selector, analysis)
-            }.onFailure {
-                runCatching {
-                    provider.unbindAll()
-                    val fallback = if (facing == DEVICE_CAMERA_BACK) {
-                        CameraSelector.DEFAULT_FRONT_CAMERA
-                    } else {
-                        CameraSelector.DEFAULT_BACK_CAMERA
-                    }
-                    provider.bindToLifecycle(this, fallback, analysis)
-                }
+            runCatching { attachCamera(providerFuture.get(), facing) }.onFailure { error ->
+                _lastError.value = error.message ?: error.javaClass.simpleName
             }
         }, ContextCompat.getMainExecutor(this))
     }
@@ -177,12 +151,35 @@ class CameraStreamService : Service(), LifecycleOwner {
         return runCatching { InetAddress.getByName(ip) }.getOrNull()
     }
 
-    @Suppress("DEPRECATION")
-    private fun displayRotation(): Int {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            display?.rotation ?: Surface.ROTATION_0
+    private fun attachCamera(provider: ProcessCameraProvider, facing: String) {
+        cameraProvider = provider
+        val selector = if (facing == DEVICE_CAMERA_BACK) {
+            CameraSelector.DEFAULT_BACK_CAMERA
         } else {
-            (getSystemService(WINDOW_SERVICE) as WindowManager).defaultDisplay.rotation
+            CameraSelector.DEFAULT_FRONT_CAMERA
+        }
+        val analysis = ImageAnalysis.Builder()
+            .setTargetResolution(Size(640, 480))
+            .setTargetRotation(streamDisplayRotation(getSystemService(DisplayManager::class.java)))
+            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            .build()
+        analysis.setAnalyzer(cameraExecutor) { image ->
+            runCatching { image.toJpegBytes()?.let { MjpegFrameHub.publish(it) } }
+            image.close()
+        }
+        runCatching {
+            provider.unbindAll()
+            provider.bindToLifecycle(this, selector, analysis)
+        }.onFailure {
+            runCatching {
+                provider.unbindAll()
+                val fallback = if (facing == DEVICE_CAMERA_BACK) {
+                    CameraSelector.DEFAULT_FRONT_CAMERA
+                } else {
+                    CameraSelector.DEFAULT_BACK_CAMERA
+                }
+                provider.bindToLifecycle(this, fallback, analysis)
+            }
         }
     }
 
@@ -274,3 +271,9 @@ class CameraStreamService : Service(), LifecycleOwner {
         }
     }
 }
+
+/** Rotation for CameraX from a Service. `Context.display` throws on a non-visual context. */
+internal fun streamDisplayRotation(manager: DisplayManager?): Int =
+    runCatching { manager?.getDisplay(Display.DEFAULT_DISPLAY)?.rotation }.getOrNull()
+        ?: Surface.ROTATION_0
+
