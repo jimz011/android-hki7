@@ -3333,11 +3333,12 @@ settings_device_camera_back,,Back,Bak,
 settings_device_camera_port,,Stream port,Strømport,
 settings_device_camera_url,,Stream URL: %1$s,Strøm-URL: %1$s,app fills in %1$s — keep them
 settings_device_camera_url_waiting,,Waiting for a local IP…,Venter på lokal IP…,
-settings_device_camera_ha_hint,,In Home Assistant: Settings → Devices → Add integration → Generic Camera. Use this URL as both the still image and MJPEG URL.,I Home Assistant: Innstillinger → Enheter → Legg til integrasjon → Generic Camera. Bruk denne URL-en både som stillbilde og MJPEG-URL.,don't translate Home Assistant
+settings_device_camera_ha_hint,,In Home Assistant: Settings → Devices → Add integration → Generic Camera. Use this URL as both the still image and MJPEG URL. The token in the URL is required.,I Home Assistant: Innstillinger → Enheter → Legg til integrasjon → Generic Camera. Bruk denne URL-en både som stillbilde og MJPEG-URL. Tokenet i URL-en er påkrevd.,don't translate Home Assistant
 settings_device_camera_copy_url,,Copy URL,Kopier URL,
 settings_device_camera_copied,,URL copied,URL kopiert,
 settings_device_camera_bind_failed,,Could not start the camera stream on port %1$d. Try another port.,Kunne ikke starte kamerastrømmen på port %1$d. Prøv en annen port.,app fills in %1$d — keep them
 settings_device_camera_lan_only,,"The stream is bound to this tablet's LAN address only, not a VPN.","Strømmen er bare bundet til dette nettbrettets LAN-adresse, ikke via VPN.",
+settings_device_camera_token_hint,,The URL includes a secret token. Requests without it are rejected. Anyone on the LAN who has this URL can view the camera.,URL-en inneholder et hemmelig token. Kall uten token avvises. Alle på LAN som har URL-en kan se kameraet.,
 settings_device_wifi_ssid_hint,,The Wi-Fi name needs location permission while the app is open. Without it the sensor reports unavailable.,Wi-Fi-navnet krever posisjonstillatelse mens appen er åpen. Uten det rapporterer sensoren unavailable.,
 camera_stream_channel_name,,Tablet camera,Nettbrettkamera,
 camera_stream_channel_description,,Shown while HKI 7 is sharing this tablet's camera on the local network,Vises mens HKI 7 deler dette nettbrettets kamera på det lokale nettverket,don't translate HKI 7
