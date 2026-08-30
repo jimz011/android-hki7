@@ -92,19 +92,28 @@ fun ScreensaverHost(viewModel: MainViewModel) {
     if (!visible || cameraPopup != null) return
     BackHandler { viewModel.hideScreensaver() }
     val context = LocalContext.current
+    val window = (context as? Activity)?.window
     DisposableEffect(Unit) {
-        val window = (context as? Activity)?.window
         window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        val controller = window?.let { WindowCompat.getInsetsController(it, it.decorView) }
-        controller?.systemBarsBehavior =
-            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        controller?.hide(WindowInsetsCompat.Type.systemBars())
         onDispose {
-            controller?.show(WindowInsetsCompat.Type.systemBars())
+            window?.let { w ->
+                WindowCompat.getInsetsController(w, w.decorView)
+                    .show(WindowInsetsCompat.Type.systemBars())
+            }
             window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
     }
-    Box(Modifier.fillMaxSize().zIndex(10f)) {
+    // Hide bars after the first layout so Coil can start at a stable size. Hiding in the same
+    // frame as first compose made the edge-to-edge window show the dashboard through the photo.
+    LaunchedEffect(Unit) {
+        val w = window ?: return@LaunchedEffect
+        val controller = WindowCompat.getInsetsController(w, w.decorView)
+        controller.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        delay(1)
+        controller.hide(WindowInsetsCompat.Type.systemBars())
+    }
+    Box(Modifier.fillMaxSize().background(Color(0xFF101010)).zIndex(10f)) {
         ScreensaverScreen(
         viewModel = viewModel,
         settings = settings,
@@ -177,6 +186,7 @@ private fun ScreensaverScreen(
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color(0xFF101010))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
