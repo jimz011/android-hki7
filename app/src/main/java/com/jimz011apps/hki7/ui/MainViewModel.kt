@@ -869,6 +869,9 @@ internal fun importMqttP1EnergyEntities(
 }
 
 
+/** Outcome of the most recent NFC tag read, shown as a one-shot snackbar. */
+data class NfcScanResult(val tagId: String, val success: Boolean)
+
 class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : ViewModel() {
     private val networkMonitor = appCtx?.let { NetworkMonitor(it) }
     val currentSsid: StateFlow<String?> = networkMonitor?.currentSsid ?: MutableStateFlow(null)
@@ -1553,6 +1556,12 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private val _forcedLogoutReason = MutableStateFlow<String?>(null)
     val forcedLogoutReason: StateFlow<String?> = _forcedLogoutReason
 
+    // Result of the most recent NFC tag tap, for a one-shot snackbar. Same set-observe-clear
+    // idiom as [forcedLogoutReason] above: MainApp reacts once, then clears it back to null.
+    private val _nfcScanResult = MutableStateFlow<NfcScanResult?>(null)
+    val nfcScanResult: StateFlow<NfcScanResult?> = _nfcScanResult
+    fun clearNfcScanResult() { _nfcScanResult.value = null }
+
     // Notification history (persisted; written by the push channel and the foreground service).
     // Non-archived entries expire after 48h (purged on read here and on every append).
     val notifications: StateFlow<List<HKINotification>> =
@@ -1603,6 +1612,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         replyText: String? = null
     ) {
         val context = appContext ?: return
+        val requestedAtMillis = System.currentTimeMillis()
         updateNotifications { list ->
             list.map {
                 if (it.id == notification.id) it.copy(firedAction = action.action, read = true) else it
@@ -1611,14 +1621,16 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         viewModelScope.launch {
             val result = runCatching {
                 NotificationActions.fire(
-                    context, notification.instanceId, action.action, action.actionData, replyText
+                    context, notification.instanceId, action.action, action.actionData, replyText,
+                    requestedAtMillis = requestedAtMillis,
                 )
             }.getOrDefault(ActionDispatchResult.RETRY)
             // Offline or mid-restart: hand off to the same retry worker the shade buttons use.
             if (result == ActionDispatchResult.RETRY) {
                 NotificationActionWorker.enqueue(
                     context, notification.instanceId, action.action,
-                    NotificationActions.encodeActionData(action.actionData), replyText
+                    NotificationActions.encodeActionData(action.actionData), replyText,
+                    requestedAtMillis = requestedAtMillis,
                 )
             }
         }
@@ -1849,6 +1861,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private var ignoreWidgetPrefsUntil = 0L
     private var ignoreConfigPrefsUntil = 0L
     private var activeConnectionKey: String? = null
+    /** Instance whose client completed the authentication probe. Kept separate from the selected
+     * preference because those values briefly differ during an instance switch. */
+    private val connectedInstanceId = MutableStateFlow<String?>(null)
     /** Every writer of [activeConnectionKey] must go through this so the format can never drift
      *  between writers — a mismatch there previously made `observeSettings()` treat the client a
      *  reconnect had just rebuilt as "stale" and tear the whole sync stack down a second time,
@@ -1874,6 +1889,10 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     private data class PendingCoverPosition(val position: Int, val expiresAt: Long, val requestedAt: Long)
 
     init {
+        // Connected apps are independent of the Home Assistant connection — a TidyShop widget must
+        // keep working while HA is unreachable — so this is wired up here rather than in the
+        // connect path, and follows the app's own foreground transitions from setAppVisible.
+        TidyShopSync.initialize(prefs)
         viewModelScope.launch {
             prefs.adaptiveLightingOptionsForms.collect { cached ->
                 if (cached != _adaptiveLightingOptionsForms.value) {
@@ -2560,6 +2579,9 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         AppVisibilityTracker.isVisible = visible
         if (appVisible == visible) return
         appVisible = visible
+        // Holds the TidyShop event stream only while the app is on screen: one idle socket in the
+        // foreground, and nothing at all behind it.
+        TidyShopSync.setAppVisible(visible)
         if (visible) {
             viewModelScope.launch { resumeSyncAfterTokenGate() }
             internalUrlFallback.value?.let { scheduleInternalUrlRetry(it, retryImmediately = true) }
@@ -2640,6 +2662,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         _connectionRoute.value = route
         consecutiveSilentRefreshFailures = 0
         _connectionError.value = null
+        connectedInstanceId.value = prefs.activeHomeAssistantInstanceId.first()
         _status.value = ConnectionStatus.CONNECTED
         // Manual dashboards do not otherwise need registries during startup. Fetch them here too
         // so entity-registry automations and Adaptive Lighting membership are warm before a dialog
@@ -3857,6 +3880,78 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         refreshAfterServiceCall()
     }
 
+    /** Reports an NFC tag read to Home Assistant via the `tag.scan` service, which fires the same
+     *  `tag_scanned` event the official app's NFC reading drives automations from — attributed to
+     *  this phone's own mobile_app device id (see [DeviceTelemetryReporter] for where that id is
+     *  first registered) so "last scanned by" is meaningful. Called for every tag tap that is not
+     *  claimed by [NfcTagManager.pendingWrite]. */
+    fun reportNfcTagScan(tagId: String, targetInstanceId: String?) {
+        viewModelScope.launch {
+            if (targetInstanceId == null) {
+                _nfcScanResult.value = NfcScanResult(tagId, false)
+                return@launch
+            }
+            val readiness = awaitNfcConnection(
+                targetInstanceId = targetInstanceId,
+                snapshots = combine(
+                    prefs.activeHomeAssistantInstanceId,
+                    connectedInstanceId,
+                    status,
+                ) { activeInstanceId, connectedId, connectionStatus ->
+                    NfcConnectionSnapshot(
+                        activeInstanceId = activeInstanceId,
+                        connectedInstanceId = connectedId,
+                        connected = connectionStatus == ConnectionStatus.CONNECTED,
+                    )
+                },
+                timeoutMillis = 15_000L,
+            )
+            if (readiness != NfcConnectionWaitResult.READY) {
+                addLog(
+                    if (readiness == NfcConnectionWaitResult.INSTANCE_CHANGED) {
+                        "NFC tag scan cancelled because the Home Assistant instance changed."
+                    } else {
+                        "NFC tag scan timed out waiting for Home Assistant."
+                    }
+                )
+                _nfcScanResult.value = NfcScanResult(tagId, false)
+                return@launch
+            }
+            val success = try {
+                val deviceId = prefs.mobileAppDeviceId.first()
+                // Recheck all three values immediately before capturing the client. This closes the
+                // small window between the readiness emission and an instance switch.
+                val currentClient = client
+                check(prefs.activeHomeAssistantInstanceId.first() == targetInstanceId)
+                check(connectedInstanceId.value == targetInstanceId)
+                check(_status.value == ConnectionStatus.CONNECTED && currentClient != null)
+                currentClient.callServiceRaw("tag", "scan", buildJsonObject {
+                    put("tag_id", tagId)
+                    if (!deviceId.isNullOrBlank()) put("device_id", deviceId)
+                })
+                true
+            } catch (e: Exception) {
+                addLog("NFC tag scan report failed: ${e.message}")
+                false
+            }
+            if (success) {
+                val entry = HKINfcTagActivity(tagId = tagId, epochMillis = System.currentTimeMillis(), wasWrite = false)
+                prefs.saveNfcTagActivity((listOf(entry) + prefs.nfcTagActivity.first()).take(20))
+            }
+            _nfcScanResult.value = NfcScanResult(tagId, success)
+        }
+    }
+
+    /** Records a completed tag write in the local recent-activity list. The write itself already
+     *  happened on the tag (via [writeUri]) before this is called — writing needs no Home
+     *  Assistant call, only a scan does. */
+    fun recordNfcTagWrite(tagId: String, label: String? = null) {
+        viewModelScope.launch {
+            val entry = HKINfcTagActivity(tagId = tagId, label = label, epochMillis = System.currentTimeMillis(), wasWrite = true)
+            prefs.saveNfcTagActivity((listOf(entry) + prefs.nfcTagActivity.first()).take(20))
+        }
+    }
+
     /** Loads the live Home Assistant automation and only marks it editable when HA confirms that
      * it belongs to the UI-managed automations file. */
     suspend fun loadAutomation(entityId: String): HAAutomationDocument {
@@ -4257,6 +4352,7 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         stopSync()
         client?.dispose()
         client = null
+        connectedInstanceId.value = null
         activeConnectionKey = null
         _connectionError.value = null
         _status.value = ConnectionStatus.CONNECTING

@@ -628,6 +628,10 @@ cr_quick_media_player,,Media player,Mediaspeler,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.",Veeg de onderste balk omhoog zodra de greep verschijnt om de speler terug te halen.,
 cr_quick_make_it_yours,,Make it yours,Maak het van jou,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","Voeg in de bewerkmodus kamers, verdiepingen en widgets toe of wijzig hun volgorde. Tik op een onderdeel om het in te stellen.",
+cr_whats_new_1_2_1,1,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.","De boodschappenlijstwidget kan nu uw TidyShop-familielijsten weergeven in plaats van zijn eigen. Elke lijst die met jou wordt gedeeld, verschijnt als een tabblad en als je iets aanvinkt, bereikt de rest van het huishouden binnen enkele seconden.",
+cr_whats_new_1_2_1,2,"What you may do with a synced list is decided by the family server: a list you can only look at stays read-only, and one you may tick but not edit lets you check items without changing them. Your dashboard's own permissions still apply on top.","Wat u met een gesynchroniseerde lijst mag doen, wordt bepaald door de familieserver: een lijst die u alleen kunt bekijken, blijft alleen-lezen, en een lijst die u kunt aanvinken maar niet kunt bewerken, stelt u in staat items te controleren zonder ze te wijzigen. De eigen rechten van uw dashboard zijn nog steeds bovenaan van toepassing.",
+cr_whats_new_1_2_1,3,"New: Settings › Connected apps, for other apps HKI 7 can pull from. TidyShop is the first. Connecting uses a code rather than a password: this phone makes its own key, which never leaves it and cannot be put in a backup.","Nieuw: Instellingen › Verbonden apps, voor andere apps waar HKI 7 uit kan putten. TidyShop is de eerste. Voor het verbinden wordt gebruik gemaakt van een code in plaats van een wachtwoord: deze telefoon maakt zijn eigen sleutel, die deze nooit verlaat en niet in een back-up kan worden opgeslagen.",don't translate HKI 7
+cr_whats_new_1_2_1,4,"Family lists only stay live while HKI 7 is on screen. Closed or in your pocket it holds no connection and schedules no work, so the feature costs nothing in battery.","Familielijsten blijven alleen live zolang HKI 7 op het scherm staat. Gesloten of in je zak, hij heeft geen verbinding en plant geen werk, dus de functie kost niets aan de batterij.",don't translate HKI 7
 cr_whats_new_1_2_0,1,"HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google's own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.","HKI 7 verschijnt nu op Android Auto. Het autoscherm toont een raster van uw snelle acties met hun huidige status, en een tik voert ze uit. Android Auto tekent de eigen sjablonen van Google en verbergt alles voorbij de limiet die het stelt terwijl de auto rijdt, zodat het een korte lijst toont die u beheert in plaats van uw dashboard.",don't translate HKI 7
 cr_whats_new_1_2_0,2,"There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.","Er is nu een Wear OS-app. Het toont uw snelle acties met de livestatus en uw onderliggende kamers, en praat rechtstreeks met Home Assistant, zodat het blijft werken als uw telefoon zich in een andere kamer bevindt.",don't translate Home Assistant
 cr_whats_new_1_2_0,3,"Setting up the watch usually takes nothing: your phone hands it the server address, a session, your quick actions and your rooms, with no typing at all.","Het instellen van het horloge kost niets. Uw telefoon geeft het serveradres, een token, uw snelle acties en uw kamers door, zodat u helemaal niet hoeft in te loggen op het horloge.",
@@ -853,6 +857,44 @@ global_search_entity_count,one,%1$d entity,%1$d entiteit,app fills in %1$d — k
 global_search_entity_count,other,%1$d entities,%1$d entiteiten,app fills in %1$d — keep them
 rooms_count,one,%1$d room,%1$d kamer,app fills in %1$d — keep them
 rooms_count,other,%1$d rooms,%1$d kamers,app fills in %1$d — keep them
+settings_title_connected_apps,,Connected apps,Verbonden apps,
+settings_subtitle_connected_apps,,Other apps this dashboard can show,Andere apps die dit dashboard kan tonen,
+connected_apps_summary_connected,,%1$s is connected,%1$s is verbonden,app fills in %1$s — keep them
+connected_apps_tidyshop,,TidyShop,Nette winkel,
+connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Gedeelde boodschappenlijstjes voor het hele gezin,
+connected_apps_tidyshop_connected,,Connected to %1$s,Verbonden met %1$s,app fills in %1$s — keep them
+settings_title_tidyshop,,TidyShop,Nette winkel,
+settings_subtitle_tidyshop,,Family shopping lists from your own connector,Familie boodschappenlijstjes vanuit uw eigen connector,
+tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.","Voer het adres van uw gezinsverbinder en een code ervan in. Vraag degene die het heeft ingesteld om een uitnodiging, of gebruik een apparaatcode van een van uw andere telefoons.",
+tidyshop_server_label,,Connector address,Connectoradres,
+tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,
+tidyshop_display_name_label,,Your name,Jouw naam,
+tidyshop_code_label,,Invite or device code,Uitnodigings- of apparaatcode,
+tidyshop_code_hint,,An invite adds you to the family. A device code adds this phone to the member you already are. A recovery code works here too.,Met een uitnodiging wordt u toegevoegd aan de familie. Met een apparaatcode wordt deze telefoon toegevoegd aan het lid dat u al bent. Een herstelcode werkt hier ook.,
+tidyshop_pairing_key_label,,Master pairing key,Hoofdkoppelingssleutel,
+tidyshop_pairing_key_hint,,Only if you run the server yourself and have no code to hand.,Alleen als je de server zelf draait en geen code bij de hand hebt.,
+tidyshop_connect,,Connect,Verbinden,
+tidyshop_connecting,,Connecting…,Verbinden…,
+tidyshop_household_unknown,,Your family,Jouw familie,
+tidyshop_member_unknown,,this device,dit apparaat,
+tidyshop_signed_in_as,,Signed in as %1$s,Aangemeld als %1$s,app fills in %1$s — keep them
+tidyshop_status_live,,Live — changes arrive as they happen,Live: veranderingen komen zodra ze plaatsvinden,
+tidyshop_status_ready,,Connected,Verbonden,
+tidyshop_status_error,,The last sync did not go through.,De laatste synchronisatie is niet gelukt.,
+tidyshop_status_error_detail,,The last sync did not go through: %1$s,De laatste synchronisatie is niet gelukt: %1$s,app fills in %1$s — keep them
+tidyshop_status_revoked,,This device was removed from its family server.,Dit apparaat is verwijderd van de familieserver.,
+tidyshop_lists_found,,%1$d lists,%1$d lijsten,app fills in %1$d — keep them
+tidyshop_refresh,,Refresh,Vernieuwen,
+tidyshop_lists_title,,Lists,Lijsten,
+tidyshop_lists_subtitle,,"What this device can reach, and what it may do with each",Wat dit apparaat kan bereiken en wat het met elk apparaat kan doen,
+tidyshop_permission_edit,,Can edit,Kan bewerken,
+tidyshop_permission_check,,Can tick off,Kan afvinken,
+tidyshop_permission_view,,Can look,Kan kijken,
+tidyshop_disconnect,,Leave family,Verlaat familie,
+tidyshop_disconnect_confirm_title,,Leave this family?,Dit gezin verlaten?,
+tidyshop_disconnect_confirm_body,,"This phone stops seeing the family lists, and the key it signs with is deleted. Getting back in needs a new code.","Deze telefoon ziet de familielijsten niet meer en de sleutel waarmee hij ondertekent, wordt verwijderd. Om weer binnen te komen is een nieuwe code nodig.",
+tidyshop_recovery_title,,Write this code down,Schrijf deze code op,
+tidyshop_recovery_body,,It is shown once and is never stored on this phone. It is the only way back in if you reinstall and have no second device.,Het wordt één keer getoond en wordt nooit op deze telefoon opgeslagen. Het is de enige manier om terug te keren als u het apparaat opnieuw installeert en geen tweede apparaat hebt.,
 core_system,,System,Systeem,
 core_greeting_morning,,Good Morning,Goedemorgen,
 core_greeting_afternoon,,Good Afternoon,Goedemiddag,
@@ -2891,6 +2933,32 @@ logs_copy,,Copy the log,Kopieer het logboek,
 logs_clear,,Clear the log,Wis het logboek,
 logs_show_all,,Show all %1$d,Toon alles %1$d,app fills in %1$d — keep them
 logs_show_less,,Show less,Laat minder zien,
+settings_title_nfc_tags,,NFC tags,NFC-tags,
+settings_subtitle_nfc_tags,,Read and write tags that trigger Home Assistant,Tags lezen en schrijven die Home Assistant activeren,don't translate Home Assistant
+nfc_no_hardware,,This device does not have NFC hardware.,Dit apparaat beschikt niet over NFC-hardware.,
+nfc_tab_scan,,Scan,Scannen,
+nfc_tab_write,,Write,Schrijven,
+nfc_disabled_title,,NFC is turned off,NFC is uitgeschakeld,
+nfc_disabled_body,,Turn on NFC in your device settings to read or write tags.,Schakel NFC in uw apparaatinstellingen in om tags te lezen of te schrijven.,
+nfc_open_settings,,Open NFC settings,Open NFC-instellingen,
+nfc_ready_to_scan,,"Hold your phone near a tag. Every tap anywhere in HKI 7 is reported to Home Assistant, not just here.","Houd uw telefoon in de buurt van een tag. Elke tik waar dan ook in HKI 7 wordt gerapporteerd aan Home Assistant, niet alleen hier.","don't translate Home Assistant, HKI 7"
+nfc_no_activity,,No tags scanned or written yet.,Er zijn nog geen tags gescand of geschreven.,
+nfc_recent_activity,,Recent activity,Recente activiteit,
+nfc_scan_reported,,Tag scanned — sent to Home Assistant,Tag gescand — verzonden naar Home Assistant,don't translate Home Assistant
+nfc_scan_failed,,"Tag scanned, but Home Assistant could not be reached","Tag gescand, maar Home Assistant kon niet worden bereikt",don't translate Home Assistant
+nfc_write_mode_generate,,Generate new ID,Genereer een nieuwe ID,
+nfc_write_mode_custom,,Enter ID,Voer ID in,
+nfc_write_custom_id_label,,Tag ID,Tag-ID,
+nfc_write_label_label,,Label (optional),Etiket (optioneel),
+nfc_write_label_hint,,"Shown only in this list, never sent to Home Assistant","Alleen weergegeven in deze lijst, nooit verzonden naar Home Assistant",don't translate Home Assistant
+nfc_write_start,,Tap a tag to write,Tik op een tag om te schrijven,
+nfc_write_waiting,,Hold a tag near your phone…,Houd een tag bij uw telefoon...,
+nfc_write_success,,Tag written,Label geschreven,
+nfc_write_error_read_only,,This tag is read-only and cannot be written,Deze tag is alleen-lezen en kan niet worden geschreven,
+nfc_write_error_too_small,,This tag does not have enough storage for the link,Deze tag heeft niet genoeg opslagruimte voor de link,
+nfc_write_error_unsupported,,This tag does not support NFC Data Exchange Format (NDEF),Deze tag ondersteunt geen NFC Data Exchange Format (NDEF),
+nfc_write_error_lost,,The tag was moved away before the write finished. Try again.,De tag is verwijderd voordat het schrijven was voltooid. Probeer het opnieuw.,
+nfc_write_error_generic,,Could not write the tag. Try again.,Kon de tag niet schrijven. Probeer het opnieuw.,
 parcel_letter_count,one,%1$d letter,%1$d brief,app fills in %1$d — keep them
 parcel_letter_count,other,%1$d letters,%1$d brieven,app fills in %1$d — keep them
 spacer_empty_button,,Empty button,Lege knop,
@@ -3884,3 +3952,20 @@ clock_app_section,,Clock app,Klok-app,
 clock_app_section_subtitle,,Which app the alarm dialog opens,In welke app het alarmdialoogvenster wordt geopend,
 clock_app_automatic,,Automatic,Automatisch,
 clock_app_none_found,,No clock app was found on this device.,Er is geen klok-app gevonden op dit apparaat.,
+widgets_todo_tab_sync,,Sync,Synchroniseren,
+widgets_todo_sync_subtitle,,Where this list gets its items,Waar deze lijst zijn items krijgt,
+widgets_todo_sync_local,,This dashboard,Dit dashboard,
+widgets_todo_sync_local_hint,,"Items are kept with the dashboard and travel with it, the way every other widget works.","Items worden bij het dashboard bewaard en reizen ermee mee, zoals elke andere widget werkt.",
+widgets_todo_sync_tidyshop,,TidyShop family lists,TidyShop-familielijsten,
+widgets_todo_sync_tidyshop_hint,,Items come from your family connector. Everyone in the household sees a change as it happens.,Items zijn afkomstig van uw familieconnector. Iedereen in het huishouden ziet een verandering terwijl deze plaatsvindt.,
+widgets_todo_sync_not_connected,,This device is not connected to a TidyShop family yet.,Dit apparaat is nog niet verbonden met een TidyShop-familie.,
+widgets_todo_sync_not_connected_short,,Not connected,Niet verbonden,
+widgets_todo_sync_connected_as,,Connected as %1$s · %2$s,Verbonden als %1$s · %2$s,app fills in %1$s %2$s — keep them
+widgets_todo_sync_open_settings,,Set up TidyShop,TidyShop opzetten,
+widgets_todo_sync_settings_path,,"Set this up in Settings, under Connected apps.","Stel dit in via Instellingen, onder Verbonden apps.",
+widgets_todo_sync_lists,,Lists to show,Lijsten om te tonen,
+widgets_todo_sync_all_lists,,All lists,Alle lijsten,
+widgets_todo_sync_all_lists_hint,,"With all lists chosen, a list added on another phone simply appears here.","Als alle lijsten zijn gekozen, verschijnt hier eenvoudigweg een lijst die op een andere telefoon is toegevoegd.",
+widgets_todo_sync_no_lists,,No lists were found on the family server.,Er zijn geen lijsten gevonden op de familieserver.,
+widgets_todo_tidyshop_read_only,,"You can look at this list, but not change it.","U kunt deze lijst bekijken, maar niet wijzigen.",
+widgets_todo_tidyshop_check_only,,"You can tick items off, but not change the list itself.","U kunt items afvinken, maar de lijst zelf niet wijzigen.",

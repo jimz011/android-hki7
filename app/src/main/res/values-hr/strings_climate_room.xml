@@ -27,6 +27,13 @@
         <item>Fiksna očitanja temperature i energije na češkom, slovačkom, grčkom, norveškom, švedskom i danskom, gdje su se brojke pokazivale pogrešno ili su mogle srušiti zaslon.</item>
         <item>Nešto loše napisano na vašem jeziku? Svaki je jezik sada jedna datoteka koju možete ispraviti na GitHubu, bez potrebe za kodom.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_1">
+        <item>Widget popisa za kupnju sada može prikazati vaše TidyShop obiteljske popise umjesto vlastitih. Svaki popis podijeljen s vama pojavljuje se kao kartica, a označavanje nečega dopire do ostatka kućanstva u roku od nekoliko sekundi.</item>
+        <item>O tome što možete učiniti sa sinkroniziranim popisom odlučuje obiteljski poslužitelj: popis koji možete samo gledati ostaje samo za čitanje, a onaj koji možete označiti, ali ne i uređivati, omogućuje vam provjeru stavki bez mijenjanja. Vlastita dopuštenja vaše nadzorne ploče i dalje se primjenjuju na vrhu.</item>
+        <item>Novo: Postavke › Povezane aplikacije, za druge aplikacije iz kojih HKI 7 može povući. TidyShop je prvi. Povezivanje koristi kod umjesto lozinke: ovaj telefon stvara vlastiti ključ koji ga nikada ne napušta i ne može se staviti u rezervnu kopiju.</item>
+        <item>Popisi obitelji ostaju aktivni samo dok je HKI 7 na zaslonu. Zatvorena ili u vašem džepu ne drži vezu i ne planira rad, tako da značajka ne troši ništa na bateriju.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>HKI 7 sada se pojavljuje na Android Auto. Zaslon automobila prikazuje mrežu vaših brzih radnji s njihovim trenutnim stanjem, a dodir ih pokreće. Android Auto crta Googleove vlastite predloške i skriva sve što prelazi ograničenje koje je postavio dok se automobil kreće, tako da prikazuje kratki popis koji sami pripremate, a ne vašu nadzornu ploču.</item>
         <item>Sada postoji aplikacija Wear OS. Prikazuje vaše brze radnje sa stanjem uživo i vašim sobama ispod te razgovara izravno s Home Assistant, tako da nastavlja raditi kada je vaš telefon u drugoj prostoriji.</item>

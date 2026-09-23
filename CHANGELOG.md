@@ -5,6 +5,25 @@ file in sync with `app/src/main/java/com/jimz011apps/hki7/ui/components/WhatsNew
 
 Items marked with \* require the HKI 7 Cloud Component integration.
 
+## 1.2.1
+
+TidyShop family shopping lists, synced live in the to-do widget.
+
+- The shopping list widget can now show your TidyShop family lists instead of its own. Every list
+  the family server shares with you appears as a tab, and ticking something off reaches the rest of
+  the household within seconds. Items you add here also feed TidyShop's own suggestions, so the
+  next "milk" is offered there too.
+- What you may do with a synced list is decided by the family server, not by this dashboard: a list
+  you can only look at stays read-only here, and one you may tick but not edit lets you check items
+  without changing them. Your dashboard's own permissions still apply on top, so a list locked down
+  for a child stays locked down.
+- New: Settings › Connected apps, for other apps HKI 7 can pull from. TidyShop is the first.
+  Connecting is a code rather than a password: this phone makes its own key, which never leaves it
+  and cannot be put in a backup, so a copied backup grants nobody access to your family lists.
+- Family lists only stay live while HKI 7 is on screen. Closed or in your pocket, it holds no
+  connection and schedules no work, so the feature costs nothing in battery; whatever changed while
+  you were away arrives the moment you look again.
+
 ## 1.2.0
 
 Android Auto and Wear OS, and the curated quick-action list that drives both.
@@ -51,6 +70,14 @@ Android Auto and Wear OS, and the curated quick-action list that drives both.
 - Family permissions apply to the car and the watch throughout. An entity an admin has restricted
   never appears in the picker, never reaches the watch, and stops working in the car the moment
   access is revoked — without anyone having to edit their list.
+- Watch setup now notices the phone's reply whenever it arrives instead of giving the Data Layer a
+  fixed 1.5-second window. Every scrollable watch screen also shows a scroll indicator, including
+  setup, so the independent sign-in option below the phone handoff is visibly reachable.
+- The Wear OS package now declares itself non-standalone, matching its actual first-run flow: the
+  watch works directly with Home Assistant after setup, but initial authentication uses its paired
+  Android phone, either through the HKI 7 app or through Home Assistant login in the phone browser.
+- A built-in Wear demo home lets reviewers and new users explore quick actions, rooms, both tiles
+  and the watch-face complication without an account, server, phone handoff or network connection.
 - Settings warns you when a quick action would not do anything away from the dashboard. A tap on
   the dashboard can open a dialog, which neither a car screen nor a watch can draw, so entries on
   devices with no unambiguous one-tap meaning — a lock, a vacuum, an alarm panel — ask you to

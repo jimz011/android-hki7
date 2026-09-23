@@ -79,6 +79,9 @@ import com.jimz011apps.hki7.data.TODO_EDIT_SPECIFIC
 import com.jimz011apps.hki7.data.TODO_ITEM_PRIORITY_HIGH
 import com.jimz011apps.hki7.data.TODO_ITEM_PRIORITY_LOW
 import com.jimz011apps.hki7.data.TODO_ITEM_PRIORITY_NORMAL
+import com.jimz011apps.hki7.data.TODO_SYNC_LOCAL
+import com.jimz011apps.hki7.data.TODO_SYNC_TIDYSHOP
+import com.jimz011apps.hki7.data.TidyShopSync
 import com.jimz011apps.hki7.data.canEdit
 import com.jimz011apps.hki7.data.isWidgetVisibleNow
 import com.jimz011apps.hki7.ui.MainViewModel
@@ -86,6 +89,8 @@ import com.jimz011apps.hki7.ui.components.EditRemoveBadge
 import com.jimz011apps.hki7.ui.components.EditSettingsButton
 import com.jimz011apps.hki7.ui.components.LocalVisibilityFamilyContext
 import com.jimz011apps.hki7.ui.components.MdiIconPickerDialog
+import com.jimz011apps.hki7.ui.components.LocalOpenSettingsRoute
+import com.jimz011apps.hki7.ui.components.SETTINGS_ROUTE_TIDYSHOP
 import com.jimz011apps.hki7.ui.components.VisibilityFamilyContext
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 import com.jimz011apps.hki7.ui.components.ModernSettingsDialogTitle
@@ -127,26 +132,39 @@ fun TodoWidgetItem(
     val canEdit = remember(widget.editPermission, widget.editableMemberIds, family) {
         widget.canEdit(family.currentUserId, family.isAdmin)
     }
+    val syncsWithTidyShop = widget.syncSource == TODO_SYNC_TIDYSHOP
     var showDialog by remember(widget.id) { mutableStateOf(false) }
 
     Box(Modifier.fillMaxWidth()) {
-        TodoCard(
-            widget = widget,
-            currentUrl = currentUrl,
-            // Checking an item off from the card is itself an edit, so it needs the same
-            // permission the dialog enforces — and never while the dashboard itself is being
-            // rearranged, when a tap means something else entirely.
-            canToggle = canEdit && !isEditMode,
-            onToggle = { itemId -> onUpdate(widget.withItemToggled(itemId, family)) },
-            modifier = Modifier.clickable(enabled = !isEditMode) { showDialog = true }
-        )
+        if (syncsWithTidyShop) {
+            // The lists belong to the family connector, so this branch neither reads nor writes
+            // widget.items — see TodoWidgetTidyShop.kt.
+            TidyShopTodoWidgetItem(
+                widget = widget,
+                currentUrl = currentUrl,
+                isEditMode = isEditMode,
+                onOpen = { showDialog = true },
+            )
+        } else {
+            TodoCard(
+                widget = widget,
+                currentUrl = currentUrl,
+                // Checking an item off from the card is itself an edit, so it needs the same
+                // permission the dialog enforces — and never while the dashboard itself is being
+                // rearranged, when a tap means something else entirely.
+                canToggle = canEdit && !isEditMode,
+                onToggle = { itemId -> onUpdate(widget.withItemToggled(itemId, family)) },
+                modifier = Modifier.clickable(enabled = !isEditMode) { showDialog = true }
+            )
+        }
         if (isEditMode) {
             EditSettingsButton(onClick = onSettings, modifier = Modifier.align(Alignment.Center))
             EditRemoveBadge(onClick = onDelete, modifier = Modifier.align(Alignment.TopEnd))
         }
     }
     if (showDialog) {
-        TodoDialog(widget, viewModel, onUpdate) { showDialog = false }
+        if (syncsWithTidyShop) TidyShopTodoDialog(widget) { showDialog = false }
+        else TodoDialog(widget, viewModel, onUpdate) { showDialog = false }
     }
 }
 
@@ -885,9 +903,13 @@ fun TodoWidgetSettingsDialog(
     var heroCategory by remember(widget) { mutableStateOf(widget.heroCategory) }
     var editPermission by remember(widget) { mutableStateOf(widget.editPermission) }
     var editableMemberIds by remember(widget) { mutableStateOf(widget.editableMemberIds.toSet()) }
+    var syncSource by remember(widget) { mutableStateOf(widget.syncSource) }
+    var tidyShopListIds by remember(widget) { mutableStateOf(widget.tidyShopListIds.toSet()) }
     var showIconPicker by remember { mutableStateOf(false) }
     var settingsPage by remember(widget) { mutableStateOf("general") }
     var visSpec by remember(widget) { mutableStateOf(widget.toVisibilitySpec()) }
+    val tidyShop by TidyShopSync.state.collectAsState()
+    val openSettingsRoute = LocalOpenSettingsRoute.current
 
     if (showIconPicker) {
         MdiIconPickerDialog(
@@ -915,6 +937,7 @@ fun TodoWidgetSettingsDialog(
                 SettingsTabRow(
                     tabs = listOf(
                         "general" to stringResource(R.string.widgets_todo_tab_general),
+                        "sync" to stringResource(R.string.widgets_todo_tab_sync),
                         "permissions" to stringResource(R.string.widgets_todo_tab_permissions),
                         "appearance" to stringResource(R.string.widgets_tab_appearance),
                         "visibility" to stringResource(R.string.ui_visibility_7d9ff4f)
@@ -922,6 +945,110 @@ fun TodoWidgetSettingsDialog(
                     selected = settingsPage,
                     onSelect = { settingsPage = it }
                 )
+                if (settingsPage == "sync") {
+                    SettingsSubcategory(
+                        stringResource(R.string.widgets_todo_tab_sync),
+                        stringResource(R.string.widgets_todo_sync_subtitle)
+                    )
+                    listOf(
+                        TODO_SYNC_LOCAL to (R.string.widgets_todo_sync_local to R.string.widgets_todo_sync_local_hint),
+                        TODO_SYNC_TIDYSHOP to (R.string.widgets_todo_sync_tidyshop to R.string.widgets_todo_sync_tidyshop_hint)
+                    ).forEach { (value, labels) ->
+                        Row(
+                            Modifier.fillMaxWidth().clickable { syncSource = value },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(selected = syncSource == value, onClick = { syncSource = value })
+                            Column(Modifier.weight(1f)) {
+                                Text(stringResource(labels.first))
+                                Text(
+                                    stringResource(labels.second),
+                                    color = appColors.onMuted, style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+                    }
+                    if (syncSource == TODO_SYNC_TIDYSHOP) {
+                        HorizontalDivider(color = appColors.onMuted.copy(alpha = 0.12f))
+                        if (!tidyShop.isConnected) {
+                            Text(
+                                stringResource(R.string.widgets_todo_sync_not_connected),
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        } else {
+                            Text(
+                                stringResource(
+                                    R.string.widgets_todo_sync_connected_as,
+                                    tidyShop.memberName.ifBlank { stringResource(R.string.tidyshop_member_unknown) },
+                                    tidyShop.householdName.ifBlank { tidyShop.serverUrl }
+                                ),
+                                color = appColors.onMuted, style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                        // The connection itself is device-wide, so it is set up once in Settings
+                        // rather than repeated in every widget that uses it.
+                        if (openSettingsRoute != null) {
+                            TextButton(onClick = { openSettingsRoute(SETTINGS_ROUTE_TIDYSHOP) }) {
+                                Text(stringResource(R.string.widgets_todo_sync_open_settings))
+                            }
+                        } else {
+                            Text(
+                                stringResource(R.string.widgets_todo_sync_settings_path),
+                                color = appColors.onMuted, style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                        if (tidyShop.isConnected) {
+                            Text(stringResource(R.string.widgets_todo_sync_lists), style = MaterialTheme.typography.labelLarge)
+                            Text(
+                                stringResource(R.string.widgets_todo_sync_all_lists_hint),
+                                color = appColors.onMuted, style = MaterialTheme.typography.bodySmall
+                            )
+                            if (tidyShop.lists.isEmpty()) {
+                                Text(
+                                    stringResource(R.string.widgets_todo_sync_no_lists),
+                                    color = appColors.onMuted, style = MaterialTheme.typography.bodySmall
+                                )
+                            } else {
+                                Row(
+                                    Modifier.fillMaxWidth().clickable { tidyShopListIds = emptySet() },
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(
+                                        selected = tidyShopListIds.isEmpty(),
+                                        onClick = { tidyShopListIds = emptySet() }
+                                    )
+                                    Text(stringResource(R.string.widgets_todo_sync_all_lists), modifier = Modifier.weight(1f))
+                                }
+                                tidyShop.lists.forEach { list ->
+                                    Row(
+                                        Modifier.fillMaxWidth().clickable {
+                                            tidyShopListIds = if (list.id in tidyShopListIds) {
+                                                tidyShopListIds - list.id
+                                            } else {
+                                                tidyShopListIds + list.id
+                                            }
+                                        },
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Checkbox(
+                                            checked = list.id in tidyShopListIds,
+                                            onCheckedChange = { checked ->
+                                                tidyShopListIds = if (checked) tidyShopListIds + list.id
+                                                else tidyShopListIds - list.id
+                                            }
+                                        )
+                                        Text(
+                                            "${list.icon} ${list.title}".trim(),
+                                            modifier = Modifier.weight(1f),
+                                            maxLines = 1, overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 if (settingsPage == "general") {
                     SettingsSubcategory(
                         stringResource(R.string.widgets_todo_tab_general),
@@ -947,7 +1074,17 @@ fun TodoWidgetSettingsDialog(
                         Text(stringResource(R.string.widgets_todo_show_completed), modifier = Modifier.weight(1f))
                         Switch(checked = showCompleted, onCheckedChange = { showCompleted = it })
                     }
-                    if (widget.categories.isNotEmpty()) {
+                    // The featured square-card list: local categories, or the connector's own list
+                    // names in TidyShop mode. Both are matched by name, so the setting means the
+                    // same thing either way.
+                    val heroOptions = if (syncSource == TODO_SYNC_TIDYSHOP) {
+                        tidyShop.lists
+                            .filter { tidyShopListIds.isEmpty() || it.id in tidyShopListIds }
+                            .map { it.title }
+                    } else {
+                        widget.categories
+                    }
+                    if (heroOptions.isNotEmpty()) {
                         Text(stringResource(R.string.widgets_todo_hero_list), style = MaterialTheme.typography.labelLarge)
                         Text(
                             stringResource(R.string.widgets_todo_hero_list_hint),
@@ -963,7 +1100,7 @@ fun TodoWidgetSettingsDialog(
                                 onClick = { heroCategory = null },
                                 label = { Text(stringResource(R.string.cr_none), fontSize = 12.sp) }
                             )
-                            widget.categories.forEach { category ->
+                            heroOptions.forEach { category ->
                                 FilterChip(
                                     selected = heroCategory.equals(category, ignoreCase = true),
                                     onClick = { heroCategory = category },
@@ -1065,6 +1202,10 @@ fun TodoWidgetSettingsDialog(
                         heroCategory = heroCategory,
                         editPermission = editPermission,
                         editableMemberIds = editableMemberIds.toList(),
+                        syncSource = syncSource,
+                        // Only meaningful for a TidyShop widget; cleared otherwise so switching
+                        // back to a local list does not leave stale connector ids behind.
+                        tidyShopListIds = if (syncSource == TODO_SYNC_TIDYSHOP) tidyShopListIds.toList() else emptyList(),
                         isHidden = visSpec.hidden,
                         visibilityStart = visSpec.start,
                         visibilityEnd = visSpec.end,

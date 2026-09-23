@@ -16,9 +16,10 @@ import androidx.wear.tiles.TileService
 import com.google.common.util.concurrent.ListenableFuture
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.wear.R
-import com.jimz011apps.hki7.wear.data.HomeAssistantRest
+import com.jimz011apps.hki7.wear.data.WearHomeClient
 import com.jimz011apps.hki7.wear.data.WearPreferences
 import com.jimz011apps.hki7.wear.data.WearSession
+import com.jimz011apps.hki7.wear.data.createWearHomeClient
 import com.jimz011apps.hki7.wear.ui.theme.HkiWearColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -60,11 +61,11 @@ class ThermostatTileService : TileService() {
     ): ListenableFuture<TileBuilders.Tile> = scope.future {
         val prefs = WearPreferences(applicationContext)
         val session = WearSession(prefs)
-        val serverUrl = prefs.serverUrlOnce()
         val entityIds = prefs.thermostatEntityIds()
         val clicked = requestParams.currentState.lastClickableId
+        val client = createWearHomeClient(prefs, session)
 
-        val layout = if (serverUrl == null || entityIds.isEmpty() || !session.isAuthenticated()) {
+        val layout = if (client == null || entityIds.isEmpty()) {
             message(getString(R.string.wear_thermostat_unset))
         } else {
             // Cycling first: the nudge below must act on whichever thermostat the tap selected,
@@ -76,7 +77,6 @@ class ThermostatTileService : TileService() {
             }
             val entityId = entityIds[index]
 
-            val client = HomeAssistantRest(serverUrl, session)
             // A tap arrives as a click id on the next request, so the nudge happens before the
             // fresh reading is taken — otherwise the tile would redraw with the old target.
             when (clicked) {
@@ -119,7 +119,7 @@ class ThermostatTileService : TileService() {
      * can change a thermostat, and sending a target derived from a stale reading would undo
      * whatever else moved it.
      */
-    private suspend fun nudge(client: HomeAssistantRest, entityId: String, up: Boolean) {
+    private suspend fun nudge(client: WearHomeClient, entityId: String, up: Boolean) {
         val entity = runCatching { client.state(entityId) }.getOrNull() ?: return
         val current = entity.temperature ?: entity.currentTemperature ?: return
         val step = entity.targetTempStep

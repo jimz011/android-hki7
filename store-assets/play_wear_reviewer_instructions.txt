@@ -1,0 +1,62 @@
+WEAR OS REVIEW INSTRUCTIONS — HKI 7 1.2.0
+
+No account, credentials, companion app or Home Assistant server is required for review.
+
+Recommended review route — offline demo home
+
+1. Launch HKI 7 on the Wear OS watch or emulator.
+2. On the Set up HKI 7 screen, tap Try demo home.
+3. The sample Quick actions screen opens immediately. It is fully local and makes no network
+   connection.
+4. Tap Living room, Coffee machine or Bedroom to verify that sample device states change.
+5. Open a room to browse and control its sample entities.
+6. Add the “HKI 7 quick actions” and “HKI 7 thermostat” tiles from the system tile picker. Both use
+   the same local demo home; the thermostat −/+ controls change its sample target temperature.
+7. Customize a watch-face complication slot and select HKI 7. It displays the first demo quick
+   action's current state.
+
+The remaining instructions below describe optional testing of a real Home Assistant connection.
+
+Required test configuration
+
+• Pair the Wear OS watch or emulator with an Android phone through the normal Wear OS companion
+  setup before launching HKI 7 on the watch.
+• Install the submitted HKI 7 mobile build on the paired phone and the submitted Wear OS build on
+  the watch. Both use package name com.jimz011apps.hki7 and are signed by Google Play.
+• The watch needs network access to the Home Assistant test server after setup.
+
+Recommended setup route — configure from the HKI 7 phone app
+
+1. Open HKI 7 on the paired Android phone and sign in to the Home Assistant test server using the
+  reviewer-provided or developer-supplied Home Assistant credentials.
+2. Keep the phone nearby and connected to the watch.
+3. Open HKI 7 on the watch.
+4. The watch requests its configuration from the phone and then opens the Quick actions screen.
+5. If configuration is not already visible, tap Check phone once. The screen remains usable while
+   the encrypted Wear OS Data Layer completes the handover.
+
+Alternative setup route — no HKI 7 phone app session
+
+1. Open HKI 7 on the paired watch.
+2. On the Set up HKI 7 screen, scroll down using touch or the crown. A visible scroll indicator
+   shows that more content is available.
+3. Under Or sign in, enter the Home Assistant test server address and tap Sign in.
+4. Complete Home Assistant authentication in the browser that opens on the paired Android phone,
+   using reviewer-provided or developer-supplied Home Assistant credentials.
+5. Return to the watch. It opens the Quick actions screen and communicates directly with Home
+   Assistant from then on.
+
+Wear OS surfaces to verify
+
+• App: quick actions appear first, with rooms below them.
+• Quick actions tile: add “HKI 7 quick actions” from the system tile picker.
+• Thermostat tile: add “HKI 7 thermostat” from the system tile picker. The thermostat is selected
+  in the phone app under Settings > Android Auto & Wear OS > Watch thermostat.
+• Watch-face complication: customize a complication slot and select HKI 7. It shows the state of
+  the first configured watch quick action.
+
+Important
+
+The Wear OS app is intentionally declared non-standalone. A paired Android phone is required only
+for initial authentication. After setup, the watch connects directly to the configured Home
+Assistant server and does not relay normal controls through the phone.

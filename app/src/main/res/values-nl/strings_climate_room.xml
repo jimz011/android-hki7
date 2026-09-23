@@ -579,6 +579,13 @@
         <item>Vaste temperatuur- en energiemetingen in het Tsjechisch, Slowaaks, Grieks, Noors, Zweeds en Deens, waarbij de cijfers verkeerd werden weergegeven of het scherm konden crashen.</item>
         <item>Iets slecht verwoord in uw taal? Elke taal is nu één enkel bestand dat je op GitHub kunt corrigeren, zonder dat er code nodig is.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_1">
+        <item>De boodschappenlijstwidget kan nu uw TidyShop-familielijsten weergeven in plaats van zijn eigen. Elke lijst die met jou wordt gedeeld, verschijnt als een tabblad en als je iets aanvinkt, bereikt de rest van het huishouden binnen enkele seconden.</item>
+        <item>Wat u met een gesynchroniseerde lijst mag doen, wordt bepaald door de familieserver: een lijst die u alleen kunt bekijken, blijft alleen-lezen, en een lijst die u kunt aanvinken maar niet kunt bewerken, stelt u in staat items te controleren zonder ze te wijzigen. De eigen rechten van uw dashboard zijn nog steeds bovenaan van toepassing.</item>
+        <item>Nieuw: Instellingen › Verbonden apps, voor andere apps waar HKI 7 uit kan putten. TidyShop is de eerste. Voor het verbinden wordt gebruik gemaakt van een code in plaats van een wachtwoord: deze telefoon maakt zijn eigen sleutel, die deze nooit verlaat en niet in een back-up kan worden opgeslagen.</item>
+        <item>Familielijsten blijven alleen live zolang HKI 7 op het scherm staat. Gesloten of in je zak, hij heeft geen verbinding en plant geen werk, dus de functie kost niets aan de batterij.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>HKI 7 verschijnt nu op Android Auto. Het autoscherm toont een raster van uw snelle acties met hun huidige status, en een tik voert ze uit. Android Auto tekent de eigen sjablonen van Google en verbergt alles voorbij de limiet die het stelt terwijl de auto rijdt, zodat het een korte lijst toont die u beheert in plaats van uw dashboard.</item>
         <item>Er is nu een Wear OS-app. Het toont uw snelle acties met de livestatus en uw onderliggende kamers, en praat rechtstreeks met Home Assistant, zodat het blijft werken als uw telefoon zich in een andere kamer bevindt.</item>

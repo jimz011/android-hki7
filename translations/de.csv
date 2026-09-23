@@ -628,6 +628,10 @@ cr_quick_media_player,,Media player,Mediaplayer,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.","Wenn der Griff erscheint, die untere Leiste nach oben wischen, um den Player wiederherzustellen.",
 cr_quick_make_it_yours,,Make it yours,Mach es zu deinem,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","Im Bearbeitungsmodus Räume, Etagen und Widgets hinzufügen oder neu anordnen. Tippe auf ein Element, um es einzurichten.",
+cr_whats_new_1_2_1,1,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.","Das Einkaufslisten-Widget kann jetzt Ihre TidyShop-Familienlisten anstelle seiner eigenen anzeigen. Jede mit Ihnen geteilte Liste erscheint als Tab, und wenn Sie etwas ankreuzen, erreicht es den Rest des Haushalts innerhalb von Sekunden.",
+cr_whats_new_1_2_1,2,"What you may do with a synced list is decided by the family server: a list you can only look at stays read-only, and one you may tick but not edit lets you check items without changing them. Your dashboard's own permissions still apply on top.","Was Sie mit einer synchronisierten Liste tun können, wird vom Familienserver entschieden: Eine Liste, die Sie nur ansehen können, bleibt schreibgeschützt, und eine Liste, die Sie ankreuzen, aber nicht bearbeiten können, ermöglicht Ihnen, Elemente zu überprüfen, ohne sie zu ändern. Darüber hinaus gelten weiterhin die eigenen Berechtigungen Ihres Dashboards.",
+cr_whats_new_1_2_1,3,"New: Settings › Connected apps, for other apps HKI 7 can pull from. TidyShop is the first. Connecting uses a code rather than a password: this phone makes its own key, which never leaves it and cannot be put in a backup.","Neu: Einstellungen › Verbundene Apps, für andere Apps, aus denen HKI 7 abrufen kann. TidyShop ist der Erste. Für die Verbindung wird ein Code anstelle eines Passworts verwendet: Dieses Telefon erstellt seinen eigenen Schlüssel, der es nie verlässt und nicht in einem Backup gespeichert werden kann.",don't translate HKI 7
+cr_whats_new_1_2_1,4,"Family lists only stay live while HKI 7 is on screen. Closed or in your pocket it holds no connection and schedules no work, so the feature costs nothing in battery.","Familienlisten bleiben nur aktiv, solange HKI 7 auf dem Bildschirm angezeigt wird. Geschlossen oder in der Tasche hält es keine Verbindung und plant keine Arbeit ein, sodass die Funktion nichts an Batterie kostet.",don't translate HKI 7
 cr_whats_new_1_2_0,1,"HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google's own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.","HKI 7 erscheint jetzt auf Android Auto. Auf dem Autobildschirm wird ein Raster Ihrer Schnellaktionen mit ihrem aktuellen Status angezeigt, und durch Antippen werden sie ausgeführt. Android Auto zeichnet Googles eigene Vorlagen und verbirgt alles, was über einen von ihm festgelegten Grenzwert hinausgeht, während das Auto fährt, sodass eine kurze Liste angezeigt wird, die Sie kuratieren, und nicht Ihr Dashboard.",don't translate HKI 7
 cr_whats_new_1_2_0,2,"There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.","Es gibt jetzt eine Wear OS-App. Es zeigt Ihre schnellen Aktionen im Live-Status und Ihre Räume darunter an und kommuniziert direkt mit Home Assistant, sodass es weiter funktioniert, wenn sich Ihr Telefon in einem anderen Raum befindet.",don't translate Home Assistant
 cr_whats_new_1_2_0,3,"Setting up the watch usually takes nothing: your phone hands it the server address, a session, your quick actions and your rooms, with no typing at all.","Das Einrichten der Uhr erfordert nichts. Ihr Telefon übergibt ihm die Serveradresse, einen Token, Ihre Schnellaktionen und Ihre Räume, sodass eine Anmeldung auf der Uhr überhaupt nicht erfolgt.",
@@ -853,6 +857,44 @@ global_search_entity_count,one,%1$d entity,%1$d Entität,app fills in %1$d — k
 global_search_entity_count,other,%1$d entities,%1$d Entitäten,app fills in %1$d — keep them
 rooms_count,one,%1$d room,%1$d Raum,app fills in %1$d — keep them
 rooms_count,other,%1$d rooms,%1$d Räume,app fills in %1$d — keep them
+settings_title_connected_apps,,Connected apps,Verbundene Apps,
+settings_subtitle_connected_apps,,Other apps this dashboard can show,"Andere Apps, die dieses Dashboard anzeigen kann",
+connected_apps_summary_connected,,%1$s is connected,%1$s ist verbunden,app fills in %1$s — keep them
+connected_apps_tidyshop,,TidyShop,TidyShop,
+connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Gemeinsame Einkaufslisten für die ganze Familie,
+connected_apps_tidyshop_connected,,Connected to %1$s,Verbunden mit %1$s,app fills in %1$s — keep them
+settings_title_tidyshop,,TidyShop,TidyShop,
+settings_subtitle_tidyshop,,Family shopping lists from your own connector,Familieneinkaufslisten von Ihrem eigenen Connector,
+tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.","Geben Sie die Adresse Ihres Familienanschlusses und einen Code daraus ein. Fragen Sie denjenigen, der es für eine Einladung eingerichtet hat, oder verwenden Sie einen Gerätecode von einem anderen Ihrer eigenen Telefone.",
+tidyshop_server_label,,Connector address,Connector-Adresse,
+tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,
+tidyshop_display_name_label,,Your name,Ihr Name,
+tidyshop_code_label,,Invite or device code,Einladungs- oder Gerätecode,
+tidyshop_code_hint,,An invite adds you to the family. A device code adds this phone to the member you already are. A recovery code works here too.,"Durch eine Einladung werden Sie der Familie hinzugefügt. Ein Gerätecode fügt dieses Telefon dem Mitglied hinzu, das Sie bereits sind. Auch hier funktioniert ein Wiederherstellungscode.",
+tidyshop_pairing_key_label,,Master pairing key,Master-Pairing-Schlüssel,
+tidyshop_pairing_key_hint,,Only if you run the server yourself and have no code to hand.,Nur wenn Sie den Server selbst betreiben und keinen Code zur Hand haben.,
+tidyshop_connect,,Connect,Verbinden,
+tidyshop_connecting,,Connecting…,Verbindung wird hergestellt…,
+tidyshop_household_unknown,,Your family,Deine Familie,
+tidyshop_member_unknown,,this device,dieses Gerät,
+tidyshop_signed_in_as,,Signed in as %1$s,Angemeldet als %1$s,app fills in %1$s — keep them
+tidyshop_status_live,,Live — changes arrive as they happen,"Live – Veränderungen kommen, wenn sie passieren",
+tidyshop_status_ready,,Connected,Verbunden,
+tidyshop_status_error,,The last sync did not go through.,Die letzte Synchronisierung wurde nicht durchgeführt.,
+tidyshop_status_error_detail,,The last sync did not go through: %1$s,Die letzte Synchronisierung wurde nicht durchgeführt: %1$s,app fills in %1$s — keep them
+tidyshop_status_revoked,,This device was removed from its family server.,Dieses Gerät wurde von seinem Familienserver entfernt.,
+tidyshop_lists_found,,%1$d lists,%1$d Listen,app fills in %1$d — keep them
+tidyshop_refresh,,Refresh,Aktualisieren,
+tidyshop_lists_title,,Lists,Listen,
+tidyshop_lists_subtitle,,"What this device can reach, and what it may do with each",Was dieses Gerät erreichen kann und was es damit machen kann,
+tidyshop_permission_edit,,Can edit,Kann bearbeiten,
+tidyshop_permission_check,,Can tick off,Kann abhaken,
+tidyshop_permission_view,,Can look,Kann schauen,
+tidyshop_disconnect,,Leave family,Verlasse die Familie,
+tidyshop_disconnect_confirm_title,,Leave this family?,Diese Familie verlassen?,
+tidyshop_disconnect_confirm_body,,"This phone stops seeing the family lists, and the key it signs with is deleted. Getting back in needs a new code.","Auf diesem Telefon werden die Familienlisten nicht mehr angezeigt und der Schlüssel, mit dem es signiert, wird gelöscht. Um wieder einzusteigen, ist ein neuer Code erforderlich.",
+tidyshop_recovery_title,,Write this code down,Schreiben Sie diesen Code auf,
+tidyshop_recovery_body,,It is shown once and is never stored on this phone. It is the only way back in if you reinstall and have no second device.,"Es wird einmal angezeigt und nie auf diesem Telefon gespeichert. Dies ist der einzige Weg zurück, wenn Sie eine Neuinstallation durchführen und kein zweites Gerät haben.",
 core_system,,System,System,
 core_greeting_morning,,Good Morning,Guten Morgen,
 core_greeting_afternoon,,Good Afternoon,Guten Tag,
@@ -2891,6 +2933,32 @@ logs_copy,,Copy the log,Kopieren Sie das Protokoll,
 logs_clear,,Clear the log,Löschen Sie das Protokoll,
 logs_show_all,,Show all %1$d,Alle anzeigen %1$d,app fills in %1$d — keep them
 logs_show_less,,Show less,Weniger anzeigen,
+settings_title_nfc_tags,,NFC tags,NFC-Tags,
+settings_subtitle_nfc_tags,,Read and write tags that trigger Home Assistant,"Tags lesen und schreiben, die Home Assistant auslösen",don't translate Home Assistant
+nfc_no_hardware,,This device does not have NFC hardware.,Dieses Gerät verfügt nicht über NFC-Hardware.,
+nfc_tab_scan,,Scan,Scan,
+nfc_tab_write,,Write,Schreiben,
+nfc_disabled_title,,NFC is turned off,NFC ist ausgeschaltet,
+nfc_disabled_body,,Turn on NFC in your device settings to read or write tags.,"Aktivieren Sie NFC in Ihren Geräteeinstellungen, um Tags zu lesen oder zu schreiben.",
+nfc_open_settings,,Open NFC settings,Öffnen Sie die NFC-Einstellungen,
+nfc_ready_to_scan,,"Hold your phone near a tag. Every tap anywhere in HKI 7 is reported to Home Assistant, not just here.","Halten Sie Ihr Telefon in die Nähe eines Tags. Jeder Tipp irgendwo in HKI 7 wird an Home Assistant gemeldet, nicht nur hier.","don't translate Home Assistant, HKI 7"
+nfc_no_activity,,No tags scanned or written yet.,Noch keine Tags gescannt oder geschrieben.,
+nfc_recent_activity,,Recent activity,Aktuelle Aktivität,
+nfc_scan_reported,,Tag scanned — sent to Home Assistant,Tag gescannt – gesendet an Home Assistant,don't translate Home Assistant
+nfc_scan_failed,,"Tag scanned, but Home Assistant could not be reached","Tag gescannt, aber Home Assistant konnte nicht erreicht werden",don't translate Home Assistant
+nfc_write_mode_generate,,Generate new ID,Neue ID generieren,
+nfc_write_mode_custom,,Enter ID,Geben Sie die ID ein,
+nfc_write_custom_id_label,,Tag ID,Tag-ID,
+nfc_write_label_label,,Label (optional),Etikett (optional),
+nfc_write_label_hint,,"Shown only in this list, never sent to Home Assistant",Wird nur in dieser Liste angezeigt und nie an Home Assistant gesendet.,don't translate Home Assistant
+nfc_write_start,,Tap a tag to write,Tippen Sie zum Schreiben auf ein Tag,
+nfc_write_waiting,,Hold a tag near your phone…,Halten Sie einen Anhänger in die Nähe Ihres Telefons ...,
+nfc_write_success,,Tag written,Tag geschrieben,
+nfc_write_error_read_only,,This tag is read-only and cannot be written,Dieses Tag ist schreibgeschützt und kann nicht geschrieben werden,
+nfc_write_error_too_small,,This tag does not have enough storage for the link,Dieses Tag verfügt nicht über genügend Speicherplatz für den Link,
+nfc_write_error_unsupported,,This tag does not support NFC Data Exchange Format (NDEF),Dieses Tag unterstützt das NFC Data Exchange Format (NDEF) nicht.,
+nfc_write_error_lost,,The tag was moved away before the write finished. Try again.,"Das Tag wurde entfernt, bevor der Schreibvorgang abgeschlossen war. Versuchen Sie es erneut.",
+nfc_write_error_generic,,Could not write the tag. Try again.,Das Tag konnte nicht geschrieben werden. Versuchen Sie es erneut.,
 parcel_letter_count,one,%1$d letter,%1$d Brief,app fills in %1$d — keep them
 parcel_letter_count,other,%1$d letters,%1$d Briefe,app fills in %1$d — keep them
 spacer_empty_button,,Empty button,Leere Schaltfläche,
@@ -3884,3 +3952,20 @@ clock_app_section,,Clock app,Uhr-App,
 clock_app_section_subtitle,,Which app the alarm dialog opens,Welche App öffnet den Alarmdialog?,
 clock_app_automatic,,Automatic,Automatisch,
 clock_app_none_found,,No clock app was found on this device.,Auf diesem Gerät wurde keine Uhr-App gefunden.,
+widgets_todo_tab_sync,,Sync,Synchronisieren,
+widgets_todo_sync_subtitle,,Where this list gets its items,Woher diese Liste ihre Elemente bezieht,
+widgets_todo_sync_local,,This dashboard,Dieses Dashboard,
+widgets_todo_sync_local_hint,,"Items are kept with the dashboard and travel with it, the way every other widget works.","Elemente werden im Dashboard gespeichert und bewegen sich mit ihm, so wie jedes andere Widget funktioniert.",
+widgets_todo_sync_tidyshop,,TidyShop family lists,TidyShop-Familienlisten,
+widgets_todo_sync_tidyshop_hint,,Items come from your family connector. Everyone in the household sees a change as it happens.,"Die Artikel stammen aus Ihrem Familien-Connector. Jeder im Haushalt sieht eine Veränderung, sobald sie eintritt.",
+widgets_todo_sync_not_connected,,This device is not connected to a TidyShop family yet.,Dieses Gerät ist noch nicht mit einer TidyShop-Familie verbunden.,
+widgets_todo_sync_not_connected_short,,Not connected,Nicht verbunden,
+widgets_todo_sync_connected_as,,Connected as %1$s · %2$s,Verbunden als %1$s · %2$s,app fills in %1$s %2$s — keep them
+widgets_todo_sync_open_settings,,Set up TidyShop,Richten Sie TidyShop ein,
+widgets_todo_sync_settings_path,,"Set this up in Settings, under Connected apps.",Richten Sie dies in den Einstellungen unter „Verbundene Apps“ ein.,
+widgets_todo_sync_lists,,Lists to show,Listen zum Anzeigen,
+widgets_todo_sync_all_lists,,All lists,Alle Listen,
+widgets_todo_sync_all_lists_hint,,"With all lists chosen, a list added on another phone simply appears here.","Wenn alle Listen ausgewählt sind, wird hier einfach eine Liste angezeigt, die auf einem anderen Telefon hinzugefügt wurde.",
+widgets_todo_sync_no_lists,,No lists were found on the family server.,Auf dem Familienserver wurden keine Listen gefunden.,
+widgets_todo_tidyshop_read_only,,"You can look at this list, but not change it.","Sie können diese Liste einsehen, aber nicht ändern.",
+widgets_todo_tidyshop_check_only,,"You can tick items off, but not change the list itself.","Sie können Elemente abhaken, die Liste selbst jedoch nicht ändern.",

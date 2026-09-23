@@ -586,6 +586,13 @@
         <item>Correction des relevés de température et d\'énergie en tchèque, slovaque, grec, norvégien, suédois et danois, où les chiffres s\'affichaient mal ou pouvaient faire planter l\'écran.</item>
         <item>Quelque chose de mal formulé dans votre langue ? Chaque langue est désormais un fichier unique que vous pouvez corriger sur GitHub, aucun code n\'est nécessaire.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_1">
+        <item>Le widget de liste de courses peut désormais afficher vos listes de famille TidyShop au lieu des siennes. Chaque liste partagée avec vous apparaît sous forme d\'onglet, et cocher quelque chose atteint le reste du foyer en quelques secondes.</item>
+        <item>Ce que vous pouvez faire avec une liste synchronisée est décidé par le serveur familial : une liste que vous pouvez uniquement consulter reste en lecture seule, et une liste que vous pouvez cocher mais pas modifier vous permet de vérifier les éléments sans les modifier. Les propres autorisations de votre tableau de bord s\'appliquent toujours en premier.</item>
+        <item>Nouveau : Paramètres &gt; Applications connectées, pour les autres applications à partir desquelles HKI 7 peut s\'extraire. TidyShop est le premier. La connexion utilise un code plutôt qu\'un mot de passe : ce téléphone fabrique sa propre clé, qui ne le quitte jamais et ne peut pas être mise en sauvegarde.</item>
+        <item>Les listes de familles ne restent actives que lorsque HKI 7 est à l\'écran. Fermé ou dans votre poche, il ne contient aucune connexion et ne planifie aucun travail, la fonctionnalité ne coûte donc rien en batterie.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>HKI 7 apparaît désormais sur Android Auto. L\'écran de la voiture affiche une grille de vos actions rapides avec leur état actuel, et un simple clic les exécute. Android Auto dessine les propres modèles de Google et masque tout ce qui dépasse une limite qu\'il fixe pendant que la voiture roule, de sorte qu\'il affiche une courte liste que vous organisez plutôt que votre tableau de bord.</item>
         <item>Il existe désormais une application Wear OS. Il affiche vos actions rapides avec l\'état en direct et vos pièces en dessous, et parle directement à Home Assistant, de sorte qu\'il continue de fonctionner lorsque votre téléphone se trouve dans une autre pièce.</item>

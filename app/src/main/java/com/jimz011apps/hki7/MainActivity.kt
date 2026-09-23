@@ -6,6 +6,8 @@ import com.jimz011apps.hki7.R
 
 import androidx.compose.ui.res.stringResource
 
+import android.app.PendingIntent
+import android.nfc.NfcAdapter
 import android.os.Build
 import android.os.Bundle
 import android.Manifest
@@ -33,6 +35,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -90,6 +93,9 @@ import androidx.navigation.navArgument
 import com.jimz011apps.hki7.data.HomeAssistantConnectionRoute
 import com.jimz011apps.hki7.data.HomeAssistantInstance
 import com.jimz011apps.hki7.data.PreferencesManager
+import com.jimz011apps.hki7.data.NfcTagManager
+import com.jimz011apps.hki7.data.extractTag
+import com.jimz011apps.hki7.data.extractTagId
 import com.jimz011apps.hki7.data.PushForegroundService
 import com.jimz011apps.hki7.data.EXTRA_HA_INSTANCE_ID
 import com.jimz011apps.hki7.data.isDemoServerUrl
@@ -144,6 +150,7 @@ import com.jimz011apps.hki7.ui.utils.MdiIcon
 import com.jimz011apps.hki7.ui.components.CustomPopupHost
 import com.jimz011apps.hki7.ui.components.NotificationPanel
 import com.jimz011apps.hki7.ui.components.NotificationBannerHost
+import com.jimz011apps.hki7.ui.components.NfcScanResultBanner
 import com.jimz011apps.hki7.ui.components.QuickStartGuideDialog
 import com.jimz011apps.hki7.ui.components.WhatsNewDialog
 import com.jimz011apps.hki7.ui.components.hasChangelogForCurrentVersion
@@ -156,8 +163,16 @@ import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
+/** The most recent NFC-shaped intent MainActivity has seen (cold launch via `onCreate`'s own
+ *  `intent`, or a redelivery via `onNewIntent`), for the Composable tree to consume once it has a
+ *  [com.jimz011apps.hki7.ui.MainViewModel] to report a scan through. A plain top-level holder
+ *  because it must survive from before the ViewModel exists — nothing here is NFC-specific enough
+ *  to justify its own class. */
+private val pendingNfcIntent = MutableStateFlow<Intent?>(null)
+
 class MainActivity : ComponentActivity() {
     private var forceHighRefresh = false
+    private var nfcAdapter: NfcAdapter? = null
 
     // Applies the stored per-app language below API 33, where the platform has no LocaleManager to
     // do it for us. A no-op on API 33+ — see AppLocale.withStoredAppLocale.
@@ -178,6 +193,8 @@ class MainActivity : ComponentActivity() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_USER
         enableEdgeToEdge()
         applyPreferredRefreshRate()
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+        pendingNfcIntent.value = intent
         val prefs = PreferencesManager(this)
         lifecycleScope.launch {
             prefs.ensureHomeAssistantInstanceStore()
@@ -271,6 +288,36 @@ class MainActivity : ComponentActivity() {
                         // A blank reason is a user-initiated re-login; no need to explain it.
                         if (reason.isNotBlank()) {
                             snackbarHostState.showSnackbar(message = reason, duration = SnackbarDuration.Long)
+                        }
+                    }
+                }
+                // One consumer for both the cold-launch tag (seeded into pendingNfcIntent before
+                // this composition even starts) and every later foreground tap or onNewIntent
+                // redelivery: the Write tab's pendingWrite gets first refusal, everything else is
+                // treated as a read and reported to Home Assistant.
+                LaunchedEffect(viewModel) {
+                    pendingNfcIntent.collect { nfcIntent ->
+                        if (nfcIntent == null) return@collect
+                        // Claim before doing any work. If composition is cancelled after this point,
+                        // activity recreation cannot replay the original launch intent.
+                        pendingNfcIntent.compareAndSet(nfcIntent, null)
+                        if (!NfcTagManager.claim(nfcIntent)) return@collect
+                        val write = NfcTagManager.pendingWrite
+                        val tag = extractTag(nfcIntent)
+                        if (tag != null && write != null) {
+                            NfcTagManager.pendingWrite = null
+                            write(tag)
+                        } else {
+                            extractTagId(nfcIntent)?.let { tagId ->
+                                // A cold launch can reach this collector while the legacy
+                                // single-server store is still being migrated. Finish that
+                                // idempotent migration before pinning the scan to its instance.
+                                prefs.ensureHomeAssistantInstanceStore()
+                                viewModel.reportNfcTagScan(
+                                    tagId = tagId,
+                                    targetInstanceId = prefs.activeHomeAssistantInstanceId.first(),
+                                )
+                            }
                         }
                     }
                 }
@@ -393,6 +440,20 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         // Re-assert the preference in case the system reset it while backgrounded.
         applyPreferredRefreshRate()
+        // Foreground dispatch means every tag tap while HKI 7 is in front comes back to this
+        // activity directly, taking priority over the manifest's NDEF_DISCOVERED filter (which
+        // only matters for a cold launch — see pendingNfcIntent). No tech-list filtering: a blank,
+        // never-formatted tag must still be caught for the Write tab to write to it at all.
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, Intent(this, javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+            PendingIntent.FLAG_MUTABLE
+        )
+        nfcAdapter?.enableForegroundDispatch(this, pendingIntent, null, null)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        nfcAdapter?.disableForegroundDispatch(this)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -401,6 +462,7 @@ class MainActivity : ComponentActivity() {
         intent.getStringExtra(EXTRA_HA_INSTANCE_ID)?.let { instanceId ->
             lifecycleScope.launch { PreferencesManager(this@MainActivity).switchHomeAssistantInstance(instanceId) }
         }
+        pendingNfcIntent.value = intent
     }
 
     fun setForceHighRefresh(force: Boolean) {
@@ -1307,6 +1369,7 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         }
 
         NotificationBannerHost(viewModel, Modifier.align(Alignment.TopCenter))
+        NfcScanResultBanner(viewModel, Modifier.align(Alignment.TopCenter))
 
         // Popup actions can fire from any surface (buttons, badges, dialog nav bars), so their
         // dialog is hosted here once instead of being threaded through every screen.

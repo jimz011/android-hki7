@@ -346,6 +346,13 @@
     <string name="cr_quick_make_it_yours_instruction">In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.</string>
 
     <!-- Current release -->
+    <string-array name="cr_whats_new_1_2_1">
+        <item>The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.</item>
+        <item>What you may do with a synced list is decided by the family server: a list you can only look at stays read-only, and one you may tick but not edit lets you check items without changing them. Your dashboard\'s own permissions still apply on top.</item>
+        <item>New: Settings › Connected apps, for other apps HKI 7 can pull from. TidyShop is the first. Connecting uses a code rather than a password: this phone makes its own key, which never leaves it and cannot be put in a backup.</item>
+        <item>Family lists only stay live while HKI 7 is on screen. Closed or in your pocket it holds no connection and schedules no work, so the feature costs nothing in battery.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google\'s own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.</item>
         <item>There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.</item>

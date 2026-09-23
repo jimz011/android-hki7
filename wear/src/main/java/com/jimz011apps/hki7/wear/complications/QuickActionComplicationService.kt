@@ -10,9 +10,9 @@ import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import androidx.wear.watchface.complications.datasource.SuspendingComplicationDataSourceService
 import com.jimz011apps.hki7.wear.MainActivity
 import com.jimz011apps.hki7.wear.R
-import com.jimz011apps.hki7.wear.data.HomeAssistantRest
 import com.jimz011apps.hki7.wear.data.WearPreferences
 import com.jimz011apps.hki7.wear.data.WearSession
+import com.jimz011apps.hki7.wear.data.createWearHomeClient
 
 /**
  * One entity's state on the watch face itself.
@@ -41,8 +41,8 @@ class QuickActionComplicationService : SuspendingComplicationDataSourceService()
 
         val prefs = WearPreferences(applicationContext)
         val session = WearSession(prefs)
-        val serverUrl = prefs.serverUrlOnce()
-        if (serverUrl == null || !session.isAuthenticated()) {
+        val client = createWearHomeClient(prefs, session)
+        if (client == null) {
             return shortText(
                 text = getString(R.string.wear_complication_not_set_up),
                 description = getString(R.string.wear_app_name),
@@ -56,7 +56,7 @@ class QuickActionComplicationService : SuspendingComplicationDataSourceService()
             )
 
         val entity = runCatching {
-            HomeAssistantRest(serverUrl, session).state(action.entityId)
+            client.state(action.entityId)
         }.getOrNull()
 
         // An unreachable Home Assistant shows a dash rather than a stale value: on a watch face a

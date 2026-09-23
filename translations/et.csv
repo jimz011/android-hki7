@@ -628,6 +628,10 @@ cr_quick_media_player,,Media player,Meediumipleier,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.","Kui kuvatakse käepide, libistage pleieri taastamiseks alumisel ribal üles.",
 cr_quick_make_it_yours,,Make it yours,Tee see enda omaks,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","Redigeerimisrežiimis saate ruume, korruseid ja vidinaid lisada ja ümber järjestada. Puudutage üksust selle konfigureerimiseks.",
+cr_whats_new_1_2_1,1,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.",Ostunimekirja vidin saab nüüd näidata teie TidyShopi perenimekirju enda enda asemel. Iga teiega jagatud loend kuvatakse vahekaardina ja millegi ära märkimine jõuab mõne sekundi jooksul ülejäänud leibkonnani.,
+cr_whats_new_1_2_1,2,"What you may do with a synced list is decided by the family server: a list you can only look at stays read-only, and one you may tick but not edit lets you check items without changing them. Your dashboard's own permissions still apply on top.","See, mida saate sünkroonitud loendiga teha, otsustab pereserver: loend, mida saate vaadata, jääb kirjutuskaitstuks, ja loend, mille saate märgistada, kuid mitte muuta, võimaldab teil kontrollida üksusi neid muutmata. Peal kehtivad endiselt teie juhtpaneeli enda load.",
+cr_whats_new_1_2_1,3,"New: Settings › Connected apps, for other apps HKI 7 can pull from. TidyShop is the first. Connecting uses a code rather than a password: this phone makes its own key, which never leaves it and cannot be put in a backup.","Uus: Seaded › Ühendatud rakendused, teiste rakenduste jaoks saab HKI 7 hankida. TidyShop on esimene. Ühenduse loomiseks kasutatakse parooli asemel pigem koodi: see telefon teeb oma võtme, mis ei lahku sellest kunagi ja mida ei saa varundada.",don't translate HKI 7
+cr_whats_new_1_2_1,4,"Family lists only stay live while HKI 7 is on screen. Closed or in your pocket it holds no connection and schedules no work, so the feature costs nothing in battery.","Perekonnaloendid jäävad avaldama ainult siis, kui HKI 7 on ekraanil. Suletud või taskus see ei hoia ühendust ega planeeri tööd, nii et see funktsioon ei maksa aku pealt midagi.",don't translate HKI 7
 cr_whats_new_1_2_0,1,"HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google's own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.","HKI 7 kuvatakse nüüd Android Autos. Autoekraanil kuvatakse teie kiirtoimingute ruudustik koos nende hetkeseisuga ja neid käivitab puudutus. Android Auto joonistab Google'i enda malle ja peidab kõik, mis ületab selle seatud piirangu, kui auto liigub, nii et see kuvab teie armatuurlaua asemel lühikest loendit, mida kureerite.",don't translate HKI 7
 cr_whats_new_1_2_0,2,"There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.","Nüüd on olemas Wear OS-i rakendus. See näitab teie kiireid toiminguid reaalajas olekus ja selle all olevaid ruume ning räägib otse kasutajaga Home Assistant, nii et see töötab ka siis, kui teie telefon on teises toas.",don't translate Home Assistant
 cr_whats_new_1_2_0,3,"Setting up the watch usually takes nothing: your phone hands it the server address, a session, your quick actions and your rooms, with no typing at all.","Kella seadistamine ei võta midagi. Teie telefon annab talle serveri aadressi, märgi, teie kiirtoimingud ja ruumid, nii et kellas pole üldse sisselogimist.",
@@ -853,6 +857,44 @@ global_search_entity_count,one,%1$d entity,%1$d üksus,app fills in %1$d — kee
 global_search_entity_count,other,%1$d entities,%1$d üksused,app fills in %1$d — keep them
 rooms_count,one,%1$d room,%1$d tuba,app fills in %1$d — keep them
 rooms_count,other,%1$d rooms,%1$d tuba,app fills in %1$d — keep them
+settings_title_connected_apps,,Connected apps,Ühendatud rakendused,
+settings_subtitle_connected_apps,,Other apps this dashboard can show,"Muud rakendused, mida see armatuurlaud kuvada saab",
+connected_apps_summary_connected,,%1$s is connected,%1$s on ühendatud,app fills in %1$s — keep them
+connected_apps_tidyshop,,TidyShop,TidyShop,
+connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Ühised ostunimekirjad kogu perele,
+connected_apps_tidyshop_connected,,Connected to %1$s,Ühendatud võrguga %1$s,app fills in %1$s — keep them
+settings_title_tidyshop,,TidyShop,TidyShop,
+settings_subtitle_tidyshop,,Family shopping lists from your own connector,Pere ostunimekirjad teie enda konnektorist,
+tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.","Sisestage oma perekonnektori aadress ja selle kood. Küsige kutset sellelt, kes selle seadistas, või kasutage mõne teise oma telefoni seadme koodi.",
+tidyshop_server_label,,Connector address,Ühenduse aadress,
+tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,
+tidyshop_display_name_label,,Your name,Sinu nimi,
+tidyshop_code_label,,Invite or device code,Kutse või seadme kood,
+tidyshop_code_hint,,An invite adds you to the family. A device code adds this phone to the member you already are. A recovery code works here too.,"Kutse lisab teid perekonda. Seadme kood lisab selle telefoni liikmele, kes te juba olete. Taastekood töötab ka siin.",
+tidyshop_pairing_key_label,,Master pairing key,Peamine sidumisvõti,
+tidyshop_pairing_key_hint,,Only if you run the server yourself and have no code to hand.,"Ainult siis, kui juhite serverit ise ja teil pole koodi käepärast.",
+tidyshop_connect,,Connect,Ühendage,
+tidyshop_connecting,,Connecting…,Ühendamine…,
+tidyshop_household_unknown,,Your family,Sinu perekond,
+tidyshop_member_unknown,,this device,see seade,
+tidyshop_signed_in_as,,Signed in as %1$s,Sisse logitud kui %1$s,app fills in %1$s — keep them
+tidyshop_status_live,,Live — changes arrive as they happen,"Reaalajas – muutused saabuvad kohe, kui need juhtuvad",
+tidyshop_status_ready,,Connected,Ühendatud,
+tidyshop_status_error,,The last sync did not go through.,Viimane sünkroonimine ei läinud läbi.,
+tidyshop_status_error_detail,,The last sync did not go through: %1$s,Viimane sünkroonimine ei läinud läbi: %1$s,app fills in %1$s — keep them
+tidyshop_status_revoked,,This device was removed from its family server.,See seade eemaldati pereserverist.,
+tidyshop_lists_found,,%1$d lists,%1$d loendid,app fills in %1$d — keep them
+tidyshop_refresh,,Refresh,Värskenda,
+tidyshop_lists_title,,Lists,Loendid,
+tidyshop_lists_subtitle,,"What this device can reach, and what it may do with each",Milleni see seade ulatub ja mida see võib igaühega teha,
+tidyshop_permission_edit,,Can edit,Saab redigeerida,
+tidyshop_permission_check,,Can tick off,Saab linnukese ära teha,
+tidyshop_permission_view,,Can look,Saab vaadata,
+tidyshop_disconnect,,Leave family,Lahku pere,
+tidyshop_disconnect_confirm_title,,Leave this family?,Kas lahkuda sellest perekonnast?,
+tidyshop_disconnect_confirm_body,,"This phone stops seeing the family lists, and the key it signs with is deleted. Getting back in needs a new code.","See telefon ei näe enam perede loendeid ja võti, millega see allkirjastab, kustutatakse. Sissepääsemiseks on vaja uut koodi.",
+tidyshop_recovery_title,,Write this code down,Kirjutage see kood üles,
+tidyshop_recovery_body,,It is shown once and is never stored on this phone. It is the only way back in if you reinstall and have no second device.,"Seda näidatakse üks kord ja seda ei salvestata kunagi sellesse telefoni. See on ainus tee tagasi, kui installite uuesti ja teil pole teist seadet.",
 core_system,,System,Süsteem,
 core_greeting_morning,,Good Morning,Tere hommikust,
 core_greeting_afternoon,,Good Afternoon,Tere pärastlõunast,
@@ -2891,6 +2933,32 @@ logs_copy,,Copy the log,Kopeerige logi,
 logs_clear,,Clear the log,Tühjendage logi,
 logs_show_all,,Show all %1$d,Kuva kõik %1$d,app fills in %1$d — keep them
 logs_show_less,,Show less,Näita vähem,
+settings_title_nfc_tags,,NFC tags,NFC sildid,
+settings_subtitle_nfc_tags,,Read and write tags that trigger Home Assistant,"Lugege ja kirjutage silte, mis käivitavad Home Assistant",don't translate Home Assistant
+nfc_no_hardware,,This device does not have NFC hardware.,Sellel seadmel pole NFC riistvara.,
+nfc_tab_scan,,Scan,Skaneeri,
+nfc_tab_write,,Write,Kirjutage,
+nfc_disabled_title,,NFC is turned off,NFC on välja lülitatud,
+nfc_disabled_body,,Turn on NFC in your device settings to read or write tags.,Siltide lugemiseks või kirjutamiseks lülitage seadme seadetes sisse NFC.,
+nfc_open_settings,,Open NFC settings,Avage NFC seaded,
+nfc_ready_to_scan,,"Hold your phone near a tag. Every tap anywhere in HKI 7 is reported to Home Assistant, not just here.","Hoidke telefoni sildi lähedal. Iga puudutus kohas HKI 7 teatatakse Home Assistant, mitte ainult siin.","don't translate Home Assistant, HKI 7"
+nfc_no_activity,,No tags scanned or written yet.,Silte pole veel skannitud ega kirjutatud.,
+nfc_recent_activity,,Recent activity,Hiljutine tegevus,
+nfc_scan_reported,,Tag scanned — sent to Home Assistant,Silt skannitud – saadetud aadressile Home Assistant,don't translate Home Assistant
+nfc_scan_failed,,"Tag scanned, but Home Assistant could not be reached","Märgendit skanniti, kuid kasutajaga Home Assistant ei õnnestunud ühendust võtta",don't translate Home Assistant
+nfc_write_mode_generate,,Generate new ID,Loo uus ID,
+nfc_write_mode_custom,,Enter ID,Sisestage ID,
+nfc_write_custom_id_label,,Tag ID,Sildi ID,
+nfc_write_label_label,,Label (optional),Silt (valikuline),
+nfc_write_label_hint,,"Shown only in this list, never sent to Home Assistant","Kuvatakse ainult selles loendis, ei ole kunagi saadetud aadressile Home Assistant",don't translate Home Assistant
+nfc_write_start,,Tap a tag to write,Kirjutamiseks puudutage silti,
+nfc_write_waiting,,Hold a tag near your phone…,Hoidke telefoni lähedal silti…,
+nfc_write_success,,Tag written,Silt kirjutatud,
+nfc_write_error_read_only,,This tag is read-only and cannot be written,See silt on kirjutuskaitstud ja seda ei saa kirjutada,
+nfc_write_error_too_small,,This tag does not have enough storage for the link,Sellel sildil ei ole lingi jaoks piisavalt salvestusruumi,
+nfc_write_error_unsupported,,This tag does not support NFC Data Exchange Format (NDEF),See silt ei toeta NFC andmevahetusvormingut (NDEF),
+nfc_write_error_lost,,The tag was moved away before the write finished. Try again.,Silt eemaldati enne kirjutamise lõpetamist. Proovi uuesti.,
+nfc_write_error_generic,,Could not write the tag. Try again.,Silti ei saanud kirjutada. Proovi uuesti.,
 parcel_letter_count,one,%1$d letter,%1$d täht,app fills in %1$d — keep them
 parcel_letter_count,other,%1$d letters,%1$d tähte,app fills in %1$d — keep them
 spacer_empty_button,,Empty button,Tühi nupp,
@@ -3884,3 +3952,20 @@ clock_app_section,,Clock app,Kellarakendus,
 clock_app_section_subtitle,,Which app the alarm dialog opens,Millise rakenduse häiredialoog avaneb,
 clock_app_automatic,,Automatic,Automaatne,
 clock_app_none_found,,No clock app was found on this device.,Sellest seadmest ei leitud kellarakendust.,
+widgets_todo_tab_sync,,Sync,Sünkroonimine,
+widgets_todo_sync_subtitle,,Where this list gets its items,Kust see loend oma üksused saab,
+widgets_todo_sync_local,,This dashboard,See armatuurlaud,
+widgets_todo_sync_local_hint,,"Items are kept with the dashboard and travel with it, the way every other widget works.","Üksusi hoitakse koos armatuurlauaga ja need liiguvad koos sellega, nagu iga teine vidin töötab.",
+widgets_todo_sync_tidyshop,,TidyShop family lists,TidyShopi perenimekirjad,
+widgets_todo_sync_tidyshop_hint,,Items come from your family connector. Everyone in the household sees a change as it happens.,"Üksused pärinevad teie perekonnektorist. Kõik leibkonna liikmed näevad muutust, kui see juhtub.",
+widgets_todo_sync_not_connected,,This device is not connected to a TidyShop family yet.,See seade pole veel TidyShopi perekonnaga ühendatud.,
+widgets_todo_sync_not_connected_short,,Not connected,Pole ühendatud,
+widgets_todo_sync_connected_as,,Connected as %1$s · %2$s,Ühendatud kui %1$s · %2$s,app fills in %1$s %2$s — keep them
+widgets_todo_sync_open_settings,,Set up TidyShop,Seadistage TidyShop,
+widgets_todo_sync_settings_path,,"Set this up in Settings, under Connected apps.",Seadistage see jaotises Seaded jaotises Ühendatud rakendused.,
+widgets_todo_sync_lists,,Lists to show,Näidatavad loendid,
+widgets_todo_sync_all_lists,,All lists,Kõik nimekirjad,
+widgets_todo_sync_all_lists_hint,,"With all lists chosen, a list added on another phone simply appears here.","Kui kõik loendid on valitud, kuvatakse siin lihtsalt mõnes teises telefonis lisatud loend.",
+widgets_todo_sync_no_lists,,No lists were found on the family server.,Pereserverist loendeid ei leitud.,
+widgets_todo_tidyshop_read_only,,"You can look at this list, but not change it.","Saate seda loendit vaadata, kuid mitte muuta.",
+widgets_todo_tidyshop_check_only,,"You can tick items off, but not change the list itself.","Saate märgistada üksused, kuid mitte muuta loendit ennast.",

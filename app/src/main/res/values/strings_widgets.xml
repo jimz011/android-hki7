@@ -359,4 +359,22 @@
     <string name="clock_app_section_subtitle">Which app the alarm dialog opens</string>
     <string name="clock_app_automatic">Automatic</string>
     <string name="clock_app_none_found">No clock app was found on this device.</string>
+    <!-- To-do widget: where its items come from (this dashboard, or a TidyShop family connector) -->
+    <string name="widgets_todo_tab_sync">Sync</string>
+    <string name="widgets_todo_sync_subtitle">Where this list gets its items</string>
+    <string name="widgets_todo_sync_local">This dashboard</string>
+    <string name="widgets_todo_sync_local_hint">Items are kept with the dashboard and travel with it, the way every other widget works.</string>
+    <string name="widgets_todo_sync_tidyshop">TidyShop family lists</string>
+    <string name="widgets_todo_sync_tidyshop_hint">Items come from your family connector. Everyone in the household sees a change as it happens.</string>
+    <string name="widgets_todo_sync_not_connected">This device is not connected to a TidyShop family yet.</string>
+    <string name="widgets_todo_sync_not_connected_short">Not connected</string>
+    <string name="widgets_todo_sync_connected_as">Connected as %1$s · %2$s</string>
+    <string name="widgets_todo_sync_open_settings">Set up TidyShop</string>
+    <string name="widgets_todo_sync_settings_path">Set this up in Settings, under Connected apps.</string>
+    <string name="widgets_todo_sync_lists">Lists to show</string>
+    <string name="widgets_todo_sync_all_lists">All lists</string>
+    <string name="widgets_todo_sync_all_lists_hint">With all lists chosen, a list added on another phone simply appears here.</string>
+    <string name="widgets_todo_sync_no_lists">No lists were found on the family server.</string>
+    <string name="widgets_todo_tidyshop_read_only">You can look at this list, but not change it.</string>
+    <string name="widgets_todo_tidyshop_check_only">You can tick items off, but not change the list itself.</string>
 </resources>

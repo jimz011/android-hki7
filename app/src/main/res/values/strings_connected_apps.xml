@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Connected apps: other apps of this family that HKI 7 can pull data from, listed under their own
+  settings category so the next one to plug in is an entry there rather than a new category.
+
+  TidyShop is the first. Its family connector is self-hosted, and this device proves who it is with
+  a key generated in the Android Keystore rather than with a password, so the wording below talks
+  about codes and devices rather than about signing in.
+-->
+<resources>
+    <!-- Category -->
+    <string name="settings_title_connected_apps">Connected apps</string>
+    <string name="settings_subtitle_connected_apps">Other apps this dashboard can show</string>
+    <string name="connected_apps_summary_connected">%1$s is connected</string>
+
+    <!-- TidyShop row -->
+    <string name="connected_apps_tidyshop">TidyShop</string>
+    <string name="connected_apps_tidyshop_subtitle">Shared shopping lists for the whole family</string>
+    <string name="connected_apps_tidyshop_connected">Connected to %1$s</string>
+    <string name="settings_title_tidyshop">TidyShop</string>
+    <string name="settings_subtitle_tidyshop">Family shopping lists from your own connector</string>
+
+    <!-- Connecting -->
+    <string name="tidyshop_connect_intro">Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.</string>
+    <string name="tidyshop_server_label">Connector address</string>
+    <string name="tidyshop_server_hint">https://tidyshop.example.com</string>
+    <string name="tidyshop_display_name_label">Your name</string>
+    <string name="tidyshop_code_label">Invite or device code</string>
+    <string name="tidyshop_code_hint">An invite adds you to the family. A device code adds this phone to the member you already are. A recovery code works here too.</string>
+    <string name="tidyshop_pairing_key_label">Master pairing key</string>
+    <string name="tidyshop_pairing_key_hint">Only if you run the server yourself and have no code to hand.</string>
+    <string name="tidyshop_connect">Connect</string>
+    <string name="tidyshop_connecting">Connecting…</string>
+
+    <!-- Connected -->
+    <string name="tidyshop_household_unknown">Your family</string>
+    <string name="tidyshop_member_unknown">this device</string>
+    <string name="tidyshop_signed_in_as">Signed in as %1$s</string>
+    <string name="tidyshop_status_live">Live — changes arrive as they happen</string>
+    <string name="tidyshop_status_ready">Connected</string>
+    <string name="tidyshop_status_error">The last sync did not go through.</string>
+    <string name="tidyshop_status_error_detail">The last sync did not go through: %1$s</string>
+    <string name="tidyshop_status_revoked">This device was removed from its family server.</string>
+    <string name="tidyshop_lists_found">%1$d lists</string>
+    <string name="tidyshop_refresh">Refresh</string>
+
+    <!-- Lists -->
+    <string name="tidyshop_lists_title">Lists</string>
+    <string name="tidyshop_lists_subtitle">What this device can reach, and what it may do with each</string>
+    <string name="tidyshop_permission_edit">Can edit</string>
+    <string name="tidyshop_permission_check">Can tick off</string>
+    <string name="tidyshop_permission_view">Can look</string>
+
+    <!-- Leaving -->
+    <string name="tidyshop_disconnect">Leave family</string>
+    <string name="tidyshop_disconnect_confirm_title">Leave this family?</string>
+    <string name="tidyshop_disconnect_confirm_body">This phone stops seeing the family lists, and the key it signs with is deleted. Getting back in needs a new code.</string>
+
+    <!-- Recovery code, shown once at enrolment -->
+    <string name="tidyshop_recovery_title">Write this code down</string>
+    <string name="tidyshop_recovery_body">It is shown once and is never stored on this phone. It is the only way back in if you reinstall and have no second device.</string>
+</resources>

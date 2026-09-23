@@ -3970,6 +3970,13 @@
     <string name="settings_local_network_allowed">允許</string>
     <string name="settings_local_network_not_allowed">不允許 — 無法透過您的 Wi-Fi 直接存取 Home Assistant</string>
     <string name="update_see_changes">看看發生了什麼變化</string>
+    <string-array name="cr_whats_new_1_2_1">
+        <item>購物清單小工具現在可以顯示您的 TidyShop 家庭清單，而不是它自己的清單。與您分享的每個清單都顯示為選項卡，勾選某些內容會在幾秒鐘內到達家庭的其他成員。</item>
+        <item>您可以對同步清單執行的操作由家庭伺服器決定：您只能查看的清單保持唯讀狀態，您可以勾選但無法編輯的清單可以讓您檢查項目而不更改它們。您的儀表板本身的權限仍然適用於頂部。</item>
+        <item>新功能：設定 › 連接的應用程序，可供 HKI 7 可以從中提取的其他應用程式使用。 TidyShop 是第一個。連接使用代碼而不是密碼：這款手機有自己的密鑰，該密鑰永遠不會離開它，也不能放在備份中。</item>
+        <item>家庭清單僅在 HKI 7 顯示在螢幕上時保持活動狀態。關閉或放在口袋裡時，它不會保持連接，也不會安排任何工作，因此該功能無需任何電池消耗。</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>HKI 7 現在出現在 Android Auto 上。汽車螢幕會顯示您的快速操作及其當前狀態的網格，只需點擊即可運行它們。 Android Auto 會繪製 Google 自己的模板，並隱藏汽車行駛時超出其設定限制的所有內容，因此它會顯示您整理的簡短列表，而不是儀表板。</item>
         <item>現在有一個 Wear OS 應用程式。它會顯示您的即時狀態和下面的房間的快速操作，並直接與 Home Assistant 對話，因此當您的手機位於另一個房間時它仍然可以工作。</item>
@@ -4044,4 +4051,85 @@
     <string name="quick_actions_watch_thermostat_none">未選擇恆溫器</string>
     <string name="quick_actions_watch_thermostat_subtitle">您的手錶調整的恆溫器</string>
     <string name="quick_actions_watch_thermostat_count">%1$d 恆溫器</string>
+    <string name="connected_apps_summary_connected">%1$s 已連接</string>
+    <string name="connected_apps_tidyshop">整潔店</string>
+    <string name="connected_apps_tidyshop_connected">連接到 %1$s</string>
+    <string name="connected_apps_tidyshop_subtitle">全家人分享購物清單</string>
+    <string name="settings_subtitle_connected_apps">此儀表板可以顯示的其他應用程式</string>
+    <string name="settings_subtitle_tidyshop">來自您自己的連接器的家庭購物清單</string>
+    <string name="settings_title_connected_apps">連接的應用程式</string>
+    <string name="settings_title_tidyshop">整潔店</string>
+    <string name="tidyshop_code_hint">邀請將您加入家庭。設備代碼會將這部手機加入您現有的會員。恢復代碼也可以在這裡使用。</string>
+    <string name="tidyshop_code_label">邀請或設備代碼</string>
+    <string name="tidyshop_connect">連接</string>
+    <string name="tidyshop_connect_intro">輸入您的家庭連接器的地址及其代碼。詢問設定邀請的人，或使用您自己的另一部手機的裝置代碼。</string>
+    <string name="tidyshop_connecting">正在連線…</string>
+    <string name="tidyshop_disconnect">離開家人</string>
+    <string name="tidyshop_disconnect_confirm_body">此手機將不再顯示家庭列表，其簽名所使用的金鑰也將被刪除。返回需要新代碼。</string>
+    <string name="tidyshop_disconnect_confirm_title">離開這個家庭？</string>
+    <string name="tidyshop_display_name_label">你的名字</string>
+    <string name="tidyshop_household_unknown">你的家人</string>
+    <string name="tidyshop_lists_found">%1$d 列表</string>
+    <string name="tidyshop_lists_subtitle">該設備可以達到什麼目的，以及它可以對每個設備執行什麼操作</string>
+    <string name="tidyshop_lists_title">清單</string>
+    <string name="tidyshop_member_unknown">這個設備</string>
+    <string name="tidyshop_pairing_key_hint">僅當您自己運行伺服器並且手邊沒有程式碼時。</string>
+    <string name="tidyshop_pairing_key_label">主配對密鑰</string>
+    <string name="tidyshop_permission_check">可以打勾</string>
+    <string name="tidyshop_permission_edit">可以編輯</string>
+    <string name="tidyshop_permission_view">可以看看</string>
+    <string name="tidyshop_recovery_body">它僅顯示一次，並且絕不會儲存在此手機上。如果您重新安裝且沒有第二台設備，這是返回的唯一途徑。</string>
+    <string name="tidyshop_recovery_title">寫下這段程式碼</string>
+    <string name="tidyshop_refresh">重新整理</string>
+    <string name="tidyshop_server_hint">https://tidyshop.example.com</string>
+    <string name="tidyshop_server_label">連接器位址</string>
+    <string name="tidyshop_signed_in_as">以 %1$s 身分登入</string>
+    <string name="tidyshop_status_error">上次同步未完成。</string>
+    <string name="tidyshop_status_error_detail">上次同步未完成：%1$s</string>
+    <string name="tidyshop_status_live">即時－變化一發生就到來</string>
+    <string name="tidyshop_status_ready">已連接</string>
+    <string name="tidyshop_status_revoked">該設備已從其家庭伺服器中刪除。</string>
+    <string name="widgets_todo_sync_all_lists">所有清單</string>
+    <string name="widgets_todo_sync_all_lists_hint">選擇所有清單後，在另一部手機上新增的清單就會出現在此。</string>
+    <string name="widgets_todo_sync_connected_as">連接為 %1$s · %2$s</string>
+    <string name="widgets_todo_sync_lists">要顯示的列表</string>
+    <string name="widgets_todo_sync_local">這個儀表板</string>
+    <string name="widgets_todo_sync_local_hint">項目與儀表板一起保存並隨之移動，就像其他小部件的工作方式一樣。</string>
+    <string name="widgets_todo_sync_no_lists">在家庭伺服器上未找到任何清單。</string>
+    <string name="widgets_todo_sync_not_connected">該設備尚未連接到 TidyShop 系列。</string>
+    <string name="widgets_todo_sync_not_connected_short">未連接</string>
+    <string name="widgets_todo_sync_open_settings">設定 TidyShop</string>
+    <string name="widgets_todo_sync_settings_path">在「設定」中的「已連線的應用程式」下進行設定。</string>
+    <string name="widgets_todo_sync_subtitle">此列表從何處獲取其項目</string>
+    <string name="widgets_todo_sync_tidyshop">TidyShop 家庭列表</string>
+    <string name="widgets_todo_sync_tidyshop_hint">物品來自您的家庭連接器。家庭中的每個人都會看到變化的發生。</string>
+    <string name="widgets_todo_tab_sync">同步</string>
+    <string name="widgets_todo_tidyshop_check_only">您可以勾選項目，但不能變更清單本身。</string>
+    <string name="widgets_todo_tidyshop_read_only">您可以查看此列表，但不能更改它。</string>
+    <string name="nfc_disabled_body">在設備設定中開啟 NFC 以讀取或寫入標籤。</string>
+    <string name="nfc_disabled_title">NFC 已關閉</string>
+    <string name="nfc_no_activity">尚未掃描或寫入任何標籤。</string>
+    <string name="nfc_no_hardware">該設備沒有 NFC 硬體。</string>
+    <string name="nfc_open_settings">開啟 NFC 設定</string>
+    <string name="nfc_ready_to_scan">將手機靠近標籤。 HKI 7 中任意位置的每次点击都会报告给 Home Assistant，而不仅仅是此处。</string>
+    <string name="nfc_recent_activity">最近的活動</string>
+    <string name="nfc_scan_failed">已掃描標籤，但無法存取 Home Assistant</string>
+    <string name="nfc_scan_reported">已掃描標籤 — 傳送至 Home Assistant</string>
+    <string name="nfc_tab_scan">掃描</string>
+    <string name="nfc_tab_write">寫</string>
+    <string name="nfc_write_custom_id_label">標籤ID</string>
+    <string name="nfc_write_error_generic">無法寫入標籤。再試一次。</string>
+    <string name="nfc_write_error_lost">在寫入完成之前，標籤已移除。再試一次。</string>
+    <string name="nfc_write_error_read_only">該標籤是唯讀的，不能寫入</string>
+    <string name="nfc_write_error_too_small">該標籤沒有足夠的存儲空間來容納鏈接</string>
+    <string name="nfc_write_error_unsupported">此標籤不支援 NFC 資料交換格式 (NDEF)</string>
+    <string name="nfc_write_label_hint">僅在此清單中顯示，從未發送至 Home Assistant</string>
+    <string name="nfc_write_label_label">標籤（可選）</string>
+    <string name="nfc_write_mode_custom">輸入身分證號</string>
+    <string name="nfc_write_mode_generate">產生新ID</string>
+    <string name="nfc_write_start">點擊標籤即可寫入</string>
+    <string name="nfc_write_success">標籤已寫</string>
+    <string name="nfc_write_waiting">將標籤放在手機附近...</string>
+    <string name="settings_subtitle_nfc_tags">讀寫觸發 Home Assistant 的標籤</string>
+    <string name="settings_title_nfc_tags">NFC標籤</string>
 </resources>

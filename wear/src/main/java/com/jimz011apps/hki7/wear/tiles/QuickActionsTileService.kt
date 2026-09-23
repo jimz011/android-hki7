@@ -17,9 +17,9 @@ import androidx.wear.tiles.TileService
 import com.google.common.util.concurrent.ListenableFuture
 import com.jimz011apps.hki7.data.HKIQuickAction
 import com.jimz011apps.hki7.wear.R
-import com.jimz011apps.hki7.wear.data.HomeAssistantRest
 import com.jimz011apps.hki7.wear.data.WearPreferences
 import com.jimz011apps.hki7.wear.data.WearSession
+import com.jimz011apps.hki7.wear.data.createWearHomeClient
 import com.jimz011apps.hki7.wear.ui.theme.HkiWearColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -96,10 +96,9 @@ class QuickActionsTileService : TileService() {
     private suspend fun run(context: Context, action: HKIQuickAction) {
         val prefs = WearPreferences(context)
         val session = WearSession(prefs)
-        val serverUrl = prefs.serverUrlOnce() ?: return
         runCatching {
             com.jimz011apps.hki7.wear.data.WearActions.run(
-                HomeAssistantRest(serverUrl, session),
+                createWearHomeClient(prefs, session),
                 action,
             )
         }

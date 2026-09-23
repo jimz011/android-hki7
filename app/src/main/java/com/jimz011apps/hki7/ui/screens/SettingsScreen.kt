@@ -6,6 +6,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.nfc.NfcAdapter
 import android.provider.Settings as AndroidSettings
 import android.text.format.DateUtils
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -68,6 +69,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Extension
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
@@ -75,6 +78,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Nfc
 import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MusicNote
@@ -102,6 +106,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -148,6 +153,10 @@ import com.jimz011apps.hki7.BuildConfig
 import com.jimz011apps.hki7.R
 import androidx.compose.ui.text.style.TextOverflow
 import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.NfcTagManager
+import com.jimz011apps.hki7.data.NfcWriteException
+import com.jimz011apps.hki7.data.homeAssistantTagUri
+import com.jimz011apps.hki7.data.writeUri
 import com.jimz011apps.hki7.data.HomeAssistantConnectionRoute
 import com.jimz011apps.hki7.data.HomeAssistantInstance
 import com.jimz011apps.hki7.data.CloudBackupStorage
@@ -164,7 +173,13 @@ import com.jimz011apps.hki7.data.Hki7FamilyDevice
 import com.jimz011apps.hki7.data.Hki7EventsRoster
 import androidx.compose.foundation.layout.FlowRow
 import com.jimz011apps.hki7.data.HaParentalControls
+import com.jimz011apps.hki7.data.TIDYSHOP_PERMISSION_CHECK
+import com.jimz011apps.hki7.data.TIDYSHOP_PERMISSION_EDIT
+import com.jimz011apps.hki7.data.TidyShopStatus
+import com.jimz011apps.hki7.data.TidyShopSync
 import com.jimz011apps.hki7.ui.components.SETTINGS_ROUTE_FAMILY_EVENTS
+import com.jimz011apps.hki7.ui.components.SETTINGS_ROUTE_TIDYSHOP
+import com.jimz011apps.hki7.ui.components.SETTINGS_ROUTE_NFC_TAGS
 import com.jimz011apps.hki7.ui.components.DefaultIconEffectByGroup
 import com.jimz011apps.hki7.ui.components.IconEffectGroups
 import com.jimz011apps.hki7.data.driveAuthorizationRequest
@@ -238,13 +253,15 @@ import com.jimz011apps.hki7.ui.utils.MdiIcon
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.seconds
 import kotlin.math.roundToInt
 import java.util.UUID
 import coil3.compose.AsyncImage
 
 private enum class SettingsSection {
-    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, LANGUAGE, CORNERS, ICONS, NAV_BAR, MEDIA_PLAYERS, POPUPS, DASHBOARD, QUICK_ACTIONS, FAMILY_SHARING, BACKUP_RESTORE, ACCOUNT, ABOUT, LICENSE, SUPPORT
+    MENU, CONNECTION, PROFILE, LOCATION, NOTIFICATIONS, APPEARANCE, HEADER, THEME, FONTS, LANGUAGE, CORNERS, ICONS, NAV_BAR, MEDIA_PLAYERS, POPUPS, DASHBOARD, QUICK_ACTIONS, FAMILY_SHARING, CONNECTED_APPS, TIDYSHOP, NFC_TAGS, BACKUP_RESTORE, ACCOUNT, ABOUT, LICENSE, SUPPORT
 }
 
 /** The Home Assistant frontend paths reachable from the Home Assistant category. */
@@ -341,6 +358,9 @@ private fun sectionTitle(section: SettingsSection): String = stringResource(when
     SettingsSection.DASHBOARD -> R.string.settings_title_dashboard
     SettingsSection.QUICK_ACTIONS -> R.string.settings_title_quick_actions
     SettingsSection.FAMILY_SHARING -> R.string.settings_title_family_sharing
+    SettingsSection.CONNECTED_APPS -> R.string.settings_title_connected_apps
+    SettingsSection.TIDYSHOP -> R.string.settings_title_tidyshop
+    SettingsSection.NFC_TAGS -> R.string.settings_title_nfc_tags
     SettingsSection.BACKUP_RESTORE -> R.string.settings_title_backup_restore
     SettingsSection.ACCOUNT -> R.string.settings_title_account
     SettingsSection.ABOUT -> R.string.settings_title_about
@@ -370,6 +390,9 @@ private fun sectionSubtitle(section: SettingsSection): String = stringResource(w
     SettingsSection.NOTIFICATIONS -> R.string.settings_subtitle_notifications
     SettingsSection.BACKUP_RESTORE -> R.string.settings_subtitle_backup_restore
     SettingsSection.FAMILY_SHARING -> R.string.settings_subtitle_family_sharing
+    SettingsSection.CONNECTED_APPS -> R.string.settings_subtitle_connected_apps
+    SettingsSection.TIDYSHOP -> R.string.settings_subtitle_tidyshop
+    SettingsSection.NFC_TAGS -> R.string.settings_subtitle_nfc_tags
     SettingsSection.ABOUT -> R.string.settings_subtitle_about
     SettingsSection.LICENSE -> R.string.settings_subtitle_license
     SettingsSection.SUPPORT -> R.string.settings_subtitle_support
@@ -394,6 +417,8 @@ private fun sectionIcon(section: SettingsSection): ImageVector = when (section) 
     SettingsSection.NOTIFICATIONS -> Icons.Default.Notifications
     SettingsSection.BACKUP_RESTORE -> Icons.Default.Backup
     SettingsSection.FAMILY_SHARING -> Icons.Default.Shield
+    SettingsSection.CONNECTED_APPS, SettingsSection.TIDYSHOP -> Icons.Default.Extension
+    SettingsSection.NFC_TAGS -> Icons.Default.Nfc
     SettingsSection.ABOUT -> Icons.Default.Info
     SettingsSection.LICENSE -> Icons.Default.Description
     SettingsSection.SUPPORT -> Icons.Default.Favorite
@@ -407,6 +432,7 @@ private fun parentSection(section: SettingsSection): SettingsSection = when (sec
     SettingsSection.CORNERS, SettingsSection.ICONS -> SettingsSection.APPEARANCE
     SettingsSection.NAV_BAR, SettingsSection.MEDIA_PLAYERS, SettingsSection.POPUPS -> SettingsSection.DASHBOARD
     SettingsSection.PROFILE -> SettingsSection.ACCOUNT
+    SettingsSection.TIDYSHOP -> SettingsSection.CONNECTED_APPS
     else -> SettingsSection.MENU
 }
 
@@ -425,6 +451,8 @@ fun SettingsDialog(
 ) {
     val initialSection = when (initialRoute) {
         SETTINGS_ROUTE_FAMILY_EVENTS -> SettingsSection.FAMILY_SHARING
+        SETTINGS_ROUTE_TIDYSHOP -> SettingsSection.TIDYSHOP
+        SETTINGS_ROUTE_NFC_TAGS -> SettingsSection.NFC_TAGS
         else -> SettingsSection.MENU
     }
     val initialFamilyTab = if (initialRoute == SETTINGS_ROUTE_FAMILY_EVENTS) "events" else null
@@ -433,6 +461,9 @@ fun SettingsDialog(
     val context = LocalContext.current
     val serverUrl by prefs.serverUrl.collectAsState(initial = "")
     val internalUrl by prefs.internalUrl.collectAsState(initial = null)
+    // Connected apps are independent of the Home Assistant connection, so this is read straight
+    // from the process-wide controller rather than from anything the view model owns.
+    val tidyShopState by TidyShopSync.state.collectAsState()
     val currentUrl by viewModel.currentUrl.collectAsState()
     val displayName by viewModel.displayName.collectAsState()
     val themeColor by prefs.themeColor.collectAsState(initial = "system")
@@ -764,6 +795,23 @@ fun SettingsDialog(
                                 else stringResource(R.string.family_settings_admin_only),
                                 enabled = !familySettingsLocked,
                             ) { section = SettingsSection.FAMILY_SHARING }
+                            SettingsChoice(
+                                Icons.Default.Extension,
+                                stringResource(R.string.settings_title_connected_apps),
+                                if (tidyShopState.isConnected) {
+                                    stringResource(
+                                        R.string.connected_apps_summary_connected,
+                                        stringResource(R.string.connected_apps_tidyshop)
+                                    )
+                                } else {
+                                    stringResource(R.string.settings_subtitle_connected_apps)
+                                },
+                            ) { section = SettingsSection.CONNECTED_APPS }
+                            SettingsChoice(
+                                Icons.Default.Nfc,
+                                stringResource(R.string.settings_title_nfc_tags),
+                                stringResource(R.string.settings_subtitle_nfc_tags),
+                            ) { section = SettingsSection.NFC_TAGS }
                             // Home Assistant's own pages, above the HKI 7 block: they are about the
                             // server rather than about this app. Hidden on the demo home, which has
                             // no server behind it to open.
@@ -3119,6 +3167,506 @@ fun SettingsDialog(
                                 }
                             }
                         }
+                        SettingsSection.CONNECTED_APPS -> {
+                            SettingsSubcategory(
+                                stringResource(R.string.settings_title_connected_apps),
+                                stringResource(R.string.settings_subtitle_connected_apps)
+                            )
+                            // One row per connector. Deliberately a list of its own rather than the
+                            // TidyShop page directly, so the next app to plug in is an entry here
+                            // instead of a rewrite of this section.
+                            SettingsChoice(
+                                Icons.Default.ShoppingCart,
+                                stringResource(R.string.connected_apps_tidyshop),
+                                when {
+                                    tidyShopState.status == TidyShopStatus.REVOKED ->
+                                        stringResource(R.string.tidyshop_status_revoked)
+                                    tidyShopState.isConnected -> stringResource(
+                                        R.string.connected_apps_tidyshop_connected,
+                                        tidyShopState.householdName.ifBlank { tidyShopState.serverUrl }
+                                    )
+                                    else -> stringResource(R.string.connected_apps_tidyshop_subtitle)
+                                },
+                            ) { section = SettingsSection.TIDYSHOP }
+                        }
+                        SettingsSection.TIDYSHOP -> {
+                            var urlInput by remember(tidyShopState.serverUrl) {
+                                mutableStateOf(tidyShopState.serverUrl)
+                            }
+                            var codeInput by remember { mutableStateOf("") }
+                            var pairingKeyInput by remember { mutableStateOf("") }
+                            var nameInput by remember(displayName) { mutableStateOf(displayName.orEmpty()) }
+                            var connecting by remember { mutableStateOf(false) }
+                            var connectError by remember { mutableStateOf<String?>(null) }
+                            var recoveryCode by remember { mutableStateOf<String?>(null) }
+                            var confirmDisconnect by remember { mutableStateOf(false) }
+
+                            SettingsSubcategory(
+                                stringResource(R.string.connected_apps_tidyshop),
+                                stringResource(R.string.settings_subtitle_tidyshop)
+                            )
+                            if (tidyShopState.isConnected) {
+                                SettingsPanel {
+                                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                Icons.Default.CheckCircle,
+                                                contentDescription = null,
+                                                tint = if (tidyShopState.status == TidyShopStatus.REVOKED) {
+                                                    MaterialTheme.colorScheme.error
+                                                } else {
+                                                    MaterialTheme.colorScheme.primary
+                                                }
+                                            )
+                                            Spacer(Modifier.width(12.dp))
+                                            Column(Modifier.weight(1f)) {
+                                                Text(
+                                                    tidyShopState.householdName.ifBlank {
+                                                        stringResource(R.string.tidyshop_household_unknown)
+                                                    },
+                                                    color = appColors.onSurface,
+                                                    style = MaterialTheme.typography.titleSmall,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                                Text(
+                                                    tidyShopState.serverUrl,
+                                                    color = appColors.onMuted,
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    maxLines = 1, overflow = TextOverflow.Ellipsis
+                                                )
+                                            }
+                                        }
+                                        Text(
+                                            stringResource(
+                                                R.string.tidyshop_signed_in_as,
+                                                tidyShopState.memberName.ifBlank {
+                                                    stringResource(R.string.tidyshop_member_unknown)
+                                                }
+                                            ),
+                                            color = appColors.onMuted, style = MaterialTheme.typography.bodySmall
+                                        )
+                                        Text(
+                                            when (tidyShopState.status) {
+                                                TidyShopStatus.REVOKED -> stringResource(R.string.tidyshop_status_revoked)
+                                                TidyShopStatus.ERROR ->
+                                                    tidyShopState.error?.let {
+                                                        stringResource(R.string.tidyshop_status_error_detail, it)
+                                                    } ?: stringResource(R.string.tidyshop_status_error)
+                                                TidyShopStatus.CONNECTING -> stringResource(R.string.tidyshop_connecting)
+                                                else -> if (tidyShopState.live) {
+                                                    stringResource(R.string.tidyshop_status_live)
+                                                } else {
+                                                    stringResource(R.string.tidyshop_status_ready)
+                                                }
+                                            },
+                                            color = when (tidyShopState.status) {
+                                                TidyShopStatus.REVOKED, TidyShopStatus.ERROR -> MaterialTheme.colorScheme.error
+                                                else -> appColors.onMuted
+                                            },
+                                            style = MaterialTheme.typography.labelSmall
+                                        )
+                                        Text(
+                                            stringResource(R.string.tidyshop_lists_found, tidyShopState.lists.size),
+                                            color = appColors.onMuted, style = MaterialTheme.typography.labelSmall
+                                        )
+                                        // The stream only runs in the foreground, so a page opened
+                                        // after a long background stint may be showing a stale count.
+                                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            TextButton(onClick = {
+                                                TidyShopSync.refresh()
+                                                scope.launch { TidyShopSync.refreshHousehold() }
+                                            }) { Text(stringResource(R.string.tidyshop_refresh)) }
+                                            TextButton(onClick = { confirmDisconnect = true }) {
+                                                Text(
+                                                    stringResource(R.string.tidyshop_disconnect),
+                                                    color = MaterialTheme.colorScheme.error
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                                if (tidyShopState.lists.isNotEmpty()) {
+                                    SettingsSubcategory(
+                                        stringResource(R.string.tidyshop_lists_title),
+                                        stringResource(R.string.tidyshop_lists_subtitle)
+                                    )
+                                    SettingsPanel {
+                                        tidyShopState.lists.forEach { list ->
+                                            Row(
+                                                Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Column(Modifier.weight(1f)) {
+                                                    Text(
+                                                        (list.icon + " " + list.title).trim(),
+                                                        color = appColors.onSurface,
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        maxLines = 1, overflow = TextOverflow.Ellipsis
+                                                    )
+                                                    Text(
+                                                        stringResource(
+                                                            R.string.widgets_todo_remaining_short,
+                                                            list.remaining, list.items.size
+                                                        ),
+                                                        color = appColors.onMuted,
+                                                        style = MaterialTheme.typography.labelSmall
+                                                    )
+                                                }
+                                                Text(
+                                                    when (list.permissionFor(tidyShopState.userId)) {
+                                                        TIDYSHOP_PERMISSION_EDIT -> stringResource(R.string.tidyshop_permission_edit)
+                                                        TIDYSHOP_PERMISSION_CHECK -> stringResource(R.string.tidyshop_permission_check)
+                                                        else -> stringResource(R.string.tidyshop_permission_view)
+                                                    },
+                                                    color = appColors.onMuted,
+                                                    style = MaterialTheme.typography.labelSmall
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                Text(
+                                    stringResource(R.string.tidyshop_connect_intro),
+                                    color = appColors.onMuted, style = MaterialTheme.typography.bodySmall
+                                )
+                                OutlinedTextField(
+                                    value = urlInput, onValueChange = { urlInput = it },
+                                    label = { Text(stringResource(R.string.tidyshop_server_label)) },
+                                    placeholder = { Text(stringResource(R.string.tidyshop_server_hint)) },
+                                    singleLine = true, modifier = Modifier.fillMaxWidth()
+                                )
+                                OutlinedTextField(
+                                    value = nameInput, onValueChange = { nameInput = it },
+                                    label = { Text(stringResource(R.string.tidyshop_display_name_label)) },
+                                    singleLine = true, modifier = Modifier.fillMaxWidth()
+                                )
+                                OutlinedTextField(
+                                    value = codeInput, onValueChange = { codeInput = it },
+                                    label = { Text(stringResource(R.string.tidyshop_code_label)) },
+                                    supportingText = { Text(stringResource(R.string.tidyshop_code_hint)) },
+                                    singleLine = true, modifier = Modifier.fillMaxWidth()
+                                )
+                                OutlinedTextField(
+                                    value = pairingKeyInput, onValueChange = { pairingKeyInput = it },
+                                    label = { Text(stringResource(R.string.tidyshop_pairing_key_label)) },
+                                    supportingText = { Text(stringResource(R.string.tidyshop_pairing_key_hint)) },
+                                    singleLine = true, modifier = Modifier.fillMaxWidth()
+                                )
+                                connectError?.let { message ->
+                                    Text(
+                                        message,
+                                        color = MaterialTheme.colorScheme.error,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                                Button(
+                                    onClick = {
+                                        connecting = true
+                                        connectError = null
+                                        scope.launch {
+                                            TidyShopSync.connect(
+                                                url = urlInput,
+                                                code = codeInput,
+                                                pairingKey = pairingKeyInput,
+                                                displayName = nameInput.ifBlank { "Member" },
+                                            )
+                                                .onSuccess { enrolment ->
+                                                    codeInput = ""
+                                                    pairingKeyInput = ""
+                                                    recoveryCode = enrolment.recoveryCode
+                                                }
+                                                .onFailure { connectError = it.message }
+                                            connecting = false
+                                        }
+                                    },
+                                    enabled = !connecting && urlInput.isNotBlank() &&
+                                        (codeInput.isNotBlank() || pairingKeyInput.isNotBlank()),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        if (connecting) stringResource(R.string.tidyshop_connecting)
+                                        else stringResource(R.string.tidyshop_connect)
+                                    )
+                                }
+                            }
+
+                            // Shown once and never stored on the phone, so it has to be read now.
+                            recoveryCode?.let { code ->
+                                AlertDialog(
+                                    onDismissRequest = { recoveryCode = null },
+                                    title = { Text(stringResource(R.string.tidyshop_recovery_title)) },
+                                    text = {
+                                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                            Text(stringResource(R.string.tidyshop_recovery_body))
+                                            Surface(shape = itemCornerShape(), color = appColors.subtleSurface) {
+                                                Text(
+                                                    code,
+                                                    modifier = Modifier.fillMaxWidth().padding(14.dp),
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                        }
+                                    },
+                                    confirmButton = {
+                                        Button(onClick = { recoveryCode = null }) {
+                                            Text(stringResource(R.string.ui_done_e9b450d))
+                                        }
+                                    }
+                                )
+                            }
+
+                            if (confirmDisconnect) {
+                                AlertDialog(
+                                    onDismissRequest = { confirmDisconnect = false },
+                                    title = { Text(stringResource(R.string.tidyshop_disconnect_confirm_title)) },
+                                    text = { Text(stringResource(R.string.tidyshop_disconnect_confirm_body)) },
+                                    confirmButton = {
+                                        Button(
+                                            onClick = {
+                                                confirmDisconnect = false
+                                                scope.launch { TidyShopSync.disconnect() }
+                                            }
+                                        ) {
+                                            Text(
+                                                stringResource(R.string.tidyshop_disconnect),
+                                                color = MaterialTheme.colorScheme.error
+                                            )
+                                        }
+                                    },
+                                    dismissButton = {
+                                        TextButton(onClick = { confirmDisconnect = false }) {
+                                            Text(stringResource(R.string.ui_cancel_77dfd21))
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                        SettingsSection.NFC_TAGS -> {
+                            val nfcActivity by prefs.nfcTagActivity.collectAsState(initial = emptyList())
+                            val nfcAdapterInstance = remember { NfcAdapter.getDefaultAdapter(context) }
+                            // Reuses the on-resume refresh the permission tiles above set up —
+                            // NFC's system toggle is exactly the same kind of "changed outside this
+                            // screen" state permissionRefresh already exists to catch.
+                            val nfcEnabled = remember(permissionRefresh) { nfcAdapterInstance?.isEnabled == true }
+                            var nfcTab by remember { mutableStateOf("scan") }
+
+                            SettingsSubcategory(
+                                stringResource(R.string.settings_title_nfc_tags),
+                                stringResource(R.string.settings_subtitle_nfc_tags)
+                            )
+
+                            if (nfcAdapterInstance == null) {
+                                SettingsPanel {
+                                    Row(
+                                        Modifier.padding(14.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        Icon(Icons.Default.Nfc, null, tint = appColors.onMuted)
+                                        Text(
+                                            stringResource(R.string.nfc_no_hardware),
+                                            color = appColors.onMuted,
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    }
+                                }
+                            } else {
+                                SettingsPanel {
+                                    SettingsTabRow(
+                                        tabs = listOf(
+                                            "scan" to stringResource(R.string.nfc_tab_scan),
+                                            "write" to stringResource(R.string.nfc_tab_write)
+                                        ),
+                                        selected = nfcTab,
+                                        onSelect = { nfcTab = it }
+                                    )
+                                }
+                                if (!nfcEnabled) {
+                                    SettingsPanel {
+                                        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            Text(
+                                                stringResource(R.string.nfc_disabled_title),
+                                                color = appColors.onSurface,
+                                                style = MaterialTheme.typography.titleSmall,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Text(
+                                                stringResource(R.string.nfc_disabled_body),
+                                                color = appColors.onMuted,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                            OutlinedButton(
+                                                onClick = { context.startActivity(Intent(AndroidSettings.ACTION_NFC_SETTINGS)) },
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Text(stringResource(R.string.nfc_open_settings))
+                                            }
+                                        }
+                                    }
+                                } else if (nfcTab == "scan") {
+                                    SettingsPanel {
+                                        Row(
+                                            Modifier.padding(14.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                        ) {
+                                            Icon(Icons.Default.Nfc, null, tint = MaterialTheme.colorScheme.primary)
+                                            Text(
+                                                stringResource(R.string.nfc_ready_to_scan),
+                                                color = appColors.onSurface,
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+                                    }
+                                    if (nfcActivity.isEmpty()) {
+                                        Text(
+                                            stringResource(R.string.nfc_no_activity),
+                                            color = appColors.onMuted,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            modifier = Modifier.padding(horizontal = 6.dp)
+                                        )
+                                    } else {
+                                        SettingsSubcategory(stringResource(R.string.nfc_recent_activity))
+                                        SettingsPanel {
+                                            nfcActivity.forEach { entry ->
+                                                Row(
+                                                    Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp),
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                                ) {
+                                                    Icon(
+                                                        if (entry.wasWrite) Icons.Default.Edit else Icons.Default.Nfc,
+                                                        null,
+                                                        tint = appColors.onMuted,
+                                                        modifier = Modifier.size(18.dp)
+                                                    )
+                                                    Column(Modifier.weight(1f)) {
+                                                        Text(
+                                                            entry.label?.takeIf { it.isNotBlank() } ?: entry.tagId,
+                                                            color = appColors.onSurface,
+                                                            style = MaterialTheme.typography.bodyMedium,
+                                                            maxLines = 1, overflow = TextOverflow.Ellipsis
+                                                        )
+                                                        Text(
+                                                            relativeBackupTime(entry.epochMillis),
+                                                            color = appColors.onMuted,
+                                                            style = MaterialTheme.typography.labelSmall
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    var writeMode by remember { mutableStateOf("generate") }
+                                    var customIdInput by remember { mutableStateOf("") }
+                                    var labelInput by remember { mutableStateOf("") }
+                                    var waitingForTap by remember { mutableStateOf(false) }
+                                    var pendingTargetId by remember { mutableStateOf("") }
+                                    var pendingLabel by remember { mutableStateOf<String?>(null) }
+                                    var writeError by remember { mutableStateOf<String?>(null) }
+                                    var writeSuccessId by remember { mutableStateOf<String?>(null) }
+
+                                    val readOnlyMessage = stringResource(R.string.nfc_write_error_read_only)
+                                    val tooSmallMessage = stringResource(R.string.nfc_write_error_too_small)
+                                    val unsupportedMessage = stringResource(R.string.nfc_write_error_unsupported)
+                                    val lostMessage = stringResource(R.string.nfc_write_error_lost)
+                                    val genericMessage = stringResource(R.string.nfc_write_error_generic)
+
+                                    SettingsPanel {
+                                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            FilterChip(
+                                                selected = writeMode == "generate",
+                                                onClick = { writeMode = "generate" },
+                                                label = { Text(stringResource(R.string.nfc_write_mode_generate)) }
+                                            )
+                                            FilterChip(
+                                                selected = writeMode == "custom",
+                                                onClick = { writeMode = "custom" },
+                                                label = { Text(stringResource(R.string.nfc_write_mode_custom)) }
+                                            )
+                                        }
+                                        if (writeMode == "custom") {
+                                            OutlinedTextField(
+                                                value = customIdInput, onValueChange = { customIdInput = it },
+                                                label = { Text(stringResource(R.string.nfc_write_custom_id_label)) },
+                                                singleLine = true, modifier = Modifier.fillMaxWidth()
+                                            )
+                                        }
+                                        OutlinedTextField(
+                                            value = labelInput, onValueChange = { labelInput = it },
+                                            label = { Text(stringResource(R.string.nfc_write_label_label)) },
+                                            supportingText = { Text(stringResource(R.string.nfc_write_label_hint)) },
+                                            singleLine = true, modifier = Modifier.fillMaxWidth()
+                                        )
+                                        writeError?.let { message ->
+                                            Text(message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                                        }
+                                        writeSuccessId?.let {
+                                            Text(
+                                                stringResource(R.string.nfc_write_success),
+                                                color = MaterialTheme.colorScheme.primary,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                        }
+                                        Button(
+                                            onClick = {
+                                                writeError = null
+                                                writeSuccessId = null
+                                                pendingTargetId = if (writeMode == "generate") UUID.randomUUID().toString() else customIdInput.trim()
+                                                pendingLabel = labelInput.trim().takeIf { it.isNotBlank() }
+                                                waitingForTap = true
+                                            },
+                                            enabled = !waitingForTap && (writeMode == "generate" || customIdInput.isNotBlank()),
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Text(
+                                                if (waitingForTap) stringResource(R.string.nfc_write_waiting)
+                                                else stringResource(R.string.nfc_write_start)
+                                            )
+                                        }
+                                        if (waitingForTap) {
+                                            TextButton(onClick = { waitingForTap = false }) {
+                                                Text(stringResource(R.string.ui_cancel_77dfd21))
+                                            }
+                                        }
+                                    }
+
+                                    // Claims the next tag tap for a write instead of the default
+                                    // read-and-report-to-Home-Assistant behavior MainActivity's
+                                    // dispatch otherwise applies. Cleared on success, cancel, or
+                                    // leaving this tab/screen, so a stray later tap never writes
+                                    // something the user never asked to write.
+                                    DisposableEffect(waitingForTap) {
+                                        if (waitingForTap) {
+                                            NfcTagManager.pendingWrite = { tag ->
+                                                scope.launch(Dispatchers.IO) {
+                                                    val result = writeUri(tag, homeAssistantTagUri(pendingTargetId))
+                                                    withContext(Dispatchers.Main) {
+                                                        waitingForTap = false
+                                                        result.onSuccess {
+                                                            writeSuccessId = pendingTargetId
+                                                            viewModel.recordNfcTagWrite(pendingTargetId, pendingLabel)
+                                                        }.onFailure { error ->
+                                                            writeError = when (error) {
+                                                                is NfcWriteException.ReadOnly -> readOnlyMessage
+                                                                is NfcWriteException.TooSmall -> tooSmallMessage
+                                                                is NfcWriteException.Unsupported -> unsupportedMessage
+                                                                is NfcWriteException.ConnectionLost -> lostMessage
+                                                                else -> genericMessage
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        onDispose { NfcTagManager.pendingWrite = null }
+                                    }
+                                }
+                            }
+                        }
                         SettingsSection.BACKUP_RESTORE -> {
                             SettingsPanel {
                                 Text(
@@ -5082,266 +5630,6 @@ private fun FamilyDevicesPanel(
     }
 }
 
-/** What a quick action is called on a compact surface: the override, else the entity's own name. */
-private fun quickActionLabel(quickAction: HKIQuickAction, entity: HAEntity?): String =
-    quickAction.name?.takeIf { it.isNotBlank() }
-        ?: entity?.friendlyName?.takeIf { it.isNotBlank() }
-        ?: quickAction.entityId
-
-/** The icon slug to draw for a quick action, falling back to the same domain icon the dashboard
- *  would pick so an entry the user never gave an icon still looks like the thing it controls. */
-private fun quickActionIconSlug(quickAction: HKIQuickAction, entity: HAEntity?): String =
-    quickAction.icon?.takeIf { it.isNotBlank() }
-        ?: entity?.let { defaultEntityIconSlug(it) }
-        ?: "lightning-bolt"
-
-/** One row of the quick-action list: what it is, whether the car shows it, and a way in. */
-@Composable
-private fun QuickActionRow(
-    quickAction: HKIQuickAction,
-    entity: HAEntity?,
-    carAvailable: Boolean,
-    onToggleCar: (Boolean) -> Unit,
-    onToggleWatch: (Boolean) -> Unit,
-    onEdit: () -> Unit,
-) {
-    val appColors = LocalHKIAppColors.current
-    // An entry whose action resolves to nothing would silently do nothing in the car, where there
-    // is no way to find out why. Say so here, the only place it can be fixed.
-    val unsupported = quickAction.resolvedKind() == QuickActionKind.UNSUPPORTED
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onEdit),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        MdiIcon(
-            quickActionIconSlug(quickAction, entity),
-            tint = if (unsupported) appColors.onMuted else appColors.onSurface,
-            size = 22.dp,
-        )
-        Column(Modifier.weight(1f)) {
-            Text(
-                quickActionLabel(quickAction, entity),
-                color = appColors.onSurface,
-                style = MaterialTheme.typography.labelLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            if (unsupported) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Icon(
-                        Icons.Default.Warning,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(14.dp),
-                    )
-                    Text(
-                        stringResource(R.string.quick_actions_unsupported),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-            } else {
-                Text(
-                    quickAction.entityId,
-                    color = appColors.onMuted,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        }
-        // Two surfaces, two toggles. Icon buttons rather than a pair of switches: a row this
-        // narrow cannot hold two switches and a label, and the car/watch glyphs say which is which
-        // without one. Dimmed means hidden from that surface.
-        SurfaceToggle(
-            icon = Icons.Default.DirectionsCar,
-            label = stringResource(R.string.quick_actions_show_in_car),
-            enabled = quickAction.showInCar,
-            // Not merely off: unreachable on this install, so it must not read as a setting the
-            // user simply has not switched on yet.
-            available = carAvailable,
-            onToggle = onToggleCar,
-        )
-        SurfaceToggle(
-            icon = Icons.Default.Watch,
-            label = stringResource(R.string.quick_actions_show_on_watch),
-            enabled = quickAction.showOnWatch,
-            onToggle = onToggleWatch,
-        )
-    }
-}
-
-/** One surface's on/off state for a quick action, as a tappable icon. */
-@Composable
-private fun SurfaceToggle(
-    icon: ImageVector,
-    label: String,
-    enabled: Boolean,
-    onToggle: (Boolean) -> Unit,
-    /** False when this surface cannot be reached at all on this install. */
-    available: Boolean = true,
-) {
-    val appColors = LocalHKIAppColors.current
-    IconButton(onClick = { onToggle(!enabled) }, enabled = available) {
-        Icon(
-            icon,
-            contentDescription = label,
-            tint = when {
-                !available -> appColors.onMuted.copy(alpha = 0.3f)
-                enabled -> appColors.accent
-                else -> appColors.onMuted.copy(alpha = 0.5f)
-            },
-            modifier = Modifier.size(20.dp),
-        )
-    }
-}
-
-/**
- * Editor for one quick action: its label, its icon, and what a tap does.
- *
- * Reuses [ActionEditor] rather than growing a parallel editor, so the full Home Assistant action
- * picker and its per-field editors come along. The type list is narrowed to the three that mean
- * anything away from the dashboard — the others route to in-app UI that Android Auto cannot draw.
- */
-@Composable
-private fun QuickActionEditDialog(
-    quickAction: HKIQuickAction,
-    entity: HAEntity?,
-    carAvailable: Boolean,
-    allEntities: List<HAEntity>,
-    areas: List<HAArea>,
-    viewModel: MainViewModel,
-    onDismiss: () -> Unit,
-    onSave: (HKIQuickAction) -> Unit,
-    onDelete: () -> Unit,
-) {
-    val appColors = LocalHKIAppColors.current
-    var draft by remember(quickAction.id) { mutableStateOf(quickAction) }
-    var showIconPicker by remember { mutableStateOf(false) }
-
-    if (showIconPicker) {
-        MdiIconPickerDialog(
-            current = draft.icon.orEmpty(),
-            onDismiss = { showIconPicker = false },
-            onSelect = { slug ->
-                draft = draft.copy(icon = slug.takeIf { it.isNotBlank() })
-                showIconPicker = false
-            },
-        )
-    }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.quick_actions_edit_title)) },
-        text = {
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Text(
-                    draft.entityId,
-                    color = appColors.onMuted,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                OutlinedTextField(
-                    value = draft.name.orEmpty(),
-                    onValueChange = { draft = draft.copy(name = it.takeIf(String::isNotBlank)) },
-                    label = { Text(stringResource(R.string.quick_actions_name)) },
-                    placeholder = { Text(entity?.friendlyName ?: draft.entityId) },
-                    supportingText = { Text(stringResource(R.string.quick_actions_name_hint)) },
-                    singleLine = true,
-                    colors = settingsTextFieldColors(),
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                OutlinedButton(
-                    onClick = { showIconPicker = true },
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    MdiIcon(quickActionIconSlug(draft, entity), size = 20.dp)
-                    Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.quick_actions_icon), modifier = Modifier.weight(1f))
-                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
-                }
-                ActionEditor(
-                    label = stringResource(R.string.quick_actions_when_tapped),
-                    action = draft.action,
-                    allEntities = allEntities,
-                    areas = areas,
-                    viewModel = viewModel,
-                    allowedTypes = listOf("default", "toggle", "call_service"),
-                    onChange = { draft = draft.copy(action = it) },
-                )
-                if (draft.resolvedKind() == QuickActionKind.UNSUPPORTED) {
-                    Text(
-                        stringResource(R.string.quick_actions_unsupported),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        stringResource(R.string.quick_actions_show_in_car),
-                        color = if (carAvailable) appColors.onSurface else appColors.onMuted,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(1f),
-                    )
-                    Switch(
-                        checked = draft.showInCar,
-                        enabled = carAvailable,
-                        onCheckedChange = { draft = draft.copy(showInCar = it) },
-                    )
-                }
-                if (!carAvailable) {
-                    Text(
-                        stringResource(R.string.quick_actions_car_needs_play),
-                        color = appColors.onMuted,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        stringResource(R.string.quick_actions_show_on_watch),
-                        color = appColors.onSurface,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(1f),
-                    )
-                    Switch(
-                        checked = draft.showOnWatch,
-                        onCheckedChange = { draft = draft.copy(showOnWatch = it) },
-                    )
-                }
-                if (!draft.showOnWatch && (!draft.showInCar || !carAvailable)) {
-                    Text(
-                        stringResource(R.string.quick_actions_hidden_everywhere),
-                        color = appColors.onMuted,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-            }
-        },
-        confirmButton = { TextButton(onClick = { onSave(draft) }) { Text(stringResource(R.string.dlg_save)) } },
-        dismissButton = {
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                TextButton(onClick = onDelete) {
-                    Text(stringResource(R.string.quick_actions_remove), color = MaterialTheme.colorScheme.error)
-                }
-                TextButton(onClick = onDismiss) { Text(stringResource(R.string.dlg_cancel)) }
-            }
-        },
-    )
-}
-
 @Composable
 private fun SettingsTile(icon: ImageVector, title: String, subtitle: String, iconTint: Color = Color.White) {
     val appColors = LocalHKIAppColors.current
@@ -5445,7 +5733,7 @@ private fun SettingsToggle(
 }
 
 @Composable
-private fun settingsTextFieldColors() = OutlinedTextFieldDefaults.colors(
+internal fun settingsTextFieldColors() = OutlinedTextFieldDefaults.colors(
     focusedTextColor = LocalHKIAppColors.current.onSurface,
     unfocusedTextColor = LocalHKIAppColors.current.onSurface,
     focusedLabelColor = LocalHKIAppColors.current.onSurface.copy(alpha = 0.8f),

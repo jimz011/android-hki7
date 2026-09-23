@@ -83,6 +83,36 @@ class WearPreferences(private val context: Context) {
 
     suspend fun sensorsEnabledOnce(): Boolean = sensorsEnabled.first()
 
+    suspend fun isDemoModeOnce(): Boolean = serverUrlOnce() == WEAR_DEMO_SERVER_URL
+
+    /** Enters a complete offline sample home so reviewers can verify every Wear surface. */
+    suspend fun enterDemoMode() {
+        context.wearDataStore.edit { prefs ->
+            prefs[serverUrlKey] = WEAR_DEMO_SERVER_URL
+            prefs[refreshTokenKey] = WEAR_DEMO_REFRESH_TOKEN
+            prefs.remove(accessTokenKey)
+            prefs.remove(accessTokenExpiryKey)
+            prefs[quickActionsKey] = wearJson.encodeToString(WearDemo.quickActions)
+            prefs[roomsKey] = wearJson.encodeToString(WearDemo.rooms)
+            prefs[thermostatsKey] = WearDemo.thermostatEntityId
+            prefs[thermostatIndexKey] = 0
+        }
+    }
+
+    suspend fun exitDemoMode() {
+        context.wearDataStore.edit { prefs ->
+            if (prefs[serverUrlKey] != WEAR_DEMO_SERVER_URL) return@edit
+            prefs.remove(serverUrlKey)
+            prefs.remove(refreshTokenKey)
+            prefs.remove(accessTokenKey)
+            prefs.remove(accessTokenExpiryKey)
+            prefs.remove(quickActionsKey)
+            prefs.remove(roomsKey)
+            prefs.remove(thermostatsKey)
+            prefs.remove(thermostatIndexKey)
+        }
+    }
+
     /** The climate entities the thermostat tile cycles through, chosen on the phone. */
     suspend fun thermostatEntityIds(): List<String> =
         context.wearDataStore.data.first()[thermostatsKey]

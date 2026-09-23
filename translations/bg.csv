@@ -628,6 +628,10 @@ cr_quick_media_player,,Media player,Медиен плейър,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.","Когато се появи манипулаторът, плъзнете нагоре по долната лента, за да възстановите плейъра.",
 cr_quick_make_it_yours,,Make it yours,Направи го твое,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","В режим на редактиране добавяйте и пренареждайте стаи, етажи и приспособления. Докоснете елемент, за да го конфигурирате.",
+cr_whats_new_1_2_1,1,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.","Приспособлението за списък за пазаруване вече може да показва семейните ви списъци на TidyShop вместо своите собствени. Всеки списък, споделен с вас, се появява като раздел и отбелязването на нещо достига до останалата част от домакинството за секунди.",
+cr_whats_new_1_2_1,2,"What you may do with a synced list is decided by the family server: a list you can only look at stays read-only, and one you may tick but not edit lets you check items without changing them. Your dashboard's own permissions still apply on top.","Какво можете да правите със синхронизиран списък се решава от семейния сървър: списък, който можете само да разглеждате, остава само за четене, а този, който можете да отметнете, но не и да редактирате, ви позволява да проверявате елементи, без да ги променяте. Собствените разрешения на таблото ви все още се прилагат отгоре.",
+cr_whats_new_1_2_1,3,"New: Settings › Connected apps, for other apps HKI 7 can pull from. TidyShop is the first. Connecting uses a code rather than a password: this phone makes its own key, which never leaves it and cannot be put in a backup.","Ново: Настройки › Свързани приложения, за други приложения, от които HKI 7 може да тегли. TidyShop е първият. Свързването използва код, а не парола: този телефон прави свой собствен ключ, който никога не го напуска и не може да бъде поставен в резервно копие.",don't translate HKI 7
+cr_whats_new_1_2_1,4,"Family lists only stay live while HKI 7 is on screen. Closed or in your pocket it holds no connection and schedules no work, so the feature costs nothing in battery.","Семейните списъци остават активни само докато HKI 7 е на екрана. Затворен или в джоба ви, той не поддържа връзка и не планира работа, така че функцията не струва нищо в батерията.",don't translate HKI 7
 cr_whats_new_1_2_0,1,"HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google's own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.","HKI 7 вече се появява в Android Auto. Екранът на автомобила показва мрежа от вашите бързи действия с текущото им състояние и едно докосване ги изпълнява. Android Auto рисува собствените шаблони на Google и скрива всичко над зададеното от него ограничение, докато колата се движи, така че показва кратък списък, който подготвяте, а не вашето табло.",don't translate HKI 7
 cr_whats_new_1_2_0,2,"There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.","Вече има приложение за Wear OS. Той показва вашите бързи действия със състояние на живо и вашите стаи отдолу и говори директно с Home Assistant, така че продължава да работи, когато телефонът ви е в друга стая.",don't translate Home Assistant
 cr_whats_new_1_2_0,3,"Setting up the watch usually takes nothing: your phone hands it the server address, a session, your quick actions and your rooms, with no typing at all.","Настройката на часовника не отнема нищо. Вашият телефон му предава адреса на сървъра, токена, вашите бързи действия и вашите стаи, така че изобщо няма влизане в часовника.",
@@ -853,6 +857,44 @@ global_search_entity_count,one,%1$d entity,%1$d обект,app fills in %1$d —
 global_search_entity_count,other,%1$d entities,%1$d обекти,app fills in %1$d — keep them
 rooms_count,one,%1$d room,%1$d стая,app fills in %1$d — keep them
 rooms_count,other,%1$d rooms,%1$d стаи,app fills in %1$d — keep them
+settings_title_connected_apps,,Connected apps,Свързани приложения,
+settings_subtitle_connected_apps,,Other apps this dashboard can show,"Други приложения, които това табло за управление може да показва",
+connected_apps_summary_connected,,%1$s is connected,%1$s е свързан,app fills in %1$s — keep them
+connected_apps_tidyshop,,TidyShop,TidyShop,
+connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Споделени списъци за пазаруване за цялото семейство,
+connected_apps_tidyshop_connected,,Connected to %1$s,Свързан с %1$s,app fills in %1$s — keep them
+settings_title_tidyshop,,TidyShop,TidyShop,
+settings_subtitle_tidyshop,,Family shopping lists from your own connector,Семейни списъци за пазаруване от вашия собствен конектор,
+tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.","Въведете адреса на вашия семеен конектор и код от него. Помолете този, който го е настроил, за покана или използвайте код на устройство от друг ваш собствен телефон.",
+tidyshop_server_label,,Connector address,Адрес на конектора,
+tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,
+tidyshop_display_name_label,,Your name,Вашето име,
+tidyshop_code_label,,Invite or device code,Покана или код на устройството,
+tidyshop_code_hint,,An invite adds you to the family. A device code adds this phone to the member you already are. A recovery code works here too.,"Покана ви добавя към семейството. Код на устройство добавя този телефон към члена, който вече сте. Тук също работи код за възстановяване.",
+tidyshop_pairing_key_label,,Master pairing key,Главен ключ за сдвояване,
+tidyshop_pairing_key_hint,,Only if you run the server yourself and have no code to hand.,Само ако стартирате сървъра сами и нямате код под ръка.,
+tidyshop_connect,,Connect,Свържете се,
+tidyshop_connecting,,Connecting…,Свързване...,
+tidyshop_household_unknown,,Your family,Вашето семейство,
+tidyshop_member_unknown,,this device,това устройство,
+tidyshop_signed_in_as,,Signed in as %1$s,Влезли сте като %1$s,app fills in %1$s — keep them
+tidyshop_status_live,,Live — changes arrive as they happen,"На живо — промените пристигат, когато се случват",
+tidyshop_status_ready,,Connected,Свързан,
+tidyshop_status_error,,The last sync did not go through.,Последната синхронизация не премина.,
+tidyshop_status_error_detail,,The last sync did not go through: %1$s,Последното синхронизиране не премина през: %1$s,app fills in %1$s — keep them
+tidyshop_status_revoked,,This device was removed from its family server.,Това устройство беше премахнато от семейния сървър.,
+tidyshop_lists_found,,%1$d lists,%1$d списъци,app fills in %1$d — keep them
+tidyshop_refresh,,Refresh,Опресняване,
+tidyshop_lists_title,,Lists,Списъци,
+tidyshop_lists_subtitle,,"What this device can reach, and what it may do with each",Какво може да достигне това устройство и какво може да прави с всеки от тях,
+tidyshop_permission_edit,,Can edit,Може да редактира,
+tidyshop_permission_check,,Can tick off,Може да отметне,
+tidyshop_permission_view,,Can look,Може да погледне,
+tidyshop_disconnect,,Leave family,Напусни семейството,
+tidyshop_disconnect_confirm_title,,Leave this family?,Да напусна ли това семейство?,
+tidyshop_disconnect_confirm_body,,"This phone stops seeing the family lists, and the key it signs with is deleted. Getting back in needs a new code.","Този телефон спира да вижда семейните списъци и ключът, с който се подписва, се изтрива. Връщането се нуждае от нов код.",
+tidyshop_recovery_title,,Write this code down,Запишете този код,
+tidyshop_recovery_body,,It is shown once and is never stored on this phone. It is the only way back in if you reinstall and have no second device.,"Показва се веднъж и никога не се съхранява на този телефон. Това е единственият начин да се върнете, ако преинсталирате и нямате второ устройство.",
 core_system,,System,система,
 core_greeting_morning,,Good Morning,добро утро,
 core_greeting_afternoon,,Good Afternoon,добър следобед,
@@ -2891,6 +2933,32 @@ logs_copy,,Copy the log,Копирайте дневника,
 logs_clear,,Clear the log,Изчистете дневника,
 logs_show_all,,Show all %1$d,Показване на всички %1$d,app fills in %1$d — keep them
 logs_show_less,,Show less,Покажи по-малко,
+settings_title_nfc_tags,,NFC tags,NFC тагове,
+settings_subtitle_nfc_tags,,Read and write tags that trigger Home Assistant,"Четене и писане на тагове, които задействат Home Assistant",don't translate Home Assistant
+nfc_no_hardware,,This device does not have NFC hardware.,Това устройство няма NFC хардуер.,
+nfc_tab_scan,,Scan,Сканиране,
+nfc_tab_write,,Write,Пишете,
+nfc_disabled_title,,NFC is turned off,NFC е изключен,
+nfc_disabled_body,,Turn on NFC in your device settings to read or write tags.,"Включете NFC в настройките на вашето устройство, за да четете или пишете тагове.",
+nfc_open_settings,,Open NFC settings,Отворете настройките на NFC,
+nfc_ready_to_scan,,"Hold your phone near a tag. Every tap anywhere in HKI 7 is reported to Home Assistant, not just here.","Дръжте телефона си близо до етикет. Всяко докосване навсякъде в HKI 7 се докладва на Home Assistant, не само тук.","don't translate Home Assistant, HKI 7"
+nfc_no_activity,,No tags scanned or written yet.,Все още няма сканирани или написани етикети.,
+nfc_recent_activity,,Recent activity,Скорошна дейност,
+nfc_scan_reported,,Tag scanned — sent to Home Assistant,Етикетът е сканиран — изпратен до Home Assistant,don't translate Home Assistant
+nfc_scan_failed,,"Tag scanned, but Home Assistant could not be reached","Етикетът е сканиран, но Home Assistant не може да бъде достигнат",don't translate Home Assistant
+nfc_write_mode_generate,,Generate new ID,Генериране на нов ID,
+nfc_write_mode_custom,,Enter ID,Въведете ID,
+nfc_write_custom_id_label,,Tag ID,ID на етикет,
+nfc_write_label_label,,Label (optional),Етикет (по избор),
+nfc_write_label_hint,,"Shown only in this list, never sent to Home Assistant","Показва се само в този списък, никога не се изпраща до Home Assistant",don't translate Home Assistant
+nfc_write_start,,Tap a tag to write,"Докоснете етикет, за да напишете",
+nfc_write_waiting,,Hold a tag near your phone…,Дръжте етикет близо до телефона си...,
+nfc_write_success,,Tag written,Етикетът е написан,
+nfc_write_error_read_only,,This tag is read-only and cannot be written,Този етикет е само за четене и не може да се записва,
+nfc_write_error_too_small,,This tag does not have enough storage for the link,Този маркер няма достатъчно място за съхранение за връзката,
+nfc_write_error_unsupported,,This tag does not support NFC Data Exchange Format (NDEF),Този етикет не поддържа NFC формат за обмен на данни (NDEF),
+nfc_write_error_lost,,The tag was moved away before the write finished. Try again.,Етикетът беше преместен преди записът да приключи. Опитайте отново.,
+nfc_write_error_generic,,Could not write the tag. Try again.,Не можах да напиша етикета. Опитайте отново.,
 parcel_letter_count,one,%1$d letter,%1$d писмо,app fills in %1$d — keep them
 parcel_letter_count,other,%1$d letters,%1$d букви,app fills in %1$d — keep them
 spacer_empty_button,,Empty button,Празен бутон,
@@ -3884,3 +3952,20 @@ clock_app_section,,Clock app,Приложение за часовник,
 clock_app_section_subtitle,,Which app the alarm dialog opens,Кое приложение отваря диалоговият прозорец на алармата,
 clock_app_automatic,,Automatic,Автоматичен,
 clock_app_none_found,,No clock app was found on this device.,На това устройство не е намерено приложение за часовник.,
+widgets_todo_tab_sync,,Sync,Синхр,
+widgets_todo_sync_subtitle,,Where this list gets its items,Къде този списък получава своите елементи,
+widgets_todo_sync_local,,This dashboard,Това табло,
+widgets_todo_sync_local_hint,,"Items are kept with the dashboard and travel with it, the way every other widget works.","Елементите се съхраняват с таблото за управление и пътуват с него, както работи всяка друга джаджа.",
+widgets_todo_sync_tidyshop,,TidyShop family lists,TidyShop семейни списъци,
+widgets_todo_sync_tidyshop_hint,,Items come from your family connector. Everyone in the household sees a change as it happens.,"Елементите идват от вашия семеен конектор. Всеки в домакинството вижда промяната, докато се случва.",
+widgets_todo_sync_not_connected,,This device is not connected to a TidyShop family yet.,Това устройство все още не е свързано към семейство TidyShop.,
+widgets_todo_sync_not_connected_short,,Not connected,Не е свързан,
+widgets_todo_sync_connected_as,,Connected as %1$s · %2$s,Свързан като %1$s · %2$s,app fills in %1$s %2$s — keep them
+widgets_todo_sync_open_settings,,Set up TidyShop,Настройте TidyShop,
+widgets_todo_sync_settings_path,,"Set this up in Settings, under Connected apps.","Настройте това в Настройки, под Свързани приложения.",
+widgets_todo_sync_lists,,Lists to show,Списъци за показване,
+widgets_todo_sync_all_lists,,All lists,Всички списъци,
+widgets_todo_sync_all_lists_hint,,"With all lists chosen, a list added on another phone simply appears here.","С избраните всички списъци тук просто се появява списък, добавен на друг телефон.",
+widgets_todo_sync_no_lists,,No lists were found on the family server.,Няма намерени списъци на семейния сървър.,
+widgets_todo_tidyshop_read_only,,"You can look at this list, but not change it.","Можете да разгледате този списък, но не и да го промените.",
+widgets_todo_tidyshop_check_only,,"You can tick items off, but not change the list itself.","Можете да отмятате елементи, но не и да променяте самия списък.",

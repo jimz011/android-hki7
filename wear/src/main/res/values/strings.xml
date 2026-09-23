@@ -15,6 +15,9 @@
     <string name="wear_setup_body">If HKI 7 is on your phone, your watch can be set up from there. Otherwise sign in below.</string>
     <string name="wear_setup_retry">Check phone</string>
     <string name="wear_setup_checking">Checking…</string>
+    <string name="wear_setup_demo">Try demo home</string>
+    <string name="wear_demo_active">You are exploring the offline demo home.</string>
+    <string name="wear_demo_exit">Exit demo</string>
     <string name="wear_setup_or_sign_in">Or sign in</string>
     <string name="wear_setup_url_hint">Home Assistant address</string>
     <string name="wear_setup_sign_in">Sign in</string>
@@ -27,8 +30,10 @@
 
     <!-- Tile and complication -->
     <string name="wear_tile_label">HKI 7 quick actions</string>
+    <string name="wear_tile_description">Run your chosen HKI 7 quick actions from a Wear OS tile.</string>
     <string name="wear_tile_empty">Choose what appears on your watch in HKI 7 on your phone.</string>
     <string name="wear_thermostat_tile_label">HKI 7 thermostat</string>
+    <string name="wear_thermostat_tile_description">View and adjust a Home Assistant thermostat from a Wear OS tile.</string>
     <string name="wear_thermostat_unset">Choose a thermostat for your watch in HKI 7 on your phone.</string>
     <string name="wear_thermostat_now">Now %1$s</string>
     <string name="wear_thermostat_position">%1$d/%2$d</string>

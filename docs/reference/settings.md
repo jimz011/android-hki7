@@ -133,6 +133,19 @@ Tabs: **Dashboards**, **Parental controls**, **Permissions**, **Presence**, **De
 
 [:octicons-arrow-right-24: Family sharing](../guide/family-sharing.md)
 
+### Connected apps
+
+*Other apps HKI 7 can show data from.* Nothing here needs Home Assistant or the HKI 7 Cloud
+component — these are separate services you host yourself, and the connection belongs to this
+device rather than to a dashboard or a server.
+
+**TidyShop** connects this phone to a family shopping-list connector, which the
+[to-do widget](../guide/widgets.md#syncing-with-tidyshop) can then show. Connecting uses an invite,
+device, or recovery code rather than a password; this device signs its own requests with a key it
+generates in the Android Keystore. **Leave family** deletes that key.
+
+[:octicons-arrow-right-24: Connected apps](../guide/connected-apps.md)
+
 ## Home Assistant
 
 *Your server's own pages, opened full screen inside HKI 7.* **Administrators only** — the pages

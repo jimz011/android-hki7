@@ -27,6 +27,13 @@
         <item>S-au remediat citirile de temperatură și energie în cehă, slovacă, greacă, norvegiană, suedeză și daneză, unde numerele erau afișate greșit sau puteau bloca ecranul.</item>
         <item>Ceva scris prost în limba ta? Fiecare limbă este acum un singur fișier pe care îl puteți corecta pe GitHub, fără a fi nevoie de cod.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_1">
+        <item>Widgetul pentru liste de cumpărături poate afișa acum listele de familie TidyShop în loc de propriile sale. Fiecare listă partajată cu dvs. apare ca o filă, iar dacă bifați ceva, ajunge la restul gospodăriei în câteva secunde.</item>
+        <item>Ce puteți face cu o listă sincronizată este decis de serverul familiei: o listă pe care o puteți consulta rămâne doar în citire, iar una pe care o puteți bifa, dar pe care nu o puteți edita, vă permite să verificați elementele fără a le modifica. Permisiunile proprii ale tabloului de bord încă se aplică în partea de sus.</item>
+        <item>Nou: Setări › Aplicațiile conectate, pentru alte aplicații din care HKI 7 poate extrage. TidyShop este primul. Conectarea folosește mai degrabă un cod decât o parolă: acest telefon își face propria cheie, care nu o părăsește niciodată și nu poate fi pusă într-o copie de rezervă.</item>
+        <item>Listele de familie rămân live numai când HKI 7 este pe ecran. Închis sau în buzunar, nu are nicio conexiune și nu programează nicio lucrare, astfel încât funcția nu costă nimic în baterie.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>HKI 7 apare acum pe Android Auto. Ecranul mașinii afișează o grilă a acțiunilor tale rapide cu starea lor curentă, iar o atingere le rulează. Android Auto desenează propriile șabloane Google și ascunde orice depășește limita pe care o stabilește în timp ce mașina este în mișcare, așa că arată o listă scurtă pe care o îngrijești mai degrabă decât tabloul de bord.</item>
         <item>Acum există o aplicație Wear OS. Afișează acțiunile tale rapide cu starea live și camerele de dedesubt și vorbește direct cu Home Assistant, astfel încât să funcționeze în continuare atunci când telefonul tău se află într-o altă cameră.</item>

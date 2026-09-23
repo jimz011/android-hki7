@@ -628,6 +628,10 @@ cr_quick_media_player,,Media player,Medya oynatıcı,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.",Tutamak göründüğünde oynatıcıyı geri getirmek için alt çubuğu yukarı kaydır.,
 cr_quick_make_it_yours,,Make it yours,Kendine göre düzenle,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","Düzenleme modunda odaları, katları ve widget’ları ekleyip sırala. Yapılandırmak için bir öğeye dokun.",
+cr_whats_new_1_2_1,1,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.",Alışveriş listesi widget'ı artık kendi listeleri yerine TidyShop aile listelerinizi gösterebilir. Sizinle paylaşılan her liste bir sekme olarak görünüyor ve bir şeyin işaretlenmesi saniyeler içinde evin geri kalanına ulaşıyor.,
+cr_whats_new_1_2_1,2,"What you may do with a synced list is decided by the family server: a list you can only look at stays read-only, and one you may tick but not edit lets you check items without changing them. Your dashboard's own permissions still apply on top.","Senkronize edilmiş bir listeyle ne yapabileceğinize aile sunucusu tarafından karar verilir: yalnızca bakabileceğiniz bir liste salt okunur olarak kalır ve işaretleyebileceğiniz ancak düzenleyemeyeceğiniz bir liste, öğeleri değiştirmeden kontrol etmenize olanak tanır. Kontrol panelinizin kendi izinleri hâlâ en üstte geçerlidir.",
+cr_whats_new_1_2_1,3,"New: Settings › Connected apps, for other apps HKI 7 can pull from. TidyShop is the first. Connecting uses a code rather than a password: this phone makes its own key, which never leaves it and cannot be put in a backup.","Yeni: Ayarlar › Bağlı uygulamalar, HKI 7'nin alabileceği diğer uygulamalar için. TidyShop ilkidir. Bağlanırken şifre yerine kod kullanılır: bu telefon kendi anahtarını oluşturur, bu anahtar asla ondan ayrılmaz ve yedeğe alınamaz.",don't translate HKI 7
+cr_whats_new_1_2_1,4,"Family lists only stay live while HKI 7 is on screen. Closed or in your pocket it holds no connection and schedules no work, so the feature costs nothing in battery.",Aile listeleri yalnızca HKI 7 ekrandayken yayında kalır. Kapalıyken veya cebinizdeyken hiçbir bağlantıya sahip değildir ve hiçbir çalışmayı planlamaz; dolayısıyla bu özelliğin pil maliyeti yoktur.,don't translate HKI 7
 cr_whats_new_1_2_0,1,"HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google's own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.","HKI 7 artık Android Auto'da görünüyor. Araba ekranı, hızlı eylemlerinizin mevcut durumlarıyla birlikte bir tablosunu gösterir ve bir dokunuşla bunları çalıştırır. Android Auto, Google'ın kendi şablonlarını çizer ve araç hareket halindeyken belirlediği sınırı aşan her şeyi gizler, böylece kontrol paneliniz yerine sizin belirlediğiniz kısa bir listeyi gösterir.",don't translate HKI 7
 cr_whats_new_1_2_0,2,"There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.","Artık bir Wear OS uygulaması var. Hızlı işlemlerinizi canlı olarak ve altındaki odalarınızı gösterir ve doğrudan Home Assistant ile konuşur, böylece telefonunuz başka bir odadayken çalışmaya devam eder.",don't translate Home Assistant
 cr_whats_new_1_2_0,3,"Setting up the watch usually takes nothing: your phone hands it the server address, a session, your quick actions and your rooms, with no typing at all.","Saatin ayarlanması hiçbir şey gerektirmez. Telefonunuz ona sunucu adresini, bir jetonu, hızlı işlemlerinizi ve odalarınızı verir, böylece saatte hiçbir oturum açma işlemi gerçekleşmez.",
@@ -853,6 +857,44 @@ global_search_entity_count,one,%1$d entity,%1$d varlık,app fills in %1$d — ke
 global_search_entity_count,other,%1$d entities,%1$d varlık,app fills in %1$d — keep them
 rooms_count,one,%1$d room,%1$d oda,app fills in %1$d — keep them
 rooms_count,other,%1$d rooms,%1$d oda,app fills in %1$d — keep them
+settings_title_connected_apps,,Connected apps,Bağlı uygulamalar,
+settings_subtitle_connected_apps,,Other apps this dashboard can show,Bu kontrol panelinin gösterebileceği diğer uygulamalar,
+connected_apps_summary_connected,,%1$s is connected,%1$s bağlandı,app fills in %1$s — keep them
+connected_apps_tidyshop,,TidyShop,Düzenli Mağaza,
+connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Tüm aile için paylaşılan alışveriş listeleri,
+connected_apps_tidyshop_connected,,Connected to %1$s,%1$s'ye bağlanıldı,app fills in %1$s — keep them
+settings_title_tidyshop,,TidyShop,Düzenli Mağaza,
+settings_subtitle_tidyshop,,Family shopping lists from your own connector,Kendi bağlayıcınızdan aile alışveriş listeleri,
+tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.",Aile bağlayıcınızın adresini ve ondan gelen kodu girin. Bunu davet için ayarlayan kişiye sorun veya kendi telefonlarınızdan başka bir cihaz kodunu kullanın.,
+tidyshop_server_label,,Connector address,Bağlayıcı adresi,
+tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,
+tidyshop_display_name_label,,Your name,Adınız,
+tidyshop_code_label,,Invite or device code,Davet veya cihaz kodu,
+tidyshop_code_hint,,An invite adds you to the family. A device code adds this phone to the member you already are. A recovery code works here too.,Bir davet sizi aileye ekler. Bir cihaz kodu bu telefonu halihazırda olduğunuz üyeye ekler. Bir kurtarma kodu da burada çalışır.,
+tidyshop_pairing_key_label,,Master pairing key,Ana eşleştirme anahtarı,
+tidyshop_pairing_key_hint,,Only if you run the server yourself and have no code to hand.,Yalnızca sunucuyu kendiniz çalıştırıyorsanız ve elinizde kod yoksa.,
+tidyshop_connect,,Connect,Bağlamak,
+tidyshop_connecting,,Connecting…,Bağlanılıyor…,
+tidyshop_household_unknown,,Your family,Aileniz,
+tidyshop_member_unknown,,this device,bu cihaz,
+tidyshop_signed_in_as,,Signed in as %1$s,%1$s olarak oturum açıldı,app fills in %1$s — keep them
+tidyshop_status_live,,Live — changes arrive as they happen,Canlı — değişiklikler gerçekleştiği anda gelir,
+tidyshop_status_ready,,Connected,Bağlı,
+tidyshop_status_error,,The last sync did not go through.,Son senkronizasyon gerçekleşmedi.,
+tidyshop_status_error_detail,,The last sync did not go through: %1$s,Son senkronizasyon gerçekleşmedi: %1$s,app fills in %1$s — keep them
+tidyshop_status_revoked,,This device was removed from its family server.,Bu cihaz aile sunucusundan kaldırıldı.,
+tidyshop_lists_found,,%1$d lists,%1$d listeleri,app fills in %1$d — keep them
+tidyshop_refresh,,Refresh,Yenile,
+tidyshop_lists_title,,Lists,Listeler,
+tidyshop_lists_subtitle,,"What this device can reach, and what it may do with each",Bu cihazın ulaşabildiği ve her biriyle neler yapabileceği,
+tidyshop_permission_edit,,Can edit,Düzenleyebilir,
+tidyshop_permission_check,,Can tick off,İşaretleyebilir,
+tidyshop_permission_view,,Can look,Bakabilir,
+tidyshop_disconnect,,Leave family,Aileden ayrıl,
+tidyshop_disconnect_confirm_title,,Leave this family?,Bu aileden ayrılmak mı?,
+tidyshop_disconnect_confirm_body,,"This phone stops seeing the family lists, and the key it signs with is deleted. Getting back in needs a new code.",Bu telefon aile listelerini görmeyi bırakıyor ve imzaladığı anahtar siliniyor. Geri dönmek için yeni bir kod gerekiyor.,
+tidyshop_recovery_title,,Write this code down,Bu kodu bir kenara yazın,
+tidyshop_recovery_body,,It is shown once and is never stored on this phone. It is the only way back in if you reinstall and have no second device.,"Bir kez gösterilir ve hiçbir zaman bu telefonda saklanmaz. Yeniden yüklerseniz ve ikinci bir cihazınız yoksa, geri dönmenin tek yolu budur.",
 core_system,,System,Sistem,
 core_greeting_morning,,Good Morning,Günaydın,
 core_greeting_afternoon,,Good Afternoon,Tünaydın,
@@ -2891,6 +2933,32 @@ logs_copy,,Copy the log,Günlüğü kopyala,
 logs_clear,,Clear the log,Günlüğü temizle,
 logs_show_all,,Show all %1$d,Tümünü göster %1$d,app fills in %1$d — keep them
 logs_show_less,,Show less,Daha az göster,
+settings_title_nfc_tags,,NFC tags,NFC etiketleri,
+settings_subtitle_nfc_tags,,Read and write tags that trigger Home Assistant,Home Assistant tetikleyen etiketleri okuyun ve yazın,don't translate Home Assistant
+nfc_no_hardware,,This device does not have NFC hardware.,Bu cihazda NFC donanımı bulunmamaktadır.,
+nfc_tab_scan,,Scan,Tara,
+nfc_tab_write,,Write,Yazmak,
+nfc_disabled_title,,NFC is turned off,NFC kapalı,
+nfc_disabled_body,,Turn on NFC in your device settings to read or write tags.,Etiketleri okumak veya yazmak için cihaz ayarlarınızda NFC'yi açın.,
+nfc_open_settings,,Open NFC settings,NFC ayarlarını aç,
+nfc_ready_to_scan,,"Hold your phone near a tag. Every tap anywhere in HKI 7 is reported to Home Assistant, not just here.","Telefonunuzu bir etiketin yakınında tutun. HKI 7'nin herhangi bir yerindeki her dokunuş, yalnızca buraya değil, Home Assistant'ye bildirilir.","don't translate Home Assistant, HKI 7"
+nfc_no_activity,,No tags scanned or written yet.,Henüz taranan veya yazılan etiket yok.,
+nfc_recent_activity,,Recent activity,Son etkinlik,
+nfc_scan_reported,,Tag scanned — sent to Home Assistant,Etiket tarandı — Home Assistant adresine gönderildi,don't translate Home Assistant
+nfc_scan_failed,,"Tag scanned, but Home Assistant could not be reached",Etiket tarandı ancak Home Assistant'ye ulaşılamadı,don't translate Home Assistant
+nfc_write_mode_generate,,Generate new ID,Yeni kimlik oluştur,
+nfc_write_mode_custom,,Enter ID,Kimliği girin,
+nfc_write_custom_id_label,,Tag ID,Etiket Kimliği,
+nfc_write_label_label,,Label (optional),Etiket (isteğe bağlı),
+nfc_write_label_hint,,"Shown only in this list, never sent to Home Assistant","Yalnızca bu listede gösterilir, hiçbir zaman Home Assistant adresine gönderilmez",don't translate Home Assistant
+nfc_write_start,,Tap a tag to write,Yazmak için bir etikete dokunun,
+nfc_write_waiting,,Hold a tag near your phone…,Telefonunuzun yanına bir etiket tutun…,
+nfc_write_success,,Tag written,Etiket yazılı,
+nfc_write_error_read_only,,This tag is read-only and cannot be written,Bu etiket salt okunurdur ve yazılamaz,
+nfc_write_error_too_small,,This tag does not have enough storage for the link,Bu etikette bağlantı için yeterli depolama alanı yok,
+nfc_write_error_unsupported,,This tag does not support NFC Data Exchange Format (NDEF),Bu etiket NFC Veri Değişim Formatını (NDEF) desteklemiyor,
+nfc_write_error_lost,,The tag was moved away before the write finished. Try again.,"Etiket, yazma işlemi tamamlanmadan kaldırıldı. Tekrar deneyin.",
+nfc_write_error_generic,,Could not write the tag. Try again.,Etiket yazılamadı. Tekrar deneyin.,
 parcel_letter_count,one,%1$d letter,%1$d mektup,app fills in %1$d — keep them
 parcel_letter_count,other,%1$d letters,%1$d mektup,app fills in %1$d — keep them
 spacer_empty_button,,Empty button,Boş düğme,
@@ -3884,3 +3952,20 @@ clock_app_section,,Clock app,Saat uygulaması,
 clock_app_section_subtitle,,Which app the alarm dialog opens,Alarm iletişim kutusu hangi uygulamayı açar?,
 clock_app_automatic,,Automatic,Otomatik,
 clock_app_none_found,,No clock app was found on this device.,Bu cihazda saat uygulaması bulunamadı.,
+widgets_todo_tab_sync,,Sync,Senkronizasyon,
+widgets_todo_sync_subtitle,,Where this list gets its items,Bu listenin öğeleri nereden geliyor?,
+widgets_todo_sync_local,,This dashboard,Bu kontrol paneli,
+widgets_todo_sync_local_hint,,"Items are kept with the dashboard and travel with it, the way every other widget works.",Öğeler kontrol panelinde tutulur ve diğer tüm widget'ların çalıştığı gibi onunla birlikte seyahat eder.,
+widgets_todo_sync_tidyshop,,TidyShop family lists,TidyShop aile listeleri,
+widgets_todo_sync_tidyshop_hint,,Items come from your family connector. Everyone in the household sees a change as it happens.,Öğeler aile bağlayıcınızdan gelir. Evdeki herkes bir değişimi anında görür.,
+widgets_todo_sync_not_connected,,This device is not connected to a TidyShop family yet.,Bu cihaz henüz bir TidyShop ailesine bağlı değil.,
+widgets_todo_sync_not_connected_short,,Not connected,Bağlı değil,
+widgets_todo_sync_connected_as,,Connected as %1$s · %2$s,%1$s · %2$s olarak bağlandı,app fills in %1$s %2$s — keep them
+widgets_todo_sync_open_settings,,Set up TidyShop,TidyShop'u kurun,
+widgets_todo_sync_settings_path,,"Set this up in Settings, under Connected apps.","Bunu Ayarlar'da, Bağlı uygulamalar altında ayarlayın.",
+widgets_todo_sync_lists,,Lists to show,Gösterilecek listeler,
+widgets_todo_sync_all_lists,,All lists,Tüm listeler,
+widgets_todo_sync_all_lists_hint,,"With all lists chosen, a list added on another phone simply appears here.","Tüm listeler seçildiğinde, başka bir telefona eklenen liste burada görünür.",
+widgets_todo_sync_no_lists,,No lists were found on the family server.,Aile sunucusunda hiçbir liste bulunamadı.,
+widgets_todo_tidyshop_read_only,,"You can look at this list, but not change it.",Bu listeye bakabilirsin ama değiştiremezsin.,
+widgets_todo_tidyshop_check_only,,"You can tick items off, but not change the list itself.",Öğeleri işaretleyebilirsiniz ancak listenin kendisini değiştiremezsiniz.,

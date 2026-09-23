@@ -26,11 +26,11 @@ import java.net.URL
 class HomeAssistantRest(
     private val serverUrl: String,
     private val session: WearSession,
-) {
+) : WearHomeClient {
     private val baseUrl = serverUrl.trimEnd('/')
 
     /** One entity, or null if Home Assistant does not know it. */
-    suspend fun state(entityId: String): HAEntity? = withContext(Dispatchers.IO) {
+    override suspend fun state(entityId: String): HAEntity? = withContext(Dispatchers.IO) {
         val body = request("GET", "/api/states/$entityId", null, allowNotFound = true)
             ?: return@withContext null
         runCatching { wearJson.decodeFromString(HAEntity.serializer(), body) }.getOrNull()
@@ -42,13 +42,13 @@ class HomeAssistantRest(
         wearJson.decodeFromString(ListSerializer(HAEntity.serializer()), body)
     }
 
-    suspend fun callService(domain: String, service: String, payload: JsonObject) {
+    override suspend fun callService(domain: String, service: String, payload: JsonObject) {
         withContext(Dispatchers.IO) {
             request("POST", "/api/services/$domain/$service", payload.toString())
         }
     }
 
-    suspend fun toggle(entityId: String) {
+    override suspend fun toggle(entityId: String) {
         callService(entityId.substringBefore('.'), "toggle", buildEntityPayload(entityId))
     }
 

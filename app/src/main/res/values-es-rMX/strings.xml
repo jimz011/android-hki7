@@ -3970,6 +3970,13 @@
     <string name="settings_local_network_allowed">Permitido</string>
     <string name="settings_local_network_not_allowed">No permitido: no se puede acceder a Home Assistant directamente desde tu Wi-Fi</string>
     <string name="update_see_changes">Mira lo que cambió</string>
+    <string-array name="cr_whats_new_1_2_1">
+        <item>El widget de la lista de compras ahora puede mostrar las listas familiares de TidyShop en lugar de las suyas propias. Cada lista compartida contigo aparece como una pestaña y marcar algo llega al resto de la familia en cuestión de segundos.</item>
+        <item>Lo que puede hacer con una lista sincronizada lo decide el servidor familiar: una lista que solo puede ver permanece como de solo lectura, y una que puede marcar pero no editar le permite verificar elementos sin cambiarlos. Los propios permisos de su panel aún se aplican en la parte superior.</item>
+        <item>Nuevo: Configuración › Aplicaciones conectadas, para otras aplicaciones de las que HKI 7 puede acceder. TidyShop es el primero. La conexión utiliza un código en lugar de una contraseña: este teléfono crea su propia clave, que nunca sale de él y no se puede guardar en una copia de seguridad.</item>
+        <item>Las listas familiares solo permanecen activas mientras HKI 7 está en la pantalla. Cerrado o en el bolsillo, no mantiene conexión y no programa trabajo, por lo que la función no cuesta nada en batería.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>HKI 7 ahora aparece en Android Auto. La pantalla del automóvil muestra una cuadrícula de sus acciones rápidas con su estado actual y un toque las ejecuta. Android Auto dibuja las propias plantillas de Google y oculta todo lo que supera un límite que establece mientras el automóvil está en movimiento, por lo que muestra una lista breve que usted selecciona en lugar de su tablero.</item>
         <item>Ahora hay una aplicación Wear OS. Muestra sus acciones rápidas con el estado en vivo y sus habitaciones debajo, y habla directamente con Home Assistant, por lo que sigue funcionando cuando su teléfono está en otra habitación.</item>
@@ -4044,4 +4051,85 @@
     <string name="quick_actions_watch_thermostat_none">No se ha elegido ningún termostato</string>
     <string name="quick_actions_watch_thermostat_subtitle">Los termostatos que ajusta el mosaico de tu reloj</string>
     <string name="quick_actions_watch_thermostat_count">%1$d termostatos</string>
+    <string name="connected_apps_summary_connected">%1$s está conectado</string>
+    <string name="connected_apps_tidyshop">Tienda ordenada</string>
+    <string name="connected_apps_tidyshop_connected">Conectado a %1$s</string>
+    <string name="connected_apps_tidyshop_subtitle">Listas de compras compartidas para toda la familia</string>
+    <string name="settings_subtitle_connected_apps">Otras aplicaciones que este panel puede mostrar</string>
+    <string name="settings_subtitle_tidyshop">Listas de compras familiares desde tu propio conector</string>
+    <string name="settings_title_connected_apps">Aplicaciones conectadas</string>
+    <string name="settings_title_tidyshop">Tienda ordenada</string>
+    <string name="tidyshop_code_hint">Una invitación te agrega a la familia. Un código de dispositivo agrega este teléfono al miembro que ya eres. Un código de recuperación también funciona aquí.</string>
+    <string name="tidyshop_code_label">Invitación o código de dispositivo</string>
+    <string name="tidyshop_connect">Conectar</string>
+    <string name="tidyshop_connect_intro">Ingresa la dirección de tu conector familiar y un código del mismo. Pregúntele a quien lo configuró para recibir una invitación o use un código de dispositivo de otro de sus propios teléfonos.</string>
+    <string name="tidyshop_connecting">Conectando…</string>
+    <string name="tidyshop_disconnect">dejar a la familia</string>
+    <string name="tidyshop_disconnect_confirm_body">Este teléfono deja de ver las listas familiares y se elimina la clave con la que firma. Para volver a entrar se necesita un nuevo código.</string>
+    <string name="tidyshop_disconnect_confirm_title">¿Dejar esta familia?</string>
+    <string name="tidyshop_display_name_label">Su nombre</string>
+    <string name="tidyshop_household_unknown">tu familia</string>
+    <string name="tidyshop_lists_found">%1$d listas</string>
+    <string name="tidyshop_lists_subtitle">Qué puede alcanzar este dispositivo y qué puede hacer con cada uno</string>
+    <string name="tidyshop_lists_title">Liza</string>
+    <string name="tidyshop_member_unknown">este dispositivo</string>
+    <string name="tidyshop_pairing_key_hint">Sólo si ejecuta el servidor usted mismo y no tiene ningún código a mano.</string>
+    <string name="tidyshop_pairing_key_label">Clave maestra de emparejamiento</string>
+    <string name="tidyshop_permission_check">puede marcar</string>
+    <string name="tidyshop_permission_edit">puede editar</string>
+    <string name="tidyshop_permission_view">puede mirar</string>
+    <string name="tidyshop_recovery_body">Se muestra una vez y nunca se almacena en este teléfono. Es la única forma de regresar si reinstalas y no tienes un segundo dispositivo.</string>
+    <string name="tidyshop_recovery_title">Escribe este código</string>
+    <string name="tidyshop_refresh">Refrescar</string>
+    <string name="tidyshop_server_hint">https://tidyshop.example.com</string>
+    <string name="tidyshop_server_label">Dirección del conector</string>
+    <string name="tidyshop_signed_in_as">Iniciado sesión como %1$s</string>
+    <string name="tidyshop_status_error">La última sincronización no se realizó.</string>
+    <string name="tidyshop_status_error_detail">La última sincronización no se realizó: %1$s</string>
+    <string name="tidyshop_status_live">En vivo: los cambios llegan a medida que ocurren</string>
+    <string name="tidyshop_status_ready">Conectado</string>
+    <string name="tidyshop_status_revoked">Este dispositivo fue eliminado de su servidor familiar.</string>
+    <string name="widgets_todo_sync_all_lists">Todas las listas</string>
+    <string name="widgets_todo_sync_all_lists_hint">Con todas las listas seleccionadas, aquí simplemente aparece una lista agregada en otro teléfono.</string>
+    <string name="widgets_todo_sync_connected_as">Conectado como %1$s · %2$s</string>
+    <string name="widgets_todo_sync_lists">Listas para mostrar</string>
+    <string name="widgets_todo_sync_local">Este panel</string>
+    <string name="widgets_todo_sync_local_hint">Los elementos se guardan en el tablero y viajan con él, de la misma manera que funcionan todos los demás widgets.</string>
+    <string name="widgets_todo_sync_no_lists">No se encontraron listas en el servidor familiar.</string>
+    <string name="widgets_todo_sync_not_connected">Este dispositivo aún no está conectado a una familia TidyShop.</string>
+    <string name="widgets_todo_sync_not_connected_short">No conectado</string>
+    <string name="widgets_todo_sync_open_settings">Configurar TidyShop</string>
+    <string name="widgets_todo_sync_settings_path">Configure esto en Configuración, en Aplicaciones conectadas.</string>
+    <string name="widgets_todo_sync_subtitle">De dónde obtiene esta lista sus elementos</string>
+    <string name="widgets_todo_sync_tidyshop">Listas familiares de TidyShop</string>
+    <string name="widgets_todo_sync_tidyshop_hint">Los artículos provienen de su conector familiar. Todos en el hogar ven un cambio a medida que ocurre.</string>
+    <string name="widgets_todo_tab_sync">Sincronizar</string>
+    <string name="widgets_todo_tidyshop_check_only">Puede marcar elementos, pero no cambiar la lista en sí.</string>
+    <string name="widgets_todo_tidyshop_read_only">Puedes mirar esta lista, pero no cambiarla.</string>
+    <string name="nfc_disabled_body">Active NFC en la configuración de su dispositivo para leer o escribir etiquetas.</string>
+    <string name="nfc_disabled_title">NFC está desactivado</string>
+    <string name="nfc_no_activity">Aún no hay etiquetas escaneadas ni escritas.</string>
+    <string name="nfc_no_hardware">Este dispositivo no tiene hardware NFC.</string>
+    <string name="nfc_open_settings">Abrir configuración NFC</string>
+    <string name="nfc_ready_to_scan">Sostenga su teléfono cerca de una etiqueta. Cada toque en cualquier lugar de HKI 7 se informa a Home Assistant, no solo aquí.</string>
+    <string name="nfc_recent_activity">Actividad reciente</string>
+    <string name="nfc_scan_failed">Etiqueta escaneada, pero no se pudo acceder a Home Assistant</string>
+    <string name="nfc_scan_reported">Etiqueta escaneada: enviada a Home Assistant</string>
+    <string name="nfc_tab_scan">Escanear</string>
+    <string name="nfc_tab_write">Escribir</string>
+    <string name="nfc_write_custom_id_label">ID de etiqueta</string>
+    <string name="nfc_write_error_generic">No se pudo escribir la etiqueta. Intentar otra vez.</string>
+    <string name="nfc_write_error_lost">La etiqueta se quitó antes de que terminara la escritura. Intentar otra vez.</string>
+    <string name="nfc_write_error_read_only">Esta etiqueta es de solo lectura y no se puede escribir.</string>
+    <string name="nfc_write_error_too_small">Esta etiqueta no tiene suficiente almacenamiento para el enlace.</string>
+    <string name="nfc_write_error_unsupported">Esta etiqueta no es compatible con el formato de intercambio de datos NFC (NDEF)</string>
+    <string name="nfc_write_label_hint">Se muestra solo en esta lista, nunca se envió a Home Assistant</string>
+    <string name="nfc_write_label_label">Etiqueta (opcional)</string>
+    <string name="nfc_write_mode_custom">Introduce el DNI</string>
+    <string name="nfc_write_mode_generate">Generar nueva identificación</string>
+    <string name="nfc_write_start">Toca una etiqueta para escribir</string>
+    <string name="nfc_write_success">Etiqueta escrita</string>
+    <string name="nfc_write_waiting">Mantenga una etiqueta cerca de su teléfono...</string>
+    <string name="settings_subtitle_nfc_tags">Leer y escribir etiquetas que activan Home Assistant</string>
+    <string name="settings_title_nfc_tags">Etiquetas NFC</string>
 </resources>

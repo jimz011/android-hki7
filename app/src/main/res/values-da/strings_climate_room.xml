@@ -27,6 +27,13 @@
         <item>Faste temperatur- og energiaflæsninger på tjekkisk, slovakisk, græsk, norsk, svensk og dansk, hvor tallene viste forkert eller kunne crashe skærmen.</item>
         <item>Noget dårligt formuleret på dit sprog? Hvert sprog er nu en enkelt fil, du kan rette på GitHub, ingen kode nødvendig.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_1">
+        <item>Indkøbsliste-widgetten kan nu vise dine TidyShop-familielister i stedet for sine egne. Hver liste, der deles med dig, vises som en fane, og afkrydsning af noget når resten af husstanden inden for få sekunder.</item>
+        <item>Hvad du må gøre med en synkroniseret liste, bestemmes af familieserveren: en liste, du kun kan se på, forbliver skrivebeskyttet, og en, du kan markere, men ikke redigere, lader dig kontrollere elementer uden at ændre dem. Dit dashboards egne tilladelser gælder stadig øverst.</item>
+        <item>Nyt: Indstillinger › Forbundne apps, for andre apps kan HKI 7 trække fra. TidyShop er den første. Tilslutning bruger en kode i stedet for en adgangskode: denne telefon laver sin egen nøgle, som aldrig forlader den og ikke kan lægges i en sikkerhedskopi.</item>
+        <item>Familielister forbliver kun live, mens HKI 7 er på skærmen. Lukket eller i lommen har den ingen forbindelse og planlægger intet arbejde, så funktionen koster ikke noget i batteri.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>HKI 7 vises nu på Android Auto. Bilskærmen viser et gitter af dine hurtige handlinger med deres nuværende tilstand, og et tryk kører dem. Android Auto tegner Googles egne skabeloner og skjuler alt ud over en grænse, den sætter, mens bilen bevæger sig, så den viser en kort liste, du sammensætter, i stedet for dit dashboard.</item>
         <item>Der er nu en Wear OS-app. Den viser dine hurtige handlinger med live-tilstand og dine rum nedenunder og taler direkte til Home Assistant, så den bliver ved med at fungere, når din telefon er i et andet rum.</item>

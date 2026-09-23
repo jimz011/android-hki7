@@ -628,6 +628,10 @@ cr_quick_media_player,,Media player,,needs translation
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.",,needs translation
 cr_quick_make_it_yours,,Make it yours,,needs translation
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.",,needs translation
+cr_whats_new_1_2_1,1,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.",,needs translation
+cr_whats_new_1_2_1,2,"What you may do with a synced list is decided by the family server: a list you can only look at stays read-only, and one you may tick but not edit lets you check items without changing them. Your dashboard's own permissions still apply on top.",,needs translation
+cr_whats_new_1_2_1,3,"New: Settings › Connected apps, for other apps HKI 7 can pull from. TidyShop is the first. Connecting uses a code rather than a password: this phone makes its own key, which never leaves it and cannot be put in a backup.",,needs translation; don't translate HKI 7
+cr_whats_new_1_2_1,4,"Family lists only stay live while HKI 7 is on screen. Closed or in your pocket it holds no connection and schedules no work, so the feature costs nothing in battery.",,needs translation; don't translate HKI 7
 cr_whats_new_1_2_0,1,"HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google's own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.",,needs translation; don't translate HKI 7
 cr_whats_new_1_2_0,2,"There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.",,needs translation; don't translate Home Assistant
 cr_whats_new_1_2_0,3,"Setting up the watch usually takes nothing: your phone hands it the server address, a session, your quick actions and your rooms, with no typing at all.",,needs translation
@@ -853,6 +857,44 @@ global_search_entity_count,one,%1$d entity,,needs translation; app fills in %1$d
 global_search_entity_count,other,%1$d entities,,needs translation; app fills in %1$d — keep them
 rooms_count,one,%1$d room,,needs translation; app fills in %1$d — keep them
 rooms_count,other,%1$d rooms,,needs translation; app fills in %1$d — keep them
+settings_title_connected_apps,,Connected apps,,needs translation
+settings_subtitle_connected_apps,,Other apps this dashboard can show,,needs translation
+connected_apps_summary_connected,,%1$s is connected,,needs translation; app fills in %1$s — keep them
+connected_apps_tidyshop,,TidyShop,,needs translation
+connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,,needs translation
+connected_apps_tidyshop_connected,,Connected to %1$s,,needs translation; app fills in %1$s — keep them
+settings_title_tidyshop,,TidyShop,,needs translation
+settings_subtitle_tidyshop,,Family shopping lists from your own connector,,needs translation
+tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.",,needs translation
+tidyshop_server_label,,Connector address,,needs translation
+tidyshop_server_hint,,https://tidyshop.example.com,,needs translation
+tidyshop_display_name_label,,Your name,,needs translation
+tidyshop_code_label,,Invite or device code,,needs translation
+tidyshop_code_hint,,An invite adds you to the family. A device code adds this phone to the member you already are. A recovery code works here too.,,needs translation
+tidyshop_pairing_key_label,,Master pairing key,,needs translation
+tidyshop_pairing_key_hint,,Only if you run the server yourself and have no code to hand.,,needs translation
+tidyshop_connect,,Connect,,needs translation
+tidyshop_connecting,,Connecting…,,needs translation
+tidyshop_household_unknown,,Your family,,needs translation
+tidyshop_member_unknown,,this device,,needs translation
+tidyshop_signed_in_as,,Signed in as %1$s,,needs translation; app fills in %1$s — keep them
+tidyshop_status_live,,Live — changes arrive as they happen,,needs translation
+tidyshop_status_ready,,Connected,,needs translation
+tidyshop_status_error,,The last sync did not go through.,,needs translation
+tidyshop_status_error_detail,,The last sync did not go through: %1$s,,needs translation; app fills in %1$s — keep them
+tidyshop_status_revoked,,This device was removed from its family server.,,needs translation
+tidyshop_lists_found,,%1$d lists,,needs translation; app fills in %1$d — keep them
+tidyshop_refresh,,Refresh,,needs translation
+tidyshop_lists_title,,Lists,,needs translation
+tidyshop_lists_subtitle,,"What this device can reach, and what it may do with each",,needs translation
+tidyshop_permission_edit,,Can edit,,needs translation
+tidyshop_permission_check,,Can tick off,,needs translation
+tidyshop_permission_view,,Can look,,needs translation
+tidyshop_disconnect,,Leave family,,needs translation
+tidyshop_disconnect_confirm_title,,Leave this family?,,needs translation
+tidyshop_disconnect_confirm_body,,"This phone stops seeing the family lists, and the key it signs with is deleted. Getting back in needs a new code.",,needs translation
+tidyshop_recovery_title,,Write this code down,,needs translation
+tidyshop_recovery_body,,It is shown once and is never stored on this phone. It is the only way back in if you reinstall and have no second device.,,needs translation
 core_system,,System,,needs translation
 core_greeting_morning,,Good Morning,,needs translation
 core_greeting_afternoon,,Good Afternoon,,needs translation
@@ -2891,6 +2933,32 @@ logs_copy,,Copy the log,,needs translation
 logs_clear,,Clear the log,,needs translation
 logs_show_all,,Show all %1$d,,needs translation; app fills in %1$d — keep them
 logs_show_less,,Show less,,needs translation
+settings_title_nfc_tags,,NFC tags,,needs translation
+settings_subtitle_nfc_tags,,Read and write tags that trigger Home Assistant,,needs translation; don't translate Home Assistant
+nfc_no_hardware,,This device does not have NFC hardware.,,needs translation
+nfc_tab_scan,,Scan,,needs translation
+nfc_tab_write,,Write,,needs translation
+nfc_disabled_title,,NFC is turned off,,needs translation
+nfc_disabled_body,,Turn on NFC in your device settings to read or write tags.,,needs translation
+nfc_open_settings,,Open NFC settings,,needs translation
+nfc_ready_to_scan,,"Hold your phone near a tag. Every tap anywhere in HKI 7 is reported to Home Assistant, not just here.",,"needs translation; don't translate Home Assistant, HKI 7"
+nfc_no_activity,,No tags scanned or written yet.,,needs translation
+nfc_recent_activity,,Recent activity,,needs translation
+nfc_scan_reported,,Tag scanned — sent to Home Assistant,,needs translation; don't translate Home Assistant
+nfc_scan_failed,,"Tag scanned, but Home Assistant could not be reached",,needs translation; don't translate Home Assistant
+nfc_write_mode_generate,,Generate new ID,,needs translation
+nfc_write_mode_custom,,Enter ID,,needs translation
+nfc_write_custom_id_label,,Tag ID,,needs translation
+nfc_write_label_label,,Label (optional),,needs translation
+nfc_write_label_hint,,"Shown only in this list, never sent to Home Assistant",,needs translation; don't translate Home Assistant
+nfc_write_start,,Tap a tag to write,,needs translation
+nfc_write_waiting,,Hold a tag near your phone…,,needs translation
+nfc_write_success,,Tag written,,needs translation
+nfc_write_error_read_only,,This tag is read-only and cannot be written,,needs translation
+nfc_write_error_too_small,,This tag does not have enough storage for the link,,needs translation
+nfc_write_error_unsupported,,This tag does not support NFC Data Exchange Format (NDEF),,needs translation
+nfc_write_error_lost,,The tag was moved away before the write finished. Try again.,,needs translation
+nfc_write_error_generic,,Could not write the tag. Try again.,,needs translation
 parcel_letter_count,one,%1$d letter,,needs translation; app fills in %1$d — keep them
 parcel_letter_count,other,%1$d letters,,needs translation; app fills in %1$d — keep them
 spacer_empty_button,,Empty button,,needs translation
@@ -3884,3 +3952,20 @@ clock_app_section,,Clock app,,needs translation
 clock_app_section_subtitle,,Which app the alarm dialog opens,,needs translation
 clock_app_automatic,,Automatic,,needs translation
 clock_app_none_found,,No clock app was found on this device.,,needs translation
+widgets_todo_tab_sync,,Sync,,needs translation
+widgets_todo_sync_subtitle,,Where this list gets its items,,needs translation
+widgets_todo_sync_local,,This dashboard,,needs translation
+widgets_todo_sync_local_hint,,"Items are kept with the dashboard and travel with it, the way every other widget works.",,needs translation
+widgets_todo_sync_tidyshop,,TidyShop family lists,,needs translation
+widgets_todo_sync_tidyshop_hint,,Items come from your family connector. Everyone in the household sees a change as it happens.,,needs translation
+widgets_todo_sync_not_connected,,This device is not connected to a TidyShop family yet.,,needs translation
+widgets_todo_sync_not_connected_short,,Not connected,,needs translation
+widgets_todo_sync_connected_as,,Connected as %1$s · %2$s,,needs translation; app fills in %1$s %2$s — keep them
+widgets_todo_sync_open_settings,,Set up TidyShop,,needs translation
+widgets_todo_sync_settings_path,,"Set this up in Settings, under Connected apps.",,needs translation
+widgets_todo_sync_lists,,Lists to show,,needs translation
+widgets_todo_sync_all_lists,,All lists,,needs translation
+widgets_todo_sync_all_lists_hint,,"With all lists chosen, a list added on another phone simply appears here.",,needs translation
+widgets_todo_sync_no_lists,,No lists were found on the family server.,,needs translation
+widgets_todo_tidyshop_read_only,,"You can look at this list, but not change it.",,needs translation
+widgets_todo_tidyshop_check_only,,"You can tick items off, but not change the list itself.",,needs translation

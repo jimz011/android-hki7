@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MarkEmailRead
 import androidx.compose.material.icons.filled.MarkEmailUnread
+import androidx.compose.material.icons.filled.Nfc
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Search
@@ -90,6 +91,12 @@ val LocalOpenHaPage = staticCompositionLocalOf<((String, String, Int) -> Unit)?>
 
 /** Route for Settings › Family Sharing › Events. */
 const val SETTINGS_ROUTE_FAMILY_EVENTS = "family_events"
+
+/** Route for Settings › Connected apps › TidyShop, used by the to-do widget's Sync tab. */
+const val SETTINGS_ROUTE_TIDYSHOP = "connected_apps_tidyshop"
+
+/** Route for Settings › NFC tags. */
+const val SETTINGS_ROUTE_NFC_TAGS = "nfc_tags"
 
 /** Brief, inverted-theme banner for notifications received while the app is visible. */
 @Composable
@@ -202,6 +209,56 @@ fun NotificationBannerHost(
                             exitMode = "dismiss"
                             visible = false
                         }
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** Brief confirmation banner for an NFC tag read anywhere in the app — foreground dispatch reports
+ *  every tap to Home Assistant immediately, so this is feedback rather than an action to take. */
+@Composable
+fun NfcScanResultBanner(
+    viewModel: MainViewModel,
+    modifier: Modifier = Modifier
+) {
+    val result by viewModel.nfcScanResult.collectAsState()
+    LaunchedEffect(result) {
+        if (result != null) {
+            delay(3500)
+            viewModel.clearNfcScanResult()
+        }
+    }
+    val backgroundIsLight = MaterialTheme.colorScheme.background.luminance() > 0.5f
+    val bannerBackground = if (backgroundIsLight) Color(0xFF211F24) else Color(0xFFF4F0F5)
+    val bannerForeground = if (backgroundIsLight) Color(0xFFF7F2F8) else Color(0xFF211F24)
+
+    AnimatedVisibility(
+        visible = result != null,
+        modifier = modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 16.dp, vertical = 8.dp),
+        enter = slideInVertically { -it },
+        exit = slideOutVertically { -it } + fadeOut()
+    ) {
+        result?.let { scan ->
+            Surface(
+                shape = itemCornerShape(),
+                color = bannerBackground,
+                shadowElevation = 12.dp,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Icon(Icons.Default.Nfc, null, tint = bannerForeground, modifier = Modifier.size(22.dp))
+                    Text(
+                        stringResource(if (scan.success) R.string.nfc_scan_reported else R.string.nfc_scan_failed),
+                        color = bannerForeground,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }

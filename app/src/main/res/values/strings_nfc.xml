@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  NFC tags: read, write and overwrite ("edit") tags the way the official Home Assistant app does.
+  A written tag carries the same https://www.home-assistant.io/tag/<id> link the official app
+  writes, so tags made with either app work with both, and reading one fires the same
+  `tag_scanned` event Home Assistant automations already trigger on.
+-->
+<resources>
+    <!-- Category -->
+    <string name="settings_title_nfc_tags">NFC tags</string>
+    <string name="settings_subtitle_nfc_tags">Read and write tags that trigger Home Assistant</string>
+    <string name="nfc_no_hardware">This device does not have NFC hardware.</string>
+    <string name="nfc_tab_scan">Scan</string>
+    <string name="nfc_tab_write">Write</string>
+    <string name="nfc_disabled_title">NFC is turned off</string>
+    <string name="nfc_disabled_body">Turn on NFC in your device settings to read or write tags.</string>
+    <string name="nfc_open_settings">Open NFC settings</string>
+
+    <!-- Scan tab -->
+    <string name="nfc_ready_to_scan">Hold your phone near a tag. Every tap anywhere in HKI 7 is reported to Home Assistant, not just here.</string>
+    <string name="nfc_no_activity">No tags scanned or written yet.</string>
+    <string name="nfc_recent_activity">Recent activity</string>
+    <string name="nfc_scan_reported">Tag scanned — sent to Home Assistant</string>
+    <string name="nfc_scan_failed">Tag scanned, but Home Assistant could not be reached</string>
+
+    <!-- Write tab -->
+    <string name="nfc_write_mode_generate">Generate new ID</string>
+    <string name="nfc_write_mode_custom">Enter ID</string>
+    <string name="nfc_write_custom_id_label">Tag ID</string>
+    <string name="nfc_write_label_label">Label (optional)</string>
+    <string name="nfc_write_label_hint">Shown only in this list, never sent to Home Assistant</string>
+    <string name="nfc_write_start">Tap a tag to write</string>
+    <string name="nfc_write_waiting">Hold a tag near your phone…</string>
+    <string name="nfc_write_success">Tag written</string>
+    <string name="nfc_write_error_read_only">This tag is read-only and cannot be written</string>
+    <string name="nfc_write_error_too_small">This tag does not have enough storage for the link</string>
+    <string name="nfc_write_error_unsupported">This tag does not support NFC Data Exchange Format (NDEF)</string>
+    <string name="nfc_write_error_lost">The tag was moved away before the write finished. Try again.</string>
+    <string name="nfc_write_error_generic">Could not write the tag. Try again.</string>
+</resources>

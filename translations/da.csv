@@ -628,6 +628,10 @@ cr_quick_media_player,,Media player,Medieafspiller,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.","Når håndtaget vises, skal du stryge op på den nederste bjælke for at gendanne afspilleren.",
 cr_quick_make_it_yours,,Make it yours,Gør det til dit,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","I redigeringstilstand kan du tilføje og omarrangere rum, etager og widgets. Tryk på et element for at konfigurere det.",
+cr_whats_new_1_2_1,1,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.","Indkøbsliste-widgetten kan nu vise dine TidyShop-familielister i stedet for sine egne. Hver liste, der deles med dig, vises som en fane, og afkrydsning af noget når resten af husstanden inden for få sekunder.",
+cr_whats_new_1_2_1,2,"What you may do with a synced list is decided by the family server: a list you can only look at stays read-only, and one you may tick but not edit lets you check items without changing them. Your dashboard's own permissions still apply on top.","Hvad du må gøre med en synkroniseret liste, bestemmes af familieserveren: en liste, du kun kan se på, forbliver skrivebeskyttet, og en, du kan markere, men ikke redigere, lader dig kontrollere elementer uden at ændre dem. Dit dashboards egne tilladelser gælder stadig øverst.",
+cr_whats_new_1_2_1,3,"New: Settings › Connected apps, for other apps HKI 7 can pull from. TidyShop is the first. Connecting uses a code rather than a password: this phone makes its own key, which never leaves it and cannot be put in a backup.","Nyt: Indstillinger › Forbundne apps, for andre apps kan HKI 7 trække fra. TidyShop er den første. Tilslutning bruger en kode i stedet for en adgangskode: denne telefon laver sin egen nøgle, som aldrig forlader den og ikke kan lægges i en sikkerhedskopi.",don't translate HKI 7
+cr_whats_new_1_2_1,4,"Family lists only stay live while HKI 7 is on screen. Closed or in your pocket it holds no connection and schedules no work, so the feature costs nothing in battery.","Familielister forbliver kun live, mens HKI 7 er på skærmen. Lukket eller i lommen har den ingen forbindelse og planlægger intet arbejde, så funktionen koster ikke noget i batteri.",don't translate HKI 7
 cr_whats_new_1_2_0,1,"HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google's own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.","HKI 7 vises nu på Android Auto. Bilskærmen viser et gitter af dine hurtige handlinger med deres nuværende tilstand, og et tryk kører dem. Android Auto tegner Googles egne skabeloner og skjuler alt ud over en grænse, den sætter, mens bilen bevæger sig, så den viser en kort liste, du sammensætter, i stedet for dit dashboard.",don't translate HKI 7
 cr_whats_new_1_2_0,2,"There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.","Der er nu en Wear OS-app. Den viser dine hurtige handlinger med live-tilstand og dine rum nedenunder og taler direkte til Home Assistant, så den bliver ved med at fungere, når din telefon er i et andet rum.",don't translate Home Assistant
 cr_whats_new_1_2_0,3,"Setting up the watch usually takes nothing: your phone hands it the server address, a session, your quick actions and your rooms, with no typing at all.","Det kræver intet at sætte uret op. Din telefon giver den serveradressen, et token, dine hurtige handlinger og dine værelser, så der er slet ikke noget login på uret.",
@@ -853,6 +857,44 @@ global_search_entity_count,one,%1$d entity,%1$d enhed,app fills in %1$d — keep
 global_search_entity_count,other,%1$d entities,%1$d enheder,app fills in %1$d — keep them
 rooms_count,one,%1$d room,%1$d værelse,app fills in %1$d — keep them
 rooms_count,other,%1$d rooms,%1$d værelser,app fills in %1$d — keep them
+settings_title_connected_apps,,Connected apps,Forbundne apps,
+settings_subtitle_connected_apps,,Other apps this dashboard can show,Andre apps kan dette dashboard vise,
+connected_apps_summary_connected,,%1$s is connected,%1$s er tilsluttet,app fills in %1$s — keep them
+connected_apps_tidyshop,,TidyShop,TidyShop,
+connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Fælles indkøbslister for hele familien,
+connected_apps_tidyshop_connected,,Connected to %1$s,Forbundet til %1$s,app fills in %1$s — keep them
+settings_title_tidyshop,,TidyShop,TidyShop,
+settings_subtitle_tidyshop,,Family shopping lists from your own connector,Familie indkøbslister fra dit eget stik,
+tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.","Indtast adressen på din familieforbindelse og en kode fra den. Spørg den, der har konfigureret det, om en invitation, eller brug en enhedskode fra en anden af dine egne telefoner.",
+tidyshop_server_label,,Connector address,Connector adresse,
+tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,
+tidyshop_display_name_label,,Your name,Dit navn,
+tidyshop_code_label,,Invite or device code,Invitation eller enhedskode,
+tidyshop_code_hint,,An invite adds you to the family. A device code adds this phone to the member you already are. A recovery code works here too.,"En invitation føjer dig til familien. En enhedskode føjer denne telefon til det medlem, du allerede er. En gendannelseskode fungerer også her.",
+tidyshop_pairing_key_label,,Master pairing key,Hovedparringsnøgle,
+tidyshop_pairing_key_hint,,Only if you run the server yourself and have no code to hand.,Kun hvis du selv kører serveren og ikke har nogen kode ved hånden.,
+tidyshop_connect,,Connect,Forbinde,
+tidyshop_connecting,,Connecting…,Opretter forbindelse...,
+tidyshop_household_unknown,,Your family,Din familie,
+tidyshop_member_unknown,,this device,denne enhed,
+tidyshop_signed_in_as,,Signed in as %1$s,Logget ind som %1$s,app fills in %1$s — keep them
+tidyshop_status_live,,Live — changes arrive as they happen,"Live - ændringer kommer, efterhånden som de sker",
+tidyshop_status_ready,,Connected,Forbundet,
+tidyshop_status_error,,The last sync did not go through.,Den sidste synkronisering gik ikke igennem.,
+tidyshop_status_error_detail,,The last sync did not go through: %1$s,Den sidste synkronisering gik ikke igennem: %1$s,app fills in %1$s — keep them
+tidyshop_status_revoked,,This device was removed from its family server.,Denne enhed blev fjernet fra sin familieserver.,
+tidyshop_lists_found,,%1$d lists,%1$d lister,app fills in %1$d — keep them
+tidyshop_refresh,,Refresh,Opfriske,
+tidyshop_lists_title,,Lists,Lister,
+tidyshop_lists_subtitle,,"What this device can reach, and what it may do with each","Hvad denne enhed kan nå, og hvad den kan gøre med hver",
+tidyshop_permission_edit,,Can edit,Kan redigere,
+tidyshop_permission_check,,Can tick off,Kan krydse af,
+tidyshop_permission_view,,Can look,Kan se,
+tidyshop_disconnect,,Leave family,Forlad familien,
+tidyshop_disconnect_confirm_title,,Leave this family?,Forlade denne familie?,
+tidyshop_disconnect_confirm_body,,"This phone stops seeing the family lists, and the key it signs with is deleted. Getting back in needs a new code.","Denne telefon holder op med at se familielisterne, og nøglen, den signerer med, slettes. At komme ind igen kræver en ny kode.",
+tidyshop_recovery_title,,Write this code down,Skriv denne kode ned,
+tidyshop_recovery_body,,It is shown once and is never stored on this phone. It is the only way back in if you reinstall and have no second device.,"Det vises én gang og gemmes aldrig på denne telefon. Det er den eneste vej ind igen, hvis du geninstallerer og ikke har en anden enhed.",
 core_system,,System,System,
 core_greeting_morning,,Good Morning,Godmorgen,
 core_greeting_afternoon,,Good Afternoon,God eftermiddag,
@@ -2891,6 +2933,32 @@ logs_copy,,Copy the log,Kopier loggen,
 logs_clear,,Clear the log,Ryd loggen,
 logs_show_all,,Show all %1$d,Vis alle %1$d,app fills in %1$d — keep them
 logs_show_less,,Show less,Vis mindre,
+settings_title_nfc_tags,,NFC tags,NFC tags,
+settings_subtitle_nfc_tags,,Read and write tags that trigger Home Assistant,"Læs og skriv tags, der udløser Home Assistant",don't translate Home Assistant
+nfc_no_hardware,,This device does not have NFC hardware.,Denne enhed har ikke NFC-hardware.,
+nfc_tab_scan,,Scan,Scan,
+nfc_tab_write,,Write,Skrive,
+nfc_disabled_title,,NFC is turned off,NFC er slået fra,
+nfc_disabled_body,,Turn on NFC in your device settings to read or write tags.,Slå NFC til i dine enhedsindstillinger for at læse eller skrive tags.,
+nfc_open_settings,,Open NFC settings,Åbn NFC-indstillinger,
+nfc_ready_to_scan,,"Hold your phone near a tag. Every tap anywhere in HKI 7 is reported to Home Assistant, not just here.","Hold din telefon tæt på et mærke. Hvert tryk hvor som helst i HKI 7 rapporteres til Home Assistant, ikke kun her.","don't translate Home Assistant, HKI 7"
+nfc_no_activity,,No tags scanned or written yet.,Ingen tags scannet eller skrevet endnu.,
+nfc_recent_activity,,Recent activity,Seneste aktivitet,
+nfc_scan_reported,,Tag scanned — sent to Home Assistant,Tag scannet — sendt til Home Assistant,don't translate Home Assistant
+nfc_scan_failed,,"Tag scanned, but Home Assistant could not be reached","Tag scannet, men Home Assistant kunne ikke nås",don't translate Home Assistant
+nfc_write_mode_generate,,Generate new ID,Generer nyt ID,
+nfc_write_mode_custom,,Enter ID,Indtast ID,
+nfc_write_custom_id_label,,Tag ID,Tag-id,
+nfc_write_label_label,,Label (optional),Etiket (valgfrit),
+nfc_write_label_hint,,"Shown only in this list, never sent to Home Assistant","Vises kun på denne liste, aldrig sendt til Home Assistant",don't translate Home Assistant
+nfc_write_start,,Tap a tag to write,Tryk på et tag for at skrive,
+nfc_write_waiting,,Hold a tag near your phone…,Hold et mærke i nærheden af din telefon...,
+nfc_write_success,,Tag written,Tag skrevet,
+nfc_write_error_read_only,,This tag is read-only and cannot be written,Dette tag er skrivebeskyttet og kan ikke skrives,
+nfc_write_error_too_small,,This tag does not have enough storage for the link,Dette tag har ikke nok lagerplads til linket,
+nfc_write_error_unsupported,,This tag does not support NFC Data Exchange Format (NDEF),Dette tag understøtter ikke NFC Data Exchange Format (NDEF),
+nfc_write_error_lost,,The tag was moved away before the write finished. Try again.,"Tagget blev flyttet væk, før skrivningen var færdig. Prøv igen.",
+nfc_write_error_generic,,Could not write the tag. Try again.,Kunne ikke skrive tagget. Prøv igen.,
 parcel_letter_count,one,%1$d letter,%1$d brev,app fills in %1$d — keep them
 parcel_letter_count,other,%1$d letters,%1$d bogstaver,app fills in %1$d — keep them
 spacer_empty_button,,Empty button,Tom knap,
@@ -3884,3 +3952,20 @@ clock_app_section,,Clock app,Ur app,
 clock_app_section_subtitle,,Which app the alarm dialog opens,Hvilken app åbner alarmdialogen,
 clock_app_automatic,,Automatic,Automatisk,
 clock_app_none_found,,No clock app was found on this device.,Der blev ikke fundet nogen ur-app på denne enhed.,
+widgets_todo_tab_sync,,Sync,Synkroniser,
+widgets_todo_sync_subtitle,,Where this list gets its items,Hvor denne liste får sine varer,
+widgets_todo_sync_local,,This dashboard,Dette dashboard,
+widgets_todo_sync_local_hint,,"Items are kept with the dashboard and travel with it, the way every other widget works.","Elementer opbevares sammen med dashboardet og rejser med det, sådan som enhver anden widget fungerer.",
+widgets_todo_sync_tidyshop,,TidyShop family lists,TidyShop familielister,
+widgets_todo_sync_tidyshop_hint,,Items come from your family connector. Everyone in the household sees a change as it happens.,"Elementer kommer fra din familieforbindelse. Alle i husstanden ser en forandring, mens den sker.",
+widgets_todo_sync_not_connected,,This device is not connected to a TidyShop family yet.,Denne enhed er ikke forbundet til en TidyShop-familie endnu.,
+widgets_todo_sync_not_connected_short,,Not connected,Ikke forbundet,
+widgets_todo_sync_connected_as,,Connected as %1$s · %2$s,Forbundet som %1$s · %2$s,app fills in %1$s %2$s — keep them
+widgets_todo_sync_open_settings,,Set up TidyShop,Konfigurer TidyShop,
+widgets_todo_sync_settings_path,,"Set this up in Settings, under Connected apps.",Indstil dette i Indstillinger under Forbundne apps.,
+widgets_todo_sync_lists,,Lists to show,Lister at vise,
+widgets_todo_sync_all_lists,,All lists,Alle lister,
+widgets_todo_sync_all_lists_hint,,"With all lists chosen, a list added on another phone simply appears here.","Med alle lister valgt, vises en liste tilføjet på en anden telefon blot her.",
+widgets_todo_sync_no_lists,,No lists were found on the family server.,Der blev ikke fundet nogen lister på familieserveren.,
+widgets_todo_tidyshop_read_only,,"You can look at this list, but not change it.","Du kan se på denne liste, men ikke ændre den.",
+widgets_todo_tidyshop_check_only,,"You can tick items off, but not change the list itself.","Du kan markere elementer fra, men ikke ændre selve listen.",

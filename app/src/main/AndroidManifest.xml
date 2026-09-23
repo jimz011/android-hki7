@@ -18,6 +18,10 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.NFC" />
+    <!-- Not required: the NFC tags settings tab degrades to an explanatory empty state on
+         hardware without it, rather than the app being uninstallable there. -->
+    <uses-feature android:name="android.hardware.nfc" android:required="false" />
 
     <!-- Package visibility (Android 11+): lets the media-player source badge detect and open the
          matching app when it's installed. Without these, getLaunchIntentForPackage always returns
@@ -38,6 +42,8 @@
         <package android:name="deezer.android.app" />
         <package android:name="com.sonos.acr2" />
         <package android:name="com.amazon.mp3" />
+        <!-- The shopping-list widget can hand the currently selected family list to TidyShop. -->
+        <package android:name="com.jimz011apps.tidyshop" />
 
         <!-- Clock apps, for the Clock widget's alarm dialog. Android 11 hides other packages
              unless they are declared here, which is why querying for a clock app returned
@@ -72,6 +78,16 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- Lets Android launch HKI 7 for a Home Assistant NFC tag tapped outside the app
+                 (screen on, app not running), the same tag URL shape the official app writes. -->
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:scheme="https"
+                    android:host="www.home-assistant.io"
+                    android:pathPrefix="/tag/" />
             </intent-filter>
         </activity>
 

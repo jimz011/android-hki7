@@ -628,6 +628,10 @@ cr_quick_media_player,,Media player,เครื่องเล่นมีเ�
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.",เมื่อขอบจับปรากฏขึ้น ให้ปัดขึ้นบนแถบด้านล่างเพื่อคืนค่าเครื่องเล่น,
 cr_quick_make_it_yours,,Make it yours,ทำให้มันเป็นของคุณ,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.",ในโหมดแก้ไข เพิ่มและจัดลำดับห้อง ชั้น และวิดเจ็ตใหม่ แตะรายการเพื่อกำหนดค่า,
+cr_whats_new_1_2_1,1,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.",วิดเจ็ตรายการช็อปปิ้งสามารถแสดงรายการครอบครัว TidyShop ของคุณแทนรายการของตัวเองได้แล้ว ทุกรายการที่แชร์กับคุณจะปรากฏเป็นแท็บ และการทำเครื่องหมายถูกจะไปถึงสมาชิกคนอื่นๆ ในครัวเรือนภายในไม่กี่วินาที,
+cr_whats_new_1_2_1,2,"What you may do with a synced list is decided by the family server: a list you can only look at stays read-only, and one you may tick but not edit lets you check items without changing them. Your dashboard's own permissions still apply on top.",เซิร์ฟเวอร์ครอบครัวจะเป็นผู้ตัดสินใจสิ่งที่คุณทำกับรายการที่ซิงค์ได้: รายการที่คุณสามารถดูได้เท่านั้นจะยังคงเป็นแบบอ่านอย่างเดียว และรายการที่คุณอาจทำเครื่องหมายแต่แก้ไขไม่ได้จะทำให้คุณสามารถตรวจสอบรายการต่างๆ ได้โดยไม่ต้องเปลี่ยนแปลง การอนุญาตของแดชบอร์ดของคุณยังคงมีผลอยู่ด้านบน,
+cr_whats_new_1_2_1,3,"New: Settings › Connected apps, for other apps HKI 7 can pull from. TidyShop is the first. Connecting uses a code rather than a password: this phone makes its own key, which never leaves it and cannot be put in a backup.",ใหม่: การตั้งค่า › แอปที่เชื่อมต่อ สำหรับแอปอื่นๆ HKI 7 สามารถดึงออกมาได้ TidyShop เป็นแห่งแรก การเชื่อมต่อใช้รหัสแทนรหัสผ่าน โทรศัพท์เครื่องนี้สร้างรหัสของตัวเอง ซึ่งจะไม่มีวันทิ้งรหัสไว้และไม่สามารถสำรองข้อมูลได้,don't translate HKI 7
+cr_whats_new_1_2_1,4,"Family lists only stay live while HKI 7 is on screen. Closed or in your pocket it holds no connection and schedules no work, so the feature costs nothing in battery.",รายชื่อครอบครัวจะคงอยู่ในขณะที่ HKI 7 อยู่บนหน้าจอเท่านั้น ปิดหรืออยู่ในกระเป๋าของคุณ ไม่มีการเชื่อมต่อและกำหนดเวลาการทำงาน ดังนั้นคุณสมบัตินี้จึงไม่มีค่าใช้จ่ายแบตเตอรี่,don't translate HKI 7
 cr_whats_new_1_2_0,1,"HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google's own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.",HKI 7 ปรากฏบน Android Auto แล้ว หน้าจอรถยนต์จะแสดงตารางการดำเนินการด่วนของคุณพร้อมสถานะปัจจุบัน และแตะเพื่อเรียกใช้การกระทำเหล่านั้น Android Auto วาดเทมเพลตของ Google และซ่อนทุกสิ่งที่เกินขีดจำกัดที่ตั้งไว้ในขณะที่รถกำลังเคลื่อนที่ ดังนั้นจึงแสดงรายการสั้น ๆ ที่คุณดูแลแทนแดชบอร์ดของคุณ,don't translate HKI 7
 cr_whats_new_1_2_0,2,"There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.",ขณะนี้มีแอป Wear OS แล้ว โดยจะแสดงการดำเนินการอย่างรวดเร็วของคุณด้วยสถานะสดและห้องของคุณข้างใต้ และพูดคุยกับ Home Assistant โดยตรง เพื่อให้ทำงานต่อไปได้เมื่อโทรศัพท์ของคุณอยู่อีกห้องหนึ่ง,don't translate Home Assistant
 cr_whats_new_1_2_0,3,"Setting up the watch usually takes nothing: your phone hands it the server address, a session, your quick actions and your rooms, with no typing at all.",การตั้งค่านาฬิกาไม่ทำอะไรเลย โทรศัพท์ของคุณจะมอบที่อยู่เซิร์ฟเวอร์ โทเค็น การดำเนินการด่วน และห้องของคุณให้กับเครื่อง ดังนั้นจึงไม่มีการลงชื่อเข้าใช้บนนาฬิกาเลย,
@@ -853,6 +857,44 @@ global_search_entity_count,one,%1$d entity,,needs translation; app fills in %1$d
 global_search_entity_count,other,%1$d entities,%1$d เอนทิตี,app fills in %1$d — keep them
 rooms_count,one,%1$d room,,needs translation; app fills in %1$d — keep them
 rooms_count,other,%1$d rooms,%1$d ห้อง,app fills in %1$d — keep them
+settings_title_connected_apps,,Connected apps,แอพที่เชื่อมต่อ,
+settings_subtitle_connected_apps,,Other apps this dashboard can show,แอปอื่นๆ ที่แดชบอร์ดนี้สามารถแสดงได้,
+connected_apps_summary_connected,,%1$s is connected,%1$s เชื่อมต่อแล้ว,app fills in %1$s — keep them
+connected_apps_tidyshop,,TidyShop,ไทดี้ช็อป,
+connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,รายการช้อปปิ้งที่ใช้ร่วมกันสำหรับทั้งครอบครัว,
+connected_apps_tidyshop_connected,,Connected to %1$s,เชื่อมต่อกับ %1$s,app fills in %1$s — keep them
+settings_title_tidyshop,,TidyShop,ไทดี้ช็อป,
+settings_subtitle_tidyshop,,Family shopping lists from your own connector,รายการซื้อของสำหรับครอบครัวจากตัวเชื่อมต่อของคุณเอง,
+tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.",ป้อนที่อยู่ของตัวเชื่อมต่อครอบครัวของคุณและรหัสจากนั้น ถามใครก็ตามที่ตั้งค่าคำเชิญ หรือใช้รหัสอุปกรณ์จากโทรศัพท์เครื่องอื่นของคุณเอง,
+tidyshop_server_label,,Connector address,ที่อยู่ตัวเชื่อมต่อ,
+tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,
+tidyshop_display_name_label,,Your name,ชื่อของคุณ,
+tidyshop_code_label,,Invite or device code,รหัสเชิญหรืออุปกรณ์,
+tidyshop_code_hint,,An invite adds you to the family. A device code adds this phone to the member you already are. A recovery code works here too.,คำเชิญจะเพิ่มคุณเข้าสู่ครอบครัว รหัสอุปกรณ์จะเพิ่มโทรศัพท์เครื่องนี้ให้กับสมาชิกที่คุณเป็นสมาชิกอยู่แล้ว รหัสกู้คืนก็ใช้งานได้ที่นี่เช่นกัน,
+tidyshop_pairing_key_label,,Master pairing key,คีย์การจับคู่หลัก,
+tidyshop_pairing_key_hint,,Only if you run the server yourself and have no code to hand.,เฉพาะในกรณีที่คุณใช้งานเซิร์ฟเวอร์ด้วยตัวเองและไม่มีรหัสให้ส่ง,
+tidyshop_connect,,Connect,เชื่อมต่อ,
+tidyshop_connecting,,Connecting…,กำลังเชื่อมต่อ...,
+tidyshop_household_unknown,,Your family,ครอบครัวของคุณ,
+tidyshop_member_unknown,,this device,อุปกรณ์นี้,
+tidyshop_signed_in_as,,Signed in as %1$s,ลงชื่อเข้าใช้ด้วย %1$s,app fills in %1$s — keep them
+tidyshop_status_live,,Live — changes arrive as they happen,สด — การเปลี่ยนแปลงมาถึงเมื่อเกิดขึ้น,
+tidyshop_status_ready,,Connected,เชื่อมต่อแล้ว,
+tidyshop_status_error,,The last sync did not go through.,การซิงค์ครั้งล่าสุดไม่ผ่าน,
+tidyshop_status_error_detail,,The last sync did not go through: %1$s,การซิงค์ครั้งล่าสุดไม่ผ่าน: %1$s,app fills in %1$s — keep them
+tidyshop_status_revoked,,This device was removed from its family server.,อุปกรณ์นี้ถูกนำออกจากเซิร์ฟเวอร์ครอบครัวแล้ว,
+tidyshop_lists_found,,%1$d lists,%1$d รายการ,app fills in %1$d — keep them
+tidyshop_refresh,,Refresh,รีเฟรช,
+tidyshop_lists_title,,Lists,รายการ,
+tidyshop_lists_subtitle,,"What this device can reach, and what it may do with each",อุปกรณ์นี้เข้าถึงอะไรได้บ้าง และอาจทำอะไรกับแต่ละอุปกรณ์ได้,
+tidyshop_permission_edit,,Can edit,แก้ไขได้,
+tidyshop_permission_check,,Can tick off,ติ๊กออกได้,
+tidyshop_permission_view,,Can look,มองได้,
+tidyshop_disconnect,,Leave family,ออกจากครอบครัว,
+tidyshop_disconnect_confirm_title,,Leave this family?,ออกจากครอบครัวนี้ใช่ไหม,
+tidyshop_disconnect_confirm_body,,"This phone stops seeing the family lists, and the key it signs with is deleted. Getting back in needs a new code.",โทรศัพท์เครื่องนี้ไม่เห็นรายชื่อครอบครัว และรหัสที่ลงชื่อเข้าใช้จะถูกลบออก การกลับเข้ามาจำเป็นต้องมีรหัสใหม่,
+tidyshop_recovery_title,,Write this code down,เขียนโค้ดนี้ลงไป,
+tidyshop_recovery_body,,It is shown once and is never stored on this phone. It is the only way back in if you reinstall and have no second device.,จะแสดงเพียงครั้งเดียวและไม่เคยจัดเก็บไว้ในโทรศัพท์เครื่องนี้ นี่เป็นวิธีเดียวที่จะกลับเข้าไปได้หากคุณติดตั้งใหม่และไม่มีอุปกรณ์ตัวที่สอง,
 core_system,,System,ระบบ,
 core_greeting_morning,,Good Morning,สวัสดีตอนเช้า,
 core_greeting_afternoon,,Good Afternoon,สวัสดีตอนบ่าย,
@@ -2891,6 +2933,32 @@ logs_copy,,Copy the log,คัดลอกบันทึก,
 logs_clear,,Clear the log,ล้างบันทึก,
 logs_show_all,,Show all %1$d,แสดงทั้งหมด %1$d,app fills in %1$d — keep them
 logs_show_less,,Show less,แสดงน้อยลง,
+settings_title_nfc_tags,,NFC tags,แท็กเอ็นเอฟซี,
+settings_subtitle_nfc_tags,,Read and write tags that trigger Home Assistant,อ่านและเขียนแท็กที่ทริกเกอร์ Home Assistant,don't translate Home Assistant
+nfc_no_hardware,,This device does not have NFC hardware.,อุปกรณ์นี้ไม่มีฮาร์ดแวร์ NFC,
+nfc_tab_scan,,Scan,สแกน,
+nfc_tab_write,,Write,เขียน,
+nfc_disabled_title,,NFC is turned off,เอ็นเอฟซีปิดอยู่,
+nfc_disabled_body,,Turn on NFC in your device settings to read or write tags.,เปิด NFC ในการตั้งค่าอุปกรณ์ของคุณเพื่ออ่านหรือเขียนแท็ก,
+nfc_open_settings,,Open NFC settings,เปิดการตั้งค่า NFC,
+nfc_ready_to_scan,,"Hold your phone near a tag. Every tap anywhere in HKI 7 is reported to Home Assistant, not just here.",ถือโทรศัพท์ของคุณไว้ใกล้ป้าย การแตะทุกครั้งใน HKI 7 จะถูกรายงานไปยัง Home Assistant ไม่ใช่แค่ที่นี่เท่านั้น,"don't translate Home Assistant, HKI 7"
+nfc_no_activity,,No tags scanned or written yet.,ยังไม่มีการสแกนหรือเขียนแท็ก,
+nfc_recent_activity,,Recent activity,กิจกรรมล่าสุด,
+nfc_scan_reported,,Tag scanned — sent to Home Assistant,สแกนแท็กแล้ว — ส่งไปที่ Home Assistant,don't translate Home Assistant
+nfc_scan_failed,,"Tag scanned, but Home Assistant could not be reached",สแกนแท็กแล้ว แต่ไม่สามารถเข้าถึง Home Assistant ได้,don't translate Home Assistant
+nfc_write_mode_generate,,Generate new ID,สร้างไอดีใหม่,
+nfc_write_mode_custom,,Enter ID,ใส่รหัส,
+nfc_write_custom_id_label,,Tag ID,รหัสแท็ก,
+nfc_write_label_label,,Label (optional),ป้ายกำกับ (ไม่บังคับ),
+nfc_write_label_hint,,"Shown only in this list, never sent to Home Assistant",แสดงเฉพาะในรายการนี้ ไม่เคยส่งไปที่ Home Assistant,don't translate Home Assistant
+nfc_write_start,,Tap a tag to write,แตะแท็กเพื่อเขียน,
+nfc_write_waiting,,Hold a tag near your phone…,ถือแท็กไว้ใกล้โทรศัพท์ของคุณ...,
+nfc_write_success,,Tag written,เขียนแท็กแล้ว,
+nfc_write_error_read_only,,This tag is read-only and cannot be written,แท็กนี้เป็นแบบอ่านอย่างเดียวและไม่สามารถเขียนได้,
+nfc_write_error_too_small,,This tag does not have enough storage for the link,แท็กนี้มีพื้นที่เก็บข้อมูลไม่เพียงพอสำหรับลิงก์,
+nfc_write_error_unsupported,,This tag does not support NFC Data Exchange Format (NDEF),แท็กนี้ไม่รองรับรูปแบบการแลกเปลี่ยนข้อมูล NFC (NDEF),
+nfc_write_error_lost,,The tag was moved away before the write finished. Try again.,แท็กถูกย้ายออกไปก่อนที่การเขียนจะเสร็จสิ้น ลองอีกครั้ง,
+nfc_write_error_generic,,Could not write the tag. Try again.,ไม่สามารถเขียนแท็กได้ ลองอีกครั้ง,
 parcel_letter_count,one,%1$d letter,,needs translation; app fills in %1$d — keep them
 parcel_letter_count,other,%1$d letters,%1$d ตัวอักษร,app fills in %1$d — keep them
 spacer_empty_button,,Empty button,ปุ่มว่างเปล่า,
@@ -3884,3 +3952,20 @@ clock_app_section,,Clock app,แอพนาฬิกา,
 clock_app_section_subtitle,,Which app the alarm dialog opens,แอปใดที่กล่องโต้ตอบการเตือนเปิดขึ้น,
 clock_app_automatic,,Automatic,อัตโนมัติ,
 clock_app_none_found,,No clock app was found on this device.,ไม่พบแอปนาฬิกาในอุปกรณ์นี้,
+widgets_todo_tab_sync,,Sync,ซิงค์,
+widgets_todo_sync_subtitle,,Where this list gets its items,โดยที่รายการนี้ได้รับไอเท็ม,
+widgets_todo_sync_local,,This dashboard,แดชบอร์ดนี้,
+widgets_todo_sync_local_hint,,"Items are kept with the dashboard and travel with it, the way every other widget works.",รายการต่างๆ จะถูกเก็บไว้กับแดชบอร์ดและเดินทางไปพร้อมกับมัน ซึ่งเป็นวิธีการทำงานของวิดเจ็ตอื่นๆ,
+widgets_todo_sync_tidyshop,,TidyShop family lists,รายการครอบครัว TidyShop,
+widgets_todo_sync_tidyshop_hint,,Items come from your family connector. Everyone in the household sees a change as it happens.,รายการมาจากตัวเชื่อมต่อครอบครัวของคุณ ทุกคนในครัวเรือนมองเห็นการเปลี่ยนแปลงที่เกิดขึ้น,
+widgets_todo_sync_not_connected,,This device is not connected to a TidyShop family yet.,อุปกรณ์นี้ยังไม่ได้เชื่อมต่อกับตระกูล TidyShop,
+widgets_todo_sync_not_connected_short,,Not connected,ไม่ได้เชื่อมต่อ,
+widgets_todo_sync_connected_as,,Connected as %1$s · %2$s,เชื่อมต่อเป็น %1$s · %2$s,app fills in %1$s %2$s — keep them
+widgets_todo_sync_open_settings,,Set up TidyShop,ตั้งค่า TidyShop,
+widgets_todo_sync_settings_path,,"Set this up in Settings, under Connected apps.",ตั้งค่านี้ในการตั้งค่า ใต้แอปที่เชื่อมต่อ,
+widgets_todo_sync_lists,,Lists to show,รายการที่จะแสดง,
+widgets_todo_sync_all_lists,,All lists,รายการทั้งหมด,
+widgets_todo_sync_all_lists_hint,,"With all lists chosen, a list added on another phone simply appears here.",เมื่อเลือกรายการทั้งหมดแล้ว รายการที่เพิ่มในโทรศัพท์เครื่องอื่นจะปรากฏที่นี่,
+widgets_todo_sync_no_lists,,No lists were found on the family server.,ไม่พบรายการบนเซิร์ฟเวอร์ครอบครัว,
+widgets_todo_tidyshop_read_only,,"You can look at this list, but not change it.",คุณสามารถดูรายการนี้ได้ แต่ไม่สามารถเปลี่ยนแปลงได้,
+widgets_todo_tidyshop_check_only,,"You can tick items off, but not change the list itself.",คุณสามารถทำเครื่องหมายปิดรายการได้ แต่ไม่สามารถเปลี่ยนแปลงรายการได้,

@@ -117,6 +117,16 @@ data class HomeAssistantInstance(
         (!accessToken.isNullOrBlank() || !refreshToken.isNullOrBlank())
 }
 
+/** One read or write shown in Settings › NFC tags' recent-activity list. Phone-local only — not
+ *  shared with the watch or car, so it lives here rather than in `:core`. */
+@Serializable
+data class HKINfcTagActivity(
+    val tagId: String,
+    val label: String? = null,
+    val epochMillis: Long,
+    val wasWrite: Boolean
+)
+
 @Serializable
 private data class HKIUiBackup(
     val version: Int = 1,
@@ -2081,4 +2091,65 @@ class PreferencesManager(
     }
 
     suspend fun clearAll() { context.dataStore.edit { it.clear() } }
+
+    // ── Connected apps: TidyShop ────────────────────────────────────────
+    //
+    // Deliberately not scoped to a Home Assistant instance. The device enrolment is a keypair in
+    // the Android Keystore belonging to this phone, not to a server, so switching Home Assistant
+    // instances must not switch — or lose — which family the shopping lists come from.
+
+    private val tidyShopUrlKey = stringPreferencesKey("tidyshop_url")
+    private val tidyShopDeviceIdKey = stringPreferencesKey("tidyshop_device_id")
+    private val tidyShopUserIdKey = stringPreferencesKey("tidyshop_user_id")
+    private val tidyShopHouseholdKey = stringPreferencesKey("tidyshop_household_name")
+    private val tidyShopMemberNameKey = stringPreferencesKey("tidyshop_member_name")
+
+    val tidyShopUrl: Flow<String> = context.dataStore.data.map { it[tidyShopUrlKey].orEmpty() }
+    val tidyShopDeviceId: Flow<String> = context.dataStore.data.map { it[tidyShopDeviceIdKey].orEmpty() }
+    val tidyShopUserId: Flow<String> = context.dataStore.data.map { it[tidyShopUserIdKey].orEmpty() }
+    val tidyShopHouseholdName: Flow<String> = context.dataStore.data.map { it[tidyShopHouseholdKey].orEmpty() }
+    val tidyShopMemberName: Flow<String> = context.dataStore.data.map { it[tidyShopMemberNameKey].orEmpty() }
+
+    /** The server address on its own, saved before enrolling so the field survives a failed attempt. */
+    suspend fun saveTidyShopUrl(url: String) {
+        context.dataStore.edit { it[tidyShopUrlKey] = normalizeTidyShopUrl(url) }
+    }
+
+    suspend fun saveTidyShopEnrolment(url: String, deviceId: String, userId: String, household: String, member: String) {
+        context.dataStore.edit {
+            it[tidyShopUrlKey] = normalizeTidyShopUrl(url)
+            it[tidyShopDeviceIdKey] = deviceId
+            it[tidyShopUserIdKey] = userId
+            it[tidyShopHouseholdKey] = household
+            it[tidyShopMemberNameKey] = member
+        }
+    }
+
+    /** Forgets the family but keeps the server address, so reconnecting only needs a fresh code.
+     *  The Keystore key is dropped separately by [TidyShopSync.disconnect]. */
+    suspend fun clearTidyShopEnrolment() {
+        context.dataStore.edit {
+            it.remove(tidyShopDeviceIdKey)
+            it.remove(tidyShopUserIdKey)
+            it.remove(tidyShopHouseholdKey)
+            it.remove(tidyShopMemberNameKey)
+        }
+    }
+
+    // ── NFC tags ─────────────────────────────────────────────────────────
+    //
+    // Phone-local, like TidyShop above: a scan or write happened on this device regardless of
+    // which Home Assistant server is currently active, so this is not instance-scoped.
+
+    private val nfcTagActivityKey = stringPreferencesKey("nfc_tag_activity")
+
+    val nfcTagActivity: Flow<List<HKINfcTagActivity>> = context.dataStore.data.map { preferences ->
+        decodeBackup(preferences[nfcTagActivityKey], emptyList())
+    }
+
+    /** Caller prepends the new entry and caps the list before calling this — kept a dumb setter to
+     *  match [saveNotificationHistory]'s shape rather than duplicating cap/order policy here. */
+    suspend fun saveNfcTagActivity(activity: List<HKINfcTagActivity>) {
+        context.dataStore.edit { it[nfcTagActivityKey] = appJson.encodeToString(activity) }
+    }
 }

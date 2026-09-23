@@ -628,6 +628,10 @@ cr_quick_media_player,,Media player,媒體播放器,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.",當把手出現時，於底部列向上滑動即可還原播放器。,
 cr_quick_make_it_yours,,Make it yours,打造專屬設定,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.",在編輯模式中，新增並重新排序房間、樓層與小工具。點按項目即可設定。,
+cr_whats_new_1_2_1,1,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.",購物清單小工具現在可以顯示您的 TidyShop 家庭清單，而不是它自己的清單。與您分享的每個清單都顯示為選項卡，勾選某些內容會在幾秒鐘內到達家庭的其他成員。,
+cr_whats_new_1_2_1,2,"What you may do with a synced list is decided by the family server: a list you can only look at stays read-only, and one you may tick but not edit lets you check items without changing them. Your dashboard's own permissions still apply on top.",您可以對同步清單執行的操作由家庭伺服器決定：您只能查看的清單保持唯讀狀態，您可以勾選但無法編輯的清單可以讓您檢查項目而不更改它們。您的儀表板本身的權限仍然適用於頂部。,
+cr_whats_new_1_2_1,3,"New: Settings › Connected apps, for other apps HKI 7 can pull from. TidyShop is the first. Connecting uses a code rather than a password: this phone makes its own key, which never leaves it and cannot be put in a backup.",新功能：設定 › 連接的應用程序，可供 HKI 7 可以從中提取的其他應用程式使用。 TidyShop 是第一個。連接使用代碼而不是密碼：這款手機有自己的密鑰，該密鑰永遠不會離開它，也不能放在備份中。,don't translate HKI 7
+cr_whats_new_1_2_1,4,"Family lists only stay live while HKI 7 is on screen. Closed or in your pocket it holds no connection and schedules no work, so the feature costs nothing in battery.",家庭清單僅在 HKI 7 顯示在螢幕上時保持活動狀態。關閉或放在口袋裡時，它不會保持連接，也不會安排任何工作，因此該功能無需任何電池消耗。,don't translate HKI 7
 cr_whats_new_1_2_0,1,"HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google's own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.",HKI 7 現在出現在 Android Auto 上。汽車螢幕會顯示您的快速操作及其當前狀態的網格，只需點擊即可運行它們。 Android Auto 會繪製 Google 自己的模板，並隱藏汽車行駛時超出其設定限制的所有內容，因此它會顯示您整理的簡短列表，而不是儀表板。,don't translate HKI 7
 cr_whats_new_1_2_0,2,"There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.",現在有一個 Wear OS 應用程式。它會顯示您的即時狀態和下面的房間的快速操作，並直接與 Home Assistant 對話，因此當您的手機位於另一個房間時它仍然可以工作。,don't translate Home Assistant
 cr_whats_new_1_2_0,3,"Setting up the watch usually takes nothing: your phone hands it the server address, a session, your quick actions and your rooms, with no typing at all.",設定手錶無需任何操作。您的手機會將伺服器位址、令牌、您的快速操作和您的房間傳遞給它，因此手錶上根本不需要登入。,
@@ -853,6 +857,44 @@ global_search_entity_count,one,%1$d entity,%1$d 個實體,app fills in %1$d — 
 global_search_entity_count,other,%1$d entities,%1$d 個實體,app fills in %1$d — keep them
 rooms_count,one,%1$d room,%1$d 個房間,app fills in %1$d — keep them
 rooms_count,other,%1$d rooms,%1$d 個房間,app fills in %1$d — keep them
+settings_title_connected_apps,,Connected apps,連接的應用程式,
+settings_subtitle_connected_apps,,Other apps this dashboard can show,此儀表板可以顯示的其他應用程式,
+connected_apps_summary_connected,,%1$s is connected,%1$s 已連接,app fills in %1$s — keep them
+connected_apps_tidyshop,,TidyShop,整潔店,
+connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,全家人分享購物清單,
+connected_apps_tidyshop_connected,,Connected to %1$s,連接到 %1$s,app fills in %1$s — keep them
+settings_title_tidyshop,,TidyShop,整潔店,
+settings_subtitle_tidyshop,,Family shopping lists from your own connector,來自您自己的連接器的家庭購物清單,
+tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.",輸入您的家庭連接器的地址及其代碼。詢問設定邀請的人，或使用您自己的另一部手機的裝置代碼。,
+tidyshop_server_label,,Connector address,連接器位址,
+tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,
+tidyshop_display_name_label,,Your name,你的名字,
+tidyshop_code_label,,Invite or device code,邀請或設備代碼,
+tidyshop_code_hint,,An invite adds you to the family. A device code adds this phone to the member you already are. A recovery code works here too.,邀請將您加入家庭。設備代碼會將這部手機加入您現有的會員。恢復代碼也可以在這裡使用。,
+tidyshop_pairing_key_label,,Master pairing key,主配對密鑰,
+tidyshop_pairing_key_hint,,Only if you run the server yourself and have no code to hand.,僅當您自己運行伺服器並且手邊沒有程式碼時。,
+tidyshop_connect,,Connect,連接,
+tidyshop_connecting,,Connecting…,正在連線…,
+tidyshop_household_unknown,,Your family,你的家人,
+tidyshop_member_unknown,,this device,這個設備,
+tidyshop_signed_in_as,,Signed in as %1$s,以 %1$s 身分登入,app fills in %1$s — keep them
+tidyshop_status_live,,Live — changes arrive as they happen,即時－變化一發生就到來,
+tidyshop_status_ready,,Connected,已連接,
+tidyshop_status_error,,The last sync did not go through.,上次同步未完成。,
+tidyshop_status_error_detail,,The last sync did not go through: %1$s,上次同步未完成：%1$s,app fills in %1$s — keep them
+tidyshop_status_revoked,,This device was removed from its family server.,該設備已從其家庭伺服器中刪除。,
+tidyshop_lists_found,,%1$d lists,%1$d 列表,app fills in %1$d — keep them
+tidyshop_refresh,,Refresh,重新整理,
+tidyshop_lists_title,,Lists,清單,
+tidyshop_lists_subtitle,,"What this device can reach, and what it may do with each",該設備可以達到什麼目的，以及它可以對每個設備執行什麼操作,
+tidyshop_permission_edit,,Can edit,可以編輯,
+tidyshop_permission_check,,Can tick off,可以打勾,
+tidyshop_permission_view,,Can look,可以看看,
+tidyshop_disconnect,,Leave family,離開家人,
+tidyshop_disconnect_confirm_title,,Leave this family?,離開這個家庭？,
+tidyshop_disconnect_confirm_body,,"This phone stops seeing the family lists, and the key it signs with is deleted. Getting back in needs a new code.",此手機將不再顯示家庭列表，其簽名所使用的金鑰也將被刪除。返回需要新代碼。,
+tidyshop_recovery_title,,Write this code down,寫下這段程式碼,
+tidyshop_recovery_body,,It is shown once and is never stored on this phone. It is the only way back in if you reinstall and have no second device.,它僅顯示一次，並且絕不會儲存在此手機上。如果您重新安裝且沒有第二台設備，這是返回的唯一途徑。,
 core_system,,System,系統,
 core_greeting_morning,,Good Morning,早安,
 core_greeting_afternoon,,Good Afternoon,午安,
@@ -2891,6 +2933,32 @@ logs_copy,,Copy the log,複製日誌,
 logs_clear,,Clear the log,清除日誌,
 logs_show_all,,Show all %1$d,顯示全部 %1$d,app fills in %1$d — keep them
 logs_show_less,,Show less,顯示較少,
+settings_title_nfc_tags,,NFC tags,NFC標籤,
+settings_subtitle_nfc_tags,,Read and write tags that trigger Home Assistant,讀寫觸發 Home Assistant 的標籤,don't translate Home Assistant
+nfc_no_hardware,,This device does not have NFC hardware.,該設備沒有 NFC 硬體。,
+nfc_tab_scan,,Scan,掃描,
+nfc_tab_write,,Write,寫,
+nfc_disabled_title,,NFC is turned off,NFC 已關閉,
+nfc_disabled_body,,Turn on NFC in your device settings to read or write tags.,在設備設定中開啟 NFC 以讀取或寫入標籤。,
+nfc_open_settings,,Open NFC settings,開啟 NFC 設定,
+nfc_ready_to_scan,,"Hold your phone near a tag. Every tap anywhere in HKI 7 is reported to Home Assistant, not just here.",將手機靠近標籤。 HKI 7 中任意位置的每次点击都会报告给 Home Assistant，而不仅仅是此处。,"don't translate Home Assistant, HKI 7"
+nfc_no_activity,,No tags scanned or written yet.,尚未掃描或寫入任何標籤。,
+nfc_recent_activity,,Recent activity,最近的活動,
+nfc_scan_reported,,Tag scanned — sent to Home Assistant,已掃描標籤 — 傳送至 Home Assistant,don't translate Home Assistant
+nfc_scan_failed,,"Tag scanned, but Home Assistant could not be reached",已掃描標籤，但無法存取 Home Assistant,don't translate Home Assistant
+nfc_write_mode_generate,,Generate new ID,產生新ID,
+nfc_write_mode_custom,,Enter ID,輸入身分證號,
+nfc_write_custom_id_label,,Tag ID,標籤ID,
+nfc_write_label_label,,Label (optional),標籤（可選）,
+nfc_write_label_hint,,"Shown only in this list, never sent to Home Assistant",僅在此清單中顯示，從未發送至 Home Assistant,don't translate Home Assistant
+nfc_write_start,,Tap a tag to write,點擊標籤即可寫入,
+nfc_write_waiting,,Hold a tag near your phone…,將標籤放在手機附近...,
+nfc_write_success,,Tag written,標籤已寫,
+nfc_write_error_read_only,,This tag is read-only and cannot be written,該標籤是唯讀的，不能寫入,
+nfc_write_error_too_small,,This tag does not have enough storage for the link,該標籤沒有足夠的存儲空間來容納鏈接,
+nfc_write_error_unsupported,,This tag does not support NFC Data Exchange Format (NDEF),此標籤不支援 NFC 資料交換格式 (NDEF),
+nfc_write_error_lost,,The tag was moved away before the write finished. Try again.,在寫入完成之前，標籤已移除。再試一次。,
+nfc_write_error_generic,,Could not write the tag. Try again.,無法寫入標籤。再試一次。,
 parcel_letter_count,one,%1$d letter,%1$d 封信件,app fills in %1$d — keep them
 parcel_letter_count,other,%1$d letters,%1$d 封信件,app fills in %1$d — keep them
 spacer_empty_button,,Empty button,空白按鈕,
@@ -3884,3 +3952,20 @@ clock_app_section,,Clock app,時鐘應用程式,
 clock_app_section_subtitle,,Which app the alarm dialog opens,警報對話框打開哪個應用程式,
 clock_app_automatic,,Automatic,自動的,
 clock_app_none_found,,No clock app was found on this device.,在此裝置上找不到時鐘應用程式。,
+widgets_todo_tab_sync,,Sync,同步,
+widgets_todo_sync_subtitle,,Where this list gets its items,此列表從何處獲取其項目,
+widgets_todo_sync_local,,This dashboard,這個儀表板,
+widgets_todo_sync_local_hint,,"Items are kept with the dashboard and travel with it, the way every other widget works.",項目與儀表板一起保存並隨之移動，就像其他小部件的工作方式一樣。,
+widgets_todo_sync_tidyshop,,TidyShop family lists,TidyShop 家庭列表,
+widgets_todo_sync_tidyshop_hint,,Items come from your family connector. Everyone in the household sees a change as it happens.,物品來自您的家庭連接器。家庭中的每個人都會看到變化的發生。,
+widgets_todo_sync_not_connected,,This device is not connected to a TidyShop family yet.,該設備尚未連接到 TidyShop 系列。,
+widgets_todo_sync_not_connected_short,,Not connected,未連接,
+widgets_todo_sync_connected_as,,Connected as %1$s · %2$s,連接為 %1$s · %2$s,app fills in %1$s %2$s — keep them
+widgets_todo_sync_open_settings,,Set up TidyShop,設定 TidyShop,
+widgets_todo_sync_settings_path,,"Set this up in Settings, under Connected apps.",在「設定」中的「已連線的應用程式」下進行設定。,
+widgets_todo_sync_lists,,Lists to show,要顯示的列表,
+widgets_todo_sync_all_lists,,All lists,所有清單,
+widgets_todo_sync_all_lists_hint,,"With all lists chosen, a list added on another phone simply appears here.",選擇所有清單後，在另一部手機上新增的清單就會出現在此。,
+widgets_todo_sync_no_lists,,No lists were found on the family server.,在家庭伺服器上未找到任何清單。,
+widgets_todo_tidyshop_read_only,,"You can look at this list, but not change it.",您可以查看此列表，但不能更改它。,
+widgets_todo_tidyshop_check_only,,"You can tick items off, but not change the list itself.",您可以勾選項目，但不能變更清單本身。,

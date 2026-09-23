@@ -28,6 +28,7 @@ import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.CircularProgressIndicator
 import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.ScrollIndicator
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.SwitchButton as ToggleChip
 import com.jimz011apps.hki7.data.HAEntity
@@ -64,64 +65,67 @@ fun QuickActionsScreen(
     onOpenSettings: () -> Unit,
 ) {
     val listState = rememberScalingLazyListState()
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        state = listState,
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        item {
-            Text(
-                text = stringRes(R.string.wear_app_name),
-                color = HkiWearColors.OnSurface,
-                style = MaterialTheme.typography.titleMedium,
-            )
-        }
-        if (refreshing && entities.isEmpty()) {
-            item { CircularProgressIndicator(modifier = Modifier.padding(8.dp)) }
-        }
-        error?.let {
-            item { HkiWearMessage(stringRes(R.string.wear_unreachable), color = HkiWearColors.Danger) }
-        }
-
-        if (quickActions.isEmpty()) {
-            item { HkiWearMessage(stringRes(R.string.wear_no_quick_actions)) }
-        } else {
-            item { HkiWearSectionTitle(stringRes(R.string.wear_quick_actions)) }
-            items(quickActions, key = { it.id }) { action ->
-                val entity = entities[action.entityId]
-                HkiWearCard(
-                    title = action.name?.takeIf { it.isNotBlank() }
-                        ?: entity?.friendlyName?.takeIf { it.isNotBlank() }
-                        ?: action.entityId,
-                    subtitle = stateLabel(entity),
-                    iconSlug = action.icon ?: entity?.icon,
-                    active = isActive(entity),
-                    onClick = { onRun(action) },
+    Box(modifier = Modifier.fillMaxSize()) {
+        ScalingLazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            item {
+                Text(
+                    text = stringRes(R.string.wear_app_name),
+                    color = HkiWearColors.OnSurface,
+                    style = MaterialTheme.typography.titleMedium,
                 )
             }
-        }
+            if (refreshing && entities.isEmpty()) {
+                item { CircularProgressIndicator(modifier = Modifier.padding(8.dp)) }
+            }
+            error?.let {
+                item { HkiWearMessage(stringRes(R.string.wear_unreachable), color = HkiWearColors.Danger) }
+            }
 
-        if (rooms.isNotEmpty()) {
-            item { HkiWearSectionTitle(stringRes(R.string.wear_rooms)) }
-            items(rooms, key = { it.id }) { room ->
-                HkiWearCard(
-                    title = room.name,
-                    subtitle = null,
-                    iconSlug = room.icon ?: "sofa",
-                    active = false,
-                    onClick = { onOpenRoom(room) },
-                )
+            if (quickActions.isEmpty()) {
+                item { HkiWearMessage(stringRes(R.string.wear_no_quick_actions)) }
+            } else {
+                item { HkiWearSectionTitle(stringRes(R.string.wear_quick_actions)) }
+                items(quickActions, key = { it.id }) { action ->
+                    val entity = entities[action.entityId]
+                    HkiWearCard(
+                        title = action.name?.takeIf { it.isNotBlank() }
+                            ?: entity?.friendlyName?.takeIf { it.isNotBlank() }
+                            ?: action.entityId,
+                        subtitle = stateLabel(entity),
+                        iconSlug = action.icon ?: entity?.icon,
+                        active = isActive(entity),
+                        onClick = { onRun(action) },
+                    )
+                }
+            }
+
+            if (rooms.isNotEmpty()) {
+                item { HkiWearSectionTitle(stringRes(R.string.wear_rooms)) }
+                items(rooms, key = { it.id }) { room ->
+                    HkiWearCard(
+                        title = room.name,
+                        subtitle = null,
+                        iconSlug = room.icon ?: "sofa",
+                        active = false,
+                        onClick = { onOpenRoom(room) },
+                    )
+                }
+            }
+
+            item {
+                Button(
+                    onClick = onOpenSettings,
+                    modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+                ) {
+                    Text(stringRes(R.string.wear_settings))
+                }
             }
         }
-
-        item {
-            Button(
-                onClick = onOpenSettings,
-                modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
-            ) {
-                Text(stringRes(R.string.wear_settings))
-            }
-        }
+        ScrollIndicator(state = listState, modifier = Modifier.align(Alignment.CenterEnd))
     }
 }
 
@@ -133,31 +137,34 @@ fun RoomScreen(
     onToggle: (String) -> Unit,
 ) {
     val listState = rememberScalingLazyListState()
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        state = listState,
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        item {
-            Text(
-                text = room.name,
-                color = HkiWearColors.OnSurface,
-                style = MaterialTheme.typography.titleMedium,
-            )
+    Box(modifier = Modifier.fillMaxSize()) {
+        ScalingLazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            item {
+                Text(
+                    text = room.name,
+                    color = HkiWearColors.OnSurface,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            }
+            if (room.entityIds.isEmpty()) {
+                item { HkiWearMessage(stringRes(R.string.wear_room_empty)) }
+            }
+            items(room.entityIds, key = { it }) { entityId ->
+                val entity = entities[entityId]
+                HkiWearCard(
+                    title = entity?.friendlyName?.takeIf { it.isNotBlank() } ?: entityId,
+                    subtitle = stateLabel(entity),
+                    iconSlug = entity?.icon,
+                    active = isActive(entity),
+                    onClick = { onToggle(entityId) },
+                )
+            }
         }
-        if (room.entityIds.isEmpty()) {
-            item { HkiWearMessage(stringRes(R.string.wear_room_empty)) }
-        }
-        items(room.entityIds, key = { it }) { entityId ->
-            val entity = entities[entityId]
-            HkiWearCard(
-                title = entity?.friendlyName?.takeIf { it.isNotBlank() } ?: entityId,
-                subtitle = stateLabel(entity),
-                iconSlug = entity?.icon,
-                active = isActive(entity),
-                onClick = { onToggle(entityId) },
-            )
-        }
+        ScrollIndicator(state = listState, modifier = Modifier.align(Alignment.CenterEnd))
     }
 }
 
@@ -173,84 +180,96 @@ fun RoomScreen(
 @Composable
 fun SetupScreen(
     onResync: () -> Unit,
+    onDemo: () -> Unit,
     onSignIn: (String) -> Unit,
     busy: Boolean,
     signingIn: Boolean,
     error: String?,
 ) {
     var serverUrl by remember { mutableStateOf("") }
+    val listState = rememberScalingLazyListState()
 
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        item {
-            Text(
-                text = stringRes(
-                    if (signingIn) R.string.wear_setup_continue_on_phone_title
-                    else R.string.wear_setup_title,
-                ),
-                color = HkiWearColors.OnSurface,
-                style = MaterialTheme.typography.titleMedium,
-            )
-        }
-        if (signingIn) {
-            // The phone is showing the login page; nothing here can move it along.
-            item { HkiWearMessage(stringRes(R.string.wear_setup_continue_on_phone)) }
-            item { CircularProgressIndicator(modifier = Modifier.padding(8.dp)) }
-            return@ScalingLazyColumn
-        }
-
-        item { HkiWearMessage(stringRes(R.string.wear_setup_body)) }
-        error?.let { item { HkiWearMessage(it, color = HkiWearColors.Danger) } }
-
-        item {
-            Button(onClick = onResync, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        ScalingLazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            item {
                 Text(
-                    if (busy) stringRes(R.string.wear_setup_checking)
-                    else stringRes(R.string.wear_setup_retry),
+                    text = stringRes(
+                        if (signingIn) R.string.wear_setup_continue_on_phone_title
+                        else R.string.wear_setup_title,
+                    ),
+                    color = HkiWearColors.OnSurface,
+                    style = MaterialTheme.typography.titleMedium,
                 )
             }
-        }
-        item { HkiWearSectionTitle(stringRes(R.string.wear_setup_or_sign_in)) }
-        item {
-            BasicTextField(
-                value = serverUrl,
-                onValueChange = { serverUrl = it },
-                singleLine = true,
-                textStyle = MaterialTheme.typography.bodySmall.copy(color = HkiWearColors.OnSurface),
-                cursorBrush = SolidColor(HkiWearColors.Accent),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Uri,
-                    imeAction = ImeAction.Go,
-                ),
-                keyboardActions = KeyboardActions(onGo = { onSignIn(serverUrl) }),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(HkiWearColors.CornerRadius))
-                    .background(HkiWearColors.Surface)
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
-                decorationBox = { inner ->
-                    if (serverUrl.isEmpty()) {
-                        Text(
-                            stringRes(R.string.wear_setup_url_hint),
-                            color = HkiWearColors.OnMuted,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                    inner()
-                },
-            )
-        }
-        item {
-            Button(
-                onClick = { onSignIn(serverUrl) },
-                enabled = serverUrl.isNotBlank(),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(stringRes(R.string.wear_setup_sign_in))
+            if (signingIn) {
+                // The phone is showing the login page; nothing here can move it along.
+                item { HkiWearMessage(stringRes(R.string.wear_setup_continue_on_phone)) }
+                item { CircularProgressIndicator(modifier = Modifier.padding(8.dp)) }
+                return@ScalingLazyColumn
+            }
+
+            item { HkiWearMessage(stringRes(R.string.wear_setup_body)) }
+            error?.let { item { HkiWearMessage(it, color = HkiWearColors.Danger) } }
+
+            item {
+                Button(onClick = onDemo, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringRes(R.string.wear_setup_demo))
+                }
+            }
+
+            item {
+                Button(onClick = onResync, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        if (busy) stringRes(R.string.wear_setup_checking)
+                        else stringRes(R.string.wear_setup_retry),
+                    )
+                }
+            }
+            item { HkiWearSectionTitle(stringRes(R.string.wear_setup_or_sign_in)) }
+            item {
+                BasicTextField(
+                    value = serverUrl,
+                    onValueChange = { serverUrl = it },
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.bodySmall.copy(color = HkiWearColors.OnSurface),
+                    cursorBrush = SolidColor(HkiWearColors.Accent),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Uri,
+                        imeAction = ImeAction.Go,
+                    ),
+                    keyboardActions = KeyboardActions(onGo = { onSignIn(serverUrl) }),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(HkiWearColors.CornerRadius))
+                        .background(HkiWearColors.Surface)
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    decorationBox = { inner ->
+                        if (serverUrl.isEmpty()) {
+                            Text(
+                                stringRes(R.string.wear_setup_url_hint),
+                                color = HkiWearColors.OnMuted,
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                        inner()
+                    },
+                )
+            }
+            item {
+                Button(
+                    onClick = { onSignIn(serverUrl) },
+                    enabled = serverUrl.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(stringRes(R.string.wear_setup_sign_in))
+                }
             }
         }
+        ScrollIndicator(state = listState, modifier = Modifier.align(Alignment.CenterEnd))
     }
 }
 
@@ -260,43 +279,60 @@ fun SettingsScreen(
     onResync: () -> Unit,
     onRefresh: () -> Unit,
     busy: Boolean,
+    demoMode: Boolean,
     sensorsEnabled: Boolean,
+    onExitDemo: () -> Unit,
     onSensorsEnabledChange: (Boolean) -> Unit,
 ) {
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        item {
-            Text(
-                text = stringRes(R.string.wear_settings),
-                color = HkiWearColors.OnSurface,
-                style = MaterialTheme.typography.titleMedium,
-            )
-        }
-        item { HkiWearMessage(stringRes(R.string.wear_settings_body)) }
-        item { HkiWearSectionTitle(stringRes(R.string.wear_sensors_title)) }
-        item {
-            // Off by default and stated plainly: a watch reporting anything to a server is the
-            // user's decision, not a default they discover later.
-            ToggleChip(
-                checked = sensorsEnabled,
-                onCheckedChange = onSensorsEnabledChange,
-                label = { Text(stringRes(R.string.wear_sensors_battery)) },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-        item { HkiWearMessage(stringRes(R.string.wear_sensors_body)) }
-        item {
-            Button(onClick = onRefresh, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
-                Text(stringRes(R.string.wear_refresh))
+    val listState = rememberScalingLazyListState()
+    Box(modifier = Modifier.fillMaxSize()) {
+        ScalingLazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            item {
+                Text(
+                    text = stringRes(R.string.wear_settings),
+                    color = HkiWearColors.OnSurface,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            }
+            item { HkiWearMessage(stringRes(R.string.wear_settings_body)) }
+            if (demoMode) {
+                item { HkiWearMessage(stringRes(R.string.wear_demo_active)) }
+                item {
+                    Button(onClick = onExitDemo, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringRes(R.string.wear_demo_exit))
+                    }
+                }
+            }
+            if (!demoMode) {
+                item { HkiWearSectionTitle(stringRes(R.string.wear_sensors_title)) }
+                item {
+                    // Off by default and stated plainly: a watch reporting anything to a server is
+                    // the user's decision, not a default they discover later.
+                    ToggleChip(
+                        checked = sensorsEnabled,
+                        onCheckedChange = onSensorsEnabledChange,
+                        label = { Text(stringRes(R.string.wear_sensors_battery)) },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                item { HkiWearMessage(stringRes(R.string.wear_sensors_body)) }
+            }
+            item {
+                Button(onClick = onRefresh, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringRes(R.string.wear_refresh))
+                }
+            }
+            item {
+                Button(onClick = onResync, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringRes(R.string.wear_resync))
+                }
             }
         }
-        item {
-            Button(onClick = onResync, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
-                Text(stringRes(R.string.wear_resync))
-            }
-        }
+        ScrollIndicator(state = listState, modifier = Modifier.align(Alignment.CenterEnd))
     }
 }
 

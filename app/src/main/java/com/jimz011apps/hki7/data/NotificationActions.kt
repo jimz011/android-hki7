@@ -15,6 +15,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
@@ -34,7 +35,7 @@ const val EXTRA_NOTIFICATION_HISTORY_ID = "com.jimz011apps.hki7.extra.NOTIFICATI
 const val EXTRA_NOTIFICATION_SYSTEM_ID = "com.jimz011apps.hki7.extra.NOTIFICATION_SYSTEM_ID"
 
 /** Outcome of one dispatch attempt — a missing webhook is permanent, a failed POST is not. */
-enum class ActionDispatchResult { SENT, RETRY, UNCONFIGURED }
+enum class ActionDispatchResult { SENT, RETRY, UNCONFIGURED, EXPIRED }
 
 /**
  * Sends a notification action back to Home Assistant as a `mobile_app_notification_action` event,
@@ -59,8 +60,12 @@ object NotificationActions {
         instanceId: String?,
         action: String,
         actionData: JsonObject? = null,
-        replyText: String? = null
+        replyText: String? = null,
+        requestedAtMillis: Long = System.currentTimeMillis()
     ): ActionDispatchResult {
+        if (notificationActionRemainingMillis(requestedAtMillis, System.currentTimeMillis()) == 0L) {
+            return ActionDispatchResult.EXPIRED
+        }
         val appContext = context.applicationContext
         val root = PreferencesManager(appContext)
         root.ensureHomeAssistantInstanceStore()
@@ -93,8 +98,14 @@ object NotificationActions {
 
         val client = HomeAssistantClient(baseUrl ?: webhookUrl, prefs.accessToken.first().orEmpty())
         return try {
-            val (status, _) = client.postWebhook(webhookUrl, payload)
-            if (status in 200..299) ActionDispatchResult.SENT else ActionDispatchResult.RETRY
+            val remaining = notificationActionRemainingMillis(requestedAtMillis, System.currentTimeMillis())
+            if (remaining == 0L) return ActionDispatchResult.EXPIRED
+            withTimeoutOrNull(remaining) {
+                val (status, _) = client.postWebhook(webhookUrl, payload)
+                if (status in 200..299) ActionDispatchResult.SENT else ActionDispatchResult.RETRY
+            } ?: ActionDispatchResult.EXPIRED
+        } catch (cancelled: CancellationException) {
+            throw cancelled
         } catch (_: Exception) {
             ActionDispatchResult.RETRY
         } finally {
@@ -116,6 +127,7 @@ object NotificationActions {
  */
 class NotificationActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        val requestedAtMillis = System.currentTimeMillis()
         val action = intent.getStringExtra(EXTRA_NOTIFICATION_ACTION) ?: return
         val instanceId = intent.getStringExtra(EXTRA_HA_INSTANCE_ID)
         val actionData = intent.getStringExtra(EXTRA_NOTIFICATION_ACTION_DATA)
@@ -138,10 +150,10 @@ class NotificationActionReceiver : BroadcastReceiver() {
                 // Try inline first so a tap feels immediate; a broadcast gets ~10s before the OS
                 // kills it, so anything slower or offline falls back to retryable work.
                 val result = withTimeoutOrNull(8.seconds) {
-                    NotificationActions.fire(appContext, instanceId, action, NotificationActions.decodeActionData(actionData), replyText)
+                    NotificationActions.fire(appContext, instanceId, action, NotificationActions.decodeActionData(actionData), replyText, requestedAtMillis)
                 }
                 if (result == null || result == ActionDispatchResult.RETRY) {
-                    NotificationActionWorker.enqueue(appContext, instanceId, action, actionData, replyText)
+                    NotificationActionWorker.enqueue(appContext, instanceId, action, actionData, replyText, requestedAtMillis)
                 }
             } finally {
                 pending.finish()
@@ -156,16 +168,21 @@ class NotificationActionWorker(appContext: Context, params: WorkerParameters) :
     CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result {
+        val requestedAtMillis = inputData.getLong(KEY_REQUESTED_AT, 0L)
+        if (notificationActionRemainingMillis(requestedAtMillis, System.currentTimeMillis()) == 0L) {
+            return Result.success()
+        }
         val action = inputData.getString(KEY_ACTION) ?: return Result.success()
         val result = NotificationActions.fire(
             applicationContext,
             inputData.getString(KEY_INSTANCE_ID),
             action,
             NotificationActions.decodeActionData(inputData.getString(KEY_ACTION_DATA)),
-            inputData.getString(KEY_REPLY_TEXT)
+            inputData.getString(KEY_REPLY_TEXT),
+            requestedAtMillis
         )
         return when (result) {
-            ActionDispatchResult.SENT, ActionDispatchResult.UNCONFIGURED -> Result.success()
+            ActionDispatchResult.SENT, ActionDispatchResult.UNCONFIGURED, ActionDispatchResult.EXPIRED -> Result.success()
             // Give up after the default backoff ladder rather than firing a stale action hours late.
             ActionDispatchResult.RETRY -> if (runAttemptCount >= MAX_ATTEMPTS) Result.failure() else Result.retry()
         }
@@ -176,6 +193,7 @@ class NotificationActionWorker(appContext: Context, params: WorkerParameters) :
         private const val KEY_ACTION = "action"
         private const val KEY_ACTION_DATA = "action_data"
         private const val KEY_REPLY_TEXT = "reply_text"
+        private const val KEY_REQUESTED_AT = "requested_at"
         private const val MAX_ATTEMPTS = 4
 
         fun enqueue(
@@ -183,8 +201,10 @@ class NotificationActionWorker(appContext: Context, params: WorkerParameters) :
             instanceId: String?,
             action: String,
             actionData: String?,
-            replyText: String?
+            replyText: String?,
+            requestedAtMillis: Long = System.currentTimeMillis()
         ) {
+            if (notificationActionRemainingMillis(requestedAtMillis, System.currentTimeMillis()) == 0L) return
             val request = OneTimeWorkRequestBuilder<NotificationActionWorker>()
                 .setConstraints(
                     Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
@@ -196,6 +216,7 @@ class NotificationActionWorker(appContext: Context, params: WorkerParameters) :
                         .putString(KEY_ACTION, action)
                         .putString(KEY_ACTION_DATA, actionData)
                         .putString(KEY_REPLY_TEXT, replyText)
+                        .putLong(KEY_REQUESTED_AT, requestedAtMillis)
                         .build()
                 )
                 .build()

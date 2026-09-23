@@ -16,6 +16,14 @@ CONTROL EVERYTHING
 • Dedicated screens for climate, energy, security, vacuum, and battery overviews
 • Per-room Adaptive Lighting controls
 
+WEAR OS
+• A dedicated Wear OS app puts your quick actions and rooms on your wrist
+• Try the built-in offline demo home on the watch with no account, server, or phone setup
+• Two optional tiles provide quick actions and thermostat controls without opening the app
+• An optional watch-face complication shows the current state of your first quick action
+• Initial watch setup requires a paired Android phone; the HKI 7 phone app can configure it automatically, or you can complete Home Assistant sign-in in the phone's browser
+• The watch connects directly to Home Assistant after setup, so it can keep working away from your phone
+
 WIDGETS
 • Weather, calendar, media player, sensor graphs, markdown, parcels, and waste collection
 • Shared to-do and shopping lists the whole family can add to
@@ -51,5 +59,7 @@ Available in English, Dutch, German, French, Spanish, Italian, Portuguese, Turki
 REQUIREMENTS
 • A Home Assistant server (local network, remote URL, or Home Assistant Cloud / Nabu Casa)
 • Android 14 or newer
+• Wear OS 3 or newer for watch features
+• A paired Android phone during initial watch setup
 
 HKI 7 is an independent client and is not affiliated with or endorsed by Home Assistant or Nabu Casa. Home Assistant is a trademark of its respective owners.

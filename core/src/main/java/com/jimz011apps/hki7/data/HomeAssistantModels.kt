@@ -2027,6 +2027,12 @@ const val TODO_EDIT_EVERYONE = "everyone"
 const val TODO_EDIT_SPECIFIC = "specific"
 const val TODO_EDIT_ADMIN_ONLY = "admin_only"
 
+/** Items live on the widget and travel with the dashboard, as they always have. */
+const val TODO_SYNC_LOCAL = "local"
+
+/** Items come from a TidyShop family connector this device is enrolled with. */
+const val TODO_SYNC_TIDYSHOP = "tidyshop"
+
 /** One line item on a [HKITodoWidget]. */
 @Serializable
 data class HKITodoItem(
@@ -2084,6 +2090,16 @@ data class HKITodoWidget(
     val editPermission: String = TODO_EDIT_EVERYONE,
     /** HA user ids allowed to edit when [editPermission] is [TODO_EDIT_SPECIFIC]. */
     val editableMemberIds: List<String> = emptyList(),
+    /** [TODO_SYNC_LOCAL] (the default) or [TODO_SYNC_TIDYSHOP].
+     *
+     *  A TidyShop widget renders the family connector's own lists rather than [items], and its
+     *  edits go straight to that server. Nothing it shows is stored here, which is deliberate:
+     *  shared household data must not be copied into a dashboard that gets published to other
+     *  people, and the connector — not this dashboard — owns who may see and change each list. */
+    val syncSource: String = TODO_SYNC_LOCAL,
+    /** Which TidyShop lists this widget shows, by connector list id. Empty means every list the
+     *  enrolled member can reach, so a list added on another phone simply appears. */
+    val tidyShopListIds: List<String> = emptyList(),
     /** "manual" (list order) | "alphabetical" | "priority" | "newest". */
     val sortMode: String = "manual",
     val showCompleted: Boolean = true,

@@ -21,14 +21,18 @@ import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HKIQuickAction
 import com.jimz011apps.hki7.data.Hki7Endpoint
 import com.jimz011apps.hki7.data.HomeAssistantClient
+import com.jimz011apps.hki7.data.PreferencesManager
 import com.jimz011apps.hki7.data.QuickActions
 import com.jimz011apps.hki7.ui.components.defaultEntityIconSlug
 import com.jimz011apps.hki7.ui.components.entityStateLabelRes
 import com.jimz011apps.hki7.ui.components.rawEntityStateLabel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -52,6 +56,8 @@ class QuickActionsCarScreen(carContext: CarContext) : Screen(carContext) {
     /** A quick action with everything the template needs already resolved. */
     private data class CarItem(
         val quickAction: HKIQuickAction,
+        /** Home whose state produced this item; taps stay on that home during a switch. */
+        val target: CarActionTarget,
         val title: String,
         val stateLabel: String?,
         val icon: CarIcon,
@@ -65,6 +71,9 @@ class QuickActionsCarScreen(carContext: CarContext) : Screen(carContext) {
 
         /** Connected, but the curated list is empty. */
         data object Empty : State
+
+        /** Credentials exist, but the current connection or refresh attempt failed. */
+        data object Unavailable : State
 
         data class Ready(val items: List<CarItem>) : State
     }
@@ -82,6 +91,8 @@ class QuickActionsCarScreen(carContext: CarContext) : Screen(carContext) {
     /** The entities currently on the grid, kept up to date by the subscription. */
     private val entities = mutableMapOf<String, HAEntity>()
     private var quickActions: List<HKIQuickAction> = emptyList()
+    private var renderedInstanceId: String? = null
+    private var hasRenderedInstance = false
 
     init {
         // Collected off the main thread, matching how MainViewModel runs the same subscription.
@@ -90,7 +101,11 @@ class QuickActionsCarScreen(carContext: CarContext) : Screen(carContext) {
             // list, or an admin may have restricted an entity, since the car last showed this.
             // Leaving the foreground cancels the block, which tears the subscription down with it.
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                loadAndSubscribe()
+                val prefs = PreferencesManager(carContext)
+                prefs.ensureHomeAssistantInstanceStore()
+                prefs.activeHomeAssistantInstanceId
+                    .distinctUntilChanged()
+                    .collectLatest(::loadAndSubscribe)
             }
         }
         lifecycle.addObserver(object : DefaultLifecycleObserver {
@@ -104,17 +119,42 @@ class QuickActionsCarScreen(carContext: CarContext) : Screen(carContext) {
     /** [invalidate] is main-thread only, and everything here runs on [Dispatchers.Default]. */
     private suspend fun redraw() = withContext(Dispatchers.Main) { invalidate() }
 
-    private suspend fun loadAndSubscribe() {
+    private suspend fun loadAndSubscribe(instanceId: String?) {
         // Only show the spinner when there is nothing to show. Coming back to the car screen with
         // items already rendered should not blank them while the socket reconnects.
-        if (state !is State.Ready) {
+        if (state !is State.Ready || carInstanceChanged(
+                hasRenderedInstance, renderedInstanceId, instanceId
+            )
+        ) {
             state = State.Loading
             redraw()
         }
 
-        val active = client ?: Hki7Endpoint.createClient(carContext)?.also { client = it }
+        client?.dispose()
+        client = null
+        entities.clear()
+        if (instanceId == null) {
+            state = State.NotConfigured
+            renderedInstanceId = null
+            hasRenderedInstance = true
+            redraw()
+            return
+        }
+        val active = try {
+            Hki7Endpoint.createClient(carContext, instanceId)?.also { client = it }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            state = State.Unavailable
+            renderedInstanceId = instanceId
+            hasRenderedInstance = true
+            redraw()
+            return
+        }
         if (active == null) {
             state = State.NotConfigured
+            renderedInstanceId = instanceId
+            hasRenderedInstance = true
             redraw()
             return
         }
@@ -122,44 +162,61 @@ class QuickActionsCarScreen(carContext: CarContext) : Screen(carContext) {
         quickActions = QuickActions.forCar(carContext).take(gridLimit())
         if (quickActions.isEmpty()) {
             state = State.Empty
+            renderedInstanceId = instanceId
+            hasRenderedInstance = true
             redraw()
             return
         }
 
         // Seed with a snapshot; the subscription only carries changes, so without this the grid
         // would stay blank until something in the house happened to move.
-        runCatching {
+        val initialEntities = try {
             coroutineScope {
                 quickActions
                     .map { async { runCatching { active.getEntityState(it.entityId) }.getOrNull() } }
                     .awaitAll()
                     .filterNotNull()
             }
-        }.getOrDefault(emptyList()).forEach { entities[it.entity_id] = it }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            emptyList()
+        }
+        initialEntities.forEach { entities[it.entity_id] = it }
 
-        rebuild()
+        rebuild(instanceId)
 
         // Runs until the screen stops, at which point repeatOnLifecycle cancels it and the
         // subscription is torn down with it.
-        runCatching {
+        try {
             active.subscribeStateChanges().collect { change ->
                 if (quickActions.none { it.entityId == change.entityId }) return@collect
                 val newState = change.newState
                 if (newState == null) entities.remove(change.entityId)
                 else entities[change.entityId] = newState
-                rebuild()
+                rebuild(instanceId)
+            }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            // Keep the last snapshot visible; a lifecycle restart will reconnect.
+        } finally {
+            if (client === active) {
+                active.dispose()
+                client = null
             }
         }
     }
 
     /** Rebuilds the rendered items from the current entity states and redraws. */
-    private suspend fun rebuild() {
+    private suspend fun rebuild(instanceId: String) {
         // Rasterising glyphs loads the icon-font tables on first use; keep that off the main thread.
         val items = withContext(Dispatchers.Default) {
             quickActions.map { quickAction ->
                 val entity = entities[quickAction.entityId]
                 CarItem(
                     quickAction = quickAction,
+                    target = CarActionTarget(instanceId),
                     title = title(quickAction, entity),
                     stateLabel = entity?.let(::stateLabel),
                     icon = icon(quickAction, entity),
@@ -167,6 +224,8 @@ class QuickActionsCarScreen(carContext: CarContext) : Screen(carContext) {
             }
         }
         state = State.Ready(items)
+        renderedInstanceId = instanceId
+        hasRenderedInstance = true
         redraw()
     }
 
@@ -179,6 +238,7 @@ class QuickActionsCarScreen(carContext: CarContext) : Screen(carContext) {
 
         State.NotConfigured -> message(carContext.getString(R.string.car_not_configured))
         State.Empty -> message(carContext.getString(R.string.car_no_actions))
+        State.Unavailable -> message(carContext.getString(R.string.car_action_failed))
 
         is State.Ready -> {
             val list = ItemList.Builder()
@@ -231,7 +291,7 @@ class QuickActionsCarScreen(carContext: CarContext) : Screen(carContext) {
 
     private fun run(item: CarItem) {
         lifecycleScope.launch {
-            val result = QuickActions.run(carContext, item.quickAction)
+            val result = QuickActions.run(carContext, item.quickAction, item.target.instanceId)
             val message = when (result) {
                 QuickActions.Result.Success -> carContext.getString(R.string.car_action_sent)
                 QuickActions.Result.NotConfigured -> carContext.getString(R.string.car_not_configured)
@@ -250,3 +310,11 @@ class QuickActionsCarScreen(carContext: CarContext) : Screen(carContext) {
         const val FALLBACK_ICON_SLUG = "lightning-bolt"
     }
 }
+
+internal fun carInstanceChanged(
+    hasRenderedInstance: Boolean,
+    renderedInstanceId: String?,
+    activeInstanceId: String?,
+): Boolean = !hasRenderedInstance || renderedInstanceId != activeInstanceId
+
+internal data class CarActionTarget(val instanceId: String)

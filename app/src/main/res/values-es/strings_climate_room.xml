@@ -579,6 +579,13 @@
         <item>Se corrigieron lecturas de temperatura y energía en checo, eslovaco, griego, noruego, sueco y danés, donde los números se mostraban incorrectamente o podían bloquear la pantalla.</item>
         <item>¿Algo mal redactado en tu idioma? Cada idioma ahora es un único archivo que puedes corregir en GitHub, sin necesidad de código.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_1">
+        <item>El widget de la lista de compras ahora puede mostrar las listas familiares de TidyShop en lugar de las suyas propias. Cada lista compartida contigo aparece como una pestaña y marcar algo llega al resto de la familia en cuestión de segundos.</item>
+        <item>Lo que puede hacer con una lista sincronizada lo decide el servidor familiar: una lista que solo puede ver permanece como de solo lectura, y una que puede marcar pero no editar le permite verificar elementos sin cambiarlos. Los propios permisos de su panel aún se aplican en la parte superior.</item>
+        <item>Nuevo: Configuración › Aplicaciones conectadas, para otras aplicaciones de las que HKI 7 puede acceder. TidyShop es el primero. La conexión utiliza un código en lugar de una contraseña: este teléfono crea su propia clave, que nunca sale de él y no se puede guardar en una copia de seguridad.</item>
+        <item>Las listas familiares solo permanecen activas mientras HKI 7 está en la pantalla. Cerrado o en el bolsillo, no mantiene conexión y no programa trabajo, por lo que la función no cuesta nada en batería.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>HKI 7 ahora aparece en Android Auto. La pantalla del automóvil muestra una cuadrícula de sus acciones rápidas con su estado actual y un toque las ejecuta. Android Auto dibuja las propias plantillas de Google y oculta todo lo que supera un límite que establece mientras el automóvil está en movimiento, por lo que muestra una lista breve que usted selecciona en lugar de su tablero.</item>
         <item>Ahora hay una aplicación Wear OS. Muestra sus acciones rápidas con el estado en vivo y sus habitaciones debajo, y habla directamente con Home Assistant, por lo que sigue funcionando cuando su teléfono está en otra habitación.</item>

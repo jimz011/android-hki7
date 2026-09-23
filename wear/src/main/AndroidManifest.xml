@@ -17,11 +17,13 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault">
 
-        <!-- The watch talks to Home Assistant itself rather than proxying every call through the
-             phone. It still needs the phone once, to be handed the server address and a token. -->
+        <!-- The watch talks to Home Assistant itself after setup, but first-time authentication
+             still needs a paired Android phone: either its HKI 7 app hands over the session or
+             RemoteAuthClient opens Home Assistant login in the phone's browser. Play therefore
+             classifies this as non-standalone even though normal use no longer needs the phone. -->
         <meta-data
             android:name="com.google.android.wearable.standalone"
-            android:value="true" />
+            android:value="false" />
 
         <activity
             android:name=".MainActivity"
@@ -39,6 +41,7 @@
              the app's WebSocket: a tile updates with nobody looking at it. -->
         <service
             android:name=".tiles.QuickActionsTileService"
+            android:description="@string/wear_tile_description"
             android:exported="true"
             android:label="@string/wear_tile_label"
             android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
@@ -47,13 +50,14 @@
             </intent-filter>
             <meta-data
                 android:name="androidx.wear.tiles.PREVIEW"
-                android:resource="@drawable/ic_launcher_foreground" />
+                android:resource="@drawable/tile_preview" />
         </service>
 
         <!-- The one thing a watch beats a phone at: nudging the heating without getting up.
              Which thermostat is chosen on the phone. -->
         <service
             android:name=".tiles.ThermostatTileService"
+            android:description="@string/wear_thermostat_tile_description"
             android:exported="true"
             android:label="@string/wear_thermostat_tile_label"
             android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
@@ -62,7 +66,7 @@
             </intent-filter>
             <meta-data
                 android:name="androidx.wear.tiles.PREVIEW"
-                android:resource="@drawable/ic_launcher_foreground" />
+                android:resource="@drawable/tile_preview" />
         </service>
 
         <!-- One entity's state on the watch face itself. -->

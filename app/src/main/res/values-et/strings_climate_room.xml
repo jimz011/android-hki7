@@ -27,6 +27,13 @@
         <item>Fikseeritud temperatuuri- ja energianäidud tšehhi, slovaki, kreeka, norra, rootsi ja taani keeles, kus numbrid näitasid valesti või võivad ekraan kokku kukkuda.</item>
         <item>Kas teie keeles on midagi halvasti sõnastatud? Iga keel on nüüd üks fail, mida saate GitHubis parandada, koodi pole vaja.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_1">
+        <item>Ostunimekirja vidin saab nüüd näidata teie TidyShopi perenimekirju enda enda asemel. Iga teiega jagatud loend kuvatakse vahekaardina ja millegi ära märkimine jõuab mõne sekundi jooksul ülejäänud leibkonnani.</item>
+        <item>See, mida saate sünkroonitud loendiga teha, otsustab pereserver: loend, mida saate vaadata, jääb kirjutuskaitstuks, ja loend, mille saate märgistada, kuid mitte muuta, võimaldab teil kontrollida üksusi neid muutmata. Peal kehtivad endiselt teie juhtpaneeli enda load.</item>
+        <item>Uus: Seaded › Ühendatud rakendused, teiste rakenduste jaoks saab HKI 7 hankida. TidyShop on esimene. Ühenduse loomiseks kasutatakse parooli asemel pigem koodi: see telefon teeb oma võtme, mis ei lahku sellest kunagi ja mida ei saa varundada.</item>
+        <item>Perekonnaloendid jäävad avaldama ainult siis, kui HKI 7 on ekraanil. Suletud või taskus see ei hoia ühendust ega planeeri tööd, nii et see funktsioon ei maksa aku pealt midagi.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>HKI 7 kuvatakse nüüd Android Autos. Autoekraanil kuvatakse teie kiirtoimingute ruudustik koos nende hetkeseisuga ja neid käivitab puudutus. Android Auto joonistab Google\'i enda malle ja peidab kõik, mis ületab selle seatud piirangu, kui auto liigub, nii et see kuvab teie armatuurlaua asemel lühikest loendit, mida kureerite.</item>
         <item>Nüüd on olemas Wear OS-i rakendus. See näitab teie kiireid toiminguid reaalajas olekus ja selle all olevaid ruume ning räägib otse kasutajaga Home Assistant, nii et see töötab ka siis, kui teie telefon on teises toas.</item>

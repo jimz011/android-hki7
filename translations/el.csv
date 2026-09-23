@@ -628,6 +628,10 @@ cr_quick_media_player,,Media player,Media player,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.","Όταν εμφανιστεί η λαβή, σύρετε προς τα πάνω στην κάτω γραμμή για να επαναφέρετε τη συσκευή αναπαραγωγής.",
 cr_quick_make_it_yours,,Make it yours,Κάντε το δικό σας,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","Στη λειτουργία επεξεργασίας, προσθέστε και αναδιατάξτε δωμάτια, ορόφους και γραφικά στοιχεία. Πατήστε ένα στοιχείο για να το διαμορφώσετε.",
+cr_whats_new_1_2_1,1,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.",Το γραφικό στοιχείο της λίστας αγορών μπορεί πλέον να εμφανίζει τις οικογενειακές σας λίστες TidyShop αντί τις δικές του. Κάθε λίστα που μοιράζεστε μαζί σας εμφανίζεται ως καρτέλα και επιλέγοντας κάτι φτάνει στο υπόλοιπο νοικοκυριό μέσα σε δευτερόλεπτα.,
+cr_whats_new_1_2_1,2,"What you may do with a synced list is decided by the family server: a list you can only look at stays read-only, and one you may tick but not edit lets you check items without changing them. Your dashboard's own permissions still apply on top.","Το τι μπορείτε να κάνετε με μια συγχρονισμένη λίστα αποφασίζεται από τον οικογενειακό διακομιστή: μια λίστα που μπορείτε μόνο να δείτε παραμένει μόνο για ανάγνωση και μια λίστα που μπορείτε να επιλέξετε αλλά να μην την επεξεργαστείτε, σας επιτρέπει να ελέγχετε στοιχεία χωρίς να τα αλλάξετε. Οι άδειες του πίνακα ελέγχου σας εξακολουθούν να ισχύουν στην κορυφή.",
+cr_whats_new_1_2_1,3,"New: Settings › Connected apps, for other apps HKI 7 can pull from. TidyShop is the first. Connecting uses a code rather than a password: this phone makes its own key, which never leaves it and cannot be put in a backup.","Νέο: Ρυθμίσεις › Συνδεδεμένες εφαρμογές, για άλλες εφαρμογές από τις οποίες μπορείτε να αντλήσετε HKI 7. Το TidyShop είναι το πρώτο. Η σύνδεση χρησιμοποιεί έναν κωδικό αντί για έναν κωδικό πρόσβασης: αυτό το τηλέφωνο δημιουργεί το δικό του κλειδί, το οποίο δεν το αφήνει ποτέ και δεν μπορεί να τεθεί σε αντίγραφο ασφαλείας.",don't translate HKI 7
+cr_whats_new_1_2_1,4,"Family lists only stay live while HKI 7 is on screen. Closed or in your pocket it holds no connection and schedules no work, so the feature costs nothing in battery.","Οι οικογενειακές λίστες παραμένουν ζωντανές μόνο όταν η HKI 7 είναι στην οθόνη. Κλειστό ή στην τσέπη σας, δεν έχει σύνδεση και προγραμματίζει καμία εργασία, επομένως η λειτουργία δεν κοστίζει τίποτα σε μπαταρία.",don't translate HKI 7
 cr_whats_new_1_2_0,1,"HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google's own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.","Το HKI 7 εμφανίζεται τώρα στο Android Auto. Η οθόνη του αυτοκινήτου δείχνει ένα πλέγμα των γρήγορων ενεργειών σας με την τρέχουσα κατάστασή τους και ένα πάτημα τις εκτελεί. Το Android Auto σχεδιάζει τα πρότυπα της Google και αποκρύπτει οτιδήποτε υπερβαίνει ένα όριο που θέτει ενώ το αυτοκίνητο κινείται, επομένως εμφανίζει μια σύντομη λίστα που επιμελείτε και όχι τον πίνακα ελέγχου σας.",don't translate HKI 7
 cr_whats_new_1_2_0,2,"There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.","Υπάρχει τώρα μια εφαρμογή Wear OS. Δείχνει τις γρήγορες ενέργειές σας με ζωντανή κατάσταση και τα δωμάτιά σας από κάτω και συνομιλεί απευθείας με Home Assistant, ώστε να συνεχίσει να λειτουργεί όταν το τηλέφωνό σας βρίσκεται σε άλλο δωμάτιο.",don't translate Home Assistant
 cr_whats_new_1_2_0,3,"Setting up the watch usually takes nothing: your phone hands it the server address, a session, your quick actions and your rooms, with no typing at all.","Η ρύθμιση του ρολογιού δεν απαιτεί τίποτα. Το τηλέφωνό σας δίνει τη διεύθυνση διακομιστή, ένα διακριτικό, τις γρήγορες ενέργειές σας και τα δωμάτιά σας, επομένως δεν υπάρχει καθόλου σύνδεση στο ρολόι.",
@@ -853,6 +857,44 @@ global_search_entity_count,one,%1$d entity,%1$d οντότητα,app fills in %1
 global_search_entity_count,other,%1$d entities,%1$d οντότητες,app fills in %1$d — keep them
 rooms_count,one,%1$d room,%1$d δωμάτιο,app fills in %1$d — keep them
 rooms_count,other,%1$d rooms,%1$d δωμάτια,app fills in %1$d — keep them
+settings_title_connected_apps,,Connected apps,Συνδεδεμένες εφαρμογές,
+settings_subtitle_connected_apps,,Other apps this dashboard can show,Άλλες εφαρμογές που μπορεί να εμφανίσει αυτός ο πίνακας εργαλείων,
+connected_apps_summary_connected,,%1$s is connected,Το %1$s είναι συνδεδεμένο,app fills in %1$s — keep them
+connected_apps_tidyshop,,TidyShop,TidyShop,
+connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Κοινόχρηστες λίστες αγορών για όλη την οικογένεια,
+connected_apps_tidyshop_connected,,Connected to %1$s,Συνδέθηκε στο %1$s,app fills in %1$s — keep them
+settings_title_tidyshop,,TidyShop,TidyShop,
+settings_subtitle_tidyshop,,Family shopping lists from your own connector,Οικογενειακές λίστες αγορών από τη δική σας εφαρμογή σύνδεσης,
+tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.",Εισαγάγετε τη διεύθυνση της εφαρμογής σύνδεσης της οικογένειάς σας και έναν κωδικό από αυτήν. Ζητήστε από όποιον το έχει ρυθμίσει για μια πρόσκληση ή χρησιμοποιήστε έναν κωδικό συσκευής από άλλο δικό σας τηλέφωνο.,
+tidyshop_server_label,,Connector address,Διεύθυνση σύνδεσης,
+tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,
+tidyshop_display_name_label,,Your name,Το όνομά σου,
+tidyshop_code_label,,Invite or device code,Πρόσκληση ή κωδικός συσκευής,
+tidyshop_code_hint,,An invite adds you to the family. A device code adds this phone to the member you already are. A recovery code works here too.,Μια πρόσκληση σας προσθέτει στην οικογένεια. Ένας κωδικός συσκευής προσθέτει αυτό το τηλέφωνο στο μέλος που ήδη είστε. Ένας κωδικός ανάκτησης λειτουργεί και εδώ.,
+tidyshop_pairing_key_label,,Master pairing key,Κύριο κλειδί ζεύξης,
+tidyshop_pairing_key_hint,,Only if you run the server yourself and have no code to hand.,Μόνο εάν εκτελείτε τον διακομιστή μόνοι σας και δεν έχετε κωδικό διαθέσιμο.,
+tidyshop_connect,,Connect,Συνδέω,
+tidyshop_connecting,,Connecting…,Συνδετικός…,
+tidyshop_household_unknown,,Your family,Η οικογένειά σου,
+tidyshop_member_unknown,,this device,αυτή τη συσκευή,
+tidyshop_signed_in_as,,Signed in as %1$s,Συνδεθήκατε ως %1$s,app fills in %1$s — keep them
+tidyshop_status_live,,Live — changes arrive as they happen,Ζωντανά — οι αλλαγές φτάνουν όπως συμβαίνουν,
+tidyshop_status_ready,,Connected,Συνδεδεμένος,
+tidyshop_status_error,,The last sync did not go through.,Ο τελευταίος συγχρονισμός δεν ολοκληρώθηκε.,
+tidyshop_status_error_detail,,The last sync did not go through: %1$s,Ο τελευταίος συγχρονισμός δεν ολοκληρώθηκε: %1$s,app fills in %1$s — keep them
+tidyshop_status_revoked,,This device was removed from its family server.,Αυτή η συσκευή καταργήθηκε από τον οικογενειακό διακομιστή της.,
+tidyshop_lists_found,,%1$d lists,%1$d λίστες,app fills in %1$d — keep them
+tidyshop_refresh,,Refresh,Φρεσκάρω,
+tidyshop_lists_title,,Lists,Κονίστρα,
+tidyshop_lists_subtitle,,"What this device can reach, and what it may do with each",Τι μπορεί να φτάσει αυτή η συσκευή και τι μπορεί να κάνει με το καθένα,
+tidyshop_permission_edit,,Can edit,Μπορεί να επεξεργαστεί,
+tidyshop_permission_check,,Can tick off,Μπορεί να σημειωθεί,
+tidyshop_permission_view,,Can look,Μπορεί να κοιτάξει,
+tidyshop_disconnect,,Leave family,Αφήστε την οικογένεια,
+tidyshop_disconnect_confirm_title,,Leave this family?,Να αφήσεις αυτή την οικογένεια;,
+tidyshop_disconnect_confirm_body,,"This phone stops seeing the family lists, and the key it signs with is deleted. Getting back in needs a new code.",Αυτό το τηλέφωνο σταματά να βλέπει τις οικογενειακές λίστες και το κλειδί με το οποίο υπογράφει διαγράφεται. Η επιστροφή χρειάζεται νέο κωδικό.,
+tidyshop_recovery_title,,Write this code down,Γράψτε αυτόν τον κωδικό,
+tidyshop_recovery_body,,It is shown once and is never stored on this phone. It is the only way back in if you reinstall and have no second device.,Εμφανίζεται μία φορά και δεν αποθηκεύεται ποτέ σε αυτό το τηλέφωνο. Είναι ο μόνος τρόπος επιστροφής εάν επανεγκαταστήσετε και δεν έχετε δεύτερη συσκευή.,
 core_system,,System,Σύστημα,
 core_greeting_morning,,Good Morning,Καλημέρα,
 core_greeting_afternoon,,Good Afternoon,Καλημέρα,
@@ -2891,6 +2933,32 @@ logs_copy,,Copy the log,Αντιγράψτε το αρχείο καταγραφ�
 logs_clear,,Clear the log,Διαγράψτε το αρχείο καταγραφής,
 logs_show_all,,Show all %1$d,Εμφάνιση όλων των %1$d,app fills in %1$d — keep them
 logs_show_less,,Show less,Δείξτε λιγότερα,
+settings_title_nfc_tags,,NFC tags,Ετικέτες NFC,
+settings_subtitle_nfc_tags,,Read and write tags that trigger Home Assistant,Διαβάστε και γράψτε ετικέτες που ενεργοποιούν Home Assistant,don't translate Home Assistant
+nfc_no_hardware,,This device does not have NFC hardware.,Αυτή η συσκευή δεν διαθέτει υλικό NFC.,
+nfc_tab_scan,,Scan,Σάρωση,
+nfc_tab_write,,Write,Γράφω,
+nfc_disabled_title,,NFC is turned off,Το NFC είναι απενεργοποιημένο,
+nfc_disabled_body,,Turn on NFC in your device settings to read or write tags.,Ενεργοποιήστε το NFC στις ρυθμίσεις της συσκευής σας για ανάγνωση ή εγγραφή ετικετών.,
+nfc_open_settings,,Open NFC settings,Ανοίξτε τις ρυθμίσεις NFC,
+nfc_ready_to_scan,,"Hold your phone near a tag. Every tap anywhere in HKI 7 is reported to Home Assistant, not just here.","Κρατήστε το τηλέφωνό σας κοντά σε μια ετικέτα. Κάθε πάτημα οπουδήποτε στο HKI 7 αναφέρεται στο Home Assistant, όχι μόνο εδώ.","don't translate Home Assistant, HKI 7"
+nfc_no_activity,,No tags scanned or written yet.,Δεν έχουν σαρωθεί ή γραφτεί ακόμη ετικέτες.,
+nfc_recent_activity,,Recent activity,Πρόσφατη δραστηριότητα,
+nfc_scan_reported,,Tag scanned — sent to Home Assistant,Η ετικέτα σαρώθηκε — στάλθηκε στο Home Assistant,don't translate Home Assistant
+nfc_scan_failed,,"Tag scanned, but Home Assistant could not be reached","Η ετικέτα σαρώθηκε, αλλά δεν ήταν δυνατή η πρόσβαση στο Home Assistant",don't translate Home Assistant
+nfc_write_mode_generate,,Generate new ID,Δημιουργία νέου αναγνωριστικού,
+nfc_write_mode_custom,,Enter ID,Εισαγάγετε αναγνωριστικό,
+nfc_write_custom_id_label,,Tag ID,Αναγνωριστικό ετικέτας,
+nfc_write_label_label,,Label (optional),Ετικέτα (προαιρετικό),
+nfc_write_label_hint,,"Shown only in this list, never sent to Home Assistant","Εμφανίζεται μόνο σε αυτήν τη λίστα, δεν στάλθηκε ποτέ στο Home Assistant",don't translate Home Assistant
+nfc_write_start,,Tap a tag to write,Πατήστε μια ετικέτα για να γράψετε,
+nfc_write_waiting,,Hold a tag near your phone…,Κρατήστε μια ετικέτα κοντά στο τηλέφωνό σας…,
+nfc_write_success,,Tag written,Γράφτηκε ετικέτα,
+nfc_write_error_read_only,,This tag is read-only and cannot be written,Αυτή η ετικέτα είναι μόνο για ανάγνωση και δεν μπορεί να γραφτεί,
+nfc_write_error_too_small,,This tag does not have enough storage for the link,Αυτή η ετικέτα δεν έχει αρκετό χώρο αποθήκευσης για τον σύνδεσμο,
+nfc_write_error_unsupported,,This tag does not support NFC Data Exchange Format (NDEF),Αυτή η ετικέτα δεν υποστηρίζει τη μορφή ανταλλαγής δεδομένων NFC (NDEF),
+nfc_write_error_lost,,The tag was moved away before the write finished. Try again.,Η ετικέτα απομακρύνθηκε πριν ολοκληρωθεί η εγγραφή. Προσπαθήστε ξανά.,
+nfc_write_error_generic,,Could not write the tag. Try again.,Δεν ήταν δυνατή η εγγραφή της ετικέτας. Προσπαθήστε ξανά.,
 parcel_letter_count,one,%1$d letter,%1$d επιστολή,app fills in %1$d — keep them
 parcel_letter_count,other,%1$d letters,%1$d γράμματα,app fills in %1$d — keep them
 spacer_empty_button,,Empty button,Κενό κουμπί,
@@ -3884,3 +3952,20 @@ clock_app_section,,Clock app,Εφαρμογή ρολογιού,
 clock_app_section_subtitle,,Which app the alarm dialog opens,Ποια εφαρμογή ανοίγει το παράθυρο διαλόγου συναγερμού,
 clock_app_automatic,,Automatic,Αυτόματο,
 clock_app_none_found,,No clock app was found on this device.,Δεν βρέθηκε εφαρμογή ρολογιού σε αυτήν τη συσκευή.,
+widgets_todo_tab_sync,,Sync,Συγχρονισμός,
+widgets_todo_sync_subtitle,,Where this list gets its items,Πού παίρνει τα στοιχεία της αυτή η λίστα,
+widgets_todo_sync_local,,This dashboard,Αυτός ο πίνακας οργάνων,
+widgets_todo_sync_local_hint,,"Items are kept with the dashboard and travel with it, the way every other widget works.","Τα στοιχεία διατηρούνται με τον πίνακα εργαλείων και ταξιδεύουν μαζί του, όπως λειτουργεί κάθε άλλο γραφικό στοιχείο.",
+widgets_todo_sync_tidyshop,,TidyShop family lists,Οικογενειακές λίστες TidyShop,
+widgets_todo_sync_tidyshop_hint,,Items come from your family connector. Everyone in the household sees a change as it happens.,Τα στοιχεία προέρχονται από τον σύνδεσμο της οικογένειάς σας. Όλοι στο νοικοκυριό βλέπουν μια αλλαγή καθώς συμβαίνει.,
+widgets_todo_sync_not_connected,,This device is not connected to a TidyShop family yet.,Αυτή η συσκευή δεν είναι ακόμη συνδεδεμένη σε οικογένεια TidyShop.,
+widgets_todo_sync_not_connected_short,,Not connected,Δεν είναι συνδεδεμένο,
+widgets_todo_sync_connected_as,,Connected as %1$s · %2$s,Συνδεδεμένο ως %1$s · %2$s,app fills in %1$s %2$s — keep them
+widgets_todo_sync_open_settings,,Set up TidyShop,Ρυθμίστε το TidyShop,
+widgets_todo_sync_settings_path,,"Set this up in Settings, under Connected apps.","Ρυθμίστε το στις Ρυθμίσεις, στην περιοχή Συνδεδεμένες εφαρμογές.",
+widgets_todo_sync_lists,,Lists to show,Λίστες προς εμφάνιση,
+widgets_todo_sync_all_lists,,All lists,Όλες οι λίστες,
+widgets_todo_sync_all_lists_hint,,"With all lists chosen, a list added on another phone simply appears here.","Με όλες τις λίστες επιλεγμένες, μια λίστα που έχει προστεθεί σε άλλο τηλέφωνο εμφανίζεται απλώς εδώ.",
+widgets_todo_sync_no_lists,,No lists were found on the family server.,Δεν βρέθηκαν λίστες στον οικογενειακό διακομιστή.,
+widgets_todo_tidyshop_read_only,,"You can look at this list, but not change it.","Μπορείτε να δείτε αυτήν τη λίστα, αλλά να μην την αλλάξετε.",
+widgets_todo_tidyshop_check_only,,"You can tick items off, but not change the list itself.","Μπορείτε να απενεργοποιήσετε τα στοιχεία, αλλά να μην αλλάξετε την ίδια τη λίστα.",

@@ -44,6 +44,13 @@
         <item>Fixade temperatur- och energiavläsningar på tjeckiska, slovakiska, grekiska, norska, svenska och danska, där siffror visade fel eller kunde krascha skärmen.</item>
         <item>Något dåligt formulerat på ditt språk? Varje språk är nu en enda fil som du kan korrigera på GitHub, ingen kod behövs.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_1">
+        <item>Inköpslista-widgeten kan nu visa dina TidyShop-familjelistor istället för sina egna. Varje lista som delas med dig visas som en flik, och om du markerar något når resten av hushållet inom några sekunder.</item>
+        <item>Vad du får göra med en synkroniserad lista bestäms av familjeservern: en lista som du bara kan titta på förblir skrivskyddad, och en du kan markera men inte redigera låter dig kontrollera objekt utan att ändra dem. Din instrumentpanels egna behörigheter gäller fortfarande ovanpå.</item>
+        <item>Nytt: Inställningar › Anslutna appar, för andra appar HKI 7 kan dra från. TidyShop är den första. Anslutning använder en kod snarare än ett lösenord: den här telefonen gör sin egen nyckel, som aldrig lämnar den och kan inte läggas i en säkerhetskopia.</item>
+        <item>Familjelistor är bara aktiva medan HKI 7 är på skärmen. Stängd eller i fickan har den ingen anslutning och schemalägger inget arbete, så funktionen kostar ingenting i batteri.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>HKI 7 visas nu på Android Auto. Bilskärmen visar ett rutnät med dina snabba åtgärder med deras nuvarande tillstånd, och en tryckning kör dem. Android Auto ritar Googles egna mallar och döljer allt förbi en gräns som den sätter medan bilen är i rörelse, så den visar en kort lista som du sammanställer snarare än din instrumentpanel.</item>
         <item>Det finns nu en Wear OS-app. Den visar dina snabba åtgärder med live-tillstånd och dina rum under, och pratar med Home Assistant direkt, så att den fortsätter att fungera när din telefon är i ett annat rum.</item>

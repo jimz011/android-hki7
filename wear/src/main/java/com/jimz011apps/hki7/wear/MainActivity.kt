@@ -50,12 +50,13 @@ fun HkiWearApp(viewModel: WearViewModel = viewModel()) {
         val state by viewModel.state.collectAsStateWithLifecycle()
         val setupError by viewModel.setupError.collectAsStateWithLifecycle()
         val sensorsEnabled by viewModel.sensorsEnabled.collectAsStateWithLifecycle()
+        val demoMode by viewModel.demoMode.collectAsStateWithLifecycle()
 
         // The socket lives exactly as long as a screen is visible. repeatOnLifecycle cancels the
         // block when the watch sleeps or the wrist drops, which closes it; raising the wrist opens
         // it again. This is what makes a light switched at the wall move here without asking.
         val lifecycleOwner = LocalLifecycleOwner.current
-        LaunchedEffect(lifecycleOwner) {
+        LaunchedEffect(lifecycleOwner, state is WearUiState.Ready) {
             lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.runLiveUpdates()
             }
@@ -74,6 +75,7 @@ fun HkiWearApp(viewModel: WearViewModel = viewModel()) {
                 .padding(horizontal = 8.dp),
         ) {
             composable(Routes.HOME) {
+                LaunchedEffect(Unit) { viewModel.showQuickActions() }
                 when (val current = state) {
                     is WearUiState.Ready -> QuickActionsScreen(
                         quickActions = current.quickActions,
@@ -93,6 +95,7 @@ fun HkiWearApp(viewModel: WearViewModel = viewModel()) {
                         busy = busy,
                         signingIn = current is WearUiState.SigningIn,
                         error = setupError,
+                        onDemo = { viewModel.enterDemoMode() },
                         onResync = {
                             busy = true
                             viewModel.resync { busy = false }
@@ -119,7 +122,12 @@ fun HkiWearApp(viewModel: WearViewModel = viewModel()) {
             composable(Routes.SETTINGS) {
                 SettingsScreen(
                     busy = busy,
+                    demoMode = demoMode,
                     sensorsEnabled = sensorsEnabled,
+                    onExitDemo = {
+                        viewModel.exitDemoMode()
+                        navController.popBackStack()
+                    },
                     onSensorsEnabledChange = { viewModel.setSensorsEnabled(it) },
                     onRefresh = { viewModel.refresh() },
                     onResync = {

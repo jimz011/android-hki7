@@ -27,6 +27,13 @@
         <item>Naprawiono odczyty temperatury i energii w języku czeskim, słowackim, greckim, norweskim, szwedzkim i duńskim, gdzie liczby były wyświetlane błędnie lub mogły powodować awarię ekranu.</item>
         <item>Coś źle sformułowanego w Twoim języku? Każdy język to teraz pojedynczy plik, który możesz poprawić w GitHubie, bez potrzeby stosowania kodu.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_1">
+        <item>Widżet listy zakupów może teraz wyświetlać listy rodzinne TidyShop zamiast własnych. Każda udostępniona Ci lista pojawia się jako zakładka, a zaznaczenie czegoś w ciągu kilku sekund dotrze do reszty domowników.</item>
+        <item>O tym, co możesz zrobić ze zsynchronizowaną listą, decyduje serwer rodzinny: lista, którą możesz tylko przeglądać, pozostaje tylko do odczytu, a ta, którą możesz zaznaczyć, ale nie możesz edytować, pozwala sprawdzać elementy bez ich zmiany. Uprawnienia Twojego pulpitu nawigacyjnego nadal obowiązują na górze.</item>
+        <item>Nowość: Ustawienia › Połączone aplikacje, w przypadku innych aplikacji, z których HKI 7 może pobierać. TidyShop jest pierwszy. Do łączenia używany jest kod, a nie hasło: ten telefon tworzy własny klucz, który nigdy go nie opuszcza i nie można go zapisać w kopii zapasowej.</item>
+        <item>Listy rodzin pozostają aktywne tylko wtedy, gdy na ekranie jest wyświetlany HKI 7. Zamknięty lub w kieszeni nie utrzymuje połączenia i nie planuje żadnej pracy, więc ta funkcja nie kosztuje baterii.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>HKI 7 pojawia się teraz w Android Auto. Na ekranie samochodu wyświetlana jest siatka szybkich działań wraz z ich aktualnym stanem, które można uruchomić jednym dotknięciem. Android Auto rysuje własne szablony Google i ukrywa wszystko, co przekracza limit ustawiony podczas jazdy samochodu, więc wyświetla krótką listę, którą wybierasz, a nie pulpit nawigacyjny.</item>
         <item>Dostępna jest teraz aplikacja Wear OS. Pokazuje Twoje szybkie działania w stanie aktywnym i pokoje pod spodem, a także rozmawia bezpośrednio z Home Assistant, dzięki czemu działa, gdy Twój telefon znajduje się w innym pokoju.</item>

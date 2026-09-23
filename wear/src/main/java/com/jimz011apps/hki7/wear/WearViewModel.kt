@@ -5,7 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HKIQuickAction
-import com.jimz011apps.hki7.wear.data.HomeAssistantRest
 import com.jimz011apps.hki7.wear.data.HomeAssistantSocket
 import com.jimz011apps.hki7.wear.data.PhoneSyncService
 import com.jimz011apps.hki7.wear.data.WearActions
@@ -15,6 +14,8 @@ import com.jimz011apps.hki7.wear.data.WearRemoteAuth
 import com.jimz011apps.hki7.wear.data.WearSensorWorker
 import com.jimz011apps.hki7.wear.data.WearSensors
 import com.jimz011apps.hki7.wear.data.WearSession
+import com.jimz011apps.hki7.wear.data.WearHomeClient
+import com.jimz011apps.hki7.wear.data.createWearHomeClient
 import com.jimz011apps.hki7.wear.tiles.TileRefresh
 import com.jimz011apps.hki7.data.WearRoom
 import com.jimz011apps.hki7.wear.R
@@ -26,6 +27,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -63,6 +65,9 @@ class WearViewModel(application: Application) : AndroidViewModel(application) {
     private val _sensorsEnabled = MutableStateFlow(false)
     val sensorsEnabled: StateFlow<Boolean> = _sensorsEnabled.asStateFlow()
 
+    private val _demoMode = MutableStateFlow(false)
+    val demoMode: StateFlow<Boolean> = _demoMode.asStateFlow()
+
     init {
         viewModelScope.launch {
             _sensorsEnabled.value = prefs.sensorsEnabledOnce()
@@ -96,7 +101,7 @@ class WearViewModel(application: Application) : AndroidViewModel(application) {
     val state: StateFlow<WearUiState> = _state.asStateFlow()
 
     /** Rebuilt whenever credentials change; null until the watch has a session. */
-    private var client: HomeAssistantRest? = null
+    private var client: WearHomeClient? = null
 
     /** Opened only while a screen is on, by [runLiveUpdates]. */
     private var socket: HomeAssistantSocket? = null
@@ -106,17 +111,22 @@ class WearViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         viewModelScope.launch {
-            if (!session.isAuthenticated()) {
-                _state.value = WearUiState.NotConfigured
-                // A watch paired after the phone last wrote its config has nothing waiting for it,
-                // so ask before concluding there is no phone to be set up from.
-                PhoneSyncService.requestConfig(getApplication())
-                // Give the phone a moment to answer; if it does, carry straight on.
-                delay(1500)
-                if (session.isAuthenticated()) reload()
-                return@launch
+            // A Data Layer handover is asynchronous and may arrive long after the phone accepted
+            // the request. Observe the persisted result instead of assuming 1.5 seconds was long
+            // enough; this also updates an already-open watch app immediately.
+            prefs.isConfigured.distinctUntilChanged().collect { configured ->
+                if (configured) {
+                    reload()
+                } else {
+                    _demoMode.value = false
+                    if (_state.value !is WearUiState.SigningIn) {
+                        _state.value = WearUiState.NotConfigured
+                    }
+                    // A watch paired after the phone last wrote its config has nothing waiting for
+                    // it, so ask the phone to write a fresh DataItem.
+                    PhoneSyncService.requestConfig(getApplication())
+                }
             }
-            reload()
         }
     }
 
@@ -128,6 +138,7 @@ class WearViewModel(application: Application) : AndroidViewModel(application) {
      * there is no session yet — the setup screen has nothing to keep live.
      */
     suspend fun runLiveUpdates() {
+        if (prefs.isDemoModeOnce()) return
         val serverUrl = prefs.serverUrlOnce() ?: return
         if (!session.isAuthenticated()) return
         val live = socket ?: HomeAssistantSocket(serverUrl, session).also { socket = it }
@@ -161,6 +172,12 @@ class WearViewModel(application: Application) : AndroidViewModel(application) {
     fun watch(entityIds: Collection<String>) {
         watching = entityIds.filter { it.isNotBlank() }.toSet()
         refresh()
+    }
+
+    /** Restores the live/refresh set after leaving a room and returning to the home screen. */
+    fun showQuickActions() {
+        val ready = _state.value as? WearUiState.Ready ?: return
+        watch(watchedQuickActionIds(ready.quickActions))
     }
 
     fun refresh() {
@@ -231,20 +248,34 @@ class WearViewModel(application: Application) : AndroidViewModel(application) {
     fun resync(onDone: (Boolean) -> Unit = {}) {
         viewModelScope.launch {
             val asked = PhoneSyncService.requestConfig(getApplication())
-            // Give the phone a moment to answer before re-reading what it wrote.
-            delay(1500)
-            reload()
+            if (!asked) {
+                _setupError.value = getApplication<Application>()
+                    .getString(R.string.wear_setup_phone_unavailable)
+            }
+            // The configuration observer above reloads whenever the reply actually arrives.
             onDone(asked)
         }
+    }
+
+    /** Opens a self-contained sample home with no account, phone handoff or network. */
+    fun enterDemoMode() {
+        _setupError.value = null
+        viewModelScope.launch { prefs.enterDemoMode() }
+    }
+
+    fun exitDemoMode() {
+        viewModelScope.launch { prefs.exitDemoMode() }
     }
 
     private suspend fun reload() {
         val serverUrl = prefs.serverUrlOnce()
         if (serverUrl == null || !session.isAuthenticated()) {
+            _demoMode.value = false
             _state.value = WearUiState.NotConfigured
             return
         }
-        client = HomeAssistantRest(serverUrl, session)
+        _demoMode.value = prefs.isDemoModeOnce()
+        client = createWearHomeClient(prefs, session)
         // Credentials or server may have changed; the old socket was built against the old ones.
         socket?.dispose()
         socket = null
@@ -288,3 +319,6 @@ class WearViewModel(application: Application) : AndroidViewModel(application) {
     /** Loads every entity in a room. Rooms carry ids only, so their states are fetched on entry. */
     fun openRoom(room: WearRoom) = watch(room.entityIds)
 }
+
+internal fun watchedQuickActionIds(actions: List<HKIQuickAction>): Set<String> =
+    actions.mapNotNull { it.entityId.takeIf(String::isNotBlank) }.toSet()

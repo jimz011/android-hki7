@@ -44,6 +44,13 @@
         <item>Kiinteät lämpötila- ja energialukemat tšekin, slovakin, kreikan, norjan, ruotsin ja tanskan kielellä, joissa numerot näyttivät väärin tai voivat kaataa näytön.</item>
         <item>Onko kielelläsi jotain huonosti sanottu? Jokainen kieli on nyt yksi tiedosto, jonka voit korjata GitHubissa ilman koodia.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_1">
+        <item>Ostoslista-widget voi nyt näyttää TidyShop-perheluettelosi omansa sijaan. Jokainen kanssasi jaettu luettelo näkyy välilehtenä, ja jonkin kohdan rastittaminen tavoittaa muun kotitalouden muutamassa sekunnissa.</item>
+        <item>Perhepalvelin päättää, mitä voit tehdä synkronoidulle luettelolle: luettelo, jota voit tarkastella vain, pysyy vain luku -tilassa, ja luettelo, jonka voit valita, mutta jota et muokata, antaa sinun tarkistaa kohteita muuttamatta niitä. Hallintapaneelisi omat käyttöoikeudet ovat edelleen voimassa ylhäällä.</item>
+        <item>Uutta: Asetukset › Yhdistetyt sovellukset, muille sovelluksille HKI 7 voi hakea. TidyShop on ensimmäinen. Yhdistäminen käyttää koodia salasanan sijaan: tämä puhelin tekee oman avaimen, joka ei koskaan poistu siitä eikä sitä voi laittaa varmuuskopioon.</item>
+        <item>Perheluettelot pysyvät voimassa vain, kun HKI 7 on näytöllä. Suljettuna tai taskussa se ei pidä yhteyttä eikä ajasta työtä, joten ominaisuus ei maksa akkua.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>HKI 7 näkyy nyt Android Autossa. Auton näyttö näyttää ruudukon nopeista toimistasi niiden nykyisen tilan kanssa, ja napautus suorittaa ne. Android Auto piirtää Googlen omia malleja ja piilottaa kaiken asettamansa rajan ylittävän auton liikkuessa, joten se näyttää kojelaudan sijaan lyhyen luettelon, jonka valitset.</item>
         <item>Nyt on olemassa Wear OS -sovellus. Se näyttää nopeat toiminnot live-tilassa ja alla olevat huoneet ja puhuu suoraan Home Assistant, joten se toimii edelleen, kun puhelimesi on toisessa huoneessa.</item>

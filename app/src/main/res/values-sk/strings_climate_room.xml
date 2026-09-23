@@ -27,6 +27,13 @@
         <item>Opravené údaje o teplote a energii v češtine, slovenčine, gréčtine, nórčine, švédčine a dánčine, kde sa čísla zobrazovali nesprávne alebo mohli zrútiť obrazovku.</item>
         <item>Niečo napísané zle vo vašom jazyku? Každý jazyk je teraz jeden súbor, ktorý môžete opraviť na GitHub, nie je potrebný žiadny kód.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_1">
+        <item>Miniaplikácia nákupného zoznamu teraz môže zobrazovať vaše rodinné zoznamy TidyShop namiesto svojich vlastných. Každý zoznam zdieľaný s vami sa zobrazí ako karta a zaškrtnutím niečoho sa do niekoľkých sekúnd dostane zvyšok domácnosti.</item>
+        <item>O tom, čo môžete urobiť so synchronizovaným zoznamom, rozhoduje rodinný server: zoznam, na ktorý sa môžete len pozerať, zostáva len na čítanie a zoznam, ktorý môžete zaškrtnúť, ale nie upravovať, vám umožní kontrolovať položky bez toho, aby ste ich menili. Navrchu stále platia vlastné povolenia vášho informačného panela.</item>
+        <item>Novinka: Nastavenia › Pripojené aplikácie pre ostatné aplikácie, z ktorých môže HKI 7 čerpať. TidyShop je prvý. Pri pripájaní sa používa kód, nie heslo: tento telefón si vytvorí vlastný kľúč, ktorý ho nikdy neopustí a nedá sa uložiť do zálohy.</item>
+        <item>Rodinné zoznamy zostávajú zverejnené iba vtedy, keď je na obrazovke HKI 7. Zatvorený alebo vo vrecku nemá žiadne pripojenie a neplánuje žiadnu prácu, takže táto funkcia nestojí žiadnu batériu.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>HKI 7 sa teraz zobrazuje v systéme Android Auto. Obrazovka auta zobrazuje mriežku vašich rýchlych akcií s ich aktuálnym stavom a klepnutím ich spustíte. Android Auto kreslí vlastné šablóny Google a skryje všetko, čo prekračuje stanovený limit, keď je auto v pohybe, takže namiesto vášho prístrojového panela zobrazuje krátky zoznam, ktorý spravujete.</item>
         <item>Teraz existuje aplikácia Wear OS. Zobrazuje vaše rýchle akcie so živým stavom a vašimi miestnosťami pod ním a hovorí priamo s Home Assistant, takže funguje aj vtedy, keď je váš telefón v inej miestnosti.</item>

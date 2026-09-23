@@ -27,6 +27,13 @@
         <item>Rögzített hőmérséklet- és energiaértékek cseh, szlovák, görög, norvég, svéd és dán nyelven, ahol a számok rosszul mutattak, vagy összeomolhatják a képernyőt.</item>
         <item>Valami rosszul van megfogalmazva a nyelveden? Mostantól minden nyelv egyetlen fájl, amelyet kijavíthat a GitHubon, nincs szükség kódra.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_1">
+        <item>A bevásárlólista widget mostantól a saját TidyShop családlistáit jeleníti meg a sajátja helyett. Minden Önnel megosztott lista lapként jelenik meg, és ha kipipál valamit, másodperceken belül eléri a háztartás többi tagját.</item>
+        <item>Azt, hogy mit tehet a szinkronizált listával, a családszerver dönti el: a csak megtekinthető lista írásvédett marad, a kipipálható, de nem szerkeszthető lista pedig lehetővé teszi az elemek módosítása nélküli ellenőrzését. Az irányítópult saját engedélyei továbbra is érvényesek felül.</item>
+        <item>Új: Beállítások › Csatlakoztatott alkalmazások, más alkalmazásokhoz a HKI 7 letölthető. A TidyShop az első. A csatlakozáshoz jelszó helyett kódot használnak: ez a telefon saját kulcsot készít, amely soha nem hagyja el, és nem tehető tartalékba.</item>
+        <item>A családi listák csak addig maradnak élőben, amíg HKI 7 látható a képernyőn. Zárt állapotban vagy zsebben nem tart kapcsolatot, és nem ütemezi a munkát, így a funkció nem kerül semmibe az akkumulátorba.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>A HKI 7 mostantól megjelenik az Android Auto rendszeren. Az autó képernyőjén egy rácson látható a gyors műveletek aktuális állapotával, és egy koppintással futtathatók. Az Android Auto megrajzolja a Google saját sablonjait, és elrejti az általa beállított határon túli dolgokat, miközben az autó halad, így az irányítópult helyett az Ön által összeállított rövid listát jeleníti meg.</item>
         <item>Most már van egy Wear OS alkalmazás. Megjeleníti a gyors műveleteket élő állapottal és alatta lévő szobákkal, és közvetlenül Home Assistant-val beszél, így tovább működik, amikor a telefon egy másik szobában van.</item>

@@ -27,6 +27,13 @@
         <item>Fiksēti temperatūras un enerģijas rādījumi čehu, slovāku, grieķu, norvēģu, zviedru un dāņu valodās, kur skaitļi tika rādīti nepareizi vai var izraisīt ekrāna avāriju.</item>
         <item>Vai jūsu valodā ir kaut kas slikti formulēts? Katra valoda tagad ir viens fails, kuru varat labot GitHub — kods nav nepieciešams.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_1">
+        <item>Iepirkumu saraksta logrīks tagad var rādīt jūsu TidyShop ģimeņu sarakstus, nevis savus. Katrs ar jums kopīgotais saraksts tiek parādīts kā cilne, un, atzīmējot kaut ko, pārējā mājsaimniecība dažu sekunžu laikā tiek sasniegta.</item>
+        <item>To, ko varat darīt ar sinhronizētu sarakstu, izlemj ģimenes serveris: saraksts, kuru varat skatīt, paliek tikai lasāms, un saraksts, kuru varat atzīmēt, bet nerediģēt, ļauj pārbaudīt vienumus, tos nemainot. Jūsu informācijas paneļa atļaujas joprojām ir spēkā augšpusē.</item>
+        <item>Jaunums: Iestatījumi › Saistītās lietotnes, citām lietotnēm HKI 7 var iegūt no. TidyShop ir pirmais. Savienojuma izveidei tiek izmantots kods, nevis parole: šis tālrunis izveido savu atslēgu, kas to nekad neatstāj un to nevar ievietot rezerves kopijā.</item>
+        <item>Ģimenes saraksti tiek rādīti tikai tad, kad ekrānā ir redzams HKI 7. Slēgtā vai kabatā tam nav savienojuma un nav plānots darbs, tāpēc šī funkcija neko nemaksā par akumulatoru.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>HKI 7 tagad tiek rādīts operētājsistēmā Android Auto. Automašīnas ekrānā tiek parādīts jūsu ātro darbību režģis ar to pašreizējo stāvokli, un ar pieskārienu tās tiek palaistas. Android Auto zīmē paša Google veidnes un slēpj visu, kas pārsniedz noteikto ierobežojumu, kamēr automašīna pārvietojas, tāpēc tiek rādīts īss jūsu atlasītais saraksts, nevis informācijas panelis.</item>
         <item>Tagad ir pieejama Wear OS lietotne. Tas parāda jūsu ātrās darbības ar reāllaika stāvokli un jūsu telpām zem tā, kā arī tieši sarunājas ar Home Assistant, tāpēc tas turpina darboties, kad tālrunis atrodas citā telpā.</item>

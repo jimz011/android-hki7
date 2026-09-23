@@ -628,6 +628,10 @@ cr_quick_media_player,,Media player,メディアプレーヤー,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.",ハンドルが表示されたら、下部バーを上にスワイプしてプレーヤーを復元します。,
 cr_quick_make_it_yours,,Make it yours,自分好みにカスタマイズ,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.",編集モードで部屋、階、ウィジェットを追加・並べ替えできます。項目をタップして設定してください。,
+cr_whats_new_1_2_1,1,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.",ショッピング リスト ウィジェットは、独自のリストではなく TidyShop ファミリー リストを表示できるようになりました。あなたと共有されているすべてのリストはタブとして表示され、チェックを入れると数秒以内に残りの家族に届きます。,
+cr_whats_new_1_2_1,2,"What you may do with a synced list is decided by the family server: a list you can only look at stays read-only, and one you may tick but not edit lets you check items without changing them. Your dashboard's own permissions still apply on top.",同期されたリストで何ができるかは、ファミリー サーバーによって決まります。参照のみが可能なリストは読み取り専用のままで、チェックを入れても編集できないリストでは、項目を変更せずにチェックできます。ダッシュボード独自の権限は引き続き最上位に適用されます。,
+cr_whats_new_1_2_1,3,"New: Settings › Connected apps, for other apps HKI 7 can pull from. TidyShop is the first. Connecting uses a code rather than a password: this phone makes its own key, which never leaves it and cannot be put in a backup.",新規: 設定 › 接続済みアプリ (HKI 7 がプルできる他のアプリ用)。 TidyShopが最初です。接続にはパスワードではなくコードを使用します。この電話機は独自のキーを作成するため、キーが離れることはなく、バックアップに保存することもできません。,don't translate HKI 7
+cr_whats_new_1_2_1,4,"Family lists only stay live while HKI 7 is on screen. Closed or in your pocket it holds no connection and schedules no work, so the feature costs nothing in battery.",ファミリー リストは、HKI 7 が画面に表示されている間のみライブ状態を維持します。閉じたりポケットの中に入れたりすると、接続が確立されず、作業のスケジュールも設定されないため、この機能を使用してもバッテリーの消耗はありません。,don't translate HKI 7
 cr_whats_new_1_2_0,1,"HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google's own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.",HKI 7 が Android Auto に表示されるようになりました。車の画面にはクイックアクションのグリッドが現在の状態とともに表示され、タップするとそれらが実行されます。 Android Auto は Google 独自のテンプレートを描画し、車の走行中に設定した制限を超えるものを非表示にするため、ダッシュボードではなく、ユーザーが厳選した短いリストが表示されます。,don't translate HKI 7
 cr_whats_new_1_2_0,2,"There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.",Wear OS アプリが登場しました。ライブ状態でのクイックアクションとその下に部屋が表示され、Home Assistant と直接通信するため、携帯電話が別の部屋にあるときでも機能し続けます。,don't translate Home Assistant
 cr_whats_new_1_2_0,3,"Setting up the watch usually takes nothing: your phone hands it the server address, a session, your quick actions and your rooms, with no typing at all.",時計のセットアップには何もかかりません。携帯電話からサーバー アドレス、トークン、クイック アクション、部屋が渡されるため、時計にサインインする必要はまったくありません。,
@@ -853,6 +857,44 @@ global_search_entity_count,one,%1$d entity,,needs translation; app fills in %1$d
 global_search_entity_count,other,%1$d entities,%1$d エンティティ,app fills in %1$d — keep them
 rooms_count,one,%1$d room,,needs translation; app fills in %1$d — keep them
 rooms_count,other,%1$d rooms,%1$d 部屋,app fills in %1$d — keep them
+settings_title_connected_apps,,Connected apps,接続されたアプリ,
+settings_subtitle_connected_apps,,Other apps this dashboard can show,このダッシュボードに表示できる他のアプリ,
+connected_apps_summary_connected,,%1$s is connected,%1$s が接続されました,app fills in %1$s — keep them
+connected_apps_tidyshop,,TidyShop,タイディショップ,
+connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,家族全員で買い物リストを共有,
+connected_apps_tidyshop_connected,,Connected to %1$s,%1$s に接続されました,app fills in %1$s — keep them
+settings_title_tidyshop,,TidyShop,タイディショップ,
+settings_subtitle_tidyshop,,Family shopping lists from your own connector,独自のコネクタからの家族のショッピング リスト,
+tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.",ファミリー コネクタのアドレスとそこからのコードを入力します。招待を設定した人に尋ねるか、自分の別の携帯電話のデバイス コードを使用してください。,
+tidyshop_server_label,,Connector address,コネクタアドレス,
+tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,
+tidyshop_display_name_label,,Your name,あなたの名前,
+tidyshop_code_label,,Invite or device code,招待またはデバイスコード,
+tidyshop_code_hint,,An invite adds you to the family. A device code adds this phone to the member you already are. A recovery code works here too.,招待するとあなたも家族に追加されます。デバイス コードにより、この電話がすでにメンバーになっているメンバーに追加されます。ここでもリカバリコードが機能します。,
+tidyshop_pairing_key_label,,Master pairing key,マスターペアリングキー,
+tidyshop_pairing_key_hint,,Only if you run the server yourself and have no code to hand.,自分でサーバーを実行し、コードを手元に持っていない場合に限ります。,
+tidyshop_connect,,Connect,接続,
+tidyshop_connecting,,Connecting…,接続中…,
+tidyshop_household_unknown,,Your family,あなたの家族,
+tidyshop_member_unknown,,this device,このデバイス,
+tidyshop_signed_in_as,,Signed in as %1$s,%1$s としてサインインしています,app fills in %1$s — keep them
+tidyshop_status_live,,Live — changes arrive as they happen,ライブ — 変更が発生するとすぐに到着します,
+tidyshop_status_ready,,Connected,接続済み,
+tidyshop_status_error,,The last sync did not go through.,最後の同期は完了しませんでした。,
+tidyshop_status_error_detail,,The last sync did not go through: %1$s,最後の同期が完了しませんでした: %1$s,app fills in %1$s — keep them
+tidyshop_status_revoked,,This device was removed from its family server.,このデバイスはファミリー サーバーから削除されました。,
+tidyshop_lists_found,,%1$d lists,%1$d リスト,app fills in %1$d — keep them
+tidyshop_refresh,,Refresh,更新,
+tidyshop_lists_title,,Lists,リスト,
+tidyshop_lists_subtitle,,"What this device can reach, and what it may do with each",このデバイスが到達できる範囲と、それぞれの機能で何ができるか,
+tidyshop_permission_edit,,Can edit,編集可能,
+tidyshop_permission_check,,Can tick off,チェックを入れることができます,
+tidyshop_permission_view,,Can look,見える,
+tidyshop_disconnect,,Leave family,家族を離れる,
+tidyshop_disconnect_confirm_title,,Leave this family?,この家族と別れますか？,
+tidyshop_disconnect_confirm_body,,"This phone stops seeing the family lists, and the key it signs with is deleted. Getting back in needs a new code.",この電話では家族リストの表示が停止され、署名に使用したキーが削除されます。戻るには新しいコードが必要です。,
+tidyshop_recovery_title,,Write this code down,このコードを書き留めてください,
+tidyshop_recovery_body,,It is shown once and is never stored on this phone. It is the only way back in if you reinstall and have no second device.,一度表示されるだけで、この携帯電話には保存されません。再インストールしても 2 番目のデバイスがない場合は、これが元に戻す唯一の方法です。,
 core_system,,System,システム,
 core_greeting_morning,,Good Morning,おはようございます,
 core_greeting_afternoon,,Good Afternoon,こんにちは,
@@ -2891,6 +2933,32 @@ logs_copy,,Copy the log,ログをコピーする,
 logs_clear,,Clear the log,ログをクリアする,
 logs_show_all,,Show all %1$d,すべて表示 %1$d,app fills in %1$d — keep them
 logs_show_less,,Show less,表示を少なくする,
+settings_title_nfc_tags,,NFC tags,NFCタグ,
+settings_subtitle_nfc_tags,,Read and write tags that trigger Home Assistant,Home Assistant をトリガーするタグの読み取りと書き込み,don't translate Home Assistant
+nfc_no_hardware,,This device does not have NFC hardware.,このデバイスには NFC ハードウェアがありません。,
+nfc_tab_scan,,Scan,スキャン,
+nfc_tab_write,,Write,書く,
+nfc_disabled_title,,NFC is turned off,NFCがオフになっています,
+nfc_disabled_body,,Turn on NFC in your device settings to read or write tags.,タグの読み取りまたは書き込みを行うには、デバイスの設定で NFC をオンにします。,
+nfc_open_settings,,Open NFC settings,NFC設定を開く,
+nfc_ready_to_scan,,"Hold your phone near a tag. Every tap anywhere in HKI 7 is reported to Home Assistant, not just here.",携帯電話をタグの近くにかざします。ここだけでなく、HKI 7 内のすべてのタップが Home Assistant に報告されます。,"don't translate Home Assistant, HKI 7"
+nfc_no_activity,,No tags scanned or written yet.,タグはまだスキャンまたは書き込まれていません。,
+nfc_recent_activity,,Recent activity,最近の活動,
+nfc_scan_reported,,Tag scanned — sent to Home Assistant,タグがスキャンされました — Home Assistant に送信されました,don't translate Home Assistant
+nfc_scan_failed,,"Tag scanned, but Home Assistant could not be reached",タグはスキャンされましたが、Home Assistant に到達できませんでした,don't translate Home Assistant
+nfc_write_mode_generate,,Generate new ID,新しいIDを生成する,
+nfc_write_mode_custom,,Enter ID,IDを入力してください,
+nfc_write_custom_id_label,,Tag ID,タグID,
+nfc_write_label_label,,Label (optional),ラベル (オプション),
+nfc_write_label_hint,,"Shown only in this list, never sent to Home Assistant",このリストにのみ表示され、Home Assistant には送信されません,don't translate Home Assistant
+nfc_write_start,,Tap a tag to write,タグをタップして書き込みます,
+nfc_write_waiting,,Hold a tag near your phone…,携帯電話の近くにタグをかざしてください…,
+nfc_write_success,,Tag written,タグが書かれています,
+nfc_write_error_read_only,,This tag is read-only and cannot be written,このタグは読み取り専用であり、書き込みはできません,
+nfc_write_error_too_small,,This tag does not have enough storage for the link,このタグにはリンク用の十分なストレージがありません,
+nfc_write_error_unsupported,,This tag does not support NFC Data Exchange Format (NDEF),このタグは NFC データ交換フォーマット (NDEF) をサポートしていません,
+nfc_write_error_lost,,The tag was moved away before the write finished. Try again.,書き込みが完了する前にタグが移動されました。もう一度やり直してください。,
+nfc_write_error_generic,,Could not write the tag. Try again.,タグを書き込めませんでした。もう一度やり直してください。,
 parcel_letter_count,one,%1$d letter,,needs translation; app fills in %1$d — keep them
 parcel_letter_count,other,%1$d letters,%1$d 文字,app fills in %1$d — keep them
 spacer_empty_button,,Empty button,空のボタン,
@@ -3884,3 +3952,20 @@ clock_app_section,,Clock app,時計アプリ,
 clock_app_section_subtitle,,Which app the alarm dialog opens,アラームダイアログが開くアプリ,
 clock_app_automatic,,Automatic,自動,
 clock_app_none_found,,No clock app was found on this device.,このデバイスには時計アプリが見つかりませんでした。,
+widgets_todo_tab_sync,,Sync,同期,
+widgets_todo_sync_subtitle,,Where this list gets its items,このリストの項目の取得場所,
+widgets_todo_sync_local,,This dashboard,このダッシュボード,
+widgets_todo_sync_local_hint,,"Items are kept with the dashboard and travel with it, the way every other widget works.",他のウィジェットと同様に、アイテムはダッシュボードに保存され、ダッシュボードとともに移動します。,
+widgets_todo_sync_tidyshop,,TidyShop family lists,TidyShop ファミリーリスト,
+widgets_todo_sync_tidyshop_hint,,Items come from your family connector. Everyone in the household sees a change as it happens.,アイテムは家族のコネクタから取得されます。家族全員がその変化に気づきます。,
+widgets_todo_sync_not_connected,,This device is not connected to a TidyShop family yet.,このデバイスはまだ TidyShop ファミリに接続されていません。,
+widgets_todo_sync_not_connected_short,,Not connected,接続されていません,
+widgets_todo_sync_connected_as,,Connected as %1$s · %2$s,%1$s · %2$s として接続されています,app fills in %1$s %2$s — keep them
+widgets_todo_sync_open_settings,,Set up TidyShop,TidyShop をセットアップする,
+widgets_todo_sync_settings_path,,"Set this up in Settings, under Connected apps.",これは、[接続されているアプリ] の [設定] で設定します。,
+widgets_todo_sync_lists,,Lists to show,表示するリスト,
+widgets_todo_sync_all_lists,,All lists,すべてのリスト,
+widgets_todo_sync_all_lists_hint,,"With all lists chosen, a list added on another phone simply appears here.",すべてのリストを選択すると、別の電話で追加されたリストがここに表示されます。,
+widgets_todo_sync_no_lists,,No lists were found on the family server.,ファミリーサーバー上にリストが見つかりませんでした。,
+widgets_todo_tidyshop_read_only,,"You can look at this list, but not change it.",このリストを参照することはできますが、変更することはできません。,
+widgets_todo_tidyshop_check_only,,"You can tick items off, but not change the list itself.",項目にチェックを入れることはできますが、リスト自体を変更することはできません。,

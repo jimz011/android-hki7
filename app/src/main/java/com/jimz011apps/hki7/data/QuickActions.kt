@@ -1,6 +1,7 @@
 package com.jimz011apps.hki7.data
 
 import android.content.Context
+import kotlinx.coroutines.flow.first
 
 /**
  * Runs the curated quick-action list on behalf of a phone-side surface with no view model of its
@@ -56,6 +57,17 @@ object QuickActions {
 
     /** Runs one entry against Home Assistant. Safe to call from any phone-side surface. */
     suspend fun run(context: Context, quickAction: HKIQuickAction): Result {
+        val prefs = PreferencesManager(context)
+        prefs.ensureHomeAssistantInstanceStore()
+        val instanceId = prefs.activeHomeAssistantInstanceId.first() ?: return Result.NotConfigured
+        return run(context, quickAction, instanceId)
+    }
+
+    suspend fun run(
+        context: Context,
+        quickAction: HKIQuickAction,
+        instanceId: String,
+    ): Result {
         val resolved = quickAction.resolvedAction()
         val kind = quickAction.resolvedKind()
         if (kind == QuickActionKind.UNSUPPORTED) return Result.Unsupported
@@ -66,21 +78,25 @@ object QuickActions {
         }
         // Hki7Endpoint prefers the external URL, which is the right bias here — a phone driving a
         // car screen is by definition away from the home Wi-Fi the internal URL needs.
-        val outcome = Hki7Endpoint.withClient(context) { client ->
-            runCatching {
-                when (kind) {
-                    QuickActionKind.TOGGLE -> client.toggleEntity(quickAction.targetEntityId()!!)
-                    QuickActionKind.CALL_SERVICE -> {
-                        val service = resolved.service!!
-                        client.callServiceRaw(
-                            service.substringBefore('.'),
-                            service.substringAfter('.'),
-                            buildHKIActionServicePayload(resolved, quickAction.entityId),
-                        )
+        val outcome = try {
+            Hki7Endpoint.withClient(context, instanceId) { client ->
+                runCatching {
+                    when (kind) {
+                        QuickActionKind.TOGGLE -> client.toggleEntity(quickAction.targetEntityId()!!)
+                        QuickActionKind.CALL_SERVICE -> {
+                            val service = resolved.service!!
+                            client.callServiceRaw(
+                                service.substringBefore('.'),
+                                service.substringAfter('.'),
+                                buildHKIActionServicePayload(resolved, quickAction.entityId),
+                            )
+                        }
+                        QuickActionKind.UNSUPPORTED -> Unit
                     }
-                    QuickActionKind.UNSUPPORTED -> Unit
                 }
             }
+        } catch (error: Exception) {
+            return Result.Failed(error.message)
         } ?: return Result.NotConfigured
         return outcome.fold(
             onSuccess = { Result.Success },

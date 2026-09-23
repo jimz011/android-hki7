@@ -31,7 +31,7 @@ object WearActions {
         data class Failed(val message: String?) : Result
     }
 
-    suspend fun run(client: HomeAssistantRest?, quickAction: HKIQuickAction): Result {
+    suspend fun run(client: WearHomeClient?, quickAction: HKIQuickAction): Result {
         if (client == null) return Result.NotConfigured
         val kind = quickAction.resolvedKind()
         if (kind == QuickActionKind.UNSUPPORTED) return Result.Unsupported
@@ -56,7 +56,7 @@ object WearActions {
     }
 
     /** Toggles a plain entity from the room browser, where there is no quick action involved. */
-    suspend fun toggle(client: HomeAssistantRest?, entityId: String): Result {
+    suspend fun toggle(client: WearHomeClient?, entityId: String): Result {
         if (client == null) return Result.NotConfigured
         return runCatching { client.toggle(entityId) }.fold(
             onSuccess = { Result.Success },

@@ -96,6 +96,28 @@ A shared checklist or shopping list the whole family can add to.
   Assistant user list, or **admins only** — enforced the same way the rest of the app's
   [family permissions](family-sharing.md#permissions) are.
 
+### Syncing with TidyShop
+
+The **Sync** tab switches a to-do widget between its own items and the shared lists on a
+[TidyShop](connected-apps.md) family connector. Pointed at TidyShop, the widget shows every list
+that server shares with this device — each as its own tab — and a tick reaches the rest of the
+household within seconds.
+
+- Nothing from a synced list is stored in the dashboard. The lists belong to the family server, so
+  publishing or sharing a dashboard that contains one shares the widget, never the shopping.
+- The connector decides what you may do with each list: **view**, **tick off**, or **edit**. A
+  list you can only look at stays read-only here. Your dashboard's own edit permission still
+  applies on top, so a widget locked down for a child stays locked down.
+- Choose **All lists** to have a list created on somebody else's phone simply appear, or pick
+  specific lists for a widget that should only ever show the groceries.
+- The **hero list** on a square card works the same way as with categories — it names one of the
+  TidyShop lists rather than a local tab.
+- Items you add here also feed TidyShop's own suggestion history, so the family sees them offered
+  in that app too.
+
+Set the connection up once in **Settings › Connected apps › TidyShop**; every synced widget on
+every dashboard uses it.
+
 ## Find my devices
 
 Plots `device_tracker.*` and `person.*` entities on a map — phones, watches, tags and trackers —

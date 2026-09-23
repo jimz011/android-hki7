@@ -3925,6 +3925,13 @@
     <string name="settings_local_network_allowed">允许</string>
     <string name="settings_local_network_not_allowed">不允许 — 无法通过您的 Wi-Fi 直接访问 Home Assistant</string>
     <string name="update_see_changes">看看发生了什么变化</string>
+    <string-array name="cr_whats_new_1_2_1">
+        <item>购物清单小部件现在可以显示您的 TidyShop 家庭清单，而不是它自己的清单。与您共享的每个列表都显示为一个选项卡，勾选某些内容会在几秒钟内到达家庭的其他成员。</item>
+        <item>您可以对同步列表执行的操作由家庭服务器决定：您只能查看的列表保持只读状态，您可以勾选但不能编辑的列表可以让您检查项目而不更改它们。您的仪表板自己的权限仍然适用于顶部。</item>
+        <item>新功能：设置 › 连接的应用程序，可供 HKI 7 可以从中提取的其他应用程序使用。 TidyShop 是第一个。连接使用代码而不是密码：这款手机有自己的密钥，该密钥永远不会离开它，也不能放在备份中。</item>
+        <item>家庭列表仅在 HKI 7 显示在屏幕上时保持活动状态。关闭或放在口袋里时，它不会保持连接，也不会安排任何工作，因此该功能无需任何电池消耗。</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>HKI 7 现在出现在 Android Auto 上。汽车屏幕会显示您的快速操作及其当前状态的网格，只需点击即可运行它们。 Android Auto 会绘制 Google 自己的模板，并隐藏汽车行驶时超出其设置限制的所有内容，因此它会显示您整理的简短列表，而不是仪表板。</item>
         <item>现在有一个 Wear OS 应用程序。它会显示您的实时状态和下面的房间的快速操作，并直接与 Home Assistant 对话，因此当您的手机位于另一个房间时它仍然可以工作。</item>
@@ -3999,4 +4006,85 @@
     <string name="quick_actions_watch_thermostat_none">未选择恒温器</string>
     <string name="quick_actions_watch_thermostat_subtitle">您的手表调整的恒温器</string>
     <string name="quick_actions_watch_thermostat_count">%1$d 恒温器</string>
+    <string name="connected_apps_summary_connected">%1$s 已连接</string>
+    <string name="connected_apps_tidyshop">整洁店</string>
+    <string name="connected_apps_tidyshop_connected">连接到 %1$s</string>
+    <string name="connected_apps_tidyshop_subtitle">全家人共享购物清单</string>
+    <string name="settings_subtitle_connected_apps">此仪表板可以显示的其他应用程序</string>
+    <string name="settings_subtitle_tidyshop">来自您自己的连接器的家庭购物清单</string>
+    <string name="settings_title_connected_apps">连接的应用程序</string>
+    <string name="settings_title_tidyshop">整洁店</string>
+    <string name="tidyshop_code_hint">邀请将您添加到家庭中。设备代码会将这部手机添加到您已有的会员中。恢复代码也可以在这里使用。</string>
+    <string name="tidyshop_code_label">邀请或设备代码</string>
+    <string name="tidyshop_connect">连接</string>
+    <string name="tidyshop_connect_intro">输入您的家庭连接器的地址及其代码。询问设置邀请的人，或使用您自己的另一部手机的设备代码。</string>
+    <string name="tidyshop_connecting">正在连接…</string>
+    <string name="tidyshop_disconnect">离开家人</string>
+    <string name="tidyshop_disconnect_confirm_body">此手机将不再显示家庭列表，并且其签名所用的密钥也将被删除。返回需要新代码。</string>
+    <string name="tidyshop_disconnect_confirm_title">离开这个家庭？</string>
+    <string name="tidyshop_display_name_label">你的名字</string>
+    <string name="tidyshop_household_unknown">你的家人</string>
+    <string name="tidyshop_lists_found">%1$d 列表</string>
+    <string name="tidyshop_lists_subtitle">该设备可以达到什么目的，以及它可以对每个设备执行什么操作</string>
+    <string name="tidyshop_lists_title">列表</string>
+    <string name="tidyshop_member_unknown">这个设备</string>
+    <string name="tidyshop_pairing_key_hint">仅当您自己运行服务器并且手头没有代码时。</string>
+    <string name="tidyshop_pairing_key_label">主配对密钥</string>
+    <string name="tidyshop_permission_check">可以打勾</string>
+    <string name="tidyshop_permission_edit">可以编辑</string>
+    <string name="tidyshop_permission_view">可以看看</string>
+    <string name="tidyshop_recovery_body">它仅显示一次，并且绝不会存储在此手机上。如果您重新安装且没有第二台设备，这是返回的唯一途径。</string>
+    <string name="tidyshop_recovery_title">写下这段代码</string>
+    <string name="tidyshop_refresh">刷新</string>
+    <string name="tidyshop_server_hint">https://tidyshop.example.com</string>
+    <string name="tidyshop_server_label">连接器地址</string>
+    <string name="tidyshop_signed_in_as">以 %1$s 身份登录</string>
+    <string name="tidyshop_status_error">上次同步未完成。</string>
+    <string name="tidyshop_status_error_detail">上次同步未完成：%1$s</string>
+    <string name="tidyshop_status_live">实时——变化一发生就到来</string>
+    <string name="tidyshop_status_ready">已连接</string>
+    <string name="tidyshop_status_revoked">该设备已从其家庭服务器中删除。</string>
+    <string name="widgets_todo_sync_all_lists">所有列表</string>
+    <string name="widgets_todo_sync_all_lists_hint">选择所有列表后，在另一部手机上添加的列表就会出现在此处。</string>
+    <string name="widgets_todo_sync_connected_as">连接为 %1$s · %2$s</string>
+    <string name="widgets_todo_sync_lists">要显示的列表</string>
+    <string name="widgets_todo_sync_local">这个仪表板</string>
+    <string name="widgets_todo_sync_local_hint">项目与仪表板一起保存并随之移动，就像其他小部件的工作方式一样。</string>
+    <string name="widgets_todo_sync_no_lists">在家庭服务器上未找到任何列表。</string>
+    <string name="widgets_todo_sync_not_connected">该设备尚未连接到 TidyShop 系列。</string>
+    <string name="widgets_todo_sync_not_connected_short">未连接</string>
+    <string name="widgets_todo_sync_open_settings">设置 TidyShop</string>
+    <string name="widgets_todo_sync_settings_path">在“设置”中的“已连接的应用程序”下进行设置。</string>
+    <string name="widgets_todo_sync_subtitle">此列表从何处获取其项目</string>
+    <string name="widgets_todo_sync_tidyshop">TidyShop 家庭列表</string>
+    <string name="widgets_todo_sync_tidyshop_hint">物品来自您的家庭连接器。家庭中的每个人都会看到变化的发生。</string>
+    <string name="widgets_todo_tab_sync">同步</string>
+    <string name="widgets_todo_tidyshop_check_only">您可以勾选项目，但不能更改列表本身。</string>
+    <string name="widgets_todo_tidyshop_read_only">您可以查看此列表，但不能更改它。</string>
+    <string name="nfc_disabled_body">在设备设置中打开 NFC 以读取或写入标签。</string>
+    <string name="nfc_disabled_title">NFC 已关闭</string>
+    <string name="nfc_no_activity">尚未扫描或写入任何标签。</string>
+    <string name="nfc_no_hardware">该设备没有 NFC 硬件。</string>
+    <string name="nfc_open_settings">打开 NFC 设置</string>
+    <string name="nfc_ready_to_scan">将手机靠近标签。 HKI 7 中任意位置的每次点击都会报告给 Home Assistant，而不仅仅是此处。</string>
+    <string name="nfc_recent_activity">最近的活动</string>
+    <string name="nfc_scan_failed">已扫描标签，但无法访问 Home Assistant</string>
+    <string name="nfc_scan_reported">已扫描标签 — 发送至 Home Assistant</string>
+    <string name="nfc_tab_scan">扫描</string>
+    <string name="nfc_tab_write">写</string>
+    <string name="nfc_write_custom_id_label">标签ID</string>
+    <string name="nfc_write_error_generic">无法写入标签。再试一次。</string>
+    <string name="nfc_write_error_lost">在写入完成之前，标签已被移走。再试一次。</string>
+    <string name="nfc_write_error_read_only">该标签是只读的，不能写入</string>
+    <string name="nfc_write_error_too_small">该标签没有足够的存储空间来容纳链接</string>
+    <string name="nfc_write_error_unsupported">该标签不支持 NFC 数据交换格式 (NDEF)</string>
+    <string name="nfc_write_label_hint">仅在此列表中显示，从未发送至 Home Assistant</string>
+    <string name="nfc_write_label_label">标签（可选）</string>
+    <string name="nfc_write_mode_custom">输入身份证号</string>
+    <string name="nfc_write_mode_generate">生成新ID</string>
+    <string name="nfc_write_start">点击标签即可写入</string>
+    <string name="nfc_write_success">标签已写</string>
+    <string name="nfc_write_waiting">将标签放在手机附近...</string>
+    <string name="settings_subtitle_nfc_tags">读写触发 Home Assistant 的标签</string>
+    <string name="settings_title_nfc_tags">NFC标签</string>
 </resources>

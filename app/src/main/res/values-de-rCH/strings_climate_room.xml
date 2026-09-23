@@ -579,6 +579,13 @@
         <item>Temperatur- und Energiemesswerte auf Tschechisch, Slowakisch, Griechisch, Norwegisch, Schwedisch und Dänisch wurden behoben, bei denen Zahlen falsch angezeigt wurden oder der Bildschirm abstürzen konnte.</item>
         <item>Etwas in Ihrer Sprache schlecht formuliert? Jede Sprache ist jetzt eine einzelne Datei, die Sie auf GitHub korrigieren können, ohne dass Code erforderlich ist.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_2_1">
+        <item>Das Einkaufslisten-Widget kann jetzt Ihre TidyShop-Familienlisten anstelle seiner eigenen anzeigen. Jede mit Ihnen geteilte Liste erscheint als Tab, und wenn Sie etwas ankreuzen, erreicht es den Rest des Haushalts innerhalb von Sekunden.</item>
+        <item>Was Sie mit einer synchronisierten Liste tun können, wird vom Familienserver entschieden: Eine Liste, die Sie nur ansehen können, bleibt schreibgeschützt, und eine Liste, die Sie ankreuzen, aber nicht bearbeiten können, ermöglicht Ihnen, Elemente zu überprüfen, ohne sie zu ändern. Darüber hinaus gelten weiterhin die eigenen Berechtigungen Ihres Dashboards.</item>
+        <item>Neu: Einstellungen › Verbundene Apps, für andere Apps, aus denen HKI 7 abrufen kann. TidyShop ist der Erste. Für die Verbindung wird ein Code anstelle eines Passworts verwendet: Dieses Telefon erstellt seinen eigenen Schlüssel, der es nie verlässt und nicht in einem Backup gespeichert werden kann.</item>
+        <item>Familienlisten bleiben nur aktiv, solange HKI 7 auf dem Bildschirm angezeigt wird. Geschlossen oder in der Tasche hält es keine Verbindung und plant keine Arbeit ein, sodass die Funktion nichts an Batterie kostet.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_2_0">
         <item>HKI 7 erscheint jetzt auf Android Auto. Auf dem Autobildschirm wird ein Raster Ihrer Schnellaktionen mit ihrem aktuellen Status angezeigt, und durch Antippen werden sie ausgeführt. Android Auto zeichnet Googles eigene Vorlagen und verbirgt alles, was über einen von ihm festgelegten Grenzwert hinausgeht, während das Auto fährt, sodass eine kurze Liste angezeigt wird, die Sie kuratieren, und nicht Ihr Dashboard.</item>
         <item>Es gibt jetzt eine Wear OS-App. Es zeigt Ihre schnellen Aktionen im Live-Status und Ihre Räume darunter an und kommuniziert direkt mit Home Assistant, sodass es weiter funktioniert, wenn sich Ihr Telefon in einem anderen Raum befindet.</item>

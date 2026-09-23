@@ -628,6 +628,10 @@ cr_quick_media_player,,Media player,미디어 플레이어,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.",핸들이 나타나면 하단 바를 위로 스와이프하여 플레이어를 복원하세요.,
 cr_quick_make_it_yours,,Make it yours,나만의 화면으로 만들기,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","편집 모드에서 방, 층, 위젯을 추가하고 순서를 바꾸세요. 항목을 탭하여 구성합니다.",
+cr_whats_new_1_2_1,1,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.","이제 쇼핑 목록 위젯에 자체 목록 대신 TidyShop 가족 목록이 표시될 수 있습니다. 귀하와 공유된 모든 목록은 탭으로 표시되며, 체크 표시를 하면 몇 초 내에 나머지 가족 구성원에게 전달됩니다.",
+cr_whats_new_1_2_1,2,"What you may do with a synced list is decided by the family server: a list you can only look at stays read-only, and one you may tick but not edit lets you check items without changing them. Your dashboard's own permissions still apply on top.","동기화된 목록으로 수행할 수 있는 작업은 패밀리 서버에 의해 결정됩니다. 볼 수만 있는 목록은 읽기 전용으로 유지되고, 체크할 수 있지만 편집할 수 없는 목록은 항목을 변경하지 않고 확인할 수 있습니다. 대시보드의 자체 권한은 여전히 상위에 적용됩니다.",
+cr_whats_new_1_2_1,3,"New: Settings › Connected apps, for other apps HKI 7 can pull from. TidyShop is the first. Connecting uses a code rather than a password: this phone makes its own key, which never leaves it and cannot be put in a backup.","새로운 기능: 설정 › 연결된 앱, 다른 앱의 경우 HKI 7에서 가져올 수 있습니다. TidyShop이 첫 번째입니다. 연결에는 비밀번호가 아닌 코드가 사용됩니다. 이 전화기는 자체 키를 만들어 절대 외부로 보내지 않으며 백업할 수 없습니다.",don't translate HKI 7
+cr_whats_new_1_2_1,4,"Family lists only stay live while HKI 7 is on screen. Closed or in your pocket it holds no connection and schedules no work, so the feature costs nothing in battery.",가족 목록은 HKI 7이(가) 화면에 표시되는 동안에만 실시간으로 유지됩니다. 닫혀 있거나 주머니에 들어 있으면 연결이 유지되지 않으며 작업 일정도 예약되지 않으므로 이 기능은 배터리 비용이 전혀 들지 않습니다.,don't translate HKI 7
 cr_whats_new_1_2_0,1,"HKI 7 now appears on Android Auto. The car screen shows a grid of your quick actions with their current state, and a tap runs them. Android Auto draws Google's own templates and hides anything past a limit it sets while the car is moving, so it shows a short list you curate rather than your dashboard.",이제 HKI 7이(가) Android Auto에 표시됩니다. 자동차 화면에는 현재 상태와 함께 빠른 작업이 그리드로 표시되며 탭하면 실행됩니다. Android Auto는 Google의 자체 템플릿을 그리고 자동차가 움직이는 동안 설정된 한도를 초과하는 모든 항목을 숨기므로 대시보드가 아닌 사용자가 선별한 짧은 목록을 표시합니다.,don't translate HKI 7
 cr_whats_new_1_2_0,2,"There is now a Wear OS app. It shows your quick actions with live state and your rooms underneath, and talks to Home Assistant directly, so it keeps working when your phone is in another room.",이제 Wear OS 앱이 있습니다. 실시간 상태와 아래에 있는 방을 통해 빠른 작업을 보여주고 Home Assistant과 직접 대화하므로 전화기가 다른 방에 있어도 계속 작동합니다.,don't translate Home Assistant
 cr_whats_new_1_2_0,3,"Setting up the watch usually takes nothing: your phone hands it the server address, a session, your quick actions and your rooms, with no typing at all.","시계를 설정하는 데는 아무것도 필요하지 않습니다. 휴대폰은 서버 주소, 토큰, 빠른 작업 및 방을 전달하므로 시계에 로그인할 필요가 전혀 없습니다.",
@@ -853,6 +857,44 @@ global_search_entity_count,one,%1$d entity,,needs translation; app fills in %1$d
 global_search_entity_count,other,%1$d entities,%1$d 엔터티,app fills in %1$d — keep them
 rooms_count,one,%1$d room,,needs translation; app fills in %1$d — keep them
 rooms_count,other,%1$d rooms,%1$d 객실,app fills in %1$d — keep them
+settings_title_connected_apps,,Connected apps,연결된 앱,
+settings_subtitle_connected_apps,,Other apps this dashboard can show,이 대시보드에 표시할 수 있는 다른 앱,
+connected_apps_summary_connected,,%1$s is connected,%1$s이(가) 연결되었습니다,app fills in %1$s — keep them
+connected_apps_tidyshop,,TidyShop,깔끔한 상점,
+connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,온 가족이 공유하는 쇼핑 목록,
+connected_apps_tidyshop_connected,,Connected to %1$s,%1$s에 연결됨,app fills in %1$s — keep them
+settings_title_tidyshop,,TidyShop,깔끔한 상점,
+settings_subtitle_tidyshop,,Family shopping lists from your own connector,나만의 커넥터로 만든 가족 쇼핑 목록,
+tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.",가족 커넥터의 주소와 코드를 입력하세요. 초대를 설정한 사람에게 물어보거나 다른 휴대폰의 장치 코드를 사용하세요.,
+tidyshop_server_label,,Connector address,커넥터 주소,
+tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,
+tidyshop_display_name_label,,Your name,당신의 이름,
+tidyshop_code_label,,Invite or device code,초대 또는 장치 코드,
+tidyshop_code_hint,,An invite adds you to the family. A device code adds this phone to the member you already are. A recovery code works here too.,초대를 통해 가족에 추가됩니다. 장치 코드는 귀하의 기존 회원에게 이 전화기를 추가합니다. 복구 코드는 여기에서도 작동합니다.,
+tidyshop_pairing_key_label,,Master pairing key,마스터 페어링 키,
+tidyshop_pairing_key_hint,,Only if you run the server yourself and have no code to hand.,서버를 직접 실행하고 처리할 코드가 없는 경우에만 가능합니다.,
+tidyshop_connect,,Connect,연결,
+tidyshop_connecting,,Connecting…,연결 중…,
+tidyshop_household_unknown,,Your family,당신의 가족,
+tidyshop_member_unknown,,this device,이 장치,
+tidyshop_signed_in_as,,Signed in as %1$s,%1$s로 로그인됨,app fills in %1$s — keep them
+tidyshop_status_live,,Live — changes arrive as they happen,실시간 — 변경사항이 발생하는 즉시 도착,
+tidyshop_status_ready,,Connected,연결됨,
+tidyshop_status_error,,The last sync did not go through.,마지막 동기화가 완료되지 않았습니다.,
+tidyshop_status_error_detail,,The last sync did not go through: %1$s,마지막 동기화가 진행되지 않았습니다: %1$s,app fills in %1$s — keep them
+tidyshop_status_revoked,,This device was removed from its family server.,이 장치는 가족 서버에서 제거되었습니다.,
+tidyshop_lists_found,,%1$d lists,%1$d 목록,app fills in %1$d — keep them
+tidyshop_refresh,,Refresh,새로고침,
+tidyshop_lists_title,,Lists,기울기,
+tidyshop_lists_subtitle,,"What this device can reach, and what it may do with each",이 장치가 도달할 수 있는 대상 및 각 장치로 수행할 수 있는 작업,
+tidyshop_permission_edit,,Can edit,편집 가능,
+tidyshop_permission_check,,Can tick off,체크아웃 가능,
+tidyshop_permission_view,,Can look,볼 수 있다,
+tidyshop_disconnect,,Leave family,가족을 떠나다,
+tidyshop_disconnect_confirm_title,,Leave this family?,이 가족을 떠나시겠습니까?,
+tidyshop_disconnect_confirm_body,,"This phone stops seeing the family lists, and the key it signs with is deleted. Getting back in needs a new code.",이 휴대전화에서는 가족 목록이 더 이상 표시되지 않으며 서명에 사용된 키가 삭제됩니다. 다시 로그인하려면 새 코드가 필요합니다.,
+tidyshop_recovery_title,,Write this code down,이 코드를 적어보세요,
+tidyshop_recovery_body,,It is shown once and is never stored on this phone. It is the only way back in if you reinstall and have no second device.,한 번 표시되며 이 휴대전화에 저장되지 않습니다. 다시 설치했지만 두 번째 장치가 없는 경우 다시 로그인할 수 있는 유일한 방법입니다.,
 core_system,,System,시스템,
 core_greeting_morning,,Good Morning,좋은 아침이에요,
 core_greeting_afternoon,,Good Afternoon,좋은 오후예요,
@@ -2891,6 +2933,32 @@ logs_copy,,Copy the log,로그 복사,
 logs_clear,,Clear the log,로그 지우기,
 logs_show_all,,Show all %1$d,%1$d 모두 표시,app fills in %1$d — keep them
 logs_show_less,,Show less,간략히 보기,
+settings_title_nfc_tags,,NFC tags,NFC 태그,
+settings_subtitle_nfc_tags,,Read and write tags that trigger Home Assistant,Home Assistant을 트리거하는 태그 읽기 및 쓰기,don't translate Home Assistant
+nfc_no_hardware,,This device does not have NFC hardware.,이 장치에는 NFC 하드웨어가 없습니다.,
+nfc_tab_scan,,Scan,주사,
+nfc_tab_write,,Write,쓰다,
+nfc_disabled_title,,NFC is turned off,NFC가 꺼졌습니다,
+nfc_disabled_body,,Turn on NFC in your device settings to read or write tags.,태그를 읽거나 쓰려면 기기 설정에서 NFC를 켜세요.,
+nfc_open_settings,,Open NFC settings,NFC 설정 열기,
+nfc_ready_to_scan,,"Hold your phone near a tag. Every tap anywhere in HKI 7 is reported to Home Assistant, not just here.",휴대전화를 태그 근처에 두세요. HKI 7의 모든 탭은 여기뿐만 아니라 Home Assistant에 보고됩니다.,"don't translate Home Assistant, HKI 7"
+nfc_no_activity,,No tags scanned or written yet.,아직 스캔되거나 작성된 태그가 없습니다.,
+nfc_recent_activity,,Recent activity,최근 활동,
+nfc_scan_reported,,Tag scanned — sent to Home Assistant,태그가 스캔됨 — Home Assistant로 전송됨,don't translate Home Assistant
+nfc_scan_failed,,"Tag scanned, but Home Assistant could not be reached",태그가 스캔되었지만 Home Assistant에 연결할 수 없습니다.,don't translate Home Assistant
+nfc_write_mode_generate,,Generate new ID,새 ID 생성,
+nfc_write_mode_custom,,Enter ID,아이디 입력,
+nfc_write_custom_id_label,,Tag ID,태그 ID,
+nfc_write_label_label,,Label (optional),라벨(선택사항),
+nfc_write_label_hint,,"Shown only in this list, never sent to Home Assistant",이 목록에만 표시되며 Home Assistant로는 전송되지 않습니다.,don't translate Home Assistant
+nfc_write_start,,Tap a tag to write,태그를 탭하여 작성하세요.,
+nfc_write_waiting,,Hold a tag near your phone…,휴대폰 근처에 태그를 대세요...,
+nfc_write_success,,Tag written,태그가 작성됨,
+nfc_write_error_read_only,,This tag is read-only and cannot be written,이 태그는 읽기 전용이므로 쓸 수 없습니다.,
+nfc_write_error_too_small,,This tag does not have enough storage for the link,이 태그는 링크를 저장할 공간이 충분하지 않습니다.,
+nfc_write_error_unsupported,,This tag does not support NFC Data Exchange Format (NDEF),이 태그는 NDEF(NFC 데이터 교환 형식)를 지원하지 않습니다.,
+nfc_write_error_lost,,The tag was moved away before the write finished. Try again.,쓰기가 완료되기 전에 태그가 이동되었습니다. 다시 시도해 보세요.,
+nfc_write_error_generic,,Could not write the tag. Try again.,태그를 쓸 수 없습니다. 다시 시도해 보세요.,
 parcel_letter_count,one,%1$d letter,,needs translation; app fills in %1$d — keep them
 parcel_letter_count,other,%1$d letters,%1$d 글자,app fills in %1$d — keep them
 spacer_empty_button,,Empty button,빈 버튼,
@@ -3884,3 +3952,20 @@ clock_app_section,,Clock app,시계 앱,
 clock_app_section_subtitle,,Which app the alarm dialog opens,알람 대화상자가 열리는 앱,
 clock_app_automatic,,Automatic,오토매틱,
 clock_app_none_found,,No clock app was found on this device.,이 기기에서는 시계 앱을 찾을 수 없습니다.,
+widgets_todo_tab_sync,,Sync,동조,
+widgets_todo_sync_subtitle,,Where this list gets its items,이 목록이 항목을 가져오는 위치,
+widgets_todo_sync_local,,This dashboard,이 대시보드,
+widgets_todo_sync_local_hint,,"Items are kept with the dashboard and travel with it, the way every other widget works.",항목은 다른 모든 위젯이 작동하는 방식으로 대시보드와 함께 보관되고 함께 이동됩니다.,
+widgets_todo_sync_tidyshop,,TidyShop family lists,TidyShop 가족 목록,
+widgets_todo_sync_tidyshop_hint,,Items come from your family connector. Everyone in the household sees a change as it happens.,항목은 가족 커넥터에서 제공됩니다. 가족 모두는 변화가 일어나는 것을 봅니다.,
+widgets_todo_sync_not_connected,,This device is not connected to a TidyShop family yet.,이 기기는 아직 TidyShop 제품군에 연결되어 있지 않습니다.,
+widgets_todo_sync_not_connected_short,,Not connected,연결되지 않음,
+widgets_todo_sync_connected_as,,Connected as %1$s · %2$s,%1$s · %2$s로 연결됨,app fills in %1$s %2$s — keep them
+widgets_todo_sync_open_settings,,Set up TidyShop,TidyShop 설정,
+widgets_todo_sync_settings_path,,"Set this up in Settings, under Connected apps.",연결된 앱 아래의 설정에서 이를 설정하세요.,
+widgets_todo_sync_lists,,Lists to show,표시할 목록,
+widgets_todo_sync_all_lists,,All lists,모든 목록,
+widgets_todo_sync_all_lists_hint,,"With all lists chosen, a list added on another phone simply appears here.",모든 목록을 선택하면 다른 휴대폰에 추가된 목록이 여기에 표시됩니다.,
+widgets_todo_sync_no_lists,,No lists were found on the family server.,가족 서버에서 목록을 찾을 수 없습니다.,
+widgets_todo_tidyshop_read_only,,"You can look at this list, but not change it.",이 목록을 볼 수는 있지만 변경할 수는 없습니다.,
+widgets_todo_tidyshop_check_only,,"You can tick items off, but not change the list itself.",항목을 선택 표시할 수 있지만 목록 자체를 변경할 수는 없습니다.,
