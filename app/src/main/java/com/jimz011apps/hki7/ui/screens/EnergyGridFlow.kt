@@ -58,6 +58,33 @@ internal fun HKIEnergyConfig.gridExportPhaseId(index: Int): String? = when (inde
     else -> gridExportPhase3EntityId
 }
 
+/**
+ * Chooses the counters used for period statistics. Some meters expose only tariff counters, and it
+ * is easy to select tariff 1 again in the optional "total" slot. In that case the two tariff
+ * counters together are the real total; preferring the duplicate total slot would silently drop
+ * tariff 2. A distinct total counter remains authoritative when one is configured.
+ */
+internal fun energyStatisticIds(total: String?, tariff1: String?, tariff2: String?): List<String> {
+    val totalId = total?.takeIf { it.isNotBlank() }
+    val tariffIds = listOfNotNull(
+        tariff1?.takeIf { it.isNotBlank() },
+        tariff2?.takeIf { it.isNotBlank() }
+    ).distinct()
+    return when {
+        tariffIds.isNotEmpty() && (totalId == null || totalId in tariffIds) -> tariffIds
+        totalId != null -> listOf(totalId)
+        else -> emptyList()
+    }
+}
+
+internal fun HKIEnergyConfig.gridImportStatisticIds(): List<String> = energyStatisticIds(
+    gridImportEntityId, gridImportTariff1EntityId, gridImportTariff2EntityId
+)
+
+internal fun HKIEnergyConfig.gridExportStatisticIds(): List<String> = energyStatisticIds(
+    gridExportEntityId, gridExportTariff1EntityId, gridExportTariff2EntityId
+)
+
 /** Every entity the grid tiles read, so they can be kept out of the "top consumers" list. */
 internal fun HKIEnergyConfig.gridFlowEntityIds(): Set<String> = setOfNotNull(
     gridPowerEntityId,

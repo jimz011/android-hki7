@@ -32,6 +32,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Delete
@@ -289,6 +291,7 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                         ) {
                             floorRow.forEach { section ->
                                 val units = if (section.floor?.width == "half") 1f else 2f
+                                val floorIndex = groupedFloors.indexOfFirst { it.key == section.key }
                                 FloorSection(
                                 floor = section.floor,
                                 areas = section.areas,
@@ -303,6 +306,10 @@ fun RoomsScreen(viewModel: MainViewModel, navController: NavController) {
                                 onToggleCollapsed = { viewModel.toggleFloorCollapsed(section.key) },
                                 onDeleteFloor = { section.floor?.takeUnless { it.floor_id == "__rooms__" }?.let { viewModel.deleteFloor(it.floor_id) } },
                                 onSettingsFloor = { editingFloor = section.floor ?: HAFloor(floor_id = "__rooms__", name = "Rooms") },
+                                canMoveFloorUp = section.key != "__rooms__" && floorIndex > 0,
+                                canMoveFloorDown = section.key != "__rooms__" && floorIndex in 0 until groupedFloors.lastIndex,
+                                onMoveFloorUp = { viewModel.moveFloor(section.key, -1) },
+                                onMoveFloorDown = { viewModel.moveFloor(section.key, 1) },
                                 onMoveArea = { from, to ->
                                     val fromId = section.areas.getOrNull(from)?.area_id ?: return@FloorSection
                                     val toId = section.areas.getOrNull(to)?.area_id ?: return@FloorSection
@@ -520,6 +527,10 @@ private fun FloorSection(
     onToggleCollapsed: () -> Unit,
     onDeleteFloor: () -> Unit,
     onSettingsFloor: () -> Unit,
+    canMoveFloorUp: Boolean,
+    canMoveFloorDown: Boolean,
+    onMoveFloorUp: () -> Unit,
+    onMoveFloorDown: () -> Unit,
     onMoveArea: (Int, Int) -> Unit,
     onDeleteArea: (String) -> Unit,
     onSettingsArea: (String) -> Unit,
@@ -551,6 +562,22 @@ private fun FloorSection(
             )
             Spacer(Modifier.weight(1f))
             if (isEditMode) {
+                IconButton(onClick = onMoveFloorUp, enabled = canMoveFloorUp, modifier = Modifier.size(32.dp)) {
+                    Icon(
+                        Icons.Default.ArrowUpward,
+                        contentDescription = stringResource(R.string.ui_move_up_b4f57cd),
+                        tint = if (canMoveFloorUp) appColors.onMuted else appColors.onMuted.copy(alpha = 0.3f),
+                        modifier = Modifier.size(17.dp)
+                    )
+                }
+                IconButton(onClick = onMoveFloorDown, enabled = canMoveFloorDown, modifier = Modifier.size(32.dp)) {
+                    Icon(
+                        Icons.Default.ArrowDownward,
+                        contentDescription = stringResource(R.string.ui_move_down_260ff8a),
+                        tint = if (canMoveFloorDown) appColors.onMuted else appColors.onMuted.copy(alpha = 0.3f),
+                        modifier = Modifier.size(17.dp)
+                    )
+                }
                 if (dashboardMode != "auto" && floor != null && floor.floor_id != "__rooms__") {
                     IconButton(onClick = onDeleteFloor, modifier = Modifier.size(24.dp)) {
                         Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.ui_delete_floor_07c4a91), tint = appColors.onMuted, modifier = Modifier.size(16.dp))

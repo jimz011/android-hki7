@@ -364,8 +364,7 @@ fun EnergyScreen(
         val e = entityById[id] ?: return null
         val v = e.state.toFloatOrNull() ?: return null
         val unit = e.attributes?.get("unit_of_measurement")?.jsonPrimitive?.contentOrNull ?: ""
-        val num = if (v >= 100f) "%.0f".format(v) else "%.1f".format(v)
-        return listOf(num, unit).filter { it.isNotBlank() }.joinToString(" ")
+        return formatEnergyMeasurement(v, unit)
     }
     @Composable
     fun entityCarbonDisplay(id: String?): String? {
@@ -413,6 +412,8 @@ fun EnergyScreen(
     val phaseIds = listOf(
         energyConfig.powerPhase1EntityId, energyConfig.powerPhase2EntityId, energyConfig.powerPhase3EntityId
     ).map { it?.takeIf { id -> id.isNotBlank() } }
+    val phaseImportIds = (0..2).map { energyConfig.gridImportPhaseId(it)?.takeIf(String::isNotBlank) }
+    val phaseExportIds = (0..2).map { energyConfig.gridExportPhaseId(it)?.takeIf(String::isNotBlank) }
     val currentIds = listOf(
         energyConfig.currentPhase1EntityId, energyConfig.currentPhase2EntityId, energyConfig.currentPhase3EntityId
     ).map { it?.takeIf { id -> id.isNotBlank() } }
@@ -482,14 +483,8 @@ fun EnergyScreen(
     val gasId    = energyConfig.gasEntityId?.takeIf { it.isNotBlank() }
     val waterId  = energyConfig.waterEntityId?.takeIf { it.isNotBlank() }
     val cityHeatingId = energyConfig.cityHeatingEntityId?.takeIf { it.isNotBlank() }
-    val importId = energyConfig.gridImportEntityId?.takeIf { it.isNotBlank() }
-    val exportId = energyConfig.gridExportEntityId?.takeIf { it.isNotBlank() }
-    val importStatIds = listOfNotNull(importId).ifEmpty {
-        listOfNotNull(energyConfig.gridImportTariff1EntityId, energyConfig.gridImportTariff2EntityId)
-    }
-    val exportStatIds = listOfNotNull(exportId).ifEmpty {
-        listOfNotNull(energyConfig.gridExportTariff1EntityId, energyConfig.gridExportTariff2EntityId)
-    }
+    val importStatIds = energyConfig.gridImportStatisticIds()
+    val exportStatIds = energyConfig.gridExportStatisticIds()
     val solarEnergyId = energyConfig.solarEnergyEntityId?.takeIf { it.isNotBlank() }
     val forecastPowerIds = forecastIds.filter { id ->
         entityUnit(id, "").let { it.contains("W", ignoreCase = true) && !it.contains("Wh", ignoreCase = true) }
@@ -497,7 +492,8 @@ fun EnergyScreen(
     val batteryPowerId = energyConfig.batteryPowerEntityId?.takeIf { it.isNotBlank() }
     val statIds = (listOfNotNull(
         chartPowerId, solarPowerId, gasId, waterId, cityHeatingId, solarEnergyId, batteryPowerId
-    ) + importStatIds + exportStatIds + phaseIds.filterNotNull()).distinct()
+    ) + importStatIds + exportStatIds + phaseIds.filterNotNull() +
+        phaseImportIds.filterNotNull() + phaseExportIds.filterNotNull()).distinct()
     LaunchedEffect(statIds, window, isActive) {
         if (!isActive) return@LaunchedEffect
         viewModel.fetchEnergyStatistics(statIds, window.startMs, window.statPeriod(), window.key(), window.endMs)
@@ -599,10 +595,21 @@ fun EnergyScreen(
     val hasUsageChart = usagePosLayers.isNotEmpty() || usageNegLayers.isNotEmpty()
     val phaseColors = listOf(Color(0xFF42A5F5), Color(0xFFFFB300), Color(0xFFEF5350))
     val phaseLabels = (1..3).map { stringResource(R.string.widgets_energy_phase_number, it) }
-    val phaseSeries = remember(energyStats, phaseIds, window, phaseLabels) {
-        phaseIds.mapIndexedNotNull { i, id ->
-            id ?: return@mapIndexedNotNull null
-            Triple(phaseLabels[i], statMeans(id), phaseColors[i])
+    val phaseSeries = remember(
+        energyStats, phaseIds, phaseImportIds, phaseExportIds, energyConfig.perPhaseGridFlow,
+        window, phaseLabels
+    ) {
+        (0..2).mapNotNull { i ->
+            val importPhaseId = phaseImportIds[i]
+            val exportPhaseId = phaseExportIds[i]
+            val values = if (energyConfig.perPhaseGridFlow && (importPhaseId != null || exportPhaseId != null)) {
+                val imported = statMeans(importPhaseId)
+                val exported = statMeans(exportPhaseId)
+                FloatArray(window.buckets) { imported[it] - exported[it] }
+            } else {
+                phaseIds[i]?.let(::statMeans) ?: return@mapNotNull null
+            }
+            Triple(phaseLabels[i], values, phaseColors[i])
         }
     }
     // Period totals: deltas of the (lifetime) energy counters over the selected window - how HA
@@ -2776,6 +2783,15 @@ private fun formatW(w: Float): String {
     }
 }
 
+/** Formats raw entity measurements used by the Energy dashboard. Power sensors that report watts
+ * are normalized through [formatW], preventing values such as "3540 W" from leaking into cards. */
+internal fun formatEnergyMeasurement(value: Float, rawUnit: String): String {
+    val unit = rawUnit.trim()
+    if (unit.equals("W", ignoreCase = true)) return formatW(value)
+    val number = if (kotlin.math.abs(value) >= 100f) "%.0f".format(value) else "%.1f".format(value)
+    return listOf(number, unit).filter(String::isNotBlank).joinToString(" ")
+}
+
 /** Converts common heat-meter energy units to GJ. */
 internal fun heatEnergyToGigajoules(value: Float, rawUnit: String): Float {
     val unit = rawUnit.trim().lowercase().replace(" ", "")
@@ -3738,8 +3754,7 @@ private fun Map<String, HAEntity>.wattsOf(id: String?): Float? {
 private fun Map<String, HAEntity>.displayOf(id: String?): String? {
     val v = numOf(id) ?: return null
     val unit = unitOf(id)
-    val num = if (v >= 100f) "%.0f".format(v) else "%.1f".format(v)
-    return listOf(num, unit).filter { it.isNotBlank() }.joinToString(" ")
+    return formatEnergyMeasurement(v, unit)
 }
 
 /** [id]'s value as cost text, in the currency from Energy settings (see [formatEnergyCost]). */
@@ -3792,20 +3807,16 @@ fun EnergyCardWidgetView(
 
     val gasId = cfg.gasEntityId?.takeIf { it.isNotBlank() }
     val waterId = cfg.waterEntityId?.takeIf { it.isNotBlank() }
-    val importId = cfg.gridImportEntityId?.takeIf { it.isNotBlank() }
-    val exportId = cfg.gridExportEntityId?.takeIf { it.isNotBlank() }
-    val importStatIds = listOfNotNull(importId).ifEmpty {
-        listOfNotNull(cfg.gridImportTariff1EntityId, cfg.gridImportTariff2EntityId)
-    }
-    val exportStatIds = listOfNotNull(exportId).ifEmpty {
-        listOfNotNull(cfg.gridExportTariff1EntityId, cfg.gridExportTariff2EntityId)
-    }
+    val importStatIds = cfg.gridImportStatisticIds()
+    val exportStatIds = cfg.gridExportStatisticIds()
     val solarEnergyId = cfg.solarEnergyEntityId?.takeIf { it.isNotBlank() }
     val solarPowerId = cfg.solarPowerEntityId?.takeIf { it.isNotBlank() }
     val chartPowerId = cfg.homePowerEntityId?.takeIf { it.isNotBlank() }
         ?: cfg.gridPowerEntityId?.takeIf { it.isNotBlank() }
     val phaseIds = listOf(cfg.powerPhase1EntityId, cfg.powerPhase2EntityId, cfg.powerPhase3EntityId)
         .map { it?.takeIf { s -> s.isNotBlank() } }
+    val phaseImportIds = (0..2).map { cfg.gridImportPhaseId(it)?.takeIf(String::isNotBlank) }
+    val phaseExportIds = (0..2).map { cfg.gridExportPhaseId(it)?.takeIf(String::isNotBlank) }
     val batteryPowerId = cfg.batteryPowerEntityId?.takeIf { it.isNotBlank() }
     val phaseColors = listOf(Color(0xFF42A5F5), Color(0xFFFFB300), Color(0xFFEF5350))
 
@@ -3860,8 +3871,8 @@ fun EnergyCardWidgetView(
 
     val statIds = when (cardKey) {
         "usage" -> listOfNotNull(chartPowerId, solarEnergyId) + importStatIds + exportStatIds
-        "phases" -> phaseIds.filterNotNull()
-        "solar" -> listOfNotNull(solarPowerId, solarEnergyId, exportId)
+        "phases" -> (phaseIds.filterNotNull() + phaseImportIds.filterNotNull() + phaseExportIds.filterNotNull()).distinct()
+        "solar" -> (listOfNotNull(solarPowerId, solarEnergyId) + exportStatIds).distinct()
         "battery" -> listOfNotNull(batteryPowerId)
         "gas" -> listOfNotNull(gasId)
         "water" -> listOfNotNull(waterId)
@@ -4039,9 +4050,17 @@ fun EnergyCardWidgetView(
                 Text(stringResource(R.string.ui_power_per_phase_1f38fb0), style = MaterialTheme.typography.labelLarge,
                     color = appColors.onSurface, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(8.dp))
-                val series = phaseIds.mapIndexedNotNull { i, id ->
-                    id ?: return@mapIndexedNotNull null
-                    Triple(stringResource(R.string.widgets_energy_phase_number, i + 1), means(id), phaseColors[i])
+                val series = (0..2).mapNotNull { i ->
+                    val importPhaseId = phaseImportIds[i]
+                    val exportPhaseId = phaseExportIds[i]
+                    val values = if (cfg.perPhaseGridFlow && (importPhaseId != null || exportPhaseId != null)) {
+                        val imported = means(importPhaseId)
+                        val exported = means(exportPhaseId)
+                        FloatArray(window.buckets) { imported[it] - exported[it] }
+                    } else {
+                        phaseIds[i]?.let(::means) ?: return@mapNotNull null
+                    }
+                    Triple(stringResource(R.string.widgets_energy_phase_number, i + 1), values, phaseColors[i])
                 }
                 if (series.isEmpty()) {
                     Text(stringResource(R.string.ui_no_phase_sensors_configured_in_energy_settings_b88c1dc),
@@ -4074,7 +4093,7 @@ fun EnergyCardWidgetView(
             }
             "solar" -> Column(Modifier.padding(16.dp)) {
                 val produced = total(solarEnergyId)
-                val selfUsed = (produced - total(exportId)).coerceIn(0f, produced)
+                val selfUsed = (produced - summedTotal(exportStatIds)).coerceIn(0f, produced)
                 FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     TotalStat(Icons.Default.Bolt, SolarAmber, formatW(solarW.coerceAtLeast(0f)), stringResource(R.string.energy_extra_now))
                     TotalStat(Icons.Default.WbSunny, SolarAmber, "%.1f kWh".format(produced), stringResource(R.string.energy_extra_produced_period, periodLabel))

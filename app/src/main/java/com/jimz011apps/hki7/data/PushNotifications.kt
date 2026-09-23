@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.JsonArray
@@ -40,6 +41,8 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import java.util.Locale
 import java.util.UUID
+import java.net.HttpURLConnection
+import java.net.URL
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Duration.Companion.minutes
 
@@ -114,7 +117,7 @@ class PushNotificationHandler(
         )
     }
 
-    private fun postSystemNotification(
+    private suspend fun postSystemNotification(
         title: String?,
         message: String,
         data: JsonObject?,
@@ -148,16 +151,21 @@ class PushNotificationHandler(
         val systemId = tag?.let { notificationId(instanceId, it) }
             ?: (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
         val sticky = data?.get("sticky")?.jsonPrimitive?.contentOrNull == "true"
+        val picture = downloadNotificationImage(data?.get("image")?.jsonPrimitive?.contentOrNull)
         val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_stat_hki)
-            .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.hki_logo_round))
+            .setLargeIcon(picture ?: BitmapFactory.decodeResource(context.resources, R.drawable.hki_logo_round))
             .setContentTitle(title ?: instanceName ?: "Home Assistant")
             .setContentText(message)
             .setSubText(instanceName)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setContentIntent(bodyIntent(clickAction, instanceId))
             .setAutoCancel(!sticky)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+
+        builder.setStyle(
+            picture?.let { NotificationCompat.BigPictureStyle().bigPicture(it).setSummaryText(message) }
+                ?: NotificationCompat.BigTextStyle().bigText(message)
+        )
 
         actions.forEachIndexed { index, action ->
             builder.addAction(buildAction(action, index, systemId, instanceId, historyId))
@@ -165,6 +173,36 @@ class PushNotificationHandler(
 
         // Like the official app: the same tag replaces the previous notification.
         manager.notify(systemId, builder.build())
+    }
+
+    /** Downloads HA's `data.image` attachment. Relative `/media` and `/api/image_proxy` URLs are
+     * resolved against the sending server and authenticated, matching the official companion app. */
+    private suspend fun downloadNotificationImage(image: String?): android.graphics.Bitmap? {
+        val path = image?.trim()?.takeIf(String::isNotEmpty) ?: return null
+        val serverUrl = prefs.serverUrl.first()
+        val resolved = notificationImageUrl(path, serverUrl) ?: return null
+        val token = prefs.accessToken.first()
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val connection = (URL(resolved).openConnection() as HttpURLConnection).apply {
+                    connectTimeout = 10_000
+                    readTimeout = 15_000
+                    instanceFollowRedirects = true
+                    setRequestProperty("User-Agent", "HKI7 Android")
+                    if (!token.isNullOrBlank() && sameOrigin(resolved, serverUrl)) {
+                        setRequestProperty("Authorization", "Bearer $token")
+                    }
+                }
+                try {
+                    connection.connect()
+                    if (connection.responseCode !in 200..299) return@runCatching null
+                    if (connection.contentLengthLong > MAX_NOTIFICATION_IMAGE_BYTES) return@runCatching null
+                    connection.inputStream.use { BitmapFactory.decodeStream(it) }
+                } finally {
+                    connection.disconnect()
+                }
+            }.getOrNull()
+        }
     }
 
     /**
@@ -260,10 +298,30 @@ class PushNotificationHandler(
 
     companion object {
         internal const val HISTORY_CAP = 200
+        private const val MAX_NOTIFICATION_IMAGE_BYTES = 10L * 1024 * 1024
         /** Non-archived notifications are dropped after 48 hours. */
         const val RETENTION_MS = 48L * 60 * 60 * 1000
     }
 }
+
+internal fun notificationImageUrl(image: String, serverUrl: String?): String? = when {
+    image.startsWith("https://", ignoreCase = true) || image.startsWith("http://", ignoreCase = true) -> image
+    serverUrl.isNullOrBlank() -> null
+    else -> serverUrl.trimEnd('/') + "/" + image.trimStart('/')
+}
+
+private fun sameOrigin(url: String, serverUrl: String?): Boolean {
+    if (serverUrl.isNullOrBlank()) return false
+    return runCatching {
+        val left = URL(url)
+        val right = URL(serverUrl)
+        left.protocol.equals(right.protocol, ignoreCase = true) &&
+            left.host.equals(right.host, ignoreCase = true) &&
+            left.effectivePort() == right.effectivePort()
+    }.getOrDefault(false)
+}
+
+private fun URL.effectivePort(): Int = if (port >= 0) port else defaultPort
 
 // One writer at a time: the ViewModel channel, the foreground service and notification-action
 // taps all share the history store.

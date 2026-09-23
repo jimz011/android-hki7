@@ -205,7 +205,10 @@ internal fun Iterable<HAEntity>.climateOpeningState(
         ).distinctBy { it.entity_id }.filterNot { it.entity_id in hidden }
     val doors = group("doors")
     val doorIds = doors.mapTo(mutableSetOf()) { it.entity_id }
-    val windows = group("windows").filterNot { it.entity_id in doorIds }
+    val manualWindowIds = config.extraEntityIds["windows"].orEmpty().toSet()
+    // Automatic discovery should not double-count ambiguous contacts, but an explicit Windows
+    // assignment is allowed to coexist with Doors and must win over the imported classification.
+    val windows = group("windows").filterNot { it.entity_id in doorIds && it.entity_id !in manualWindowIds }
     val snapshot = mapOf(
         "doors" to doors,
         "windows" to windows

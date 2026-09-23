@@ -124,7 +124,10 @@ object HaDashboardSharing {
         for (local in locals) {
             val meta = sharedByLocalId[local.id] ?: continue
             if (myUserId != null && meta.ownerId == myUserId) continue
-            if (meta.updated.isNotBlank() && meta.updated == local.sharedUpdatedAt) continue
+            // A placeholder saved by an older build may become a supported widget after an app
+            // update. Re-fetch an otherwise unchanged dashboard so the current serializer can
+            // decode the original cloud payload again (notably, restoring Clock widgets).
+            if (meta.updated.isNotBlank() && meta.updated == local.sharedUpdatedAt && !local.hasUnknownWidgets()) continue
             val raw = Hki7Endpoint.withClient(context) { it.hki7GetDashboard(meta.id) } ?: continue
             if (prefs.applySharedDashboardUpdate(local.id, raw, meta.updated)) activeChanged = true
         }
@@ -169,4 +172,15 @@ object HaDashboardSharing {
         }
         return pushed
     }
+}
+
+internal fun HKIDashboard.hasUnknownWidgets(): Boolean = areaWidgets.values.flatten().any { widget ->
+    widget.hasUnknownWidget()
+}
+
+private fun HKIRoomWidget.hasUnknownWidget(): Boolean = when (this) {
+    is HKIUnknownWidget -> true
+    is HKISwipingStack -> widgets.any(HKIRoomWidget::hasUnknownWidget)
+    is HKIEmptyStack -> widgets.any(HKIRoomWidget::hasUnknownWidget)
+    else -> false
 }

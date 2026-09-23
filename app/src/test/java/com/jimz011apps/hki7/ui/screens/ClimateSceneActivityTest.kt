@@ -52,6 +52,19 @@ class ClimateSceneActivityTest {
     }
 
     @Test
+    fun `manual window assignment can coexist with automatic door assignment`() {
+        val contact = openingEntity("binary_sensor.patio", "on", "door")
+        val config = HKISecurityConfig(
+            extraEntityIds = mapOf("windows" to listOf(contact.entity_id))
+        )
+
+        val state = listOf(contact).climateOpeningState(config)
+
+        assertEquals(1, state.openDoors)
+        assertEquals(1, state.openWindows)
+    }
+
+    @Test
     fun `explicit cooling action animates cooling`() {
         assertEquals(
             ClimateSceneActivity.COOLING,

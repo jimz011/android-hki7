@@ -44,4 +44,30 @@ class HKIRoomWidgetFallbackTest {
 
         assertEquals(2, reDecoded.areaWidgets.getValue("living_room").size)
     }
+
+    @Test
+    fun `supported clock from a family dashboard decodes as a clock`() {
+        val dashboard = appJson.decodeFromString<HKIDashboard>(
+            """{"id":"shared-2","name":"Family","areaWidgets":{"home":[{"type":"clock","id":"clock-1","mode":"digital"}]}}"""
+        )
+
+        val clock = dashboard.areaWidgets.getValue("home").single()
+        assertTrue(clock is HKIClockWidget)
+        assertEquals("digital", (clock as HKIClockWidget).mode)
+    }
+
+    @Test
+    fun `dashboard reports unknown widgets nested inside containers`() {
+        val dashboard = HKIDashboard(
+            id = "shared-3",
+            name = "Family",
+            areaWidgets = mapOf(
+                "home" to listOf(
+                    HKISwipingStack(id = "stack", widgets = listOf(HKIUnknownWidget(id = "old-clock")))
+                )
+            )
+        )
+
+        assertTrue(dashboard.hasUnknownWidgets())
+    }
 }

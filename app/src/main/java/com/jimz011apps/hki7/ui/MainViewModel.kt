@@ -4714,6 +4714,19 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         viewModelScope.launch { prefs.saveFloors(updated) }
     }
 
+    fun moveFloor(floorId: String, offset: Int) {
+        if (offset == 0) return
+        val current = _floors.value
+        val from = current.indexOfFirst { it.floor_id == floorId }
+        if (from < 0) return
+        val to = (from + offset).coerceIn(0, current.lastIndex)
+        if (from == to) return
+        takeSnapshot()
+        val updated = current.toMutableList().apply { add(to, removeAt(from)) }
+        _floors.value = updated
+        viewModelScope.launch { prefs.saveFloors(updated) }
+    }
+
     fun deleteFloor(floorId: String) {
         if (_dashboardMode.value == "auto") return
         takeSnapshot()

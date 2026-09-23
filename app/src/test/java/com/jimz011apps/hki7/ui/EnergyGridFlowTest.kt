@@ -4,6 +4,8 @@ import com.jimz011apps.hki7.data.HAEntity
 import com.jimz011apps.hki7.data.HKIEnergyConfig
 import com.jimz011apps.hki7.ui.screens.gridFlowEntityIds
 import com.jimz011apps.hki7.ui.screens.gridFlowOf
+import com.jimz011apps.hki7.ui.screens.gridExportStatisticIds
+import com.jimz011apps.hki7.ui.screens.gridImportStatisticIds
 import com.jimz011apps.hki7.ui.screens.suggestsPerPhaseGridFlow
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -33,6 +35,32 @@ class EnergyGridFlowTest {
         assertEquals(900f, exporting.exportW, 0.01f)
         assertEquals(-900f, exporting.netW, 0.01f)
         assertFalse(exporting.bothWays)
+    }
+
+    @Test
+    fun `tariff counters replace a total slot that duplicates tariff one`() {
+        val cfg = HKIEnergyConfig(
+            gridImportEntityId = "sensor.import_t1",
+            gridImportTariff1EntityId = "sensor.import_t1",
+            gridImportTariff2EntityId = "sensor.import_t2",
+            gridExportEntityId = "sensor.export_t1",
+            gridExportTariff1EntityId = "sensor.export_t1",
+            gridExportTariff2EntityId = "sensor.export_t2"
+        )
+
+        assertEquals(listOf("sensor.import_t1", "sensor.import_t2"), cfg.gridImportStatisticIds())
+        assertEquals(listOf("sensor.export_t1", "sensor.export_t2"), cfg.gridExportStatisticIds())
+    }
+
+    @Test
+    fun `a distinct total counter remains authoritative over tariff counters`() {
+        val cfg = HKIEnergyConfig(
+            gridImportEntityId = "sensor.import_total",
+            gridImportTariff1EntityId = "sensor.import_t1",
+            gridImportTariff2EntityId = "sensor.import_t2"
+        )
+
+        assertEquals(listOf("sensor.import_total"), cfg.gridImportStatisticIds())
     }
 
     @Test

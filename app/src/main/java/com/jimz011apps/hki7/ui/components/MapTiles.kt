@@ -11,32 +11,23 @@ import kotlin.math.tan
 /**
  * Raster basemap used by every map in the app (person location, Find my devices).
  *
- * The tiles are CARTO's Voyager basemap — the same one Home Assistant's own map card uses. The
- * previous source was `tile.openstreetmap.org`, the "OSM Carto" style: heavy saturated greens and
- * thick orange/yellow roads, designed to be a *map editor's* reference render rather than a
- * background for an app UI, which is why it reads as cartoonish next to the rest of HKI.
- *
- * Voyager is a muted, low-contrast cartography with a proper dark variant, so the map finally
- * follows the app's theme instead of glowing white inside a dark dialog. It is plain 256px raster
- * tiles over HTTPS like before, so this is a URL swap: no new dependency, no API key, no SDK.
- *
- * Attribution is required by both OpenStreetMap (the data) and CARTO (the rendering); see
- * [MAP_ATTRIBUTION], which callers must display over the map.
+ * CARTO's formerly keyless raster service began watermarking tiles with "API KEY REQUIRED" in
+ * August 2026. Home Assistant moved its primary map to OSM vector tiles; HKI's lightweight native
+ * renderer remains raster-based, so it uses the official OpenStreetMap raster fallback instead.
+ * Every request supplies HKI's identifying User-Agent at the call site.
  */
 object MapTiles {
 
-    /** OSM requires attribution for the data, CARTO for the tiles. Keep both visible on the map. */
-    const val MAP_ATTRIBUTION = "© OpenStreetMap © CARTO"
+    /** OpenStreetMap requires visible attribution on every map. */
+    const val MAP_ATTRIBUTION = "© OpenStreetMap contributors"
 
     /**
      * Tile URL for a light or dark basemap. `@2x` would fetch retina tiles, but at the 256dp tile
      * size used here the standard tiles already land near 1:1 on typical densities and cost a
      * quarter of the bytes.
      */
-    fun url(zoom: Int, x: Int, y: Int, dark: Boolean): String {
-        val style = if (dark) "dark_all" else "voyager"
-        return "https://basemaps.cartocdn.com/rastertiles/$style/$zoom/$x/$y.png"
-    }
+    fun url(zoom: Int, x: Int, y: Int, dark: Boolean): String =
+        "https://tile.openstreetmap.org/$zoom/$x/$y.png"
 
     /**
      * True when the map should use the dark basemap. Read from the resolved theme's own surface

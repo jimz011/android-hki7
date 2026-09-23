@@ -399,6 +399,11 @@ fun RoomDetailScreen(
     val areaWidgets = remember(areaWidgetsMapping, areaId, itemCornerRadius) {
         areaWidgetsMapping[areaId].orEmpty().map { it.withGlobalCornerRadius(itemCornerRadius) }
     }
+    // Unknown widgets (for example a clock imported into an older app build) must not reserve a
+    // grid cell. Keep them in edit mode so dashboard data and reorder indices remain intact.
+    val renderedAreaWidgets = remember(areaWidgets, isEditMode) {
+        if (isEditMode) areaWidgets else areaWidgets.filterNot { it is HKIUnknownWidget }
+    }
     val widgetGridState = rememberLazyGridState()
     val areaConfig = areaConfigsMapping[areaId] ?: HKIAreaConfig()
     val defaultMarkdownContent = stringResource(R.string.cr_default_markdown_content)
@@ -988,7 +993,7 @@ fun RoomDetailScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             key(uiRevision) {
                 if (!isEditMode) {
-                    if (areaWidgets.isEmpty()) {
+                    if (renderedAreaWidgets.isEmpty()) {
                         EmptyEditHint(
                             Modifier.fillMaxSize(),
                             stringResource(R.string.cr_empty_room)
@@ -1003,12 +1008,12 @@ fun RoomDetailScreen(
                         horizontalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
                         items(
-                            count = areaWidgets.size,
-                            key = { index -> areaWidgets[index].id },
-                            contentType = { index -> areaWidgets[index]::class.simpleName ?: "widget" },
-                            span = { index -> GridItemSpan(widgetSpan(areaWidgets[index])) }
+                            count = renderedAreaWidgets.size,
+                            key = { index -> renderedAreaWidgets[index].id },
+                            contentType = { index -> renderedAreaWidgets[index]::class.simpleName ?: "widget" },
+                            span = { index -> GridItemSpan(widgetSpan(renderedAreaWidgets[index])) }
                         ) { index ->
-                            when (val widget = areaWidgets[index]) {
+                            when (val widget = renderedAreaWidgets[index]) {
                                 is HKIButtonStack -> {
                                     ButtonStackItem(
                                         stack = widget,
@@ -5995,12 +6000,15 @@ fun SwipingStackItem(
     content: @Composable (HKIRoomWidget) -> Unit
 ) {
     val appColors = LocalHKIAppColors.current
+    val renderedWidgets = remember(stack.widgets, isEditMode) {
+        if (isEditMode) stack.widgets else stack.widgets.filterNot { it is HKIUnknownWidget }
+    }
     if (!isWidgetVisibleNow(stack) && !isEditMode) return
     // An unconfigured (childless) container only matters in edit mode; hide it entirely otherwise.
-    if (stack.widgets.isEmpty() && !isEditMode) return
+    if (renderedWidgets.isEmpty() && !isEditMode) return
     val canCollapse = stack.collapsible
     val isCollapsed = canCollapse && (stack.isCollapsed ?: stack.defaultCollapsed)
-    val pagerState = rememberPagerState(pageCount = { stack.widgets.size.coerceAtLeast(1) })
+    val pagerState = rememberPagerState(pageCount = { renderedWidgets.size.coerceAtLeast(1) })
     val animationType = stack.animation.takeIf { type -> swipingStackAnimationTypes.any { it.first == type } } ?: "swipe"
     val duration = when (animationType) {
         "instant" -> 0
@@ -6011,11 +6019,11 @@ fun SwipingStackItem(
         else -> 450
     }
 
-    LaunchedEffect(stack.autoplay, stack.autoplayIntervalSeconds, animationType, stack.widgets.size, isEditMode) {
-        if (!stack.autoplay || isEditMode || stack.widgets.size < 2) return@LaunchedEffect
+    LaunchedEffect(stack.autoplay, stack.autoplayIntervalSeconds, animationType, renderedWidgets.size, isEditMode) {
+        if (!stack.autoplay || isEditMode || renderedWidgets.size < 2) return@LaunchedEffect
         while (true) {
             delay(stack.autoplayIntervalSeconds.coerceIn(1, 120).seconds)
-            val nextPage = (pagerState.currentPage + 1) % stack.widgets.size
+            val nextPage = (pagerState.currentPage + 1) % renderedWidgets.size
             if (animationType == "instant") pagerState.scrollToPage(nextPage)
             else pagerState.animateScrollToPage(nextPage, animationSpec = tween(durationMillis = duration))
         }
@@ -6096,7 +6104,7 @@ fun SwipingStackItem(
         }
 
         if (!isCollapsed) {
-            if (stack.widgets.isEmpty()) {
+            if (renderedWidgets.isEmpty()) {
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -6150,7 +6158,7 @@ fun SwipingStackItem(
                                     }
                                 }
                         ) {
-                            content(stack.widgets[page])
+                            content(renderedWidgets[page])
                         }
                     }
                 }

@@ -1,6 +1,7 @@
 package com.jimz011apps.hki7.ui.screens
 
 import com.jimz011apps.hki7.data.HAEntity
+import com.jimz011apps.hki7.data.HKISecurityConfig
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.Assert.assertFalse
@@ -50,6 +51,19 @@ class SecurityAutoDiscoveryTest {
         assertFalse(entity("sensor.smoke", "smoke").isAutoSecurityEntityFor("smoke"))
         assertFalse(entity("binary_sensor.carbon_dioxide", "carbon_dioxide").isAutoSecurityEntityFor("co2"))
         assertFalse(entity("switch.garage", "garage_door").isAutoSecurityEntityFor("garage_doors"))
+    }
+
+    @Test
+    fun `manual category assignment is not removed by an automatic claim`() {
+        val contact = entity("binary_sensor.patio", "door")
+
+        val grouped = groupSecurityEntities(
+            listOf(contact),
+            HKISecurityConfig(extraEntityIds = mapOf("windows" to listOf(contact.entity_id)))
+        )
+
+        assertTrue(contact in grouped.getValue("doors"))
+        assertTrue(contact in grouped.getValue("windows"))
     }
 
     private fun entity(entityId: String, deviceClass: String) = HAEntity(

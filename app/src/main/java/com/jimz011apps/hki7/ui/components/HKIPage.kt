@@ -271,6 +271,7 @@ fun HKIPage(
     val density = LocalDensity.current
     var scrollingBadgeHeightPx by remember { mutableIntStateOf(0) }
     var hiddenBadgeHeightPx by remember { mutableFloatStateOf(0f) }
+    val pullGestureStartedInMenu = remember { mutableStateOf(false) }
     LaunchedEffect(headerVisible, showBadgeBar) {
         if (headerVisible || !showBadgeBar) hiddenBadgeHeightPx = 0f
     }
@@ -331,13 +332,24 @@ fun HKIPage(
             // in-flight settle on touch-down so the panel can be caught and re-dragged mid-animation.
             val velocityTracker = VelocityTracker()
             detectVerticalDragGestures(
-                onDragStart = {
+                onDragStart = { start ->
+                    // Once open, the action strip owns gestures that begin over it. A slightly
+                    // diagonal horizontal scroll must not be interpreted as an upward close flick.
+                    pullGestureStartedInMenu.value =
+                        pullAnimatable.value > 120f && start.y < 200.dp.toPx()
                     velocityTracker.resetTracking()
-                    pullScope.launch { pullAnimatable.stop() }
+                    if (!pullGestureStartedInMenu.value) pullScope.launch { pullAnimatable.stop() }
                 },
-                onDragEnd = { settlePull(velocityTracker.calculateVelocity().y) },
-                onDragCancel = { settlePull(0f) },
+                onDragEnd = {
+                    if (!pullGestureStartedInMenu.value) settlePull(velocityTracker.calculateVelocity().y)
+                    pullGestureStartedInMenu.value = false
+                },
+                onDragCancel = {
+                    if (!pullGestureStartedInMenu.value) settlePull(0f)
+                    pullGestureStartedInMenu.value = false
+                },
                 onVerticalDrag = { change, dragAmount ->
+                    if (pullGestureStartedInMenu.value) return@detectVerticalDragGestures
                     val isHeaderGesture = change.position.y < 260.dp.toPx()
                     val current = pullAnimatable.value
                     val isPullingMenu = current > 0f || dragAmount > 0f

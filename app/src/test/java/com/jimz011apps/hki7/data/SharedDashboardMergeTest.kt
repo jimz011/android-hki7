@@ -157,4 +157,24 @@ class SharedDashboardMergeTest {
         assertEquals("A", stack.buttonConfigs["switch.a"]?.name)
         assertTrue(!stack.buttonConfigs.containsKey("switch.b"))
     }
+
+    @Test
+    fun `supported cloud widget replaces stale unknown placeholder`() {
+        val local = HKIDashboard(
+            id = "shared-clock",
+            name = "Local",
+            areaWidgets = mapOf("home" to listOf(HKIUnknownWidget(id = "clock-1")))
+        )
+        val incoming = HKIDashboard(
+            id = "clock",
+            name = "Owner",
+            areaWidgets = mapOf("home" to listOf(HKIClockWidget(id = "clock-1", mode = "digital")))
+        )
+
+        val widget = mergeSharedDashboardAesthetics(local, incoming)
+            .areaWidgets.getValue("home").single()
+
+        assertTrue(widget is HKIClockWidget)
+        assertEquals("digital", (widget as HKIClockWidget).mode)
+    }
 }

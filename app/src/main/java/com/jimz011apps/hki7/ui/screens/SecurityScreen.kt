@@ -118,6 +118,37 @@ private val securityGroups = listOf(
         domains = setOf("camera"))
 )
 
+/**
+ * Builds the Security tabs while treating explicit user assignments as authoritative. Automatic
+ * discovery still places an entity in at most one group, but a manually selected entity may also
+ * appear in any other group the user chose (for example, the same contact in Doors and Windows).
+ */
+internal fun groupSecurityEntities(
+    entities: List<HAEntity>,
+    config: HKISecurityConfig
+): Map<String, List<HAEntity>> {
+    val byId = entities.associateBy { it.entity_id }
+    val hidden = config.hiddenEntityIds.toSet()
+    val automaticallyClaimed = mutableSetOf<String>()
+    return securityGroups.associate { group ->
+        val automatic = if (config.manualOnly) emptyList() else entities
+            .filter { it.entity_id !in automaticallyClaimed && it.isAutoSecurityEntityFor(group.key) }
+            .also { list -> automaticallyClaimed += list.map(HAEntity::entity_id) }
+        // `occupancy` was a separate group in older configs. Fold those saved manual imports into
+        // Presence now that Presence is defined exclusively as device_class=occupancy.
+        val manualIds = if (group.key == "presence") {
+            config.extraEntityIds[group.key].orEmpty() + config.extraEntityIds["occupancy"].orEmpty()
+        } else {
+            config.extraEntityIds[group.key].orEmpty()
+        }
+        val manual = manualIds.mapNotNull(byId::get)
+        group.key to (automatic + manual)
+            .distinctBy(HAEntity::entity_id)
+            .filterNot { it.entity_id in hidden }
+            .securityOrder(config.entityOrder)
+    }
+}
+
 /** The canonical group list used by both live discovery and frozen auto-imports. */
 internal val AUTO_SECURITY_GROUP_KEYS: List<String> = securityGroups.map { it.key }
 
@@ -308,26 +339,7 @@ fun SecurityScreen(viewModel: MainViewModel) {
     val entities = remember(rawEntities, config.customNames) {
         rawEntities.map { it.withDisplayName(config.customNames[it.entity_id]) }
     }
-    val byId = remember(entities) { entities.associateBy { it.entity_id } }
-    val hidden = remember(config) { config.hiddenEntityIds.toSet() }
-    val grouped = remember(entities, config) {
-        val claimed = mutableSetOf<String>()
-        securityGroups.associate { group ->
-            val automatic = if (config.manualOnly) emptyList() else entities.filter { it.isAutoSecurityEntityFor(group.key) }
-            // `occupancy` was a separate group in older configs. Fold those saved manual imports
-            // into Presence now that Presence is defined exclusively as device_class=occupancy.
-            val manualIds = if (group.key == "presence") {
-                config.extraEntityIds[group.key].orEmpty() + config.extraEntityIds["occupancy"].orEmpty()
-            } else {
-                config.extraEntityIds[group.key].orEmpty()
-            }
-            val manual = manualIds.mapNotNull(byId::get)
-            group.key to (automatic + manual).distinctBy { it.entity_id }
-                .filterNot { it.entity_id in hidden || it.entity_id in claimed }
-                .securityOrder(config.entityOrder)
-                .also { list -> claimed += list.map { it.entity_id } }
-        }
-    }
+    val grouped = remember(entities, config) { groupSecurityEntities(entities, config) }
     var page by rememberSaveable { mutableStateOf("security") }
     var entitySearch by rememberSaveable { mutableStateOf("") }
     var entitySort by rememberSaveable { mutableStateOf("custom") }

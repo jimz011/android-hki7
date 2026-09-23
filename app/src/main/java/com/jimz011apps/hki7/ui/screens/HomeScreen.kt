@@ -173,7 +173,8 @@ fun HAHomeScreen(
     // before handing them to the grid so hidden/conditional widgets release their space entirely.
     val renderedHomeWidgets = remember(homeWidgets, homeVisibilityStates, isEditMode) {
         if (isEditMode) homeWidgets else homeWidgets.filter { widget ->
-            isWidgetVisibleNow(widget) { entityId -> homeVisibilityStates[entityId] }
+            widget !is HKIUnknownWidget &&
+                isWidgetVisibleNow(widget) { entityId -> homeVisibilityStates[entityId] }
         }
     }
     val widgetGridState = rememberLazyGridState()
