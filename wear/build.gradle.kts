@@ -16,10 +16,11 @@ android {
         // far longer than phones do.
         minSdk = 30
         targetSdk = 37
-        // Must differ from the phone app's. Convention here: phone versionCode + 1000, so the two
-        // stay legible next to each other in Play Console.
-        versionCode = 1035
-        versionName = "1.3.0"
+        // Must differ from the phone app's: both bundles share one applicationId. The 1000+ range
+        // keeps the two legible apart in Play Console. The watch ships on its own Wear OS track, so
+        // bump this only when the watch app itself changes, not with every phone release.
+        versionCode = 1034
+        versionName = "1.2.1"
     }
     buildTypes {
         debug {
