@@ -27,11 +27,20 @@
         <item>Rögzített hőmérséklet- és energiaértékek cseh, szlovák, görög, norvég, svéd és dán nyelven, ahol a számok rosszul mutattak, vagy összeomolhatják a képernyőt.</item>
         <item>Valami rosszul van megfogalmazva a nyelveden? Mostantól minden nyelv egyetlen fájl, amelyet kijavíthat a GitHubon, nincs szükség kódra.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_2_1">
+    <string-array name="cr_whats_new_1_3_0">
+        <item>Új: Beállítások › NFC-címkék. A HKI 7 ugyanazokat a címkéket olvassa és írja, mint a hivatalos Home Assistant, és az alkalmazásban bárhol megérintve aktiválja a tag_scanned eseményt, amelyre az automatizálások figyelnek.</item>
+        <item>A címkék a HKI 7 akkor is megnyílhatnak, ha az be van zárva. Hagyja Nyitva HKI 7, amikor megérinti a címke írásakor; kapcsolja ki, hogy egyszerű címkéket írhasson egy olyan háztartásban, amely a hivatalos alkalmazást is használja.</item>
         <item>A bevásárlólista widget mostantól a saját TidyShop családlistáit jeleníti meg a sajátja helyett. Minden Önnel megosztott lista lapként jelenik meg, és ha kipipál valamit, másodperceken belül eléri a háztartás többi tagját.</item>
         <item>Azt, hogy mit tehet a szinkronizált listával, a családszerver dönti el: a csak megtekinthető lista írásvédett marad, a kipipálható, de nem szerkeszthető lista pedig lehetővé teszi az elemek módosítása nélküli ellenőrzését. Az irányítópult saját engedélyei továbbra is érvényesek felül.</item>
         <item>Új: Beállítások › Csatlakoztatott alkalmazások, más alkalmazásokhoz a HKI 7 letölthető. A TidyShop az első. A csatlakozáshoz jelszó helyett kódot használnak: ez a telefon saját kulcsot készít, amely soha nem hagyja el, és nem tehető tartalékba.</item>
         <item>A családi listák csak addig maradnak élőben, amíg HKI 7 látható a képernyőn. Zárt állapotban vagy zsebben nem tart kapcsolatot, és nem ütemezi a munkát, így a funkció nem kerül semmibe az akkumulátorba.</item>
+        <item>Az Android Auto már nem állítja, hogy nem tudja elérni a Home Assistant szolgáltatást, amíg meg nem nyitja a HKI 7 alkalmazást a telefonján. Az autó most magától megújítja a lejárt munkamenetet.</item>
+        <item>A térképek most az OpenStreetMap-ből származnak, mivel az előző térképszolgáltatás megkezdte a térképek bélyegzését az API KULCS SZÜKSÉGES funkcióval. Sötét témában a térkép elsötétül, hogy megfeleljen.</item>
+        <item>Az óra a beállítási képernyőjén felfedezheti az offline demó kezdőlapját a Try demo főoldalon.</item>
+        <item>Az energia már nem csökkenti a 2-es tarifát, ha az 1-es tarifát is megválasztják a teljes összegnek, és a wattban kifejezett teljesítmény úgy van formázva, mint minden más adat.</item>
+        <item>Biztonság: a saját maga által hozzárendelt entitás több csoportban is szerepelhet, például a Doorsban és a Windowsban is.</item>
+        <item>A megosztott irányítópultok visszahozzák azokat a modulokat, amelyeket egy régebbi verzió nem tudott olvasni, például az Órát, és most betöltődnek a Home Assistant médiacímként megadott értesítési képek.</item>
+        <item>Javítottuk a legördülő fejléc bezárását, miközben görgeti a gombjait, és az emberek listáját, amely egy helyiségben azonnal bezárul, amint megnyílt.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_2_0">

@@ -2749,6 +2749,9 @@
     <string name="nfc_write_custom_id_label">ID oznake</string>
     <string name="nfc_write_label_label">Oznaka (nije obavezno)</string>
     <string name="nfc_write_label_hint">Prikazuje se samo na ovom popisu, nikada se ne šalje na Home Assistant</string>
+    <string name="nfc_write_opens_app_title">Otvorite HKI 7 kada dodirnete</string>
+    <string name="nfc_write_opens_app_on">Oznake rade čak i dok je HKI 7 zatvoren. Android telefoni bez HKI 7 šalju se u Trgovinu Play umjesto u službenu aplikaciju Home Assistant.</string>
+    <string name="nfc_write_opens_app_off">Oznake rade sa službenom aplikacijom Home Assistant. HKI 7 prijavljuje ih samo dok je otvoren.</string>
     <string name="nfc_write_start">Dodirnite oznaku za pisanje</string>
     <string name="nfc_write_waiting">Držite oznaku blizu telefona…</string>
     <string name="nfc_write_success">Oznaka je napisana</string>

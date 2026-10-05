@@ -44,11 +44,20 @@
         <item>Fixade temperatur- och energiavläsningar på tjeckiska, slovakiska, grekiska, norska, svenska och danska, där siffror visade fel eller kunde krascha skärmen.</item>
         <item>Något dåligt formulerat på ditt språk? Varje språk är nu en enda fil som du kan korrigera på GitHub, ingen kod behövs.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_2_1">
+    <string-array name="cr_whats_new_1_3_0">
+        <item>Nytt: Inställningar › NFC-taggar. HKI 7 läser och skriver samma taggar som den officiella Home Assistant-appen, och ett tryck var som helst i appen aktiverar tag_scanned-händelsen som dina automatiseringar lyssnar efter.</item>
+        <item>Taggar kan öppna HKI 7 även när den är stängd. Lämna öppet HKI 7 när du trycker på när du skriver en tagg; stäng av den för att skriva vanliga taggar för ett hushåll som också använder den officiella appen.</item>
         <item>Inköpslista-widgeten kan nu visa dina TidyShop-familjelistor istället för sina egna. Varje lista som delas med dig visas som en flik, och om du markerar något når resten av hushållet inom några sekunder.</item>
         <item>Vad du får göra med en synkroniserad lista bestäms av familjeservern: en lista som du bara kan titta på förblir skrivskyddad, och en du kan markera men inte redigera låter dig kontrollera objekt utan att ändra dem. Din instrumentpanels egna behörigheter gäller fortfarande ovanpå.</item>
         <item>Nytt: Inställningar › Anslutna appar, för andra appar HKI 7 kan dra från. TidyShop är den första. Anslutning använder en kod snarare än ett lösenord: den här telefonen gör sin egen nyckel, som aldrig lämnar den och kan inte läggas i en säkerhetskopia.</item>
         <item>Familjelistor är bara aktiva medan HKI 7 är på skärmen. Stängd eller i fickan har den ingen anslutning och schemalägger inget arbete, så funktionen kostar ingenting i batteri.</item>
+        <item>Android Auto säger inte längre att den inte kan nå Home Assistant förrän du öppnar HKI 7 på din telefon. Bilen förnyar nu en utgången session av sig själv.</item>
+        <item>Kartor kommer nu från OpenStreetMap, eftersom den tidigare karttjänsten började stämpla sina kartor med API-NYCKEL KRÄVS. I ett mörkt tema är kartan mörkare för att matcha.</item>
+        <item>Klockan kan utforska ett offline-demohem från Try demo home på dess inställningsskärm.</item>
+        <item>Energi sjunker inte längre tariff 2 när tariff 1 också väljs som total, och effekten i watt formateras som alla andra siffror.</item>
+        <item>Säkerhet: en enhet du tilldelar dig själv kan nu vara i mer än en grupp, till exempel en kontakt i både dörrar och fönster.</item>
+        <item>Delade instrumentpaneler tar tillbaka widgets som en äldre version inte kunde läsa, såsom klockan, och meddelandebilder som ges som en Home Assistant mediaadress laddas nu.</item>
+        <item>Fixade att den nedrullningsbara rubriken stängdes medan du bläddrar i dess knappar, och personlistan i ett rum stängdes så fort det öppnade.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_2_0">

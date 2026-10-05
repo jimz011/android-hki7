@@ -27,11 +27,20 @@
         <item>Faste temperatur- og energiaflæsninger på tjekkisk, slovakisk, græsk, norsk, svensk og dansk, hvor tallene viste forkert eller kunne crashe skærmen.</item>
         <item>Noget dårligt formuleret på dit sprog? Hvert sprog er nu en enkelt fil, du kan rette på GitHub, ingen kode nødvendig.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_2_1">
+    <string-array name="cr_whats_new_1_3_0">
+        <item>Nyt: Indstillinger › NFC-tags. HKI 7 læser og skriver de samme tags som den officielle Home Assistant-app, og et tryk hvor som helst i appen udløser tag_scanned-hændelsen, som dine automatiseringer lytter efter.</item>
+        <item>Tags kan åbne HKI 7, selv mens den er lukket. Lad være åben HKI 7, når der trykkes på, når du skriver et tag; slå den fra for at skrive almindelige tags til en husstand, der også bruger den officielle app.</item>
         <item>Indkøbsliste-widgetten kan nu vise dine TidyShop-familielister i stedet for sine egne. Hver liste, der deles med dig, vises som en fane, og afkrydsning af noget når resten af husstanden inden for få sekunder.</item>
         <item>Hvad du må gøre med en synkroniseret liste, bestemmes af familieserveren: en liste, du kun kan se på, forbliver skrivebeskyttet, og en, du kan markere, men ikke redigere, lader dig kontrollere elementer uden at ændre dem. Dit dashboards egne tilladelser gælder stadig øverst.</item>
         <item>Nyt: Indstillinger › Forbundne apps, for andre apps kan HKI 7 trække fra. TidyShop er den første. Tilslutning bruger en kode i stedet for en adgangskode: denne telefon laver sin egen nøgle, som aldrig forlader den og ikke kan lægges i en sikkerhedskopi.</item>
         <item>Familielister forbliver kun live, mens HKI 7 er på skærmen. Lukket eller i lommen har den ingen forbindelse og planlægger intet arbejde, så funktionen koster ikke noget i batteri.</item>
+        <item>Android Auto siger ikke længere, at den ikke kan nå Home Assistant, før du åbner HKI 7 på din telefon. Bilen fornyer nu en udløbet session af sig selv.</item>
+        <item>Kort kommer nu fra OpenStreetMap, da den tidligere korttjeneste begyndte at stemple sine kort med API NØGLE PÅKRÆVET. I et mørkt tema er kortet formørket for at matche det.</item>
+        <item>Uret kan udforske et offline demo-hjem fra Prøv demo-hjem på dets opsætningsskærm.</item>
+        <item>Energi falder ikke længere tarif 2, når tarif 1 også er valgt som total, og effekt i watt formateres som alle andre tal.</item>
+        <item>Sikkerhed: en enhed, du tildeler dig selv, kan nu være i mere end én gruppe, såsom en kontakt i både døre og vinduer.</item>
+        <item>Delte dashboards bringer widgets tilbage, som en ældre version ikke kunne læse, såsom uret, og meddelelsesbilleder givet som en Home Assistant medieadresse indlæses nu.</item>
+        <item>Fixed pull-down header lukning, mens du ruller dens knapper, og personlisten på et rum lukker, så snart det åbnede.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_2_0">

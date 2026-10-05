@@ -146,6 +146,18 @@ generates in the Android Keystore. **Leave family** deletes that key.
 
 [:octicons-arrow-right-24: Connected apps](../guide/connected-apps.md)
 
+### NFC tags
+
+*Read and write tags that trigger Home Assistant.* Only shown in full on a phone with NFC.
+
+- **Scan** — recent scans and writes; a tag tapped anywhere in HKI 7 is reported, not only here
+- **Write** — generate a new tag ID or enter an existing one, with an optional label kept on this
+  phone
+- **Open HKI 7 when tapped** — writes an Android Application Record so a tap opens HKI 7 even while
+  it is closed; off writes a plain tag the official app opens instead
+
+[:octicons-arrow-right-24: NFC tags](../guide/nfc-tags.md)
+
 ## Home Assistant
 
 *Your server's own pages, opened full screen inside HKI 7.* **Administrators only** — the pages

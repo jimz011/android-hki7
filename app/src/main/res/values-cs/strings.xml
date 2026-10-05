@@ -2749,6 +2749,9 @@
     <string name="nfc_write_custom_id_label">ID značky</string>
     <string name="nfc_write_label_label">Štítek (volitelné)</string>
     <string name="nfc_write_label_hint">Zobrazeno pouze v tomto seznamu, nikdy odesláno do Home Assistant</string>
+    <string name="nfc_write_opens_app_title">Klepnutím otevřete HKI 7</string>
+    <string name="nfc_write_opens_app_on">Štítky fungují, i když je HKI 7 zavřený. Telefony Android bez HKI 7 se odesílají do Obchodu Play namísto oficiální aplikace Home Assistant.</string>
+    <string name="nfc_write_opens_app_off">Štítky fungují s oficiální aplikací Home Assistant. HKI 7 je hlásí pouze tehdy, když je otevřeno.</string>
     <string name="nfc_write_start">Klepněte na značku, kterou chcete napsat</string>
     <string name="nfc_write_waiting">Držte štítek poblíž telefonu…</string>
     <string name="nfc_write_success">Značka napsána</string>

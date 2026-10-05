@@ -17,7 +17,7 @@
 
 A modern [Home Assistant](https://www.home-assistant.io/) client for Android, built with Jetpack Compose and Material 3.
 
-> **Status:** `1.2.1`. Issues and feedback are welcome.
+> **Status:** `1.3.0`. Issues and feedback are welcome.
 
 **📖 [Documentation](https://jimz011.github.io/android-hki7/)** — setup guide, feature reference,
 [FAQ](https://jimz011.github.io/android-hki7/faq/) and
@@ -97,6 +97,8 @@ everything on your own Home Assistant, so none of this leaves your home.
 ### Elsewhere
 
 - **Backups** — to your own Google Drive, or to your own Home Assistant
+- **NFC tags** — read and write the same tags as the official app, firing Home Assistant's
+  `tag_scanned` event; tags can open HKI 7 directly even while it is closed
 - **36 languages** — English, Dutch, German (also Austrian and Swiss), French, Spanish (also Latin
   American and Mexican), Italian, Portuguese (and Brazilian), Turkish, Japanese, Korean, Chinese
   (Simplified and Traditional), Norwegian, Swedish, Danish, Finnish, Estonian, Latvian, Lithuanian,

@@ -579,11 +579,20 @@
         <item>Vaste temperatuur- en energiemetingen in het Tsjechisch, Slowaaks, Grieks, Noors, Zweeds en Deens, waarbij de cijfers verkeerd werden weergegeven of het scherm konden crashen.</item>
         <item>Iets slecht verwoord in uw taal? Elke taal is nu één enkel bestand dat je op GitHub kunt corrigeren, zonder dat er code nodig is.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_2_1">
+    <string-array name="cr_whats_new_1_3_0">
+        <item>Nieuw: Instellingen › NFC-tags. HKI 7 leest en schrijft dezelfde tags als de officiële Home Assistant-app, en een tik ergens in de app activeert de tag_scanned-gebeurtenis waar uw automatiseringen naar luisteren.</item>
+        <item>Tags kunnen HKI 7 openen, zelfs als deze gesloten is. Laat open HKI 7 wanneer erop wordt getikt tijdens het schrijven van een tag; schakel het uit om gewone tags te schrijven voor een huishouden dat ook de officiële app gebruikt.</item>
         <item>De boodschappenlijstwidget kan nu uw TidyShop-familielijsten weergeven in plaats van zijn eigen. Elke lijst die met jou wordt gedeeld, verschijnt als een tabblad en als je iets aanvinkt, bereikt de rest van het huishouden binnen enkele seconden.</item>
         <item>Wat u met een gesynchroniseerde lijst mag doen, wordt bepaald door de familieserver: een lijst die u alleen kunt bekijken, blijft alleen-lezen, en een lijst die u kunt aanvinken maar niet kunt bewerken, stelt u in staat items te controleren zonder ze te wijzigen. De eigen rechten van uw dashboard zijn nog steeds bovenaan van toepassing.</item>
         <item>Nieuw: Instellingen › Verbonden apps, voor andere apps waar HKI 7 uit kan putten. TidyShop is de eerste. Voor het verbinden wordt gebruik gemaakt van een code in plaats van een wachtwoord: deze telefoon maakt zijn eigen sleutel, die deze nooit verlaat en niet in een back-up kan worden opgeslagen.</item>
         <item>Familielijsten blijven alleen live zolang HKI 7 op het scherm staat. Gesloten of in je zak, hij heeft geen verbinding en plant geen werk, dus de functie kost niets aan de batterij.</item>
+        <item>Android Auto zegt niet langer dat het Home Assistant niet kan bereiken totdat je HKI 7 op je telefoon opent. De auto vernieuwt nu zelf een verlopen sessie.</item>
+        <item>Kaarten komen nu van OpenStreetMap, omdat de vorige kaartservice zijn kaarten begon te stempelen met API KEY REQUIRED. Bij een donker thema wordt de kaart passend donkerder gemaakt.</item>
+        <item>Het horloge kan een offline demo-woning verkennen vanuit Try demo home op het instelscherm.</item>
+        <item>Energie daalt niet langer met tarief 2 als tarief 1 ook als totaal wordt gekozen, en het vermogen in watt wordt opgemaakt zoals elk ander cijfer.</item>
+        <item>Beveiliging: een entiteit die u zelf toewijst, kan nu in meer dan één groep voorkomen, zoals een contactpersoon in zowel Deuren als Windows.</item>
+        <item>Gedeelde dashboards brengen widgets terug die een oudere versie niet kon lezen, zoals de klok, en meldingsafbeeldingen gegeven als een Home Assistant mediaadres worden nu geladen.</item>
+        <item>Probleem opgelost dat de pull-down header sloot terwijl je door de knoppen scrolde, en dat de lijst met mensen in een kamer sloot zodra deze werd geopend.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_2_0">

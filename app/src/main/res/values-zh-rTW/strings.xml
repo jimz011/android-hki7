@@ -3970,11 +3970,20 @@
     <string name="settings_local_network_allowed">允許</string>
     <string name="settings_local_network_not_allowed">不允許 — 無法透過您的 Wi-Fi 直接存取 Home Assistant</string>
     <string name="update_see_changes">看看發生了什麼變化</string>
-    <string-array name="cr_whats_new_1_2_1">
+    <string-array name="cr_whats_new_1_3_0">
+        <item>新功能：設定 › NFC 標籤。 HKI 7 讀取和寫入與官方 Home Assistant 應用程式相同的標籤，並且點擊應用程式中的任何位置都會觸發您的自動化偵聽的 tag_scanned 事件。</item>
+        <item>即使 HKI 7 已关闭，标签也可以打开它。寫入標籤時點擊時保持開啟 HKI 7 ；將其關閉，為也使用官方應用程式的家庭編寫普通標籤。</item>
         <item>購物清單小工具現在可以顯示您的 TidyShop 家庭清單，而不是它自己的清單。與您分享的每個清單都顯示為選項卡，勾選某些內容會在幾秒鐘內到達家庭的其他成員。</item>
         <item>您可以對同步清單執行的操作由家庭伺服器決定：您只能查看的清單保持唯讀狀態，您可以勾選但無法編輯的清單可以讓您檢查項目而不更改它們。您的儀表板本身的權限仍然適用於頂部。</item>
         <item>新功能：設定 › 連接的應用程序，可供 HKI 7 可以從中提取的其他應用程式使用。 TidyShop 是第一個。連接使用代碼而不是密碼：這款手機有自己的密鑰，該密鑰永遠不會離開它，也不能放在備份中。</item>
         <item>家庭清單僅在 HKI 7 顯示在螢幕上時保持活動狀態。關閉或放在口袋裡時，它不會保持連接，也不會安排任何工作，因此該功能無需任何電池消耗。</item>
+        <item>Android Auto 不再提示您在手机上打开 HKI 7 之前无法访问 Home Assistant。汽車現在會自行更新過期的會話。</item>
+        <item>地圖現在來自 OpenStreetMap，因為先前的地圖服務開始使用所需的 API 金鑰在其地圖上標記。在深色主題中，地圖會變暗以匹配。</item>
+        <item>手錶可以透過其設定畫面上的「嘗試演示主頁」來探索離線演示主頁。</item>
+        <item>當關稅 1 也被選為總價時，能源不再降低關稅 2，並且以瓦為單位的功率的格式與其他數字一樣。</item>
+        <item>安全性：您自己指派的實體現在可以屬於多個群組，例如門和窗中的聯絡人。</item>
+        <item>共享儀表板帶回了舊版本無法讀取的小部件，例如時鐘，並且現在加載以 Home Assistant 媒體地址給出的通知圖像。</item>
+        <item>修正了滾動按鈕時下拉標題關閉的問題，以及房間上的人員清單在開啟後立即關閉的問題。</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_2_0">
@@ -4132,4 +4141,7 @@
     <string name="nfc_write_waiting">將標籤放在手機附近...</string>
     <string name="settings_subtitle_nfc_tags">讀寫觸發 Home Assistant 的標籤</string>
     <string name="settings_title_nfc_tags">NFC標籤</string>
+    <string name="nfc_write_opens_app_off">標籤可與官方 Home Assistant 應用程式搭配使用。 HKI 7 僅在開啟時報告它們。</string>
+    <string name="nfc_write_opens_app_on">即使 HKI 7 關閉，標籤也能運作。沒有 HKI 7 的 Android 手機將被發送到 Play 商店，而不是官方 Home Assistant 應用程式。</string>
+    <string name="nfc_write_opens_app_title">點擊時打開 HKI 7</string>
 </resources>

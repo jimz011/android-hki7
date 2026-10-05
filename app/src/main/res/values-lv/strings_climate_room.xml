@@ -27,11 +27,20 @@
         <item>Fiksēti temperatūras un enerģijas rādījumi čehu, slovāku, grieķu, norvēģu, zviedru un dāņu valodās, kur skaitļi tika rādīti nepareizi vai var izraisīt ekrāna avāriju.</item>
         <item>Vai jūsu valodā ir kaut kas slikti formulēts? Katra valoda tagad ir viens fails, kuru varat labot GitHub — kods nav nepieciešams.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_2_1">
+    <string-array name="cr_whats_new_1_3_0">
+        <item>Jaunums: Iestatījumi › NFC tagi. HKI 7 lasa un raksta tos pašus atzīmes, ko oficiālā lietotne Home Assistant, un, pieskaroties jebkurā vietā lietotnē, tiek aktivizēts notikums tag_scanned, ko klausās jūsu automatizācijas.</item>
+        <item>Atzīmes var atvērt HKI 7, pat ja tas ir aizvērts. Atstājiet Atvērt HKI 7, kad tiek pieskarties, rakstot atzīmi; izslēdziet to, lai rakstītu vienkāršas atzīmes mājsaimniecībai, kas izmanto arī oficiālo lietotni.</item>
         <item>Iepirkumu saraksta logrīks tagad var rādīt jūsu TidyShop ģimeņu sarakstus, nevis savus. Katrs ar jums kopīgotais saraksts tiek parādīts kā cilne, un, atzīmējot kaut ko, pārējā mājsaimniecība dažu sekunžu laikā tiek sasniegta.</item>
         <item>To, ko varat darīt ar sinhronizētu sarakstu, izlemj ģimenes serveris: saraksts, kuru varat skatīt, paliek tikai lasāms, un saraksts, kuru varat atzīmēt, bet nerediģēt, ļauj pārbaudīt vienumus, tos nemainot. Jūsu informācijas paneļa atļaujas joprojām ir spēkā augšpusē.</item>
         <item>Jaunums: Iestatījumi › Saistītās lietotnes, citām lietotnēm HKI 7 var iegūt no. TidyShop ir pirmais. Savienojuma izveidei tiek izmantots kods, nevis parole: šis tālrunis izveido savu atslēgu, kas to nekad neatstāj un to nevar ievietot rezerves kopijā.</item>
         <item>Ģimenes saraksti tiek rādīti tikai tad, kad ekrānā ir redzams HKI 7. Slēgtā vai kabatā tam nav savienojuma un nav plānots darbs, tāpēc šī funkcija neko nemaksā par akumulatoru.</item>
+        <item>Android Auto vairs nenorāda, ka nevar sasniegt Home Assistant, kamēr tālrunī neatverat HKI 7. Tagad automašīna pati atjauno sesiju, kurai beidzies derīguma termiņš.</item>
+        <item>Kartes tagad nāk no OpenStreetMap, jo iepriekšējais karšu pakalpojums sāka apzīmogot savas kartes ar API KEY REQUIRED. Tumšā motīvā karte ir aptumšota, lai tā atbilstu.</item>
+        <item>Pulkstenis tā iestatīšanas ekrānā var izpētīt bezsaistes demonstrācijas sākumlapu no Izmēģiniet demonstrācijas sākumlapas.</item>
+        <item>Enerģija vairs nepazemina 2. tarifu, ja tarifs 1 ir izvēlēts arī kā kopējais, un jauda vatos tiek formatēta tāpat kā visi citi cipari.</item>
+        <item>Drošība: entītija, kuru piešķirat pats, tagad var būt vairāk nekā vienā grupā, piemēram, kontaktpersona gan programmā Doors, gan Windows.</item>
+        <item>Koplietojamie informācijas paneļi atjauno logrīkus, ko vecāka versija nevarēja nolasīt, piemēram, Pulkstenis, un paziņojumu attēli, kas norādīti kā Home Assistant multivides adrese, tagad tiek ielādēti.</item>
+        <item>Novērsta nolaižamā galvene aizvēršanās, ritinot tās pogas, un personu saraksts telpā, kas aizveras, tiklīdz tā tiek atvērta.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_2_0">

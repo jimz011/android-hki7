@@ -2749,6 +2749,9 @@
     <string name="nfc_write_custom_id_label">Címkeazonosító</string>
     <string name="nfc_write_label_label">Címke (nem kötelező)</string>
     <string name="nfc_write_label_hint">Csak ebben a listában jelenik meg, soha nem küldték el ide: Home Assistant</string>
+    <string name="nfc_write_opens_app_title">A HKI 7 megnyitása, amikor megérinti</string>
+    <string name="nfc_write_opens_app_on">A címkék akkor is működnek, ha a HKI 7 be van zárva. A HKI 7 nélküli Android telefonok a Play Áruházba kerülnek a hivatalos Home Assistant alkalmazás helyett.</string>
+    <string name="nfc_write_opens_app_off">A címkék a hivatalos Home Assistant alkalmazással működnek. HKI 7 csak akkor jelenti őket, ha nyitva van.</string>
     <string name="nfc_write_start">Koppintson egy címkére az íráshoz</string>
     <string name="nfc_write_waiting">Tartson egy címkét a telefon közelében…</string>
     <string name="nfc_write_success">Címke írva</string>

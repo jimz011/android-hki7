@@ -579,11 +579,20 @@
         <item>Temperatur- und Energiemesswerte auf Tschechisch, Slowakisch, Griechisch, Norwegisch, Schwedisch und Dänisch wurden behoben, bei denen Zahlen falsch angezeigt wurden oder der Bildschirm abstürzen konnte.</item>
         <item>Etwas in Ihrer Sprache schlecht formuliert? Jede Sprache ist jetzt eine einzelne Datei, die Sie auf GitHub korrigieren können, ohne dass Code erforderlich ist.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_2_1">
+    <string-array name="cr_whats_new_1_3_0">
+        <item>Neu: Einstellungen › NFC-Tags. HKI 7 liest und schreibt dieselben Tags wie die offizielle Home Assistant-App, und ein Tipp an einer beliebigen Stelle in der App löst das tag_scanned-Ereignis aus, auf das Ihre Automatisierungen achten.</item>
+        <item>Tags können HKI 7 öffnen, auch wenn es geschlossen ist. Lassen Sie HKI 7 offen, wenn Sie beim Schreiben eines Tags darauf tippen. Schalten Sie es aus, um einfache Tags für einen Haushalt zu schreiben, der auch die offizielle App nutzt.</item>
         <item>Das Einkaufslisten-Widget kann jetzt Ihre TidyShop-Familienlisten anstelle seiner eigenen anzeigen. Jede mit Ihnen geteilte Liste erscheint als Tab, und wenn Sie etwas ankreuzen, erreicht es den Rest des Haushalts innerhalb von Sekunden.</item>
         <item>Was Sie mit einer synchronisierten Liste tun können, wird vom Familienserver entschieden: Eine Liste, die Sie nur ansehen können, bleibt schreibgeschützt, und eine Liste, die Sie ankreuzen, aber nicht bearbeiten können, ermöglicht Ihnen, Elemente zu überprüfen, ohne sie zu ändern. Darüber hinaus gelten weiterhin die eigenen Berechtigungen Ihres Dashboards.</item>
         <item>Neu: Einstellungen › Verbundene Apps, für andere Apps, aus denen HKI 7 abrufen kann. TidyShop ist der Erste. Für die Verbindung wird ein Code anstelle eines Passworts verwendet: Dieses Telefon erstellt seinen eigenen Schlüssel, der es nie verlässt und nicht in einem Backup gespeichert werden kann.</item>
         <item>Familienlisten bleiben nur aktiv, solange HKI 7 auf dem Bildschirm angezeigt wird. Geschlossen oder in der Tasche hält es keine Verbindung und plant keine Arbeit ein, sodass die Funktion nichts an Batterie kostet.</item>
+        <item>Android Auto sagt nicht mehr, dass es Home Assistant nicht erreichen kann, bis Sie HKI 7 auf Ihrem Telefon öffnen. Das Auto erneuert nun selbstständig eine abgelaufene Sitzung.</item>
+        <item>Karten stammen jetzt von OpenStreetMap, da der vorherige Kartendienst damit begonnen hat, seine Karten mit dem API-SCHLÜSSEL ERFORDERLICH zu versehen. Bei einem dunklen Thema wird die Karte entsprechend abgedunkelt.</item>
+        <item>Die Uhr kann auf dem Einrichtungsbildschirm über „Demo-Home ausprobieren“ ein Offline-Demo-Home erkunden.</item>
+        <item>Bei Energie fällt Tarif 2 nicht mehr weg, wenn auch Tarif 1 als Summe gewählt wird und die Leistung in Watt wie jede andere Zahl formatiert wird.</item>
+        <item>Sicherheit: Eine Entität, die Sie selbst zuweisen, kann jetzt in mehr als einer Gruppe sein, z. B. ein Kontakt sowohl in Türen als auch in Fenstern.</item>
+        <item>Geteilte Dashboards bringen Widgets zurück, die eine ältere Version nicht lesen konnte, z. B. die Uhr, und Benachrichtigungsbilder, die als Medienadresse Home Assistant angegeben wurden, werden jetzt geladen.</item>
+        <item>Problem behoben, bei dem die Pulldown-Kopfzeile geschlossen wurde, während Sie durch die Schaltflächen scrollten, und dass die Personenliste eines Raums geschlossen wurde, sobald er geöffnet wurde.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_2_0">

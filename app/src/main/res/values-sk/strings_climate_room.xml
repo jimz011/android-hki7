@@ -27,11 +27,20 @@
         <item>Opravené údaje o teplote a energii v češtine, slovenčine, gréčtine, nórčine, švédčine a dánčine, kde sa čísla zobrazovali nesprávne alebo mohli zrútiť obrazovku.</item>
         <item>Niečo napísané zle vo vašom jazyku? Každý jazyk je teraz jeden súbor, ktorý môžete opraviť na GitHub, nie je potrebný žiadny kód.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_2_1">
+    <string-array name="cr_whats_new_1_3_0">
+        <item>Novinka: Nastavenia › NFC tagy. HKI 7 číta a zapisuje rovnaké značky ako oficiálna aplikácia Home Assistant a klepnutie kdekoľvek v aplikácii spustí udalosť tag_scanned, ktorú vaše automatizácie počúvajú.</item>
+        <item>Štítky môžu otvoriť HKI 7, aj keď je zatvorené. Po klepnutí pri písaní značky ponechajte otvorené HKI 7; vypnite, aby ste mohli písať obyčajné značky pre domácnosť, ktorá tiež používa oficiálnu aplikáciu.</item>
         <item>Miniaplikácia nákupného zoznamu teraz môže zobrazovať vaše rodinné zoznamy TidyShop namiesto svojich vlastných. Každý zoznam zdieľaný s vami sa zobrazí ako karta a zaškrtnutím niečoho sa do niekoľkých sekúnd dostane zvyšok domácnosti.</item>
         <item>O tom, čo môžete urobiť so synchronizovaným zoznamom, rozhoduje rodinný server: zoznam, na ktorý sa môžete len pozerať, zostáva len na čítanie a zoznam, ktorý môžete zaškrtnúť, ale nie upravovať, vám umožní kontrolovať položky bez toho, aby ste ich menili. Navrchu stále platia vlastné povolenia vášho informačného panela.</item>
         <item>Novinka: Nastavenia › Pripojené aplikácie pre ostatné aplikácie, z ktorých môže HKI 7 čerpať. TidyShop je prvý. Pri pripájaní sa používa kód, nie heslo: tento telefón si vytvorí vlastný kľúč, ktorý ho nikdy neopustí a nedá sa uložiť do zálohy.</item>
         <item>Rodinné zoznamy zostávajú zverejnené iba vtedy, keď je na obrazovke HKI 7. Zatvorený alebo vo vrecku nemá žiadne pripojenie a neplánuje žiadnu prácu, takže táto funkcia nestojí žiadnu batériu.</item>
+        <item>Android Auto už nehlási, že nemôže dosiahnuť Home Assistant, kým v telefóne neotvoríte HKI 7. Auto teraz samo obnoví reláciu, ktorej platnosť vypršala.</item>
+        <item>Mapy teraz pochádzajú z OpenStreetMap, pretože predchádzajúca mapová služba začala označovať svoje mapy REQUIRED KĽÚČOM API. V tmavej téme je mapa stmavená, aby zodpovedala.</item>
+        <item>Hodinky môžu na obrazovke nastavenia preskúmať offline ukážkovú domovskú stránku z Try demo home.</item>
+        <item>Energia už neznižuje tarifu 2, keď je tarifa 1 tiež zvolená ako celková a výkon vo wattoch je naformátovaný ako každý iný údaj.</item>
+        <item>Zabezpečenie: entita, ktorú si priradíte, môže byť teraz vo viac ako jednej skupine, ako napríklad kontakt v Doors aj Windows.</item>
+        <item>Zdieľané informačné panely prinášajú späť miniaplikácie, ktoré staršia verzia nedokázala prečítať, ako napríklad Hodiny, a teraz sa načítavajú obrázky upozornení uvedené ako Home Assistant adresa média.</item>
+        <item>Opravené zatváranie vysúvacej hlavičky pri posúvaní jej tlačidiel a zoznam ľudí v miestnosti sa zatvára hneď po jej otvorení.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_2_0">

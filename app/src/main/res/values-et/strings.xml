@@ -2749,6 +2749,9 @@
     <string name="nfc_write_custom_id_label">Sildi ID</string>
     <string name="nfc_write_label_label">Silt (valikuline)</string>
     <string name="nfc_write_label_hint">Kuvatakse ainult selles loendis, ei ole kunagi saadetud aadressile Home Assistant</string>
+    <string name="nfc_write_opens_app_title">Avage HKI 7, kui seda puudutate</string>
+    <string name="nfc_write_opens_app_on">Sildid töötavad isegi siis, kui HKI 7 on suletud. Ilma HKI 7ta Android-telefonid saadetakse ametliku rakenduse Home Assistant asemel Play poodi.</string>
+    <string name="nfc_write_opens_app_off">Märgendid töötavad ametliku rakendusega Home Assistant. HKI 7 teatab neist ainult siis, kui see on avatud.</string>
     <string name="nfc_write_start">Kirjutamiseks puudutage silti</string>
     <string name="nfc_write_waiting">Hoidke telefoni lähedal silti…</string>
     <string name="nfc_write_success">Silt kirjutatud</string>

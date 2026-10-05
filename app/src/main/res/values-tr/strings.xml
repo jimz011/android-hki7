@@ -1660,6 +1660,9 @@
     <string name="nfc_write_custom_id_label">Etiket Kimliği</string>
     <string name="nfc_write_label_label">Etiket (isteğe bağlı)</string>
     <string name="nfc_write_label_hint">Yalnızca bu listede gösterilir, hiçbir zaman Home Assistant adresine gönderilmez</string>
+    <string name="nfc_write_opens_app_title">Dokunduğunuzda HKI 7 öğesini açın</string>
+    <string name="nfc_write_opens_app_on">Etiketler HKI 7 kapalıyken bile çalışır. HKI 7 olmayan Android telefonlar, resmi Home Assistant uygulaması yerine Play Store\'a gönderilir.</string>
+    <string name="nfc_write_opens_app_off">Etiketler resmi Home Assistant uygulamasıyla çalışır. HKI 7 bunları yalnızca açıkken bildirir.</string>
     <string name="nfc_write_start">Yazmak için bir etikete dokunun</string>
     <string name="nfc_write_waiting">Telefonunuzun yanına bir etiket tutun…</string>
     <string name="nfc_write_success">Etiket yazılı</string>

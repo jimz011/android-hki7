@@ -3970,11 +3970,20 @@
     <string name="settings_local_network_allowed">Permitido</string>
     <string name="settings_local_network_not_allowed">No permitido: no se puede acceder a Home Assistant directamente desde tu Wi-Fi</string>
     <string name="update_see_changes">Mira lo que cambió</string>
-    <string-array name="cr_whats_new_1_2_1">
+    <string-array name="cr_whats_new_1_3_0">
+        <item>Nuevo: Configuración › Etiquetas NFC. HKI 7 lee y escribe las mismas etiquetas que la aplicación oficial Home Assistant, y un toque en cualquier parte de la aplicación activa el evento tag_scanned que escuchan sus automatizaciones.</item>
+        <item>Las etiquetas pueden abrir HKI 7 incluso cuando está cerrado. Deje abierto HKI 7 cuando lo toque al escribir una etiqueta; apáguelo para escribir etiquetas simples para un hogar que también usa la aplicación oficial.</item>
         <item>El widget de la lista de compras ahora puede mostrar las listas familiares de TidyShop en lugar de las suyas propias. Cada lista compartida contigo aparece como una pestaña y marcar algo llega al resto de la familia en cuestión de segundos.</item>
         <item>Lo que puede hacer con una lista sincronizada lo decide el servidor familiar: una lista que solo puede ver permanece como de solo lectura, y una que puede marcar pero no editar le permite verificar elementos sin cambiarlos. Los propios permisos de su panel aún se aplican en la parte superior.</item>
         <item>Nuevo: Configuración › Aplicaciones conectadas, para otras aplicaciones de las que HKI 7 puede acceder. TidyShop es el primero. La conexión utiliza un código en lugar de una contraseña: este teléfono crea su propia clave, que nunca sale de él y no se puede guardar en una copia de seguridad.</item>
         <item>Las listas familiares solo permanecen activas mientras HKI 7 está en la pantalla. Cerrado o en el bolsillo, no mantiene conexión y no programa trabajo, por lo que la función no cuesta nada en batería.</item>
+        <item>Android Auto ya no dice que no puede acceder a Home Assistant hasta que abras HKI 7 en tu teléfono. El coche ahora renueva por sí solo una sesión caducada.</item>
+        <item>Los mapas ahora provienen de OpenStreetMap, ya que el servicio de mapas anterior comenzó a estampar sus mapas con API KEY REQUIRED. En un tema oscuro, el mapa se oscurece para que coincida.</item>
+        <item>El reloj puede explorar una página de inicio de demostración sin conexión desde Pruebe la página de inicio de demostración en su pantalla de configuración.</item>
+        <item>La energía ya no baja de la tarifa 2 cuando también se elige la tarifa 1 como total, y la potencia en vatios se formatea como cualquier otra cifra.</item>
+        <item>Seguridad: una entidad que usted mismo asigne ahora puede estar en más de un grupo, como un contacto tanto en Puertas como en Ventanas.</item>
+        <item>Los paneles compartidos recuperan widgets que una versión anterior no podía leer, como el Reloj, y ahora se cargan las imágenes de notificación proporcionadas como una dirección multimedia Home Assistant.</item>
+        <item>Se corrigió el cierre del encabezado desplegable mientras se desplazaba por sus botones, y la lista de personas en una sala se cerraba tan pronto como se abría.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_2_0">
@@ -4132,4 +4141,7 @@
     <string name="nfc_write_waiting">Mantenga una etiqueta cerca de su teléfono...</string>
     <string name="settings_subtitle_nfc_tags">Leer y escribir etiquetas que activan Home Assistant</string>
     <string name="settings_title_nfc_tags">Etiquetas NFC</string>
+    <string name="nfc_write_opens_app_off">Las etiquetas funcionan con la aplicación oficial Home Assistant. HKI 7 solo los reporta mientras está abierto.</string>
+    <string name="nfc_write_opens_app_on">Las etiquetas funcionan incluso cuando HKI 7 está cerrado. Los teléfonos Android sin HKI 7 se envían a Play Store en lugar de a la aplicación oficial Home Assistant.</string>
+    <string name="nfc_write_opens_app_title">Abrir HKI 7 cuando se toca</string>
 </resources>

@@ -27,11 +27,20 @@
         <item>Fiksuoti temperatūros ir energijos rodmenys čekų, slovakų, graikų, norvegų, švedų ir danų kalbomis, kur skaičiai rodomi neteisingai arba gali sugadinti ekraną.</item>
         <item>Kažkas blogai parašyta jūsų kalba? Dabar kiekviena kalba yra vienas failas, kurį galite taisyti naudodami „GitHub“, kodo nereikia.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_2_1">
+    <string-array name="cr_whats_new_1_3_0">
+        <item>Naujiena: Nustatymai › NFC žymos. HKI 7 skaito ir įrašo tas pačias žymas kaip ir oficiali Home Assistant programa, o palietimas bet kurioje programos vietoje suaktyvina įvykį tag_scanned, kurio klausosi jūsų automatizatoriai.</item>
+        <item>Žymos gali atidaryti HKI 7 net tada, kai jis uždarytas. Palikite Atidaryti HKI 7, kai bakstelėsite rašydami žymą; išjunkite, kad galėtumėte rašyti paprastas žymes namų ūkiui, kuris taip pat naudoja oficialią programėlę.</item>
         <item>Pirkinių sąrašo valdiklis dabar gali rodyti jūsų „TidyShop“ šeimos sąrašus, o ne savo. Kiekvienas su jumis bendrinamas sąrašas rodomas kaip skirtukas, o ką nors pažymėjus per kelias sekundes pasiekiama likusi namų ūkio dalis.</item>
         <item>Ką galite daryti su sinchronizuotu sąrašu, nusprendžia šeimos serveris: sąrašas, kurį galite peržiūrėti, lieka tik skaitomas, o sąrašas, kurį galite pažymėti, bet neredaguoti, leidžia patikrinti elementus jų nekeičiant. Jūsų prietaisų skydelio leidimai vis tiek taikomi viršuje.</item>
         <item>Naujiena: Nustatymai › Prijungtos programos, kitoms programoms HKI 7 gali gauti iš. „TidyShop“ yra pirmasis. Prisijungiant naudojamas kodas, o ne slaptažodis: šis telefonas sukuria savo raktą, kuris niekada nepalieka jo ir negali būti įtrauktas į atsarginę kopiją.</item>
         <item>Šeimos sąrašai veikia tik tol, kol ekrane rodoma HKI 7. Uždarytas arba kišenėje jis neturi ryšio ir neplanuoja darbo, todėl ši funkcija nieko nekainuoja.</item>
+        <item>„Android Auto“ nebesako, kad negali pasiekti Home Assistant, kol telefone neatsidarysite HKI 7. Dabar automobilis pats atnaujina pasibaigusią seansą.</item>
+        <item>Žemėlapiai dabar gaunami iš „OpenStreetMap“, nes ankstesnė žemėlapių tarnyba pradėjo antspauduoti savo žemėlapius API KEY REQUIRED. Tamsioje temoje žemėlapis tamsinamas, kad atitiktų.</item>
+        <item>Laikrodis gali naršyti neprisijungus pasiekiamą demonstracinį pagrindinį puslapį, esantį pagrindiniame „Išbandyti demonstracinį variantą“ sąrankos ekrane.</item>
+        <item>Energija nebemažina 2 tarifo, kai kartu pasirenkamas ir 1 tarifas, o galia vatais formatuojama kaip ir visi kiti skaičiai.</item>
+        <item>Sauga: subjektas, kurį priskiriate sau, dabar gali būti daugiau nei vienoje grupėje, pvz., kontaktas tiek „Doors“, tiek „Windows“.</item>
+        <item>Bendrinamos informacijos suvestinės grąžina valdiklius, kurių senesnė versija negalėjo nuskaityti, pvz., Laikrodis, ir pranešimų vaizdai, pateikti kaip Home Assistant medijos adresas.</item>
+        <item>Pataisyta išskleidžiamoji antraštė, kuri užsidaro, kol slenkate jos mygtukais, ir žmonių sąrašas uždaromas, kai tik atidaroma patalpa.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_2_0">

@@ -44,11 +44,20 @@
         <item>Kiinteät lämpötila- ja energialukemat tšekin, slovakin, kreikan, norjan, ruotsin ja tanskan kielellä, joissa numerot näyttivät väärin tai voivat kaataa näytön.</item>
         <item>Onko kielelläsi jotain huonosti sanottu? Jokainen kieli on nyt yksi tiedosto, jonka voit korjata GitHubissa ilman koodia.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_2_1">
+    <string-array name="cr_whats_new_1_3_0">
+        <item>Uutta: Asetukset › NFC-tunnisteet. HKI 7 lukee ja kirjoittaa samat tunnisteet kuin virallinen Home Assistant-sovellus, ja napautus missä tahansa sovelluksessa käynnistää tag_scanned-tapahtuman, jota automaatiosi kuuntelevat.</item>
+        <item>Tunnisteet voivat avautua HKI 7, vaikka se olisi suljettu. Jätä Avoin HKI 7, kun sitä napautetaan, kun kirjoitat tunnistetta; kytke se pois päältä kirjoittaaksesi tavallisia tunnisteita kotitaloudelle, joka käyttää myös virallista sovellusta.</item>
         <item>Ostoslista-widget voi nyt näyttää TidyShop-perheluettelosi omansa sijaan. Jokainen kanssasi jaettu luettelo näkyy välilehtenä, ja jonkin kohdan rastittaminen tavoittaa muun kotitalouden muutamassa sekunnissa.</item>
         <item>Perhepalvelin päättää, mitä voit tehdä synkronoidulle luettelolle: luettelo, jota voit tarkastella vain, pysyy vain luku -tilassa, ja luettelo, jonka voit valita, mutta jota et muokata, antaa sinun tarkistaa kohteita muuttamatta niitä. Hallintapaneelisi omat käyttöoikeudet ovat edelleen voimassa ylhäällä.</item>
         <item>Uutta: Asetukset › Yhdistetyt sovellukset, muille sovelluksille HKI 7 voi hakea. TidyShop on ensimmäinen. Yhdistäminen käyttää koodia salasanan sijaan: tämä puhelin tekee oman avaimen, joka ei koskaan poistu siitä eikä sitä voi laittaa varmuuskopioon.</item>
         <item>Perheluettelot pysyvät voimassa vain, kun HKI 7 on näytöllä. Suljettuna tai taskussa se ei pidä yhteyttä eikä ajasta työtä, joten ominaisuus ei maksa akkua.</item>
+        <item>Android Auto ei enää sano, että se ei voi tavoittaa Home Assistant ennen kuin avaat HKI 7 puhelimessasi. Auto uusii nyt vanhentuneen istunnon itsestään.</item>
+        <item>Kartat tulevat nyt OpenStreetMapista, koska edellinen karttapalvelu alkoi leimata karttoihin API-AVAIN VAATIVA. Tummassa teemassa karttaa tummennetaan vastaamaan sitä.</item>
+        <item>Kello voi tutkia offline-demo-kotiversiota Try-demo-kodista sen asetusnäytöllä.</item>
+        <item>Energia ei enää pudota tariffia 2, kun tariffi 1 valitaan myös kokonaissummaksi, ja teho watteina muotoillaan kuten kaikki muutkin luvut.</item>
+        <item>Suojaus: itse määrittämäsi entiteetti voi nyt olla useammassa kuin yhdessä ryhmässä, kuten yhteyshenkilö sekä Doorsissa että Windowsissa.</item>
+        <item>Jaetut kojelaudat tuovat takaisin widgetit, joita vanhempi versio ei voinut lukea, kuten Kello, ja ilmoituskuvat, jotka on annettu Home Assistant-mediaosoitteena, latautuvat nyt.</item>
+        <item>Korjattu alasvetootsikko, joka sulkeutuu, kun vierität sen painikkeita, ja huoneen henkilöluettelo, joka sulkeutuu heti sen avattua.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_2_0">

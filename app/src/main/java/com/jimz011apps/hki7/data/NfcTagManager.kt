@@ -82,19 +82,30 @@ sealed class NfcWriteException(message: String) : Exception(message) {
     object ConnectionLost : NfcWriteException("Tag was moved away before the write finished")
 }
 
-/** Writes a single well-known URI record onto [tag], formatting it first if it has never held
- *  NDEF data before. Overwriting an already-written tag (the "edit" case) takes the same path as
- *  writing a blank one — [Ndef.writeNdefMessage] replaces whatever was there. */
-fun writeUri(tag: Tag, uri: String): Result<Unit> {
-    val message = NdefMessage(arrayOf(NdefRecord.createUri(Uri.parse(uri))))
+/** Writes a well-known URI record onto [tag], formatting it first if it has never held NDEF data
+ *  before. Overwriting an already-written tag (the "edit" case) takes the same path as writing a
+ *  blank one — [Ndef.writeNdefMessage] replaces whatever was there.
+ *
+ *  With [appPackage], an Android Application Record for that package follows the URI. That is the
+ *  only way a closed HKI 7 receives the tap: home-assistant.io links are App-Link verified for the
+ *  official app, so without the record Android hands the tag to it, or to the browser when it is
+ *  not installed. The URI stays first, so the tag id still reads everywhere (iPhones, the official
+ *  app while it is open). Like the official app, a tag too small for both gets the URI alone. */
+fun writeUri(tag: Tag, uri: String, appPackage: String? = null): Result<Unit> {
+    val uriRecord = NdefRecord.createUri(Uri.parse(uri))
+    val plainMessage = NdefMessage(arrayOf(uriRecord))
+    val message = appPackage
+        ?.let { NdefMessage(arrayOf(uriRecord, NdefRecord.createApplicationRecord(it))) }
+        ?: plainMessage
     return try {
         val ndef = Ndef.get(tag)
         if (ndef != null) {
             ndef.connect()
             try {
                 if (!ndef.isWritable) return Result.failure(NfcWriteException.ReadOnly)
-                if (message.toByteArray().size > ndef.maxSize) return Result.failure(NfcWriteException.TooSmall)
-                ndef.writeNdefMessage(message)
+                val fitting = listOf(message, plainMessage).firstOrNull { it.toByteArray().size <= ndef.maxSize }
+                    ?: return Result.failure(NfcWriteException.TooSmall)
+                ndef.writeNdefMessage(fitting)
                 Result.success(Unit)
             } finally {
                 runCatching { ndef.close() }

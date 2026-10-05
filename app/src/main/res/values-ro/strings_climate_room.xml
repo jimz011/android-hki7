@@ -27,11 +27,20 @@
         <item>S-au remediat citirile de temperatură și energie în cehă, slovacă, greacă, norvegiană, suedeză și daneză, unde numerele erau afișate greșit sau puteau bloca ecranul.</item>
         <item>Ceva scris prost în limba ta? Fiecare limbă este acum un singur fișier pe care îl puteți corecta pe GitHub, fără a fi nevoie de cod.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_2_1">
+    <string-array name="cr_whats_new_1_3_0">
+        <item>Nou: Setări › Etichete NFC. HKI 7 citește și scrie aceleași etichete ca și aplicația oficială Home Assistant, iar o atingere oriunde în aplicație declanșează evenimentul tag_scanned pe care îl ascultă automatizările.</item>
+        <item>Etichetele se pot deschide HKI 7 chiar și atunci când este închis. Lăsați deschis HKI 7 când ați apăsat când scrieți o etichetă; dezactivați-l pentru a scrie etichete simple pentru o gospodărie care utilizează și aplicația oficială.</item>
         <item>Widgetul pentru liste de cumpărături poate afișa acum listele de familie TidyShop în loc de propriile sale. Fiecare listă partajată cu dvs. apare ca o filă, iar dacă bifați ceva, ajunge la restul gospodăriei în câteva secunde.</item>
         <item>Ce puteți face cu o listă sincronizată este decis de serverul familiei: o listă pe care o puteți consulta rămâne doar în citire, iar una pe care o puteți bifa, dar pe care nu o puteți edita, vă permite să verificați elementele fără a le modifica. Permisiunile proprii ale tabloului de bord încă se aplică în partea de sus.</item>
         <item>Nou: Setări › Aplicațiile conectate, pentru alte aplicații din care HKI 7 poate extrage. TidyShop este primul. Conectarea folosește mai degrabă un cod decât o parolă: acest telefon își face propria cheie, care nu o părăsește niciodată și nu poate fi pusă într-o copie de rezervă.</item>
         <item>Listele de familie rămân live numai când HKI 7 este pe ecran. Închis sau în buzunar, nu are nicio conexiune și nu programează nicio lucrare, astfel încât funcția nu costă nimic în baterie.</item>
+        <item>Android Auto nu mai spune că nu poate ajunge la Home Assistant până când deschideți HKI 7 pe telefon. Mașina reînnoiește acum o sesiune expirată de la sine.</item>
+        <item>Hărțile provin acum de la OpenStreetMap, deoarece serviciul de hărți anterior a început să-și imprime hărțile cu CHEIA API NECESARĂ. Într-o temă întunecată, harta este întunecată pentru a se potrivi.</item>
+        <item>Ceasul poate explora o pagină demonstrativă offline din pagina Încercați demo de pe ecranul său de configurare.</item>
+        <item>Energia nu mai scade tariful 2 atunci când tariful 1 este ales și ca total, iar puterea în wați este formatată ca orice altă cifră.</item>
+        <item>Securitate: o entitate pe care o atribuiți dvs. poate fi acum în mai mult de un grup, cum ar fi un contact atât în Doors, cât și în Windows.</item>
+        <item>Tablourile de bord partajate aduc înapoi widget-uri pe care o versiune mai veche nu le putea citi, cum ar fi Ceasul, iar imaginile de notificare date ca adresă media Home Assistant se încarcă acum.</item>
+        <item>S-a remediat închiderea antetului derulant în timp ce derulați butoanele sale, iar lista de persoane dintr-o cameră se închidea imediat ce se deschidea.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_2_0">

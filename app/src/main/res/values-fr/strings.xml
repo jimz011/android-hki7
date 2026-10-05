@@ -1660,6 +1660,9 @@
     <string name="nfc_write_custom_id_label">ID de balise</string>
     <string name="nfc_write_label_label">Étiquette (facultatif)</string>
     <string name="nfc_write_label_hint">Affiché uniquement dans cette liste, jamais envoyé à Home Assistant</string>
+    <string name="nfc_write_opens_app_title">Ouvrez HKI 7 lorsque vous appuyez dessus</string>
+    <string name="nfc_write_opens_app_on">Les balises fonctionnent même lorsque HKI 7 est fermé. Les téléphones Android sans HKI 7 sont envoyés vers le Play Store au lieu de l\'application officielle Home Assistant.</string>
+    <string name="nfc_write_opens_app_off">Les balises fonctionnent avec l\'application officielle Home Assistant. HKI 7 ne les signale que lorsqu\'il est ouvert.</string>
     <string name="nfc_write_start">Appuyez sur une balise pour écrire</string>
     <string name="nfc_write_waiting">Tenez une étiquette près de votre téléphone…</string>
     <string name="nfc_write_success">Étiquette écrite</string>

@@ -278,6 +278,16 @@ Check Settings › Android Auto & Wear OS; it says so on a copy that cannot work
 If it *was* installed from Play, confirm Android Auto is opted in for this app on the phone, then
 disconnect and reconnect.
 
+### Tapping a quick action in the car says it cannot reach Home Assistant
+
+Before 1.3.0 this happened when Home Assistant had rejected the saved session and the car tried
+again with the same one; opening HKI 7 on the phone refreshed it, which is why the car then
+worked. The car now refreshes the session itself and tries once more.
+
+If it still happens, the phone cannot reach the address HKI 7 uses in the car: the **external**
+URL, since a phone in a car is normally away from home Wi-Fi. A setup with only a local address
+cannot work in the car. Check that the external URL opens in the phone's browser on mobile data.
+
 ### The car grid is empty
 
 No quick actions are set, or all of them are hidden from the car. Add some under
@@ -316,6 +326,25 @@ you want. Installing the app does not add them for you.
 
 Pick one under **Settings › Android Auto & Wear OS › Watch thermostat** on the phone. Choose
 several and tap the name on the tile to move between them.
+
+## NFC tags
+
+### "Tag scanned, but Home Assistant could not be reached"
+
+Check that the phone can reach Home Assistant, and that location or notifications are switched on
+in HKI 7. Scans travel through the phone's Home Assistant
+registration, which those settings create. Without it, only an administrator's scans are accepted.
+
+### Tapping a tag opens the official app or a web page
+
+The tag is a plain tag and HKI 7 was closed. Home Assistant's links belong to the official app as
+far as Android is concerned, so a plain tag only reaches HKI 7 while HKI 7 is open. Write the tag
+again from **Settings › NFC tags › Write** with **Open HKI 7 when tapped** on, entering the same ID
+so your automations keep working.
+
+[:octicons-arrow-right-24: NFC tags](guide/nfc-tags.md#open-hki-7-when-tapped)
+
+---
 
 ## Backups
 

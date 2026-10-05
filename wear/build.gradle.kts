@@ -18,8 +18,8 @@ android {
         targetSdk = 37
         // Must differ from the phone app's. Convention here: phone versionCode + 1000, so the two
         // stay legible next to each other in Play Console.
-        versionCode = 1034
-        versionName = "1.2.1"
+        versionCode = 1035
+        versionName = "1.3.0"
     }
     buildTypes {
         debug {

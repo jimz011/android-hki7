@@ -3568,6 +3568,7 @@ fun SettingsDialog(
                                     var pendingLabel by remember { mutableStateOf<String?>(null) }
                                     var writeError by remember { mutableStateOf<String?>(null) }
                                     var writeSuccessId by remember { mutableStateOf<String?>(null) }
+                                    val writeOpensApp by prefs.nfcWriteOpensApp.collectAsState(initial = true)
 
                                     val readOnlyMessage = stringResource(R.string.nfc_write_error_read_only)
                                     val tooSmallMessage = stringResource(R.string.nfc_write_error_too_small)
@@ -3601,6 +3602,23 @@ fun SettingsDialog(
                                             supportingText = { Text(stringResource(R.string.nfc_write_label_hint)) },
                                             singleLine = true, modifier = Modifier.fillMaxWidth()
                                         )
+                                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                            Column(Modifier.weight(1f)) {
+                                                Text(stringResource(R.string.nfc_write_opens_app_title), color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
+                                                Text(
+                                                    stringResource(
+                                                        if (writeOpensApp) R.string.nfc_write_opens_app_on
+                                                        else R.string.nfc_write_opens_app_off
+                                                    ),
+                                                    color = appColors.onMuted,
+                                                    style = MaterialTheme.typography.bodySmall
+                                                )
+                                            }
+                                            Switch(
+                                                checked = writeOpensApp,
+                                                onCheckedChange = { scope.launch { prefs.saveNfcWriteOpensApp(it) } }
+                                            )
+                                        }
                                         writeError?.let { message ->
                                             Text(message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                                         }
@@ -3643,7 +3661,11 @@ fun SettingsDialog(
                                         if (waitingForTap) {
                                             NfcTagManager.pendingWrite = { tag ->
                                                 scope.launch(Dispatchers.IO) {
-                                                    val result = writeUri(tag, homeAssistantTagUri(pendingTargetId))
+                                                    val result = writeUri(
+                                                        tag,
+                                                        homeAssistantTagUri(pendingTargetId),
+                                                        appPackage = context.packageName.takeIf { writeOpensApp },
+                                                    )
                                                     withContext(Dispatchers.Main) {
                                                         waitingForTap = false
                                                         result.onSuccess {

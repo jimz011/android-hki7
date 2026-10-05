@@ -1480,6 +1480,20 @@ open class HomeAssistantClient(
         }.filterValues { it.isNotEmpty() }
     }
 
+    /** Fires an event over REST. Home Assistant only lets administrators do this. */
+    open suspend fun fireEvent(eventType: String, data: JsonObject) {
+        withAuthHandling {
+            val response: HttpResponse = client.post("$baseUrl/api/events/$eventType") {
+                header(HttpHeaders.Authorization, "Bearer $accessToken")
+                header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                setBody(data)
+            }
+            if (!response.status.isSuccess()) {
+                throw Exception("Event failed: ${response.status.value} ${response.bodyAsText().take(200)}")
+            }
+        }
+    }
+
     /** Calls an arbitrary service with a free-form JSON payload (target + service data), for
      *  user-configured custom actions where the fixed [HAServiceCall] fields aren't enough. */
     open suspend fun callServiceRaw(domain: String, service: String, payload: JsonObject) {

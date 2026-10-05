@@ -2152,4 +2152,15 @@ class PreferencesManager(
     suspend fun saveNfcTagActivity(activity: List<HKINfcTagActivity>) {
         context.dataStore.edit { it[nfcTagActivityKey] = appJson.encodeToString(activity) }
     }
+
+    private val nfcWriteOpensAppKey = booleanPreferencesKey("nfc_write_opens_app")
+
+    /** Whether written tags carry an Android Application Record for HKI 7 (see [writeUri]). On by
+     *  default: without it, a closed HKI 7 never receives the tap, because home-assistant.io links
+     *  are App-Link verified for the official app only. */
+    val nfcWriteOpensApp: Flow<Boolean> = context.dataStore.data.map { it[nfcWriteOpensAppKey] ?: true }
+
+    suspend fun saveNfcWriteOpensApp(enabled: Boolean) {
+        context.dataStore.edit { it[nfcWriteOpensAppKey] = enabled }
+    }
 }

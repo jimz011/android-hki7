@@ -2749,6 +2749,9 @@
     <string name="nfc_write_custom_id_label">Αναγνωριστικό ετικέτας</string>
     <string name="nfc_write_label_label">Ετικέτα (προαιρετικό)</string>
     <string name="nfc_write_label_hint">Εμφανίζεται μόνο σε αυτήν τη λίστα, δεν στάλθηκε ποτέ στο Home Assistant</string>
+    <string name="nfc_write_opens_app_title">Ανοίξτε το HKI 7 όταν πατήσετε</string>
+    <string name="nfc_write_opens_app_on">Οι ετικέτες λειτουργούν ακόμη και όταν το HKI 7 είναι κλειστό. Τα τηλέφωνα Android χωρίς HKI 7 αποστέλλονται στο Play Store αντί για την επίσημη εφαρμογή Home Assistant.</string>
+    <string name="nfc_write_opens_app_off">Οι ετικέτες λειτουργούν με την επίσημη εφαρμογή Home Assistant. Το HKI 7 τα αναφέρει μόνο όταν είναι ανοιχτό.</string>
     <string name="nfc_write_start">Πατήστε μια ετικέτα για να γράψετε</string>
     <string name="nfc_write_waiting">Κρατήστε μια ετικέτα κοντά στο τηλέφωνό σας…</string>
     <string name="nfc_write_success">Γράφτηκε ετικέτα</string>

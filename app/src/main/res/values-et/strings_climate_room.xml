@@ -27,11 +27,20 @@
         <item>Fikseeritud temperatuuri- ja energianäidud tšehhi, slovaki, kreeka, norra, rootsi ja taani keeles, kus numbrid näitasid valesti või võivad ekraan kokku kukkuda.</item>
         <item>Kas teie keeles on midagi halvasti sõnastatud? Iga keel on nüüd üks fail, mida saate GitHubis parandada, koodi pole vaja.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_2_1">
+    <string-array name="cr_whats_new_1_3_0">
+        <item>Uus: Seaded › NFC-sildid. HKI 7 loeb ja kirjutab samu silte, mis ametlik rakendus Home Assistant ning kui puudutate kõikjal rakenduses, käivitatakse sündmus tag_scanned, mida teie automatiseeringud kuulavad.</item>
+        <item>Sildid võivad avada HKI 7 isegi siis, kui see on suletud. Jätke avatuks HKI 7, kui seda sildi kirjutamisel puudutatakse; lülitage see välja, et kirjutada lihtsaid silte leibkonna jaoks, mis kasutab ka ametlikku rakendust.</item>
         <item>Ostunimekirja vidin saab nüüd näidata teie TidyShopi perenimekirju enda enda asemel. Iga teiega jagatud loend kuvatakse vahekaardina ja millegi ära märkimine jõuab mõne sekundi jooksul ülejäänud leibkonnani.</item>
         <item>See, mida saate sünkroonitud loendiga teha, otsustab pereserver: loend, mida saate vaadata, jääb kirjutuskaitstuks, ja loend, mille saate märgistada, kuid mitte muuta, võimaldab teil kontrollida üksusi neid muutmata. Peal kehtivad endiselt teie juhtpaneeli enda load.</item>
         <item>Uus: Seaded › Ühendatud rakendused, teiste rakenduste jaoks saab HKI 7 hankida. TidyShop on esimene. Ühenduse loomiseks kasutatakse parooli asemel pigem koodi: see telefon teeb oma võtme, mis ei lahku sellest kunagi ja mida ei saa varundada.</item>
         <item>Perekonnaloendid jäävad avaldama ainult siis, kui HKI 7 on ekraanil. Suletud või taskus see ei hoia ühendust ega planeeri tööd, nii et see funktsioon ei maksa aku pealt midagi.</item>
+        <item>Android Auto ei ütle enam, et ta ei pääse Home Assistant juurde enne, kui avate oma telefonis HKI 7. Auto uuendab nüüd aegunud seanssi ise.</item>
+        <item>Kaardid pärinevad nüüd OpenStreetMapist, kuna eelmine kaarditeenus alustas oma kaartide tembeldamist API KEY REQUIRED. Tumeda teema puhul on kaart tumendatud, et see sobiks.</item>
+        <item>Kell saab oma seadistusekraanil tutvuda võrguühenduseta demo avalehega Proovige demo kodu.</item>
+        <item>Energia ei langeta enam tariifi 2, kui kogusummaks on valitud ka tariif 1 ja võimsus vattides vormindatakse nagu iga teine arv.</item>
+        <item>Turvalisus: üksus, mille te endale määrate, võib nüüd kuuluda rohkem kui ühte rühma, näiteks kontakt nii Doorsis kui ka Windowsis.</item>
+        <item>Jagatud armatuurlauad toovad tagasi vidinad, mida vanem versioon ei suutnud lugeda, nt kell, ja Home Assistant meediumiaadressina antud teavituspildid laaditakse nüüd.</item>
+        <item>Parandatud on rippmenüü päis, mis sulgub selle nuppude kerimise ajal, ja ruumi inimeste loend, mis sulgub kohe pärast selle avamist.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_2_0">

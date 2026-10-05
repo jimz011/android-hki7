@@ -2749,6 +2749,9 @@
     <string name="nfc_write_custom_id_label">معرف العلامة</string>
     <string name="nfc_write_label_label">التسمية (اختياري)</string>
     <string name="nfc_write_label_hint">تظهر فقط في هذه القائمة، ولم يتم إرسالها مطلقًا إلى Home Assistant</string>
+    <string name="nfc_write_opens_app_title">افتح HKI 7 عند النقر عليه</string>
+    <string name="nfc_write_opens_app_on">تعمل العلامات حتى أثناء إغلاق HKI 7. يتم إرسال هواتف Android التي لا تحتوي على HKI 7 إلى متجر Play بدلاً من تطبيق Home Assistant الرسمي.</string>
+    <string name="nfc_write_opens_app_off">تعمل العلامات مع تطبيق Home Assistant الرسمي. HKI 7 يبلغ عنها فقط عندما يكون مفتوحًا.</string>
     <string name="nfc_write_start">اضغط على علامة للكتابة</string>
     <string name="nfc_write_waiting">ضع علامة بالقرب من هاتفك...</string>
     <string name="nfc_write_success">العلامة مكتوبة</string>

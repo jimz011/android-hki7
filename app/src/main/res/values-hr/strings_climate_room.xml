@@ -27,11 +27,20 @@
         <item>Fiksna očitanja temperature i energije na češkom, slovačkom, grčkom, norveškom, švedskom i danskom, gdje su se brojke pokazivale pogrešno ili su mogle srušiti zaslon.</item>
         <item>Nešto loše napisano na vašem jeziku? Svaki je jezik sada jedna datoteka koju možete ispraviti na GitHubu, bez potrebe za kodom.</item>
     </string-array>
-    <string-array name="cr_whats_new_1_2_1">
+    <string-array name="cr_whats_new_1_3_0">
+        <item>Novo: Postavke › NFC oznake. HKI 7 čita i piše iste oznake kao i službena aplikacija Home Assistant, a dodir bilo gdje u aplikaciji pokreće događaj tag_scanned koji vaše automatizacije slušaju.</item>
+        <item>Oznake mogu otvoriti HKI 7 čak i dok je zatvoren. Ostavite otvorenim HKI 7 kada se dodirne prilikom pisanja oznake; isključite ga za pisanje običnih oznaka za kućanstvo koje također koristi službenu aplikaciju.</item>
         <item>Widget popisa za kupnju sada može prikazati vaše TidyShop obiteljske popise umjesto vlastitih. Svaki popis podijeljen s vama pojavljuje se kao kartica, a označavanje nečega dopire do ostatka kućanstva u roku od nekoliko sekundi.</item>
         <item>O tome što možete učiniti sa sinkroniziranim popisom odlučuje obiteljski poslužitelj: popis koji možete samo gledati ostaje samo za čitanje, a onaj koji možete označiti, ali ne i uređivati, omogućuje vam provjeru stavki bez mijenjanja. Vlastita dopuštenja vaše nadzorne ploče i dalje se primjenjuju na vrhu.</item>
         <item>Novo: Postavke › Povezane aplikacije, za druge aplikacije iz kojih HKI 7 može povući. TidyShop je prvi. Povezivanje koristi kod umjesto lozinke: ovaj telefon stvara vlastiti ključ koji ga nikada ne napušta i ne može se staviti u rezervnu kopiju.</item>
         <item>Popisi obitelji ostaju aktivni samo dok je HKI 7 na zaslonu. Zatvorena ili u vašem džepu ne drži vezu i ne planira rad, tako da značajka ne troši ništa na bateriju.</item>
+        <item>Android Auto više ne govori da ne može pristupiti Home Assistant dok ne otvorite HKI 7 na svom telefonu. Automobil sada sam obnavlja isteklu sesiju.</item>
+        <item>Karte sada dolaze iz OpenStreetMap-a, jer je prethodna kartografska usluga počela žigosati svoje karte s POTREBNIM API KEY-om. U tamnoj temi karta je zatamnjena kako bi odgovarala.</item>
+        <item>Sat može istraživati offline demo početnu stranicu iz Pokušajte demo početnu stranicu na svom zaslonu za postavljanje.</item>
+        <item>Energija više ne smanjuje tarifu 2 kada je tarifa 1 također odabrana kao ukupna, a snaga u vatima formatirana je kao i svaka druga brojka.</item>
+        <item>Sigurnost: entitet koji sami sebi dodijelite sada može biti u više od jedne grupe, kao što je kontakt u Doorsima i Windowsima.</item>
+        <item>Zajedničke nadzorne ploče vraćaju widgete koje starija verzija nije mogla pročitati, kao što je sat, i slike obavijesti dane kao Home Assistant medijska adresa koja se sada učitava.</item>
+        <item>Popravljeno je zatvaranje padajućeg zaglavlja dok se pomičete po njegovim gumbima, a popis ljudi u sobi zatvarao se čim se otvori.</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_2_0">

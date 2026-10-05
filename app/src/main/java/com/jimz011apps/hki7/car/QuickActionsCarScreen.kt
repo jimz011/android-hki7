@@ -1,5 +1,6 @@
 package com.jimz011apps.hki7.car
 
+import android.util.Log
 import androidx.car.app.CarContext
 import androidx.car.app.CarToast
 import androidx.car.app.Screen
@@ -141,10 +142,11 @@ class QuickActionsCarScreen(carContext: CarContext) : Screen(carContext) {
             return
         }
         val active = try {
-            Hki7Endpoint.createClient(carContext, instanceId)?.also { client = it }
+            Hki7Endpoint.createVerifiedClient(carContext, instanceId)?.also { client = it }
         } catch (cancelled: CancellationException) {
             throw cancelled
-        } catch (_: Exception) {
+        } catch (error: Exception) {
+            Log.w(TAG, "Car screen could not connect to Home Assistant", error)
             state = State.Unavailable
             renderedInstanceId = instanceId
             hasRenderedInstance = true
@@ -296,7 +298,10 @@ class QuickActionsCarScreen(carContext: CarContext) : Screen(carContext) {
                 QuickActions.Result.Success -> carContext.getString(R.string.car_action_sent)
                 QuickActions.Result.NotConfigured -> carContext.getString(R.string.car_not_configured)
                 QuickActions.Result.Unsupported -> carContext.getString(R.string.car_action_unavailable)
-                is QuickActions.Result.Failed -> carContext.getString(R.string.car_action_failed)
+                is QuickActions.Result.Failed -> {
+                    Log.w(TAG, "Car quick action ${item.quickAction.entityId} failed: ${result.message}")
+                    carContext.getString(R.string.car_action_failed)
+                }
             }
             CarToast.makeText(carContext, message, CarToast.LENGTH_SHORT).show()
             // No re-read on success: the subscription delivers the new state, which is also what
@@ -305,6 +310,7 @@ class QuickActionsCarScreen(carContext: CarContext) : Screen(carContext) {
     }
 
     private companion object {
+        const val TAG = "HKI7Car"
         /** The Car App Library's documented default grid limit, used when the service is missing. */
         const val DEFAULT_GRID_LIMIT = 6
         const val FALLBACK_ICON_SLUG = "lightning-bolt"

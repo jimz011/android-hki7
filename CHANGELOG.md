@@ -5,9 +5,31 @@ file in sync with `app/src/main/java/com/jimz011apps/hki7/ui/components/WhatsNew
 
 Items marked with \* require the HKI 7 Cloud Component integration.
 
-## 1.2.1
+## 1.3.0
 
-TidyShop family shopping lists, synced live in the to-do widget.
+NFC tags, TidyShop family shopping lists in the to-do widget, and a round of fixes for the car,
+the watch and the dashboard.
+
+- New: Settings › NFC tags. HKI 7 reads and writes the same tags as the official Home Assistant
+  app, so a tag made with either works with both, and a tap fires the `tag_scanned` event that tag
+  triggers in automations listen for. A tag tapped anywhere in HKI 7 is reported, not only on the
+  NFC screen, and it is sent through this phone's own Home Assistant registration exactly as the
+  official app sends it, so Home Assistant knows which phone scanned it.
+- Tags can open HKI 7 even while it is closed. Home Assistant's website tells Android that its tag
+  links belong to the official app, so a plain tag only ever reached HKI 7 while it was open. The
+  Write tab's new **Open HKI 7 when tapped** switch, on by default, adds a record to the tag that
+  sends it to HKI 7 instead. The trade-off is that an Android phone without HKI 7 is sent to the
+  Play Store rather than to the official app; switch it off to write plain tags for a household
+  that uses both.
+- Android Auto no longer says it cannot reach Home Assistant until HKI 7 has been opened on the
+  phone. When Home Assistant rejected the saved session, the car kept trying it, and only the
+  phone app knew to refresh it. The car now refreshes the session itself and tries once more, and
+  so do HKI 7 Cloud features that run without the app on screen. A rejected request was never
+  carried out, so trying again cannot switch something twice.
+- Maps are drawn from OpenStreetMap. The map service HKI 7 used began stamping "API KEY REQUIRED"
+  over its tiles in August 2026, and Home Assistant has moved to OpenStreetMap as well. In a dark
+  theme the map is darkened the same way Home Assistant darkens its own, instead of a bright map in
+  a dark dashboard.
 
 - The shopping list widget can now show your TidyShop family lists instead of its own. Every list
   the family server shares with you appears as a tab, and ticking something off reaches the rest of
@@ -23,6 +45,23 @@ TidyShop family shopping lists, synced live in the to-do widget.
 - Family lists only stay live while HKI 7 is on screen. Closed or in your pocket, it holds no
   connection and schedules no work, so the feature costs nothing in battery; whatever changed while
   you were away arrives the moment you look again.
+- The watch can explore an offline demo home, with no phone or Home Assistant server, from
+  **Try demo home** on its setup screen.
+- Notification action buttons tapped while offline are retried briefly, but an old household
+  action is never carried out long after the tap that asked for it.
+- Energy no longer drops tariff 2 when tariff 1 is also chosen as the total: for a meter that
+  only has tariff counters, the two together are the total. Power reported in watts is formatted
+  like every other figure instead of showing as, for example, "3540 W".
+- Security: an entity you assign yourself can now sit in more than one group, such as a contact in
+  both Doors and Windows. Automatic discovery still places each entity once, and older saved
+  Occupancy groups are folded into Presence.
+- Shared dashboards restore widgets an older version saved as unknown, such as the Clock widget,
+  and a widget this version does not recognise no longer reserves an empty grid cell.
+- Notification images given as a relative `/media` or `/api/image_proxy` address now load,
+  fetched from the sending server with its credentials, as the official app does.
+- The pull-down header no longer snaps shut while you scroll its action strip toward Settings.
+- Tapping the people count on a room opens the list of who is there; it could close itself again
+  on the next frame.
 
 ## 1.2.0
 

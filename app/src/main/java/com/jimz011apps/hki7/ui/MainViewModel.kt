@@ -3880,63 +3880,22 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
         refreshAfterServiceCall()
     }
 
-    /** Reports an NFC tag read to Home Assistant via the `tag.scan` service, which fires the same
-     *  `tag_scanned` event the official app's NFC reading drives automations from — attributed to
-     *  this phone's own mobile_app device id (see [DeviceTelemetryReporter] for where that id is
-     *  first registered) so "last scanned by" is meaningful. Called for every tag tap that is not
-     *  claimed by [NfcTagManager.pendingWrite]. */
+    /** Reports an NFC tag read to Home Assistant through this phone's mobile_app webhook (see
+     *  [NfcTagReporting]), pinned to the instance that was active when the tag was tapped. Called
+     *  for every tag tap that is not claimed by [NfcTagManager.pendingWrite]. */
     fun reportNfcTagScan(tagId: String, targetInstanceId: String?) {
         viewModelScope.launch {
-            if (targetInstanceId == null) {
+            val context = appContext
+            if (targetInstanceId == null || context == null) {
                 _nfcScanResult.value = NfcScanResult(tagId, false)
                 return@launch
             }
-            val readiness = awaitNfcConnection(
-                targetInstanceId = targetInstanceId,
-                snapshots = combine(
-                    prefs.activeHomeAssistantInstanceId,
-                    connectedInstanceId,
-                    status,
-                ) { activeInstanceId, connectedId, connectionStatus ->
-                    NfcConnectionSnapshot(
-                        activeInstanceId = activeInstanceId,
-                        connectedInstanceId = connectedId,
-                        connected = connectionStatus == ConnectionStatus.CONNECTED,
-                    )
-                },
-                timeoutMillis = 15_000L,
-            )
-            if (readiness != NfcConnectionWaitResult.READY) {
-                addLog(
-                    if (readiness == NfcConnectionWaitResult.INSTANCE_CHANGED) {
-                        "NFC tag scan cancelled because the Home Assistant instance changed."
-                    } else {
-                        "NFC tag scan timed out waiting for Home Assistant."
-                    }
-                )
-                _nfcScanResult.value = NfcScanResult(tagId, false)
-                return@launch
-            }
-            val success = try {
-                val deviceId = prefs.mobileAppDeviceId.first()
-                // Recheck all three values immediately before capturing the client. This closes the
-                // small window between the readiness emission and an instance switch.
-                val currentClient = client
-                check(prefs.activeHomeAssistantInstanceId.first() == targetInstanceId)
-                check(connectedInstanceId.value == targetInstanceId)
-                check(_status.value == ConnectionStatus.CONNECTED && currentClient != null)
-                currentClient.callServiceRaw("tag", "scan", buildJsonObject {
-                    put("tag_id", tagId)
-                    if (!deviceId.isNullOrBlank()) put("device_id", deviceId)
-                })
-                true
-            } catch (e: Exception) {
-                addLog("NFC tag scan report failed: ${e.message}")
-                false
-            }
+            val success = NfcTagReporting.report(context, targetInstanceId, tagId)
             if (success) {
                 val entry = HKINfcTagActivity(tagId = tagId, epochMillis = System.currentTimeMillis(), wasWrite = false)
                 prefs.saveNfcTagActivity((listOf(entry) + prefs.nfcTagActivity.first()).take(20))
+            } else {
+                addLog("NFC tag scan could not be reported to Home Assistant.")
             }
             _nfcScanResult.value = NfcScanResult(tagId, success)
         }

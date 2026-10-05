@@ -2749,6 +2749,9 @@
     <string name="nfc_write_custom_id_label">מזהה תג</string>
     <string name="nfc_write_label_label">תווית (אופציונלי)</string>
     <string name="nfc_write_label_hint">מוצג רק ברשימה זו, מעולם לא נשלח אל Home Assistant</string>
+    <string name="nfc_write_opens_app_title">פתח את HKI 7 כאשר הקש</string>
+    <string name="nfc_write_opens_app_on">התגים פועלים גם כאשר HKI 7 סגור. טלפונים אנדרואיד ללא HKI 7 נשלחים לחנות Play במקום לאפליקציית Home Assistant הרשמית.</string>
+    <string name="nfc_write_opens_app_off">תגים עובדים עם האפליקציה הרשמית Home Assistant. HKI 7 מדווח עליהם רק כשהיא פתוחה.</string>
     <string name="nfc_write_start">הקש על תג כדי לכתוב</string>
     <string name="nfc_write_waiting">החזק תג ליד הטלפון שלך...</string>
     <string name="nfc_write_success">תג נכתב</string>

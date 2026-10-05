@@ -103,6 +103,9 @@ class DemoHomeAssistantClient : HomeAssistantClient(DEMO_SERVER_URL, DEMO_ACCESS
 
     override suspend fun checkConnection() = Unit
 
+    /** Nothing in the demo home listens for events. */
+    override suspend fun fireEvent(eventType: String, data: JsonObject) = Unit
+
     override fun isConnectedViaLocalAddress(): Boolean = true
 
     override suspend fun getAreas(): List<HAArea> = demoAreas()

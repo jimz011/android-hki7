@@ -2749,6 +2749,9 @@
     <string name="nfc_write_custom_id_label">ID-ul etichetei</string>
     <string name="nfc_write_label_label">Etichetă (opțional)</string>
     <string name="nfc_write_label_hint">Afișat numai în această listă, niciodată trimis la Home Assistant</string>
+    <string name="nfc_write_opens_app_title">Deschideți HKI 7 când atingeți</string>
+    <string name="nfc_write_opens_app_on">Etichetele funcționează chiar dacă HKI 7 este închis. Telefoanele Android fără HKI 7 sunt trimise la Magazinul Play în loc de aplicația oficială Home Assistant.</string>
+    <string name="nfc_write_opens_app_off">Etichetele funcționează cu aplicația oficială Home Assistant. HKI 7 le raportează numai când este deschis.</string>
     <string name="nfc_write_start">Atingeți o etichetă pentru a scrie</string>
     <string name="nfc_write_waiting">Țineți o etichetă lângă telefon...</string>
     <string name="nfc_write_success">Etichetă scrisă</string>

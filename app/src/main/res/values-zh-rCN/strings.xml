@@ -3925,11 +3925,20 @@
     <string name="settings_local_network_allowed">允许</string>
     <string name="settings_local_network_not_allowed">不允许 — 无法通过您的 Wi-Fi 直接访问 Home Assistant</string>
     <string name="update_see_changes">看看发生了什么变化</string>
-    <string-array name="cr_whats_new_1_2_1">
+    <string-array name="cr_whats_new_1_3_0">
+        <item>新功能：设置 › NFC 标签。 HKI 7 reads and writes the same tags as the official Home Assistant app, and a tap anywhere in the app fires the tag_scanned event your automations listen for.</item>
+        <item>即使 HKI 7 已关闭，标签也可以打开它。写入标签时点击时保持打开 HKI 7 ；将其关闭，为也使用官方应用程序的家庭编写普通标签。</item>
         <item>购物清单小部件现在可以显示您的 TidyShop 家庭清单，而不是它自己的清单。与您共享的每个列表都显示为一个选项卡，勾选某些内容会在几秒钟内到达家庭的其他成员。</item>
         <item>您可以对同步列表执行的操作由家庭服务器决定：您只能查看的列表保持只读状态，您可以勾选但不能编辑的列表可以让您检查项目而不更改它们。您的仪表板自己的权限仍然适用于顶部。</item>
         <item>新功能：设置 › 连接的应用程序，可供 HKI 7 可以从中提取的其他应用程序使用。 TidyShop 是第一个。连接使用代码而不是密码：这款手机有自己的密钥，该密钥永远不会离开它，也不能放在备份中。</item>
         <item>家庭列表仅在 HKI 7 显示在屏幕上时保持活动状态。关闭或放在口袋里时，它不会保持连接，也不会安排任何工作，因此该功能无需任何电池消耗。</item>
+        <item>Android Auto 不再提示您在手机上打开 HKI 7 之前无法访问 Home Assistant。 The car now renews an expired session by itself.</item>
+        <item>地图现在来自 OpenStreetMap，因为以前的地图服务开始使用所需的 API 密钥在其地图上标记。在深色主题中，地图会变暗以匹配。</item>
+        <item>手表可以通过其设置屏幕上的“尝试演示主页”探索离线演示主页。</item>
+        <item>当关税 1 也被选为总价时，能源不再降低关税 2，并且以瓦为单位的功率的格式与其他数字一样。</item>
+        <item>安全性：您自己分配的实体现在可以属于多个组，例如门和窗中的联系人。</item>
+        <item>共享仪表板带回了旧版本无法读取的小部件，例如时钟，并且现在加载以 Home Assistant 媒体地址给出的通知图像。</item>
+        <item>修复了滚动按钮时下拉标题关闭的问题，以及房间上的人员列表在打开后立即关闭的问题。</item>
     </string-array>
 
     <string-array name="cr_whats_new_1_2_0">
@@ -4087,4 +4096,7 @@
     <string name="nfc_write_waiting">将标签放在手机附近...</string>
     <string name="settings_subtitle_nfc_tags">读写触发 Home Assistant 的标签</string>
     <string name="settings_title_nfc_tags">NFC标签</string>
+    <string name="nfc_write_opens_app_off">标签可与官方 Home Assistant 应用程序配合使用。 HKI 7 仅在打开时报告它们。</string>
+    <string name="nfc_write_opens_app_on">即使 HKI 7 关闭，标签也能工作。没有 HKI 7 的 Android 手机将被发送到 Play 商店，而不是官方 Home Assistant 应用程序。</string>
+    <string name="nfc_write_opens_app_title">点击时打开 HKI 7</string>
 </resources>

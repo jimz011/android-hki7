@@ -2749,6 +2749,9 @@
     <string name="nfc_write_custom_id_label">Tags ID</string>
     <string name="nfc_write_label_label">Etiķete (neobligāti)</string>
     <string name="nfc_write_label_hint">Parādīts tikai šajā sarakstā, nekad nav nosūtīts uz Home Assistant</string>
+    <string name="nfc_write_opens_app_title">Pieskaroties, atveriet HKI 7</string>
+    <string name="nfc_write_opens_app_on">Atzīmes darbojas pat tad, ja HKI 7 ir aizvērta. Android tālruņi bez HKI 7 tiek nosūtīti uz Play veikalu, nevis uz oficiālo lietotni Home Assistant.</string>
+    <string name="nfc_write_opens_app_off">Atzīmes darbojas ar oficiālo lietotni Home Assistant. HKI 7 ziņo par tiem tikai tad, kad tas ir atvērts.</string>
     <string name="nfc_write_start">Pieskarieties atzīmei, lai rakstītu</string>
     <string name="nfc_write_waiting">Turiet atzīmi pie tālruņa…</string>
     <string name="nfc_write_success">Atzīme ierakstīta</string>

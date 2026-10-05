@@ -1,6 +1,7 @@
 package com.jimz011apps.hki7.data
 
 import android.content.Context
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 
 /**
@@ -78,29 +79,28 @@ object QuickActions {
         }
         // Hki7Endpoint prefers the external URL, which is the right bias here — a phone driving a
         // car screen is by definition away from the home Wi-Fi the internal URL needs.
-        val outcome = try {
+        // The call must throw out of the block rather than be caught inside it: that is how
+        // Hki7Endpoint sees a rejected token and retries once with a refreshed one.
+        return try {
             Hki7Endpoint.withClient(context, instanceId) { client ->
-                runCatching {
-                    when (kind) {
-                        QuickActionKind.TOGGLE -> client.toggleEntity(quickAction.targetEntityId()!!)
-                        QuickActionKind.CALL_SERVICE -> {
-                            val service = resolved.service!!
-                            client.callServiceRaw(
-                                service.substringBefore('.'),
-                                service.substringAfter('.'),
-                                buildHKIActionServicePayload(resolved, quickAction.entityId),
-                            )
-                        }
-                        QuickActionKind.UNSUPPORTED -> Unit
+                when (kind) {
+                    QuickActionKind.TOGGLE -> client.toggleEntity(quickAction.targetEntityId()!!)
+                    QuickActionKind.CALL_SERVICE -> {
+                        val service = resolved.service!!
+                        client.callServiceRaw(
+                            service.substringBefore('.'),
+                            service.substringAfter('.'),
+                            buildHKIActionServicePayload(resolved, quickAction.entityId),
+                        )
                     }
+                    QuickActionKind.UNSUPPORTED -> Unit
                 }
-            }
+                Result.Success
+            } ?: Result.NotConfigured
+        } catch (cancelled: CancellationException) {
+            throw cancelled
         } catch (error: Exception) {
-            return Result.Failed(error.message)
-        } ?: return Result.NotConfigured
-        return outcome.fold(
-            onSuccess = { Result.Success },
-            onFailure = { Result.Failed(it.message) },
-        )
+            Result.Failed(error.message)
+        }
     }
 }

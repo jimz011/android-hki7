@@ -1,4 +1,4 @@
-WEAR OS REVIEW INSTRUCTIONS — HKI 7 1.2.0
+WEAR OS REVIEW INSTRUCTIONS — HKI 7 1.3.0
 
 No account, credentials, companion app or Home Assistant server is required for review.
 

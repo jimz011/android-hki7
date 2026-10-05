@@ -49,6 +49,10 @@ your question is.
 
     Local files, Google Drive, and backups stored on your own Home Assistant.
 
+-   :material-nfc-variant: **[NFC tags](nfc-tags.md)**
+
+    Reading and writing tags that trigger Home Assistant automations.
+
 -   :material-home-group: **[Multiple homes](multiple-homes.md)**
 
     Running more than one Home Assistant from a single app.

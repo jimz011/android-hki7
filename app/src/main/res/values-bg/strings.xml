@@ -2749,6 +2749,9 @@
     <string name="nfc_write_custom_id_label">ID на етикет</string>
     <string name="nfc_write_label_label">Етикет (по избор)</string>
     <string name="nfc_write_label_hint">Показва се само в този списък, никога не се изпраща до Home Assistant</string>
+    <string name="nfc_write_opens_app_title">Отворете HKI 7 при докосване</string>
+    <string name="nfc_write_opens_app_on">Етикетите работят дори когато HKI 7 е затворен. Телефоните с Android без HKI 7 се изпращат в Play Store вместо в официалното приложение Home Assistant.</string>
+    <string name="nfc_write_opens_app_off">Етикетите работят с официалното приложение Home Assistant. HKI 7 ги отчита само докато е отворен.</string>
     <string name="nfc_write_start">Докоснете етикет, за да напишете</string>
     <string name="nfc_write_waiting">Дръжте етикет близо до телефона си...</string>
     <string name="nfc_write_success">Етикетът е написан</string>

@@ -24,7 +24,16 @@ import kotlinx.serialization.json.JsonObject
 internal object Hki7Endpoint {
     private data class Endpoint(val url: String, val token: String)
 
-    private suspend fun endpoint(context: Context, instanceId: String): Endpoint? {
+    /**
+     * @param rejectedToken an access token Home Assistant just answered 401 to. Its stored expiry
+     *  can still look healthy (the main app's auth probe exists for the same reason), so the
+     *  expiry check alone would hand the same dead token back; a rejected token forces a refresh.
+     */
+    private suspend fun endpoint(
+        context: Context,
+        instanceId: String,
+        rejectedToken: String? = null,
+    ): Endpoint? {
         val rootPrefs = PreferencesManager(context)
         val prefs = rootPrefs.forInstance(instanceId)
         // Prefer the external URL (reachable off the home network, e.g. for the daily job);
@@ -37,7 +46,12 @@ internal object Hki7Endpoint {
         val expiry = prefs.accessTokenExpiry.first()
         val now = System.currentTimeMillis()
 
-        when (endpointAuthDecision(token, refreshToken, expiry, now)) {
+        val decision = if (rejectedToken != null) {
+            if (refreshToken == null) EndpointAuthDecision.LOGIN_REQUIRED else EndpointAuthDecision.REFRESH
+        } else {
+            endpointAuthDecision(token, refreshToken, expiry, now)
+        }
+        when (decision) {
             EndpointAuthDecision.LOGIN_REQUIRED -> {
                 if (isKnownExpiredWithoutRefreshToken(token, refreshToken, expiry, now)) {
                     prefs.clearAuth()
@@ -45,7 +59,9 @@ internal object Hki7Endpoint {
                 return null
             }
             EndpointAuthDecision.REFRESH -> {
-                when (val refreshed = HomeAssistantAuthRefreshCoordinator.refresh(url, prefs, token)) {
+                // With a rejected token the coordinator reuses a token another caller already
+                // refreshed to, rather than spending the refresh token a second time.
+                when (val refreshed = HomeAssistantAuthRefreshCoordinator.refresh(url, prefs, rejectedToken ?: token)) {
                     is CoordinatedTokenRefreshResult.Success -> token = refreshed.accessToken
                     is CoordinatedTokenRefreshResult.LoginRequired -> return null
                     is CoordinatedTokenRefreshResult.AccessForbidden -> throw refreshed.cause
@@ -74,18 +90,40 @@ internal object Hki7Endpoint {
         return withClient(context, instanceId, block)
     }
 
+    /**
+     * Runs [block] once, and once more with a refreshed token if Home Assistant rejected the stored
+     * one. A 401 means the request was not carried out, so repeating a toggle here cannot run it
+     * twice. Without the retry, a surface with no view model of its own (Android Auto, above all)
+     * failed every call until the phone app was opened and refreshed the session for it.
+     */
     suspend fun <T> withClient(
         context: Context,
         instanceId: String,
         block: suspend (HomeAssistantClient) -> T,
     ): T? {
-        val client = createClient(context, instanceId) ?: return null
+        val first = endpoint(context, instanceId) ?: return null
+        try {
+            return useClient(first, block)
+        } catch (error: Exception) {
+            if (!isAuthExpired(error)) throw error
+        }
+        val retry = endpoint(context, instanceId, rejectedToken = first.token) ?: return null
+        return useClient(retry, block)
+    }
+
+    private suspend fun <T> useClient(
+        endpoint: Endpoint,
+        block: suspend (HomeAssistantClient) -> T,
+    ): T {
+        val client = clientFor(endpoint)
         return try {
             block(client)
         } finally {
             client.dispose()
         }
     }
+
+    private fun isAuthExpired(error: Throwable): Boolean = error.message == "AUTH_EXPIRED"
 
     /**
      * A client the caller owns and must [HomeAssistantClient.dispose] itself.
@@ -101,8 +139,29 @@ internal object Hki7Endpoint {
         return createClient(context, instanceId)
     }
 
-    suspend fun createClient(context: Context, instanceId: String): HomeAssistantClient? {
-        val endpoint = endpoint(context, instanceId) ?: return null
+    suspend fun createClient(context: Context, instanceId: String): HomeAssistantClient? =
+        endpoint(context, instanceId)?.let(::clientFor)
+
+    /**
+     * As [createClient], but proves the token first and refreshes it if Home Assistant rejects it.
+     * For a long-lived client — the car screen's subscription — whose first failure would
+     * otherwise be swallowed, leaving the grid stale until the phone app happened to be opened.
+     */
+    suspend fun createVerifiedClient(context: Context, instanceId: String): HomeAssistantClient? {
+        val first = endpoint(context, instanceId) ?: return null
+        val client = clientFor(first)
+        try {
+            client.checkConnection()
+            return client
+        } catch (error: Exception) {
+            client.dispose()
+            if (!isAuthExpired(error)) throw error
+        }
+        val retry = endpoint(context, instanceId, rejectedToken = first.token) ?: return null
+        return clientFor(retry)
+    }
+
+    private fun clientFor(endpoint: Endpoint): HomeAssistantClient {
         // Mirrors MainViewModel's own client construction: on the demo home there is no server
         // behind the saved URL, so a real client here would send requests at demo-home.hki7.invalid.
         // The Android Auto surface reaches Home Assistant only through here, and demo mode is how

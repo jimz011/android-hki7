@@ -1,6 +1,6 @@
 # HKI 7 Privacy Policy
 
-**Last updated: August 29, 2026**
+**Last updated: October 5, 2026**
 
 HKI 7 ("the app") is an Android client for [Home Assistant](https://www.home-assistant.io/), a home automation platform that you host yourself. This policy explains what data the app handles and where it goes.
 
@@ -37,6 +37,14 @@ The watch reports nothing about itself unless you switch on **Report watch batte
 
 The Android Auto screen shows the shortcuts you chose and calls the corresponding services on **your own Home Assistant server**. Nothing about your vehicle, your location, or your driving is collected, and no data is sent anywhere other than the Home Assistant instance you configured.
 
+### NFC tags
+
+When you tap an NFC tag, the app reads the tag's ID and sends it **only to your own Home Assistant server**, together with this phone's Home Assistant device registration, so automations can react to it. Writing a tag stores an ID and, if you leave **Open HKI 7 when tapped** on, the app's package name on the tag itself. An optional label you give a tag, and a list of your recent scans and writes, stay on your device.
+
+### Connected apps (TidyShop)
+
+If you connect the app to a TidyShop family connector under **Settings › Connected apps**, the app exchanges shopping-list items with **that connector, which you or your household host**. Connecting generates a key pair in the Android Keystore; only the public key is sent, and the private key never leaves the device and is excluded from backups. Nothing is exchanged unless you connect, and the connection is only open while the app is on screen.
+
 ### Home Assistant data (entities, cameras, media)
 
 Dashboards, entity states, history, camera streams, and media are fetched **from your own Home Assistant server** for display on your device. Camera streams are viewed live and are not recorded or stored by the app.
@@ -60,7 +68,11 @@ Optionally, you can enable **cloud backup to Google Drive**. If you do, the app 
 
 ## Third-party services
 
-The app uses **Google Play services** on your device for location (fused location / geofencing) and, if you enable cloud backup, for **Google Drive** authorization. These services are provided by Google and are subject to the [Google Privacy Policy](https://policies.google.com/privacy). Your self-hosted Home Assistant server is operated by you (or your server's administrator) and is outside the scope of this policy.
+The app uses **Google Play services** on your device for location (fused location / geofencing) and, if you enable cloud backup, for **Google Drive** authorization. These services are provided by Google and are subject to the [Google Privacy Policy](https://policies.google.com/privacy).
+
+Maps (a person's location, the Find Devices widget) are drawn from [OpenStreetMap](https://www.openstreetmap.org/)'s public tile server. To show a map, the app downloads the map images for the area being shown, so OpenStreetMap receives your device's IP address and which map area was requested, as with any website. No account, identifier, or location history is sent. Their handling is governed by the [OpenStreetMap Foundation Privacy Policy](https://osmfoundation.org/wiki/Privacy_Policy).
+
+Your self-hosted Home Assistant server is operated by you (or your server's administrator) and is outside the scope of this policy.
 
 ## Data retention and deletion
 
