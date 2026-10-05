@@ -1,10 +1,11 @@
 NEW
-• NFC tags: read and write Home Assistant tags, and open HKI 7 from a tag even while it is closed
+• NFC tags: read and write Home Assistant tags, even while HKI 7 is closed, without the app opening
 • TidyShop family shopping lists in the to-do widget
 • Maps now use OpenStreetMap, darkened in dark themes
 
 FIXED
 • Android Auto works without opening the app on the phone first
 • Energy tariff totals and watt formatting
-• Security entities can sit in more than one group
+• Security entities can be in more than one group
 • Shared dashboards restore Clock widgets
+• Header pull-down and room people list no longer close by themselves
