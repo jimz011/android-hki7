@@ -142,7 +142,9 @@ device rather than to a dashboard or a server.
 **TidyShop** connects this phone to a family shopping-list connector, which the
 [to-do widget](../guide/widgets.md#syncing-with-tidyshop) can then show. Connecting uses an invite,
 device, or recovery code rather than a password; this device signs its own requests with a key it
-generates in the Android Keystore. **Leave family** deletes that key.
+generates in the Android Keystore. **Leave family** deletes that key. Until connected, the screen lists what is
+needed (the TidyShop app and a self-hosted connector), the steps to connect, and links to the setup
+guide and the connector on GitHub.
 
 [:octicons-arrow-right-24: Connected apps](../guide/connected-apps.md)
 

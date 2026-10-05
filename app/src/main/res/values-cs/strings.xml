@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">Připojeno k %1$s</string>
     <string name="settings_title_tidyshop">TidyShop</string>
     <string name="settings_subtitle_tidyshop">Rodinné nákupní seznamy z vašeho vlastního konektoru</string>
+    <string name="tidyshop_requirements_title">Co potřebujete</string>
+    <string name="tidyshop_requirement_app">Aplikace TidyShop na telefonu toho, kdo vede rodinné seznamy. Tam se dělají seznamy a pozvánky; HKI 7 je zobrazí a zaškrtne. TidyShop je v uzavřeném testování na Google Play.</string>
+    <string name="tidyshop_requirement_connector">Konektor TidyShop běžící na serveru, který vlastníte (Docker nebo Unraid) a dostupný z tohoto telefonu. Obsahuje sdílené seznamy rodiny; neexistuje žádný cloud TidyShop.</string>
+    <string name="tidyshop_steps_title">Jak se připojit</string>
+    <string name="tidyshop_step_install">1. Nainstalujte konektor a namiřte na něj TidyShop podle průvodce nastavením.</string>
+    <string name="tidyshop_step_invite">2. V TidyShop pozvěte tuto osobu do rodiny nebo vytvořte kód zařízení, pokud již TidyShop sami používáte.</string>
+    <string name="tidyshop_step_connect">3. Níže zadejte adresu konektoru a kód.</string>
+    <string name="tidyshop_open_guide">Průvodce nastavením</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">Zadejte adresu vašeho rodinného konektoru a kód z něj. Požádejte o pozvánku toho, kdo to nastavil, nebo použijte kód zařízení z jiného vašeho vlastního telefonu.</string>
     <string name="tidyshop_server_label">Adresa konektoru</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

@@ -874,6 +874,15 @@ connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Tü
 connected_apps_tidyshop_connected,,Connected to %1$s,%1$s'ye bağlanıldı,app fills in %1$s — keep them
 settings_title_tidyshop,,TidyShop,Düzenli Mağaza,
 settings_subtitle_tidyshop,,Family shopping lists from your own connector,Kendi bağlayıcınızdan aile alışveriş listeleri,
+tidyshop_requirements_title,,What you need,İhtiyacınız olan şey,
+tidyshop_requirement_app,,"The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.","Aile listelerini yöneten kişinin telefonundaki TidyShop uygulaması. Listeler, davetler orada yapılıyor; HKI 7 bunları gösterir ve işaretler. TidyShop, Google Play'de kapalı test aşamasındadır.",don't translate HKI 7
+tidyshop_requirement_connector,,"The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family's shared lists; there is no TidyShop cloud.",Sahip olduğunuz bir sunucuda (Docker veya Unraid) çalışan ve bu telefondan erişilebilen TidyShop konektörü. Ailenin paylaşılan listelerini tutar; TidyShop bulutu yok.,
+tidyshop_steps_title,,How to connect,Nasıl bağlanılır,
+tidyshop_step_install,,"1. Install the connector and point TidyShop at it, following the setup guide.",1. Konektörü takın ve kurulum kılavuzunu izleyerek TidyShop'u ona doğrultun.,
+tidyshop_step_invite,,"2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.",2. TidyShop'ta bu kişiyi ailenize davet edin veya TidyShop'u zaten kendiniz kullanıyorsanız bir cihaz kodu oluşturun.,
+tidyshop_step_connect,,3. Enter the connector address and that code below.,3. Konektör adresini ve kodu aşağıya girin.,
+tidyshop_open_guide,,Setup guide,Kurulum kılavuzu,
+tidyshop_open_github,,GitHub,GitHub,
 tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.",Aile bağlayıcınızın adresini ve ondan gelen kodu girin. Bunu davet için ayarlayan kişiye sorun veya kendi telefonlarınızdan başka bir cihaz kodunu kullanın.,
 tidyshop_server_label,,Connector address,Bağlayıcı adresi,
 tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,

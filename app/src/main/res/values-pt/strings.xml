@@ -4147,4 +4147,13 @@
     <string name="nfc_write_opens_app_off">As tags funcionam com a aplicação oficial Home Assistant. HKI 7 apenas os reporta enquanto está aberto.</string>
     <string name="nfc_write_opens_app_on">HKI 7 reporta a tag mesmo quando esta está fechada, sem abrir. Os telefones Android sem HKI 7 são enviados para a Play Store em vez da aplicação oficial Home Assistant.</string>
     <string name="nfc_write_opens_app_title">Ler tags enquanto HKI 7 está fechado</string>
+    <string name="tidyshop_open_github">GitHub</string>
+    <string name="tidyshop_open_guide">Guia de configuração</string>
+    <string name="tidyshop_requirement_app">A aplicação TidyShop, no telefone de quem gere as listas familiares. Aí são feitas listas e convites; HKI 7 mostra-os e marca-os. O TidyShop está em testes fechados no Google Play.</string>
+    <string name="tidyshop_requirement_connector">O conector TidyShop, executado num servidor de que é proprietário (Docker ou Unraid) e acessível a partir deste telefone. Contém as listas partilhadas da família; não há nuvem TidyShop.</string>
+    <string name="tidyshop_requirements_title">O que precisa</string>
+    <string name="tidyshop_step_connect">3.º Introduza o endereço do conector e o código abaixo.</string>
+    <string name="tidyshop_step_install">1. Instale o conector e aponte o TidyShop para o mesmo, seguindo o guia de configuração.</string>
+    <string name="tidyshop_step_invite">2.No TidyShop, convide essa pessoa para a família ou crie um código de dispositivo se já utilizar o TidyShop.</string>
+    <string name="tidyshop_steps_title">Como ligar</string>
 </resources>

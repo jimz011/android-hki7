@@ -874,6 +874,15 @@ connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,家
 connected_apps_tidyshop_connected,,Connected to %1$s,%1$s に接続されました,app fills in %1$s — keep them
 settings_title_tidyshop,,TidyShop,タイディショップ,
 settings_subtitle_tidyshop,,Family shopping lists from your own connector,独自のコネクタからの家族のショッピング リスト,
+tidyshop_requirements_title,,What you need,必要なもの,
+tidyshop_requirement_app,,"The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.",家族リストを管理する人の携帯電話にある TidyShop アプリ。リストと招待状はそこで作成されます。 HKI 7 はそれらを表示し、チェックマークを付けます。 TidyShop は Google Play でクローズドテスト中です。,don't translate HKI 7
+tidyshop_requirement_connector,,"The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family's shared lists; there is no TidyShop cloud.",TidyShop コネクタ。所有するサーバー (Docker または Unraid) 上で実行され、この電話からアクセスできます。家族の共有リストが保管されています。 TidyShop クラウドはありません。,
+tidyshop_steps_title,,How to connect,接続方法,
+tidyshop_step_install,,"1. Install the connector and point TidyShop at it, following the setup guide.",1. セットアップ ガイドに従って、コネクタを取り付け、TidyShop をそれに向けます。,
+tidyshop_step_invite,,"2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.",2. TidyShop で、この人を家族に招待するか、すでに TidyShop を自分で使用している場合はデバイス コードを作成します。,
+tidyshop_step_connect,,3. Enter the connector address and that code below.,3. 以下にコネクタのアドレスとそのコードを入力します。,
+tidyshop_open_guide,,Setup guide,セットアップガイド,
+tidyshop_open_github,,GitHub,GitHub,
 tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.",ファミリー コネクタのアドレスとそこからのコードを入力します。招待を設定した人に尋ねるか、自分の別の携帯電話のデバイス コードを使用してください。,
 tidyshop_server_label,,Connector address,コネクタアドレス,
 tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,

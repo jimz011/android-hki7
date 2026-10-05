@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">Συνδέθηκε στο %1$s</string>
     <string name="settings_title_tidyshop">TidyShop</string>
     <string name="settings_subtitle_tidyshop">Οικογενειακές λίστες αγορών από τη δική σας εφαρμογή σύνδεσης</string>
+    <string name="tidyshop_requirements_title">Τι χρειάζεσαι</string>
+    <string name="tidyshop_requirement_app">Η εφαρμογή TidyShop, στο τηλέφωνο οποιουδήποτε εκτελεί τις οικογενειακές λίστες. Οι λίστες και οι προσκλήσεις γίνονται εκεί. Το HKI 7 εμφανίζει και τα σημειώνει. Το TidyShop βρίσκεται σε κλειστή δοκιμή στο Google Play.</string>
+    <string name="tidyshop_requirement_connector">Η σύνδεση TidyShop, που εκτελείται σε έναν διακομιστή που σας ανήκει (Docker ή Unraid) και είναι προσβάσιμη από αυτό το τηλέφωνο. Διατηρεί τις κοινόχρηστες λίστες της οικογένειας. δεν υπάρχει σύννεφο TidyShop.</string>
+    <string name="tidyshop_steps_title">Πώς να συνδεθείτε</string>
+    <string name="tidyshop_step_install">1. Εγκαταστήστε το βύσμα και τοποθετήστε το TidyShop σε αυτό, ακολουθώντας τον οδηγό εγκατάστασης.</string>
+    <string name="tidyshop_step_invite">2. Στο TidyShop, προσκαλέστε αυτό το άτομο στην οικογένεια ή δημιουργήστε έναν κωδικό συσκευής εάν χρησιμοποιείτε ήδη το TidyShop.</string>
+    <string name="tidyshop_step_connect">3. Εισαγάγετε τη διεύθυνση σύνδεσης και αυτόν τον κωδικό παρακάτω.</string>
+    <string name="tidyshop_open_guide">Οδηγός εγκατάστασης</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">Εισαγάγετε τη διεύθυνση της εφαρμογής σύνδεσης της οικογένειάς σας και έναν κωδικό από αυτήν. Ζητήστε από όποιον το έχει ρυθμίσει για μια πρόσκληση ή χρησιμοποιήστε έναν κωδικό συσκευής από άλλο δικό σας τηλέφωνο.</string>
     <string name="tidyshop_server_label">Διεύθυνση σύνδεσης</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

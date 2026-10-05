@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">Prisijungta prie %1$s</string>
     <string name="settings_title_tidyshop">„TidyShop“.</string>
     <string name="settings_subtitle_tidyshop">Šeimos pirkinių sąrašai iš jūsų jungties</string>
+    <string name="tidyshop_requirements_title">Ko tau reikia</string>
+    <string name="tidyshop_requirement_app">„TidyShop“ programa, skirta to, kas valdo šeimos sąrašus, telefone. Ten sudaromi sąrašai ir kvietimai; HKI 7 juos rodo ir pažymi. „TidyShop“ yra uždarame „Google Play“ testavimo etape.</string>
+    <string name="tidyshop_requirement_connector">„TidyShop“ jungtis, veikianti jums priklausančiame serveryje („Docker“ arba „Unraid“) ir pasiekiama šiuo telefonu. Jame saugomi bendri šeimos sąrašai; nėra TidyShop debesies.</string>
+    <string name="tidyshop_steps_title">Kaip prisijungti</string>
+    <string name="tidyshop_step_install">1. Įdiekite jungtį ir nukreipkite į ją „TidyShop“, vadovaudamiesi sąrankos vadovu.</string>
+    <string name="tidyshop_step_invite">2. „TidyShop“ pakvieskite šį asmenį į šeimą arba sukurkite įrenginio kodą, jei patys jau naudojatės „TidyShop“.</string>
+    <string name="tidyshop_step_connect">3. Toliau įveskite jungties adresą ir kodą.</string>
+    <string name="tidyshop_open_guide">Sąrankos vadovas</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">Įveskite šeimos jungties adresą ir kodą iš jo. Paklauskite, kas jį nustatė, gauti kvietimą arba naudokite įrenginio kodą iš kito savo telefono.</string>
     <string name="tidyshop_server_label">Jungties adresas</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

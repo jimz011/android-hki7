@@ -874,6 +874,15 @@ connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,온
 connected_apps_tidyshop_connected,,Connected to %1$s,%1$s에 연결됨,app fills in %1$s — keep them
 settings_title_tidyshop,,TidyShop,깔끔한 상점,
 settings_subtitle_tidyshop,,Family shopping lists from your own connector,나만의 커넥터로 만든 가족 쇼핑 목록,
+tidyshop_requirements_title,,What you need,필요한 것,
+tidyshop_requirement_app,,"The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.",가족 목록을 운영하는 사람의 전화에 있는 TidyShop 앱. 목록과 초대가 거기에서 만들어집니다. HKI 7은 이를 표시하고 선택합니다. TidyShop은 Google Play에서 비공개 테스트 중입니다.,don't translate HKI 7
+tidyshop_requirement_connector,,"The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family's shared lists; there is no TidyShop cloud.",귀하가 소유한 서버(Docker 또는 Unraid)에서 실행되고 이 전화기에서 연결할 수 있는 TidyShop 커넥터입니다. 여기에는 가족의 공유 목록이 들어 있습니다. TidyShop 클라우드가 없습니다.,
+tidyshop_steps_title,,How to connect,연결 방법,
+tidyshop_step_install,,"1. Install the connector and point TidyShop at it, following the setup guide.",1. 설치 가이드에 따라 커넥터를 설치하고 TidyShop을 가리킵니다.,
+tidyshop_step_invite,,"2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.","2. TidyShop에서 이 사람을 가족으로 초대하거나, 이미 TidyShop을 사용하고 있다면 기기 코드를 만드세요.",
+tidyshop_step_connect,,3. Enter the connector address and that code below.,3. 아래에 커넥터 주소와 해당 코드를 입력하세요.,
+tidyshop_open_guide,,Setup guide,설정 가이드,
+tidyshop_open_github,,GitHub,GitHub,
 tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.",가족 커넥터의 주소와 코드를 입력하세요. 초대를 설정한 사람에게 물어보거나 다른 휴대폰의 장치 코드를 사용하세요.,
 tidyshop_server_label,,Connector address,커넥터 주소,
 tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,

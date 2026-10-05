@@ -3326,6 +3326,36 @@ fun SettingsDialog(
                                     }
                                 }
                             } else {
+                                // Nothing in HKI 7 creates a family, a list or an invite, so
+                                // someone arriving here cold needs to know what has to exist first.
+                                SettingsPanel {
+                                    Text(stringResource(R.string.tidyshop_requirements_title), color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
+                                    listOf(R.string.tidyshop_requirement_app, R.string.tidyshop_requirement_connector).forEach { requirement ->
+                                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            Text("•", color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                                            Text(stringResource(requirement), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                                        }
+                                    }
+                                    Spacer(Modifier.height(4.dp))
+                                    Text(stringResource(R.string.tidyshop_steps_title), color = appColors.onSurface, style = MaterialTheme.typography.titleSmall)
+                                    listOf(R.string.tidyshop_step_install, R.string.tidyshop_step_invite, R.string.tidyshop_step_connect).forEach { step ->
+                                        Text(stringResource(step), color = appColors.onMuted, style = MaterialTheme.typography.bodySmall)
+                                    }
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                                        OutlinedButton(
+                                            onClick = { openExternalUrl(context, TIDYSHOP_DOCS_URL) },
+                                            modifier = Modifier.weight(1f)
+                                        ) { Text(stringResource(R.string.tidyshop_open_guide), maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                                        OutlinedButton(
+                                            onClick = { openGitHub(context, TIDYSHOP_CONNECTOR_GITHUB_URL) },
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            Icon(Icons.AutoMirrored.Filled.OpenInNew, null, modifier = Modifier.size(16.dp))
+                                            Spacer(Modifier.width(6.dp))
+                                            Text(stringResource(R.string.tidyshop_open_github), maxLines = 1)
+                                        }
+                                    }
+                                }
                                 Text(
                                     stringResource(R.string.tidyshop_connect_intro),
                                     color = appColors.onMuted, style = MaterialTheme.typography.bodySmall
@@ -5226,6 +5256,8 @@ private fun openExternalUrl(context: android.content.Context, url: String) {
 
 const val HKI7_GITHUB_URL = "https://github.com/jimz011/android-hki7"
 const val HKI7_CHANGELOG_URL = "https://github.com/jimz011/android-hki7/blob/main/CHANGELOG.md"
+const val TIDYSHOP_DOCS_URL = "https://jimz011.github.io/tidyshop-connector/"
+const val TIDYSHOP_CONNECTOR_GITHUB_URL = "https://github.com/jimz011/tidyshop-connector"
 /**
  * Opens the repository in the GitHub app when it is installed, otherwise falls back to the normal
  * browser intent. Targeting the package explicitly is what stops Android from showing a chooser (or

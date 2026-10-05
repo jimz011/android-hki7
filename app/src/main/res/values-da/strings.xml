@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">Forbundet til %1$s</string>
     <string name="settings_title_tidyshop">TidyShop</string>
     <string name="settings_subtitle_tidyshop">Familie indkøbslister fra dit eget stik</string>
+    <string name="tidyshop_requirements_title">Hvad du har brug for</string>
+    <string name="tidyshop_requirement_app">TidyShop-appen, på telefonen til den, der driver familielisterne. Der laves lister og invitationer; HKI 7 viser og sætter kryds ved dem. TidyShop er i lukket test på Google Play.</string>
+    <string name="tidyshop_requirement_connector">TidyShop-stikket, der kører på en server, du ejer (Docker eller Unraid) og kan nås fra denne telefon. Den har familiens fælles lister; der er ingen TidyShop-sky.</string>
+    <string name="tidyshop_steps_title">Sådan forbinder du</string>
+    <string name="tidyshop_step_install">1. Installer stikket, og peg TidyShop mod det ved at følge opsætningsvejledningen.</string>
+    <string name="tidyshop_step_invite">2. I TidyShop inviterer du denne person til familien, eller lav en enhedskode, hvis du allerede selv bruger TidyShop.</string>
+    <string name="tidyshop_step_connect">3. Indtast stikkets adresse og denne kode nedenfor.</string>
+    <string name="tidyshop_open_guide">Opsætningsvejledning</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">Indtast adressen på din familieforbindelse og en kode fra den. Spørg den, der har konfigureret det, om en invitation, eller brug en enhedskode fra en anden af dine egne telefoner.</string>
     <string name="tidyshop_server_label">Connector adresse</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

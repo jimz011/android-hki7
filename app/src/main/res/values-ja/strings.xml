@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">%1$s に接続されました</string>
     <string name="settings_title_tidyshop">タイディショップ</string>
     <string name="settings_subtitle_tidyshop">独自のコネクタからの家族のショッピング リスト</string>
+    <string name="tidyshop_requirements_title">必要なもの</string>
+    <string name="tidyshop_requirement_app">家族リストを管理する人の携帯電話にある TidyShop アプリ。リストと招待状はそこで作成されます。 HKI 7 はそれらを表示し、チェックマークを付けます。 TidyShop は Google Play でクローズドテスト中です。</string>
+    <string name="tidyshop_requirement_connector">TidyShop コネクタ。所有するサーバー (Docker または Unraid) 上で実行され、この電話からアクセスできます。家族の共有リストが保管されています。 TidyShop クラウドはありません。</string>
+    <string name="tidyshop_steps_title">接続方法</string>
+    <string name="tidyshop_step_install">1. セットアップ ガイドに従って、コネクタを取り付け、TidyShop をそれに向けます。</string>
+    <string name="tidyshop_step_invite">2. TidyShop で、この人を家族に招待するか、すでに TidyShop を自分で使用している場合はデバイス コードを作成します。</string>
+    <string name="tidyshop_step_connect">3. 以下にコネクタのアドレスとそのコードを入力します。</string>
+    <string name="tidyshop_open_guide">セットアップガイド</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">ファミリー コネクタのアドレスとそこからのコードを入力します。招待を設定した人に尋ねるか、自分の別の携帯電話のデバイス コードを使用してください。</string>
     <string name="tidyshop_server_label">コネクタアドレス</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

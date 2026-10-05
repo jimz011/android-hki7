@@ -874,6 +874,15 @@ connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Del
 connected_apps_tidyshop_connected,,Connected to %1$s,Koblet til %1$s,app fills in %1$s — keep them
 settings_title_tidyshop,,TidyShop,TidyShop,
 settings_subtitle_tidyshop,,Family shopping lists from your own connector,Familie handlelister fra din egen kobling,
+tidyshop_requirements_title,,What you need,Det du trenger,
+tidyshop_requirement_app,,"The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.","TidyShop-appen, på telefonen til den som driver familielistene. Der lages lister og invitasjoner; HKI 7 viser og markerer dem. TidyShop er i lukket testing på Google Play.",don't translate HKI 7
+tidyshop_requirement_connector,,"The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family's shared lists; there is no TidyShop cloud.","TidyShop-kontakten, kjører på en server du eier (Docker eller Unraid) og kan nås fra denne telefonen. Den har familiens delte lister; det er ingen TidyShop-sky.",
+tidyshop_steps_title,,How to connect,Hvordan koble til,
+tidyshop_step_install,,"1. Install the connector and point TidyShop at it, following the setup guide.","1. Installer kontakten og pek TidyShop mot den, følg oppsettveiledningen.",
+tidyshop_step_invite,,"2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.","2. I TidyShop, inviter denne personen til familien, eller lag en enhetskode hvis du allerede bruker TidyShop selv.",
+tidyshop_step_connect,,3. Enter the connector address and that code below.,3. Skriv inn kontaktadressen og den koden nedenfor.,
+tidyshop_open_guide,,Setup guide,Oppsettveiledning,
+tidyshop_open_github,,GitHub,GitHub,
 tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.","Skriv inn adressen til familiekontakten din og en kode fra den. Spør den som har konfigurert den om en invitasjon, eller bruk en enhetskode fra en annen av dine egne telefoner.",
 tidyshop_server_label,,Connector address,Koblingsadresse,
 tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,

@@ -874,6 +874,15 @@ connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Üh
 connected_apps_tidyshop_connected,,Connected to %1$s,Ühendatud võrguga %1$s,app fills in %1$s — keep them
 settings_title_tidyshop,,TidyShop,TidyShop,
 settings_subtitle_tidyshop,,Family shopping lists from your own connector,Pere ostunimekirjad teie enda konnektorist,
+tidyshop_requirements_title,,What you need,Mida vajate,
+tidyshop_requirement_app,,"The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.",Rakendus TidyShop perenimekirjade haldaja telefonis. Seal tehakse nimekirjad ja kutsed; HKI 7 näitab ja märgib neid. TidyShop on Google Play suletud testimisel.,don't translate HKI 7
+tidyshop_requirement_connector,,"The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family's shared lists; there is no TidyShop cloud.","TidyShopi pistik, mis töötab teie omanduses olevas serveris (Docker või Unraid) ja on sellest telefonist kättesaadav. See sisaldab perekonna jagatud loendeid; TidyShopi pilve pole.",
+tidyshop_steps_title,,How to connect,Kuidas ühendada,
+tidyshop_step_install,,"1. Install the connector and point TidyShop at it, following the setup guide.","1. Paigaldage pistik ja suunake TidyShop sellele, järgides häälestusjuhendit.",
+tidyshop_step_invite,,"2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.","2. Kutsuge see inimene TidyShopis perekonda või tehke seadme kood, kui kasutate juba ise TidyShopi.",
+tidyshop_step_connect,,3. Enter the connector address and that code below.,3. Sisestage konnektori aadress ja see kood allpool.,
+tidyshop_open_guide,,Setup guide,Seadistusjuhend,
+tidyshop_open_github,,GitHub,GitHub,
 tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.","Sisestage oma perekonnektori aadress ja selle kood. Küsige kutset sellelt, kes selle seadistas, või kasutage mõne teise oma telefoni seadme koodi.",
 tidyshop_server_label,,Connector address,Ühenduse aadress,
 tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,

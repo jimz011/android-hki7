@@ -896,6 +896,15 @@ connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,О�
 connected_apps_tidyshop_connected,,Connected to %1$s,Подключено к %1$s,app fills in %1$s — keep them
 settings_title_tidyshop,,TidyShop,TidyShop,
 settings_subtitle_tidyshop,,Family shopping lists from your own connector,Списки покупок для всей семьи из вашего собственного разъема,
+tidyshop_requirements_title,,What you need,Что вам нужно,
+tidyshop_requirement_app,,"The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.","Приложение TidyShop на телефоне того, кто ведет семейные списки. Там составляются списки и приглашения; HKI 7 показывает и отмечает их. TidyShop находится на закрытом тестировании в Google Play.",don't translate HKI 7
+tidyshop_requirement_connector,,"The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family's shared lists; there is no TidyShop cloud.","Коннектор TidyShop, работающий на вашем сервере (Docker или Unraid) и доступный с этого телефона. Здесь хранятся общие списки членов семьи; облака TidyShop нет.",
+tidyshop_steps_title,,How to connect,Как подключиться,
+tidyshop_step_install,,"1. Install the connector and point TidyShop at it, following the setup guide.","1. Установите коннектор и наведите на него TidyShop, следуя инструкциям по установке.",
+tidyshop_step_invite,,"2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.","2. В TidyShop пригласите этого человека в семью или создайте код устройства, если вы уже используете TidyShop самостоятельно.",
+tidyshop_step_connect,,3. Enter the connector address and that code below.,3. Введите адрес разъема и этот код ниже.,
+tidyshop_open_guide,,Setup guide,Руководство по настройке,
+tidyshop_open_github,,GitHub,GitHub,
 tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.","Введите адрес вашего семейного разъема и код от него. Спросите того, кто настроил его, для приглашения или используйте код устройства с другого вашего телефона.",
 tidyshop_server_label,,Connector address,Адрес разъема,
 tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,

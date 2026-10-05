@@ -874,6 +874,15 @@ connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Meg
 connected_apps_tidyshop_connected,,Connected to %1$s,Csatlakozva a következőhöz: %1$s,app fills in %1$s — keep them
 settings_title_tidyshop,,TidyShop,TidyShop,
 settings_subtitle_tidyshop,,Family shopping lists from your own connector,Családi bevásárlólisták a saját csatlakozójáról,
+tidyshop_requirements_title,,What you need,Amire szüksége van,
+tidyshop_requirement_app,,"The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.","A TidyShop alkalmazás, annak a telefonján, aki a családi listákat vezeti. Ott készülnek listák és meghívók; HKI 7 megjeleníti és kipipálja őket. A TidyShop zárt tesztelés alatt áll a Google Playen.",don't translate HKI 7
+tidyshop_requirement_connector,,"The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family's shared lists; there is no TidyShop cloud.","A TidyShop csatlakozó, amely az Ön tulajdonában lévő szerveren fut (Docker vagy Unraid), és erről a telefonról érhető el. Ez tartalmazza a család megosztott listáit; nincs TidyShop felhő.",
+tidyshop_steps_title,,How to connect,Hogyan kell csatlakozni,
+tidyshop_step_install,,"1. Install the connector and point TidyShop at it, following the setup guide.","1. Szerelje be a csatlakozót, és irányítsa rá a TidyShop-ot a telepítési útmutató szerint.",
+tidyshop_step_invite,,"2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.","2. A TidyShopban hívja meg ezt a személyt a családba, vagy készítsen eszközkódot, ha már maga is használja a TidyShop szolgáltatást.",
+tidyshop_step_connect,,3. Enter the connector address and that code below.,3. Írja be a csatlakozó címét és a kódot alább.,
+tidyshop_open_guide,,Setup guide,Beállítási útmutató,
+tidyshop_open_github,,GitHub,GitHub,
 tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.","Adja meg a családi csatlakozó címét és egy kódot az onnan. Kérjen meghívót bárkitől, aki beállította, vagy használjon egy másik saját telefonjáról származó eszközkódot.",
 tidyshop_server_label,,Connector address,Csatlakozó címe,
 tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,

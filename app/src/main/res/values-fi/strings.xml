@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">Yhdistetty: %1$s</string>
     <string name="settings_title_tidyshop">TidyShop</string>
     <string name="settings_subtitle_tidyshop">Perheen ostoslistat omasta liittimestäsi</string>
+    <string name="tidyshop_requirements_title">Mitä tarvitset</string>
+    <string name="tidyshop_requirement_app">TidyShop-sovellus perheluetteloita pitävän puhelimessa. Siellä tehdään luetteloita ja kutsuja; HKI 7 näyttää ja rastittaa ne. TidyShop on suljetussa testauksessa Google Playssa.</string>
+    <string name="tidyshop_requirement_connector">TidyShop-liitin, joka toimii omistamallasi palvelimella (Docker tai Unraid) ja on tavoitettavissa tästä puhelimesta. Se sisältää perheen jaetut luettelot; ei ole TidyShop-pilviä.</string>
+    <string name="tidyshop_steps_title">Kuinka muodostaa yhteys</string>
+    <string name="tidyshop_step_install">1. Asenna liitin ja osoita TidyShopia asennusoppaan mukaisesti.</string>
+    <string name="tidyshop_step_invite">2. Kutsu tämä henkilö TidyShopissa perheeseen tai tee laitekoodi, jos käytät jo itse TidyShopia.</string>
+    <string name="tidyshop_step_connect">3. Kirjoita liittimen osoite ja koodi alle.</string>
+    <string name="tidyshop_open_guide">Asennusopas</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">Kirjoita perheliittimesi osoite ja koodi siitä. Pyydä kutsua sen määrittäneeltä tai käytä laitekoodia toisesta omasta puhelimestasi.</string>
     <string name="tidyshop_server_label">Liittimen osoite</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

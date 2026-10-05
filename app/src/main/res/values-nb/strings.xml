@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">Koblet til %1$s</string>
     <string name="settings_title_tidyshop">TidyShop</string>
     <string name="settings_subtitle_tidyshop">Familie handlelister fra din egen kobling</string>
+    <string name="tidyshop_requirements_title">Det du trenger</string>
+    <string name="tidyshop_requirement_app">TidyShop-appen, på telefonen til den som driver familielistene. Der lages lister og invitasjoner; HKI 7 viser og markerer dem. TidyShop er i lukket testing på Google Play.</string>
+    <string name="tidyshop_requirement_connector">TidyShop-kontakten, kjører på en server du eier (Docker eller Unraid) og kan nås fra denne telefonen. Den har familiens delte lister; det er ingen TidyShop-sky.</string>
+    <string name="tidyshop_steps_title">Hvordan koble til</string>
+    <string name="tidyshop_step_install">1. Installer kontakten og pek TidyShop mot den, følg oppsettveiledningen.</string>
+    <string name="tidyshop_step_invite">2. I TidyShop, inviter denne personen til familien, eller lag en enhetskode hvis du allerede bruker TidyShop selv.</string>
+    <string name="tidyshop_step_connect">3. Skriv inn kontaktadressen og den koden nedenfor.</string>
+    <string name="tidyshop_open_guide">Oppsettveiledning</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">Skriv inn adressen til familiekontakten din og en kode fra den. Spør den som har konfigurert den om en invitasjon, eller bruk en enhetskode fra en annen av dine egne telefoner.</string>
     <string name="tidyshop_server_label">Koblingsadresse</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

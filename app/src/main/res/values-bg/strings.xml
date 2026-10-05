@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">Свързан с %1$s</string>
     <string name="settings_title_tidyshop">TidyShop</string>
     <string name="settings_subtitle_tidyshop">Семейни списъци за пазаруване от вашия собствен конектор</string>
+    <string name="tidyshop_requirements_title">Това, от което се нуждаете</string>
+    <string name="tidyshop_requirement_app">Приложението TidyShop, на телефона на всеки, който управлява семейните списъци. Там се правят списъци и покани; HKI 7 ги показва и отбелязва. TidyShop е в закрито тестване в Google Play.</string>
+    <string name="tidyshop_requirement_connector">Конекторът TidyShop, работещ на сървър, който притежавате (Docker или Unraid) и достъпен от този телефон. Той съдържа споделените списъци на семейството; няма облак TidyShop.</string>
+    <string name="tidyshop_steps_title">Как да се свържете</string>
+    <string name="tidyshop_step_install">1. Инсталирайте конектора и насочете TidyShop към него, следвайки ръководството за настройка.</string>
+    <string name="tidyshop_step_invite">2. В TidyShop поканете този човек в семейството или направете код на устройство, ако вече използвате TidyShop сами.</string>
+    <string name="tidyshop_step_connect">3. Въведете адреса на конектора и този код по-долу.</string>
+    <string name="tidyshop_open_guide">Ръководство за настройка</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">Въведете адреса на вашия семеен конектор и код от него. Помолете този, който го е настроил, за покана или използвайте код на устройство от друг ваш собствен телефон.</string>
     <string name="tidyshop_server_label">Адрес на конектора</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

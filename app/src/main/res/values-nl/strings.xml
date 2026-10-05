@@ -324,6 +324,15 @@
     <string name="connected_apps_tidyshop_connected">Verbonden met %1$s</string>
     <string name="settings_title_tidyshop">Nette winkel</string>
     <string name="settings_subtitle_tidyshop">Familie boodschappenlijstjes vanuit uw eigen connector</string>
+    <string name="tidyshop_requirements_title">Wat je nodig hebt</string>
+    <string name="tidyshop_requirement_app">De TidyShop-app, op de telefoon van degene die de gezinslijsten beheert. Daar worden lijsten en uitnodigingen gemaakt; HKI 7 toont en vinkt ze aan. TidyShop wordt momenteel gesloten getest op Google Play.</string>
+    <string name="tidyshop_requirement_connector">De TidyShop-connector, draaiend op een server waarvan u de eigenaar bent (Docker of Unraid) en bereikbaar vanaf deze telefoon. Het bevat de gedeelde lijsten van het gezin; er is geen TidyShop-cloud.</string>
+    <string name="tidyshop_steps_title">Hoe te verbinden</string>
+    <string name="tidyshop_step_install">1. Installeer de connector en richt TidyShop erop, volgens de installatiehandleiding.</string>
+    <string name="tidyshop_step_invite">2. Nodig deze persoon in TidyShop uit bij het gezin, of maak een apparaatcode aan als je zelf al gebruik maakt van TidyShop.</string>
+    <string name="tidyshop_step_connect">3. Voer hieronder het connectoradres en de code in.</string>
+    <string name="tidyshop_open_guide">Installatiehandleiding</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">Voer het adres van uw gezinsverbinder en een code ervan in. Vraag degene die het heeft ingesteld om een uitnodiging, of gebruik een apparaatcode van een van uw andere telefoons.</string>
     <string name="tidyshop_server_label">Connectoradres</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

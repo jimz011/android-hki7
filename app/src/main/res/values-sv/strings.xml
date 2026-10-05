@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">Ansluten till %1$s</string>
     <string name="settings_title_tidyshop">TidyShop</string>
     <string name="settings_subtitle_tidyshop">Familjens inköpslistor från din egen kontakt</string>
+    <string name="tidyshop_requirements_title">Vad du behöver</string>
+    <string name="tidyshop_requirement_app">TidyShop-appen, på telefonen till den som driver familjelistorna. Där görs listor och inbjudningar; HKI 7 visar och markerar dem. TidyShop är i slutna tester på Google Play.</string>
+    <string name="tidyshop_requirement_connector">TidyShop-anslutningen, som körs på en server du äger (Docker eller Unraid) och nås från den här telefonen. Den innehåller familjens delade listor; det finns inget TidyShop-moln.</string>
+    <string name="tidyshop_steps_title">Hur man ansluter</string>
+    <string name="tidyshop_step_install">1. Installera kontakten och rikta TidyShop mot den enligt installationsguiden.</string>
+    <string name="tidyshop_step_invite">2. I TidyShop, bjud in den här personen till familjen, eller gör en enhetskod om du redan använder TidyShop själv.</string>
+    <string name="tidyshop_step_connect">3. Ange kontaktadressen och den koden nedan.</string>
+    <string name="tidyshop_open_guide">Installationsguide</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">Ange adressen till din familjeanslutare och en kod från den. Fråga den som ställt in den om en inbjudan eller använd en enhetskod från en annan av dina egna telefoner.</string>
     <string name="tidyshop_server_label">Anslutningsadress</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

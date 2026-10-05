@@ -874,6 +874,15 @@ connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Lis
 connected_apps_tidyshop_connected,,Connected to %1$s,Conectado a %1$s,app fills in %1$s — keep them
 settings_title_tidyshop,,TidyShop,Tienda ordenada,
 settings_subtitle_tidyshop,,Family shopping lists from your own connector,Listas de compras familiares desde tu propio conector,
+tidyshop_requirements_title,,What you need,lo que necesitas,
+tidyshop_requirement_app,,"The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.","La app TidyShop, en el teléfono de quien lleva las listas familiares. Allí se hacen listas e invitaciones; HKI 7 los muestra y los marca. TidyShop se encuentra en pruebas cerradas en Google Play.",don't translate HKI 7
+tidyshop_requirement_connector,,"The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family's shared lists; there is no TidyShop cloud.","El conector TidyShop, que se ejecuta en un servidor de su propiedad (Docker o Unraid) y al que se puede acceder desde este teléfono. Contiene las listas compartidas de la familia; no existe la nube de TidyShop.",
+tidyshop_steps_title,,How to connect,Cómo conectarse,
+tidyshop_step_install,,"1. Install the connector and point TidyShop at it, following the setup guide.","1. Instale el conector y apunte TidyShop hacia él, siguiendo la guía de instalación.",
+tidyshop_step_invite,,"2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.","2. En TidyShop, invita a esta persona a la familia o crea un código de dispositivo si ya usas TidyShop.",
+tidyshop_step_connect,,3. Enter the connector address and that code below.,3. Ingrese la dirección del conector y el código a continuación.,
+tidyshop_open_guide,,Setup guide,Guía de configuración,
+tidyshop_open_github,,GitHub,GitHub,
 tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.",Ingresa la dirección de tu conector familiar y un código del mismo. Pregúntele a quien lo configuró para recibir una invitación o use un código de dispositivo de otro de sus propios teléfonos.,
 tidyshop_server_label,,Connector address,Dirección del conector,
 tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,

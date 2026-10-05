@@ -20,6 +20,17 @@
     <string name="settings_title_tidyshop">TidyShop</string>
     <string name="settings_subtitle_tidyshop">Family shopping lists from your own connector</string>
 
+    <!-- Before connecting: what is needed and how to get there -->
+    <string name="tidyshop_requirements_title">What you need</string>
+    <string name="tidyshop_requirement_app">The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.</string>
+    <string name="tidyshop_requirement_connector">The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family\'s shared lists; there is no TidyShop cloud.</string>
+    <string name="tidyshop_steps_title">How to connect</string>
+    <string name="tidyshop_step_install">1. Install the connector and point TidyShop at it, following the setup guide.</string>
+    <string name="tidyshop_step_invite">2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.</string>
+    <string name="tidyshop_step_connect">3. Enter the connector address and that code below.</string>
+    <string name="tidyshop_open_guide">Setup guide</string>
+    <string name="tidyshop_open_github">GitHub</string>
+
     <!-- Connecting -->
     <string name="tidyshop_connect_intro">Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.</string>
     <string name="tidyshop_server_label">Connector address</string>

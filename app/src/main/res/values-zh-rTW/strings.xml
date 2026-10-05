@@ -4144,4 +4144,13 @@
     <string name="nfc_write_opens_app_off">標籤可與官方 Home Assistant 應用程式搭配使用。 HKI 7 僅在開啟時報告它們。</string>
     <string name="nfc_write_opens_app_on">HKI 7 即使在關閉時也會報告標籤，而無需開啟。沒有 HKI 7 的 Android 手機將被發送到 Play 商店，而不是官方 Home Assistant 應用程式。</string>
     <string name="nfc_write_opens_app_title">在 HKI 7 關閉時讀取標籤</string>
+    <string name="tidyshop_open_github">GitHub</string>
+    <string name="tidyshop_open_guide">設定指南</string>
+    <string name="tidyshop_requirement_app">TidyShop 應用程序，位於管理家庭清單的人的手機上。名單和邀請都是在那裡製作的； HKI 7 顯示並勾選它們。 TidyShop 正在 Google Play 上進行封閉測試。</string>
+    <string name="tidyshop_requirement_connector">TidyShop 連接器，在您擁有的伺服器（Docker 或 Unraid）上運行，並且可以透過此手機存取。它保存著家庭的共享清單；沒有 TidyShop 雲端。</string>
+    <string name="tidyshop_requirements_title">你需要什麼</string>
+    <string name="tidyshop_step_connect">3. 在下面輸入連接器位址和代碼。</string>
+    <string name="tidyshop_step_install">1. 依照安裝指南安裝連接器並將 TidyShop 對準它。</string>
+    <string name="tidyshop_step_invite">2. 在 TidyShop 中，邀請此人加入家庭，或者如果您自己已經使用 TidyShop，則建立裝置代碼。</string>
+    <string name="tidyshop_steps_title">如何連接</string>
 </resources>

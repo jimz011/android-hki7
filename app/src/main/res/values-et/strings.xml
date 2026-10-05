@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">Ühendatud võrguga %1$s</string>
     <string name="settings_title_tidyshop">TidyShop</string>
     <string name="settings_subtitle_tidyshop">Pere ostunimekirjad teie enda konnektorist</string>
+    <string name="tidyshop_requirements_title">Mida vajate</string>
+    <string name="tidyshop_requirement_app">Rakendus TidyShop perenimekirjade haldaja telefonis. Seal tehakse nimekirjad ja kutsed; HKI 7 näitab ja märgib neid. TidyShop on Google Play suletud testimisel.</string>
+    <string name="tidyshop_requirement_connector">TidyShopi pistik, mis töötab teie omanduses olevas serveris (Docker või Unraid) ja on sellest telefonist kättesaadav. See sisaldab perekonna jagatud loendeid; TidyShopi pilve pole.</string>
+    <string name="tidyshop_steps_title">Kuidas ühendada</string>
+    <string name="tidyshop_step_install">1. Paigaldage pistik ja suunake TidyShop sellele, järgides häälestusjuhendit.</string>
+    <string name="tidyshop_step_invite">2. Kutsuge see inimene TidyShopis perekonda või tehke seadme kood, kui kasutate juba ise TidyShopi.</string>
+    <string name="tidyshop_step_connect">3. Sisestage konnektori aadress ja see kood allpool.</string>
+    <string name="tidyshop_open_guide">Seadistusjuhend</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">Sisestage oma perekonnektori aadress ja selle kood. Küsige kutset sellelt, kes selle seadistas, või kasutage mõne teise oma telefoni seadme koodi.</string>
     <string name="tidyshop_server_label">Ühenduse aadress</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

@@ -918,6 +918,15 @@ connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,ق�
 connected_apps_tidyshop_connected,,Connected to %1$s,متصل بـ %1$s,app fills in %1$s — keep them
 settings_title_tidyshop,,TidyShop,TidyShop,
 settings_subtitle_tidyshop,,Family shopping lists from your own connector,قوائم التسوق العائلية من الرابط الخاص بك,
+tidyshop_requirements_title,,What you need,ما تحتاجه,
+tidyshop_requirement_app,,"The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.",تطبيق TidyShop، على هاتف من يدير قوائم العائلة. يتم عمل القوائم والدعوات هناك؛ HKI 7 يعرضها ويضع علامة عليها. TidyShop قيد الاختبار المغلق على Google Play.,don't translate HKI 7
+tidyshop_requirement_connector,,"The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family's shared lists; there is no TidyShop cloud.",موصل TidyShop، الذي يعمل على خادم تملكه (Docker أو Unraid) ويمكن الوصول إليه من هذا الهاتف. يحتوي على القوائم المشتركة للعائلة. لا توجد سحابة TidyShop.,
+tidyshop_steps_title,,How to connect,كيفية الاتصال,
+tidyshop_step_install,,"1. Install the connector and point TidyShop at it, following the setup guide.",1. قم بتثبيت الموصل ووجه TidyShop إليه، باتباع دليل الإعداد.,
+tidyshop_step_invite,,"2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.",2. في TidyShop، قم بدعوة هذا الشخص إلى العائلة، أو أنشئ رمزًا للجهاز إذا كنت تستخدم TidyShop بنفسك بالفعل.,
+tidyshop_step_connect,,3. Enter the connector address and that code below.,3. أدخل عنوان الموصل وهذا الرمز أدناه.,
+tidyshop_open_guide,,Setup guide,دليل الإعداد,
+tidyshop_open_github,,GitHub,جيثب,
 tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.",أدخل عنوان موصل العائلة الخاص بك والرمز منه. اطلب من الشخص الذي قام بإعداده الحصول على دعوة، أو استخدم رمز الجهاز من هاتف آخر من هواتفك الخاصة.,
 tidyshop_server_label,,Connector address,عنوان الموصل,
 tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,

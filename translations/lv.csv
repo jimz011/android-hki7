@@ -885,6 +885,15 @@ connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Kop
 connected_apps_tidyshop_connected,,Connected to %1$s,Savienots ar %1$s,app fills in %1$s — keep them
 settings_title_tidyshop,,TidyShop,TidyShop,
 settings_subtitle_tidyshop,,Family shopping lists from your own connector,Ģimenes iepirkumu saraksti no jūsu savienotāja,
+tidyshop_requirements_title,,What you need,Kas jums nepieciešams,
+tidyshop_requirement_app,,"The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.","Lietotne TidyShop to personu tālrunī, kas vada ģimenes sarakstus. Tur tiek veidoti saraksti un ielūgumi; HKI 7 rāda un atzīmē tos. TidyShop ir slēgta testēšana pakalpojumā Google Play.",don't translate HKI 7
+tidyshop_requirement_connector,,"The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family's shared lists; there is no TidyShop cloud.","TidyShop savienotājs, kas darbojas jums piederošā serverī (Docker vai Unraid) un ir sasniedzams no šī tālruņa. Tajā ir ģimenes koplietotie saraksti; nav TidyShop mākoņa.",
+tidyshop_steps_title,,How to connect,Kā izveidot savienojumu,
+tidyshop_step_install,,"1. Install the connector and point TidyShop at it, following the setup guide.","1. Instalējiet savienotāju un pavērsiet uz to TidyShop, ievērojot iestatīšanas rokasgrāmatu.",
+tidyshop_step_invite,,"2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.","2. TidyShop uzaiciniet šo personu uz ģimeni vai izveidojiet ierīces kodu, ja jau pats izmantojat TidyShop.",
+tidyshop_step_connect,,3. Enter the connector address and that code below.,3. Tālāk ievadiet savienotāja adresi un šo kodu.,
+tidyshop_open_guide,,Setup guide,Iestatīšanas rokasgrāmata,
+tidyshop_open_github,,GitHub,GitHub,
 tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.","Ievadiet ģimenes savienotāja adresi un kodu no tā. Jautājiet tam, kurš to iestatījis, saņemt uzaicinājumu vai izmantojiet ierīces kodu no cita sava tālruņa.",
 tidyshop_server_label,,Connector address,Savienotāja adrese,
 tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,

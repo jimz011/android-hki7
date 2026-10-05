@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">%1$s에 연결됨</string>
     <string name="settings_title_tidyshop">깔끔한 상점</string>
     <string name="settings_subtitle_tidyshop">나만의 커넥터로 만든 가족 쇼핑 목록</string>
+    <string name="tidyshop_requirements_title">필요한 것</string>
+    <string name="tidyshop_requirement_app">가족 목록을 운영하는 사람의 전화에 있는 TidyShop 앱. 목록과 초대가 거기에서 만들어집니다. HKI 7은 이를 표시하고 선택합니다. TidyShop은 Google Play에서 비공개 테스트 중입니다.</string>
+    <string name="tidyshop_requirement_connector">귀하가 소유한 서버(Docker 또는 Unraid)에서 실행되고 이 전화기에서 연결할 수 있는 TidyShop 커넥터입니다. 여기에는 가족의 공유 목록이 들어 있습니다. TidyShop 클라우드가 없습니다.</string>
+    <string name="tidyshop_steps_title">연결 방법</string>
+    <string name="tidyshop_step_install">1. 설치 가이드에 따라 커넥터를 설치하고 TidyShop을 가리킵니다.</string>
+    <string name="tidyshop_step_invite">2. TidyShop에서 이 사람을 가족으로 초대하거나, 이미 TidyShop을 사용하고 있다면 기기 코드를 만드세요.</string>
+    <string name="tidyshop_step_connect">3. 아래에 커넥터 주소와 해당 코드를 입력하세요.</string>
+    <string name="tidyshop_open_guide">설정 가이드</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">가족 커넥터의 주소와 코드를 입력하세요. 초대를 설정한 사람에게 물어보거나 다른 휴대폰의 장치 코드를 사용하세요.</string>
     <string name="tidyshop_server_label">커넥터 주소</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

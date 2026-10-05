@@ -896,6 +896,15 @@ connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,ר�
 connected_apps_tidyshop_connected,,Connected to %1$s,מחובר ל%1$s,app fills in %1$s — keep them
 settings_title_tidyshop,,TidyShop,TidyShop,
 settings_subtitle_tidyshop,,Family shopping lists from your own connector,רשימות קניות משפחתיות מהמחבר שלך,
+tidyshop_requirements_title,,What you need,מה שאתה צריך,
+tidyshop_requirement_app,,"The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.","אפליקציית TidyShop, בטלפון של מי שמנהל את רשימות המשפחה. עושים שם רשימות והזמנות; HKI 7 מציג ומתקתק אותם. TidyShop נמצא בבדיקה סגורה ב-Google Play.",don't translate HKI 7
+tidyshop_requirement_connector,,"The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family's shared lists; there is no TidyShop cloud.","מחבר TidyShop, הפועל בשרת שבבעלותך (Docker או Unraid) וניתן להגיע אליו מהטלפון הזה. הוא מחזיק ברשימות המשותפות של המשפחה; אין ענן של TidyShop.",
+tidyshop_steps_title,,How to connect,איך להתחבר,
+tidyshop_step_install,,"1. Install the connector and point TidyShop at it, following the setup guide.","1. התקן את המחבר והפנה אליו את TidyShop, בהתאם למדריך ההתקנה.",
+tidyshop_step_invite,,"2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.","2. ב-TidyShop, הזמן את האדם הזה למשפחה, או צור קוד מכשיר אם אתה כבר משתמש ב-TidyShop בעצמך.",
+tidyshop_step_connect,,3. Enter the connector address and that code below.,3. הזן את כתובת המחבר ואת הקוד הזה למטה.,
+tidyshop_open_guide,,Setup guide,מדריך התקנה,
+tidyshop_open_github,,GitHub,GitHub,
 tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.","הזן את הכתובת של המחבר המשפחתי שלך וקוד ממנו. בקש ממי שהגדיר את זה להזמנה, או השתמש בקוד מכשיר מטלפון אחר שלך.",
 tidyshop_server_label,,Connector address,כתובת המחבר,
 tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,

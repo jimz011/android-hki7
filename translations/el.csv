@@ -874,6 +874,15 @@ connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Κ�
 connected_apps_tidyshop_connected,,Connected to %1$s,Συνδέθηκε στο %1$s,app fills in %1$s — keep them
 settings_title_tidyshop,,TidyShop,TidyShop,
 settings_subtitle_tidyshop,,Family shopping lists from your own connector,Οικογενειακές λίστες αγορών από τη δική σας εφαρμογή σύνδεσης,
+tidyshop_requirements_title,,What you need,Τι χρειάζεσαι,
+tidyshop_requirement_app,,"The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.","Η εφαρμογή TidyShop, στο τηλέφωνο οποιουδήποτε εκτελεί τις οικογενειακές λίστες. Οι λίστες και οι προσκλήσεις γίνονται εκεί. Το HKI 7 εμφανίζει και τα σημειώνει. Το TidyShop βρίσκεται σε κλειστή δοκιμή στο Google Play.",don't translate HKI 7
+tidyshop_requirement_connector,,"The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family's shared lists; there is no TidyShop cloud.","Η σύνδεση TidyShop, που εκτελείται σε έναν διακομιστή που σας ανήκει (Docker ή Unraid) και είναι προσβάσιμη από αυτό το τηλέφωνο. Διατηρεί τις κοινόχρηστες λίστες της οικογένειας. δεν υπάρχει σύννεφο TidyShop.",
+tidyshop_steps_title,,How to connect,Πώς να συνδεθείτε,
+tidyshop_step_install,,"1. Install the connector and point TidyShop at it, following the setup guide.","1. Εγκαταστήστε το βύσμα και τοποθετήστε το TidyShop σε αυτό, ακολουθώντας τον οδηγό εγκατάστασης.",
+tidyshop_step_invite,,"2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.","2. Στο TidyShop, προσκαλέστε αυτό το άτομο στην οικογένεια ή δημιουργήστε έναν κωδικό συσκευής εάν χρησιμοποιείτε ήδη το TidyShop.",
+tidyshop_step_connect,,3. Enter the connector address and that code below.,3. Εισαγάγετε τη διεύθυνση σύνδεσης και αυτόν τον κωδικό παρακάτω.,
+tidyshop_open_guide,,Setup guide,Οδηγός εγκατάστασης,
+tidyshop_open_github,,GitHub,GitHub,
 tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.",Εισαγάγετε τη διεύθυνση της εφαρμογής σύνδεσης της οικογένειάς σας και έναν κωδικό από αυτήν. Ζητήστε από όποιον το έχει ρυθμίσει για μια πρόσκληση ή χρησιμοποιήστε έναν κωδικό συσκευής από άλλο δικό σας τηλέφωνο.,
 tidyshop_server_label,,Connector address,Διεύθυνση σύνδεσης,
 tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,

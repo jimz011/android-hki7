@@ -896,6 +896,15 @@ connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Zdi
 connected_apps_tidyshop_connected,,Connected to %1$s,Pripojené k %1$s,app fills in %1$s — keep them
 settings_title_tidyshop,,TidyShop,TidyShop,
 settings_subtitle_tidyshop,,Family shopping lists from your own connector,Rodinné nákupné zoznamy z vlastného konektora,
+tidyshop_requirements_title,,What you need,Čo potrebujete,
+tidyshop_requirement_app,,"The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.","Aplikácia TidyShop na telefóne toho, kto vedie rodinné zoznamy. Robia sa tam zoznamy a pozvánky; HKI 7 ich zobrazí a zaškrtne. TidyShop je v uzavretom testovaní na Google Play.",don't translate HKI 7
+tidyshop_requirement_connector,,"The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family's shared lists; there is no TidyShop cloud.","Konektor TidyShop, ktorý beží na serveri, ktorý vlastníte (Docker alebo Unraid) a je dostupný z tohto telefónu. Obsahuje zdieľané zoznamy rodiny; neexistuje cloud TidyShop.",
+tidyshop_steps_title,,How to connect,Ako sa pripojiť,
+tidyshop_step_install,,"1. Install the connector and point TidyShop at it, following the setup guide.",1. Nainštalujte konektor a nasmerujte naň TidyShop podľa návodu na nastavenie.,
+tidyshop_step_invite,,"2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.","2. V TidyShop pozvite túto osobu do rodiny alebo vytvorte kód zariadenia, ak už TidyShop sami používate.",
+tidyshop_step_connect,,3. Enter the connector address and that code below.,3. Nižšie zadajte adresu konektora a kód.,
+tidyshop_open_guide,,Setup guide,Sprievodca nastavením,
+tidyshop_open_github,,GitHub,GitHub,
 tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.","Zadajte adresu vášho rodinného konektora a kód z neho. Požiadajte o pozvánku toho, kto to nastavil, alebo použite kód zariadenia z iného vášho vlastného telefónu.",
 tidyshop_server_label,,Connector address,Adresa konektora,
 tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,

@@ -8,10 +8,25 @@ TidyShop is the first. The section is a list rather than a single page because m
 
 ## TidyShop
 
-[TidyShop](https://github.com/jimz011) is a family shopping-list app. It syncs through a
-**connector you host yourself** — there is no account with anyone else, and no cloud service in
-the middle. Once this device is connected, the [to-do widget](widgets.md#syncing-with-tidyshop)
-can show the family's real lists.
+[TidyShop](https://jimz011.github.io/tidyshop-connector/) is a family shopping-list app. It syncs
+through a **connector you host yourself** — there is no account with anyone else, and no cloud
+service in the middle. Once this device is connected, the
+[to-do widget](widgets.md#syncing-with-tidyshop) can show the family's real lists.
+
+### What you need
+
+- **The TidyShop app**, on the phone of whoever runs the family lists. Lists, sharing and invites
+  are all made there; HKI 7 shows the lists and ticks items off, but cannot create a family, a
+  list or an invite. TidyShop is in closed testing on Google Play — the
+  [beta page](https://jimz011.github.io/tidyshop-connector/beta/) explains how to join.
+- **The TidyShop connector**, running on a server you own and reachable from this phone. It is a
+  single small container for Docker or Unraid:
+  [jimz011/tidyshop-connector](https://github.com/jimz011/tidyshop-connector) on GitHub, with
+  [installation instructions](https://jimz011.github.io/tidyshop-connector/server/docker/) in its
+  documentation.
+
+The TidyShop screen in HKI 7 lists the same requirements, with links to the setup guide and the
+connector on GitHub, until this device is connected.
 
 ### Connecting this device
 

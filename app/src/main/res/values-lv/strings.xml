@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">Savienots ar %1$s</string>
     <string name="settings_title_tidyshop">TidyShop</string>
     <string name="settings_subtitle_tidyshop">Ģimenes iepirkumu saraksti no jūsu savienotāja</string>
+    <string name="tidyshop_requirements_title">Kas jums nepieciešams</string>
+    <string name="tidyshop_requirement_app">Lietotne TidyShop to personu tālrunī, kas vada ģimenes sarakstus. Tur tiek veidoti saraksti un ielūgumi; HKI 7 rāda un atzīmē tos. TidyShop ir slēgta testēšana pakalpojumā Google Play.</string>
+    <string name="tidyshop_requirement_connector">TidyShop savienotājs, kas darbojas jums piederošā serverī (Docker vai Unraid) un ir sasniedzams no šī tālruņa. Tajā ir ģimenes koplietotie saraksti; nav TidyShop mākoņa.</string>
+    <string name="tidyshop_steps_title">Kā izveidot savienojumu</string>
+    <string name="tidyshop_step_install">1. Instalējiet savienotāju un pavērsiet uz to TidyShop, ievērojot iestatīšanas rokasgrāmatu.</string>
+    <string name="tidyshop_step_invite">2. TidyShop uzaiciniet šo personu uz ģimeni vai izveidojiet ierīces kodu, ja jau pats izmantojat TidyShop.</string>
+    <string name="tidyshop_step_connect">3. Tālāk ievadiet savienotāja adresi un šo kodu.</string>
+    <string name="tidyshop_open_guide">Iestatīšanas rokasgrāmata</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">Ievadiet ģimenes savienotāja adresi un kodu no tā. Jautājiet tam, kurš to iestatījis, saņemt uzaicinājumu vai izmantojiet ierīces kodu no cita sava tālruņa.</string>
     <string name="tidyshop_server_label">Savienotāja adrese</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

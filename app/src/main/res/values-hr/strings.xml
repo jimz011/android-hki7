@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">Povezan na %1$s</string>
     <string name="settings_title_tidyshop">TidyShop</string>
     <string name="settings_subtitle_tidyshop">Obiteljski popisi za kupovinu iz vlastitog konektora</string>
+    <string name="tidyshop_requirements_title">Ono što vam treba</string>
+    <string name="tidyshop_requirement_app">Aplikacija TidyShop, na telefonu onoga tko vodi obiteljske popise. Tamo se prave popisi i pozivnice; HKI 7 ih prikazuje i označava kvačicama. TidyShop je u zatvorenom testiranju na Google Playu.</string>
+    <string name="tidyshop_requirement_connector">TidyShop konektor, koji radi na poslužitelju koji posjedujete (Docker ili Unraid) i dostupan s ovog telefona. Sadrži zajedničke popise obitelji; nema TidyShop oblaka.</string>
+    <string name="tidyshop_steps_title">Kako se povezati</string>
+    <string name="tidyshop_step_install">1. Instalirajte konektor i usmjerite TidyShop prema njemu, slijedeći upute za postavljanje.</string>
+    <string name="tidyshop_step_invite">2. U TidyShopu pozovite ovu osobu u obitelj ili napravite kod uređaja ako već sami koristite TidyShop.</string>
+    <string name="tidyshop_step_connect">3. Unesite adresu konektora i taj kod ispod.</string>
+    <string name="tidyshop_open_guide">Vodič za postavljanje</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">Unesite adresu vašeg obiteljskog konektora i kod iz njega. Pitajte onoga tko ga je postavio za pozivnicu ili upotrijebite kôd uređaja s nekog drugog svog telefona.</string>
     <string name="tidyshop_server_label">Adresa konektora</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

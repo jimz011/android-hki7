@@ -874,6 +874,15 @@ connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,全
 connected_apps_tidyshop_connected,,Connected to %1$s,連接到 %1$s,app fills in %1$s — keep them
 settings_title_tidyshop,,TidyShop,整潔店,
 settings_subtitle_tidyshop,,Family shopping lists from your own connector,來自您自己的連接器的家庭購物清單,
+tidyshop_requirements_title,,What you need,你需要什麼,
+tidyshop_requirement_app,,"The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.",TidyShop 應用程序，位於管理家庭清單的人的手機上。名單和邀請都是在那裡製作的； HKI 7 顯示並勾選它們。 TidyShop 正在 Google Play 上進行封閉測試。,don't translate HKI 7
+tidyshop_requirement_connector,,"The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family's shared lists; there is no TidyShop cloud.",TidyShop 連接器，在您擁有的伺服器（Docker 或 Unraid）上運行，並且可以透過此手機存取。它保存著家庭的共享清單；沒有 TidyShop 雲端。,
+tidyshop_steps_title,,How to connect,如何連接,
+tidyshop_step_install,,"1. Install the connector and point TidyShop at it, following the setup guide.",1. 依照安裝指南安裝連接器並將 TidyShop 對準它。,
+tidyshop_step_invite,,"2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.",2. 在 TidyShop 中，邀請此人加入家庭，或者如果您自己已經使用 TidyShop，則建立裝置代碼。,
+tidyshop_step_connect,,3. Enter the connector address and that code below.,3. 在下面輸入連接器位址和代碼。,
+tidyshop_open_guide,,Setup guide,設定指南,
+tidyshop_open_github,,GitHub,GitHub,
 tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.",輸入您的家庭連接器的地址及其代碼。詢問設定邀請的人，或使用您自己的另一部手機的裝置代碼。,
 tidyshop_server_label,,Connector address,連接器位址,
 tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,

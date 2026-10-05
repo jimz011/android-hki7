@@ -874,6 +874,15 @@ connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Jae
 connected_apps_tidyshop_connected,,Connected to %1$s,Yhdistetty: %1$s,app fills in %1$s — keep them
 settings_title_tidyshop,,TidyShop,TidyShop,
 settings_subtitle_tidyshop,,Family shopping lists from your own connector,Perheen ostoslistat omasta liittimestäsi,
+tidyshop_requirements_title,,What you need,Mitä tarvitset,
+tidyshop_requirement_app,,"The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.",TidyShop-sovellus perheluetteloita pitävän puhelimessa. Siellä tehdään luetteloita ja kutsuja; HKI 7 näyttää ja rastittaa ne. TidyShop on suljetussa testauksessa Google Playssa.,don't translate HKI 7
+tidyshop_requirement_connector,,"The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family's shared lists; there is no TidyShop cloud.","TidyShop-liitin, joka toimii omistamallasi palvelimella (Docker tai Unraid) ja on tavoitettavissa tästä puhelimesta. Se sisältää perheen jaetut luettelot; ei ole TidyShop-pilviä.",
+tidyshop_steps_title,,How to connect,Kuinka muodostaa yhteys,
+tidyshop_step_install,,"1. Install the connector and point TidyShop at it, following the setup guide.",1. Asenna liitin ja osoita TidyShopia asennusoppaan mukaisesti.,
+tidyshop_step_invite,,"2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.","2. Kutsu tämä henkilö TidyShopissa perheeseen tai tee laitekoodi, jos käytät jo itse TidyShopia.",
+tidyshop_step_connect,,3. Enter the connector address and that code below.,3. Kirjoita liittimen osoite ja koodi alle.,
+tidyshop_open_guide,,Setup guide,Asennusopas,
+tidyshop_open_github,,GitHub,GitHub,
 tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.",Kirjoita perheliittimesi osoite ja koodi siitä. Pyydä kutsua sen määrittäneeltä tai käytä laitekoodia toisesta omasta puhelimestasi.,
 tidyshop_server_label,,Connector address,Liittimen osoite,
 tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,

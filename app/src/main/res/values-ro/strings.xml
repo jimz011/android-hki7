@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">Conectat la %1$s</string>
     <string name="settings_title_tidyshop">TidyShop</string>
     <string name="settings_subtitle_tidyshop">Liste de cumpărături de familie din propriul conector</string>
+    <string name="tidyshop_requirements_title">Ce ai nevoie</string>
+    <string name="tidyshop_requirement_app">Aplicația TidyShop, pe telefonul celui care conduce listele de familie. Acolo se fac liste și invitații; HKI 7 le arată și bifează. TidyShop este în testare închisă pe Google Play.</string>
+    <string name="tidyshop_requirement_connector">Conectorul TidyShop, care rulează pe un server pe care îl dețineți (Docker sau Unraid) și accesibil de pe acest telefon. Deține listele comune ale familiei; nu există un nor TidyShop.</string>
+    <string name="tidyshop_steps_title">Cum să te conectezi</string>
+    <string name="tidyshop_step_install">1. Instalați conectorul și îndreptați TidyShop spre el, urmând ghidul de instalare.</string>
+    <string name="tidyshop_step_invite">2. În TidyShop, invitați această persoană în familie sau creați un cod de dispozitiv dacă utilizați deja TidyShop.</string>
+    <string name="tidyshop_step_connect">3. Introduceți mai jos adresa conectorului și acel cod.</string>
+    <string name="tidyshop_open_guide">Ghid de instalare</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">Introduceți adresa conectorului de familie și un cod de la acesta. Întrebați persoana care a configurat-o pentru o invitație sau utilizați un cod de dispozitiv de pe alt telefon al dvs.</string>
     <string name="tidyshop_server_label">Adresa conectorului</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

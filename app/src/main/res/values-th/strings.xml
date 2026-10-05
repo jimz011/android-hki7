@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">เชื่อมต่อกับ %1$s</string>
     <string name="settings_title_tidyshop">ไทดี้ช็อป</string>
     <string name="settings_subtitle_tidyshop">รายการซื้อของสำหรับครอบครัวจากตัวเชื่อมต่อของคุณเอง</string>
+    <string name="tidyshop_requirements_title">สิ่งที่คุณต้องการ</string>
+    <string name="tidyshop_requirement_app">แอป TidyShop บนโทรศัพท์ของใครก็ตามที่ดูแลรายชื่อครอบครัว มีการทำรายการและคำเชิญที่นั่น HKI 7 แสดงและทำเครื่องหมาย TidyShop อยู่ในการทดสอบแบบปิดบน Google Play</string>
+    <string name="tidyshop_requirement_connector">ตัวเชื่อมต่อ TidyShop ทำงานบนเซิร์ฟเวอร์ที่คุณเป็นเจ้าของ (Docker หรือ Unraid) และสามารถเข้าถึงได้จากโทรศัพท์เครื่องนี้ มีรายการที่ใช้ร่วมกันของครอบครัว ไม่มีคลาวด์ TidyShop</string>
+    <string name="tidyshop_steps_title">วิธีการเชื่อมต่อ</string>
+    <string name="tidyshop_step_install">1. ติดตั้งตัวเชื่อมต่อและชี้ TidyShop ไปที่ตัวเชื่อมต่อ โดยทำตามคำแนะนำในการตั้งค่า</string>
+    <string name="tidyshop_step_invite">2. ใน TidyShop เชิญบุคคลนี้เข้าสู่ครอบครัว หรือสร้างรหัสอุปกรณ์หากคุณใช้ TidyShop ด้วยตัวเองอยู่แล้ว</string>
+    <string name="tidyshop_step_connect">3. ป้อนที่อยู่ของตัวเชื่อมต่อและรหัสด้านล่าง</string>
+    <string name="tidyshop_open_guide">คู่มือการตั้งค่า</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">ป้อนที่อยู่ของตัวเชื่อมต่อครอบครัวของคุณและรหัสจากนั้น ถามใครก็ตามที่ตั้งค่าคำเชิญ หรือใช้รหัสอุปกรณ์จากโทรศัพท์เครื่องอื่นของคุณเอง</string>
     <string name="tidyshop_server_label">ที่อยู่ตัวเชื่อมต่อ</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

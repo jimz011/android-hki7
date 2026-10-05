@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">Csatlakozva a következőhöz: %1$s</string>
     <string name="settings_title_tidyshop">TidyShop</string>
     <string name="settings_subtitle_tidyshop">Családi bevásárlólisták a saját csatlakozójáról</string>
+    <string name="tidyshop_requirements_title">Amire szüksége van</string>
+    <string name="tidyshop_requirement_app">A TidyShop alkalmazás, annak a telefonján, aki a családi listákat vezeti. Ott készülnek listák és meghívók; HKI 7 megjeleníti és kipipálja őket. A TidyShop zárt tesztelés alatt áll a Google Playen.</string>
+    <string name="tidyshop_requirement_connector">A TidyShop csatlakozó, amely az Ön tulajdonában lévő szerveren fut (Docker vagy Unraid), és erről a telefonról érhető el. Ez tartalmazza a család megosztott listáit; nincs TidyShop felhő.</string>
+    <string name="tidyshop_steps_title">Hogyan kell csatlakozni</string>
+    <string name="tidyshop_step_install">1. Szerelje be a csatlakozót, és irányítsa rá a TidyShop-ot a telepítési útmutató szerint.</string>
+    <string name="tidyshop_step_invite">2. A TidyShopban hívja meg ezt a személyt a családba, vagy készítsen eszközkódot, ha már maga is használja a TidyShop szolgáltatást.</string>
+    <string name="tidyshop_step_connect">3. Írja be a csatlakozó címét és a kódot alább.</string>
+    <string name="tidyshop_open_guide">Beállítási útmutató</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">Adja meg a családi csatlakozó címét és egy kódot az onnan. Kérjen meghívót bárkitől, aki beállította, vagy használjon egy másik saját telefonjáról származó eszközkódot.</string>
     <string name="tidyshop_server_label">Csatlakozó címe</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

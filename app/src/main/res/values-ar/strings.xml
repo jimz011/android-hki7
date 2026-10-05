@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">متصل بـ %1$s</string>
     <string name="settings_title_tidyshop">TidyShop</string>
     <string name="settings_subtitle_tidyshop">قوائم التسوق العائلية من الرابط الخاص بك</string>
+    <string name="tidyshop_requirements_title">ما تحتاجه</string>
+    <string name="tidyshop_requirement_app">تطبيق TidyShop، على هاتف من يدير قوائم العائلة. يتم عمل القوائم والدعوات هناك؛ HKI 7 يعرضها ويضع علامة عليها. TidyShop قيد الاختبار المغلق على Google Play.</string>
+    <string name="tidyshop_requirement_connector">موصل TidyShop، الذي يعمل على خادم تملكه (Docker أو Unraid) ويمكن الوصول إليه من هذا الهاتف. يحتوي على القوائم المشتركة للعائلة. لا توجد سحابة TidyShop.</string>
+    <string name="tidyshop_steps_title">كيفية الاتصال</string>
+    <string name="tidyshop_step_install">1. قم بتثبيت الموصل ووجه TidyShop إليه، باتباع دليل الإعداد.</string>
+    <string name="tidyshop_step_invite">2. في TidyShop، قم بدعوة هذا الشخص إلى العائلة، أو أنشئ رمزًا للجهاز إذا كنت تستخدم TidyShop بنفسك بالفعل.</string>
+    <string name="tidyshop_step_connect">3. أدخل عنوان الموصل وهذا الرمز أدناه.</string>
+    <string name="tidyshop_open_guide">دليل الإعداد</string>
+    <string name="tidyshop_open_github">جيثب</string>
     <string name="tidyshop_connect_intro">أدخل عنوان موصل العائلة الخاص بك والرمز منه. اطلب من الشخص الذي قام بإعداده الحصول على دعوة، أو استخدم رمز الجهاز من هاتف آخر من هواتفك الخاصة.</string>
     <string name="tidyshop_server_label">عنوان الموصل</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

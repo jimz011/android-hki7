@@ -627,6 +627,15 @@
     <string name="connected_apps_tidyshop_connected">Połączono z %1$s</string>
     <string name="settings_title_tidyshop">TidySklep</string>
     <string name="settings_subtitle_tidyshop">Rodzinne listy zakupów z własnego złącza</string>
+    <string name="tidyshop_requirements_title">Czego potrzebujesz</string>
+    <string name="tidyshop_requirement_app">Aplikacja TidyShop na telefonie każdego, kto prowadzi listy rodzinne. Tworzone są tam listy i zaproszenia; HKI 7 pokazuje je i zaznacza. TidyShop jest w fazie zamkniętych testów w Google Play.</string>
+    <string name="tidyshop_requirement_connector">Złącze TidyShop działające na posiadanym serwerze (Docker lub Unraid) i dostępne z tego telefonu. Zawiera wspólne listy rodziny; nie ma chmury TidyShop.</string>
+    <string name="tidyshop_steps_title">Jak się połączyć</string>
+    <string name="tidyshop_step_install">1. Zainstaluj złącze i skieruj na nie TidyShop, postępując zgodnie z instrukcją instalacji.</string>
+    <string name="tidyshop_step_invite">2. W TidyShop zaproś tę osobę do rodziny lub utwórz kod na urządzenie, jeśli sam korzystasz już z TidyShop.</string>
+    <string name="tidyshop_step_connect">3. Wpisz poniżej adres złącza i ten kod.</string>
+    <string name="tidyshop_open_guide">Przewodnik konfiguracji</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">Wpisz adres swojego łącznika rodzinnego i kod z niego. Poproś osobę, która to skonfigurowała, o zaproszenie lub użyj kodu urządzenia z innego ze swoich telefonów.</string>
     <string name="tidyshop_server_label">Adres złącza</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

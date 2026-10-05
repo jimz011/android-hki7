@@ -91,6 +91,15 @@
     <string name="connected_apps_tidyshop_connected">%1$s\'ye bağlanıldı</string>
     <string name="settings_title_tidyshop">Düzenli Mağaza</string>
     <string name="settings_subtitle_tidyshop">Kendi bağlayıcınızdan aile alışveriş listeleri</string>
+    <string name="tidyshop_requirements_title">İhtiyacınız olan şey</string>
+    <string name="tidyshop_requirement_app">Aile listelerini yöneten kişinin telefonundaki TidyShop uygulaması. Listeler, davetler orada yapılıyor; HKI 7 bunları gösterir ve işaretler. TidyShop, Google Play\'de kapalı test aşamasındadır.</string>
+    <string name="tidyshop_requirement_connector">Sahip olduğunuz bir sunucuda (Docker veya Unraid) çalışan ve bu telefondan erişilebilen TidyShop konektörü. Ailenin paylaşılan listelerini tutar; TidyShop bulutu yok.</string>
+    <string name="tidyshop_steps_title">Nasıl bağlanılır</string>
+    <string name="tidyshop_step_install">1. Konektörü takın ve kurulum kılavuzunu izleyerek TidyShop\'u ona doğrultun.</string>
+    <string name="tidyshop_step_invite">2. TidyShop\'ta bu kişiyi ailenize davet edin veya TidyShop\'u zaten kendiniz kullanıyorsanız bir cihaz kodu oluşturun.</string>
+    <string name="tidyshop_step_connect">3. Konektör adresini ve kodu aşağıya girin.</string>
+    <string name="tidyshop_open_guide">Kurulum kılavuzu</string>
+    <string name="tidyshop_open_github">GitHub</string>
     <string name="tidyshop_connect_intro">Aile bağlayıcınızın adresini ve ondan gelen kodu girin. Bunu davet için ayarlayan kişiye sorun veya kendi telefonlarınızdan başka bir cihaz kodunu kullanın.</string>
     <string name="tidyshop_server_label">Bağlayıcı adresi</string>
     <string name="tidyshop_server_hint">https://tidyshop.example.com</string>

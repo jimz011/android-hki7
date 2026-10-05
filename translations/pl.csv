@@ -896,6 +896,15 @@ connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Wsp
 connected_apps_tidyshop_connected,,Connected to %1$s,Połączono z %1$s,app fills in %1$s — keep them
 settings_title_tidyshop,,TidyShop,TidySklep,
 settings_subtitle_tidyshop,,Family shopping lists from your own connector,Rodzinne listy zakupów z własnego złącza,
+tidyshop_requirements_title,,What you need,Czego potrzebujesz,
+tidyshop_requirement_app,,"The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.","Aplikacja TidyShop na telefonie każdego, kto prowadzi listy rodzinne. Tworzone są tam listy i zaproszenia; HKI 7 pokazuje je i zaznacza. TidyShop jest w fazie zamkniętych testów w Google Play.",don't translate HKI 7
+tidyshop_requirement_connector,,"The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family's shared lists; there is no TidyShop cloud.",Złącze TidyShop działające na posiadanym serwerze (Docker lub Unraid) i dostępne z tego telefonu. Zawiera wspólne listy rodziny; nie ma chmury TidyShop.,
+tidyshop_steps_title,,How to connect,Jak się połączyć,
+tidyshop_step_install,,"1. Install the connector and point TidyShop at it, following the setup guide.","1. Zainstaluj złącze i skieruj na nie TidyShop, postępując zgodnie z instrukcją instalacji.",
+tidyshop_step_invite,,"2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.","2. W TidyShop zaproś tę osobę do rodziny lub utwórz kod na urządzenie, jeśli sam korzystasz już z TidyShop.",
+tidyshop_step_connect,,3. Enter the connector address and that code below.,3. Wpisz poniżej adres złącza i ten kod.,
+tidyshop_open_guide,,Setup guide,Przewodnik konfiguracji,
+tidyshop_open_github,,GitHub,GitHub,
 tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.","Wpisz adres swojego łącznika rodzinnego i kod z niego. Poproś osobę, która to skonfigurowała, o zaproszenie lub użyj kodu urządzenia z innego ze swoich telefonów.",
 tidyshop_server_label,,Connector address,Adres złącza,
 tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,

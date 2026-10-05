@@ -874,6 +874,15 @@ connected_apps_tidyshop_subtitle,,Shared shopping lists for the whole family,Ged
 connected_apps_tidyshop_connected,,Connected to %1$s,Verbonden met %1$s,app fills in %1$s — keep them
 settings_title_tidyshop,,TidyShop,Nette winkel,
 settings_subtitle_tidyshop,,Family shopping lists from your own connector,Familie boodschappenlijstjes vanuit uw eigen connector,
+tidyshop_requirements_title,,What you need,Wat je nodig hebt,
+tidyshop_requirement_app,,"The TidyShop app, on the phone of whoever runs the family lists. Lists and invites are made there; HKI 7 shows and ticks them. TidyShop is in closed testing on Google Play.","De TidyShop-app, op de telefoon van degene die de gezinslijsten beheert. Daar worden lijsten en uitnodigingen gemaakt; HKI 7 toont en vinkt ze aan. TidyShop wordt momenteel gesloten getest op Google Play.",don't translate HKI 7
+tidyshop_requirement_connector,,"The TidyShop connector, running on a server you own (Docker or Unraid) and reachable from this phone. It holds the family's shared lists; there is no TidyShop cloud.","De TidyShop-connector, draaiend op een server waarvan u de eigenaar bent (Docker of Unraid) en bereikbaar vanaf deze telefoon. Het bevat de gedeelde lijsten van het gezin; er is geen TidyShop-cloud.",
+tidyshop_steps_title,,How to connect,Hoe te verbinden,
+tidyshop_step_install,,"1. Install the connector and point TidyShop at it, following the setup guide.","1. Installeer de connector en richt TidyShop erop, volgens de installatiehandleiding.",
+tidyshop_step_invite,,"2. In TidyShop, invite this person to the family, or make a device code if you already use TidyShop yourself.","2. Nodig deze persoon in TidyShop uit bij het gezin, of maak een apparaatcode aan als je zelf al gebruik maakt van TidyShop.",
+tidyshop_step_connect,,3. Enter the connector address and that code below.,3. Voer hieronder het connectoradres en de code in.,
+tidyshop_open_guide,,Setup guide,Installatiehandleiding,
+tidyshop_open_github,,GitHub,GitHub,
 tidyshop_connect_intro,,"Enter the address of your family connector and a code from it. Ask whoever set it up for an invite, or use a device code from another of your own phones.","Voer het adres van uw gezinsverbinder en een code ervan in. Vraag degene die het heeft ingesteld om een uitnodiging, of gebruik een apparaatcode van een van uw andere telefoons.",
 tidyshop_server_label,,Connector address,Connectoradres,
 tidyshop_server_hint,,https://tidyshop.example.com,https://tidyshop.example.com,
