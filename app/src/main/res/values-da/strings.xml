@@ -2749,8 +2749,8 @@
     <string name="nfc_write_custom_id_label">Tag-id</string>
     <string name="nfc_write_label_label">Etiket (valgfrit)</string>
     <string name="nfc_write_label_hint">Vises kun på denne liste, aldrig sendt til Home Assistant</string>
-    <string name="nfc_write_opens_app_title">Åbn HKI 7, når der trykkes på</string>
-    <string name="nfc_write_opens_app_on">Mærker fungerer, selv når HKI 7 er lukket. Android-telefoner uden HKI 7 sendes til Play Butik i stedet for den officielle Home Assistant-app.</string>
+    <string name="nfc_write_opens_app_title">Læs tags, mens HKI 7 er lukket</string>
+    <string name="nfc_write_opens_app_on">HKI 7 rapporterer tagget, selvom det er lukket, uden at det åbnes. Android-telefoner uden HKI 7 sendes til Play Butik i stedet for den officielle Home Assistant-app.</string>
     <string name="nfc_write_opens_app_off">Tags fungerer med den officielle Home Assistant app. HKI 7 rapporterer dem kun, mens den er åben.</string>
     <string name="nfc_write_start">Tryk på et tag for at skrive</string>
     <string name="nfc_write_waiting">Hold et mærke i nærheden af din telefon...</string>

@@ -2749,8 +2749,8 @@
     <string name="nfc_write_custom_id_label">태그 ID</string>
     <string name="nfc_write_label_label">라벨(선택사항)</string>
     <string name="nfc_write_label_hint">이 목록에만 표시되며 Home Assistant로는 전송되지 않습니다.</string>
-    <string name="nfc_write_opens_app_title">탭하면 HKI 7 열기</string>
-    <string name="nfc_write_opens_app_on">태그는 HKI 7이 닫혀 있는 동안에도 작동합니다. HKI 7이 없는 Android 휴대폰은 공식 Home Assistant 앱 대신 Play 스토어로 전송됩니다.</string>
+    <string name="nfc_write_opens_app_title">HKI 7이 닫혀 있는 동안 태그 읽기</string>
+    <string name="nfc_write_opens_app_on">HKI 7은 태그가 닫혀 있는 동안에도 열리지 않고 태그를 보고합니다. HKI 7이 없는 Android 휴대폰은 공식 Home Assistant 앱 대신 Play 스토어로 전송됩니다.</string>
     <string name="nfc_write_opens_app_off">태그는 공식 Home Assistant 앱에서 작동합니다. HKI 7은 열려 있는 동안에만 이를 보고합니다.</string>
     <string name="nfc_write_start">태그를 탭하여 작성하세요.</string>
     <string name="nfc_write_waiting">휴대폰 근처에 태그를 대세요...</string>

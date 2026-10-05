@@ -2749,8 +2749,8 @@
     <string name="nfc_write_custom_id_label">Žymės ID</string>
     <string name="nfc_write_label_label">Etiketė (neprivaloma)</string>
     <string name="nfc_write_label_hint">Rodoma tik šiame sąraše, niekada nesiunčiama Home Assistant</string>
-    <string name="nfc_write_opens_app_title">Bakstelėjus atidarykite HKI 7</string>
-    <string name="nfc_write_opens_app_on">Žymos veikia net tada, kai HKI 7 uždaryta. „Android“ telefonai be HKI 7 siunčiami į „Play Store“, o ne į oficialią Home Assistant programą.</string>
+    <string name="nfc_write_opens_app_title">Skaitykite žymas, kol HKI 7 uždaryta</string>
+    <string name="nfc_write_opens_app_on">HKI 7 praneša apie žymą net tada, kai ji uždaryta, neatidarant. „Android“ telefonai be HKI 7 siunčiami į „Play Store“, o ne į oficialią Home Assistant programą.</string>
     <string name="nfc_write_opens_app_off">Žymos veikia su oficialia Home Assistant programa. HKI 7 praneša apie juos tik tada, kai jis atidarytas.</string>
     <string name="nfc_write_start">Norėdami parašyti, bakstelėkite žymą</string>
     <string name="nfc_write_waiting">Laikykite žymą šalia telefono…</string>

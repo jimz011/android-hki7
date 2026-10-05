@@ -29,7 +29,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_3_0">
         <item>Naujiena: Nustatymai › NFC žymos. HKI 7 skaito ir įrašo tas pačias žymas kaip ir oficiali Home Assistant programa, o palietimas bet kurioje programos vietoje suaktyvina įvykį tag_scanned, kurio klausosi jūsų automatizatoriai.</item>
-        <item>Žymos gali atidaryti HKI 7 net tada, kai jis uždarytas. Palikite Atidaryti HKI 7, kai bakstelėsite rašydami žymą; išjunkite, kad galėtumėte rašyti paprastas žymes namų ūkiui, kuris taip pat naudoja oficialią programėlę.</item>
+        <item>Žymos veikia net uždarius HKI 7: apie nuskaitymą pranešama programai neatsidarius, kaip ir oficialioje programoje. Rašydami žymą palikite Skaityti žymas, kol HKI 7 uždaryta; išjunkite, kad galėtumėte rašyti paprastas žymes namų ūkiui, kuris taip pat naudoja oficialią programėlę.</item>
         <item>Pirkinių sąrašo valdiklis dabar gali rodyti jūsų „TidyShop“ šeimos sąrašus, o ne savo. Kiekvienas su jumis bendrinamas sąrašas rodomas kaip skirtukas, o ką nors pažymėjus per kelias sekundes pasiekiama likusi namų ūkio dalis.</item>
         <item>Ką galite daryti su sinchronizuotu sąrašu, nusprendžia šeimos serveris: sąrašas, kurį galite peržiūrėti, lieka tik skaitomas, o sąrašas, kurį galite pažymėti, bet neredaguoti, leidžia patikrinti elementus jų nekeičiant. Jūsų prietaisų skydelio leidimai vis tiek taikomi viršuje.</item>
         <item>Naujiena: Nustatymai › Prijungtos programos, kitoms programoms HKI 7 gali gauti iš. „TidyShop“ yra pirmasis. Prisijungiant naudojamas kodas, o ne slaptažodis: šis telefonas sukuria savo raktą, kuris niekada nepalieka jo ir negali būti įtrauktas į atsarginę kopiją.</item>

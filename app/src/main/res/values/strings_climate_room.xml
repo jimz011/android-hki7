@@ -348,7 +348,7 @@
     <!-- Current release -->
     <string-array name="cr_whats_new_1_3_0">
         <item>New: Settings › NFC tags. HKI 7 reads and writes the same tags as the official Home Assistant app, and a tap anywhere in the app fires the tag_scanned event your automations listen for.</item>
-        <item>Tags can open HKI 7 even while it is closed. Leave Open HKI 7 when tapped on when writing a tag; switch it off to write plain tags for a household that also uses the official app.</item>
+        <item>Tags work even while HKI 7 is closed: the scan is reported without the app opening, as in the official app. Leave Read tags while HKI 7 is closed on when writing a tag; switch it off to write plain tags for a household that also uses the official app.</item>
         <item>The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.</item>
         <item>What you may do with a synced list is decided by the family server: a list you can only look at stays read-only, and one you may tick but not edit lets you check items without changing them. Your dashboard\'s own permissions still apply on top.</item>
         <item>New: Settings › Connected apps, for other apps HKI 7 can pull from. TidyShop is the first. Connecting uses a code rather than a password: this phone makes its own key, which never leaves it and cannot be put in a backup.</item>

@@ -1660,8 +1660,8 @@
     <string name="nfc_write_custom_id_label">ID de etiqueta</string>
     <string name="nfc_write_label_label">Etiqueta (opcional)</string>
     <string name="nfc_write_label_hint">Se muestra solo en esta lista, nunca se envió a Home Assistant</string>
-    <string name="nfc_write_opens_app_title">Abrir HKI 7 cuando se toca</string>
-    <string name="nfc_write_opens_app_on">Las etiquetas funcionan incluso cuando HKI 7 está cerrado. Los teléfonos Android sin HKI 7 se envían a Play Store en lugar de a la aplicación oficial Home Assistant.</string>
+    <string name="nfc_write_opens_app_title">Leer etiquetas mientras HKI 7 está cerrado</string>
+    <string name="nfc_write_opens_app_on">HKI 7 reporta la etiqueta incluso estando cerrada, sin abrir. Los teléfonos Android sin HKI 7 se envían a Play Store en lugar de a la aplicación oficial Home Assistant.</string>
     <string name="nfc_write_opens_app_off">Las etiquetas funcionan con la aplicación oficial Home Assistant. HKI 7 solo los reporta mientras está abierto.</string>
     <string name="nfc_write_start">Toca una etiqueta para escribir</string>
     <string name="nfc_write_waiting">Mantenga una etiqueta cerca de su teléfono...</string>

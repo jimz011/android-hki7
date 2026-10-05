@@ -3890,13 +3890,8 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
                 _nfcScanResult.value = NfcScanResult(tagId, false)
                 return@launch
             }
-            val success = NfcTagReporting.report(context, targetInstanceId, tagId)
-            if (success) {
-                val entry = HKINfcTagActivity(tagId = tagId, epochMillis = System.currentTimeMillis(), wasWrite = false)
-                prefs.saveNfcTagActivity((listOf(entry) + prefs.nfcTagActivity.first()).take(20))
-            } else {
-                addLog("NFC tag scan could not be reported to Home Assistant.")
-            }
+            val success = NfcTagReporting.reportAndRecord(context, targetInstanceId, tagId)
+            if (!success) addLog("NFC tag scan could not be reported to Home Assistant.")
             _nfcScanResult.value = NfcScanResult(tagId, success)
         }
     }

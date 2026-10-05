@@ -18,6 +18,15 @@
         <item name="android:windowBlurBehindRadius">32dp</item>
     </style>
 
+    <!-- NfcTagReaderActivity: draws nothing and animates nothing, so a tag tapped while HKI 7 is
+         closed is reported without the app visibly opening, as in the official app. -->
+    <style name="Theme.HKI7.Invisible" parent="android:Theme.Translucent.NoTitleBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
     <style name="HKI7DialogBottomAnimation">
         <item name="android:windowEnterAnimation">@anim/dialog_slide_in_bottom</item>
         <item name="android:windowExitAnimation">@anim/dialog_slide_out_bottom</item>

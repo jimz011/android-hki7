@@ -46,7 +46,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_3_0">
         <item>Uutta: Asetukset › NFC-tunnisteet. HKI 7 lukee ja kirjoittaa samat tunnisteet kuin virallinen Home Assistant-sovellus, ja napautus missä tahansa sovelluksessa käynnistää tag_scanned-tapahtuman, jota automaatiosi kuuntelevat.</item>
-        <item>Tunnisteet voivat avautua HKI 7, vaikka se olisi suljettu. Jätä Avoin HKI 7, kun sitä napautetaan, kun kirjoitat tunnistetta; kytke se pois päältä kirjoittaaksesi tavallisia tunnisteita kotitaloudelle, joka käyttää myös virallista sovellusta.</item>
+        <item>Tunnisteet toimivat myös silloin, kun HKI 7 on suljettu: skannaus raportoidaan ilman sovelluksen avaamista, kuten virallisessa sovelluksessa. Jätä Lue tagit, kun HKI 7 on suljettuna, kun kirjoitat tunnistetta; kytke se pois päältä kirjoittaaksesi tavallisia tunnisteita kotitaloudelle, joka käyttää myös virallista sovellusta.</item>
         <item>Ostoslista-widget voi nyt näyttää TidyShop-perheluettelosi omansa sijaan. Jokainen kanssasi jaettu luettelo näkyy välilehtenä, ja jonkin kohdan rastittaminen tavoittaa muun kotitalouden muutamassa sekunnissa.</item>
         <item>Perhepalvelin päättää, mitä voit tehdä synkronoidulle luettelolle: luettelo, jota voit tarkastella vain, pysyy vain luku -tilassa, ja luettelo, jonka voit valita, mutta jota et muokata, antaa sinun tarkistaa kohteita muuttamatta niitä. Hallintapaneelisi omat käyttöoikeudet ovat edelleen voimassa ylhäällä.</item>
         <item>Uutta: Asetukset › Yhdistetyt sovellukset, muille sovelluksille HKI 7 voi hakea. TidyShop on ensimmäinen. Yhdistäminen käyttää koodia salasanan sijaan: tämä puhelin tekee oman avaimen, joka ei koskaan poistu siitä eikä sitä voi laittaa varmuuskopioon.</item>

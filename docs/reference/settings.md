@@ -153,8 +153,9 @@ generates in the Android Keystore. **Leave family** deletes that key.
 - **Scan** — recent scans and writes; a tag tapped anywhere in HKI 7 is reported, not only here
 - **Write** — generate a new tag ID or enter an existing one, with an optional label kept on this
   phone
-- **Open HKI 7 when tapped** — writes an Android Application Record so a tap opens HKI 7 even while
-  it is closed; off writes a plain tag the official app opens instead
+- **Read tags while HKI 7 is closed** — writes an Android Application Record so a tap is reported
+  by HKI 7 even while it is closed, without the app opening; off writes a plain tag the official
+  app opens instead
 
 [:octicons-arrow-right-24: NFC tags](../guide/nfc-tags.md)
 

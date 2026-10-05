@@ -13,6 +13,10 @@ Hold the phone near a tag. There is nothing to open first: a tag tapped anywhere
 reported, not only on the Scan tab, and a banner confirms it reached Home Assistant. The Scan tab
 keeps the last twenty scans and writes.
 
+With HKI 7 closed or in the background, the tap is reported without the app opening, as in the
+official app; a message appears only if it could not reach Home Assistant. That needs a tag
+written with [the switch below](#read-tags-while-hki-7-is-closed) on.
+
 The scan is sent through this phone's own Home Assistant registration, the same way the official
 app sends it. Home Assistant therefore records this phone as the device that scanned the tag, and
 an automation can tell which phone did. That registration exists once location or notifications
@@ -29,18 +33,19 @@ sent to Home Assistant.
 A tag holds a link of the form `https://www.home-assistant.io/tag/<id>`, which is the format the
 official app writes, so either app reads tags written by the other.
 
-### Open HKI 7 when tapped
+### Read tags while HKI 7 is closed
 
 This switch, on by default, decides what happens when a tag is tapped while HKI 7 is **closed**.
 
 Home Assistant's website tells Android that `home-assistant.io` links belong to the official app,
 so a plain tag always goes to that app, or to the browser when it is not installed. No other app
 can claim those links. With the switch on, HKI 7 adds a second record to the tag (an Android
-Application Record) that names HKI 7, and Android then opens HKI 7 directly.
+Application Record) that names HKI 7, and Android hands the tap to HKI 7 instead. HKI 7 reports
+it without opening.
 
 | | Switch on | Switch off |
 | --- | --- | --- |
-| HKI 7 closed | HKI 7 opens and reports the tag | The official app or the browser opens |
+| HKI 7 closed | Reported, without HKI 7 opening | The official app or the browser opens |
 | HKI 7 open | Reported | Reported |
 | Android phone without HKI 7 | Sent to HKI 7 on the Play Store | Opens the official app |
 | iPhone | Opens the Home Assistant app | Opens the Home Assistant app |

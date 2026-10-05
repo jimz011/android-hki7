@@ -29,7 +29,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_3_0">
         <item>Novinka: Nastavení › NFC tagy. HKI 7 čte a zapisuje stejné značky jako oficiální aplikace Home Assistant a klepnutím kdekoli v aplikaci spustíte událost tag_scanned, kterou vaše automatizace naslouchá.</item>
-        <item>Štítky lze otevřít HKI 7, i když je zavřený. Po klepnutí při psaní tagu ponechejte Open HKI 7; vypněte, abyste mohli psát obyčejné štítky pro domácnost, která také používá oficiální aplikaci.</item>
+        <item>Štítky fungují, i když je HKI 7 zavřený: kontrola je hlášena bez otevření aplikace, jako v oficiální aplikaci. Při psaní značky ponechejte Číst značky, když je HKI 7 zavřené; vypněte, abyste mohli psát obyčejné štítky pro domácnost, která také používá oficiální aplikaci.</item>
         <item>Widget nákupního seznamu nyní může zobrazovat vaše rodinné seznamy TidyShop namísto svých vlastních. Každý seznam sdílený s vámi se zobrazí jako karta a zaškrtnutí něčeho se během několika sekund dostane ke zbytku domácnosti.</item>
         <item>O tom, co můžete se synchronizovaným seznamem dělat, rozhoduje rodinný server: seznam, na který se můžete pouze podívat, zůstává pouze pro čtení a seznam, který můžete zaškrtnout, ale nikoli upravit, vám umožní kontrolovat položky, aniž byste je měnili. Vlastní oprávnění vašeho řídicího panelu stále platí nahoře.</item>
         <item>Novinka: Nastavení › Připojené aplikace, pro ostatní aplikace, ze kterých může HKI 7 čerpat. TidyShop je první. Při připojování se místo hesla používá kód: tento telefon si vytváří vlastní klíč, který jej nikdy neopustí a nelze jej uložit do zálohy.</item>

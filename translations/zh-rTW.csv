@@ -629,7 +629,7 @@ cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bot
 cr_quick_make_it_yours,,Make it yours,打造專屬設定,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.",在編輯模式中，新增並重新排序房間、樓層與小工具。點按項目即可設定。,
 cr_whats_new_1_3_0,1,"New: Settings › NFC tags. HKI 7 reads and writes the same tags as the official Home Assistant app, and a tap anywhere in the app fires the tag_scanned event your automations listen for.",新功能：設定 › NFC 標籤。 HKI 7 讀取和寫入與官方 Home Assistant 應用程式相同的標籤，並且點擊應用程式中的任何位置都會觸發您的自動化偵聽的 tag_scanned 事件。,"don't translate Home Assistant, HKI 7"
-cr_whats_new_1_3_0,2,Tags can open HKI 7 even while it is closed. Leave Open HKI 7 when tapped on when writing a tag; switch it off to write plain tags for a household that also uses the official app.,即使 HKI 7 已关闭，标签也可以打开它。寫入標籤時點擊時保持開啟 HKI 7 ；將其關閉，為也使用官方應用程式的家庭編寫普通標籤。,don't translate HKI 7
+cr_whats_new_1_3_0,2,"Tags work even while HKI 7 is closed: the scan is reported without the app opening, as in the official app. Leave Read tags while HKI 7 is closed on when writing a tag; switch it off to write plain tags for a household that also uses the official app.",即使 HKI 7 關閉，標籤也能工作：無需打開應用程式即可報告掃描，就像在官方應用程式中一樣。寫入標籤時，在 HKI 7 關閉時保留讀取標籤；將其關閉，為也使用官方應用程式的家庭編寫普通標籤。,don't translate HKI 7
 cr_whats_new_1_3_0,3,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.",購物清單小工具現在可以顯示您的 TidyShop 家庭清單，而不是它自己的清單。與您分享的每個清單都顯示為選項卡，勾選某些內容會在幾秒鐘內到達家庭的其他成員。,
 cr_whats_new_1_3_0,4,"What you may do with a synced list is decided by the family server: a list you can only look at stays read-only, and one you may tick but not edit lets you check items without changing them. Your dashboard's own permissions still apply on top.",您可以對同步清單執行的操作由家庭伺服器決定：您只能查看的清單保持唯讀狀態，您可以勾選但無法編輯的清單可以讓您檢查項目而不更改它們。您的儀表板本身的權限仍然適用於頂部。,
 cr_whats_new_1_3_0,5,"New: Settings › Connected apps, for other apps HKI 7 can pull from. TidyShop is the first. Connecting uses a code rather than a password: this phone makes its own key, which never leaves it and cannot be put in a backup.",新功能：設定 › 連接的應用程序，可供 HKI 7 可以從中提取的其他應用程式使用。 TidyShop 是第一個。連接使用代碼而不是密碼：這款手機有自己的密鑰，該密鑰永遠不會離開它，也不能放在備份中。,don't translate HKI 7
@@ -2960,8 +2960,8 @@ nfc_write_mode_custom,,Enter ID,輸入身分證號,
 nfc_write_custom_id_label,,Tag ID,標籤ID,
 nfc_write_label_label,,Label (optional),標籤（可選）,
 nfc_write_label_hint,,"Shown only in this list, never sent to Home Assistant",僅在此清單中顯示，從未發送至 Home Assistant,don't translate Home Assistant
-nfc_write_opens_app_title,,Open HKI 7 when tapped,點擊時打開 HKI 7,don't translate HKI 7
-nfc_write_opens_app_on,,Tags work even while HKI 7 is closed. Android phones without HKI 7 are sent to the Play Store instead of the official Home Assistant app.,即使 HKI 7 關閉，標籤也能運作。沒有 HKI 7 的 Android 手機將被發送到 Play 商店，而不是官方 Home Assistant 應用程式。,"don't translate Home Assistant, HKI 7"
+nfc_write_opens_app_title,,Read tags while HKI 7 is closed,在 HKI 7 關閉時讀取標籤,don't translate HKI 7
+nfc_write_opens_app_on,,"HKI 7 reports the tag even while it is closed, without opening. Android phones without HKI 7 are sent to the Play Store instead of the official Home Assistant app.",HKI 7 即使在關閉時也會報告標籤，而無需開啟。沒有 HKI 7 的 Android 手機將被發送到 Play 商店，而不是官方 Home Assistant 應用程式。,"don't translate Home Assistant, HKI 7"
 nfc_write_opens_app_off,,Tags work with the official Home Assistant app. HKI 7 only reports them while it is open.,標籤可與官方 Home Assistant 應用程式搭配使用。 HKI 7 僅在開啟時報告它們。,"don't translate Home Assistant, HKI 7"
 nfc_write_start,,Tap a tag to write,點擊標籤即可寫入,
 nfc_write_waiting,,Hold a tag near your phone…,將標籤放在手機附近...,

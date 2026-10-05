@@ -39,7 +39,7 @@ The Android Auto screen shows the shortcuts you chose and calls the correspondin
 
 ### NFC tags
 
-When you tap an NFC tag, the app reads the tag's ID and sends it **only to your own Home Assistant server**, together with this phone's Home Assistant device registration, so automations can react to it. Writing a tag stores an ID and, if you leave **Open HKI 7 when tapped** on, the app's package name on the tag itself. An optional label you give a tag, and a list of your recent scans and writes, stay on your device.
+When you tap an NFC tag, the app reads the tag's ID and sends it **only to your own Home Assistant server**, together with this phone's Home Assistant device registration, so automations can react to it. Writing a tag stores an ID and, if you leave **Read tags while HKI 7 is closed** on, the app's package name on the tag itself. An optional label you give a tag, and a list of your recent scans and writes, stay on your device.
 
 ### Connected apps (TidyShop)
 

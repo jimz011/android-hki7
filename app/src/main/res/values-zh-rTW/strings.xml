@@ -3972,7 +3972,7 @@
     <string name="update_see_changes">看看發生了什麼變化</string>
     <string-array name="cr_whats_new_1_3_0">
         <item>新功能：設定 › NFC 標籤。 HKI 7 讀取和寫入與官方 Home Assistant 應用程式相同的標籤，並且點擊應用程式中的任何位置都會觸發您的自動化偵聽的 tag_scanned 事件。</item>
-        <item>即使 HKI 7 已关闭，标签也可以打开它。寫入標籤時點擊時保持開啟 HKI 7 ；將其關閉，為也使用官方應用程式的家庭編寫普通標籤。</item>
+        <item>即使 HKI 7 關閉，標籤也能工作：無需打開應用程式即可報告掃描，就像在官方應用程式中一樣。寫入標籤時，在 HKI 7 關閉時保留讀取標籤；將其關閉，為也使用官方應用程式的家庭編寫普通標籤。</item>
         <item>購物清單小工具現在可以顯示您的 TidyShop 家庭清單，而不是它自己的清單。與您分享的每個清單都顯示為選項卡，勾選某些內容會在幾秒鐘內到達家庭的其他成員。</item>
         <item>您可以對同步清單執行的操作由家庭伺服器決定：您只能查看的清單保持唯讀狀態，您可以勾選但無法編輯的清單可以讓您檢查項目而不更改它們。您的儀表板本身的權限仍然適用於頂部。</item>
         <item>新功能：設定 › 連接的應用程序，可供 HKI 7 可以從中提取的其他應用程式使用。 TidyShop 是第一個。連接使用代碼而不是密碼：這款手機有自己的密鑰，該密鑰永遠不會離開它，也不能放在備份中。</item>
@@ -4142,6 +4142,6 @@
     <string name="settings_subtitle_nfc_tags">讀寫觸發 Home Assistant 的標籤</string>
     <string name="settings_title_nfc_tags">NFC標籤</string>
     <string name="nfc_write_opens_app_off">標籤可與官方 Home Assistant 應用程式搭配使用。 HKI 7 僅在開啟時報告它們。</string>
-    <string name="nfc_write_opens_app_on">即使 HKI 7 關閉，標籤也能運作。沒有 HKI 7 的 Android 手機將被發送到 Play 商店，而不是官方 Home Assistant 應用程式。</string>
-    <string name="nfc_write_opens_app_title">點擊時打開 HKI 7</string>
+    <string name="nfc_write_opens_app_on">HKI 7 即使在關閉時也會報告標籤，而無需開啟。沒有 HKI 7 的 Android 手機將被發送到 Play 商店，而不是官方 Home Assistant 應用程式。</string>
+    <string name="nfc_write_opens_app_title">在 HKI 7 關閉時讀取標籤</string>
 </resources>

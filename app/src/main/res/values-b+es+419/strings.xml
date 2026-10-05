@@ -3972,7 +3972,7 @@
     <string name="update_see_changes">Mira lo que cambió</string>
     <string-array name="cr_whats_new_1_3_0">
         <item>Nuevo: Configuración › Etiquetas NFC. HKI 7 lee y escribe las mismas etiquetas que la aplicación oficial Home Assistant, y un toque en cualquier parte de la aplicación activa el evento tag_scanned que escuchan sus automatizaciones.</item>
-        <item>Las etiquetas pueden abrir HKI 7 incluso cuando está cerrado. Deje abierto HKI 7 cuando lo toque al escribir una etiqueta; apáguelo para escribir etiquetas simples para un hogar que también usa la aplicación oficial.</item>
+        <item>Las etiquetas funcionan incluso cuando HKI 7 está cerrada: el escaneo se informa sin que se abra la aplicación, como en la aplicación oficial. Deje Leer etiquetas mientras HKI 7 esté cerrado al escribir una etiqueta; apáguelo para escribir etiquetas simples para un hogar que también usa la aplicación oficial.</item>
         <item>El widget de la lista de compras ahora puede mostrar las listas familiares de TidyShop en lugar de las suyas propias. Cada lista compartida contigo aparece como una pestaña y marcar algo llega al resto de la familia en cuestión de segundos.</item>
         <item>Lo que puede hacer con una lista sincronizada lo decide el servidor familiar: una lista que solo puede ver permanece como de solo lectura, y una que puede marcar pero no editar le permite verificar elementos sin cambiarlos. Los propios permisos de su panel aún se aplican en la parte superior.</item>
         <item>Nuevo: Configuración › Aplicaciones conectadas, para otras aplicaciones de las que HKI 7 puede acceder. TidyShop es el primero. La conexión utiliza un código en lugar de una contraseña: este teléfono crea su propia clave, que nunca sale de él y no se puede guardar en una copia de seguridad.</item>
@@ -4142,6 +4142,6 @@
     <string name="settings_subtitle_nfc_tags">Leer y escribir etiquetas que activan Home Assistant</string>
     <string name="settings_title_nfc_tags">Etiquetas NFC</string>
     <string name="nfc_write_opens_app_off">Las etiquetas funcionan con la aplicación oficial Home Assistant. HKI 7 solo los reporta mientras está abierto.</string>
-    <string name="nfc_write_opens_app_on">Las etiquetas funcionan incluso cuando HKI 7 está cerrado. Los teléfonos Android sin HKI 7 se envían a Play Store en lugar de a la aplicación oficial Home Assistant.</string>
-    <string name="nfc_write_opens_app_title">Abrir HKI 7 cuando se toca</string>
+    <string name="nfc_write_opens_app_on">HKI 7 reporta la etiqueta incluso estando cerrada, sin abrir. Los teléfonos Android sin HKI 7 se envían a Play Store en lugar de a la aplicación oficial Home Assistant.</string>
+    <string name="nfc_write_opens_app_title">Leer etiquetas mientras HKI 7 está cerrado</string>
 </resources>

@@ -29,7 +29,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_3_0">
         <item>Jaunums: Iestatījumi › NFC tagi. HKI 7 lasa un raksta tos pašus atzīmes, ko oficiālā lietotne Home Assistant, un, pieskaroties jebkurā vietā lietotnē, tiek aktivizēts notikums tag_scanned, ko klausās jūsu automatizācijas.</item>
-        <item>Atzīmes var atvērt HKI 7, pat ja tas ir aizvērts. Atstājiet Atvērt HKI 7, kad tiek pieskarties, rakstot atzīmi; izslēdziet to, lai rakstītu vienkāršas atzīmes mājsaimniecībai, kas izmanto arī oficiālo lietotni.</item>
+        <item>Atzīmes darbojas pat tad, ja HKI 7 ir aizvērta: skenēšana tiek ziņots, neatverot lietotni, kā tas ir oficiālajā lietotnē. Atstājiet lasīt tagus, kamēr HKI 7 ir aizvērts, rakstot atzīmi; izslēdziet to, lai rakstītu vienkāršas atzīmes mājsaimniecībai, kas izmanto arī oficiālo lietotni.</item>
         <item>Iepirkumu saraksta logrīks tagad var rādīt jūsu TidyShop ģimeņu sarakstus, nevis savus. Katrs ar jums kopīgotais saraksts tiek parādīts kā cilne, un, atzīmējot kaut ko, pārējā mājsaimniecība dažu sekunžu laikā tiek sasniegta.</item>
         <item>To, ko varat darīt ar sinhronizētu sarakstu, izlemj ģimenes serveris: saraksts, kuru varat skatīt, paliek tikai lasāms, un saraksts, kuru varat atzīmēt, bet nerediģēt, ļauj pārbaudīt vienumus, tos nemainot. Jūsu informācijas paneļa atļaujas joprojām ir spēkā augšpusē.</item>
         <item>Jaunums: Iestatījumi › Saistītās lietotnes, citām lietotnēm HKI 7 var iegūt no. TidyShop ir pirmais. Savienojuma izveidei tiek izmantots kods, nevis parole: šis tālrunis izveido savu atslēgu, kas to nekad neatstāj un to nevar ievietot rezerves kopijā.</item>

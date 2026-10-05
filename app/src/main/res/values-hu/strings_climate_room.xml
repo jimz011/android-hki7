@@ -29,7 +29,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_3_0">
         <item>Új: Beállítások › NFC-címkék. A HKI 7 ugyanazokat a címkéket olvassa és írja, mint a hivatalos Home Assistant, és az alkalmazásban bárhol megérintve aktiválja a tag_scanned eseményt, amelyre az automatizálások figyelnek.</item>
-        <item>A címkék a HKI 7 akkor is megnyílhatnak, ha az be van zárva. Hagyja Nyitva HKI 7, amikor megérinti a címke írásakor; kapcsolja ki, hogy egyszerű címkéket írhasson egy olyan háztartásban, amely a hivatalos alkalmazást is használja.</item>
+        <item>A címkék akkor is működnek, ha a HKI 7 be van zárva: a vizsgálatot az alkalmazás megnyitása nélkül jelentik, mint a hivatalos alkalmazásban. Hagyja bekapcsolva a címkék olvasását, amíg a HKI 7 zárva van a címke írásakor; kapcsolja ki, hogy egyszerű címkéket írhasson egy olyan háztartásban, amely a hivatalos alkalmazást is használja.</item>
         <item>A bevásárlólista widget mostantól a saját TidyShop családlistáit jeleníti meg a sajátja helyett. Minden Önnel megosztott lista lapként jelenik meg, és ha kipipál valamit, másodperceken belül eléri a háztartás többi tagját.</item>
         <item>Azt, hogy mit tehet a szinkronizált listával, a családszerver dönti el: a csak megtekinthető lista írásvédett marad, a kipipálható, de nem szerkeszthető lista pedig lehetővé teszi az elemek módosítása nélküli ellenőrzését. Az irányítópult saját engedélyei továbbra is érvényesek felül.</item>
         <item>Új: Beállítások › Csatlakoztatott alkalmazások, más alkalmazásokhoz a HKI 7 letölthető. A TidyShop az első. A csatlakozáshoz jelszó helyett kódot használnak: ez a telefon saját kulcsot készít, amely soha nem hagyja el, és nem tehető tartalékba.</item>

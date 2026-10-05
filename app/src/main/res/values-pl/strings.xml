@@ -2749,8 +2749,8 @@
     <string name="nfc_write_custom_id_label">Identyfikator tagu</string>
     <string name="nfc_write_label_label">Etykieta (opcjonalnie)</string>
     <string name="nfc_write_label_hint">Wyświetlane tylko na tej liście, nigdy nie wysyłane do Home Assistant</string>
-    <string name="nfc_write_opens_app_title">Otwórz HKI 7 po dotknięciu</string>
-    <string name="nfc_write_opens_app_on">Tagi działają nawet wtedy, gdy HKI 7 jest zamknięty. Telefony z Androidem bez HKI 7 są wysyłane do Sklepu Play zamiast oficjalnej aplikacji Home Assistant.</string>
+    <string name="nfc_write_opens_app_title">Czytaj tagi, gdy HKI 7 jest zamknięty</string>
+    <string name="nfc_write_opens_app_on">HKI 7 zgłasza tag nawet wtedy, gdy jest zamknięty, bez otwierania. Telefony z Androidem bez HKI 7 są wysyłane do Sklepu Play zamiast oficjalnej aplikacji Home Assistant.</string>
     <string name="nfc_write_opens_app_off">Tagi współpracują z oficjalną aplikacją Home Assistant. HKI 7 zgłasza je tylko wtedy, gdy jest otwarte.</string>
     <string name="nfc_write_start">Kliknij tag, aby napisać</string>
     <string name="nfc_write_waiting">Przytrzymaj tag w pobliżu telefonu…</string>

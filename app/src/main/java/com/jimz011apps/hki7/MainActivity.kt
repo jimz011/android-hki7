@@ -163,11 +163,9 @@ import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
-/** The most recent NFC-shaped intent MainActivity has seen (cold launch via `onCreate`'s own
- *  `intent`, or a redelivery via `onNewIntent`), for the Composable tree to consume once it has a
- *  [com.jimz011apps.hki7.ui.MainViewModel] to report a scan through. A plain top-level holder
- *  because it must survive from before the ViewModel exists — nothing here is NFC-specific enough
- *  to justify its own class. */
+/** The most recent tag tap delivered to MainActivity by foreground dispatch (via `onNewIntent`),
+ *  for the Composable tree to consume through its [com.jimz011apps.hki7.ui.MainViewModel]. A tap
+ *  while HKI 7 is not in front goes to [NfcTagReaderActivity] instead and never reaches here. */
 private val pendingNfcIntent = MutableStateFlow<Intent?>(null)
 
 class MainActivity : ComponentActivity() {
@@ -194,7 +192,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         applyPreferredRefreshRate()
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
-        pendingNfcIntent.value = intent
         val prefs = PreferencesManager(this)
         lifecycleScope.launch {
             prefs.ensureHomeAssistantInstanceStore()
@@ -291,10 +288,8 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                // One consumer for both the cold-launch tag (seeded into pendingNfcIntent before
-                // this composition even starts) and every later foreground tap or onNewIntent
-                // redelivery: the Write tab's pendingWrite gets first refusal, everything else is
-                // treated as a read and reported to Home Assistant.
+                // One consumer for every foreground tap: the Write tab's pendingWrite gets first
+                // refusal, everything else is treated as a read and reported to Home Assistant.
                 LaunchedEffect(viewModel) {
                     pendingNfcIntent.collect { nfcIntent ->
                         if (nfcIntent == null) return@collect
@@ -309,9 +304,8 @@ class MainActivity : ComponentActivity() {
                             write(tag)
                         } else {
                             extractTagId(nfcIntent)?.let { tagId ->
-                                // A cold launch can reach this collector while the legacy
-                                // single-server store is still being migrated. Finish that
-                                // idempotent migration before pinning the scan to its instance.
+                                // Idempotent, and cheap once done: makes sure the legacy
+                                // single-server store is migrated before pinning the scan.
                                 prefs.ensureHomeAssistantInstanceStore()
                                 viewModel.reportNfcTagScan(
                                     tagId = tagId,
@@ -441,8 +435,8 @@ class MainActivity : ComponentActivity() {
         // Re-assert the preference in case the system reset it while backgrounded.
         applyPreferredRefreshRate()
         // Foreground dispatch means every tag tap while HKI 7 is in front comes back to this
-        // activity directly, taking priority over the manifest's NDEF_DISCOVERED filter (which
-        // only matters for a cold launch — see pendingNfcIntent). No tech-list filtering: a blank,
+        // activity directly, taking priority over the manifest filter that sends taps to the
+        // invisible NfcTagReaderActivity when HKI 7 is not in front. No tech-list filtering: a blank,
         // never-formatted tag must still be caught for the Write tab to write to it at all.
         val pendingIntent = PendingIntent.getActivity(
             this, 0, Intent(this, javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),

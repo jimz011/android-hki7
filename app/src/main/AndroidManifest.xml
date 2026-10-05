@@ -79,8 +79,19 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- Lets Android launch HKI 7 for a Home Assistant NFC tag tapped outside the app
-                 (screen on, app not running), the same tag URL shape the official app writes. -->
+        </activity>
+
+        <!-- Receives a Home Assistant NFC tag tapped while HKI 7 is not in front (while it is,
+             MainActivity's foreground dispatch takes the tap first). Invisible and in a task of its
+             own, so reporting a tag neither shows the app nor brings its task forward. -->
+        <activity
+            android:name=".NfcTagReaderActivity"
+            android:exported="true"
+            android:theme="@style/Theme.HKI7.Invisible"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
                 <category android:name="android.intent.category.DEFAULT" />

@@ -18,6 +18,17 @@ import kotlinx.serialization.json.put
  */
 object NfcTagReporting {
 
+    /** [report], then adds the scan to the NFC screen's recent activity when it got through. */
+    suspend fun reportAndRecord(context: Context, instanceId: String, tagId: String): Boolean {
+        val success = report(context, instanceId, tagId)
+        if (success) {
+            val prefs = PreferencesManager(context.applicationContext)
+            val entry = HKINfcTagActivity(tagId = tagId, epochMillis = System.currentTimeMillis(), wasWrite = false)
+            prefs.saveNfcTagActivity((listOf(entry) + prefs.nfcTagActivity.first()).take(20))
+        }
+        return success
+    }
+
     suspend fun report(context: Context, instanceId: String, tagId: String): Boolean {
         val appContext = context.applicationContext
         val prefs = PreferencesManager(appContext).forInstance(instanceId)

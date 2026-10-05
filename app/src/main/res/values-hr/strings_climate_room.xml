@@ -29,7 +29,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_3_0">
         <item>Novo: Postavke › NFC oznake. HKI 7 čita i piše iste oznake kao i službena aplikacija Home Assistant, a dodir bilo gdje u aplikaciji pokreće događaj tag_scanned koji vaše automatizacije slušaju.</item>
-        <item>Oznake mogu otvoriti HKI 7 čak i dok je zatvoren. Ostavite otvorenim HKI 7 kada se dodirne prilikom pisanja oznake; isključite ga za pisanje običnih oznaka za kućanstvo koje također koristi službenu aplikaciju.</item>
+        <item>Oznake rade čak i dok je HKI 7 zatvoren: skeniranje se prijavljuje bez otvaranja aplikacije, kao u službenoj aplikaciji. Ostavite Čitanje oznaka dok je HKI 7 zatvoreno tijekom pisanja oznake; isključite ga za pisanje običnih oznaka za kućanstvo koje također koristi službenu aplikaciju.</item>
         <item>Widget popisa za kupnju sada može prikazati vaše TidyShop obiteljske popise umjesto vlastitih. Svaki popis podijeljen s vama pojavljuje se kao kartica, a označavanje nečega dopire do ostatka kućanstva u roku od nekoliko sekundi.</item>
         <item>O tome što možete učiniti sa sinkroniziranim popisom odlučuje obiteljski poslužitelj: popis koji možete samo gledati ostaje samo za čitanje, a onaj koji možete označiti, ali ne i uređivati, omogućuje vam provjeru stavki bez mijenjanja. Vlastita dopuštenja vaše nadzorne ploče i dalje se primjenjuju na vrhu.</item>
         <item>Novo: Postavke › Povezane aplikacije, za druge aplikacije iz kojih HKI 7 može povući. TidyShop je prvi. Povezivanje koristi kod umjesto lozinke: ovaj telefon stvara vlastiti ključ koji ga nikada ne napušta i ne može se staviti u rezervnu kopiju.</item>

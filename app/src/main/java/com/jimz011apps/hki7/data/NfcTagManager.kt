@@ -26,8 +26,8 @@ fun homeAssistantTagUri(tagId: String): String = "https://$HA_TAG_HOST$HA_TAG_PA
 fun extractTag(intent: Intent): Tag? =
     IntentCompat.getParcelableExtra(intent, NfcAdapter.EXTRA_TAG, Tag::class.java)
 
-/** Reads the tag identifier out of a dispatched NFC intent (foreground dispatch or a cold-launch
- *  via the manifest's NDEF_DISCOVERED filter). Recognizes the Home Assistant tag URL, falls back
+/** Reads the tag identifier out of a dispatched NFC intent (foreground dispatch in MainActivity, or
+ *  the manifest's NDEF_DISCOVERED filter on NfcTagReaderActivity). Recognizes the Home Assistant tag URL, falls back
  *  to a plain-text NDEF payload, and finally to the tag's own hardware serial so an unformatted
  *  (never-written) tag still reads as *something* identifiable. */
 fun extractTagId(intent: Intent): String? {

@@ -2749,8 +2749,8 @@
     <string name="nfc_write_custom_id_label">タグID</string>
     <string name="nfc_write_label_label">ラベル (オプション)</string>
     <string name="nfc_write_label_hint">このリストにのみ表示され、Home Assistant には送信されません</string>
-    <string name="nfc_write_opens_app_title">タップすると HKI 7 を開きます</string>
-    <string name="nfc_write_opens_app_on">HKI 7 が閉じている間でもタグは機能します。 HKI 7 のない Android スマートフォンは、公式 Home Assistant アプリの代わりに Play ストアに送信されます。</string>
+    <string name="nfc_write_opens_app_title">HKI 7 が閉じている間にタグを読み取ります</string>
+    <string name="nfc_write_opens_app_on">HKI 7 は、タグを開かなくても閉じている間でもタグを報告します。 HKI 7 のない Android スマートフォンは、公式 Home Assistant アプリの代わりに Play ストアに送信されます。</string>
     <string name="nfc_write_opens_app_off">タグは公式 Home Assistant アプリで動作します。 HKI 7 は、開いている間のみレポートします。</string>
     <string name="nfc_write_start">タグをタップして書き込みます</string>
     <string name="nfc_write_waiting">携帯電話の近くにタグをかざしてください…</string>

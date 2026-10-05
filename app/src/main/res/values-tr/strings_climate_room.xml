@@ -580,7 +580,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_3_0">
         <item>Yeni: Ayarlar › NFC etiketleri. HKI 7, resmi Home Assistant uygulamasıyla aynı etiketleri okur ve yazar ve uygulamanın herhangi bir yerine dokunmak, otomasyonlarınızın dinlediği tag_scanned olayını tetikler.</item>
-        <item>Etiketler HKI 7 kapalıyken bile açılabilir. Etiket yazarken üzerine dokunulduğunda HKI 7 öğesini Açık bırakın; Resmi uygulamayı da kullanan bir ev için düz etiketler yazmak için bu özelliği kapatın.</item>
+        <item>Etiketler HKI 7 kapalıyken bile çalışır: tarama, resmi uygulamada olduğu gibi uygulama açılmadan raporlanır. Etiket yazarken HKI 7 kapalıyken Okuma etiketlerini açık bırakın; Resmi uygulamayı da kullanan bir ev için düz etiketler yazmak için bu özelliği kapatın.</item>
         <item>Alışveriş listesi widget\'ı artık kendi listeleri yerine TidyShop aile listelerinizi gösterebilir. Sizinle paylaşılan her liste bir sekme olarak görünüyor ve bir şeyin işaretlenmesi saniyeler içinde evin geri kalanına ulaşıyor.</item>
         <item>Senkronize edilmiş bir listeyle ne yapabileceğinize aile sunucusu tarafından karar verilir: yalnızca bakabileceğiniz bir liste salt okunur olarak kalır ve işaretleyebileceğiniz ancak düzenleyemeyeceğiniz bir liste, öğeleri değiştirmeden kontrol etmenize olanak tanır. Kontrol panelinizin kendi izinleri hâlâ en üstte geçerlidir.</item>
         <item>Yeni: Ayarlar › Bağlı uygulamalar, HKI 7\'nin alabileceği diğer uygulamalar için. TidyShop ilkidir. Bağlanırken şifre yerine kod kullanılır: bu telefon kendi anahtarını oluşturur, bu anahtar asla ondan ayrılmaz ve yedeğe alınamaz.</item>

@@ -2749,8 +2749,8 @@
     <string name="nfc_write_custom_id_label">Идентификатор тега</string>
     <string name="nfc_write_label_label">Этикетка (необязательно)</string>
     <string name="nfc_write_label_hint">Показывается только в этом списке и никогда не отправляется на адрес Home Assistant.</string>
-    <string name="nfc_write_opens_app_title">Открыть HKI 7 при нажатии</string>
-    <string name="nfc_write_opens_app_on">Теги работают, даже если HKI 7 закрыт. Телефоны Android без HKI 7 отправляются в Play Store вместо официального приложения Home Assistant.</string>
+    <string name="nfc_write_opens_app_title">Читать теги, пока HKI 7 закрыт</string>
+    <string name="nfc_write_opens_app_on">HKI 7 сообщает о теге, даже если он закрыт, но не открывается. Телефоны Android без HKI 7 отправляются в Play Store вместо официального приложения Home Assistant.</string>
     <string name="nfc_write_opens_app_off">Теги работают с официальным приложением Home Assistant. HKI 7 сообщает о них только тогда, когда он открыт.</string>
     <string name="nfc_write_start">Нажмите на тег, чтобы написать</string>
     <string name="nfc_write_waiting">Держите метку рядом с телефоном…</string>

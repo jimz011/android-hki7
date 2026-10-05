@@ -46,7 +46,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_3_0">
         <item>Nytt: Innstillinger › NFC-tagger. HKI 7 leser og skriver de samme taggene som den offisielle Home Assistant-appen, og et trykk hvor som helst i appen utløser tag_scanned-hendelsen automatiseringene dine lytter etter.</item>
-        <item>Tagger kan åpne HKI 7 selv når den er lukket. La åpen HKI 7 når du trykker på når du skriver en tag; slå den av for å skrive vanlige tagger for en husholdning som også bruker den offisielle appen.</item>
+        <item>Tagger fungerer selv når HKI 7 er lukket: skanningen rapporteres uten at appen åpnes, som i den offisielle appen. La Les-tagger stå mens HKI 7 er lukket når du skriver en tag; slå den av for å skrive vanlige tagger for en husholdning som også bruker den offisielle appen.</item>
         <item>Handlelistewidgeten kan nå vise TidyShop-familielistene dine i stedet for sine egne. Hver liste som deles med deg, vises som en fane, og avkryssing når resten av husstanden i løpet av sekunder.</item>
         <item>Hva du kan gjøre med en synkronisert liste bestemmes av familieserveren: en liste du bare kan se på forblir skrivebeskyttet, og en du kan krysse av, men ikke redigere lar deg sjekke elementer uten å endre dem. Din dashbords egne tillatelser gjelder fortsatt på toppen.</item>
         <item>Nytt: Innstillinger › Tilkoblede apper, for andre apper HKI 7 kan trekke fra. TidyShop er den første. Tilkobling bruker en kode i stedet for et passord: denne telefonen lager sin egen nøkkel, som aldri forlater den og kan ikke settes i en sikkerhetskopi.</item>

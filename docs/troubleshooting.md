@@ -339,10 +339,10 @@ registration, which those settings create. Without it, only an administrator's s
 
 The tag is a plain tag and HKI 7 was closed. Home Assistant's links belong to the official app as
 far as Android is concerned, so a plain tag only reaches HKI 7 while HKI 7 is open. Write the tag
-again from **Settings › NFC tags › Write** with **Open HKI 7 when tapped** on, entering the same ID
+again from **Settings › NFC tags › Write** with **Read tags while HKI 7 is closed** on, entering the same ID
 so your automations keep working.
 
-[:octicons-arrow-right-24: NFC tags](guide/nfc-tags.md#open-hki-7-when-tapped)
+[:octicons-arrow-right-24: NFC tags](guide/nfc-tags.md#read-tags-while-hki-7-is-closed)
 
 ---
 

@@ -2749,8 +2749,8 @@
     <string name="nfc_write_custom_id_label">รหัสแท็ก</string>
     <string name="nfc_write_label_label">ป้ายกำกับ (ไม่บังคับ)</string>
     <string name="nfc_write_label_hint">แสดงเฉพาะในรายการนี้ ไม่เคยส่งไปที่ Home Assistant</string>
-    <string name="nfc_write_opens_app_title">เปิด HKI 7 เมื่อแตะ</string>
-    <string name="nfc_write_opens_app_on">แท็กทำงานได้แม้ในขณะที่ HKI 7 ปิดอยู่ โทรศัพท์ Android ที่ไม่มี HKI 7 จะถูกส่งไปยัง Play Store แทนที่จะเป็นแอป Home Assistant อย่างเป็นทางการ</string>
+    <string name="nfc_write_opens_app_title">อ่านแท็กในขณะที่ HKI 7 ปิดอยู่</string>
+    <string name="nfc_write_opens_app_on">HKI 7 รายงานแท็กแม้ว่าจะปิดอยู่และไม่ได้เปิดก็ตาม โทรศัพท์ Android ที่ไม่มี HKI 7 จะถูกส่งไปยัง Play Store แทนที่จะเป็นแอป Home Assistant อย่างเป็นทางการ</string>
     <string name="nfc_write_opens_app_off">แท็กใช้งานได้กับแอป Home Assistant อย่างเป็นทางการ HKI 7 รายงานในขณะที่เปิดอยู่เท่านั้น</string>
     <string name="nfc_write_start">แตะแท็กเพื่อเขียน</string>
     <string name="nfc_write_waiting">ถือแท็กไว้ใกล้โทรศัพท์ของคุณ...</string>

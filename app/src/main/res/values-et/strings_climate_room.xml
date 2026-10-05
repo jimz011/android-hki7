@@ -29,7 +29,7 @@
     </string-array>
     <string-array name="cr_whats_new_1_3_0">
         <item>Uus: Seaded › NFC-sildid. HKI 7 loeb ja kirjutab samu silte, mis ametlik rakendus Home Assistant ning kui puudutate kõikjal rakenduses, käivitatakse sündmus tag_scanned, mida teie automatiseeringud kuulavad.</item>
-        <item>Sildid võivad avada HKI 7 isegi siis, kui see on suletud. Jätke avatuks HKI 7, kui seda sildi kirjutamisel puudutatakse; lülitage see välja, et kirjutada lihtsaid silte leibkonna jaoks, mis kasutab ka ametlikku rakendust.</item>
+        <item>Sildid töötavad isegi siis, kui HKI 7 on suletud: skannimisest teatatakse ilma rakendust avamata, nagu ametlikus rakenduses. Jätke märgendi kirjutamisel sisselülitatud sildid, kui HKI 7 on suletud; lülitage see välja, et kirjutada lihtsaid silte leibkonna jaoks, mis kasutab ka ametlikku rakendust.</item>
         <item>Ostunimekirja vidin saab nüüd näidata teie TidyShopi perenimekirju enda enda asemel. Iga teiega jagatud loend kuvatakse vahekaardina ja millegi ära märkimine jõuab mõne sekundi jooksul ülejäänud leibkonnani.</item>
         <item>See, mida saate sünkroonitud loendiga teha, otsustab pereserver: loend, mida saate vaadata, jääb kirjutuskaitstuks, ja loend, mille saate märgistada, kuid mitte muuta, võimaldab teil kontrollida üksusi neid muutmata. Peal kehtivad endiselt teie juhtpaneeli enda load.</item>
         <item>Uus: Seaded › Ühendatud rakendused, teiste rakenduste jaoks saab HKI 7 hankida. TidyShop on esimene. Ühenduse loomiseks kasutatakse parooli asemel pigem koodi: see telefon teeb oma võtme, mis ei lahku sellest kunagi ja mida ei saa varundada.</item>

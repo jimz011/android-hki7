@@ -15,10 +15,11 @@ the watch and the dashboard.
   triggers in automations listen for. A tag tapped anywhere in HKI 7 is reported, not only on the
   NFC screen, and it is sent through this phone's own Home Assistant registration exactly as the
   official app sends it, so Home Assistant knows which phone scanned it.
-- Tags can open HKI 7 even while it is closed. Home Assistant's website tells Android that its tag
-  links belong to the official app, so a plain tag only ever reached HKI 7 while it was open. The
-  Write tab's new **Open HKI 7 when tapped** switch, on by default, adds a record to the tag that
-  sends it to HKI 7 instead. The trade-off is that an Android phone without HKI 7 is sent to the
+- Tags work while HKI 7 is closed. Home Assistant's website tells Android that its tag links belong
+  to the official app, so a plain tag only ever reached HKI 7 while it was open. The Write tab's
+  new **Read tags while HKI 7 is closed** switch, on by default, adds a record to the tag that
+  sends it to HKI 7 instead, and HKI 7 then reports the tap without opening, as the official app
+  does; a message appears only if Home Assistant could not be reached. The trade-off is that an Android phone without HKI 7 is sent to the
   Play Store rather than to the official app; switch it off to write plain tags for a household
   that uses both.
 - Android Auto no longer says it cannot reach Home Assistant until HKI 7 has been opened on the

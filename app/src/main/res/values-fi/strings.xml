@@ -2749,8 +2749,8 @@
     <string name="nfc_write_custom_id_label">Tunnisteen tunnus</string>
     <string name="nfc_write_label_label">Tunniste (valinnainen)</string>
     <string name="nfc_write_label_hint">Näytetään vain tässä luettelossa, ei koskaan lähetetty osoitteeseen Home Assistant</string>
-    <string name="nfc_write_opens_app_title">Avaa HKI 7 napauttamalla</string>
-    <string name="nfc_write_opens_app_on">Tunnisteet toimivat, vaikka HKI 7 on suljettu. Android-puhelimet, joissa ei ole HKI 7, lähetetään Play Kauppaan virallisen Home Assistant-sovelluksen sijaan.</string>
+    <string name="nfc_write_opens_app_title">Lue tunnisteet, kun HKI 7 on suljettu</string>
+    <string name="nfc_write_opens_app_on">HKI 7 raportoi tunnisteen, vaikka se on suljettu, avaamatta. Android-puhelimet, joissa ei ole HKI 7, lähetetään Play Kauppaan virallisen Home Assistant-sovelluksen sijaan.</string>
     <string name="nfc_write_opens_app_off">Tunnisteet toimivat virallisen Home Assistant-sovelluksen kanssa. HKI 7 ilmoittaa niistä vain, kun se on auki.</string>
     <string name="nfc_write_start">Kirjoita napauttamalla tunnistetta</string>
     <string name="nfc_write_waiting">Pidä tunnistetta puhelimen lähellä…</string>
