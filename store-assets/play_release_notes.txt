@@ -1,5 +1,5 @@
 NEW
-• NFC tags: read and write Home Assistant tags, even while HKI 7 is closed, without the app opening
+• NFC tags: read and write Home Assistant tags, even while HKI 7 is closed
 • TidyShop family shopping lists in the to-do widget
 • Maps now use OpenStreetMap, darkened in dark themes
 
