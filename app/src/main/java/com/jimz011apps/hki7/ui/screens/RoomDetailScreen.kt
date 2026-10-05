@@ -2790,14 +2790,29 @@ fun RoomDetailScreen(
             )
         }
         val closeActivity = { activityDialogRole = null; activityDialogEntityIds = emptyList() }
-        if (groupEntities.isNotEmpty()) {
+        if (role == com.jimz011apps.hki7.ui.RoomStatusRoles.PEOPLE) {
+            // Presence is a roster, not a controllable device group. Keep the dialog independent
+            // of the room's transient entity subscription: that list can update immediately after
+            // the tap and used to make the generic group dialog dismiss itself on the next frame.
+            val entitiesById = allEntities.associateBy { it.entity_id }
+            com.jimz011apps.hki7.ui.components.PeoplePresenceDialog(
+                people = com.jimz011apps.hki7.ui.components.personPresenceRows(
+                    entityIds = activityDialogEntityIds,
+                    entitiesById = entitiesById,
+                    baseUrl = currentUrl,
+                    roomNameOf = { areaConfig.name ?: area?.name }
+                ),
+                showRooms = false,
+                onDismiss = closeActivity
+            )
+        } else if (groupEntities.isNotEmpty()) {
             GroupEntityDialog(
                 stack = syntheticStack,
                 entities = groupEntities,
                 viewModel = viewModel,
                 onDismiss = closeActivity
             )
-        } else closeActivity()
+        }
     }
 
     if (showHumidifierDialog && selectedHumidifierEntity != null) {

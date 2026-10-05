@@ -378,6 +378,7 @@ private fun OpenStreetMapPreview(lat: Double, lon: Double, imageUrl: String?) {
                             .build(),
                         contentDescription = null,
                         contentScale = ContentScale.FillBounds,
+                        colorFilter = MapTiles.colorFilter(darkTiles),
                         modifier = Modifier
                             .size(with(density) { tileSizePx.toDp() })
                             .offset {

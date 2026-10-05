@@ -9,17 +9,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 
 /**
- * True while the top-level pager (or the room pager) is being dragged.
- *
- * A page keeps its own pull-down header state, so swiping away from a page with the header open
- * left it open — and it was still open when you came back, having outlived the reason it was
- * showing. Pages collapse it when this turns true, which is the "close the original one" half of
- * the choice; showing it on every page would mean one page's gesture silently changing another's
- * state, which is worse.
- */
-val LocalPageSwipeInProgress = staticCompositionLocalOf { false }
-
-/**
  * Lets a top-level view tell the host that it has opened a page of its own — Energy's Solar tab,
  * Climate's Gas group, a Security category.
  *

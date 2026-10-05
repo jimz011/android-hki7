@@ -617,6 +617,7 @@ private fun DeviceMap(devices: List<TrackedDevice>, refreshTick: Int) {
                             .build(),
                         contentDescription = null,
                         contentScale = ContentScale.FillBounds,
+                        colorFilter = MapTiles.colorFilter(darkTiles),
                         modifier = Modifier
                             .size(with(density) { tileSizePx.toDp() })
                             .offset {

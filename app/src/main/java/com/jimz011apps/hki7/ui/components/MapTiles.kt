@@ -1,6 +1,8 @@
 package com.jimz011apps.hki7.ui.components
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.luminance
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 import kotlin.math.PI
@@ -37,6 +39,23 @@ object MapTiles {
      */
     @Composable
     fun useDarkTiles(): Boolean = LocalHKIAppColors.current.background.luminance() < 0.5f
+
+    /**
+     * Home Assistant's non-WebGL fallback uses the same OSM raster layer in both themes and
+     * transforms it for dark mode. HKI is also a raster renderer, so this matrix reproduces HA's
+     * `invert(.9) hue-rotate(170deg) brightness(1.5) contrast(1.2) saturate(.3)` filter instead of
+     * silently showing a light map in a dark dashboard.
+     */
+    fun colorFilter(dark: Boolean): ColorFilter? = if (!dark) null else ColorFilter.colorMatrix(
+        ColorMatrix(
+            floatArrayOf(
+                0.044040f, -1.280026f, -0.204014f, 0f, 387.6f,
+                -0.408102f, -0.918728f, -0.113170f, 0f, 387.6f,
+                -0.338338f, -1.387299f, 0.285636f, 0f, 387.6f,
+                0f, 0f, 0f, 1f, 0f
+            )
+        )
+    )
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

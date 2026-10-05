@@ -228,12 +228,10 @@ fun HKIPage(
             pullAnimatable.animateTo(0f, spring(dampingRatio = 0.9f, stiffness = 420f))
         }
     }
-    // Swiping to another page collapses the pull-down: it belongs to the page that was showing
-    // when it was opened, and leaving it open outlives that.
-    val pageSwiping = LocalPageSwipeInProgress.current
-    LaunchedEffect(pageSwiping) {
-        if (pageSwiping && pullAnimatable.value > 0f) closePull()
-    }
+    // Do not close merely because the host pager reports horizontal motion. The overflowing action
+    // strip is itself horizontally scrollable, and the pager briefly enters that state while the
+    // child wins gesture ownership. Treating it as navigation made scrolling toward Settings snap
+    // the pull-down shut. Each page owns its own pull state, so leaving it open is harmless.
     val pullOffsetDp = (pullOffset / 3f).dp
     val menuVisible = pullOffset > 120f
     val headerColorSource = previewHeaderColor ?: headerColor ?: pageConfig.headerColor

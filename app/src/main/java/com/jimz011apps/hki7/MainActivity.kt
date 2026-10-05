@@ -883,12 +883,6 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
     val previousPlace = remember(historyRevision) { history.previous() }
     val roomsIndex = screens.indexOfFirst { it.route == Screen.Rooms.route }
     val rememberedRoom = remember(historyRevision, roomsIndex) { history.roomToReopen(roomsIndex) }
-    var pageSwipeInProgress by remember { mutableStateOf(false) }
-    LaunchedEffect(pagerState, roomPagerState) {
-        snapshotFlow { pagerState.isScrollInProgress || roomPagerState.isScrollInProgress }
-            .distinctUntilChanged()
-            .collect { pageSwipeInProgress = it }
-    }
     val currentTopLevelIndex = if (onTabsDestination) pagerState.currentPage else -1
     // A pager holds several pages composed at once, so a state update landing mid-swipe recomposes
     // every one of them. Room pages are heavy enough that this costs frames — which is why room
@@ -1160,9 +1154,6 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
         // header has its own, and a callback threaded through only the first left the other doing
         // nothing when its Home Assistant links were tapped.
         com.jimz011apps.hki7.ui.components.LocalOpenHaPage provides openHaPageFromSettings,
-        // Covers the room pager too: rooms are their own navigation destination, so a provider
-        // scoped to the tab pager never reached them and their header stayed open on swipe.
-        com.jimz011apps.hki7.ui.components.LocalPageSwipeInProgress provides pageSwipeInProgress,
         com.jimz011apps.hki7.ui.components.LocalOpenTopLevelRoute provides { route: String ->
             val target = screens.firstOrNull { it.route == route }
             if (target != null) {
