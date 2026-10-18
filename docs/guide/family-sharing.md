@@ -17,13 +17,14 @@ Assistant add-on that stores the household's shared state.
     Home Assistant has no place for an app to store per-user configuration. The component gives
     HKI 7 one, on your own server, rather than a developer-run service somewhere else.
 
-Install it through HACS:
+HKI 7 Cloud is in the default HACS store, so there is no custom repository to add:
 
-1. In Home Assistant, open **HACS → the ⋮ menu in the top-right → Custom repositories**.
-2. Paste the repository URL, choose the **Integration** category, and add it.
-3. Open the new **HKI 7 Cloud** entry, install it, and restart Home Assistant.
-4. Go to **Settings → Devices & Services → Add Integration**, choose **HKI 7 Cloud**, and confirm.
-5. Reopen **Settings › Family Sharing** in the app. The features appear automatically.
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=jimz011&repository=HKI7-Cloud-Component&category=integration)
+
+1. In Home Assistant, open **HACS** and search for **HKI 7 Cloud** (or use the button above).
+2. Install it, and restart Home Assistant.
+3. Go to **Settings → Devices & Services → Add Integration**, choose **HKI 7 Cloud**, and confirm.
+4. Reopen **Settings › Family Sharing** in the app. The features appear automatically.
 
 The app's Family Sharing screen has this checklist built in, with a button straight to the
 repository.
