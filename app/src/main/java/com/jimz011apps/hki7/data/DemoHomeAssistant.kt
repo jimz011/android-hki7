@@ -54,18 +54,32 @@ fun isDemoServerUrl(url: String?): Boolean =
 
 class DemoHomeAssistantClient : HomeAssistantClient(DEMO_SERVER_URL, DEMO_ACCESS_TOKEN) {
 
-    private val lock = Any()
-    private val states = LinkedHashMap<String, HAEntity>().apply {
-        demoEntities().forEach { put(it.entity_id, it) }
+    /**
+     * The one sample home every client in the process shares.
+     *
+     * Several clients are alive at once: the phone's view model and the car screen each hold one,
+     * and every Android Auto tap builds its own short-lived client. With a home per client, a tap
+     * changed a copy nobody was watching, so the car grid never showed the light going on.
+     */
+    private companion object SharedHome {
+        val lock = Any()
+        val states = LinkedHashMap<String, HAEntity>().apply {
+            demoEntities().forEach { put(it.entity_id, it) }
+        }
+        val changes = MutableSharedFlow<HAStateChange>(extraBufferCapacity = 256)
+        val AMBIENT_PERIOD = 20.seconds
+
+        /** When the shared home last drifted; see [advanceAmbientState]. Guarded by [lock]. */
+        var lastAmbientAdvanceNanos: Long? = null
     }
-    private val changes = MutableSharedFlow<HAStateChange>(extraBufferCapacity = 256)
+
     private val demoScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     init {
         // Gentle background drift so the demo feels live: playback advances and sensors wander.
         demoScope.launch {
             while (isActive) {
-                delay(20.seconds)
+                delay(AMBIENT_PERIOD)
                 advanceAmbientState()
             }
         }
@@ -557,6 +571,14 @@ class DemoHomeAssistantClient : HomeAssistantClient(DEMO_SERVER_URL, DEMO_ACCESS
 
     /** Advances playback position and lets a few sensors wander so the dashboard feels alive. */
     private fun advanceAmbientState() {
+        // Every live client runs this loop against the same home. Only the first tick in each
+        // period moves it, or the phone and car together would drift it (and playback) twice as fast.
+        val now = System.nanoTime()
+        synchronized(lock) {
+            val last = lastAmbientAdvanceNanos
+            if (last != null && now - last < (AMBIENT_PERIOD - 1.seconds).inWholeNanoseconds) return
+            lastAmbientAdvanceNanos = now
+        }
         val random = Random(System.currentTimeMillis())
         listOf(
             "sensor.living_room_temperature", "sensor.kitchen_temperature", "sensor.office_temperature",
