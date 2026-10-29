@@ -220,7 +220,9 @@ class QuickActionsCarScreen(carContext: CarContext) : Screen(carContext) {
                     quickAction = quickAction,
                     target = CarActionTarget(instanceId),
                     title = title(quickAction, entity),
-                    stateLabel = entity?.let(::stateLabel),
+                    stateLabel = entity
+                        ?.takeUnless { it.entity_id.substringBefore('.') in TIMESTAMP_STATE_DOMAINS }
+                        ?.let(::stateLabel),
                     icon = icon(quickAction, entity),
                 )
             }
@@ -314,6 +316,9 @@ class QuickActionsCarScreen(carContext: CarContext) : Screen(carContext) {
         /** The Car App Library's documented default grid limit, used when the service is missing. */
         const val DEFAULT_GRID_LIMIT = 6
         const val FALLBACK_ICON_SLUG = "lightning-bolt"
+        /** Domains whose state is the time they last ran: printed raw it is an ISO timestamp,
+         *  noise on a car tile, so these show their name only. */
+        val TIMESTAMP_STATE_DOMAINS = setOf("scene", "button", "input_button")
     }
 }
 
