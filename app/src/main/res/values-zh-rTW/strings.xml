@@ -4027,7 +4027,6 @@
     <string name="car_action_sent">傳送</string>
     <string name="car_action_unavailable">無法使用</string>
     <string name="car_loading">載入中</string>
-    <string name="car_not_configured">在手機上開啟HKI 7並將其連接到Home Assistant。</string>
     <string name="car_quick_actions_title">快速行動</string>
     <string name="car_refresh">重新整理</string>
     <string name="quick_actions_add">新增快速操作</string>
@@ -4044,7 +4043,6 @@
     <string name="quick_actions_reorder_subtitle">拖曳以設定它們出現的順序。</string>
     <string name="quick_actions_show_in_car">在 Android Auto 中顯示</string>
     <string name="quick_actions_when_tapped">輕按時</string>
-    <string name="car_no_actions">在手機上的「設定」、「Android Auto」和「Wear OS」下的 HKI 7 中新增快速操作。</string>
     <string name="quick_actions_car_needs_play">Android Auto 僅適用於從 Google Play 安裝的副本。谷歌不允許以任何其他方式安裝的應用程式出現在汽車中，因此在此副本中，快速操作可以到達您的手錶，但不能到達汽車。</string>
     <string name="quick_actions_hidden_everywhere">隱藏在汽車和手錶之外。</string>
     <string name="quick_actions_intro">Android Auto 和手錶都無法顯示您的儀表板。從汽車和手腕上挑選一些您想要的東西。</string>
@@ -4149,6 +4147,8 @@
     <string name="tidyshop_requirement_app">TidyShop 應用程序，位於管理家庭清單的人的手機上。名單和邀請都是在那裡製作的； HKI 7 顯示並勾選它們。 TidyShop 正在 Google Play 上進行封閉測試。</string>
     <string name="tidyshop_requirement_connector">TidyShop 連接器，在您擁有的伺服器（Docker 或 Unraid）上運行，並且可以透過此手機存取。它保存著家庭的共享清單；沒有 TidyShop 雲端。</string>
     <string name="tidyshop_requirements_title">你需要什麼</string>
+    <string name="car_no_quick_actions">尚無快速行動</string>
+    <string name="car_not_connected">未連接到 Home Assistant</string>
     <string name="tidyshop_step_connect">3. 在下面輸入連接器位址和代碼。</string>
     <string name="tidyshop_step_install">1. 依照安裝指南安裝連接器並將 TidyShop 對準它。</string>
     <string name="tidyshop_step_invite">2. 在 TidyShop 中，邀請此人加入家庭，或者如果您自己已經使用 TidyShop，則建立裝置代碼。</string>

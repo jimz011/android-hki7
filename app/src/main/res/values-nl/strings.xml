@@ -1943,12 +1943,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d thermostaten</string>
     <string name="quick_actions_watch_note">Je horloge praat rechtstreeks met Home Assistant. Het wordt vanaf deze telefoon ingesteld: er is niets om op het horloge in te loggen.</string>
     <string name="car_quick_actions_title">Snelle acties</string>
-    <string name="car_not_configured">Open HKI 7 op uw telefoon en verbind deze met Home Assistant.</string>
-    <string name="car_no_actions">Voeg snelle acties toe in HKI 7 op je telefoon, onder Instellingen, Android Auto en Wear OS.</string>
     <string name="car_loading">Laden</string>
     <string name="car_action_sent">Verstuurd</string>
     <string name="car_action_failed">Kan Home Assistant niet bereiken</string>
     <string name="car_action_unavailable">Niet beschikbaar</string>
+    <string name="car_not_connected">Niet verbonden met Home Assistant</string>
+    <string name="car_no_quick_actions">Nog geen snelle acties</string>
     <string name="car_refresh">Vernieuwen</string>
     <string name="family_access_manage">Toegang beheren</string>
     <string name="family_access_title">Wie kan %1$s zien</string>

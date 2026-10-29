@@ -1710,12 +1710,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d Thermostate</string>
     <string name="quick_actions_watch_note">Ihre Uhr kommuniziert direkt mit Home Assistant. Die Einrichtung erfolgt über dieses Telefon – auf der Uhr gibt es nichts, wo man sich anmelden kann.</string>
     <string name="car_quick_actions_title">Schnellaktionen</string>
-    <string name="car_not_configured">Öffnen Sie HKI 7 auf Ihrem Telefon und verbinden Sie es mit Home Assistant.</string>
-    <string name="car_no_actions">Fügen Sie Schnellaktionen in HKI 7 auf Ihrem Telefon hinzu, unter „Einstellungen“, „Android Auto“ und „Wear OS“.</string>
     <string name="car_loading">Laden</string>
     <string name="car_action_sent">Gesendet</string>
     <string name="car_action_failed">Home Assistant konnte nicht erreicht werden</string>
     <string name="car_action_unavailable">Nicht verfügbar</string>
+    <string name="car_not_connected">Nicht mit Home Assistant verbunden</string>
+    <string name="car_no_quick_actions">Noch keine schnellen Massnahmen</string>
     <string name="car_refresh">Aktualisieren</string>
     <string name="family_access_manage">Zugriff verwalten</string>
     <string name="family_access_title">Wer kann %1$s sehen?</string>

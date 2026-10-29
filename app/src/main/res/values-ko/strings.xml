@@ -2799,12 +2799,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d 온도 조절기</string>
     <string name="quick_actions_watch_note">시계는 Home Assistant과 직접 통신합니다. 이 휴대전화에서 설정되었습니다. 시계에 로그인할 항목이 없습니다.</string>
     <string name="car_quick_actions_title">빠른 작업</string>
-    <string name="car_not_configured">휴대폰에서 HKI 7을 열고 Home Assistant에 연결하세요.</string>
-    <string name="car_no_actions">휴대전화의 설정, Android Auto 및 Wear OS에서 HKI 7에 빠른 작업을 추가하세요.</string>
     <string name="car_loading">로드 중</string>
     <string name="car_action_sent">전송된</string>
     <string name="car_action_failed">Home Assistant에 연결할 수 없습니다.</string>
     <string name="car_action_unavailable">사용할 수 없음</string>
+    <string name="car_not_connected">Home Assistant에 연결되지 않음</string>
+    <string name="car_no_quick_actions">아직 빠른 작업이 없습니다.</string>
     <string name="car_refresh">새로고침</string>
     <string name="family_permission_switch_dashboards">대시보드 전환 허용</string>
     <string name="family_permission_switch_dashboards_subtitle">이 사용자가 다른 기존 대시보드를 불러올 수 있도록 허용합니다</string>

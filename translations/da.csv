@@ -3044,12 +3044,12 @@ quick_actions_watch_thermostat_cycle,,Tap the name on the watch tile to move bet
 quick_actions_watch_thermostat_count,,%1$d thermostats,%1$d termostater,app fills in %1$d — keep them
 quick_actions_watch_note,,Your watch talks to Home Assistant directly. It is set up from this phone — there is nothing to sign in to on the watch.,Dit ur taler direkte til Home Assistant. Det er sat op fra denne telefon - der er ikke noget at logge ind på på uret.,don't translate Home Assistant
 car_quick_actions_title,,Quick actions,Hurtige handlinger,
-car_not_configured,,Open HKI 7 on your phone and connect it to Home Assistant.,"Åbn HKI 7 på din telefon, og tilslut den til Home Assistant.","don't translate Home Assistant, HKI 7"
-car_no_actions,,"Add quick actions in HKI 7 on your phone, under Settings, Android Auto and Wear OS.","Tilføj hurtige handlinger i HKI 7 på din telefon under Indstillinger, Android Auto og Wear OS.",don't translate HKI 7
 car_loading,,Loading,Indlæser,
 car_action_sent,,Sent,Sendt,
 car_action_failed,,Couldn't reach Home Assistant,Kunne ikke nå Home Assistant,don't translate Home Assistant
 car_action_unavailable,,Not available,Ikke tilgængelig,
+car_not_connected,,Not connected to Home Assistant,Ikke forbundet til Home Assistant,don't translate Home Assistant
+car_no_quick_actions,,No quick actions yet,Ingen hurtige handlinger endnu,
 car_refresh,,Refresh,Opfriske,
 security_entity_count,one,%1$d entity,%1$d enhed,app fills in %1$d — keep them
 security_entity_count,other,%1$d entities,%1$d enheder,app fills in %1$d — keep them

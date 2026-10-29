@@ -1710,12 +1710,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d termostatlar</string>
     <string name="quick_actions_watch_note">Saatiniz doğrudan Home Assistant ile konuşuyor. Bu telefondan kuruldu; saatte oturum açacak hiçbir şey yok.</string>
     <string name="car_quick_actions_title">Hızlı eylemler</string>
-    <string name="car_not_configured">Telefonunuzda HKI 7 uygulamasını açın ve Home Assistant cihazına bağlayın.</string>
-    <string name="car_no_actions">Telefonunuzda Ayarlar, Android Auto ve Wear OS altında HKI 7\'ye hızlı eylemler ekleyin.</string>
     <string name="car_loading">Yükleniyor</string>
     <string name="car_action_sent">Gönderilmiş</string>
     <string name="car_action_failed">Home Assistant\'ye ulaşılamadı</string>
     <string name="car_action_unavailable">Müsait değil</string>
+    <string name="car_not_connected">Home Assistant\'ye bağlı değil</string>
+    <string name="car_no_quick_actions">Henüz hızlı işlem yok</string>
     <string name="car_refresh">Yenile</string>
     <string name="family_access_manage">Erişimi yönet</string>
     <string name="family_access_title">%1$s kimler görebilir?</string>

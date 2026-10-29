@@ -2831,12 +2831,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d termostate</string>
     <string name="quick_actions_watch_note">Ceasul dvs. vorbește direct cu Home Assistant. Este configurat de pe acest telefon - nu există nimic la care să vă conectați pe ceas.</string>
     <string name="car_quick_actions_title">Acțiuni rapide</string>
-    <string name="car_not_configured">Deschideți HKI 7 pe telefon și conectați-l la Home Assistant.</string>
-    <string name="car_no_actions">Adăugați acțiuni rapide în HKI 7 pe telefon, în Setări, Android Auto și Wear OS.</string>
     <string name="car_loading">Încărcare</string>
     <string name="car_action_sent">Trimis</string>
     <string name="car_action_failed">Nu s-a putut ajunge la Home Assistant</string>
     <string name="car_action_unavailable">Nu este disponibil</string>
+    <string name="car_not_connected">Nu este conectat la Home Assistant</string>
+    <string name="car_no_quick_actions">Nu există încă acțiuni rapide</string>
     <string name="car_refresh">Reîmprospăta</string>
     <string name="family_permission_switch_dashboards">Permite comutarea tablourilor de bord</string>
     <string name="family_permission_switch_dashboards_subtitle">Permiteți acestei persoane să încarce un alt tablou de bord existent</string>

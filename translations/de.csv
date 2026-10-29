@@ -3044,12 +3044,12 @@ quick_actions_watch_thermostat_cycle,,Tap the name on the watch tile to move bet
 quick_actions_watch_thermostat_count,,%1$d thermostats,%1$d Thermostate,app fills in %1$d — keep them
 quick_actions_watch_note,,Your watch talks to Home Assistant directly. It is set up from this phone — there is nothing to sign in to on the watch.,"Ihre Uhr kommuniziert direkt mit Home Assistant. Die Einrichtung erfolgt über dieses Telefon – auf der Uhr gibt es nichts, wo man sich anmelden kann.",don't translate Home Assistant
 car_quick_actions_title,,Quick actions,Schnellaktionen,
-car_not_configured,,Open HKI 7 on your phone and connect it to Home Assistant.,Öffnen Sie HKI 7 auf Ihrem Telefon und verbinden Sie es mit Home Assistant.,"don't translate Home Assistant, HKI 7"
-car_no_actions,,"Add quick actions in HKI 7 on your phone, under Settings, Android Auto and Wear OS.","Fügen Sie Schnellaktionen in HKI 7 auf Ihrem Telefon hinzu, unter „Einstellungen“, „Android Auto“ und „Wear OS“.",don't translate HKI 7
 car_loading,,Loading,Laden,
 car_action_sent,,Sent,Gesendet,
 car_action_failed,,Couldn't reach Home Assistant,Home Assistant konnte nicht erreicht werden,don't translate Home Assistant
 car_action_unavailable,,Not available,Nicht verfügbar,
+car_not_connected,,Not connected to Home Assistant,Nicht mit Home Assistant verbunden,don't translate Home Assistant
+car_no_quick_actions,,No quick actions yet,Noch keine schnellen Maßnahmen,
 car_refresh,,Refresh,Aktualisieren,
 security_entity_count,one,%1$d entity,%1$d Entität,app fills in %1$d — keep them
 security_entity_count,other,%1$d entities,%1$d Entitäten,app fills in %1$d — keep them

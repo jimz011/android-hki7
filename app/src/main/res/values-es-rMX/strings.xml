@@ -4027,7 +4027,6 @@
     <string name="car_action_sent">Enviado</string>
     <string name="car_action_unavailable">No disponible</string>
     <string name="car_loading">Cargando</string>
-    <string name="car_not_configured">Abra HKI 7 en su teléfono y conéctelo a Home Assistant.</string>
     <string name="car_quick_actions_title">Acciones rápidas</string>
     <string name="car_refresh">Refrescar</string>
     <string name="quick_actions_add">Agregar acción rápida</string>
@@ -4044,7 +4043,6 @@
     <string name="quick_actions_reorder_subtitle">Arrastre para establecer el orden en que aparecen.</string>
     <string name="quick_actions_show_in_car">Mostrar en Android Auto</string>
     <string name="quick_actions_when_tapped">Cuando se toca</string>
-    <string name="car_no_actions">Agrega acciones rápidas en HKI 7 en tu teléfono, en Configuración, Android Auto y Wear OS.</string>
     <string name="quick_actions_car_needs_play">Android Auto solo funciona en copias instaladas desde Google Play. Google no permite que las aplicaciones instaladas de otra manera aparezcan en el automóvil, por lo que en esta copia las acciones rápidas llegan a su reloj pero no al automóvil.</string>
     <string name="quick_actions_hidden_everywhere">Oculto del coche y de tu reloj.</string>
     <string name="quick_actions_intro">Ni Android Auto ni un reloj pueden mostrar su tablero. Elige el puñado de cosas que quieras que estén al alcance del coche y de tu muñeca.</string>
@@ -4149,6 +4147,8 @@
     <string name="tidyshop_requirement_app">La app TidyShop, en el teléfono de quien lleva las listas familiares. Allí se hacen listas e invitaciones; HKI 7 los muestra y los marca. TidyShop se encuentra en pruebas cerradas en Google Play.</string>
     <string name="tidyshop_requirement_connector">El conector TidyShop, que se ejecuta en un servidor de su propiedad (Docker o Unraid) y al que se puede acceder desde este teléfono. Contiene las listas compartidas de la familia; no existe la nube de TidyShop.</string>
     <string name="tidyshop_requirements_title">lo que necesitas</string>
+    <string name="car_no_quick_actions">Aún no hay acciones rápidas</string>
+    <string name="car_not_connected">No conectado a Home Assistant</string>
     <string name="tidyshop_step_connect">3. Ingrese la dirección del conector y el código a continuación.</string>
     <string name="tidyshop_step_install">1. Instale el conector y apunte TidyShop hacia él, siguiendo la guía de instalación.</string>
     <string name="tidyshop_step_invite">2. En TidyShop, invita a esta persona a la familia o crea un código de dispositivo si ya usas TidyShop.</string>

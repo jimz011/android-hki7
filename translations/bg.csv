@@ -3044,12 +3044,12 @@ quick_actions_watch_thermostat_cycle,,Tap the name on the watch tile to move bet
 quick_actions_watch_thermostat_count,,%1$d thermostats,%1$d термостати,app fills in %1$d — keep them
 quick_actions_watch_note,,Your watch talks to Home Assistant directly. It is set up from this phone — there is nothing to sign in to on the watch.,Вашият часовник говори директно с Home Assistant. Настройва се от този телефон — няма нищо за влизане на часовника.,don't translate Home Assistant
 car_quick_actions_title,,Quick actions,Бързи действия,
-car_not_configured,,Open HKI 7 on your phone and connect it to Home Assistant.,Отворете HKI 7 на телефона си и го свържете към Home Assistant.,"don't translate Home Assistant, HKI 7"
-car_no_actions,,"Add quick actions in HKI 7 on your phone, under Settings, Android Auto and Wear OS.","Добавете бързи действия в HKI 7 на телефона си, под Настройки, Android Auto и Wear OS.",don't translate HKI 7
 car_loading,,Loading,Зарежда се,
 car_action_sent,,Sent,Изпратено,
 car_action_failed,,Couldn't reach Home Assistant,Не можах да достигна Home Assistant,don't translate Home Assistant
 car_action_unavailable,,Not available,Не е наличен,
+car_not_connected,,Not connected to Home Assistant,Няма връзка с Home Assistant,don't translate Home Assistant
+car_no_quick_actions,,No quick actions yet,Все още няма бързи действия,
 car_refresh,,Refresh,Опресняване,
 security_entity_count,one,%1$d entity,%1$d обект,app fills in %1$d — keep them
 security_entity_count,other,%1$d entities,%1$d обекти,app fills in %1$d — keep them

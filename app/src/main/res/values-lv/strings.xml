@@ -2831,12 +2831,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d termostati</string>
     <string name="quick_actions_watch_note">Jūsu pulkstenis runā tieši ar Home Assistant. Tas ir iestatīts no šī tālruņa — pulkstenī nav nekā, kurā pierakstīties.</string>
     <string name="car_quick_actions_title">Ātras darbības</string>
-    <string name="car_not_configured">Tālrunī atveriet HKI 7 un pievienojiet to Home Assistant.</string>
-    <string name="car_no_actions">Pievienojiet ātras darbības tālruņa HKI 7 sadaļā Iestatījumi, Android Auto un Wear OS.</string>
     <string name="car_loading">Notiek ielāde</string>
     <string name="car_action_sent">Nosūtīts</string>
     <string name="car_action_failed">Nevarēja sasniegt Home Assistant</string>
     <string name="car_action_unavailable">Nav pieejams</string>
+    <string name="car_not_connected">Nav savienots ar Home Assistant</string>
+    <string name="car_no_quick_actions">Ātru darbību vēl nav</string>
     <string name="car_refresh">Atsvaidzināt</string>
     <string name="family_permission_switch_dashboards">Atļaut pārslēgt informācijas paneļus</string>
     <string name="family_permission_switch_dashboards_subtitle">Ļaujiet šai personai ielādēt citu esošu informācijas paneli</string>

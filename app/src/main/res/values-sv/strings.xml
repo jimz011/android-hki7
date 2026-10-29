@@ -2831,12 +2831,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d termostater</string>
     <string name="quick_actions_watch_note">Din klocka pratar direkt med Home Assistant. Den ställs in från den här telefonen — det finns inget att logga in på på klockan.</string>
     <string name="car_quick_actions_title">Snabba åtgärder</string>
-    <string name="car_not_configured">Öppna HKI 7 på din telefon och anslut den till Home Assistant.</string>
-    <string name="car_no_actions">Lägg till snabba åtgärder i HKI 7 på din telefon, under Inställningar, Android Auto och Wear OS.</string>
     <string name="car_loading">Belastning</string>
     <string name="car_action_sent">Skickat</string>
     <string name="car_action_failed">Kunde inte nå Home Assistant</string>
     <string name="car_action_unavailable">Ej tillgängligt</string>
+    <string name="car_not_connected">Ej ansluten till Home Assistant</string>
+    <string name="car_no_quick_actions">Inga snabba åtgärder än</string>
     <string name="car_refresh">Uppdatera</string>
     <string name="family_permission_switch_dashboards">Tillåt byte av instrumentpaneler</string>
     <string name="family_permission_switch_dashboards_subtitle">Låt den här personen ladda en annan befintlig instrumentpanel</string>

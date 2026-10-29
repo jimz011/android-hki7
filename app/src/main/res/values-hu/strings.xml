@@ -2831,12 +2831,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d termosztátok</string>
     <string name="quick_actions_watch_note">Az órája közvetlenül beszél a következővel: Home Assistant. Erről a telefonról van beállítva – nincs semmi, amibe be kellene jelentkezni az órán.</string>
     <string name="car_quick_actions_title">Gyors cselekvések</string>
-    <string name="car_not_configured">Nyissa meg a HKI 7 alkalmazást a telefonján, és csatlakoztassa a Home Assistant-hoz.</string>
-    <string name="car_no_actions">Gyors műveleteket adhat hozzá telefonja HKI 7 részében, a Beállítások, az Android Auto és a Wear OS alatt.</string>
     <string name="car_loading">Terhelés</string>
     <string name="car_action_sent">Küldött</string>
     <string name="car_action_failed">Nem sikerült elérni a következőt: Home Assistant</string>
     <string name="car_action_unavailable">Nem elérhető</string>
+    <string name="car_not_connected">Nincs csatlakoztatva a következőhöz: Home Assistant</string>
+    <string name="car_no_quick_actions">Még nincs gyors intézkedés</string>
     <string name="car_refresh">Frissítés</string>
     <string name="family_permission_switch_dashboards">Műszerfalváltás engedélyezése</string>
     <string name="family_permission_switch_dashboards_subtitle">Engedje meg, hogy ez a személy töltsön be egy másik meglévő irányítópultot</string>

@@ -2831,12 +2831,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d ตัวควบคุมอุณหภูมิ</string>
     <string name="quick_actions_watch_note">นาฬิกาของคุณพูดคุยกับ Home Assistant โดยตรง ได้รับการตั้งค่าจากโทรศัพท์เครื่องนี้ — ไม่มีอะไรให้ลงชื่อเข้าใช้บนนาฬิกา</string>
     <string name="car_quick_actions_title">การดำเนินการด่วน</string>
-    <string name="car_not_configured">เปิด HKI 7 บนโทรศัพท์ของคุณและเชื่อมต่อกับ Home Assistant</string>
-    <string name="car_no_actions">เพิ่มการดำเนินการด่วนใน HKI 7 บนโทรศัพท์ของคุณ ในส่วนการตั้งค่า, Android Auto และ Wear OS</string>
     <string name="car_loading">กำลังโหลด</string>
     <string name="car_action_sent">ส่งแล้ว</string>
     <string name="car_action_failed">ไม่สามารถเข้าถึง Home Assistant</string>
     <string name="car_action_unavailable">ไม่สามารถใช้ได้</string>
+    <string name="car_not_connected">ไม่ได้เชื่อมต่อกับ Home Assistant</string>
+    <string name="car_no_quick_actions">ยังไม่มีการดำเนินการด่วน</string>
     <string name="car_refresh">รีเฟรช</string>
     <string name="family_permission_switch_dashboards">อนุญาตให้สลับแดชบอร์ด</string>
     <string name="family_permission_switch_dashboards_subtitle">อนุญาตให้บุคคลนี้โหลดแดชบอร์ดอื่นที่มีอยู่</string>

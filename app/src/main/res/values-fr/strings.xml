@@ -1710,12 +1710,12 @@
     <string name="quick_actions_watch_thermostat_count">Thermostats %1$d</string>
     <string name="quick_actions_watch_note">Votre montre communique directement avec Home Assistant. Il est configuré à partir de ce téléphone – il n’y a rien à quoi se connecter sur la montre.</string>
     <string name="car_quick_actions_title">Actions rapides</string>
-    <string name="car_not_configured">Ouvrez HKI 7 sur votre téléphone et connectez-le à Home Assistant.</string>
-    <string name="car_no_actions">Ajoutez des actions rapides dans HKI 7 sur votre téléphone, sous Paramètres, Android Auto et Wear OS.</string>
     <string name="car_loading">Chargement</string>
     <string name="car_action_sent">Envoyé</string>
     <string name="car_action_failed">Impossible d\'atteindre Home Assistant</string>
     <string name="car_action_unavailable">Pas disponible</string>
+    <string name="car_not_connected">Non connecté à Home Assistant</string>
+    <string name="car_no_quick_actions">Aucune action rapide pour l\'instant</string>
     <string name="car_refresh">Rafraîchir</string>
     <string name="family_access_manage">Gérer l\'accès</string>
     <string name="family_access_title">Qui peut voir %1$s</string>

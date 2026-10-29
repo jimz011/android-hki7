@@ -2831,12 +2831,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d термостати</string>
     <string name="quick_actions_watch_note">Вашият часовник говори директно с Home Assistant. Настройва се от този телефон — няма нищо за влизане на часовника.</string>
     <string name="car_quick_actions_title">Бързи действия</string>
-    <string name="car_not_configured">Отворете HKI 7 на телефона си и го свържете към Home Assistant.</string>
-    <string name="car_no_actions">Добавете бързи действия в HKI 7 на телефона си, под Настройки, Android Auto и Wear OS.</string>
     <string name="car_loading">Зарежда се</string>
     <string name="car_action_sent">Изпратено</string>
     <string name="car_action_failed">Не можах да достигна Home Assistant</string>
     <string name="car_action_unavailable">Не е наличен</string>
+    <string name="car_not_connected">Няма връзка с Home Assistant</string>
+    <string name="car_no_quick_actions">Все още няма бързи действия</string>
     <string name="car_refresh">Опресняване</string>
     <string name="family_permission_switch_dashboards">Разрешаване на превключване на таблата за управление</string>
     <string name="family_permission_switch_dashboards_subtitle">Нека този човек зареди друго съществуващо табло</string>

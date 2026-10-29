@@ -2831,12 +2831,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d termostaty</string>
     <string name="quick_actions_watch_note">Vaše hodinky hovoria priamo s Home Assistant. Nastavuje sa z tohto telefónu — na hodinkách nie je nič, do čoho by ste sa mohli prihlásiť.</string>
     <string name="car_quick_actions_title">Rýchle akcie</string>
-    <string name="car_not_configured">Otvorte HKI 7 na svojom telefóne a pripojte ho k Home Assistant.</string>
-    <string name="car_no_actions">Pridajte rýchle akcie v HKI 7 na svojom telefóne v časti Nastavenia, Android Auto a Wear OS.</string>
     <string name="car_loading">Načítava sa</string>
     <string name="car_action_sent">Odoslané</string>
     <string name="car_action_failed">Nepodarilo sa spojiť s Home Assistant</string>
     <string name="car_action_unavailable">Nie je k dispozícii</string>
+    <string name="car_not_connected">Nie je pripojené k Home Assistant</string>
+    <string name="car_no_quick_actions">Zatiaľ žiadne rýchle akcie</string>
     <string name="car_refresh">Obnoviť</string>
     <string name="family_permission_switch_dashboards">Povoliť prepínanie informačných panelov</string>
     <string name="family_permission_switch_dashboards_subtitle">Umožnite tejto osobe načítať iný existujúci informačný panel</string>

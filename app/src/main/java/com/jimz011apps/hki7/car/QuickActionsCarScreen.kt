@@ -238,8 +238,8 @@ class QuickActionsCarScreen(carContext: CarContext) : Screen(carContext) {
             .setLoading(true)
             .build()
 
-        State.NotConfigured -> message(carContext.getString(R.string.car_not_configured))
-        State.Empty -> message(carContext.getString(R.string.car_no_actions))
+        State.NotConfigured -> message(carContext.getString(R.string.car_not_connected))
+        State.Empty -> message(carContext.getString(R.string.car_no_quick_actions))
         State.Unavailable -> message(carContext.getString(R.string.car_action_failed))
 
         is State.Ready -> {
@@ -296,7 +296,7 @@ class QuickActionsCarScreen(carContext: CarContext) : Screen(carContext) {
             val result = QuickActions.run(carContext, item.quickAction, item.target.instanceId)
             val message = when (result) {
                 QuickActions.Result.Success -> carContext.getString(R.string.car_action_sent)
-                QuickActions.Result.NotConfigured -> carContext.getString(R.string.car_not_configured)
+                QuickActions.Result.NotConfigured -> carContext.getString(R.string.car_not_connected)
                 QuickActions.Result.Unsupported -> carContext.getString(R.string.car_action_unavailable)
                 is QuickActions.Result.Failed -> {
                     Log.w(TAG, "Car quick action ${item.quickAction.entityId} failed: ${result.message}")

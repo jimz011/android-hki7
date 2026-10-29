@@ -2831,12 +2831,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d termostaadid</string>
     <string name="quick_actions_watch_note">Teie kell räägib otse kasutajaga Home Assistant. See on seadistatud sellest telefonist — kellas pole kuhugi sisse logida.</string>
     <string name="car_quick_actions_title">Kiired toimingud</string>
-    <string name="car_not_configured">Avage oma telefonis HKI 7 ja ühendage see võrguga Home Assistant.</string>
-    <string name="car_no_actions">Lisage kiirtoimingud oma telefoni jaotises HKI 7, jaotises Seaded, Android Auto ja Wear OS.</string>
     <string name="car_loading">Laadimine</string>
     <string name="car_action_sent">Saadetud</string>
     <string name="car_action_failed">Home Assistant ei saanud ühendust</string>
     <string name="car_action_unavailable">Ei ole saadaval</string>
+    <string name="car_not_connected">Pole ühendatud võrguga Home Assistant</string>
+    <string name="car_no_quick_actions">Kiireid toiminguid veel pole</string>
     <string name="car_refresh">Värskenda</string>
     <string name="family_permission_switch_dashboards">Lubage armatuurlaudu vahetada</string>
     <string name="family_permission_switch_dashboards_subtitle">Laske sellel inimesel laadida mõni muu olemasolev armatuurlaud</string>

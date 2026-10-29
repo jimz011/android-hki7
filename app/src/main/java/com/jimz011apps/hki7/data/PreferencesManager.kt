@@ -2073,6 +2073,11 @@ class PreferencesManager(
             preferences[accessTokenExpiryKey] = System.currentTimeMillis() + 3650L * 24 * 60 * 60 * 1000
             preferences[displayNameKey] = "Demo"
             preferences[mobileDeviceNameKey] = "Demo Phone"
+            // Without these the Android Auto and Wear OS surfaces open on an empty list, which Play
+            // review rejects as "no working demo". Only seeded when the user has none of their own.
+            if (preferences[quickActionsKey] == null) {
+                preferences[quickActionsKey] = appJson.encodeToString(DEMO_QUICK_ACTIONS)
+            }
             snapshotActiveInstance(preferences)
         }
     }
@@ -2164,3 +2169,13 @@ class PreferencesManager(
         context.dataStore.edit { it[nfcWriteOpensAppKey] = enabled }
     }
 }
+
+/** Entities that exist in [DemoHomeAssistantClient] and resolve to a one-tap action. */
+private val DEMO_QUICK_ACTIONS = listOf(
+    HKIQuickAction(id = "demo_good_morning", entityId = "scene.good_morning"),
+    HKIQuickAction(id = "demo_movie_time", entityId = "scene.movie_time"),
+    HKIQuickAction(id = "demo_living_room_ceiling", entityId = "light.living_room_ceiling"),
+    HKIQuickAction(id = "demo_kitchen_spots", entityId = "light.kitchen_spots"),
+    HKIQuickAction(id = "demo_coffee_machine", entityId = "switch.coffee_machine"),
+    HKIQuickAction(id = "demo_bedroom_blinds", entityId = "cover.bedroom_blinds"),
+)

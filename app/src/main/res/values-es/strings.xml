@@ -1710,12 +1710,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d termostatos</string>
     <string name="quick_actions_watch_note">Tu reloj habla directamente con Home Assistant. Se configura desde este teléfono; no hay nada a lo que iniciar sesión en el reloj.</string>
     <string name="car_quick_actions_title">Acciones rápidas</string>
-    <string name="car_not_configured">Abra HKI 7 en su teléfono y conéctelo a Home Assistant.</string>
-    <string name="car_no_actions">Agrega acciones rápidas en HKI 7 en tu teléfono, en Configuración, Android Auto y Wear OS.</string>
     <string name="car_loading">Cargando</string>
     <string name="car_action_sent">Enviado</string>
     <string name="car_action_failed">No se pudo comunicar con Home Assistant</string>
     <string name="car_action_unavailable">No disponible</string>
+    <string name="car_not_connected">No conectado a Home Assistant</string>
+    <string name="car_no_quick_actions">Aún no hay acciones rápidas</string>
     <string name="car_refresh">Refrescar</string>
     <string name="family_access_manage">Administrar acceso</string>
     <string name="family_access_title">¿Quién puede ver %1$s?</string>

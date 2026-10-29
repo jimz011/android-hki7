@@ -2831,12 +2831,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d θερμοστάτες</string>
     <string name="quick_actions_watch_note">Το ρολόι σας μιλάει απευθείας με Home Assistant. Έχει ρυθμιστεί από αυτό το τηλέφωνο — δεν υπάρχει τίποτα για να συνδεθείτε στο ρολόι.</string>
     <string name="car_quick_actions_title">Γρήγορες ενέργειες</string>
-    <string name="car_not_configured">Ανοίξτε το HKI 7 στο τηλέφωνό σας και συνδέστε το στο Home Assistant.</string>
-    <string name="car_no_actions">Προσθέστε γρήγορες ενέργειες στο HKI 7 στο τηλέφωνό σας, στις Ρυθμίσεις, στο Android Auto και στο Wear OS.</string>
     <string name="car_loading">Φόρτωση</string>
     <string name="car_action_sent">Στάλθηκε</string>
     <string name="car_action_failed">Δεν ήταν δυνατή η πρόσβαση στο Home Assistant</string>
     <string name="car_action_unavailable">Μη διαθέσιμο</string>
+    <string name="car_not_connected">Δεν είναι συνδεδεμένο στο Home Assistant</string>
+    <string name="car_no_quick_actions">Δεν υπάρχουν ακόμη γρήγορες ενέργειες</string>
     <string name="car_refresh">Φρεσκάρω</string>
     <string name="family_permission_switch_dashboards">Να επιτρέπεται η εναλλαγή των πινάκων εργαλείων</string>
     <string name="family_permission_switch_dashboards_subtitle">Αφήστε αυτό το άτομο να φορτώσει έναν άλλο υπάρχοντα πίνακα ελέγχου</string>

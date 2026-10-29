@@ -2799,12 +2799,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d サーモスタット</string>
     <string name="quick_actions_watch_note">ウォッチは Home Assistant と直接通信します。この携帯電話からセットアップされます。時計ではサインインする必要はありません。</string>
     <string name="car_quick_actions_title">クイックアクション</string>
-    <string name="car_not_configured">携帯電話で HKI 7 を開き、Home Assistant に接続します。</string>
-    <string name="car_no_actions">スマートフォンの [設定]、[Android Auto]、[Wear OS] の HKI 7 にクイック アクションを追加します。</string>
     <string name="car_loading">読み込み中</string>
     <string name="car_action_sent">送信済み</string>
     <string name="car_action_failed">Home Assistant に到達できませんでした</string>
     <string name="car_action_unavailable">利用不可</string>
+    <string name="car_not_connected">Home Assistant に接続されていません</string>
+    <string name="car_no_quick_actions">クイックアクションはまだありません</string>
     <string name="car_refresh">更新</string>
     <string name="family_permission_switch_dashboards">ダッシュボードの切り替えを許可</string>
     <string name="family_permission_switch_dashboards_subtitle">別の既存ダッシュボードを読み込めるようにします</string>

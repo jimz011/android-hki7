@@ -3044,12 +3044,12 @@ quick_actions_watch_thermostat_cycle,,Tap the name on the watch tile to move bet
 quick_actions_watch_thermostat_count,,%1$d thermostats,%1$d 恒温器,app fills in %1$d — keep them
 quick_actions_watch_note,,Your watch talks to Home Assistant directly. It is set up from this phone — there is nothing to sign in to on the watch.,您的手表直接与 Home Assistant 通信。它是通过这部手机设置的 - 手表上没有任何可登录的内容。,don't translate Home Assistant
 car_quick_actions_title,,Quick actions,快速行动,
-car_not_configured,,Open HKI 7 on your phone and connect it to Home Assistant.,在手机上打开HKI 7并将其连接到Home Assistant。,"don't translate Home Assistant, HKI 7"
-car_no_actions,,"Add quick actions in HKI 7 on your phone, under Settings, Android Auto and Wear OS.",在手机上的“设置”、“Android Auto”和“Wear OS”下的 HKI 7 中添加快速操作。,don't translate HKI 7
 car_loading,,Loading,加载中,
 car_action_sent,,Sent,发送,
 car_action_failed,,Couldn't reach Home Assistant,无法联系 Home Assistant,don't translate Home Assistant
 car_action_unavailable,,Not available,无法使用,
+car_not_connected,,Not connected to Home Assistant,未连接到 Home Assistant,don't translate Home Assistant
+car_no_quick_actions,,No quick actions yet,尚无快速行动,
 car_refresh,,Refresh,刷新,
 security_entity_count,one,%1$d entity,,needs translation; app fills in %1$d — keep them
 security_entity_count,other,%1$d entities,%1$d 个实体,app fills in %1$d — keep them

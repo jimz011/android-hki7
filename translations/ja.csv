@@ -3044,12 +3044,12 @@ quick_actions_watch_thermostat_cycle,,Tap the name on the watch tile to move bet
 quick_actions_watch_thermostat_count,,%1$d thermostats,%1$d サーモスタット,app fills in %1$d — keep them
 quick_actions_watch_note,,Your watch talks to Home Assistant directly. It is set up from this phone — there is nothing to sign in to on the watch.,ウォッチは Home Assistant と直接通信します。この携帯電話からセットアップされます。時計ではサインインする必要はありません。,don't translate Home Assistant
 car_quick_actions_title,,Quick actions,クイックアクション,
-car_not_configured,,Open HKI 7 on your phone and connect it to Home Assistant.,携帯電話で HKI 7 を開き、Home Assistant に接続します。,"don't translate Home Assistant, HKI 7"
-car_no_actions,,"Add quick actions in HKI 7 on your phone, under Settings, Android Auto and Wear OS.",スマートフォンの [設定]、[Android Auto]、[Wear OS] の HKI 7 にクイック アクションを追加します。,don't translate HKI 7
 car_loading,,Loading,読み込み中,
 car_action_sent,,Sent,送信済み,
 car_action_failed,,Couldn't reach Home Assistant,Home Assistant に到達できませんでした,don't translate Home Assistant
 car_action_unavailable,,Not available,利用不可,
+car_not_connected,,Not connected to Home Assistant,Home Assistant に接続されていません,don't translate Home Assistant
+car_no_quick_actions,,No quick actions yet,クイックアクションはまだありません,
 car_refresh,,Refresh,更新,
 security_entity_count,one,%1$d entity,,needs translation; app fills in %1$d — keep them
 security_entity_count,other,%1$d entities,%1$d エンティティ,app fills in %1$d — keep them

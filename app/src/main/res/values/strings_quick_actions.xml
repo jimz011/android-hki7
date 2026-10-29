@@ -35,11 +35,11 @@
 
     <!-- The Android Auto surface itself -->
     <string name="car_quick_actions_title">Quick actions</string>
-    <string name="car_not_configured">Open HKI 7 on your phone and connect it to Home Assistant.</string>
-    <string name="car_no_actions">Add quick actions in HKI 7 on your phone, under Settings, Android Auto and Wear OS.</string>
     <string name="car_loading">Loading</string>
     <string name="car_action_sent">Sent</string>
     <string name="car_action_failed">Couldn\'t reach Home Assistant</string>
     <string name="car_action_unavailable">Not available</string>
     <string name="car_refresh">Refresh</string>
+    <string name="car_not_connected">Not connected to Home Assistant</string>
+    <string name="car_no_quick_actions">No quick actions yet</string>
 </resources>

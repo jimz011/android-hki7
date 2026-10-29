@@ -2831,12 +2831,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d termostaty</string>
     <string name="quick_actions_watch_note">Twój zegarek komunikuje się bezpośrednio z Home Assistant. Konfiguruje się go z tego telefonu — na zegarku nie ma się do czego logować.</string>
     <string name="car_quick_actions_title">Szybkie działania</string>
-    <string name="car_not_configured">Otwórz HKI 7 na swoim telefonie i podłącz go do Home Assistant.</string>
-    <string name="car_no_actions">Dodaj szybkie działania w HKI 7 na swoim telefonie, w obszarze Ustawienia, Android Auto i Wear OS.</string>
     <string name="car_loading">Załadunek</string>
     <string name="car_action_sent">Wysłano</string>
     <string name="car_action_failed">Nie udało się połączyć z Home Assistant</string>
     <string name="car_action_unavailable">Niedostępne</string>
+    <string name="car_not_connected">Brak połączenia z Home Assistant</string>
+    <string name="car_no_quick_actions">Nie ma jeszcze szybkich działań</string>
     <string name="car_refresh">Odświeżać</string>
     <string name="family_permission_switch_dashboards">Zezwalaj na przełączanie pulpitów nawigacyjnych</string>
     <string name="family_permission_switch_dashboards_subtitle">Pozwól tej osobie załadować inny istniejący pulpit nawigacyjny</string>

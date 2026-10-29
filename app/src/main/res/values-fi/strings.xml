@@ -2831,12 +2831,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d termostaatit</string>
     <string name="quick_actions_watch_note">Kellosi puhuu suoraan Home Assistant:lle. Se on määritetty tästä puhelimesta – kelloon ei voi kirjautua mihinkään.</string>
     <string name="car_quick_actions_title">Nopeita toimia</string>
-    <string name="car_not_configured">Avaa HKI 7 puhelimellasi ja yhdistä se Home Assistant -verkkoon.</string>
-    <string name="car_no_actions">Lisää pikatoimintoja puhelimesi HKI 7 -kohdassa Asetukset, Android Auto ja Wear OS.</string>
     <string name="car_loading">Ladataan</string>
     <string name="car_action_sent">Lähetetty</string>
     <string name="car_action_failed">Ei saatu yhteyttä Home Assistant</string>
     <string name="car_action_unavailable">Ei saatavilla</string>
+    <string name="car_not_connected">Ei yhdistetty Home Assistant</string>
+    <string name="car_no_quick_actions">Ei vielä nopeita toimia</string>
     <string name="car_refresh">Päivitä</string>
     <string name="family_permission_switch_dashboards">Salli kojelaudan vaihtaminen</string>
     <string name="family_permission_switch_dashboards_subtitle">Anna tämän henkilön ladata toinen olemassa oleva hallintapaneeli</string>

@@ -2831,12 +2831,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d termostater</string>
     <string name="quick_actions_watch_note">Dit ur taler direkte til Home Assistant. Det er sat op fra denne telefon - der er ikke noget at logge ind på på uret.</string>
     <string name="car_quick_actions_title">Hurtige handlinger</string>
-    <string name="car_not_configured">Åbn HKI 7 på din telefon, og tilslut den til Home Assistant.</string>
-    <string name="car_no_actions">Tilføj hurtige handlinger i HKI 7 på din telefon under Indstillinger, Android Auto og Wear OS.</string>
     <string name="car_loading">Indlæser</string>
     <string name="car_action_sent">Sendt</string>
     <string name="car_action_failed">Kunne ikke nå Home Assistant</string>
     <string name="car_action_unavailable">Ikke tilgængelig</string>
+    <string name="car_not_connected">Ikke forbundet til Home Assistant</string>
+    <string name="car_no_quick_actions">Ingen hurtige handlinger endnu</string>
     <string name="car_refresh">Opfriske</string>
     <string name="family_permission_switch_dashboards">Tillad skift af dashboards</string>
     <string name="family_permission_switch_dashboards_subtitle">Lad denne person indlæse et andet eksisterende dashboard</string>

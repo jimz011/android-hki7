@@ -2831,12 +2831,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d منظمات الحرارة</string>
     <string name="quick_actions_watch_note">تتحدث ساعتك مع Home Assistant مباشرة. تم إعداده من هذا الهاتف - لا يوجد شيء لتسجيل الدخول إليه على الساعة.</string>
     <string name="car_quick_actions_title">إجراءات سريعة</string>
-    <string name="car_not_configured">افتح HKI 7 على هاتفك وقم بتوصيله بـ Home Assistant.</string>
-    <string name="car_no_actions">أضف إجراءات سريعة في HKI 7 على هاتفك، ضمن الإعدادات، وAndroid Auto، وWear OS.</string>
     <string name="car_loading">تحميل</string>
     <string name="car_action_sent">مرسل</string>
     <string name="car_action_failed">تعذر الوصول إلى Home Assistant</string>
     <string name="car_action_unavailable">غير متوفر</string>
+    <string name="car_not_connected">غير متصل بـ Home Assistant</string>
+    <string name="car_no_quick_actions">لا توجد إجراءات سريعة حتى الآن</string>
     <string name="car_refresh">ينعش</string>
     <string name="family_permission_switch_dashboards">السماح بتبديل لوحات المعلومات</string>
     <string name="family_permission_switch_dashboards_subtitle">اسمح لهذا الشخص بتحميل لوحة معلومات أخرى موجودة</string>

@@ -2831,12 +2831,12 @@
     <string name="quick_actions_watch_thermostat_count">%1$d termostati</string>
     <string name="quick_actions_watch_note">Vaš sat izravno razgovara s Home Assistant. Postavljeno je s ovog telefona — na satu nema ničega za prijavu.</string>
     <string name="car_quick_actions_title">Brze akcije</string>
-    <string name="car_not_configured">Otvorite HKI 7 na svom telefonu i povežite ga s Home Assistant.</string>
-    <string name="car_no_actions">Dodajte brze radnje u HKI 7 na svom telefonu, u postavkama, Android Auto i Wear OS.</string>
     <string name="car_loading">Učitavanje</string>
     <string name="car_action_sent">Poslano</string>
     <string name="car_action_failed">Nije moguće doći do Home Assistant</string>
     <string name="car_action_unavailable">Nije dostupno</string>
+    <string name="car_not_connected">Nije povezano s Home Assistant</string>
+    <string name="car_no_quick_actions">Još nema brzih akcija</string>
     <string name="car_refresh">Osvježiti</string>
     <string name="family_permission_switch_dashboards">Dopusti promjenu nadzornih ploča</string>
     <string name="family_permission_switch_dashboards_subtitle">Neka ova osoba učita drugu postojeću nadzornu ploču</string>
