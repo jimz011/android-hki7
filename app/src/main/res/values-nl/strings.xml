@@ -1757,7 +1757,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">Hierdoor worden de inloggegevens, de registratiegegevens van de mobiele app en de HKI-dashboards van dit apparaat verwijderd. De Home Assistant-server zelf wordt niet gewijzigd.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">Hiermee wordt de native automatisering van Home Assistant verwijderd. Dit kan niet ongedaan worden gemaakt vanuit HKI7.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">Hiermee wordt het gedeelde dashboard voor iedereen uit de cloud verwijderd. Mensen die het momenteel gebruiken, vallen terug op een automatisch gegenereerd dashboard. Hun lokale kopieën worden pas aangeraakt als ze de app de volgende keer openen.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">Deze draait op een kleine, gratis Home Assistant add-on (de HKI 7 Cloud-component). Het staat nog niet standaard op HACS, dus voeg het toe als een aangepaste repository; de app regelt dan al het andere.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">Op deze broncode zijn de voorwaarden van de Mozilla Public License 2.0 van toepassing. Als er geen kopie van de MPL met dit bestand is verspreid, kun je die vinden op mozilla.org/MPL/2.0/.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">Deze stapel bevat geen items.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">Dit reist met het dashboard mee, dus cloudback-ups en delen met gezinnen blijven behouden.</string>
@@ -1947,9 +1946,9 @@
     <string name="car_action_sent">Verstuurd</string>
     <string name="car_action_failed">Kan Home Assistant niet bereiken</string>
     <string name="car_action_unavailable">Niet beschikbaar</string>
+    <string name="car_refresh">Vernieuwen</string>
     <string name="car_not_connected">Niet verbonden met Home Assistant</string>
     <string name="car_no_quick_actions">Nog geen snelle acties</string>
-    <string name="car_refresh">Vernieuwen</string>
     <string name="family_access_manage">Toegang beheren</string>
     <string name="family_access_title">Wie kan %1$s zien</string>
     <string name="family_access_description">Mensen toevoegen of verwijderen. Iedereen die u verwijdert, verliest dit dashboard de volgende keer dat hun app wordt gesynchroniseerd.</string>
@@ -1995,6 +1994,9 @@
     <string name="settings_extra_dashboard_shared_badge">Gedeeld</string>
     <string name="settings_extra_dashboard_shared_subtitle">Met u gedeeld door uw familie. Tik om te laden</string>
     <string name="settings_extra_dashboard_shared_loaded">Met u gedeeld door uw familie. Momenteel geladen</string>
+    <string name="settings_extra_hki_cloud_intro">Dit draait op een kleine, gratis Home Assistant add-on (de HKI 7 Cloud component), verkrijgbaar in de HACS-winkel. Installeer het één keer en de app regelt al het andere.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">Open HACS in Home Assistant en zoek naar “HKI 7 Cloud.”</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Installeer het en start Home Assistant opnieuw op.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s geïnstalleerd</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud geïnstalleerd (update om de versie te zien)</string>
     <string name="settings_extra_hki_cloud_update_to_unlock">Update om te ontgrendelen:</string>

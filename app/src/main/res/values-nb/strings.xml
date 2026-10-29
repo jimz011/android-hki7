@@ -2613,7 +2613,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">Dette fjerner påloggingsinformasjonen, registreringsdetaljer for mobilapper og HKI-dashboards fra denne enheten. Selve Home Assistant-serveren endres ikke.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">Dette fjerner den opprinnelige automatiseringen fra Home Assistant. Dette kan ikke angres fra HKI7.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">Dette fjerner det delte dashbordet fra skyen for alle. Folk som bruker det for øyeblikket, faller tilbake til et automatisk generert dashbord. Deres lokale kopier blir ikke rørt før de åpner appen neste gang.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">Dette kjører på et lite, gratis Home Assistant-tillegg (HKI 7 Cloud-komponenten). Den er ikke på HACS som standard ennå, så legg den til som et tilpasset depot – appen håndterer da alt annet.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">Dette kildekodeskjemaet er underlagt vilkårene i Mozilla Public License, v. 2.0. Hvis en kopi av MPL ikke ble distribuert med denne filen, kan du skaffe en på mozilla.org/MPL/2.0/.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">Denne stabelen har ingen elementer.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">Dette følger med dashbordet, så skysikkerhetskopiering og familiedeling beholder det.</string>
@@ -2835,9 +2834,9 @@
     <string name="car_action_sent">Sendt</string>
     <string name="car_action_failed">Kunne ikke nå Home Assistant</string>
     <string name="car_action_unavailable">Ikke tilgjengelig</string>
+    <string name="car_refresh">Forfriske</string>
     <string name="car_not_connected">Ikke koblet til Home Assistant</string>
     <string name="car_no_quick_actions">Ingen raske handlinger ennå</string>
-    <string name="car_refresh">Forfriske</string>
     <string name="family_permission_switch_dashboards">Tillat å bytte dashbord</string>
     <string name="family_permission_switch_dashboards_subtitle">La denne personen laste inn et annet eksisterende dashbord</string>
     <string name="family_permission_create_dashboards">Tillat å lage dashbord</string>
@@ -2953,9 +2952,9 @@
     <string name="settings_extra_ha_backups_load_failed">Kunne ikke laste Home Assistant-sikkerhetskopier: %1$s</string>
     <string name="settings_extra_hide_tab">Skjul fanen</string>
     <string name="settings_extra_hki_cloud_step_add_integration">Gå til Innstillinger → Enheter og tjenester → Legg til integrasjon, velg "HKI 7 Cloud", og bekreft.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">Lim inn %1$s, velg kategorien "Integrasjon", og legg den til.</string>
-    <string name="settings_extra_hki_cloud_step_install">Åpne den nye «HKI 7 Cloud»-oppføringen, installer den og start Home Assistant på nytt.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">I Home Assistant, åpne HACS → ⋮-menyen øverst til høyre → Egendefinerte repositories.</string>
+    <string name="settings_extra_hki_cloud_intro">Dette kjører på et lite gratis Home Assistant-tillegg (HKI 7 Cloud-komponenten), tilgjengelig i HACS-butikken. Installer den én gang, og appen håndterer alt annet.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">I Home Assistant åpner du HACS og søker etter "HKI 7 Cloud."</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Installer den, og start deretter Home Assistant på nytt.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Åpne denne skjermen på nytt. Funksjonene vises automatisk.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s installert</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud installert (oppdatering for å se versjonen)</string>

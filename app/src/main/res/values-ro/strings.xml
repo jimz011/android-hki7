@@ -2613,7 +2613,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">Acest lucru elimină datele de conectare, detaliile de înregistrare a aplicației mobile și tablourile de bord HKI de pe acest dispozitiv. Serverul Home Assistant în sine nu este schimbat.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">Aceasta elimină automatizarea nativă din Home Assistant. Acest lucru nu poate fi anulat din HKI7.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">Acest lucru elimină tabloul de bord partajat din cloud pentru toată lumea. Persoanele care îl folosesc în prezent revin la un tablou de bord generat automat. Copiile lor locale nu sunt atinse până când nu deschid aplicația.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">Acesta rulează pe un supliment mic și gratuit Home Assistant (componenta HKI 7 Cloud). Nu este încă în HACS în mod implicit, așa că adăugați-l ca depozit personalizat - apoi aplicația se ocupă de orice altceva.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">Acest formular de cod sursă este supus termenilor Licenței publice Mozilla, v. 2.0. Dacă o copie a MPL nu a fost distribuită împreună cu acest fișier, puteți obține una la mozilla.org/MPL/2.0/.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">Această stivă nu are articole.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">Acesta călătorește cu tabloul de bord, așa că backupurile în cloud și partajarea în familie îl păstrează.</string>
@@ -2835,9 +2834,9 @@
     <string name="car_action_sent">Trimis</string>
     <string name="car_action_failed">Nu s-a putut ajunge la Home Assistant</string>
     <string name="car_action_unavailable">Nu este disponibil</string>
+    <string name="car_refresh">Reîmprospăta</string>
     <string name="car_not_connected">Nu este conectat la Home Assistant</string>
     <string name="car_no_quick_actions">Nu există încă acțiuni rapide</string>
-    <string name="car_refresh">Reîmprospăta</string>
     <string name="family_permission_switch_dashboards">Permite comutarea tablourilor de bord</string>
     <string name="family_permission_switch_dashboards_subtitle">Permiteți acestei persoane să încarce un alt tablou de bord existent</string>
     <string name="family_permission_create_dashboards">Permite crearea de tablouri de bord</string>
@@ -2953,9 +2952,9 @@
     <string name="settings_extra_ha_backups_load_failed">Nu s-au putut încărca copiile de rezervă Home Assistant: %1$s</string>
     <string name="settings_extra_hide_tab">Ascunde fila</string>
     <string name="settings_extra_hki_cloud_step_add_integration">Accesați Setări → Dispozitive și servicii → Adăugați integrare, alegeți „HKI 7 Cloud” și confirmați.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">Lipiți %1$s, alegeți categoria „Integrare” și adăugați-o.</string>
-    <string name="settings_extra_hki_cloud_step_install">Deschideți noua intrare „HKI 7 Cloud”, instalați-o și reporniți Home Assistant.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">În Home Assistant, deschideți HACS → meniul ⋮ din dreapta sus → Arhive personalizate.</string>
+    <string name="settings_extra_hki_cloud_intro">Acesta rulează pe un supliment mic și gratuit Home Assistant (componenta HKI 7 Cloud), disponibil în magazinul HACS. Instalați-l o dată și aplicația se ocupă de orice altceva.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">În Home Assistant, deschideți HACS și căutați „HKI 7 Cloud”.</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Instalați-l, apoi reporniți Home Assistant.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Redeschideți acest ecran. Caracteristicile vor apărea automat.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s instalat</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud instalat (actualizare pentru a vedea versiunea)</string>

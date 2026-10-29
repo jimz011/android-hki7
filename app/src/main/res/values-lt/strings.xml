@@ -2613,7 +2613,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">Tai pašalins prisijungimo duomenis, mobiliosios programos registracijos duomenis ir HKI prietaisų skydelius iš šio įrenginio. Pats serveris Home Assistant nepasikeitė.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">Tai pašalina savąjį automatizavimą iš Home Assistant. Šio veiksmo negalima anuliuoti iš HKI7.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">Tai pašalins bendrinamą informacijos suvestinę iš debesies visiems. Šiuo metu ją naudojantys žmonės grįžta į automatiškai sugeneruotą prietaisų skydelį. Jų vietinės kopijos neliečiamos tol, kol jie kitą kartą atidaro programą.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">Tai veikia su nedideliu nemokamu Home Assistant priedu (komponentu HKI 7 Cloud). Pagal numatytuosius nustatymus ji dar nėra įtraukta į HACS, todėl pridėkite ją kaip pasirinktinę saugyklą – tada programa tvarko visa kita.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">Šiai šaltinio kodo formai taikomos Mozilla viešosios licencijos 2.0 versijos sąlygos. Jei kartu su šiuo failu nebuvo platinama MPL kopija, ją galite gauti adresu mozilla.org/MPL/2.0/.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">Šioje krūvoje elementų nėra.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">Tai keliauja su prietaisų skydeliu, todėl atsarginės kopijos debesyje ir bendrinimas su šeima jį išlaiko.</string>
@@ -2835,9 +2834,9 @@
     <string name="car_action_sent">Išsiųsta</string>
     <string name="car_action_failed">Nepavyko pasiekti Home Assistant</string>
     <string name="car_action_unavailable">Nėra</string>
+    <string name="car_refresh">Atnaujinti</string>
     <string name="car_not_connected">Neprisijungta prie Home Assistant</string>
     <string name="car_no_quick_actions">Greitų veiksmų dar nėra</string>
-    <string name="car_refresh">Atnaujinti</string>
     <string name="family_permission_switch_dashboards">Leisti perjungti prietaisų skydelius</string>
     <string name="family_permission_switch_dashboards_subtitle">Leiskite šiam asmeniui įkelti kitą esamą informacijos suvestinę</string>
     <string name="family_permission_create_dashboards">Leisti kurti prietaisų skydelius</string>
@@ -2953,9 +2952,9 @@
     <string name="settings_extra_ha_backups_load_failed">Nepavyko įkelti Home Assistant atsarginių kopijų: %1$s</string>
     <string name="settings_extra_hide_tab">Slėpti skirtuką</string>
     <string name="settings_extra_hki_cloud_step_add_integration">Eikite į Nustatymai → Įrenginiai ir paslaugos → Pridėti integraciją, pasirinkite „HKI 7 Cloud“ ir patvirtinkite.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">Įklijuokite %1$s, pasirinkite kategoriją „Integracija“ ir pridėkite.</string>
-    <string name="settings_extra_hki_cloud_step_install">Atidarykite naują įrašą „HKI 7 Cloud“, įdiekite jį ir iš naujo paleiskite Home Assistant.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">Home Assistant atidarykite HACS → meniu ⋮ viršutiniame dešiniajame kampe → Tinkintos saugyklos.</string>
+    <string name="settings_extra_hki_cloud_intro">Tai veikia su nedideliu, nemokamu Home Assistant priedu (HKI 7 Cloud komponentu), kurį galima įsigyti HACS parduotuvėje. Įdiekite jį vieną kartą, o visa kita tvarkys programa.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">Home Assistant atidarykite HACS ir ieškokite „HKI 7 Cloud“.</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Įdiekite jį, tada iš naujo paleiskite Home Assistant.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Iš naujo atidarykite šį ekraną. Funkcijos bus rodomos automatiškai.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s įdiegta</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud įdiegta (atnaujinkite, kad pamatytumėte jo versiją)</string>

@@ -63,9 +63,6 @@
     <string name="settings_extra_ha_backups_load_failed">Home Assistant-back-ups konden niet worden geladen: %1$s</string>
     <string name="settings_extra_hide_tab">Tabblad verbergen</string>
     <string name="settings_extra_hki_cloud_step_add_integration">Ga naar Instellingen → Apparaten &amp; diensten → Integratie toevoegen, kies ‘HKI 7 Cloud’ en bevestig.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">Plak %1$s, kies de categorie ‘Integratie’ en voeg de repository toe.</string>
-    <string name="settings_extra_hki_cloud_step_install">Open het nieuwe onderdeel ‘HKI 7 Cloud’, installeer het en start Home Assistant opnieuw.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">Open in Home Assistant HACS → het menu ⋮ rechtsboven → Aangepaste repositories.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Open dit scherm opnieuw. De functies verschijnen dan automatisch.</string>
     <string name="settings_extra_location_allowed_always">Altijd toegestaan</string>
     <string name="settings_extra_location_allowed_foreground">Alleen toegestaan tijdens gebruik van de app</string>

@@ -2864,7 +2864,6 @@ ui_this_removes_all_imported_security_entities_from_this_view_6443e5c,,This remo
 ui_this_removes_its_login_mobile_app_registration_details_and_69afc19,,"This removes its login, mobile-app registration details, and HKI dashboards from this device. The Home Assistant server itself is not changed.","Spowoduje to usunięcie danych logowania, danych rejestracyjnych w aplikacji mobilnej i pulpitów nawigacyjnych HKI z tego urządzenia. Sam serwer Home Assistant nie ulega zmianie.",don't translate Home Assistant
 ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a,,This removes the native automation from Home Assistant. This cannot be undone from HKI7.,Spowoduje to usunięcie natywnej automatyzacji z Home Assistant. Nie można tego cofnąć w HKI7.,"don't translate Home Assistant, HKI7"
 ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c,,This removes the shared dashboard from the cloud for everyone. People currently using it fall back to an auto-generated dashboard. Their local copies aren't touched until they next open the app.,"Spowoduje to usunięcie udostępnionego pulpitu nawigacyjnego z chmury dla wszystkich. Osoby aktualnie z niego korzystające wracają do automatycznie wygenerowanego dashboardu. Ich lokalne kopie nie są dotykane, dopóki nie otworzą aplikacji ponownie.",
-ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3,,"This runs on a small, free Home Assistant add-on (the HKI 7 Cloud component). It isn't on HACS by default yet, so add it as a custom repository — the app then handles everything else.","Działa na małym, bezpłatnym dodatku Home Assistant (komponent HKI 7 Cloud). Domyślnie nie ma go jeszcze w systemie HACS, więc dodaj go jako repozytorium niestandardowe — aplikacja zajmie się wtedy wszystkim innym.","don't translate HKI 7 Cloud, Home Assistant"
 ui_this_source_code_form_is_subject_to_the_terms_c8e4e24,,"This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, you can obtain one at mozilla.org/MPL/2.0/.","Niniejszy formularz kodu źródłowego podlega warunkom licencji publicznej Mozilla, wersja 2.0. Jeśli kopia MPL nie była dystrybuowana z tym plikiem, możesz ją uzyskać pod adresem mozilla.org/MPL/2.0/.",
 ui_this_stack_has_no_items_0f92c8d,,This stack has no items.,Ten stos nie zawiera żadnych przedmiotów.,
 ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d,," This travels with the dashboard, so cloud backups and family sharing keep it.","Jest on transportowany wraz z pulpitem nawigacyjnym, więc kopie zapasowe w chmurze i udostępnianie w rodzinie go zachowują.",keep the space at the start/end
@@ -3090,9 +3089,9 @@ car_loading,,Loading,Załadunek,
 car_action_sent,,Sent,Wysłano,
 car_action_failed,,Couldn't reach Home Assistant,Nie udało się połączyć z Home Assistant,don't translate Home Assistant
 car_action_unavailable,,Not available,Niedostępne,
+car_refresh,,Refresh,Odświeżać,
 car_not_connected,,Not connected to Home Assistant,Brak połączenia z Home Assistant,don't translate Home Assistant
 car_no_quick_actions,,No quick actions yet,Nie ma jeszcze szybkich działań,
-car_refresh,,Refresh,Odświeżać,
 security_entity_count,one,%1$d entity,Podmiot %1$d,app fills in %1$d — keep them
 security_entity_count,other,%1$d entities,%1$d podmioty,app fills in %1$d — keep them
 security_entity_count,few,,%1$d podmioty,
@@ -3212,9 +3211,9 @@ settings_extra_ha_backup_failed,,Home Assistant backup failed. Is the HKI 7 Clou
 settings_extra_ha_backups_load_failed,,Could not load Home Assistant backups: %1$s,Nie można załadować kopii zapasowych Home Assistant: %1$s,app fills in %1$s — keep them; don't translate Home Assistant
 settings_extra_hide_tab,,Hide tab,Ukryj kartę,
 settings_extra_hki_cloud_step_add_integration,,"Go to Settings → Devices & Services → Add Integration, choose “HKI 7 Cloud,” and confirm.","Przejdź do Ustawienia → Urządzenia i usługi → Dodaj integrację, wybierz „HKI 7 Cloud” i potwierdź.",don't translate HKI 7 Cloud
-settings_extra_hki_cloud_step_add_repository,,"Paste %1$s, choose the “Integration” category, and add it.","Wklej %1$s, wybierz kategorię „Integracja” i dodaj ją.",app fills in %1$s — keep them
-settings_extra_hki_cloud_step_install,,"Open the new “HKI 7 Cloud” entry, install it, and restart Home Assistant.","Otwórz nowy wpis „HKI 7 Cloud”, zainstaluj go i uruchom ponownie Home Assistant.","don't translate HKI 7 Cloud, Home Assistant"
-settings_extra_hki_cloud_step_open_custom_repositories,,"In Home Assistant, open HACS → the ⋮ menu in the top-right → Custom repositories.",W Home Assistant otwórz HACS → menu ⋮ w prawym górnym rogu → Repozytoria niestandardowe.,don't translate Home Assistant
+settings_extra_hki_cloud_intro,,"This runs on a small, free Home Assistant add-on (the HKI 7 Cloud component), available in the HACS store. Install it once and the app handles everything else.","Działa na małym, bezpłatnym dodatku Home Assistant (komponent HKI 7 Cloud), dostępnym w sklepie HACS. Zainstaluj go raz, a aplikacja zajmie się całą resztą.","don't translate HKI 7 Cloud, Home Assistant"
+settings_extra_hki_cloud_step_search_hacs,,"In Home Assistant, open HACS and search for “HKI 7 Cloud.”",W Home Assistant otwórz HACS i wyszukaj „HKI 7 Cloud”.,"don't translate HKI 7 Cloud, Home Assistant"
+settings_extra_hki_cloud_step_install_and_restart,,"Install it, then restart Home Assistant.","Zainstaluj go, a następnie uruchom ponownie Home Assistant.",don't translate Home Assistant
 settings_extra_hki_cloud_step_reopen,,Reopen this screen. The features will appear automatically.,Otwórz ponownie ten ekran. Funkcje pojawią się automatycznie.,
 settings_extra_hki_cloud_version,,HKI 7 Cloud v%1$s installed,HKI 7 Cloud v%1$s zainstalowany,app fills in %1$s — keep them; don't translate HKI 7 Cloud
 settings_extra_hki_cloud_version_unknown,,HKI 7 Cloud installed (update to see its version),"HKI 7 Cloud zainstalowany (zaktualizuj, aby zobaczyć jego wersję)",don't translate HKI 7 Cloud

@@ -115,9 +115,9 @@
     <string name="settings_extra_ha_backups_load_failed">Could not load Home Assistant backups: %1$s</string>
     <string name="settings_extra_hide_tab">Hide tab</string>
     <string name="settings_extra_hki_cloud_step_add_integration">Go to Settings → Devices &amp; Services → Add Integration, choose “HKI 7 Cloud,” and confirm.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">Paste %1$s, choose the “Integration” category, and add it.</string>
-    <string name="settings_extra_hki_cloud_step_install">Open the new “HKI 7 Cloud” entry, install it, and restart Home Assistant.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">In Home Assistant, open HACS → the ⋮ menu in the top-right → Custom repositories.</string>
+    <string name="settings_extra_hki_cloud_intro">This runs on a small, free Home Assistant add-on (the HKI 7 Cloud component), available in the HACS store. Install it once and the app handles everything else.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">In Home Assistant, open HACS and search for “HKI 7 Cloud.”</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Install it, then restart Home Assistant.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Reopen this screen. The features will appear automatically.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s installed</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud installed (update to see its version)</string>

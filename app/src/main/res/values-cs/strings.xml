@@ -2613,7 +2613,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">Tím se z tohoto zařízení odstraní jeho přihlašovací údaje, podrobnosti o registraci mobilní aplikace a řídicí panely HKI. Samotný server Home Assistant se nezmění.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">Tím se odstraní nativní automatizace z Home Assistant. Tuto akci nelze z HKI7 vrátit zpět.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">Tímto odeberete sdílený řídicí panel z cloudu pro všechny. Lidé, kteří jej aktuálně používají, se vrátí k automaticky generovanému řídicímu panelu. Jejich místní kopie se nedotknou, dokud aplikaci znovu nespustí.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">Toto běží na malém bezplatném doplňku Home Assistant (komponenta HKI 7 Cloud). Ve výchozím nastavení ještě není na HACS, takže jej přidejte jako vlastní úložiště – aplikace pak zvládne vše ostatní.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">Tento formulář zdrojového kódu podléhá podmínkám veřejné licence Mozilla, v. 2.0. Pokud kopie MPL nebyla distribuována s tímto souborem, můžete ji získat na mozilla.org/MPL/2.0/.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">Tento zásobník neobsahuje žádné položky.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">To cestuje s řídicím panelem, takže zálohování v cloudu a rodinné sdílení si to udrží.</string>
@@ -2835,9 +2834,9 @@
     <string name="car_action_sent">Odesláno</string>
     <string name="car_action_failed">Nelze dosáhnout Home Assistant</string>
     <string name="car_action_unavailable">Není k dispozici</string>
+    <string name="car_refresh">Obnovit</string>
     <string name="car_not_connected">Nejste připojeni k Home Assistant</string>
     <string name="car_no_quick_actions">Zatím žádné rychlé akce</string>
-    <string name="car_refresh">Obnovit</string>
     <string name="family_permission_switch_dashboards">Povolit přepínání řídicích panelů</string>
     <string name="family_permission_switch_dashboards_subtitle">Umožněte této osobě načíst jiný existující řídicí panel</string>
     <string name="family_permission_create_dashboards">Povolit vytváření řídicích panelů</string>
@@ -2953,9 +2952,9 @@
     <string name="settings_extra_ha_backups_load_failed">Nelze načíst zálohy Home Assistant: %1$s</string>
     <string name="settings_extra_hide_tab">Skrýt kartu</string>
     <string name="settings_extra_hki_cloud_step_add_integration">Přejděte do Nastavení → Zařízení a služby → Přidat integraci, vyberte „HKI 7 Cloud“ a potvrďte.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">Vložte %1$s, vyberte kategorii „Integrace“ a přidejte ji.</string>
-    <string name="settings_extra_hki_cloud_step_install">Otevřete novou položku „HKI 7 Cloud“, nainstalujte ji a restartujte Home Assistant.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">V Home Assistant otevřete HACS → nabídku ⋮ vpravo nahoře → Vlastní úložiště.</string>
+    <string name="settings_extra_hki_cloud_intro">Toto běží na malém bezplatném doplňku Home Assistant (komponenta HKI 7 Cloud), který je k dispozici v obchodě HACS. Nainstalujte jej jednou a aplikace se postará o vše ostatní.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">V Home Assistant otevřete HACS a vyhledejte „HKI 7 Cloud“.</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Nainstalujte jej a poté restartujte Home Assistant.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Znovu otevřete tuto obrazovku. Funkce se objeví automaticky.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s nainstalováno</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud nainstalováno (aktualizací zobrazíte jeho verzi)</string>

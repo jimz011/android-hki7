@@ -1524,7 +1524,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">Bu, giriş bilgilerini, mobil uygulama kayıt ayrıntılarını ve HKI kontrol panellerini bu cihazdan kaldırır. Home Assistant sunucusunun kendisi değişmedi.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">Bu, yerel otomasyonu Home Assistant\'tan kaldırır. Bu HKI7\'den geri alınamaz.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">Bu, paylaşılan kontrol panelini herkes için buluttan kaldırır. Şu anda onu kullanan kişiler otomatik olarak oluşturulan bir kontrol paneline geri dönüyor. Uygulamayı bir sonraki açana kadar yerel kopyalarına dokunulmaz.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">Bu, küçük, ücretsiz bir Ev Asistanı eklentisinde (HKI 7 Bulut bileşeni) çalışır. Henüz varsayılan olarak HACS\'ta değildir, bu nedenle onu özel bir depo olarak ekleyin; uygulama daha sonra geri kalan her şeyi halleder.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">Bu Kaynak Kodu Formu, Mozilla Kamu Lisansı v. 2.0\'ın şartlarına tabidir. MPL\'nin bir kopyası bu dosyayla birlikte dağıtılmadıysa mozilla.org/MPL/2.0/ adresinden bir tane edinebilirsiniz.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">Bu yığında öğe yok.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">Bu, kontrol paneliyle birlikte seyahat eder, böylece bulut yedeklemeleri ve aile paylaşımı onu korur.</string>
@@ -1714,9 +1713,9 @@
     <string name="car_action_sent">Gönderilmiş</string>
     <string name="car_action_failed">Home Assistant\'ye ulaşılamadı</string>
     <string name="car_action_unavailable">Müsait değil</string>
+    <string name="car_refresh">Yenile</string>
     <string name="car_not_connected">Home Assistant\'ye bağlı değil</string>
     <string name="car_no_quick_actions">Henüz hızlı işlem yok</string>
-    <string name="car_refresh">Yenile</string>
     <string name="family_access_manage">Erişimi yönet</string>
     <string name="family_access_title">%1$s kimler görebilir?</string>
     <string name="family_access_description">Kişileri ekleyin veya kaldırın. Kaldırdığınız herkes, uygulamalarının bir sonraki senkronizasyonunda bu kontrol panelini kaybeder.</string>
@@ -1762,6 +1761,9 @@
     <string name="settings_extra_dashboard_shared_badge">Paylaşıldı</string>
     <string name="settings_extra_dashboard_shared_subtitle">Aileniz tarafından sizinle paylaşıldı. Yüklemek için dokunun</string>
     <string name="settings_extra_dashboard_shared_loaded">Aileniz tarafından sizinle paylaşıldı. Şu anda yüklü</string>
+    <string name="settings_extra_hki_cloud_intro">Bu, HACS deposunda bulunan küçük, ücretsiz bir Home Assistant eklentisi (HKI 7 Cloud bileşeni) üzerinde çalışır. Bir kez yüklediğinizde uygulama geri kalan her şeyi halleder.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">Home Assistant\'de HACS\'yi açın ve “HKI 7 Cloud” ifadesini arayın.</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Kurun ve ardından Home Assistant\'yi yeniden başlatın.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s yüklü</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud yüklü (sürümünü görmek için güncelleyin)</string>
     <string name="settings_extra_hki_cloud_update_to_unlock">Kilidi açmak için güncelleme:</string>

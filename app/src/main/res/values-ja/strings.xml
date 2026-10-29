@@ -2613,7 +2613,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">このデバイスのログイン、モバイルアプリの登録情報、HKIダッシュボードを削除します。Home Assistantサーバー自体は変更されません。</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">これによりHome Assistantからネイティブのオートメーションが削除されます。この操作はHKI7から元に戻せません。</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">共有ダッシュボードをクラウドから全員分削除します。現在利用中のユーザーは自動生成のダッシュボードに戻ります。次回アプリを開くまでローカルのコピーは変更されません。</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">これは小さな無料のHome Assistantアドオン(HKI 7 Cloudコンポーネント)上で動作します。まだデフォルトではHACSにないため、カスタムリポジトリとして追加してください — その後はアプリが残りをすべて処理します。</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">このソースコード形式は、Mozilla Public License v.2.0の条項に従います。このファイルにMPLのコピーが同梱されていない場合は、mozilla.org/MPL/2.0/ から入手できます。</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">このスタックには項目がありません。</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d"> これはダッシュボードとともに保持されるため、クラウドバックアップやファミリー共有でも維持されます。</string>
@@ -2803,9 +2802,9 @@
     <string name="car_action_sent">送信済み</string>
     <string name="car_action_failed">Home Assistant に到達できませんでした</string>
     <string name="car_action_unavailable">利用不可</string>
+    <string name="car_refresh">更新</string>
     <string name="car_not_connected">Home Assistant に接続されていません</string>
     <string name="car_no_quick_actions">クイックアクションはまだありません</string>
-    <string name="car_refresh">更新</string>
     <string name="family_permission_switch_dashboards">ダッシュボードの切り替えを許可</string>
     <string name="family_permission_switch_dashboards_subtitle">別の既存ダッシュボードを読み込めるようにします</string>
     <string name="family_permission_create_dashboards">ダッシュボードの作成を許可</string>
@@ -2921,9 +2920,9 @@
     <string name="settings_extra_ha_backups_load_failed">Home Assistantのバックアップを読み込めませんでした: %1$s</string>
     <string name="settings_extra_hide_tab">タブを非表示</string>
     <string name="settings_extra_hki_cloud_step_add_integration">設定 → デバイスとサービス → 統合を追加 に移動し、「HKI 7 Cloud」を選んで確定してください。</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">%1$sを貼り付け、「Integration」カテゴリーを選択して追加してください。</string>
-    <string name="settings_extra_hki_cloud_step_install">新しい「HKI 7 Cloud」項目を開いてインストールし、Home Assistantを再起動してください。</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">Home Assistantで、HACS → 右上の⋮メニュー → カスタムリポジトリ を開きます。</string>
+    <string name="settings_extra_hki_cloud_intro">これは、HACS ストアで入手可能な、小規模な無料の Home Assistant アドオン (HKI 7 Cloud コンポーネント) 上で実行されます。一度インストールすれば、あとはすべてアプリが処理します。</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">Home Assistant で HACS を開き、「HKI 7 Cloud」を検索します。</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">インストールしてから、Home Assistant を再起動します。</string>
     <string name="settings_extra_hki_cloud_step_reopen">この画面を再度開いてください。機能は自動的に表示されます。</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 クラウド v%1$s がインストールされています</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud がインストールされている (バージョンを確認するには更新してください)</string>

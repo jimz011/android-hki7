@@ -63,9 +63,6 @@
     <string name="settings_extra_ha_backups_load_failed">Home Assistant yedekleri yüklenemedi: %1$s</string>
     <string name="settings_extra_hide_tab">Sekmeyi gizle</string>
     <string name="settings_extra_hki_cloud_step_add_integration">Ayarlar → Cihazlar ve hizmetler → Entegrasyon ekle bölümüne gidin, “HKI 7 Cloud” seçeneğini seçip onaylayın.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">%1$s adresini yapıştırın, “Entegrasyon” kategorisini seçin ve depoyu ekleyin.</string>
-    <string name="settings_extra_hki_cloud_step_install">Yeni “HKI 7 Cloud” girdisini açın, yükleyin ve Home Assistant sistemini yeniden başlatın.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">Home Assistant içinde HACS → sağ üstteki ⋮ menüsü → Özel depolar bölümünü açın.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Bu ekranı yeniden açın. Özellikler otomatik olarak görünecektir.</string>
     <string name="settings_extra_location_allowed_always">Her zaman izin verildi</string>
     <string name="settings_extra_location_allowed_foreground">Yalnızca uygulama kullanılırken izin verildi</string>

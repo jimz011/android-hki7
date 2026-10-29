@@ -2613,7 +2613,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">See eemaldab sellest seadmest selle sisselogimise, mobiilirakenduse registreerimisandmed ja HKI armatuurlauad. Home Assistant serverit ennast ei muudeta.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">See eemaldab Home Assistant loomuliku automatiseerimise. Seda ei saa HKI7 tagasi võtta.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">See eemaldab jagatud armatuurlaua kõigi jaoks pilvest. Praegu seda kasutavad inimesed naasevad automaatselt loodud armatuurlauale. Nende kohalikke koopiaid ei puudutata enne, kui nad järgmise rakenduse avavad.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">See töötab väikese tasuta Home Assistant lisandmooduliga (komponent HKI 7 Cloud). See pole veel vaikimisi HACS-is, seega lisage see kohandatud hoidlana – rakendus tegeleb seejärel kõige muuga.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">Sellele lähtekoodi vormile kehtivad Mozilla avaliku litsentsi versiooni 2.0 tingimused. Kui selle failiga koos MPL-i koopiat ei levitatud, saate selle hankida aadressilt mozilla.org/MPL/2.0/.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">Selles virnas pole üksusi.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">See liigub koos armatuurlauaga, nii et pilvevarukoopiad ja perega jagamine säilitavad selle.</string>
@@ -2835,9 +2834,9 @@
     <string name="car_action_sent">Saadetud</string>
     <string name="car_action_failed">Home Assistant ei saanud ühendust</string>
     <string name="car_action_unavailable">Ei ole saadaval</string>
+    <string name="car_refresh">Värskenda</string>
     <string name="car_not_connected">Pole ühendatud võrguga Home Assistant</string>
     <string name="car_no_quick_actions">Kiireid toiminguid veel pole</string>
-    <string name="car_refresh">Värskenda</string>
     <string name="family_permission_switch_dashboards">Lubage armatuurlaudu vahetada</string>
     <string name="family_permission_switch_dashboards_subtitle">Laske sellel inimesel laadida mõni muu olemasolev armatuurlaud</string>
     <string name="family_permission_create_dashboards">Lubage luua armatuurlaudu</string>
@@ -2953,9 +2952,9 @@
     <string name="settings_extra_ha_backups_load_failed">Home Assistant varukoopiaid ei saanud laadida: %1$s</string>
     <string name="settings_extra_hide_tab">Peida vahekaart</string>
     <string name="settings_extra_hki_cloud_step_add_integration">Avage Seaded → Seadmed ja teenused → Lisa integratsioon, valige „HKI 7 Cloud” ja kinnitage.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">Kleepige %1$s, valige kategooria "Integratsioon" ja lisage see.</string>
-    <string name="settings_extra_hki_cloud_step_install">Avage uus kirje „HKI 7 Cloud”, installige see ja taaskäivitage Home Assistant.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">Avage jaotises Home Assistant HACS → paremas ülanurgas menüü ⋮ → Kohandatud hoidlad.</string>
+    <string name="settings_extra_hki_cloud_intro">See töötab väikese tasuta Home Assistant lisandmooduliga (komponent HKI 7 Cloud), mis on saadaval HACS-i poes. Installige see üks kord ja rakendus tegeleb kõige muuga.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">Avage jaotises Home Assistant HACS ja otsige „HKI 7 Cloud”.</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Installige see, seejärel taaskäivitage Home Assistant.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Avage see ekraan uuesti. Funktsioonid ilmuvad automaatselt.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s installitud</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud installitud (versiooni nägemiseks värskendage)</string>

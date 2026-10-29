@@ -2864,7 +2864,6 @@ ui_this_removes_all_imported_security_entities_from_this_view_6443e5c,,This remo
 ui_this_removes_its_login_mobile_app_registration_details_and_69afc19,,"This removes its login, mobile-app registration details, and HKI dashboards from this device. The Home Assistant server itself is not changed.","פעולה זו מסירה את פרטי הכניסה שלו, את פרטי הרישום לאפליקציה לנייד ואת לוחות המחוונים של HKI מהמכשיר הזה. שרת Home Assistant עצמו אינו משתנה.",don't translate Home Assistant
 ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a,,This removes the native automation from Home Assistant. This cannot be undone from HKI7.,פעולה זו מסירה את האוטומציה המקורית מ-Home Assistant. לא ניתן לבטל זאת מ-HKI7.,"don't translate Home Assistant, HKI7"
 ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c,,This removes the shared dashboard from the cloud for everyone. People currently using it fall back to an auto-generated dashboard. Their local copies aren't touched until they next open the app.,זה מסיר את לוח המחוונים המשותף מהענן עבור כולם. אנשים שמשתמשים בו כרגע חוזרים ללוח מחוונים שנוצר אוטומטית. לא נוגעים בעותקים המקומיים שלהם עד שהם פותחים את האפליקציה בפעם הבאה.,
-ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3,,"This runs on a small, free Home Assistant add-on (the HKI 7 Cloud component). It isn't on HACS by default yet, so add it as a custom repository — the app then handles everything else.","זה פועל על תוסף Home Assistant קטן וחינמי (הרכיב HKI 7 Cloud). הוא עדיין לא נמצא ב-HACS כברירת מחדל, אז הוסף אותו כמאגר מותאם אישית - האפליקציה מטפלת בכל השאר.","don't translate HKI 7 Cloud, Home Assistant"
 ui_this_source_code_form_is_subject_to_the_terms_c8e4e24,,"This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, you can obtain one at mozilla.org/MPL/2.0/.","טופס קוד מקור זה כפוף לתנאי הרישיון הציבורי של Mozilla, v. 2.0. אם עותק של ה-MPL לא הופץ עם קובץ זה, תוכל להשיג אחד בכתובת mozilla.org/MPL/2.0/.",
 ui_this_stack_has_no_items_0f92c8d,,This stack has no items.,בערימה הזו אין פריטים.,
 ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d,," This travels with the dashboard, so cloud backups and family sharing keep it.","זה נוסע עם לוח המחוונים, כך שגיבויי ענן ושיתוף משפחתי שומרים על זה.",keep the space at the start/end
@@ -3090,9 +3089,9 @@ car_loading,,Loading,טְעִינָה,
 car_action_sent,,Sent,נשלח,
 car_action_failed,,Couldn't reach Home Assistant,לא ניתן להגיע ל-Home Assistant,don't translate Home Assistant
 car_action_unavailable,,Not available,לא זמין,
+car_refresh,,Refresh,לְרַעֲנֵן,
 car_not_connected,,Not connected to Home Assistant,לא מחובר לHome Assistant,don't translate Home Assistant
 car_no_quick_actions,,No quick actions yet,עדיין אין פעולות מהירות,
-car_refresh,,Refresh,לְרַעֲנֵן,
 security_entity_count,one,%1$d entity,ישות %1$d,app fills in %1$d — keep them
 security_entity_count,other,%1$d entities,%1$d ישויות,app fills in %1$d — keep them
 security_entity_count,two,,%1$d ישויות,
@@ -3212,9 +3211,9 @@ settings_extra_ha_backup_failed,,Home Assistant backup failed. Is the HKI 7 Clou
 settings_extra_ha_backups_load_failed,,Could not load Home Assistant backups: %1$s,לא ניתן לטעון גיבויים של Home Assistant: %1$s,app fills in %1$s — keep them; don't translate Home Assistant
 settings_extra_hide_tab,,Hide tab,הסתר כרטיסייה,
 settings_extra_hki_cloud_step_add_integration,,"Go to Settings → Devices & Services → Add Integration, choose “HKI 7 Cloud,” and confirm.","עבור אל הגדרות ← מכשירים ושירותים ← הוסף אינטגרציה, בחר ""HKI 7 Cloud"" ואשר.",don't translate HKI 7 Cloud
-settings_extra_hki_cloud_step_add_repository,,"Paste %1$s, choose the “Integration” category, and add it.","הדבק את %1$s, בחר בקטגוריית ""אינטגרציה"" והוסף אותה.",app fills in %1$s — keep them
-settings_extra_hki_cloud_step_install,,"Open the new “HKI 7 Cloud” entry, install it, and restart Home Assistant.","פתח את הערך החדש ""HKI 7 Cloud"", התקן אותו והפעל מחדש את Home Assistant.","don't translate HKI 7 Cloud, Home Assistant"
-settings_extra_hki_cloud_step_open_custom_repositories,,"In Home Assistant, open HACS → the ⋮ menu in the top-right → Custom repositories.","ב-Home Assistant, פתח את HACS → תפריט ⋮ בפינה השמאלית העליונה → מאגרים מותאמים אישית.",don't translate Home Assistant
+settings_extra_hki_cloud_intro,,"This runs on a small, free Home Assistant add-on (the HKI 7 Cloud component), available in the HACS store. Install it once and the app handles everything else.","זה פועל על תוסף קטן וחינמי Home Assistant (הרכיב HKI 7 Cloud), זמין בחנות HACS. התקן אותו פעם אחת והאפליקציה מטפלת בכל השאר.","don't translate HKI 7 Cloud, Home Assistant"
+settings_extra_hki_cloud_step_search_hacs,,"In Home Assistant, open HACS and search for “HKI 7 Cloud.”","ב-Home Assistant, פתח את HACS וחפש את ""HKI 7 Cloud"".","don't translate HKI 7 Cloud, Home Assistant"
+settings_extra_hki_cloud_step_install_and_restart,,"Install it, then restart Home Assistant.",התקן אותו ואז הפעל מחדש את Home Assistant.,don't translate Home Assistant
 settings_extra_hki_cloud_step_reopen,,Reopen this screen. The features will appear automatically.,פתח מחדש את המסך הזה. התכונות יופיעו אוטומטית.,
 settings_extra_hki_cloud_version,,HKI 7 Cloud v%1$s installed,HKI 7 Cloud v%1$s מותקן,app fills in %1$s — keep them; don't translate HKI 7 Cloud
 settings_extra_hki_cloud_version_unknown,,HKI 7 Cloud installed (update to see its version),HKI 7 Cloud מותקן (עדכן כדי לראות את הגרסה שלו),don't translate HKI 7 Cloud

@@ -2613,7 +2613,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">Detta tar bort dess inloggning, registreringsdetaljer för mobilappar och HKI-instrumentpaneler från den här enheten. Själva Home Assistant-servern ändras inte.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">Detta tar bort den inbyggda automatiseringen från Home Assistant. Detta kan inte ångras från HKI7.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">Detta tar bort den delade instrumentpanelen från molnet för alla. Människor som för närvarande använder det faller tillbaka till en automatiskt genererad instrumentpanel. Deras lokala kopior berörs inte förrän de öppnar appen nästa gång.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">Detta körs på ett litet, gratis Home Assistant-tillägg (HKI 7 Cloud-komponenten). Det är inte på HACS som standard än, så lägg till det som ett anpassat arkiv - appen hanterar sedan allt annat.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">Detta källkodsformulär är föremål för villkoren i Mozilla Public License, v. 2.0. Om en kopia av MPL inte distribuerades med den här filen kan du få en på mozilla.org/MPL/2.0/.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">Denna stack har inga objekt.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">Detta följer med instrumentpanelen, så molnsäkerhetskopiering och familjedelning behåller det.</string>
@@ -2835,9 +2834,9 @@
     <string name="car_action_sent">Skickat</string>
     <string name="car_action_failed">Kunde inte nå Home Assistant</string>
     <string name="car_action_unavailable">Ej tillgängligt</string>
+    <string name="car_refresh">Uppdatera</string>
     <string name="car_not_connected">Ej ansluten till Home Assistant</string>
     <string name="car_no_quick_actions">Inga snabba åtgärder än</string>
-    <string name="car_refresh">Uppdatera</string>
     <string name="family_permission_switch_dashboards">Tillåt byte av instrumentpaneler</string>
     <string name="family_permission_switch_dashboards_subtitle">Låt den här personen ladda en annan befintlig instrumentpanel</string>
     <string name="family_permission_create_dashboards">Tillåt att skapa instrumentpaneler</string>
@@ -2953,9 +2952,9 @@
     <string name="settings_extra_ha_backups_load_failed">Det gick inte att ladda Home Assistant-säkerhetskopior: %1$s</string>
     <string name="settings_extra_hide_tab">Dölj flik</string>
     <string name="settings_extra_hki_cloud_step_add_integration">Gå till Inställningar → Enheter och tjänster → Lägg till integration, välj "HKI 7 Cloud" och bekräfta.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">Klistra in %1$s, välj kategorin "Integration" och lägg till den.</string>
-    <string name="settings_extra_hki_cloud_step_install">Öppna den nya "HKI 7 Cloud", installera den och starta om Home Assistant.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">I Home Assistant, öppna HACS → menyn ⋮ uppe till höger → Anpassade arkiv.</string>
+    <string name="settings_extra_hki_cloud_intro">Detta körs på ett litet, gratis tillägg Home Assistant (komponenten HKI 7 Cloud), tillgängligt i HACS-butiken. Installera den en gång och appen hanterar allt annat.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">I Home Assistant, öppna HACS och sök efter "HKI 7 Cloud."</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Installera det och starta sedan om Home Assistant.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Öppna den här skärmen igen. Funktionerna visas automatiskt.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s installerat</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud installerat (uppdatering för att se dess version)</string>

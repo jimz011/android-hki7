@@ -2824,7 +2824,6 @@ ui_this_removes_all_imported_security_entities_from_this_view_6443e5c,,This remo
 ui_this_removes_its_login_mobile_app_registration_details_and_69afc19,,"This removes its login, mobile-app registration details, and HKI dashboards from this device. The Home Assistant server itself is not changed.",このデバイスのログイン、モバイルアプリの登録情報、HKIダッシュボードを削除します。Home Assistantサーバー自体は変更されません。,don't translate Home Assistant
 ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a,,This removes the native automation from Home Assistant. This cannot be undone from HKI7.,これによりHome Assistantからネイティブのオートメーションが削除されます。この操作はHKI7から元に戻せません。,"don't translate Home Assistant, HKI7"
 ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c,,This removes the shared dashboard from the cloud for everyone. People currently using it fall back to an auto-generated dashboard. Their local copies aren't touched until they next open the app.,共有ダッシュボードをクラウドから全員分削除します。現在利用中のユーザーは自動生成のダッシュボードに戻ります。次回アプリを開くまでローカルのコピーは変更されません。,
-ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3,,"This runs on a small, free Home Assistant add-on (the HKI 7 Cloud component). It isn't on HACS by default yet, so add it as a custom repository — the app then handles everything else.",これは小さな無料のHome Assistantアドオン(HKI 7 Cloudコンポーネント)上で動作します。まだデフォルトではHACSにないため、カスタムリポジトリとして追加してください — その後はアプリが残りをすべて処理します。,"don't translate HKI 7 Cloud, Home Assistant"
 ui_this_source_code_form_is_subject_to_the_terms_c8e4e24,,"This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, you can obtain one at mozilla.org/MPL/2.0/.",このソースコード形式は、Mozilla Public License v.2.0の条項に従います。このファイルにMPLのコピーが同梱されていない場合は、mozilla.org/MPL/2.0/ から入手できます。,
 ui_this_stack_has_no_items_0f92c8d,,This stack has no items.,このスタックには項目がありません。,
 ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d,," This travels with the dashboard, so cloud backups and family sharing keep it.", これはダッシュボードとともに保持されるため、クラウドバックアップやファミリー共有でも維持されます。,keep the space at the start/end
@@ -3048,9 +3047,9 @@ car_loading,,Loading,読み込み中,
 car_action_sent,,Sent,送信済み,
 car_action_failed,,Couldn't reach Home Assistant,Home Assistant に到達できませんでした,don't translate Home Assistant
 car_action_unavailable,,Not available,利用不可,
+car_refresh,,Refresh,更新,
 car_not_connected,,Not connected to Home Assistant,Home Assistant に接続されていません,don't translate Home Assistant
 car_no_quick_actions,,No quick actions yet,クイックアクションはまだありません,
-car_refresh,,Refresh,更新,
 security_entity_count,one,%1$d entity,,needs translation; app fills in %1$d — keep them
 security_entity_count,other,%1$d entities,%1$d エンティティ,app fills in %1$d — keep them
 family_permission_switch_dashboards,,Allow switching dashboards,ダッシュボードの切り替えを許可,
@@ -3168,9 +3167,9 @@ settings_extra_ha_backup_failed,,Home Assistant backup failed. Is the HKI 7 Clou
 settings_extra_ha_backups_load_failed,,Could not load Home Assistant backups: %1$s,Home Assistantのバックアップを読み込めませんでした: %1$s,app fills in %1$s — keep them; don't translate Home Assistant
 settings_extra_hide_tab,,Hide tab,タブを非表示,
 settings_extra_hki_cloud_step_add_integration,,"Go to Settings → Devices & Services → Add Integration, choose “HKI 7 Cloud,” and confirm.",設定 → デバイスとサービス → 統合を追加 に移動し、「HKI 7 Cloud」を選んで確定してください。,don't translate HKI 7 Cloud
-settings_extra_hki_cloud_step_add_repository,,"Paste %1$s, choose the “Integration” category, and add it.",%1$sを貼り付け、「Integration」カテゴリーを選択して追加してください。,app fills in %1$s — keep them
-settings_extra_hki_cloud_step_install,,"Open the new “HKI 7 Cloud” entry, install it, and restart Home Assistant.",新しい「HKI 7 Cloud」項目を開いてインストールし、Home Assistantを再起動してください。,"don't translate HKI 7 Cloud, Home Assistant"
-settings_extra_hki_cloud_step_open_custom_repositories,,"In Home Assistant, open HACS → the ⋮ menu in the top-right → Custom repositories.",Home Assistantで、HACS → 右上の⋮メニュー → カスタムリポジトリ を開きます。,don't translate Home Assistant
+settings_extra_hki_cloud_intro,,"This runs on a small, free Home Assistant add-on (the HKI 7 Cloud component), available in the HACS store. Install it once and the app handles everything else.",これは、HACS ストアで入手可能な、小規模な無料の Home Assistant アドオン (HKI 7 Cloud コンポーネント) 上で実行されます。一度インストールすれば、あとはすべてアプリが処理します。,"don't translate HKI 7 Cloud, Home Assistant"
+settings_extra_hki_cloud_step_search_hacs,,"In Home Assistant, open HACS and search for “HKI 7 Cloud.”",Home Assistant で HACS を開き、「HKI 7 Cloud」を検索します。,"don't translate HKI 7 Cloud, Home Assistant"
+settings_extra_hki_cloud_step_install_and_restart,,"Install it, then restart Home Assistant.",インストールしてから、Home Assistant を再起動します。,don't translate Home Assistant
 settings_extra_hki_cloud_step_reopen,,Reopen this screen. The features will appear automatically.,この画面を再度開いてください。機能は自動的に表示されます。,
 settings_extra_hki_cloud_version,,HKI 7 Cloud v%1$s installed,HKI 7 クラウド v%1$s がインストールされています,app fills in %1$s — keep them; don't translate HKI 7 Cloud
 settings_extra_hki_cloud_version_unknown,,HKI 7 Cloud installed (update to see its version),HKI 7 Cloud がインストールされている (バージョンを確認するには更新してください),don't translate HKI 7 Cloud

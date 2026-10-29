@@ -2613,7 +2613,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">Týmto sa z tohto zariadenia odstránia jeho prihlasovacie údaje, podrobnosti o registrácii mobilnej aplikácie a informačné panely HKI. Samotný server Home Assistant sa nemení.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">Toto odstráni natívnu automatizáciu z Home Assistant. Toto nie je možné vrátiť späť z HKI7.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">Týmto sa odstráni zdieľaný informačný panel z cloudu pre všetkých. Ľudia, ktorí ho momentálne používajú, sa vrátia k automaticky generovanému informačnému panelu. Ich miestne kópie sa nedotknú, kým najbližšie otvoria aplikáciu.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">Toto beží na malom, bezplatnom doplnku Home Assistant (komponent HKI 7 Cloud). V predvolenom nastavení ešte nie je na HACS, takže ho pridajte ako vlastné úložisko – aplikácia potom zvládne všetko ostatné.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">Tento formulár zdrojového kódu podlieha podmienkam verejnej licencie Mozilla, v. 2.0. Ak kópia MPL nebola distribuovaná s týmto súborom, môžete ju získať na mozilla.org/MPL/2.0/.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">Tento zásobník neobsahuje žiadne položky.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">To cestuje s prístrojovou doskou, takže zálohovanie v cloude a rodinné zdieľanie si to ponechá.</string>
@@ -2835,9 +2834,9 @@
     <string name="car_action_sent">Odoslané</string>
     <string name="car_action_failed">Nepodarilo sa spojiť s Home Assistant</string>
     <string name="car_action_unavailable">Nie je k dispozícii</string>
+    <string name="car_refresh">Obnoviť</string>
     <string name="car_not_connected">Nie je pripojené k Home Assistant</string>
     <string name="car_no_quick_actions">Zatiaľ žiadne rýchle akcie</string>
-    <string name="car_refresh">Obnoviť</string>
     <string name="family_permission_switch_dashboards">Povoliť prepínanie informačných panelov</string>
     <string name="family_permission_switch_dashboards_subtitle">Umožnite tejto osobe načítať iný existujúci informačný panel</string>
     <string name="family_permission_create_dashboards">Povoliť vytváranie informačných panelov</string>
@@ -2953,9 +2952,9 @@
     <string name="settings_extra_ha_backups_load_failed">Nepodarilo sa načítať zálohy Home Assistant: %1$s</string>
     <string name="settings_extra_hide_tab">Skryť kartu</string>
     <string name="settings_extra_hki_cloud_step_add_integration">Prejdite do Nastavenia → Zariadenia a služby → Pridať integráciu, vyberte „HKI 7 Cloud“ a potvrďte.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">Prilepte %1$s, vyberte kategóriu „Integrácia“ a pridajte ju.</string>
-    <string name="settings_extra_hki_cloud_step_install">Otvorte novú položku „HKI 7 Cloud“, nainštalujte ju a reštartujte Home Assistant.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">V Home Assistant otvorte HACS → ponuku ⋮ vpravo hore → Vlastné úložiská.</string>
+    <string name="settings_extra_hki_cloud_intro">Toto beží na malom, bezplatnom doplnku Home Assistant (komponent HKI 7 Cloud), ktorý je dostupný v obchode HACS. Nainštalujte ho raz a aplikácia sa postará o všetko ostatné.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">V Home Assistant otvorte HACS a vyhľadajte „HKI 7 Cloud“.</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Nainštalujte ho a potom reštartujte Home Assistant.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Znova otvorte túto obrazovku. Funkcie sa zobrazia automaticky.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s nainštalovaný</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud nainštalovaný (aktualizáciou zobrazíte jeho verziu)</string>

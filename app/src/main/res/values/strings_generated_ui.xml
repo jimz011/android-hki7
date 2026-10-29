@@ -1274,7 +1274,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">This removes its login, mobile-app registration details, and HKI dashboards from this device. The Home Assistant server itself is not changed.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">This removes the native automation from Home Assistant. This cannot be undone from HKI7.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">This removes the shared dashboard from the cloud for everyone. People currently using it fall back to an auto-generated dashboard. Their local copies aren\'t touched until they next open the app.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">This runs on a small, free Home Assistant add-on (the HKI 7 Cloud component). It isn\'t on HACS by default yet, so add it as a custom repository — the app then handles everything else.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, you can obtain one at mozilla.org/MPL/2.0/.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">This stack has no items.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d"> This travels with the dashboard, so cloud backups and family sharing keep it.</string>

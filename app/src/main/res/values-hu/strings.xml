@@ -2613,7 +2613,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">Ezzel eltávolítja a bejelentkezési adatokat, a mobilalkalmazás regisztrációs adatait és a HKI irányítópultjait erről az eszközről. Maga a Home Assistant szerver nem változott.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">Ez eltávolítja a natív automatizálást a Home Assistant-ból. Ez a művelet nem vonható vissza innen: HKI7.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">Ezzel mindenki számára eltávolítja a megosztott irányítópultot a felhőből. A jelenleg használó emberek egy automatikusan generált irányítópulthoz térnek vissza. A helyi példányaikat addig nem érintik meg, amíg legközelebb meg nem nyitják az alkalmazást.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">Ez egy kicsi, ingyenes Home Assistant kiegészítőn (a HKI 7 Cloud komponensen) fut. Alapértelmezés szerint még nincs HACS-on, ezért adja hozzá egyéni tárhelyként – az alkalmazás minden mást kezel.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">Erre a Forráskód-űrlapra a Mozilla Public License, v. 2.0 feltételei vonatkoznak. Ha az MPL másolatát nem terjesztették ezzel a fájllal, a mozilla.org/MPL/2.0/ címen szerezhet be egyet.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">Ebben a kötegben nincsenek elemek.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">Ez az irányítópulttal együtt utazik, így a felhőalapú biztonsági mentések és a családi megosztás megtartja.</string>
@@ -2835,9 +2834,9 @@
     <string name="car_action_sent">Küldött</string>
     <string name="car_action_failed">Nem sikerült elérni a következőt: Home Assistant</string>
     <string name="car_action_unavailable">Nem elérhető</string>
+    <string name="car_refresh">Frissítés</string>
     <string name="car_not_connected">Nincs csatlakoztatva a következőhöz: Home Assistant</string>
     <string name="car_no_quick_actions">Még nincs gyors intézkedés</string>
-    <string name="car_refresh">Frissítés</string>
     <string name="family_permission_switch_dashboards">Műszerfalváltás engedélyezése</string>
     <string name="family_permission_switch_dashboards_subtitle">Engedje meg, hogy ez a személy töltsön be egy másik meglévő irányítópultot</string>
     <string name="family_permission_create_dashboards">Irányítópultok létrehozásának engedélyezése</string>
@@ -2953,9 +2952,9 @@
     <string name="settings_extra_ha_backups_load_failed">Nem sikerült betölteni a Home Assistant biztonsági másolatot: %1$s</string>
     <string name="settings_extra_hide_tab">Lap elrejtése</string>
     <string name="settings_extra_hki_cloud_step_add_integration">Válassza a Beállítások → Eszközök és szolgáltatások → Integráció hozzáadása menüpontot, válassza a „HKI 7 Cloud” lehetőséget, és erősítse meg.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">Illessze be a %1$s, válassza ki az „Integráció” kategóriát, és adja hozzá.</string>
-    <string name="settings_extra_hki_cloud_step_install">Nyissa meg az új „HKI 7 Cloud” bejegyzést, telepítse, és indítsa újra a Home Assistant.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">A Home Assistant alkalmazásban nyissa meg a HACS → ⋮ menüt a jobb felső sarokban → Egyéni tárolók.</string>
+    <string name="settings_extra_hki_cloud_intro">Ez egy kicsi, ingyenes Home Assistant kiegészítőn (a HKI 7 Cloud komponensen) fut, amely a HACS áruházban érhető el. Telepítse egyszer, és az alkalmazás kezel minden mást.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">A Home Assistant-ban nyissa meg a HACS-t, és keressen rá a „HKI 7 Cloud” kifejezésre.</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Telepítse, majd indítsa újra a Home Assistant.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Nyissa meg újra ezt a képernyőt. A funkciók automatikusan megjelennek.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s telepítve</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud telepítve (frissítse a verzió megtekintéséhez)</string>

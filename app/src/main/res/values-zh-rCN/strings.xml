@@ -1557,7 +1557,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">这将从此设备中移除其登录信息、移动应用注册详情和 HKI 仪表盘。Home Assistant 服务器本身不会受到影响。</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">这将从 Home Assistant 中移除该原生自动化。此操作无法在 HKI7 中撤销。</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">这将为所有人从云端移除此共享仪表盘。当前正在使用它的用户将回退到自动生成的仪表盘。他们的本地副本在下次打开应用前不会受到影响。</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">这运行在一个小型免费的 Home Assistant 附加组件（HKI 7 Cloud 组件）上。它目前还未默认收录在 HACS 中，因此请将其添加为自定义仓库 — 之后应用会自动处理其余部分。</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">本源代码形式受 Mozilla Public License 2.0 版条款约束。如果本文件未随附 MPL 副本，你可以在 mozilla.org/MPL/2.0/ 获取。</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">此堆叠中没有项目。</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">这会随仪表盘一起保留，因此云备份和家庭共享会保留它。</string>
@@ -2910,9 +2909,6 @@
     <string name="settings_extra_ha_backups_load_failed">无法加载 Home Assistant 备份：%1$s</string>
     <string name="settings_extra_hide_tab">隐藏标签页</string>
     <string name="settings_extra_hki_cloud_step_add_integration">前往“设置 → 设备与服务 → 添加集成”，选择“HKI 7 Cloud”，然后确认。</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">粘贴 %1$s，选择“Integration”类别，然后添加。</string>
-    <string name="settings_extra_hki_cloud_step_install">打开新出现的“HKI 7 Cloud”条目，安装它，然后重启 Home Assistant。</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">在 Home Assistant 中打开 HACS → 右上角 ⋮ 菜单 → 自定义存储库。</string>
     <string name="settings_extra_hki_cloud_step_reopen">重新打开此界面，相关功能将自动出现。</string>
     <plurals name="settings_extra_hours_ago">
         <item quantity="other">%1$d 小时前</item>
@@ -4102,10 +4098,13 @@
     <string name="tidyshop_requirement_app">TidyShop 应用程序，位于管理家庭列表的人的手机上。名单和邀请都是在那里制作的； HKI 7 显示并勾选它们。 TidyShop 正在 Google Play 上进行封闭测试。</string>
     <string name="tidyshop_requirement_connector">TidyShop 连接器，在您拥有的服务器（Docker 或 Unraid）上运行，并且可以通过此手机访问。它保存着家庭的共享列表；没有 TidyShop 云。</string>
     <string name="tidyshop_requirements_title">你需要什么</string>
-    <string name="car_no_quick_actions">尚无快速行动</string>
-    <string name="car_not_connected">未连接到 Home Assistant</string>
     <string name="tidyshop_step_connect">3. 在下面输入连接器地址和代码。</string>
     <string name="tidyshop_step_install">1. 按照安装指南安装连接器并将 TidyShop 对准它。</string>
     <string name="tidyshop_step_invite">2. 在 TidyShop 中，邀请此人加入家庭，或者如果您自己已经使用 TidyShop，则创建设备代码。</string>
     <string name="tidyshop_steps_title">如何连接</string>
+    <string name="car_no_quick_actions">尚无快速行动</string>
+    <string name="car_not_connected">未连接到 Home Assistant</string>
+    <string name="settings_extra_hki_cloud_intro">它运行在一个小型的免费 Home Assistant 附加组件（HKI 7 Cloud 组件）上，可在 HACS 商店中找到。安装一次，应用程序就会处理其他一切。</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">安装它，然后重新启动 Home Assistant。</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">在 Home Assistant 中，打开 HACS 并搜索“HKI 7 Cloud”。</string>
 </resources>

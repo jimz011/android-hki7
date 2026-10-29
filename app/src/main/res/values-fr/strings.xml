@@ -1524,7 +1524,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">Cela supprime sa connexion, les détails d\'enregistrement de l\'application mobile et les tableaux de bord HKI de cet appareil. Le serveur Home Assistant lui-même n\'est pas modifié.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">Cela supprime l\'automatisation native de Home Assistant. Cela ne peut pas être annulé à partir de HKI7.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">Cela supprime le tableau de bord partagé du cloud pour tout le monde. Les personnes qui l\'utilisent actuellement se tournent vers un tableau de bord généré automatiquement. Leurs copies locales ne sont pas modifiées jusqu\'à la prochaine ouverture de l\'application.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">Cela fonctionne sur un petit module complémentaire gratuit Home Assistant (le composant HKI 7 Cloud). Ce n\'est pas encore sur HACS par défaut, alors ajoutez-le en tant que référentiel personnalisé - l\'application gère ensuite tout le reste.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">Ce formulaire de code source est soumis aux termes de la licence publique Mozilla, v. 2.0. Si une copie du MPL n\'a pas été distribuée avec ce fichier, vous pouvez en obtenir une sur mozilla.org/MPL/2.0/.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">Cette pile ne contient aucun élément.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">Cela voyage avec le tableau de bord, donc les sauvegardes cloud et le partage familial le conservent.</string>
@@ -1714,9 +1713,9 @@
     <string name="car_action_sent">Envoyé</string>
     <string name="car_action_failed">Impossible d\'atteindre Home Assistant</string>
     <string name="car_action_unavailable">Pas disponible</string>
+    <string name="car_refresh">Rafraîchir</string>
     <string name="car_not_connected">Non connecté à Home Assistant</string>
     <string name="car_no_quick_actions">Aucune action rapide pour l\'instant</string>
-    <string name="car_refresh">Rafraîchir</string>
     <string name="family_access_manage">Gérer l\'accès</string>
     <string name="family_access_title">Qui peut voir %1$s</string>
     <string name="family_access_description">Ajoutez ou supprimez des personnes. Toutes les personnes que vous supprimez perdront ce tableau de bord lors de la prochaine synchronisation de leur application.</string>
@@ -1762,6 +1761,9 @@
     <string name="settings_extra_dashboard_shared_badge">Commun</string>
     <string name="settings_extra_dashboard_shared_subtitle">Partagé avec vous par votre famille. Appuyez pour charger</string>
     <string name="settings_extra_dashboard_shared_loaded">Partagé avec vous par votre famille. Actuellement chargé</string>
+    <string name="settings_extra_hki_cloud_intro">Cela fonctionne sur un petit module complémentaire gratuit Home Assistant (le composant HKI 7 Cloud), disponible dans la boutique HACS. Installez-le une fois et l\'application gère tout le reste.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">Dans Home Assistant, ouvrez HACS et recherchez « HKI 7 Cloud ».</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Installez-le, puis redémarrez Home Assistant.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s installé</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud installé (mise à jour pour voir sa version)</string>
     <string name="settings_extra_hki_cloud_update_to_unlock">Mise à jour pour débloquer :</string>

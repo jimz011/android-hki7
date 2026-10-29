@@ -2824,7 +2824,6 @@ ui_this_removes_all_imported_security_entities_from_this_view_6443e5c,,This remo
 ui_this_removes_its_login_mobile_app_registration_details_and_69afc19,,"This removes its login, mobile-app registration details, and HKI dashboards from this device. The Home Assistant server itself is not changed.","Това премахва неговите данни за вход, регистрационни данни за мобилно приложение и HKI табла за управление от това устройство. Самият сървър Home Assistant не е променен.",don't translate Home Assistant
 ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a,,This removes the native automation from Home Assistant. This cannot be undone from HKI7.,Това премахва собствената автоматизация от Home Assistant. Това не може да бъде отменено от HKI7.,"don't translate Home Assistant, HKI7"
 ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c,,This removes the shared dashboard from the cloud for everyone. People currently using it fall back to an auto-generated dashboard. Their local copies aren't touched until they next open the app.,"Това премахва споделеното табло за управление от облака за всички. Хората, които го използват в момента, се връщат към автоматично генерирано табло за управление. Техните локални копия не се докосват до следващото отваряне на приложението.",
-ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3,,"This runs on a small, free Home Assistant add-on (the HKI 7 Cloud component). It isn't on HACS by default yet, so add it as a custom repository — the app then handles everything else.","Това работи на малка, безплатна добавка Home Assistant (компонентът HKI 7 Cloud). Все още не е на HACS по подразбиране, така че го добавете като персонализирано хранилище — след това приложението обработва всичко останало.","don't translate HKI 7 Cloud, Home Assistant"
 ui_this_source_code_form_is_subject_to_the_terms_c8e4e24,,"This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, you can obtain one at mozilla.org/MPL/2.0/.","Този формуляр за изходен код е предмет на условията на публичния лиценз на Mozilla, v. 2.0. Ако копие на MPL не е разпространено с този файл, можете да го получите на mozilla.org/MPL/2.0/.",
 ui_this_stack_has_no_items_0f92c8d,,This stack has no items.,Този стек няма елементи.,
 ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d,," This travels with the dashboard, so cloud backups and family sharing keep it.","Това пътува с таблото за управление, така че резервните копия в облака и семейното споделяне го запазват.",keep the space at the start/end
@@ -3048,9 +3047,9 @@ car_loading,,Loading,Зарежда се,
 car_action_sent,,Sent,Изпратено,
 car_action_failed,,Couldn't reach Home Assistant,Не можах да достигна Home Assistant,don't translate Home Assistant
 car_action_unavailable,,Not available,Не е наличен,
+car_refresh,,Refresh,Опресняване,
 car_not_connected,,Not connected to Home Assistant,Няма връзка с Home Assistant,don't translate Home Assistant
 car_no_quick_actions,,No quick actions yet,Все още няма бързи действия,
-car_refresh,,Refresh,Опресняване,
 security_entity_count,one,%1$d entity,%1$d обект,app fills in %1$d — keep them
 security_entity_count,other,%1$d entities,%1$d обекти,app fills in %1$d — keep them
 family_permission_switch_dashboards,,Allow switching dashboards,Разрешаване на превключване на таблата за управление,
@@ -3168,9 +3167,9 @@ settings_extra_ha_backup_failed,,Home Assistant backup failed. Is the HKI 7 Clou
 settings_extra_ha_backups_load_failed,,Could not load Home Assistant backups: %1$s,Неуспешно зареждане на Home Assistant резервни копия: %1$s,app fills in %1$s — keep them; don't translate Home Assistant
 settings_extra_hide_tab,,Hide tab,Скриване на раздела,
 settings_extra_hki_cloud_step_add_integration,,"Go to Settings → Devices & Services → Add Integration, choose “HKI 7 Cloud,” and confirm.","Отидете в Настройки → Устройства и услуги → Добавяне на интеграция, изберете „HKI 7 Cloud“ и потвърдете.",don't translate HKI 7 Cloud
-settings_extra_hki_cloud_step_add_repository,,"Paste %1$s, choose the “Integration” category, and add it.","Поставете %1$s, изберете категорията „Интеграция“ и я добавете.",app fills in %1$s — keep them
-settings_extra_hki_cloud_step_install,,"Open the new “HKI 7 Cloud” entry, install it, and restart Home Assistant.","Отворете новия запис „HKI 7 Cloud“, инсталирайте го и рестартирайте Home Assistant.","don't translate HKI 7 Cloud, Home Assistant"
-settings_extra_hki_cloud_step_open_custom_repositories,,"In Home Assistant, open HACS → the ⋮ menu in the top-right → Custom repositories.",В Home Assistant отворете HACS → менюто ⋮ в горния десен ъгъл → Персонализирани хранилища.,don't translate Home Assistant
+settings_extra_hki_cloud_intro,,"This runs on a small, free Home Assistant add-on (the HKI 7 Cloud component), available in the HACS store. Install it once and the app handles everything else.","Това работи на малка, безплатна добавка Home Assistant (компонентът HKI 7 Cloud), налична в магазина на HACS. Инсталирайте го веднъж и приложението ще се справи с всичко останало.","don't translate HKI 7 Cloud, Home Assistant"
+settings_extra_hki_cloud_step_search_hacs,,"In Home Assistant, open HACS and search for “HKI 7 Cloud.”",В Home Assistant отворете HACS и потърсете „HKI 7 Cloud.“,"don't translate HKI 7 Cloud, Home Assistant"
+settings_extra_hki_cloud_step_install_and_restart,,"Install it, then restart Home Assistant.","Инсталирайте го, след което рестартирайте Home Assistant.",don't translate Home Assistant
 settings_extra_hki_cloud_step_reopen,,Reopen this screen. The features will appear automatically.,Отворете отново този екран. Функциите ще се появят автоматично.,
 settings_extra_hki_cloud_version,,HKI 7 Cloud v%1$s installed,HKI 7 Cloud v%1$s инсталиран,app fills in %1$s — keep them; don't translate HKI 7 Cloud
 settings_extra_hki_cloud_version_unknown,,HKI 7 Cloud installed (update to see its version),"HKI 7 Cloud инсталиран (актуализирайте, за да видите версията му)",don't translate HKI 7 Cloud

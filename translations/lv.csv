@@ -2844,7 +2844,6 @@ ui_this_removes_all_imported_security_entities_from_this_view_6443e5c,,This remo
 ui_this_removes_its_login_mobile_app_registration_details_and_69afc19,,"This removes its login, mobile-app registration details, and HKI dashboards from this device. The Home Assistant server itself is not changed.","Tādējādi no šīs ierīces tiek noņemta pieteikšanās, mobilās lietotnes reģistrācijas informācija un HKI informācijas paneļi. Pats Home Assistant serveris nav mainīts.",don't translate Home Assistant
 ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a,,This removes the native automation from Home Assistant. This cannot be undone from HKI7.,Tādējādi tiek noņemta vietējā automatizācija no Home Assistant. Šo darbību nevar atsaukt no HKI7.,"don't translate Home Assistant, HKI7"
 ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c,,This removes the shared dashboard from the cloud for everyone. People currently using it fall back to an auto-generated dashboard. Their local copies aren't touched until they next open the app.,"Tādējādi visiem tiek noņemts koplietotais informācijas panelis no mākoņa. Cilvēki, kas to pašlaik izmanto, atgriežas pie automātiski ģenerētā informācijas paneļa. Viņu vietējās kopijas netiek aizskartas, līdz tās nākamreiz atver lietotni.",
-ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3,,"This runs on a small, free Home Assistant add-on (the HKI 7 Cloud component). It isn't on HACS by default yet, so add it as a custom repository — the app then handles everything else.","Tas darbojas ar nelielu, bezmaksas Home Assistant papildinājumu (komponents HKI 7 Cloud). Pēc noklusējuma tas vēl nav pieejams HACS, tāpēc pievienojiet to kā pielāgotu repozitoriju — lietotne pēc tam apstrādā visu pārējo.","don't translate HKI 7 Cloud, Home Assistant"
 ui_this_source_code_form_is_subject_to_the_terms_c8e4e24,,"This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, you can obtain one at mozilla.org/MPL/2.0/.","Uz šo avota koda veidlapu attiecas Mozilla publiskās licences (v. 2.0) noteikumi. Ja MPL kopija netika izplatīta kopā ar šo failu, varat to iegūt vietnē mozilla.org/MPL/2.0/.",
 ui_this_stack_has_no_items_0f92c8d,,This stack has no items.,Šajā kaudzē nav vienumu.,
 ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d,," This travels with the dashboard, so cloud backups and family sharing keep it.","Tas tiek pārvietots kopā ar informācijas paneli, tāpēc mākoņa dublējumkopijas un ģimenes koplietošana to saglabā.",keep the space at the start/end
@@ -3069,9 +3068,9 @@ car_loading,,Loading,Notiek ielāde,
 car_action_sent,,Sent,Nosūtīts,
 car_action_failed,,Couldn't reach Home Assistant,Nevarēja sasniegt Home Assistant,don't translate Home Assistant
 car_action_unavailable,,Not available,Nav pieejams,
+car_refresh,,Refresh,Atsvaidzināt,
 car_not_connected,,Not connected to Home Assistant,Nav savienots ar Home Assistant,don't translate Home Assistant
 car_no_quick_actions,,No quick actions yet,Ātru darbību vēl nav,
-car_refresh,,Refresh,Atsvaidzināt,
 security_entity_count,one,%1$d entity,%1$d entītija,app fills in %1$d — keep them
 security_entity_count,other,%1$d entities,%1$d entītijām,app fills in %1$d — keep them
 security_entity_count,zero,,%1$d entītijām,
@@ -3190,9 +3189,9 @@ settings_extra_ha_backup_failed,,Home Assistant backup failed. Is the HKI 7 Clou
 settings_extra_ha_backups_load_failed,,Could not load Home Assistant backups: %1$s,Nevarēja ielādēt Home Assistant dublējumus: %1$s,app fills in %1$s — keep them; don't translate Home Assistant
 settings_extra_hide_tab,,Hide tab,Paslēpt cilni,
 settings_extra_hki_cloud_step_add_integration,,"Go to Settings → Devices & Services → Add Integration, choose “HKI 7 Cloud,” and confirm.","Atveriet sadaļu Iestatījumi → Ierīces un pakalpojumi → Pievienot integrāciju, izvēlieties “HKI 7 Cloud” un apstipriniet.",don't translate HKI 7 Cloud
-settings_extra_hki_cloud_step_add_repository,,"Paste %1$s, choose the “Integration” category, and add it.","Ielīmējiet %1$s, izvēlieties kategoriju “Integrācija” un pievienojiet to.",app fills in %1$s — keep them
-settings_extra_hki_cloud_step_install,,"Open the new “HKI 7 Cloud” entry, install it, and restart Home Assistant.","Atveriet jauno ierakstu “HKI 7 Cloud”, instalējiet to un restartējiet Home Assistant.","don't translate HKI 7 Cloud, Home Assistant"
-settings_extra_hki_cloud_step_open_custom_repositories,,"In Home Assistant, open HACS → the ⋮ menu in the top-right → Custom repositories.",Programmā Home Assistant atveriet HACS → augšējā labajā stūrī izvēlni ⋮ → Pielāgotas krātuves.,don't translate Home Assistant
+settings_extra_hki_cloud_intro,,"This runs on a small, free Home Assistant add-on (the HKI 7 Cloud component), available in the HACS store. Install it once and the app handles everything else.","Tas darbojas ar nelielu, bezmaksas Home Assistant papildinājumu (komponents HKI 7 Cloud), kas pieejams HACS veikalā. Instalējiet to vienreiz, un lietotne apstrādā visu pārējo.","don't translate HKI 7 Cloud, Home Assistant"
+settings_extra_hki_cloud_step_search_hacs,,"In Home Assistant, open HACS and search for “HKI 7 Cloud.”",Sadaļā Home Assistant atveriet HACS un meklējiet “HKI 7 Cloud”.,"don't translate HKI 7 Cloud, Home Assistant"
+settings_extra_hki_cloud_step_install_and_restart,,"Install it, then restart Home Assistant.","Instalējiet to, pēc tam restartējiet Home Assistant.",don't translate Home Assistant
 settings_extra_hki_cloud_step_reopen,,Reopen this screen. The features will appear automatically.,Atkārtoti atveriet šo ekrānu. Funkcijas parādīsies automātiski.,
 settings_extra_hki_cloud_version,,HKI 7 Cloud v%1$s installed,HKI 7 Cloud v%1$s ir instalēts,app fills in %1$s — keep them; don't translate HKI 7 Cloud
 settings_extra_hki_cloud_version_unknown,,HKI 7 Cloud installed (update to see its version),"HKI 7 Cloud ir instalēts (atjauniniet, lai redzētu tā versiju)",don't translate HKI 7 Cloud

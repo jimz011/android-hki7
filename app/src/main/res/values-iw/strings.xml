@@ -2613,7 +2613,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">פעולה זו מסירה את פרטי הכניסה שלו, את פרטי הרישום לאפליקציה לנייד ואת לוחות המחוונים של HKI מהמכשיר הזה. שרת Home Assistant עצמו אינו משתנה.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">פעולה זו מסירה את האוטומציה המקורית מ-Home Assistant. לא ניתן לבטל זאת מ-HKI7.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">זה מסיר את לוח המחוונים המשותף מהענן עבור כולם. אנשים שמשתמשים בו כרגע חוזרים ללוח מחוונים שנוצר אוטומטית. לא נוגעים בעותקים המקומיים שלהם עד שהם פותחים את האפליקציה בפעם הבאה.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">זה פועל על תוסף Home Assistant קטן וחינמי (הרכיב HKI 7 Cloud). הוא עדיין לא נמצא ב-HACS כברירת מחדל, אז הוסף אותו כמאגר מותאם אישית - האפליקציה מטפלת בכל השאר.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">טופס קוד מקור זה כפוף לתנאי הרישיון הציבורי של Mozilla, v. 2.0. אם עותק של ה-MPL לא הופץ עם קובץ זה, תוכל להשיג אחד בכתובת mozilla.org/MPL/2.0/.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">בערימה הזו אין פריטים.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">זה נוסע עם לוח המחוונים, כך שגיבויי ענן ושיתוף משפחתי שומרים על זה.</string>
@@ -2835,9 +2834,9 @@
     <string name="car_action_sent">נשלח</string>
     <string name="car_action_failed">לא ניתן להגיע ל-Home Assistant</string>
     <string name="car_action_unavailable">לא זמין</string>
+    <string name="car_refresh">לְרַעֲנֵן</string>
     <string name="car_not_connected">לא מחובר לHome Assistant</string>
     <string name="car_no_quick_actions">עדיין אין פעולות מהירות</string>
-    <string name="car_refresh">לְרַעֲנֵן</string>
     <string name="family_permission_switch_dashboards">אפשר להחליף לוחות מחוונים</string>
     <string name="family_permission_switch_dashboards_subtitle">אפשר לאדם זה לטעון לוח מחוונים קיים אחר</string>
     <string name="family_permission_create_dashboards">אפשר יצירת לוחות מחוונים</string>
@@ -2953,9 +2952,9 @@
     <string name="settings_extra_ha_backups_load_failed">לא ניתן לטעון גיבויים של Home Assistant: %1$s</string>
     <string name="settings_extra_hide_tab">הסתר כרטיסייה</string>
     <string name="settings_extra_hki_cloud_step_add_integration">עבור אל הגדרות ← מכשירים ושירותים ← הוסף אינטגרציה, בחר "HKI 7 Cloud" ואשר.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">הדבק את %1$s, בחר בקטגוריית "אינטגרציה" והוסף אותה.</string>
-    <string name="settings_extra_hki_cloud_step_install">פתח את הערך החדש "HKI 7 Cloud", התקן אותו והפעל מחדש את Home Assistant.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">ב-Home Assistant, פתח את HACS → תפריט ⋮ בפינה השמאלית העליונה → מאגרים מותאמים אישית.</string>
+    <string name="settings_extra_hki_cloud_intro">זה פועל על תוסף קטן וחינמי Home Assistant (הרכיב HKI 7 Cloud), זמין בחנות HACS. התקן אותו פעם אחת והאפליקציה מטפלת בכל השאר.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">ב-Home Assistant, פתח את HACS וחפש את "HKI 7 Cloud".</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">התקן אותו ואז הפעל מחדש את Home Assistant.</string>
     <string name="settings_extra_hki_cloud_step_reopen">פתח מחדש את המסך הזה. התכונות יופיעו אוטומטית.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s מותקן</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud מותקן (עדכן כדי לראות את הגרסה שלו)</string>

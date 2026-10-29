@@ -2613,7 +2613,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">Spowoduje to usunięcie danych logowania, danych rejestracyjnych w aplikacji mobilnej i pulpitów nawigacyjnych HKI z tego urządzenia. Sam serwer Home Assistant nie ulega zmianie.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">Spowoduje to usunięcie natywnej automatyzacji z Home Assistant. Nie można tego cofnąć w HKI7.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">Spowoduje to usunięcie udostępnionego pulpitu nawigacyjnego z chmury dla wszystkich. Osoby aktualnie z niego korzystające wracają do automatycznie wygenerowanego dashboardu. Ich lokalne kopie nie są dotykane, dopóki nie otworzą aplikacji ponownie.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">Działa na małym, bezpłatnym dodatku Home Assistant (komponent HKI 7 Cloud). Domyślnie nie ma go jeszcze w systemie HACS, więc dodaj go jako repozytorium niestandardowe — aplikacja zajmie się wtedy wszystkim innym.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">Niniejszy formularz kodu źródłowego podlega warunkom licencji publicznej Mozilla, wersja 2.0. Jeśli kopia MPL nie była dystrybuowana z tym plikiem, możesz ją uzyskać pod adresem mozilla.org/MPL/2.0/.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">Ten stos nie zawiera żadnych przedmiotów.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">Jest on transportowany wraz z pulpitem nawigacyjnym, więc kopie zapasowe w chmurze i udostępnianie w rodzinie go zachowują.</string>
@@ -2835,9 +2834,9 @@
     <string name="car_action_sent">Wysłano</string>
     <string name="car_action_failed">Nie udało się połączyć z Home Assistant</string>
     <string name="car_action_unavailable">Niedostępne</string>
+    <string name="car_refresh">Odświeżać</string>
     <string name="car_not_connected">Brak połączenia z Home Assistant</string>
     <string name="car_no_quick_actions">Nie ma jeszcze szybkich działań</string>
-    <string name="car_refresh">Odświeżać</string>
     <string name="family_permission_switch_dashboards">Zezwalaj na przełączanie pulpitów nawigacyjnych</string>
     <string name="family_permission_switch_dashboards_subtitle">Pozwól tej osobie załadować inny istniejący pulpit nawigacyjny</string>
     <string name="family_permission_create_dashboards">Zezwalaj na tworzenie dashboardów</string>
@@ -2953,9 +2952,9 @@
     <string name="settings_extra_ha_backups_load_failed">Nie można załadować kopii zapasowych Home Assistant: %1$s</string>
     <string name="settings_extra_hide_tab">Ukryj kartę</string>
     <string name="settings_extra_hki_cloud_step_add_integration">Przejdź do Ustawienia → Urządzenia i usługi → Dodaj integrację, wybierz „HKI 7 Cloud” i potwierdź.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">Wklej %1$s, wybierz kategorię „Integracja” i dodaj ją.</string>
-    <string name="settings_extra_hki_cloud_step_install">Otwórz nowy wpis „HKI 7 Cloud”, zainstaluj go i uruchom ponownie Home Assistant.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">W Home Assistant otwórz HACS → menu ⋮ w prawym górnym rogu → Repozytoria niestandardowe.</string>
+    <string name="settings_extra_hki_cloud_intro">Działa na małym, bezpłatnym dodatku Home Assistant (komponent HKI 7 Cloud), dostępnym w sklepie HACS. Zainstaluj go raz, a aplikacja zajmie się całą resztą.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">W Home Assistant otwórz HACS i wyszukaj „HKI 7 Cloud”.</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Zainstaluj go, a następnie uruchom ponownie Home Assistant.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Otwórz ponownie ten ekran. Funkcje pojawią się automatycznie.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s zainstalowany</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud zainstalowany (zaktualizuj, aby zobaczyć jego wersję)</string>

@@ -63,9 +63,6 @@
     <string name="settings_extra_ha_backups_load_failed">No se pudieron cargar las copias de seguridad de Home Assistant: %1$s</string>
     <string name="settings_extra_hide_tab">Ocultar pestaña</string>
     <string name="settings_extra_hki_cloud_step_add_integration">Ve a Ajustes → Dispositivos y servicios → Añadir integración, selecciona «HKI 7 Cloud» y confirma.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">Pega %1$s, selecciona la categoría «Integración» y añade el repositorio.</string>
-    <string name="settings_extra_hki_cloud_step_install">Abre la nueva entrada «HKI 7 Cloud», instálala y reinicia Home Assistant.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">En Home Assistant, abre HACS → el menú ⋮ de la esquina superior derecha → Repositorios personalizados.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Vuelve a abrir esta pantalla. Las funciones aparecerán automáticamente.</string>
     <string name="settings_extra_location_allowed_always">Permitido siempre</string>
     <string name="settings_extra_location_allowed_foreground">Permitido solo mientras se usa la aplicación</string>

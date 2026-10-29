@@ -32,9 +32,8 @@ internal fun Hki7CloudInstallCard() {
     val appColors = LocalHKIAppColors.current
     val context = LocalContext.current
     val steps = listOf(
-        stringResource(R.string.settings_extra_hki_cloud_step_open_custom_repositories),
-        stringResource(R.string.settings_extra_hki_cloud_step_add_repository, HKI7_CLOUD_GITHUB_URL),
-        stringResource(R.string.settings_extra_hki_cloud_step_install),
+        stringResource(R.string.settings_extra_hki_cloud_step_search_hacs),
+        stringResource(R.string.settings_extra_hki_cloud_step_install_and_restart),
         stringResource(R.string.settings_extra_hki_cloud_step_add_integration),
         stringResource(R.string.settings_extra_hki_cloud_step_reopen)
     )
@@ -45,7 +44,7 @@ internal fun Hki7CloudInstallCard() {
     ) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
-                stringResource(R.string.ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3),
+                stringResource(R.string.settings_extra_hki_cloud_intro),
                 color = appColors.onMuted,
                 style = MaterialTheme.typography.bodySmall
             )

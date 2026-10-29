@@ -2824,7 +2824,6 @@ ui_this_removes_all_imported_security_entities_from_this_view_6443e5c,,This remo
 ui_this_removes_its_login_mobile_app_registration_details_and_69afc19,,"This removes its login, mobile-app registration details, and HKI dashboards from this device. The Home Assistant server itself is not changed.","이 기기의 로그인, 모바일 앱 등록 정보, HKI 대시보드가 제거됩니다. Home Assistant 서버 자체는 변경되지 않습니다.",don't translate Home Assistant
 ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a,,This removes the native automation from Home Assistant. This cannot be undone from HKI7.,이렇게 하면 Home Assistant에서 네이티브 자동화가 제거됩니다. HKI7에서는 이 작업을 실행 취소할 수 없습니다.,"don't translate Home Assistant, HKI7"
 ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c,,This removes the shared dashboard from the cloud for everyone. People currently using it fall back to an auto-generated dashboard. Their local copies aren't touched until they next open the app.,이 작업은 모든 사람의 클라우드에서 공유 대시보드를 제거합니다. 현재 사용 중인 사람은 자동 생성된 대시보드로 대체됩니다. 다음에 앱을 열기 전까지 로컬 복사본은 변경되지 않습니다.,
-ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3,,"This runs on a small, free Home Assistant add-on (the HKI 7 Cloud component). It isn't on HACS by default yet, so add it as a custom repository — the app then handles everything else.",이 기능은 작고 무료인 Home Assistant 애드온(HKI 7 Cloud 컴포넌트)에서 실행됩니다. 아직 기본적으로 HACS에 등록되어 있지 않으므로 사용자 지정 저장소로 추가하세요. 이후는 앱이 알아서 처리합니다.,"don't translate HKI 7 Cloud, Home Assistant"
 ui_this_source_code_form_is_subject_to_the_terms_c8e4e24,,"This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, you can obtain one at mozilla.org/MPL/2.0/.",이 소스 코드 형식은 Mozilla Public License v. 2.0의 조건이 적용됩니다. 이 파일과 함께 MPL 사본이 배포되지 않은 경우 mozilla.org/MPL/2.0/에서 확인할 수 있습니다.,
 ui_this_stack_has_no_items_0f92c8d,,This stack has no items.,이 스택에는 항목이 없습니다.,
 ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d,," This travels with the dashboard, so cloud backups and family sharing keep it.", 이는 대시보드와 함께 이동하므로 클라우드 백업 및 가족 공유에도 유지됩니다.,keep the space at the start/end
@@ -3048,9 +3047,9 @@ car_loading,,Loading,로드 중,
 car_action_sent,,Sent,전송된,
 car_action_failed,,Couldn't reach Home Assistant,Home Assistant에 연결할 수 없습니다.,don't translate Home Assistant
 car_action_unavailable,,Not available,사용할 수 없음,
+car_refresh,,Refresh,새로고침,
 car_not_connected,,Not connected to Home Assistant,Home Assistant에 연결되지 않음,don't translate Home Assistant
 car_no_quick_actions,,No quick actions yet,아직 빠른 작업이 없습니다.,
-car_refresh,,Refresh,새로고침,
 security_entity_count,one,%1$d entity,,needs translation; app fills in %1$d — keep them
 security_entity_count,other,%1$d entities,%1$d 엔터티,app fills in %1$d — keep them
 family_permission_switch_dashboards,,Allow switching dashboards,대시보드 전환 허용,
@@ -3168,9 +3167,9 @@ settings_extra_ha_backup_failed,,Home Assistant backup failed. Is the HKI 7 Clou
 settings_extra_ha_backups_load_failed,,Could not load Home Assistant backups: %1$s,홈어시스턴트 백업을 로드할 수 없습니다: %1$s,app fills in %1$s — keep them; don't translate Home Assistant
 settings_extra_hide_tab,,Hide tab,탭 숨기기,
 settings_extra_hki_cloud_step_add_integration,,"Go to Settings → Devices & Services → Add Integration, choose “HKI 7 Cloud,” and confirm.",설정 → 장치 및 서비스 → 통합 추가로 이동하여 “HKI 7 Cloud”를 선택한 후 확인하세요.,don't translate HKI 7 Cloud
-settings_extra_hki_cloud_step_add_repository,,"Paste %1$s, choose the “Integration” category, and add it.","%1$s을(를) 붙여넣고 ""통합"" 범주를 선택한 후 추가하세요.",app fills in %1$s — keep them
-settings_extra_hki_cloud_step_install,,"Open the new “HKI 7 Cloud” entry, install it, and restart Home Assistant.","새로운 ""HKI 7 Cloud"" 항목을 열고 설치한 후 홈어시스턴트를 다시 시작하세요.","don't translate HKI 7 Cloud, Home Assistant"
-settings_extra_hki_cloud_step_open_custom_repositories,,"In Home Assistant, open HACS → the ⋮ menu in the top-right → Custom repositories.",홈어시스턴트에서 HACS → 오른쪽 상단의 ⋮ 메뉴 → Custom repositories를 엽니다.,don't translate Home Assistant
+settings_extra_hki_cloud_intro,,"This runs on a small, free Home Assistant add-on (the HKI 7 Cloud component), available in the HACS store. Install it once and the app handles everything else.",이는 HACS 스토어에서 사용할 수 있는 작은 무료 Home Assistant 추가 기능(HKI 7 Cloud 구성 요소)에서 실행됩니다. 한 번 설치하면 앱이 나머지 모든 것을 처리합니다.,"don't translate HKI 7 Cloud, Home Assistant"
+settings_extra_hki_cloud_step_search_hacs,,"In Home Assistant, open HACS and search for “HKI 7 Cloud.”","Home Assistant에서 HACS를 열고 ""HKI 7 Cloud""을 검색합니다.","don't translate HKI 7 Cloud, Home Assistant"
+settings_extra_hki_cloud_step_install_and_restart,,"Install it, then restart Home Assistant.",설치한 다음 Home Assistant을 다시 시작하세요.,don't translate Home Assistant
 settings_extra_hki_cloud_step_reopen,,Reopen this screen. The features will appear automatically.,이 화면을 다시 엽니다. 기능이 자동으로 나타납니다.,
 settings_extra_hki_cloud_version,,HKI 7 Cloud v%1$s installed,HKI 7 Cloud v%1$s 설치됨,app fills in %1$s — keep them; don't translate HKI 7 Cloud
 settings_extra_hki_cloud_version_unknown,,HKI 7 Cloud installed (update to see its version),HKI 7 Cloud 설치됨(버전을 보려면 업데이트하세요),don't translate HKI 7 Cloud

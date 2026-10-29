@@ -2613,7 +2613,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">Αυτό καταργεί τα στοιχεία σύνδεσής του, τα στοιχεία εγγραφής σε εφαρμογές για κινητά και τους πίνακες εργαλείων HKI από αυτήν τη συσκευή. Ο ίδιος ο διακομιστής Home Assistant δεν έχει αλλάξει.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">Αυτό καταργεί τον εγγενή αυτοματισμό από Home Assistant. Αυτό δεν μπορεί να αναιρεθεί από HKI7.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">Αυτό αφαιρεί τον κοινόχρηστο πίνακα ελέγχου από το cloud για όλους. Τα άτομα που το χρησιμοποιούν αυτήν τη στιγμή επιστρέφουν σε έναν πίνακα εργαλείων που δημιουργείται αυτόματα. Τα τοπικά τους αντίγραφα δεν αγγίζονται μέχρι να ανοίξουν στη συνέχεια την εφαρμογή.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">Αυτό εκτελείται σε ένα μικρό, δωρεάν πρόσθετο Home Assistant (το στοιχείο HKI 7 Cloud). Δεν είναι ακόμη στο HACS από προεπιλογή, επομένως προσθέστε το ως προσαρμοσμένο αποθετήριο — η εφαρμογή χειρίζεται στη συνέχεια όλα τα άλλα.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">Αυτή η φόρμα πηγαίου κώδικα υπόκειται στους όρους της δημόσιας άδειας Mozilla, έκδοση 2.0. Εάν ένα αντίγραφο του MPL δεν διανεμήθηκε με αυτό το αρχείο, μπορείτε να αποκτήσετε ένα στη διεύθυνση mozilla.org/MPL/2.0/.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">Αυτή η στοίβα δεν έχει στοιχεία.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">Αυτό ταξιδεύει με τον πίνακα εργαλείων, επομένως τα αντίγραφα ασφαλείας στο cloud και η κοινή χρήση της οικογένειας το διατηρούν.</string>
@@ -2835,9 +2834,9 @@
     <string name="car_action_sent">Στάλθηκε</string>
     <string name="car_action_failed">Δεν ήταν δυνατή η πρόσβαση στο Home Assistant</string>
     <string name="car_action_unavailable">Μη διαθέσιμο</string>
+    <string name="car_refresh">Φρεσκάρω</string>
     <string name="car_not_connected">Δεν είναι συνδεδεμένο στο Home Assistant</string>
     <string name="car_no_quick_actions">Δεν υπάρχουν ακόμη γρήγορες ενέργειες</string>
-    <string name="car_refresh">Φρεσκάρω</string>
     <string name="family_permission_switch_dashboards">Να επιτρέπεται η εναλλαγή των πινάκων εργαλείων</string>
     <string name="family_permission_switch_dashboards_subtitle">Αφήστε αυτό το άτομο να φορτώσει έναν άλλο υπάρχοντα πίνακα ελέγχου</string>
     <string name="family_permission_create_dashboards">Να επιτρέπεται η δημιουργία πινάκων εργαλείων</string>
@@ -2953,9 +2952,9 @@
     <string name="settings_extra_ha_backups_load_failed">Δεν ήταν δυνατή η φόρτωση των αντιγράφων ασφαλείας Home Assistant: %1$s</string>
     <string name="settings_extra_hide_tab">Απόκρυψη καρτέλας</string>
     <string name="settings_extra_hki_cloud_step_add_integration">Μεταβείτε στις Ρυθμίσεις → Συσκευές και υπηρεσίες → Προσθήκη ενοποίησης, επιλέξτε «HKI 7 Cloud» και επιβεβαιώστε.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">Επικολλήστε %1$s, επιλέξτε την κατηγορία "Integration" και προσθέστε την.</string>
-    <string name="settings_extra_hki_cloud_step_install">Ανοίξτε τη νέα καταχώρηση "HKI 7 Cloud", εγκαταστήστε την και επανεκκινήστε το Home Assistant.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">Στο Home Assistant, ανοίξτε το HACS → το μενού ⋮ στην επάνω δεξιά γωνία → Προσαρμοσμένα αποθετήρια.</string>
+    <string name="settings_extra_hki_cloud_intro">Αυτό εκτελείται με ένα μικρό, δωρεάν πρόσθετο Home Assistant (το στοιχείο HKI 7 Cloud), διαθέσιμο στο κατάστημα HACS. Εγκαταστήστε το μία φορά και η εφαρμογή χειρίζεται όλα τα άλλα.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">Στο Home Assistant, ανοίξτε το HACS και αναζητήστε "HKI 7 Cloud."</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Εγκαταστήστε το και, στη συνέχεια, επανεκκινήστε το Home Assistant.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Ανοίξτε ξανά αυτήν την οθόνη. Τα χαρακτηριστικά θα εμφανιστούν αυτόματα.</string>
     <string name="settings_extra_hki_cloud_version">Εγκαταστάθηκε HKI 7 Cloud v%1$s</string>
     <string name="settings_extra_hki_cloud_version_unknown">Εγκατεστημένο HKI 7 Cloud (ενημέρωση για να δείτε την έκδοσή του)</string>

@@ -2824,7 +2824,6 @@ ui_this_removes_all_imported_security_entities_from_this_view_6443e5c,,This remo
 ui_this_removes_its_login_mobile_app_registration_details_and_69afc19,,"This removes its login, mobile-app registration details, and HKI dashboards from this device. The Home Assistant server itself is not changed.",這將從此裝置移除其登入資訊、行動應用程式註冊詳細資料與 HKI 儀表板。Home Assistant 伺服器本身不會受到影響。,don't translate Home Assistant
 ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a,,This removes the native automation from Home Assistant. This cannot be undone from HKI7.,這將從 Home Assistant 中移除此原生自動化。此操作無法在 HKI7 中復原。,"don't translate Home Assistant, HKI7"
 ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c,,This removes the shared dashboard from the cloud for everyone. People currently using it fall back to an auto-generated dashboard. Their local copies aren't touched until they next open the app.,這將為所有人從雲端移除此已分享儀表板。目前使用此儀表板的成員將改用自動產生的儀表板。他們的本機複本在下次開啟應用程式前不會受到影響。,
-ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3,,"This runs on a small, free Home Assistant add-on (the HKI 7 Cloud component). It isn't on HACS by default yet, so add it as a custom repository — the app then handles everything else.",此功能執行於小型免費的 Home Assistant 附加元件（HKI 7 Cloud 元件）上。目前尚未預設列於 HACS 中，因此請將其新增為自訂儲存庫——之後應用程式會自動處理其餘設定。,"don't translate HKI 7 Cloud, Home Assistant"
 ui_this_source_code_form_is_subject_to_the_terms_c8e4e24,,"This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, you can obtain one at mozilla.org/MPL/2.0/.",此原始碼表單受 Mozilla 公共授權條款 2.0 版之條款約束。若本檔案未隨附 MPL 副本，您可於 mozilla.org/MPL/2.0/ 取得。,
 ui_this_stack_has_no_items_0f92c8d,,This stack has no items.,此堆疊沒有項目。,
 ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d,," This travels with the dashboard, so cloud backups and family sharing keep it.", 此設定會隨儀表板一起保存，因此雲端備份與家庭共享都會保留它。,keep the space at the start/end
@@ -3048,9 +3047,9 @@ car_loading,,Loading,載入中,
 car_action_sent,,Sent,傳送,
 car_action_failed,,Couldn't reach Home Assistant,無法聯繫 Home Assistant,don't translate Home Assistant
 car_action_unavailable,,Not available,無法使用,
+car_refresh,,Refresh,重新整理,
 car_not_connected,,Not connected to Home Assistant,未連接到 Home Assistant,don't translate Home Assistant
 car_no_quick_actions,,No quick actions yet,尚無快速行動,
-car_refresh,,Refresh,重新整理,
 security_entity_count,one,%1$d entity,%1$d 個實體,app fills in %1$d — keep them
 security_entity_count,other,%1$d entities,%1$d 個實體,app fills in %1$d — keep them
 family_permission_switch_dashboards,,Allow switching dashboards,允許切換儀表板,
@@ -3168,9 +3167,9 @@ settings_extra_ha_backup_failed,,Home Assistant backup failed. Is the HKI 7 Clou
 settings_extra_ha_backups_load_failed,,Could not load Home Assistant backups: %1$s,無法載入 Home Assistant 備份：%1$s,app fills in %1$s — keep them; don't translate Home Assistant
 settings_extra_hide_tab,,Hide tab,隱藏分頁,
 settings_extra_hki_cloud_step_add_integration,,"Go to Settings → Devices & Services → Add Integration, choose “HKI 7 Cloud,” and confirm.",前往「設定 → 裝置與服務 → 新增整合」，選擇「HKI 7 Cloud」，然後確認。,don't translate HKI 7 Cloud
-settings_extra_hki_cloud_step_add_repository,,"Paste %1$s, choose the “Integration” category, and add it.",貼上 %1$s，選擇「整合」類別，然後新增。,app fills in %1$s — keep them
-settings_extra_hki_cloud_step_install,,"Open the new “HKI 7 Cloud” entry, install it, and restart Home Assistant.",開啟新的「HKI 7 Cloud」項目，安裝後重新啟動 Home Assistant。,"don't translate HKI 7 Cloud, Home Assistant"
-settings_extra_hki_cloud_step_open_custom_repositories,,"In Home Assistant, open HACS → the ⋮ menu in the top-right → Custom repositories.",在 Home Assistant 中，開啟 HACS → 右上角的 ⋮ 選單 → 自訂儲存庫。,don't translate Home Assistant
+settings_extra_hki_cloud_intro,,"This runs on a small, free Home Assistant add-on (the HKI 7 Cloud component), available in the HACS store. Install it once and the app handles everything else.",它運行在一個小型的免費 Home Assistant 附加元件（HKI 7 Cloud 元件）上，可在 HACS 商店中找到。安裝一次，應用程式就會處理其他一切。,"don't translate HKI 7 Cloud, Home Assistant"
+settings_extra_hki_cloud_step_search_hacs,,"In Home Assistant, open HACS and search for “HKI 7 Cloud.”",在 Home Assistant 中，開啟 HACS 並蒐索「HKI 7 Cloud」。,"don't translate HKI 7 Cloud, Home Assistant"
+settings_extra_hki_cloud_step_install_and_restart,,"Install it, then restart Home Assistant.",安裝它，然後重新啟動 Home Assistant。,don't translate Home Assistant
 settings_extra_hki_cloud_step_reopen,,Reopen this screen. The features will appear automatically.,重新開啟此畫面，功能將自動出現。,
 settings_extra_hki_cloud_version,,HKI 7 Cloud v%1$s installed,已安裝 HKI 7 Cloud v%1$s,app fills in %1$s — keep them; don't translate HKI 7 Cloud
 settings_extra_hki_cloud_version_unknown,,HKI 7 Cloud installed (update to see its version),已安裝 HKI 7 Cloud（更新以查看其版本）,don't translate HKI 7 Cloud

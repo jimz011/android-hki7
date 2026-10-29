@@ -1557,7 +1557,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">Esto elimina su inicio de sesión, los datos de registro de la aplicación móvil y los paneles HKI de este dispositivo. El servidor de Home Assistant en sí no se modifica.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">Esto elimina la automatización nativa de Home Assistant. No se puede deshacer desde HKI7.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">Esto elimina el panel compartido de la nube para todos. Las personas que lo usan actualmente vuelven a un panel generado automáticamente. Sus copias locales no se modifican hasta que vuelvan a abrir la aplicación.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">Esto se ejecuta en un complemento pequeño y gratuito de Home Assistant (el componente HKI 7 Cloud). Aún no está en HACS de forma predeterminada, así que agrégalo como repositorio personalizado; la aplicación se encarga del resto.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">Este formulario de código fuente está sujeto a los términos de la Licencia Pública de Mozilla, v. 2.0. Si no se distribuyó una copia de la MPL con este archivo, puedes obtener una en mozilla.org/MPL/2.0/.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">Esta pila no tiene elementos.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d"> Esto viaja con el panel, así que las copias de seguridad en la nube y el uso compartido familiar lo conservan.</string>
@@ -2933,9 +2932,6 @@
     <string name="settings_extra_ha_backups_load_failed">No se pudieron cargar las copias de seguridad de Home Assistant: %1$s</string>
     <string name="settings_extra_hide_tab">Ocultar pestaña</string>
     <string name="settings_extra_hki_cloud_step_add_integration">Ve a Configuración → Dispositivos y servicios → Agregar integración, elige “HKI 7 Cloud” y confirma.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">Pega %1$s, elige la categoría “Integración” y agrégalo.</string>
-    <string name="settings_extra_hki_cloud_step_install">Abre la nueva entrada “HKI 7 Cloud”, instálala y reinicia Home Assistant.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">En Home Assistant, abre HACS → el menú ⋮ arriba a la derecha → Repositorios personalizados.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Vuelve a abrir esta pantalla. Las funciones aparecerán automáticamente.</string>
     <plurals name="settings_extra_hours_ago">
         <item quantity="one">Hace %1$d hora</item>
@@ -4147,10 +4143,13 @@
     <string name="tidyshop_requirement_app">La app TidyShop, en el teléfono de quien lleva las listas familiares. Allí se hacen listas e invitaciones; HKI 7 los muestra y los marca. TidyShop se encuentra en pruebas cerradas en Google Play.</string>
     <string name="tidyshop_requirement_connector">El conector TidyShop, que se ejecuta en un servidor de su propiedad (Docker o Unraid) y al que se puede acceder desde este teléfono. Contiene las listas compartidas de la familia; no existe la nube de TidyShop.</string>
     <string name="tidyshop_requirements_title">lo que necesitas</string>
-    <string name="car_no_quick_actions">Aún no hay acciones rápidas</string>
-    <string name="car_not_connected">No conectado a Home Assistant</string>
     <string name="tidyshop_step_connect">3. Ingrese la dirección del conector y el código a continuación.</string>
     <string name="tidyshop_step_install">1. Instale el conector y apunte TidyShop hacia él, siguiendo la guía de instalación.</string>
     <string name="tidyshop_step_invite">2. En TidyShop, invita a esta persona a la familia o crea un código de dispositivo si ya usas TidyShop.</string>
     <string name="tidyshop_steps_title">Cómo conectarse</string>
+    <string name="car_no_quick_actions">Aún no hay acciones rápidas</string>
+    <string name="car_not_connected">No conectado a Home Assistant</string>
+    <string name="settings_extra_hki_cloud_intro">Esto se ejecuta en un complemento pequeño y gratuito Home Assistant (el componente HKI 7 Cloud), disponible en la tienda HACS. Instálalo una vez y la aplicación se encargará de todo lo demás.</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Instálelo y luego reinicie Home Assistant.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">En Home Assistant, abra HACS y busque "HKI 7 Cloud".</string>
 </resources>

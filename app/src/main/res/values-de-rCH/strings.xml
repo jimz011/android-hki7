@@ -1524,7 +1524,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">Dadurch werden die Anmeldedaten, die Registrierungsdaten für mobile Apps und die HKI-Dashboards von diesem Gerät entfernt. Der Home Assistant-Server selbst wird nicht verändert.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">Dadurch wird die native Automatisierung von Home Assistant entfernt. Dies kann von HKI7 aus nicht rückgängig gemacht werden.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">Dadurch wird das gemeinsame Dashboard für alle aus der Cloud entfernt. Benutzer, die es derzeit verwenden, greifen auf ein automatisch generiertes Dashboard zurück. Ihre lokalen Kopien werden nicht berührt, bis sie die App das nächste Mal öffnen.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">Dies läuft auf einem kleinen, kostenlosen Home Assistant-Add-on (der HKI 7 Cloud-Komponente). Es ist noch nicht standardmässig in HACS enthalten, also fügen Sie es als benutzerdefiniertes Repository hinzu – die App kümmert sich dann um alles andere.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">Dieses Quellcodeformular unterliegt den Bedingungen der Mozilla Public License, Version 2.0. Wenn mit dieser Datei keine Kopie der MPL verteilt wurde, können Sie eine unter mozilla.org/MPL/2.0/ erhalten.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">Dieser Stapel enthält keine Gegenstände.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">Dies wird mit dem Dashboard übertragen, sodass Cloud-Backups und Familienfreigaben es behalten.</string>
@@ -1714,9 +1713,9 @@
     <string name="car_action_sent">Gesendet</string>
     <string name="car_action_failed">Home Assistant konnte nicht erreicht werden</string>
     <string name="car_action_unavailable">Nicht verfügbar</string>
+    <string name="car_refresh">Aktualisieren</string>
     <string name="car_not_connected">Nicht mit Home Assistant verbunden</string>
     <string name="car_no_quick_actions">Noch keine schnellen Massnahmen</string>
-    <string name="car_refresh">Aktualisieren</string>
     <string name="family_access_manage">Zugriff verwalten</string>
     <string name="family_access_title">Wer kann %1$s sehen?</string>
     <string name="family_access_description">Personen hinzufügen oder entfernen. Jeder, den Sie entfernen, verliert dieses Dashboard, wenn seine App das nächste Mal synchronisiert wird.</string>
@@ -1762,6 +1761,9 @@
     <string name="settings_extra_dashboard_shared_badge">Geteilt</string>
     <string name="settings_extra_dashboard_shared_subtitle">Von Ihrer Familie mit Ihnen geteilt. Zum Laden tippen</string>
     <string name="settings_extra_dashboard_shared_loaded">Von Ihrer Familie mit Ihnen geteilt. Derzeit geladen</string>
+    <string name="settings_extra_hki_cloud_intro">Dies läuft auf einem kleinen, kostenlosen Add-on Home Assistant (der Komponente HKI 7 Cloud), das im HACS-Store verfügbar ist. Installieren Sie es einmal und die App erledigt alles andere.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">Öffnen Sie in Home Assistant HACS und suchen Sie nach „HKI 7 Cloud“.</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Installieren Sie es und starten Sie dann Home Assistant neu.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s installiert</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud installiert (aktualisieren, um die Version anzuzeigen)</string>
     <string name="settings_extra_hki_cloud_update_to_unlock">Update zum Entsperren:</string>

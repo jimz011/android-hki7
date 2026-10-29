@@ -2613,7 +2613,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">Tämä poistaa sen kirjautumistiedot, mobiilisovelluksen rekisteröintitiedot ja HKI-hallintapaneelit tältä laitteelta. Itse Home Assistant -palvelinta ei muuteta.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">Tämä poistaa alkuperäisen automaation Home Assistantista. Tätä ei voi kumota HKI7:stä.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">Tämä poistaa jaetun hallintapaneelin pilvestä kaikilta. Sitä tällä hetkellä käyttävät ihmiset palaavat automaattisesti luotuun kojelautaan. Heidän paikallisiin kopioihin ei kosketa ennen kuin he seuraavan kerran avaavat sovelluksen.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">Tämä toimii pienellä, ilmaisella Home Assistant -lisäosalla (HKI 7 Cloud -komponentti). Se ei ole vielä oletuksena HACSissa, joten lisää se mukautetuksi arkistoksi – sovellus hoitaa sitten kaiken muun.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">Tämä lähdekoodilomake on Mozilla Public License -lisenssin v. 2.0 ehtojen alainen. Jos MPL-kopiota ei jaettu tämän tiedoston mukana, voit hankkia sellaisen osoitteesta mozilla.org/MPL/2.0/.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">Tässä pinossa ei ole kohteita.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">Tämä kulkee kojelaudan mukana, joten pilvivarmuuskopiot ja perheen jakaminen pitävät sen.</string>
@@ -2835,9 +2834,9 @@
     <string name="car_action_sent">Lähetetty</string>
     <string name="car_action_failed">Ei saatu yhteyttä Home Assistant</string>
     <string name="car_action_unavailable">Ei saatavilla</string>
+    <string name="car_refresh">Päivitä</string>
     <string name="car_not_connected">Ei yhdistetty Home Assistant</string>
     <string name="car_no_quick_actions">Ei vielä nopeita toimia</string>
-    <string name="car_refresh">Päivitä</string>
     <string name="family_permission_switch_dashboards">Salli kojelaudan vaihtaminen</string>
     <string name="family_permission_switch_dashboards_subtitle">Anna tämän henkilön ladata toinen olemassa oleva hallintapaneeli</string>
     <string name="family_permission_create_dashboards">Salli hallintapaneelien luominen</string>
@@ -2953,9 +2952,9 @@
     <string name="settings_extra_ha_backups_load_failed">Home Assistantin varmuuskopioita ei voitu ladata: %1$s</string>
     <string name="settings_extra_hide_tab">Piilota välilehti</string>
     <string name="settings_extra_hki_cloud_step_add_integration">Siirry kohtaan Asetukset → Laitteet ja palvelut → Lisää integrointi, valitse "HKI 7 Cloud" ja vahvista.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">Liitä %1$s, valitse "Integraatio"-luokka ja lisää se.</string>
-    <string name="settings_extra_hki_cloud_step_install">Avaa uusi "HKI 7 Cloud" -merkintä, asenna se ja käynnistä Home Assistant uudelleen.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">Avaa Home Assistantissa HACS → oikeassa yläkulmassa oleva ⋮-valikko → Mukautetut arkistot.</string>
+    <string name="settings_extra_hki_cloud_intro">Tämä toimii pienellä, ilmaisella Home Assistant-lisäosalla (komponentti HKI 7 Cloud), joka on saatavilla HACS-kaupasta. Asenna se kerran ja sovellus hoitaa kaiken muun.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">Avaa HACS:ssa Home Assistant ja hae "HKI 7 Cloud".</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Asenna se ja käynnistä sitten uudelleen Home Assistant.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Avaa tämä näyttö uudelleen. Ominaisuudet tulevat näkyviin automaattisesti.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s asennettu</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud asennettu (päivitä nähdäksesi sen version)</string>

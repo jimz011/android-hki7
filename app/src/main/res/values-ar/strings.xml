@@ -2613,7 +2613,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">يؤدي هذا إلى إزالة تسجيل الدخول وتفاصيل تسجيل تطبيق الهاتف المحمول ولوحات معلومات HKI من هذا الجهاز. لم يتم تغيير خادم Home Assistant نفسه.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">يؤدي هذا إلى إزالة الأتمتة الأصلية من Home Assistant. لا يمكن التراجع عن هذا من HKI7.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">يؤدي هذا إلى إزالة لوحة المعلومات المشتركة من السحابة للجميع. يعود الأشخاص الذين يستخدمونه حاليًا إلى لوحة التحكم التي تم إنشاؤها تلقائيًا. ولا يتم لمس نسخهم المحلية حتى يفتحوا التطبيق في المرة التالية.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">يعمل هذا على وظيفة إضافية صغيرة مجانية لـ Home Assistant (مكون HKI 7 Cloud). إنه ليس موجودًا على HACS بشكل افتراضي حتى الآن، لذا قم بإضافته كمستودع مخصص - ثم يتعامل التطبيق مع كل شيء آخر.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">يخضع نموذج كود المصدر هذا لشروط ترخيص Mozilla العام، الإصدار 2.0. إذا لم يتم توزيع نسخة من MPL مع هذا الملف، فيمكنك الحصول على واحدة على mozilla.org/MPL/2.0/.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">لا تحتوي هذه المكدس على أي عناصر.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">ينتقل هذا مع لوحة المعلومات، لذلك تحتفظ به النسخ الاحتياطية السحابية والمشاركة العائلية.</string>
@@ -2835,9 +2834,9 @@
     <string name="car_action_sent">مرسل</string>
     <string name="car_action_failed">تعذر الوصول إلى Home Assistant</string>
     <string name="car_action_unavailable">غير متوفر</string>
+    <string name="car_refresh">ينعش</string>
     <string name="car_not_connected">غير متصل بـ Home Assistant</string>
     <string name="car_no_quick_actions">لا توجد إجراءات سريعة حتى الآن</string>
-    <string name="car_refresh">ينعش</string>
     <string name="family_permission_switch_dashboards">السماح بتبديل لوحات المعلومات</string>
     <string name="family_permission_switch_dashboards_subtitle">اسمح لهذا الشخص بتحميل لوحة معلومات أخرى موجودة</string>
     <string name="family_permission_create_dashboards">السماح بإنشاء لوحات المعلومات</string>
@@ -2953,9 +2952,9 @@
     <string name="settings_extra_ha_backups_load_failed">تعذر تحميل النسخ الاحتياطية لـ Home Assistant: %1$s</string>
     <string name="settings_extra_hide_tab">إخفاء علامة التبويب</string>
     <string name="settings_extra_hki_cloud_step_add_integration">انتقل إلى الإعدادات ← الأجهزة والخدمات ← إضافة تكامل، واختر "HKI 7 Cloud"، وأكد ذلك.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">الصق %1$s، واختر فئة "التكامل"، وأضفها.</string>
-    <string name="settings_extra_hki_cloud_step_install">افتح إدخال "HKI 7 Cloud" الجديد، وقم بتثبيته، وأعد تشغيل Home Assistant.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">في Home Assistant، افتح HACS ← القائمة ⋮ في الجزء العلوي الأيمن ← المستودعات المخصصة.</string>
+    <string name="settings_extra_hki_cloud_intro">يعمل هذا على وظيفة إضافية صغيرة مجانية Home Assistant (مكون HKI 7 Cloud)، متوفر في متجر HACS. قم بتثبيته مرة واحدة وسيتعامل التطبيق مع كل شيء آخر.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">في Home Assistant، افتح HACS وابحث عن "HKI 7 Cloud."</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">قم بتثبيته ثم أعد تشغيل Home Assistant.</string>
     <string name="settings_extra_hki_cloud_step_reopen">أعد فتح هذه الشاشة. سوف تظهر الميزات تلقائيا.</string>
     <string name="settings_extra_hki_cloud_version">تم تثبيت HKI 7 Cloud v%1$s</string>
     <string name="settings_extra_hki_cloud_version_unknown">تم تثبيت HKI 7 Cloud (قم بالتحديث لرؤية نسخته)</string>

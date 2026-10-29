@@ -2613,7 +2613,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">การดำเนินการนี้จะลบการเข้าสู่ระบบ รายละเอียดการลงทะเบียนแอปบนอุปกรณ์เคลื่อนที่ และแดชบอร์ด HKI ออกจากอุปกรณ์นี้ เซิร์ฟเวอร์ Home Assistant เองไม่มีการเปลี่ยนแปลง</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">วิธีนี้จะลบการทำงานอัตโนมัติดั้งเดิมออกจาก Home Assistant การดำเนินการนี้ไม่สามารถยกเลิกได้จาก HKI7</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">การดำเนินการนี้จะลบแดชบอร์ดที่แชร์ออกจากระบบคลาวด์สำหรับทุกคน ผู้ที่ใช้งานอยู่ในปัจจุบันจะกลับไปใช้แดชบอร์ดที่สร้างขึ้นโดยอัตโนมัติ สำเนาในเครื่องของพวกเขาจะไม่ถูกแตะต้องจนกว่าพวกเขาจะเปิดแอปครั้งถัดไป</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">สิ่งนี้ทำงานบนโปรแกรมเสริม Home Assistant ขนาดเล็กฟรี (ส่วนประกอบ HKI 7 Cloud) โดยค่าเริ่มต้นยังไม่อยู่ใน HACS ดังนั้นให้เพิ่มเป็นพื้นที่เก็บข้อมูลที่กำหนดเอง จากนั้นแอปจะจัดการทุกอย่างที่เหลือ</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">แบบฟอร์มซอร์สโค้ดนี้อยู่ภายใต้เงื่อนไขของ Mozilla Public License v. 2.0 หากไม่มีการแจกจ่ายสำเนาของ MPL กับไฟล์นี้ คุณสามารถขอรับได้ที่ mozilla.org/MPL/2.0/</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">กองนี้ไม่มีรายการ</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">สิ่งนี้เดินทางไปพร้อมกับแดชบอร์ด ดังนั้นการสำรองข้อมูลบนคลาวด์และการแชร์ในครอบครัวจะเก็บไว้</string>
@@ -2835,9 +2834,9 @@
     <string name="car_action_sent">ส่งแล้ว</string>
     <string name="car_action_failed">ไม่สามารถเข้าถึง Home Assistant</string>
     <string name="car_action_unavailable">ไม่สามารถใช้ได้</string>
+    <string name="car_refresh">รีเฟรช</string>
     <string name="car_not_connected">ไม่ได้เชื่อมต่อกับ Home Assistant</string>
     <string name="car_no_quick_actions">ยังไม่มีการดำเนินการด่วน</string>
-    <string name="car_refresh">รีเฟรช</string>
     <string name="family_permission_switch_dashboards">อนุญาตให้สลับแดชบอร์ด</string>
     <string name="family_permission_switch_dashboards_subtitle">อนุญาตให้บุคคลนี้โหลดแดชบอร์ดอื่นที่มีอยู่</string>
     <string name="family_permission_create_dashboards">อนุญาตให้สร้างแดชบอร์ด</string>
@@ -2953,9 +2952,9 @@
     <string name="settings_extra_ha_backups_load_failed">ไม่สามารถโหลดข้อมูลสำรอง Home Assistant: %1$s</string>
     <string name="settings_extra_hide_tab">ซ่อนแท็บ</string>
     <string name="settings_extra_hki_cloud_step_add_integration">ไปที่การตั้งค่า → อุปกรณ์และบริการ → เพิ่มการรวมระบบ เลือก “HKI 7 Cloud” และยืนยัน</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">วาง %1$s เลือกหมวดหมู่ "บูรณาการ" และเพิ่ม</string>
-    <string name="settings_extra_hki_cloud_step_install">เปิดรายการ “HKI 7 Cloud” ใหม่ ติดตั้งและรีสตาร์ท Home Assistant</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">ใน Home Assistant ให้เปิด HACS → เมนู ⋮ ที่มุมขวาบน → ที่เก็บแบบกำหนดเอง</string>
+    <string name="settings_extra_hki_cloud_intro">สิ่งนี้ทำงานบนโปรแกรมเสริม Home Assistant ขนาดเล็กฟรี (ส่วนประกอบ HKI 7 Cloud) ซึ่งมีอยู่ในร้านค้า HACS ติดตั้งเพียงครั้งเดียวและแอปจะจัดการทุกอย่าง</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">ใน Home Assistant ให้เปิด HACS และค้นหา “HKI 7 Cloud”</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">ติดตั้งแล้วรีสตาร์ท Home Assistant</string>
     <string name="settings_extra_hki_cloud_step_reopen">เปิดหน้าจอนี้อีกครั้ง คุณสมบัติจะปรากฏขึ้นโดยอัตโนมัติ</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s ติดตั้งแล้ว</string>
     <string name="settings_extra_hki_cloud_version_unknown">ติดตั้ง HKI 7 Cloud แล้ว (อัปเดตเพื่อดูเวอร์ชัน)</string>

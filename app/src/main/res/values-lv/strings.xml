@@ -2613,7 +2613,6 @@
     <string name="ui_this_removes_its_login_mobile_app_registration_details_and_69afc19">Tādējādi no šīs ierīces tiek noņemta pieteikšanās, mobilās lietotnes reģistrācijas informācija un HKI informācijas paneļi. Pats Home Assistant serveris nav mainīts.</string>
     <string name="ui_this_removes_the_native_automation_from_home_assistant_thi_2a48e1a">Tādējādi tiek noņemta vietējā automatizācija no Home Assistant. Šo darbību nevar atsaukt no HKI7.</string>
     <string name="ui_this_removes_the_shared_dashboard_from_the_cloud_for_4bab01c">Tādējādi visiem tiek noņemts koplietotais informācijas panelis no mākoņa. Cilvēki, kas to pašlaik izmanto, atgriežas pie automātiski ģenerētā informācijas paneļa. Viņu vietējās kopijas netiek aizskartas, līdz tās nākamreiz atver lietotni.</string>
-    <string name="ui_this_runs_on_a_small_free_home_assistant_add_f46f2e3">Tas darbojas ar nelielu, bezmaksas Home Assistant papildinājumu (komponents HKI 7 Cloud). Pēc noklusējuma tas vēl nav pieejams HACS, tāpēc pievienojiet to kā pielāgotu repozitoriju — lietotne pēc tam apstrādā visu pārējo.</string>
     <string name="ui_this_source_code_form_is_subject_to_the_terms_c8e4e24">Uz šo avota koda veidlapu attiecas Mozilla publiskās licences (v. 2.0) noteikumi. Ja MPL kopija netika izplatīta kopā ar šo failu, varat to iegūt vietnē mozilla.org/MPL/2.0/.</string>
     <string name="ui_this_stack_has_no_items_0f92c8d">Šajā kaudzē nav vienumu.</string>
     <string name="ui_this_travels_with_the_dashboard_so_cloud_backups_and_1dd603d">Tas tiek pārvietots kopā ar informācijas paneli, tāpēc mākoņa dublējumkopijas un ģimenes koplietošana to saglabā.</string>
@@ -2835,9 +2834,9 @@
     <string name="car_action_sent">Nosūtīts</string>
     <string name="car_action_failed">Nevarēja sasniegt Home Assistant</string>
     <string name="car_action_unavailable">Nav pieejams</string>
+    <string name="car_refresh">Atsvaidzināt</string>
     <string name="car_not_connected">Nav savienots ar Home Assistant</string>
     <string name="car_no_quick_actions">Ātru darbību vēl nav</string>
-    <string name="car_refresh">Atsvaidzināt</string>
     <string name="family_permission_switch_dashboards">Atļaut pārslēgt informācijas paneļus</string>
     <string name="family_permission_switch_dashboards_subtitle">Ļaujiet šai personai ielādēt citu esošu informācijas paneli</string>
     <string name="family_permission_create_dashboards">Atļaut izveidot informācijas paneļus</string>
@@ -2953,9 +2952,9 @@
     <string name="settings_extra_ha_backups_load_failed">Nevarēja ielādēt Home Assistant dublējumus: %1$s</string>
     <string name="settings_extra_hide_tab">Paslēpt cilni</string>
     <string name="settings_extra_hki_cloud_step_add_integration">Atveriet sadaļu Iestatījumi → Ierīces un pakalpojumi → Pievienot integrāciju, izvēlieties “HKI 7 Cloud” un apstipriniet.</string>
-    <string name="settings_extra_hki_cloud_step_add_repository">Ielīmējiet %1$s, izvēlieties kategoriju “Integrācija” un pievienojiet to.</string>
-    <string name="settings_extra_hki_cloud_step_install">Atveriet jauno ierakstu “HKI 7 Cloud”, instalējiet to un restartējiet Home Assistant.</string>
-    <string name="settings_extra_hki_cloud_step_open_custom_repositories">Programmā Home Assistant atveriet HACS → augšējā labajā stūrī izvēlni ⋮ → Pielāgotas krātuves.</string>
+    <string name="settings_extra_hki_cloud_intro">Tas darbojas ar nelielu, bezmaksas Home Assistant papildinājumu (komponents HKI 7 Cloud), kas pieejams HACS veikalā. Instalējiet to vienreiz, un lietotne apstrādā visu pārējo.</string>
+    <string name="settings_extra_hki_cloud_step_search_hacs">Sadaļā Home Assistant atveriet HACS un meklējiet “HKI 7 Cloud”.</string>
+    <string name="settings_extra_hki_cloud_step_install_and_restart">Instalējiet to, pēc tam restartējiet Home Assistant.</string>
     <string name="settings_extra_hki_cloud_step_reopen">Atkārtoti atveriet šo ekrānu. Funkcijas parādīsies automātiski.</string>
     <string name="settings_extra_hki_cloud_version">HKI 7 Cloud v%1$s ir instalēts</string>
     <string name="settings_extra_hki_cloud_version_unknown">HKI 7 Cloud ir instalēts (atjauniniet, lai redzētu tā versiju)</string>
